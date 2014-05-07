@@ -157,6 +157,11 @@ Ext.define('Mdc.controller.history.Setup', {
             me.getApplication().getController('Mdc.controller.setup.CommunicationSchedules').showCommunicationSchedulesEditView();
         });
 
+        //search devices
+        crossroads.addRoute('setup/searchitems',function(){
+            me.getApplication().getController('Mdc.controller.setup.SearchItems').showSearchItems();
+        });
+
         this.callParent(arguments);
     },
 
