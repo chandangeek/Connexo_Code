@@ -35,13 +35,13 @@ Ext.define('Isu.controller.CommunicationTasksEdit', {
         if (id) {
             this.operationType = 'Edit';
             this.getModel('Isu.model.CommunicationTasks').load(id, function (record) {
-                self.taskModel = record;
+                self.loadModelToForm(record);
                 self.getApplication().fireEvent('changecontentevent', widget);
                 self.getTaskEdit().getCenterContainer().down().setTitle(this.operationType + ' communication task');
             });
         } else {
             this.operationType = 'Create';
-            this.taskModel = new Isu.model.CommunicationTasks();
+            this.loadModelToForm(new Isu.model.CommunicationTasks());
             this.getApplication().fireEvent('changecontentevent', widget);
             this.getTaskEdit().getCenterContainer().down().setTitle(this.operationType + ' communication task');
         }
@@ -63,5 +63,13 @@ Ext.define('Isu.controller.CommunicationTasksEdit', {
         breadcrumbParent.setChild(breadcrumbChild1).setChild(breadcrumbChild2);
 
         breadcrumbs.setBreadcrumbItem(breadcrumbParent);
+    },
+
+    loadModelToForm: function (model) {
+        if (!model.get('commands').length) {
+
+        } else {
+
+        }
     }
 });
