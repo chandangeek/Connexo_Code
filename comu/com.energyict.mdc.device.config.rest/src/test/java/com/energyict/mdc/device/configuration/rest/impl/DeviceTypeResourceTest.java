@@ -1030,7 +1030,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
                 .containsKey("rescheduleRetryDelay")
                 .containsKey("connectionStrategy")
                 .containsKey("properties")
-                .containsKey("nextExecutionSpecs");
+                .containsKey("temporalExpression");
         List<Map<String, Object>> propertyInfos = (List<Map<String, Object>>) connectionMethod.get("properties");
         assertThat(propertyInfos).isNotNull().hasSize(1);
         Map<String, Object> macAddressProperty = propertyInfos.get(0);

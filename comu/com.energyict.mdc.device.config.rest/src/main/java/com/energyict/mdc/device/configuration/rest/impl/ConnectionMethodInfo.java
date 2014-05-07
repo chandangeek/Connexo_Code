@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.common.rest.TimeDurationAdapter;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -13,6 +12,7 @@ import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.pluggable.rest.PropertyInfo;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.scheduling.rest.impl.TemporalExpressionInfo;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.WebApplicationException;
@@ -42,7 +42,7 @@ public abstract class ConnectionMethodInfo<T extends PartialConnectionTask> {
     public List<PropertyInfo> properties;
     public boolean allowSimultaneousConnections;
     public TimeDurationInfo rescheduleRetryDelay;
-    public NextExecutionsSpecsInfo nextExecutionSpecs;
+    public TemporalExpressionInfo temporalExpression;
 
     public ConnectionMethodInfo() {
     }
