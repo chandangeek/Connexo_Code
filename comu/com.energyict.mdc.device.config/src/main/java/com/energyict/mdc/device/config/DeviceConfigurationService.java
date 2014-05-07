@@ -8,6 +8,7 @@ import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.google.common.base.Optional;
 import java.util.List;
@@ -185,5 +186,7 @@ public interface DeviceConfigurationService {
      * @return The ComTaskEnablement
      */
     public Optional<ComTaskEnablement> findComTaskEnablement (ComTask comTask, DeviceConfiguration deviceConfiguration);
+
+    public List<ComTask> findAvailableComTasks(ComSchedule comSchedule);
 
 }
