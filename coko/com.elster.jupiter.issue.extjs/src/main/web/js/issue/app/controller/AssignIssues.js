@@ -41,9 +41,8 @@ Ext.define('Isu.controller.AssignIssues', {
 
             model.load(issueId, {
                 success: function (record) {
-                    widget = Ext.widget('issues-assign', {
-                        record: record
-                    });
+                    widget = Ext.widget('issues-assign');
+                    widget.getCenterContainer().down('issues-assign-form').loadRecord(record);
                     self.getApplication().fireEvent('changecontentevent', widget);
                 }
             });
@@ -86,8 +85,8 @@ Ext.define('Isu.controller.AssignIssues', {
             if (form.isValid()) {
                 sendingData.issues = [
                     {
-                        id: assignPanel.record.data.id,
-                        version: assignPanel.record.data.version
+                        id: formPanel.getRecord().getId(),
+                        version: formPanel.getRecord().get('version')
                     }
                 ];
                 sendingData.assignee = {

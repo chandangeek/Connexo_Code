@@ -1,5 +1,8 @@
 Ext.define('Isu.view.workspace.issues.GroupingToolbar', {
     extend: 'Skyline.panel.FilterToolbar',
+    requires: [
+        'Isu.store.IssueGrouping'
+    ],
     alias: 'widget.grouping-toolbar',
     title: 'Group',
     name: 'group',
