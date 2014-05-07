@@ -1,13 +1,14 @@
 package com.energyict.mdc.scheduling.model;
 
 import com.elster.jupiter.util.time.UtcInstant;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.tasks.ComTask;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public interface ComSchedule {
+public interface ComSchedule extends HasId {
 
     public long getId();
 
@@ -21,6 +22,7 @@ public interface ComSchedule {
     public Date getNextTimestamp(Calendar calendar);
 
     public void addComTask(ComTask comTask);
+    public void removeComTask(ComTask comTask);
 
     public List<ComTask> getComTasks();
 
@@ -36,5 +38,5 @@ public interface ComSchedule {
 
     public void setStartDate(UtcInstant startDate);
 
-    Date getPlannedDate();
+    public Date getPlannedDate();
 }

@@ -178,6 +178,10 @@ public class InMemoryPersistence {
         return injector.getInstance(SchedulingService.class);
     }
 
+    public TaskService getTaskService() {
+        return injector.getInstance(TaskService.class);
+    }
+
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {

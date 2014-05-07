@@ -8,6 +8,7 @@ import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.tasks.ComTask;
 import java.util.Date;
 import org.junit.Rule;
 import org.junit.Test;
@@ -72,6 +73,77 @@ public class ComScheduleImplTest extends PersistenceTest {
         retrievedSchedule.save();
 
         assertThat(inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId())).isNotNull();
+    }
+
+    @Test
+    @Transactional
+    public void testAddComTaskToUnusedSchedule() throws Exception {
+        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule("name", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), null);
+        comSchedule.save();
+        ComTask comTask1 = inMemoryPersistence.getTaskService().newComTask("task 1");
+        comTask1.createStatusInformationTask();
+        comTask1.save();
+
+        comSchedule.addComTask(comTask1);
+
+        ComSchedule retrieved = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
+        assertThat(retrieved).isNotNull();
+        assertThat(retrieved.getComTasks()).isNotEmpty();
+        assertThat(retrieved.getComTasks().get(0).getId()).isEqualTo(comTask1.getId());
+        assertThat(retrieved.getComTasks().get(0).getName()).isEqualTo(comTask1.getName());
+
+    }
+
+    @Test
+    @Transactional
+    public void testAddSecondComTaskToSchedule() throws Exception {
+        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule("name", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), null);
+        comSchedule.save();
+        ComTask comTask1 = inMemoryPersistence.getTaskService().newComTask("task 1");
+        comTask1.createStatusInformationTask();
+        comTask1.save();
+
+        comSchedule.addComTask(comTask1);
+
+        ComSchedule updating = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
+        ComTask comTask2 = inMemoryPersistence.getTaskService().newComTask("task 2");
+        comTask2.createStatusInformationTask();
+        comTask2.save();
+        updating.addComTask(comTask2);
+
+        ComSchedule retrieved = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
+        assertThat(retrieved).isNotNull();
+        assertThat(retrieved.getComTasks()).isNotEmpty().hasSize(2);
+        assertThat(retrieved.getComTasks().get(1).getId()).isEqualTo(comTask2.getId());
+        assertThat(retrieved.getComTasks().get(1).getName()).isEqualTo(comTask2.getName());
+
+    }
+
+    @Test
+    @Transactional
+    public void testDeleteComTaskFromSchedule() throws Exception {
+        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule("name", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), null);
+        comSchedule.save();
+
+        ComTask comTask1 = inMemoryPersistence.getTaskService().newComTask("task 1");
+        comTask1.createStatusInformationTask();
+        comTask1.save();
+        comSchedule.addComTask(comTask1);
+
+        ComTask comTask2 = inMemoryPersistence.getTaskService().newComTask("task 2");
+        comTask2.createStatusInformationTask();
+        comTask2.save();
+        comSchedule.addComTask(comTask2);
+
+        ComSchedule updating = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
+        ComTask task = inMemoryPersistence.getTaskService().findComTask(comTask2.getId());
+        updating.removeComTask(task);
+
+        ComSchedule retrieved = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
+        assertThat(retrieved).isNotNull();
+        assertThat(retrieved.getComTasks()).isNotEmpty().hasSize(1);
+        assertThat(retrieved.getComTasks().get(0).getId()).isEqualTo(comTask1.getId());
+        assertThat(retrieved.getComTasks().get(0).getName()).isEqualTo(comTask1.getName());
     }
 
     private TemporalExpression temporalExpression(TimeDuration ... td) {

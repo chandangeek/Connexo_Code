@@ -6,6 +6,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.UtcInstant;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.TemporalExpression;
@@ -21,7 +22,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 @UniqueName
-public class ComScheduleImpl implements ComSchedule {
+public class ComScheduleImpl implements ComSchedule, HasId {
 
     private final SchedulingService schedulingService;
     private final EventService eventService;
@@ -146,6 +147,16 @@ public class ComScheduleImpl implements ComSchedule {
     public void addComTask(ComTask comTask) {
         // TODO  verify that all devices that are already linked to the ComSchedule have that ComTask enabled.
         comTaskUsages.add(new ComTaskInComScheduleImpl(this, comTask));
+    }
+
+    @Override
+    public void removeComTask(ComTask comTask) {
+        for (java.util.Iterator<ComTaskInComSchedule> iterator = comTaskUsages.iterator(); iterator.hasNext(); ) {
+            ComTaskInComSchedule next =  iterator.next();
+            if (next.getComTask().getId()==comTask.getId()) {
+                iterator.remove();
+            }
+        }
     }
 
     @Override
