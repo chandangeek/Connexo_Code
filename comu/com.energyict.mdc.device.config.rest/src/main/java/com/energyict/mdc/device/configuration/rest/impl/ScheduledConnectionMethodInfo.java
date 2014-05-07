@@ -12,7 +12,7 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.scheduling.rest.impl.TemporalExpressionInfo;
+import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import javax.ws.rs.core.UriInfo;
 
 public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialScheduledConnectionTask> {

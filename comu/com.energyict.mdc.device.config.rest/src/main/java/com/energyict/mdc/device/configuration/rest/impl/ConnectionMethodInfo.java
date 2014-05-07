@@ -12,7 +12,7 @@ import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.pluggable.rest.PropertyInfo;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.scheduling.rest.impl.TemporalExpressionInfo;
+import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.WebApplicationException;
