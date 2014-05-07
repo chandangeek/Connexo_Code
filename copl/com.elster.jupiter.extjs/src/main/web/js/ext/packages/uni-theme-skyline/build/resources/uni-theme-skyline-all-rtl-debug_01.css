@@ -15768,7 +15768,7 @@ div.x-lbl-top-err-icon {
 /* line 6, ../../../ext-theme-neutral/sass/src/form/field/Base.scss */
 .x-form-item,
 .x-form-field {
-  font: normal 13px "Lato", helvetica, arial, verdana, sans-serif;
+  font: normal 13px Lato;
 }
 
 /* line 21, ../../../ext-theme-neutral/sass/src/form/field/Base.scss */
@@ -15848,7 +15848,7 @@ textarea.x-form-empty-field {
 
 /* line 11, ../../../ext-theme-neutral/sass/src/form/field/Display.scss */
 .x-form-display-field {
-  font: normal 13px/17px "Lato", helvetica, arial, verdana, sans-serif;
+  font: normal 13px/17px Lato;
   color: #686868;
   margin-top: 6px;
 }
@@ -16873,7 +16873,7 @@ a.x-color-picker-item:hover {
 
 /* line 100, ../../../ext-theme-neutral/sass/src/form/field/HtmlEditor.scss */
 .x-html-editor-wrap textarea {
-  font: normal 13px "Lato", helvetica, arial, verdana, sans-serif;
+  font: normal 13px Lato;
   background-color: white;
   resize: none;
 }
