@@ -9134,34 +9134,106 @@
   border-radius: 5px;
 }
 
-/* line 2, ../../sass/src/form/field/Base.scss */
-.x-form-field,
-.x-form-trigger-wrap {
-  border-radius: 3px;
-  height: 28px;
+/* line 2, ../../sass/src/form/field/RadioButton.scss */
+.x-form-radio {
+  height: 15px !important;
+  width: 15px !important;
 }
 
-/* line 9, ../../sass/src/form/field/Base.scss */
+/* line 1, ../../sass/src/form/field/Trigger.scss */
+.x-trigger-cell {
+  width: 26px !important;
+  border-radius: 3px;
+}
+
+/* line 8, ../../sass/src/form/field/Trigger.scss */
 .x-trigger-cell,
 div.x-form-spinner-up,
 div.x-form-spinner-down {
-  background-color: rgba(0, 0, 0, 0);
-  width: 28px !important;
+  background-color: #ffffff;
+  opacity: 0.9;
 }
 
-/* line 15, ../../sass/src/form/field/Base.scss */
+/* line 14, ../../sass/src/form/field/Trigger.scss */
 div.x-form-spinner-up,
 div.x-form-spinner-down {
   height: 10px;
+  margin: 0 2px 0 8px !important;
+  width: 16px !important;
 }
 
-/* line 19, ../../sass/src/form/field/Base.scss */
+/* line 20, ../../sass/src/form/field/Trigger.scss */
+div.x-form-spinner-up {
+  background: url("images/form/trigger-up.png") no-repeat scroll center center #c9c9c9 !important;
+  -webkit-border-radius: 3px 3px 0 0;
+  -moz-border-radius: 3px 3px 0 0;
+  -ms-border-radius: 3px 3px 0 0;
+  -o-border-radius: 3px 3px 0 0;
+  border-radius: 3px 3px 0 0;
+}
+
+/* line 25, ../../sass/src/form/field/Trigger.scss */
+div.x-form-spinner-down {
+  background: url("images/form/trigger.png") no-repeat scroll center center #c9c9c9;
+  -webkit-border-radius: 0 0 3px 3px;
+  -moz-border-radius: 0 0 3px 3px;
+  -ms-border-radius: 0 0 3px 3px;
+  -o-border-radius: 0 0 3px 3px;
+  border-radius: 0 0 3px 3px;
+}
+
+/* line 30, ../../sass/src/form/field/Trigger.scss */
 .x-form-trigger {
   height: 22px;
-  margin: 2px;
+  margin: 2px 2px 2px 8px;
+  width: 16px;
+  background: url("images/form/trigger.png") no-repeat scroll center center #c9c9c9 !important;
 }
 
-/* line 24, ../../sass/src/form/field/Base.scss */
+/* line 37, ../../sass/src/form/field/Trigger.scss */
+.x-form-trigger-wrap, .x-form-trigger {
+  border-radius: 3px;
+}
+
+/* line 41, ../../sass/src/form/field/Trigger.scss */
+.x-form-date-trigger {
+  background-color: #FFFFFF !important;
+  background-image: url("images/form/date-trigger.png") !important;
+  border-radius: 0;
+  width: 22px !important;
+  margin: 2px !important;
+}
+
+/*.#{$prefix}form-trigger-over,
+.#{$prefix}form-trigger-wrap-focus
+.#{$prefix}form-trigger,
+.#{$prefix}form-trigger-click
+.#{$prefix}form-trigger-wrap-focus
+.#{$prefix}form-trigger-click {
+  background-position: 0 0 center !important;
+}*/
+/* line 60, ../../sass/src/form/field/Trigger.scss */
+.x-form-trigger-over,
+.x-form-trigger-wrap-focus
+.x-form-trigger-over {
+  opacity: 0.8 !important;
+}
+
+/* line 66, ../../sass/src/form/field/Trigger.scss */
+.x-form-trigger-click,
+.x-form-trigger-wrap-focus
+.x-form-trigger-click {
+  opacity: 1 !important;
+}
+
+/* line 5, ../../sass/src/form/field/Base.scss */
+.x-form-field {
+  border-radius: 3px;
+  height: 28px;
+  background-color: #ffffff;
+}
+
+/* line 11, ../../sass/src/form/field/Base.scss */
 .x-form-invalid-under {
   background: none;
   color: #eb5642;
@@ -9175,11 +9247,103 @@ div.x-form-spinner-down {
   font-family: "Lato";
 }
 
+/* line 6, ../../sass/src/form/field/CheckBox.scss */
+.x-form-checkbox {
+  height: 15px !important;
+  width: 15px !important;
+}
+
 /* line 6, ../../sass/src/form/Label.scss */
 .x-form-item-label {
   font-size: 13px;
   font-family: Lato;
   font-weight: normal;
+}
+
+/* line 1, ../../sass/src/form/field/Trigger.scss */
+.x-trigger-cell {
+  width: 26px !important;
+  border-radius: 3px;
+}
+
+/* line 8, ../../sass/src/form/field/Trigger.scss */
+.x-trigger-cell,
+div.x-form-spinner-up,
+div.x-form-spinner-down {
+  background-color: #ffffff;
+  opacity: 0.9;
+}
+
+/* line 14, ../../sass/src/form/field/Trigger.scss */
+div.x-form-spinner-up,
+div.x-form-spinner-down {
+  height: 10px;
+  margin: 0 2px 0 8px !important;
+  width: 16px !important;
+}
+
+/* line 20, ../../sass/src/form/field/Trigger.scss */
+div.x-form-spinner-up {
+  background: url("images/form/trigger-up.png") no-repeat scroll center center #c9c9c9 !important;
+  -webkit-border-radius: 3px 3px 0 0;
+  -moz-border-radius: 3px 3px 0 0;
+  -ms-border-radius: 3px 3px 0 0;
+  -o-border-radius: 3px 3px 0 0;
+  border-radius: 3px 3px 0 0;
+}
+
+/* line 25, ../../sass/src/form/field/Trigger.scss */
+div.x-form-spinner-down {
+  background: url("images/form/trigger.png") no-repeat scroll center center #c9c9c9;
+  -webkit-border-radius: 0 0 3px 3px;
+  -moz-border-radius: 0 0 3px 3px;
+  -ms-border-radius: 0 0 3px 3px;
+  -o-border-radius: 0 0 3px 3px;
+  border-radius: 0 0 3px 3px;
+}
+
+/* line 30, ../../sass/src/form/field/Trigger.scss */
+.x-form-trigger {
+  height: 22px;
+  margin: 2px 2px 2px 8px;
+  width: 16px;
+  background: url("images/form/trigger.png") no-repeat scroll center center #c9c9c9 !important;
+}
+
+/* line 37, ../../sass/src/form/field/Trigger.scss */
+.x-form-trigger-wrap, .x-form-trigger {
+  border-radius: 3px;
+}
+
+/* line 41, ../../sass/src/form/field/Trigger.scss */
+.x-form-date-trigger {
+  background-color: #FFFFFF !important;
+  background-image: url("images/form/date-trigger.png") !important;
+  border-radius: 0;
+  width: 22px !important;
+  margin: 2px !important;
+}
+
+/*.#{$prefix}form-trigger-over,
+.#{$prefix}form-trigger-wrap-focus
+.#{$prefix}form-trigger,
+.#{$prefix}form-trigger-click
+.#{$prefix}form-trigger-wrap-focus
+.#{$prefix}form-trigger-click {
+  background-position: 0 0 center !important;
+}*/
+/* line 60, ../../sass/src/form/field/Trigger.scss */
+.x-form-trigger-over,
+.x-form-trigger-wrap-focus
+.x-form-trigger-over {
+  opacity: 0.8 !important;
+}
+
+/* line 66, ../../sass/src/form/field/Trigger.scss */
+.x-form-trigger-click,
+.x-form-trigger-wrap-focus
+.x-form-trigger-click {
+  opacity: 1 !important;
 }
 
 /* line 1, ../../sass/src/toolbar/Paging.scss */
