@@ -12,6 +12,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 @Path("/logbooktypes")
@@ -27,7 +29,14 @@ public class MasterDataResource {
     @Produces(MediaType.APPLICATION_JSON)
     public PagedInfoList getLogbookTypes(@BeanParam QueryParameters queryParameters) {
         List<LogBookTypeInfo> logbookTypeInfos = new ArrayList<>();
+        // TODO it will be better to change the result type of masterDataService.findAllLogBookTypes() to Finder, as for masterDataService.findAllRegisterMappings
         List<LogBookType> logbookTypes = masterDataService.findAllLogBookTypes();
+        Collections.sort(logbookTypes, new Comparator<LogBookType>() {
+            @Override
+            public int compare(LogBookType o1, LogBookType o2) {
+                return o1.getName().compareToIgnoreCase(o2.getName());
+            }
+        });
         for (LogBookType logbookType : logbookTypes) {
             logbookTypeInfos.add(new LogBookTypeInfo(logbookType));
         }
