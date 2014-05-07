@@ -11,7 +11,8 @@ Ext.define('Mdc.model.Device', {
         {name: 'deviceTypeName', type: 'string', useNull: true},
         {name: 'deviceConfigurationId', type: 'number', userNull: true},
         {name: 'deviceConfigurationName', type: 'string', userNull: true},
-        {name: 'yearOfCertification', type: 'string', userNull: true}
+        {name: 'yearOfCertification', type: 'string', userNull: true},
+        {name: 'batch', type: 'string', userNull: true}
     ],
 
     proxy: {
