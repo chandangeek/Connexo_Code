@@ -57,6 +57,8 @@ Ext.define('Uni.view.toolbar.PagingTop', {
     isFullTotalCount: false,
     totalCount: -1,
 
+    defaultButtonUI: 'default',
+
     initComponent: function () {
         this.callParent(arguments);
     },
