@@ -3,10 +3,11 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.masterdata.LogBookType;
-import java.util.ArrayList;
-import java.util.List;
+
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.util.ArrayList;
+import java.util.List;
 
 @XmlRootElement
 public class LogBookTypeInfo {

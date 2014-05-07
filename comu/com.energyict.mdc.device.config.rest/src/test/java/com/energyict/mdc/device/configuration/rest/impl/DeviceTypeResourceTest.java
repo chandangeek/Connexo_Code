@@ -36,6 +36,7 @@ import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.StringFactory;
 import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.masterdata.rest.RegisterMappingInfo;
@@ -238,6 +239,34 @@ public class DeviceTypeResourceTest extends JerseyTest {
 
         Map<String, Object> map = target("/devicetypes/66").request().get(Map.class);
         assertThat(map.get("name")).isEqualTo(webRTUKP);
+    }
+
+    @Test
+    public void testGetLogBookTypesForDeviceType() throws Exception {
+        DeviceType deviceType = mockDeviceType("any", 84);
+        when(deviceConfigurationService.findDeviceType(84)).thenReturn(deviceType);
+
+        List logBooksList = new ArrayList();
+        logBooksList.add(mockLogBookType(1, "first", "0.0.0.0.1"));
+        logBooksList.add(mockLogBookType(2, "second", "0.0.0.0.2"));
+        when(deviceType.getLogBookTypes()).thenReturn(logBooksList);
+
+        Map<String, Object> map = target("/devicetypes/84/logbooktypes").request().get(Map.class);
+        assertThat(map.get("total")).isEqualTo(2);
+        List<Map> logBookTypeInfos = (List) map.get("data");
+        assertThat(logBookTypeInfos.size()).isEqualTo(2);
+        assertThat(logBookTypeInfos.get(0).get("id")).isEqualTo(1);
+        assertThat(logBookTypeInfos.get(1).get("obisCode")).isEqualTo("0.0.0.0.2");
+    }
+
+    private LogBookType mockLogBookType(long id, String name, String obisCode){
+        LogBookType logBookType = mock(LogBookType.class);
+        when(logBookType.getId()).thenReturn(id);
+        when(logBookType.getName()).thenReturn(name);
+        ObisCode obisCodeObj = mock(ObisCode.class);
+        when(obisCodeObj.toString()).thenReturn(obisCode);
+        when(logBookType.getObisCode()).thenReturn(obisCodeObj);
+        return logBookType;
     }
 
     private DeviceType mockDeviceType(String name, long id) {
