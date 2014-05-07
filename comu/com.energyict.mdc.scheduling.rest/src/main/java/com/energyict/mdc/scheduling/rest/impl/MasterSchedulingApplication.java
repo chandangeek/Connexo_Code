@@ -14,8 +14,10 @@ import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.TransactionWrapper;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.tasks.TaskService;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
 import java.util.HashSet;
@@ -37,6 +39,8 @@ public class MasterSchedulingApplication extends Application {
     private volatile Thesaurus thesaurus;
     private volatile SchedulingService schedulingService;
     private volatile DeviceDataService deviceDataService;
+    private volatile TaskService taskService;
+    private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile Clock clock;
 
     @Override
@@ -92,6 +96,16 @@ public class MasterSchedulingApplication extends Application {
     }
 
     @Reference
+    public void setTaskService(TaskService taskService) {
+        this.taskService = taskService;
+    }
+
+    @Reference
+    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
+        this.deviceConfigurationService = deviceConfigurationService;
+    }
+
+    @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
     }
@@ -106,6 +120,8 @@ public class MasterSchedulingApplication extends Application {
             bind(deviceDataService).to(DeviceDataService.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(nlsService).to(NlsService.class);
+            bind(taskService).to(TaskService.class);
+            bind(deviceConfigurationService).to(DeviceConfigurationService.class);
             bind(jsonService).to(JsonService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(clock).to(Clock.class);
