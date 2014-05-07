@@ -1,19 +1,39 @@
 @import "../Scrollbar";
+
 .#{$prefix}grid {
   .#{$prefix}toolbar {
-      border: none;
+    border: none;
   }
 }
-.#{$prefix}grid-body {
-    border-top-width: 0;
-    border-top-style: none;
-    @include border-radius(0 0 $grid-header-border-radius $grid-header-border-radius);
 
-    @include scrollbar(
-        $scrollbar-size,
-        $scrollbar-margin,
-        $scrollbar-background-color,
-        $scrollbar-thumb-background-color,
-        $scrollbar-arrow-size
-    )
+.#{$prefix}grid-body {
+  border-top-width: 0;
+  border-top-style: none;
+  @include border-radius(0 0 $grid-header-border-radius $grid-header-border-radius);
+
+  .#{$prefix}grid-row {
+    a {
+      color: $button-link-color;
+      text-decoration: none;
+      //          $button-link-color-focus: $color-blue-2;
+      //          $button-link-color-pressed: $color-blue-1;
+      //          $button-link-color-disabled: $color-grey-5;
+    }
+    a:hover {
+//      color: $button-link-color-over;
+      text-decoration: underline;
+    }
+  }
+  .#{$prefix}grid-row-selected, .#{$prefix}grid-row-over {
+    a {
+      color: $grid-row-cell-selected-color;
+    }
+  }
+  @include scrollbar(
+          $scrollbar-size,
+          $scrollbar-margin,
+          $scrollbar-background-color,
+          $scrollbar-thumb-background-color,
+          $scrollbar-arrow-size
+  );
 }
