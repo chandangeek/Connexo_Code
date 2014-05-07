@@ -4,7 +4,7 @@ import java.util.Set;
 
 /**
  * Provides an implementation for the {@link RequestType} interface
- * for {@link com.energyict.mdc.tasks.ComTaskExecution}s.
+ * for {@link com.energyict.mdc.device.data.tasks.ComTaskExecution}s.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-15 (16:58)
@@ -22,7 +22,7 @@ public class ComTaskExecutionRequestType extends IdBusinessObjectRequestType {
     }
 
     @Override
-    protected Request newRequestFor (Set<Integer> ids) {
+    protected Request newRequestFor (Set<Long> ids) {
         return new ComTaskExecutionRequest(ids);
     }
 

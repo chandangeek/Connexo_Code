@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
-import com.energyict.comserver.eventsimpl.EventPublisher;
+import com.energyict.mdc.engine.impl.events.EventPublisher;
 
 /**
  * Models a request to widen the interest of

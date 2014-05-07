@@ -2,7 +2,7 @@ package com.energyict.mdc.engine.impl.web.events.commands;
 
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.comserver.collections.Collections;
-import com.energyict.comserver.eventsimpl.EventPublisher;
+import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 
@@ -22,23 +22,23 @@ public class ConnectionTaskRequest extends IdBusinessObjectRequest {
 
     private List<ConnectionTask> connectionTasks;
 
-    public ConnectionTaskRequest (int connectionTaskId) {
+    public ConnectionTaskRequest (long connectionTaskId) {
         this(Collections.toSet(connectionTaskId));
     }
 
-    public ConnectionTaskRequest (Set<Integer> connectionTaskIds) {
+    public ConnectionTaskRequest (Set<Long> connectionTaskIds) {
         super(connectionTaskIds);
         this.validateConnectionTaskIds();
     }
 
     private void validateConnectionTaskIds () {
-        this.connectionTasks = new ArrayList<ConnectionTask>(this.getBusinessObjectIds().size());
-        for (Integer connectionTaskId : this.getBusinessObjectIds()) {
+        this.connectionTasks = new ArrayList<>(this.getBusinessObjectIds().size());
+        for (Long connectionTaskId : this.getBusinessObjectIds()) {
             this.connectionTasks.add(this.findConnectionTask(connectionTaskId));
         }
     }
 
-    private ConnectionTask findConnectionTask (int connectionTaskId) {
+    private ConnectionTask findConnectionTask (long connectionTaskId) {
         ConnectionTask connectionTask = ManagerFactory.getCurrent().getConnectionTaskFactory().find(connectionTaskId);
         if (connectionTask == null) {
             throw new NotFoundException("ConnectionTask with id " + connectionTaskId + " not found");

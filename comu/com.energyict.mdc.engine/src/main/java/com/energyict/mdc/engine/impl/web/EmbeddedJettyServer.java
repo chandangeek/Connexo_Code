@@ -3,6 +3,8 @@ package com.energyict.mdc.engine.impl.web;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
+import com.energyict.mdc.engine.impl.web.events.EventServlet;
+import com.energyict.mdc.engine.impl.web.queryapi.QueryApiServlet;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
@@ -50,7 +52,7 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
      * @param comPort The ServerServletBasedInboundComPort
      * @param comServerDAO The ComServerDAO
      * @param deviceCommandExecutor The DeviceCommandExecutor
-     * @param issueService
+     * @param issueService The IssueService
      */
     public static EmbeddedJettyServer newForInboundDeviceCommunication(ServletBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, IssueService issueService) {
         return new EmbeddedJettyServer(comPort, comServerDAO, deviceCommandExecutor, issueService);

@@ -22,7 +22,7 @@ public class ComPortRequestType extends IdBusinessObjectRequestType {
     }
 
     @Override
-    protected Request newRequestFor (Set<Integer> ids) {
+    protected Request newRequestFor (Set<Long> ids) {
         return new ComPortRequest(ids);
     }
 

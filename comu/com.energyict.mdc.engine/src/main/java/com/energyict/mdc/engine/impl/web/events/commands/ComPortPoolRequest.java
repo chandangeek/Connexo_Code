@@ -2,7 +2,7 @@ package com.energyict.mdc.engine.impl.web.events.commands;
 
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.comserver.collections.Collections;
-import com.energyict.comserver.eventsimpl.EventPublisher;
+import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.engine.model.ComPortPool;
 
@@ -22,23 +22,23 @@ public class ComPortPoolRequest extends IdBusinessObjectRequest {
 
     private List<ComPortPool> comPortPools;
 
-    public ComPortPoolRequest (int comPortPoolId) {
+    public ComPortPoolRequest (long comPortPoolId) {
         this(Collections.toSet(comPortPoolId));
     }
 
-    public ComPortPoolRequest (Set<Integer> comPortPoolIds) {
+    public ComPortPoolRequest (Set<Long> comPortPoolIds) {
         super(comPortPoolIds);
         this.validateComPortPoolIds();
     }
 
     private void validateComPortPoolIds () {
-        this.comPortPools = new ArrayList<ComPortPool>(this.getBusinessObjectIds().size());
-        for (Integer comPortPoolId : this.getBusinessObjectIds()) {
+        this.comPortPools = new ArrayList<>(this.getBusinessObjectIds().size());
+        for (Long comPortPoolId : this.getBusinessObjectIds()) {
             this.comPortPools.add(this.findComPortPool(comPortPoolId));
         }
     }
 
-    private ComPortPool findComPortPool (int comPortPoolId) {
+    private ComPortPool findComPortPool (long comPortPoolId) {
         ComPortPool comPortPool = ManagerFactory.getCurrent().getComPortPoolFactory().find(comPortPoolId);
         if (comPortPool == null) {
             throw new NotFoundException("ComPortPool with id " + comPortPoolId + " not found");

@@ -3,18 +3,20 @@ package com.energyict.mdc.engine.impl.web.events;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.events.ComServerEvent;
+import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
+import com.energyict.mdc.engine.impl.events.connection.CloseConnectionEvent;
+import com.energyict.mdc.engine.impl.events.connection.EstablishConnectionEvent;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.tasks.ComTask;
 
+import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.google.common.base.Optional;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketClient;
@@ -85,6 +87,7 @@ public class BinaryBasedEventFilterIntegrationTest {
         when(this.engineModelService.findComPort(COMPORT_ID)).thenReturn(this.comPort);
         this.comPortPool = mock(OutboundComPortPool.class);
         List<OutboundComPort> outboundComPorts = Arrays.asList(this.comPort);
+        when(this.comPortPool.getId()).thenReturn(COMPORT_POOL_ID);
         when(this.comPortPool.getComPorts()).thenReturn(outboundComPorts);
     }
 
@@ -342,12 +345,12 @@ public class BinaryBasedEventFilterIntegrationTest {
         }
 
         private void sendMockedConnectionEstablishedEvent () {
-            EstablishConnectionEvent connectionEvent = new EstablishConnectionEvent(comPort, connectionTask);
+            EstablishConnectionEvent connectionEvent = new EstablishConnectionEvent(comPort, connectionTask, new DefaultClock(), deviceDataService, engineModelService);
             this.publish(connectionEvent);
         }
 
         private void sendMockedConnectionClosedEvent () {
-            CloseConnectionEvent connectionEvent = new CloseConnectionEvent(comPort, connectionTask);
+            CloseConnectionEvent connectionEvent = new CloseConnectionEvent(comPort, connectionTask, new DefaultClock(), deviceDataService, engineModelService);
             this.publish(connectionEvent);
         }
 

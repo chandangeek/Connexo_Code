@@ -2,7 +2,7 @@ package com.energyict.mdc.engine.impl.web.events.commands;
 
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.comserver.collections.Collections;
-import com.energyict.comserver.eventsimpl.EventPublisher;
+import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.engine.model.ComPort;
 
@@ -22,23 +22,23 @@ public class ComPortRequest extends IdBusinessObjectRequest {
 
     private List<ComPort> comPorts;
 
-    public ComPortRequest (int comPortId) {
+    public ComPortRequest (long comPortId) {
         this(Collections.toSet(comPortId));
     }
 
-    public ComPortRequest (Set<Integer> comPortIds) {
+    public ComPortRequest (Set<Long> comPortIds) {
         super(comPortIds);
         this.validateComPortIds();
     }
 
     private void validateComPortIds () {
-        this.comPorts = new ArrayList<ComPort>(this.getBusinessObjectIds().size());
-        for (Integer comPortId : this.getBusinessObjectIds()) {
+        this.comPorts = new ArrayList<>(this.getBusinessObjectIds().size());
+        for (Long comPortId : this.getBusinessObjectIds()) {
             this.comPorts.add(this.findComPort(comPortId));
         }
     }
 
-    private ComPort findComPort (int comPortId) {
+    private ComPort findComPort (long comPortId) {
         ComPort comPort = ManagerFactory.getCurrent().getComPortFactory().find(comPortId);
         if (comPort == null) {
             throw new NotFoundException("ComPort with id " + comPortId + " not found");

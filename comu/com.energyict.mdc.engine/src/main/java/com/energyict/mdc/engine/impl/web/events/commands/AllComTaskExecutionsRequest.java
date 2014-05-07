@@ -1,10 +1,10 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
-import com.energyict.comserver.eventsimpl.EventPublisher;
+import com.energyict.mdc.engine.impl.events.EventPublisher;
 
 /**
  * Modesl a request to widen the interest of
- * {@link com.energyict.mdc.tasks.ComTaskExecution}
+ * {@link com.energyict.mdc.device.data.tasks.ComTaskExecution}
  * related events to all ComTaskExecutions.
  *
  * @author Rudi Vankeirsbilck (rudi)

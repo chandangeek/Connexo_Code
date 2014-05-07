@@ -26,7 +26,7 @@ public abstract class IdBusinessObjectRequestType implements RequestType {
     @Override
     public Request parse (String parameterString) throws BusinessObjectIdParseException {
         try {
-            Set<Integer> ids = this.parseIds(parameterString);
+            Set<Long> ids = this.parseIds(parameterString);
             if (ids.isEmpty()) {
                 return this.newRequestForAll();
             }
@@ -41,19 +41,19 @@ public abstract class IdBusinessObjectRequestType implements RequestType {
 
     protected abstract Request newRequestForAll ();
 
-    protected abstract Request newRequestFor (Set<Integer> ids);
+    protected abstract Request newRequestFor (Set<Long> ids);
 
-    private int parseId (String id) throws BusinessObjectIdParseException {
+    private long parseId (String id) throws BusinessObjectIdParseException {
         try {
-            return Integer.parseInt(id);
+            return Long.parseLong(id);
         }
         catch (NumberFormatException e) {
             throw new BusinessObjectIdParseException(id, this.getBusinessObjectTypeName(), e);
         }
     }
 
-    private Set<Integer> parseIds (String commaSeparatedListOfIds) throws BusinessObjectIdParseException {
-        Set<Integer> ids = new HashSet<Integer>();
+    private Set<Long> parseIds (String commaSeparatedListOfIds) throws BusinessObjectIdParseException {
+        Set<Long> ids = new HashSet<>();
         StringTokenizer tokenizer = new StringTokenizer(commaSeparatedListOfIds, ",", false);
         while (tokenizer.hasMoreTokens()) {
             ids.add(this.parseId(tokenizer.nextToken()));

@@ -1,11 +1,11 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
-import com.energyict.comserver.tools.Strings;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.elster.jupiter.util.Checks.is;
 
 /**
  * Parses Strings to {@link Request}s.
@@ -42,7 +42,7 @@ public class RequestParser {
      * @return The test result
      */
     private boolean isBinary (String aString) {
-        return !Strings.isEmpty(aString) && "binary".equalsIgnoreCase(aString);
+        return !is(aString).empty() && "binary".equalsIgnoreCase(aString);
     }
 
     private RequestType parseRequestType (String requestType, int requestTypeOffset) throws RequestTypeParseException {
