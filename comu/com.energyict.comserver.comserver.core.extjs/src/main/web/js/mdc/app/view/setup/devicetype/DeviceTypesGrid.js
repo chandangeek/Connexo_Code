@@ -12,7 +12,6 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
 //        'Mdc.controller.setup.DeviceTypes'
 //    ],
     store: 'DeviceTypes',
-    padding: '10 10 10 10',
     initComponent: function () {
         var me = this;
         this.columns = [
@@ -100,10 +99,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
                 displayMoreMsg: Uni.I18n.translate('devicetype.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} device types'),
                 emptyMsg: Uni.I18n.translate('devicetype.pagingtoolbartop.emptyMsg', 'MDC', 'There are no device types to display'),
                 items: [
-                    {
-                        xtype: 'component',
-                        flex: 1
-                    },
+                    '->',
                     {
                         text: Uni.I18n.translate('devicetype.createDeviceType', 'MDC', 'Create device type'),
                         itemId: 'createDeviceType',
