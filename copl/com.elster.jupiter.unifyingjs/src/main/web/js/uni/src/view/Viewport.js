@@ -23,7 +23,7 @@ Ext.define('Uni.view.Viewport', {
             ui: 'navigationwrapper',
             region: 'west',
             layout: 'absolute',
-            width: 55,
+            width: 48,
             items: [
                 {
                     xtype: 'navigationMenu'
