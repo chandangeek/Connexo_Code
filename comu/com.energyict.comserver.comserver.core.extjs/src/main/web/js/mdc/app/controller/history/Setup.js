@@ -144,8 +144,8 @@ Ext.define('Mdc.controller.history.Setup', {
         });
 
         //search devices
-        crossroads.addRoute('setup/searchdevices',function(){
-            me.getApplication().getController('Mdc.controller.setup.SearchDevices').showSearchDevices();
+        crossroads.addRoute('setup/searchitems',function(){
+            me.getApplication().getController('Mdc.controller.setup.SearchItems').showSearchItems();
         });
 
         this.callParent(arguments);

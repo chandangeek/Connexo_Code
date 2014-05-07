@@ -16,7 +16,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.DeviceCommunicationProtocols',
         'Mdc.controller.setup.RegisterGroups',
         'Mdc.controller.setup.ProtocolDialects',
-        'Mdc.controller.setup.SearchDevices'
+        'Mdc.controller.setup.SearchItems'
     ],
 
     controllers: [
@@ -32,7 +32,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.DeviceConfigurations',
         'Mdc.controller.setup.RegisterGroups',
         'Mdc.controller.setup.ProtocolDialects',
-        'Mdc.controller.setup.SearchDevices'
+        'Mdc.controller.setup.SearchItems'
     ],
 
     config: {
