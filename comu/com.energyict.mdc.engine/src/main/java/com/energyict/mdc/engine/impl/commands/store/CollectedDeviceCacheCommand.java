@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.UpdatedDeviceCache;
@@ -19,8 +20,8 @@ public class CollectedDeviceCacheCommand extends DeviceCommandImpl {
 
     private final UpdatedDeviceCache deviceCache;
 
-    public CollectedDeviceCacheCommand(UpdatedDeviceCache deviceCache, IssueService issueService) {
-        super(issueService);
+    public CollectedDeviceCacheCommand(UpdatedDeviceCache deviceCache, IssueService issueService, Clock clock) {
+        super(issueService, clock);
         this.deviceCache = deviceCache;
     }
 

@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.readings.IntervalBlock;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
@@ -30,8 +31,8 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl {
 
     private final CollectedLoadProfile collectedLoadProfile;
 
-    public CollectedLoadProfileDeviceCommand(CollectedLoadProfile collectedLoadProfile, IssueService issueService) {
-        super(issueService);
+    public CollectedLoadProfileDeviceCommand(CollectedLoadProfile collectedLoadProfile, IssueService issueService, Clock clock) {
+        super(issueService, clock);
         this.collectedLoadProfile = collectedLoadProfile;
     }
 
@@ -55,7 +56,7 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl {
     private LocalLoadProfile filterFutureDatesAndCalculateLastReading(LoadProfile loadProfile) {
         List<IntervalBlock> filteredBlocks = new ArrayList<>();
         Date lastReading = null;
-        Date currentDate = Clocks.getAppServerClock().now();
+        Date currentDate = getClock().now();
         for (IntervalBlock intervalBlock : MeterDataFactory.createIntervalBlocksFor(collectedLoadProfile, loadProfile.getInterval())) {
             IntervalBlockImpl filteredBlock = new IntervalBlockImpl(intervalBlock.getReadingTypeCode());
             for (IntervalReading intervalReading : intervalBlock.getIntervals()) {

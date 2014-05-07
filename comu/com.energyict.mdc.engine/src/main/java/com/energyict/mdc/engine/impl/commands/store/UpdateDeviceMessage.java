@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolMessageAcknowledgement;
@@ -18,8 +19,8 @@ public class UpdateDeviceMessage extends DeviceCommandImpl {
     private DeviceMessageStatus deviceMessageStatus;
     private String protocolInfo;
 
-    public UpdateDeviceMessage(DeviceProtocolMessageAcknowledgement messageAcknowledgement, IssueService issueService) {
-        super(issueService);
+    public UpdateDeviceMessage(DeviceProtocolMessageAcknowledgement messageAcknowledgement, IssueService issueService, Clock clock) {
+        super(issueService, clock);
         this.messageIdentifier = messageAcknowledgement.getMessageIdentifier();
         this.deviceMessageStatus = messageAcknowledgement.getDeviceMessageStatus();
         this.protocolInfo = messageAcknowledgement.getProtocolInfo();

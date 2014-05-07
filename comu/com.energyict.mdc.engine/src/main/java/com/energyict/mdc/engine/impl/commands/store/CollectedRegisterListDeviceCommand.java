@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.model.ComServer;
@@ -19,8 +20,8 @@ public class CollectedRegisterListDeviceCommand extends DeviceCommandImpl {
 
     private final CollectedRegisterList collectedRegisterList;
 
-    public CollectedRegisterListDeviceCommand(CollectedRegisterList collectedRegisterList, IssueService issueService) {
-        super(issueService);
+    public CollectedRegisterListDeviceCommand(CollectedRegisterList collectedRegisterList, IssueService issueService, Clock clock) {
+        super(issueService, clock);
         this.collectedRegisterList = collectedRegisterList;
     }
 

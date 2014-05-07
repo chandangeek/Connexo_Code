@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.CollectedDeviceData;
@@ -26,8 +27,8 @@ public class CollectedMessageListDeviceCommand extends DeviceCommandImpl {
     private final DeviceProtocolMessageList deviceProtocolMessageList;
     private final List<OfflineDeviceMessage> allDeviceMessages;
 
-    public CollectedMessageListDeviceCommand(DeviceProtocolMessageList deviceProtocolMessageList, List<OfflineDeviceMessage> allDeviceMessages, IssueService issueService) {
-        super(issueService);
+    public CollectedMessageListDeviceCommand(DeviceProtocolMessageList deviceProtocolMessageList, List<OfflineDeviceMessage> allDeviceMessages, IssueService issueService, Clock clock) {
+        super(issueService, clock);
         this.deviceProtocolMessageList = deviceProtocolMessageList;
         this.allDeviceMessages = allDeviceMessages;
     }

@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.DeviceTopology;
@@ -26,8 +27,8 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl {
     private List<String> serialNumbersRemovedFromTopology = new ArrayList<>();
     private List<String> serialNumbersAddedToTopology = new ArrayList<>();
 
-    public CollectedDeviceTopologyDeviceCommand(DeviceTopology deviceTopology, ComTaskExecution comTaskExecution, IssueService issueService) {
-        super(issueService);
+    public CollectedDeviceTopologyDeviceCommand(DeviceTopology deviceTopology, ComTaskExecution comTaskExecution, IssueService issueService, Clock clock) {
+        super(issueService, clock);
         this.deviceTopology = deviceTopology;
         this.comTaskExecution = comTaskExecution;
     }

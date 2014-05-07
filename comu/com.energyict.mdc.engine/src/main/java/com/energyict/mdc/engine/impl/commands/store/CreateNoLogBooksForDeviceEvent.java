@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.NoLogBooksForDevice;
@@ -19,8 +20,8 @@ public class CreateNoLogBooksForDeviceEvent extends DeviceCommandImpl {
 
     private final DeviceIdentifier deviceIdentifier;
 
-    public CreateNoLogBooksForDeviceEvent(NoLogBooksForDevice collectedDeviceData, IssueService issueService) {
-        super(issueService);
+    public CreateNoLogBooksForDeviceEvent(NoLogBooksForDevice collectedDeviceData, IssueService issueService, Clock clock) {
+        super(issueService, clock);
         deviceIdentifier = collectedDeviceData.getDeviceIdentifier();
     }
 

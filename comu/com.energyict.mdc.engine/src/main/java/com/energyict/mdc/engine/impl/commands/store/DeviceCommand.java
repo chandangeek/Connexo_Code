@@ -83,7 +83,7 @@ public interface DeviceCommand {
      * As an example when LogLevel {@link com.energyict.mdc.engine.model.ComServer.LogLevel#INFO} is returned
      * then the ComServer's log level must be at least INFO or higher
      * before this DeviceCommand will actually be logged as a
-     * {@link com.energyict.mdc.shadow.journal.ComSessionJournalEntryShadow}.
+     * ComSessionJournalEntryShadow.
      *
      * @return The minimum ComServer.LogLevel
      */

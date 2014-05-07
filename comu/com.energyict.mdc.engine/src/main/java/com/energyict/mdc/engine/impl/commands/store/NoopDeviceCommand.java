@@ -11,7 +11,7 @@ import com.energyict.mdc.engine.model.ComServer;
 public class NoopDeviceCommand extends DeviceCommandImpl {
 
     public NoopDeviceCommand() {
-        super(null);
+        super(null, null);
     }
 
     @Override

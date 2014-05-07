@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.metering.readings.EndDeviceEvent;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
@@ -27,8 +28,8 @@ public class CollectedLogBookDeviceCommand extends DeviceCommandImpl {
 
     private final DeviceLogBook deviceLogBook;
 
-    public CollectedLogBookDeviceCommand(DeviceLogBook deviceLogBook, IssueService issueService) {
-        super(issueService);
+    public CollectedLogBookDeviceCommand(DeviceLogBook deviceLogBook, IssueService issueService, Clock clock) {
+        super(issueService, clock);
         this.deviceLogBook = deviceLogBook;
     }
 
@@ -56,7 +57,7 @@ public class CollectedLogBookDeviceCommand extends DeviceCommandImpl {
     private LocalLogBook filterFutureDatesAndCalculateLastReading() {
         List<EndDeviceEvent> filteredEndDeviceEvents = new ArrayList<>();
         Date lastLogbook = null;
-        Date currentDate = Clocks.getAppServerClock().now();
+        Date currentDate = getClock().now();
         for (EndDeviceEvent endDeviceEvent : MeterDataFactory.createEndDeviceEventsFor(this.deviceLogBook)) {
             if (!endDeviceEvent.getCreatedDateTime().after(currentDate)) {
                 filteredEndDeviceEvents.add(endDeviceEvent);

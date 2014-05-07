@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.DeviceIpAddress;
@@ -23,8 +24,8 @@ public class UpdateDeviceIpAddress extends DeviceCommandImpl {
     private ConnectionTask connectionTask;
     private String connectionTaskPropertyName;
 
-    public UpdateDeviceIpAddress(DeviceIpAddress ipAddressProperties, IssueService issueService) {
-        super(issueService);
+    public UpdateDeviceIpAddress(DeviceIpAddress ipAddressProperties, IssueService issueService, Clock clock) {
+        super(issueService, clock);
         this.deviceIdentifier = ipAddressProperties.getDeviceIdentifier();
         this.ipAddress = ipAddressProperties.getIpAddress();
         this.connectionTask = ipAddressProperties.getConnectionTask();

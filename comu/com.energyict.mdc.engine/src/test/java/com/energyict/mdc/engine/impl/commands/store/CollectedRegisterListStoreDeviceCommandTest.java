@@ -62,7 +62,7 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
 
         DeviceRegisterList collectedRegisterList = new DeviceRegisterList(deviceIdentifier);
         collectedRegisterList.addCollectedRegister(collectedRegister);
-        final CollectedRegisterListDeviceCommand collectedRegisterListDeviceCommand = new CollectedRegisterListDeviceCommand(collectedRegisterList, issueService);
+        final CollectedRegisterListDeviceCommand collectedRegisterListDeviceCommand = new CollectedRegisterListDeviceCommand(collectedRegisterList, issueService, clock);
 
         final ComServerDAOImpl comServerDAO = mockComServerDAOButCallRealMethodForMeterReadingStoring();
 

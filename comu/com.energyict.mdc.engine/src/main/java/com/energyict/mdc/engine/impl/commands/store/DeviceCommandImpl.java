@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.comserver.logging.CanProvideDescriptionTitle;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
@@ -18,11 +19,13 @@ import com.energyict.mdc.issues.IssueService;
 public abstract class DeviceCommandImpl implements DeviceCommand, CanProvideDescriptionTitle {
 
     private final IssueService issueService;
+    private final Clock clock;
     private ExecutionLogger logger;
 
-    public DeviceCommandImpl(final IssueService issueService) {
+    public DeviceCommandImpl(final IssueService issueService, Clock clock) {
         super();
         this.issueService = issueService;
+        this.clock = clock;
     }
 
     @Override
@@ -41,6 +44,10 @@ public abstract class DeviceCommandImpl implements DeviceCommand, CanProvideDesc
 
     protected IssueService getIssueService() {
         return issueService;
+    }
+
+    protected Clock getClock() {
+        return clock;
     }
 
     @Override

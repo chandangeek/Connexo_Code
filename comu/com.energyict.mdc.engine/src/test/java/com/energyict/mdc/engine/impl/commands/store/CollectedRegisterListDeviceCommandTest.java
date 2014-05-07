@@ -27,7 +27,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.Date;
 
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
@@ -87,7 +86,7 @@ public class CollectedRegisterListDeviceCommandTest {
 
     @Test
     public void testExecutionOfDeviceCommand() {
-        CollectedRegisterListDeviceCommand command = new CollectedRegisterListDeviceCommand(getDeviceRegisterList(), issueService);
+        CollectedRegisterListDeviceCommand command = new CollectedRegisterListDeviceCommand(getDeviceRegisterList(), issueService, clock);
         command.logExecutionWith(this.executionLogger);
 
         // Business methods
@@ -113,7 +112,7 @@ public class CollectedRegisterListDeviceCommandTest {
 
     @Test
     public void testToJournalMessageDescription() {
-        CollectedRegisterListDeviceCommand command = new CollectedRegisterListDeviceCommand(getDeviceRegisterList(), issueService);
+        CollectedRegisterListDeviceCommand command = new CollectedRegisterListDeviceCommand(getDeviceRegisterList(), issueService, clock);
         command.logExecutionWith(this.executionLogger);
 
         // Business methods
