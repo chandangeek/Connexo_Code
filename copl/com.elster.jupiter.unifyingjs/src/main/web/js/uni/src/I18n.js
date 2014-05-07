@@ -213,6 +213,11 @@ Ext.define('Uni.I18n', {
         var translation = this.lookupTranslation(key, component);
 
         if ((typeof translation === 'undefined' || translation === null)
+            && typeof fallback === 'undefined' && fallback === null) {
+            translation = key;
+        }
+
+        if ((typeof translation === 'undefined' || translation === null)
             && typeof fallback !== 'undefined' && fallback !== null) {
             translation = fallback;
         }
