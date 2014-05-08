@@ -24,7 +24,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
+import javax.ws.rs.core.Response;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jackson.JacksonFeature;
@@ -40,7 +42,10 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class SchedulingResourceTest extends JerseyTest {
@@ -148,6 +153,122 @@ public class SchedulingResourceTest extends JerseyTest {
                 .containsKey("schedulingStatus")
                 .containsKey("comTaskUsages")
                 .containsKey("startDate");
+    }
+
+    @Test
+    public void testRemoveComTaskFromSchedule() throws Exception {
+        final long COM_TASK_1 = 11L;
+        final long COM_TASK_2 = 12L;
+
+        ComSchedule mockedSchedule = mock(ComSchedule.class);
+        when(mockedSchedule.getId()).thenReturn(1L);
+        when(mockedSchedule.getName()).thenReturn("name");
+        when(mockedSchedule.getSchedulingStatus()).thenReturn(SchedulingStatus.ACTIVE);
+        when(mockedSchedule.getNextTimestamp(any(Calendar.class))).thenReturn(new Date());
+        when(mockedSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration("10 minutes")));
+        ComTask comTask1 = mockComTask(COM_TASK_1, "Com task 1");
+        ComTask comTask2 = mockComTask(COM_TASK_2,"Com task 2");
+        when(mockedSchedule.getComTasks()).thenReturn(Arrays.asList(comTask1, comTask2));
+        when(schedulingService.findSchedule(1L)).thenReturn(mockedSchedule);
+        when(clock.getTimeZone()).thenReturn(Calendar.getInstance().getTimeZone());
+
+        ComScheduleInfo comScheduleInfo = new ComScheduleInfo();
+        comScheduleInfo.plannedDate=new Date();
+        comScheduleInfo.name="new name";
+        ComTaskInfo comTaskInfo = new ComTaskInfo();
+        comTaskInfo.id= COM_TASK_1;
+        comScheduleInfo.comTaskUsages=Arrays.asList(comTaskInfo);
+        Entity<ComScheduleInfo> json = Entity.json(comScheduleInfo);
+        Response response = target("/schedules/1").request().put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        verify(mockedSchedule, times(1)).removeComTask(comTask2);
+        verify(mockedSchedule, never()).removeComTask(comTask1);
+        verify(mockedSchedule, never()).addComTask(any(ComTask.class));
+    }
+
+    @Test
+    public void testAddComTaskToSchedule() throws Exception {
+        final long COM_TASK_1 = 11L;
+        final long COM_TASK_2 = 12L;
+        final long COM_TASK_3 = 13L;
+
+        ComSchedule mockedSchedule = mock(ComSchedule.class);
+        when(mockedSchedule.getId()).thenReturn(1L);
+        when(mockedSchedule.getName()).thenReturn("name");
+        when(mockedSchedule.getSchedulingStatus()).thenReturn(SchedulingStatus.ACTIVE);
+        when(mockedSchedule.getNextTimestamp(any(Calendar.class))).thenReturn(new Date());
+        when(mockedSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration("10 minutes")));
+        ComTask comTask1 = mockComTask(COM_TASK_1, "Com task 1");
+        ComTask comTask2 = mockComTask(COM_TASK_2,"Com task 2");
+        ComTask comTask3 = mockComTask(COM_TASK_3,"Com task 3");
+        when(mockedSchedule.getComTasks()).thenReturn(Arrays.asList(comTask1, comTask2));
+        when(schedulingService.findSchedule(1L)).thenReturn(mockedSchedule);
+        when(clock.getTimeZone()).thenReturn(Calendar.getInstance().getTimeZone());
+
+        ComScheduleInfo comScheduleInfo = new ComScheduleInfo();
+        comScheduleInfo.plannedDate=new Date();
+        comScheduleInfo.name="new name";
+        ComTaskInfo comTaskInfo1 = new ComTaskInfo();
+        comTaskInfo1.id= COM_TASK_1;
+        ComTaskInfo comTaskInfo2 = new ComTaskInfo();
+        comTaskInfo2.id= COM_TASK_2;
+        ComTaskInfo comTaskInfo3= new ComTaskInfo();
+        comTaskInfo3.id= COM_TASK_3;
+        comScheduleInfo.comTaskUsages=Arrays.asList(comTaskInfo1, comTaskInfo2, comTaskInfo3);
+        Entity<ComScheduleInfo> json = Entity.json(comScheduleInfo);
+        Response response = target("/schedules/1").request().put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        verify(mockedSchedule, times(1)).addComTask(comTask3);
+        verify(mockedSchedule, never()).removeComTask(any(ComTask.class));
+    }
+
+    @Test
+    public void testAddRemoveComTask() throws Exception {
+        final long COM_TASK_1 = 11L;
+        final long COM_TASK_2 = 12L;
+        final long COM_TASK_3 = 13L;
+        final long COM_TASK_4 = 13L;
+
+        ComSchedule mockedSchedule = mock(ComSchedule.class);
+        when(mockedSchedule.getId()).thenReturn(1L);
+        when(mockedSchedule.getName()).thenReturn("name");
+        when(mockedSchedule.getSchedulingStatus()).thenReturn(SchedulingStatus.ACTIVE);
+        when(mockedSchedule.getNextTimestamp(any(Calendar.class))).thenReturn(new Date());
+        when(mockedSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration("10 minutes")));
+        ComTask comTask1 = mockComTask(COM_TASK_1, "Com task 1");
+        ComTask comTask2 = mockComTask(COM_TASK_2,"Com task 2");
+        ComTask comTask3 = mockComTask(COM_TASK_3,"Com task 3");
+        ComTask comTask4 = mockComTask(COM_TASK_4,"Com task 4");
+        when(mockedSchedule.getComTasks()).thenReturn(Arrays.asList(comTask1, comTask2, comTask3));
+        when(schedulingService.findSchedule(1L)).thenReturn(mockedSchedule);
+        when(clock.getTimeZone()).thenReturn(Calendar.getInstance().getTimeZone());
+
+        ComScheduleInfo comScheduleInfo = new ComScheduleInfo();
+        comScheduleInfo.plannedDate=new Date();
+        comScheduleInfo.name="new name";
+        ComTaskInfo comTaskInfo1 = new ComTaskInfo();
+        comTaskInfo1.id= COM_TASK_1;
+        ComTaskInfo comTaskInfo2 = new ComTaskInfo();
+        comTaskInfo2.id= COM_TASK_2;
+        ComTaskInfo comTaskInfo4= new ComTaskInfo();
+        comTaskInfo4.id= COM_TASK_4;
+        comScheduleInfo.comTaskUsages=Arrays.asList(comTaskInfo1, comTaskInfo2, comTaskInfo4); // so delete 3, add 4
+        Entity<ComScheduleInfo> json = Entity.json(comScheduleInfo);
+        Response response = target("/schedules/1").request().put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        verify(mockedSchedule, times(1)).addComTask(comTask4);
+        verify(mockedSchedule, times(1)).removeComTask(comTask3);
+    }
+
+    private ComTask mockComTask(long id, String name) {
+        ComTask comTask1 = mock(ComTask.class);
+        when(comTask1.getId()).thenReturn(id);
+        when(comTask1.getName()).thenReturn(name);
+        when(taskService.findComTask(id)).thenReturn(comTask1);
+        return comTask1;
     }
 
     private <T> Finder<T> mockFinder(List<T> list) {

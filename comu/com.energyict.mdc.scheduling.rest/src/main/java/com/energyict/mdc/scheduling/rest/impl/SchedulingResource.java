@@ -104,7 +104,7 @@ public class SchedulingResource {
     public ComScheduleInfo updateSchedules(@PathParam("id") long id, ComScheduleInfo comScheduleInfo) {
         ComSchedule comSchedule = findComScheduleOrThrowException(id);
         comSchedule.setName(comScheduleInfo.name);
-        comSchedule.setTemporalExpression(comScheduleInfo.temporalExpression.asTemporalExpression());
+        comSchedule.setTemporalExpression(comScheduleInfo.temporalExpression==null?null:comScheduleInfo.temporalExpression.asTemporalExpression());
         comSchedule.setSchedulingStatus(comScheduleInfo.schedulingStatus);
         comSchedule.setStartDate(comScheduleInfo.startDate==null?null:new UtcInstant(comScheduleInfo.startDate));
         comSchedule.save();
@@ -126,7 +126,7 @@ public class SchedulingResource {
         for (ComTaskInfo comTaskInfo : newComTaskIdMap.values()) {
             ComTask comTask = taskService.findComTask(comTaskInfo.id);
             if (comTask == null) {
-                throw new WebApplicationException("No ComTask with id "+comTaskInfo.id, Response.Status.NOT_FOUND);
+                throw new WebApplicationException("No ComTask with id "+comTaskInfo.id, Response.Status.BAD_REQUEST);
             }
             comSchedule.addComTask(comTask);
         }
