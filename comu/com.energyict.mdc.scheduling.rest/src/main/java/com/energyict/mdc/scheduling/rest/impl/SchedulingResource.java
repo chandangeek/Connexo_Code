@@ -108,7 +108,9 @@ public class SchedulingResource {
         comSchedule.setSchedulingStatus(comScheduleInfo.schedulingStatus);
         comSchedule.setStartDate(comScheduleInfo.startDate==null?null:new UtcInstant(comScheduleInfo.startDate));
         comSchedule.save();
-        updateTasks(comSchedule, comScheduleInfo.comTaskUsages);
+        if (comScheduleInfo.comTaskUsages!=null) {
+            updateTasks(comSchedule, comScheduleInfo.comTaskUsages);
+        }
         return ComScheduleInfo.from(findComScheduleOrThrowException(id), isInUse(comSchedule));
     }
 
@@ -143,7 +145,8 @@ public class SchedulingResource {
     @GET
     @Path("/{id}/comTasks")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<ComTaskInfo> getComTasks(@PathParam("id") long id) {
+    public List<ComTaskInfo> getComTasks(@PathParam("id") long id, @BeanParam JsonQueryFilter queryFilter) {
+//        if (queryFilter.getFilterProperties().containsKey("available") && queryFilter.getProperty("available", XmlAdapter)
         return ComTaskInfo.from(deviceConfigurationService.findAvailableComTasks(findComScheduleOrThrowException(id)));
     }
 

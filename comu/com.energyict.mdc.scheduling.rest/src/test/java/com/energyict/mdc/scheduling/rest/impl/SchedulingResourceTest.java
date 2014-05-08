@@ -188,6 +188,21 @@ public class SchedulingResourceTest extends JerseyTest {
     }
 
     @Test
+    public void testUpdateNothing() throws Exception {
+        ComSchedule mockedSchedule = mock(ComSchedule.class);
+        when(mockedSchedule.getId()).thenReturn(1L);
+        when(mockedSchedule.getName()).thenReturn("name");
+        when(mockedSchedule.getSchedulingStatus()).thenReturn(SchedulingStatus.ACTIVE);
+        when(mockedSchedule.getNextTimestamp(any(Calendar.class))).thenReturn(new Date());
+        when(mockedSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration("10 minutes")));
+        when(schedulingService.findSchedule(1L)).thenReturn(mockedSchedule);
+        ComScheduleInfo comScheduleInfo = new ComScheduleInfo();
+        Entity<ComScheduleInfo> json = Entity.json(comScheduleInfo);
+        Response response = target("/schedules/1").request().put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
+    @Test
     public void testAddComTaskToSchedule() throws Exception {
         final long COM_TASK_1 = 11L;
         final long COM_TASK_2 = 12L;
