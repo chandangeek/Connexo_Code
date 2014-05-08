@@ -1,7 +1,9 @@
 package com.energyict.mdc.engine.impl.events.logging;
 
-import com.elster.jupiter.util.time.Clock;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.common.HasId;
+import com.energyict.mdc.common.IdBusinessObject;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.events.ComPortPoolRelatedEvent;
 import com.energyict.mdc.engine.events.ComPortRelatedEvent;
@@ -11,22 +13,17 @@ import com.energyict.mdc.engine.events.DeviceRelatedEvent;
 import com.energyict.mdc.engine.events.LoggingEvent;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.common.HasId;
-import com.energyict.mdc.common.IdBusinessObject;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
-import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPort;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
+
 import org.json.JSONException;
 import org.json.JSONWriter;
 
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.Date;
 
 /**
  * Provides an implementation for the {@link LoggingEvent} interface
@@ -48,13 +45,15 @@ public class ComCommandLoggingEvent extends AbstractComServerEventImpl implement
 
     /**
      * For the externalization process only.
+     *
+     * @param serviceProvider The ServiceProvider
      */
-    public ComCommandLoggingEvent(Clock clock, DeviceDataService deviceDataService, EngineModelService engineModelService) {
-        super(clock, deviceDataService, engineModelService);
+    public ComCommandLoggingEvent(ServiceProvider serviceProvider) {
+        super(serviceProvider);
     }
 
-    public ComCommandLoggingEvent(Date occurrenceTimestamp, ComPort comPort, ConnectionTask connectionTask, ComTaskExecution comTaskExecution, LogLevel logLevel, String logMessage, Clock clock, DeviceDataService deviceDataService, EngineModelService engineModelService) {
-        super(clock, deviceDataService, engineModelService, occurrenceTimestamp);
+    public ComCommandLoggingEvent(ComPort comPort, ConnectionTask connectionTask, ComTaskExecution comTaskExecution, LogLevel logLevel, String logMessage, ServiceProvider serviceProvider) {
+        super(serviceProvider);
         this.comPort = comPort;
         this.connectionTask = connectionTask;
         this.comTaskExecution = comTaskExecution;

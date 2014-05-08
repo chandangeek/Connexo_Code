@@ -1,25 +1,22 @@
 package com.energyict.mdc.engine.impl.events.connection;
 
-import com.elster.jupiter.util.time.Clock;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.common.IdBusinessObject;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.events.ComPortPoolRelatedEvent;
 import com.energyict.mdc.engine.events.ConnectionEvent;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
-import com.energyict.mdc.common.IdBusinessObject;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
-import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPort;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
+
 import org.json.JSONException;
 import org.json.JSONWriter;
 
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.Date;
 
 /**
  * Provides code reuse opportunities for classes
@@ -36,23 +33,21 @@ public abstract class AbstractConnectionEventImpl extends AbstractComServerEvent
 
     /**
      * For the externalization process only.
+     *
+     * @param serviceProvider The ServiceProvider
      */
-    protected AbstractConnectionEventImpl (Clock clock, DeviceDataService deviceDataService, EngineModelService engineModelService) {
-        super(clock, deviceDataService, engineModelService);
+    protected AbstractConnectionEventImpl (ServiceProvider serviceProvider) {
+        super(serviceProvider);
     }
 
-    private AbstractConnectionEventImpl (Date occurrenceTimestamp, Clock clock, DeviceDataService deviceDataService, EngineModelService engineModelService) {
-        super(clock, deviceDataService, engineModelService, occurrenceTimestamp);
-    }
-
-    protected AbstractConnectionEventImpl (ConnectionTask connectionTask, ComPort comPort, Clock clock, DeviceDataService deviceDataService, EngineModelService engineModelService) {
-        super(clock, deviceDataService, engineModelService);
+    protected AbstractConnectionEventImpl (ConnectionTask connectionTask, ComPort comPort, ServiceProvider serviceProvider) {
+        super(serviceProvider);
         this.connectionTask = connectionTask;
         this.comPort = comPort;
     }
 
-    protected AbstractConnectionEventImpl (Date occurrenceTimestamp, ComPort comPort, Clock clock, DeviceDataService deviceDataService, EngineModelService engineModelService) {
-        this(occurrenceTimestamp,clock, deviceDataService, engineModelService);
+    protected AbstractConnectionEventImpl (ComPort comPort, ServiceProvider serviceProvider) {
+        this(serviceProvider);
         this.comPort = comPort;
     }
 

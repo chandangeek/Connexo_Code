@@ -1,19 +1,16 @@
 package com.energyict.mdc.engine.impl.events.io;
 
-import com.elster.jupiter.util.time.Clock;
-import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.events.CommunicationEvent;
 import com.energyict.mdc.engine.impl.events.connection.AbstractConnectionEventImpl;
 import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.EngineModelService;
+
 import org.json.JSONException;
 import org.json.JSONWriter;
 
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.Date;
 
 /**
  * Provides code reuse opportunities for components
@@ -29,13 +26,15 @@ public abstract class CommunicationEventImpl extends AbstractConnectionEventImpl
 
     /**
      * For the externalization process only.
+     *
+     * @param serviceProvider The ServiceProvider
      */
-    protected CommunicationEventImpl (Clock clock, DeviceDataService deviceDataService, EngineModelService engineModelService) {
-        super(clock, deviceDataService, engineModelService);
+    protected CommunicationEventImpl (ServiceProvider serviceProvider) {
+        super(serviceProvider);
     }
 
-    protected CommunicationEventImpl (Date occurrenceTimestamp, ComPort comPort, byte[] bytes, Clock clock, DeviceDataService deviceDataService, EngineModelService engineModelService) {
-        super(occurrenceTimestamp, comPort, clock, deviceDataService, engineModelService);
+    protected CommunicationEventImpl (ComPort comPort, byte[] bytes, ServiceProvider serviceProvider) {
+        super(comPort, serviceProvider);
         this.bytes = bytes;
     }
 

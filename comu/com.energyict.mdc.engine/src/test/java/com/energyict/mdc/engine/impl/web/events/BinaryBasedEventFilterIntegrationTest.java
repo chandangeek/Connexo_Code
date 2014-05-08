@@ -339,6 +339,10 @@ public class BinaryBasedEventFilterIntegrationTest {
 
     private class EventGenerator extends EventPublisherImpl {
 
+        private EventGenerator() {
+            super(clock, engineModelService);
+        }
+
         public void produceConnectDisconnectEvents () {
             this.sendMockedConnectionEstablishedEvent();
             this.sendMockedConnectionClosedEvent();

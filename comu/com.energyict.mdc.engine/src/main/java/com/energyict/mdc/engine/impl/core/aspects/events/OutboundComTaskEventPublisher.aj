@@ -1,12 +1,12 @@
 package com.energyict.mdc.engine.impl.core.aspects.events;
 
-import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.events.ComServerEvent;
+import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.events.comtask.ComTaskExecutionCompletionEvent;
 import com.energyict.mdc.engine.impl.events.comtask.ComTaskExecutionFailureEvent;
 import com.energyict.mdc.engine.impl.events.comtask.ComTaskExecutionStartedEvent;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 
 /**
  * Defines pointcuts and advice that will publish events
@@ -23,7 +23,12 @@ public aspect OutboundComTaskEventPublisher {
          && args(comTaskExecution);
 
     after (JobExecution job, ComTaskExecution comTaskExecution): startTask(job, comTaskExecution) {
-        this.publish(new ComTaskExecutionStartedEvent(comTaskExecution, job.getExecutionContext().getComPort(), job.getExecutionContext().getConnectionTask()));
+        this.publish(
+                new ComTaskExecutionStartedEvent(
+                        comTaskExecution,
+                        job.getExecutionContext().getComPort(),
+                        job.getExecutionContext().getConnectionTask(),
+                        EventPublisherImpl.getInstance().serviceProvider()));
     }
 
     private pointcut completeTask (JobExecution job, ComTaskExecution comTaskExecution):
@@ -32,7 +37,12 @@ public aspect OutboundComTaskEventPublisher {
          && args(comTaskExecution);
 
     after (JobExecution job, ComTaskExecution comTaskExecution): completeTask(job, comTaskExecution) {
-        this.publish(new ComTaskExecutionCompletionEvent(comTaskExecution, job.getExecutionContext().getComPort(), job.getExecutionContext().getConnectionTask()));
+        this.publish(
+                new ComTaskExecutionCompletionEvent(
+                        comTaskExecution,
+                        job.getExecutionContext().getComPort(),
+                        job.getExecutionContext().getConnectionTask(),
+                        EventPublisherImpl.getInstance().serviceProvider()));
     }
 
     private pointcut taskFailure (JobExecution job, ComTaskExecution comTaskExecution, Throwable cause):
@@ -41,7 +51,13 @@ public aspect OutboundComTaskEventPublisher {
          && args(comTaskExecution, cause);
 
     before (JobExecution job, ComTaskExecution comTaskExecution, Throwable cause): taskFailure(job, comTaskExecution, cause) {
-        this.publish(new ComTaskExecutionFailureEvent(comTaskExecution, job.getExecutionContext().getComPort(), job.getExecutionContext().getConnectionTask(), cause));
+        this.publish(
+                new ComTaskExecutionFailureEvent(
+                        comTaskExecution,
+                        job.getExecutionContext().getComPort(),
+                        job.getExecutionContext().getConnectionTask(),
+                        cause,
+                        EventPublisherImpl.getInstance().serviceProvider()));
     }
 
     private pointcut executeTask (JobExecution job, JobExecution.PreparedComTaskExecution comTaskExecution):
@@ -51,12 +67,23 @@ public aspect OutboundComTaskEventPublisher {
 
     after (JobExecution job, JobExecution.PreparedComTaskExecution preparedComTaskExecution) returning (boolean success) : executeTask(job, preparedComTaskExecution) {
         if (!success) {
-            this.publish(new ComTaskExecutionFailureEvent(preparedComTaskExecution.getComTaskExecution(), job.getExecutionContext().getComPort(), job.getExecutionContext().getConnectionTask()));
+            this.publish(
+                    new ComTaskExecutionFailureEvent(
+                            preparedComTaskExecution.getComTaskExecution(),
+                            job.getExecutionContext().getComPort(),
+                            job.getExecutionContext().getConnectionTask(),
+                            EventPublisherImpl.getInstance().serviceProvider()));
         }
     }
 
     after (JobExecution job, JobExecution.PreparedComTaskExecution preparedComTaskExecution) throwing (Throwable cause) : executeTask(job, preparedComTaskExecution) {
-        this.publish(new ComTaskExecutionFailureEvent(preparedComTaskExecution.getComTaskExecution(), job.getExecutionContext().getComPort(), job.getExecutionContext().getConnectionTask(), cause));
+        this.publish(
+                new ComTaskExecutionFailureEvent(
+                        preparedComTaskExecution.getComTaskExecution(),
+                        job.getExecutionContext().getComPort(),
+                        job.getExecutionContext().getConnectionTask(),
+                        cause,
+                        EventPublisherImpl.getInstance().serviceProvider()));
     }
 
     private void publish (ComServerEvent event) {

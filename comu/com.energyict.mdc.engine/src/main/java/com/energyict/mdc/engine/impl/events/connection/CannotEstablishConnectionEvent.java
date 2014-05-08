@@ -1,11 +1,9 @@
 package com.energyict.mdc.engine.impl.events.connection;
 
-import com.elster.jupiter.util.time.Clock;
-import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.protocol.api.ConnectionException;
+
 import org.json.JSONException;
 import org.json.JSONWriter;
 
@@ -28,13 +26,15 @@ public class CannotEstablishConnectionEvent extends AbstractConnectionEventImpl 
 
     /**
      * For the externalization process only.
+     *
+     * @param serviceProvider The ServiceProvider
      */
-    public CannotEstablishConnectionEvent (Clock clock, DeviceDataService deviceDataService, EngineModelService engineModelService) {
-        super(clock, deviceDataService, engineModelService);
+    public CannotEstablishConnectionEvent (ServiceProvider serviceProvider) {
+        super(serviceProvider);
     }
 
-    public CannotEstablishConnectionEvent (ComPort comPort, ConnectionTask connectionTask, ConnectionException cause, Clock clock, DeviceDataService deviceDataService, EngineModelService engineModelService) {
-        super(connectionTask, comPort, clock, deviceDataService, engineModelService);
+    public CannotEstablishConnectionEvent (ComPort comPort, ConnectionTask connectionTask, ConnectionException cause, ServiceProvider serviceProvider) {
+        super(connectionTask, comPort, serviceProvider);
         this.copyFailureMessageFromException(cause);
     }
 

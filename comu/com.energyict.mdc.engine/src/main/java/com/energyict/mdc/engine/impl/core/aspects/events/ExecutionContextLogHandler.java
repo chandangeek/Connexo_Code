@@ -1,14 +1,13 @@
 package com.energyict.mdc.engine.impl.core.aspects.events;
 
-import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.events.ComServerEvent;
+import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.EventPublishingLogHandler;
 import com.energyict.mdc.engine.impl.events.logging.CommunicationLoggingEvent;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-
-import java.util.Date;
 
 /**
  * Provides an implementation for the log Handler interface
@@ -29,10 +28,10 @@ public class ExecutionContextLogHandler extends EventPublishingLogHandler {
     }
 
     @Override
-    protected ComServerEvent toEvent (Date eventOccurrenceTimestamp, LogLevel level, String logMessage) {
+    protected ComServerEvent toEvent (AbstractComServerEventImpl.ServiceProvider serviceProvider, LogLevel level, String logMessage) {
         ConnectionTask connectionTask = this.executionContext.getConnectionTask();
         ComPort comPort = this.executionContext.getComPort();
-        return new CommunicationLoggingEvent(eventOccurrenceTimestamp, connectionTask, comPort, level, logMessage);
+        return new CommunicationLoggingEvent(connectionTask, comPort, level, logMessage, serviceProvider);
     }
 
 }

@@ -1,18 +1,16 @@
 package com.energyict.mdc.engine.impl.events.comtask;
 
-import com.elster.jupiter.util.time.Clock;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.common.HasId;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.events.ComTaskExecutionEvent;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
-import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
-import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPort;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
+
 import org.json.JSONException;
 import org.json.JSONWriter;
 
@@ -36,16 +34,15 @@ public abstract class AbstractComTaskExecutionEventImpl extends AbstractComServe
 
     /**
      * For the externalization process only.
-     * @param clock
-     * @param deviceDataService
-     * @param engineModelService
+     *
+     * @param serviceProvider The ServiceProvider
      */
-    protected AbstractComTaskExecutionEventImpl(Clock clock, DeviceDataService deviceDataService, EngineModelService engineModelService) {
-        super(clock, deviceDataService, engineModelService);
+    protected AbstractComTaskExecutionEventImpl(ServiceProvider serviceProvider) {
+        super(serviceProvider);
     }
 
-    protected AbstractComTaskExecutionEventImpl(ComTaskExecution comTaskExecution, ComPort comPort, ConnectionTask connectionTask, Clock clock, DeviceDataService deviceDataService, EngineModelService engineModelService) {
-        super(clock, deviceDataService, engineModelService);
+    protected AbstractComTaskExecutionEventImpl(ComTaskExecution comTaskExecution, ComPort comPort, ConnectionTask connectionTask, ServiceProvider serviceProvider) {
+        super(serviceProvider);
         this.comTaskExecution = comTaskExecution;
         this.comPort = comPort;
         this.connectionTask = connectionTask;

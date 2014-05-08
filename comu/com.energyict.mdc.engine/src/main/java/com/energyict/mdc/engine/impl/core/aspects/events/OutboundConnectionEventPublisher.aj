@@ -1,15 +1,15 @@
 package com.energyict.mdc.engine.impl.core.aspects.events;
 
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.core.ScheduledJobImpl;
-import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.events.connection.CannotEstablishConnectionEvent;
 import com.energyict.mdc.engine.impl.events.connection.CloseConnectionEvent;
 import com.energyict.mdc.engine.impl.events.connection.EstablishConnectionEvent;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.protocol.api.ConnectionException;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
 
 /**
  * Defines pointcuts and advice that will publish events
@@ -27,7 +27,7 @@ public aspect OutboundConnectionEventPublisher {
 
     after (ComPort comPort, ScheduledJobImpl scheduledJob) returning (boolean succes) : establishConnectionFor(comPort, scheduledJob) {
         if (succes) {
-            this.publish(new EstablishConnectionEvent(comPort, scheduledJob.getConnectionTask()));
+            this.publish(new EstablishConnectionEvent(comPort, scheduledJob.getConnectionTask(), EventPublisherImpl.getInstance().serviceProvider()));
          }
     }
 
@@ -37,7 +37,7 @@ public aspect OutboundConnectionEventPublisher {
          && args(e, connectionTask);
 
     after (JobExecution.ExecutionContext context, ConnectionException e, ConnectionTask connectionTask) : connectionFailed(context, e, connectionTask) {
-        this.publish(new CannotEstablishConnectionEvent(context.getComPort(), connectionTask, e));
+        this.publish(new CannotEstablishConnectionEvent(context.getComPort(), connectionTask, e, EventPublisherImpl.getInstance().serviceProvider()));
     }
 
     private pointcut closeConnection (JobExecution.ExecutionContext executionContext):
@@ -49,7 +49,7 @@ public aspect OutboundConnectionEventPublisher {
          * even when the connection was never established.
          * So first test if there was a connection. */
         if (this.isConnected(executionContext)) {
-            this.publish(new CloseConnectionEvent(executionContext.getComPort(), executionContext.getConnectionTask()));
+            this.publish(new CloseConnectionEvent(executionContext.getComPort(), executionContext.getConnectionTask(), EventPublisherImpl.getInstance().serviceProvider()));
         }
     }
 

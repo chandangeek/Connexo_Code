@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.events;
 
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
@@ -7,7 +8,10 @@ import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
+
+import com.elster.jupiter.util.time.Clock;
 
 import java.util.EnumSet;
 import java.util.LinkedList;
@@ -24,26 +28,34 @@ public class EventPublisherImpl implements EventPublisher {
 
     private static EventPublisherImpl soleInstance;
 
+    private final Clock clock;
+    private final EngineModelService engineModelService;
+    private final DeviceDataService deviceDataService;
     private FilteringEventReceiverFactory factory;
     private List<FilteringEventReceiver> filters = new LinkedList<>();
 
-    public EventPublisherImpl () {
-        this(new FilteringEventReceiverFactoryImpl());
+    public EventPublisherImpl(Clock clock, EngineModelService engineModelService, DeviceDataService deviceDataService) {
+        this(clock, engineModelService, deviceDataService, new FilteringEventReceiverFactoryImpl());
     }
 
-    public EventPublisherImpl (FilteringEventReceiverFactory factory) {
+    public EventPublisherImpl (Clock clock, EngineModelService engineModelService, DeviceDataService deviceDataService, FilteringEventReceiverFactory factory) {
+        super();
+        this.clock = clock;
+        this.engineModelService = engineModelService;
+        this.deviceDataService = deviceDataService;
         this.factory = factory;
     }
 
     public static synchronized EventPublisherImpl getInstance () {
-        if (soleInstance == null) {
-            soleInstance = new EventPublisherImpl();
-        }
         return soleInstance;
     }
 
     public static synchronized void setInstance (EventPublisherImpl eventPublisher) {
         soleInstance = eventPublisher;
+    }
+
+    public AbstractComServerEventImpl.ServiceProvider serviceProvider () {
+        return new ServiceProviderForEvents();
     }
 
     @Override
@@ -194,6 +206,23 @@ public class EventPublisherImpl implements EventPublisher {
             for (FilteringEventReceiver filter : this.filters) {
                 filter.receive(event);
             }
+        }
+    }
+
+    private class ServiceProviderForEvents implements AbstractComServerEventImpl.ServiceProvider {
+        @Override
+        public Clock clock() {
+            return clock;
+        }
+
+        @Override
+        public DeviceDataService deviceDataService() {
+            return deviceDataService;
+        }
+
+        @Override
+        public EngineModelService engineModelService() {
+            return engineModelService;
         }
     }
 

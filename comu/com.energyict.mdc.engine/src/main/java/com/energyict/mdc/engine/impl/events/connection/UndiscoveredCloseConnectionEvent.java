@@ -1,9 +1,7 @@
 package com.energyict.mdc.engine.impl.events.connection;
 
-import com.elster.jupiter.util.time.Clock;
-import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPort;
+
 import org.json.JSONException;
 import org.json.JSONWriter;
 
@@ -20,13 +18,15 @@ public class UndiscoveredCloseConnectionEvent extends UndiscoveredConnectionEven
 
     /**
      * For the externalization process only.
+     *
+     * @param serviceProvider The ServiceProvider
      */
-    public UndiscoveredCloseConnectionEvent (Clock clock, DeviceDataService deviceDataService, EngineModelService engineModelService) {
-        super(clock, deviceDataService, engineModelService);
+    public UndiscoveredCloseConnectionEvent (ServiceProvider serviceProvider) {
+        super(serviceProvider);
     }
 
-    public UndiscoveredCloseConnectionEvent (InboundComPort comPort, Clock clock, DeviceDataService deviceDataService, EngineModelService engineModelService) {
-        super(comPort, clock, deviceDataService, engineModelService);
+    public UndiscoveredCloseConnectionEvent (InboundComPort comPort, ServiceProvider serviceProvider) {
+        super(comPort, serviceProvider);
     }
 
     @Override

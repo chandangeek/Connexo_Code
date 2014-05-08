@@ -1,12 +1,11 @@
 package com.energyict.mdc.engine.impl.core.aspects.events;
 
 import com.energyict.mdc.engine.events.ComServerEvent;
+import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.EventPublishingLogHandler;
 import com.energyict.mdc.engine.impl.events.logging.ComPortOperationsLoggingEvent;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.model.ComPort;
-
-import java.util.Date;
 
 /**
  * Provides an implementation for the log Handler interface
@@ -25,8 +24,8 @@ public class ComPortLogHandler extends EventPublishingLogHandler {
     }
 
     @Override
-    protected ComServerEvent toEvent (Date eventOccurrenceTimestamp, LogLevel level, String logMessage) {
-        return new ComPortOperationsLoggingEvent(eventOccurrenceTimestamp, this.comPort, level, logMessage);
+    protected ComServerEvent toEvent (AbstractComServerEventImpl.ServiceProvider serviceProvider, LogLevel level, String logMessage) {
+        return new ComPortOperationsLoggingEvent(this.comPort, level, logMessage, serviceProvider);
     }
 
 }

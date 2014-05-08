@@ -1,12 +1,12 @@
 package com.energyict.mdc.engine.impl.core.aspects.events;
 
+import com.energyict.mdc.engine.impl.core.ComPortServerProcess;
 import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.core.aspects.logging.AbstractComPortLogging;
+import com.energyict.mdc.engine.impl.core.aspects.logging.ComPortConnectionLogger;
+import com.energyict.mdc.engine.impl.core.aspects.logging.ComPortOperationsLogger;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
-import com.energyict.mdc.engine.impl.core.ComPortServerProcess;
-import com.energyict.comserver.scheduling.aspects.logging.AbstractComPortLogging;
-import com.energyict.comserver.scheduling.aspects.logging.ComPortConnectionLogger;
-import com.energyict.comserver.scheduling.aspects.logging.ComPortOperationsLogger;
 import com.energyict.mdc.engine.model.ComPort;
 
 import java.util.logging.Handler;

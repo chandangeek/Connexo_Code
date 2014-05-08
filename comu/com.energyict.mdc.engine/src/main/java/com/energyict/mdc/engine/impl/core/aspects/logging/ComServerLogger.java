@@ -33,7 +33,7 @@ public interface ComServerLogger {
     public void startFailure (ComServer comServer, SQLException cause);
 
     /**
-     * Logs that a failure to cleanup timed out {@link com.energyict.mdc.tasks.ComTaskExecution}s
+     * Logs that a failure to cleanup timed out {@link com.energyict.mdc.device.data.tasks.ComTaskExecution}s
      * that are running on the specified {@link ComServer} occurred.
      *
      * @param comServer The ComServer

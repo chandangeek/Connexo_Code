@@ -1,11 +1,9 @@
 package com.energyict.mdc.engine.impl.events.comtask;
 
-import com.elster.jupiter.util.time.Clock;
-import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.model.ComPort;
+
 import org.json.JSONException;
 import org.json.JSONWriter;
 
@@ -21,13 +19,15 @@ public class ComTaskExecutionCompletionEvent extends AbstractComTaskExecutionEve
 
     /**
      * For the externalization process only.
+     *
+     * @param serviceProvider The ServiceProvider
      */
-    public ComTaskExecutionCompletionEvent (Clock clock, DeviceDataService deviceDataService, EngineModelService engineModelService) {
-        super(clock, deviceDataService, engineModelService);
+    public ComTaskExecutionCompletionEvent (ServiceProvider serviceProvider) {
+        super(serviceProvider);
     }
 
-    public ComTaskExecutionCompletionEvent (ComTaskExecution comTask, ComPort comPort, ConnectionTask connectionTask, Clock clock, DeviceDataService deviceDataService, EngineModelService engineModelService) {
-        super(comTask, comPort, connectionTask, clock, deviceDataService, engineModelService);
+    public ComTaskExecutionCompletionEvent (ComTaskExecution comTask, ComPort comPort, ConnectionTask connectionTask, ServiceProvider serviceProvider) {
+        super(comTask, comPort, connectionTask, serviceProvider);
     }
 
     @Override

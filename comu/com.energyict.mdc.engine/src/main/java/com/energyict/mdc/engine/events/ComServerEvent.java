@@ -58,7 +58,7 @@ public interface ComServerEvent extends Externalizable {
     public boolean isDeviceRelated ();
 
     /**
-     * Tests if this ComServerEvent relates to a {@link com.energyict.mdc.tasks.ConnectionTask}.
+     * Tests if this ComServerEvent relates to a {@link com.energyict.mdc.device.data.tasks.ConnectionTask}.
      * When that is the case, it should be possible to cast
      * this ComServerEvent to {@link ConnectionTaskRelatedEvent} to obtain the ConnectionTask
      * from the event. The ConnectionTask that is obtained from the event is guaranteed
@@ -91,7 +91,7 @@ public interface ComServerEvent extends Externalizable {
     public boolean isComPortPoolRelated ();
 
     /**
-     * Tests if this ComServerEvent relates to a {@link com.energyict.mdc.tasks.ComTaskExecution}.
+     * Tests if this ComServerEvent relates to a {@link com.energyict.mdc.device.data.tasks.ComTaskExecution}.
      * When that is the case, it should be possible to cast
      * this ComServerEvent to {@link ComTaskExecutionRelatedEvent} to obtain the ComTaskExecution
      * from the event. The ComTaskExecution that is obtained from the event is guaranteed

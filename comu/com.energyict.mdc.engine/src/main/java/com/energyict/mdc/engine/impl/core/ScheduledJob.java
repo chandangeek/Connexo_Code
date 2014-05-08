@@ -1,10 +1,10 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.comserver.commands.DeviceCommandExecutionToken;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 
 /**
  * Models a job that is scheduled to be executed,
- * i.e. the related task's status would be {@link com.energyict.mdc.tasks.TaskStatus#Pending}.
+ * i.e. the related task's status would be {@link com.energyict.mdc.device.data.tasks.TaskStatus#Pending}.
  */
 public interface ScheduledJob {
 
@@ -26,7 +26,7 @@ public interface ScheduledJob {
     public void unlock ();
 
     /**
-     * Tests if this ScheduledJob is still {@link com.energyict.mdc.tasks.TaskStatus#Pending}.
+     * Tests if this ScheduledJob is still {@link com.energyict.mdc.device.data.tasks.TaskStatus#Pending}.
      * This is possible when another thread has picked up
      * the same task and has already completed it while it was
      * waiting in your queue to be picked up.
@@ -38,8 +38,8 @@ public interface ScheduledJob {
     public boolean isStillPending ();
 
     /**
-     * Tests if the current system timestamp is within the {@link com.energyict.mdc.tasks.ComWindow}
-     * of the {@link com.energyict.mdc.tasks.ConnectionTask} that will be responsible
+     * Tests if the current system timestamp is within the {@link com.energyict.mdc.common.ComWindow}
+     * of the {@link com.energyict.mdc.device.data.tasks.ConnectionTask} that will be responsible
      * for establishing the connection to execute this ScheduledJob.
      *
      * @return A flag that indicates if the current system timestamp is within the ConnectionTask's ComWindow
@@ -57,7 +57,7 @@ public interface ScheduledJob {
     /**
      * Releases the {@link DeviceCommandExecutionToken}
      * that represents execution resources that are allocated
-     * by a {@link com.energyict.comserver.commands.DeviceCommandExecutor}
+     * by a {@link com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor}
      * to execute this ScheduledJob.
      */
     public void releaseToken ();
@@ -65,7 +65,7 @@ public interface ScheduledJob {
     /**
      * Returns the {@link DeviceCommandExecutionToken}
      * that represents execution resources that are allocated
-     * by a {@link com.energyict.comserver.commands.DeviceCommandExecutor}
+     * by a {@link com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor}
      * to execute this ScheduledJob.
      *
      * @return The DeviceCommandExecutionToken
@@ -90,14 +90,16 @@ public interface ScheduledJob {
 
     /**
      * Performs rescheduling of all {@link com.energyict.mdc.tasks.ComTask}s of this Job
-     * to the next occurrence of the {@link com.energyict.mdc.tasks.ComWindow}
+     * to the next occurrence of the {@link com.energyict.mdc.common.ComWindow}
      * because the current system timestamp is not or no longer within that window.
      */
     public void rescheduleToNextComWindow ();
 
     /**
-     * Adds the token for this ScheduledJob
-     * @param deviceCommandExecutionToken
+     * Adds the token for this ScheduledJob.
+     *
+     * @param deviceCommandExecutionToken The token
      */
     public void setToken(DeviceCommandExecutionToken deviceCommandExecutionToken);
+
 }
