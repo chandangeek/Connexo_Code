@@ -1,11 +1,9 @@
 package com.energyict.mdc.engine.impl.events.comtask;
 
-import com.elster.jupiter.util.time.Clock;
-import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.model.ComPort;
+
 import org.json.JSONException;
 import org.json.JSONWriter;
 
@@ -28,18 +26,20 @@ public class ComTaskExecutionFailureEvent extends AbstractComTaskExecutionEventI
 
     /**
      * For the externalization process only.
+     *
+     * @param serviceProvider The ServiceProvider
      */
-    public ComTaskExecutionFailureEvent (Clock clock, DeviceDataService deviceDataService, EngineModelService engineModelService) {
-        super(clock, deviceDataService, engineModelService);
+    public ComTaskExecutionFailureEvent (ServiceProvider serviceProvider) {
+        super(serviceProvider);
     }
 
-    public ComTaskExecutionFailureEvent (ComTaskExecution comTask, ComPort comPort, ConnectionTask connectionTask, Clock clock, DeviceDataService deviceDataService, EngineModelService engineModelService) {
-        super(comTask, comPort, connectionTask, clock, deviceDataService, engineModelService);
+    public ComTaskExecutionFailureEvent (ComTaskExecution comTask, ComPort comPort, ConnectionTask connectionTask, ServiceProvider serviceProvider) {
+        super(comTask, comPort, connectionTask, serviceProvider);
         this.failureMessage = "Failure due to problems reported during execution";
     }
 
-    public ComTaskExecutionFailureEvent (ComTaskExecution comTask, ComPort comPort, ConnectionTask connectionTask, Throwable cause, Clock clock, DeviceDataService deviceDataService, EngineModelService engineModelService) {
-        super(comTask, comPort, connectionTask, clock, deviceDataService, engineModelService);
+    public ComTaskExecutionFailureEvent (ComTaskExecution comTask, ComPort comPort, ConnectionTask connectionTask, Throwable cause, ServiceProvider serviceProvider) {
+        super(comTask, comPort, connectionTask, serviceProvider);
         this.copyFailureMessageFromException(cause);
     }
 

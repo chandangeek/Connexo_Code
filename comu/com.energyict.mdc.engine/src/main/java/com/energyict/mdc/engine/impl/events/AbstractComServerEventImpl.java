@@ -25,45 +25,47 @@ import java.util.TimeZone;
 public abstract class AbstractComServerEventImpl implements ComServerEvent {
 
     private static final SimpleDateFormat OCCURRENCE_TIMESTAMP_FORMAT;
-    private final Clock clock;
-    private final DeviceDataService deviceDataService;
-    private final EngineModelService engineModelService;
+
+    private final ServiceProvider serviceProvider;
 
     static {
         OCCURRENCE_TIMESTAMP_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS (Z)");
         OCCURRENCE_TIMESTAMP_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
+    public interface ServiceProvider {
+
+        public Clock clock();
+
+        public DeviceDataService deviceDataService ();
+
+        public EngineModelService engineModelService();
+
+    }
+
     private Date occurrenceTimestamp;
 
     /**
      * For the externalization process only.
-     * @param clock
-     * @param deviceDataService
-     * @param engineModelService
+     *
+     * @param serviceProvider The ServiceProvider
      */
-    protected AbstractComServerEventImpl(Clock clock, DeviceDataService deviceDataService, EngineModelService engineModelService) {
-        this(clock, deviceDataService, engineModelService, clock.now());
-    }
-
-    protected AbstractComServerEventImpl(Clock clock, DeviceDataService deviceDataService, EngineModelService engineModelService, Date occurrenceTimestamp) {
+    protected AbstractComServerEventImpl(ServiceProvider serviceProvider) {
         super();
-        this.clock = clock;
-        this.deviceDataService = deviceDataService;
-        this.engineModelService = engineModelService;
-        this.occurrenceTimestamp = occurrenceTimestamp;
+        this.serviceProvider = serviceProvider;
+        this.occurrenceTimestamp = serviceProvider.clock().now();
     }
 
     protected Clock getClock() {
-        return clock;
+        return this.serviceProvider.clock();
     }
 
     protected DeviceDataService getDeviceDataService() {
-        return deviceDataService;
+        return this.serviceProvider.deviceDataService();
     }
 
     protected EngineModelService getEngineModelService() {
-        return engineModelService;
+        return this.serviceProvider.engineModelService();
     }
 
     @Override

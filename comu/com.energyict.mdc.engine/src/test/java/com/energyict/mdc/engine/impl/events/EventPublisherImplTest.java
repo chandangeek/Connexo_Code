@@ -2,10 +2,6 @@ package com.energyict.mdc.engine.impl.events;
 
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.events.ComServerEvent;
-import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
-import com.energyict.mdc.engine.impl.events.EventReceiver;
-import com.energyict.mdc.engine.impl.events.FilteringEventReceiver;
-import com.energyict.mdc.engine.impl.events.FilteringEventReceiverFactory;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
@@ -42,7 +38,7 @@ public class EventPublisherImplTest {
         when(filteringEventReceiver.delegatesTo(eventReceiver)).thenReturn(true);
 
         when(factory.newFor(eventReceiver)).thenReturn(filteringEventReceiver);
-        EventPublisherImpl eventPublisher = new EventPublisherImpl(factory);
+        EventPublisherImpl eventPublisher = new EventPublisherImpl(factory, engineModelService);
 
         // Business method
         eventPublisher.registerInterest(eventReceiver);
@@ -59,7 +55,7 @@ public class EventPublisherImplTest {
         when(filteringEventReceiver.delegatesTo(eventReceiver)).thenReturn(true);
 
         when(factory.newFor(eventReceiver)).thenReturn(filteringEventReceiver);
-        EventPublisherImpl eventPublisher = new EventPublisherImpl(factory);
+        EventPublisherImpl eventPublisher = new EventPublisherImpl(factory, engineModelService);
 
         // Business method
         eventPublisher.registerInterest(eventReceiver);
@@ -77,7 +73,7 @@ public class EventPublisherImplTest {
         when(filteringEventReceiver.delegatesTo(eventReceiver)).thenReturn(true);
 
         when(factory.newFor(eventReceiver)).thenReturn(filteringEventReceiver);
-        EventPublisherImpl eventPublisher = new EventPublisherImpl(factory);
+        EventPublisherImpl eventPublisher = new EventPublisherImpl(factory, engineModelService);
 
         // Business method
         eventPublisher.registerInterest(eventReceiver);
@@ -96,7 +92,7 @@ public class EventPublisherImplTest {
         when(filteringEventReceiver.delegatesTo(eventReceiver)).thenReturn(true);
 
         when(factory.newFor(eventReceiver)).thenReturn(filteringEventReceiver);
-        EventPublisherImpl eventPublisher = new EventPublisherImpl(factory);
+        EventPublisherImpl eventPublisher = new EventPublisherImpl(factory, engineModelService);
 
         // Business method
         eventPublisher.registerInterest(eventReceiver);
@@ -117,7 +113,7 @@ public class EventPublisherImplTest {
         FilteringEventReceiver filteringEventReceiver = mock(FilteringEventReceiver.class);
         when(filteringEventReceiver.delegatesTo(eventReceiver)).thenReturn(true);
         when(factory.newFor(eventReceiver)).thenReturn(filteringEventReceiver);
-        EventPublisherImpl eventPublisher = new EventPublisherImpl(factory);
+        EventPublisherImpl eventPublisher = new EventPublisherImpl(factory, engineModelService);
         BaseDevice device = mock(BaseDevice.class);
 
         // Business methods
@@ -137,7 +133,7 @@ public class EventPublisherImplTest {
         FilteringEventReceiver filteringEventReceiver = mock(FilteringEventReceiver.class);
         when(filteringEventReceiver.delegatesTo(eventReceiver)).thenReturn(true);
         when(factory.newFor(eventReceiver)).thenReturn(filteringEventReceiver);
-        EventPublisherImpl eventPublisher = new EventPublisherImpl(factory);
+        EventPublisherImpl eventPublisher = new EventPublisherImpl(factory, engineModelService);
         BaseDevice device = mock(BaseDevice.class);
 
         // Business methods
@@ -156,7 +152,7 @@ public class EventPublisherImplTest {
         FilteringEventReceiver filteringEventReceiver = mock(FilteringEventReceiver.class);
         when(filteringEventReceiver.delegatesTo(eventReceiver)).thenReturn(true);
         when(factory.newFor(eventReceiver)).thenReturn(filteringEventReceiver);
-        EventPublisherImpl eventPublisher = new EventPublisherImpl(factory);
+        EventPublisherImpl eventPublisher = new EventPublisherImpl(factory, engineModelService);
         ConnectionTask connectionTask = mock(ConnectionTask.class);
 
         // Business methods
@@ -176,7 +172,7 @@ public class EventPublisherImplTest {
         FilteringEventReceiver filteringEventReceiver = mock(FilteringEventReceiver.class);
         when(filteringEventReceiver.delegatesTo(eventReceiver)).thenReturn(true);
         when(factory.newFor(eventReceiver)).thenReturn(filteringEventReceiver);
-        EventPublisherImpl eventPublisher = new EventPublisherImpl(factory);
+        EventPublisherImpl eventPublisher = new EventPublisherImpl(factory, engineModelService);
 
         // Business methods
         eventPublisher.registerInterest(eventReceiver);
@@ -194,7 +190,7 @@ public class EventPublisherImplTest {
         FilteringEventReceiver filteringEventReceiver = mock(FilteringEventReceiver.class);
         when(filteringEventReceiver.delegatesTo(eventReceiver)).thenReturn(true);
         when(factory.newFor(eventReceiver)).thenReturn(filteringEventReceiver);
-        EventPublisherImpl eventPublisher = new EventPublisherImpl(factory);
+        EventPublisherImpl eventPublisher = new EventPublisherImpl(factory, engineModelService);
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
 
         // Business methods
@@ -214,7 +210,7 @@ public class EventPublisherImplTest {
         FilteringEventReceiver filteringEventReceiver = mock(FilteringEventReceiver.class);
         when(filteringEventReceiver.delegatesTo(eventReceiver)).thenReturn(true);
         when(factory.newFor(eventReceiver)).thenReturn(filteringEventReceiver);
-        EventPublisherImpl eventPublisher = new EventPublisherImpl(factory);
+        EventPublisherImpl eventPublisher = new EventPublisherImpl(factory, engineModelService);
 
         // Business methods
         eventPublisher.registerInterest(eventReceiver);
@@ -232,7 +228,7 @@ public class EventPublisherImplTest {
         FilteringEventReceiver filteringEventReceiver = mock(FilteringEventReceiver.class);
         when(filteringEventReceiver.delegatesTo(eventReceiver)).thenReturn(true);
         when(factory.newFor(eventReceiver)).thenReturn(filteringEventReceiver);
-        EventPublisherImpl eventPublisher = new EventPublisherImpl(factory);
+        EventPublisherImpl eventPublisher = new EventPublisherImpl(factory, engineModelService);
         ComPort comPort = mock(ComPort.class);
 
         // Business methods
@@ -252,7 +248,7 @@ public class EventPublisherImplTest {
         FilteringEventReceiver filteringEventReceiver = mock(FilteringEventReceiver.class);
         when(filteringEventReceiver.delegatesTo(eventReceiver)).thenReturn(true);
         when(factory.newFor(eventReceiver)).thenReturn(filteringEventReceiver);
-        EventPublisherImpl eventPublisher = new EventPublisherImpl(factory);
+        EventPublisherImpl eventPublisher = new EventPublisherImpl(factory, engineModelService);
 
         // Business methods
         eventPublisher.registerInterest(eventReceiver);
@@ -270,7 +266,7 @@ public class EventPublisherImplTest {
         FilteringEventReceiver filteringEventReceiver = mock(FilteringEventReceiver.class);
         when(filteringEventReceiver.delegatesTo(eventReceiver)).thenReturn(true);
         when(factory.newFor(eventReceiver)).thenReturn(filteringEventReceiver);
-        EventPublisherImpl eventPublisher = new EventPublisherImpl(factory);
+        EventPublisherImpl eventPublisher = new EventPublisherImpl(factory, engineModelService);
         ComPortPool comPortPool = mock(ComPortPool.class);
 
         // Business methods
@@ -290,7 +286,7 @@ public class EventPublisherImplTest {
         FilteringEventReceiver filteringEventReceiver = mock(FilteringEventReceiver.class);
         when(filteringEventReceiver.delegatesTo(eventReceiver)).thenReturn(true);
         when(factory.newFor(eventReceiver)).thenReturn(filteringEventReceiver);
-        EventPublisherImpl eventPublisher = new EventPublisherImpl(factory);
+        EventPublisherImpl eventPublisher = new EventPublisherImpl(factory, engineModelService);
 
         // Business methods
         eventPublisher.registerInterest(eventReceiver);
@@ -308,7 +304,7 @@ public class EventPublisherImplTest {
         FilteringEventReceiver filteringEventReceiver = mock(FilteringEventReceiver.class);
         when(filteringEventReceiver.delegatesTo(eventReceiver)).thenReturn(true);
         when(factory.newFor(eventReceiver)).thenReturn(filteringEventReceiver);
-        EventPublisherImpl eventPublisher = new EventPublisherImpl(factory);
+        EventPublisherImpl eventPublisher = new EventPublisherImpl(factory, engineModelService);
         LogLevel expectedLogLevel = LogLevel.DEBUG;
 
         // Business methods
@@ -327,7 +323,7 @@ public class EventPublisherImplTest {
         FilteringEventReceiver filteringEventReceiver = mock(FilteringEventReceiver.class);
         when(filteringEventReceiver.delegatesTo(eventReceiver)).thenReturn(true);
         when(factory.newFor(eventReceiver)).thenReturn(filteringEventReceiver);
-        EventPublisherImpl eventPublisher = new EventPublisherImpl(factory);
+        EventPublisherImpl eventPublisher = new EventPublisherImpl(factory, engineModelService);
 
         // Business methods
         eventPublisher.registerInterest(eventReceiver);
@@ -342,7 +338,7 @@ public class EventPublisherImplTest {
     public void doesNotPublishToNotInterestedEventReceivers () {
         EventReceiver receiverForConnectionEvents = mock(EventReceiver.class);
         EventReceiver receiverForLoggingEvents = mock(EventReceiver.class);
-        EventPublisherImpl eventPublisher = new EventPublisherImpl();
+        EventPublisherImpl eventPublisher = new EventPublisherImpl(clock, engineModelService);
         eventPublisher.narrowInterestToCategories(receiverForConnectionEvents, EnumSet.of(Category.CONNECTION));
         eventPublisher.narrowInterestToCategories(receiverForLoggingEvents, EnumSet.of(Category.LOGGING));
         ComServerEvent event = mock(ComServerEvent.class);

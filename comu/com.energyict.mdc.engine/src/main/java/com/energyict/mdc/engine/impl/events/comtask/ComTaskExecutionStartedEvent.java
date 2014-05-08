@@ -1,11 +1,9 @@
 package com.energyict.mdc.engine.impl.events.comtask;
 
-import com.elster.jupiter.util.time.Clock;
-import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.model.ComPort;
+
 import org.json.JSONException;
 import org.json.JSONWriter;
 
@@ -24,17 +22,19 @@ public class ComTaskExecutionStartedEvent extends AbstractComTaskExecutionEventI
 
     /**
      * For the externalization process only.
+     *
+     * @param serviceProvider The ServiceProvider
      */
-    public ComTaskExecutionStartedEvent (Clock clock, DeviceDataService deviceDataService, EngineModelService engineModelService) {
-        super(clock, deviceDataService, engineModelService);
+    public ComTaskExecutionStartedEvent (ServiceProvider serviceProvider) {
+        super(serviceProvider);
     }
 
-    public ComTaskExecutionStartedEvent (ComTaskExecution comTaskExecution, ComPort comPort, ConnectionTask connectionTask, Clock clock, DeviceDataService deviceDataService, EngineModelService engineModelService) {
-        this(comTaskExecution, comTaskExecution.getExecutionStartedTimestamp(), comPort, connectionTask, clock, deviceDataService, engineModelService);
+    public ComTaskExecutionStartedEvent (ComTaskExecution comTaskExecution, ComPort comPort, ConnectionTask connectionTask, ServiceProvider serviceProvider) {
+        this(comTaskExecution, comTaskExecution.getExecutionStartedTimestamp(), comPort, connectionTask, serviceProvider);
     }
 
-    public ComTaskExecutionStartedEvent (ComTaskExecution comTask, Date executionStartedTimestamp, ComPort comPort, ConnectionTask connectionTask, Clock clock, DeviceDataService deviceDataService, EngineModelService engineModelService) {
-        super(comTask, comPort, connectionTask, clock, deviceDataService, engineModelService);
+    public ComTaskExecutionStartedEvent (ComTaskExecution comTask, Date executionStartedTimestamp, ComPort comPort, ConnectionTask connectionTask, ServiceProvider serviceProvider) {
+        super(comTask, comPort, connectionTask, serviceProvider);
         this.executionStartedTimestamp = executionStartedTimestamp;
     }
 

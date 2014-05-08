@@ -1,25 +1,22 @@
 package com.energyict.mdc.engine.impl.events.logging;
 
-import com.elster.jupiter.util.time.Clock;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.common.IdBusinessObject;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.events.ComPortPoolRelatedEvent;
 import com.energyict.mdc.engine.events.ComPortRelatedEvent;
 import com.energyict.mdc.engine.events.LoggingEvent;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.common.IdBusinessObject;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
-import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPort;
+
 import org.json.JSONException;
 import org.json.JSONWriter;
 
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.Date;
 
 /**
  * Provides an implementation for the {@link LoggingEvent} interface
@@ -36,13 +33,15 @@ public class ComPortOperationsLoggingEvent extends AbstractComServerEventImpl im
 
     /**
      * For the externalization process only.
+     *
+     * @param serviceProvider The ServiceProvider
      */
-    public ComPortOperationsLoggingEvent (Clock clock, DeviceDataService deviceDataService, EngineModelService engineModelService) {
-        super(clock, deviceDataService, engineModelService);
+    public ComPortOperationsLoggingEvent (ServiceProvider serviceProvider) {
+        super(serviceProvider);
     }
 
-    public ComPortOperationsLoggingEvent (Date occurrenceTimestamp, ComPort comPort, LogLevel logLevel, String logMessage, Clock clock, DeviceDataService deviceDataService, EngineModelService engineModelService) {
-        super(clock, deviceDataService, engineModelService, occurrenceTimestamp);
+    public ComPortOperationsLoggingEvent (ComPort comPort, LogLevel logLevel, String logMessage, ServiceProvider serviceProvider) {
+        super(serviceProvider);
         this.logLevel = logLevel;
         this.logMessage = logMessage;
         this.comPort = comPort;

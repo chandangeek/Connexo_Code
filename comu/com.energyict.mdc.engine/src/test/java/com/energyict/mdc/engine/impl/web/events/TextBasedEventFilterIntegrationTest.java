@@ -305,7 +305,7 @@ public class TextBasedEventFilterIntegrationTest {
         private OutboundComPortPool comPortPool;
 
         private EventGenerator () {
-            super();
+            super(clock, engineModelService);
             this.device = mock(BaseDevice.class);
             this.connectionTask = mock(OutboundConnectionTask.class);
             this.comPort = mock(OutboundComPort.class);

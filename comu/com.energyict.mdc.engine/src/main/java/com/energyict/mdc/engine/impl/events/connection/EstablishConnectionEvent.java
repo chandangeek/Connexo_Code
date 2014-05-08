@@ -1,10 +1,8 @@
 package com.energyict.mdc.engine.impl.events.connection;
 
-import com.elster.jupiter.util.time.Clock;
-import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.model.ComPort;
+
 import org.json.JSONException;
 import org.json.JSONWriter;
 
@@ -19,13 +17,15 @@ public class EstablishConnectionEvent extends AbstractConnectionEventImpl {
 
     /**
      * For the externalization process only.
+     *
+     * @param serviceProvider The ServiceProvider
      */
-    public EstablishConnectionEvent (Clock clock, DeviceDataService deviceDataService, EngineModelService engineModelService) {
-        super(clock, deviceDataService, engineModelService);
+    public EstablishConnectionEvent (ServiceProvider serviceProvider) {
+        super(serviceProvider);
     }
 
-    public EstablishConnectionEvent (ComPort comPort, ConnectionTask connectionTask, Clock clock, DeviceDataService deviceDataService, EngineModelService engineModelService) {
-        super(connectionTask, comPort, clock, deviceDataService, engineModelService);
+    public EstablishConnectionEvent (ComPort comPort, ConnectionTask connectionTask, ServiceProvider serviceProvider) {
+        super(connectionTask, comPort, serviceProvider);
     }
 
     @Override

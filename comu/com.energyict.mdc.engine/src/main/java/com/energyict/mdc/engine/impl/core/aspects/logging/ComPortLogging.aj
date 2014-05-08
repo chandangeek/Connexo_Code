@@ -59,7 +59,7 @@ public aspect ComPortLogging extends AbstractComPortLogging {
 
     private void attachHandlerTo (ComPortConnectionLogger logger, JobExecution.ExecutionContext executionContext) {
         Logger actualLogger = ((LoggerFactory.LoggerHolder) logger).getLogger();
-        actualLogger.addHandler(new ExecutionContextLogHandler(executionContext));
+        actualLogger.addHandler(new ExecutionContextLogHandler(clock, executionContext));
     }
 
     private ComPortConnectionLogger getUniqueLogger (ComPort comPort, LogLevel logLevel) {

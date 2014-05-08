@@ -1,31 +1,11 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.comserver.GenericDeviceProtocol;
-import com.energyict.comserver.aspects.journaling.ComCommandJournalist;
-import com.energyict.comserver.aspects.logging.ComChannelLogger;
-import com.energyict.comserver.aspects.logging.ComCommandLogger;
-import com.energyict.comserver.commands.ComSessionRootDeviceCommand;
-import com.energyict.comserver.commands.CompositeDeviceCommand;
-import com.energyict.comserver.commands.CreateInboundComSession;
-import com.energyict.comserver.commands.CreateOutboundComSession;
-import com.energyict.comserver.commands.DeviceCommand;
-import com.energyict.comserver.commands.DeviceCommandExecutionToken;
-import com.energyict.comserver.commands.DeviceCommandExecutor;
-import com.energyict.comserver.commands.DeviceCommandFactoryImpl;
-import com.energyict.comserver.commands.core.ComTaskExecutionComCommand;
-import com.energyict.comserver.commands.core.CommandRootImpl;
-import com.energyict.comserver.exceptions.CodingException;
-import com.energyict.comserver.time.Clocks;
-import com.energyict.mdc.ManagerFactory;
-import com.energyict.mdc.commands.CommandRoot;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.DatabaseException;
 import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.Transaction;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.communication.tasks.OfflineDeviceForComTaskGroup;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.journal.ComSession;
 import com.energyict.mdc.device.data.journal.ComTaskExecutionSession;
@@ -36,15 +16,26 @@ import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.engine.GenericDeviceProtocol;
+import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.store.ComSessionRootDeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.CompositeDeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.CreateInboundComSession;
+import com.energyict.mdc.engine.impl.commands.store.CreateOutboundComSession;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.core.aspects.journaling.ComCommandJournalist;
+import com.energyict.mdc.engine.impl.core.aspects.logging.ComChannelLogger;
+import com.energyict.mdc.engine.impl.core.aspects.logging.ComCommandLogger;
+import com.energyict.mdc.engine.impl.core.inbound.ComChannelPlaceHolder;
+import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPort;
-import com.energyict.mdc.exceptions.PersistenceCodingException;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.Problem;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
-import com.energyict.mdc.protocol.ComChannelPlaceHolder;
-import com.energyict.mdc.protocol.ComPortRelatedComChannel;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -57,15 +48,11 @@ import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionSetupException;
 import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.shadow.journal.ComCommandJournalEntryShadow;
-import com.energyict.mdc.shadow.journal.ComSessionJournalEntryShadow;
-import com.energyict.mdc.shadow.journal.ComSessionShadow;
-import com.energyict.mdc.shadow.journal.ComStatisticsShadow;
-import com.energyict.mdc.shadow.journal.ComTaskExecutionMessageJournalEntryShadow;
-import com.energyict.mdc.shadow.journal.ComTaskExecutionSessionShadow;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ProtocolTask;
-import com.energyict.mdw.core.TransactionExecutorProvider;
+
+import com.elster.jupiter.transaction.Transaction;
+
 import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -87,7 +74,7 @@ public abstract class JobExecution implements ScheduledJob {
     private final ComPort comPort;
     private final ComServerDAO comServerDAO;
     private final DeviceCommandExecutor deviceCommandExecutor;
-    private final IssueService issueService;
+    private final ServiceProvider serviceProvider;
     private DeviceCommandExecutionToken token;
     private ExecutionContext executionContext;
     private PreparationContext preparationContext;
@@ -126,11 +113,11 @@ public abstract class JobExecution implements ScheduledJob {
 
     public abstract ConnectionTask getConnectionTask();
 
-    public JobExecution(ComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, IssueService issueService) {
+    public JobExecution(ComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
         this.comPort = comPort;
         this.comServerDAO = comServerDAO;
         this.deviceCommandExecutor = deviceCommandExecutor;
-        this.issueService = issueService;
+        this.serviceProvider = serviceProvider;
         this.preparationContext = new PreparationContext();
     }
 
@@ -148,18 +135,19 @@ public abstract class JobExecution implements ScheduledJob {
         comTaskPreparationContext.getCommandCreator().
                 createCommands(
                         comTaskPreparationContext.getRoot(),
-                        getProtocolDialectTypedProperties(comTaskExecution),
+                        this.getProtocolDialectTypedProperties(comTaskExecution),
                         this.preparationContext.getComChannelPlaceHolder(),
                         comTaskPreparationContext.getOfflineDevice(),
                         protocolTasks,
                         deviceProtocolSecurityPropertySet,
-                        connectionSteps, comTaskExecution, issueService);
+                        connectionSteps, comTaskExecution, this.serviceProvider.issueService());
         return new PreparedComTaskExecution(comTaskExecution, comTaskPreparationContext.getRoot(), comTaskPreparationContext.getDeviceProtocol());
     }
 
-    private static TypedProperties getProtocolDialectTypedProperties(ComTaskExecution comTaskExecution) {
+    private  TypedProperties getProtocolDialectTypedProperties(ComTaskExecution comTaskExecution) {
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = comTaskExecution.getProtocolDialectConfigurationProperties();
-        ProtocolDialectProperties protocolDialectPropertiesWithName = ManagerFactory.getCurrent().getProtocolDialectPropertiesFactory().findProtocolDialectPropertiesWithName(protocolDialectConfigurationProperties.getDeviceProtocolDialectName(), (int) comTaskExecution.getDevice().getId());
+        Device device = this.serviceProvider.deviceDataService().findDeviceById(comTaskExecution.getDevice().getId());
+        ProtocolDialectProperties protocolDialectPropertiesWithName = device.getProtocolDialectProperties(protocolDialectConfigurationProperties.getDeviceProtocolDialectName());
         if (protocolDialectPropertiesWithName == null) {
             return TypedProperties.inheritingFrom(protocolDialectConfigurationProperties.getTypedProperties());
         } else {
@@ -185,74 +173,11 @@ public abstract class JobExecution implements ScheduledJob {
     }
 
     protected List<PreparedComTaskExecution> prepareAll(final List<? extends ComTaskExecution> comTaskExecutions) {
-        try {
-           return TransactionExecutorProvider.instance.get().getTransactionExecutor().execute(new Transaction<List<PreparedComTaskExecution>>() {
-               @Override
-               public List<PreparedComTaskExecution> doExecute() throws BusinessException, SQLException {
-                   getExecutionContext().getComSessionShadow().setNumberOfPlannedButNotExecutedTasks(comTaskExecutions.size());
-                   List<PreparedComTaskExecution> prepared = new ArrayList<>();
-                   final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = ComTaskExecutionOrganizer.defineComTaskExecutionOrders(comTaskExecutions.toArray(new ComTaskExecution[comTaskExecutions.size()]));
-                   for (DeviceOrganizedComTaskExecution deviceOrganizedComTaskExecution : deviceOrganizedComTaskExecutions) {
-                       ComTaskPreparationContext comTaskPreparationContext = new ComTaskPreparationContext(deviceOrganizedComTaskExecution).invoke();
-                       for (DeviceOrganizedComTaskExecution.ComTaskWithSecurityAndConnectionSteps comTaskWithSecurityAndConnectionSteps : deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity()) {
-                           final ComTaskExecution comTaskExecution = comTaskWithSecurityAndConnectionSteps.getComTaskExecution();
-                           final ComTaskExecutionConnectionSteps connectionSteps = comTaskWithSecurityAndConnectionSteps.getComTaskExecutionConnectionSteps();
-                           final DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = comTaskWithSecurityAndConnectionSteps.getDeviceProtocolSecurityPropertySet();
-                           final PreparedComTaskExecution preparedComTaskExecution =
-                                   getPreparedComTaskExecution(
-                                           comTaskPreparationContext,
-                                           comTaskExecution,
-                                           connectionSteps,
-                                           deviceOrganizedComTaskExecution.getDevice(),
-                                           deviceProtocolSecurityPropertySet);
-                           prepared.add(preparedComTaskExecution);
-                       }
-                       //GenericDeviceProtocols can reorganize the commands
-                       if (GenericDeviceProtocol.class.isAssignableFrom(comTaskPreparationContext.getDeviceProtocol().getClass())) {
-                           comTaskPreparationContext.setRoot(((GenericDeviceProtocol) comTaskPreparationContext.getDeviceProtocol()).organizeComCommands(comTaskPreparationContext.getRoot()));
-                       }
-                   }
-                   return prepared;
-               }
-           });
-        } catch (BusinessException e) {
-            throw CodingException.unexpectedBusinessException(e);
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }finally{
-            Environment.DEFAULT.get().closeConnection();
-        }
+        return this.serviceProvider.transactionService().execute(new PrepareAllTransaction(comTaskExecutions));
     }
 
     protected PreparedComTaskExecution prepareOne(final ComTaskExecution comTaskExecution) {
-        try {
-            return TransactionExecutorProvider.instance.get().getTransactionExecutor().execute(new Transaction<PreparedComTaskExecution>() {
-                @Override
-                public PreparedComTaskExecution doExecute() throws BusinessException, SQLException {
-                    getExecutionContext().getComSessionShadow().setNumberOfPlannedButNotExecutedTasks(1);
-                    final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = ComTaskExecutionOrganizer.defineComTaskExecutionOrders(comTaskExecution);
-                    final DeviceOrganizedComTaskExecution deviceOrganizedComTaskExecution = deviceOrganizedComTaskExecutions.get(0);
-                    if (deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity().size() == 1) {
-                        final DeviceOrganizedComTaskExecution.ComTaskWithSecurityAndConnectionSteps comTaskWithSecurityAndConnectionSteps = deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity().get(0);
-                        ComTaskPreparationContext comTaskPreparationContext = new ComTaskPreparationContext(deviceOrganizedComTaskExecution).invoke();
-                        return getPreparedComTaskExecution(
-                                comTaskPreparationContext,
-                                comTaskWithSecurityAndConnectionSteps.getComTaskExecution(),
-                                comTaskWithSecurityAndConnectionSteps.getComTaskExecutionConnectionSteps(),
-                                deviceOrganizedComTaskExecution.getDevice(),
-                                comTaskWithSecurityAndConnectionSteps.getDeviceProtocolSecurityPropertySet());
-                    } else {
-                        throw CodingException.incorrectNumberOfPreparedComTaskExecutions(1, deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity().size());
-                    }
-                }
-            });
-        } catch (BusinessException e) {
-            throw CodingException.unexpectedBusinessException(e);
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }finally{
-            Environment.DEFAULT.get().closeConnection();
-        }
+        return this.serviceProvider.transactionService().execute(new PrepareTransaction(comTaskExecution));
     }
 
     private void connected(ComPortRelatedComChannel comChannel) {
@@ -370,7 +295,7 @@ public abstract class JobExecution implements ScheduledJob {
     }
 
     protected ExecutionContext newExecutionContext(ConnectionTask connectionTask, ComPort comPort, boolean logConnectionProperties) {
-        return new ExecutionContext(this, connectionTask, comPort, logConnectionProperties, issueService);
+        return new ExecutionContext(this, connectionTask, comPort, logConnectionProperties, this.serviceProvider.issueService());
     }
 
     @Override
@@ -519,7 +444,7 @@ public abstract class JobExecution implements ScheduledJob {
     public static final class ExecutionContext {
 
         private final JobExecution jobExecution;
-        private final IssueService issueService;
+        private final ServiceProvider serviceProvider;
 
         private ComPortRelatedComChannel comChannel;
         private ComSessionShadow sessionShadow = new ComSessionShadow();
@@ -536,16 +461,16 @@ public abstract class JobExecution implements ScheduledJob {
         private CompositeDeviceCommand storeCommand;
         private boolean basicCheckFailed = false;
 
-        public ExecutionContext(JobExecution jobExecution, ConnectionTask connectionTask, ComPort comPort, IssueService issueService) {
-            this(jobExecution, connectionTask, comPort, true, issueService);
+        public ExecutionContext(JobExecution jobExecution, ConnectionTask connectionTask, ComPort comPort, ServiceProvider serviceProvider) {
+            this(jobExecution, connectionTask, comPort, true, serviceProvider);
         }
 
-        public ExecutionContext(JobExecution jobExecution, ConnectionTask connectionTask, ComPort comPort, boolean logConnectionProperties, IssueService issueService) {
+        public ExecutionContext(JobExecution jobExecution, ConnectionTask connectionTask, ComPort comPort, boolean logConnectionProperties, ServiceProvider serviceProvider) {
             super();
             this.jobExecution = jobExecution;
             this.comPort = comPort;
             this.connectionTask = connectionTask;
-            this.issueService = issueService;
+            this.serviceProvider = serviceProvider;
             this.initializeComSessionShadow(logConnectionProperties);
             this.logger = Logger.getAnonymousLogger();  // Start with an anonymous one, refine it later
         }
@@ -774,7 +699,7 @@ public abstract class JobExecution implements ScheduledJob {
             for (CollectedData data : collectedData) {
                 serverCollectedData.add((ServerCollectedData) data);
             }
-            return new DeviceCommandFactoryImpl().newForAll(serverCollectedData, this.issueService);
+            return new DeviceCommandFactoryImpl().newForAll(serverCollectedData, this.this.serviceProvider.issueService());
         }
 
         public void fail(ComTaskExecution comTaskExecution, Throwable t) {
@@ -997,7 +922,7 @@ public abstract class JobExecution implements ScheduledJob {
 
         public ComTaskPreparationContext invoke() {
             this.takeDeviceOffline();
-            root = new CommandRootImpl(offlineDevice, getExecutionContext(), issueService);
+            root = new CommandRootImpl(offlineDevice, getExecutionContext(), this.serviceProvider.issueService());
             DeviceProtocolPluggableClass protocolPluggableClass = offlineDevice.getDeviceProtocolPluggableClass();
             deviceProtocol = protocolPluggableClass.getDeviceProtocol();
             commandCreator = CommandFactory.commandCreatorForPluggableClass(protocolPluggableClass);
@@ -1010,4 +935,70 @@ public abstract class JobExecution implements ScheduledJob {
         }
     }
 
+    private class PrepareAllTransaction implements Transaction<List<PreparedComTaskExecution>> {
+        private final List<? extends ComTaskExecution> comTaskExecutions;
+
+        private PrepareAllTransaction(List<? extends ComTaskExecution> comTaskExecutions) {
+            this.comTaskExecutions = comTaskExecutions;
+        }
+
+        @Override
+        public List<PreparedComTaskExecution> perform() {
+            getExecutionContext().getComSessionShadow().setNumberOfPlannedButNotExecutedTasks(comTaskExecutions.size());
+            List<PreparedComTaskExecution> prepared = new ArrayList<>();
+            List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions =
+                    ComTaskExecutionOrganizer.
+                            defineComTaskExecutionOrders(
+                                    comTaskExecutions.toArray(new ComTaskExecution[comTaskExecutions.size()]));
+            for (DeviceOrganizedComTaskExecution deviceOrganizedComTaskExecution : deviceOrganizedComTaskExecutions) {
+                ComTaskPreparationContext comTaskPreparationContext = new ComTaskPreparationContext(deviceOrganizedComTaskExecution).invoke();
+                for (DeviceOrganizedComTaskExecution.ComTaskWithSecurityAndConnectionSteps comTaskWithSecurityAndConnectionSteps : deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity()) {
+                    final ComTaskExecution comTaskExecution = comTaskWithSecurityAndConnectionSteps.getComTaskExecution();
+                    final ComTaskExecutionConnectionSteps connectionSteps = comTaskWithSecurityAndConnectionSteps.getComTaskExecutionConnectionSteps();
+                    final DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = comTaskWithSecurityAndConnectionSteps.getDeviceProtocolSecurityPropertySet();
+                    final PreparedComTaskExecution preparedComTaskExecution =
+                            getPreparedComTaskExecution(
+                                    comTaskPreparationContext,
+                                    comTaskExecution,
+                                    connectionSteps,
+                                    deviceOrganizedComTaskExecution.getDevice(),
+                                    deviceProtocolSecurityPropertySet);
+                    prepared.add(preparedComTaskExecution);
+                }
+                //GenericDeviceProtocols can reorganize the commands
+                if (GenericDeviceProtocol.class.isAssignableFrom(comTaskPreparationContext.getDeviceProtocol().getClass())) {
+                    comTaskPreparationContext.setRoot(((GenericDeviceProtocol) comTaskPreparationContext.getDeviceProtocol()).organizeComCommands(comTaskPreparationContext.getRoot()));
+                }
+            }
+            return prepared;
+        }
+    }
+
+    private class PrepareTransaction implements Transaction<PreparedComTaskExecution> {
+        private final ComTaskExecution comTaskExecution;
+
+        private PrepareTransaction(ComTaskExecution comTaskExecution) {
+            super();
+            this.comTaskExecution = comTaskExecution;
+        }
+
+        @Override
+        public PreparedComTaskExecution perform() {
+            getExecutionContext().getComSessionShadow().setNumberOfPlannedButNotExecutedTasks(1);
+            final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = ComTaskExecutionOrganizer.defineComTaskExecutionOrders(comTaskExecution);
+            final DeviceOrganizedComTaskExecution deviceOrganizedComTaskExecution = deviceOrganizedComTaskExecutions.get(0);
+            if (deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity().size() == 1) {
+                final DeviceOrganizedComTaskExecution.ComTaskWithSecurityAndConnectionSteps comTaskWithSecurityAndConnectionSteps = deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity().get(0);
+                ComTaskPreparationContext comTaskPreparationContext = new ComTaskPreparationContext(deviceOrganizedComTaskExecution).invoke();
+                return getPreparedComTaskExecution(
+                        comTaskPreparationContext,
+                        comTaskWithSecurityAndConnectionSteps.getComTaskExecution(),
+                        comTaskWithSecurityAndConnectionSteps.getComTaskExecutionConnectionSteps(),
+                        deviceOrganizedComTaskExecution.getDevice(),
+                        comTaskWithSecurityAndConnectionSteps.getDeviceProtocolSecurityPropertySet());
+            } else {
+                throw CodingException.incorrectNumberOfPreparedComTaskExecutions(1, deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity().size());
+            }
+        }
+    }
 }

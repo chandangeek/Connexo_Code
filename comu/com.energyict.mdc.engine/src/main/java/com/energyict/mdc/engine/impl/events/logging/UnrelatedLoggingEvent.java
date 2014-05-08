@@ -1,19 +1,16 @@
 package com.energyict.mdc.engine.impl.events.logging;
 
-import com.elster.jupiter.util.time.Clock;
-import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.events.LoggingEvent;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.engine.model.EngineModelService;
+
 import org.json.JSONException;
 import org.json.JSONWriter;
 
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.Date;
 
 /**
  * Provides an implementation for the {@link LoggingEvent} interface
@@ -29,13 +26,15 @@ public class UnrelatedLoggingEvent extends AbstractComServerEventImpl implements
 
     /**
      * For the externalization process only.
+     *
+     * @param serviceProvider The ServiceProvider
      */
-    public UnrelatedLoggingEvent (Clock clock, DeviceDataService deviceDataService, EngineModelService engineModelService) {
-        super(clock, deviceDataService, engineModelService);
+    public UnrelatedLoggingEvent (ServiceProvider serviceProvider) {
+        super(serviceProvider);
     }
 
-    public UnrelatedLoggingEvent (Date occurrenceTimestamp, LogLevel logLevel, String logMessage, Clock clock, DeviceDataService deviceDataService, EngineModelService engineModelService) {
-        super(clock, deviceDataService, engineModelService, occurrenceTimestamp);
+    public UnrelatedLoggingEvent (LogLevel logLevel, String logMessage, ServiceProvider serviceProvider) {
+        super(serviceProvider);
         this.logLevel = logLevel;
         this.logMessage = logMessage;
     }

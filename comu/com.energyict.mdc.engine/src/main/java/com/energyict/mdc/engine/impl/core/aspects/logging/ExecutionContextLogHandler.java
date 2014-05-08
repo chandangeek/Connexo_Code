@@ -1,12 +1,8 @@
 package com.energyict.mdc.engine.impl.core.aspects.logging;
 
 import com.energyict.mdc.engine.impl.core.ScheduledJobImpl;
-import com.energyict.comserver.time.Clocks;
-import com.energyict.mdc.journal.StackTracePrinter;
-import com.energyict.mdc.shadow.journal.ComSessionJournalEntryShadow;
-import com.energyict.mdc.shadow.journal.ComSessionShadow;
-import com.energyict.mdc.shadow.journal.ComTaskExecutionMessageJournalEntryShadow;
-import com.energyict.mdc.shadow.journal.ComTaskExecutionSessionShadow;
+
+import com.elster.jupiter.util.time.Clock;
 
 import java.text.MessageFormat;
 import java.util.MissingResourceException;
@@ -25,10 +21,12 @@ import java.util.logging.LogRecord;
  */
 public class ExecutionContextLogHandler extends Handler {
 
-    private ScheduledJobImpl.ExecutionContext executionContext;
+    private final Clock clock;
+    private final ScheduledJobImpl.ExecutionContext executionContext;
 
-    public ExecutionContextLogHandler (ScheduledJobImpl.ExecutionContext executionContext) {
+    public ExecutionContextLogHandler(Clock clock, ScheduledJobImpl.ExecutionContext executionContext) {
         super();
+        this.clock = clock;
         this.executionContext = executionContext;
     }
 
@@ -46,7 +44,7 @@ public class ExecutionContextLogHandler extends Handler {
     private void publishComTaskMessageJournalEntry (ComTaskExecutionSessionShadow taskExecutionSession, LogRecord record) {
         ComTaskExecutionMessageJournalEntryShadow shadow = new ComTaskExecutionMessageJournalEntryShadow();
         shadow.setMessage(this.extractInfo(record));
-        shadow.setTimestamp(Clocks.getAppServerClock().now());
+        shadow.setTimestamp(this.clock.now());
         Throwable thrown = record.getThrown();
         if (thrown != null) {
             shadow.setErrorDescription(StackTracePrinter.print(thrown));
@@ -57,7 +55,7 @@ public class ExecutionContextLogHandler extends Handler {
     private void publishComSessionJournalEntry (ComSessionShadow sessionShadow, LogRecord record) {
         ComSessionJournalEntryShadow shadow = new ComSessionJournalEntryShadow();
         shadow.setMessage(this.extractInfo(record));
-        shadow.setTimestamp(Clocks.getAppServerClock().now());
+        shadow.setTimestamp(this.clock.now());
         Throwable thrown = record.getThrown();
         if (thrown != null) {
             shadow.setCause(thrown);
