@@ -6,6 +6,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupSetup', {
     requires: [
         'Mdc.view.setup.registergroup.RegisterGroupGrid',
         'Mdc.view.setup.registergroup.RegisterGroupPreview',
+        'Ext.layout.container.Card',
         'Uni.view.container.EmptyGridContainer'
     ],
 
@@ -62,6 +63,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupSetup', {
                         type: 'hbox',
                         align: 'left'
                     },
+                    padding: '10 10 10 10',
                     minHeight: 20,
                     items: [
                         {
@@ -84,7 +86,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupSetup', {
                                 {
                                     xtype: 'button',
                                     margin: '10 0 0 0',
-                                    text: Uni.I18n.translate('registerGroups.create', 'MDC', 'Create register group'),
+                                    text: Uni.I18n.translate('registerGroup.create', 'MDC', 'Create register group'),
                                     action: 'createRegisterGroup'
                                 }
                             ]

@@ -51,12 +51,8 @@ Ext.define('Mdc.controller.setup.Devices', {
             text: Uni.I18n.translate('device.devices', 'MDC', 'Devices'),
             href: 'devices'
         });
-        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.home', 'MDC', 'Home'),
-            href: '#setup'
-        });
-        breadcrumbParent.setChild(breadcrumbChild).setChild(breadcrumbChild2);
-        this.getBreadCrumbs().setBreadcrumbItem(breadcrumbParent);
+        breadcrumbChild.setChild(breadcrumbChild2);
+        this.getBreadCrumbs().setBreadcrumbItem(breadcrumbChild);
     }
 
 });
