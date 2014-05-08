@@ -15,7 +15,7 @@ import static java.util.logging.Level.SEVERE;
  */
 public enum MessageSeeds implements MessageSeed {
 
-    NAME_IS_REQUIRED(1000, Keys.NAME_REQUIRED, "The name of {0} is required", SEVERE),
+    NAME_IS_REQUIRED(1000, Keys.NAME_REQUIRED, "The name is required", SEVERE),
     NAME_IS_UNIQUE(1001, Keys.NAME_UNIQUE, "The name must be unique", SEVERE),
 
     LOG_BOOK_TYPE_NAME_IS_REQUIRED(1102, "MDS.logBookType.name.required", "The name of a log book type is required", SEVERE),

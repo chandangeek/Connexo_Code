@@ -80,16 +80,19 @@ public class Installer {
     }
 
     private void createTranslations() {
-        try {
-            List<Translation> translations = new ArrayList<>(MessageSeeds.values().length);
-            for (MessageSeeds messageSeed : MessageSeeds.values()) {
+        List<Translation> translations = new ArrayList<>(MessageSeeds.values().length);
+        for (MessageSeeds messageSeed : MessageSeeds.values()) {
+            try {
                 SimpleNlsKey nlsKey = SimpleNlsKey.key(MasterDataService.COMPONENTNAME, Layer.DOMAIN, messageSeed.getKey()).defaultMessage(messageSeed.getDefaultFormat());
                 translations.add(toTranslation(nlsKey, Locale.ENGLISH, messageSeed.getDefaultFormat()));
             }
-            thesaurus.addTranslations(translations);
+            catch (Exception e) {
+                logger.severe(e.getMessage());
+            }
         }
-        catch (Exception e) {
-            logger.severe(e.getMessage());
+
+        if(translations.size() > 0){
+            thesaurus.addTranslations(translations);
         }
     }
 
@@ -98,13 +101,13 @@ public class Installer {
     }
 
     private void createEventTypes() {
-        try {
-            for (EventType eventType : EventType.values()) {
+        for (EventType eventType : EventType.values()) {
+            try {
                 eventType.install(this.eventService);
             }
-        }
-        catch (Exception e) {
-            logger.severe(e.getMessage());
+            catch (Exception e) {
+                logger.severe(e.getMessage());
+            }
         }
     }
 
