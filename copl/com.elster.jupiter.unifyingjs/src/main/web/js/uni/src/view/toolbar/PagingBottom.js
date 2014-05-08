@@ -6,6 +6,8 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
     xtype: 'pagingtoolbarbottom',
     ui: 'pagingtoolbarbottom',
 
+    defaultButtonUI: 'default',
+
     requires: [
         'Uni.util.QueryString',
         'Uni.util.History'

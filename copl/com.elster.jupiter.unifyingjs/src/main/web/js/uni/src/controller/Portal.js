@@ -16,7 +16,7 @@
  *                 text: 'Administration',
  *                 href: '#/administration',
  *                 portal: 'administration',
- *                 glyph: 'xe020@icomoon',
+ *                 glyph: 'settings',
  *                 index: 10
  *     });
  *
