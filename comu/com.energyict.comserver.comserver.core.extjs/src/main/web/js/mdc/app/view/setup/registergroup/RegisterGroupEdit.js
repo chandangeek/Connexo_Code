@@ -58,7 +58,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                 xtype: 'form',
                                 border: false,
                                 itemId: 'registerGroupEditForm',
-                                padding: '10 10 0 10',
+                                //padding: '10 10 0 10',
                                 layout: {
                                     type: 'vbox'
                                 },
@@ -78,8 +78,9 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                         enforceMaxLength: true
                                     },
                                     {
-                                        xtype: 'box',
-                                        autoEl: {tag: 'hr'}
+                                        xtype: 'component',
+                                        itemId: 'separator',
+                                        html: '<hr>'
                                     },
                                     {
                                         xtype: 'displayfield',
@@ -91,78 +92,115 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                         required: true
                                     },
                                     {
-                                        xtype: 'gridpanel',
-                                        width: 950,
-                                        maxHeight: 500,
-                                        margins: '10 10 10 250',
-                                        itemId: 'editRegisterGroupGridField',
-                                        bodyBorder: true,
-                                        columnLines: false,
-                                        enableColumnHide: false,
-                                        enableColumnMove: false,
-                                        enableColumnResize: false,
-                                        sortableColumns: false,
-                                        store: new Ext.data.Store({
-                                            model: 'Mdc.model.RegisterType'
-                                        }),
-                                        selModel : Ext.create('Ext.selection.CheckboxModel',{
-                                            allowDeselect: true,
-                                            mode : 'MULTI'
+                                        xtype: 'emptygridcontainer',
+                                        itemId: 'registerEditEmptyGrid',
+                                        grid: {
+                                            xtype: 'gridpanel',
+                                            width: 950,
+                                            maxHeight: 100,
+                                            margin: '10 10 10 255',
+                                            itemId: 'editRegisterGroupGridField',
+                                            bodyBorder: true,
+                                            columnLines: false,
+                                            enableColumnHide: false,
+                                            enableColumnMove: false,
+                                            enableColumnResize: false,
+                                            sortableColumns: false,
+                                            store: new Ext.data.Store({
+                                                model: 'Mdc.model.RegisterType'
                                             }),
-                                        columns: [
-                                            /*{
-                                                xtype: 'checkcolumn',
-                                                dataIndex: 'selected',
-                                                sortable: false,
-                                                hideable: false,
-                                                flex: 0.1
-                                            },*/
-                                            {
-                                                header: Uni.I18n.translate('registerType.name', 'MDC', 'Name'),
-                                                dataIndex: 'name',
-                                                sortable: false,
-                                                hideable: false,
-                                                fixed: true,
-                                                flex: 3
+                                            selModel: {
+                                                mode: 'MULTI',
+                                                checkOnly: true,
+                                                ignoreRightMouseSelection: true
                                             },
-                                            {
-                                                xtype: 'actioncolumn',
-                                                renderer: function (value, metaData, record) {
-                                                    return '<div class="x-grid-cell-inner" style="float:left; font-size: 13px; line-height: 1em;">'
-                                                        + record.getReadingType().get('mrid') + '&nbsp' + '&nbsp'
-                                                        + '</div>'
+                                            selType: 'checkboxmodel',
+                                            columns: [
+                                                {
+                                                    header: Uni.I18n.translate('registerType.name', 'MDC', 'Name'),
+                                                    dataIndex: 'name',
+                                                    sortable: false,
+                                                    hideable: false,
+                                                    fixed: true,
+                                                    flex: 3
                                                 },
-                                                header: Uni.I18n.translate('registerMappings.readingType', 'MDC', 'Reading type'),
-                                                items: [
-                                                    {
-                                                        icon: '../mdc/resources/images/information.png',
-                                                        iconCls: 'uni-info-icon',
-                                                        tooltip: Uni.I18n.translate('readingType.tooltip', 'MDC', 'Reading type info'),
-                                                        handler: function (grid, rowIndex, colIndex, item, e) {
-                                                            var record = grid.getStore().getAt(rowIndex);
-                                                            this.fireEvent('showReadingTypeInfo', record);
+                                                {
+                                                    xtype: 'actioncolumn',
+                                                    renderer: function (value, metaData, record) {
+                                                        return '<div class="x-grid-cell-inner" style="float:left; font-size: 13px; line-height: 1em;">'
+                                                            + record.getReadingType().get('mrid') + '&nbsp' + '&nbsp'
+                                                            + '</div>'
+                                                    },
+                                                    header: Uni.I18n.translate('registerMappings.readingType', 'MDC', 'Reading type'),
+                                                    items: [
+                                                        {
+                                                            icon: '../mdc/resources/images/information.png',
+                                                            iconCls: 'uni-info-icon',
+                                                            tooltip: Uni.I18n.translate('readingType.tooltip', 'MDC', 'Reading type info'),
+                                                            handler: function (grid, rowIndex, colIndex, item, e) {
+                                                                var record = grid.getStore().getAt(rowIndex);
+                                                                this.fireEvent('showReadingTypeInfo', record);
+                                                            }
                                                         }
-                                                    }
-                                                ],
-                                                width: 300,
-                                                tdCls: 'view',
-                                                sortable: false,
-                                                hideable: false
+                                                    ],
+                                                    width: 300,
+                                                    tdCls: 'view',
+                                                    sortable: false,
+                                                    hideable: false
 
+                                                },
+                                                {
+                                                    header: Uni.I18n.translate('registerType.obisCode', 'MDC', 'OBIS code'),
+                                                    dataIndex: 'obisCode',
+                                                    sortable: false,
+                                                    hideable: false,
+                                                    fixed: true,
+                                                    flex: 1
+                                                }
+                                            ]
+                                        },
+                                        emptyComponent: {
+                                            xtype: 'container',
+                                            layout: {
+                                                type: 'hbox',
+                                                align: 'left'
                                             },
-                                            {
-                                                header: Uni.I18n.translate('registerType.obisCode', 'MDC', 'OBIS code'),
-                                                dataIndex: 'obisCode',
-                                                sortable: false,
-                                                hideable: false,
-                                                fixed: true,
-                                                flex: 1
-                                            }
-                                        ]
+                                            padding: '10 10 10 0',
+                                            minHeight: 20,
+                                            items: [
+                                                {
+                                                    xtype: 'image',
+                                                    margin: '0 10 0 0',
+                                                    src: "../mdc/resources/images/information.png",
+                                                    height: 20,
+                                                    width: 20
+                                                },
+                                                {
+                                                    xtype: 'container',
+                                                    items: [
+                                                        {
+                                                            xtype: 'component',
+                                                            html: '<h4>'+ Uni.I18n.translate('registerGroupPreview.empty.title', 'MDC', 'No register types found') +'</h4><br>' +
+                                                                Uni.I18n.translate('registerGroupPreview.empty.detail', 'MDC', 'There are no register types. This could be because:') + '<lv><li>&nbsp&nbsp' +
+                                                                Uni.I18n.translate('registerGroupEdit.empty.list.item1', 'MDC', 'No register types have been defined yet.') + '</li></lv><br>' +
+                                                                Uni.I18n.translate('registerGroupPreview.empty.steps', 'MDC', 'Possible steps:')
+                                                        },
+                                                        {
+                                                            xtype: 'button',
+                                                            itemId: 'createRegisterType',
+                                                            margin: '10 0 0 0',
+                                                            text: Uni.I18n.translate('registerType.createRegisterType', 'MDC', 'Create register type'),
+                                                            action: 'createRegisterType'
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        }
                                     },
                                     {
                                         xtype: 'fieldcontainer',
                                         fieldLabel: '&nbsp',
+                                        itemId: 'btnsContainer',
                                         //width: 430,
                                         layout: {
                                             type: 'hbox',
