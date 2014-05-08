@@ -1,24 +1,29 @@
 package com.energyict.mdc.common.rest;
 
 import com.elster.jupiter.util.Checks;
-import com.energyict.mdc.common.ObisCode;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
-public class BooleanAdapter extends XmlAdapter<String, ObisCode> {
+public class BooleanAdapter extends XmlAdapter<String, Boolean> {
 
     @Override
-    public ObisCode unmarshal(String jsonValue) throws Exception {
+    public Boolean unmarshal(String jsonValue) throws Exception {
         if (Checks.is(jsonValue).emptyOrOnlyWhiteSpace()) {
             return null;
         }
-        return ObisCode.fromString(jsonValue);
+        if (jsonValue.equalsIgnoreCase("true")) {
+            return true;
+        } else if (jsonValue.equalsIgnoreCase("false")) {
+            return false;
+        } else {
+            throw new IllegalArgumentException("invalid boolean value");
+        }
     }
 
     @Override
-    public String marshal(ObisCode obisCode) throws Exception {
-        if (obisCode==null) {
+    public String marshal(Boolean aBoolean) throws Exception {
+        if (aBoolean==null) {
             return null;
         }
-        return obisCode.toString();
+        return aBoolean.toString();
     }
 }
