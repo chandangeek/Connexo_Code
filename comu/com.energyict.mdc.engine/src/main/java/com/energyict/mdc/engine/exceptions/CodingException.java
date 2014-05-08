@@ -13,6 +13,8 @@ import com.energyict.mdc.protocol.api.exceptions.ComServerRuntimeException;
 import com.energyict.mdc.common.exceptions.ExceptionCode;
 import com.energyict.mdc.common.exceptions.ExceptionType;
 
+import javax.management.MalformedObjectNameException;
+import javax.management.openmbean.OpenDataException;
 import java.lang.reflect.Method;
 
 /**
@@ -457,6 +459,39 @@ public final class CodingException extends ComServerRuntimeException {
     public static CodingException comTaskSessionMissing (ComTaskExecution comTaskExecution) {
         return new CodingException(comTaskSessionMissingExceptionCode(), comTaskExecution.getComTask().getName());
     }
+
+    public static CodingException malformedObjectName (RunningComServer comServer, MalformedObjectNameException e) {
+        return new CodingException(e, malformedObjectNameExceptionCode(), comServer.getComServer().getName());
+    }
+
+    private static ExceptionCode malformedObjectNameExceptionCode () {
+        return new ExceptionCode(new com.energyict.mdc.engine.exceptions.CommonReferenceScope(), ExceptionType.CODING, com.energyict.mdc.engine.exceptions.CommonExceptionReferences.MBEAN_OBJECT_FORMAT);
+    }
+
+    public static CodingException compositeTypeCreation (Class clazz, OpenDataException e) {
+        return new CodingException(e, compositeTypeCreationExceptionCode(), clazz.getName());
+    }
+
+    private static ExceptionCode compositeTypeCreationExceptionCode () {
+        return new ExceptionCode(new com.energyict.mdc.engine.exceptions.CommonReferenceScope(), ExceptionType.CODING, com.energyict.mdc.engine.exceptions.CommonExceptionReferences.COMPOSITE_TYPE_CREATION);
+    }
+
+    public static CodingException compositeDataCreation (Class clazz, OpenDataException e) {
+        return new CodingException(e, compositeDataCreationExceptionCode(), clazz.getName());
+    }
+
+    private static ExceptionCode compositeDataCreationExceptionCode () {
+        return new ExceptionCode(new com.energyict.mdc.engine.exceptions.CommonReferenceScope(), ExceptionType.CODING, com.energyict.mdc.engine.exceptions.CommonExceptionReferences.COMPOSITE_TYPE_CREATION);
+    }
+
+    public static CodingException unknownCompositeDataItem (Class clazz, String itemName) {
+        return new CodingException(unknownCompositeDataItemExceptionCode(), clazz.getName(), itemName);
+    }
+
+    private static ExceptionCode unknownCompositeDataItemExceptionCode () {
+        return new ExceptionCode(new com.energyict.mdc.engine.exceptions.CommonReferenceScope(), ExceptionType.CODING, com.energyict.mdc.engine.exceptions.CommonExceptionReferences.UNKNOWN_COMPOSITE_DATA_ITEM);
+    }
+
 
     private static ExceptionCode comTaskSessionMissingExceptionCode () {
         return new ExceptionCode(new CommonReferenceScope(), ExceptionType.CODING, CommonExceptionReferences.SESSION_FOR_COMTASK_MISSING);
