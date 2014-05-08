@@ -15,11 +15,8 @@ import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.data.impl.offline.OfflineLoadProfileImpl;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfileChannel;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -134,11 +131,6 @@ public class LoadProfileImpl implements LoadProfile {
         Save.UPDATE.save(dataModel, this);
     }
 
-    @Override
-    public OfflineLoadProfile goOffline() {
-        return new OfflineLoadProfileImpl(this);
-    }
-
     abstract static class LoadProfileUpdater implements LoadProfile.LoadProfileUpdater {
 
         final LoadProfileImpl loadProfile;
@@ -225,9 +217,5 @@ public class LoadProfileImpl implements LoadProfile {
             return this.channelSpec.getRegisterMapping().getObisCode();
         }
 
-        @Override
-        public OfflineLoadProfileChannel goOffline() {
-            return null;
-        }
     }
 }

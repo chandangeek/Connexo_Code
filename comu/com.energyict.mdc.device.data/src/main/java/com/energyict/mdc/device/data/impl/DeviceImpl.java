@@ -56,8 +56,6 @@ import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationPropertiesIsRequiredException;
 import com.energyict.mdc.device.data.exceptions.StillGatewayException;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueMrid;
-import com.energyict.mdc.device.data.impl.offline.DeviceOffline;
-import com.energyict.mdc.device.data.impl.offline.OfflineDeviceImpl;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
@@ -78,11 +76,14 @@ import com.energyict.mdc.protocol.api.device.BaseLogBook;
 import com.energyict.mdc.protocol.api.device.DeviceMultiplier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.google.common.base.Optional;
 import com.google.inject.Inject;
+
+import javax.inject.Provider;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -92,10 +93,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
-import javax.inject.Provider;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 @UniqueMrid(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_DEVICE_MRID + "}")
 public class DeviceImpl implements Device, PersistenceAware {
@@ -881,16 +878,6 @@ public class DeviceImpl implements Device, PersistenceAware {
 
     public DeviceMultiplier getDeviceMultiplier() {
         return null;
-    }
-
-    @Override
-    public OfflineDevice goOffline() {
-        return new OfflineDeviceImpl(this, DeviceOffline.needsEverything);
-    }
-
-    @Override
-    public OfflineDevice goOffline(OfflineDeviceContext context) {
-        return new OfflineDeviceImpl(this, context);
     }
 
     public DataMapper<DeviceImpl> getDataMapper() {
