@@ -39,4 +39,8 @@ public interface ComSchedule extends HasId {
     public void setStartDate(UtcInstant startDate);
 
     public Date getPlannedDate();
+
+    String getmRID();
+
+    void setmRID(String mRID);
 }

@@ -1,5 +1,6 @@
 package com.energyict.mdc.scheduling.model.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -14,6 +15,7 @@ import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
 import com.energyict.mdc.scheduling.model.SchedulingStatus;
 import com.energyict.mdc.tasks.TaskService;
 import com.google.inject.AbstractModule;
@@ -144,14 +146,32 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService 
     }
 
     @Override
-    public ComSchedule newComSchedule(String name, TemporalExpression temporalExpression, UtcInstant startDate) {
-        ComScheduleImpl instance = dataModel.getInstance(ComScheduleImpl.class);
-        instance.setName(name);
-        instance.setTemporalExpression(temporalExpression);
-        instance.setSchedulingStatus(SchedulingStatus.ACTIVE);
-        instance.setStartDate(startDate);
-        instance.save();
-        return instance;
+    public ComScheduleBuilder newComSchedule(String name, TemporalExpression temporalExpression, UtcInstant startDate) {
+        return new ComScheduleBuilderImpl(name, temporalExpression, startDate);
+    }
+
+    class ComScheduleBuilderImpl implements ComScheduleBuilder {
+        private ComSchedule instance;
+
+        ComScheduleBuilderImpl(String name, TemporalExpression temporalExpression, UtcInstant startDate) {
+            instance = dataModel.getInstance(ComScheduleImpl.class);
+            instance.setName(name);
+            instance.setTemporalExpression(temporalExpression);
+            instance.setSchedulingStatus(SchedulingStatus.ACTIVE);
+            instance.setStartDate(startDate);
+        }
+
+        @Override
+        public ComScheduleBuilder mrid(String mrid) {
+            instance.setmRID(mrid);
+            return this;
+        }
+
+        @Override
+        public ComSchedule build() {
+            Save.CREATE.save(dataModel, instance);
+            return instance;
+        }
     }
 
 }

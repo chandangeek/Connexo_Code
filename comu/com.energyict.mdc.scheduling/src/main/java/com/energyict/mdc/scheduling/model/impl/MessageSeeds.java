@@ -17,7 +17,8 @@ public enum MessageSeeds implements MessageSeed {
     TEMPORAL_EXPRESSION_FREQUENCY_REQUIRED(10, Constants.TEMPORAL_EXPRESSION_FREQUENCY_REQUIRED_KEY, "The frequency of a temporal expression is required", Level.SEVERE),
     TEMPORAL_EXPRESSION_UNKNOWN_UNIT(11, Constants.TEMPORAL_EXPRESSION_UNKNOWN_UNIT_KEY, "The unit {0} is unknown or unsupported for temporal expressions", Level.SEVERE),
     TEMPORAL_EXPRESSION_FREQUENCY_MUST_BE_STRICTLY_POSITIVE(12, Constants.TEMPORAL_EXPRESSION_FREQUENCY_MUST_BE_STRICTLY_POSITIVE_KEY, "The frequency value of a temporal expression must be a strictly positive number", Level.SEVERE),
-    TEMPORAL_EXPRESSION_OFFSET_MUST_BE_POSITIVE(13, Constants.TEMPORAL_EXPRESSION_OFFSET_MUST_BE_POSITIVE_KEY, "The offset value of a temporal expression must be a positive number", Level.SEVERE);
+    TEMPORAL_EXPRESSION_OFFSET_MUST_BE_POSITIVE(13, Constants.TEMPORAL_EXPRESSION_OFFSET_MUST_BE_POSITIVE_KEY, "The offset value of a temporal expression must be a positive number", Level.SEVERE),
+    TOO_LONG(14, Constants.TOO_LONG, "Must be less then {max} characters", Level.SEVERE);
 
     private final int number;
     private final String key;
@@ -82,6 +83,7 @@ final class Constants {
     public static final String TEMPORAL_EXPRESSION_FREQUENCY_MUST_BE_STRICTLY_POSITIVE_KEY = SchedulingService.COMPONENT_NAME+".temporalExpression.every.count.positive";
     public static final String TEMPORAL_EXPRESSION_OFFSET_MUST_BE_POSITIVE_KEY = SchedulingService.COMPONENT_NAME+".temporalExpression.offset.count.positive";
 
+    public static final String TOO_LONG = SchedulingService.COMPONENT_NAME + ".tooLong";
 }
 
 

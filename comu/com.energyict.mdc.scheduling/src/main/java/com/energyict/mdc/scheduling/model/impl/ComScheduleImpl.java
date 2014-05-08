@@ -6,6 +6,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.UtcInstant;
+import com.energyict.mdc.common.Global;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
@@ -20,8 +21,11 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
-@UniqueName
+@UniqueName(groups = { Save.Update.class, Save.Create.class }, message = "{"+Constants.NOT_UNIQUE+"}")
+@UniqueMRID(groups = { Save.Update.class, Save.Create.class }, message = "{"+Constants.NOT_UNIQUE+"}")
 public class ComScheduleImpl implements ComSchedule, HasId {
 
     private final SchedulingService schedulingService;
@@ -33,6 +37,7 @@ public class ComScheduleImpl implements ComSchedule, HasId {
         NEXT_EXECUTION_SPEC("nextExecutionSpecs"),
         STATUS("schedulingStatus"),
         START_DATE("startDate"),
+        MRID("mRID"),
         COM_TASK_IN_COM_SCHEDULE("comTaskUsages");
         private final String javaFieldName;
 
@@ -53,10 +58,15 @@ public class ComScheduleImpl implements ComSchedule, HasId {
     }
 
     private long id;
+    @NotNull(groups = { Save.Update.class, Save.Create.class }, message = "{"+Constants.CAN_NOT_BE_EMPTY+"}")
+    @Size(max= Global.DB_STRING_LENGTH, groups = { Save.Update.class, Save.Create.class }, message = "{"+Constants.TOO_LONG+"}")
     private String name;
+    @Size(max= Global.DB_STRING_LENGTH, groups = { Save.Update.class, Save.Create.class }, message = "{"+Constants.TOO_LONG+"}")
+    private String mRID;
     private List<ComTaskInComSchedule> comTaskUsages = new ArrayList<>();
     private Reference<NextExecutionSpecs> nextExecutionSpecs = ValueReference.absent();
     private SchedulingStatus schedulingStatus;
+    @NotNull(groups = { Save.Update.class, Save.Create.class }, message = "{"+Constants.CAN_NOT_BE_EMPTY+"}")
     private UtcInstant startDate;
 
     @Override
@@ -71,7 +81,7 @@ public class ComScheduleImpl implements ComSchedule, HasId {
 
     @Override
     public void setName(String name) {
-        this.name = name;
+        this.name = name!=null?name.trim():null;
     }
 
     // Intentionally not on interface
@@ -82,6 +92,16 @@ public class ComScheduleImpl implements ComSchedule, HasId {
     @Override
     public TemporalExpression getTemporalExpression() {
         return this.nextExecutionSpecs.get().getTemporalExpression();
+    }
+
+    @Override
+    public String getmRID() {
+        return mRID;
+    }
+
+    @Override
+    public void setmRID(String mRID) {
+        this.mRID = mRID!=null?mRID.trim():null;
     }
 
     @Override
