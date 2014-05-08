@@ -18,6 +18,10 @@ Ext.define('Usr.controller.User', {
     ],
 
     refs: [
+        {
+            ref: 'userDetails',
+            selector: 'userDetails'
+        }
     ],
 
     init: function () {
@@ -69,11 +73,12 @@ Ext.define('Usr.controller.User', {
 
     selectUser: function (grid, record) {
         // fill in the details panel
-        var form = grid.up('panel').up('container').up('container').down('form');
-        form.loadRecord(record);
+        var title = Uni.I18n.translate('user.user', 'USM', 'User') + ' "' + record.get('authenticationName') + '"';
+        var detailsPanel = this.getUserDetails(),
+            form = detailsPanel.down('form');
 
-        var detailsHeader = Ext.getCmp('els_usm_userDetailsHeader');
-        detailsHeader.update('<h4>' + Uni.I18n.translate('user.user', 'USM', 'User') + ' "' + record.get('authenticationName') + '"' + '</h4>');
+        detailsPanel.setTitle(title);
+        form.loadRecord(record);
 
         var roles = '';
         var currentGroups = record.groups().data.items;
@@ -83,7 +88,6 @@ Ext.define('Usr.controller.User', {
 
         var detailsRoles = Ext.getCmp('els_usm_userDetailsRoles');
         detailsRoles.setValue(roles);
-
-        form.show();
+        detailsPanel.show();
     }
 });

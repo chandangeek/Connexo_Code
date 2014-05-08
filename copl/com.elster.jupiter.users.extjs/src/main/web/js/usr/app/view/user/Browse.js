@@ -74,22 +74,14 @@ Ext.define('Usr.view.user.Browse', {
 
     content: [
         {
-            xtype: 'container',
-            cls: 'content-container',
-            padding: '10 10 0 10',
+            xtype: 'panel',
+            ui: 'large',
+            title: '<h1>' + Uni.I18n.translate('user.title', 'USM', 'Users') + '</h1>',
             layout: {
                 type: 'vbox',
                 align: 'stretch'
             },
-            defaults: {
-                //anchor: '100%',
-                margins: '0 0 10 0'
-            },
             items: [
-                {
-                    xtype: 'component',
-                    html: '<h1>' + Uni.I18n.translate('user.title', 'USM', 'Users') + '</h1>'
-                },
                 {
                     xtype: 'userList'
                 },
@@ -98,9 +90,5 @@ Ext.define('Usr.view.user.Browse', {
                 }
             ]
         }
-    ],
-
-    initComponent: function () {
-        this.callParent(arguments);
-    }
+    ]
 });

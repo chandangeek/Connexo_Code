@@ -47,7 +47,7 @@ Ext.define('Usr.view.user.List', {
                 fixed: true,
                 flex: 0.5,
                 items: [{
-                    icon: '../usr/resources/images/gear-16x16.png',
+                    iconCls: 'x-uni-action-icon',
                     handler: function(grid, rowIndex, colIndex,item,e) {
                         var menu = Ext.widget('menu', {
                                 itemId: 'menuUsersList',
