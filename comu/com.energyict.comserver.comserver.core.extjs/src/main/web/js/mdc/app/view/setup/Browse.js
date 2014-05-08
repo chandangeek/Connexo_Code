@@ -20,15 +20,15 @@ Ext.define('Mdc.view.setup.Browse', {
                     items: [
                         {
                             xtype: 'component',
-                            html: '<a href="#/setup/comservers">comservers</a>'
+                            html: '<a href="#/setup/comservers">Comservers</a>'
                         },
                         {
                             xtype: 'component',
-                            html: '<a href="#/setup/comportpools">communication port pools</a>'
+                            html: '<a href="#/setup/comportpools">Communication port pools</a>'
                         },
                         {
                             xtype: 'component',
-                            html: '<a href="#/setup/devicecommunicationprotocols">device communication protocols</a>'
+                            html: '<a href="#/setup/devicecommunicationprotocols">Device communication protocols</a>'
                         }
                     ],
                     columnWidth: 0.5,
