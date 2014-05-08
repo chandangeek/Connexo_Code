@@ -57,6 +57,9 @@ import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.LicenseServer;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
+import com.energyict.mdc.scheduling.SchedulingModule;
+import com.energyict.mdc.tasks.TaskService;
+import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.protocols.mdc.inbound.dlms.DlmsSerialNumberDiscover;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.common.base.Optional;
@@ -64,6 +67,8 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
+import java.security.Principal;
+import java.util.Collections;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -74,9 +79,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
-
-import java.security.Principal;
-import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
@@ -165,6 +167,7 @@ public class PartialInboundConnectiontaskCrudIT {
                 new OrmModule(),
                 new MdcReadingTypeUtilServiceModule(),
                 new MasterDataModule(),
+                new TasksModule(),
                 new DeviceConfigurationModule(),
                 new MdcCommonModule(),
                 new EngineModelModule(),
@@ -172,7 +175,8 @@ public class PartialInboundConnectiontaskCrudIT {
                 new IssuesModule(),
                 new ProtocolsModule(),
                 new MdcDynamicModule(),
-                new PluggableModule());
+                new PluggableModule(),
+                new SchedulingModule());
         transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
             ormService = injector.getInstance(OrmService.class);
@@ -185,6 +189,7 @@ public class PartialInboundConnectiontaskCrudIT {
             inboundDeviceProtocolService = injector.getInstance(InboundDeviceProtocolService.class);
             injector.getInstance(PluggableService.class);
             injector.getInstance(MasterDataService.class);
+            injector.getInstance(TaskService.class);
             deviceConfigurationService = (DeviceConfigurationServiceImpl) injector.getInstance(DeviceConfigurationService.class);
             ctx.commit();
         }
@@ -359,7 +364,7 @@ public class PartialInboundConnectiontaskCrudIT {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Constants.PARTIAL_CONNECTION_TASK_PROPERTY_HAS_NO_SPEC_KEY + '}')
+    @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Keys.PARTIAL_CONNECTION_TASK_PROPERTY_HAS_NO_SPEC + '}')
     public void testCreateWithUnspeccedProperty() {
 
         PartialInboundConnectionTaskImpl inboundConnectionTask;
@@ -386,7 +391,7 @@ public class PartialInboundConnectiontaskCrudIT {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Constants.NAME_UNIQUE_KEY + '}')
+    @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Keys.NAME_UNIQUE + '}')
     public void testCreateWithDuplicateName() {
 
         PartialInboundConnectionTaskImpl inboundConnectionTask;

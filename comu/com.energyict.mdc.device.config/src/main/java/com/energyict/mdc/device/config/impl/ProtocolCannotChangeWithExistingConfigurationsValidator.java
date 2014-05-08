@@ -37,7 +37,7 @@ public class ProtocolCannotChangeWithExistingConfigurationsValidator implements 
             if (!allConfigurations.isEmpty()) {
                 context.disableDefaultConstraintViolation();
                 context
-                    .buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.DEVICE_PROTOCOL_CANNOT_CHANGE_WITH_EXISTING_CONFIGURATIONS_KEY + "}")
+                    .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.DEVICE_PROTOCOL_CANNOT_CHANGE_WITH_EXISTING_CONFIGURATIONS + "}")
                     .addPropertyNode("deviceProtocolPluggableClass").addConstraintViolation();
                 return false;
             }

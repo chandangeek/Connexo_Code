@@ -12,10 +12,10 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.device.config.exceptions.CannotChangeLogbookTypeOfLogbookSpecException;
 import com.energyict.mdc.device.config.exceptions.LogbookTypeIsNotConfiguredOnDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
+import com.energyict.mdc.masterdata.LogBookType;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
@@ -27,7 +27,7 @@ import javax.inject.Provider;
 public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements LogBookSpec {
 
     private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
-    @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.LOGBOOK_SPEC_LOGBOOK_TYPE_IS_REQUIRED_KEY + "}")
+    @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.LOGBOOK_SPEC_LOGBOOK_TYPE_IS_REQUIRED + "}")
     private final Reference<LogBookType> logBookType = ValueReference.absent();
     private String overruledObisCodeString;
     private ObisCode overruledObisCode;
@@ -79,10 +79,16 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
     }
 
     private void validateDeviceTypeContainsLogbookType() {
+        /* Here deviceType will contain different Java instance of logBookType, so we can't
+           use the List.contains() without overriding the equals method */
         DeviceType deviceType = getDeviceConfiguration().getDeviceType();
-        if (!deviceType.getLogBookTypes().contains(getLogBookType())) {
-            throw new LogbookTypeIsNotConfiguredOnDeviceTypeException(this.thesaurus, getLogBookType());
+        long expectedLogBookTypeId = getLogBookType().getId();
+        for (LogBookType lbType : deviceType.getLogBookTypes()) {
+            if (lbType.getId() == expectedLogBookTypeId){
+                return;
+            }
         }
+        throw new LogbookTypeIsNotConfiguredOnDeviceTypeException(this.thesaurus, getLogBookType());
     }
 
     private void validateUpdate () {

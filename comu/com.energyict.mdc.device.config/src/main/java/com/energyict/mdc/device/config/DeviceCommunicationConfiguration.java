@@ -5,7 +5,7 @@ import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.impl.PartialScheduledConnectionTaskImpl;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-
+import com.energyict.mdc.tasks.ComTask;
 import java.util.List;
 
 /**
@@ -56,4 +56,29 @@ public interface DeviceCommunicationConfiguration extends HasId {
     SecurityPropertySetBuilder createSecurityPropertySet(String name);
 
     void removeSecurityPropertySet(SecurityPropertySet propertySet);
+
+    public List<ComTaskEnablement> getComTaskEnablements();
+
+    /**
+     * Starts a {@link ComTaskEnablementBuilder} that, once complete, will enable the execution
+     * of the specified {@link ComTask} with the specified {@link SecurityPropertySet}
+     * on all devices of this configuration.
+     *
+     * @param comTask The ComTask
+     * @param securityPropertySet The SecurityPropertySet
+     * @return The ComTaskEnablementBuilder that builds the enablement
+     */
+    public ComTaskEnablementBuilder enableComTask (ComTask comTask, SecurityPropertySet securityPropertySet);
+
+    /**
+     * Disables the execution of the specified {@link ComTask}
+     * on all devices of this configuration.
+     * This will effectively delete the related {@link ComTaskEnablement}.
+     * Note that this will fail if the ComTask is already scheduled
+     * to execute on Devices of this configuration.
+     *
+     * @param comTask The ComTask
+     */
+    public void  disableComTask (ComTask comTask);
+
 }

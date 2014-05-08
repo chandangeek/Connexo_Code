@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.SimpleNlsKey;
@@ -12,7 +11,6 @@ import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -41,9 +39,9 @@ public class Installer {
         this.userService = userService;
     }
 
-    public void install(boolean executeDdl, boolean updateOrm) {
+    public void install(boolean executeDdl) {
         try {
-            this.dataModel.install(executeDdl, updateOrm);
+            this.dataModel.install(executeDdl, false);
         } catch (Exception e) {
             logger.severe(e.getMessage());
         }
@@ -54,7 +52,11 @@ public class Installer {
 
     private void createPrivileges() {
         for (DeviceSecurityUserAction userAction : DeviceSecurityUserAction.values()) {
-            userService.createPrivilege(DeviceConfigurationService.COMPONENTNAME, userAction.name(), "");
+            try {
+                userService.createPrivilege(DeviceConfigurationService.COMPONENTNAME, userAction.name(), "");
+            } catch (Exception e) {
+                logger.severe(e.getMessage());
+            }
         }
 
     }
@@ -77,12 +79,12 @@ public class Installer {
     }
 
     private void createEventTypes() {
-        try {
-            for (EventType eventType : EventType.values()) {
+        for (EventType eventType : EventType.values()) {
+            try {
                 eventType.install(this.eventService);
+            } catch (Exception e) {
+                logger.severe(e.getMessage());
             }
-        } catch (Exception e) {
-            logger.severe(e.getMessage());
         }
     }
 

@@ -11,6 +11,8 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceCommunicationFunction;
@@ -41,10 +43,7 @@ import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.validation.Valid;
+import com.energyict.mdc.tasks.ComTask;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -55,6 +54,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.validation.Valid;
 
 /**
  *     //TODO the creation of the CommunicationConfiguration is currently skipped ...
@@ -788,4 +790,20 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     public PartialConnectionInitiationTaskBuilder newPartialConnectionInitiationTask(String name, ConnectionTypePluggableClass connectionType, TimeDuration rescheduleRetryDelay) {
         return getCommunicationConfiguration().newPartialConnectionInitiationTask(name, connectionType, rescheduleRetryDelay);
     }
+
+    @Override
+    public ComTaskEnablementBuilder enableComTask(ComTask comTask, SecurityPropertySet securityPropertySet) {
+        return this.getCommunicationConfiguration().enableComTask(comTask, securityPropertySet);
+    }
+
+    @Override
+    public void disableComTask(ComTask comTask) {
+        this.getCommunicationConfiguration().disableComTask(comTask);
+    }
+
+    @Override
+    public List<ComTaskEnablement> getComTaskEnablements() {
+        return this.getCommunicationConfiguration().getComTaskEnablements();
+    }
+
 }

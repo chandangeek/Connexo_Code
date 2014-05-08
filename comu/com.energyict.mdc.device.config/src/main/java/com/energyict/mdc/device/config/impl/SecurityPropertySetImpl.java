@@ -12,12 +12,14 @@ import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.exceptions.CannotDeleteSecurityPropertySetWhileInUseException;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.relation.Relation;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
@@ -27,13 +29,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.google.common.base.Optional;
-
-import javax.inject.Inject;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
 import java.security.Principal;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -45,6 +41,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.inject.Inject;
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
 
 import static com.energyict.mdc.protocol.api.security.DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID;
 
@@ -91,7 +90,10 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
 
     @Override
     protected void validateDelete() {
-        //TODO JP-1866 automatically generated method body, provide implementation.
+        List<ComTaskEnablement> comTaskEnablements = dataModel.mapper(ComTaskEnablement.class).find(ComTaskEnablementImpl.Fields.SECURITY_PROPERTY_SET.fieldName(), this);
+        if (!comTaskEnablements.isEmpty()) {
+            throw new CannotDeleteSecurityPropertySetWhileInUseException(this.getThesaurus(), this);
+        }
     }
 
     static class UserActionRecord {
@@ -102,6 +104,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         }
 
         UserActionRecord(SecurityPropertySet set, DeviceSecurityUserAction userAction) {
+            this();
             this.set.set(set);
             this.userAction = userAction;
         }
@@ -286,14 +289,6 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
                 }
             }
         }
-    }
-
-    private Set<DeviceSecurityUserAction> fetch(ResultSet resultSet) throws SQLException {
-        Set<DeviceSecurityUserAction> userActions = EnumSet.noneOf(DeviceSecurityUserAction.class);
-        while (resultSet.next()) {
-            userActions.add(DeviceSecurityUserAction.values()[resultSet.getInt(1)]);
-        }
-        return userActions;
     }
 
     @Override

@@ -6,7 +6,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.google.common.base.Optional;
-
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -17,11 +16,11 @@ import javax.validation.constraints.Size;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-31 (13:38)
  */
-@HasUniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_UNIQUE_KEY + "}")
+@HasUniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_UNIQUE + "}")
 public abstract class PersistentNamedObject<T> extends PersistentIdObject<T> {
 
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
-    @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
+    @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     private String name;
 
     protected PersistentNamedObject(Class<T> domainClass, DataModel dataModel, EventService eventService, Thesaurus thesaurus) {

@@ -6,7 +6,6 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-
 import java.util.List;
 
 /**

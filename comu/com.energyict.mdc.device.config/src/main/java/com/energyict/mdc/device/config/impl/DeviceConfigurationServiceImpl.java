@@ -7,6 +7,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.UserService;
@@ -16,6 +17,7 @@ import com.energyict.mdc.common.services.DefaultFinder;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.ChannelSpecLinkType;
+import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -23,12 +25,10 @@ import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.config.NextExecutionSpecs;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.config.TemporalExpression;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.masterdata.LoadProfileType;
@@ -36,20 +36,33 @@ import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.TaskService;
 import com.google.common.base.Optional;
+import com.google.common.collect.HashMultiset;
+import com.google.common.collect.Multiset;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.inject.Inject;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-
-import javax.inject.Inject;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -71,7 +84,10 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     private volatile MdcReadingTypeUtilService readingTypeUtilService;
     private volatile EngineModelService engineModelService;
     private volatile MasterDataService masterDataService;
+    private volatile SchedulingService schedulingService;
     private volatile UserService userService;
+    private volatile TaskService taskService;
+    private volatile PluggableService pluggableService;
 
     private final Map<DeviceSecurityUserAction, Privilege> privileges = new EnumMap<>(DeviceSecurityUserAction.class);
 
@@ -80,11 +96,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Inject
-    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, MasterDataService masterDataService) {
-        this(ormService, eventService, nlsService, meteringService, mdcReadingTypeUtilService, protocolPluggableService, userService, engineModelService, masterDataService, false);
+    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, MasterDataService masterDataService, SchedulingService schedulingService) {
+        this(ormService, eventService, nlsService, meteringService, mdcReadingTypeUtilService, protocolPluggableService, userService, engineModelService, masterDataService, false, schedulingService);
     }
 
-    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, ProtocolPluggableService protocolPluggableService, UserService userService, EngineModelService engineModelService, MasterDataService masterDataService, boolean createMasterData) {
+    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, ProtocolPluggableService protocolPluggableService, UserService userService, EngineModelService engineModelService, MasterDataService masterDataService, boolean createMasterData, SchedulingService schedulingService) {
         this();
         this.setOrmService(ormService);
         this.setUserService(userService);
@@ -95,6 +111,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.setReadingTypeUtilService(mdcReadingTypeUtilService);
         this.setEngineModelService(engineModelService);
         this.setMasterDataService(this.masterDataService);
+        this.setSchedulingService(schedulingService);
         this.activate();
         if (!this.dataModel.isInstalled()) {
             this.install(true);
@@ -292,16 +309,6 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
-    public NextExecutionSpecs newNextExecutionSpecs(TemporalExpression temporalExpression) {
-        return new NextExecutionSpecsImpl(this.dataModel, this.eventService, this.thesaurus).initialize(temporalExpression);
-    }
-
-    @Override
-    public NextExecutionSpecs findNextExecutionSpecs(long id) {
-        return this.dataModel.mapper(NextExecutionSpecs.class).getUnique("id", id).orNull();
-    }
-
-    @Override
     public Optional<PartialConnectionTask> getPartialConnectionTask(long id) {
         return dataModel.mapper(PartialConnectionTask.class).getOptional(id);
     }
@@ -324,6 +331,20 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public boolean isPhenomenonInUse(Phenomenon phenomenon) {
         return !this.getDataModel().mapper(ChannelSpec.class).find("phenomenon", phenomenon).isEmpty();
+    }
+
+    @Override
+    public Optional<ComTaskEnablement> findComTaskEnablement(long id) {
+        return dataModel.mapper(ComTaskEnablement.class).getUnique("id", id);
+    }
+
+    @Override
+    public Optional<ComTaskEnablement> findComTaskEnablement(ComTask comTask, DeviceConfiguration deviceConfiguration) {
+        return dataModel.
+                mapper(ComTaskEnablement.class).
+                getUnique(
+                        ComTaskEnablementImpl.Fields.COM_TASK.fieldName(), comTask,
+                        ComTaskEnablementImpl.Fields.CONFIGURATION.fieldName(), deviceConfiguration.getCommunicationConfiguration());
     }
 
     @Reference
@@ -374,6 +395,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         initPrivileges();
     }
 
+    @Reference
+    public void setSchedulingService(SchedulingService schedulingService) {
+        this.schedulingService = schedulingService;
+    }
+
     private void initPrivileges() {
         privileges.clear();
         for (Privilege privilege : userService.getPrivileges()) {
@@ -403,6 +429,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(EngineModelService.class).toInstance(engineModelService);
                 bind(UserService.class).toInstance(userService);
+                bind(SchedulingService.class).toInstance(schedulingService);
             }
         };
     }
@@ -418,7 +445,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     private void install(boolean exeuteDdl) {
-        new Installer(this.dataModel, this.eventService, this.thesaurus, userService).install(exeuteDdl, true);
+        new Installer(this.dataModel, this.eventService, this.thesaurus, userService).install(exeuteDdl);
         initPrivileges();
     }
 
@@ -428,8 +455,21 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Reference
+    public void setTaskService(TaskService taskService) {
+        // Not actively used but required for foreign keys in TableSpecs
+        this.taskService = taskService;
+    }
+
+    @Reference
     public void setMasterDataService(MasterDataService masterDataService) {
+        // Not actively used but required for foreign keys in TableSpecs
         this.masterDataService = masterDataService;
+    }
+
+    @Reference
+    public void setPluggableService(PluggableService pluggableService) {
+        // Not actively used but required for foreign keys in TableSpecs
+        this.pluggableService = pluggableService;
     }
 
     @Override
@@ -441,4 +481,52 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     public List<SecurityPropertySet> findAllSecurityPropertySets() {
         return dataModel.mapper(SecurityPropertySet.class).find();
     }
+
+    @Override
+    public List<ComTask> findAvailableComTasks(ComSchedule comSchedule) {
+        try (Connection connection = dataModel.getConnection(false)) {
+            List<DeviceConfiguration> deviceConfigurations = getDeviceConfigurationsFromComSchedule(comSchedule, connection);
+            Collection<ComTask> comTasks;
+            if (deviceConfigurations.isEmpty()) {
+                comTasks = taskService.findAllComTasks();
+            } else {
+                comTasks = getComTasksPresentInEveryDeviceConfigurations(deviceConfigurations);
+            }
+            return new ArrayList<>(comTasks);
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
+    }
+
+    private Collection<ComTask> getComTasksPresentInEveryDeviceConfigurations(List<DeviceConfiguration> deviceConfigurations) {
+        Multiset<Long> comTasks = HashMultiset.create();
+        Map<Long, ComTask> comTaskMap = new HashMap<>();
+        for (DeviceConfiguration deviceConfiguration : deviceConfigurations) {
+            for (ComTaskEnablement comTaskEnablement : deviceConfiguration.getComTaskEnablements()) {
+                ComTask comTask = comTaskEnablement.getComTask();
+                comTasks.add(comTask.getId());
+                comTaskMap.put(comTask.getId(), comTask);
+            }
+        }
+        for (Long comTask : comTasks.elementSet()) { // filter comTasks not present in all device configs
+            if (comTasks.count(comTask)!=deviceConfigurations.size()) {
+                comTaskMap.remove(comTask);
+            }
+        }
+        return comTaskMap.values();
+    }
+
+    private List<DeviceConfiguration> getDeviceConfigurationsFromComSchedule(ComSchedule comSchedule, Connection connection) throws SQLException {
+        List<DeviceConfiguration> deviceConfigurations = new ArrayList<>();
+        try (PreparedStatement preparedStatement = connection.prepareStatement("select distinct deviceConfigId from EISRTU inner join EISRTUINCOMSCHEDULE on EISRTUINCOMSCHEDULE.RTUID = EISRTU.ID where EISRTUINCOMSCHEDULE.COMSCHEDULEID = ?")) {
+            preparedStatement.setLong(1, comSchedule.getId());
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while(resultSet.next()) {
+                    deviceConfigurations.add(this.findDeviceConfiguration(resultSet.getLong(1)));
+                }
+            }
+        }
+        return deviceConfigurations;
+    }
+
 }

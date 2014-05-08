@@ -19,18 +19,17 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.collect.ImmutableMap;
-
-import javax.inject.Inject;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import javax.inject.Inject;
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.device.config.PartialConnectionTask} interface.

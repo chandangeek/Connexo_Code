@@ -11,28 +11,27 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.DeviceUsageType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.LoadProfileTypeAlreadyInDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.LogBookTypeAlreadyInDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.device.config.exceptions.RegisterMappingAlreadyInDeviceTypeException;
+import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.masterdata.LogBookType;
+import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.collect.ImmutableList;
-
-import javax.inject.Inject;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import javax.inject.Inject;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 @ProtocolCannotChangeWithExistingConfigurations(groups = {Save.Update.class})
 public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements DeviceType {
@@ -47,7 +46,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private List<DeviceTypeLoadProfileTypeUsage> loadProfileTypeUsages = new ArrayList<>();
     private List<DeviceTypeRegisterMappingUsage> registerMappingUsages = new ArrayList<>();
     private long deviceProtocolPluggableClassId;
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.DEVICE_PROTOCOL_IS_REQUIRED_KEY + "}")
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.DEVICE_PROTOCOL_IS_REQUIRED + "}")
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     private boolean deviceProtocolPluggableClassChanged = false;
 

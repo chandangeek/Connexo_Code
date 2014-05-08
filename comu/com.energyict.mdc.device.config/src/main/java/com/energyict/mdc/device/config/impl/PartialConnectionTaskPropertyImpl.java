@@ -8,7 +8,6 @@ import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialConnectionTaskProperty;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.ValueFactory;
-
 import javax.inject.Inject;
 
 /**
