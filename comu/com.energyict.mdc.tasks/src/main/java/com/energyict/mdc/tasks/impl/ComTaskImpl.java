@@ -44,7 +44,7 @@ import javax.validation.constraints.Size;
  * @since 2/05/12 - 16:10
  */
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{"+Constants.DUPLICATE_COMTASK_NAME +"}")
-public class ComTaskImpl implements ComTask, DataCollectionConfiguration {
+public class ComTaskImpl implements ComTask {
 
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
@@ -243,46 +243,6 @@ public class ComTaskImpl implements ComTask, DataCollectionConfiguration {
     @Override
     public String getType () {
         return ComTask.class.getName();
-    }
-
-    @Override
-    public boolean isConfiguredToCollectRegisterData () {
-        return this.isConfiguredToCollectDataOfClass(RegistersTask.class);
-    }
-
-    @Override
-    public boolean isConfiguredToCollectLoadProfileData () {
-        return this.isConfiguredToCollectDataOfClass(LoadProfilesTask.class);
-    }
-
-    @Override
-    public boolean isConfiguredToRunBasicChecks () {
-        return this.isConfiguredToCollectDataOfClass(BasicCheckTask.class);
-    }
-
-    @Override
-    public boolean isConfiguredToCheckClock () {
-        return this.isConfiguredToCollectDataOfClass(ClockTask.class);
-    }
-
-    @Override
-    public boolean isConfiguredToCollectEvents () {
-        return this.isConfiguredToCollectDataOfClass(LogBooksTask.class);
-    }
-
-    @Override
-    public boolean isConfiguredToSendMessages () {
-        return this.isConfiguredToCollectDataOfClass(MessagesTask.class);
-    }
-
-    @Override
-    public boolean isConfiguredToReadStatusInformation () {
-        return this.isConfiguredToCollectDataOfClass(StatusInformationTask.class);
-    }
-
-    @Override
-    public boolean isConfiguredToUpdateTopology () {
-        return this.isConfiguredToCollectDataOfClass(TopologyTask.class);
     }
 
     private <T extends ProtocolTask> boolean isConfiguredToCollectDataOfClass (Class<T> protocolTaskClass) {
