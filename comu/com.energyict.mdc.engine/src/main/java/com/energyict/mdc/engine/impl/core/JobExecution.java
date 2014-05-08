@@ -25,6 +25,7 @@ import com.energyict.mdc.engine.impl.commands.store.CreateInboundComSession;
 import com.energyict.mdc.engine.impl.commands.store.CreateOutboundComSession;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.engine.impl.core.aspects.journaling.ComCommandJournalist;
 import com.energyict.mdc.engine.impl.core.aspects.logging.ComChannelLogger;
 import com.energyict.mdc.engine.impl.core.aspects.logging.ComCommandLogger;
@@ -113,11 +114,11 @@ public abstract class JobExecution implements ScheduledJob {
 
     public abstract ConnectionTask getConnectionTask();
 
-    public JobExecution(ComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
+    public JobExecution(ComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor) {
         this.comPort = comPort;
         this.comServerDAO = comServerDAO;
         this.deviceCommandExecutor = deviceCommandExecutor;
-        this.serviceProvider = serviceProvider;
+        this.serviceProvider = ServiceProvider.instance.get();
         this.preparationContext = new PreparationContext();
     }
 

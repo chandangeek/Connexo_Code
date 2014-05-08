@@ -36,7 +36,7 @@ public class CollectedLogBookDeviceCommandTest {
     public void testToJournalMessageDescriptionWhenLogBookHasNoMeterEvents() throws Exception {
         final LogBookIdentifier logBookIdentifier = new LogBookIdentifierByIdImpl(LOGBOOK_ID);
         final DeviceLogBook deviceLogBook = new DeviceLogBook(logBookIdentifier);
-        CollectedLogBookDeviceCommand command = new CollectedLogBookDeviceCommand(deviceLogBook, issueService, clock);
+        CollectedLogBookDeviceCommand command = new CollectedLogBookDeviceCommand(deviceLogBook, issueService, clock, deviceDataService);
 
         // Business method
         final String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
@@ -67,7 +67,7 @@ public class CollectedLogBookDeviceCommandTest {
                                 UNKNOWN,
                                 UNKNOWN));
         deviceLogBook.setMeterEvents(meterEvents);
-        CollectedLogBookDeviceCommand command = new CollectedLogBookDeviceCommand(deviceLogBook, issueService, clock);
+        CollectedLogBookDeviceCommand command = new CollectedLogBookDeviceCommand(deviceLogBook, issueService, clock, deviceDataService);
 
         // Business method
         final String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);

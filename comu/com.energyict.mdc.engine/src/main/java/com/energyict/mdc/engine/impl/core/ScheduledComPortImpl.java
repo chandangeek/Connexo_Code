@@ -1,15 +1,14 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.cbo.TimeConstants;
-import com.energyict.comserver.commands.DeviceCommandExecutor;
-import com.energyict.comserver.core.ComTaskExecutionGroup;
-import com.energyict.comserver.core.ComTaskExecutionJob;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.issues.IssueService;
+import org.joda.time.DateTimeConstants;
+
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -160,7 +159,7 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     protected void reschedule () {
         try {
             int seconds = this.schedulingInterpollDelay.getSeconds();
-            Thread.sleep(seconds * TimeConstants.MILLISECONDS_IN_SECOND);
+            Thread.sleep(seconds * DateTimeConstants.MILLIS_PER_SECOND);
         }
         catch (InterruptedException e) {
             Thread.currentThread().interrupt();

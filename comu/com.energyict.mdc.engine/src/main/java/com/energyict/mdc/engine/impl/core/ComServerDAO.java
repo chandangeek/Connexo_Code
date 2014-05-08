@@ -244,6 +244,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      */
     public TimeDuration releaseTimedOutTasks (ComServer comServer);
 
+
     /**
      * Creates a new ComSession from the specifications laid out
      * in the ComSessionShadow for an outbound communication session.
@@ -253,7 +254,8 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * @return The newly created ComSession
      * @see ComSessionFactory#createOutboundComSession(ScheduledConnectionTask, ComSessionShadow)
      */
-    public ComSession createOutboundComSession (ScheduledConnectionTask owner, ComSessionShadow shadow);
+    //TODO reenable and adjust this when JP-2460 is completely finished
+//    public ComSession createOutboundComSession (ScheduledConnectionTask owner, ComSessionShadow shadow);
 
     /**
      * Creates a new ComSession from the specifications laid out
@@ -266,20 +268,8 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * @see com.energyict.mdc.journal.ComSessionFactory#createInboundComSession(com.energyict.mdc.shadow.journal.ComSessionShadow)
      * @see com.energyict.mdc.journal.ComSessionFactory#createInboundComSession(com.energyict.mdc.tasks.InboundConnectionTask, ComSessionShadow)
      */
-    public ComSession createInboundComSession(InboundConnectionTask owner, ComSessionShadow shadow);
-
-    /**
-     * Creates a new EndDeviceCache from the specifications laid
-     * out in the DeviceCacheShadow or updates the DeviceCache
-     * that already exists for the BaseDevice
-     * with the specified identifier.
-     *
-     * @param deviceId The unique identifier of the BaseDevice that owns the data of the DeviceCache
-     * @param shadow The DeviceCacheShadow
-     * @return The newly created DeviceCache
-     * @see com.energyict.mdw.core.DeviceCacheFactory#create(DeviceCacheShadow)
-     */
-    public EndDeviceCache createOrUpdateDeviceCache (int deviceId, DeviceCacheShadow shadow);
+    //TODO reenable and adjust this when JP-2460 is completely finished
+//    public ComSession createInboundComSession(InboundConnectionTask owner, ComSessionShadow shadow);
 
     /**
      * Stores the given list of Reading readings on the Meter.

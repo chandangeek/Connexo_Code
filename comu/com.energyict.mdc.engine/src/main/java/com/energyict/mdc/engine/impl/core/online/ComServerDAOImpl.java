@@ -437,8 +437,7 @@ public class ComServerDAOImpl implements ComServerDAO {
         });
     }
 
-    @Override
-    public EndDeviceCache createOrUpdateDeviceCache(final int deviceId, final DeviceCacheShadow shadow) {
+    private EndDeviceCache createOrUpdateDeviceCache(final int deviceId, final DeviceCacheShadow shadow) {
         return this.execute(new Transaction<EndDeviceCache>() {
             @Override
             public EndDeviceCache doExecute() throws SQLException, BusinessException {

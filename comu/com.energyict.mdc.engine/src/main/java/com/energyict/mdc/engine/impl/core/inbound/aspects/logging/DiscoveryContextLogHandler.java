@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.impl.core.inbound.aspects.logging;
 
+import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
+
 import java.text.MessageFormat;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
@@ -8,8 +10,7 @@ import java.util.logging.LogRecord;
 
 /**
  * Provides an implementation for the Handler class
- * that creates {@link com.energyict.mdc.journal.ComSessionJournalEntry ComSessionJournalEntries}
- * or {@link com.energyict.mdc.journal.ComTaskExecutionMessageJournalEntry ComTaskMessageJournalEntries}
+ * that creates ComSessionJournalEntries or ComTaskMessageJournalEntries
  * depending on the state of the {@link InboundDiscoveryContextImpl} it is working in.
  *
  * @author Rudi Vankeirsbilck (rudi)

@@ -13,7 +13,7 @@ import com.energyict.mdc.engine.impl.cache.DeviceCacheImpl;
  * Date: 08/05/14
  * Time: 11:53
  */
-public enum TableSpec {
+public enum TableSpecs {
 
     EISDEVICECACHE {
         @Override

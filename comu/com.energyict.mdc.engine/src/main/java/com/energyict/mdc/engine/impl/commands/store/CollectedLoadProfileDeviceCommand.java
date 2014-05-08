@@ -11,6 +11,7 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.protocol.inbound.DeviceIdentifierById;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
@@ -30,13 +31,11 @@ import java.util.List;
  */
 public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl {
 
-    private final DeviceDataService deviceDataService;
     private final CollectedLoadProfile collectedLoadProfile;
 
-    public CollectedLoadProfileDeviceCommand(CollectedLoadProfile collectedLoadProfile, IssueService issueService, DeviceDataService deviceDataService, Clock clock) {
-        super(issueService, clock);
+    public CollectedLoadProfileDeviceCommand(CollectedLoadProfile collectedLoadProfile) {
+        super();
         this.collectedLoadProfile = collectedLoadProfile;
-        this.deviceDataService = deviceDataService;
     }
 
     @Override
@@ -50,7 +49,7 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl {
     private void storeReadingsAndUpdateLastReading(ComServerDAO comServerDAO, LoadProfile loadProfile, LocalLoadProfile localLoadProfile) {
         MeterReadingImpl meterReading = new MeterReadingImpl();
         meterReading.addAllIntervalBlocks(localLoadProfile.intervalBlocks);
-        comServerDAO.storeMeterReadings(new DeviceIdentifierById(loadProfile.getDevice().getId(), this.deviceDataService), meterReading);
+        comServerDAO.storeMeterReadings(new DeviceIdentifierById(loadProfile.getDevice().getId(), getDeviceDataService()), meterReading);
         LoadProfile.LoadProfileUpdater loadProfileUpdater = ((Device) loadProfile.getDevice()).getLoadProfileUpdaterFor(loadProfile);
         loadProfileUpdater.setLastReadingIfLater(localLoadProfile.lastReading);
         loadProfileUpdater.update();
@@ -60,7 +59,7 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl {
         List<IntervalBlock> filteredBlocks = new ArrayList<>();
         Date lastReading = null;
         Date currentDate = getClock().now();
-        for (IntervalBlock intervalBlock : MeterDataFactory.createIntervalBlocksFor(collectedLoadProfile, loadProfile.getInterval())) {
+        for (IntervalBlock intervalBlock : MeterDataFactory.createIntervalBlocksFor(collectedLoadProfile, loadProfile.getInterval(), getMdcReadingTypeUtilService())) {
             IntervalBlockImpl filteredBlock = new IntervalBlockImpl(intervalBlock.getReadingTypeCode());
             for (IntervalReading intervalReading : intervalBlock.getIntervals()) {
                 if (!intervalReading.getTimeStamp().after(currentDate)) {

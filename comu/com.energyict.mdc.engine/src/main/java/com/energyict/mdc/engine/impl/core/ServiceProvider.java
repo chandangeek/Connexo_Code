@@ -1,7 +1,9 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.services.HexService;
 
 import com.elster.jupiter.transaction.TransactionService;
@@ -29,5 +31,9 @@ public interface ServiceProvider {
     public HexService hexService();
 
     public DeviceDataService deviceDataService();
+
+    public MdcReadingTypeUtilService mdcReadingTypeUtilService();
+
+    public EngineService engineService();
 
 }

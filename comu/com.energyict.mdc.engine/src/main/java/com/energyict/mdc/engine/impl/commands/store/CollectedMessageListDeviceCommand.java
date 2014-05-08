@@ -27,8 +27,8 @@ public class CollectedMessageListDeviceCommand extends DeviceCommandImpl {
     private final DeviceProtocolMessageList deviceProtocolMessageList;
     private final List<OfflineDeviceMessage> allDeviceMessages;
 
-    public CollectedMessageListDeviceCommand(DeviceProtocolMessageList deviceProtocolMessageList, List<OfflineDeviceMessage> allDeviceMessages, IssueService issueService, Clock clock) {
-        super(issueService, clock);
+    public CollectedMessageListDeviceCommand(DeviceProtocolMessageList deviceProtocolMessageList, List<OfflineDeviceMessage> allDeviceMessages) {
+        super();
         this.deviceProtocolMessageList = deviceProtocolMessageList;
         this.allDeviceMessages = allDeviceMessages;
     }

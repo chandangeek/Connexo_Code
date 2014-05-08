@@ -2,17 +2,14 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.metering.readings.EndDeviceEvent;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
-import com.elster.jupiter.util.time.Clock;
+import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLogBook;
+import com.energyict.mdc.engine.impl.protocol.inbound.DeviceIdentifierById;
 import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
-import com.energyict.mdc.protocol.inbound.DeviceIdentifierById;
-import com.energyict.util.Pair;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -28,8 +25,11 @@ public class CollectedLogBookDeviceCommand extends DeviceCommandImpl {
 
     private final DeviceLogBook deviceLogBook;
 
-    public CollectedLogBookDeviceCommand(DeviceLogBook deviceLogBook, IssueService issueService, Clock clock) {
-        super(issueService, clock);
+
+    private interface Duo<A,B>{}
+
+    public CollectedLogBookDeviceCommand(DeviceLogBook deviceLogBook) {
+        super();
         this.deviceLogBook = deviceLogBook;
     }
 
@@ -47,7 +47,7 @@ public class CollectedLogBookDeviceCommand extends DeviceCommandImpl {
             MeterReadingImpl meterReading = new MeterReadingImpl();
             meterReading.addAllEndDeviceEvents(localLogBook.endDeviceEvents);
             Device device = logBook.getDevice();
-            comServerDAO.storeMeterReadings(new DeviceIdentifierById((int) device.getId()), meterReading);
+            comServerDAO.storeMeterReadings(new DeviceIdentifierById(device.getId(), getDeviceDataService()), meterReading);
             LogBook.LogBookUpdater logBookUpdaterFor = device.getLogBookUpdaterFor(logBook);
             logBookUpdaterFor.setLastLogBookIfLater(localLogBook.lastLogbook);
             logBookUpdaterFor.update();
@@ -82,13 +82,12 @@ public class CollectedLogBookDeviceCommand extends DeviceCommandImpl {
         return ComServer.LogLevel.INFO;
     }
 
-    private class LocalLogBook extends Pair<List<EndDeviceEvent>, Date> {
+    private class LocalLogBook implements Duo<List<EndDeviceEvent>, Date> {
 
         private final List<EndDeviceEvent> endDeviceEvents;
         private final Date lastLogbook;
 
-        public LocalLogBook(List<EndDeviceEvent> endDeviceEvents, Date lastLogBook) {
-            super(endDeviceEvents, lastLogBook);
+        private LocalLogBook(List<EndDeviceEvent> endDeviceEvents, Date lastLogBook) {
             this.endDeviceEvents = endDeviceEvents;
             this.lastLogbook = lastLogBook;
         }

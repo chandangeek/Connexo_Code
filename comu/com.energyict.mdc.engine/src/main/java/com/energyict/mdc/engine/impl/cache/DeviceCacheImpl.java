@@ -8,9 +8,9 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.exceptions.MessageSeeds;
+import com.energyict.mdc.engine.exceptions.MessageSeeds;
+import com.energyict.mdc.engine.exceptions.SerializationException;
 import com.google.inject.Inject;
-import com.sun.xml.internal.ws.encoding.soap.SerializationException;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -44,7 +44,7 @@ public class  DeviceCacheImpl implements DeviceCache {
         this.clock = clock;
     }
 
-    DeviceCache initialize(Device device, Serializable simpleCacheObject) {
+    public DeviceCacheImpl initialize(Device device, Serializable simpleCacheObject) {
         this.device.set(device);
         this.simpleCache = simpleCacheObject;
         return this;

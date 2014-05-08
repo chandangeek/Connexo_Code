@@ -1,12 +1,8 @@
 package com.energyict.mdc.engine.impl.core.aspects.statistics;
 
-import com.energyict.mdc.engine.impl.core.aspects.statistics.AbstractCommunicationStatisticsMonitor;
+import com.elster.jupiter.util.time.StopWatch;
 import com.energyict.mdc.engine.impl.core.JobExecution;
-import com.energyict.comserver.time.StopWatch;
-import com.energyict.comserver.tools.Counters;
 import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannelImpl;
-import com.energyict.mdc.shadow.journal.ComSessionShadow;
-import com.energyict.mdc.shadow.journal.ComStatisticsShadow;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 
 /**

@@ -46,7 +46,7 @@ public class CollectedDeviceCacheCommandTest {
         DeviceProtocolCache protocolCache = new SimpleDeviceProtocolCache();
         updatedDeviceCache.setDeviceCache(protocolCache);
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
-        CollectedDeviceCacheCommand deviceCacheCommand = new CollectedDeviceCacheCommand(updatedDeviceCache, issueService, clock);
+        CollectedDeviceCacheCommand deviceCacheCommand = new CollectedDeviceCacheCommand(updatedDeviceCache);
         deviceCacheCommand.logExecutionWith(this.executionLogger);
 
         // Business method
@@ -64,7 +64,7 @@ public class CollectedDeviceCacheCommandTest {
         protocolCache.updateChangedState(true);
         protocolCache.updateDescription(newDescription);
         updatedDeviceCache.setDeviceCache(protocolCache);
-        CollectedDeviceCacheCommand deviceCacheCommand = new CollectedDeviceCacheCommand(updatedDeviceCache, issueService, clock);
+        CollectedDeviceCacheCommand deviceCacheCommand = new CollectedDeviceCacheCommand(updatedDeviceCache);
         deviceCacheCommand.logExecutionWith(this.executionLogger);
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
 
@@ -79,7 +79,7 @@ public class CollectedDeviceCacheCommandTest {
     public void testToJournalMessageDescription() {
         final DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID);
         UpdatedDeviceCache updatedDeviceCache = new UpdatedDeviceCache(deviceIdentifier);
-        CollectedDeviceCacheCommand command = new CollectedDeviceCacheCommand(updatedDeviceCache, issueService, clock);
+        CollectedDeviceCacheCommand command = new CollectedDeviceCacheCommand(updatedDeviceCache);
 
         // Business method
         final String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);

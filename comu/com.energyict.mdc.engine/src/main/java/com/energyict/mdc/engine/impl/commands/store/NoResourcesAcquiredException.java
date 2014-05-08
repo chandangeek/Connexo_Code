@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.energyict.mdc.engine.exceptions.ComServerModelExceptionReferences;
+import com.energyict.mdc.engine.exceptions.ComServerModelReferenceScope;
 import com.energyict.mdc.protocol.api.exceptions.ComServerRuntimeException;
 import com.energyict.mdc.common.exceptions.ExceptionCode;
 import com.energyict.mdc.common.exceptions.ExceptionType;

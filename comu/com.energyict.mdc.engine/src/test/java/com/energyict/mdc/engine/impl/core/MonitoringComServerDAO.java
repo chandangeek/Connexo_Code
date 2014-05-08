@@ -1,19 +1,14 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.metering.readings.MeterReading;
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
-import com.energyict.comserver.scheduling.verification.CounterVerifier;
-import com.energyict.comserver.tools.Counter;
 import com.energyict.mdc.common.BusinessEvent;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.engine.impl.core.ComJob;
-import com.energyict.mdc.device.data.journal.ComSession;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.engine.impl.core.verification.CounterVerifier;
+import com.energyict.mdc.engine.impl.tools.Counter;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPort;
@@ -26,9 +21,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
-import com.energyict.mdc.shadow.journal.ComSessionShadow;
-import com.energyict.mdw.core.EndDeviceCache;
-import com.energyict.mdw.shadow.DeviceCacheShadow;
+
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -350,24 +343,6 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
-        public ComSession createOutboundComSession (ScheduledConnectionTask owner, ComSessionShadow shadow) {
-            // No implementation required
-            return null;
-        }
-
-        @Override
-        public ComSession createInboundComSession(InboundConnectionTask owner, ComSessionShadow shadow) {
-            // No implementation required
-            return null;
-        }
-
-        @Override
-        public EndDeviceCache createOrUpdateDeviceCache (int deviceId, DeviceCacheShadow shadow) {
-            // No implementation required
-            return null;
-        }
-
-        @Override
         public void storeMeterReadings(DeviceIdentifier deviceIdentifier, MeterReading meterReading) {
             // Not storing readings in mock mode
         }
@@ -459,24 +434,6 @@ public class MonitoringComServerDAO implements ComServerDAO {
     public TimeDuration releaseTimedOutTasks (ComServer comServer) {
         // No need to release when in monitoring mode
         return new TimeDuration(1, TimeDuration.DAYS);
-    }
-
-    @Override
-    public ComSession createOutboundComSession (ScheduledConnectionTask connectionTask, ComSessionShadow shadow) {
-        // Not creating com sessions in monitoring mode
-        return null;
-    }
-
-    @Override
-    public ComSession createInboundComSession(InboundConnectionTask owner, ComSessionShadow shadow) {
-        // Not creating com sessions in monitoring mode
-        return null;
-    }
-
-    @Override
-    public EndDeviceCache createOrUpdateDeviceCache (int deviceId, DeviceCacheShadow shadow) {
-        // Not creating or updating device caches in monitoring mode
-        return null;
     }
 
     @Override

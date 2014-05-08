@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core.online;
 
+import com.energyict.mdc.engine.impl.core.aspects.performance.LoggingStopWatch;
 import com.energyict.mdc.engine.impl.logging.PerformanceLogger;
 
 /**

@@ -4,9 +4,13 @@ import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.comserver.logging.CanProvideDescriptionTitle;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
+import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
 /**
  * Serves as the root for all components that intend to implement
@@ -18,14 +22,10 @@ import com.energyict.mdc.issues.IssueService;
  */
 public abstract class DeviceCommandImpl implements DeviceCommand, CanProvideDescriptionTitle {
 
-    private final IssueService issueService;
-    private final Clock clock;
     private ExecutionLogger logger;
 
-    public DeviceCommandImpl(final IssueService issueService, Clock clock) {
+    public DeviceCommandImpl() {
         super();
-        this.issueService = issueService;
-        this.clock = clock;
     }
 
     @Override
@@ -43,11 +43,23 @@ public abstract class DeviceCommandImpl implements DeviceCommand, CanProvideDesc
     protected abstract void doExecute (ComServerDAO comServerDAO);
 
     protected IssueService getIssueService() {
-        return issueService;
+        return ServiceProvider.instance.get().issueService();
     }
 
     protected Clock getClock() {
-        return clock;
+        return ServiceProvider.instance.get().clock();
+    }
+
+    protected DeviceDataService getDeviceDataService(){
+        return ServiceProvider.instance.get().deviceDataService();
+    }
+
+    protected MdcReadingTypeUtilService getMdcReadingTypeUtilService(){
+        return ServiceProvider.instance.get().mdcReadingTypeUtilService();
+    }
+
+    protected EngineService getEngineService(){
+        return ServiceProvider.instance.get().engineService();
     }
 
     @Override

@@ -8,16 +8,18 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.inbound.InboundCollectedLoadProfileCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.inbound.InboundCollectedLogBookCommandImpl;
-import com.energyict.mdc.engine.impl.commands.store.deviceactions.inbound.InboundCollectedMessageListCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.inbound.InboundCollectedRegisterCommandImpl;
+import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
+import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.tasks.ProtocolTask;
@@ -44,7 +46,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
     private DeviceProtocol deviceProtocol;
 
     public InboundJobExecutionDataProcessor(ComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundDiscoveryContextImpl inboundDiscoveryContext, InboundDeviceProtocol inboundDeviceProtocol, OfflineDevice offlineDevice, IssueService issueService) {
-        super(comPort, comServerDAO, deviceCommandExecutor, inboundDiscoveryContext, issueService);
+        super(comPort, comServerDAO, deviceCommandExecutor, inboundDiscoveryContext);
         this.inboundDeviceProtocol = inboundDeviceProtocol;
         this.offlineDevice = offlineDevice;
         this.issueService = issueService;
@@ -59,7 +61,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
     @Override
     protected List<PreparedComTaskExecution> prepareAll(List<? extends ComTaskExecution> comTaskExecutions) {
         List<PreparedComTaskExecution> allPreparedComTaskExecutions = new ArrayList<>();
-        CommandRoot root = new CommandRootImpl(this.offlineDevice, getExecutionContext(), issueService, clock, deviceDataService);
+        CommandRoot root = new CommandRootImpl(this.offlineDevice, getExecutionContext());
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
             List<ServerCollectedData> data = receivedCollectedDataFor(comTaskExecution);
             if (!data.isEmpty()) {
@@ -77,9 +79,11 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
                 } else if (logBooksTask != null) {
                     InboundCollectedLogBookCommandImpl inboundCollectedLogBookReadCommand = new InboundCollectedLogBookCommandImpl((LogBooksTask) logBooksTask, offlineDevice, root, comTaskExecution, data, deviceDataService);
                     addNewInboundComCommand(allPreparedComTaskExecutions, root, comTaskExecution, inboundCollectedLogBookReadCommand);
-                } else if (messageTask != null) {
-                    InboundCollectedMessageListCommandImpl inboundCollectedMessageListCommand = new InboundCollectedMessageListCommandImpl((ServerMessagesTask) messageTask, offlineDevice, root, data);
-                    addNewInboundComCommand(allPreparedComTaskExecutions, root, comTaskExecution, inboundCollectedMessageListCommand);
+
+                    //tOdO reenable onces Messages are ported
+//                } else if (messageTask != null) {
+//                    InboundCollectedMessageListCommandImpl inboundCollectedMessageListCommand = new InboundCollectedMessageListCommandImpl((ServerMessagesTask) messageTask, offlineDevice, root, data);
+//                    addNewInboundComCommand(allPreparedComTaskExecutions, root, comTaskExecution, inboundCollectedMessageListCommand);
                 }
             }
         }
@@ -100,9 +104,10 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
 
     private ProtocolTask getMessageTask(ComTaskExecution comTaskExecution){
         for (ProtocolTask protocolTask : comTaskExecution.getComTask().getProtocolTasks()) {
-            if (ComCommandTypes.MESSAGES_COMMAND.equals(ComCommandTypes.forProtocolTask(protocolTask.getClass()))) {
-                return protocolTask;
-            }
+            //TODO reenable onces messages are ported
+//            if (ComCommandTypes.MESSAGES_COMMAND.equals(ComCommandTypes.forProtocolTask(protocolTask.getClass()))) {
+//                return protocolTask;
+//            }
         }
         return null;
     }
@@ -137,7 +142,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
 
     private DeviceProtocol getDeviceProtocol() {
         if (this.deviceProtocol == null) {
-            ServerDeviceProtocolPluggableClass protocolPluggableClass = (ServerDeviceProtocolPluggableClass) offlineDevice.getDeviceProtocolPluggableClass();
+            DeviceProtocolPluggableClass protocolPluggableClass = offlineDevice.getDeviceProtocolPluggableClass();
             this.deviceProtocol = protocolPluggableClass.getDeviceProtocol();
         }
         return this.deviceProtocol;
@@ -145,9 +150,8 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
 
     private List<ServerCollectedData> receivedCollectedDataFor(ComTaskExecution comTaskExecution) {
         List<ServerCollectedData> collectedDatas = new ArrayList<>();
-        ServerComTask comTask = (ServerComTask) comTaskExecution.getComTask();
         for (CollectedData collectedData : inboundDeviceProtocol.getCollectedData()) {
-            if (collectedData.isConfiguredIn(comTask)) {
+            if (collectedData.isConfiguredIn(comTaskExecution)) {
                 collectedDatas.add((ServerCollectedData) collectedData);
             }
         }

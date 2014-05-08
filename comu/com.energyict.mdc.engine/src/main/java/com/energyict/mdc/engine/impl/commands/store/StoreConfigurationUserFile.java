@@ -26,7 +26,7 @@ public class StoreConfigurationUserFile extends DeviceCommandImpl {
     private byte[] contents;
 
     public StoreConfigurationUserFile(DeviceUserFileConfigurationInformation configurationInformation, IssueService issueService, Clock clock) {
-        super(issueService, clock);
+        super();
         this.deviceIdentifier = configurationInformation.getDeviceIdentifier();
         this.fileExtension = configurationInformation.getFileExtension();
         this.contents = configurationInformation.getContents();

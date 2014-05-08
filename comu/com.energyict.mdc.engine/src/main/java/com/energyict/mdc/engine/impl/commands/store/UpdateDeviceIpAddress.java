@@ -25,7 +25,7 @@ public class UpdateDeviceIpAddress extends DeviceCommandImpl {
     private String connectionTaskPropertyName;
 
     public UpdateDeviceIpAddress(DeviceIpAddress ipAddressProperties, IssueService issueService, Clock clock) {
-        super(issueService, clock);
+        super();
         this.deviceIdentifier = ipAddressProperties.getDeviceIdentifier();
         this.ipAddress = ipAddressProperties.getIpAddress();
         this.connectionTask = ipAddressProperties.getConnectionTask();

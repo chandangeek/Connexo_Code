@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.core.aspects.performance.LoggingStopWatch;
 import com.energyict.mdc.engine.impl.logging.PerformanceLogger;
 
 /**

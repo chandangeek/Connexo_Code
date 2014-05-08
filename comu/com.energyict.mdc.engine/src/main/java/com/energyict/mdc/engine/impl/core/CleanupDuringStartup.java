@@ -14,8 +14,8 @@ import java.sql.SQLException;
 public interface CleanupDuringStartup {
 
     /**
-     * Cleans up any marker flags on {@link com.energyict.mdc.tasks.ComTaskExecution}
-     * and/or {@link com.energyict.mdc.tasks.ConnectionTask}s that were not properly
+     * Cleans up any marker flags on ComTaskExecution
+     * and/or ConnectionTasks that were not properly
      * cleaned because the process they were running on was actually forcefully shutdown,
      * i.e. not allowing it to shut down running processing and cleanup when done.
      * Leaving the marker flags, prohibits any ComServer from

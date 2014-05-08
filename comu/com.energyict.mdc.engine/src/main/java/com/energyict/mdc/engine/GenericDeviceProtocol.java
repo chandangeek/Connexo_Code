@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine;
 
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 
 /**

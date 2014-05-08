@@ -339,23 +339,22 @@ public class MockComServerDAO implements ComServerDAO {
         return new TimeDuration(1, TimeDuration.DAYS);
     }
 
-    @Override
-    public ComSession createOutboundComSession (ScheduledConnectionTask owner, ComSessionShadow shadow) {
-        // Not creating com sessions in mock mode
-        return null;
-    }
-
-    @Override
-    public ComSession createInboundComSession(InboundConnectionTask owner, ComSessionShadow shadow) {
-        // Not creating com sessions in mock mode
-        return null;
-    }
-
-    @Override
-    public EndDeviceCache createOrUpdateDeviceCache (int deviceId, DeviceCacheShadow shadow) {
-        // Not creating or updating device caches in mock mode
-        return null;
-    }
+//    @Override
+//    public ComSession createOutboundComSession (ScheduledConnectionTask owner, ComSessionShadow shadow) {
+//        // Not creating com sessions in mock mode
+//        return null;
+//    }
+//
+//    @Override
+//    public ComSession createInboundComSession(InboundConnectionTask owner, ComSessionShadow shadow) {
+//        // Not creating com sessions in mock mode
+//        return null;
+//    }
+//
+//    private EndDeviceCache createOrUpdateDeviceCache(int deviceId, DeviceCacheShadow shadow) {
+//        // Not creating or updating device caches in mock mode
+//        return null;
+//    }
 
     @Override
     public void storeMeterReadings(DeviceIdentifier deviceIdentifier, MeterReading meterReading) {

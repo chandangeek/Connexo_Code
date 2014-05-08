@@ -1,15 +1,14 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.comserver.commands.DeviceCommandExecutor;
-import com.energyict.comserver.time.Clocks;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannel;
+import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.ComPortRelatedComChannel;
-import com.energyict.mdc.protocol.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionFailureException;

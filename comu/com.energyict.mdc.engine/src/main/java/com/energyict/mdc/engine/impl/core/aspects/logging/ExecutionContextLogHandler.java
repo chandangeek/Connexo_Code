@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.core.aspects.logging;
 import com.energyict.mdc.engine.impl.core.ScheduledJobImpl;
 
 import com.elster.jupiter.util.time.Clock;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.StackTracePrinter;
 
 import java.text.MessageFormat;
 import java.util.MissingResourceException;

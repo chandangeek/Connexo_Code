@@ -5,6 +5,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.journal.ComSession;
 import com.energyict.mdc.device.data.journal.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
+import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceImpl;
 import com.energyict.mdc.engine.impl.commands.store.ComSessionRootDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.CompositeDeviceCommand;
@@ -285,7 +286,7 @@ public class InboundCommunicationHandler {
                         getComPort(),
                         comServerDAO,
                         deviceCommandExecutor,
-                        getContext(), issueService);
+                        getContext());
         inboundJobExecutionGroup.setToken(token);
         inboundJobExecutionGroup.setConnectionTask(this.connectionTask);
         inboundJobExecutionGroup.executeDeviceProtocol(this.deviceComTaskExecutions);

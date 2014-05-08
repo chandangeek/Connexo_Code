@@ -86,7 +86,7 @@ public class CollectedRegisterListDeviceCommandTest {
 
     @Test
     public void testExecutionOfDeviceCommand() {
-        CollectedRegisterListDeviceCommand command = new CollectedRegisterListDeviceCommand(getDeviceRegisterList(), issueService, clock);
+        CollectedRegisterListDeviceCommand command = new CollectedRegisterListDeviceCommand(getDeviceRegisterList());
         command.logExecutionWith(this.executionLogger);
 
         // Business methods
@@ -112,7 +112,7 @@ public class CollectedRegisterListDeviceCommandTest {
 
     @Test
     public void testToJournalMessageDescription() {
-        CollectedRegisterListDeviceCommand command = new CollectedRegisterListDeviceCommand(getDeviceRegisterList(), issueService, clock);
+        CollectedRegisterListDeviceCommand command = new CollectedRegisterListDeviceCommand(getDeviceRegisterList());
         command.logExecutionWith(this.executionLogger);
 
         // Business methods

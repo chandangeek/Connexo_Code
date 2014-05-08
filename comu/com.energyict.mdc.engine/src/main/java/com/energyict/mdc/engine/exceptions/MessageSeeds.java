@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.exceptions;
 
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.engine.EngineService;
 
 import java.util.logging.Level;
 
@@ -12,10 +13,8 @@ import java.util.logging.Level;
  */
 public enum MessageSeeds implements MessageSeed {
 
-    DEVICE_IS_STILL_LINKED_AS_PHYSICAL_GATEWAY(101, Constants.PHYSICAL_GATEWAY_STILL_IN_USE,"You can not delete device '{0}' because it is still used as a physical gateway for '{1}'", Level.SEVERE),
-    DEVICE_IS_STILL_LINKED_AS_COMMUNICATION_GATEWAY(102, Constants.COMMUNICATION_GATEWAY_STILL_IN_USE,"You can not delete device '{0}' because it is still used as a communication gateway for '{1}'", Level.SEVERE),
-    DEVICE_CACHE_SERIALIZATION(201, Constants.DEVICE_CACHE_NOT_SERIALIZABLE,"The device cache '{0}' could not be serialized", Level.SEVERE),
-    DEVICE_CACHE_DESERIALIZATION(202, Constants.DEVICE_CACHE_NOT_DESERIALIZABLE,"The device cache '{0}' could not be deserialized", Level.SEVERE),
+    DEVICE_CACHE_SERIALIZATION(101, Constants.DEVICE_CACHE_NOT_SERIALIZABLE,"The device cache '{0}' could not be serialized", Level.SEVERE),
+    DEVICE_CACHE_DESERIALIZATION(102, Constants.DEVICE_CACHE_NOT_DESERIALIZABLE,"The device cache '{0}' could not be deserialized", Level.SEVERE),
     ;
 
     private final int number;

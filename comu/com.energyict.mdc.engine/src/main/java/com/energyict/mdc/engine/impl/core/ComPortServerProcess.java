@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.engine.impl.core.ServerProcess;
 import com.energyict.mdc.engine.model.ComPort;
 
 /**

@@ -1,8 +1,8 @@
 package com.energyict.mdc.engine.impl.core.inbound.aspects.logging;
 
-import com.energyict.comserver.logging.LoggerFactory;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
-import com.energyict.mdc.protocol.inbound.InboundDiscoveryContextImpl;
+import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
+import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 
 import java.util.logging.Logger;
 

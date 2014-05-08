@@ -81,20 +81,14 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
      * The {@link OfflineDevice} which owns this CommandRoot
      */
     private final OfflineDevice offlineDevice;
-    private final IssueService issueService;
-    private final Clock clock;
-    private final DeviceDataService deviceDataService;
     private JobExecution.ExecutionContext executionContext;
     private JobExecution.PreparedComTaskExecution preparedComTaskExecution;
     private Map<ComTaskExecution, ComTaskExecutionComCommand> comCommandsPerComTaskExecution = new HashMap<>();
 
-    public CommandRootImpl(OfflineDevice offlineDevice, JobExecution.ExecutionContext executionContext, IssueService issueService, Clock clock, DeviceDataService deviceDataService) {
+    public CommandRootImpl(OfflineDevice offlineDevice, JobExecution.ExecutionContext executionContext) {
         super(null);
         this.offlineDevice = offlineDevice;
         this.executionContext = executionContext;
-        this.issueService = issueService;
-        this.clock = clock;
-        this.deviceDataService = deviceDataService;
     }
 
     @Override

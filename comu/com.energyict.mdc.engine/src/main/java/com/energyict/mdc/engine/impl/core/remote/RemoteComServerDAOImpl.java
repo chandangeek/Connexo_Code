@@ -233,20 +233,19 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         return this.toTimeDuration(response);
     }
 
-    @Override
-    public ComSession createOutboundComSession (ScheduledConnectionTask owner, ComSessionShadow shadow) {
-        return null;
-    }
+//    @Override
+//    public ComSession createOutboundComSession (ScheduledConnectionTask owner, ComSessionShadow shadow) {
+//        return null;
+//    }
+//
+//    @Override
+//    public ComSession createInboundComSession (InboundConnectionTask owner, ComSessionShadow shadow) {
+//        return null;
+//    }
 
-    @Override
-    public ComSession createInboundComSession (InboundConnectionTask owner, ComSessionShadow shadow) {
-        return null;
-    }
-
-    @Override
-    public EndDeviceCache createOrUpdateDeviceCache (int deviceId, DeviceCacheShadow shadow) {
-        return null;
-    }
+//    private EndDeviceCache createOrUpdateDeviceCache(int deviceId, DeviceCacheShadow shadow) {
+//        return null;
+//    }
 
     @Override
     public void storeMeterReadings(DeviceIdentifier deviceIdentifier, MeterReading meterReading) {

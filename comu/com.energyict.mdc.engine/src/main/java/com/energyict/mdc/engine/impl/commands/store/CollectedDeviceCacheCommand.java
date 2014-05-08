@@ -1,11 +1,12 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.engine.EngineService;
+import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.UpdatedDeviceCache;
 import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 
@@ -20,8 +21,8 @@ public class CollectedDeviceCacheCommand extends DeviceCommandImpl {
 
     private final UpdatedDeviceCache deviceCache;
 
-    public CollectedDeviceCacheCommand(UpdatedDeviceCache deviceCache, IssueService issueService, Clock clock) {
-        super(issueService, clock);
+    public CollectedDeviceCacheCommand(UpdatedDeviceCache deviceCache) {
+        super();
         this.deviceCache = deviceCache;
     }
 
@@ -30,11 +31,15 @@ public class CollectedDeviceCacheCommand extends DeviceCommandImpl {
         // we will only perform the update when the cache actually changed
         DeviceProtocolCache collectedDeviceCache = this.deviceCache.getCollectedDeviceCache();
         if (collectedDeviceCache != null && collectedDeviceCache.contentChanged()) {
-            DeviceCacheShadow shadow = new DeviceCacheShadow();
-            DeviceIdentifier deviceIdentifier = this.deviceCache.getDeviceIdentifier();
-            shadow.setRtuId((int) deviceIdentifier.findDevice().getId());
-            shadow.setSimpleCacheObject(collectedDeviceCache);
-            comServerDAO.createOrUpdateDeviceCache((int) deviceIdentifier.findDevice().getId(), shadow);
+            DeviceIdentifier<Device> deviceIdentifier = this.deviceCache.getDeviceIdentifier();
+            Device device = deviceIdentifier.findDevice();
+            DeviceCache deviceCache = getEngineService().findDeviceCacheByDeviceId(device);
+            if(deviceCache != null){
+                deviceCache.setCacheObject(collectedDeviceCache);
+            } else {
+                deviceCache = getEngineService().newDeviceCache(device, collectedDeviceCache);
+            }
+            deviceCache.save();
         }
     }
 

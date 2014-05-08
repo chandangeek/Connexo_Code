@@ -20,8 +20,8 @@ public class CollectedRegisterListDeviceCommand extends DeviceCommandImpl {
 
     private final CollectedRegisterList collectedRegisterList;
 
-    public CollectedRegisterListDeviceCommand(CollectedRegisterList collectedRegisterList, IssueService issueService, Clock clock) {
-        super(issueService, clock);
+    public CollectedRegisterListDeviceCommand(CollectedRegisterList collectedRegisterList) {
+        super();
         this.collectedRegisterList = collectedRegisterList;
     }
 
@@ -29,7 +29,7 @@ public class CollectedRegisterListDeviceCommand extends DeviceCommandImpl {
     public void doExecute(ComServerDAO comServerDAO) {
         MeterReadingImpl meterReading = new MeterReadingImpl();
         for (CollectedRegister collectedRegister : collectedRegisterList.getCollectedRegisters()) {
-            meterReading.addReading(MeterDataFactory.createReadingForDeviceRegisterAndObisCode(collectedRegister, collectedRegister.getRegisterIdentifier().getObisCode()));
+            meterReading.addReading(MeterDataFactory.createReadingForDeviceRegisterAndObisCode(collectedRegister, collectedRegister.getRegisterIdentifier().getObisCode(), getMdcReadingTypeUtilService()));
         }
 
         comServerDAO.storeMeterReadings(collectedRegisterList.getDeviceIdentifier(), meterReading);

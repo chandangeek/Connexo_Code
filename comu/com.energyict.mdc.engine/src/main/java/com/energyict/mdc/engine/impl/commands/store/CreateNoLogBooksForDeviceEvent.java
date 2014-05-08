@@ -20,8 +20,8 @@ public class CreateNoLogBooksForDeviceEvent extends DeviceCommandImpl {
 
     private final DeviceIdentifier deviceIdentifier;
 
-    public CreateNoLogBooksForDeviceEvent(NoLogBooksForDevice collectedDeviceData, IssueService issueService, Clock clock) {
-        super(issueService, clock);
+    public CreateNoLogBooksForDeviceEvent(NoLogBooksForDevice collectedDeviceData) {
+        super();
         deviceIdentifier = collectedDeviceData.getDeviceIdentifier();
     }
 

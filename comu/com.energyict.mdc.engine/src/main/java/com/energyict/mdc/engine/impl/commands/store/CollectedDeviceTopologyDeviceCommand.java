@@ -28,7 +28,7 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl {
     private List<String> serialNumbersAddedToTopology = new ArrayList<>();
 
     public CollectedDeviceTopologyDeviceCommand(DeviceTopology deviceTopology, ComTaskExecution comTaskExecution, IssueService issueService, Clock clock) {
-        super(issueService, clock);
+        super();
         this.deviceTopology = deviceTopology;
         this.comTaskExecution = comTaskExecution;
     }

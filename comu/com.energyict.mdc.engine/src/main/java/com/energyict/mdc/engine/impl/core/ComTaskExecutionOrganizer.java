@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
@@ -10,10 +9,8 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySetImpl;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ProtocolTask;
-import com.energyict.mdw.core.CommunicationDevice;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;

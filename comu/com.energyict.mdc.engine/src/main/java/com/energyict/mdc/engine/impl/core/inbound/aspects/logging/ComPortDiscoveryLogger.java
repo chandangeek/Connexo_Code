@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.core.inbound.aspects.logging;
 
-import com.energyict.comserver.logging.Configuration;
-import com.energyict.comserver.logging.LogLevel;
+import com.energyict.mdc.engine.impl.logging.Configuration;
+import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
@@ -19,7 +19,7 @@ public interface ComPortDiscoveryLogger {
      * which {@link com.energyict.mdc.protocol.api.device.BaseDevice device}
      * has started the communication session.
      *
-     * @param discoveryProtocolClassName The class name of the {@link com.energyict.mdc.protocol.inbound.InboundDeviceProtocol}
+     * @param discoveryProtocolClassName The class name of the {@link com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol}
      * @param comPort The {@link com.energyict.mdc.engine.model.InboundComPort} on which the communication was started
      */
     @Configuration(format = "Device identification discovery started by class ''{0}'' ...", logLevel = LogLevel.INFO)
@@ -30,7 +30,7 @@ public interface ComPortDiscoveryLogger {
      * which {@link com.energyict.mdc.protocol.api.device.BaseDevice device}
      * has started the communication session.
      *
-     * @param discoveryProtocolClassName The class name of the {@link com.energyict.mdc.protocol.inbound.InboundDeviceProtocol}
+     * @param discoveryProtocolClassName The class name of the {@link com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol}
      * @param comPort The InboundComPort on which the communication was started
      */
     @Configuration(format = "Device identification discovery by class ''{0}'' failed", logLevel = LogLevel.ERROR)

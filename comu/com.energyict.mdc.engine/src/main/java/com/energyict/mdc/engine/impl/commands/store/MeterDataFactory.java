@@ -7,11 +7,12 @@ import com.elster.jupiter.metering.readings.beans.EndDeviceEventImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
-import com.elster.jupiter.util.collections.DualIterable;
 
+import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLogBook;
+import com.energyict.mdc.engine.impl.tools.DualIterable;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
@@ -87,7 +88,7 @@ public final class MeterDataFactory {
     public static List<IntervalBlock> createIntervalBlocksFor(CollectedLoadProfile collectedLoadProfile, TimeDuration interval, MdcReadingTypeUtilService readingTypeUtilService) {
         List<IntervalBlockImpl> intervalBlock = createIntervalBlocks(collectedLoadProfile, interval, readingTypeUtilService);
         for (IntervalData intervalData : collectedLoadProfile.getCollectedIntervalData()) {
-            for (DualIterable.Pair<IntervalBlockImpl, IntervalValue> pair : DualIterable.endWithLongest(intervalBlock, intervalData.getIntervalValues())) {
+            for (Pair<IntervalBlockImpl, IntervalValue> pair : DualIterable.endWithLongest(intervalBlock, intervalData.getIntervalValues())) {
                 // safest way to convert from Number to BigDecimal -> using the Number#toString()
                 pair.getFirst().addIntervalReading(new IntervalReadingImpl(intervalData.getEndTime(), new BigDecimal(pair.getLast().getNumber().toString())));
             }

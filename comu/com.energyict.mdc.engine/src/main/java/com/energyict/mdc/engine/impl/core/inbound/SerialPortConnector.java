@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
 import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.engine.exceptions.ModemException;
 import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
 
 import com.energyict.protocols.mdc.channels.serial.SerialComponentService;
@@ -8,7 +9,6 @@ import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.protocols.mdc.channels.serial.SioSerialPort;
 import com.energyict.protocols.mdc.channels.serial.modem.AtModemComponent;
 import com.energyict.protocols.mdc.channels.serial.modem.SimpleAtModemProperties;
-import com.energyict.mdc.exceptions.ModemException;
 import com.energyict.mdc.protocol.api.exceptions.SerialPortException;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ComPortType;

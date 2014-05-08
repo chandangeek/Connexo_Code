@@ -1,13 +1,13 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.comserver.exceptions.CodingException;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.comserver.commands.DeviceCommandExecutionToken;
-import com.energyict.comserver.commands.DeviceCommandExecutor;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.Transaction;
+import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.exceptions.PersistenceCodingException;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.exceptions.PersistenceCodingException;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionSetupException;
 
 import java.sql.SQLException;
@@ -17,8 +17,7 @@ import java.util.List;
  * Executes {@link ScheduledJob}s in a transactional
  * context and correctly handles failures.
  * Upon failure, the actual task that failed will be rescheduled
- * and the {@link com.energyict.mdc.journal.ComSession} and/or
- * {@link com.energyict.mdc.journal.ComTaskExecutionSession}s
+ * and the ComSession and/or ComTaskExecutionSessions
  * will be persisted in a separate transaction to make sure
  * that all information that describes the failure is available
  * for some process to diagnose later.

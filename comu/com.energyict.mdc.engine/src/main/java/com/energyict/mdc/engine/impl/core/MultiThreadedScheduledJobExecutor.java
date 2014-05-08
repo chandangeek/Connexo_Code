@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.comserver.commands.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.model.ComServer;
 
 import java.util.concurrent.BlockingQueue;
