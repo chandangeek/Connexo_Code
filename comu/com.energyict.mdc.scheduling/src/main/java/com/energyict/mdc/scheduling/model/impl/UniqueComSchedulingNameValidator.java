@@ -1,5 +1,6 @@
 package com.energyict.mdc.scheduling.model.impl;
 
+import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import javax.inject.Inject;
@@ -23,6 +24,9 @@ public class UniqueComSchedulingNameValidator implements ConstraintValidator<Uni
 
     @Override
     public boolean isValid(ComScheduleImpl value, ConstraintValidatorContext context) {
+        if (Checks.is(value.getName()).emptyOrOnlyWhiteSpace()) {
+            return true;
+        }
         for (ComSchedule comSchedule : schedulingService.findAllSchedules()) {
             if (comSchedule.getName().equals(value.getName()) && comSchedule.getId()!=value.getId()) {
                 context.disableDefaultConstraintViolation();
