@@ -4,6 +4,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.OrmService;
+import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.google.inject.AbstractModule;
@@ -24,6 +25,7 @@ public class MasterDataModule extends AbstractModule {
         requireBinding(NlsService.class);
         requireBinding(MeteringService.class);
         requireBinding(MdcReadingTypeUtilService.class);
+        requireBinding(Environment.class);
 
         bind(MasterDataService.class).to(MasterDataServiceImpl.class).in(Scopes.SINGLETON);
     }
