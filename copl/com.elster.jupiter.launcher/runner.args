@@ -1,6 +1,6 @@
 --vmo=-Dcom.elster.jupiter.datasource.jdbcpassword=stella\
  -Dcom.elster.jupiter.datasource.jdbcuser=jupiter\
- -Dcom.elster.jupiter.datasource.jdbcurl=jdbc:oracle:thin:@vldbdb1.eict.local:1521:EISVLDB1
+ -Dcom.elster.jupiter.datasource.jdbcurl=jdbc:oracle:thin:@vldbdb1.eict.local:1521:EISVLDB1\
  -Dcom.elster.jupiter.appserver.name=appServerDemo
 --clean
 --systemPackages=javax.activation;version=1.1.1,\
