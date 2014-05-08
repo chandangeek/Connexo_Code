@@ -7,15 +7,12 @@ import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.mdc.protocol.api.device.DeviceFactory;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
-import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
 import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.api.exceptions.DuplicateException;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.inbound.FindMultipleDevices;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -29,10 +26,10 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-10-12 (11:16)
  */
-public class SerialNumberDeviceIdentifier implements DeviceIdentifier, FindMultipleDevices {
+public class SerialNumberDeviceIdentifier implements DeviceIdentifier, FindMultipleDevices<BaseDevice<BaseChannel,BaseLoadProfile<BaseChannel>,BaseRegister>> {
 
     private final String serialNumber;
-    private BaseDevice device;
+    private BaseDevice<?,?,?> device;
     private List<BaseDevice<BaseChannel, BaseLoadProfile<BaseChannel>, BaseRegister>> allDevices;
 
     public SerialNumberDeviceIdentifier (String serialNumber) {
@@ -41,7 +38,7 @@ public class SerialNumberDeviceIdentifier implements DeviceIdentifier, FindMulti
     }
 
     @Override
-    public BaseDevice findDevice () {
+    public BaseDevice<? extends BaseChannel, ? extends BaseLoadProfile<? extends BaseChannel>, ? extends BaseRegister> findDevice() {
         //lazyload the device
         if (this.device == null) {
             fetchAllDevices();
@@ -102,16 +99,10 @@ public class SerialNumberDeviceIdentifier implements DeviceIdentifier, FindMulti
     }
 
     @Override
-    public List<OfflineDevice> getAllDevices () {
+    public List<BaseDevice<BaseChannel, BaseLoadProfile<BaseChannel>, BaseRegister>> getAllDevices() {
         if (this.allDevices == null) {
-            fetchAllDevices();
+            return Collections.emptyList();
         }
-        List<OfflineDevice> allOfflineDevices = new ArrayList<>();
-        OfflineDeviceContext offlineDeviceContext = new DeviceOfflineFlags();
-        for (BaseDevice deviceToGoOffline : this.allDevices) {
-            OfflineDevice offline = (OfflineDevice) deviceToGoOffline.goOffline(offlineDeviceContext);
-            allOfflineDevices.add(offline);
-        }
-        return allOfflineDevices;
+        return this.allDevices;
     }
 }

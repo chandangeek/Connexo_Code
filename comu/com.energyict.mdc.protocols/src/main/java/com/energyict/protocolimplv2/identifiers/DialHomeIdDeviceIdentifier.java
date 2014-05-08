@@ -8,15 +8,13 @@ import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.DeviceFactory;
-import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
 import com.energyict.mdc.protocol.api.exceptions.DuplicateException;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.inbound.FindMultipleDevices;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -26,13 +24,13 @@ import java.util.List;
  * @author sva
  * @since 26/10/12 (11:26)
  */
-public class DialHomeIdDeviceIdentifier implements DeviceIdentifier, FindMultipleDevices {
+public class DialHomeIdDeviceIdentifier implements DeviceIdentifier, FindMultipleDevices<BaseDevice<BaseChannel,BaseLoadProfile<BaseChannel>,BaseRegister>> {
 
     public static final String CALL_HOME_ID_PROPERTY_NAME = "callHomeId";
-    public static final PropertySpec CALL_HOME_ID_PROPERTY_SPEC = PropertySpecFactory.stringPropertySpec(CALL_HOME_ID_PROPERTY_NAME);
+    public static final PropertySpec<?> CALL_HOME_ID_PROPERTY_SPEC = PropertySpecFactory.stringPropertySpec(CALL_HOME_ID_PROPERTY_NAME);
 
     private final String callHomeID;
-    private BaseDevice device;
+    private BaseDevice<?,?,?> device;
     private List<BaseDevice<BaseChannel, BaseLoadProfile<BaseChannel>, BaseRegister>> allDevices;
 
     public DialHomeIdDeviceIdentifier(String callHomeId) {
@@ -41,7 +39,7 @@ public class DialHomeIdDeviceIdentifier implements DeviceIdentifier, FindMultipl
     }
 
     @Override
-    public BaseDevice findDevice() {
+    public BaseDevice<? extends BaseChannel, ? extends BaseLoadProfile<? extends BaseChannel>, ? extends BaseRegister> findDevice() {
         if (this.device == null) {
             fetchAllDevices();
             if (this.allDevices.isEmpty()) {
@@ -77,17 +75,11 @@ public class DialHomeIdDeviceIdentifier implements DeviceIdentifier, FindMultipl
     }
 
     @Override
-    public List<OfflineDevice> getAllDevices() {
+    public List<BaseDevice<BaseChannel, BaseLoadProfile<BaseChannel>, BaseRegister>> getAllDevices() {
         if(this.allDevices == null){
-            fetchAllDevices();
+            return Collections.emptyList();
         }
-        List<OfflineDevice> allOfflineDevices = new ArrayList<>();
-        OfflineDeviceContext offlineDeviceContext = new DeviceOfflineFlags();
-        for (BaseDevice deviceToGoOffline : this.allDevices) {
-            OfflineDevice offline = (OfflineDevice) deviceToGoOffline.goOffline(offlineDeviceContext);
-            allOfflineDevices.add(offline);
-        }
-        return allOfflineDevices;
+        return this.allDevices;
     }
 
 }
