@@ -1,8 +1,6 @@
 package com.energyict.mdc.protocol.api.device;
 
-import com.energyict.mdc.common.CanGoOffline;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 
 import java.util.List;
 
@@ -10,7 +8,7 @@ import java.util.List;
  * LoadProfile represents a loadprofile on a data logger or energy meter.
  * Each LoadProfile has a number of channels to store load profile data.
  */
-public interface BaseLoadProfile<C extends BaseChannel> extends CanGoOffline<OfflineLoadProfile> {
+public interface BaseLoadProfile<C extends BaseChannel> {
 
     /**
      * Get the unique ID of the LoadProfile

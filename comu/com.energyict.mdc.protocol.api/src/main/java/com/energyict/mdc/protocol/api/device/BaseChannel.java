@@ -1,16 +1,14 @@
 package com.energyict.mdc.protocol.api.device;
 
-import com.energyict.mdc.common.CanGoOffline;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfileChannel;
 
 /**
  * Represents a single load profile on a data logger or energy meter.
  * Channel objects are created automatically when an Device is created.
  */
 
-public interface BaseChannel extends CanGoOffline<OfflineLoadProfileChannel> {
+public interface BaseChannel {
 
     /**
      * Returns the device the receiver belongs to.

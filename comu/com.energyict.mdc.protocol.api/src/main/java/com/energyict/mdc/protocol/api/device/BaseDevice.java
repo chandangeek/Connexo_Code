@@ -1,9 +1,6 @@
 package com.energyict.mdc.protocol.api.device;
 
-import com.energyict.mdc.common.CanGoPartiallyOffline;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
 
 import java.util.List;
 
@@ -12,7 +9,7 @@ import java.util.List;
  * Each Device has a number of channels to store load profile data.
  * The number of channels is defined by its DeviceType.
  */
-public interface BaseDevice<C extends BaseChannel, LP extends BaseLoadProfile<C>, R extends BaseRegister> extends CanGoPartiallyOffline<OfflineDevice, OfflineDeviceContext> {
+public interface BaseDevice<C extends BaseChannel, LP extends BaseLoadProfile<C>, R extends BaseRegister> {
 
     /**
      * Returns number that uniquely identifies this DeviceType.
