@@ -48,6 +48,11 @@
         <guava.version>13.0</guava.version>
         <aspectj.maven.plugin.version>1.5</aspectj.maven.plugin.version>
         <jersey.version>2.5</jersey.version>
+        <!-- next line is the argLine for the maven-surefire-plugin
+             but it must be declare as property because of the jacoco plugin (defined in jupiter parent)
+             see http://docs.codehaus.org/display/SONAR/JaCoCo+Plugin
+             -->
+        <argLine>-Xms512m -Xmx1024m -XX:MaxPermSize=512m -XX:-UseSplitVerifier</argLine>
     </properties>
 
     <scm>
@@ -473,7 +478,6 @@
                 <version>2.12.4</version>
                 <configuration>
                     <enableAssertions>true</enableAssertions>
-                    <argLine>-Xms512m -Xmx1024m -XX:MaxPermSize=512m -XX:-UseSplitVerifier</argLine>
                     <systemProperties>
                         <property>
                             <name>dbUser</name>
