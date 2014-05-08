@@ -7,15 +7,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeSetup', {
         'Mdc.view.setup.registertype.RegisterTypeGrid',
         'Mdc.view.setup.registertype.RegisterTypePreview',
         'Mdc.view.setup.registertype.RegisterTypeFilter'
-     //   'Uni.view.breadcrumb.Trail'
     ],
-   /* layout: {
-        type: 'vbox',
-        align: 'stretch'
-    },*/
- //   cls: 'content-container',
-//    border: 0,
-//    region: 'center',
 
     content: [
         {
@@ -26,15 +18,9 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeSetup', {
                 align: 'stretch'
             },
             items: [
-               /* {
-                    xtype: 'breadcrumbTrail',
-                    region: 'north',
-                    padding: 6
-                },*/
                 {
                     xtype: 'component',
-                    html: '<h1>' + Uni.I18n.translate('registerType.registerTypes','MDC','Register types') + '</h1>',
-                    margins: '10 10 10 10',
+                    html: '<h1>' + Uni.I18n.translate('registerType.registerTypes', 'MDC', 'Register types') + '</h1>',
                     itemId: 'registerTypeTitle'
                 },
                 {
@@ -52,13 +38,13 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeSetup', {
             ]}
     ],
 
- /*   side: [
-           {
-               xtype: 'registerTypeFilter',
-               name: 'filter'
-           }
-       ],
-*/
+    /*   side: [
+     {
+     xtype: 'registerTypeFilter',
+     name: 'filter'
+     }
+     ],
+     */
 
     initComponent: function () {
         this.callParent(arguments);
