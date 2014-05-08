@@ -3,6 +3,9 @@ package com.energyict.mdc.engine.impl;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.core.OnlineRunningComServerImpl;
+import com.energyict.mdc.engine.impl.core.RemoteRunningComServerImpl;
+import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.impl.core.remote.RemoteComServerDAOImpl;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
@@ -125,22 +128,20 @@ public final class ComServerLauncher {
         }
     }
 
-    private void startOnlineComServer () {
-        if (this.startMeteringWarehouse()) {
-            ComServerDAO comServerDAO = new ComServerDAOImpl();
-            ComServer thisComServer = comServerDAO.getThisComServer();
-            if (thisComServer == null) {
-                this.logger.comServerNotFound(HostName.getCurrent());
-            } else if (!thisComServer.isActive()) {
-                this.logger.comServerNotActive(HostName.getCurrent());
+    private void startOnlineComServer() {
+        ComServerDAO comServerDAO = new ComServerDAOImpl();
+        ComServer thisComServer = comServerDAO.getThisComServer();
+        if (thisComServer == null) {
+            this.logger.comServerNotFound(HostName.getCurrent());
+        } else if (!thisComServer.isActive()) {
+            this.logger.comServerNotActive(HostName.getCurrent());
+        } else {
+            if (thisComServer.isOnline()) {
+                this.logger.starting(thisComServer.getName());
+                this.runningComServer = new OnlineRunningComServerImpl((OnlineComServer) thisComServer, threadPrincipalService, userService, issueService);
+                this.runningComServer.start();
             } else {
-                if (thisComServer.isOnline()) {
-                    this.logger.starting(thisComServer.getName());
-                    this.runningComServer = new OnlineRunningComServerImpl((OnlineComServer) thisComServer, threadPrincipalService, userService, issueService);
-                    this.runningComServer.start();
-                } else {
-                    this.logger.notAnOnlineComeServer(thisComServer.getClass().getSimpleName());
-                }
+                this.logger.notAnOnlineComeServer(thisComServer.getClass().getSimpleName());
             }
         }
     }
@@ -167,35 +168,6 @@ public final class ComServerLauncher {
         } catch (ApplicationException e) {
             this.logger.failedToStartQueryApi(e.getCause(), this.remoteQueryApiUrl);
         }
-    }
-
-    private boolean startMeteringWarehouse () {
-        if (MeteringWarehouse.getCurrent() == null) {
-            return this.doStartMeteringWarehouse();
-        } else {
-            return true;
-        }
-    }
-
-    private boolean doStartMeteringWarehouse () {
-        int attempt = 0;
-        int maxAttempts = MAXIMUM_CONNECT_ATTEMPTS;
-        while (attempt < maxAttempts) {
-            this.logger.databaseConnectionAttempt(++attempt, maxAttempts);
-            try {
-                new MeteringWarehouseFactory().getBatch(true);
-                return true;
-            } catch (DatabaseException ex) {
-                int seconds = (2 ^ attempt) * TimeConstants.SECONDS_IN_MINUTE;
-                this.logger.databaseConnectionFailed(seconds, ex);
-                try {
-                    Thread.sleep(seconds * TimeConstants.MILLISECONDS_IN_SECOND);
-                } catch (InterruptedException iex) {
-                    attempt = maxAttempts;
-                }
-            }
-        }
-        return false;
     }
 
 }
