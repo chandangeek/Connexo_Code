@@ -1,9 +1,11 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
-import com.energyict.comserver.commands.CollectedLogBookDeviceCommand;
-import com.energyict.comserver.commands.DeviceCommand;
-import com.energyict.comserver.exceptions.CodingException;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.impl.commands.store.CollectedLogBookDeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.device.LogBookFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
@@ -21,6 +23,13 @@ import java.util.List;
  * @since 4/04/12 - 8:27
  */
 public class DeviceLogBook extends CollectedDeviceData implements CollectedLogBook {
+
+
+    /**
+     * This is the <i>generic</i> ObisCode that will be used for migrating <i>old</i> devices.
+     */
+    public static final ObisCode GENERIC_LOGBOOK_TYPE_OBISCODE = LogBookFactory.GENERIC_LOGBOOK_TYPE_OBISCODE;
+
 
     private LogBookIdentifier logBookIdentifier;
 

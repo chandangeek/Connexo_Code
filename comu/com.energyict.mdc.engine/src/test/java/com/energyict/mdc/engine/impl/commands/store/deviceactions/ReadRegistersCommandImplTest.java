@@ -16,7 +16,7 @@ import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-import com.energyict.mdc.device.data.impl.offline.OfflineRegisterImpl;
+import com.energyict.mdc.engine.impl.commands.offline.OfflineRegisterImpl;
 import com.energyict.mdc.common.ObisCode;
 import org.junit.*;
 import org.junit.runner.*;

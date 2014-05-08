@@ -69,13 +69,13 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
                 ProtocolTask logBooksTask = getLogBooksTask(comTaskExecution);
                 ProtocolTask messageTask = getMessageTask(comTaskExecution);
                 if (registersTask != null) {
-                    InboundCollectedRegisterCommandImpl inboundCollectedRegisterListCommand = new InboundCollectedRegisterCommandImpl((RegistersTask) registersTask, offlineDevice, root, comTaskExecution, data);
+                    InboundCollectedRegisterCommandImpl inboundCollectedRegisterListCommand = new InboundCollectedRegisterCommandImpl((RegistersTask) registersTask, offlineDevice, root, comTaskExecution, data, deviceDataService);
                     addNewInboundComCommand(allPreparedComTaskExecutions, root, comTaskExecution, inboundCollectedRegisterListCommand);
                 } else if (loadProfilesTask != null) {
                     InboundCollectedLoadProfileCommandImpl inboundCollectedLoadProfileReadCommand = new InboundCollectedLoadProfileCommandImpl((LoadProfilesTask) loadProfilesTask, offlineDevice, root, comTaskExecution, data);
                     addNewInboundComCommand(allPreparedComTaskExecutions, root, comTaskExecution, inboundCollectedLoadProfileReadCommand);
                 } else if (logBooksTask != null) {
-                    InboundCollectedLogBookCommandImpl inboundCollectedLogBookReadCommand = new InboundCollectedLogBookCommandImpl((LogBooksTask) logBooksTask, offlineDevice, root, comTaskExecution, data);
+                    InboundCollectedLogBookCommandImpl inboundCollectedLogBookReadCommand = new InboundCollectedLogBookCommandImpl((LogBooksTask) logBooksTask, offlineDevice, root, comTaskExecution, data, deviceDataService);
                     addNewInboundComCommand(allPreparedComTaskExecutions, root, comTaskExecution, inboundCollectedLogBookReadCommand);
                 } else if (messageTask != null) {
                     InboundCollectedMessageListCommandImpl inboundCollectedMessageListCommand = new InboundCollectedMessageListCommandImpl((ServerMessagesTask) messageTask, offlineDevice, root, data);

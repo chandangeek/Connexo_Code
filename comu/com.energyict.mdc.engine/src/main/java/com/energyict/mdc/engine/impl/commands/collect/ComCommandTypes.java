@@ -142,17 +142,17 @@ public enum ComCommandTypes {
         }
     },
 
-    MESSAGES_COMMAND(MessagesTask.class) {
-        @Override
-        public void createLegacyCommandsFromProtocolTask(CommandRoot root, List<? extends ProtocolTask> protocolTasks, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
-            root.getMessagesCommand(protocolTask, root, comTaskExecution);
-        }
-
-        @Override
-        public void createCommandsFromTask(CommandRoot root, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
-            root.getMessagesCommand(protocolTask, root, comTaskExecution);
-        }
-    },
+//    MESSAGES_COMMAND(MessagesTask.class) {
+//        @Override
+//        public void createLegacyCommandsFromProtocolTask(CommandRoot root, List<? extends ProtocolTask> protocolTasks, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
+//            root.getMessagesCommand((MessagesTask) protocolTask, root, comTaskExecution);
+//        }
+//
+//        @Override
+//        public void createCommandsFromTask(CommandRoot root, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
+//            root.getMessagesCommand((MessagesTask) protocolTask, root, comTaskExecution);
+//        }
+//    },
 
     LOGBOOKS_COMMAND(LogBooksTask.class) {
         @Override

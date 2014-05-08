@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
-import com.energyict.comserver.commands.CollectedDeviceCacheCommand;
-import com.energyict.comserver.commands.DeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.CollectedDeviceCacheCommand;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.device.data.CollectedDeviceCache;

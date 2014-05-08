@@ -10,6 +10,9 @@ import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Transaction;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.DeviceCacheFactory;
+import com.energyict.mdc.engine.impl.commands.offline.DeviceOffline;
+import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceImpl;
+import com.energyict.mdc.engine.impl.commands.offline.OfflineRegisterImpl;
 import com.energyict.mdc.engine.impl.core.ComJob;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.SecurityPropertySet;
@@ -162,7 +165,7 @@ public class ComServerDAOImpl implements ComServerDAO {
             BaseDevice<? extends BaseChannel, ? extends BaseLoadProfile<? extends BaseChannel>, ? extends BaseRegister> device = identifier.findDevice();
 //            BaseDevice<BaseChannel, BaseLoadProfile<BaseChannel>, BaseRegister> device = device1;
             if (device != null) {
-                return device.goOffline();
+                return new OfflineDeviceImpl((Device) device, DeviceOffline.needsEverything);
             } else {
                 return null;
             }
@@ -174,7 +177,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public OfflineRegister findRegister(RegisterIdentifier identifier) {
         try {
-            return identifier.findRegister().goOffline();
+            return new OfflineRegisterImpl((com.energyict.mdc.device.data.Register) identifier.findRegister());
         } finally {
             this.closeConnection();
         }
