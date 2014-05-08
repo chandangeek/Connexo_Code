@@ -16,7 +16,7 @@ public enum MessageSeeds implements MessageSeed {
     VETO_LOGBOOKTYPE_DELETION(998, "logBookType.XstillInUseByDeviceTypesY", "The log book type {0} is still used by the following device types: {1}", SEVERE),
     VETO_DEVICEPROTOCOLPLUGGABLECLASS_DELETION(999, "deviceProtocolPluggableClass.XstillInUseByDeviceTypesY", "The device protocol pluggable class {0} is still used by the following device types: {1}", SEVERE),
     DEVICE_TYPE(1, "DTC.deviceType.with.article", "a device type", SEVERE),
-    NAME_IS_REQUIRED(1000, Constants.NAME_REQUIRED_KEY, "The name of {0} is required", SEVERE),
+    NAME_IS_REQUIRED(1000, Constants.NAME_REQUIRED_KEY, "The name is required", SEVERE),
     NAME_IS_UNIQUE(1001, Constants.NAME_UNIQUE_KEY, "The name must be unique", SEVERE),
     REGISTER_GROUP_NAME_IS_REQUIRED(1501, "registerGroup.name.required", "The name of a register group is required", SEVERE),
     READING_TYPE_ALREADY_EXISTS(2002, Constants.READING_TYPE_ALREADY_EXISTS_KEY, "The product spec with the reading type {0} already exists", SEVERE),
