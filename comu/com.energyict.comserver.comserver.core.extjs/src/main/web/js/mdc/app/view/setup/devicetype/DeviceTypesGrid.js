@@ -12,6 +12,27 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
 //        'Mdc.controller.setup.DeviceTypes'
 //    ],
     store: 'DeviceTypes',
+    /*listeners: {
+        'render': function(component) {
+            // Get sure that the store is not loading and that it
+            // has at least a record on it
+            if (this.store.isLoading() || this.store.getCount() == 0) {
+                // If it is still pending attach a listener to load
+                // event for a single time to handle the selection
+                // after the store has been loaded
+                this.store.on('load', function() {
+                    this.getView().getSelectionModel().select(0);
+                    this.getView().focusRow(0);
+                }, this, {
+                    single: true
+                });
+            } else {
+                this.getView().getSelectionModel().select(0);
+                this.getView().focusRow(0);
+            }
+
+        }
+    },*/
     //padding: '10 10 10 10',
     initComponent: function () {
         var me = this;
@@ -47,7 +68,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
                 flex: 0.1,
                 items: [
                     {
-                        icon: '../mdc/resources/images/gear-16x16.png',
+                        icon: '../mdc/resources/images/masterActions.png',
                         handler: function (grid, rowIndex, colIndex, item, e, record, row) {
                             var menu = Ext.widget('menu', {
                                 items: [
@@ -119,6 +140,8 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
                 itemsPerPageMsg: Uni.I18n.translate('devicetype.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Device types per page')
             }
         ];
+
+        this.getSelectionModel().select(0);
 
         this.callParent();
     }

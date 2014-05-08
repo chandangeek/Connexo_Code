@@ -18,7 +18,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
     items: [
         {
             xtype: 'panel',
-            //border: false,
+            border: false,
             padding: '0 10 0 10',
             tbar: [
                 {
@@ -39,7 +39,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
             xtype: 'form',
             border: false,
             itemId: 'deviceTypePreviewForm',
-            padding: '10 10 0 10',
+            padding: '0 10 0 10',
             layout: {
                 type: 'vbox',
                 align: 'stretch'
@@ -88,8 +88,8 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                             xtype: 'container',
                             columnWidth: 0.5,
                             layout: {
-                                type: 'vbox'//,
-                                //align: 'stretch'
+                                type: 'vbox',
+                                align: 'stretch'
                             },
                             defaults: {
                                 labelWidth: 250
@@ -131,8 +131,8 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                             xtype: 'container',
                             columnWidth: 0.5,
                             layout: {
-                                type: 'vbox'//,
-                                //align: 'stretch'
+                                type: 'vbox',
+                                align: 'stretch'
                             },
                             defaults: {
                                 labelWidth: 250

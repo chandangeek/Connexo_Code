@@ -7,15 +7,169 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
     requires: [
         'Mdc.model.DeviceConfiguration'
     ],
-//    controllers: [
-//        'Mdc.controller.setup.DeviceTypes'
-//    ],
-    layout: {
-        type: 'card',
-        align: 'stretch'
-    },
 
-    items: [
+    title: 'Details',
+    tools: [
+        {
+            xtype: 'button',
+            icon: '../mdc/resources/images/actionsDetail.png',
+            text: 'Action',
+            menu: [
+                {
+                    text: Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
+                    itemId: 'activateDeviceconfigurationMenuItem',
+                    action: 'activateDeactivateDeviceConfiguration'
+
+                },
+                {
+                    xtype: 'menuseparator'
+                },
+                {
+                    text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                    itemId: 'editDeviceConfiguration',
+                    action: 'editDeviceConfiguration'
+
+                },
+                {
+                    xtype: 'menuseparator'
+                },
+                {
+                    text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
+                    itemId: 'deleteDeviceConfiguration',
+                    action: 'deleteDeviceConfiguration'
+
+                }
+            ]
+        }
+    ],
+
+    items: {
+        xtype: 'form',
+        border: false,
+        itemId: 'deviceConfigurationPreviewForm',
+        padding: '0 10 0 10',
+        layout: {
+            type: 'vbox',
+            align: 'stretch'
+        },
+        items: [
+            {
+                xtype: 'container',
+                layout: {
+                    type: 'column'
+//                        align: 'stretch'
+                },
+                padding: '10 0 0 0',
+                items: [
+                    {
+                        xtype: 'container',
+                        columnWidth: 0.5,
+                        layout: {
+                            type: 'vbox',
+                            align: 'stretch'
+                        },
+                        defaults:{
+                            labelWidth: 250
+                        },
+                        items: [
+                            {
+                                xtype: 'displayfield',
+                                name: 'name',
+                                fieldLabel: Uni.I18n.translate('deviceconfiguration.name', 'MDC', 'Name'),
+                                itemId: 'deviceName'
+
+                            }
+//                                {
+//                                    xtype: 'displayfield',
+//                                    name: 'communicationProtocolName',
+//                                    fieldLabel: Uni.I18n.translate('devicetype.communicationProtocol', 'MDC', 'Device Communication protocol')
+//                                },
+                        ]
+                    },
+                    {
+                        xtype: 'container',
+                        columnWidth: 0.5,
+                        layout: {
+                            type: 'vbox',
+                            align: 'stretch'
+                        },
+                        defaults:{
+                            labelWidth: 250
+                        },
+                        items: [
+                            {
+                                xtype: 'fieldcontainer',
+                                columnWidth: 0.5,
+                                fieldLabel: Uni.I18n.translate('deviceconfiguration.dataSources', 'MDC', 'Data sources'),
+                                layout: {
+                                    type: 'vbox'
+                                },
+                                items: [
+                                    {
+                                        xtype: 'component',
+                                        name: 'registerCount',
+                                        cls: 'x-form-display-field',
+                                        autoEl: {
+                                            tag: 'a',
+                                            href: '#',
+                                            html: Uni.I18n.translate('deviceconfiguration.registers', 'MDC', 'register configurations')
+                                        },
+                                        itemId: 'deviceConfigurationRegistersLink'
+                                    },
+
+
+                                    {
+                                        xtype: 'component',
+                                        name: 'loadProfileCount',
+                                        cls: 'x-form-display-field',
+                                        autoEl: {
+                                            tag: 'a',
+                                            href: '#',
+                                            html: Uni.I18n.translate('deviceconfiguration.loadprofiles', 'MDC', 'loadprofiles')
+                                        },
+                                        itemId: 'deviceConfigurationLoadProfilesLink'
+
+                                    },
+                                    {
+                                        xtype: 'component',
+                                        name: 'logBookCount',
+                                        cls: 'x-form-display-field',
+                                        autoEl: {
+                                            tag: 'a',
+                                            href: '#',
+                                            html: Uni.I18n.translate('deviceconfiguration.logbooks', 'MDC', 'logbooks')
+                                        },
+                                        itemId: 'deviceConfigurationLogBooksLink'
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+
+                ]
+            },
+            {
+                xtype: 'toolbar',
+                docked: 'bottom',
+                border: false,
+                title: 'Bottom Toolbar',
+                items: [
+                    '->',
+                    {
+                        xtype: 'component',
+                        itemId: 'deviceConfigurationDetailsLink',
+                        html: '' // filled in in Controller
+                    }
+
+                ]
+            }
+        ]
+
+    },
+    emptyText: '<h3>' + Uni.I18n.translate('deviceconfiguration.noDeviceConfigurationSelected', 'MDC', 'No device configuration selected') + '</h3><p>' + Uni.I18n.translate('deviceconfiguration.selectDeviceConfiguration', 'MDC', 'Select a device configuration to see its details') + '</p>',
+
+
+    /*items: [
         {
             xtype: 'panel',
             border: false,
@@ -52,7 +206,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
                 },
                 '->',
                 {
-                    icon: 'resources/images/gear-16x16.png',
+                    icon: '../mdc/resources/images/actionsDetail.png',
                     text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                     menu: {
                         items: [
@@ -197,7 +351,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
                 }
             ]
         }
-    ],
+    ],*/
 
     initComponent: function () {
         this.callParent(arguments);
