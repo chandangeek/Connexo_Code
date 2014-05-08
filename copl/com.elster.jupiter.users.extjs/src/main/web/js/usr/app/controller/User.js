@@ -62,9 +62,10 @@ Ext.define('Usr.controller.User', {
     },
 
     editUserMenu: function (button) {
-        var record = button.up('form').up('form').getRecord();
-        this.editUser(record);
+        var form = this.getUserDetails().down('form'),
+            record = form.getRecord();
 
+        this.editUser(record);
     },
 
     editUser: function (record) {
