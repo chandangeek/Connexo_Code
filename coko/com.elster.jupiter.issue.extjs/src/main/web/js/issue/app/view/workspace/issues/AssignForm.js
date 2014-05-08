@@ -7,6 +7,9 @@ Ext.define('Isu.view.workspace.issues.AssignForm', {
         'Ext.form.Panel',
         'Ext.form.RadioGroup'
     ],
+    ui: 'medium',
+    title: 'Assign issue',
+
     alias: 'widget.issues-assign-form',
 
     items: [
@@ -20,7 +23,7 @@ Ext.define('Isu.view.workspace.issues.AssignForm', {
             items: {
                 xtype: 'uni-form-error-message',
                 name: 'form-errors',
-                hidden: true,
+                hidden: true
             }
         },
         {
@@ -239,5 +242,12 @@ Ext.define('Isu.view.workspace.issues.AssignForm', {
                 formErrorsPanel.show();
             }
         }
+    },
+
+    loadRecord: function(record) {
+        var title = 'Assign issue "' + record.get('title') + '"'
+
+        this.setTitle(title);
+        this.callParent(arguments)
     }
 });

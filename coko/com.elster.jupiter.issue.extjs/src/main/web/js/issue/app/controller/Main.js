@@ -60,7 +60,7 @@ Ext.define('Isu.controller.Main', {
         var menuItem = Ext.create('Uni.model.MenuItem', {
             text: 'Workspace',
             href: me.getController('Isu.controller.history.Workspace').tokenizeShowOverview(),
-            glyph: 'xe01e@icomoon'
+            glyph: 'workspace'
         });
 
         Uni.store.MenuItems.add(menuItem);
@@ -68,7 +68,7 @@ Ext.define('Isu.controller.Main', {
         var menuItem = Ext.create('Uni.model.MenuItem', {
             text: 'Administration',
             href: me.getController('Isu.controller.history.Administration').tokenizeShowOverview(),
-            glyph: 'xe011@icomoon'
+            glyph: 'settings'
         });
 
         Uni.store.MenuItems.add(menuItem);

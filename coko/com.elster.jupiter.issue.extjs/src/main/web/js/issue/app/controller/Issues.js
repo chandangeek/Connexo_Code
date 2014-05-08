@@ -63,6 +63,14 @@ Ext.define('Isu.controller.Issues', {
             selector: 'issues-overview grouping-toolbar'
         },
         {
+            ref: 'groupGrid',
+            selector: 'issues-overview issue-group-grid'
+        },
+        {
+            ref: 'groupInfo',
+            selector: 'issues-overview issue-group-info'
+        },
+        {
             ref: 'issueFilter',
             selector: 'issues-side-filter'
         }
@@ -87,6 +95,7 @@ Ext.define('Isu.controller.Issues', {
             'issues-overview issues-item': {
                 afterChange: this.setFilterIconsActions
             },
+
             'issues-overview sorting-toolbar container sort-item-btn': {
                 click: this.changeSortDirection,
                 closeclick: this.removeSortItem
@@ -97,13 +106,13 @@ Ext.define('Isu.controller.Issues', {
             'issues-overview sorting-toolbar button[action=clear]': {
                 click: this.clearSortParams
             },
-
+            'issues-overview grouping-toolbar [name=groupingcombo]': {
+                change: this.changeGrouping
+            },
             'issues-overview filtering-toolbar tag-button': {
                 closeclick: this.removeFilterItem
             },
-            'button[name=clearsortbtn]': {
-                click: this.clearSort
-            },
+
             'issues-side-filter button[action="reset"]': {
                 click: this.resetFilter
             },
@@ -141,7 +150,7 @@ Ext.define('Isu.controller.Issues', {
 
         self.extraParamsModel.setValuesFromQueryString(function (extraParamsModel, data) {
             issuesStore.proxy.extraParams = data || {};
-//            self.setParamsForIssueGroups(extraParamsModel.get('filter'), extraParamsModel.get('group').get('value'));
+            self.setParamsForIssueGroups(extraParamsModel.get('filter'), extraParamsModel.get('group').get('value'));
 
             groupStore.on('load', function () {
                 self.setGrouping();
@@ -252,21 +261,18 @@ Ext.define('Isu.controller.Issues', {
     refresh: function() {
         window.location.replace(this.extraParamsModel.getQueryStringFromValues());
         this.showOverview();
-//        window.location.reload();
     },
 
     setGrouping: function () {
         var grouping = this.extraParamsModel.get('group').get('value'),
             groupStore = this.getStore('Isu.store.IssuesGroups'),
-            groupingTollbar = this.getGroupingToolbar(),
-            groupingCombo = groupingTollbar.down('[name=groupingcombo]'),
-            groupingGrid = groupingTollbar.down('[name=groupinggrid]'),
-            groupingInformation = groupingTollbar.down('[name=groupinginformation]'),
+            groupingCombo = this.getGroupingToolbar().down('[name=groupingcombo]'),
+            groupingGrid = this.getGroupGrid(),
+            groupingInformation = this.getGroupInfo(),
             selectionModel = groupingGrid.getSelectionModel(),
             groupingField;
 
         groupingCombo.setValue(grouping);
-        groupingCombo.on('change', this.changeGrouping, this, {single: true});
 
         if (grouping == 'none') {
             groupingGrid.hide();
@@ -350,42 +356,19 @@ Ext.define('Isu.controller.Issues', {
 
     chooseIssuesAction: function (menu, item) {
         var action = item.action;
+        var issueId = this.getItemPanel().down('form').getRecord().getId();
 
         switch (action) {
             case 'assign':
-                window.location.href = '#/workspace/datacollection/issues/' + menu.issueId + '/assign';
+                window.location.href = '#/workspace/datacollection/issues/' + issueId + '/assign';
                 break;
             case 'close':
-                window.location.href = '#/workspace/datacollection/issues/' + menu.issueId + '/close';
+                window.location.href = '#/workspace/datacollection/issues/' + issueId + '/close';
                 break;
             case 'addcomment':
-                window.location.href = '#/workspace/datacollection/issues/' + menu.issueId + '/addcomment';
+                window.location.href = '#/workspace/datacollection/issues/' + issueId + '/addcomment';
                 break;
         }
-    },
-
-    addSortItem: function (menu, item) {
-        this.store.getProxySort().addSortParam(item.value);
-        this.store.updateProxySort();
-    },
-
-    setAddSortMenu: function (btn) {
-        if (btn.menu.items.getCount() < 1) {
-            this.store.getProxySort().fields.each(function (item) {
-                if (item.displayValue) {
-                    btn.menu.add({
-                        text: item.displayValue,
-                        value: item.name
-                    });
-                }
-            });
-            btn.showMenu();
-        }
-    },
-
-    clearSort: function () {
-        this.store.setProxySort(new Isu.model.IssueSort());
-
     },
 
     setGroupFields: function (view) {
