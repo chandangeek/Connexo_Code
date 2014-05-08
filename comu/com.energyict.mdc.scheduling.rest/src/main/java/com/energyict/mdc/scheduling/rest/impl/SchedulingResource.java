@@ -1,7 +1,9 @@
 package com.energyict.mdc.scheduling.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.UtcInstant;
+import com.energyict.mdc.common.rest.BooleanAdapter;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
@@ -39,14 +41,16 @@ public class SchedulingResource {
     private final Clock clock;
     private final DeviceConfigurationService deviceConfigurationService;
     private final TaskService taskService;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public SchedulingResource(SchedulingService schedulingService, DeviceDataService deviceDataService, Clock clock, DeviceConfigurationService deviceConfigurationService, TaskService taskService) {
+    public SchedulingResource(SchedulingService schedulingService, DeviceDataService deviceDataService, Clock clock, DeviceConfigurationService deviceConfigurationService, TaskService taskService, Thesaurus thesaurus) {
         this.schedulingService = schedulingService;
         this.deviceDataService = deviceDataService;
         this.clock = clock;
         this.deviceConfigurationService = deviceConfigurationService;
         this.taskService = taskService;
+        this.thesaurus = thesaurus;
     }
 
     @GET
@@ -145,9 +149,13 @@ public class SchedulingResource {
     @GET
     @Path("/{id}/comTasks")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<ComTaskInfo> getComTasks(@PathParam("id") long id, @BeanParam JsonQueryFilter queryFilter) {
-//        if (queryFilter.getFilterProperties().containsKey("available") && queryFilter.getProperty("available", XmlAdapter)
-        return ComTaskInfo.from(deviceConfigurationService.findAvailableComTasks(findComScheduleOrThrowException(id)));
+    public Response getComTasks(@PathParam("id") long id, @BeanParam JsonQueryFilter queryFilter) {
+        ComSchedule comSchedule = findComScheduleOrThrowException(id);
+        if (queryFilter.getFilterProperties().containsKey("available") && queryFilter.getProperty("available", new BooleanAdapter(), thesaurus)) {
+            return Response.ok().entity(ComTaskInfo.from(deviceConfigurationService.findAvailableComTasks(comSchedule))).build();
+        } else {
+            return Response.ok().entity(ComTaskInfo.from(comSchedule.getComTasks())).build();
+        }
     }
 
     private boolean isInUse(ComSchedule comSchedule) {

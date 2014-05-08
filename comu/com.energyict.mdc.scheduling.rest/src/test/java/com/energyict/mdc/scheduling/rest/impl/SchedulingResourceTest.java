@@ -1,5 +1,7 @@
 package com.energyict.mdc.scheduling.rest.impl;
 
+import com.elster.jupiter.devtools.ExtjsFilter;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
@@ -7,8 +9,6 @@ import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.common.rest.QueryParameters;
-import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceDataService;
@@ -39,8 +39,6 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
@@ -128,12 +126,8 @@ public class SchedulingResourceTest extends JerseyTest {
         when(mockedSchedule.getSchedulingStatus()).thenReturn(SchedulingStatus.ACTIVE);
         when(mockedSchedule.getNextTimestamp(any(Calendar.class))).thenReturn(new Date());
         when(mockedSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration("10 minutes")));
-        ComTask comTask1 = mock(ComTask.class);
-        when(comTask1.getId()).thenReturn(11L);
-        when(comTask1.getName()).thenReturn("Com task 1");
-        ComTask comTask2 = mock(ComTask.class);
-        when(comTask2.getId()).thenReturn(12L);
-        when(comTask2.getName()).thenReturn("Com task 2");
+        ComTask comTask1 = mockComTask(11L, "Com task 1");
+        ComTask comTask2 = mockComTask(12L, "Com task 2");
         when(mockedSchedule.getComTasks()).thenReturn(Arrays.asList(comTask1, comTask2));
         ListPager<ComSchedule> comSchedulePage = ListPager.of(Arrays.asList(mockedSchedule));
         when(schedulingService.findAllSchedules(any(Calendar.class))).thenReturn(comSchedulePage);
@@ -167,7 +161,7 @@ public class SchedulingResourceTest extends JerseyTest {
         when(mockedSchedule.getNextTimestamp(any(Calendar.class))).thenReturn(new Date());
         when(mockedSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration("10 minutes")));
         ComTask comTask1 = mockComTask(COM_TASK_1, "Com task 1");
-        ComTask comTask2 = mockComTask(COM_TASK_2,"Com task 2");
+        ComTask comTask2 = mockComTask(COM_TASK_2, "Com task 2");
         when(mockedSchedule.getComTasks()).thenReturn(Arrays.asList(comTask1, comTask2));
         when(schedulingService.findSchedule(1L)).thenReturn(mockedSchedule);
         when(clock.getTimeZone()).thenReturn(Calendar.getInstance().getTimeZone());
@@ -215,7 +209,7 @@ public class SchedulingResourceTest extends JerseyTest {
         when(mockedSchedule.getNextTimestamp(any(Calendar.class))).thenReturn(new Date());
         when(mockedSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration("10 minutes")));
         ComTask comTask1 = mockComTask(COM_TASK_1, "Com task 1");
-        ComTask comTask2 = mockComTask(COM_TASK_2,"Com task 2");
+        ComTask comTask2 = mockComTask(COM_TASK_2, "Com task 2");
         ComTask comTask3 = mockComTask(COM_TASK_3,"Com task 3");
         when(mockedSchedule.getComTasks()).thenReturn(Arrays.asList(comTask1, comTask2));
         when(schedulingService.findSchedule(1L)).thenReturn(mockedSchedule);
@@ -241,10 +235,10 @@ public class SchedulingResourceTest extends JerseyTest {
 
     @Test
     public void testAddRemoveComTask() throws Exception {
-        final long COM_TASK_1 = 11L;
-        final long COM_TASK_2 = 12L;
-        final long COM_TASK_3 = 13L;
-        final long COM_TASK_4 = 13L;
+        final long COM_TASK_1 = 1011L;
+        final long COM_TASK_2 = 1012L;
+        final long COM_TASK_3 = 1013L;
+        final long COM_TASK_4 = 1014L;
 
         ComSchedule mockedSchedule = mock(ComSchedule.class);
         when(mockedSchedule.getId()).thenReturn(1L);
@@ -278,23 +272,63 @@ public class SchedulingResourceTest extends JerseyTest {
         verify(mockedSchedule, times(1)).removeComTask(comTask3);
     }
 
+    @Test
+    public void testGetComTasksOfScheduleWithoutQueryParam() throws Exception {
+        ComSchedule mockedSchedule = mock(ComSchedule.class);
+        when(mockedSchedule.getId()).thenReturn(1L);
+        when(mockedSchedule.getName()).thenReturn("name");
+        when(mockedSchedule.getSchedulingStatus()).thenReturn(SchedulingStatus.ACTIVE);
+        when(mockedSchedule.getNextTimestamp(any(Calendar.class))).thenReturn(new Date());
+        when(mockedSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration("10 minutes")));
+        ComTask comTask1 = mockComTask(11L, "Com task 1");
+        ComTask comTask2 = mockComTask(12L, "Com task 2");
+        when(mockedSchedule.getComTasks()).thenReturn(Arrays.asList(comTask1, comTask2));
+        when(schedulingService.findSchedule(1L)).thenReturn(mockedSchedule);
+
+        List list = target("/schedules/1/comTasks").request().get(List.class);
+        assertThat(list).hasSize(2);
+    }
+
+    @Test
+    public void testGetAvailableComTasksOfSchedule() throws Exception {
+        long COMTASK_3 = 13L;
+        ComSchedule mockedSchedule = mock(ComSchedule.class);
+        when(mockedSchedule.getId()).thenReturn(1L);
+        when(mockedSchedule.getName()).thenReturn("name");
+        when(mockedSchedule.getSchedulingStatus()).thenReturn(SchedulingStatus.ACTIVE);
+        when(mockedSchedule.getNextTimestamp(any(Calendar.class))).thenReturn(new Date());
+        when(mockedSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration("10 minutes")));
+        ComTask comTask1 = mockComTask(11L, "Com task 1");
+        ComTask comTask2 = mockComTask(12L, "Com task 2");
+        ComTask comTask3 = mockComTask(COMTASK_3, "Com task 3");
+        when(mockedSchedule.getComTasks()).thenReturn(Arrays.asList(comTask1, comTask2));
+        when(schedulingService.findSchedule(1L)).thenReturn(mockedSchedule);
+        when(deviceConfigurationService.findAvailableComTasks(mockedSchedule)).thenReturn(Arrays.asList(comTask3));
+
+        List<Map<String, Object>> list = target("/schedules/1/comTasks").queryParam("filter", ExtjsFilter.filter().property("available", "true").create()).request().get(List.class);
+        assertThat(list).hasSize(1);
+        assertThat(list.get(0).get("id")).isEqualTo((int)COMTASK_3);
+    }
+
+    @Test
+    public void testGetAvailableComTasksOfScheduleWithFaultyFilter() throws Exception {
+        NlsMessageFormat nlsMessageFormat = mock(NlsMessageFormat.class);
+        when(thesaurus.getFormat(com.energyict.mdc.common.impl.MessageSeeds.INVALID_VALUE)).thenReturn(nlsMessageFormat);
+        when(nlsMessageFormat.format(any())).thenReturn("");
+        ComSchedule mockedSchedule = mock(ComSchedule.class);
+        when(schedulingService.findSchedule(1L)).thenReturn(mockedSchedule);
+
+        Response response = target("/schedules/1/comTasks").queryParam("filter", ExtjsFilter.filter().property("available", "BOGUS").create()).request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+
     private ComTask mockComTask(long id, String name) {
         ComTask comTask1 = mock(ComTask.class);
         when(comTask1.getId()).thenReturn(id);
         when(comTask1.getName()).thenReturn(name);
         when(taskService.findComTask(id)).thenReturn(comTask1);
         return comTask1;
-    }
-
-    private <T> Finder<T> mockFinder(List<T> list) {
-        Finder<T> finder = mock(Finder.class);
-
-        when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
-        when(finder.sorted(anyString(), any(Boolean.class))).thenReturn(finder);
-        when(finder.from(any(QueryParameters.class))).thenReturn(finder);
-        when(finder.defaultSortColumn(anyString())).thenReturn(finder);
-        when(finder.find()).thenReturn(list);
-        return finder;
     }
 
 }

@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
@@ -27,8 +28,8 @@ import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-@Component(name = "com.energyict.sch.rest", service = Application.class, immediate = true, property = {"alias=/scr"})
-public class MasterSchedulingApplication extends Application {
+@Component(name = "com.energyict.sch.rest", service = { Application.class, InstallService.class }, immediate = true, property = {"alias=/scr"})
+public class MasterSchedulingApplication extends Application implements InstallService {
 
     public static final String COMPONENT_NAME = "SCR";
 
@@ -108,6 +109,11 @@ public class MasterSchedulingApplication extends Application {
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
+    }
+
+    @Override
+    public void install() {
+        new Installer(thesaurus).install();
     }
 
     class HK2Binder extends AbstractBinder {
