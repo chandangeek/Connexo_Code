@@ -87,8 +87,7 @@ public class SchedulingResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response createSchedule(ComScheduleInfo comScheduleInfo) {
         ComSchedule comSchedule = schedulingService.newComSchedule(comScheduleInfo.name, comScheduleInfo.temporalExpression.asTemporalExpression(),
-                comScheduleInfo.startDate==null?null:new UtcInstant(comScheduleInfo.startDate));
-        comSchedule.save();
+                comScheduleInfo.startDate==null?null:new UtcInstant(comScheduleInfo.startDate)).mrid(comScheduleInfo.mRID).build();
         updateTasks(comSchedule, comScheduleInfo.comTaskUsages);
         return Response.status(Response.Status.CREATED).entity(ComScheduleInfo.from(comSchedule, isInUse(comSchedule))).build();
     }
@@ -111,6 +110,7 @@ public class SchedulingResource {
         comSchedule.setTemporalExpression(comScheduleInfo.temporalExpression==null?null:comScheduleInfo.temporalExpression.asTemporalExpression());
         comSchedule.setSchedulingStatus(comScheduleInfo.schedulingStatus);
         comSchedule.setStartDate(comScheduleInfo.startDate==null?null:new UtcInstant(comScheduleInfo.startDate));
+        comSchedule.setmRID(comScheduleInfo.mRID);
         comSchedule.save();
         if (comScheduleInfo.comTaskUsages!=null) {
             updateTasks(comSchedule, comScheduleInfo.comTaskUsages);

@@ -18,6 +18,7 @@ public class ComScheduleInfo {
     public SchedulingStatus schedulingStatus;
     public List<ComTaskInfo> comTaskUsages;
     public Date startDate;
+    public String mRID;
 
     public ComScheduleInfo() {
     }
@@ -32,6 +33,7 @@ public class ComScheduleInfo {
         comScheduleInfo.startDate = comSchedule.getStartDate()==null?null:comSchedule.getStartDate().toDate();
         comScheduleInfo.isInUse = inUse;
         comScheduleInfo.comTaskUsages = ComTaskInfo.from(comSchedule.getComTasks());
+        comScheduleInfo.mRID = comSchedule.getmRID();
         return comScheduleInfo;
     }
 
