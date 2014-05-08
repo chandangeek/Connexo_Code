@@ -78,6 +78,12 @@
       <scope>provided</scope>
     </dependency>
 
+    <!-- AOP -->
+    <dependency>
+      <groupId>org.aspectj</groupId>
+      <artifactId>aspectjrt</artifactId>
+    </dependency>
+
     <!-- Testing -->
     <dependency>
       <groupId>com.elster.jupiter</groupId>
@@ -114,5 +120,42 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>aspectj-maven-plugin</artifactId>
+        <version>${aspectj.maven.plugin.version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <!-- Weaves all the main classes -->
+              <goal>compile</goal>
+              <!-- Weaves all the test classes
+             <goal>test-compile</goal -->
+            </goals>
+            <configuration>
+              <source>${maven.compiler.source}</source>
+              <target>${maven.compiler.target}</target>
+              <complianceLevel>${maven.compiler.target}</complianceLevel>
+              <showWeaveInfo>true</showWeaveInfo>
+              <verbose>false</verbose>
+              <proceedOnError>false</proceedOnError>
+              <Xlint>error</Xlint>
+              <Xlintfile>src/main/resources/XlintMdc.properties</Xlintfile>
+            </configuration>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjtools</artifactId>
+            <version>${aspectj.version}</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>
