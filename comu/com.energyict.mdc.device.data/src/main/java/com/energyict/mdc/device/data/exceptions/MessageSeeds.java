@@ -2,6 +2,8 @@ package com.energyict.mdc.device.data.exceptions;
 
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.DeviceDataService;
+
 import java.util.logging.Level;
 
 import static java.util.logging.Level.SEVERE;
@@ -92,7 +94,7 @@ public enum MessageSeeds implements MessageSeed {
 
     @Override
     public String getModule() {
-        return DeviceConfigurationService.COMPONENTNAME;
+        return DeviceDataService.COMPONENTNAME;
     }
 
     public static class Constants {
