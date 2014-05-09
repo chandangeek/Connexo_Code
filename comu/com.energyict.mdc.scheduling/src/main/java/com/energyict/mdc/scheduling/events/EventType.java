@@ -1,5 +1,8 @@
 package com.energyict.mdc.scheduling.events;
 
+import com.elster.jupiter.events.EventTypeBuilder;
+import com.elster.jupiter.events.ValueType;
+
 /**
  * Models the different event types that are produced by this "device type and configurations bundle".
  *
@@ -13,7 +16,13 @@ public enum EventType {
     NEXTEXECUTIONSPECS_DELETED("nextexecutionspecs/DELETED"),
     COMSCHEDULES_BEFORE_DELETE("comschedules/BEFORE_DELETE"),
     COMSCHEDULES_UPDATED("comschedules/UPDATED"),
-    COMTASK_WILL_BE_ADDED_TO_SCHEDULE("comschedules/COMTASK_WILL_BE_ADDED"),
+    COMTASK_WILL_BE_ADDED_TO_SCHEDULE("comschedules/COMTASK_WILL_BE_ADDED") {
+        public EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
+//            return eventTypeBuilder.withProperty("comScheduleId", ValueType.LONG, "comScheduleId").withProperty("comTaskId", ValueType.LONG, "comTaskId");
+            return eventTypeBuilder;
+        }
+
+    },
     ;
 
     private static final String NAMESPACE = "com/energyict/mdc/scheduling/";
@@ -26,5 +35,10 @@ public enum EventType {
     public String topic() {
         return NAMESPACE + topic;
     }
+
+    public EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
+        return eventTypeBuilder.withProperty("id", ValueType.LONG, "id");
+    }
+
 
 }
