@@ -20,7 +20,6 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
                 {
                     xtype: 'component',
                     html: '<h1>' + Uni.I18n.translate('deviceCommunicationProtocol.protocols','MDC','Protocols') + '</h1>',
-                    margins: '10 10 10 10',
                     itemId: 'protocolTitle'
                 },
                 {

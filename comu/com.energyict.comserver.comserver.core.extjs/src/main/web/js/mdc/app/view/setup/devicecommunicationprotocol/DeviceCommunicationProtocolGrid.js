@@ -12,7 +12,6 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
         'Mdc.store.DeviceCommunicationProtocolsPaged'
     ],
     store: 'DeviceCommunicationProtocolsPaged',
-    padding: '10 10 10 10',
     initComponent: function () {
         var me = this;
         this.columns = [

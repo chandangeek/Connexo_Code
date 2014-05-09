@@ -15,7 +15,9 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.DeviceConfigurations',
         'Mdc.controller.setup.DeviceCommunicationProtocols',
         'Mdc.controller.setup.RegisterGroups',
-        'Mdc.controller.setup.ProtocolDialects'
+        'Mdc.controller.setup.ProtocolDialects',
+        'Mdc.controller.setup.Devices',
+        'Mdc.controller.setup.SearchItems'
     ],
 
     controllers: [
@@ -30,7 +32,9 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.RegisterMappings',
         'Mdc.controller.setup.DeviceConfigurations',
         'Mdc.controller.setup.RegisterGroups',
-        'Mdc.controller.setup.ProtocolDialects'
+        'Mdc.controller.setup.ProtocolDialects',
+        'Mdc.controller.setup.Devices',
+        'Mdc.controller.setup.SearchItems'
     ],
 
     config: {
@@ -53,7 +57,7 @@ Ext.define('Mdc.controller.Main', {
         var menuItem = Ext.create('Uni.model.MenuItem', {
             text: 'Setup',
             href: me.getApplication().getController('Mdc.controller.history.Setup').tokenizeShowOverview(),
-            glyph: 'xe01d@icomoon'
+            glyph: 'settings'
         });
         Uni.store.MenuItems.add(menuItem);
         this.initNavigation();

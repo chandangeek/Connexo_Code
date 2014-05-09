@@ -112,7 +112,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupPreview', {
                                             xtype: 'button',
                                             itemId: 'editEmptyPreviewButton',
                                             margin: '10 0 0 0',
-                                            text: Uni.I18n.translate('registerGroups.edit', 'MDC', 'Edit register group'),
+                                            text: Uni.I18n.translate('registerGroup.edit', 'MDC', 'Edit register group'),
                                             action: 'editRegisterGroup'
                                         }
                                     ]

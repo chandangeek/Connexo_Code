@@ -12,7 +12,6 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
         'Mdc.store.RegisterTypes'
     ],
     store: 'RegisterTypes',
-    padding: '10 10 10 10',
     withPaging: true,
     initComponent: function () {
         var me = this;
