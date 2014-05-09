@@ -55,7 +55,7 @@ Ext.define('Mdc.controller.Main', {
     init: function () {
         var me= this;
         var menuItem = Ext.create('Uni.model.MenuItem', {
-            text: 'Setup',
+            text: Uni.I18n.translate('general.setup', 'MDC', 'Setup'),
             href: me.getApplication().getController('Mdc.controller.history.Setup').tokenizeShowOverview(),
             glyph: 'settings'
         });

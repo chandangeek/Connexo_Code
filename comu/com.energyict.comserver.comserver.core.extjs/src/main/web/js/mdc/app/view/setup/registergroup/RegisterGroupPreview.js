@@ -1,14 +1,14 @@
 Ext.define('Mdc.view.setup.registergroup.RegisterGroupPreview', {
     extend: 'Ext.panel.Panel',
     border: true,
-    margins: '0 10 10 10',
     alias: 'widget.registerGroupPreview',
     itemId: 'registerGroupPreview',
     requires: [
         'Mdc.model.RegisterGroup'
     ],
+    padding: '20 0 0 0',
     layout: {
-        type: 'card',
+        type: 'vbox',
         align: 'stretch'
     },
 
@@ -16,29 +16,9 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupPreview', {
         var me = this;
         this.items = [
             {
-                xtype: 'panel',
-                border: false,
-                padding: '0 10 0 10',
-                tbar: [
-                    {
-                        xtype: 'component',
-                        html: '<H4>' + Uni.I18n.translate('registerGroup.noRegisterGroupSelected', 'MDC', 'No register group selected') + '</H4>'
-                    }
-                ],
-                items: [
-                    {
-                        xtype: 'component',
-                        height: '100px',
-                        html: '<H5>' + Uni.I18n.translate('registerGroup.selectRegisterGroup', 'MDC', 'Select a register group to see its details') + '</H5>'
-                    }
-                ]
-
-            },
-            {
                 xtype: 'form',
                 border: false,
                 itemId: 'registerGroupPreviewForm',
-                padding: '10 10 0 10',
                 layout: {
                     type: 'vbox',
                     align: 'stretch'
@@ -46,7 +26,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupPreview', {
                 tbar: [
                     {
                         xtype: 'component',
-                        html: '<h4>' + Uni.I18n.translate('registerGroup.previewTitle', 'MDC', 'Selected register group preview') + '</h4>',
+                        html: '<b>' + Uni.I18n.translate('registerGroup.previewTitle', 'MDC', 'Selected register group preview') + '</b>',
                         itemId: 'registerGroupPreviewTitle'
                     },
                     '->',
@@ -77,10 +57,10 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupPreview', {
                     {
                         xtype: 'emptygridcontainer',
                         itemId: 'registerTypeEmptyGrid',
-                        padding: '10 10 10 10',
                         grid: {
                             xtype: 'registerTypeGrid',
                             withPaging: false,
+                            withActions: false,
                             maxHeight: 500
                         },
                         emptyComponent: {
@@ -103,7 +83,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupPreview', {
                                     items: [
                                         {
                                             xtype: 'component',
-                                            html: '<h4>'+ Uni.I18n.translate('registerGroupPreview.empty.title', 'MDC', 'No register types found') +'</h4><br>' +
+                                            html: '<b>'+ Uni.I18n.translate('registerGroupPreview.empty.title', 'MDC', 'No register types found') +'</b><br>' +
                                                 Uni.I18n.translate('registerGroupPreview.empty.detail', 'MDC', 'There are no register types. This could be because:') + '<lv><li>&nbsp&nbsp' +
                                                 Uni.I18n.translate('registerGroupPreview.empty.list.item1', 'MDC', 'No register types are associated to this register group.') + '</li></lv><br>' +
                                                 Uni.I18n.translate('registerGroupPreview.empty.steps', 'MDC', 'Possible steps:')
@@ -121,7 +101,8 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupPreview', {
                         }
                     },
                     {
-                        xtype: 'registerTypePreview'
+                        xtype: 'registerTypePreview',
+                        withActions: false
                     }
                 ]
             }
