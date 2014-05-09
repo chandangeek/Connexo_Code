@@ -2911,7 +2911,7 @@
 /* */
 /* line 2, ../../sass/src/toolbar/Toolbar.scss */
 .x-toolbar {
-  background-color: taransparent !important;
+  background-color: transparent !important;
 }
 
 /* line 6, ../../sass/src/toolbar/Toolbar.scss */
@@ -6046,11 +6046,19 @@ div.x-form-spinner-down {
   padding: 10px 0px 10px 0px;
 }
 
-/* line 6, ../../sass/src/form/Label.scss */
+/* line 1, ../../sass/src/form/Label.scss */
 .x-form-item-label {
   font-size: 13px;
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
-  font-weight: normal;
+  font-weight: bold;
+  padding-right: 14px;
+}
+
+/* line 8, ../../sass/src/form/Label.scss */
+.uni-form-item-label-required {
+  background-image: url("images/form/mandatory.png");
+  background-repeat: no-repeat;
+  background-position: right;
 }
 
 /* line 1, ../../sass/src/form/field/Trigger.scss */

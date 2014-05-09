@@ -2,30 +2,26 @@
     background-color: $contentcontainer-default-background-color;
 
     .west {
-      background-color: $contentcontainer-default-background-color;
+        background-color: $contentcontainer-default-background-color;
 
-      .x-panel-header-default {
-        background-color: transparent;
-      }
+        .x-panel-header-default {
+            background-color: transparent;
+        }
 
-      .x-panel-header-text-container-default {
-        color: $contentcontainer-default-header-text-container-default-background-color;
-        font-size: 16px;
-      }
+        .x-panel-header-text-container-default {
+            color: $contentcontainer-default-header-text-container-default-background-color;
+            font-size: 16px;
+        }
 
-      .x-toolbar {
-        padding: 6px;
-      }
-
-      .x-toolbar-footer {
-        background-color: transparent;
-      }
+        .x-toolbar-footer {
+            background-color: transparent;
+            padding: 0;
+        }
     }
 
     .center {
-      background-color: transparent;
-      margin: $contentcontainer-margin-center;
-
+        background-color: transparent;
+        padding: $contentcontainer-margin-center;
     }
 }
 

@@ -23581,17 +23581,14 @@ h6 {
   font-size: 16px;
 }
 /* line 16, ../../sass/src/container/ContentContainer.scss */
-.x-container-contentcontainer .west .x-toolbar {
-  padding: 6px;
-}
-/* line 20, ../../sass/src/container/ContentContainer.scss */
 .x-container-contentcontainer .west .x-toolbar-footer {
   background-color: transparent;
+  padding: 0;
 }
-/* line 25, ../../sass/src/container/ContentContainer.scss */
+/* line 22, ../../sass/src/container/ContentContainer.scss */
 .x-container-contentcontainer .center {
   background-color: transparent;
-  margin: 0px 16px 0px 16px;
+  padding: 0px 16px 0px 16px;
 }
 
 /* line 1, ../../sass/src/button/Button.scss */

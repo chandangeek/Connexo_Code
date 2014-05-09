@@ -20913,15 +20913,13 @@ h6 {
       color: #007dc3;
       font-size: 16px; }
     /* line 16, ../../sass/src/container/ContentContainer.scss */
-    .x-container-contentcontainer .west .x-toolbar {
-      padding: 6px; }
-    /* line 20, ../../sass/src/container/ContentContainer.scss */
     .x-container-contentcontainer .west .x-toolbar-footer {
-      background-color: transparent; }
-  /* line 25, ../../sass/src/container/ContentContainer.scss */
+      background-color: transparent;
+      padding: 0; }
+  /* line 22, ../../sass/src/container/ContentContainer.scss */
   .x-container-contentcontainer .center {
     background-color: transparent;
-    margin: 0px 16px 0px 16px; }
+    padding: 0px 16px 0px 16px; }
 
 /* line 1, ../../sass/src/button/Button.scss */
 .x-uni-action-iconA {
@@ -38758,11 +38756,18 @@ div.x-form-spinner-down {
   font: 13px/16px "Lato", helvetica, arial, verdana, sans-serif;
   padding: 10px 0px 10px 0px; }
 
-/* line 6, ../../sass/src/form/Label.scss */
+/* line 1, ../../sass/src/form/Label.scss */
 .x-form-item-label {
   font-size: 13px;
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
-  font-weight: normal; }
+  font-weight: bold;
+  padding-right: 14px; }
+
+/* line 8, ../../sass/src/form/Label.scss */
+.uni-form-item-label-required {
+  background-image: url("images/form/mandatory.png");
+  background-repeat: no-repeat;
+  background-position: right; }
 
 /* line 1, ../../sass/src/form/field/Trigger.scss */
 .x-trigger-cell {
