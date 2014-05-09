@@ -19,8 +19,8 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesSetup', {
             items: [
                 {
                     xtype: 'component',
-                    html: '<H1>' + Uni.I18n.translate('devicetype.deviceTypes', 'MDC', 'Device types') + '</H1>',
-                    margins: '10 0 10 0'
+                    html: '<H1>' + Uni.I18n.translate('devicetype.deviceTypes', 'MDC', 'Device types') + '</H1>'
+                    //margins: '10 0 10 0'
                 },
                 {
                     xtype: 'deviceTypesGrid'

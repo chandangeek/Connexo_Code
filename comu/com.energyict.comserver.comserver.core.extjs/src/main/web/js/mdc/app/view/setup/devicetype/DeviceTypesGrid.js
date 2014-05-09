@@ -59,6 +59,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
 
             {
                 xtype: 'actioncolumn',
+                align: 'left',
                 tdCls: 'view',
                 iconCls: 'uni-centered-icon',
                 header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
@@ -123,7 +124,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
                 items: [
                     '->',
                     {
-                        text: Uni.I18n.translate('devicetype.createDeviceType', 'MDC', 'Create device type'),
+                        text: Uni.I18n.translate('devicetype.createDeviceType', 'MDC', 'Add device type'),
                         itemId: 'createDeviceType',
                         xtype: 'button',
                         action: 'createDeviceType'

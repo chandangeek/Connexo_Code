@@ -117,7 +117,8 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             this.getDeviceConfigurationPreviewForm().loadRecord(deviceConfigurations[0]);
             this.getDeviceConfigurationPreview().getLayout().setActiveItem(1);
             this.getDeviceConfigurationDetailsLink().update('<a href="#/setup/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + deviceConfigurationId + '">' + Uni.I18n.translate('general.viewDetails', 'MDC', 'View details') + '</a>');
-            this.getDeviceConfigurationPreviewTitle().update('<h1>' + deviceConfigurations[0].get('name') + '</h1>');
+            this.getDeviceConfigurationPreview().getHeader().setTitle(deviceConfigurations[0].get('name'));
+            //this.getDeviceConfigurationPreviewTitle().update('<h1>' + deviceConfigurations[0].get('name') + '</h1>');
         } else {
             this.getDeviceConfigurationPreview().getLayout().setActiveItem(0);
         }
@@ -163,7 +164,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
 
     editDeviceConfigurationHistoryFromPreview: function(){
         location.href = '#setup/devicetypes/'+this.deviceTypeId+'/deviceconfigurations/'+ this.getDeviceConfigurationsGrid().getSelectionModel().getSelection()[0].get('id') +'/edit';
-       },
+    },
 
     editDeviceConfigurationFromDetailsHistory: function(){
         this.editDeviceConfigurationHistory(this.getDeviceConfigurationDetailForm().getRecord());
@@ -232,8 +233,8 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
     },
 
     deleteDeviceConfigurationFromPreview: function(){
-           this.deleteDeviceConfiguration(this.getDeviceConfigurationsGrid().getSelectionModel().getSelection()[0])
-        },
+        this.deleteDeviceConfiguration(this.getDeviceConfigurationsGrid().getSelectionModel().getSelection()[0])
+    },
 
     deleteDeviceConfigurationFromDetails: function(){
         var me = this;

@@ -20,16 +20,16 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
             },
 
             items: [
-                {
+                /*{
                     xtype: 'breadcrumbTrail',
                     region: 'north',
                     padding: 6
-                },
+                },         */
                 {
                     xtype: 'form',
                     border: false,
                     itemId: 'deviceTypeDetailForm',
-                    padding: '10 10 0 10',
+                    //padding: '10 10 0 10',
                     layout: {
                         type: 'vbox',
                         align: 'stretch'

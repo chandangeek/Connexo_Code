@@ -34,7 +34,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsGrid', {
 
         }
     },  */
-    padding: '10 10 10 10',
+    //padding: '10 10 10 10',
     initComponent: function () {
         var me = this;
         this.columns = [
@@ -64,7 +64,8 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsGrid', {
 
             {
                 xtype: 'actioncolumn',
-                tdCls: 'view',
+                align: 'left',
+                //tdCls: 'view',
                 iconCls: 'uni-centered-icon',
                 header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                 sortable: false,
