@@ -23,6 +23,7 @@ import com.elster.jupiter.util.UtilModule;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.impl.EnvironmentImpl;
+import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -80,6 +81,7 @@ public class PersistenceTest {
                 new IdsModule(),
                 new DomainUtilModule(),
                 new MeteringModule(),
+                new MdcCommonModule(),
                 new MasterDataModule(),
 //                new EventsModule(), // Mocked by Spy
                 new PluggableModule(),

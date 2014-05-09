@@ -1,5 +1,6 @@
 package com.energyict.mdc.tasks.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.OrmService;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -14,6 +15,7 @@ public class TasksModule extends AbstractModule {
         requireBinding(OrmService.class);
         requireBinding(NlsService.class);
         requireBinding(MasterDataService.class);
+        requireBinding(EventService.class);
         bind(TaskService.class).to(TaskServiceImpl.class).in(Scopes.SINGLETON);
     }
 }
