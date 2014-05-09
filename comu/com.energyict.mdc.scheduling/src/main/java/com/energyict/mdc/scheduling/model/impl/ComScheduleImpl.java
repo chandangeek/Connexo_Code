@@ -59,9 +59,9 @@ public class ComScheduleImpl implements ComSchedule, HasId {
 
     private long id;
     @NotNull(groups = { Save.Update.class, Save.Create.class }, message = "{"+Constants.CAN_NOT_BE_EMPTY+"}")
-    @Size(max= Global.DB_STRING_LENGTH, groups = { Save.Update.class, Save.Create.class }, message = "{"+Constants.TOO_LONG+"}")
+    @Size(max= Global.DEFAULT_DB_STRING_LENGTH, groups = { Save.Update.class, Save.Create.class }, message = "{"+Constants.TOO_LONG+"}")
     private String name;
-    @Size(max= Global.DB_STRING_LENGTH, groups = { Save.Update.class, Save.Create.class }, message = "{"+Constants.TOO_LONG+"}")
+    @Size(max= Global.DEFAULT_DB_STRING_LENGTH, groups = { Save.Update.class, Save.Create.class }, message = "{"+Constants.TOO_LONG+"}")
     private String mRID;
     private List<ComTaskInComSchedule> comTaskUsages = new ArrayList<>();
     private Reference<NextExecutionSpecs> nextExecutionSpecs = ValueReference.absent();

@@ -33,8 +33,8 @@ public enum TableSpecs {
             Table<ComSchedule> table = dataModel.addTable(name(), ComSchedule.class);
             table.map(ComScheduleImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            table.column("NAME").varChar(Global.DB_STRING_LENGTH).map(ComScheduleImpl.Fields.NAME.fieldName()).add();
-            table.column("MRID").varChar(Global.DB_STRING_LENGTH).map(ComScheduleImpl.Fields.MRID.fieldName()).add();
+            table.column("NAME").varChar(Global.DEFAULT_DB_STRING_LENGTH).map(ComScheduleImpl.Fields.NAME.fieldName()).add();
+            table.column("MRID").varChar(Global.DEFAULT_DB_STRING_LENGTH).map(ComScheduleImpl.Fields.MRID.fieldName()).add();
             table.column("STATUS").number().conversion(ColumnConversion.NUMBER2ENUM).map(ComScheduleImpl.Fields.STATUS.fieldName()).add();
             table.column("STARTDATE").number().conversion(NUMBER2UTCINSTANT).map(ComScheduleImpl.Fields.START_DATE.fieldName()).add();
             Column nextExecutionSpec = table.column("NEXTEXECUTIONSPEC").number().conversion(NUMBER2LONG).add(); // DO NOT MAP

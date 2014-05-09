@@ -75,7 +75,7 @@ public class ComScheduleImplTest extends PersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+Constants.TOO_LONG+"}", property = "name")
     public void testNameMaxLength() throws Exception {
-        String illegalName = StringUtils.repeat("x", Global.DB_STRING_LENGTH + 1);
+        String illegalName = StringUtils.repeat("x", Global.DEFAULT_DB_STRING_LENGTH + 1);
         inMemoryPersistence.getSchedulingService().newComSchedule(illegalName, temporalExpression(TEN_MINUTES, TWENTY_SECONDS), new UtcInstant(new Date())).build();
     }
 
@@ -83,7 +83,7 @@ public class ComScheduleImplTest extends PersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+Constants.TOO_LONG+"}", property = "mRID")
     public void testMridMaxLength() throws Exception {
-        String illegalMrid = StringUtils.repeat("x", Global.DB_STRING_LENGTH + 1);
+        String illegalMrid = StringUtils.repeat("x", Global.DEFAULT_DB_STRING_LENGTH + 1);
         inMemoryPersistence.getSchedulingService().newComSchedule("name", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), new UtcInstant(new Date())).mrid(illegalMrid).build();
     }
 
