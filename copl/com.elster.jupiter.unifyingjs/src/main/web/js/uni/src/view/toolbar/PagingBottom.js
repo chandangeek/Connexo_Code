@@ -243,13 +243,11 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
                 handler: me.movePrevious,
                 scope: me
             },
-            '-',
             {
                 xtype: 'container',
                 itemId: 'pageNavItem',
                 layout: 'hbox'
             },
-            '-',
             {
                 itemId: 'next',
                 ui: 'gridnav',
