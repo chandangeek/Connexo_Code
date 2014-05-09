@@ -54,7 +54,7 @@ public abstract class OutboundConnectionTaskImpl<PCTT extends PartialOutboundCon
     }
 
     @Override
-    public void executionFailed () throws SQLException, BusinessException {
+    public void executionFailed () {
         this.setExecutingComServer(null);
         this.incrementCurrentRetryCount();
         if (doWeNeedToRetryTheConnectionTask()) {

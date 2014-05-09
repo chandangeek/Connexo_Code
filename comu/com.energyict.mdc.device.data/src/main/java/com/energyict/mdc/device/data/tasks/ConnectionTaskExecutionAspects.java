@@ -38,7 +38,7 @@ public interface ConnectionTaskExecutionAspects {
      *
      * @throws SQLException
      */
-    public void executionCompleted () throws SQLException, BusinessException;
+    public void executionCompleted ();
 
     /**
      * Notifies this ConnectionTask that the execution has failed.
@@ -47,7 +47,7 @@ public interface ConnectionTaskExecutionAspects {
      *
      * @throws SQLException
      */
-    public void executionFailed () throws SQLException, BusinessException;
+    public void executionFailed ();
 
     /**
      * Notifies this OutboundConnectionTask that one of its

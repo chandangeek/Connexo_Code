@@ -331,7 +331,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     // Keep as reference for ConnectionTaskExecutionAspects implementation in the mdc.engine bundle
-    public void executionCompleted() throws SQLException, BusinessException {
+    public void executionCompleted() {
         this.doExecutionCompleted();
         this.post();
     }

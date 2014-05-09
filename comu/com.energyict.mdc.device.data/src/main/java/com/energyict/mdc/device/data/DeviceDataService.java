@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data;
 
+import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
@@ -15,6 +16,7 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
@@ -218,6 +220,8 @@ public interface DeviceDataService {
      * @param outboundCapableComServer The ComServer
      */
     public void releaseTimedOutConnectionTasks(ComServer outboundCapableComServer);
+
+    public TimeDuration releaseTimedOutComTasks(ComServer comServer);
 
     /**
      * Cleans up any marker flags on {@link ComTaskExecution}s that were not properly
@@ -426,6 +430,7 @@ public interface DeviceDataService {
     public boolean isLinkedToDevices(ComSchedule comSchedule);
 
     List<ComTaskExecution> getPlannedComTaskExecutionsFor(ComPort comPort);
+    List<ComTaskExecution> getPlannedComTaskExecutionsFor(InboundComPort comPort, Device device);
 
     boolean areComTasksStillPending(Collection<Long> comTaskExecutionIds);
 

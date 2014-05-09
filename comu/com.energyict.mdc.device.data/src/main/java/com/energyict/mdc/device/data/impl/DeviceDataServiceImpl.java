@@ -19,6 +19,7 @@ import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.SqlBuilder;
+import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -58,6 +59,7 @@ import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
@@ -160,23 +162,61 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
     public void releaseTimedOutConnectionTasks(ComServer outboundCapableComServer) {
         List<ComPortPool> containingComPortPoolsForComServer = this.engineModelService.findContainingComPortPoolsForComServer(outboundCapableComServer);
         for (ComPortPool comPortPool : containingComPortPoolsForComServer) {
-            this.releaseTimedOutComTasks((OutboundComPortPool) comPortPool);
+            this.releaseTimedOutConnectionTasks((OutboundComPortPool) comPortPool);
         }
     }
 
-    private void releaseTimedOutComTasks(OutboundComPortPool outboundComPortPool) {
-        long now = this.toSeconds(this.clock.now());
-        int timeOutSeconds = outboundComPortPool.getTaskExecutionTimeout().getSeconds();
-        this.executeUpdate(this.releaseTimedOutTasksSqlBuilder(outboundComPortPool, now, timeOutSeconds));
+    @Override
+    public TimeDuration releaseTimedOutComTasks(ComServer comServer) {
+        int waitTime = -1;
+        List<ComPortPool> containingComPortPoolsForComServer = this.engineModelService.findContainingComPortPoolsForComServer(comServer);
+        for (ComPortPool comPortPool : containingComPortPoolsForComServer) {
+            this.releaseTimedOutComTasks((OutboundComPortPool) comPortPool);
+            waitTime = this.minimumWaitTime(waitTime, ((OutboundComPortPool)comPortPool).getTaskExecutionTimeout().getSeconds());
+        }
+        if (waitTime < 0) {
+            return new TimeDuration(1, TimeDuration.DAYS);
+        } else {
+            return new TimeDuration(waitTime, TimeDuration.SECONDS);
+        }
     }
 
-    private SqlBuilder releaseTimedOutTasksSqlBuilder(OutboundComPortPool outboundComPortPool, long now, int timeOutSeconds) {
+    private int minimumWaitTime(int currentWaitTime, int comPortPoolTaskExecutionTimeout) {
+        if (currentWaitTime < 0) {
+            return comPortPoolTaskExecutionTimeout;
+        } else {
+            return Math.min(currentWaitTime, comPortPoolTaskExecutionTimeout);
+        }
+    }
+
+    private void releaseTimedOutComTasks(OutboundComPortPool outboundComPortPool){
+        long now = this.toSeconds(this.clock.now());
+        int timeOutSeconds = outboundComPortPool.getTaskExecutionTimeout().getSeconds();
+        this.executeUpdate(this.releaseTimedOutComTaskExecutionsSqlBuilder(outboundComPortPool, now, timeOutSeconds));
+    }
+
+    private void releaseTimedOutConnectionTasks(OutboundComPortPool outboundComPortPool) {
+        long now = this.toSeconds(this.clock.now());
+        int timeOutSeconds = outboundComPortPool.getTaskExecutionTimeout().getSeconds();
+        this.executeUpdate(this.releaseTimedOutConnectionTasksSqlBuilder(outboundComPortPool, now, timeOutSeconds));
+    }
+
+    private SqlBuilder releaseTimedOutConnectionTasksSqlBuilder(OutboundComPortPool outboundComPortPool, long now, int timeOutSeconds) {
         SqlBuilder sqlBuilder = new SqlBuilder("UPDATE " + TableSpecs.MDCCONNECTIONTASK.name());
         sqlBuilder.append("   set comserver = null");
         sqlBuilder.append(" where id in (select connectiontask from mdccomtaskexec");
         sqlBuilder.append(" where id in (");
         TimedOutTasksSqlBuilder.appendTimedOutComTaskExecutionSql(sqlBuilder, outboundComPortPool, now, timeOutSeconds);
         sqlBuilder.append("))");
+        return sqlBuilder;
+    }
+
+    private SqlBuilder releaseTimedOutComTaskExecutionsSqlBuilder(OutboundComPortPool outboundComPortPool, long now, int timeOutSeconds) {
+        SqlBuilder sqlBuilder = new SqlBuilder("UPDATE " + TableSpecs.MDCCOMTASKEXEC.name());
+        sqlBuilder.append("   set comport = null, executionStart");
+        sqlBuilder.append(" where id in (select connectiontask from mdccomtaskexec = null");
+        TimedOutTasksSqlBuilder.appendTimedOutComTaskExecutionSql(sqlBuilder, outboundComPortPool, now, timeOutSeconds);
+        sqlBuilder.append(")");
         return sqlBuilder;
     }
 
@@ -1010,6 +1050,30 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
                     .and(where("connectionTask.nextExecutionTimestamp").isLessThanOrEqual(now))
                     .and(where(ComTaskExecutionFields.COMPORT.fieldName()).isNull())
                     .and(ListOperator.IN.contains("connectionTask.comPortPool", comPortPools));
+            return this.dataModel.query(ComTaskExecution.class, ConnectionTask.class).select(condition,
+                    Order.ascending(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()),
+                    Order.ascending(ComTaskExecutionFields.PRIORITY.fieldName()),
+                    Order.ascending(ComTaskExecutionFields.CONNECTIONTASK.fieldName()));
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public List<ComTaskExecution> getPlannedComTaskExecutionsFor(InboundComPort comPort, Device device) {
+        if (comPort.isActive()) {
+            InboundComPortPool inboundComPortPool = comPort.getComPortPool();
+            Date now = this.clock.now();
+            Condition condition = Where.where("connectionTask.paused").isEqualTo(false)
+                    .and(where("connectionTask.comServer").isNull())
+                    .and(where("connectionTask.obsoleteDate").isNull())
+                    .and(where("connectionTask.device").isEqualTo(device))
+                    .and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull())
+                    .and(where(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isLessThanOrEqual(now))
+                    .and(where("connectionTask.nextExecutionTimestamp").isLessThanOrEqual(now)
+                            .or(where(ComTaskExecutionFields.IGNORENEXTEXECUTIONSPECSFORINBOUND.fieldName()).isEqualTo(true)))
+                    .and(where(ComTaskExecutionFields.COMPORT.fieldName()).isNull())
+                    .and(where("connectionTask.comPortPool").isEqualTo(inboundComPortPool));
             return this.dataModel.query(ComTaskExecution.class, ConnectionTask.class).select(condition,
                     Order.ascending(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()),
                     Order.ascending(ComTaskExecutionFields.PRIORITY.fieldName()),
