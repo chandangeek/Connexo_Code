@@ -9,6 +9,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupSetup', {
         'Ext.layout.container.Card',
         'Uni.view.container.EmptyGridContainer'
     ],
+    hidden: true,
 
     content: [
         {

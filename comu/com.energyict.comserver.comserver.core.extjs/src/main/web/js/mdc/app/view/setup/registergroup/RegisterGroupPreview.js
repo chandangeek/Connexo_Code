@@ -1,7 +1,6 @@
 Ext.define('Mdc.view.setup.registergroup.RegisterGroupPreview', {
     extend: 'Ext.panel.Panel',
     border: true,
-    //margins: '0 10 10 10',
     alias: 'widget.registerGroupPreview',
     itemId: 'registerGroupPreview',
     requires: [
@@ -9,7 +8,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupPreview', {
     ],
     padding: '20 0 0 0',
     layout: {
-        type: 'card',
+        type: 'vbox',
         align: 'stretch'
     },
 
@@ -17,29 +16,9 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupPreview', {
         var me = this;
         this.items = [
             {
-                xtype: 'panel',
-                border: false,
-                //padding: '0 10 0 10',
-                tbar: [
-                    {
-                        xtype: 'component',
-                        html: '<b>' + Uni.I18n.translate('registerGroup.noRegisterGroupSelected', 'MDC', 'No register group selected') + '</b>'
-                    }
-                ],
-                items: [
-                    {
-                        xtype: 'component',
-                        height: '100px',
-                        html: '<b>' + Uni.I18n.translate('registerGroup.selectRegisterGroup', 'MDC', 'Select a register group to see its details') + '</b>'
-                    }
-                ]
-
-            },
-            {
                 xtype: 'form',
                 border: false,
                 itemId: 'registerGroupPreviewForm',
-                //padding: '10 10 0 10',
                 layout: {
                     type: 'vbox',
                     align: 'stretch'
@@ -78,7 +57,6 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupPreview', {
                     {
                         xtype: 'emptygridcontainer',
                         itemId: 'registerTypeEmptyGrid',
-                        //padding: '10 10 10 10',
                         grid: {
                             xtype: 'registerTypeGrid',
                             withPaging: false,

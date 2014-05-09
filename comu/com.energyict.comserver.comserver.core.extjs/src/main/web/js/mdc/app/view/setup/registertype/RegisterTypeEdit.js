@@ -65,7 +65,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
 //                    tbar: [
 //                        {
 //                            xtype: 'component',
-//                            html: '<h4>Overview</h4>',
+//                            html: '<b>Overview</b>',
 //                            itemId: 'deviceTypePreviewTitle'
 //                        }
 //                    ],

@@ -5,10 +5,12 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
     alias: 'widget.registerTypePreview',
     itemId: 'registerTypePreview',
     requires: [
-        'Mdc.model.RegisterType'
+        'Mdc.model.RegisterType',
+        'Ext.layout.container.Column',
+        'Ext.form.FieldSet'
     ],
     layout: {
-        type: 'card',
+        type: 'vbox',
         align: 'stretch'
     },
     withActions: true,
@@ -17,29 +19,9 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
         var me = this;
         this.items = [
             {
-                xtype: 'panel',
-                border: false,
-                //padding: '0 10 0 10',
-                tbar: [
-                    {
-                        xtype: 'component',
-                        html: '<H4>' + Uni.I18n.translate('registerType.noRegisterTypeSelected', 'MDC', 'No register type selected') + '</H4>'
-                    }
-                ],
-                items: [
-                    {
-                        xtype: 'component',
-                        height: '100px',
-                        html: '<H5>' + Uni.I18n.translate('registerType.selectRegisterType', 'MDC', 'Select a register type to see its details') + '</H5>'
-                    }
-                ]
-
-            },
-            {
                 xtype: 'form',
                 border: false,
                 itemId: 'registerTypePreviewForm',
-                //padding: '10 10 0 10',
                 layout: {
                     type: 'vbox',
                     align: 'stretch'
@@ -47,7 +29,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
                 tbar: [
                     {
                         xtype: 'component',
-                        html: '<h4>' + Uni.I18n.translate('registerType.previewTitle', 'MDC', 'Selected register preview') + '</h4>',
+                        html: '<b>' + Uni.I18n.translate('registerType.previewTitle', 'MDC', 'Selected register preview') + '</b>',
                         itemId: 'registerTypePreviewTitle'
                     },
                     '->',
@@ -80,7 +62,6 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
                         xtype: 'container',
                         layout: {
                             type: 'column'
-                            //                        align: 'stretch'
                         },
                         items: [
                             {

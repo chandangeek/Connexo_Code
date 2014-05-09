@@ -20,6 +20,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
     ],
 
     refs: [
+        {ref: 'registerGroupSetup', selector: '#registerGroupSetup'},
         {ref: 'registerTypeGrid', selector: '#registertypegrid'},
         {ref: 'registerGroupGrid', selector: '#registerGroupGrid'},
         {ref: 'registerGroupPreviewForm', selector: '#registerGroupPreviewForm'},
@@ -89,8 +90,9 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
     },
 
     onStoreLoad: function () {
-        if(this.getRegisterGroupsStore().data.items.length == 0){
-            this.getRegisterGroupPreview().hide();
+        if(this.getRegisterGroupsStore().data.items.length > 0){
+            this.getRegisterGroupSetup().show();
+            this.getRegisterGroupGrid().getSelectionModel().doSelect(0);
         }
     },
 
@@ -104,23 +106,19 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
             registerTypesOfRegisterGroup.load({
                 callback: function (store) {
                     me.getRegisterTypeGrid().store.loadData(this.data.items);
-                    me.getRegisterGroupPreview().getLayout().setActiveItem(1);
                     if(this.data.items.length > 0){
                         me.getRegisterTypeEmptyGrid().getLayout().setActiveItem('gridContainer');
                         me.getRegisterGroupPreviewTitle().update('<b>' + Uni.I18n.translate('registerGroup.previewGroup', 'MDC', 'Register types of') + ' ' + registerGroups[0].get('name') + '</b><br>' +
                             Ext.String.format(Uni.I18n.translate('registerGroup.previewCount', 'MDC', '{0} register types'), this.data.items.length));
-                        me.getRegisterTypePreview().getLayout().setActiveItem(0);
+                        me.getRegisterTypeGrid().getSelectionModel().doSelect(0);
                     }
                     else{
                         me.getRegisterTypeEmptyGrid().getLayout().setActiveItem('emptyContainer');
                         me.getRegisterGroupPreviewTitle().update('<b>' + Uni.I18n.translate('registerGroup.previewGroup', 'MDC', 'Register types of') + ' ' + registerGroups[0].get('name') + '</b>');
-                        me.getRegisterTypePreview().hide();
                     }
                     me.getRegisterTypeEmptyGrid().setVisible(true);
                 }
             });
-        } else {
-            this.getRegisterGroupPreview().getLayout().setActiveItem(0);
         }
     },
 
@@ -128,10 +126,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
         var registerTypes = this.getRegisterTypeGrid().getSelectionModel().getSelection();
         if (registerTypes.length == 1) {
             this.getRegisterTypePreviewForm().loadRecord(registerTypes[0]);
-            this.getRegisterTypePreview().getLayout().setActiveItem(1);
             this.getRegisterTypePreviewTitle().update('<b>' + registerTypes[0].get('name') + '</b>');
-        } else {
-            this.getRegisterTypePreview().getLayout().setActiveItem(0);
         }
     },
 

@@ -9,6 +9,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeSetup', {
         'Mdc.view.setup.registertype.RegisterTypeFilter'
      //   'Uni.view.breadcrumb.Trail'
     ],
+    hidden: true,
    /* layout: {
         type: 'vbox',
         align: 'stretch'

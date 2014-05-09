@@ -24,6 +24,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
     ],
 
     refs: [
+        {ref: 'registerTypeSetup', selector: '#registerTypeSetup'},
         {ref: 'registerTypeGrid', selector: '#registertypegrid'},
         {ref: 'registerTypePreviewForm', selector: '#registerTypePreviewForm'},
         {ref: 'registerTypePreview', selector: '#registerTypePreview'},
@@ -40,7 +41,8 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
     ],
 
     init: function () {
-        this.getReadingTypesStore().on('load', this.onStoreLoad, this);
+        this.getReadingTypesStore().on('load', this.onReadingTypesStoreLoad, this);
+        this.getRegisterTypesStore().on('load', this.onRegisterTypesStoreLoad, this);
 
         this.control({
             '#registertypegrid': {
@@ -87,7 +89,14 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         });
     },
 
-    onStoreLoad: function () {
+    onRegisterTypesStoreLoad: function () {
+        if(this.getRegisterTypesStore().data.items.length > 0){
+            this.getRegisterTypeSetup().show();
+            this.getRegisterTypeGrid().getSelectionModel().doSelect(0);
+        }
+    },
+
+    onReadingTypesStoreLoad: function () {
         var widget = this.getRegisterTypeEditForm();
         var me = this;
         if (me.getReadingTypesStore().getCount() === 1) {
@@ -119,19 +128,12 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         }
     },
 
-    showEditView: function (id) {
-
-    },
-
     previewRegisterType: function (grid, record) {
         var registerTypes = this.getRegisterTypeGrid().getSelectionModel().getSelection();
         if (registerTypes.length == 1) {
             this.getRegisterTypePreviewForm().loadRecord(registerTypes[0]);
-            this.getRegisterTypePreview().getLayout().setActiveItem(1);
-            this.getRegisterTypePreviewTitle().update('<h4>' + registerTypes[0].get('name') + '</h4>');
+            this.getRegisterTypePreviewTitle().update('<b>' + registerTypes[0].get('name') + '</b>');
             this.getPreviewMrId().setValue(registerTypes[0].getReadingType().get('mrid'));
-        } else {
-            this.getRegisterTypePreview().getLayout().setActiveItem(0);
         }
     },
 
@@ -144,7 +146,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                 me.detailBreadCrumb(registerType.get('name'), registerMapping);
                 widget.down('form').loadRecord(registerType);
                 me.getDetailMrId().setValue(registerType.getReadingType().get('mrid'));
-                me.getRegisterTypePreviewTitle().update('<h4>' + registerType.get('name') + ' ' + Uni.I18n.translate('general.overview', 'MDC', 'Overview') + '</h4>');
+                me.getRegisterTypePreviewTitle().update('<b>' + registerType.get('name') + ' ' + Uni.I18n.translate('general.overview', 'MDC', 'Overview') + '</b>');
             }
         });
         this.getApplication().getController('Mdc.controller.Main').showContent(widget);
@@ -228,7 +230,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                         unitOfMeasureStore.load({
                             callback: function (store) {
                                 widget.down('form').loadRecord(registerType);
-                                widget.down('#registerTypeEditCreateTitle').update('<H2>' + registerType.get('name') + ' > ' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + Uni.I18n.translate('registerType.registerType', 'MDC', 'Register type') + '</H2>');
+                                widget.down('#registerTypeEditCreateTitle').update('<H1>' + registerType.get('name') + ' > ' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + Uni.I18n.translate('registerType.registerType', 'MDC', 'Register type') + '</H1>');
                                 widget.down('#editMrIdField').setValue(registerType.getReadingType().get('mrid'));
                                 if (registerType.get('isLinkedByDeviceType') === true) {
                                     widget.down('#editObisCodeField').setDisabled(true);
@@ -256,15 +258,8 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
     },
 
     showRegisterTypes: function () {
-        var me = this;
-        this.getRegisterTypesStore().load(
-            {
-                callback: function () {
-                    var widget = Ext.widget('registerTypeSetup');
-                    me.getApplication().getController('Mdc.controller.Main').showContent(widget);
-                    //me.overviewBreadCrumb(me.getBreadCrumbs);
-                }
-            });
+        var widget = Ext.widget('registerTypeSetup');
+        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
     },
 
     showRegisterTypeCreateView: function () {
@@ -284,7 +279,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             callback: function (store) {
                 unitOfMeasureStore.load({
                     callback: function (store) {
-                        widget.down('#registerTypeEditCreateTitle').update('<H2>' + Uni.I18n.translate('registerType.createRegisterType', 'MDC', 'Create register type') + '</H2>');
+                        widget.down('#registerTypeEditCreateTitle').update('<H1>' + Uni.I18n.translate('registerType.createRegisterType', 'MDC', 'Create register type') + '</H1>');
                         me.createBreadCrumb();
                         widget.setLoading(false);
                     }
