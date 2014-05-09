@@ -124,8 +124,8 @@ public class MasterDataServiceImpl implements MasterDataService, InstallService 
     }
 
     @Override
-    public List<RegisterGroup> findAllRegisterGroups() {
-        return this.getDataModel().mapper(RegisterGroup.class).find();
+    public Finder<RegisterGroup> findAllRegisterGroups() {
+        return DefaultFinder.of(RegisterGroup.class, this.getDataModel()).defaultSortColumn("lower(name)");
     }
 
     @Override

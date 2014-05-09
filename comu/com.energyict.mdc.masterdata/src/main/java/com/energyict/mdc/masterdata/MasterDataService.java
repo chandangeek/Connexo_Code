@@ -88,7 +88,7 @@ public interface MasterDataService {
      */
     public RegisterGroup newRegisterGroup(String name);
 
-    public List<RegisterGroup> findAllRegisterGroups();
+    public Finder<RegisterGroup> findAllRegisterGroups();
 
     public Finder<RegisterMapping> findAllRegisterMappings();
 
