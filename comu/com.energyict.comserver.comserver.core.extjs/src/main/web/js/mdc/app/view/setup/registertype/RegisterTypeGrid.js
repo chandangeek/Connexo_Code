@@ -12,8 +12,9 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
         'Mdc.store.RegisterTypes'
     ],
     store: 'RegisterTypes',
-    padding: '10 10 10 10',
+    //padding: '10 10 10 10',
     withPaging: true,
+    withActions: true,
     initComponent: function () {
         var me = this;
         this.columns = [
@@ -47,7 +48,8 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
                 width: 300,
                 tdCls: 'view',
                 sortable: false,
-                hideable: false
+                hideable: false,
+                flex: 1
 
             },
             {
@@ -57,60 +59,64 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
                 hideable: false,
                 fixed: true,
                 flex: 1
-            },
-            {
-                xtype: 'actioncolumn',
-                iconCls: 'uni-centered-icon',
-                tdCls: 'view',
-                header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-                sortable: false,
-                hideable: false,
-                fixed: true,
-                items: [
-                    {
-                        icon: '../mdc/resources/images/gear-16x16.png',
-                        handler: function (grid, rowIndex, colIndex, item, e, record, row) {
-                            var menu = Ext.widget('menu', {
-                                items: [
-                                    {
-                                        xtype: 'menuitem',
-                                        text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                                        listeners: {
-                                            click: {
-                                                element: 'el',
-                                                fn: function () {
-                                                    this.fireEvent('editItem', record);
-                                                },
-                                                scope: this
-                                            }
-
-                                        }
-                                    },
-                                    {
-                                        xtype: 'menuseparator'
-                                    },
-                                    {
-                                        xtype: 'menuitem',
-                                        text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
-                                        listeners: {
-                                            click: {
-                                                element: 'el',
-                                                fn: function () {
-                                                    this.fireEvent('deleteItem', record);
-                                                },
-                                                scope: this
-                                            }
-
-                                        }
-                                    }
-                                ]
-                            });
-                            menu.showAt(e.getXY());
-                        }
-                    }
-                ]
             }
         ];
+        if(this.withActions){
+            this.columns.push(
+                {
+                    xtype: 'actioncolumn',
+                    iconCls: 'uni-centered-icon',
+                    tdCls: 'view',
+                    header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                    sortable: false,
+                    hideable: false,
+                    fixed: true,
+                    items: [
+                        {
+                            icon: '../mdc/resources/images/gear-16x16.png',
+                            handler: function (grid, rowIndex, colIndex, item, e, record, row) {
+                                var menu = Ext.widget('menu', {
+                                    items: [
+                                        {
+                                            xtype: 'menuitem',
+                                            text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                                            listeners: {
+                                                click: {
+                                                    element: 'el',
+                                                    fn: function () {
+                                                        this.fireEvent('editItem', record);
+                                                    },
+                                                    scope: this
+                                                }
+
+                                            }
+                                        },
+                                        {
+                                            xtype: 'menuseparator'
+                                        },
+                                        {
+                                            xtype: 'menuitem',
+                                            text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
+                                            listeners: {
+                                                click: {
+                                                    element: 'el',
+                                                    fn: function () {
+                                                        this.fireEvent('deleteItem', record);
+                                                    },
+                                                    scope: this
+                                                }
+
+                                            }
+                                        }
+                                    ]
+                                });
+                                menu.showAt(e.getXY());
+                            }
+                        }
+                    ]
+                }
+            );
+        }
         if(this.withPaging){
             this.dockedItems = [
                 {

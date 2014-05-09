@@ -10,7 +10,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupGrid', {
         'Mdc.store.RegisterGroups'
     ],
     store: 'RegisterGroups',
-    padding: '10 10 10 10',
+    //padding: '10 10 10 10',
     initComponent: function () {
         var me = this;
         this.columns = [

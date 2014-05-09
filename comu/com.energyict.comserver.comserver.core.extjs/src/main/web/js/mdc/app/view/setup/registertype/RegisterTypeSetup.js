@@ -25,6 +25,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeSetup', {
                 type: 'vbox',
                 align: 'stretch'
             },
+            padding: '0 10 0 10',
             items: [
                /* {
                     xtype: 'breadcrumbTrail',
@@ -34,17 +35,13 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeSetup', {
                 {
                     xtype: 'component',
                     html: '<h1>' + Uni.I18n.translate('registerType.registerTypes','MDC','Register types') + '</h1>',
-                    margins: '10 10 10 10',
+                    //margins: '10 10 10 10',
                     itemId: 'registerTypeTitle'
                 },
                 {
                     xtype: 'container',
                     items: [],
                     itemId: 'registerTypeGridContainer'
-                },
-                {
-                    xtype: 'component',
-                    height: 25
                 },
                 {
                     xtype: 'registerTypePreview'

@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
     extend: 'Ext.panel.Panel',
     border: true,
-    margins: '0 10 10 10',
+    padding: '20 0 0 0',
     alias: 'widget.registerTypePreview',
     itemId: 'registerTypePreview',
     requires: [
@@ -11,6 +11,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
         type: 'card',
         align: 'stretch'
     },
+    withActions: true,
 
     initComponent: function () {
         var me = this;
@@ -18,7 +19,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
             {
                 xtype: 'panel',
                 border: false,
-                padding: '0 10 0 10',
+                //padding: '0 10 0 10',
                 tbar: [
                     {
                         xtype: 'component',
@@ -38,7 +39,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
                 xtype: 'form',
                 border: false,
                 itemId: 'registerTypePreviewForm',
-                padding: '10 10 0 10',
+                //padding: '10 10 0 10',
                 layout: {
                     type: 'vbox',
                     align: 'stretch'
@@ -51,6 +52,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
                     },
                     '->',
                     {
+                        itemId: 'actionsButton',
                         icon: '../mdc/resources/images/gear-16x16.png',
                         text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                         menu: {
@@ -137,7 +139,17 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
                                         fieldLabel: Uni.I18n.translate('registerType.obisCode', 'MDC', 'OBIS code'),
                                         labelAlign: 'right',
                                         labelWidth: 150
-                                    },
+                                    }
+                                ]
+                            },
+                            {
+                                xtype: 'container',
+                                columnWidth: 0.5,
+                                layout: {
+                                    type: 'vbox',
+                                    align: 'stretch'
+                                },
+                                items: [
                                     {
                                         xtype: 'displayfield',
                                         name: 'unit',
@@ -152,23 +164,13 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
                                         labelAlign: 'right',
                                         labelWidth: 150
                                     }
-                                ]
-                            },
-                            {
-                                xtype: 'container',
-                                columnWidth: 0.5,
-                                layout: {
-                                    type: 'vbox',
-                                    align: 'stretch'
-                                },
-                                items: [
-                                    {
+                                    /*{
                                         xtype: 'displayfield',
                                         name: 'dataCollectionGroup',
                                         fieldLabel: Uni.I18n.translate('registerType.dataCollectionGroup', 'MDC', 'Data collection group'),
                                         labelAlign: 'right',
                                         labelWidth: 150
-                                    }
+                                    }*/
 
                                 ]
                             }
@@ -179,6 +181,9 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
         ]
         this.callParent(arguments);
 
+        if(!this.withActions){
+            this.down('#actionsButton').hide();
+        }
     }
 })
 ;
