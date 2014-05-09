@@ -6,6 +6,10 @@
     background-image: $button-action-icon;
 }
 
+.#{$prefix}btn-default-toolbar-small .#{$prefix}btn-arrow {
+    background-image: url('images/button/default-small-arrow.png');
+}
+
 @import "DeleteButton";
 
 @import "LinkButton";
