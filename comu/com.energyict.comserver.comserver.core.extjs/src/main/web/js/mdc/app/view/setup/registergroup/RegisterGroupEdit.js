@@ -106,6 +106,11 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                             enableColumnMove: false,
                                             enableColumnResize: false,
                                             sortableColumns: false,
+                                            //verticalScrollerType: 'paginggridscroller',
+                                            //invalidateScrollerOnRefresh: false,
+                                            //viewConfig: {
+                                            //    trackOver: false
+                                            //},
                                             store: new Ext.data.Store({
                                                 model: 'Mdc.model.RegisterType'
                                             }),
@@ -180,7 +185,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                                     items: [
                                                         {
                                                             xtype: 'component',
-                                                            html: '<h4>'+ Uni.I18n.translate('registerGroupPreview.empty.title', 'MDC', 'No register types found') +'</h4><br>' +
+                                                            html: '<b>'+ Uni.I18n.translate('registerGroupPreview.empty.title', 'MDC', 'No register types found') +'</b><br>' +
                                                                 Uni.I18n.translate('registerGroupPreview.empty.detail', 'MDC', 'There are no register types. This could be because:') + '<lv><li>&nbsp&nbsp' +
                                                                 Uni.I18n.translate('registerGroupEdit.empty.list.item1', 'MDC', 'No register types have been defined yet.') + '</li></lv><br>' +
                                                                 Uni.I18n.translate('registerGroupPreview.empty.steps', 'MDC', 'Possible steps:')
