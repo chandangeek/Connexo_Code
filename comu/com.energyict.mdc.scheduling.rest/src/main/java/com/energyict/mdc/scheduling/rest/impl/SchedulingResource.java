@@ -4,6 +4,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.rest.BooleanAdapter;
+import com.energyict.mdc.common.rest.IdListBuilder;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
@@ -152,10 +153,22 @@ public class SchedulingResource {
     public Response getComTasks(@PathParam("id") long id, @BeanParam JsonQueryFilter queryFilter) {
         ComSchedule comSchedule = findComScheduleOrThrowException(id);
         if (queryFilter.getFilterProperties().containsKey("available") && queryFilter.getProperty("available", new BooleanAdapter(), thesaurus)) {
-            return Response.ok().entity(ComTaskInfo.from(deviceConfigurationService.findAvailableComTasks(comSchedule))).build();
+            return Response.ok().entity(ComTaskInfo.from(getAvailableComTasksExcludingAlreadyAssigned(comSchedule))).build();
         } else {
             return Response.ok().entity(ComTaskInfo.from(comSchedule.getComTasks())).build();
         }
+    }
+
+    private List<ComTask> getAvailableComTasksExcludingAlreadyAssigned(ComSchedule comSchedule) {
+        List<ComTask> remainingComTasks = new ArrayList<>();
+        Map<Long, ComTask> existingComTasks = IdListBuilder.asIdMap(comSchedule.getComTasks());
+        for (ComTask availableComTask : deviceConfigurationService.findAvailableComTasks(comSchedule)) {
+            if (!existingComTasks.containsKey(availableComTask.getId())) {
+                remainingComTasks.add(availableComTask);
+            }
+        }
+
+        return remainingComTasks;
     }
 
     private boolean isInUse(ComSchedule comSchedule) {
