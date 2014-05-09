@@ -7914,6 +7914,10 @@ h6 {
 *[class*='x-btn-menuitem-'] .x-btn-button .uni-icon-settings {
   background-image: url("images/container/menu/settings.png");
 }
+/* line 59, ../../sass/src/button/MenuItemButton.scss */
+*[class*='x-btn-menuitem-'] .x-btn-button .uni-icon-none {
+  background-image: url("images/container/menu/settings.png");
+}
 
 /* line 10, ../../sass/src/button/MenuItemButton.scss */
 .x-pressed .uni-icon-home {
@@ -7929,6 +7933,10 @@ h6 {
 }
 /* line 10, ../../sass/src/button/MenuItemButton.scss */
 .x-pressed .uni-icon-settings {
+  background-image: url("images/container/menu/settingsSelected.png") !important;
+}
+/* line 72, ../../sass/src/button/MenuItemButton.scss */
+.x-pressed .uni-icon-none {
   background-image: url("images/container/menu/settingsSelected.png") !important;
 }
 
@@ -14966,11 +14974,4 @@ h6 {
 .x-btn-sort-medium-pressed .x-frame-tc,
 .x-btn-sort-medium-pressed .x-frame-bc {
   background-image: url(images/btn/btn-sort-medium-pressed-corners.gif);
-}
-/* line 637, ../../../ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-sort-medium-menu-active .x-frame-ml,
-.x-btn-sort-medium-menu-active .x-frame-mr,
-.x-btn-sort-medium-pressed .x-frame-ml,
-.x-btn-sort-medium-pressed .x-frame-mr {
-  background-image: url(images/btn/btn-sort-medium-pressed-sides.gif);
 }

@@ -1,3 +1,10 @@
+.x-btn-sort-medium-menu-active .x-frame-ml,
+.x-btn-sort-medium-menu-active .x-frame-mr,
+.x-btn-sort-medium-pressed .x-frame-ml,
+.x-btn-sort-medium-pressed .x-frame-mr {
+  background-image: url(images/btn/btn-sort-medium-pressed-sides.gif);
+}
+/* line 640, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-sort-medium-menu-active .x-frame-mc,
 .x-btn-sort-medium-pressed .x-frame-mc {
   background-color: #d4d4d4;
