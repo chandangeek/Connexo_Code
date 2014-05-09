@@ -1,39 +1,43 @@
 package com.energyict.mdc.engine.impl.core.online;
 
 import com.elster.jupiter.metering.readings.MeterReading;
-import com.energyict.mdc.common.ApplicationException;
+import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.BusinessEvent;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.common.Transaction;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.data.DeviceCacheFactory;
-import com.energyict.mdc.engine.impl.commands.offline.DeviceOffline;
-import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceImpl;
-import com.energyict.mdc.engine.impl.commands.offline.OfflineRegisterImpl;
-import com.energyict.mdc.engine.impl.core.ComJob;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.ServerDeviceCommunicationConfiguration;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.ServerComTaskExecution;
-import com.energyict.mdc.device.data.journal.ComSession;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.engine.impl.commands.offline.DeviceOffline;
+import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceImpl;
+import com.energyict.mdc.engine.impl.commands.offline.OfflineRegisterImpl;
+import com.energyict.mdc.engine.impl.core.ComJob;
+import com.energyict.mdc.engine.impl.core.ComJobFactory;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.core.MultiThreadedComJobFactory;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
+import com.energyict.mdc.engine.impl.core.SingleThreadedComJobFactory;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.protocol.api.UserFile;
-import com.energyict.mdc.protocol.api.UserFileShadow;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
@@ -47,10 +51,10 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
-import java.io.ByteArrayInputStream;
+
 import java.sql.SQLException;
 import java.text.DateFormat;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -66,7 +70,29 @@ import java.util.List;
  */
 public class ComServerDAOImpl implements ComServerDAO {
 
+    private final ServiceProvider serviceProvider;
+
     private ServerProcessStatus status = ServerProcessStatus.STARTING;
+
+    public ComServerDAOImpl(ServiceProvider serviceProvider) {
+        this.serviceProvider = serviceProvider;
+    }
+
+    private EngineModelService getEngineModelService() {
+        return this.serviceProvider.engineModelService();
+    }
+
+    private DeviceDataService getDeviceDataService() {
+        return this.serviceProvider.deviceDataService();
+    }
+
+    private Clock getClock() {
+        return this.serviceProvider.clock();
+    }
+
+    private TransactionService getTransactionService() {
+        return this.serviceProvider.transactionService();
+    }
 
     @Override
     public ServerProcessStatus getStatus() {
@@ -90,112 +116,99 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public ComServer getThisComServer() {
-        return this.getManager().getComServerFactory().findBySystemName();
+        return getEngineModelService().findComServerBySystemName();
     }
 
     @Override
     public ComServer getComServer(String systemName) {
-        return this.getManager().getComServerFactory().findBySystemName(systemName);
+        return getEngineModelService().findComServer(systemName);
     }
 
     @Override
     public ComServer refreshComServer(ComServer comServer) {
-        try {
-            ComServer reloaded = this.getManager().getComServerFactory().find((int) comServer.getId());
-            if (reloaded == null || reloaded.isObsolete()) {
-                return null;
-            } else if (reloaded.getModificationDate().after(comServer.getModificationDate())) {
-                return reloaded;
-            } else {
-                return comServer;
-            }
-        } finally {
-            this.closeConnection();
+        ComServer reloaded = getEngineModelService().findComServer(comServer.getId());
+        if (reloaded == null || reloaded.isObsolete()) {
+            return null;
+        } else if (reloaded.getModificationDate().after(comServer.getModificationDate())) {
+            return reloaded;
+        } else {
+            return comServer;
         }
     }
 
     @Override
     public ComPort refreshComPort(ComPort comPort) {
-        try {
-            ComPort reloaded = this.getManager().getComPortFactory().find((int) comPort.getId());
-            if (reloaded == null || reloaded.isObsolete()) {
-                return null;
-            } else if (reloaded.getModificationDate().after(comPort.getModificationDate())) {
-                return reloaded;
-            } else {
-                return comPort;
-            }
-        } finally {
-            this.closeConnection();
+        ComPort reloaded = getEngineModelService().findComPort(comPort.getId());
+        if (reloaded == null || reloaded.isObsolete()) {
+            return null;
+        } else if (reloaded.getModificationDate().after(comPort.getModificationDate())) {
+            return reloaded;
+        } else {
+            return comPort;
+        }
+    }
+
+    private ComJobFactory getComJobFactoryFor(OutboundComPort comPort) {
+        // Zero is not allowed, i.e. rejected by the OutboundComPortImpl validation methods
+        if (comPort.getNumberOfSimultaneousConnections() == 1) {
+            return new SingleThreadedComJobFactory();
+        } else {
+            return new MultiThreadedComJobFactory(comPort.getNumberOfSimultaneousConnections());
         }
     }
 
     @Override
     public List<ComJob> findExecutableOutboundComTasks(OutboundComPort comPort) {
-        try {
-            return ManagerFactory.getCurrent().getComTaskExecutionFactory().findExecutableByComPort(comPort);
-        } finally {
-            this.closeConnection();
-        }
+        List<ComTaskExecution> comTaskExecutions = getDeviceDataService().getPlannedComTaskExecutionsFor(comPort);
+        ComJobFactory comJobFactoryFor = getComJobFactoryFor(comPort);
+        return comJobFactoryFor.consume(comTaskExecutions);
     }
 
     @Override
     public List<ComTaskExecution> findExecutableInboundComTasks(OfflineDevice offlineDevice, InboundComPort comPort) {
-        try {
-            Device device = this.getManager().getMdwInterface().getDeviceFactory().find(offlineDevice.getId());
-            return this.getManager().getComTaskExecutionFactory().findExecutableByComPort(device, comPort);
-        } finally {
-            this.closeConnection();
-        }
+        Device device = getDeviceDataService().findDeviceById(offlineDevice.getId());
+        return getDeviceDataService().getPlannedComTaskExecutionsFor(comPort, device);
     }
 
     @Override
     public ScheduledConnectionTask attemptLock(ScheduledConnectionTask connectionTask, ComServer comServer) {
-        return MeteringWarehouse.getCurrent().getDeviceDataService().attemptLockConnectionTask(connectionTask, comServer);
+        return getDeviceDataService().attemptLockConnectionTask(connectionTask, comServer);
     }
 
     @Override
     public void unlock(ScheduledConnectionTask connectionTask) {
-        MeteringWarehouse.getCurrent().getDeviceDataService().unlockConnectionTask(connectionTask);
+        getDeviceDataService().unlockConnectionTask(connectionTask);
     }
 
     @Override
     public OfflineDevice findDevice(DeviceIdentifier<?> identifier) {
-        try {
-            BaseDevice<? extends BaseChannel, ? extends BaseLoadProfile<? extends BaseChannel>, ? extends BaseRegister> device = identifier.findDevice();
+        BaseDevice<? extends BaseChannel, ? extends BaseLoadProfile<? extends BaseChannel>, ? extends BaseRegister> device = identifier.findDevice();
 //            BaseDevice<BaseChannel, BaseLoadProfile<BaseChannel>, BaseRegister> device = device1;
-            if (device != null) {
-                return new OfflineDeviceImpl((Device) device, DeviceOffline.needsEverything);
-            } else {
-                return null;
-            }
-        } finally {
-            this.closeConnection();
+        if (device != null) {
+            return new OfflineDeviceImpl((Device) device, DeviceOffline.needsEverything);
+        } else {
+            return null;
         }
     }
 
     @Override
     public OfflineRegister findRegister(RegisterIdentifier identifier) {
-        try {
-            return new OfflineRegisterImpl((com.energyict.mdc.device.data.Register) identifier.findRegister());
-        } finally {
-            this.closeConnection();
-        }
+        return new OfflineRegisterImpl((com.energyict.mdc.device.data.Register) identifier.findRegister());
     }
 
-    @Override
-    public OfflineDeviceMessage findDeviceMessage(MessageIdentifier identifier) {
-        EndDeviceMessage deviceMessage = (EndDeviceMessage) identifier.getDeviceMessage();
-        return deviceMessage.goOffline();
-    }
+//    @Override
+//    public OfflineDeviceMessage findDeviceMessage(MessageIdentifier identifier) {
+//        EndDeviceMessage deviceMessage = (EndDeviceMessage) identifier.getDeviceMessage();
+//        return deviceMessage.goOffline();
+//    }
 
     @Override
     public void updateIpAddress(String ipAddress, ConnectionTask connectionTask, String connectionTaskPropertyName) {
         final TypedProperties properties = connectionTask.getTypedProperties();
         properties.setProperty(connectionTaskPropertyName, ipAddress);
-        this.execute(new Transaction<Void>() {
+        this.executeTransaction(new Transaction<Void>() {
             @Override
-            public Void doExecute() throws SQLException, BusinessException {
+            public Void perform() {
 //                serverConnectionTask.updateProperties(properties);
                 // add/remove/update properties
                 return null; // TODO JP-1123
@@ -213,9 +226,9 @@ public class ComServerDAOImpl implements ComServerDAO {
         } else {
             gatewayDevice = null;
         }
-        this.execute(new Transaction<Void>() {
+        this.executeTransaction(new Transaction<Void>() {
             @Override
-            public Void doExecute() throws SQLException, BusinessException {
+            public Void perform() {
                 device.setPhysicalGateway(gatewayDevice);
                 return null;
             }
@@ -225,34 +238,33 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public void storeConfigurationFile(DeviceIdentifier deviceIdentifier, final DateFormat timeStampFormat, final String fileExtension, final byte[] contents) {
         final BaseDevice device = deviceIdentifier.findDevice();
-        this.execute(new Transaction<Void>() {
+        this.executeTransaction(new Transaction<Void>() {
             @Override
-            public Void doExecute() throws SQLException, BusinessException {
+            public Void perform() {
                 doStoreConfigurationFile(device, timeStampFormat, fileExtension, contents);
                 return null;
             }
         });
     }
 
-    private void doStoreConfigurationFile(BaseDevice device, DateFormat timeStampFormat, String fileExtension, byte[] contents)
-            throws
-            BusinessException,
-            SQLException {
-        try {
-            String fileName = this.getUniqueUserFileName(timeStampFormat);
-            UserFileShadow userFileShadow = new UserFileShadow();
-            userFileShadow.setExtension(fileExtension);
-            userFileShadow.setName(fileName);
-            ByteArrayInputStream byteStream = new ByteArrayInputStream(contents);
-            UserFile userFile = MeteringWarehouse.getCurrent().getUserFileFactory().create(userFileShadow);
-            userFile.updateContents(byteStream);
-        } finally {
-            this.closeConnection();
-        }
+    private void doStoreConfigurationFile(BaseDevice device, DateFormat timeStampFormat, String fileExtension, byte[] contents) {
+        throw new RuntimeException("Storing of UserFiles is currently not supported ...");
+//        try {
+//            String fileName = this.getUniqueUserFileName(timeStampFormat);
+//            UserFileShadow userFileShadow = new UserFileShadow();
+//            userFileShadow.setExtension(fileExtension);
+//            userFileShadow.setName(fileName);
+//            ByteArrayInputStream byteStream = new ByteArrayInputStream(contents);
+//            new UserFileFactoryImpl()
+//            UserFile userFile = MeteringWarehouse.getCurrent().getUserFileFactory().create(userFileShadow);
+//            userFile.updateContents(byteStream);
+//        } finally {
+//            this.closeConnection();
+//        }
     }
 
     private String getUniqueUserFileName(DateFormat timeStampFormat) {
-        String fileName = "Config_" + timeStampFormat.format(Clocks.getAppServerClock().now());
+        String fileName = "Config_" + timeStampFormat.format(getClock().now());
         int version = this.getVersion(fileName);
         if (version > 1) {
             fileName += "_(" + version + ")";
@@ -272,28 +284,28 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     public boolean attemptLock(OutboundConnectionTask connectionTask, ComServer comServer) {
-        return MeteringWarehouse.getCurrent().getDeviceDataService().attemptLockConnectionTask(connectionTask, comServer) != null;
+        return getDeviceDataService().attemptLockConnectionTask(connectionTask, comServer) != null;
     }
 
     public void unlock(final OutboundConnectionTask connectionTask) {
-        MeteringWarehouse.getCurrent().getDeviceDataService().unlockConnectionTask(connectionTask);
+        getDeviceDataService().unlockConnectionTask(connectionTask);
     }
 
     @Override
     public boolean attemptLock(ComTaskExecution comTaskExecution, ComPort comPort) {
-        return MeteringWarehouse.getCurrent().getDeviceDataService().attemptLockComTaskExecution(comTaskExecution, comPort) != null;
+        return getDeviceDataService().attemptLockComTaskExecution(comTaskExecution, comPort) != null;
     }
 
     @Override
     public void unlock(final ComTaskExecution comTaskExecution) {
-        MeteringWarehouse.getCurrent().getDeviceDataService().unlockComTaskExecution(comTaskExecution);
+        getDeviceDataService().unlockComTaskExecution(comTaskExecution);
     }
 
     @Override
     public void executionStarted(final ConnectionTask connectionTask, final ComServer comServer) {
-        this.execute(new Transaction<Void>() {
+        this.executeTransaction(new Transaction<Void>() {
             @Override
-            public Void doExecute() throws SQLException, BusinessException {
+            public Void perform() {
                 toServerConnectionTask(connectionTask).executionStarted(comServer);
                 return null;
             }
@@ -302,9 +314,9 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void executionCompleted(final ConnectionTask connectionTask) {
-        this.execute(new Transaction<Void>() {
+        this.executeTransaction(new Transaction<Void>() {
             @Override
-            public Void doExecute() throws SQLException, BusinessException {
+            public Void perform() {
                 toServerConnectionTask(connectionTask).executionCompleted();
                 return null;
             }
@@ -313,9 +325,9 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void executionFailed(final ConnectionTask connectionTask) {
-        this.execute(new Transaction<Void>() {
+        this.executeTransaction(new Transaction<Void>() {
             @Override
-            public Void doExecute() throws SQLException, BusinessException {
+            public Void perform() {
                 toServerConnectionTask(connectionTask).executionFailed();
                 return null;
             }
@@ -324,9 +336,9 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void executionStarted(final ComTaskExecution comTaskExecution, final ComPort comPort) {
-        this.execute(new Transaction<Void>() {
+        this.executeTransaction(new Transaction<Void>() {
             @Override
-            public Void doExecute() throws SQLException {
+            public Void perform() {
                 toServerComTaskExecution(comTaskExecution).executionStarted(comPort);
                 return null;
             }
@@ -335,9 +347,9 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void executionCompleted(final ComTaskExecution comTaskExecution) {
-        this.execute(new Transaction<Void>() {
+        this.executeTransaction(new Transaction<Void>() {
             @Override
-            public Void doExecute() throws SQLException, BusinessException {
+            public Void perform() {
                 toServerComTaskExecution(comTaskExecution).executionCompleted();
                 return null;
             }
@@ -346,9 +358,9 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void executionCompleted(final List<? extends ComTaskExecution> comTaskExecutions) {
-        this.execute(new Transaction<Void>() {
+        this.executeTransaction(new Transaction<Void>() {
             @Override
-            public Void doExecute() throws SQLException, BusinessException {
+            public Void perform() {
                 for (ComTaskExecution comTaskExecution : comTaskExecutions) {
                     toServerComTaskExecution(comTaskExecution).executionCompleted();
                 }
@@ -359,9 +371,9 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void executionFailed(final ComTaskExecution comTaskExecution) {
-        this.execute(new Transaction<Void>() {
+        this.executeTransaction(new Transaction<Void>() {
             @Override
-            public Void doExecute() throws SQLException, BusinessException {
+            public Void perform() {
                 toServerComTaskExecution(comTaskExecution).executionFailed();
                 return null;
             }
@@ -370,9 +382,9 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void executionFailed(final List<? extends ComTaskExecution> comTaskExecutions) {
-        this.execute(new Transaction<Void>() {
+        this.executeTransaction(new Transaction<Void>() {
             @Override
-            public Void doExecute() throws SQLException, BusinessException {
+            public Void perform() {
                 for (ComTaskExecution comTaskExecution : comTaskExecutions) {
                     toServerComTaskExecution(comTaskExecution).executionFailed();
                 }
@@ -383,11 +395,11 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void releaseInterruptedTasks(final ComServer comServer) {
-        this.execute(new Transaction<Void>() {
+        this.executeTransaction(new Transaction<Void>() {
             @Override
-            public Void doExecute() throws SQLException {
-                getConnectionTaskFactory().releaseInterruptedConnectionTasks(comServer);
-                getComTaskExecutionFactory().releaseInterruptedComTasks(comServer);
+            public Void perform() {
+                getDeviceDataService().releaseInterruptedConnectionTasks(comServer);
+                getDeviceDataService().releaseInterruptedComTasks(comServer);
                 return null;
             }
         });
@@ -395,69 +407,72 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public TimeDuration releaseTimedOutTasks(final ComServer comServer) {
-        return this.execute(new Transaction<TimeDuration>() {
+        return this.executeTransaction(new Transaction<TimeDuration>() {
             @Override
-            public TimeDuration doExecute() throws SQLException {
-                getConnectionTaskFactory().releaseTimedOutConnectionTasks(comServer);
-                return getComTaskExecutionFactory().releaseTimedOutComTasks(comServer);
+            public TimeDuration perform() {
+                getDeviceDataService().releaseTimedOutConnectionTasks(comServer);
+                return getDeviceDataService().releaseTimedOutComTasks(comServer);
             }
         });
     }
 
-    @Override
-    public ComSession createOutboundComSession(final ScheduledConnectionTask owner, final ComSessionShadow shadow) {
-        return this.execute(new Transaction<ComSession>() {
-            @Override
-            public ComSession doExecute() throws SQLException, BusinessException {
-                return getComSessionFactory().createOutboundComSession(owner, shadow);
-            }
-        });
-    }
+    //TODO reenable and adjust this when JP-2460 is completely finished
+//    @Override
+//    public ComSession createOutboundComSession(final ScheduledConnectionTask owner, final ComSessionShadow shadow) {
+//        return this.executeTransaction(new Transaction<ComSession>() {
+//            @Override
+//            public ComSession perform() throws SQLException, BusinessException {
+//                return getComSessionFactory().createOutboundComSession(owner, shadow);
+//            }
+//        });
+//    }
 
-    public ComSession createOutboundComSession(final OutboundConnectionTask owner, final ComSessionShadow shadow) {
-        return this.execute(new Transaction<ComSession>() {
-            @Override
-            public ComSession doExecute() throws SQLException, BusinessException {
-                return getComSessionFactory().createOutboundComSession(owner, shadow);
-            }
-        });
-    }
+    //TODO reenable and adjust this when JP-2460 is completely finished
+//    public ComSession createOutboundComSession(final OutboundConnectionTask owner, final ComSessionShadow shadow) {
+//        return this.executeTransaction(new Transaction<ComSession>() {
+//            @Override
+//            public ComSession perform() throws SQLException, BusinessException {
+//                return getComSessionFactory().createOutboundComSession(owner, shadow);
+//            }
+//        });
+//    }
 
-    @Override
-    public ComSession createInboundComSession(final InboundConnectionTask owner, final ComSessionShadow shadow) {
-        return this.execute(new Transaction<ComSession>() {
-            @Override
-            public ComSession doExecute() throws SQLException, BusinessException {
-                if (owner == null) {
-                    return getComSessionFactory().createInboundComSession(shadow);
-                } else {
-                    return getComSessionFactory().createInboundComSession(owner, shadow);
-                }
-            }
-        });
-    }
+//    @Override
+//    public ComSession createInboundComSession(final InboundConnectionTask owner, final ComSessionShadow shadow) {
+//        return this.executeTransaction(new Transaction<ComSession>() {
+//            @Override
+//            public ComSession perform() throws SQLException, BusinessException {
+//                if (owner == null) {
+//                    return getComSessionFactory().createInboundComSession(shadow);
+//                } else {
+//                    return getComSessionFactory().createInboundComSession(owner, shadow);
+//                }
+//            }
+//        });
+//    }
 
-    private EndDeviceCache createOrUpdateDeviceCache(final int deviceId, final DeviceCacheShadow shadow) {
-        return this.execute(new Transaction<EndDeviceCache>() {
-            @Override
-            public EndDeviceCache doExecute() throws SQLException, BusinessException {
-                DeviceCacheFactory deviceCacheFactory = getManager().getMdwInterface().getDeviceCacheFactory();
-                EndDeviceCache deviceCache = deviceCacheFactory.findByDeviceId(deviceId);
-                if (deviceCache == null) {    // create a new one
-                    deviceCache = deviceCacheFactory.create(shadow);
-                } else {    // update the existing one
-                    deviceCache.update(shadow);
-                }
-                return deviceCache;
-            }
-        });
-    }
+    // TODO still required?
+//    private EndDeviceCache createOrUpdateDeviceCache(final int deviceId, final DeviceCacheShadow shadow) {
+//        return this.executeTransaction(new Transaction<EndDeviceCache>() {
+//            @Override
+//            public EndDeviceCache perform() throws SQLException, BusinessException {
+//                DeviceCacheFactory deviceCacheFactory = getManager().getMdwInterface().getDeviceCacheFactory();
+//                EndDeviceCache deviceCache = deviceCacheFactory.findByDeviceId(deviceId);
+//                if (deviceCache == null) {    // create a new one
+//                    deviceCache = deviceCacheFactory.create(shadow);
+//                } else {    // update the existing one
+//                    deviceCache.update(shadow);
+//                }
+//                return deviceCache;
+//            }
+//        });
+//    }
 
     @Override
     public void storeMeterReadings(final DeviceIdentifier<Device> deviceIdentifier, final MeterReading meterReading) {
-        this.execute(new Transaction<Void>() {
+        this.executeTransaction(new Transaction<Void>() {
             @Override
-            public Void doExecute() throws SQLException, BusinessException {
+            public Void perform() {
                 Device device = deviceIdentifier.findDevice();
                 device.store(meterReading);
                 return null;
@@ -467,9 +482,9 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void signalEvent(final BusinessEvent businessEvent) {
-        this.execute(new Transaction<Void>() {
+        this.executeTransaction(new Transaction<Void>() {
             @Override
-            public Void doExecute() throws SQLException, BusinessException {
+            public Void perform() {
                 ManagerFactory.getCurrent().getMdwInterface().signalEvent(businessEvent);
                 return null;
             }
@@ -478,91 +493,28 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void updateDeviceMessageInformation(final MessageIdentifier messageIdentifier, final DeviceMessageStatus newDeviceMessageStatus, final String protocolInformation) {
-        this.execute(new Transaction<Void>() {
+        this.executeTransaction(new Transaction<Void>() {
             @Override
-            public Void doExecute() {
-                EndDeviceMessage deviceMessage = (EndDeviceMessage) messageIdentifier.getDeviceMessage();
-                if (newDeviceMessageStatus.ordinal() != deviceMessage.getStatus().ordinal()) {  // When the status doesn't change, no update is needed
-                    deviceMessage.moveTo(newDeviceMessageStatus);
-                }
-                deviceMessage.updateProtocolInfo(protocolInformation);
+            public Void perform() {
+                // TODO complete once Messages are ported
+//                EndDeviceMessage deviceMessage = (EndDeviceMessage) messageIdentifier.getDeviceMessage();
+//                if (newDeviceMessageStatus.ordinal() != deviceMessage.getStatus().ordinal()) {  // When the status doesn't change, no update is needed
+//                    deviceMessage.moveTo(newDeviceMessageStatus);
+//                }
+//                deviceMessage.updateProtocolInfo(protocolInformation);
                 return null;
             }
         });
     }
 
     @Override
-    public List<OfflineDeviceMessage> confirmSentMessagesAndGetPending(final DeviceIdentifier deviceIdentifier, final int confirmationCount) {
-        return this.execute(new Transaction<List<OfflineDeviceMessage>>() {
-            @Override
-            public List<OfflineDeviceMessage> doExecute() throws SQLException, BusinessException {
-                return convertToOfflineDeviceMessages(doConfirmSentMessagesAndGetPending(deviceIdentifier, confirmationCount));
-            }
-        });
-    }
-
-    private List<OfflineDeviceMessage> convertToOfflineDeviceMessages(List<EndDeviceMessage> deviceMessages) {
-        List<OfflineDeviceMessage> offlineDeviceMessages = new ArrayList<>();
-        for (EndDeviceMessage deviceMessage : deviceMessages) {
-            offlineDeviceMessages.add(deviceMessage.goOffline());
-        }
-        return offlineDeviceMessages;
-    }
-
-    private List<EndDeviceMessage> doConfirmSentMessagesAndGetPending(DeviceIdentifier deviceIdentifier, int confirmationCount) throws BusinessException, SQLException {
-        return this.doConfirmSentMessagesAndGetPending(((Device) deviceIdentifier.findDevice()), confirmationCount);
-    }
-
-    private List<EndDeviceMessage> doConfirmSentMessagesAndGetPending(Device device, int confirmationCount) throws BusinessException, SQLException {
-        this.updateSentMessageStates(device, confirmationCount);
-        return this.findPendingMessageAndMarkAsSent(device);
-    }
-
-    private void updateSentMessageStates(Device device, int confirmationCount) throws BusinessException, SQLException {
-        List<DeviceMessage> sentMessages = device.getMessagesByState(DeviceMessageStatus.SENT);
-        FutureMessageState newState = this.getFutureMessageState(sentMessages, confirmationCount);
-        for (DeviceMessage sentMessage : sentMessages) {
-            newState.applyTo(sentMessage);
-        }
-    }
-
-    private FutureMessageState getFutureMessageState(List<DeviceMessage> sentMessages, int confirmationCount) {
-        if (confirmationCount == 0) {
-            return FutureMessageState.FAILED;
-        } else if (confirmationCount == sentMessages.size()) {
-            return FutureMessageState.CONFIRMED;
-        } else {
-            return FutureMessageState.INDOUBT;
-        }
-    }
-
-    private List<EndDeviceMessage> findPendingMessageAndMarkAsSent(Device device) {
-        List<DeviceMessage> pendingMessages = device.getMessagesByState(DeviceMessageStatus.PENDING);
-        List<EndDeviceMessage> sentMessages = new ArrayList<>(pendingMessages.size());
-        for (DeviceMessage pendingMessage : pendingMessages) {
-            EndDeviceMessage readyToSend = (EndDeviceMessage) pendingMessage;
-            readyToSend.moveTo(DeviceMessageStatus.SENT);
-            sentMessages.add(readyToSend);
-        }
-        return sentMessages;
-    }
-
-    @Override
-    public boolean isStillPending(int comTaskExecutionId) {
-        try {
-            return this.getComTaskExecutionFactory().isStillPending(comTaskExecutionId);
-        } finally {
-            this.closeConnection();
-        }
+    public boolean isStillPending(long comTaskExecutionId) {
+        return getDeviceDataService().areComTasksStillPending(Arrays.asList(comTaskExecutionId));
     }
 
     @Override
     public boolean areStillPending(Collection<Long> comTaskExecutionIds) {
-        try {
-            return this.getComTaskExecutionFactory().areStillPending(comTaskExecutionIds);
-        } finally {
-            this.closeConnection();
-        }
+        return getDeviceDataService().areComTasksStillPending(comTaskExecutionIds);
     }
 
     @Override
@@ -572,35 +524,106 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public List<SecurityProperty> getDeviceProtocolSecurityProperties(DeviceIdentifier deviceIdentifier, InboundComPort comPort) {
-        try {
-            CommunicationDevice device = (CommunicationDevice) deviceIdentifier.findDevice();
-            InboundConnectionTask connectionTask = this.getInboundConnectionTask(comPort, device);
-            if (connectionTask == null) {
+    public List<OfflineDeviceMessage> confirmSentMessagesAndGetPending(final DeviceIdentifier deviceIdentifier, final int confirmationCount) {
+        return this.executeTransaction(new Transaction<List<OfflineDeviceMessage>>() {
+            @Override
+            public List<OfflineDeviceMessage> perform() {
+                // TODO complete once Messages are ported
+//                return convertToOfflineDeviceMessages(doConfirmSentMessagesAndGetPending(deviceIdentifier, confirmationCount));
                 return null;
-            } else {
-                SecurityPropertySet securityPropertySet = this.getSecurityPropertySet(device, connectionTask);
-                if (securityPropertySet == null) {
-                    return null;
-                } else {
-                    return device.getProtocolSecurityProperties(securityPropertySet);
-                }
             }
-        } finally {
-            this.closeConnection();
+        });
+    }
+
+    /*
+
+        // TODO complete once Messages are ported
+
+
+        private List<OfflineDeviceMessage> convertToOfflineDeviceMessages(List<EndDeviceMessage> deviceMessages) {
+            List<OfflineDeviceMessage> offlineDeviceMessages = new ArrayList<>();
+            for (EndDeviceMessage deviceMessage : deviceMessages) {
+                offlineDeviceMessages.add(deviceMessage.goOffline());
+            }
+            return offlineDeviceMessages;
         }
+
+        private List<EndDeviceMessage> doConfirmSentMessagesAndGetPending(DeviceIdentifier deviceIdentifier, int confirmationCount) throws BusinessException, SQLException {
+            return this.doConfirmSentMessagesAndGetPending(((Device) deviceIdentifier.findDevice()), confirmationCount);
+        }
+
+        private List<EndDeviceMessage> doConfirmSentMessagesAndGetPending(Device device, int confirmationCount) throws BusinessException, SQLException {
+            this.updateSentMessageStates(device, confirmationCount);
+            return this.findPendingMessageAndMarkAsSent(device);
+        }
+
+        private void updateSentMessageStates(Device device, int confirmationCount) throws BusinessException, SQLException {
+            List<DeviceMessage> sentMessages = device.getMessagesByState(DeviceMessageStatus.SENT);
+            FutureMessageState newState = this.getFutureMessageState(sentMessages, confirmationCount);
+            for (DeviceMessage sentMessage : sentMessages) {
+                newState.applyTo(sentMessage);
+            }
+        }
+
+        private FutureMessageState getFutureMessageState(List<DeviceMessage> sentMessages, int confirmationCount) {
+            if (confirmationCount == 0) {
+                return FutureMessageState.FAILED;
+            } else if (confirmationCount == sentMessages.size()) {
+                return FutureMessageState.CONFIRMED;
+            } else {
+                return FutureMessageState.INDOUBT;
+            }
+        }
+
+        private List<EndDeviceMessage> findPendingMessageAndMarkAsSent(Device device) {
+            List<DeviceMessage> pendingMessages = device.getMessagesByState(DeviceMessageStatus.PENDING);
+            List<EndDeviceMessage> sentMessages = new ArrayList<>(pendingMessages.size());
+            for (DeviceMessage pendingMessage : pendingMessages) {
+                EndDeviceMessage readyToSend = (EndDeviceMessage) pendingMessage;
+                readyToSend.moveTo(DeviceMessageStatus.SENT);
+                sentMessages.add(readyToSend);
+            }
+            return sentMessages;
+        }
+
+    */
+    @Override
+    public <T> T executeTransaction(Transaction<T> transaction) {
+        return getTransactionService().execute(transaction);
+    }
+
+    @Override
+    public List<SecurityProperty> getDeviceProtocolSecurityProperties(DeviceIdentifier deviceIdentifier, InboundComPort comPort) {
+        //TODO complete once SecurityProperties are properly ported !!
+//        try {
+//            CommunicationDevice device = (CommunicationDevice) deviceIdentifier.findDevice();
+//            InboundConnectionTask connectionTask = this.getInboundConnectionTask(comPort, device);
+//            if (connectionTask == null) {
+//                return null;
+//            } else {
+//                SecurityPropertySet securityPropertySet = this.getSecurityPropertySet(device, connectionTask);
+//                if (securityPropertySet == null) {
+//                    return null;
+//                } else {
+//                    return device.getProtocolSecurityProperties(securityPropertySet);
+//                }
+//            }
+//        } finally {
+//            this.closeConnection();
+//        }
+        return Collections.emptyList();
     }
 
     /**
      * Gets the {@link SecurityProperty} that needs to be used when
-     * the {@link CommunicationDevice} is communicating to the ComServer
+     * the Device is communicating to the ComServer
      * via the specified {@link InboundConnectionTask}.
      *
      * @param device         The Device
      * @param connectionTask The ConnectionTask
      * @return The SecurityPropertySet or <code>null</code> if the Device is not ready for inbound communication
      */
-    private SecurityPropertySet getSecurityPropertySet(CommunicationDevice device, InboundConnectionTask connectionTask) {
+    private SecurityPropertySet getSecurityPropertySet(Device device, InboundConnectionTask connectionTask) {
         SecurityPropertySet securityPropertySet = null;
         ComTaskExecution first = this.getFirstComTaskExecution(connectionTask);
         if (first == null) {
@@ -633,7 +656,7 @@ public class ComServerDAOImpl implements ComServerDAO {
      * indicating that the Device is not ready for inbound communication
      */
     private ComTaskExecution getFirstComTaskExecution(InboundConnectionTask connectionTask) {
-        List<ComTaskExecution> comTaskExecutions = ManagerFactory.getCurrent().getComTaskExecutionFactory().findByConnectionTask(connectionTask);
+        List<ComTaskExecution> comTaskExecutions = getDeviceDataService().findComTaskExecutionsByConnectionTask(connectionTask);
         if (comTaskExecutions.isEmpty()) {
             return null;
         } else {
@@ -641,9 +664,9 @@ public class ComServerDAOImpl implements ComServerDAO {
         }
     }
 
-    private InboundConnectionTask getInboundConnectionTask(InboundComPort comPort, CommunicationDevice device) {
+    private ConnectionTask<?, ?> getInboundConnectionTask(InboundComPort comPort, Device device) {
         InboundComPortPool comPortPool = comPort.getComPortPool();
-        for (InboundConnectionTask inboundConnectionTask : device.getInboundConnectionTasks()) {
+        for (ConnectionTask<?, ?> inboundConnectionTask : device.getConnectionTasks()) {
             if (comPortPool.equals(inboundConnectionTask.getComPortPool())) {
                 return inboundConnectionTask;
             }
@@ -653,16 +676,12 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public TypedProperties getDeviceConnectionTypeProperties(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
-        try {
-            CommunicationDevice device = (CommunicationDevice) deviceIdentifier.findDevice(); //TODO ugly casting ...
-            InboundConnectionTask connectionTask = this.getInboundConnectionTask(inboundComPort, device);
-            if (connectionTask == null) {
-                return null;
-            } else {
-                return connectionTask.getTypedProperties();
-            }
-        } finally {
-            this.closeConnection();
+        Device device = (Device) deviceIdentifier.findDevice(); //TODO ugly casting ...
+        ConnectionTask<?, ?> connectionTask = this.getInboundConnectionTask(inboundComPort, device);
+        if (connectionTask == null) {
+            return null;
+        } else {
+            return connectionTask.getTypedProperties();
         }
     }
 
@@ -677,13 +696,7 @@ public class ComServerDAOImpl implements ComServerDAO {
             }
         } catch (NotFoundException e) {
             return null;
-        } finally {
-            this.closeConnection();
         }
-    }
-
-    private ServerManager getManager() {
-        return ManagerFactory.getCurrent();
     }
 
     private ScheduledConnectionTask toServerConnectionTask(ConnectionTask connectionTask) {
@@ -694,60 +707,29 @@ public class ComServerDAOImpl implements ComServerDAO {
         return (ServerComTaskExecution) scheduledComTask;
     }
 
-    private ServerConnectionTaskFactory getConnectionTaskFactory() {
-        return ManagerFactory.getCurrent().getConnectionTaskFactory();
-    }
-
-    private ServerComTaskExecutionFactory getComTaskExecutionFactory() {
-        return ManagerFactory.getCurrent().getComTaskExecutionFactory();
-    }
-
-    private ComSessionFactory getComSessionFactory() {
-        return ManagerFactory.getCurrent().getComSessionFactory();
-    }
-
-    private <T> T execute(Transaction<T> transaction) {
-        try {
-            return this.getManager().getMdwInterface().execute(transaction);
-        } catch (NotFoundException e) {
-            throw new DataAccessException(e);
-        }
-        // Not collapseable because of the constructors of the DataAccessException class
-        catch (SQLException e) {
-            throw new DataAccessException(e);
-        } catch (BusinessException e) {
-            throw new ApplicationException(e);
-        } finally {
-            this.closeConnection();
-        }
-    }
-
-    private void closeConnection() {
-        // Postpone closing until we have left the transaction context.
-        Environment.DEFAULT.get().closeConnection();
-    }
-
     private enum FutureMessageState {
-        INDOUBT {
-            @Override
-            public void applyTo(DeviceMessage message) {
-                ((EndDeviceMessage) message).moveTo(DeviceMessageStatus.INDOUBT);
-            }
-        },
-
-        FAILED {
-            @Override
-            public void applyTo(DeviceMessage message) {
-                ((EndDeviceMessage) message).moveTo(DeviceMessageStatus.FAILED);
-            }
-        },
-
-        CONFIRMED {
-            @Override
-            public void applyTo(DeviceMessage message) {
-                ((EndDeviceMessage) message).moveTo(DeviceMessageStatus.CONFIRMED);
-            }
-        };
+        //TODO enable once messages are properly ported
+//        INDOUBT {
+//            @Override
+//            public void applyTo(DeviceMessage message) {
+//                ((EndDeviceMessage) message).moveTo(DeviceMessageStatus.INDOUBT);
+//            }
+//        },
+//
+//        FAILED {
+//            @Override
+//            public void applyTo(DeviceMessage message) {
+//                ((EndDeviceMessage) message).moveTo(DeviceMessageStatus.FAILED);
+//            }
+//        },
+//
+//        CONFIRMED {
+//            @Override
+//            public void applyTo(DeviceMessage message) {
+//                ((EndDeviceMessage) message).moveTo(DeviceMessageStatus.CONFIRMED);
+//            }
+//        };
+        ;
 
         public abstract void applyTo(DeviceMessage message) throws BusinessException, SQLException;
 

@@ -1,12 +1,9 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.Transaction;
+import com.elster.jupiter.transaction.Transaction;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.model.ComServer;
 
-import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -46,9 +43,9 @@ public class ComSessionRootDeviceCommand extends CompositeDeviceCommandImpl {
     @Override
     public void execute (final ComServerDAO comServerDAO) {
         this.broadCastFailureLoggerIfAny();
-        this.executeTransaction(new Transaction<Void>() {
+        comServerDAO.executeTransaction(new Transaction<Void>() {
             @Override
-            public Void doExecute () {
+            public Void perform() {
                 executeAll(comServerDAO);
                 return null;
             }
@@ -66,27 +63,13 @@ public class ComSessionRootDeviceCommand extends CompositeDeviceCommandImpl {
     @Override
     public void executeDuringShutdown (final ComServerDAO comServerDAO) {
         this.broadCastFailureLoggerIfAny();
-        this.executeTransaction(new Transaction<Void>() {
+        comServerDAO.executeTransaction(new Transaction<Void>() {
             @Override
-            public Void doExecute () {
+            public Void perform () {
                 executeAllDuringShutdown(comServerDAO);
                 return null;
             }
         });
-    }
-
-    private void executeTransaction (final Transaction<Void> transaction) {
-        try {
-            ManagerFactory.getCurrent().getMdwInterface().execute(transaction);
-        }
-        catch (BusinessException | SQLException e) {
-            /* All of the commands have already wrapped BusinessException in ApplicationException
-             * so it is safe to ignore this one here.
-             * However, since we are compiling with AspectJ's Xlint option set to error level
-             * to trap advice that does not apply,
-             * it will not be happy until we actually code something here. */
-            throw new ApplicationException(e);
-        }
     }
 
     @Override

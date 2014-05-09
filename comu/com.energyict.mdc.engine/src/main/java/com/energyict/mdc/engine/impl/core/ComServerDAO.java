@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.transaction.Transaction;
 import com.energyict.mdc.common.BusinessEvent;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.data.Device;
@@ -288,14 +289,15 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      */
     public OfflineRegister findRegister (RegisterIdentifier identifier);
 
-    /**
-     * Finds the DeviceMessage that is uniquely identified
-     * by the specified MessageIdentifier.
-     *
-     * @param identifier The MessageIdentifier
-     * @return The offline version of the DeviceMessage that is identified by the MessageIdentifier
-     */
-    public OfflineDeviceMessage findDeviceMessage(MessageIdentifier identifier);
+    //TODO enable once messages are ported
+//    /**
+//     * Finds the DeviceMessage that is uniquely identified
+//     * by the specified MessageIdentifier.
+//     *
+//     * @param identifier The MessageIdentifier
+//     * @return The offline version of the DeviceMessage that is identified by the MessageIdentifier
+//     */
+//    public OfflineDeviceMessage findDeviceMessage(MessageIdentifier identifier);
 
     /**
      * Updates the ip address of the BaseDevice device
@@ -356,7 +358,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * @param comTaskExecutionId The ComTaskExecution
      * @return A flag that indicates if the ComTaskExecution is still pending
      */
-    public boolean isStillPending (int comTaskExecutionId);
+    public boolean isStillPending (long comTaskExecutionId);
 
     /**
      * Tests if all of the ComTaskExecutions are still TaskStatus#Pending.
@@ -367,5 +369,12 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
     public boolean areStillPending (Collection<Long> comTaskExecutionIds);
 
     public void setMaxNumberOfTries(ScheduledConnectionTask connectionTask, int maxNumberOfTries);
+
+    /**
+     * Executes the given Transaction
+     *
+     * @param transaction the transaction to execute
+     */
+    public <T> T executeTransaction(Transaction<T> transaction);
 
 }

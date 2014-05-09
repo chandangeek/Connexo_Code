@@ -1,8 +1,5 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.core.RescheduleBehavior;
-import com.energyict.mdc.engine.impl.core.RescheduleBehaviorForInbound;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -44,7 +41,7 @@ public class RescheduleBehaviorForInboundTest {
     @Mock
     private ComServerDAO comServerDAO;
     @Mock
-    private ComTaskExecutionGroup comTaskExecutionGroup;
+    private ScheduledComTaskExecutionGroup scheduledComTaskExecutionGroup;
     @Mock(extraInterfaces = {InboundConnectionTask.class})
     private ConnectionTask connectionTask;
     @Mock

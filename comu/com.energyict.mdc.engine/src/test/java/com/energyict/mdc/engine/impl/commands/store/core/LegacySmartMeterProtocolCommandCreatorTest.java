@@ -55,7 +55,7 @@ public class LegacySmartMeterProtocolCommandCreatorTest {
     @Test
     public void testCommandCreationOrder() {
         OfflineDevice device = mock(OfflineDevice.class);
-        CommandRoot root = spy(new CommandRootImpl(device, this.newTestExecutionContext()));
+        CommandRoot root = spy(new CommandRootImpl(device, this.newTestExecutionContext(), serviceProvider));
         ComPortRelatedComChannel comChannel = mock(ComPortRelatedComChannel.class);
         ComTask comTask = mock(ComTask.class);
         ComTaskExecution scheduledComTask = mock(ComTaskExecution.class);
@@ -84,7 +84,7 @@ public class LegacySmartMeterProtocolCommandCreatorTest {
     @Test
     public void testCommandCreationOrderWithOptical() {
         OfflineDevice device = mock(OfflineDevice.class);
-        CommandRoot root = spy(new CommandRootImpl(device, this.newTestExecutionContext()));
+        CommandRoot root = spy(new CommandRootImpl(device, this.newTestExecutionContext(), serviceProvider));
 
         SerialComChannel comChannel = mock(SerialComChannel.class);
         ServerSerialPort serverSerialPort = mock(ServerSerialPort.class);

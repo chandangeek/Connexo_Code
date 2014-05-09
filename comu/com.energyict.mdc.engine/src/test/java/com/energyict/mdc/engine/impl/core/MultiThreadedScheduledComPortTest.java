@@ -1,17 +1,7 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.comserver.commands.DeviceCommand;
-import com.energyict.comserver.commands.DeviceCommandExecutionToken;
-import com.energyict.comserver.commands.DeviceCommandExecutor;
-import com.energyict.comserver.core.ComTaskExecutionGroup;
-import com.energyict.comserver.core.ComTaskExecutionJob;
-import com.energyict.comserver.scheduling.verification.CounterVerifierFactory;
-import com.energyict.comserver.tools.Strings;
-import com.energyict.mdc.ManagerFactory;
-import com.energyict.mdc.ServerManager;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.communication.tasks.ServerComTaskEnablementFactory;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -29,7 +19,6 @@ import com.energyict.mdc.engine.model.InboundCapableComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.journal.ServerComSessionFactory;
 import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.protocol.api.ComChannel;
@@ -44,9 +33,6 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionSetupException;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdw.core.TransactionExecutorProvider;
-import com.energyict.test.FakeTransactionExecutorProvider;
-import com.energyict.test.MockEnvironmentTranslations;
 import org.apache.log4j.PropertyConfigurator;
 import org.junit.After;
 import org.junit.Before;
@@ -861,12 +847,12 @@ public class MultiThreadedScheduledComPortTest {
     }
 
     private ComJob toComJob (ServerComTaskExecution comTask) {
-        return new com.energyict.mdc.engine.impl.core.ComTaskExecutionJob(comTask);
+        return new ScheduledComTaskExecutionJob(comTask);
     }
 
     private List<ComJob> toComJob (List<ServerComTaskExecution> serialComTasks) {
         OutboundConnectionTask connectionTask = (OutboundConnectionTask) serialComTasks.get(0).getConnectionTask();
-        com.energyict.mdc.engine.impl.core.ComTaskExecutionGroup group = new com.energyict.mdc.engine.impl.core.ComTaskExecutionGroup(connectionTask);
+        ScheduledComTaskExecutionGroup group = new ScheduledComTaskExecutionGroup(connectionTask);
         for (ServerComTaskExecution comTask : serialComTasks) {
             group.add(comTask);
         }
@@ -904,18 +890,18 @@ public class MultiThreadedScheduledComPortTest {
         }
 
         @Override
-        protected ComTaskExecutionJob newComTaskJob (ComTaskExecution comTask) {
-            return new AlwaysAttemptComTaskExecutionJob(this.getComPort(), this.getComServerDAO(), deviceCommandExecutor, comTask);
+        protected ScheduledComTaskExecutionJob newComTaskJob (ComTaskExecution comTask) {
+            return new AlwaysAttemptScheduledComTaskExecutionJob(this.getComPort(), this.getComServerDAO(), deviceCommandExecutor, comTask);
         }
 
         @Override
-        protected ComTaskExecutionGroup newComTaskGroup (ScheduledConnectionTask connectionTask) {
-            return new AlwaysAttemptComTaskExecutionGroup(this.getComPort(), this.getComServerDAO(), deviceCommandExecutor, connectionTask);
+        protected ScheduledComTaskExecutionGroup newComTaskGroup (ScheduledConnectionTask connectionTask) {
+            return new AlwaysAttemptScheduledComTaskExecutionGroup(this.getComPort(), this.getComServerDAO(), deviceCommandExecutor, connectionTask);
         }
 
-        private class AlwaysAttemptComTaskExecutionJob extends ComTaskExecutionJob {
+        private class AlwaysAttemptScheduledComTaskExecutionJob extends ScheduledComTaskExecutionJob {
 
-            private AlwaysAttemptComTaskExecutionJob (OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ComTaskExecution comTask) {
+            private AlwaysAttemptScheduledComTaskExecutionJob(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ComTaskExecution comTask) {
                 super(comPort, comServerDAO, deviceCommandExecutor, comTask, issueService);
             }
 
@@ -939,9 +925,9 @@ public class MultiThreadedScheduledComPortTest {
 
         }
 
-        public class AlwaysAttemptComTaskExecutionGroup extends ComTaskExecutionGroup {
+        public class AlwaysAttemptScheduledComTaskExecutionGroup extends ScheduledComTaskExecutionGroup {
 
-            public AlwaysAttemptComTaskExecutionGroup (OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ScheduledConnectionTask connectionTask) {
+            public AlwaysAttemptScheduledComTaskExecutionGroup(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ScheduledConnectionTask connectionTask) {
                 super(comPort, comServerDAO, deviceCommandExecutor, connectionTask, issueService);
             }
 
@@ -974,18 +960,18 @@ public class MultiThreadedScheduledComPortTest {
         }
 
         @Override
-        protected ComTaskExecutionJob newComTaskJob (ComTaskExecution comTask) {
-            return new NeverAttemptComTaskExecutionJob(this.getComPort(), this.getComServerDAO(), deviceCommandExecutor, comTask);
+        protected ScheduledComTaskExecutionJob newComTaskJob (ComTaskExecution comTask) {
+            return new NeverAttemptScheduledComTaskExecutionJob(this.getComPort(), this.getComServerDAO(), deviceCommandExecutor, comTask);
         }
 
         @Override
-        protected ComTaskExecutionGroup newComTaskGroup (ScheduledConnectionTask connectionTask) {
-            return new NeverAttemptComTaskExecutionGroup(this.getComPort(), this.getComServerDAO(), deviceCommandExecutor, connectionTask);
+        protected ScheduledComTaskExecutionGroup newComTaskGroup (ScheduledConnectionTask connectionTask) {
+            return new NeverAttemptScheduledComTaskExecutionGroup(this.getComPort(), this.getComServerDAO(), deviceCommandExecutor, connectionTask);
         }
 
-        private class NeverAttemptComTaskExecutionJob extends ComTaskExecutionJob {
+        private class NeverAttemptScheduledComTaskExecutionJob extends ScheduledComTaskExecutionJob {
 
-            private NeverAttemptComTaskExecutionJob (OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ComTaskExecution comTask) {
+            private NeverAttemptScheduledComTaskExecutionJob(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ComTaskExecution comTask) {
                 super(comPort, comServerDAO, deviceCommandExecutor, comTask, issueService);
             }
 
@@ -1003,8 +989,8 @@ public class MultiThreadedScheduledComPortTest {
 
         }
 
-        public class NeverAttemptComTaskExecutionGroup extends ComTaskExecutionGroup {
-            public NeverAttemptComTaskExecutionGroup (OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ScheduledConnectionTask connectionTask) {
+        public class NeverAttemptScheduledComTaskExecutionGroup extends ScheduledComTaskExecutionGroup {
+            public NeverAttemptScheduledComTaskExecutionGroup(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ScheduledConnectionTask connectionTask) {
                 super(comPort, comServerDAO, deviceCommandExecutor, connectionTask, issueService);
             }
 

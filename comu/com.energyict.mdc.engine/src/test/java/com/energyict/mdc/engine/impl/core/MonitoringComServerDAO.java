@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.transaction.Transaction;
 import com.energyict.mdc.common.BusinessEvent;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
@@ -191,7 +192,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public boolean isStillPending (int comTaskExecutionId) {
+    public boolean isStillPending (long comTaskExecutionId) {
         return this.actual.isStillPending(comTaskExecutionId);
     }
 
@@ -203,6 +204,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
     @Override
     public void setMaxNumberOfTries(ScheduledConnectionTask connectionTask, int maxNumberOfTries) {
         this.actual.setMaxNumberOfTries(connectionTask, maxNumberOfTries);
+    }
+
+    @Override
+    public <T> T executeTransaction(Transaction<T> transaction) {
+        return this.actual.executeTransaction(transaction);
     }
 
     private class VerifingComServerDAO implements ComServerDAO {
@@ -245,6 +251,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
 
         @Override
         public void setMaxNumberOfTries(ScheduledConnectionTask connectionTask, int maxNumberOfTries) {
+        }
+
+        @Override
+        public <T> T executeTransaction(Transaction<T> transaction) {
+            return null;
         }
 
         @Override
@@ -398,7 +409,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
-        public boolean isStillPending (int comTaskExecutionId) {
+        public boolean isStillPending (long comTaskExecutionId) {
             return false;
         }
 

@@ -80,7 +80,7 @@ public class ComServerDAOImplInboundTest {
     @Mock
     private ServerComTaskExecutionFactory comTaskExecutionFactory;
 
-    private ComServerDAO comServerDAO = new ComServerDAOImpl();
+    private ComServerDAO comServerDAO = new ComServerDAOImpl(serviceProvider);
 
     @Before
     public void initializeMocksAndFactories () throws SQLException, BusinessException {

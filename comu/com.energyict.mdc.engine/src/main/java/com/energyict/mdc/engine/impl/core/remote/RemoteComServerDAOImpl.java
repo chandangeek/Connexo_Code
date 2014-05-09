@@ -1,6 +1,8 @@
 package com.energyict.mdc.engine.impl.core.remote;
 
 import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessEvent;
 import com.energyict.mdc.common.HasId;
@@ -9,15 +11,14 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.exceptions.DataAccessException;
 import com.energyict.mdc.engine.impl.core.ComJob;
-import com.energyict.mdc.device.data.journal.ComSession;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.RemoteComServerQueryJSonPropertyNames;
 import com.energyict.mdc.engine.impl.core.ServerProcess;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
@@ -63,16 +64,18 @@ import org.json.JSONObject;
 public class RemoteComServerDAOImpl implements ComServerDAO {
 
     private final EngineModelService engineModelService;
+    private final TransactionService transactionService;
     private ServerProcess comServer;
     private String queryAPIPostUri;
     private ServerProcessStatus status = ServerProcessStatus.STARTING;
     private QueryWebSocket webSocket = new QueryWebSocket();
     private final QueryList queries = new QueryList();
 
-    public RemoteComServerDAOImpl (String queryAPIPostUri,EngineModelService engineModelService) {
+    public RemoteComServerDAOImpl(String queryAPIPostUri, ServiceProvider serviceProvider) {
         super();
         this.engineModelService = engineModelService;
         this.queryAPIPostUri = queryAPIPostUri;
+        this.transactionService = transactionService;
     }
 
     public void setComServer (ServerProcess comServer) {
@@ -180,6 +183,11 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK, connectionTask.getId());
         this.post(QueryMethod.ExecutionFailed, queryParameters);
+    }
+
+    @Override
+    public <T> T executeTransaction(Transaction<T> transaction) {
+        return null;
     }
 
     @Override
@@ -314,7 +322,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public boolean isStillPending (int comTaskExecutionId) {
+    public boolean isStillPending (long comTaskExecutionId) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION, comTaskExecutionId);
         JSONObject response = this.post(QueryMethod.IsStillPending, queryParameters);

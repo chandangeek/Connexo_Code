@@ -1,18 +1,18 @@
 package com.energyict.mdc.engine.impl.core.mocks;
 
 import com.elster.jupiter.metering.readings.MeterReading;
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
+import com.elster.jupiter.transaction.Transaction;
 import com.energyict.mdc.common.BusinessEvent;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.engine.impl.core.ComJob;
-import com.energyict.mdc.device.data.journal.ComSession;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.engine.impl.core.ComJob;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
+import com.energyict.mdc.engine.impl.tools.Equality;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPort;
@@ -25,10 +25,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
-import com.energyict.mdc.shadow.journal.ComSessionShadow;
-import com.energyict.mdw.core.EndDeviceCache;
-import com.energyict.mdw.shadow.DeviceCacheShadow;
-import com.energyict.mdc.engine.impl.tools.Equality;
+
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -406,7 +403,7 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public boolean isStillPending (int comTaskExecutionId) {
+    public boolean isStillPending (long comTaskExecutionId) {
         return true;
     }
 
@@ -419,6 +416,11 @@ public class MockComServerDAO implements ComServerDAO {
     public void setMaxNumberOfTries(ScheduledConnectionTask connectionTask, int maxNumberOfTries) {
         connectionTask.setMaxNumberOfTries(maxNumberOfTries);
         connectionTask.save();
+    }
+
+    @Override
+    public <T> T executeTransaction(Transaction<T> transaction) {
+        return null;
     }
 
     @Override

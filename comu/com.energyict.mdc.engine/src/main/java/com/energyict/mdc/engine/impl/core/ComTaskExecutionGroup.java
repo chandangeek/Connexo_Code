@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 
 import java.util.ArrayList;
@@ -16,11 +17,16 @@ import java.util.List;
  */
 public class ComTaskExecutionGroup implements ComJob {
 
-    private ScheduledConnectionTask connectionTask;
+    private OutboundConnectionTask<?> connectionTask;
     private List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
 
-    public ComTaskExecutionGroup (ScheduledConnectionTask connectionTask) {
+    // For xml serialization purposes only
+    public ComTaskExecutionGroup () {
         super();
+    }
+
+    public ComTaskExecutionGroup (OutboundConnectionTask<?> connectionTask) {
+        this();
         this.connectionTask = connectionTask;
     }
 
@@ -31,7 +37,7 @@ public class ComTaskExecutionGroup implements ComJob {
 
     @Override
     public ScheduledConnectionTask getConnectionTask () {
-        return this.connectionTask;
+        return (ScheduledConnectionTask) this.connectionTask;
     }
 
     public void add (ComTaskExecution comTask) {

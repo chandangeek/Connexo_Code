@@ -24,12 +24,10 @@ public class SetClockCommandImpl extends SimpleComCommand implements SetClockCom
      * The used {@link ClockCommand}, owner of this SetClockCommand
      */
     private ClockCommand clockCommand;
-    private final Clock clock;
 
-    public SetClockCommandImpl(final ClockCommand clockCommand, final CommandRoot commandRoot, ComTaskExecution comTaskExecution, Clock clock) {
+    public SetClockCommandImpl(final ClockCommand clockCommand, final CommandRoot commandRoot, ComTaskExecution comTaskExecution) {
         super(commandRoot);
         this.clockCommand = clockCommand;
-        this.clock = clock;
         this.clockCommand.setTimeDifferenceCommand(getCommandRoot().getTimeDifferenceCommand(clockCommand, comTaskExecution));
     }
 
@@ -48,7 +46,7 @@ public class SetClockCommandImpl extends SimpleComCommand implements SetClockCom
         if (aboveMaximum(timeDifference)) {
             addIssue(getIssueService().newWarning(timeDifference, "timediffXlargerthanmaxdefined", timeDifference), CompletionCode.ConfigurationWarning);
         } else if (!belowMinimum(timeDifference)) {
-            deviceProtocol.setTime(this.clock.now());
+            deviceProtocol.setTime(getCommandRoot().getServiceProvider().getClock().now());
         }
     }
 

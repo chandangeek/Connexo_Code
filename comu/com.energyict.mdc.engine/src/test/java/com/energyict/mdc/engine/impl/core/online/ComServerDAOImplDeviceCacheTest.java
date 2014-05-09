@@ -57,7 +57,7 @@ public class ComServerDAOImplDeviceCacheTest {
 
     @Test
     public void testCreation () throws BusinessException, SQLException {
-        ComServerDAO comServerDAO = new ComServerDAOImpl();
+        ComServerDAO comServerDAO = new ComServerDAOImpl(serviceProvider);
         DeviceCacheShadow shadow = new DeviceCacheShadow();
         shadow.setRtuId(DEVICE_ID);
 
@@ -71,7 +71,7 @@ public class ComServerDAOImplDeviceCacheTest {
 
     @Test
     public void testUpdate () throws BusinessException, SQLException {
-        ComServerDAO comServerDAO = new ComServerDAOImpl();
+        ComServerDAO comServerDAO = new ComServerDAOImpl(serviceProvider);
         DeviceCacheShadow shadow = new DeviceCacheShadow();
         shadow.setRtuId(DEVICE_ID);
         EndDeviceCache deviceCache = mock(EndDeviceCache.class);

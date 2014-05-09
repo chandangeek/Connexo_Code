@@ -13,10 +13,6 @@ import com.energyict.mdc.device.data.journal.CompletionCode;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.core.JobExecution;
-import com.energyict.mdc.engine.impl.core.RescheduleBehavior;
-import com.energyict.mdc.engine.impl.core.RescheduleBehaviorForAsap;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
@@ -67,7 +63,7 @@ public class RescheduleBehaviorForAsapTest {
     @Mock
     private ComServerDAO comServerDAO;
     @Mock
-    private ComTaskExecutionGroup comTaskExecutionGroup;
+    private ScheduledComTaskExecutionGroup scheduledComTaskExecutionGroup;
     private ScheduledConnectionTask connectionTask;
     @Mock
     private Device device;

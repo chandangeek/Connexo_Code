@@ -343,6 +343,6 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
     }
 
     public IssueService getIssueService() {
-        return getCommandRoot().getIssueService();
+        return getCommandRoot().getServiceProvider().getIssueService();
     }
 }

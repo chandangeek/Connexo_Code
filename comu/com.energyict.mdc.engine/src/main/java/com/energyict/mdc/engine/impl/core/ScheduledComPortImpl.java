@@ -200,17 +200,17 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
         public int scheduleAll(List<ComJob> jobs);
     }
 
-    protected ComTaskExecutionJob newComTaskJob (ComTaskExecution comTask) {
-        return new ComTaskExecutionJob(this.getComPort(), this.getComServerDAO(), this.deviceCommandExecutor, comTask, issueService);
+    protected ScheduledComTaskExecutionJob newComTaskJob (ComTaskExecution comTask) {
+        return new ScheduledComTaskExecutionJob(this.getComPort(), this.getComServerDAO(), this.deviceCommandExecutor, comTask, issueService);
     }
 
-    protected ComTaskExecutionGroup newComTaskGroup (ScheduledConnectionTask connectionTask) {
-        return new ComTaskExecutionGroup(this.getComPort(), this.getComServerDAO(), this.deviceCommandExecutor, connectionTask, issueService);
+    protected ScheduledComTaskExecutionGroup newComTaskGroup (ScheduledConnectionTask connectionTask) {
+        return new ScheduledComTaskExecutionGroup(this.getComPort(), this.getComServerDAO(), this.deviceCommandExecutor, connectionTask, issueService);
     }
 
-    protected ComTaskExecutionGroup newComTaskGroup (ComJob groupComJob) {
+    protected ScheduledComTaskExecutionGroup newComTaskGroup (ComJob groupComJob) {
         ScheduledConnectionTask connectionTask = (ScheduledConnectionTask) groupComJob.getConnectionTask();
-        ComTaskExecutionGroup group = newComTaskGroup(connectionTask);
+        ScheduledComTaskExecutionGroup group = newComTaskGroup(connectionTask);
         for (ComTaskExecution scheduledComTask : groupComJob.getComTaskExecutions()) {
             group.add(scheduledComTask);
         }

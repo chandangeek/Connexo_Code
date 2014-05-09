@@ -70,7 +70,7 @@ public class WebSocketQueryApiService implements WebSocket.OnTextMessage {
         mapper.setSerializationConfig(mapper.getSerializationConfig().with(SerializationConfig.Feature.REQUIRE_SETTERS_FOR_GETTERS));
         mapper.setSerializationConfig(mapper.getSerializationConfig().without(SerializationConfig.Feature.AUTO_DETECT_GETTERS));
         mapper.setSerializationConfig(mapper.getSerializationConfig().withSerializationInclusion(JsonSerialize.Inclusion.NON_EMPTY));
-        Object queryResultValue = queryMethod.execute(parameters, new ComServerDAOImpl());
+        Object queryResultValue = queryMethod.execute(parameters, new ComServerDAOImpl(serviceProvider));
         mapper.writeValue(
                 writer,
                 QueryResult.forResult(

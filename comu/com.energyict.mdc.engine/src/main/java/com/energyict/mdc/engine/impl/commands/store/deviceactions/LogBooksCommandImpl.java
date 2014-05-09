@@ -34,13 +34,10 @@ public class LogBooksCommandImpl extends CompositeComCommandImpl implements LogB
      */
     private final LogBooksTask logBooksTask;
 
-    private final DeviceDataService deviceDataService;
-
     private List<LogBookReader> logBookReaders = new ArrayList<>();
 
-    public LogBooksCommandImpl(final LogBooksTask logBooksTask, final OfflineDevice device, final CommandRoot commandRoot, ComTaskExecution comTaskExecution, DeviceDataService deviceDataService) {
+    public LogBooksCommandImpl(final LogBooksTask logBooksTask, final OfflineDevice device, final CommandRoot commandRoot, ComTaskExecution comTaskExecution) {
         super(commandRoot);
-        this.deviceDataService = deviceDataService;
         if (logBooksTask == null) {
             throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "logbookstask");
         }
@@ -96,7 +93,7 @@ public class LogBooksCommandImpl extends CompositeComCommandImpl implements LogB
      * @param logBook the logBook to add
      */
     protected void addLogBookToReaderList(final OfflineLogBook logBook) {
-        LogBookIdentifierByIdImpl logBookIdentifier = new LogBookIdentifierByIdImpl(logBook.getLogBookId(), this.deviceDataService);
+        LogBookIdentifierByIdImpl logBookIdentifier = new LogBookIdentifierByIdImpl(logBook.getLogBookId(), getCommandRoot().getServiceProvider().getDeviceDataService());
         LogBookReader logBookReader =
                 new LogBookReader(
                         logBook.getObisCode(),

@@ -4,7 +4,6 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
 import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -35,7 +34,7 @@ public class InboundJobExecutionGroup extends JobExecution {
     private List<ComTaskExecution> successfulComTaskExecutions = new ArrayList<>();
 
     public InboundJobExecutionGroup(ComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundDiscoveryContextImpl inboundDiscoveryContext) {
-        super(comPort, comServerDAO, deviceCommandExecutor);
+        super(comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
         this.inboundDiscoveryContext = inboundDiscoveryContext;
     }
 

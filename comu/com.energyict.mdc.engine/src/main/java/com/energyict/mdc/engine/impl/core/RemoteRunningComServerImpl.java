@@ -19,8 +19,8 @@ import java.util.concurrent.Executors;
  */
 public class RemoteRunningComServerImpl extends RunningComServerImpl {
 
-    public RemoteRunningComServerImpl(RemoteComServer comServer, RemoteComServerDAOImpl comServerDAO, ThreadPrincipalService threadPrincipalService, UserService userService, IssueService issueService) {
-        super(comServer, comServerDAO, null, null, Executors.defaultThreadFactory(), new CleanupDuringStartupImpl(comServer, comServerDAO), threadPrincipalService, userService, issueService);
+    public RemoteRunningComServerImpl(RemoteComServer comServer, RemoteComServerDAOImpl comServerDAO, ServiceProvider serviceProvider) {
+        super(comServer, comServerDAO, null, null, Executors.defaultThreadFactory(), new CleanupDuringStartupImpl(comServer, comServerDAO), serviceProvider);
         comServerDAO.setComServer(this);
     }
 

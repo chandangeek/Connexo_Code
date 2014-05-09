@@ -156,7 +156,7 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
 
         @Override
         public int scheduleAll(List<ComJob> jobs) {
-            List<ComTaskExecutionGroup> groups = new ArrayList<>(jobs.size());   // At most all jobs will be groups
+            List<ScheduledComTaskExecutionGroup> groups = new ArrayList<>(jobs.size());   // At most all jobs will be groups
             for (ComJob job : jobs) {
                 if (job.isGroup()) {
                     groups.add(newComTaskGroup(job));
@@ -197,7 +197,7 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
          */
         private void scheduleNow(final ComTaskExecution comTask) {
             try {
-                ComTaskExecutionJob job = newComTaskJob(comTask);
+                ScheduledComTaskExecutionJob job = newComTaskJob(comTask);
                 try {
                     jobQueue.put(job);
                 } catch (InterruptedException e) {
@@ -209,8 +209,8 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
             }
         }
 
-        private void scheduleGroups(Collection<ComTaskExecutionGroup> groups) {
-            for (ComTaskExecutionGroup group : groups) {
+        private void scheduleGroups(Collection<ScheduledComTaskExecutionGroup> groups) {
+            for (ScheduledComTaskExecutionGroup group : groups) {
                 try {
                     try {
                         jobQueue.put(group);

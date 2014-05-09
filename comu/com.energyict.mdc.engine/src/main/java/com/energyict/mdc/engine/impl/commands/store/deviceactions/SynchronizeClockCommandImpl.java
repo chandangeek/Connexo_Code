@@ -1,8 +1,8 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.elster.jupiter.util.time.Clock;
-import com.energyict.mdc.device.data.journal.CompletionCode;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
+import com.energyict.mdc.device.data.journal.CompletionCode;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.collect.ClockCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
@@ -11,7 +11,6 @@ import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import org.joda.time.DateTimeConstants;
 
 import java.text.MessageFormat;
@@ -26,13 +25,11 @@ public class SynchronizeClockCommandImpl extends SimpleComCommand implements Syn
      * The used {@link ClockCommand}
      */
     private ClockCommand clockCommand;
-    private final Clock clock;
     private Date timeSet;
 
-    public SynchronizeClockCommandImpl(final ClockCommand clockCommand, final CommandRoot commandRoot, ComTaskExecution comTaskExecution, Clock clock) {
+    public SynchronizeClockCommandImpl(final ClockCommand clockCommand, final CommandRoot commandRoot, ComTaskExecution comTaskExecution) {
         super(commandRoot);
         this.clockCommand = clockCommand;
-        this.clock = clock;
         this.clockCommand.setTimeDifferenceCommand(getCommandRoot().getTimeDifferenceCommand(clockCommand, comTaskExecution));
     }
 
@@ -61,7 +58,7 @@ public class SynchronizeClockCommandImpl extends SimpleComCommand implements Syn
         if (Math.abs(timeDifference) <= clockCommand.getClockTask().getMaximumClockDifference().getMilliSeconds()){
             long timeShift = getTimeShift(timeDifference);
             if (timeShift != 0) {
-                long currentDeviceTime = this.clock.now().getTime() - timeDifference;
+                long currentDeviceTime = getCommandRoot().getServiceProvider().getClock().now().getTime() - timeDifference;
                 Date now = new Date(currentDeviceTime + timeShift);
                 deviceProtocol.setTime(now);
                 this.timeSet = now;

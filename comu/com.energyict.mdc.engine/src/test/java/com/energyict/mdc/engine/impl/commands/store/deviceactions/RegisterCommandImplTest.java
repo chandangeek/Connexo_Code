@@ -46,14 +46,14 @@ public class RegisterCommandImplTest {
     @Test(expected = CodingException.class)
     public void commandRootNullTest() {
         OfflineDevice device = mock(OfflineDevice.class);
-        RegisterCommand registerCommand = new RegisterCommandImpl(mock(RegistersTask.class), device, null, null, deviceDataService);
+        RegisterCommand registerCommand = new RegisterCommandImpl(mock(RegistersTask.class), device, null, null);
         // should have gotten an exception
     }
 
     @Test(expected = CodingException.class)
     public void registersTaskNullTest() {
         OfflineDevice device = mock(OfflineDevice.class);
-        RegisterCommand registerCommand = new RegisterCommandImpl(null, device, mock(CommandRoot.class), null, deviceDataService);
+        RegisterCommand registerCommand = new RegisterCommandImpl(null, device, mock(CommandRoot.class), null);
         // should have gotten an exception
     }
 
@@ -62,7 +62,7 @@ public class RegisterCommandImplTest {
         CommandRoot commandRoot = mock(CommandRoot.class);
         ReadRegistersCommand readRegistersCommand = mock(ReadRegistersCommand.class);
         when(commandRoot.getReadRegistersCommand(Matchers.<CompositeComCommand>any(), any(ComTaskExecution.class))).thenReturn(readRegistersCommand);
-        RegisterCommand registerCommand = new RegisterCommandImpl(mock(RegistersTask.class), null, commandRoot, null, deviceDataService);
+        RegisterCommand registerCommand = new RegisterCommandImpl(mock(RegistersTask.class), null, commandRoot, null);
         // should have gotten an exception
     }
 
@@ -72,7 +72,7 @@ public class RegisterCommandImplTest {
         CommandRoot commandRoot = mock(CommandRoot.class);
         ReadRegistersCommand readRegistersCommand = mock(ReadRegistersCommand.class);
         when(commandRoot.getReadRegistersCommand(Matchers.<CompositeComCommand>any(), any(ComTaskExecution.class))).thenReturn(readRegistersCommand);
-        RegisterCommand registerCommand = new RegisterCommandImpl(mock(RegistersTask.class), device, commandRoot, null, deviceDataService);
+        RegisterCommand registerCommand = new RegisterCommandImpl(mock(RegistersTask.class), device, commandRoot, null);
 
         // asserts
         Assert.assertEquals(ComCommandTypes.REGISTERS_COMMAND, registerCommand.getCommandType());
@@ -85,7 +85,7 @@ public class RegisterCommandImplTest {
         CommandRoot commandRoot = mock(CommandRoot.class);
         ReadRegistersCommand readRegistersCommand = mock(ReadRegistersCommand.class);
         when(commandRoot.getReadRegistersCommand(Matchers.<CompositeComCommand>any(), any(ComTaskExecution.class))).thenReturn(readRegistersCommand);
-        RegisterCommand registerCommand = new RegisterCommandImpl(mock(RegistersTask.class), device, commandRoot, null, deviceDataService);
+        RegisterCommand registerCommand = new RegisterCommandImpl(mock(RegistersTask.class), device, commandRoot, null);
 
         CollectedData noCollectedRegisterCollectedData = mock(CollectedData.class);
         DefaultDeviceRegister collectedRegister = new DefaultDeviceRegister(mock(RegisterIdentifier.class));

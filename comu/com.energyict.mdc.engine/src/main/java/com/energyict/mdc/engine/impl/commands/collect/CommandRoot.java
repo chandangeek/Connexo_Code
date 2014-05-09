@@ -1,9 +1,12 @@
 package com.energyict.mdc.engine.impl.commands.collect;
 
+import com.elster.jupiter.util.time.Clock;
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.store.core.ComTaskExecutionComCommand;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.LoadProfilesTask;
@@ -246,7 +249,20 @@ public interface CommandRoot extends CompositeComCommand {
     public void executeFor(JobExecution.PreparedComTaskExecution preparedComTaskExecution, JobExecution.ExecutionContext executionContext);
 
     /**
-     * @return the {@link IssueService} that can be used for logging Issues during ComCommands
+     * Gets the ServiceProvider which collects the Services which are required for the creation/execution of ComCommands
+     *
+     * @return the ServiceProvider
      */
-    public IssueService getIssueService();
+    public ServiceProvider getServiceProvider();
+
+    interface ServiceProvider {
+
+        public IssueService getIssueService();
+
+        public Clock getClock();
+
+        public DeviceDataService getDeviceDataService();
+
+        public MdcReadingTypeUtilService getMdcReadingTypeUtilService();
+    }
 }

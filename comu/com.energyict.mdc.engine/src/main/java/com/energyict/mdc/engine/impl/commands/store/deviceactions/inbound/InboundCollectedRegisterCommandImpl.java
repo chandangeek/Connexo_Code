@@ -22,7 +22,7 @@ public class InboundCollectedRegisterCommandImpl extends RegisterCommandImpl {
     private final List<ServerCollectedData> collectedData;
 
     public InboundCollectedRegisterCommandImpl(RegistersTask registersTask, OfflineDevice device, CommandRoot commandRoot, ComTaskExecution comTaskExecution, List<ServerCollectedData> collectedData, DeviceDataService deviceDataService) {
-        super(registersTask, device, commandRoot, comTaskExecution, deviceDataService);
+        super(registersTask, device, commandRoot, comTaskExecution);
         this.collectedData = collectedData;
     }
 

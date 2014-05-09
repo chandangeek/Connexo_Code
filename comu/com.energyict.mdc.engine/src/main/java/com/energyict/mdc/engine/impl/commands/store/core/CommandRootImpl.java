@@ -1,7 +1,5 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
-import com.elster.jupiter.util.time.Clock;
-import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.impl.commands.collect.BasicCheckCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ClockCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
@@ -81,14 +79,16 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
      * The {@link OfflineDevice} which owns this CommandRoot
      */
     private final OfflineDevice offlineDevice;
-    private JobExecution.ExecutionContext executionContext;
+    private final ServiceProvider serviceProvider;
+    private final JobExecution.ExecutionContext executionContext;
     private JobExecution.PreparedComTaskExecution preparedComTaskExecution;
     private Map<ComTaskExecution, ComTaskExecutionComCommand> comCommandsPerComTaskExecution = new HashMap<>();
 
-    public CommandRootImpl(OfflineDevice offlineDevice, JobExecution.ExecutionContext executionContext) {
+    public CommandRootImpl(OfflineDevice offlineDevice, JobExecution.ExecutionContext executionContext, ServiceProvider serviceProvider) {
         super(null);
         this.offlineDevice = offlineDevice;
         this.executionContext = executionContext;
+        this.serviceProvider = serviceProvider;
     }
 
     @Override
@@ -176,7 +176,7 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
     }
 
     private RegisterCommand createRegisterCommand(RegistersTask registersTask, CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution) {
-        RegisterCommand registerCommand = new RegisterCommandImpl(registersTask, this.offlineDevice, this, comTaskExecution, deviceDataService);
+        RegisterCommand registerCommand = new RegisterCommandImpl(registersTask, this.offlineDevice, this, comTaskExecution);
         possibleCommandOwner.addCommand(registerCommand, comTaskExecution);
         return registerCommand;
     }
@@ -191,7 +191,7 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
     }
 
     private LogBooksCommand createLogBooksCommand(LogBooksTask logBooksTask, CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution) {
-        LogBooksCommand logBooksCommand = new LogBooksCommandImpl(logBooksTask, this.offlineDevice, this, comTaskExecution, deviceDataService);
+        LogBooksCommand logBooksCommand = new LogBooksCommandImpl(logBooksTask, this.offlineDevice, this, comTaskExecution);
         possibleCommandOwner.addCommand(logBooksCommand, comTaskExecution);
         return logBooksCommand;
     }
@@ -312,7 +312,7 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
     }
 
     public TimeDifferenceCommand createTimeDifferenceCommand(CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution) {
-        TimeDifferenceCommand timeDifferenceCommand = new TimeDifferenceCommandImpl(this, clock);
+        TimeDifferenceCommand timeDifferenceCommand = new TimeDifferenceCommandImpl(this);
         possibleCommandOwner.addCommand(timeDifferenceCommand, comTaskExecution);
         return timeDifferenceCommand;
     }
@@ -417,7 +417,7 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
     }
 
     public ForceClockCommand createForceClockCommand(ClockCommand clockCommand, ComTaskExecution comTaskExecution) {
-        ForceClockCommand forceClockCommand = new ForceClockCommandImpl(this, clock);
+        ForceClockCommand forceClockCommand = new ForceClockCommandImpl(this);
         clockCommand.addCommand(forceClockCommand, comTaskExecution);
         return forceClockCommand;
     }
@@ -432,7 +432,7 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
     }
 
     public SetClockCommand createSetClockCommand(ClockCommand clockCommand, ComTaskExecution comTaskExecution) {
-        SetClockCommand setClockCommand = new SetClockCommandImpl(clockCommand, this, comTaskExecution, clock);
+        SetClockCommand setClockCommand = new SetClockCommandImpl(clockCommand, this, comTaskExecution);
         clockCommand.addCommand(setClockCommand, comTaskExecution);
         return setClockCommand;
     }
@@ -447,7 +447,7 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
     }
 
     public SynchronizeClockCommand createSynchronizeClockCommand(ClockCommand clockCommand, ComTaskExecution comTaskExecution) {
-        SynchronizeClockCommand synchronizeClockCommand = new SynchronizeClockCommandImpl(clockCommand, this, comTaskExecution, clock);
+        SynchronizeClockCommand synchronizeClockCommand = new SynchronizeClockCommandImpl(clockCommand, this, comTaskExecution);
         clockCommand.addCommand(synchronizeClockCommand, comTaskExecution);
         return synchronizeClockCommand;
     }
@@ -490,8 +490,8 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
     }
 
     @Override
-    public IssueService getIssueService() {
-        return this.issueService;
+    public ServiceProvider getServiceProvider() {
+        return serviceProvider;
     }
 
     @Override

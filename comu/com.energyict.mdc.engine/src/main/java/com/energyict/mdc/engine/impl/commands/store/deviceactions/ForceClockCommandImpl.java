@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
@@ -9,6 +8,7 @@ import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
+
 import java.text.MessageFormat;
 import java.util.Date;
 
@@ -17,16 +17,14 @@ import java.util.Date;
  */
 public class ForceClockCommandImpl extends SimpleComCommand implements ForceClockCommand {
 
-    private final Clock clock;
     private Date timeSet;
 
-    public ForceClockCommandImpl(final CommandRoot commandRoot, Clock clock) {
+    public ForceClockCommandImpl(final CommandRoot commandRoot) {
         super(commandRoot);
-        this.clock = clock;
     }
 
     public void doExecute (final DeviceProtocol deviceProtocol, JobExecution.ExecutionContext executionContext) {
-        Date now = this.clock.now();
+        Date now = getCommandRoot().getServiceProvider().getClock().now();
         deviceProtocol.setTime(now);
         this.timeSet = now;
     }

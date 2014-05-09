@@ -92,7 +92,7 @@ public class ComServerDAOImplTest {
     @Mock
     private BusinessEvent businessEvent;
 
-    private ComServerDAO comServerDAO = new ComServerDAOImpl();
+    private ComServerDAO comServerDAO = new ComServerDAOImpl(serviceProvider);
 
     public ComServerDAOImplTest() {
     }

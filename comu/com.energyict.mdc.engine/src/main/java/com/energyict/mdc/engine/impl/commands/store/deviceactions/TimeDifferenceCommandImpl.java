@@ -21,19 +21,18 @@ import java.util.Date;
  */
 public class TimeDifferenceCommandImpl extends SimpleComCommand implements TimeDifferenceCommand {
 
-    private final Clock clock;
     /**
      * The difference in time between the Collection Software and the Meter
      */
     private TimeDuration timeDifference;
 
-    public TimeDifferenceCommandImpl(final CommandRoot commandRoot, Clock clock) {
+    public TimeDifferenceCommandImpl(final CommandRoot commandRoot) {
         super(commandRoot);
-        this.clock = clock;
     }
 
     @Override
     public void doExecute (final DeviceProtocol deviceProtocol, JobExecution.ExecutionContext executionContext) {
+        Clock clock = getCommandRoot().getServiceProvider().getClock();
         RoundTripTimer roundTripTimer = new RoundTripTimer(clock);
         roundTripTimer.start();
         Date meterTime = deviceProtocol.getTime();
@@ -42,7 +41,7 @@ public class TimeDifferenceCommandImpl extends SimpleComCommand implements TimeD
         if (halfRoundTrip != 0) {
             halfRoundTrip = halfRoundTrip / 2;
         }
-        long differenceInMillis = this.clock.now().getTime() - (meterTime.getTime() - halfRoundTrip);
+        long differenceInMillis = clock.now().getTime() - (meterTime.getTime() - halfRoundTrip);
         this.timeDifference = new TimeDuration((int) differenceInMillis, TimeDuration.MILLISECONDS);
     }
 

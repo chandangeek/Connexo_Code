@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.issues.IssueService;
 import org.osgi.framework.BundleContext;
@@ -77,7 +78,7 @@ public class LaunchComServer {
         if(this.launcher == null){
             System.out.println("Starting ComServer");
             try {
-                this.launcher = new ComServerLauncher(engineModelService, this.threadPrincipalService, this.userService, this.issueService);
+                this.launcher = new ComServerLauncher(getServiceProvider());
                 launcher.startComServer();
             } catch (Exception e) {
                 e.printStackTrace(System.out);
@@ -87,6 +88,10 @@ public class LaunchComServer {
         } else {
             System.out.println("There is already a ComServer running on this machine.");
         }
+    }
+
+    private ServiceProvider getServiceProvider() {
+        return null;
     }
 
     @Reference

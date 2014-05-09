@@ -33,7 +33,6 @@ public class RegisterCommandImpl extends CompositeComCommandImpl implements Regi
      * The task used for modeling this command
      */
     private final RegistersTask registersTask;
-    private final DeviceDataService deviceDataService;
 
     /**
      * A List containing all the {@link CollectedRegister} which is collected during the execution of this {@link RegisterCommand}
@@ -45,9 +44,8 @@ public class RegisterCommandImpl extends CompositeComCommandImpl implements Regi
      */
     private List<CollectedData> collectedDataList = new ArrayList<>();
 
-    public RegisterCommandImpl(final RegistersTask registersTask, final OfflineDevice device, final CommandRoot commandRoot, ComTaskExecution comTaskExecution, DeviceDataService deviceDataService) {
+    public RegisterCommandImpl(final RegistersTask registersTask, final OfflineDevice device, final CommandRoot commandRoot, ComTaskExecution comTaskExecution) {
         super(commandRoot);
-        this.deviceDataService = deviceDataService;
         if (registersTask == null) {
             throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "registersTask");
         }
@@ -67,8 +65,7 @@ public class RegisterCommandImpl extends CompositeComCommandImpl implements Regi
         }
         ReadRegistersCommand readRegistersCommand = getCommandRoot().getReadRegistersCommand(this, comTaskExecution);
         readRegistersCommand.addRegisters(registers);
-        // TODO make sure this is not the DeviceIdentifierById from protocols-api!
-        deviceRegisterList = new DeviceRegisterList(new DeviceIdentifierById(device.getId(), this.deviceDataService));
+        deviceRegisterList = new DeviceRegisterList(new DeviceIdentifierById(device.getId(), getCommandRoot().getServiceProvider().getDeviceDataService()));
     }
 
     private List<Integer> getRegisterGroupIds () {

@@ -1,8 +1,5 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.core.RescheduleBehavior;
-import com.energyict.mdc.engine.impl.core.RescheduleBehaviorForMinimizeConnections;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -41,7 +38,7 @@ public class RescheduleBehaviorForMinimizeConnectionsTest {
     @Mock
     private ComServerDAO comServerDAO;
     @Mock
-    private ComTaskExecutionGroup comTaskExecutionGroup;
+    private ScheduledComTaskExecutionGroup scheduledComTaskExecutionGroup;
     @Mock(extraInterfaces = {OutboundConnectionTask.class, ServerOutboundConnectionTask.class})
     private ConnectionTask connectionTask;
     @Mock

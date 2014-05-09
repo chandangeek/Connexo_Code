@@ -1,18 +1,22 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.EngineService;
+import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.model.RemoteComServer;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.services.HexService;
 
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.time.Clock;
-
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * Provides acces to the OSGi services that are needed by
+ * Provides access to the OSGi services that are needed by
  * the core ComServer components.
  *
  * @author Rudi Vankeirsbilck (rudi)
@@ -36,4 +40,9 @@ public interface ServiceProvider {
 
     public EngineService engineService();
 
+    public UserService userService();
+
+    public ThreadPrincipalService threadPrincipalService();
+
+    public EngineModelService engineModelService();
 }

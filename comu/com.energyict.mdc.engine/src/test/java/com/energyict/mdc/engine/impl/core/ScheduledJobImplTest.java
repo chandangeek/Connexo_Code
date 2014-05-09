@@ -24,14 +24,6 @@ import com.energyict.mdc.device.data.journal.ComSession;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.core.JobExecution;
-import com.energyict.mdc.engine.impl.core.MultiThreadedScheduledJobExecutor;
-import com.energyict.mdc.engine.impl.core.ScheduledJob;
-import com.energyict.mdc.engine.impl.core.ScheduledJobExecutionEventListener;
-import com.energyict.mdc.engine.impl.core.ScheduledJobExecutor;
-import com.energyict.mdc.engine.impl.core.ScheduledJobTransactionExecutor;
-import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
@@ -158,9 +150,9 @@ public class ScheduledJobImplTest {
 
         ServerComTaskExecution scheduledComTask = createMockServerScheduledComTask(device, connectionTask, comTask, mockProtocolDialectConfigurationProperties);
 
-        ComTaskExecutionJob comTaskExecutionJob = new ComTaskExecutionJob(comPort, comServerDAO, this.deviceCommandExecutor, scheduledComTask, mock(IssueService.class));
-        comTaskExecutionJob.establishConnectionFor(comPort);
-        JobExecution.PreparedComTaskExecution preparedComTaskExecution = comTaskExecutionJob.prepareOne(scheduledComTask);
+        ScheduledComTaskExecutionJob scheduledComTaskExecutionJob = new ScheduledComTaskExecutionJob(comPort, comServerDAO, this.deviceCommandExecutor, scheduledComTask, mock(IssueService.class));
+        scheduledComTaskExecutionJob.establishConnectionFor(comPort);
+        JobExecution.PreparedComTaskExecution preparedComTaskExecution = scheduledComTaskExecutionJob.prepareOne(scheduledComTask);
 
         // asserts
         assertNotNull(preparedComTaskExecution.getCommandRoot());
@@ -193,7 +185,7 @@ public class ScheduledJobImplTest {
         ServerComTaskExecution comTask2 = createMockServerScheduledComTask(device, connectionTask, comTask, mockProtocolDialectConfigurationProperties);
         ServerComTaskExecution comTask3 = createMockServerScheduledComTask(device, connectionTask, comTask, mockProtocolDialectConfigurationProperties);
 
-        ComTaskExecutionGroup group = new ComTaskExecutionGroup(comPort, comServerDAO, this.deviceCommandExecutor, connectionTask, mock(IssueService.class));
+        ScheduledComTaskExecutionGroup group = new ScheduledComTaskExecutionGroup(comPort, comServerDAO, this.deviceCommandExecutor, connectionTask, mock(IssueService.class));
         group.establishConnectionFor(comPort);
         group.add(comTask1);
         group.add(comTask2);
@@ -262,7 +254,7 @@ public class ScheduledJobImplTest {
         CountDownLatch deviceCommandExecutionStartedLatch = new CountDownLatch(1);
         DeviceCommandExecutor deviceCommandExecutor = new LatchDrivenDeviceCommandExecutor(this.deviceCommandExecutor, deviceCommandExecutionStartedLatch);
         ServerComTaskExecution scheduledComTask = this.createMockServerScheduledComTask(device, connectionTask, this.createMockComTask(), protocolDialectConfigurationProperties);
-        final ComTaskExecutionJob job = new ComTaskExecutionJob(comPort, mock(ComServerDAO.class), deviceCommandExecutor, scheduledComTask, mock(IssueService.class));
+        final ScheduledComTaskExecutionJob job = new ScheduledComTaskExecutionJob(comPort, mock(ComServerDAO.class), deviceCommandExecutor, scheduledComTask, mock(IssueService.class));
         BlockingQueue<ScheduledJob> blockingQueue = mock(BlockingQueue.class);
         final ScheduledJobExecutor jobExecutor = new MultiThreadedScheduledJobExecutor(this.scheduledJobTransactionExecutor, ComServer.LogLevel.TRACE, blockingQueue, this.deviceCommandExecutor);
         final CountDownLatch startLatch = new CountDownLatch(2);

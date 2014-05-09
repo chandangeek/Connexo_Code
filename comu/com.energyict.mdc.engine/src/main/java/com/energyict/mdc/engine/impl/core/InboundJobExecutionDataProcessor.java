@@ -19,7 +19,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
-import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.tasks.ProtocolTask;
@@ -61,7 +60,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
     @Override
     protected List<PreparedComTaskExecution> prepareAll(List<? extends ComTaskExecution> comTaskExecutions) {
         List<PreparedComTaskExecution> allPreparedComTaskExecutions = new ArrayList<>();
-        CommandRoot root = new CommandRootImpl(this.offlineDevice, getExecutionContext());
+        CommandRoot root = new CommandRootImpl(this.offlineDevice, getExecutionContext(), serviceProvider);
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
             List<ServerCollectedData> data = receivedCollectedDataFor(comTaskExecution);
             if (!data.isEmpty()) {

@@ -1,14 +1,10 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.users.UserService;
-import com.energyict.cbo.PooledThreadFactory;
-import com.energyict.cbo.TimeConstants;
 import com.energyict.mdc.engine.impl.core.devices.DeviceCommandExecutorImpl;
-import com.energyict.comserver.scheduling.factories.ComPortListenerFactory;
-import com.energyict.comserver.scheduling.factories.ComPortListenerFactoryImpl;
-import com.energyict.comserver.scheduling.factories.ScheduledComPortFactory;
-import com.energyict.comserver.scheduling.factories.ScheduledComPortFactoryImpl;
+import com.energyict.mdc.engine.impl.core.factories.ComPortListenerFactory;
+import com.energyict.mdc.engine.impl.core.factories.ComPortListenerFactoryImpl;
+import com.energyict.mdc.engine.impl.core.factories.ScheduledComPortFactory;
+import com.energyict.mdc.engine.impl.core.factories.ScheduledComPortFactoryImpl;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
 import com.energyict.mdc.common.TimeDuration;
@@ -20,7 +16,7 @@ import com.energyict.mdc.engine.model.OutboundCapable;
 import com.energyict.mdc.engine.model.OutboundCapableComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.RemoteComServer;
-import com.energyict.mdc.issues.IssueService;
+import org.joda.time.DateTimeConstants;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -39,13 +35,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class RunningComServerImpl implements RunningComServer, Runnable {
 
     /**
-     * The default queue size of the {@link com.energyict.comserver.commands.DeviceCommandExecutor}
+     * The default queue size of the DeviceCommandExecutor
      * that is used for non {@link OnlineComServer}s.
      */
     private static final int DEFAULT_STORE_TASK_QUEUE_SIZE = 50;
 
     /**
-     * The default number of threads of the {@link com.energyict.comserver.commands.DeviceCommandExecutor}
+     * The default number of threads of the DeviceCommandExecutor
      * that is used for non {@link OnlineComServer}s.
      */
     private static final int DEFAULT_NUMBER_OF_THREADS = 1;
@@ -55,10 +51,7 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
      * {@link ServerProcess}es to complete the shutdown process.
      */
     private static final long SHUTDOWN_WAIT_TIME = 100;
-
-    private final UserService userService;
-    private final ThreadPrincipalService threadPrincipalService;
-    private final IssueService issueService;
+    private final ServiceProvider serviceProvider;
 
     private volatile ServerProcessStatus status = ServerProcessStatus.SHUTDOWN;
     private AtomicBoolean continueRunning;
@@ -75,15 +68,13 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
     private CleanupDuringStartup cleanupDuringStartup;
     private TimeOutMonitor timeOutMonitor;
 
-    protected RunningComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ThreadPrincipalService threadPrincipalService, UserService userService, IssueService issueService) {
-        this(comServer, comServerDAO, null, null, new PooledThreadFactory(), new CleanupDuringStartupImpl(comServer, comServerDAO), threadPrincipalService, userService, issueService);
+    protected RunningComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ServiceProvider serviceProvider) {
+        this(comServer, comServerDAO, null, null, new PooledThreadFactory(), new CleanupDuringStartupImpl(comServer, comServerDAO), serviceProvider);
     }
 
-    protected RunningComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, CleanupDuringStartup cleanupDuringStartup, ThreadPrincipalService threadPrincipalService, UserService userService, IssueService issueService) {
+    protected RunningComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, CleanupDuringStartup cleanupDuringStartup, ServiceProvider serviceProvider) {
         super();
-        this.threadPrincipalService = threadPrincipalService;
-        this.userService = userService;
-        this.issueService = issueService;
+        this.serviceProvider = serviceProvider;
         this.initialize(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, cleanupDuringStartup);
         this.initializeDeviceCommandExecutor(comServer);
         this.initializeTimeoutMonitor(comServer);
@@ -91,11 +82,9 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         this.addInboundComPorts(comServer.getInboundComPorts());
     }
 
-    protected RunningComServerImpl(RemoteComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, CleanupDuringStartup cleanupDuringStartup, ThreadPrincipalService threadPrincipalService, UserService userService, IssueService issueService) {
+    protected RunningComServerImpl(RemoteComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, CleanupDuringStartup cleanupDuringStartup, ServiceProvider serviceProvider) {
         super();
-        this.threadPrincipalService = threadPrincipalService;
-        this.userService = userService;
-        this.issueService = issueService;
+        this.serviceProvider = serviceProvider;
         this.initialize(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, cleanupDuringStartup);
         this.initializeDeviceCommandExecutor(DEFAULT_STORE_TASK_QUEUE_SIZE, DEFAULT_NUMBER_OF_THREADS, Thread.NORM_PRIORITY);
         this.initializeTimeoutMonitor(comServer);
@@ -131,7 +120,7 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
     }
 
     private ScheduledComPort add (OutboundComPort comPort) {
-        ScheduledComPort scheduledComPort = this.getScheduledComPortFactory().newFor(comPort, issueService);
+        ScheduledComPort scheduledComPort = this.getScheduledComPortFactory().newFor(comPort, this.serviceProvider.issueService());
         if (scheduledComPort == null) {
             return null;
         }
@@ -170,7 +159,7 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
     }
 
     private ComPortListener add (InboundComPort comPort) {
-        ComPortListener comPortListener = getComPortListenerFactory().newFor(comPort, issueService);
+        ComPortListener comPortListener = getComPortListenerFactory().newFor(comPort, this.serviceProvider.issueService());
         if (comPortListener == null) {
             return null;
         }
@@ -185,7 +174,7 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
     }
 
     private void initializeDeviceCommandExecutor (int queueSize, int numberOfThreads, int threadPriority) {
-        this.deviceCommandExecutor = new DeviceCommandExecutorImpl("Device command executor for " + this.getComServer().getName(), queueSize, numberOfThreads, threadPriority, this.getComServer().getServerLogLevel(), this.threadFactory, this.comServerDAO, this.threadPrincipalService, this.userService);
+        this.deviceCommandExecutor = new DeviceCommandExecutorImpl("Device command executor for " + this.getComServer().getName(), queueSize, numberOfThreads, threadPriority, this.getComServer().getServerLogLevel(), this.threadFactory, this.comServerDAO, this.serviceProvider.threadPrincipalService(), this.serviceProvider.userService());
     }
 
     /**
@@ -710,7 +699,7 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
     }
 
     private int getChangesInterPollDelayMillis () {
-        return this.comServer.getChangesInterPollDelay().getSeconds() * TimeConstants.MILLISECONDS_IN_SECOND;
+        return this.comServer.getChangesInterPollDelay().getSeconds() * DateTimeConstants.MILLIS_PER_SECOND;
     }
 
     private ComPortListenerFactory getComPortListenerFactory() {
@@ -755,4 +744,7 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         return this.deviceCommandExecutor.getThreadPriority();
     }
 
+    protected ServiceProvider getServiceProvider() {
+        return serviceProvider;
+    }
 }

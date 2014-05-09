@@ -1,11 +1,13 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.journal.ComSession;
 import com.energyict.mdc.device.data.journal.ComTaskExecutionSession;
@@ -37,6 +39,7 @@ import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.Problem;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -114,11 +117,11 @@ public abstract class JobExecution implements ScheduledJob {
 
     public abstract ConnectionTask getConnectionTask();
 
-    public JobExecution(ComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor) {
+    public JobExecution(ComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
         this.comPort = comPort;
         this.comServerDAO = comServerDAO;
         this.deviceCommandExecutor = deviceCommandExecutor;
-        this.serviceProvider = ServiceProvider.instance.get();
+        this.serviceProvider = serviceProvider;
         this.preparationContext = new PreparationContext();
     }
 
@@ -445,7 +448,7 @@ public abstract class JobExecution implements ScheduledJob {
     public static final class ExecutionContext {
 
         private final JobExecution jobExecution;
-        private final ServiceProvider serviceProvider;
+        private final CommandRoot.ServiceProvider serviceProvider;
 
         private ComPortRelatedComChannel comChannel;
         private ComSessionShadow sessionShadow = new ComSessionShadow();
@@ -462,11 +465,11 @@ public abstract class JobExecution implements ScheduledJob {
         private CompositeDeviceCommand storeCommand;
         private boolean basicCheckFailed = false;
 
-        public ExecutionContext(JobExecution jobExecution, ConnectionTask connectionTask, ComPort comPort, ServiceProvider serviceProvider) {
+        public ExecutionContext(JobExecution jobExecution, ConnectionTask connectionTask, ComPort comPort, CommandRoot.ServiceProvider serviceProvider) {
             this(jobExecution, connectionTask, comPort, true, serviceProvider);
         }
 
-        public ExecutionContext(JobExecution jobExecution, ConnectionTask connectionTask, ComPort comPort, boolean logConnectionProperties, ServiceProvider serviceProvider) {
+        public ExecutionContext(JobExecution jobExecution, ConnectionTask connectionTask, ComPort comPort, boolean logConnectionProperties, CommandRoot.ServiceProvider serviceProvider) {
             super();
             this.jobExecution = jobExecution;
             this.comPort = comPort;
@@ -885,6 +888,34 @@ public abstract class JobExecution implements ScheduledJob {
         }
     }
 
+
+    private CommandRoot.ServiceProvider getComCommandServiceProvider() {
+        return new ComCommandServiceProvider();
+    }
+
+    private class ComCommandServiceProvider implements CommandRoot.ServiceProvider {
+
+        @Override
+        public IssueService getIssueService() {
+            return JobExecution.this.serviceProvider.issueService();
+        }
+
+        @Override
+        public Clock getClock() {
+            return JobExecution.this.serviceProvider.clock();
+        }
+
+        @Override
+        public DeviceDataService getDeviceDataService() {
+            return JobExecution.this.serviceProvider.deviceDataService();
+        }
+
+        @Override
+        public MdcReadingTypeUtilService getMdcReadingTypeUtilService() {
+            return JobExecution.this.serviceProvider.mdcReadingTypeUtilService();
+        }
+    }
+
     /**
      * Provides relevant information used for preparing a ComTaskExecution.
      * This information is reusable for different ComTaskExecutions of the same device.
@@ -923,7 +954,7 @@ public abstract class JobExecution implements ScheduledJob {
 
         public ComTaskPreparationContext invoke() {
             this.takeDeviceOffline();
-            root = new CommandRootImpl(offlineDevice, getExecutionContext(), this.serviceProvider.issueService());
+            root = new CommandRootImpl(offlineDevice, getExecutionContext(), getComCommandServiceProvider());
             DeviceProtocolPluggableClass protocolPluggableClass = offlineDevice.getDeviceProtocolPluggableClass();
             deviceProtocol = protocolPluggableClass.getDeviceProtocol();
             commandCreator = CommandFactory.commandCreatorForPluggableClass(protocolPluggableClass);

@@ -267,7 +267,7 @@ public class LegacyLoadProfileLogBooksCommandImpl extends CompositeComCommandImp
      * @param logBook the logBook to add
      */
     protected void addLogBookToReaderList(final OfflineLogBook logBook) {
-        LogBookIdentifierByIdImpl logBookIdentifier = new LogBookIdentifierByIdImpl(logBook.getLogBookId());
+        LogBookIdentifierByIdImpl logBookIdentifier = new LogBookIdentifierByIdImpl(logBook.getLogBookId(), getCommandRoot().getServiceProvider().getDeviceDataService());
         LogBookReader logBookReader = new LogBookReader(logBook.getObisCode(),
                 logBook.getLastLogBook(), logBookIdentifier, logBook.getMasterSerialNumber());
         this.logBookReaders.add(logBookReader);
