@@ -291,6 +291,26 @@ public class SchedulingResourceTest extends JerseyTest {
     }
 
     @Test
+    public void testGetAllComTasksOfScheduleWithFalseQueryParameter() throws Exception {
+        long COMTASK_3 = 13L;
+        ComSchedule mockedSchedule = mock(ComSchedule.class);
+        when(mockedSchedule.getId()).thenReturn(1L);
+        when(mockedSchedule.getName()).thenReturn("name");
+        when(mockedSchedule.getSchedulingStatus()).thenReturn(SchedulingStatus.ACTIVE);
+        when(mockedSchedule.getNextTimestamp(any(Calendar.class))).thenReturn(new Date());
+        when(mockedSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration("10 minutes")));
+        ComTask comTask1 = mockComTask(11L, "Com task 1");
+        ComTask comTask2 = mockComTask(12L, "Com task 2");
+        ComTask comTask3 = mockComTask(COMTASK_3, "Com task 3");
+        when(mockedSchedule.getComTasks()).thenReturn(Arrays.asList(comTask1, comTask2));
+        when(schedulingService.findSchedule(1L)).thenReturn(mockedSchedule);
+        when(deviceConfigurationService.findAvailableComTasks(mockedSchedule)).thenReturn(Arrays.asList(comTask3));
+
+        List<Map<String, Object>> list = target("/schedules/1/comTasks").queryParam("filter", ExtjsFilter.filter().property("available", "false").create()).request().get(List.class);
+        assertThat(list).hasSize(2);
+    }
+
+    @Test
     public void testGetAvailableComTasksOfSchedule() throws Exception {
         long COMTASK_3 = 13L;
         ComSchedule mockedSchedule = mock(ComSchedule.class);
@@ -305,6 +325,27 @@ public class SchedulingResourceTest extends JerseyTest {
         when(mockedSchedule.getComTasks()).thenReturn(Arrays.asList(comTask1, comTask2));
         when(schedulingService.findSchedule(1L)).thenReturn(mockedSchedule);
         when(deviceConfigurationService.findAvailableComTasks(mockedSchedule)).thenReturn(Arrays.asList(comTask3));
+
+        List<Map<String, Object>> list = target("/schedules/1/comTasks").queryParam("filter", ExtjsFilter.filter().property("available", "tRue").create()).request().get(List.class);
+        assertThat(list).hasSize(1);
+        assertThat(list.get(0).get("id")).isEqualTo((int)COMTASK_3);
+    }
+
+    @Test
+    public void testGetAvailableComTasksOfScheduleIfComTask12AlreadyAssigned() throws Exception {
+        long COMTASK_3 = 13L;
+        ComSchedule mockedSchedule = mock(ComSchedule.class);
+        when(mockedSchedule.getId()).thenReturn(1L);
+        when(mockedSchedule.getName()).thenReturn("name");
+        when(mockedSchedule.getSchedulingStatus()).thenReturn(SchedulingStatus.ACTIVE);
+        when(mockedSchedule.getNextTimestamp(any(Calendar.class))).thenReturn(new Date());
+        when(mockedSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration("10 minutes")));
+        ComTask comTask1 = mockComTask(11L, "Com task 1");
+        ComTask comTask2 = mockComTask(12L, "Com task 2");
+        ComTask comTask3 = mockComTask(COMTASK_3, "Com task 3");
+        when(mockedSchedule.getComTasks()).thenReturn(Arrays.asList(comTask1, comTask2));
+        when(schedulingService.findSchedule(1L)).thenReturn(mockedSchedule);
+        when(deviceConfigurationService.findAvailableComTasks(mockedSchedule)).thenReturn(Arrays.asList(comTask3, comTask2));
 
         List<Map<String, Object>> list = target("/schedules/1/comTasks").queryParam("filter", ExtjsFilter.filter().property("available", "true").create()).request().get(List.class);
         assertThat(list).hasSize(1);
