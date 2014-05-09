@@ -9,7 +9,8 @@ package com.energyict.mdc.scheduling.events;
 public enum UpdateEventType {
 
     NEXTEXECUTIONSPECS(EventType.NEXTEXECUTIONSPECS_UPDATED),
-    COMSCHEDULES(EventType.COMSCHEDULES_UPDATED);
+    COMSCHEDULES(EventType.COMSCHEDULES_UPDATED),
+    COMTASK_WILL_BE_ADDED_TO_SCHEDULE(EventType.COMTASK_WILL_BE_ADDED_TO_SCHEDULE);
 
     private EventType eventType;
 

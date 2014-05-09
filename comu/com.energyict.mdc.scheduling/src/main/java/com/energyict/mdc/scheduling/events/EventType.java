@@ -13,6 +13,7 @@ public enum EventType {
     NEXTEXECUTIONSPECS_DELETED("nextexecutionspecs/DELETED"),
     COMSCHEDULES_BEFORE_DELETE("comschedules/BEFORE_DELETE"),
     COMSCHEDULES_UPDATED("comschedules/UPDATED"),
+    COMTASK_WILL_BE_ADDED_TO_SCHEDULE("comschedules/COMTASK_WILL_BE_ADDED"),
     ;
 
     private static final String NAMESPACE = "com/energyict/mdc/scheduling/";

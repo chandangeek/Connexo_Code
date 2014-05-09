@@ -13,7 +13,9 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.events.DeleteEventType;
 import com.energyict.mdc.scheduling.events.UpdateEventType;
+import com.energyict.mdc.scheduling.events.VetoComTaskAdditionException;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.scheduling.model.ComTaskComScheduleLink;
 import com.energyict.mdc.scheduling.model.SchedulingStatus;
 import com.energyict.mdc.tasks.ComTask;
 import java.util.ArrayList;
@@ -31,6 +33,7 @@ public class ComScheduleImpl implements ComSchedule, HasId {
     private final SchedulingService schedulingService;
     private final EventService eventService;
     private final DataModel dataModel;
+    private final ComScheduleExceptionFactory comScheduleExceptionFactory;
 
     enum Fields {
         NAME("name"),
@@ -51,10 +54,11 @@ public class ComScheduleImpl implements ComSchedule, HasId {
     }
 
     @Inject
-    public ComScheduleImpl(SchedulingService schedulingService, EventService eventService,DataModel dataModel) {
+    public ComScheduleImpl(SchedulingService schedulingService, EventService eventService, DataModel dataModel, ComScheduleExceptionFactory comScheduleExceptionFactory) {
         this.schedulingService = schedulingService;
         this.eventService = eventService;
         this.dataModel = dataModel;
+        this.comScheduleExceptionFactory = comScheduleExceptionFactory;
     }
 
     private long id;
@@ -165,8 +169,33 @@ public class ComScheduleImpl implements ComSchedule, HasId {
 
     @Override
     public void addComTask(ComTask comTask) {
-        // TODO  verify that all devices that are already linked to the ComSchedule have that ComTask enabled.
-        comTaskUsages.add(new ComTaskInComScheduleImpl(this, comTask));
+        try {
+            this.eventService.postEvent(UpdateEventType.COMTASK_WILL_BE_ADDED_TO_SCHEDULE.topic(), new ComTaskAddition(this, comTask));
+            comTaskUsages.add(new ComTaskInComScheduleImpl(this, comTask));
+        } catch (VetoComTaskAdditionException exception) {
+            throw comScheduleExceptionFactory.createCanNotAddComTaskToComScheduleException();
+        }
+    }
+
+    class ComTaskAddition implements ComTaskComScheduleLink {
+
+        private final ComSchedule comSchedule;
+        private final ComTask comTask;
+
+        ComTaskAddition(ComSchedule comSchedule, ComTask comTask) {
+            this.comSchedule = comSchedule;
+            this.comTask = comTask;
+        }
+
+        @Override
+        public ComSchedule getComSchedule() {
+            return comSchedule;
+        }
+
+        @Override
+        public ComTask getComTask() {
+            return comTask;
+        }
     }
 
     @Override
