@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.model;
 
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.protocol.api.ComPortType;
 import java.util.Date;
 import java.util.List;
@@ -12,9 +13,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-11 (10:02)
  */
-public interface ComPortPool {
-
-    public long getId();
+public interface ComPortPool extends HasId {
 
     public String getName();
     public void setName(String name);

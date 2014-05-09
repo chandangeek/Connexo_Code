@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.model;
 
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.protocol.api.ComPortType;
 import java.util.Date;
 
@@ -32,7 +33,7 @@ import java.util.Date;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-03-27 (16:26)
  */
-public interface ComPort {
+public interface ComPort extends HasId {
 
     /**
      * Gets the timestamp of the last modification applied to this ComPort.
@@ -103,8 +104,6 @@ public interface ComPort {
     public void setName(String name);
 
     public void setDescription(String description);
-
-    public long getId();
 
     public void save();
 
