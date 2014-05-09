@@ -1,6 +1,9 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.SimpleNlsKey;
@@ -9,6 +12,7 @@ import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.DeviceDataService;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -23,29 +27,44 @@ import java.util.logging.Logger;
 public class Installer {
 
     private final Logger logger = Logger.getLogger(Installer.class.getName());
+    public static final String MESSAGING_NAME = "COM_SCHEDULE_RECALCULATOR";
+    private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
 
     private final DataModel dataModel;
     private final EventService eventService;
     private final Thesaurus thesaurus;
+    private final MessageService messageService;
 
-    public Installer(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
+    public Installer(DataModel dataModel, EventService eventService, Thesaurus thesaurus, MessageService messageService) {
         super();
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.thesaurus = thesaurus;
+        this.messageService = messageService;
     }
 
     public void install(boolean executeDdl, boolean createMasterData) {
         try {
             this.dataModel.install(executeDdl, true);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             this.logger.severe(e.getMessage());
         }
         this.createEventTypes();
         this.createTranslations();
+        this.createMessageHandler();
         if (createMasterData) {
             this.createMasterData();
+        }
+    }
+
+    private void createMessageHandler() {
+        try {
+            QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
+            DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(MESSAGING_NAME, DEFAULT_RETRY_DELAY_IN_SECONDS);
+            destinationSpec.activate();
+            destinationSpec.subscribe(MESSAGING_NAME);
+        } catch (Exception e) {
+            this.logger.severe(e.getMessage());
         }
     }
 
@@ -57,8 +76,7 @@ public class Installer {
                 translations.add(toTranslation(nlsKey, Locale.ENGLISH, messageSeed.getDefaultFormat()));
             }
             this.thesaurus.addTranslations(translations);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             this.logger.severe(e.getMessage());
         }
     }
@@ -72,13 +90,12 @@ public class Installer {
     }
 
     private void createEventTypes() {
-        try {
-            for (EventType eventType : EventType.values()) {
+        for (EventType eventType : EventType.values()) {
+            try {
                 eventType.install(this.eventService);
+            } catch (Exception e) {
+                this.logger.severe(e.getMessage());
             }
-        }
-        catch (Exception e) {
-            this.logger.severe(e.getMessage());
         }
     }
 

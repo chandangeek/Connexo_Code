@@ -281,14 +281,10 @@ public class DeviceImplDoSomethingWithEventsTest {
                 this.relationService = injector.getInstance(RelationService.class);
                 this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
                 this.schedulingService = injector.getInstance(SchedulingService.class);
-                this.dataModel = this.createNewDeviceDataService();
+                this.deviceService = injector.getInstance(DeviceDataServiceImpl.class);
+                this.dataModel = this.deviceService.getDataModel();
                 ctx.commit();
             }
-        }
-
-        private DataModel createNewDeviceDataService() {
-            this.deviceService = new DeviceDataServiceImpl(this.ormService, this.eventService, this.nlsService, this.clock, environment, relationService, protocolPluggableService, engineModelService, this.deviceConfigurationService, meteringService, schedulingService);
-            return this.deviceService.getDataModel();
         }
 
         public void run(DataModelInitializer... dataModelInitializers) {

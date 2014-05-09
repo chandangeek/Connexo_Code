@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -111,16 +112,17 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
     private volatile MeteringService meteringService;
     private volatile SchedulingService schedulingService;
     private volatile Environment environment;
+    private volatile MessageService messagingService;
 
     public DeviceDataServiceImpl() {
     }
 
     @Inject
-    public DeviceDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, Environment environment, RelationService relationService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, SchedulingService schedulingService) {
-        this(ormService, eventService, nlsService, clock, environment, relationService, protocolPluggableService, engineModelService, deviceConfigurationService, meteringService, false, schedulingService);
+    public DeviceDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, Environment environment, RelationService relationService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, SchedulingService schedulingService, MessageService messageService) {
+        this(ormService, eventService, nlsService, clock, environment, relationService, protocolPluggableService, engineModelService, deviceConfigurationService, meteringService, false, schedulingService, messageService);
     }
 
-    public DeviceDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, Environment environment, RelationService relationService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, boolean createMasterData, SchedulingService schedulingService) {
+    public DeviceDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, Environment environment, RelationService relationService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, boolean createMasterData, SchedulingService schedulingService, MessageService messageService) {
         super();
         this.setOrmService(ormService);
         this.setEventService(eventService);
@@ -133,6 +135,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
         this.setDeviceConfigurationService(deviceConfigurationService);
         this.setMeteringService(meteringService);
         this.setSchedulingService(schedulingService);
+        this.setMessagingService(messageService);
         this.activate();
         if (!this.dataModel.isInstalled()) {
             this.install(true, createMasterData);
@@ -727,6 +730,11 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
         this.schedulingService = schedulingService;
     }
 
+    @Reference
+    public void setMessagingService(MessageService messagingService) {
+        this.messagingService = messagingService;
+    }
+
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -741,6 +749,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
                 bind(Clock.class).toInstance(clock);
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(SchedulingService.class).toInstance(schedulingService);
+                bind(MessageService.class).toInstance(messagingService);
             }
         };
     }
@@ -765,7 +774,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
     }
 
     private void install(boolean exeuteDdl, boolean createMasterData) {
-        new Installer(this.dataModel, this.eventService, this.thesaurus).install(exeuteDdl, createMasterData);
+        new Installer(this.dataModel, this.eventService, this.thesaurus, messagingService).install(exeuteDdl, createMasterData);
     }
 
     private class ConnectionMethodFinder implements CanFindByLongPrimaryKey<ConnectionMethod> {

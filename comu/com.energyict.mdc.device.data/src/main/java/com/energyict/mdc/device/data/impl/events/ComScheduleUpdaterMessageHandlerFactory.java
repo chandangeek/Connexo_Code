@@ -2,9 +2,13 @@ package com.energyict.mdc.device.data.impl.events;
 
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
+import com.energyict.mdc.device.data.impl.Installer;
 import org.osgi.service.component.annotations.Component;
 
-@Component(name="com.energyict.mdc.device.data.comschedule.update.messagehandler", service = MessageHandler.class, immediate = true)
+@Component(name="com.energyict.mdc.device.data.comschedule.update.messagehandler",
+        service = MessageHandlerFactory.class,
+        property = {"subscriber="+Installer.MESSAGING_NAME, "destination="+Installer.MESSAGING_NAME},
+        immediate = true)
 public class ComScheduleUpdaterMessageHandlerFactory implements MessageHandlerFactory {
     private static final ComScheduleUpdatedMessageHandler MESSAGE_HANDLER = new ComScheduleUpdatedMessageHandler();
     @Override
