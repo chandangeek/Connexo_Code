@@ -16,10 +16,6 @@
         color: $contentcontainer-default-header-text-container-default-background-color;
         font-size: 16px;
       }
-      //
-      //        .x-panel-body {
-      //            padding: 5px;
-      //        }
 
       .x-toolbar {
         padding: 6px;
@@ -32,9 +28,10 @@
 
     .center {
       background-color: transparent;
-      margin: $contentcontainer-margin-center;
+      padding: $contentcontainer-padding-center;
 
     }
+
 }
 
 
