@@ -42,6 +42,7 @@ import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
+import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
@@ -108,6 +109,8 @@ public class InMemoryPersistence {
     private RegisterMappingUpdateEventHandler registerMappingUpdateEventHandler;
     private RegisterMappingDeletionEventHandler registerMappingDeletionEventHandler;
     private RegisterMappingDeleteFromLoadProfileTypeEventHandler registerMappingDeleteFromLoadProfileTypeEventHandler;
+    private OrmService ormService;
+    private EventService eventService;
 
     public void initializeDatabaseWithMockedProtocolPluggableService(String testName, boolean showSqlLogging) {
         this.initializeDatabase(testName, showSqlLogging, true);
@@ -296,6 +299,10 @@ public class InMemoryPersistence {
 
     public Injector getInjector() {
         return injector;
+    }
+
+    public SchedulingService getSchedulingService() {
+        return injector.getInstance(SchedulingService.class);
     }
 
     public void registerEventHandlers() {

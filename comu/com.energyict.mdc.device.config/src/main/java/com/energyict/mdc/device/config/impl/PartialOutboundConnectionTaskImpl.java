@@ -79,6 +79,7 @@ public abstract class PartialOutboundConnectionTaskImpl extends PartialConnectio
         } else  {
             this.nextExecutionSpecs.get().setTemporalExpression(temporalExpression);
         }
+        this.nextExecutionSpecs.get().save();
     }
 
     @Override

@@ -79,10 +79,16 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
     }
 
     private void validateDeviceTypeContainsLogbookType() {
+        /* Here deviceType will contain different Java instance of logBookType, so we can't
+           use the List.contains() without overriding the equals method */
         DeviceType deviceType = getDeviceConfiguration().getDeviceType();
-        if (!deviceType.getLogBookTypes().contains(getLogBookType())) {
-            throw new LogbookTypeIsNotConfiguredOnDeviceTypeException(this.thesaurus, getLogBookType());
+        long expectedLogBookTypeId = getLogBookType().getId();
+        for (LogBookType lbType : deviceType.getLogBookTypes()) {
+            if (lbType.getId() == expectedLogBookTypeId){
+                return;
+            }
         }
+        throw new LogbookTypeIsNotConfiguredOnDeviceTypeException(this.thesaurus, getLogBookType());
     }
 
     private void validateUpdate () {

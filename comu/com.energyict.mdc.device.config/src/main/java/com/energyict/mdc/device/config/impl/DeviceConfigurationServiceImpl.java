@@ -7,6 +7,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.UserService;
@@ -40,12 +41,22 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.google.common.base.Optional;
+import com.google.common.collect.HashMultiset;
+import com.google.common.collect.Multiset;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
@@ -434,7 +445,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     private void install(boolean exeuteDdl) {
-        new Installer(this.dataModel, this.eventService, this.thesaurus, userService).install(exeuteDdl, true);
+        new Installer(this.dataModel, this.eventService, this.thesaurus, userService).install(exeuteDdl);
         initPrivileges();
     }
 
@@ -470,4 +481,52 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     public List<SecurityPropertySet> findAllSecurityPropertySets() {
         return dataModel.mapper(SecurityPropertySet.class).find();
     }
+
+    @Override
+    public List<ComTask> findAvailableComTasks(ComSchedule comSchedule) {
+        try (Connection connection = dataModel.getConnection(false)) {
+            List<DeviceConfiguration> deviceConfigurations = getDeviceConfigurationsFromComSchedule(comSchedule, connection);
+            Collection<ComTask> comTasks;
+            if (deviceConfigurations.isEmpty()) {
+                comTasks = taskService.findAllComTasks();
+            } else {
+                comTasks = getComTasksPresentInEveryDeviceConfigurations(deviceConfigurations);
+            }
+            return new ArrayList<>(comTasks);
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
+    }
+
+    private Collection<ComTask> getComTasksPresentInEveryDeviceConfigurations(List<DeviceConfiguration> deviceConfigurations) {
+        Multiset<Long> comTasks = HashMultiset.create();
+        Map<Long, ComTask> comTaskMap = new HashMap<>();
+        for (DeviceConfiguration deviceConfiguration : deviceConfigurations) {
+            for (ComTaskEnablement comTaskEnablement : deviceConfiguration.getComTaskEnablements()) {
+                ComTask comTask = comTaskEnablement.getComTask();
+                comTasks.add(comTask.getId());
+                comTaskMap.put(comTask.getId(), comTask);
+            }
+        }
+        for (Long comTask : comTasks.elementSet()) { // filter comTasks not present in all device configs
+            if (comTasks.count(comTask)!=deviceConfigurations.size()) {
+                comTaskMap.remove(comTask);
+            }
+        }
+        return comTaskMap.values();
+    }
+
+    private List<DeviceConfiguration> getDeviceConfigurationsFromComSchedule(ComSchedule comSchedule, Connection connection) throws SQLException {
+        List<DeviceConfiguration> deviceConfigurations = new ArrayList<>();
+        try (PreparedStatement preparedStatement = connection.prepareStatement("select distinct deviceConfigId from EISRTU inner join EISRTUINCOMSCHEDULE on EISRTUINCOMSCHEDULE.RTUID = EISRTU.ID where EISRTUINCOMSCHEDULE.COMSCHEDULEID = ?")) {
+            preparedStatement.setLong(1, comSchedule.getId());
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while(resultSet.next()) {
+                    deviceConfigurations.add(this.findDeviceConfiguration(resultSet.getLong(1)));
+                }
+            }
+        }
+        return deviceConfigurations;
+    }
+
 }

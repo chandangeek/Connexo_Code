@@ -8,6 +8,7 @@ import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.google.common.base.Optional;
 import java.util.List;
@@ -185,5 +186,14 @@ public interface DeviceConfigurationService {
      * @return The ComTaskEnablement
      */
     public Optional<ComTaskEnablement> findComTaskEnablement (ComTask comTask, DeviceConfiguration deviceConfiguration);
+
+    /**
+     * Return a list of ComTasks that are legal for assignment to the ComSchedule. A ComTask can be assigned to the comSchedule IF all devices
+     * already linked to the schedule are enabled for the ComTask.
+     * This list will include ComTasks already linked to the ComSchedule!
+     * @param comSchedule
+     * @return List of ComTasks, including ComTasks already linked to the schedule.
+     */
+    public List<ComTask> findAvailableComTasks(ComSchedule comSchedule);
 
 }
