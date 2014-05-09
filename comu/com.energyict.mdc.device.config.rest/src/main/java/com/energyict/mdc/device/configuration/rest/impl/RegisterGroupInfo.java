@@ -6,8 +6,7 @@ import com.energyict.mdc.masterdata.rest.RegisterMappingInfo;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @XmlRootElement
 public class RegisterGroupInfo {
@@ -34,5 +33,11 @@ public class RegisterGroupInfo {
         for (RegisterMapping registerMapping : registerGroup.getRegisterMappings()) {
             registerTypes.add(new RegisterMappingInfo(registerMapping, false));
         }
+
+        Collections.sort(registerTypes, new Comparator<RegisterMappingInfo>(){
+            public int compare(RegisterMappingInfo rm1, RegisterMappingInfo rm2){
+                return rm1.name.compareTo(rm2.name);
+            }
+        });
     }
 }
