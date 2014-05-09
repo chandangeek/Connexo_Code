@@ -135,7 +135,6 @@ public class PartialOutboundConnectiontaskCrudIT {
     private InboundDeviceProtocolPluggableClass discoveryPluggable;
     @Mock
     private IdBusinessObjectFactory businessObjectFactory;
-    private SchedulingService schedulingService;
 
     private class MockModule extends AbstractModule {
 
