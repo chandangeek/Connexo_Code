@@ -12,7 +12,8 @@ Ext.define('Usr.view.user.Details', {
     //constrain: true,
     requires: [
         'Usr.store.Users',
-        'Usr.model.User'
+        'Usr.model.User',
+        'Ext.layout.container.Column'
     ],
 
     initComponent: function () {

@@ -46,7 +46,7 @@ Ext.define('Usr.controller.UserGroups', {
         var userStore = Ext.StoreManager.get('Users');
         var widget = Ext.widget('userEdit');
 
-        widget.down('#cancelLink').autoEl.href = this.getApplication().getHistoryUserController().tokenizePreviousTokens();
+        widget.down('#cancelLink').autoEl.href = this.getApplication().getController('Usr.controller.history.User').tokenizePreviousTokens();
 
         widget.hide();
         widget.setLoading(true);
@@ -72,7 +72,7 @@ Ext.define('Usr.controller.UserGroups', {
                                         widget.down('[itemId=selectRolesLabel]').disable();
                                     }
 
-                                    me.getApplication().getMainController().showContent(widget);
+                                    me.getApplication().getController('Usr.controller.Main').showContent(widget);
                                     me.displayBreadcrumb(user.get("authenticationName"));
 
                                     widget.setLoading(false);
