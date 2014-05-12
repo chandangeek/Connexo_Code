@@ -14,6 +14,7 @@ $panel-header-padding: 0 0 16px 0 !default;
 $panel-header-background-color: $panel-body-background-color !default;
 $panel-header-border-width: 0 !default;
 $panel-header-border-style: none !default;
+$panel-header-font-family: $font-family !default;
 
 $panel-header-sub-color: $color-grey;
 
@@ -41,7 +42,7 @@ $panel-frame-header-border-color: $base-color !default;
 $panel-frame-header-border-width:  1px !default;
 //$panel-frame-header-inner-border-color,
 //$panel-frame-header-inner-border-width,
-$panel-frame-header-padding: 8px 16px !default;
+$panel-frame-header-padding: 4px 4px 4px 16px !default;
 $panel-frame-header-color: $color-white !default;
 
 $panel-frame-body-border-width: 1px !default;
@@ -71,4 +72,5 @@ $panel-form-error-msg-border-radius: 10px !default;
 $panel-form-error-msg-border-width: 1px !default;
 $panel-form-error-msg-icon: url("images/form/ico_warning.png") !default;
 
+$panel-border-color: $color-grey-7 !default;
 @import "StepPanel";

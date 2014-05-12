@@ -21,3 +21,7 @@ $datepicker-border-radius: 10px 10px 10px 10px !default;
 $datepicker-border-color: $color-green-1 !default;
 $datepicker-header-border-radius: 10px 10px 0 0 !default;
 $datepicker-footer-border-radius: 0 0 10px 10px !default;
+
+$datepicker-nextmonth-image: url('images/picker/calendarRight.png') !default;
+$datepicker-previousmonth-image: url('images/picker/calendarLeft.png') !default;
+$datepicker-selectmonth-image: url('images/picker/arrowDown.png') !default;

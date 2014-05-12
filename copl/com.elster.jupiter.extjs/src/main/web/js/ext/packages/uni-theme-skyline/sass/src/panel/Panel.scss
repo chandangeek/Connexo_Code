@@ -45,6 +45,12 @@ $ui-body-background-color: $panel-filter-background-color
       color: $panel-frame-header-color;
     }
   }
+  .#{$prefix}panel-header-top {
+    padding: $panel-frame-header-padding;
+  }
+  .#{$prefix}panel {
+    padding: 0;
+  }
 }
 .#{$prefix}panel-header {
   .#{$prefix}panel-header-sub-text {

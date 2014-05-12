@@ -596,8 +596,11 @@ Ext.define('ExtThemeNeptune.form.field.HtmlEditor', {
 });
 
 Ext.define('Skyline.grid.Panel', {
-    override: 'Ext.grid.Panel'
-//    scroll: false
+    override: 'Ext.grid.Panel',
+    border: true,
+    enableColumnHide: false,
+    enableColumnMove: false,
+    enableColumnResize: false
 });
 
 Ext.define('Skyline.view.Table', {
@@ -1000,21 +1003,21 @@ Ext.define('Skyline.panel.FilterToolbar', {
         this.getClearButton().setDisabled(!count);
     },
 
-    constructor: function (config) {
+    initComponent: function ()
+    {
         var me = this;
 
-        Ext.apply(config, me);
-
         this.dockedItems[0].title = me.title;
-
         this.items[0].items =  me.content;
         this.items[1].text = me.emptyText;
         this.items[2].items = me.tools;
 
-        this.callSuper(arguments);
+        this.callParent(arguments);
+
         if (!this.showClearButton) {
             this.getClearButton().hide();
         }
+
         this.getContainer().on('afterlayout', 'updateContainer', this);
     },
 

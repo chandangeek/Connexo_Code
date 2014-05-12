@@ -1,12 +1,11 @@
-.#{$prefix}form-field,
-.#{$prefix}form-trigger-wrap {
-  border-radius: $form-field-border-radius;
-}
+@import "RadioButton";
+@import "Trigger";
 
-.#{$prefix}trigger-cell,
-div.#{$prefix}form-spinner-up,
-div.#{$prefix}form-spinner-down {
-  background-color: $form-field-trigger-background;
+
+.#{$prefix}form-field{
+  border-radius: $form-field-border-radius;
+  height: $form-field-height;
+  background-color: #ffffff;
 }
 
 .#{$prefix}form-invalid-under {

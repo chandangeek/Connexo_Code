@@ -33,23 +33,60 @@ a.#{$prefix}datepicker-date:hover {
   border-radius: $datepicker-border-radius;
 }
 
+.x-datepicker-month .x-btn-split-right {
+  background-image: $datepicker-selectmonth-image;
+  padding-right: 8px;
+  background-repeat: no-repeat;
+}
+
 .#{$prefix}datepicker-month  {
   color: $datepicker-header-text-color;
   border-radius: $datepicker-border-radius;
+
+
+  .x-btn-default-small .x-btn-inner {
+    font-size: $datepicker-header-font-size;
+    color: $datepicker-header-text-color;
+    border-radius: 10px 10px 10px 10px;
+  }
+
+  .x-btn-default-small-over {
+    background-color: $color-green-1;
+  }
+
+  .x-btn-default-small {
+    background-color: $color-green-1;
+  }
 }
 
-/*.x-btn-default-small .x-btn-inner {
-  font-size: $datepicker-header-font-size;
-  color: $datepicker-header-text-color;
-  border-radius: 10px 10px 10px 10px;
+.#{$prefix}datepicker-footer {
+  .x-btn-default-small .x-btn-inner {
+    font-size: $datepicker-header-font-size;
+    color: $datepicker-header-text-color;
+    border-radius: 10px 10px 10px 10px;
+  }
+
+  .x-btn-default-small-over {
+    background-color: $color-green-1;
+  }
+
+  .x-btn-default-small {
+    background-color: $color-green-1;
+  }
 }
 
-.x-btn-default-small-over {
-  background-color: $color-green-1;
+
+.#{$prefix}datepicker-next {
+   background-image: $datepicker-nextmonth-image;
+   background-repeat: no-repeat;
 }
 
-.x-btn-default-small {
-  background-color: $color-green-1;
-}    */
+.#{$prefix}datepicker-prev {
+   background-image: $datepicker-previousmonth-image;
+   background-repeat: no-repeat;
+}
 
-
+.#{$prefix}datepicker-arrow {
+  width: 12px;
+  height: 15px;
+}

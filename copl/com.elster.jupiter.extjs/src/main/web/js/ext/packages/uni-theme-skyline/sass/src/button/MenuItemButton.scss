@@ -1,41 +1,76 @@
 @import "TransparentButton";
 
+@mixin uni-icon($glyph) {
+    .uni-icon-#{$glyph} {
+        background-image: url('images/container/menu/#{$glyph}.png');
+    }
+}
+
+@mixin uni-icon-pressed($glyph) {
+    .uni-icon-#{$glyph} {
+        background-image: url('images/container/menu/#{$glyph}Selected.png') !important;
+    }
+}
+
 @mixin uni-button-menuitem() {
     *[class*='#{$prefix}btn-menuitem-'] {
         @include transparent-button();
         text-align: left;
 
         .#{$prefix}btn-button {
-            height: 50px;
+            height: 48px;
+
+            padding: {
+                right: 5px;
+                left: 5px;
+            }
 
             .#{$prefix}btn-inner, .#{$prefix}btn-glyph {
-                line-height: 47px;
+                line-height: 45px;
                 text-align: left;
                 margin-top: 3px;
+                font-size: 14px;
             }
 
             .#{$prefix}btn-inner {
                 margin-left: 10px;
-            }
-
-            .#{$prefix}pressed {
-                background-color: $color-white;
-
-                .#{$prefix}btn-button {
-                    .#{$prefix}btn-inner, .#{$prefix}btn-glyph {
-                        color: #2f77ac;
-                    }
-
-                    &:hover {
-                        background-color: $color-white;
-                    }
-                }
+                padding-left: 38px;
             }
 
             &:hover {
                 background-color: $color-blue-2;
             }
 
+            .#{$prefix}btn-icon-el {
+                width: 48px;
+            }
+
+            *[class*='uni-icon-'] {
+                background-position: center center;
+                background-repeat: no-repeat;
+            }
+
+            @include uni-icon('home');
+            @include uni-icon('workspace');
+            @include uni-icon('devices');
+            @include uni-icon('settings');
+
+            // TODO Use a default fallback icon when there is none.
+            .uni-icon-none {
+                background-image: url('images/container/menu/settings.png');
+            }
+        }
+    }
+
+    .#{$prefix}pressed {
+        @include uni-icon-pressed('home');
+        @include uni-icon-pressed('workspace');
+        @include uni-icon-pressed('devices');
+        @include uni-icon-pressed('settings');
+
+        // TODO Use a default fallback icon when there is none.
+        .uni-icon-none {
+            background-image: url('images/container/menu/settingsSelected.png') !important;
         }
     }
 }
