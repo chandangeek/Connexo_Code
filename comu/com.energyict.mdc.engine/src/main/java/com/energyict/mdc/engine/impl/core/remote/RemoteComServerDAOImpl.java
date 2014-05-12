@@ -2,18 +2,17 @@ package com.energyict.mdc.engine.impl.core.remote;
 
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessEvent;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.engine.exceptions.CodingException;
-import com.energyict.mdc.engine.exceptions.DataAccessException;
-import com.energyict.mdc.engine.impl.core.ComJob;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.exceptions.DataAccessException;
+import com.energyict.mdc.engine.impl.core.ComJob;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.RemoteComServerQueryJSonPropertyNames;
 import com.energyict.mdc.engine.impl.core.ServerProcess;
@@ -21,7 +20,6 @@ import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
@@ -33,6 +31,12 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
+import org.eclipse.jetty.websocket.WebSocket;
+import org.eclipse.jetty.websocket.WebSocketClient;
+import org.eclipse.jetty.websocket.WebSocketClientFactory;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -46,11 +50,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import org.eclipse.jetty.websocket.WebSocket;
-import org.eclipse.jetty.websocket.WebSocketClient;
-import org.eclipse.jetty.websocket.WebSocketClientFactory;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  * Provides an implementation for the {@link ComServerDAO} interface
@@ -63,19 +62,17 @@ import org.json.JSONObject;
  */
 public class RemoteComServerDAOImpl implements ComServerDAO {
 
-    private final EngineModelService engineModelService;
-    private final TransactionService transactionService;
     private ServerProcess comServer;
     private String queryAPIPostUri;
+    private final ServiceProvider serviceProvider;
     private ServerProcessStatus status = ServerProcessStatus.STARTING;
     private QueryWebSocket webSocket = new QueryWebSocket();
     private final QueryList queries = new QueryList();
 
     public RemoteComServerDAOImpl(String queryAPIPostUri, ServiceProvider serviceProvider) {
         super();
-        this.engineModelService = engineModelService;
         this.queryAPIPostUri = queryAPIPostUri;
-        this.transactionService = transactionService;
+        this.serviceProvider = serviceProvider;
     }
 
     public void setComServer (ServerProcess comServer) {
@@ -270,10 +267,10 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         return null;
     }
 
-    @Override
-    public OfflineDeviceMessage findDeviceMessage(MessageIdentifier identifier) {
-        return null;
-    }
+//    @Override
+//    public OfflineDeviceMessage findDeviceMessage(MessageIdentifier identifier) {
+//        return null;
+//    }
 
     @Override
     public void updateIpAddress (String ipAddress, ConnectionTask connectionTask, String connectionTaskPropertyName) {
@@ -339,7 +336,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
 
     private ComServer toComServer (JSONObject response) {
         try {
-            return new ComServerParser(engineModelService).parse(response);
+            return new ComServerParser(this.serviceProvider.engineModelService()).parse(response);
         }
         catch (JSONException e) {
             throw new DataAccessException(e);
@@ -348,7 +345,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
 
     private ComPort toComPort (JSONObject response) {
         try {
-            return new ComPortParser(engineModelService).parse(response);
+            return new ComPortParser(this.serviceProvider.engineModelService()).parse(response);
         }
         catch (JSONException e) {
             throw new DataAccessException(e);

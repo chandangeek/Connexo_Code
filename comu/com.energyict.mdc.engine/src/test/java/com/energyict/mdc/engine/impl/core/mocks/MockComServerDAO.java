@@ -242,10 +242,10 @@ public class MockComServerDAO implements ComServerDAO {
         return null;
     }
 
-    @Override
-    public OfflineDeviceMessage findDeviceMessage(MessageIdentifier identifier) {
-        return null;
-    }
+//    @Override
+//    public OfflineDeviceMessage findDeviceMessage(MessageIdentifier identifier) {
+//        return null;
+//    }
 
     @Override
     public synchronized ScheduledConnectionTask attemptLock(ScheduledConnectionTask connectionTask, ComServer comServer) {

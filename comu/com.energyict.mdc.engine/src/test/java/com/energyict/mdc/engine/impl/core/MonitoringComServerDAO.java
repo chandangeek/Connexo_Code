@@ -116,10 +116,10 @@ public class MonitoringComServerDAO implements ComServerDAO {
         return null;
     }
 
-    @Override
-    public OfflineDeviceMessage findDeviceMessage(MessageIdentifier identifier) {
-        return null;
-    }
+//    @Override
+//    public OfflineDeviceMessage findDeviceMessage(MessageIdentifier identifier) {
+//        return null;
+//    }
 
     @Override
     public ScheduledConnectionTask attemptLock(ScheduledConnectionTask connectionTask, ComServer comServer) {
@@ -273,10 +273,10 @@ public class MonitoringComServerDAO implements ComServerDAO {
             return null;
         }
 
-        @Override
-        public OfflineDeviceMessage findDeviceMessage(MessageIdentifier identifier) {
-            return null;
-        }
+//        @Override
+//        public OfflineDeviceMessage findDeviceMessage(MessageIdentifier identifier) {
+//            return null;
+//        }
 
         @Override
         public ScheduledConnectionTask attemptLock(ScheduledConnectionTask connectionTask, ComServer comServer) {
