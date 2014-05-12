@@ -37,7 +37,7 @@ public class RegisterGroupResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public PagedInfoList getRegisterGroups(@BeanParam QueryParameters queryParameters) {
-        List<RegisterGroup> allRegisterGroups = this.masterDataService.findAllRegisterGroups();
+        List<RegisterGroup> allRegisterGroups = this.masterDataService.findAllRegisterGroups().from(queryParameters).find();;
         List<RegisterGroupInfo> registerGroupInfos = new ArrayList<>();
         for(RegisterGroup registerGroup : allRegisterGroups){
             registerGroupInfos.add(new RegisterGroupInfo(registerGroup.getId(), registerGroup.getName()));

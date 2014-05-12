@@ -20,9 +20,6 @@ public class LogBookSpecInfo extends LogBookTypeInfo{
         logBookTypeInfo.name = logBookSpec.getLogBookType().getName();
         logBookTypeInfo.obisCode = logBookSpec.getObisCode();
         logBookTypeInfo.overruledObisCode = logBookSpec.getDeviceObisCode();
-        if (logBookTypeInfo.obisCode.equals(logBookTypeInfo.overruledObisCode)){
-            logBookTypeInfo.overruledObisCode = null;
-        }
         return logBookTypeInfo;
     }
 }
