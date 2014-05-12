@@ -26,6 +26,7 @@ import com.energyict.mdc.device.config.PartialConnectionInitiationTaskBuilder;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTaskBuilder;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTaskBuilder;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.RegisterSpec;
@@ -742,7 +743,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     @Override
-    public List<PartialScheduledConnectionTaskImpl> getPartialOutboundConnectionTasks() {
+    public List<PartialScheduledConnectionTask> getPartialOutboundConnectionTasks() {
         return getCommunicationConfiguration().getPartialOutboundConnectionTasks();
     }
 

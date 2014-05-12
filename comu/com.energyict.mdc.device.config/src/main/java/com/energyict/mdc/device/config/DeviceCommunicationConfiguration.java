@@ -34,7 +34,7 @@ public interface DeviceCommunicationConfiguration extends HasId {
 
     List<PartialInboundConnectionTask> getPartialInboundConnectionTasks();
 
-    List<PartialScheduledConnectionTaskImpl> getPartialOutboundConnectionTasks();
+    List<PartialScheduledConnectionTask> getPartialOutboundConnectionTasks();
 
     List<PartialConnectionInitiationTask> getPartialConnectionInitiationTasks();
 
