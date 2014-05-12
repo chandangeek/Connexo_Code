@@ -50,11 +50,12 @@ import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
+import com.google.common.collect.ImmutableMap;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import javax.inject.Inject;
-import javax.inject.Provider;
 import org.hibernate.validator.constraints.Range;
 
 /**
@@ -67,7 +68,14 @@ import org.hibernate.validator.constraints.Range;
  */
 @ConnectionTaskIsRequiredWhenNotUsingDefault
 @UniqueComTaskExecutionPerDevice
-public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> implements ServerComTaskExecution, PersistenceAware {
+public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> implements ServerComTaskExecution, PersistenceAware {
+    protected static final String SCHEDULED_COM_TASK_EXECUTION = "0";
+    protected static final String AD_HOC_COM_TASK_EXECUTION = "1";
+
+    static final Map<String, Class<? extends ComTaskExecution>> IMPLEMENTERS =
+            ImmutableMap.<String, Class<? extends ComTaskExecution>>of(
+                    SCHEDULED_COM_TASK_EXECUTION, ScheduledComTaskExecutionImpl.class,
+                    AD_HOC_COM_TASK_EXECUTION, AdHocComTaskExecutionImpl.class);
 
     private final Clock clock;
     private final DeviceDataService deviceDataService;
@@ -76,12 +84,8 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DEVICE_IS_REQUIRED + "}")
     private Reference<Device> device = ValueReference.absent();
-    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.COMTASK_IS_REQUIRED + "}")
-    private Reference<ComTask> comTask = ValueReference.absent();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_ARE_REQUIRED + "}")
     private Reference<ProtocolDialectConfigurationProperties> protocolDialectConfigurationProperties = ValueReference.absent();
-
-    private Reference<ComSchedule> comScheduleReference = ValueReference.absent();
 
     private Reference<ConnectionTask<?, ?>> connectionTask = ValueReference.absent();
 
@@ -169,9 +173,8 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         this.schedulingService = schedulingService;
     }
 
-    ComTaskExecutionImpl initialize(Device device, ComTaskEnablement comTaskEnablement) {
+    <X extends ComTaskExecutionImpl> X initialize(Device device, ComTaskEnablement comTaskEnablement) {
         this.device.set(device);
-        this.comTask.set(comTaskEnablement.getComTask());
         if (comTaskEnablement.getNextExecutionSpecs() != null) {
             this.nextExecutionSpecHolder = new MyNextExecutionSpecHolder(comTaskEnablement.getNextExecutionSpecs().getTemporalExpression());
         } else {
@@ -182,17 +185,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         this.priority = comTaskEnablement.getPriority();
         setUseDefaultConnectionTask(comTaskEnablement.usesDefaultConnectionTask());
         this.protocolDialectConfigurationProperties.set(comTaskEnablement.getProtocolDialectConfigurationProperties().orNull());
-        return this;
-    }
-
-    @Override
-    public boolean isScheduled() {
-        return this.nextExecutionSpecHolder.getNextExecutionSpec() != null;
-    }
-
-    @Override
-    public boolean isAdhoc() {
-        return !isScheduled();
+        return (X)this;
     }
 
     @Override
@@ -201,21 +194,11 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     @Override
-    public ComTask getComTask() {
-        return comTask.get();       // we do an explicit get because ComTask is required and should not be null
-    }
-
-    @Override
-    public ComSchedule getComSchedule() {
-        return comScheduleReference.get();
-    }
-
-    @Override
     public ProtocolDialectConfigurationProperties getProtocolDialectConfigurationProperties() {
         return protocolDialectConfigurationProperties.orNull();
     }
 
-    private void setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
+    void setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
         this.protocolDialectConfigurationProperties.set(protocolDialectConfigurationProperties);
     }
 
@@ -234,7 +217,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         return this.executionPriority;
     }
 
-    private void setExecutingPriority(int executingPriority) {
+    void setExecutingPriority(int executingPriority) {
         this.executionPriority = executingPriority;
     }
 
@@ -272,7 +255,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         return this.useDefaultConnectionTask;
     }
 
-    private void setUseDefaultConnectionTask(boolean useDefaultConnectionTask) {
+    void setUseDefaultConnectionTask(boolean useDefaultConnectionTask) {
         this.useDefaultConnectionTask = useDefaultConnectionTask;
         if (this.useDefaultConnectionTask) {
             this.connectionTask.set(this.deviceDataService.findDefaultConnectionTaskForDevice(getDevice()));
@@ -337,7 +320,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         return this.connectionTask.orNull();
     }
 
-    private void setConnectionTask(ConnectionTask<?, ?> connectionTask) {
+    void setConnectionTask(ConnectionTask<?, ?> connectionTask) {
         this.connectionTask.set(connectionTask);
     }
 
@@ -356,7 +339,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         return this.nextExecutionSpecHolder.getNextExecutionSpec();
     }
 
-    private void createMyNextExecutionSpecs(TemporalExpression temporalExpression) {
+    void createMyNextExecutionSpecs(TemporalExpression temporalExpression) {
         this.nextExecutionSpecHolder = new MyNextExecutionSpecHolder(temporalExpression);
     }
 
@@ -374,7 +357,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         this.updateNextExecutionTimestamp();
     }
 
-    private void setMasterScheduleNextExecutionSpec(NextExecutionSpecs nextExecutionSpec) {
+    void setMasterScheduleNextExecutionSpec(NextExecutionSpecs nextExecutionSpec) {
         this.nextExecutionSpecHolder = new MasterNextExecutionSpecHolder(nextExecutionSpec);
     }
 
@@ -383,7 +366,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         return this.ignoreNextExecutionSpecsForInbound;
     }
 
-    private void setIgnoreNextExecutionSpecsForInbound(boolean ignoreNextExecutionSpecsForInbound) {
+    void setIgnoreNextExecutionSpecsForInbound(boolean ignoreNextExecutionSpecsForInbound) {
         this.ignoreNextExecutionSpecsForInbound = ignoreNextExecutionSpecsForInbound;
     }
 
@@ -403,7 +386,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         post();
     }
 
-    private void recalculateNextAndPlannedExecutionTimestamp() {
+    void recalculateNextAndPlannedExecutionTimestamp() {
         Date plannedNextExecutionTimestamp = this.calculateNextExecutionTimestamp(this.clock.now());
         this.schedule(plannedNextExecutionTimestamp, plannedNextExecutionTimestamp);
     }
@@ -638,7 +621,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     protected void doExecutionFailed() {
         this.lastExecutionFailed = true;
         this.resetCurrentRetryCount();
-        if (isAdhoc()) {
+        if (isAdHoc()) {
             this.doReschedule(null, null);
         } else {
             this.doReschedule(calculateNextExecutionTimestamp(this.clock.now()));
@@ -912,67 +895,63 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         }
     }
 
-    public static abstract class ComTaskExecutionBuilder implements ComTaskExecution.ComTaskExecutionBuilder {
+    public static abstract class AbstractComTaskExecutionBuilder<B extends ComTaskExecutionBuilder<B, C>, C extends ComTaskExecutionImpl> implements ComTaskExecutionBuilder<B, C> {
 
-        private final ComTaskExecutionImpl comTaskExecution;
+        protected final C comTaskExecution;
+        protected final B self;
 
-        protected ComTaskExecutionBuilder(Provider<ComTaskExecutionImpl> comTaskExecutionProvider, Device device, ComTaskEnablement comTaskEnablement) {
-            this.comTaskExecution = comTaskExecutionProvider.get().initialize(device, comTaskEnablement);
+        protected AbstractComTaskExecutionBuilder(C instance, Device device, ComTaskEnablement comTaskEnablement, Class<B> clazz) {
+            this.comTaskExecution = instance.initialize(device, comTaskEnablement);
+            this.self = clazz.cast(this);
         }
 
         @Override
-        public ComTaskExecutionBuilder setUseDefaultConnectionTask(boolean useDefaultConnectionTask) {
+        public B setUseDefaultConnectionTask(boolean useDefaultConnectionTask) {
             this.comTaskExecution.setUseDefaultConnectionTask(useDefaultConnectionTask);
-            return this;
+            return self;
         }
 
         @Override
-        public ComTaskExecutionBuilder setConnectionTask(ConnectionTask<?, ?> connectionTask) {
+        public B setConnectionTask(ConnectionTask<?, ?> connectionTask) {
             this.comTaskExecution.setConnectionTask(connectionTask);
             this.comTaskExecution.setUseDefaultConnectionTask(false);
             this.comTaskExecution.recalculateNextAndPlannedExecutionTimestamp();
-            return this;
+            return self;
         }
 
         @Override
-        public ComTaskExecutionBuilder setPriority(int executionPriority) {
+        public B setPriority(int executionPriority) {
             this.comTaskExecution.setExecutingPriority(executionPriority);
-            return this;
+            return self;
         }
 
         @Override
-        public ComTaskExecutionBuilder createNextExecutionSpec(TemporalExpression temporalExpression) {
+        public B createNextExecutionSpec(TemporalExpression temporalExpression) {
             this.comTaskExecution.createMyNextExecutionSpecs(temporalExpression);
             this.comTaskExecution.recalculateNextAndPlannedExecutionTimestamp();
-            return this;
+            return self;
         }
 
         @Override
-        public ComTaskExecution.ComTaskExecutionBuilder setMasterNextExecutionSpec(NextExecutionSpecs masterNextExecutionSpec) {
+        public B setMasterNextExecutionSpec(NextExecutionSpecs masterNextExecutionSpec) {
             this.comTaskExecution.setMasterScheduleNextExecutionSpec(masterNextExecutionSpec);
-            return this;
+            return self;
         }
 
         @Override
-        public ComTaskExecutionBuilder setIgnoreNextExecutionSpecForInbound(boolean ignoreNextExecutionSpecsForInbound) {
+        public B setIgnoreNextExecutionSpecForInbound(boolean ignoreNextExecutionSpecsForInbound) {
             this.comTaskExecution.setIgnoreNextExecutionSpecsForInbound(ignoreNextExecutionSpecsForInbound);
-            return this;
+            return self;
         }
 
         @Override
-        public ComTaskExecutionBuilder setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
+        public B setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
             this.comTaskExecution.setProtocolDialectConfigurationProperties(protocolDialectConfigurationProperties);
-            return this;
+            return self;
         }
 
         @Override
-        public ComTaskExecution.ComTaskExecutionBuilder comSchedule(ComSchedule comSchedule) {
-            this.comTaskExecution.comScheduleReference.set(comSchedule);
-            return this;
-        }
-
-        @Override
-        public ComTaskExecution add() {
+        public C add() {
             this.comTaskExecution.prepareForSaving();
             return this.comTaskExecution;
         }

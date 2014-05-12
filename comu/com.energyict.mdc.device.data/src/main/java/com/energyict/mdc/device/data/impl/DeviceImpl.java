@@ -947,7 +947,7 @@ public class DeviceImpl implements Device, PersistenceAware {
 
     @Override
     public ComTaskExecution.ComTaskExecutionBuilder getComTaskExecutionBuilder(ComTaskEnablement comTaskEnablement) {
-        return new ComTaskExecutionBuilderForDevice(comTaskExecutionProvider, this, comTaskEnablement);
+        return new AbstractComTaskExecutionBuilderForDevice(comTaskExecutionProvider, this, comTaskEnablement);
     }
 
     @Override
@@ -985,9 +985,9 @@ public class DeviceImpl implements Device, PersistenceAware {
         }
     }
 
-    private class ComTaskExecutionBuilderForDevice extends ComTaskExecutionImpl.ComTaskExecutionBuilder {
+    private class AbstractComTaskExecutionBuilderForDevice extends ComTaskExecutionImpl.AbstractComTaskExecutionBuilder {
 
-        private ComTaskExecutionBuilderForDevice(Provider<ComTaskExecutionImpl> comTaskExecutionProvider, Device device, ComTaskEnablement comTaskEnablement) {
+        private AbstractComTaskExecutionBuilderForDevice(Provider<ComTaskExecutionImpl> comTaskExecutionProvider, Device device, ComTaskEnablement comTaskEnablement) {
             super(comTaskExecutionProvider, device, comTaskEnablement);
         }
 

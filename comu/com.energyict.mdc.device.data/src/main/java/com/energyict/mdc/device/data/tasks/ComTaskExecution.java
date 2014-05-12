@@ -4,13 +4,13 @@ import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.journal.ComTaskExecutionSession;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.energyict.mdc.tasks.ComTask;
 import java.util.Date;
 
 /**
@@ -80,7 +80,7 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      *
      * @return A flag that indicates if this ComTaskExecution is adhoc
      */
-    public boolean isAdhoc ();
+    public boolean isAdHoc();
 
     /**
      * Gets the {@link Device} for which this ComTaskExecution
@@ -89,16 +89,6 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      * @return The Device for which tasks are executed
      */
     public Device getDevice ();
-
-    /**
-     * Gets the {@link ComTask} that specifies
-     * the details of this ComTaskExecution.
-     *
-     * @return The ComTask
-     */
-    public ComTask getComTask ();
-
-    public ComSchedule getComSchedule();
 
     /**
      * Gets the {@link ProtocolDialectConfigurationProperties}.
@@ -309,9 +299,9 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
     /**
      * Builder that supports basic value setters for a ComTaskExecution
      */
-    interface ComTaskExecutionBuilder {
+    interface ComTaskExecutionBuilder<B extends ComTaskExecutionBuilder<B, C>, C extends ComTaskExecutionImpl> {
 
-        ComTaskExecutionBuilder setUseDefaultConnectionTask(boolean useDefaultConnectionTask);
+        B setUseDefaultConnectionTask(boolean useDefaultConnectionTask);
 
         /**
          * Explicitly setting a ConnectionTask will result in NOT using the default connectionTask.
@@ -324,26 +314,24 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
          * @param connectionTask the ConnectionTask to set
          * @return the current updater
          */
-        ComTaskExecutionBuilder setConnectionTask(ConnectionTask<?, ?> connectionTask);
+        B setConnectionTask(ConnectionTask<?, ?> connectionTask);
 
-        ComTaskExecutionBuilder setPriority(int executionPriority);
+        B setPriority(int executionPriority);
 
-        ComTaskExecutionBuilder createNextExecutionSpec(TemporalExpression temporalExpression);
+        B createNextExecutionSpec(TemporalExpression temporalExpression);
 
-        ComTaskExecutionBuilder setMasterNextExecutionSpec(NextExecutionSpecs masterNextExecutionSpec);
+        B setMasterNextExecutionSpec(NextExecutionSpecs masterNextExecutionSpec);
 
-        ComTaskExecutionBuilder setIgnoreNextExecutionSpecForInbound(boolean ignoreNextExecutionSpecsForInbound);
+        B setIgnoreNextExecutionSpecForInbound(boolean ignoreNextExecutionSpecsForInbound);
 
-        ComTaskExecutionBuilder setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties);
-
-        ComTaskExecutionBuilder comSchedule(ComSchedule comSchedule);
+        B setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties);
 
         /**
          * Creates the actual ComTaskExecution with the objects set in the builder
          *
          * @return the newly created ComTaskExecution
          */
-        ComTaskExecution add();
+        C add();
     }
 
     /**

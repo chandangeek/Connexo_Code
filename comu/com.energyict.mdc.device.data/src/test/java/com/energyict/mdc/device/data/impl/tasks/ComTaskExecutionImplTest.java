@@ -199,7 +199,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
         assertThat(reloadedComTaskExecution.getObsoleteDate()).isNull();
         assertThat(reloadedComTaskExecution.getPlannedPriority()).isEqualTo(comTaskEnablementPriority);
         assertThat(reloadedComTaskExecution.getProtocolDialectConfigurationProperties().getId()).isEqualTo(deviceConfiguration.getCommunicationConfiguration().getProtocolDialectConfigurationPropertiesList().get(0).getId());
-        assertThat(reloadedComTaskExecution.isAdhoc()).isTrue();
+        assertThat(reloadedComTaskExecution.isAdHoc()).isTrue();
         assertThat(reloadedComTaskExecution.isScheduled()).isFalse();
         assertThat(reloadedComTaskExecution.isExecuting()).isFalse();
         assertThat(reloadedComTaskExecution.isIgnoreNextExecutionSpecsForInbound()).isFalse();
@@ -218,7 +218,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
 
         ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device);
         assertThat(reloadedComTaskExecution.getNextExecutionSpecs().getId()).isEqualTo(comTaskExecution.getNextExecutionSpecs().getId());
-        assertThat(reloadedComTaskExecution.isAdhoc()).isFalse();
+        assertThat(reloadedComTaskExecution.isAdHoc()).isFalse();
         assertThat(reloadedComTaskExecution.isScheduled()).isTrue();
     }
 
@@ -239,7 +239,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
 
         ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device);
         assertThat(reloadedComTaskExecution.getNextExecutionSpecs().getId()).isEqualTo(updatedComTaskExecution.getNextExecutionSpecs().getId());
-        assertThat(reloadedComTaskExecution.isAdhoc()).isFalse();
+        assertThat(reloadedComTaskExecution.isAdHoc()).isFalse();
         assertThat(reloadedComTaskExecution.isScheduled()).isTrue();
     }
 
@@ -258,7 +258,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
 
         ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device);
         assertThat(reloadedComTaskExecution.getNextExecutionSpecs().getId()).isEqualTo(masterScheduleNextExecutionSpec.getId());
-        assertThat(reloadedComTaskExecution.isAdhoc()).isFalse();
+        assertThat(reloadedComTaskExecution.isAdHoc()).isFalse();
         assertThat(reloadedComTaskExecution.isScheduled()).isTrue();
     }
 
@@ -281,7 +281,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
 
         ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device);
         assertThat(reloadedComTaskExecution.getNextExecutionSpecs().getId()).isEqualTo(masterScheduleNextExecutionSpec.getId());
-        assertThat(reloadedComTaskExecution.isAdhoc()).isFalse();
+        assertThat(reloadedComTaskExecution.isAdHoc()).isFalse();
         assertThat(reloadedComTaskExecution.isScheduled()).isTrue();
     }
 
@@ -831,7 +831,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
 
         ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device);
         assertThat(reloadedComTaskExecution.isScheduled()).isTrue();
-        assertThat(reloadedComTaskExecution.isAdhoc()).isFalse();
+        assertThat(reloadedComTaskExecution.isAdHoc()).isFalse();
     }
 
     @Test
@@ -845,7 +845,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
         device.save();
 
         assertThat(comTaskExecution.isScheduled()).isFalse();
-        assertThat(comTaskExecution.isAdhoc()).isTrue();
+        assertThat(comTaskExecution.isAdHoc()).isTrue();
 
         ComTaskExecution.ComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
         comTaskExecutionUpdater.createOrUpdateNextExecutionSpec(temporalExpression);
@@ -853,7 +853,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
 
         ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device);
         assertThat(reloadedComTaskExecution.isScheduled()).isTrue();
-        assertThat(reloadedComTaskExecution.isAdhoc()).isFalse();
+        assertThat(reloadedComTaskExecution.isAdHoc()).isFalse();
     }
 
     @Test
@@ -868,7 +868,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
         device.save();
 
         assertThat(comTaskExecution.isScheduled()).isTrue();
-        assertThat(comTaskExecution.isAdhoc()).isFalse();
+        assertThat(comTaskExecution.isAdHoc()).isFalse();
 
         ComTaskExecution.ComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
         comTaskExecutionUpdater.removeNextExecutionSpec();
@@ -876,7 +876,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
 
         ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device);
         assertThat(reloadedComTaskExecution.isScheduled()).isFalse();
-        assertThat(reloadedComTaskExecution.isAdhoc()).isTrue();
+        assertThat(reloadedComTaskExecution.isAdHoc()).isTrue();
     }
 
     @Test
