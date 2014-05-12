@@ -993,6 +993,11 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
     }
 
     @Override
+    public List<ComTaskExecution> findComTasksByDefaultConnectionTask(Device device) {
+        return this.dataModel.mapper(ComTaskExecution.class).find(ComTaskExecutionFields.DEVICE.fieldName(), device, ComTaskExecutionFields.USEDEFAULTCONNECTIONTASK.fieldName(), true);
+    }
+    
+    @Override
     public List<ComTaskExecution> findComTaskExecutionsByComSchedule(ComSchedule comSchedule) {
         return this.dataModel.query(ComTaskExecution.class)
                 .select(Where.where(ComTaskExecutionFields.COM_SCHEDULE_REFERENCE.fieldName()).isEqualTo(comSchedule)
@@ -1030,11 +1035,6 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
             return null;
         }
         return comTaskExecutions.get(0).getPlannedNextExecutionTimestamp();
-    }
-
-    @Override
-    public List<ComTaskExecution> findComTasksByDefaultConnectionTask(Device device) {
-        return this.dataModel.mapper(ComTaskExecution.class).find(ComTaskExecutionFields.DEVICE.fieldName(), device, ComTaskExecutionFields.USEDEFAULTCONNECTIONTASK.fieldName(), true);
     }
 
     @Override

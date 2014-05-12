@@ -34,20 +34,19 @@ import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.tasks.ComTask;
 import com.google.common.base.Optional;
+import org.fest.assertions.core.Condition;
+import org.junit.Test;
+
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
-import org.fest.assertions.core.Condition;
-import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the ComTaskExecutionImpl component
@@ -145,9 +144,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
         ConnectionTypePluggableClass connectionTypePluggableClass = inMemoryPersistence.getProtocolPluggableService()
                 .newConnectionTypePluggableClass(NoParamsConnectionType.class.getSimpleName(), NoParamsConnectionType.class.getName());
         connectionTypePluggableClass.save();
-        return deviceConfiguration.getCommunicationConfiguration().
-                newPartialScheduledConnectionTask(
-                        "Outbound (1)", connectionTypePluggableClass, TimeDuration.minutes(5), ConnectionStrategy.AS_SOON_AS_POSSIBLE).
+        return deviceConfiguration.getCommunicationConfiguration().newPartialScheduledConnectionTask("Outbound (1)", connectionTypePluggableClass, TimeDuration.minutes(5), ConnectionStrategy.AS_SOON_AS_POSSIBLE).
                 comWindow(new ComWindow(0, 7200)).
                 build();
     }

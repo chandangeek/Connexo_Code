@@ -176,7 +176,7 @@ public interface DeviceDataService {
      */
     public void clearDefaultConnectionTask (Device device);
 
-    void setOrUpdateDefaultConnectionTaskOnComTaskInDeviceTopology(Device device, ConnectionTask defaultConnectionTask);
+    void setOrUpdateDefaultConnectionTaskOnComTaskInDeviceTopology(Device device, ConnectionTask connectionTask);
 
     /**
      * Attempts to lock the {@link ConnectionTask} that is about to be executed

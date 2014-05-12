@@ -57,6 +57,9 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
@@ -66,8 +69,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -144,8 +145,8 @@ public class InMemoryIntegrationPersistence {
                 new DeviceConfigurationModule(),
                 new MdcCommonModule(),
                 new TasksModule(),
-                new SchedulingModule(),
-                new DeviceDataModule());
+                new DeviceDataModule(),
+                new SchedulingModule());
         BusinessEventManager eventManager = mock(BusinessEventManager.class);
         when(this.applicationContext.createEventManager()).thenReturn(eventManager);
         this.transactionService = injector.getInstance(TransactionService.class);
@@ -282,6 +283,10 @@ public class InMemoryIntegrationPersistence {
         return deviceDataService;
     }
 
+    public SchedulingService getSchedulingService() {
+        return schedulingService;
+    }
+
     public Clock getClock() {
         return clock;
     }
@@ -292,10 +297,6 @@ public class InMemoryIntegrationPersistence {
 
     public TaskService getTaskService() {
         return taskService;
-    }
-
-    public SchedulingService getSchedulingService() {
-        return schedulingService;
     }
 
     public static String query(String sql) {

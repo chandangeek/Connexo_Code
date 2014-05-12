@@ -12,6 +12,7 @@ import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.DeviceDataService;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -45,8 +46,7 @@ public class Installer {
     public void install(boolean executeDdl, boolean createMasterData) {
         try {
             this.dataModel.install(executeDdl, true);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             this.logger.severe(e.getMessage());
         }
         this.createEventTypes();
@@ -58,10 +58,14 @@ public class Installer {
     }
 
     private void createMessageHandler() {
-        QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
-        DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(MESSAGING_NAME, DEFAULT_RETRY_DELAY_IN_SECONDS);
-        destinationSpec.activate();
-        destinationSpec.subscribe(MESSAGING_NAME);
+        try {
+            QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
+            DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(MESSAGING_NAME, DEFAULT_RETRY_DELAY_IN_SECONDS);
+            destinationSpec.activate();
+            destinationSpec.subscribe(MESSAGING_NAME);
+        } catch (Exception e) {
+            this.logger.severe(e.getMessage());
+        }
     }
 
     private void createTranslations() {
@@ -72,8 +76,7 @@ public class Installer {
                 translations.add(toTranslation(nlsKey, Locale.ENGLISH, messageSeed.getDefaultFormat()));
             }
             this.thesaurus.addTranslations(translations);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             this.logger.severe(e.getMessage());
         }
     }
@@ -87,13 +90,12 @@ public class Installer {
     }
 
     private void createEventTypes() {
-        try {
-            for (EventType eventType : EventType.values()) {
+        for (EventType eventType : EventType.values()) {
+            try {
                 eventType.install(this.eventService);
+            } catch (Exception e) {
+                this.logger.severe(e.getMessage());
             }
-        }
-        catch (Exception e) {
-            this.logger.severe(e.getMessage());
         }
     }
 
