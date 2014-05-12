@@ -27,7 +27,7 @@ $toolbar-separator-vertical-border-width: 1px 0 !default;
 $toolbar-text-font-family: $font-family !default;
 $toolbar-text-font-size: 13px !default;
 $toolbar-text-font-weight: normal !default;
-$toolbar-text-margin: 0 8px 0 0 !default;
+$toolbar-text-margin-bugfix: 0 6px 0 0 !default;
 $toolbar-text-color: mix(desaturate(lighten($base-color, 37), 5), #000, 30) !default;
 $toolbar-text-padding: 8px !default;
 $toolbar-text-line-height: 16px !default;

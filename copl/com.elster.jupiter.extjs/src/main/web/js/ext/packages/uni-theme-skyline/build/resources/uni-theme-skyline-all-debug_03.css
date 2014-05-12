@@ -2920,26 +2920,31 @@
 }
 
 /* line 10, ../../sass/src/toolbar/Toolbar.scss */
+.x-toolbar-text {
+  margin: 0 6px 0 0;
+}
+
+/* line 14, ../../sass/src/toolbar/Toolbar.scss */
 .x-toolbar-separator {
   margin: 0 5px !important;
 }
 
-/* line 14, ../../sass/src/toolbar/Toolbar.scss */
+/* line 18, ../../sass/src/toolbar/Toolbar.scss */
 .x-tbar-page-first {
   margin: 4px 0 0 0;
 }
 
-/* line 18, ../../sass/src/toolbar/Toolbar.scss */
+/* line 22, ../../sass/src/toolbar/Toolbar.scss */
 .x-tbar-page-prev {
   margin: 4px 0 0 3px;
 }
 
-/* line 22, ../../sass/src/toolbar/Toolbar.scss */
+/* line 26, ../../sass/src/toolbar/Toolbar.scss */
 .x-tbar-page-next {
   margin: 4px 0 0 6px;
 }
 
-/* line 26, ../../sass/src/toolbar/Toolbar.scss */
+/* line 30, ../../sass/src/toolbar/Toolbar.scss */
 .x-tbar-page-last {
   margin: 4px 0 0 0;
 }
@@ -3908,33 +3913,37 @@
   color: white;
 }
 /* line 48, ../../sass/src/panel/Panel.scss */
+.x-panel-default-framed .x-panel-header .x-btn-default-small {
+  background-color: transparent;
+}
+/* line 52, ../../sass/src/panel/Panel.scss */
 .x-panel-default-framed .x-panel-header-top {
   padding: 4px 4px 4px 16px;
 }
-/* line 51, ../../sass/src/panel/Panel.scss */
+/* line 55, ../../sass/src/panel/Panel.scss */
 .x-panel-default-framed .x-panel {
   padding: 0;
 }
 
-/* line 56, ../../sass/src/panel/Panel.scss */
+/* line 60, ../../sass/src/panel/Panel.scss */
 .x-panel-header .x-panel-header-sub-text {
   float: none;
   color: #686868;
   clear: both;
   display: block;
 }
-/* line 62, ../../sass/src/panel/Panel.scss */
+/* line 66, ../../sass/src/panel/Panel.scss */
 .x-panel-header .x-panel-header-sub-text-medium {
   font-size: 20px;
   line-height: 20px;
 }
-/* line 66, ../../sass/src/panel/Panel.scss */
+/* line 70, ../../sass/src/panel/Panel.scss */
 .x-panel-header .x-panel-header-sub-text-large {
   font-size: 30px;
   line-height: 20px;
 }
 
-/* line 72, ../../sass/src/panel/Panel.scss */
+/* line 76, ../../sass/src/panel/Panel.scss */
 .x-panel-filter {
   background-color: #ebebeb;
   -webkit-border-radius: 10px;
@@ -3943,26 +3952,26 @@
   -o-border-radius: 10px;
   border-radius: 10px;
 }
-/* line 76, ../../sass/src/panel/Panel.scss */
+/* line 80, ../../sass/src/panel/Panel.scss */
 .x-panel-filter .x-panel-body {
   background: transparent;
 }
 
-/* line 81, ../../sass/src/panel/Panel.scss */
+/* line 85, ../../sass/src/panel/Panel.scss */
 .x-panel-filter-toolbar {
   padding: 8px 0;
 }
-/* line 83, ../../sass/src/panel/Panel.scss */
+/* line 87, ../../sass/src/panel/Panel.scss */
 .x-panel-filter-toolbar .x-header-text-container {
   width: 64px;
   color: #686868;
   font-weight: bold;
 }
-/* line 88, ../../sass/src/panel/Panel.scss */
+/* line 92, ../../sass/src/panel/Panel.scss */
 .x-panel-filter-toolbar .x-box-item {
   margin-right: 8px;
 }
-/* line 91, ../../sass/src/panel/Panel.scss */
+/* line 95, ../../sass/src/panel/Panel.scss */
 .x-panel-filter-toolbar .x-panel-body {
   background: transparent;
 }
@@ -5895,7 +5904,7 @@
   border-width: 1px !important;
 }
 
-/* line 115, ../../sass/src/panel/Panel.scss */
+/* line 119, ../../sass/src/panel/Panel.scss */
 .x-uni-form-error-msg-icon {
   background-image: url("images/form/ico_warning.png");
 }
@@ -6171,8 +6180,6 @@ div.x-form-spinner-down {
 .x-toolbar-pagingtoolbartop, .x-toolbar-pagingtoolbarbottom {
   padding-right: 0;
   padding-left: 0;
-  margin-right: -7px;
-  margin-left: -5px;
 }
 
 /* line 1, ../../sass/src/picker/Date.scss */

@@ -44,6 +44,10 @@ $ui-body-background-color: $panel-filter-background-color
     .#{$prefix}panel-header-text-container {
       color: $panel-frame-header-color;
     }
+
+      .#{$prefix}btn-default-small {
+          background-color: transparent;
+      }
   }
   .#{$prefix}panel-header-top {
     padding: $panel-frame-header-padding;

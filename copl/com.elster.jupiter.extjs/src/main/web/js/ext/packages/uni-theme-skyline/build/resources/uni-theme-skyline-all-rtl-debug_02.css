@@ -1103,6 +1103,11 @@ h6 {
   background-image: url("images/button/ico_actions.png");
 }
 
+/* line 9, ../../sass/src/button/Button.scss */
+.x-btn-default-toolbar-small .x-btn-arrow {
+  background-image: url("images/button/default-small-arrow.png");
+}
+
 /* line 255, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-delete-small {
   border-color: #6194ab;
