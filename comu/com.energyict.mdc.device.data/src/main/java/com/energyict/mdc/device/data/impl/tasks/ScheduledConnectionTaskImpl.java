@@ -401,7 +401,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     @Override
-    protected void doExecutionAttemptFailed() throws SQLException, BusinessException {
+    protected void doExecutionAttemptFailed() {
         super.doExecutionAttemptFailed();
         this.schedule(this.calculateNextRetryExecutionTimestamp());
     }
@@ -418,7 +418,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     @Override
-    protected void doExecutionFailed() throws SQLException, BusinessException {
+    protected void doExecutionFailed() {
         super.doExecutionFailed();
         this.resetCurrentRetryCount();
         if(ConnectionStrategy.MINIMIZE_CONNECTIONS.equals(getConnectionStrategy())){
