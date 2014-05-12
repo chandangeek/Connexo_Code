@@ -2,21 +2,15 @@ package com.elster.jupiter.pubsub.impl;
 
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.pubsub.Subscriber;
-
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.log.LogService;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.logging.Logger;
 
 @Component (name="com.elster.jupiter.pubsub", immediate = true )
 public class PublisherImpl implements Publisher {
@@ -28,16 +22,16 @@ public class PublisherImpl implements Publisher {
     }
 
     @Override
-	public void publish(Object event, Object... eventDetails) {
+	public void publish(Object notification, Object... notificationDetails) {
         for (Subscription each : subscriptions) {
-			each.handle(event, eventDetails);
+			each.handle(notification, notificationDetails);
 		}
         List<Subscription> threadSubscriptions = threadSubscriptionsHolder.get();
         if (threadSubscriptions == null || threadSubscriptions.isEmpty()) {
         	return;
         }
 		for (Subscription each : threadSubscriptions) {
-			each.handle(event, eventDetails);
+			each.handle(notification, notificationDetails);
 		}		
 	}
 

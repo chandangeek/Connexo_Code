@@ -22,7 +22,7 @@ public class PublisherImplTest {
         subscriber = spy(new Subscriber() {
        
 			@Override
-			public void handle(Object event, Object... eventDetails) {
+			public void handle(Object notification, Object... notificationDetails) {
 			}
 
 			@Override

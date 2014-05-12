@@ -6,15 +6,18 @@ package com.elster.jupiter.pubsub;
 public interface Publisher {
 
     /**
-     * Publishes the given event. Which will make it synchronously available to all subscribers to that event's type.
+     * Publishes the given notification. Which will make it synchronously available to all subscribers to that notification's type.
      * This method will return after all Subscribers have handled it. 
-     * If any handler throws an exception, the remaining event handlers are not called,
+     * If any handler throws an exception, the remaining notification handlers are not called,
      * and the exception propagates to the sender.
      *
-     * @param event
-     * @param eventDetails
+     * @param notification
+     * @param notificationDetails
      */
-    void publish(Object event, Object... eventDetails);
+    void publish(Object notification, Object... notificationDetails);
+
+
 	void addThreadSubscriber(Subscriber subscriber);
+
 	void removeThreadSubscriber(Subscriber subscriber);
 }

@@ -26,11 +26,11 @@ public abstract class EventHandler<T> implements Subscriber {
     }
 
     @Override
-    public final void handle(Object event, Object... eventDetails) {
-        if (type.isInstance(event)) {
+    public final void handle(Object notification, Object... notificationDetails) {
+        if (type.isInstance(notification)) {
             @SuppressWarnings("unchecked") // safe cast since we just checked through introspection
-            T typedEvent = (T) event;
-            onEvent(typedEvent, eventDetails);
+            T typedEvent = (T) notification;
+            onEvent(typedEvent, notificationDetails);
         }
     }
     
