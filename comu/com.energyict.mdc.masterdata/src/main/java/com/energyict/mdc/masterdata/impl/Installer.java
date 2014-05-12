@@ -13,6 +13,7 @@ import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -69,8 +70,12 @@ public class Installer {
     }
 
     private void createPhenomena() {
-        Phenomenon undefined = this.masterDataService.newPhenomenon("Undefined", Unit.getUndefined());
-        undefined.save();
+        try {
+            Phenomenon undefined = this.masterDataService.newPhenomenon("Undefined", Unit.getUndefined());
+            undefined.save();
+        } catch (Exception e) {
+            logger.severe(e.getMessage());
+        }
         this.generatePhenomenaFromReadingTypes();
     }
 
