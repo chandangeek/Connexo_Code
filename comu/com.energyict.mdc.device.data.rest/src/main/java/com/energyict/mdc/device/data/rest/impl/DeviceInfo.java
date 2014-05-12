@@ -1,8 +1,12 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.imp.Batch;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.google.common.base.Optional;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
@@ -19,18 +23,24 @@ public class DeviceInfo {
     static final String DEVICETYPE_NAME = "deviceTypeName";
     @JsonIgnore
     static final String DEVICE_CONFIGURATION_NAME = "deviceConfigurationName";
+    @JsonIgnore
+    static final String MASTER_DEVICE_MRID = "masterDevicemRID";
 
     public long id;
     public String mRID;
     public String serialNumber;
     @JsonProperty(DEVICETYPE_NAME)
     public String deviceTypeName;
-    public long deviceTypeId;
+    public Long deviceTypeId;
     @JsonProperty(DEVICE_CONFIGURATION_NAME)
     public String deviceConfigurationName;
-    public long deviceConfigurationId;
+    public Long deviceConfigurationId;
     public String yearOfCertification;
     public String batch;
+    @JsonProperty(MASTER_DEVICE_MRID)
+    public String masterDevicemRID;
+    public Long masterDeviceId;
+    public List<DeviceInfo> slaveDevices;
 
     public DeviceInfo() {
     }
@@ -51,6 +61,18 @@ public class DeviceInfo {
         Optional<Batch> optionalBatch = deviceImportService.findBatch(device.getId());
         if (optionalBatch.isPresent()) {
             deviceInfo.batch = device.getName();
+        }
+        if (device.getPhysicalGateway() != null) {
+        deviceInfo.masterDeviceId = device.getPhysicalGateway().getId();
+        deviceInfo.masterDevicemRID = device.getPhysicalGateway().getmRID();
+        }
+        List<BaseDevice<Channel, LoadProfile, Register>> slaves = device.getPhysicalConnectedDevices();
+        deviceInfo.slaveDevices = new ArrayList();
+        for (BaseDevice dev : slaves) {
+            DeviceInfo slaveInfo = new DeviceInfo();
+            slaveInfo.id  = dev.getId();
+            slaveInfo.mRID = ((Device)dev).getmRID();
+            deviceInfo.slaveDevices.add(slaveInfo);
         }
         return deviceInfo;
     }
