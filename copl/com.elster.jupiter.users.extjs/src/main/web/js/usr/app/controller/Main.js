@@ -26,16 +26,17 @@ Ext.define('Usr.controller.Main', {
         this.initDefaultHistoryToken();
         this.getApplication().on('changecontentevent', this.showContent, this);
 
+        var me= this;
         var menuItemGroup = Ext.create('Uni.model.MenuItem', {
             text: Uni.I18n.translate('group.title', 'USM', 'Roles'),
-            href: Usr.getApplication().getHistoryGroupController().tokenizeShowOverview(),
-            glyph: 'xe020@icomoon'
+            href: me.getApplication().getController('Usr.controller.history.Group').tokenizeShowOverview(),
+            glyph: 'settings'
         });
 
         var menuItemUser = Ext.create('Uni.model.MenuItem', {
             text: Uni.I18n.translate('user.title', 'USM', 'Users'),
-            href: Usr.getApplication().getHistoryUserController().tokenizeShowOverview(),
-            glyph: 'xe01e@icomoon'
+            href: me.getApplication().getController('Usr.controller.history.User').tokenizeShowOverview(),
+            glyph: 'settings'
         });
 
         Uni.store.MenuItems.add(menuItemUser);
@@ -54,7 +55,7 @@ Ext.define('Usr.controller.Main', {
     },
 
     initDefaultHistoryToken: function () {
-        var setupController = this.getApplication().getHistoryHomeController(),
+        var setupController = this.getApplication().getController('Usr.controller.history.Home'),
             eventBus = this.getController('Uni.controller.history.EventBus'),
             defaultToken = setupController.tokenizeShowOverview();
 
@@ -74,6 +75,6 @@ Ext.define('Usr.controller.Main', {
         }
     },
     signout: function () {
-        this.getApplication().getHomeController().signout();
+        this.getApplication().getController('Usr.controller.Home').signout();
     }
 });

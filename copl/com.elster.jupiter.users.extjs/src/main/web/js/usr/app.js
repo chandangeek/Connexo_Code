@@ -4,7 +4,12 @@
     Sencha Cmd when upgrading.
 */
 
-Ext.application( {
+Ext.require('Uni.Loader');
+Ext.require('Dvi.Application');
+
+Ext.onReady(function () {});
+
+/*Ext.application( {
     name: 'Usr',
 
     extend: 'Ext.app.Application',
@@ -34,4 +39,4 @@ Ext.application( {
         // Show window
         login.show();
     }
-});
+});*/

@@ -41,7 +41,7 @@ Ext.define('Usr.controller.GroupPrivileges', {
         var groupStore = Ext.StoreManager.get('Groups');
         var widget = Ext.widget('groupEdit');
 
-        widget.down('#cancelLink').autoEl.href = this.getApplication().getHistoryGroupController().tokenizePreviousTokens();
+        widget.down('#cancelLink').autoEl.href = this.getApplication().getController('Usr.controller.history.Group').tokenizePreviousTokens();
 
         widget.hide();
         widget.setLoading(true);
@@ -79,7 +79,7 @@ Ext.define('Usr.controller.GroupPrivileges', {
         var record = Ext.create(Usr.model.Group);
         var widget = Ext.widget('groupEdit');
 
-        widget.down('#cancelLink').autoEl.href = this.getApplication().getHistoryGroupController().tokenizePreviousTokens();
+        widget.down('#cancelLink').autoEl.href = this.getApplication().getController('Usr.controller.history.Group').tokenizePreviousTokens();
 
         widget.setLoading(true);
         title = Uni.I18n.translate('group.create', 'USM', 'Create role');

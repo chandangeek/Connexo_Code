@@ -1,7 +1,8 @@
 Ext.define('Usr.controller.User', {
     extend: 'Ext.app.Controller',
     requires: [
-        'Uni.model.BreadcrumbItem'
+        'Uni.model.BreadcrumbItem',
+        'Usr.controller.UserGroups'
     ],
     stores: [
         'Groups',
@@ -69,7 +70,7 @@ Ext.define('Usr.controller.User', {
     },
 
     editUser: function (record) {
-        this.getApplication().getUserGroupsController().showEditOverviewWithHistory(record.get('id'));
+        this.getApplication().getController('Usr.controller.UserGroups').showEditOverviewWithHistory(record.get('id'));
     },
 
     selectUser: function (grid, record) {

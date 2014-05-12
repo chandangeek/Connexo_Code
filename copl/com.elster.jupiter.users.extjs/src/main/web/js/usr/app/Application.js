@@ -11,15 +11,15 @@ Ext.define('Usr.Application', {
     ],
 
     controllers: [
-        'Main',
-        'Home',
-        'User',
-        'UserGroups',
-        'Group',
-        'GroupPrivileges',
-        'history.Group',
-        'history.User',
-        'history.Home'
+        'Usr.controller.Main',
+        'Usr.controller.Home',
+        'Usr.controller.User',
+        'Usr.controller.UserGroups',
+        'Usr.controller.Group',
+        'Usr.controller.GroupPrivileges',
+        'Usr.controller.history.Group',
+        'Usr.controller.history.User',
+        'Usr.controller.history.Home'
     ],
 
     stores: [

@@ -8,7 +8,7 @@ Ext.define('Usr.controller.history.Home', {
     init: function () {
         var me = this;
         crossroads.addRoute('home',function(){
-            me.getApplication().getHomeController().showOverview();
+            me.getApplication().getController('Usr.controller.Home').showOverview();
         });
 
         this.callParent(arguments);

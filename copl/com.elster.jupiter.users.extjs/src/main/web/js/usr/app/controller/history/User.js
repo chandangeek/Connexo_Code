@@ -8,10 +8,10 @@ Ext.define('Usr.controller.history.User', {
     init: function () {
         var me = this;
         crossroads.addRoute('users',function(){
-            me.getApplication().getUserController().showOverview();
+            me.getApplication().getController('Usr.controller.User').showOverview();
         });
         crossroads.addRoute('users/{id}/edit',function(id){
-            me.getApplication().getUserGroupsController().showEditOverview(id);
+            me.getApplication().getController('Usr.controller.UserGroups').showEditOverview(id);
         });
 
         this.callParent(arguments);

@@ -1,7 +1,8 @@
 Ext.define('Usr.controller.Group', {
     extend: 'Ext.app.Controller',
     requires: [
-        'Uni.model.BreadcrumbItem'
+        'Uni.model.BreadcrumbItem',
+        'Usr.controller.GroupPrivileges'
     ],
     stores: [
         'Privileges',
@@ -65,11 +66,11 @@ Ext.define('Usr.controller.Group', {
     },
 
     editGroup: function (record) {
-        this.getApplication().getGroupPrivilegesController().showEditOverviewWithHistory(record.get('id'));
+        this.getApplication().getController('Usr.controller.GroupPrivileges').showEditOverviewWithHistory(record.get('id'));
     },
 
     createGroup: function () {
-        this.getApplication().getGroupPrivilegesController().showCreateOverviewWithHistory();
+        this.getApplication().getController('Usr.controller.GroupPrivileges').showCreateOverviewWithHistory();
     },
 
     selectGroup: function (grid, record) {

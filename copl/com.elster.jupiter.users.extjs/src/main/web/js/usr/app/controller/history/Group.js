@@ -8,13 +8,13 @@ Ext.define('Usr.controller.history.Group', {
     init: function () {
         var me = this;
         crossroads.addRoute('roles',function(){
-            me.getApplication().getGroupController().showOverview();
+            me.getApplication().getController('Usr.controller.Group').showOverview();
         });
         crossroads.addRoute('roles/{id}/edit',function(id){
-            me.getApplication().getGroupPrivilegesController().showEditOverview(id);
+            me.getApplication().getController('Usr.controller.GroupPrivileges').showEditOverview(id);
         });
         crossroads.addRoute('roles/create',function(){
-            me.getApplication().getGroupPrivilegesController().showCreateOverview();
+            me.getApplication().getController('Usr.controller.GroupPrivileges').showCreateOverview();
         });
 
         this.callParent(arguments);

@@ -28,8 +28,8 @@ Ext.define('Usr.controller.Home', {
         location.href = '#home';
         this.getApplication().fireEvent('changecontentevent', widget);
 
-        widget.down('#usersLink').autoEl.href = this.getApplication().getHistoryUserController().tokenizePreviousTokens();
-        widget.down('#groupsLink').autoEl.href = this.getApplication().getHistoryGroupController().tokenizePreviousTokens();
+        widget.down('#usersLink').autoEl.href = this.getApplication().getController('Usr.controller.history.User').tokenizePreviousTokens();
+        widget.down('#groupsLink').autoEl.href = this.getApplication().getController('Usr.controller.history.Group').tokenizePreviousTokens();
     },
     signout: function (button) {
         var request = Ext.Ajax.request({
