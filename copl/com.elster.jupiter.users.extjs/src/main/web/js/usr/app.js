@@ -4,39 +4,30 @@
     Sencha Cmd when upgrading.
 */
 
-Ext.require('Uni.Loader');
-Ext.require('Dvi.Application');
 
-Ext.onReady(function () {});
+//Ext.require('Dvi.Application');
 
-/*Ext.application( {
-    name: 'Usr',
+Ext.onReady(function () {
+    Ext.require('Uni.Loader');
+    var loader = Ext.create('Uni.Loader');
+    Ext.application( {
+        name: 'Usr',
+        extend: 'Ext.app.Application',
+        controllers: [
+            'Usr.controller.Login'
+        ],
 
-    extend: 'Ext.app.Application',
+        launch: function () {
+            // Removes the loading indicator.
+            Ext.fly('appLoadingWrapper').destroy();
 
-    requires: [
-    ],
+            this.callParent(arguments);
+            var login = Ext.create("widget.login");
 
-    views: [
-        // Views are loaded in through their respective controller.
-    ],
+            // Show window
+            login.show();
+        }
+    });
+});
 
-    controllers: [
-        'Login'
-    ],
 
-    stores: [
-        // Stores are required through their controllers.
-    ],
-
-    launch: function () {
-        // Removes the loading indicator.
-        Ext.fly('appLoadingWrapper').destroy();
-
-        this.callParent(arguments);
-        var login = Ext.create("widget.login");
-
-        // Show window
-        login.show();
-    }
-});*/

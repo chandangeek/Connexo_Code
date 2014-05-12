@@ -4,7 +4,7 @@ Ext.define('Usr.controller.UserGroups', {
         'Uni.model.BreadcrumbItem'
     ],
     stores: [
-        'Groups',
+        'Usr.store.Groups',
         'Users',
         'UserDirectories'
     ],
@@ -42,11 +42,16 @@ Ext.define('Usr.controller.UserGroups', {
         location.href = '#users/' + groupId + '/edit';
     },
 
+    /**
+     * todo: this method should be refactored.
+     * @param userId
+     */
     showEditOverview: function (userId) {
         var userStore = Ext.StoreManager.get('Users');
         var widget = Ext.widget('userEdit');
+        var panel = widget.getCenterContainer().items.getAt(0);
 
-        widget.down('#cancelLink').autoEl.href = this.getApplication().getController('Usr.controller.history.User').tokenizePreviousTokens();
+//        widget.down('#cancelLink').href = this.getApplication().getController('Usr.controller.history.User').tokenizePreviousTokens();
 
         widget.hide();
         widget.setLoading(true);
@@ -56,20 +61,19 @@ Ext.define('Usr.controller.UserGroups', {
             success: function (user) {
                 userStore.load({
                     callback: function (store) {
-                        title = Uni.I18n.translate('user.edit.with.name', 'USM', 'Edit user');
-                        widget.down('form').loadRecord(user);
-                        widget.down('#els_usm_userEditHeader').update('<h1>' + title + ' "' + user.get('authenticationName') + '"' + '</h1>');
+                        var title = Uni.I18n.translate('user.edit.with.name', 'USM', 'Edit user');
+
+                        panel.setTitle(title + ' "' + user.get('authenticationName') + '"');
                         widget.down('[name=authenticationName]').disable();
                         widget.down('[name=domain]').disable();
 
-                        me.getGroupsStore().load(function () {
-                            me.resetGroupsForRecord(user);
+                        me.getStore('Usr.store.Groups').load(function () {
+                            widget.down('form').loadRecord(user);
 
                             Ext.ModelManager.getModel('Usr.model.UserDirectory').load(user.get('domain'), {
                                 callback: function (domain) {
                                     if(!domain.get('manageGroupsInternal')){
                                         widget.down('[itemId=selectRoles]').disable();
-                                        widget.down('[itemId=selectRolesLabel]').disable();
                                     }
 
                                     me.getApplication().getController('Usr.controller.Main').showContent(widget);
@@ -106,26 +110,13 @@ Ext.define('Usr.controller.UserGroups', {
     },
 
     updateUser: function (button) {
-        var form = button.up('form'),
-            record = form.getRecord(),
-            values = form.getValues(),
-            roles = this.getSelectRolesGrid().store.data.items;
+        var form = button.up('form');
+        debugger;
+        form.updateRecord();
 
-        var selected = [];
-        for (var i = 0; i < roles.length; i++) {
-            if(roles[i].data.selected){
-                selected.push(roles[i]);
-            }
-        }
-
-        record.set(values);
-        record.groups().removeAll();
-        record.groups().add(selected);
-
-        var me=this;
-        record.save({
+        form.getRecord().save({
             success: function (record) {
-                location.href = form.down('#cancelLink').autoEl.href;
+                location.href = form.down('#cancelLink').href;
             },
             failure: function(record,operation){
                 var json = Ext.decode(operation.response.responseText);
@@ -134,24 +125,5 @@ Ext.define('Usr.controller.UserGroups', {
                 }
             }
         });
-    },
-
-    resetGroupsForRecord: function (record) {
-        var groups = this.getGroupsStore(),
-            currentGroups = record.groups().data.items;
-
-        var availableGroups = groups.data.items;
-
-        for (var i = 0; i < currentGroups.length; i++) {
-            var id = currentGroups[i].data.id;
-            var result = groups.getById(id);
-            if(result){
-                result.data.selected = true;
-            }
-        }
-
-        var selectedStore = this.getSelectRolesGrid().store;
-        selectedStore.removeAll();
-        selectedStore.add(availableGroups);
     }
 });
