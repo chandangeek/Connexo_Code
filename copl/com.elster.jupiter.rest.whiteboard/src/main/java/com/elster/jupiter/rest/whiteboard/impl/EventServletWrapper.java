@@ -68,14 +68,14 @@ public class EventServletWrapper extends HttpServlet {
     	}
 
 		@Override
-		public void handle(Object rawEvent, Object... eventDetails) {
-			if (rawEvent instanceof SqlEvent) {
-				SqlEvent event = (SqlEvent) rawEvent;
+		public void handle(Object notification, Object... notificationDetails) {
+			if (notification instanceof SqlEvent) {
+				SqlEvent event = (SqlEvent) notification;
 				sqlCount++;
 				fetchCount += event.getFetchCount();				
 			} 
-			if (rawEvent instanceof TransactionEvent) {
-				TransactionEvent event = (TransactionEvent) rawEvent;
+			if (notification instanceof TransactionEvent) {
+				TransactionEvent event = (TransactionEvent) notification;
 				transactionCount++;
 				if (event.hasFailed()) {
 					failedCount++;
