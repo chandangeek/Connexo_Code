@@ -261,9 +261,9 @@ public class AppServiceImpl implements InstallService, AppService, Subscriber {
     }
 
     @Override
-    public void handle(Object event, Object... eventDetails) {
-        if (event instanceof InvalidateCacheRequest) {
-            InvalidateCacheRequest invalidateCacheRequest = (InvalidateCacheRequest) event;
+    public void handle(Object notification, Object... notificationDetails) {
+        if (notification instanceof InvalidateCacheRequest) {
+            InvalidateCacheRequest invalidateCacheRequest = (InvalidateCacheRequest) notification;
             Properties properties = new Properties();
             properties.put(COMPONENT_NAME_KEY, invalidateCacheRequest.getComponentName());
             properties.put(TABLE_NAME, invalidateCacheRequest.getTableName());
