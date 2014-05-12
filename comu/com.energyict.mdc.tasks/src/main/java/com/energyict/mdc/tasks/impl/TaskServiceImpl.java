@@ -22,12 +22,13 @@ import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.TopologyTask;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import java.util.List;
-import java.util.logging.Logger;
-import javax.inject.Inject;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+
+import javax.inject.Inject;
+import java.util.List;
+import java.util.logging.Logger;
 
 @Component(name = "com.energyict.mdc.tasks", service = {TaskService.class, InstallService.class}, property = "name=" + TaskService.COMPONENT_NAME, immediate = true)
 public class TaskServiceImpl implements TaskService, InstallService {

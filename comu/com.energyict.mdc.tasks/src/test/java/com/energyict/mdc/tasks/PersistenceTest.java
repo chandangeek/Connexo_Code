@@ -25,24 +25,22 @@ import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.impl.EnvironmentImpl;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
-import com.energyict.mdc.engine.model.impl.EngineModelModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
-import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
-import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import java.util.Arrays;
-import java.util.List;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.rules.TestRule;
 import org.osgi.framework.BundleContext;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -71,12 +69,12 @@ public class PersistenceTest {
                 new NlsModule(),
                 new ThreadSecurityModule(),
                 new PubSubModule(),
-                new EngineModelModule(),
+//                new EngineModelModule(),
                 new InMemoryMessagingModule(),
-                new ProtocolsModule(),
+//                new ProtocolsModule(),
                 new IssuesModule(),
                 new MdcDynamicModule(),
-                new ProtocolPluggableModule(),
+//                new ProtocolPluggableModule(),
                 new MdcReadingTypeUtilServiceModule(),
                 new UserModule(),
                 new PartyModule(),

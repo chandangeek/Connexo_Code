@@ -4,11 +4,11 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterGroup;
-import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
@@ -44,7 +44,7 @@ import javax.validation.constraints.Size;
  * @since 2/05/12 - 16:10
  */
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{"+Constants.DUPLICATE_COMTASK_NAME +"}")
-public class ComTaskImpl implements ComTask {
+public class ComTaskImpl implements ComTask, HasId {
 
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
