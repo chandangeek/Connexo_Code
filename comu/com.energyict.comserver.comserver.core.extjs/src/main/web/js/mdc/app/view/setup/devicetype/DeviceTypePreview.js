@@ -111,6 +111,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                                 xtype: 'fieldcontainer',
                                 columnWidth: 0.5,
                                 fieldLabel: Uni.I18n.translate('devicetype.dataSources', 'MDC', 'Data sources'),
+                                labelAlign: 'right',
                                 layout: {
                                     type: 'vbox'
                                 },
@@ -158,6 +159,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                                 xtype: 'fieldcontainer',
                                 columnWidth: 0.5,
                                 fieldLabel: Uni.I18n.translate('devicetype.deviceConfigurationCount', 'MDC', 'Device configuration count'),
+                                labelAlign: 'right',
                                 layout: {
                                     type: 'vbox'
                                 },
@@ -179,7 +181,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                     }
 
                 ]
-            },
+            }/*,
             {
                 xtype: 'toolbar',
                 docked: 'bottom',
@@ -194,7 +196,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                     }
 
                 ]
-            }
+            }   */
         ]
     },
     // todo: set empty text

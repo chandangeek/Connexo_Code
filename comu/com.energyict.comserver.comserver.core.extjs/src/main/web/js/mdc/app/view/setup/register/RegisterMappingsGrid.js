@@ -13,7 +13,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
         'Mdc.store.RegisterTypesOfDevicetype'
     ],
     store: 'RegisterTypesOfDevicetype',
-    padding: '10 10 10 10',
+    //padding: '10 10 10 10',
     initComponent: function () {
         var me = this;
         this.columns = [
@@ -59,8 +59,9 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
             },
             {
                 xtype: 'actioncolumn',
-                tdCls: 'view',
-                iconCls: 'uni-centered-icon',
+                align: 'left',
+                //tdCls: 'view',
+                //iconCls: 'uni-centered-icon',
                 header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                 sortable: false,
                 hideable: false,

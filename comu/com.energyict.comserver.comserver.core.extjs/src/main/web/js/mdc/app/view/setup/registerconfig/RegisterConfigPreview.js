@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
     extend: 'Ext.panel.Panel',
-    border: true,
-    margins: '0 10 10 10',
+    frame: true,
+    //margins: '0 10 10 10',
     alias: 'widget.registerConfigPreview',
     itemId: 'registerConfigPreview',
     requires: [
@@ -12,6 +12,34 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
         align: 'stretch'
     },
 
+    title: 'Details',
+    tools: [
+        {
+            xtype: 'button',
+            icon: '../mdc/resources/images/actionsDetail.png',
+            //glyph: 71,
+            text: 'Action',
+            menu: [
+                {
+                    text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                    itemId: 'editRegisterConfig',
+                    action: 'editRegisterConfig'
+
+                },
+                {
+                    xtype: 'menuseparator'
+                },
+                {
+                    text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
+                    itemId: 'deleteRegisterConfig',
+                    action: 'deleteRegisterConfig'
+
+                }
+            ]
+        }
+
+    ],
+
     deviceTypeId: null,
     deviceConfigId: null,
     initComponent: function () {
@@ -20,7 +48,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
             {
                 xtype: 'panel',
                 border: false,
-                padding: '0 10 0 10',
+                //padding: '0 10 0 10',
                 tbar: [
                     {
                         xtype: 'component',
@@ -42,12 +70,12 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
                 xtype: 'form',
                 border: false,
                 itemId: 'registerConfigPreviewForm',
-                padding: '10 10 0 10',
+                //padding: '10 10 0 10',
                 layout: {
                     type: 'vbox',
                     align: 'stretch'
                 },
-                tbar: [
+                /*tbar: [
                     {
                         xtype: 'component',
                         html: '<h4>' + Uni.I18n.translate('registerConfig.previewTitle', 'MDC', 'Selected register configuration') + '</h4>',
@@ -77,7 +105,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
                             ]
                         }
                     }
-                ],
+                ],*/
                 items: [
                     {
                         xtype: 'container',

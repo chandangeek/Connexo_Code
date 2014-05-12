@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
     extend: 'Ext.panel.Panel',
-    border: true,
-    margins: '0 10 10 10',
+    frame: true,
+    //margins: '0 10 10 10',
     alias: 'widget.registerMappingPreview',
     itemId: 'registerMappingPreview',
     requires: [
@@ -12,6 +12,25 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
         align: 'stretch'
     },
 
+    title: 'Details',
+    tools: [
+        {
+            xtype: 'button',
+            icon: '../mdc/resources/images/actionsDetail.png',
+            //glyph: 71,
+            text: 'Action',
+            menu: [
+                {
+                    text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
+                    itemId: 'removeRegisterMapping',
+                    action: 'removeRegisterMapping'
+
+                }
+            ]
+        }
+
+    ],
+
     deviceTypeId: null,
     initComponent: function () {
         var me = this;
@@ -19,7 +38,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
             {
                 xtype: 'panel',
                 border: false,
-                padding: '0 10 0 10',
+                //padding: '0 10 0 10',
                 tbar: [
                     {
                         xtype: 'component',
@@ -41,12 +60,12 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
                 xtype: 'form',
                 border: false,
                 itemId: 'registerMappingPreviewForm',
-                padding: '10 10 0 10',
+                //padding: '10 10 0 10',
                 layout: {
                     type: 'vbox',
                     align: 'stretch'
                 },
-                tbar: [
+                /*tbar: [
                     {
                         xtype: 'component',
                         html: '<h4>' + Uni.I18n.translate('registerMapping.previewTitle', 'MDC', 'Selected register preview') + '</h4>',
@@ -67,7 +86,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
                             ]
                         }
                     }
-                ],
+                ],  */
                 items: [
                     {
                         xtype: 'container',
