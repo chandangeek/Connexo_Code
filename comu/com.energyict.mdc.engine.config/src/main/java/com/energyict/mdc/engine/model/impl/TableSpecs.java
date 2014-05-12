@@ -14,7 +14,6 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 public enum TableSpecs {
 
     MDCCOMPORTPOOL {
-
         @Override
         void addTo(DataModel dataModel) {
             Table<ComPortPool> table = dataModel.addTable(name(), ComPortPool.class);
@@ -26,8 +25,8 @@ public enum TableSpecs {
             table.column("DESCRIPTION").type("varchar2(80)").map(ComPortPoolImpl.Fields.DESCRIPTION.fieldName()).add();
             table.column("OBSOLETE_DATE").type("DATE").map(ComPortPoolImpl.Fields.OBSOLETEDATE.fieldName()).add();
             table.column("COMPORTTYPE").number().notNull().map(ComPortPoolImpl.Fields.COMPORTTYPE.fieldName()).conversion(ColumnConversion.NUMBER2ENUM).add();
-            table.column("TASKEXECUTIONTIMEOUTVALUE").number().conversion(ColumnConversion.NUMBER2INT).map(OutboundComPortPoolImpl.FIELD_TASKEXECUTIONTOMEOUT+".count").add();
-            table.column("TASKEXECUTIONTIMEOUTUNIT").number().conversion(ColumnConversion.NUMBER2INT).map(OutboundComPortPoolImpl.FIELD_TASKEXECUTIONTOMEOUT+".timeUnitCode").add();
+            table.column("TASKEXECUTIONTIMEOUTVALUE").number().conversion(ColumnConversion.NUMBER2INT).map(OutboundComPortPoolImpl.FIELD_TASKEXECUTIONTOMEOUT + ".count").add();
+            table.column("TASKEXECUTIONTIMEOUTUNIT").number().conversion(ColumnConversion.NUMBER2INT).map(OutboundComPortPoolImpl.FIELD_TASKEXECUTIONTOMEOUT + ".timeUnitCode").add();
             table.column("DISCOVERYPROTOCOL").number().conversion(ColumnConversion.NUMBER2INT).map(InboundComPortPoolImpl.FIELD_DISCOVEYPROTOCOL).add();
             table.primaryKey("CEM_PK_COMPORTPOOL").on(idColumn).add();
         }
@@ -127,18 +126,17 @@ public enum TableSpecs {
         @Override
         void addTo(DataModel dataModel) {
             Table<ComPortPoolMember> table = dataModel.addTable(name(), ComPortPoolMember.class);
-   			table.map(ComPortPoolMemberImpl.class);
+            table.map(ComPortPoolMemberImpl.class);
 
             Column comPortPoolIdColumn = table.column("POOL").number().notNull().conversion(NUMBER2LONG).add(); // DO NOT MAP
-   			Column comPortIdColumn = table.column("COMPORT").number().notNull().conversion(NUMBER2LONG).add(); // DO NOT MAP
-   			table.primaryKey("CEM_PK_COMPORTINPOOL").on(comPortPoolIdColumn, comPortIdColumn).add();
-   			table.unique("CEM_U_COMPORTINPOOL").on(comPortPoolIdColumn , comPortIdColumn).add();
+            Column comPortIdColumn = table.column("COMPORT").number().notNull().conversion(NUMBER2LONG).add(); // DO NOT MAP
+            table.primaryKey("CEM_PK_COMPORTINPOOL").on(comPortPoolIdColumn, comPortIdColumn).add();
 
-   			table.foreignKey("CEM_FKCOMPORTINPOOLCOMPORT").on(comPortIdColumn).references(MDCCOMPORT.name()).map("comPort").add();
+            table.foreignKey("CEM_FKCOMPORTINPOOLCOMPORT").on(comPortIdColumn).references(MDCCOMPORT.name()).map("comPort").add();
             table.foreignKey("CEM_FKCOMPORTINPOOLCOMPORTPOOL").on(comPortPoolIdColumn).references(MDCCOMPORTPOOL.name()).
-                map("comPortPool").reverseMap("comPortPoolMembers").composition().add();
-   		}
-   	};
+                    map("comPortPool").reverseMap("comPortPoolMembers").composition().add();
+        }
+    };
 
     abstract void addTo(DataModel component);
 
