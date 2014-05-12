@@ -44,7 +44,7 @@ Ext.define('Sam.controller.Main', {
         var menuItem = Ext.create('Uni.model.MenuItem', {
             text: 'System administration',
             href: me.getController('Sam.controller.history.Administration').tokenizeShowOverview(),
-            glyph: 'xe012@icomoon'
+            glyph: 'settings'
         });
 
         Uni.store.MenuItems.add(menuItem);
