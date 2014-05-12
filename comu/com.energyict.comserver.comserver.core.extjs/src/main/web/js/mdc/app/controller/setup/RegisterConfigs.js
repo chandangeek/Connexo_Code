@@ -99,7 +99,8 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             this.getRegisterConfigPreviewForm().loadRecord(registerConfigs[0]);
             var registerConfigsName = this.getRegisterConfigPreviewForm().form.findField('name').getSubmitValue();
             this.getRegisterConfigPreview().getLayout().setActiveItem(1);
-            this.getRegisterConfigPreviewTitle().update('<h4>' + registerConfigsName + '</h4>');
+            //this.getRegisterConfigPreviewTitle().update('<h4>' + registerConfigsName + '</h4>');
+            this.getDeviceTypePreview().getHeader().setTitle(registerConfigsName);
             this.getPreviewMrId().setValue(registerConfigs[0].getReadingType().get('mrid'));
             this.getRegisterConfigPreviewForm().loadRecord(registerConfigs[0]);
         } else {

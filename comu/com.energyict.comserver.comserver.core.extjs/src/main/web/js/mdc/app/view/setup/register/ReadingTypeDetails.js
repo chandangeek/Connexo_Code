@@ -25,7 +25,7 @@ Ext.define('Mdc.view.setup.register.ReadingTypeDetails', {
 
             border: false,
             itemId: 'readingTypeDetailsForm',
-            padding: '10 10 0 10',
+            //padding: '10 10 0 10',
             layout: {
                 type: 'vbox',
                 align: 'stretch'

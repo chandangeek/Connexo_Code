@@ -25,7 +25,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigSetup', {
                 {
                     xtype: 'component',
                     html: '<h1>' + Uni.I18n.translate('registerConfig.registerConfigs', 'MDC', 'Register configurations') + '</h1>',
-                    margins: '10 10 10 10',
+                    //margins: '10 10 10 10',
                     itemId: 'registerConfigTitle'
                 },
                 {
