@@ -1,14 +1,18 @@
 package com.elster.jupiter.transaction.impl;
 
-import com.elster.jupiter.pubsub.*;
-import com.elster.jupiter.transaction.*;
-import java.util.logging.Logger;
-
-import org.osgi.service.component.annotations.*;
+import com.elster.jupiter.pubsub.Subscriber;
+import com.elster.jupiter.transaction.SqlEvent;
+import com.elster.jupiter.transaction.TransactionEvent;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.event.EventAdmin;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Logger;
 
 @Component(name="com.elster.jupiter.transaction.logging", service=Subscriber.class)
 public class LogAndEventHandler implements Subscriber  {
@@ -41,10 +45,10 @@ public class LogAndEventHandler implements Subscriber  {
     }
 
     @Override
-    public void handle(Object rawEvent, Object ... eventDetails) {
+    public void handle(Object notification, Object ... notificationDetails) {
     	EventAdmin eventAdmin = eventAdminHolder.get();
-    	if (rawEvent instanceof SqlEvent) {
-    		SqlEvent event = (SqlEvent) rawEvent;
+    	if (notification instanceof SqlEvent) {
+    		SqlEvent event = (SqlEvent) notification;
     		if(sqlLog) {
     			Logger.getLogger("com.elster.jupiter.transaction").info(event.toString());
     		}
@@ -52,8 +56,8 @@ public class LogAndEventHandler implements Subscriber  {
     			eventAdmin.postEvent(event.toOsgiEvent());
     		}    		
     	}
-    	if (rawEvent instanceof TransactionEvent) {
-    		TransactionEvent event = (TransactionEvent) rawEvent;
+    	if (notification instanceof TransactionEvent) {
+    		TransactionEvent event = (TransactionEvent) notification;
     		if (txLog) {
     			Logger.getLogger("com.elster.jupiter.transaction").info(event.toString());
     		}

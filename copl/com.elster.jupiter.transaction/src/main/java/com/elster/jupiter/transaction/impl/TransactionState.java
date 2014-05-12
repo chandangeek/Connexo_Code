@@ -1,12 +1,12 @@
 package com.elster.jupiter.transaction.impl;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
 import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.transaction.SqlEvent;
 import com.elster.jupiter.transaction.TransactionEvent;
 import com.elster.jupiter.util.time.StopWatch;
+
+import java.sql.Connection;
+import java.sql.SQLException;
  
 class TransactionState implements Subscriber {	
 	private final TransactionServiceImpl  transactionService;
@@ -57,9 +57,9 @@ class TransactionState implements Subscriber {
 		this.rollback = true;
 	}
 
-	public void handle(Object rawEvent , Object... details) {
-		if (rawEvent instanceof SqlEvent) {
-			SqlEvent event = (SqlEvent) rawEvent;
+	public void handle(Object notification, Object... notificationDetails) {
+		if (notification instanceof SqlEvent) {
+			SqlEvent event = (SqlEvent) notification;
 			statementCount++;
 			fetchCount += event.getFetchCount();			
 		}
