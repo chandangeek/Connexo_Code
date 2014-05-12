@@ -24,7 +24,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         {ref: 'deviceTypeGrid', selector: '#devicetypegrid'},
         {ref: 'deviceTypePreviewForm', selector: '#deviceTypePreviewForm'},
         {ref: 'deviceTypePreview', selector: '#deviceTypePreview'},
-        {ref: 'deviceTypeDetailsLink', selector: '#deviceTypeDetailsLink'},
+        //{ref: 'deviceTypeDetailsLink', selector: '#deviceTypeDetailsLink'},
         {ref: 'deviceTypePreviewTitle', selector: '#deviceTypePreviewTitle'},
         {ref: 'deviceTypeEditView', selector: '#deviceTypeEdit'},
         {ref: 'deviceTypeEditForm', selector: '#deviceTypeEditForm'},
@@ -95,7 +95,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             this.getDeviceTypeLoadProfilesLink().getEl().set({href: '#/setup/devicetypes/' + deviceTypeId + '/loadprofiles'});
             this.getDeviceTypeLoadProfilesLink().getEl().setHTML(deviceTypes[0].get('loadProfileCount') + ' ' + Uni.I18n.translatePlural('devicetype.loadprofiles', deviceTypes[0].get('loadProfileCount'), 'MDC', 'load profile types'));
             this.getDeviceTypePreviewForm().loadRecord(deviceTypes[0]);
-            this.getDeviceTypeDetailsLink().update('<a href="#/setup/devicetypes/' + deviceTypeId + '">' + Uni.I18n.translate('general.viewDetails', 'MDC', 'View details') + '</a>');
+            //this.getDeviceTypeDetailsLink().update('<a href="#/setup/devicetypes/' + deviceTypeId + '">' + Uni.I18n.translate('general.viewDetails', 'MDC', 'View details') + '</a>');
             this.getDeviceConfigurationsLink().getEl().set({href: '#/setup/devicetypes/' + deviceTypeId + '/deviceconfigurations'});
             this.getDeviceConfigurationsLink().getEl().setHTML(deviceTypes[0].get('deviceConfigurationCount') + ' ' + Uni.I18n.translatePlural('devicetype.deviceconfigurations', deviceTypes[0].get('deviceConfigurationCount'), 'MDC', 'device configurations'));
             this.getDeviceTypePreview().getHeader().setTitle(deviceTypes[0].get('name'));

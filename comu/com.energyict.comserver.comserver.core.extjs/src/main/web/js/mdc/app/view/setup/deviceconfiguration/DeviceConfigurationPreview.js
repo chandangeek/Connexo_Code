@@ -1,6 +1,6 @@
 Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
     extend: 'Ext.panel.Panel',
-    border: true,
+    //border: true,
     //margins: '0 10 10 10',
     alias: 'widget.deviceConfigurationPreview',
     itemId: 'deviceConfigurationPreview',
@@ -166,6 +166,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
                                     xtype: 'fieldcontainer',
                                     columnWidth: 0.5,
                                     fieldLabel: Uni.I18n.translate('deviceconfiguration.dataSources', 'MDC', 'Data sources'),
+                                    labelAlign: 'right',
                                     layout: {
                                         type: 'vbox'
                                     },
@@ -212,7 +213,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
                         }
 
                     ]
-                },
+                }/*,
                 {
                     xtype: 'toolbar',
                     docked: 'bottom',
@@ -227,7 +228,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
                         }
 
                     ]
-                }
+                } */
             ]
         }
     ],

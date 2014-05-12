@@ -22,7 +22,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         {ref: 'deviceConfigurationsGrid', selector: '#deviceconfigurationsgrid'},
         {ref: 'deviceConfigurationPreviewForm', selector: '#deviceConfigurationPreviewForm'},
         {ref: 'deviceConfigurationPreview', selector: '#deviceConfigurationPreview'},
-        {ref: 'deviceConfigurationDetailsLink', selector: '#deviceConfigurationDetailsLink'},
+        //{ref: 'deviceConfigurationDetailsLink', selector: '#deviceConfigurationDetailsLink'},
         {ref: 'deviceConfigurationDetailForm', selector: '#deviceConfigurationDetailForm'},
         {ref: 'activateDeactivateDeviceConfiguration', selector: '#activateDeactivateDeviceConfiguration'},
         {ref: 'deviceConfigurationPreviewTitle', selector: '#deviceConfigurationPreviewTitle'},
@@ -116,7 +116,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             this.getDeviceConfigurationLoadProfilesLink().getEl().setHTML(deviceConfigurations[0].get('loadProfileCount') + ' ' + Uni.I18n.translatePlural('deviceconfiguration.loadprofiles', deviceConfigurations[0].get('loadProfileCount'), 'MDC', 'load profiles'));
             this.getDeviceConfigurationPreviewForm().loadRecord(deviceConfigurations[0]);
             this.getDeviceConfigurationPreview().getLayout().setActiveItem(1);
-            this.getDeviceConfigurationDetailsLink().update('<a href="#/setup/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + deviceConfigurationId + '">' + Uni.I18n.translate('general.viewDetails', 'MDC', 'View details') + '</a>');
+            //this.getDeviceConfigurationDetailsLink().update('<a href="#/setup/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + deviceConfigurationId + '">' + Uni.I18n.translate('general.viewDetails', 'MDC', 'View details') + '</a>');
             this.getDeviceConfigurationPreview().getHeader().setTitle(deviceConfigurations[0].get('name'));
             //this.getDeviceConfigurationPreviewTitle().update('<h1>' + deviceConfigurations[0].get('name') + '</h1>');
         } else {
