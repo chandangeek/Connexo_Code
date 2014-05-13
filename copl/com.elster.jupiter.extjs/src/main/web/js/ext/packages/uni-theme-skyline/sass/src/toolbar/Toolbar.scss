@@ -7,6 +7,10 @@
     margin: 0 5px !important;
 }
 
+.#{$prefix}toolbar-text {
+    margin: $toolbar-text-margin-bugfix;
+}
+
 .x-toolbar-separator {
     margin: 0 5px !important;
 }
