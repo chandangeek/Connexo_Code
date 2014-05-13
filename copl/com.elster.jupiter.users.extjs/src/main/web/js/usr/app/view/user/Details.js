@@ -68,7 +68,6 @@ Ext.define('Usr.view.user.Details', {
                                 {
                                     xtype: 'displayfield',
                                     name: 'roles',
-                                    id: 'els_usm_userDetailsRoles',
                                     fieldLabel: Uni.I18n.translate('user.roles', 'USM', 'Roles')
                                 },
                                 {

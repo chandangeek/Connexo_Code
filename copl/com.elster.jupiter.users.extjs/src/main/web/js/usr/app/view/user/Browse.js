@@ -5,7 +5,8 @@ Ext.define('Usr.view.user.Browse', {
     overflowY: 'auto',
     requires: [
         'Usr.view.user.List',
-        'Usr.view.user.Details'
+        'Usr.view.user.Details',
+        'Ext.panel.Panel'
     ],
 
     /*side: [

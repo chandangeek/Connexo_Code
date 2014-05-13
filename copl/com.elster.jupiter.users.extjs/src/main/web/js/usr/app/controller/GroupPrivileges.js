@@ -4,8 +4,8 @@ Ext.define('Usr.controller.GroupPrivileges', {
         'Uni.model.BreadcrumbItem'
     ],
     stores: [
-        'Privileges',
-        'Groups'
+        'Usr.store.Privileges',
+        'Usr.store.Groups'
     ],
     models: [
         'Privilege',
@@ -38,7 +38,7 @@ Ext.define('Usr.controller.GroupPrivileges', {
     },
 
     showEditOverview: function (groupId) {
-        var groupStore = Ext.StoreManager.get('Groups');
+        var groupStore = this.getStore('Usr.store.Groups');
         var widget = Ext.widget('groupEdit');
 
         widget.down('#cancelLink').autoEl.href = this.getApplication().getController('Usr.controller.history.Group').tokenizePreviousTokens();

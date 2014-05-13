@@ -5,17 +5,17 @@ Ext.define('Usr.controller.User', {
         'Usr.controller.UserGroups'
     ],
     stores: [
-        'Groups',
-        'Users'
+        'Usr.store.Groups',
+        'Usr.store.Users'
     ],
 
     models: [
-        'Group',
-        'User'
+        'Usr.model.Group',
+        'Usr.model.User'
     ],
 
     views: [
-        'user.Browse'
+        'Usr.view.user.Browse'
     ],
 
     refs: [
@@ -88,7 +88,7 @@ Ext.define('Usr.controller.User', {
             roles += currentGroups[i].data.name + '<br/>';
         }
 
-        var detailsRoles = Ext.getCmp('els_usm_userDetailsRoles');
+        var detailsRoles = form.down('[name=roles]');
         detailsRoles.setValue(roles);
         detailsPanel.show();
     }

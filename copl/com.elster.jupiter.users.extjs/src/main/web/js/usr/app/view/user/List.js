@@ -2,7 +2,7 @@ Ext.define('Usr.view.user.List', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.userList',
     itemId: 'userList',
-    store: 'Users',
+    store: 'Usr.store.Users',
 
     requires: [
         'Uni.view.toolbar.PagingTop',

@@ -5,18 +5,18 @@ Ext.define('Usr.controller.UserGroups', {
     ],
     stores: [
         'Usr.store.Groups',
-        'Users',
-        'UserDirectories'
+        'Usr.store.Users',
+        'Usr.store.UserDirectories'
     ],
 
     models: [
-        'Group',
-        'User',
-        'UserDirectory'
+        'Usr.model.Group',
+        'Usr.model.User',
+        'Usr.model.UserDirectory'
     ],
 
     views: [
-        'user.Edit'
+        'Usr.view.user.Edit'
     ],
 
     refs: [
@@ -57,7 +57,7 @@ Ext.define('Usr.controller.UserGroups', {
      * @param userId
      */
     showEditOverview: function (userId) {
-        var userStore = Ext.StoreManager.get('Users');
+        var userStore = Ext.StoreManager.get('Usr.store.Users');
         var widget = Ext.widget('userEdit');
         var panel = widget.getCenterContainer().items.getAt(0);
 
