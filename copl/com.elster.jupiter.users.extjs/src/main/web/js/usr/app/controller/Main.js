@@ -6,6 +6,17 @@ Ext.define('Usr.controller.Main', {
         'Uni.controller.Navigation'
     ],
 
+    controllers: [
+        'Usr.controller.Home',
+        'Usr.controller.User',
+        'Usr.controller.UserGroups',
+        'Usr.controller.Group',
+        'Usr.controller.GroupPrivileges',
+        'Usr.controller.history.Group',
+        'Usr.controller.history.User',
+        'Usr.controller.history.Home'
+    ],
+
     config: {
         navigationController: null
     },
@@ -71,7 +82,7 @@ Ext.define('Usr.controller.Main', {
     clearContentPanel: function () {
         var widget;
         while (widget = this.getContentPanel().items.first()) {
-            this.getContentPanel().remove(widget, true);
+            this.getContentPanel().remove(widget, false);
         }
     },
     signout: function () {
