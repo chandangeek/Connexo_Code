@@ -2,6 +2,7 @@
  * @class Uni.util.History
  */
 Ext.define('Uni.util.Hydrator', {
+    lazyLoading: true,
 
     /**
      * Extracts data from the provided object
@@ -125,8 +126,10 @@ Ext.define('Uni.util.Hydrator', {
      * @param callback
      */
     hydrateHasMany: function (data, store, callback) {
+        var me = this;
+        store.removeAll();
+
         if (!data) {
-            store.removeAll();
             return this;
         }
 
@@ -136,16 +139,26 @@ Ext.define('Uni.util.Hydrator', {
 
         var count = data.length;
         var records = _.map(data, function (id) {
-            store.model.load(id, {
-                callback: function(record, operation, status) {
-                    if (status) {
-                        store.add(record);
+            if (me.lazyLoading) {
+                store.model.load(id, {
+                    callback: function(record, operation, status) {
+                        if (status) {
+                            store.add(record);
+                        }
+                        if (--count == 0) {
+                            callback();
+                        }
                     }
-                    if (--count == 0) {
-                        callback();
-                    }
+                });
+            } else {
+                if (_.isNumber(id)) {
+                    var item = {};
+                    item[store.model.superclass.idProperty] = id;
+                    id = item;
                 }
-            });
+                var record = store.model.create(id);
+                store.add(record);
+            }
         });
 
         return this;
