@@ -3,7 +3,8 @@ Ext.define('Usr.view.user.Edit', {
     alias: 'widget.userEdit',
     requires: [
         'Usr.store.Groups',
-        'Uni.view.form.CheckboxGroup'
+        'Uni.view.form.CheckboxGroup',
+        'Ext.button.Button'
     ],
 
     content: [

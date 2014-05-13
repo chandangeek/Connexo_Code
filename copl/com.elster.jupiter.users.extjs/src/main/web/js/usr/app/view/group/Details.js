@@ -69,7 +69,6 @@ Ext.define('Usr.view.group.Details', {
                                 {
                                     xtype: 'displayfield',
                                     name: 'privileges',
-                                    id: 'els_usm_groupDetailsPrivileges',
                                     fieldLabel: Uni.I18n.translate('group.privileges', 'USM', 'Privileges')
                                 }
                             ]
