@@ -20,7 +20,9 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.AddLogbookTypes',
         'Mdc.controller.setup.LogbookConfigurations',
         'Mdc.controller.setup.AddLogbookConfigurations',
-        'Mdc.controller.setup.EditLogbookConfiguration'
+        'Mdc.controller.setup.EditLogbookConfiguration',
+        'Mdc.controller.setup.LogbookTypesOverview',
+        'Mdc.controller.setup.LogForm'
     ],
 
     controllers: [
@@ -40,7 +42,9 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.AddLogbookTypes',
         'Mdc.controller.setup.LogbookConfigurations',
         'Mdc.controller.setup.AddLogbookConfigurations',
-        'Mdc.controller.setup.EditLogbookConfiguration'
+        'Mdc.controller.setup.EditLogbookConfiguration',
+        'Mdc.controller.setup.LogbookTypesOverview',
+        'Mdc.controller.setup.LogForm'
     ],
 
     config: {

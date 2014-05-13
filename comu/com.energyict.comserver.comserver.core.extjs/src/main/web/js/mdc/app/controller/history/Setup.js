@@ -11,6 +11,17 @@ Ext.define('Mdc.controller.history.Setup', {
             me.getApplication().getController('Mdc.controller.setup.SetupOverview').showOverview();
         });
 
+        //Logbook type routes
+        crossroads.addRoute('setup/logbooktypes',function(){
+            me.getApplication().getController('Mdc.controller.setup.SetupOverview').showLogbookTypes();
+        });
+        crossroads.addRoute('setup/logbooktypes/create',function(){
+            me.getApplication().getController('Mdc.controller.setup.LogForm').showOverview();
+        });
+        crossroads.addRoute('setup/logbooktypes/edit/{id}',function(id){
+            me.getApplication().getController('Mdc.controller.setup.LogForm').showOverview(id);
+        });
+
         //Device type routes
         crossroads.addRoute('setup/devicetypes',function(){
             me.getApplication().getController('Mdc.controller.setup.SetupOverview').showDeviceTypes();
