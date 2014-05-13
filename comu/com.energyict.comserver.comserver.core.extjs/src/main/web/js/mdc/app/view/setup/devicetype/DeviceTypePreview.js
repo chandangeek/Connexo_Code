@@ -23,9 +23,6 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
 
                 },
                 {
-                    xtype: 'menuseparator'
-                },
-                {
                     text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
                     itemId: 'deleteDeviceType',
                     action: 'deleteDeviceType'
