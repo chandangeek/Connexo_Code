@@ -11,6 +11,17 @@ Ext.define('Mdc.controller.history.Setup', {
             me.getApplication().getController('Mdc.controller.setup.SetupOverview').showOverview();
         });
 
+        //Logbook type routes
+        crossroads.addRoute('setup/logbooktypes',function(){
+            me.getApplication().getController('Mdc.controller.setup.SetupOverview').showLogbookTypes();
+        });
+        crossroads.addRoute('setup/logbooktypes/create',function(){
+            me.getApplication().getController('Mdc.controller.setup.LogForm').showOverview();
+        });
+        crossroads.addRoute('setup/logbooktypes/edit/{id}',function(id){
+            me.getApplication().getController('Mdc.controller.setup.LogForm').showOverview(id);
+        });
+
         //Device type routes
         crossroads.addRoute('setup/devicetypes', function () {
             me.getApplication().getController('Mdc.controller.setup.SetupOverview').showDeviceTypes();
@@ -23,6 +34,12 @@ Ext.define('Mdc.controller.history.Setup', {
         });
         crossroads.addRoute('setup/devicetypes/{id}/edit', function (id) {
             me.getApplication().getController('Mdc.controller.setup.DeviceTypes').showDeviceTypeEditView(id);
+        });
+        crossroads.addRoute('setup/devicetypes/{id}/logbooktypes',function(id){
+            me.getApplication().getController('Mdc.controller.setup.DeviceTypes').showDeviceTypeLogbookTypesView(id);
+        });
+        crossroads.addRoute('setup/devicetypes/{id}/logbooktypes/add',function(id){
+            me.getApplication().getController('Mdc.controller.setup.DeviceTypes').showAddLogbookTypesView(id);
         });
 
         //Device configuration routes
@@ -37,6 +54,15 @@ Ext.define('Mdc.controller.history.Setup', {
         });
         crossroads.addRoute('setup/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/edit', function (deviceTypeId, deviceConfigurationId) {
             me.getApplication().getController('Mdc.controller.setup.DeviceConfigurations').showDeviceConfigurationEditView(deviceTypeId, deviceConfigurationId);
+        });
+        crossroads.addRoute('setup/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/logbookconfigurations',function(deviceTypeId, deviceConfigurationId){
+            me.getApplication().getController('Mdc.controller.setup.DeviceConfigurations').showDeviceConfigurationLogbooksView(deviceTypeId, deviceConfigurationId);
+        });
+        crossroads.addRoute('setup/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/logbookconfigurations/add',function(deviceTypeId, deviceConfigurationId){
+            me.getApplication().getController('Mdc.controller.setup.DeviceConfigurations').showAddDeviceConfigurationLogbooksView(deviceTypeId, deviceConfigurationId);
+        });
+        crossroads.addRoute('setup/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/logbookconfigurations/{logbookConfigurationId}/edit',function(deviceTypeId, deviceConfigurationId, logbookConfigurationId){
+            me.getApplication().getController('Mdc.controller.setup.DeviceConfigurations').showEditDeviceConfigurationLogbooksView(deviceTypeId, deviceConfigurationId, logbookConfigurationId);
         });
 
         //Comserver routes

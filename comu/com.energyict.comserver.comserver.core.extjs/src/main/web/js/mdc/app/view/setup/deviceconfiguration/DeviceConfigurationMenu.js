@@ -27,10 +27,10 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
                 href: '#setup/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/loadprofiles',
                 hrefTarget: '_self'
             }, {
-                text: Uni.I18n.translate('deviceconfigurationmenu.logbooks', 'MDC', 'Logbooks'),
+                text: 'Logbook configuration',
                 pressed: false,
                 itemId: 'logbooksLink',
-                href: '#setup/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId+ '/logbooks',
+                href: '#setup/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/logbookconfigurations',
                 hrefTarget: '_self'
             },
             {
