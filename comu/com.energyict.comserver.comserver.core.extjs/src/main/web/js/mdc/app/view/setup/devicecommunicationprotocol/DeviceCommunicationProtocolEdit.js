@@ -38,15 +38,9 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
 
                 items: [
                     {
-                        xtype: 'breadcrumbTrail',
-                        region: 'north',
-                        padding: 6
-                    },
-                    {
                         xtype: 'component',
                         html: '',
-                        itemId: 'deviceCommunicationProtocolEditCreateTitle',
-                        margins: '10 10 10 10'
+                        itemId: 'deviceCommunicationProtocolEditCreateTitle'
                     },
                     {
                         xtype: 'container',
