@@ -56,7 +56,7 @@ Ext.define('Usr.view.user.Edit', {
                         },
                         {
                             ui: 'link',
-                            href: '#/users',
+                            action: 'cancel',
                             itemId: 'cancelLink',
                             text: Uni.I18n.translate('general.cancel', 'USM', 'Cancel')
                         }

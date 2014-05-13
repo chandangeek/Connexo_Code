@@ -34,12 +34,22 @@ Ext.define('Usr.controller.UserGroups', {
         this.control({
             'userEdit button[action=save]': {
                 click: this.updateUser
+            },
+            'userEdit button[action=cancel]': {
+                click: this.back
             }
          });
     },
 
     showEditOverviewWithHistory: function(groupId) {
         location.href = '#users/' + groupId + '/edit';
+    },
+
+//    backUrl: this.getApplication().getController('Usr.controller.history.User').tokenizeShowOverview(),
+    backUrl: null,
+
+    back: function() {
+        location.href = this.backUrl;
     },
 
     /**
@@ -51,8 +61,7 @@ Ext.define('Usr.controller.UserGroups', {
         var widget = Ext.widget('userEdit');
         var panel = widget.getCenterContainer().items.getAt(0);
 
-//        widget.down('#cancelLink').href = this.getApplication().getController('Usr.controller.history.User').tokenizePreviousTokens();
-
+        this.backUrl = this.getApplication().getController('Usr.controller.history.User').tokenizePreviousTokens();
         widget.hide();
         widget.setLoading(true);
 
@@ -110,12 +119,13 @@ Ext.define('Usr.controller.UserGroups', {
     },
 
     updateUser: function (button) {
+        var me = this;
         var form = button.up('form');
-        form.updateRecord();
 
+        form.updateRecord();
         form.getRecord().save({
             success: function (record) {
-                location.href = form.down('#cancelLink').href;
+                me.back();
             },
             failure: function(record,operation){
                 var json = Ext.decode(operation.response.responseText);
