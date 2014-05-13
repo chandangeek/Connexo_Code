@@ -308,14 +308,12 @@ Ext.define('Mdc.widget.ScheduleField', {
 
 
         return {
-            temporalExpression: {
                 every: {
                     count: everyValue,
                     timeUnit: timeUnit
                 },
                 offset: offSet,
                 lastDay: day
-            }
         };
     },
 
@@ -323,11 +321,11 @@ Ext.define('Mdc.widget.ScheduleField', {
         this.hideOffsetGui();
         var me = this;
         if (schedule) {
-            me.valueField.setValue(schedule.temporalExpression.every.count);
-            me.unitField.setValue(schedule.temporalExpression.every.timeUnit);
+            me.valueField.setValue(schedule.every.count);
+            me.unitField.setValue(schedule.every.timeUnit);
 
-            var offSet = schedule.temporalExpression.offset;
-            switch(schedule.temporalExpression.every.timeUnit){
+            var offSet = schedule.offset;
+            switch(schedule.every.timeUnit){
                 case 'minutes':
                     this.secondField.setValue(offSet.count);
                     break;
@@ -343,7 +341,7 @@ Ext.define('Mdc.widget.ScheduleField', {
                 case 'weeks':
                     break;
                 case 'months':
-                    if(schedule.temporalExpression.lastDay === true){
+                    if(schedule.lastDay === true){
                         this.dayIndexField.setValue(Uni.I18n.translate('schedulefield.last', 'UNI', 'last'));
                     } else {
                         this.dayIndexField.setValue(Math.floor(offSet.count/86400));
