@@ -111,7 +111,6 @@ Ext.define('Usr.controller.UserGroups', {
 
     updateUser: function (button) {
         var form = button.up('form');
-        debugger;
         form.updateRecord();
 
         form.getRecord().save({
