@@ -62,7 +62,6 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
         ]
     }),
 
-    pageNavDelimiterTpl: new Ext.XTemplate('|'),
     pageNavItemTpl: new Ext.XTemplate('<a href="{1}">{0}</a>'),
     currentPageNavItemTpl: new Ext.XTemplate('<span>{0}</span>'),
 
@@ -246,6 +245,7 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
             {
                 xtype: 'container',
                 itemId: 'pageNavItem',
+                cls: 'pagenav',
                 layout: 'hbox'
             },
             {
@@ -398,10 +398,6 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
             pageOffset = i - currPage;
             start = me.getPageStartValue(pageOffset);
             container.add(me.createPageNavItem(i, start, pageOffset === 0));
-
-            if (i < endPage) {
-                container.add(me.createPageNavItemDelimiter());
-            }
         }
     },
 
@@ -410,6 +406,7 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
             result = me.formatSinglePageNavItem(page, start, isCurrent),
             navItem = Ext.create('Ext.Component', {
                 baseCls: Ext.baseCSSPrefix + 'toolbar-text',
+                cls: isCurrent ? 'active' : '',
                 html: result
             });
 
@@ -435,14 +432,6 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
                     task.delay(100);
                 }
             });
-        });
-    },
-
-    createPageNavItemDelimiter: function () {
-        var me = this;
-        return Ext.create('Ext.Component', {
-            baseCls: Ext.baseCSSPrefix + 'toolbar-text',
-            html: me.pageNavDelimiterTpl.apply()
         });
     },
 
