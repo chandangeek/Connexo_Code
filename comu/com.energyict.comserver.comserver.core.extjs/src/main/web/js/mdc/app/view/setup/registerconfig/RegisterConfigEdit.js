@@ -32,11 +32,11 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                 },
 
                 items: [
-                    {
+                    /*{
                         xtype: 'breadcrumbTrail',
                         region: 'north',
                         padding: 6
-                    },
+                    },        */
                     {
                         xtype: 'component',
                         html: '',
@@ -207,6 +207,13 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
 //                                                        formBind: true
                                             },
                                             {
+                                                text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                                                xtype: 'button',
+                                                ui: 'link',
+                                                itemId: 'cancelLink',
+                                                href: '#setup/devicetypes/'
+                                            }/*
+                                            {
                                                 xtype: 'component',
                                                 padding: '3 0 0 10',
                                                 itemId: 'cancelLink',
@@ -215,7 +222,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                                                     href: '#setup/devicetypes/',
                                                     html: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel')
                                                 }
-                                            }
+                                            }   */
                                         ]
                                     }
                                 ]
