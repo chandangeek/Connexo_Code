@@ -20,11 +20,11 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAdd', {
                 align: 'stretch'
             },
             items: [
-                {
+                /*{
                     xtype: 'breadcrumbTrail',
                     region: 'north',
                     padding: 6
-                },
+                },   */
                 {
                     xtype: 'component',
                     html: '<h1>' + Uni.I18n.translate('registerMappingAdd.addRegisterTypes', 'MDC', 'Add register types') + '</h1>',
@@ -51,6 +51,13 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAdd', {
                             itemId: 'addButton'
                         },
                         {
+                            text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                            xtype: 'button',
+                            ui: 'link',
+                            itemId: 'cancelLink',
+                            href: '#setup/devicetypes/' + this.deviceTypeId + '/registertypes',
+                        }/*,
+                        {
                             xtype: 'component',
                             padding: '3 0 0 10',
                             itemId: 'cancelLink',
@@ -59,7 +66,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAdd', {
                                 href: '#setup/devicetypes/' + this.deviceTypeId + '/registertypes',
                                 html: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel')
                             }
-                        }
+                        }  */
                     ]
                 }
             ]}

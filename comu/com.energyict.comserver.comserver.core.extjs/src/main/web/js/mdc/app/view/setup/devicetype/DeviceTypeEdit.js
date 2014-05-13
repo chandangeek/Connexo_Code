@@ -33,11 +33,11 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                 },
 
                 items: [
-                    {
+                    /*{
                         xtype: 'breadcrumbTrail',
                         region: 'north',
                         padding: 6
-                    },
+                    },  */
                     {
                         xtype: 'component',
                         html: '',
@@ -101,13 +101,13 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                                             {
                                                 xtype: 'fieldcontainer',
                                                 fieldLabel: '&nbsp',
-                                                //width: 430,
                                                 layout: {
                                                     type: 'hbox',
                                                     align: 'stretch'
                                                 },
+                                                width: '100%',
                                                 items: [
-                                                    {
+                                                    /*{
                                                         text: Uni.I18n.translate('general.create', 'MDC', 'Create'),
                                                         xtype: 'button',
                                                         action: 'createAction',
@@ -116,13 +116,30 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                                                     },
                                                     {
                                                         xtype: 'component',
+                                                        //text: 'Cancel',
+                                                        //ui: 'link',
                                                         padding: '3 0 0 10',
                                                         itemId: 'cancelLink',
+                                                        //hrefTarget: '',
+                                                        //href: '#setup/devicetypes/'
                                                         autoEl: {
                                                             tag: 'a',
                                                             href: '#setup/devicetypes/',
                                                             html: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel')
                                                         }
+                                                    }*/
+                                                    {
+                                                        text: Uni.I18n.translate('general.create', 'MDC', 'Create'),
+                                                        xtype: 'button',
+                                                        action: 'createAction',
+                                                        itemId: 'createEditButton'
+                                                    },
+                                                    {
+                                                        text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                                                        xtype: 'button',
+                                                        ui: 'link',
+                                                        itemId: 'cancelLink',
+                                                        href: '#/setup/devicetypes/'
                                                     }
                                                 ]
                                             }
@@ -137,6 +154,8 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                 ]
             }
         ];
+
+
         this.callParent(arguments);
         if(this.isEdit()){
             this.down('#createEditButton').setText(Uni.I18n.translate('general.edit', 'MDC', 'Edit'));
