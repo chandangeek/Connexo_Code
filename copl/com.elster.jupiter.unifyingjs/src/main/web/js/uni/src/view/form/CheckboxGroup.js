@@ -1,3 +1,17 @@
+/**
+ * @class Uni.view.form.CheckboxGroup
+ * This is the checkboxgroup extension, which allows to auto-load checkboxes from bounded store/
+ *
+ * Example:
+ *   {
+ *      xtype: 'checkboxstore',
+ *      fieldLabel: 'Select users',
+ *      store: 'App.store.Users',
+ *      columns: 1,
+ *      vertical: true,
+ *      name: 'users'
+ *   }
+ */
 Ext.define('Uni.view.form.CheckboxGroup', {
     extend: 'Ext.form.CheckboxGroup',
     alias: 'widget.checkboxstore',
@@ -6,7 +20,14 @@ Ext.define('Uni.view.form.CheckboxGroup', {
         bindable: 'Ext.util.Bindable'
     },
 
+    /**
+     * This field will be used as boxLabel on checkbox
+     */
     displayField: 'name',
+
+    /**
+     * This field will define the value of checkbox
+     */
     valueField: 'id',
 
     initComponent: function () {
@@ -15,6 +36,10 @@ Ext.define('Uni.view.form.CheckboxGroup', {
         this.callParent(arguments);
     },
 
+    /**
+     * @private
+     * Refreshes the content of the checkbox group
+     */
     refresh: function() {
         var me = this;
         me.removeAll();
