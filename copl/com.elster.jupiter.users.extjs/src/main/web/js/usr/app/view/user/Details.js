@@ -7,7 +7,7 @@ Ext.define('Usr.view.user.Details', {
     requires: [
         'Usr.store.Users',
         'Usr.model.User',
-        'Ext.layout.container.Column'
+        'Ext.button.Button'
     ],
     title: 'user',
     tools: [

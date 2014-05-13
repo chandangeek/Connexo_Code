@@ -1,5 +1,6 @@
 Ext.define('Usr.store.Users', {
     extend: 'Ext.data.Store',
     model: 'Usr.model.User',
-    pageSize: 10
+    pageSize: 10,
+    autoLoad: true
 });

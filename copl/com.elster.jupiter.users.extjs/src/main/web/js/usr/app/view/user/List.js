@@ -75,23 +75,19 @@ Ext.define('Usr.view.user.List', {
         ]
     },
 
-    initComponent: function () {
-        this.dockedItems = [
-            {
-                xtype: 'pagingtoolbartop',
-                store: this.store,
-                dock: 'top',
-                displayMsg: Uni.I18n.translate('user.list.top', 'USM', '{0} - {1} of {2} users')
-            },
-            {
-                xtype: 'pagingtoolbarbottom',
-                store: this.store,
-                dock: 'bottom',
-                Limit: '10',
-                itemsPerPageMsg: Uni.I18n.translate('user.list.bottom', 'USM', 'Users per page')
-            }
-        ];
-
-        this.callParent(arguments);
-    }
+    dockedItems: [
+        {
+            xtype: 'pagingtoolbartop',
+            store: this.store,
+            dock: 'top',
+            displayMsg: Uni.I18n.translate('user.list.top', 'USM', '{0} - {1} of {2} users')
+        },
+        {
+            xtype: 'pagingtoolbarbottom',
+            store: this.store,
+            dock: 'bottom',
+            Limit: '10',
+            itemsPerPageMsg: Uni.I18n.translate('user.list.bottom', 'USM', 'Users per page')
+        }
+    ]
 });

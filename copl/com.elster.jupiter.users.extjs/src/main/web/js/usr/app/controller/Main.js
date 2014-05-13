@@ -17,6 +17,10 @@ Ext.define('Usr.controller.Main', {
         'Usr.controller.history.Home'
     ],
 
+    stores: [
+        'Usr.store.Users'
+    ],
+
     config: {
         navigationController: null
     },
