@@ -22,7 +22,7 @@ Ext.define('Mdc.view.setup.searchitems.ContentLayout', {
                 items: [
                     {
                         xtype: 'component',
-                        html: '<H5>' + Uni.I18n.translate('searchItems.selectText', 'MDC', 'Enter one or more search criteria on the left and click \'Search\'.') + '</H5>'
+                        html: '<h5>' + Uni.I18n.translate('searchItems.selectText', 'MDC', 'Enter one or more search criteria on the left and click \'Search\'.') + '</h5>'
                     }
                 ]
             },
@@ -35,7 +35,7 @@ Ext.define('Mdc.view.setup.searchitems.ContentLayout', {
                 items: [
                     {
                         xtype: 'component',
-                        html: '<H5>' + Uni.I18n.translate('registerGroup.selectRegisterGroup', 'MDC', 'Select a register group to see its details') + '</H5>'
+                        html: '<h5>' + Uni.I18n.translate('registerGroup.selectRegisterGroup', 'MDC', 'Select a register group to see its details') + '</h5>'
                     }
                 ]
             }

@@ -207,13 +207,13 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                     var deviceType = results[0][0];
                     me.editBreadCrumb(deviceType.get('name'), deviceTypeId)
                     widget.down('form').loadRecord(deviceType);
-                    widget.down('#deviceTypeEditCreateTitle').update('<H2>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + deviceType.get('name') + '"</H2>');
+                    widget.down('#deviceTypeEditCreateTitle').update('<h1>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + deviceType.get('name') + '"</h1>');
                     widget.setLoading(false);
                 },
                 failure: function () {
                     me.editBreadCrumb(deviceType.get('name'), deviceTypeId)
                     widget.down('form').loadRecord(deviceType);
-                    widget.down('#deviceTypeEditCreateTitle').update('<H2>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + deviceType.get('name') + '"</H2>');
+                    widget.down('#deviceTypeEditCreateTitle').update('<h1>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + deviceType.get('name') + '"</h1>');
                     widget.setLoading(false);
                 }
             }
@@ -226,7 +226,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
 //                protocolStore.load({
 //                    callback: function (store) {
 //                        widget.down('form').loadRecord(deviceType);
-//                        widget.down('#deviceTypeEditCreateTitle').update('<H2>'+Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + deviceType.get('name')+'"</H2>');
+//                        widget.down('#deviceTypeEditCreateTitle').update('<h1>'+Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + deviceType.get('name')+'"</h1>');
 //                        widget.setLoading(false);
 //                    }
 //                })
@@ -248,7 +248,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         widget.setLoading(true);
         protocolStore.load({
             callback: function (store) {
-                widget.down('#deviceTypeEditCreateTitle').update('<H2>' + Uni.I18n.translate('general.create', 'MDC', 'Create') + ' ' + 'device type' + '</H2>');
+                widget.down('#deviceTypeEditCreateTitle').update('<h1>' + Uni.I18n.translate('general.create', 'MDC', 'Create') + ' ' + 'device type' + '</h1>');
                 me.createBreadCrumb();
                 widget.setLoading(false);
             }

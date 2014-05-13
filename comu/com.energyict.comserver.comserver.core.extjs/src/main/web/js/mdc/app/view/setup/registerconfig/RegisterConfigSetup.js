@@ -4,18 +4,18 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigSetup', {
     itemId: 'registerConfigSetup',
     deviceTypeId: null,
     deviceConfigId: null,
+
     requires: [
         'Mdc.view.setup.registerconfig.RegisterConfigGrid',
         'Mdc.view.setup.registerconfig.RegisterConfigFilter',
         'Mdc.view.setup.registerconfig.RegisterConfigPreview',
         'Uni.view.navigation.SubMenu',
-        'Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu',
-        'Uni.view.breadcrumb.Trail'
+        'Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu'
     ],
+
     content: [
         {
             xtype: 'container',
-            cls: 'content-container',
             itemId: 'stepsContainer',
             layout: {
                 type: 'vbox',
@@ -25,7 +25,6 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigSetup', {
                 {
                     xtype: 'component',
                     html: '<h1>' + Uni.I18n.translate('registerConfig.registerConfigs', 'MDC', 'Register configurations') + '</h1>',
-                    //margins: '10 10 10 10',
                     itemId: 'registerConfigTitle'
                 },
                 {
@@ -51,21 +50,22 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigSetup', {
             xtype: 'navigationSubMenu',
             itemId: 'stepsMenu'
         }/*,
-        {
-            xtype: 'registerConfigFilter',
-            name: 'filter'
-        }*/
+         {
+         xtype: 'registerConfigFilter',
+         name: 'filter'
+         }*/
     ],
 
-
     initComponent: function () {
-        this.side = [{
-            xtype: 'deviceConfigurationMenu',
-            itemId: 'stepsMenu',
-            deviceTypeId: this.deviceTypeId,
-            deviceConfigurationId: this.deviceConfigId,
-            toggle: 1
-        }];
+        this.side = [
+            {
+                xtype: 'deviceConfigurationMenu',
+                itemId: 'stepsMenu',
+                deviceTypeId: this.deviceTypeId,
+                deviceConfigurationId: this.deviceConfigId,
+                toggle: 1
+            }
+        ];
         this.callParent(arguments);
         this.down('#registerConfigGridContainer').add(
             {
@@ -83,5 +83,3 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigSetup', {
         );
     }
 });
-
-

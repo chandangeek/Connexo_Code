@@ -2,11 +2,10 @@ Ext.define('Mdc.view.setup.Browse', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.setupBrowse',
     overflowY: 'auto',
-    cls: 'content-container',
+
     items: [
         {
             xtype: 'container',
-            cls: 'content-container',
             layout: {
                 type: 'column'
             },

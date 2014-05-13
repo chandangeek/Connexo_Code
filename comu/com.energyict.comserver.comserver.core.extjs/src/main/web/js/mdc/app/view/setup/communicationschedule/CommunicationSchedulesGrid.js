@@ -71,7 +71,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulesGrid', {
                 xtype: 'actioncolumn',
                 tdCls: 'view',
                 iconCls: 'uni-centered-icon',
-                header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                header: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
                 sortable: false,
                 hideable: false,
                 fixed: true,

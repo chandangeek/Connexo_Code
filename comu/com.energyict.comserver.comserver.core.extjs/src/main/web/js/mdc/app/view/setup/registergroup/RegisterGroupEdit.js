@@ -2,21 +2,24 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.registerGroupEdit',
     itemId: 'registerGroupEdit',
+
     requires: [
         //'Mdc.model.RegisterType'
         'Mdc.store.RegisterTypes'
         //'Ext.grid.PagingScroller'
     ],
+
     layout: {
         type: 'vbox',
         align: 'stretch'
     },
-    cls: 'content-container',
+
     edit: false,
     autoScroll: true,
     isEdit: function () {
-        return this.edit
+        return this.edit;
     },
+
     setEdit: function (edit) {
         if (edit) {
             this.edit = edit;
@@ -111,22 +114,22 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                             enableColumnResize: false,
                                             sortableColumns: false,
                                             /*store: new Ext.data.Store({
-                                                model: 'Mdc.model.RegisterType',
-                                                buffered: true,
-                                                leadingBufferZone: 20,
-                                                trailingBufferZone: 20,
-                                                pageSize: 20,
-                                                autoLoad: true,
-                                                proxy: {
-                                                    type: 'rest',
-                                                    url: '../../api/dtc/registertypes',
-                                                    reader: {
-                                                        type: 'json',
-                                                        root: 'registerTypes',
-                                                        totalProperty: 'total'
-                                                    }
-                                                }
-                                            }),*/
+                                             model: 'Mdc.model.RegisterType',
+                                             buffered: true,
+                                             leadingBufferZone: 20,
+                                             trailingBufferZone: 20,
+                                             pageSize: 20,
+                                             autoLoad: true,
+                                             proxy: {
+                                             type: 'rest',
+                                             url: '../../api/dtc/registertypes',
+                                             reader: {
+                                             type: 'json',
+                                             root: 'registerTypes',
+                                             totalProperty: 'total'
+                                             }
+                                             }
+                                             }),*/
                                             store: 'RegisterTypes',
                                             selModel: {
                                                 mode: 'MULTI',
@@ -199,7 +202,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                                     items: [
                                                         {
                                                             xtype: 'component',
-                                                            html: '<b>'+ Uni.I18n.translate('registerGroupPreview.empty.title', 'MDC', 'No register types found') +'</b><br>' +
+                                                            html: '<b>' + Uni.I18n.translate('registerGroupPreview.empty.title', 'MDC', 'No register types found') + '</b><br>' +
                                                                 Uni.I18n.translate('registerGroupPreview.empty.detail', 'MDC', 'There are no register types. This could be because:') + '<lv><li>&nbsp&nbsp' +
                                                                 Uni.I18n.translate('registerGroupEdit.empty.list.item1', 'MDC', 'No register types have been defined yet.') + '</li></lv><br>' +
                                                                 Uni.I18n.translate('registerGroupPreview.empty.steps', 'MDC', 'Possible steps:')
@@ -255,6 +258,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
             }
         ];
         this.callParent(arguments);
+
         if (this.isEdit()) {
             this.down('#createEditButton').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
             this.down('#createEditButton').action = 'saveRegisterGroup';
@@ -262,8 +266,5 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
             this.down('#createEditButton').setText(Uni.I18n.translate('general.create', 'MDC', 'Create'));
             this.down('#createEditButton').action = 'createRegisterGroup';
         }
-
     }
-
-
 });

@@ -1,20 +1,20 @@
 Ext.define('Mdc.view.setup.registergroup.RegisterGroupSetup', {
-    //extend: 'Ext.panel.Panel',
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.registerGroupSetup',
     itemId: 'registerGroupSetup',
+
     requires: [
         'Mdc.view.setup.registergroup.RegisterGroupGrid',
         'Mdc.view.setup.registergroup.RegisterGroupPreview',
         'Ext.layout.container.Card',
         'Uni.view.container.EmptyGridContainer'
     ],
+
     hidden: true,
 
     content: [
         {
             xtype: 'container',
-            cls: 'content-container',
             layout: {
                 type: 'vbox',
                 align: 'stretch'
@@ -23,7 +23,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupSetup', {
             items: [
                 {
                     xtype: 'component',
-                    html: '<h1>' + Uni.I18n.translate('registerGroup.registerGroups','MDC','Register groups') + '</h1>',
+                    html: '<h1>' + Uni.I18n.translate('registerGroup.registerGroups', 'MDC', 'Register groups') + '</h1>',
                     //margins: '10 10 10 10',
                     itemId: 'registerGroupTitle'
                 },
@@ -75,7 +75,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupSetup', {
                             items: [
                                 {
                                     xtype: 'component',
-                                    html: '<b>'+ Uni.I18n.translate('registerGroup.empty.title', 'MDC', 'No register groups found') +'</b><br>' +
+                                    html: '<b>' + Uni.I18n.translate('registerGroup.empty.title', 'MDC', 'No register groups found') + '</b><br>' +
                                         Uni.I18n.translate('registerGroup.empty.detail', 'MDC', 'There are no register groups. This could be because:') + '<lv><li>&nbsp&nbsp' +
                                         Uni.I18n.translate('registerGroup.empty.list.item1', 'MDC', 'No register groups have been defined yet.') + '</li></lv><br>' +
                                         Uni.I18n.translate('registerGroup.empty.steps', 'MDC', 'Possible steps:')

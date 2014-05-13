@@ -24,14 +24,14 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
             tbar: [
                 {
                     xtype: 'component',
-                    html: '<H4>'+Uni.I18n.translate('connectionmethod.noConnectionMethodSelected', 'MDC', 'No connection method selected')+'</H4>'
+                    html: '<h4>'+Uni.I18n.translate('connectionmethod.noConnectionMethodSelected', 'MDC', 'No connection method selected')+'</h4>'
                 }
             ],
             items: [
                 {
                     xtype: 'component',
                     height: '100px',
-                    html: '<H5>'+Uni.I18n.translate('connectionmethod.selectConnectionMethod', 'MDC', 'Select a connection method to see its details')+'</H5>'
+                    html: '<h5>'+Uni.I18n.translate('connectionmethod.selectConnectionMethod', 'MDC', 'Select a connection method to see its details')+'</h5>'
                 }
             ]
 
@@ -54,7 +54,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
                 '->',
                 {
                     icon: 'resources/images/actionsDetail.png',
-                    text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                    text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
                     menu: {
                         items: [
                             {

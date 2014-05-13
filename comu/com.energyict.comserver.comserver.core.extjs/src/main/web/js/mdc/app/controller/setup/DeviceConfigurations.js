@@ -265,7 +265,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId,{
             success: function(deviceType){
                 me.getApplication().getController('Mdc.controller.Main').showContent(widget);
-                widget.down('#deviceConfigurationEditCreateTitle').update('<H2>'+Uni.I18n.translate('general.create', 'MDC', 'Create') + ' ' + 'device configuration'+'</H2>');
+                widget.down('#deviceConfigurationEditCreateTitle').update('<h1>'+Uni.I18n.translate('general.create', 'MDC', 'Create') + ' ' + 'device configuration'+'</h1>');
                 me.setCheckBoxes(deviceType);
                 me.createBreadCrumb(deviceTypeId,deviceType.get('name'));
             }
@@ -301,7 +301,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                     success: function(deviceType){
                         me.editBreadCrumb(deviceTypeId, deviceType.get('name'), deviceConfigurationId, deviceConfiguration.get('name'));
                         widget.down('form').loadRecord(deviceConfiguration);
-                        widget.down('#deviceConfigurationEditCreateTitle').update('<H2>'+Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + deviceConfiguration.get('name')+'"</H2>');
+                        widget.down('#deviceConfigurationEditCreateTitle').update('<h1>'+Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + deviceConfiguration.get('name')+'"</h1>');
                         me.setCheckBoxes(deviceType);
                         widget.setLoading(false);
                     }

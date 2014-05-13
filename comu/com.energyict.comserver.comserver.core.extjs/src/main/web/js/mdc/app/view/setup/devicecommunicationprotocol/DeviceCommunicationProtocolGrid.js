@@ -3,15 +3,19 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
     alias: 'widget.deviceCommunicationProtocolGrid',
     overflowY: 'auto',
     itemId: 'devicecommunicationprotocolgrid',
+
     selModel: {
         mode: 'SINGLE'
     },
+
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Mdc.store.DeviceCommunicationProtocolsPaged'
     ],
+
     store: 'DeviceCommunicationProtocolsPaged',
+
     initComponent: function () {
         var me = this;
         this.columns = [
@@ -33,15 +37,13 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
             },
             {
                 xtype: 'actioncolumn',
-                iconCls: 'uni-centered-icon',
-                tdCls: 'view',
-                header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                iconCls: 'uni-actioncolumn-icon',
+                header: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
                 sortable: false,
                 hideable: false,
                 fixed: true,
                 items: [
                     {
-                        icon: '../mdc/resources/images/masterActions.png',
                         handler: function (grid, rowIndex, colIndex, item, e, record, row) {
                             var menu = Ext.widget('menu', {
                                 items: [
