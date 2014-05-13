@@ -60,7 +60,7 @@ public class DeviceCommunicationProtocolInfo {
         List<PropertySpec> propertySpecs = deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpecs();
         for (PropertySpec propertySpec : propertySpecs) {
             Object value = MdcPropertyUtils.findPropertyValue(propertySpec, this.properties);
-            if (value == null || value.equals("")) {
+            if (value == null || "".equals(value)) {
                 deviceProtocolPluggableClass.removeProperty(propertySpec);
             } else {
                 deviceProtocolPluggableClass.setProperty(propertySpec, value);
