@@ -3,14 +3,16 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
     alias: 'widget.deviceCommunicationProtocolEdit',
     itemId: 'deviceCommunicationProtocolEdit',
     overflowY: true,
-    cls: 'content-container',
     edit: false,
+
     requires: [
         'Mdc.view.setup.property.Edit'
     ],
+
     isEdit: function () {
-        return this.edit
+        return this.edit;
     },
+
     setEdit: function (edit) {
         if (edit) {
             this.edit = edit;
@@ -29,7 +31,6 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
         this.content = [
             {
                 xtype: 'container',
-                cls: 'content-container',
                 overflowY: true,
                 layout: {
                     type: 'vbox',
@@ -129,6 +130,7 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
             }
         ];
         this.callParent(arguments);
+
         if (this.isEdit()) {
             console.log(this.down("#createEditButton"));
             this.down('#createEditButton').setText(Uni.I18n.translate('general.edit', 'MDC', 'Edit'));

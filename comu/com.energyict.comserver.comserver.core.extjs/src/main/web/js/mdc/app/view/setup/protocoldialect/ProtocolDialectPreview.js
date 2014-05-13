@@ -20,7 +20,7 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectPreview', {
             tbar: [
                 {
                     xtype: 'component',
-                    html: '<H4>' + Uni.I18n.translate('protocolDialect.noProtocolDialectSelected', 'MDC', 'No protocol selected') + '</H4>'
+                    html: '<h4>' + Uni.I18n.translate('protocolDialect.noProtocolDialectSelected', 'MDC', 'No protocol selected') + '</h4>'
                 }
             ],
             items: [

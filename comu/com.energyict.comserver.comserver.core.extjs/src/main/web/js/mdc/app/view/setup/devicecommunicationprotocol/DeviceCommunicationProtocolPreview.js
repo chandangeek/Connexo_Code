@@ -23,7 +23,7 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
                 tbar: [
                     {
                         xtype: 'component',
-                        html: '<H4>' + Uni.I18n.translate('deviceCommunicationProtocol.noDeviceCommunicationProtocolSelected', 'MDC', 'No protocol selected') + '</H4>'
+                        html: '<h4>' + Uni.I18n.translate('deviceCommunicationProtocol.noDeviceCommunicationProtocolSelected', 'MDC', 'No protocol selected') + '</h4>'
                     }
                 ],
                 items: [
@@ -53,7 +53,7 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
                     '->',
                     {
                         icon: '../mdc/resources/images/actionsDetail.png',
-                        text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                        text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
                         menu: {
                             items: [
                                 {

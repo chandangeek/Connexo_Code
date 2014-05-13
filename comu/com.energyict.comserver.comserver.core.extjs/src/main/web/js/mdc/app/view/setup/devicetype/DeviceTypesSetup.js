@@ -4,14 +4,12 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesSetup', {
     itemId: 'deviceTypeSetup',
     requires: [
         'Mdc.view.setup.devicetype.DeviceTypesGrid',
-        'Mdc.view.setup.devicetype.DeviceTypePreview',
-        'Uni.view.breadcrumb.Trail'
+        'Mdc.view.setup.devicetype.DeviceTypePreview'
     ],
 
     content: [
         {
             xtype: 'container',
-            cls: 'content-container',
             layout: {
                 type: 'vbox',
                 align: 'stretch'
@@ -19,8 +17,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesSetup', {
             items: [
                 {
                     xtype: 'component',
-                    html: '<H1>' + Uni.I18n.translate('devicetype.deviceTypes', 'MDC', 'Device types') + '</H1>'
-                    //margins: '10 0 10 0'
+                    html: '<h1>' + Uni.I18n.translate('devicetype.deviceTypes', 'MDC', 'Device types') + '</h1>'
                 },
                 {
                     xtype: 'deviceTypesGrid'
@@ -35,7 +32,6 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesSetup', {
             ]
         }
     ],
-
 
     initComponent: function () {
         this.callParent(arguments);

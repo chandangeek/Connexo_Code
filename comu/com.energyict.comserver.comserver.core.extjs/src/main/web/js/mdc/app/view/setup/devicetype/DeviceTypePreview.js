@@ -13,8 +13,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
         {
             xtype: 'button',
             icon: '../mdc/resources/images/actionsDetail.png',
-            //glyph: 71,
-            text: 'Action',
+            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
             menu: [
                 {
                     text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
@@ -182,21 +181,21 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
 
                 ]
             }/*,
-            {
-                xtype: 'toolbar',
-                docked: 'bottom',
-                border: false,
-                title: 'Bottom Toolbar',
-                items: [
-                    '->',
-                    {
-                        xtype: 'component',
-                        itemId: 'deviceTypeDetailsLink',
-                        html: '' // filled in in Controller
-                    }
+             {
+             xtype: 'toolbar',
+             docked: 'bottom',
+             border: false,
+             title: 'Bottom Toolbar',
+             items: [
+             '->',
+             {
+             xtype: 'component',
+             itemId: 'deviceTypeDetailsLink',
+             html: '' // filled in in Controller
+             }
 
-                ]
-            }   */
+             ]
+             }   */
         ]
     },
     // todo: set empty text

@@ -1,7 +1,6 @@
 Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
     extend: 'Ext.panel.Panel',
     frame: true,
-    //margins: '0 10 10 10',
     alias: 'widget.registerMappingPreview',
     itemId: 'registerMappingPreview',
     requires: [
@@ -17,8 +16,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
         {
             xtype: 'button',
             icon: '../mdc/resources/images/actionsDetail.png',
-            //glyph: 71,
-            text: 'Action',
+            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
             menu: [
                 {
                     text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
@@ -38,11 +36,10 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
             {
                 xtype: 'panel',
                 border: false,
-                //padding: '0 10 0 10',
                 tbar: [
                     {
                         xtype: 'component',
-                        html: '<H4>' + Uni.I18n.translate('registerMapping.noRegisterMappingSelected', 'MDC', 'No register type selected') + '</H4>'
+                        html: '<h4>' + Uni.I18n.translate('registerMapping.noRegisterMappingSelected', 'MDC', 'No register type selected') + '</h4>'
                     }
                 ],
                 items: [
@@ -52,47 +49,21 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
                         html: '<H5>' + Uni.I18n.translate('registerMapping.selectRegisterMapping', 'MDC', 'Select a register type to see its details') + '</H5>'
                     }
                 ]
-
             },
-
 
             {
                 xtype: 'form',
                 border: false,
                 itemId: 'registerMappingPreviewForm',
-                //padding: '10 10 0 10',
                 layout: {
                     type: 'vbox',
                     align: 'stretch'
                 },
-                /*tbar: [
-                    {
-                        xtype: 'component',
-                        html: '<h4>' + Uni.I18n.translate('registerMapping.previewTitle', 'MDC', 'Selected register preview') + '</h4>',
-                        itemId: 'registerMappingPreviewTitle'
-                    },
-                    '->',
-                    {
-                        icon: '../mdc/resources/images/actionsDetail.png',
-                        text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-                        menu: {
-                            items: [
-                                {
-                                    text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-                                    itemId: 'removeRegisterMapping',
-                                    action: 'removeRegisterMapping'
-
-                                }
-                            ]
-                        }
-                    }
-                ],  */
                 items: [
                     {
                         xtype: 'container',
                         layout: {
                             type: 'column'
-                            //                        align: 'stretch'
                         },
                         items: [
                             {
@@ -174,27 +145,10 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
                             }
                         ]
                     }
-                    /*,
-                     {
-                     xtype: 'toolbar',
-                     docked: 'bottom',
-                     title: 'Bottom Toolbar',
-                     items: [
-                     '->',
-                     {
-                     xtype: 'component',
-                     itemId: 'registerMappingDetailsLink',
-                     html: '' // filled in in Controller
-                     }
-
-                     ]
-                     }*/
                 ]
             }
-        ]
+        ];
+
         this.callParent(arguments);
-
     }
-})
-;
-
+});

@@ -35,7 +35,7 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
                 xtype: 'actioncolumn',
                 iconCls: 'uni-centered-icon',
                 tdCls: 'view',
-                header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                header: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
                 sortable: false,
                 hideable: false,
                 fixed: true,

@@ -160,7 +160,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
                     callback: function (registerTypes) {
                         me.editBreadCrumb(registerGroup.get('name'));
                         widget.down('form').loadRecord(registerGroup);
-                        widget.down('#registerGroupEditCreateTitle').update('<H1>' + registerGroup.get('name') + ' > ' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + Uni.I18n.translate('registerGroup.registerGroup', 'MDC', 'Register group') + '</H1>');
+                        widget.down('#registerGroupEditCreateTitle').update('<h1>' + registerGroup.get('name') + ' > ' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + Uni.I18n.translate('registerGroup.registerGroup', 'MDC', 'Register group') + '</h1>');
                         if(this.data.items.length > 0){
                             me.getRegisterEditEmptyGrid().getLayout().setActiveItem('gridContainer');
                             widget.down('#editRegisterGroupGridField').getSelectionModel().doSelect(registerGroup.registerTypes().data.items);
@@ -194,7 +194,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
                 me.createBreadCrumb();
                 var registerGroup = Ext.create(Ext.ModelManager.getModel('Mdc.model.RegisterGroup'));
                 widget.down('form').loadRecord(registerGroup);
-                widget.down('#registerGroupEditCreateTitle').update('<H1>' + Uni.I18n.translate('registerGroup.create', 'MDC', 'Create register group') + '</H1>');
+                widget.down('#registerGroupEditCreateTitle').update('<h1>' + Uni.I18n.translate('registerGroup.create', 'MDC', 'Create register group') + '</h1>');
                 if(this.totalCount > 0){
                     me.getRegisterEditEmptyGrid().getLayout().setActiveItem('gridContainer');
                     widget.down('#editRegisterGroupSelectedField').setValue(Ext.String.format(Uni.I18n.translate('registerGroup.selectedRegisterTypes', 'MDC', '{0} register types selected'), 0));

@@ -3,20 +3,17 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
     alias: 'widget.deviceSetup',
     deviceTypeId: null,
     itemId: 'deviceSetup',
+
     requires: [
-        'Uni.view.breadcrumb.Trail',
         'Mdc.view.setup.device.DeviceMenu',
         'Mdc.view.setup.device.DeviceCommunicationTopologyPanel',
         'Mdc.view.setup.device.DeviceGeneralInformationPanel',
         'Mdc.view.setup.device.DeviceOpenIssuesPanel'
     ],
-//    border: 0,
-//    region: 'center',
 
     content: [
         {
             xtype: 'container',
-            cls: 'content-container',
             layout: {
                 type: 'vbox',
                 align: 'stretch'
@@ -42,7 +39,6 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                 }
             ]}
     ],
-
 
     initComponent: function () {
         this.side = [
@@ -91,7 +87,4 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                 }
             });
     }
-})
-;
-
-
+});

@@ -27,8 +27,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
         {ref: 'deviceCommunicationProtocolPreviewTitle', selector: '#deviceCommunicationProtocolPreviewTitle'},
         {ref: 'deviceCommunicationProtocolEditView', selector: '#deviceCommunicationProtocolEdit'},
         {ref: 'deviceCommunicationProtocolEditForm', selector: '#deviceCommunicationProtocolEditForm'},
-        {ref: 'breadCrumbs', selector: 'breadcrumbTrail'},
-        {ref: 'deviceCommunicationProtocolEditForm', selector: '#deviceCommunicationProtocolEditForm'}
+        {ref: 'breadCrumbs', selector: 'breadcrumbTrail'}
     ],
 
     init: function () {
@@ -95,15 +94,13 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
         var me = this;
         Ext.ModelManager.getModel('Mdc.model.DeviceCommunicationProtocol').load(deviceCommunicationProtocol, {
             success: function (protocol) {
-                me.editBreadCrumb(protocol.get('name'), deviceCommunicationProtocol)
+                me.editBreadCrumb(protocol.get('name'), deviceCommunicationProtocol);
                 widget.down('form').loadRecord(protocol);
-                widget.down('#deviceCommunicationProtocolEditCreateTitle').update('<H2>' + protocol.get('name') + ' > ' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + Uni.I18n.translate('deviceCommunicationProtocol.protocol', 'MDC', 'Protocol') + '</H2>');
+                widget.down('#deviceCommunicationProtocolEditCreateTitle').update('<h1>' + protocol.get('name') + ' > ' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + Uni.I18n.translate('deviceCommunicationProtocol.protocol', 'MDC', 'Protocol') + '</h1>');
                 me.getPropertiesController().showProperties(protocol, widget, true);
                 widget.setLoading(false);
             }
-        })
-
-
+        });
     },
 
     editDeviceCommunicationProtocol: function () {
@@ -159,5 +156,4 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
         this.getBreadCrumbs().setBreadcrumbItem(breadcrumb1);
     }
 
-})
-;
+});

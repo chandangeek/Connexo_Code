@@ -2,11 +2,13 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.registerConfigEdit',
     itemId: 'registerConfigEdit',
-    cls: 'content-container',
+
     edit: false,
+
     isEdit: function () {
-        return this.edit
+        return this.edit;
     },
+
     setEdit: function (edit, returnLink) {
         if (edit) {
             this.edit = edit;
@@ -25,18 +27,12 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
         this.content = [
             {
                 xtype: 'container',
-                cls: 'content-container',
                 layout: {
                     type: 'vbox',
                     align: 'stretch'
                 },
 
                 items: [
-                    /*{
-                        xtype: 'breadcrumbTrail',
-                        region: 'north',
-                        padding: 6
-                    },        */
                     {
                         xtype: 'component',
                         html: '',
@@ -81,8 +77,6 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                                         fieldLabel: Uni.I18n.translate('registerConfig.readingType', 'MDC', 'Reading type'),
                                         disabled: true,
                                         itemId: 'readingTypeContainer',
-                                        // labelAlign: 'right',
-                                        // labelWidth: 150,
                                         layout: {
                                             type: 'hbox',
                                             align: 'stretch'
@@ -159,7 +153,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                                         },
                                         items: [
                                             {
-                                                html: '<span style="color: grey"><i>' + Uni.I18n.translate('registerConfig.overflowValueInfo','MDC', 'The maximum overflow value is {0}.', ['1000000000']) + '</i></span>',
+                                                html: '<span style="color: grey"><i>' + Uni.I18n.translate('registerConfig.overflowValueInfo', 'MDC', 'The maximum overflow value is {0}.', ['1000000000']) + '</i></span>',
                                                 xtype: 'component',
                                                 itemId: 'overflowValueInfo'
                                             }
@@ -211,18 +205,8 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                                                 xtype: 'button',
                                                 ui: 'link',
                                                 itemId: 'cancelLink',
-                                                href: '#setup/devicetypes/'
-                                            }/*
-                                            {
-                                                xtype: 'component',
-                                                padding: '3 0 0 10',
-                                                itemId: 'cancelLink',
-                                                autoEl: {
-                                                    tag: 'a',
-                                                    href: '#setup/devicetypes/',
-                                                    html: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel')
-                                                }
-                                            }   */
+                                                href: '#/setup/devicetypes/'
+                                            }
                                         ]
                                     }
                                 ]
@@ -236,6 +220,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
             }
         ];
         this.callParent(arguments);
+
         if (this.isEdit()) {
             this.down('#createEditButton').setText(Uni.I18n.translate('general.edit', 'MDC', 'Edit'));
             this.down('#createEditButton').action = 'editRegisterConfiguration';
@@ -244,9 +229,5 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
             this.down('#createEditButton').action = 'createRegisterConfiguration';
         }
         this.down('#cancelLink').autoEl.href = this.returnLink;
-
     }
-
-
 });
-
