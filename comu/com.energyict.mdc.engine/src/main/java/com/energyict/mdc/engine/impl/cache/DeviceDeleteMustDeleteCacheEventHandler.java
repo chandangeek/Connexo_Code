@@ -10,7 +10,7 @@ import org.osgi.service.component.annotations.Component;
  * Date: 12/05/14
  * Time: 08:56
  */
-@Component(name="com.energyict.mdc.device.data.comschedule.delete.eventhandler", service = Subscriber.class, immediate = true)
+@Component(name="com.energyict.mdc.engine.impl.cache.DeviceDeleteMustDeleteCacheEventHandler", service = Subscriber.class, immediate = true)
 public class DeviceDeleteMustDeleteCacheEventHandler extends EventHandler<LocalEvent> {
 
     protected DeviceDeleteMustDeleteCacheEventHandler(Class<LocalEvent> eventType) {
