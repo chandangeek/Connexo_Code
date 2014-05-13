@@ -6,10 +6,11 @@ import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.Problem;
 import com.energyict.mdc.issues.Warning;
 import com.energyict.mdc.tasks.history.ComTaskExecutionSessionBuilder;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -96,7 +97,7 @@ public class ComCommandJournalist {
     private <T extends Issue> String buildErrorDescription (StringBuilder builder, String heading, List<T> issues) {
         if (!issues.isEmpty()) {
             NumberFormat numberFormat = new DecimalFormat("00");
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSSS");
+            DateTimeFormatter dateFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss:SSSS");
             builder.append(heading).append(":\n");
             String separator = "\t";
             int issueNumber = 1;
@@ -114,8 +115,8 @@ public class ComCommandJournalist {
         }
     }
 
-    private <T extends Issue> void appendIssueTimestamp (StringBuilder builder, SimpleDateFormat dateFormat, T issue) {
-        builder.append(" (").append(dateFormat.format(issue.getTimestamp())).append(")");
+    private <T extends Issue> void appendIssueTimestamp (StringBuilder builder, DateTimeFormatter dateFormat, T issue) {
+        builder.append(" (").append(dateFormat.print(issue.getTimestamp().getTime())).append(")");
     }
 
 }
