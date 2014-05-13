@@ -15,6 +15,7 @@ import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.impl.offline.OfflineLoadProfileChannelImpl;
 import com.energyict.mdc.device.data.impl.offline.OfflineLoadProfileImpl;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
@@ -227,6 +228,12 @@ public class LoadProfileImpl implements LoadProfile {
 
         @Override
         public OfflineLoadProfileChannel goOffline() {
+            List<Channel> allChannels = getLoadProfile().getAllChannels();
+            for (Channel allChannel : allChannels) {
+                if (channelSpec.equals(allChannel.getChannelSpec())) {
+                    return new OfflineLoadProfileChannelImpl(allChannel);
+                }
+            }
             return null;
         }
     }
