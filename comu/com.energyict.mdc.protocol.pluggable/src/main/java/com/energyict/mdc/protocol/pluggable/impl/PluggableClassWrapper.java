@@ -11,8 +11,6 @@ import com.energyict.mdc.pluggable.PluggableClassType;
 import com.energyict.mdc.protocol.api.services.UnableToCreateConnectionType;
 import com.energyict.mdc.protocol.pluggable.PluggableClassCreationException;
 import com.energyict.mdc.protocol.pluggable.UnknownPluggableClassPropertiesException;
-
-import javax.inject.Inject;
 import java.net.URL;
 import java.util.Date;
 import java.util.HashSet;
@@ -21,6 +19,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.inject.Inject;
 
 /**
  * Wraps a {@link PluggableClass} while adding behavior that is

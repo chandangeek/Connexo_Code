@@ -13,7 +13,10 @@ public enum MessageSeeds implements MessageSeed {
     PROTOCOL_NOT_ALLOWED_BY_LICENSE(1001, "protocolXNotAllowedByLicense", "Usage of protocol \"{0}\" is not allowedd by the current licensed", Level.SEVERE),
     PLUGGABLE_CLASS_LACKS_RELATED_INTERFACE(1002, "PluggableClassXShouldImplementYForTypeZ", "Pluggable class \"{2}\" should implement \"{1}\" because the type is \"{0}\"", Level.SEVERE),
     PLUGGABLE_CLASS_CREATION_FAILURE(1003, "PluggableClass.newInstance.failure", "Failure to create instance of pluggable class {0}", Level.SEVERE),
-    NOT_A_PLUGGABLE_PROPERTY(1004, "PluggableClass.properties.unknown", "Cannot specify value for properties ({0}) that are not supported by the pluggable class {1}", Level.SEVERE);
+    NOT_A_PLUGGABLE_PROPERTY(1004, "PluggableClass.properties.unknown", "Cannot specify value for properties ({0}) that are not supported by the pluggable class {1}", Level.SEVERE),
+    PROTOCOL_DIALECT_PROPERTY_NOT_IN_SPEC(2023, Constants.PROTOCOL_DIALECT_PROPERTY_NOT_IN_SPEC_KEY, "The protocol dialect ''{0}'' does not contain a specification for attribute ''{1}''", Level.SEVERE),
+    PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE(2024, Constants.PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE_KEY, "''{0}'' is not a valid value for attribute ''{1}'' of device protocol ''{2}''", Level.SEVERE),
+    PROTOCOL_DIALECT_REQUIRED_PROPERTY_MISSING(2025, Constants.PROTOCOL_DIALECT_REQUIRED_PROPERTY_MISSING_KEY, "A value is missing for required attribute ''{0}'' of device protocol''{1}''", Level.SEVERE);
 
     private final int number;
     private final String key;
@@ -22,10 +25,19 @@ public enum MessageSeeds implements MessageSeed {
 
     MessageSeeds(int number, String key, String defaultFormat, Level level) {
         this.number = number;
-        this.key = key;
+        this.key = stripComponentNameIfPresent(key);
         this.defaultFormat = defaultFormat;
         this.level = level;
     }
+
+    private String stripComponentNameIfPresent(String key) {
+        if (key.startsWith(ProtocolPluggableService.COMPONENTNAME+".")) {
+            return key.substring(ProtocolPluggableService.COMPONENTNAME.length()+1);
+        } else {
+            return key;
+        }
+    }
+
 
     @Override
     public int getNumber() {
@@ -52,4 +64,10 @@ public enum MessageSeeds implements MessageSeed {
         return ProtocolPluggableService.COMPONENTNAME;
     }
 
+    public class Constants {
+        public static final String PROTOCOL_DIALECT_PROPERTY_NOT_IN_SPEC_KEY = ProtocolPluggableService.COMPONENTNAME+".protocolDialectPropertyXIsNotInSpec";
+        public static final String PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE_KEY = ProtocolPluggableService.COMPONENTNAME+".protocolDialectProperty.value.invalid";
+        public static final String PROTOCOL_DIALECT_REQUIRED_PROPERTY_MISSING_KEY = ProtocolPluggableService.COMPONENTNAME+".protocolDialectProperty.required";
+    }
 }
+
