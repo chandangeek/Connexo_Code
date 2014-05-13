@@ -23,11 +23,6 @@ Ext.define('Cfg.view.validation.AddRule', {
             },
             items: [
                 {
-                    xtype: 'breadcrumbTrail',
-                    region: 'north',
-                    padding: 6
-                },
-                {
                     xtype: 'component',
                     html: '<h1>' + Uni.I18n.translate('validation.addRule', 'CFG', 'Add rule') + '</h1>',
                     margins: '10 10 10 10'

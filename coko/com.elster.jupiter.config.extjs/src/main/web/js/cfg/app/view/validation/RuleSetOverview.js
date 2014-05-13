@@ -19,11 +19,6 @@ Ext.define('Cfg.view.validation.RuleSetOverview', {
 
     items: [
         {
-            xtype: 'breadcrumbTrail',
-            border: false,
-            padding: 6
-        },
-        {
             tbar: [
                 {
                     xtype: 'component',

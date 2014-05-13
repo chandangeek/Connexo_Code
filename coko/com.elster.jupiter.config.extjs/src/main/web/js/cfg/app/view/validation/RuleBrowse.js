@@ -23,11 +23,6 @@ Ext.define('Cfg.view.validation.RuleBrowse', {
             },
             items: [
                 {
-                    xtype: 'breadcrumbTrail',
-                    region: 'north',
-                    padding: 6
-                },
-                {
                     xtype: 'component',
                     html: '<h1>' + Uni.I18n.translate('validation.rules', 'CFG', 'Rules') + '</h1>',
                     itemId: 'ruleBrowseTitle',

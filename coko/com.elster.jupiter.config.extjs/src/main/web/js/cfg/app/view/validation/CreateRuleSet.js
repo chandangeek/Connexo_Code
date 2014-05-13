@@ -17,11 +17,6 @@ Ext.define('Cfg.view.validation.CreateRuleSet', {
             },
             items: [
                 {
-                    xtype: 'breadcrumbTrail',
-                    region: 'north',
-                    padding: 6
-                },
-                {
                     xtype: 'component',
                     html: '<h1>' + Uni.I18n.translate('validation.createRuleSet', 'CFG', 'Create rule set') + '</h1>',
                     margins: '10 10 10 10'
