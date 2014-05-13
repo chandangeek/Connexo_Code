@@ -20,25 +20,19 @@ Ext.define('Uni.override.LabelableOverride', {
     labelAlign: 'right',
 
     /**
-     * Adds extra styling to emphasize the label.
-     */
-    labelClsExtra: Uni.About.baseCssPrefix + 'form-item-bold',
-
-    /**
      * @inheritDoc Ext.form.Labelable#getLabelCls
      *
      * Adds an extra required class when needed
      *
      * @returns {string}
      */
-    getLabelCls: function() {
-        var labelCls = this.labelCls + ' ' + Ext.dom.Element.unselectableCls,
-            labelClsExtra = this.labelClsExtra;
+    getLabelCls: function () {
+        var labelCls = this.labelCls + ' ' + Ext.dom.Element.unselectableCls;
 
-        if(this.required){
+        if (this.required) {
             labelCls += ' ' + Uni.About.baseCssPrefix + 'form-item-label-required';
         }
 
-        return labelClsExtra ? labelCls + ' ' + labelClsExtra : labelCls;
+        return labelCls;
     }
 });

@@ -68,7 +68,8 @@ Ext.define('Uni.view.toolbar.PagingTop', {
             {
                 xtype: 'tbtext',
                 itemId: 'displayItem'
-            }
+            },
+            '->'
         ];
     },
 
