@@ -6,10 +6,8 @@ Ext.define('Uni.view.form.CheckboxGroup', {
         bindable: 'Ext.util.Bindable'
     },
 
-    checkbox: {
-        displayValue: 'name',
-        inputValue: 'id'
-    },
+    displayField: 'name',
+    valueField: 'id',
 
     initComponent: function () {
         var me = this;
@@ -23,8 +21,8 @@ Ext.define('Uni.view.form.CheckboxGroup', {
         me.store.each(function (record) {
             me.add({
                 xtype: 'checkbox',
-                boxLabel: record.get(me.checkbox.displayValue),
-                inputValue: record.get(me.checkbox.inputValue),
+                boxLabel: record.get(me.displayField),
+                inputValue: record.get(me.valueField),
                 name: me.name
             });
         });

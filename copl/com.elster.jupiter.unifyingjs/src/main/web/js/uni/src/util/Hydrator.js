@@ -151,9 +151,9 @@ Ext.define('Uni.util.Hydrator', {
                     }
                 });
             } else {
-                if (_.isNumber(id)) {
+                if (!_.isObject(id)) {
                     var item = {};
-                    item[store.model.superclass.idProperty] = id;
+                    item[store.model.prototype.idProperty] = id;
                     id = item;
                 }
                 var record = store.model.create(id);
