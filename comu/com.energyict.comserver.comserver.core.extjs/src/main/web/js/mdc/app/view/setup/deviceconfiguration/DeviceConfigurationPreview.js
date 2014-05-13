@@ -80,7 +80,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
                     layout: {
                         type: 'column'
                     },
-                    padding: '10 0 0 0',
+                    //padding: '10 0 0 0',
                     items: [
                         {
                             xtype: 'container',
