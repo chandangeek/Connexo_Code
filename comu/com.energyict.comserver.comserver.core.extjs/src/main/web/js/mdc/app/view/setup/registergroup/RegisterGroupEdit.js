@@ -3,7 +3,9 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
     alias: 'widget.registerGroupEdit',
     itemId: 'registerGroupEdit',
     requires: [
-        'Mdc.model.RegisterType'
+        //'Mdc.model.RegisterType'
+        'Mdc.store.RegisterTypes'
+        //'Ext.grid.PagingScroller'
     ],
     layout: {
         type: 'vbox',
@@ -52,7 +54,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                     //},
                     {
                         xtype: 'container',
-                        columnWidth: 0.5,
+                        //columnWidth: 0.5,
                         items: [
                             {
                                 xtype: 'form',
@@ -60,7 +62,8 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                 itemId: 'registerGroupEditForm',
                                 //padding: '10 10 0 10',
                                 layout: {
-                                    type: 'vbox'
+                                    type: 'vbox',
+                                    align: 'stretch'
                                 },
                                 defaults: {
                                     labelWidth: 250
@@ -73,13 +76,14 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                         required: true,
                                         fieldLabel: Uni.I18n.translate('registerGroup.name', 'MDC', 'Name'),
                                         itemId: 'editRegisterGroupNameField',
-                                        width: 650,
+                                        maxWidth: 650,
                                         maxLength: 80,
                                         enforceMaxLength: true
                                     },
                                     {
-                                        xtype: 'component',
+                                        xtype: 'label',
                                         itemId: 'separator',
+                                        margin: '10 10 10 265',
                                         html: '<hr>'
                                     },
                                     {
@@ -96,9 +100,9 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                         itemId: 'registerEditEmptyGrid',
                                         grid: {
                                             xtype: 'gridpanel',
-                                            width: 950,
-                                            maxHeight: 100,
-                                            margin: '10 10 10 255',
+                                            maxWidth: 950,
+                                            maxHeight: 650,
+                                            margin: '10 10 10 265',
                                             itemId: 'editRegisterGroupGridField',
                                             bodyBorder: true,
                                             columnLines: false,
@@ -106,14 +110,24 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                             enableColumnMove: false,
                                             enableColumnResize: false,
                                             sortableColumns: false,
-                                            //verticalScrollerType: 'paginggridscroller',
-                                            //invalidateScrollerOnRefresh: false,
-                                            //viewConfig: {
-                                            //    trackOver: false
-                                            //},
-                                            store: new Ext.data.Store({
-                                                model: 'Mdc.model.RegisterType'
-                                            }),
+                                            /*store: new Ext.data.Store({
+                                                model: 'Mdc.model.RegisterType',
+                                                buffered: true,
+                                                leadingBufferZone: 20,
+                                                trailingBufferZone: 20,
+                                                pageSize: 20,
+                                                autoLoad: true,
+                                                proxy: {
+                                                    type: 'rest',
+                                                    url: '../../api/dtc/registertypes',
+                                                    reader: {
+                                                        type: 'json',
+                                                        root: 'registerTypes',
+                                                        totalProperty: 'total'
+                                                    }
+                                                }
+                                            }),*/
+                                            store: 'RegisterTypes',
                                             selModel: {
                                                 mode: 'MULTI',
                                                 checkOnly: true,
@@ -206,7 +220,6 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                         xtype: 'fieldcontainer',
                                         fieldLabel: '&nbsp',
                                         itemId: 'btnsContainer',
-                                        //width: 430,
                                         layout: {
                                             type: 'hbox',
                                             align: 'stretch'
