@@ -20,3 +20,53 @@
         left: 0;
     }
 }
+
+.#{$prefix}toolbar-pagingtoolbarbottom {
+    .pagenav {
+        padding: {
+            left: 13px;
+            right: 2px;
+        }
+
+        .#{$prefix}toolbar-text {
+            font-size: 14px;
+            color: #686868;
+
+            margin: {
+                right: 7px;
+                left: 7px;
+            }
+
+            padding: {
+                top: 3px;
+                bottom: 2px;
+            }
+
+            &.active {
+                margin: {
+                    right: 1px;
+                    left: 1px;
+                }
+
+                padding: {
+                    top: 2px;
+                    right: 6px;
+                    left: 6px;
+                }
+
+                color: #70bb51;
+                border: solid 1px #70bb51;
+                border-radius: 2px;
+            }
+
+            a {
+                color: #686868;
+                text-decoration: none;
+            }
+
+            a:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+}

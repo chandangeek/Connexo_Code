@@ -38883,6 +38883,36 @@ div.x-form-spinner-down {
   padding-right: 0;
   padding-left: 0; }
 
+/* line 25, ../../sass/src/toolbar/Paging.scss */
+.x-toolbar-pagingtoolbarbottom .pagenav {
+  padding-left: 13px;
+  padding-right: 2px; }
+  /* line 31, ../../sass/src/toolbar/Paging.scss */
+  .x-toolbar-pagingtoolbarbottom .pagenav .x-toolbar-text {
+    font-size: 14px;
+    color: #686868;
+    margin-right: 7px;
+    margin-left: 7px;
+    padding-top: 3px;
+    padding-bottom: 2px; }
+    /* line 45, ../../sass/src/toolbar/Paging.scss */
+    .x-toolbar-pagingtoolbarbottom .pagenav .x-toolbar-text.active {
+      margin-right: 1px;
+      margin-left: 1px;
+      padding-top: 2px;
+      padding-right: 6px;
+      padding-left: 6px;
+      color: #70bb51;
+      border: solid 1px #70bb51;
+      border-radius: 2px; }
+    /* line 62, ../../sass/src/toolbar/Paging.scss */
+    .x-toolbar-pagingtoolbarbottom .pagenav .x-toolbar-text a {
+      color: #686868;
+      text-decoration: none; }
+    /* line 67, ../../sass/src/toolbar/Paging.scss */
+    .x-toolbar-pagingtoolbarbottom .pagenav .x-toolbar-text a:hover {
+      text-decoration: underline; }
+
 /* line 1, ../../sass/src/picker/Date.scss */
 .x-datepicker {
   border-color: #70bb51;
