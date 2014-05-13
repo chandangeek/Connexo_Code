@@ -14,7 +14,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigGrid', {
         'Mdc.store.RegisterConfigsOfDeviceConfig'
     ],
     store: 'RegisterConfigsOfDeviceConfig',
-    padding: '10 10 10 10',
+    //padding: '10 10 10 10',
     initComponent: function () {
         var me = this;
         this.columns = [
@@ -60,15 +60,16 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigGrid', {
             },
             {
                 xtype: 'actioncolumn',
-                tdCls: 'view',
-                iconCls: 'uni-centered-icon',
+                //tdCls: 'view',
+                //iconCls: 'uni-centered-icon',
+                align: 'left',
                 header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                 sortable: false,
                 hideable: false,
                 fixed: true,
                 items: [
                     {
-                        icon: '../mdc/resources/images/gear-16x16.png',
+                        icon: '../mdc/resources/images/masterActions.png',
                         handler: function (grid, rowIndex, colIndex, item, e, record, row) {
                             var menu = Ext.widget('menu', {
                                 items: [

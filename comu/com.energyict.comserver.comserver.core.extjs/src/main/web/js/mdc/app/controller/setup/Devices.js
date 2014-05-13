@@ -8,7 +8,9 @@ Ext.define('Mdc.controller.setup.Devices', {
     views: [
         'setup.device.DeviceSetup',
         'setup.device.DeviceMenu',
-        'setup.device.DeviceGeneralInformationPanel'
+        'setup.device.DeviceGeneralInformationPanel',
+        'setup.device.DeviceCommunicationTopologyPanel',
+        'setup.device.DeviceOpenIssuesPanel'
     ],
 
     stores: [
@@ -18,6 +20,9 @@ Ext.define('Mdc.controller.setup.Devices', {
     refs: [
         {ref: 'breadCrumbs', selector: 'breadcrumbTrail'},
         {ref: 'deviceGeneralInformationForm', selector: '#deviceGeneralInformationForm'},
+        {ref: 'deviceCommunicationTopologyForm', selector: '#deviceCommunicationTopologyForm'},
+        {ref: 'deviceCommunicationtopologyMasterLink', selector: '#deviceCommunicationtopologyMasterLink'},
+        {ref: 'deviceOpenIssuesForm', selector: '#deviceOpenIssuesForm'},
         {ref: 'deviceSetupTitle', selector: '#deviceSetupTitle'},
         {ref: 'deviceGeneralInformationDeviceTypeLink', selector: '#deviceGeneralInformationDeviceTypeLink'},
         {ref: 'deviceGeneralInformationDeviceConfigurationLink', selector: '#deviceGeneralInformationDeviceConfigurationLink'}
@@ -30,13 +35,20 @@ Ext.define('Mdc.controller.setup.Devices', {
         Ext.ModelManager.getModel('Mdc.model.Device').load(id, {
             success: function (device) {
                 me.getApplication().getController('Mdc.controller.Main').showContent(widget);
-                me.getDeviceSetupTitle().update('<h2>' + device.get('mRID') + '</h2>');
+                me.getDeviceSetupTitle().update('<h1>' + device.get('mRID') + '</h1>');
                 me.getDeviceGeneralInformationDeviceTypeLink().getEl().set({href: '#/setup/devicetypes/' + device.get('deviceTypeId')});
                 me.getDeviceGeneralInformationDeviceTypeLink().getEl().setHTML(device.get('deviceTypeName'));
                 me.getDeviceGeneralInformationDeviceConfigurationLink().getEl().set({href: '#/setup/devicetypes/' + device.get('deviceTypeId') + '/deviceconfigurations/' + device.get('deviceConfigurationId')});
                 me.getDeviceGeneralInformationDeviceConfigurationLink().getEl().setHTML(device.get('deviceConfigurationName'));
+                me.getDeviceCommunicationtopologyMasterLink().getEl().set({href: '#/setup/devices/' + device.get('masterDeviceId')});
+                me.getDeviceCommunicationtopologyMasterLink().getEl().setHTML(device.get('masterDevicemRID'));
+                device.slaveDevicesStore.data.items.forEach(function (slaveDevice) {
+                    widget.addSlaveDevice(slaveDevice.get('mRID'), slaveDevice.get('id'));
+                });
                 me.overviewBreadCrumb(id, device.get('mRID'));
                 me.getDeviceGeneralInformationForm().loadRecord(device);
+                me.getDeviceCommunicationTopologyForm().loadRecord(device);
+                me.getDeviceOpenIssuesForm().loadRecord(device);
             }
         });
     },

@@ -41,7 +41,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeDetail', {
                             tbar: [
                                 {
                                     xtype: 'component',
-                                    html: '<h4>' + Uni.I18n.translate('general.overview', 'MDC', 'Overview') + '</h4>',
+                                    html: '<b>' + Uni.I18n.translate('general.overview', 'MDC', 'Overview') + '</b>',
                                     itemId: 'registerTypePreviewTitle'
                                 },
                                 {

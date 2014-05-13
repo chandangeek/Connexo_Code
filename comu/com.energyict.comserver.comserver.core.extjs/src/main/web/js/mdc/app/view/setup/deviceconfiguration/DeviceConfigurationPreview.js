@@ -1,25 +1,59 @@
 Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
     extend: 'Ext.panel.Panel',
-    border: true,
-    margins: '0 10 10 10',
+    //border: true,
+    //margins: '0 10 10 10',
     alias: 'widget.deviceConfigurationPreview',
     itemId: 'deviceConfigurationPreview',
     requires: [
         'Mdc.model.DeviceConfiguration'
     ],
-//    controllers: [
-//        'Mdc.controller.setup.DeviceTypes'
-//    ],
+    frame: true,
+    title: "Details",
+    tools: [
+        {
+                xtype: 'button',
+                icon: '../mdc/resources/images/actionsDetail.png',
+                text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                menu: {
+                    items: [
+                        {
+                            text: Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
+                            itemId: 'activateDeviceconfigurationMenuItem',
+                            action: 'activateDeactivateDeviceConfiguration'
+
+                        },
+                        {
+                            xtype: 'menuseparator'
+                        },
+                        {
+                            text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                            itemId: 'editDeviceConfiguration',
+                            action: 'editDeviceConfiguration'
+
+                        },
+                        {
+                            xtype: 'menuseparator'
+                        },
+                        {
+                            text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
+                            itemId: 'deleteDeviceConfiguration',
+                            action: 'deleteDeviceConfiguration'
+
+                        }
+                    ]
+                }
+        }
+
+    ],
     layout: {
         type: 'card',
         align: 'stretch'
     },
-
     items: [
         {
             xtype: 'panel',
             border: false,
-            padding: '0 10 0 10',
+            //padding: '0 10 0 10',
             tbar: [
                 {
                     xtype: 'component',
@@ -37,14 +71,13 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
         },
         {
             xtype: 'form',
-            border: false,
             itemId: 'deviceConfigurationPreviewForm',
-            padding: '0 10 0 10',
+            //padding: '0 10 0 10',
             layout: {
                 type: 'vbox',
                 align: 'stretch'
             },
-            tbar: [
+            /*tbar: [
                 {
                     xtype: 'component',
                     html: '<h4>Device type</h4>',
@@ -83,7 +116,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
                         ]
                     }
                 }
-            ],
+            ], */
             items: [
                 {
                     xtype: 'container',
@@ -133,6 +166,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
                                     xtype: 'fieldcontainer',
                                     columnWidth: 0.5,
                                     fieldLabel: Uni.I18n.translate('deviceconfiguration.dataSources', 'MDC', 'Data sources'),
+                                    labelAlign: 'right',
                                     layout: {
                                         type: 'vbox'
                                     },
@@ -179,7 +213,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
                         }
 
                     ]
-                },
+                }/*,
                 {
                     xtype: 'toolbar',
                     docked: 'bottom',
@@ -194,7 +228,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
                         }
 
                     ]
-                }
+                } */
             ]
         }
     ],

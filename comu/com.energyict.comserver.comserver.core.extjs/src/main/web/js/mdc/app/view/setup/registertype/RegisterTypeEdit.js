@@ -11,9 +11,11 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
     },
     cls: 'content-container',
     edit: false,
+
     isEdit: function () {
-        return this.edit
+        return this.edit;
     },
+
     setEdit: function (edit) {
         if (edit) {
             this.edit = edit;
@@ -40,8 +42,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                     {
                         xtype: 'component',
                         html: '',
-                        itemId: 'registerTypeEditCreateTitle',
-                        margins: '10 10 10 10'
+                        itemId: 'registerTypeEditCreateTitle'
                     },
                     //{
                     //    xtype: 'component',
@@ -64,7 +65,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
 //                    tbar: [
 //                        {
 //                            xtype: 'component',
-//                            html: '<h4>Overview</h4>',
+//                            html: '<b>Overview</b>',
 //                            itemId: 'deviceTypePreviewTitle'
 //                        }
 //                    ],
