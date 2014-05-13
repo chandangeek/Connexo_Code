@@ -42,10 +42,10 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                 '#connectionmethodsgrid': {
                     selectionchange: this.previewConnectionMethod
                 },
-                '#connectionmethodsgrid button[action = createOutboundConnectionMethod]': {
+                'button[action = createOutboundConnectionMethod]': {
                     click: this.addOutboundConnectionMethodHistory
                 },
-                '#connectionmethodsgrid button[action = createInboundConnectionMethod]': {
+                'button[action = createInboundConnectionMethod]': {
                     click: this.addInboundConnectionMethodHistory
                 },
                 '#connectionmethodsgrid actioncolumn': {

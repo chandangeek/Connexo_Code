@@ -10,7 +10,8 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
         'Mdc.view.setup.communicationschedule.CommunicationSchedulesSetup',
         'Mdc.view.setup.communicationschedule.CommunicationSchedulesGrid',
         'Mdc.view.setup.communicationschedule.CommunicationSchedulePreview',
-        'Mdc.view.setup.communicationSchedule.CommunicationScheduleEdit'
+        'Mdc.view.setup.communicationschedule.CommunicationScheduleEdit',
+        'Mdc.view.setup.communicationschedule.AddCommunicationTaskWindow'
     ],
 
     stores: [
@@ -38,6 +39,9 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
             },
             '#createEditButton[action=createCommunicationSchedule]': {
                 click: this.createCommunicationSchedule
+            },
+            '#addCommunicationTaskButton[action=addCommunicationTask]': {
+                click: this.addCommunicationTask
             }
         });
 
@@ -78,20 +82,25 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
             values = this.getCommunicationScheduleEditForm().getValues();
         if (record) {
             record.set(values);
-            debugger;
-//            record.save({
-//                success: function (record) {
-//                    location.href = '#setup/devicetypes/' + me.deviceTypeId + /deviceconfigurations/ + record.get('id');
-//                },
-//                failure: function(record,operation){
-//                    var json = Ext.decode(operation.response.responseText);
-//                    if (json && json.errors) {
-//                        me.getDeviceConfigurationEditForm().getForm().markInvalid(json.errors);
-//                    }
-//                }
-//            });
+            record.save({
+                success: function (record) {
+                    location.href = '#setup/communicationschedules';
+                },
+                failure: function(record,operation){
+                    var json = Ext.decode(operation.response.responseText);
+                    if (json && json.errors) {
+                        me.getCommunicationScheduleEditForm().getForm().markInvalid(json.errors);
+                    }
+                }
+            });
 
         }
+    },
+
+    addCommunicationTask: function(){
+        var widget = Ext.widget('addCommunicationTaskWindow');
+//        this.getReadingTypeDetailsForm().loadRecord(record.getReadingType());
+        widget.show();
     }
 
 

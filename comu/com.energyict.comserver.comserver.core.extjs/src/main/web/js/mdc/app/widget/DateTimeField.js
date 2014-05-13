@@ -40,7 +40,7 @@ Ext.define('Mdc.widget.DateTimeField', {
                 itemId: 'date',
                 format: 'd/m/Y',
                 altFormats: 'd.m.Y|d m Y',
-                margin: '0 5 5 0',
+                margin: '0 5 0 0',
                 required: true,
                 submitValue: false
             },me.dateCfg),
@@ -49,7 +49,7 @@ Ext.define('Mdc.widget.DateTimeField', {
                 itemId: 'separator',
                 value: Uni.I18n.translate('datetimefield.at', 'UNI', 'at'),
                 submitValue: false,
-                margin: '0 5 0 0'
+                margin: '0 5 0 10'
             }),
             Ext.apply({
                 xtype: 'numberfield',
@@ -87,10 +87,13 @@ Ext.define('Mdc.widget.DateTimeField', {
 
 
     getValue: function () {
-        var date =  this.dateField.getValue();
-        date.setHours(this.hourField.getValue());
-        date.setMinutes(this.minuteField.getValue());
-        return date.getTime();
+        if(this.dateField.getValue()!== null &&  this.dateField.getValue()!== undefined){
+            var date =  this.dateField.getValue();
+            date.setHours(this.hourField.getValue() || 0);
+            date.setMinutes(this.minuteField.getValue() || 0);
+            return date.getTime();
+        }
+
     },
 
     setValue: function (date) {

@@ -6,7 +6,8 @@ Ext.define('Mdc.model.CommunicationSchedule',{
           {name: 'temporalExpression'},
           {name: 'plannedDate'},
           {name: 'isInUse',type: 'boolean'},
-          {name: 'schedulingStatus', type: 'string'}
+          {name: 'schedulingStatus', type: 'string'},
+          {name: 'startDate'}
       ],
     proxy: {
         type: 'rest',

@@ -1,7 +1,6 @@
 Ext.define('Mdc.util.ScheduleToStringConverter',{
     singleton: true,
     convert: function(temporalExpression){
-        debugger;
         if(temporalExpression!==null && temporalExpression !== ''){
             var formattedSchedule = Ext.util.Format.format('Every {0} {1}', temporalExpression.every.count,  Uni.I18n.translate(temporalExpression.every.timeUnit, 'MDC'));
             return formattedSchedule + this.formatOffset(temporalExpression);

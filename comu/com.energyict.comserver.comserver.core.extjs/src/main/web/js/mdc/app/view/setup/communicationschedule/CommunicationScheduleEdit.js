@@ -1,4 +1,4 @@
-Ext.define('Mdc.view.setup.communicationSchedule.CommunicationScheduleEdit', {
+Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.communicationScheduleEdit',
     itemId: 'communicationScheduleEdit',
@@ -67,20 +67,20 @@ Ext.define('Mdc.view.setup.communicationSchedule.CommunicationScheduleEdit', {
                                 name: 'name',
                                 validator:function(text){
                                     if(Ext.util.Format.trim(text).length==0)
-                                        return Uni.I18n.translate('connectionmethod.emptyName', 'MDC', 'The name of a connection method can not be empty.')
+                                        return Uni.I18n.translate('communicationschedule.emptyName', 'MDC', 'The name of a communication schedule can not be empty.')
                                     else
                                         return true;
                                 },
                                 msgTarget: 'under',
                                 required: true,
-                                fieldLabel: Uni.I18n.translate('connectionmethod.name', 'MDC', 'Name'),
+                                fieldLabel: Uni.I18n.translate('communicationschedule.name', 'MDC', 'Name'),
                                 itemId: 'editConnectionMethodNameField',
                                 maxLength: 80,
                                 enforceMaxLength: true
                             },
                             {
                                 xtype: 'fieldcontainer',
-                                fieldLabel: Uni.I18n.translate('connectionmethod.communicationTasks', 'MDC', 'Communication tasks'),
+                                fieldLabel: Uni.I18n.translate('communicationschedule.communicationTasks', 'MDC', 'Communication tasks'),
                                 require: true,
                                 layout: {
                                     type: 'vbox',
@@ -102,20 +102,22 @@ Ext.define('Mdc.view.setup.communicationSchedule.CommunicationScheduleEdit', {
                                     },
                                     {
                                         xtype: 'button',
-                                        text: Uni.I18n.translate('connectionmethod.addCommunicationTask', 'MDC', 'Add communication task')
+                                        itemId: 'addCommunicationTaskButton',
+                                        action: 'addCommunicationTask',
+                                        text: Uni.I18n.translate('communicationschedule.addCommunicationTask', 'MDC', 'Add communication task')
                                     }
                                 ]
                             },
                             {
                                 xtype: 'fieldcontainer',
-                                fieldLabel: Uni.I18n.translate('connectionmethod.schedule', 'MDC', 'Schedule'),
+                                fieldLabel: Uni.I18n.translate('communicationschedule.schedule', 'MDC', 'Schedule'),
                                 layout: 'hbox',
                                 msgTarget: 'under',
                                 required: true,
                                 items: [
                                     {
                                         xtype: 'displayfield',
-                                        value: Uni.I18n.translate('connectionmethod.requestEvery', 'MDC', 'Request every'),
+                                        value: Uni.I18n.translate('communicationschedule.requestEvery', 'MDC', 'Request every'),
                                         margin: '0 5 0 0'
                                     },
                                     {
@@ -137,10 +139,10 @@ Ext.define('Mdc.view.setup.communicationSchedule.CommunicationScheduleEdit', {
 
                             {
                                 xtype: 'dateTimeField',
-                                name: 'startOn',
+                                name: 'startDate',
                                 itemId: 'dateTimeField',
                                 required: true,
-                                fieldLabel: Uni.I18n.translate('connectionmethod.startOn', 'MDC', 'Start on'),
+                                fieldLabel: Uni.I18n.translate('communicationschedule.startOn', 'MDC', 'Start on'),
                                 hourCfg: {
                                     width: 60
                                 },
@@ -173,12 +175,12 @@ Ext.define('Mdc.view.setup.communicationSchedule.CommunicationScheduleEdit', {
                         items: [
                             {
                                 xtype: 'displayfield',
-                                fieldLabel: Uni.I18n.translate('connectionmethod.summary', 'MDC', 'Summary')
+                                fieldLabel: Uni.I18n.translate('communicationschedule.summary', 'MDC', 'Summary')
                             },
                             {
                                 xtype: 'fieldcontainer',
                                 layout: 'hbox',
-                                fieldLabel: Uni.I18n.translate('connectionmethod.preview', 'MDC', 'Preview')
+                                fieldLabel: Uni.I18n.translate('communicationschedule.preview', 'MDC', 'Preview')
                             }
                         ]
                     },
@@ -239,7 +241,6 @@ Ext.define('Mdc.view.setup.communicationSchedule.CommunicationScheduleEdit', {
         ];
         this.callParent(arguments);
         if(this.isEdit()){
-            debugger;
             this.down('#createEditButton').setText(Uni.I18n.translate('general.edit', 'MDC', 'Edit'));
             this.down('#createEditButton').action = 'editCommunicationSchedule';
 //                this.down('#connectionStrategyComboBox').setVisible(false);
