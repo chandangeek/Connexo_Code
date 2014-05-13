@@ -14,13 +14,13 @@ import com.energyict.mdc.pluggable.PluggableClassType;
 import com.energyict.mdc.pluggable.exceptions.DuplicateNameException;
 import com.energyict.mdc.pluggable.exceptions.JavaClassNameIsRequiredException;
 import com.energyict.mdc.pluggable.exceptions.NameIsRequiredException;
-
-import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.validation.constraints.NotNull;
 
 /**
  * Provides an implementation for the {@link PluggableClass} interface.
@@ -29,6 +29,7 @@ import java.util.List;
  * @since 2013, Dec 2 (09:07)
  */
 public class PluggableClassImpl implements PluggableClass {
+    private final Provider<PluggableClassProperty> pluggableClassPropertyProvider;
 
     private long id;
     @NotNull
@@ -46,12 +47,13 @@ public class PluggableClassImpl implements PluggableClass {
     private Clock clock;
 
     @Inject
-    public PluggableClassImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock) {
+    public PluggableClassImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, Provider<PluggableClassProperty> pluggableClassPropertyProvider) {
         super();
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.thesaurus = thesaurus;
         this.clock = clock;
+        this.pluggableClassPropertyProvider = pluggableClassPropertyProvider;
     }
 
     PluggableClassImpl initialize (PluggableClassType type, String name, String javaClassName) {
@@ -200,13 +202,15 @@ public class PluggableClassImpl implements PluggableClass {
     public void setProperty(PropertySpec propertySpec, Object value) {
         PluggableClassProperty property = this.findProperty(propertySpec.getName());
         if (property == null) {
-            this.properties.add(
-                    new PluggableClassProperty(
-                            this,
-                            propertySpec.getName(),
-                            propertySpec.getValueFactory().toStringValue(value)));
+            PluggableClassProperty pluggableClassProperty = pluggableClassPropertyProvider.get();
+            pluggableClassProperty.init(
+                    this,
+                    propertySpec.getName(),
+                    propertySpec.getValueFactory().toStringValue(value));
+            this.properties.add(pluggableClassProperty);
         } else {
             property.value = propertySpec.getValueFactory().toStringValue(value);
+            property.save();
         }
     }
 
