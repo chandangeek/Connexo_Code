@@ -7,7 +7,7 @@ Ext.define('Uni.view.form.CheckboxGroup', {
     },
 
     checkbox: {
-        boxLabel: 'name',
+        displayValue: 'name',
         inputValue: 'id'
     },
 
@@ -22,8 +22,8 @@ Ext.define('Uni.view.form.CheckboxGroup', {
         me.removeAll();
         me.store.each(function (record) {
             me.add({
-                xtype: 'checkboxfield',
-                boxLabel: record.get(me.checkbox.boxLabel),
+                xtype: 'checkbox',
+                boxLabel: record.get(me.checkbox.displayValue),
                 inputValue: record.get(me.checkbox.inputValue),
                 name: me.name
             });

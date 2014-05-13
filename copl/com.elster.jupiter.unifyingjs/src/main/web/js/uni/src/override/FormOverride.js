@@ -24,8 +24,9 @@ Ext.define('Uni.override.FormOverride', {
 
     updateRecord: function(record) {
         if (this.hydrator) {
-            var values = this.getFieldValues();
-            this.hydrator.hydrate(values, this._record);
+            this.hydrator.lazyLoading = false;
+            var values = this.getValues();
+            this.hydrator.hydrate(values, this._record, function() {});
             return this;
         } else {
             return this.callParent(arguments);
