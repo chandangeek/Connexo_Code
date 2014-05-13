@@ -47,8 +47,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsGrid', {
                     return '<a href="#/setup/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + record.get('id') + '">' + value + '</a>';
                 },
                 fixed: true,
-                flex: 0.4,
-                renderer: 'htmlEncode'
+                flex: 0.4
             },
             {
                 header: Uni.I18n.translate('deviceconfiguration.status', 'MDC', 'Status'),
