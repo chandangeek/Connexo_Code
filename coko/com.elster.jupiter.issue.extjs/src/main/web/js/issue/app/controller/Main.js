@@ -98,7 +98,7 @@ Ext.define('Isu.controller.Main', {
     clearContentPanel: function () {
         var widget;
         while (widget = this.getContentPanel().items.first()) {
-            this.getContentPanel().remove(widget, true);
+            this.getContentPanel().remove(widget, false);
         }
     }
 });
