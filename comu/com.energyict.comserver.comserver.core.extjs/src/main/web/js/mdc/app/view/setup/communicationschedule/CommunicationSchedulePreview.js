@@ -1,12 +1,12 @@
-Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
+Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulePreview', {
     extend: 'Ext.panel.Panel',
     border: true,
     margins: '0 10 10 10',
-    alias: 'widget.connectionMethodPreview',
-    itemId: 'connectionMethodPreview',
+    alias: 'widget.communicationSchedulePreview',
+    itemId: 'communicationSchedulePreview',
     requires: [
-        'Mdc.model.ConnectionMethod',
-        'Mdc.view.setup.property.PropertyView'
+        'Mdc.model.DeviceType',
+        'Mdc.util.ScheduleToStringConverter'
     ],
 //    controllers: [
 //        'Mdc.controller.setup.DeviceTypes'
@@ -24,14 +24,14 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
             tbar: [
                 {
                     xtype: 'component',
-                    html: '<H4>'+Uni.I18n.translate('connectionmethod.noConnectionMethodSelected', 'MDC', 'No connection method selected')+'</H4>'
+                    html: '<H4>' + Uni.I18n.translate('communicationschedule.noCommunicationScheduleSelected', 'MDC', 'No communication schedule selected') + '</H4>'
                 }
             ],
             items: [
                 {
                     xtype: 'component',
                     height: '100px',
-                    html: '<H5>'+Uni.I18n.translate('connectionmethod.selectConnectionMethod', 'MDC', 'Select a connection method to see its details')+'</H5>'
+                    html: '<H5>' + Uni.I18n.translate('communicationschedule.selectCommunicationSchedule', 'MDC', 'Select a communication schedule to see its details') + '</H5>'
                 }
             ]
 
@@ -39,7 +39,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
         {
             xtype: 'form',
             border: false,
-            itemId: 'connectionMethodPreviewForm',
+            itemId: 'communicationSchedulePreviewForm',
             padding: '0 10 0 10',
             layout: {
                 type: 'vbox',
@@ -48,19 +48,19 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
             tbar: [
                 {
                     xtype: 'component',
-                    html: '<h4>Connection method</h4>',
-                    itemId: 'connectionMethodPreviewTitle'
+                    html: '<h4>Communication schedule</h4>',
+                    itemId: 'communicationSchedulePreviewTitle'
                 },
                 '->',
                 {
-                    icon: 'resources/images/actionsDetail.png',
+                    icon: '../mdc/resources/images/gear-16x16.png',
                     text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                     menu: {
                         items: [
                             {
                                 text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                                itemId: 'editConnectionMethod',
-                                action: 'editConnectionMethod'
+                                itemId: 'editCommunicationSchedule',
+                                action: 'editCommunicationSchedule'
 
                             },
                             {
@@ -68,8 +68,8 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
                             },
                             {
                                 text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
-                                itemId: 'deleteConnectionMethod',
-                                action: 'deleteConnectionMethod'
+                                itemId: 'deleteCommunicationSchedule',
+                                action: 'deleteCommunicationSchedule'
 
                             }
                         ]
@@ -87,68 +87,87 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
                     items: [
                         {
                             xtype: 'container',
-                            columnWidth: 0.49,
+                            columnWidth: 0.5,
                             layout: {
                                 type: 'vbox',
                                 align: 'stretch'
                             },
-                            defaults:{
+                            defaults: {
                                 labelWidth: 250
                             },
                             items: [
                                 {
                                     xtype: 'displayfield',
                                     name: 'name',
-                                    fieldLabel: Uni.I18n.translate('connectionmethod.name', 'MDC', 'Name'),
+                                    fieldLabel: Uni.I18n.translate('communicationschedule.name', 'MDC', 'Name'),
                                     itemId: 'deviceName'
 
                                 },
                                 {
                                     xtype: 'displayfield',
-                                    name: 'direction',
-                                    fieldLabel: Uni.I18n.translate('connectionmethod.direction', 'MDC', 'Direction')
+                                    name: 'communicationTasks',
+                                    fieldLabel: Uni.I18n.translate('communicationschedule.communicationTasks', 'MDC', 'Communication tasks')
                                 },
                                 {
                                     xtype: 'displayfield',
-                                    name: 'allowSimultaneousConnections',
-                                    fieldLabel: Uni.I18n.translate('connectionmethod.simultaneousConnectionsAllowed', 'MDC', 'Simultaneous connections allowed')
+                                    name: 'schedulingStatus',
+                                    fieldLabel: Uni.I18n.translate('communicationschedule.status', 'MDC', 'Status'),
+                                    readOnly: true
                                 }
                             ]
                         },
                         {
                             xtype: 'container',
-                            columnWidth: 0.49,
+                            columnWidth: 0.5,
                             layout: {
                                 type: 'vbox',
                                 align: 'stretch'
                             },
-                            defaults:{
+                            defaults: {
                                 labelWidth: 250
                             },
                             items: [
                                 {
                                     xtype: 'displayfield',
-                                    name: 'connectionType',
-                                    fieldLabel: Uni.I18n.translate('connectionmethod.connectionType', 'MDC', 'Connection type')
+                                    name: 'temporalExpression',
+                                    fieldLabel: Uni.I18n.translate('communicationschedule.schedule', 'MDC', 'Schedule'),
+                                    renderer: function(value){
+                                        return Mdc.util.ScheduleToStringConverter.convert(value);
+                                    }
+
                                 },
                                 {
                                     xtype: 'displayfield',
-                                    name: 'isDefault',
-                                    fieldLabel: Uni.I18n.translate('connectionmethod.setAsDefault', 'MDC', 'Set as default')
-                                },
-                                {
-                                    xtype: 'displayfield',
-                                    name: 'comPortPool',
-                                    fieldLabel: Uni.I18n.translate('connectionmethod.portPool', 'MDC', 'Port pool')
+                                    name: 'plannedDate',
+                                    fieldLabel: Uni.I18n.translate('communicationschedule.plannedDate', 'MDC', 'Planned date'),
+                                    renderer: function(value){
+                                        if(value!==null){
+                                            return new Date(value).toLocaleString();
+                                        } else {
+                                            return '';
+                                        }
+                                    }
                                 }
+
                             ]
                         }
-
 
                     ]
                 },
                 {
-                    xtype: 'propertyView'
+                    xtype: 'toolbar',
+                    docked: 'bottom',
+                    border: false,
+                    title: 'Bottom Toolbar',
+                    items: [
+                        '->',
+                        {
+                            xtype: 'component',
+                            itemId: 'deviceTypeDetailsLink',
+                            html: '' // filled in in Controller
+                        }
+
+                    ]
                 }
             ]
         }

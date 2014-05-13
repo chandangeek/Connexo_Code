@@ -1,75 +1,84 @@
-Ext.define('Mdc.view.setup.registerconfig.RegisterConfigGrid', {
+Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulesGrid', {
     extend: 'Ext.grid.Panel',
-    alias: 'widget.registerConfigGrid',
+    alias: 'widget.communicationSchedulesGrid',
     overflowY: 'auto',
-    deviceTypeId: null,
-    deviceConfigId: null,
-    itemId: 'registerconfiggrid',
-    selModel: {
-        mode: 'SINGLE'
-    },
+    itemId: 'communicationSchedulesGrid',
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Mdc.store.RegisterConfigsOfDeviceConfig'
+        'Mdc.store.CommunicationSchedules'
     ],
-    store: 'RegisterConfigsOfDeviceConfig',
-    //padding: '10 10 10 10',
+    store: 'CommunicationSchedules',
+    padding: '10 10 10 10',
     initComponent: function () {
         var me = this;
         this.columns = [
             {
-                header: Uni.I18n.translate('registerConfigs.name', 'MDC', 'Name'),
-                dataIndex: 'name',
-                flex: 3,
-                sortable: false,
-                fixed: true,
-                hideable: false
-            },
-            {
-                xtype: 'actioncolumn',
-                renderer: function (value, metaData, record) {
-                    return '<div style="float:left; font-size: 13px; line-height: 1em;">'
-                        + record.getReadingType().get('mrid') + '&nbsp' + '&nbsp'
-                        + '</div>'
-                },
-                header: Uni.I18n.translate('registerConfigs.readingType', 'MDC', 'Reading type'),
-                items: [
-                    {
-                        icon: '../mdc/resources/images/information.png',
-                        iconCls: 'uni-info-icon',
-                        tooltip: Uni.I18n.translate('readingType.tooltip', 'MDC', 'Reading type info'),
-                        handler: function (grid, rowIndex, colIndex, item, e, record, row) {
-                            //var record = grid.getStore().getAt(rowIndex);
-                            this.fireEvent('showReadingTypeInfo', record);
-                        }
-                    }
-                ],
-                width: 300,
-                tdCls: 'view',
-                sortable: false,
-                hideable: false
-            },
-            {
-                header: Uni.I18n.translate('registerConfigs.obisCode', 'MDC', 'OBIS code'),
-                dataIndex: 'overruledObisCode',
+                header: Uni.I18n.translate('communicationschedule.status', 'MDC', 'Status'),
+                dataIndex: 'schedulingStatus',
                 sortable: false,
                 hideable: false,
                 fixed: true,
-                flex: 1
+                flex: 0.1
+            },
+            {
+                header: Uni.I18n.translate('communicationschedule.name', 'MDC', 'Name'),
+                dataIndex: 'name',
+                sortable: false,
+                hideable: false,
+                fixed: true,
+                flex: 0.4
+            },
+            {
+                header: Uni.I18n.translate('communicationschedule.schedule', 'MDC', 'Schedule'),
+                dataIndex: 'temporalExpression',
+                renderer: function(value,metadata){
+                    switch(value.every.timeUnit) {
+                        case 'months':
+                            return Uni.I18n.translate('general.monthly', 'MDC', 'Monthly');
+                        case 'weeks':
+                            return Uni.I18n.translate('general.weekly', 'MDC', 'Weekly');
+                        case 'days':
+                            return Uni.I18n.translate('general.daily', 'MDC', 'Daily');
+                        case 'hours':
+                            return Uni.I18n.translate('general.hourly', 'MDC', 'Hourly');
+                        case 'minutes':
+                            return Uni.I18n.translate('general.everyFewMinutes', 'MDC', 'Every few minutes');
+                    }
+                   return value.every.timeUnit;
+                },
+                sortable: false,
+                hideable: false,
+                fixed: true,
+                flex: 0.4
+            },
+             {
+                header: Uni.I18n.translate('communicationschedule.plannedDate', 'MDC', 'Planned date'),
+                dataIndex: 'plannedDate',
+                sortable: false,
+                hideable: false,
+                 renderer: function(value){
+                     if(value!==null){
+                         return new Date(value).toLocaleString();
+                     } else {
+                         return '';
+                     }
+                 },
+                fixed: true,
+                flex: 0.4
             },
             {
                 xtype: 'actioncolumn',
-                //tdCls: 'view',
-                //iconCls: 'uni-centered-icon',
-                align: 'left',
+                tdCls: 'view',
+                iconCls: 'uni-centered-icon',
                 header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                 sortable: false,
                 hideable: false,
                 fixed: true,
+                flex: 0.1,
                 items: [
                     {
-                        icon: '../mdc/resources/images/masterActions.png',
+                        icon: '../mdc/resources/images/gear-16x16.png',
                         handler: function (grid, rowIndex, colIndex, item, e, record, row) {
                             var menu = Ext.widget('menu', {
                                 items: [
@@ -97,10 +106,11 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigGrid', {
                                             click: {
                                                 element: 'el',
                                                 fn: function () {
-                                                    this.fireEvent('deleteItem', record, me.deviceTypeId, me.deviceConfigId);
+                                                    this.fireEvent('deleteItem', record);
                                                 },
                                                 scope: this
                                             }
+
                                         }
                                     }
                                 ]
@@ -111,38 +121,33 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigGrid', {
                 ]
             }
         ];
+
         this.dockedItems = [
             {
-
                 xtype: 'pagingtoolbartop',
                 store: this.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('registerConfigs.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} register configurations'),
-                displayMoreMsg: Uni.I18n.translate('registerConfigs.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} register configurations'),
-                emptyMsg: Uni.I18n.translate('registerConfigs.pagingtoolbartop.emptyMsg', 'MDC', 'There are no register configurations to display'),
+                displayMsg: Uni.I18n.translate('communicationschedule.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} communication schedules'),
+                displayMoreMsg: Uni.I18n.translate('communicationschedule.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} communication schedules'),
+                emptyMsg: Uni.I18n.translate('communicationschedule.pagingtoolbartop.emptyMsg', 'MDC', 'There are no communication schedules to display'),
                 items: [
                     {
                         xtype: 'component',
                         flex: 1
                     },
                     {
-
-                        text: Uni.I18n.translate('registerConfigs.createRegisterConfig', 'MDC', 'Create register configuration'),
-                        itemId: 'createRegisterConfigBtn',
+                        text: Uni.I18n.translate('communicationschedule.createCommunicationSchedule', 'MDC', 'Create communication schedule'),
+                        itemId: 'createCommunicationSchedule',
                         xtype: 'button',
-                        action: 'createRegisterConfig'
+                        action: 'createCommunicationSchedule'
                     }
                 ]
             },
             {
                 xtype: 'pagingtoolbarbottom',
                 store: this.store,
-                params: [
-                    {deviceType: this.deviceTypeId},
-                    {deviceConfig: this.deviceConfigId}
-                ],
                 dock: 'bottom',
-                itemsPerPageMsg: Uni.I18n.translate('registerConfigs.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Register configurations per page')
+                itemsPerPageMsg: Uni.I18n.translate('communicationschedule.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Communication schedules per page')
             }
         ];
 

@@ -87,7 +87,7 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
                     {
                         xtype: 'container',
                         margins: '10 10 10 10',
-                        width:'100%',
+                        width: '100%',
                         items: [
 
                             {
@@ -119,14 +119,11 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
                                                 itemId: 'createEditButton'
                                             },
                                             {
-                                                xtype: 'component',
-                                                padding: '3 0 0 10',
+                                                text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                                                xtype: 'button',
+                                                ui: 'link',
                                                 itemId: 'cancelLink',
-                                                autoEl: {
-                                                    tag: 'a',
-                                                    href: '#setup/devicecommunicationprotocols/',
-                                                    html: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel')
-                                                }
+                                                href: '#/setup/devicecommunicationprotocols/'
                                             }
                                         ]
                                     }

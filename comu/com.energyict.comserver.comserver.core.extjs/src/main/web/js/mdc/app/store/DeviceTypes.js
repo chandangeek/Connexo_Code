@@ -6,10 +6,10 @@ Ext.define('Mdc.store.DeviceTypes',{
     model: 'Mdc.model.DeviceType',
     storeId: 'DeviceTypes',
     pageSize: 10,
-    sorters: [{
+    /*sorters: [{
         property: 'name',
         direction: 'ASC'
-    }],
+    }],  */
     remoteSort: true,
     proxy: {
         type: 'rest',

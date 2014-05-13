@@ -65,15 +65,16 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
             this.columns.push(
                 {
                     xtype: 'actioncolumn',
-                    iconCls: 'uni-centered-icon',
-                    tdCls: 'view',
+                    align: 'left',
+                    //iconCls: 'uni-centered-icon',
+                    //tdCls: 'view',
                     header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                     sortable: false,
                     hideable: false,
                     fixed: true,
                     items: [
                         {
-                            icon: '../mdc/resources/images/gear-16x16.png',
+                            icon: '../mdc/resources/images/masterActions.png',
                             handler: function (grid, rowIndex, colIndex, item, e, record, row) {
                                 var menu = Ext.widget('menu', {
                                     items: [

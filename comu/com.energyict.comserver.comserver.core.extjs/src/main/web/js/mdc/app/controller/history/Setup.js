@@ -148,6 +148,15 @@ Ext.define('Mdc.controller.history.Setup', {
             me.getApplication().getController('Mdc.controller.setup.Devices').showDeviceDetailsView(id);
         });
 
+        //master schedule routes
+        crossroads.addRoute('setup/communicationschedules',function(){
+            me.getApplication().getController('Mdc.controller.setup.CommunicationSchedules').showCommunicationSchedules();
+        });
+
+        crossroads.addRoute('setup/communicationschedules/create',function(){
+            me.getApplication().getController('Mdc.controller.setup.CommunicationSchedules').showCommunicationSchedulesEditView();
+        });
+
         //search devices
         crossroads.addRoute('setup/searchitems',function(){
             me.getApplication().getController('Mdc.controller.setup.SearchItems').showSearchItems();

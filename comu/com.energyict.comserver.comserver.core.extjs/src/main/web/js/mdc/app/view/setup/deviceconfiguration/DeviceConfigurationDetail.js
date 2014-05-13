@@ -24,7 +24,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                     xtype: 'form',
                     border: false,
                     itemId: 'deviceConfigurationDetailForm',
-                    padding: '10 10 0 10',
+                    //padding: '10 10 0 10',
                     layout: {
                         type: 'vbox',
                         align: 'stretch'
@@ -41,7 +41,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                         },
                         '->',
                         {
-                            icon: '../mdc/resources/images/gear-16x16.png',
+                            icon: '../mdc/resources/images/actionsDetail.png',
                             text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                             menu: {
                                 items: [
@@ -96,6 +96,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                                             xtype: 'fieldcontainer',
                                             columnWidth: 0.5,
                                             fieldLabel: Uni.I18n.translate('devicetype.deviceType', 'MDC', 'Device type'),
+                                            labelAlign: 'right',
                                             layout: {
                                                 type: 'vbox'
                                             },
@@ -175,6 +176,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                                             xtype: 'fieldcontainer',
                                             columnWidth: 0.5,
                                             fieldLabel: Uni.I18n.translate('devicetype.dataSources', 'MDC', 'Data sources'),
+                                            labelAlign: 'right',
                                             layout: {
                                                 type: 'vbox'
                                             },
