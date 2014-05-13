@@ -27,7 +27,7 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectPreview', {
                 {
                     xtype: 'component',
                     height: '100px',
-                    html: '<H5>' + Uni.I18n.translate('protocolDialect.selectProtocolDialect', 'MDC', 'Select a protocol to see its details') + '</H5>'
+                    html: '<h5>' + Uni.I18n.translate('protocolDialect.selectProtocolDialect', 'MDC', 'Select a protocol to see its details') + '</h5>'
                 }
             ]
 

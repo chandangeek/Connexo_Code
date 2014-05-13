@@ -50,7 +50,6 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
                                 xtype: 'form',
                                 border: false,
                                 itemId: 'deviceCommunicationProtocolEditForm',
-                                padding: '10 10 0 10',
                                 width: ' 100%',
                                 layout: {
                                     type: 'vbox'
@@ -75,16 +74,14 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
                             },
                             {
                                 xtype: 'propertyEdit',
-                                width: '100%',
-                                padding: '10 10 0 10'
+                                width: '100%'
                             }
-                        ]},
+                        ]
+                    },
                     {
                         xtype: 'container',
-                        margins: '10 10 10 10',
                         width: '100%',
                         items: [
-
                             {
                                 xtype: 'form',
                                 border: false,
@@ -106,10 +103,12 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
                                             align: 'stretch'
                                         },
                                         width: '100%',
+                                        margin: '32 0 0 0',
                                         items: [
                                             {
-                                                text: Uni.I18n.translate('general.create', 'MDC', 'Create'),
+                                                text: Uni.I18n.translate('general.save', 'MDC', 'Save'),
                                                 xtype: 'button',
+                                                ui: 'action',
                                                 action: 'createAction',
                                                 itemId: 'createEditButton'
                                             },
@@ -133,13 +132,12 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
 
         if (this.isEdit()) {
             console.log(this.down("#createEditButton"));
-            this.down('#createEditButton').setText(Uni.I18n.translate('general.edit', 'MDC', 'Edit'));
+            this.down('#createEditButton').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
             this.down('#createEditButton').action = 'editDeviceCommunicationProtocol';
         } else {
             this.down('#createEditButton').setText(Uni.I18n.translate('general.create', 'MDC', 'Create'));
             this.down('#createEditButton').action = 'createDeviceCommunicationProtocol';
         }
-
     }
 });
 

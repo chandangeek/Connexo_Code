@@ -31,7 +31,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulePreview', 
                 {
                     xtype: 'component',
                     height: '100px',
-                    html: '<H5>' + Uni.I18n.translate('communicationschedule.selectCommunicationSchedule', 'MDC', 'Select a communication schedule to see its details') + '</H5>'
+                    html: '<h5>' + Uni.I18n.translate('communicationschedule.selectCommunicationSchedule', 'MDC', 'Select a communication schedule to see its details') + '</h5>'
                 }
             ]
 

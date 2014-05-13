@@ -56,7 +56,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
                     {
                         xtype: 'component',
                         height: '100px',
-                        html: '<H5>' + Uni.I18n.translate('registerConfig.selectRegisterConfig', 'MDC', 'Select a register configuration to see its details') + '</H5>'
+                        html: '<h5>' + Uni.I18n.translate('registerConfig.selectRegisterConfig', 'MDC', 'Select a register configuration to see its details') + '</h5>'
                     }
                 ]
             },

@@ -24,7 +24,6 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
         {ref: 'deviceCommunicationProtocolGrid', selector: '#devicecommunicationprotocolgrid'},
         {ref: 'deviceCommunicationProtocolPreviewForm', selector: '#deviceCommunicationProtocolPreviewForm'},
         {ref: 'deviceCommunicationProtocolPreview', selector: '#deviceCommunicationProtocolPreview'},
-        {ref: 'deviceCommunicationProtocolPreviewTitle', selector: '#deviceCommunicationProtocolPreviewTitle'},
         {ref: 'deviceCommunicationProtocolEditView', selector: '#deviceCommunicationProtocolEdit'},
         {ref: 'deviceCommunicationProtocolEditForm', selector: '#deviceCommunicationProtocolEditForm'},
         {ref: 'breadCrumbs', selector: 'breadcrumbTrail'}
@@ -53,12 +52,12 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
     previewDeviceCommunicationProtocol: function (grid, record) {
         var deviceCommunicationProtocols = this.getDeviceCommunicationProtocolGrid().getSelectionModel().getSelection();
         var me = this;
-        if (deviceCommunicationProtocols.length == 1) {
+        if (deviceCommunicationProtocols.length === 1) {
             Ext.ModelManager.getModel('Mdc.model.DeviceCommunicationProtocol').load(deviceCommunicationProtocols[0].get('id'), {
                 success: function (deviceCommunicationProtocol) {
                     me.getDeviceCommunicationProtocolPreviewForm().loadRecord(deviceCommunicationProtocol);
                     me.getDeviceCommunicationProtocolPreview().getLayout().setActiveItem(1);
-                    me.getDeviceCommunicationProtocolPreviewTitle().update('<h4>' + deviceCommunicationProtocol.get('name') + '</h4>');
+                    me.getDeviceCommunicationProtocolPreview().setTitle(deviceCommunicationProtocol.get('name'));
                     me.getPropertiesViewController().showProperties(deviceCommunicationProtocol, me.getDeviceCommunicationProtocolPreview());
                 }
             });

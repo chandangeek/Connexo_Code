@@ -46,7 +46,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
                     {
                         xtype: 'component',
                         height: '100px',
-                        html: '<H5>' + Uni.I18n.translate('registerMapping.selectRegisterMapping', 'MDC', 'Select a register type to see its details') + '</H5>'
+                        html: '<h5>' + Uni.I18n.translate('registerMapping.selectRegisterMapping', 'MDC', 'Select a register type to see its details') + '</h5>'
                     }
                 ]
             },

@@ -1,17 +1,38 @@
 Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtocolPreview', {
     extend: 'Ext.panel.Panel',
-    border: true,
-    margins: '0 10 10 10',
     alias: 'widget.deviceCommunicationProtocolPreview',
+    frame: true,
+    border: true,
     itemId: 'deviceCommunicationProtocolPreview',
+
     requires: [
         'Mdc.model.DeviceCommunicationProtocol',
         'Mdc.view.setup.property.PropertyView'
     ],
+
     layout: {
         type: 'card',
         align: 'stretch'
     },
+
+    title: Uni.I18n.translate('deviceCommunicationProtocol.previewTitle', 'MDC', 'Selected protocol preview'),
+
+    tools: [
+        {
+            xtype: 'button',
+            icon: '../mdc/resources/images/actionsDetail.png',
+            text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
+            menu: {
+                items: [
+                    {
+                        text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                        itemId: 'editProtocol',
+                        action: 'editProtocol'
+                    }
+                ]
+            }
+        }
+    ],
 
     initComponent: function () {
         var me = this;
@@ -19,7 +40,6 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
             {
                 xtype: 'panel',
                 border: false,
-                padding: '0 10 0 10',
                 tbar: [
                     {
                         xtype: 'component',
@@ -29,48 +49,23 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
                 items: [
                     {
                         xtype: 'component',
-                        height: '100px',
-                        html: '<H5>' + Uni.I18n.translate('deviceCommunicationProtocol.selectDeviceCommunicationProtocol', 'MDC', 'Select a protocol to see its details') + '</H5>'
+                        html: '<h5>' + Uni.I18n.translate('deviceCommunicationProtocol.selectDeviceCommunicationProtocol', 'MDC', 'Select a protocol to see its details') + '</h5>'
                     }
                 ]
-
             },
             {
                 xtype: 'form',
                 border: false,
                 itemId: 'deviceCommunicationProtocolPreviewForm',
-                padding: '10 10 0 10',
                 layout: {
                     type: 'vbox',
                     align: 'stretch'
                 },
-                tbar: [
-                    {
-                        xtype: 'component',
-                        html: '<h4>' + Uni.I18n.translate('deviceCommunicationProtocol.previewTitle', 'MDC', 'Selected protocol preview') + '</h4>',
-                        itemId: 'deviceCommunicationProtocolPreviewTitle'
-                    },
-                    '->',
-                    {
-                        icon: '../mdc/resources/images/actionsDetail.png',
-                        text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
-                        menu: {
-                            items: [
-                                {
-                                    text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                                    itemId: 'editProtocol',
-                                    action: 'editProtocol'
-                                }
-                            ]
-                        }
-                    }
-                ],
                 items: [
                     {
                         xtype: 'container',
                         layout: {
                             type: 'column'
-                            //                        align: 'stretch'
                         },
                         defaults: {
                             labelWidth: 250
@@ -114,12 +109,10 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
                     {
                         xtype: 'propertyView'
                     }
-
                 ]
             }
-        ]
+        ];
+
         this.callParent(arguments);
     }
-})
-;
-
+});

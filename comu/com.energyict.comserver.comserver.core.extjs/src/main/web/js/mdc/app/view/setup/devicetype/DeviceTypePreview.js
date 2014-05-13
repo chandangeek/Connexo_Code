@@ -1,14 +1,15 @@
 Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
     extend: 'Ext.panel.Panel',
     frame: true,
-    //margins: '0 10 10 10',
     alias: 'widget.deviceTypePreview',
     itemId: 'deviceTypePreview',
+
     requires: [
         'Mdc.model.DeviceType'
     ],
 
     title: 'Details',
+
     tools: [
         {
             xtype: 'button',
@@ -31,6 +32,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
         }
 
     ],
+
     items: {
         xtype: 'form',
         border: false,
