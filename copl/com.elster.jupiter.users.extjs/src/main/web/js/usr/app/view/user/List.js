@@ -11,40 +11,31 @@ Ext.define('Usr.view.user.List', {
 
     columns: {
         defaults: {
-            flex: 1
+            flex: 1,
+            sortable: false,
+            hideable: false,
+            fixed: true
         },
         items: [
             {
                 header: Uni.I18n.translate('user.name', 'USM', 'Name'),
                 dataIndex: 'authenticationName',
-                sortable: false,
-                hideable: false,
-                fixed: true,
                 flex: 3
             },
             {
                 header: Uni.I18n.translate('user.description', 'USM', 'Description'),
                 dataIndex: 'description',
-                sortable: false,
-                hideable: false,
-                fixed: true,
                 flex: 5
             },
             {
                 header: Uni.I18n.translate('user.domain', 'USM', 'Domain'),
                 dataIndex: 'domain',
-                sortable: false,
-                hideable: false,
-                fixed: true,
                 flex: 2
             },
             {
                 xtype:'actioncolumn',
                 tdCls:'view',
                 header : Uni.I18n.translate('general.actions', 'USM', 'Actions'),
-                sortable: false,
-                hideable: false,
-                fixed: true,
                 flex: 0.5,
                 items: [{
                     iconCls: 'x-uni-action-icon',

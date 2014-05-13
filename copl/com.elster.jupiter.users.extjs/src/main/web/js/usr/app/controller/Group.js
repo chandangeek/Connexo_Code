@@ -5,18 +5,22 @@ Ext.define('Usr.controller.Group', {
         'Usr.controller.GroupPrivileges'
     ],
     stores: [
-        'Privileges',
-        'Groups'
+        'Usr.store.Privileges',
+        'Usr.store.Groups'
     ],
     models: [
-        'Privilege',
-        'Group'
+        'Usr.model.Privilege',
+        'Usr.model.Group'
     ],
     views: [
-        'group.Browse'
+        'Usr.view.group.Browse'
     ],
 
     refs: [
+        {
+            ref: 'groupDetails',
+            selector: 'groupDetails'
+        }
     ],
 
     init: function () {
@@ -75,19 +79,19 @@ Ext.define('Usr.controller.Group', {
 
     selectGroup: function (grid, record) {
         // fill in the details panel
-        var form = grid.up('panel').up('container').up('container').down('form');
-        form.loadRecord(record);
+        var panel = this.getGroupDetails(),
+            form = panel.down('form');
 
-        var detailsHeader = Ext.getCmp('els_usm_groupDetailsHeader');
-        detailsHeader.update('<h4>' + Uni.I18n.translate('group.group', 'USM', 'Role') + ' "' + record.get('name') + '"' + '</h4>');
+        var title = Uni.I18n.translate('group.group', 'USM', 'Role') + ' "' + record.get('name') + '"';
+        panel.setTitle(title);
+        form.loadRecord(record);
 
         var privileges = '';
         var currentPrivileges = record.privileges().data.items;
         for (var i = 0; i < currentPrivileges.length; i++) {
             privileges += currentPrivileges[i].data.name + '<br/>';
         }
-        Ext.getCmp('els_usm_groupDetailsPrivileges').setValue(privileges);
-        form.show();
+        form.down('[name=privileges]').setValue(privileges);
+        panel.show();
     }
-
 });

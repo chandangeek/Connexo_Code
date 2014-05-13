@@ -1,11 +1,11 @@
 Ext.define('Usr.view.group.Browse', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.groupBrowse',
-    cls: 'content-wrapper',
     overflowY: 'auto',
     requires: [
         'Usr.view.group.List',
-        'Usr.view.group.Details'
+        'Usr.view.group.Details',
+        'Ext.panel.Panel'
     ],
 
     /*side: [
@@ -65,22 +65,14 @@ Ext.define('Usr.view.group.Browse', {
 
     content: [
         {
-            xtype: 'container',
-            cls: 'content-container',
-            padding: '10 10 0 10',
+            xtype: 'panel',
+            ui: 'large',
+            title: '<h1>' + Uni.I18n.translate('group.title', 'USM', 'Roles') + '</h1>',
             layout: {
                 type: 'vbox',
                 align: 'stretch'
             },
-            defaults: {
-                //anchor: '100%',
-                margins: '0 0 10 0'
-            },
             items: [
-                {
-                    xtype: 'component',
-                    html: '<h1>' + Uni.I18n.translate('group.title', 'USM', 'Roles') + '</h1>'
-                },
                 {
                     xtype: 'groupList'
                 },
@@ -89,9 +81,5 @@ Ext.define('Usr.view.group.Browse', {
                 }
             ]
         }
-    ],
-
-    initComponent: function () {
-        this.callParent(arguments);
-    }
+    ]
 });

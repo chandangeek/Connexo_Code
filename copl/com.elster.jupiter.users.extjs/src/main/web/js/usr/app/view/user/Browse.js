@@ -1,7 +1,6 @@
 Ext.define('Usr.view.user.Browse', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.userBrowse',
-    cls: 'content-wrapper',
     overflowY: 'auto',
     requires: [
         'Usr.view.user.List',

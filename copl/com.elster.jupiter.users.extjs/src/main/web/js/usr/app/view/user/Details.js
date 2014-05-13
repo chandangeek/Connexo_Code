@@ -1,8 +1,8 @@
 Ext.define('Usr.view.user.Details', {
     extend: 'Ext.form.Panel',
-    frame: true,
     alias: 'widget.userDetails',
     itemId: 'userDetails',
+    frame: true,
     hidden: true,
     requires: [
         'Usr.store.Users',
