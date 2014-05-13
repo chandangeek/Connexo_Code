@@ -6,6 +6,8 @@ import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.tasks.history.ComSession;
+import com.energyict.mdc.tasks.history.ComSessionBuilder;
 
 /**
  * Provides an implementation for the {@link DeviceCommand} interface
@@ -20,23 +22,24 @@ import com.energyict.mdc.engine.model.ComServer;
 public class CreateOutboundComSession extends ExecutionLoggerImpl implements CreateComSessionDeviceCommand {
 
     private ScheduledConnectionTask connectionTask;
-    private ComSessionShadow shadow;
+    private ComSessionBuilder.EndedComSessionBuilder builder;
+    private ComSession outboundComSession;
 
-    public CreateOutboundComSession (ComServer.LogLevel communicationLogLevel, ScheduledConnectionTask connectionTask, ComSessionShadow shadow) {
+    public CreateOutboundComSession (ComServer.LogLevel communicationLogLevel, ScheduledConnectionTask connectionTask, ComSessionBuilder.EndedComSessionBuilder builder) {
         super(communicationLogLevel);
         this.connectionTask = connectionTask;
-        this.shadow = shadow;
+        this.builder = builder;
     }
 
     @Override
-    public ComSessionShadow getComSessionShadow () {
-        return shadow;
+    public ComSessionBuilder.EndedComSessionBuilder getComSessionBuilder() {
+        return builder;
     }
 
     @Override
     public void execute (ComServerDAO comServerDAO) {
         try {
-            comServerDAO.createOutboundComSession(this.connectionTask, this.shadow);
+            outboundComSession = comServerDAO.createOutboundComSession(this.connectionTask, this.builder);
         }
         catch (RuntimeException e) {
             LoggerFactory.getLoggerFor(DeviceCommandLogger.class).outboundComSessionCreationFailed(e, this.connectionTask);
@@ -65,14 +68,17 @@ public class CreateOutboundComSession extends ExecutionLoggerImpl implements Cre
     }
 
     @Override
-    public String toJournalMessageDescription(ComServer.LogLevel serverLogLevel) {  //TODO: this method is currently nowhere used
+    public String toJournalMessageDescription(ComServer.LogLevel serverLogLevel) {
+        if (outboundComSession == null) {
+            return "";
+        }
         DescriptionBuilder builder = new DescriptionBuilderImpl(this);
         if (isJournalingLevelEnabled(serverLogLevel, ComServer.LogLevel.DEBUG)) {
-            builder.addProperty("indicator").append(shadow.getSuccessIndicator());
-            builder.addProperty("connectionTaskId").append(shadow.getConnectionTaskId());
-            builder.addProperty("comPortId").append(shadow.getComPortId());
-            builder.addProperty("number of tasks").append(shadow.getComTaskExecutionSessionShadows().size());
-            builder.addProperty("number of journal entries").append(shadow.getJournalEntryShadows().size());
+            builder.addProperty("indicator").append(outboundComSession.getSuccessIndicator());
+            builder.addProperty("connectionTaskId").append(outboundComSession.getConnectionTask().getId());
+            builder.addProperty("comPortId").append(outboundComSession.getComPort().getId());
+            builder.addProperty("number of tasks").append(outboundComSession.getComTaskExecutionSessions().size());
+            builder.addProperty("number of journal entries").append(outboundComSession.getJournalEntries().size());
         }
         return builder.toString();
     }

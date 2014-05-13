@@ -31,6 +31,8 @@ import com.energyict.mdc.protocol.api.inbound.FindMultipleDevices;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.tasks.history.ComSession;
+import com.energyict.mdc.tasks.history.ComSessionBuilder;
 
 import java.util.List;
 
@@ -136,7 +138,7 @@ public class InboundCommunicationHandler {
      * @return the CreateInboundComSession
      */
     private CreateInboundComSession createFailedInboundComSessionForDuplicateDevice(DuplicateException e){
-        ComSessionShadow comSessionShadow = new ComSessionShadow();
+        ComSessionBuilder comSessionShadow = new ComSessionShadow();
         comSessionShadow.setComPortId((int) this.comPort.getId());
         comSessionShadow.setComPortPoolId((int) this.comPort.getComPortPool().getId());
         comSessionShadow.setStartDate(Clocks.getAppServerClock().now());

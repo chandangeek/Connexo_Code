@@ -6,6 +6,9 @@ import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.StackTracePrinter;
+import com.energyict.mdc.tasks.history.ComSessionBuilder;
+import com.energyict.mdc.tasks.history.ComTaskExecutionSessionBuilder;
+import com.energyict.mdc.tasks.history.CompletionCode;
 
 /**
  * Provides an implementation for the {@link DeviceCommand.ExecutionLogger} interface.
@@ -22,7 +25,7 @@ public abstract class ExecutionLoggerImpl implements DeviceCommand.ExecutionLogg
         this.logLevel = logLevel;
     }
 
-    protected abstract ComSessionShadow getComSessionShadow();
+    protected abstract ComSessionBuilder.EndedComSessionBuilder getComSessionBuilder();
 
     @Override
     public void executed (DeviceCommand deviceCommand) {
@@ -30,7 +33,8 @@ public abstract class ExecutionLoggerImpl implements DeviceCommand.ExecutionLogg
             ComSessionJournalEntryShadow shadow = new ComSessionJournalEntryShadow();
             shadow.setMessage(deviceCommand.toJournalMessageDescription(this.logLevel));
             shadow.setTimestamp(Clocks.getAppServerClock().now());
-            this.getComSessionShadow().addJournaleEntry(shadow);
+            this.getComSessionBuilder().addJournaleEntry(shadow);
+
         }
     }
 
@@ -51,7 +55,7 @@ public abstract class ExecutionLoggerImpl implements DeviceCommand.ExecutionLogg
     }
 
     private ComTaskExecutionSessionShadow findComTaskExecutionSession (ComTaskExecution comTaskExecution) {
-        for (ComTaskExecutionSessionShadow shadow : this.getComSessionShadow().getComTaskExecutionSessionShadows()) {
+        for (ComTaskExecutionSessionShadow shadow : this.getComSessionBuilder().getComTaskExecutionSessionShadows()) {
             if (shadow.getComTaskExecutionId() == comTaskExecution.getId()) {
                 return shadow;
             }
@@ -59,13 +63,8 @@ public abstract class ExecutionLoggerImpl implements DeviceCommand.ExecutionLogg
         throw CodingException.comTaskSessionMissing(comTaskExecution);
     }
 
-    private void logFailure (Throwable t, ComTaskExecutionSessionShadow shadow) {
-        ComCommandJournalEntryShadow comCommandJournalEntryShadow = new ComCommandJournalEntryShadow();
-        comCommandJournalEntryShadow.setCompletionCode(CompletionCode.UnexpectedError);
-        comCommandJournalEntryShadow.setErrorDescription(StackTracePrinter.print(t));
-        comCommandJournalEntryShadow.setTimestamp(Clocks.getAppServerClock().now());
-        comCommandJournalEntryShadow.setCommandDescription("General");
-        shadow.addComTaskJournalEntry(comCommandJournalEntryShadow);
+    private void logFailure (Throwable t, ComTaskExecutionSessionBuilder builder) {
+        builder.addComCommandJournalEntry(clock.now(), CompletionCode.UnexpectedError, StackTracePrinter.print(t), "General");
     }
 
     @Override
@@ -73,15 +72,8 @@ public abstract class ExecutionLoggerImpl implements DeviceCommand.ExecutionLogg
         this.logIssue(completionCode, issue, this.findComTaskExecutionSession(comTaskExecution));
     }
 
-    private void logIssue(CompletionCode completionCode, Issue issue, ComTaskExecutionSessionShadow comTaskExecutionSession) {
-        ComCommandJournalEntryShadow comCommandJournalEntryShadow = new ComCommandJournalEntryShadow();
-        comCommandJournalEntryShadow.setCompletionCode(completionCode);
-        comCommandJournalEntryShadow.setCommandDescription(issue.getDescription());
-        comCommandJournalEntryShadow.setTimestamp(issue.getTimestamp());
-        if (issue.isProblem()) {
-            comCommandJournalEntryShadow.setErrorDescription(issue.getDescription());
-        }
-        comTaskExecutionSession.addComTaskJournalEntry(comCommandJournalEntryShadow);
+    private void logIssue(CompletionCode completionCode, Issue issue, ComTaskExecutionSessionBuilder builder) {
+        builder.addComCommandJournalEntry(issue.getTimestamp(), completionCode, issue.isProblem() ? issue.getDescription() : "", issue.getDescription());
     }
 
 }

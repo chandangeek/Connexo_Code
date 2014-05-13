@@ -7,12 +7,11 @@ import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.RemoteComServer;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.services.HexService;
+import com.energyict.mdc.tasks.history.TaskHistoryService;
 
-import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -45,4 +44,6 @@ public interface ServiceProvider {
     public ThreadPrincipalService threadPrincipalService();
 
     public EngineModelService engineModelService();
+
+    public TaskHistoryService taskHistoryService();
 }

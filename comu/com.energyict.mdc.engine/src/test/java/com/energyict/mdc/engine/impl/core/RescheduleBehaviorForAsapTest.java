@@ -154,7 +154,7 @@ public class RescheduleBehaviorForAsapTest {
         verify(comServerDAO, never()).executionCompleted(any(ComTaskExecution.class));
         verify(comServerDAO, times(1)).executionFailed(any(ComTaskExecution.class)); // we want the comTask to be rescheduled in ASAP
         verify(comServerDAO, times(1)).executionFailed(connectionTask);
-        final List<ComTaskExecutionSessionShadow> comTaskExecutionSessionShadows = executionContext.getComSessionShadow().getComTaskExecutionSessionShadows();
+        final List<ComTaskExecutionSessionShadow> comTaskExecutionSessionShadows = executionContext.getComSessionBuilder().getComTaskExecutionSessionShadows();
         Assertions.assertThat(comTaskExecutionSessionShadows).hasSize(1);
         Assertions.assertThat(comTaskExecutionSessionShadows.get(0).getJournalEntryShadows()).isNotEmpty();
         Assertions.assertThat(comTaskExecutionSessionShadows.get(0).getJournalEntryShadows()).has(new Condition<List<ComTaskExecutionJournalEntryShadow>>() {

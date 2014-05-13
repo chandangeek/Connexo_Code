@@ -32,7 +32,7 @@ public class CreateOutboundComSessionTest {
         CreateOutboundComSession command = new CreateOutboundComSession(ComServer.LogLevel.INFO, mock(OutboundConnectionTask.class), comSessionShadow);
 
         // Asserts
-        assertThat(command.getComSessionShadow()).isEqualTo(comSessionShadow);
+        assertThat(command.getComSessionBuilder()).isEqualTo(comSessionShadow);
     }
 
     @Test

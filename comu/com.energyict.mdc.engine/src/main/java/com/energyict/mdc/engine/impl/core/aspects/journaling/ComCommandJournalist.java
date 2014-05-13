@@ -5,6 +5,7 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.Problem;
 import com.energyict.mdc.issues.Warning;
+import com.energyict.mdc.tasks.history.ComTaskExecutionSessionBuilder;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -20,11 +21,11 @@ import java.util.List;
  */
 public class ComCommandJournalist {
 
-    private ComTaskExecutionSessionShadow comTaskExecutionSessionShadow;
+    private ComTaskExecutionSessionBuilder comTaskExecutionSessionBuilder;
 
-    public ComCommandJournalist (ComTaskExecutionSessionShadow comTaskExecutionSessionShadow) {
+    public ComCommandJournalist (ComTaskExecutionSessionBuilder comTaskExecutionSessionBuilder) {
         super();
-        this.comTaskExecutionSessionShadow = comTaskExecutionSessionShadow;
+        this.comTaskExecutionSessionBuilder = comTaskExecutionSessionBuilder;
     }
 
     /**
@@ -48,7 +49,7 @@ public class ComCommandJournalist {
     private void addJournalEntries (ComCommand comCommand, LogLevel serverLogLevel) {
         List<ComTaskExecutionJournalEntryShadow> entryShadows = this.toJournalEntries(comCommand, serverLogLevel);
         for (ComTaskExecutionJournalEntryShadow entryShadow : entryShadows) {
-            this.comTaskExecutionSessionShadow.addComTaskJournalEntry(entryShadow);
+            this.comTaskExecutionSessionBuilder.addComTaskJournalEntry(entryShadow);
         }
     }
 

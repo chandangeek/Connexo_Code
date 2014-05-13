@@ -1,9 +1,10 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.common.comserver.logging.CanProvideDescriptionTitle;
+import com.energyict.mdc.tasks.history.ComSessionBuilder;
 
 /**
- * Models a {@link DeviceCommand} that will create a {@link com.energyict.mdc.journal.ComSession}
+ * Models a {@link DeviceCommand} that will create a ComSession
  * that contains the details of a complete communication session.
  *
  * @author Rudi Vankeirsbilck (rudi)
@@ -11,6 +12,6 @@ import com.energyict.mdc.common.comserver.logging.CanProvideDescriptionTitle;
  */
 public interface CreateComSessionDeviceCommand extends DeviceCommand, DeviceCommand.ExecutionLogger, CanProvideDescriptionTitle {
 
-    public ComSessionShadow getComSessionShadow();
+    public ComSessionBuilder.EndedComSessionBuilder getComSessionShadow();
 
 }

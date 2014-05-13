@@ -4,6 +4,8 @@ import com.energyict.mdc.engine.impl.core.ScheduledJobImpl;
 
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.StackTracePrinter;
+import com.energyict.mdc.tasks.history.ComSessionBuilder;
+import com.energyict.mdc.tasks.history.ComTaskExecutionSessionBuilder;
 
 import java.text.MessageFormat;
 import java.util.MissingResourceException;
@@ -13,8 +15,8 @@ import java.util.logging.LogRecord;
 
 /**
  * Provides an implementation for the Handler class
- * that creates {@link com.energyict.mdc.journal.ComSessionJournalEntry ComSessionJournalEntries}
- * or {@link com.energyict.mdc.journal.ComTaskExecutionMessageJournalEntry ComTaskMessageJournalEntries}
+ * that creates ComSessionJournalEntries
+ * or ComTaskMessageJournalEntries
  * depending on the state of the {@link ScheduledJobImpl.ExecutionContext} it is working in.
  *
  * @author Rudi Vankeirsbilck (rudi)
@@ -33,35 +35,22 @@ public class ExecutionContextLogHandler extends Handler {
 
     @Override
     public void publish (LogRecord record) {
-        ComTaskExecutionSessionShadow taskExecutionSession = this.executionContext.getCurrentTaskExecutionSession();
+        ComTaskExecutionSessionBuilder taskExecutionSession = this.executionContext.getCurrentTaskExecutionBuilder();
         if (taskExecutionSession != null) {
             this.publishComTaskMessageJournalEntry(taskExecutionSession, record);
         }
         else {
-            this.publishComSessionJournalEntry(this.executionContext.getComSessionShadow(), record);
+            this.publishComSessionJournalEntry(this.executionContext.getComSessionBuilder(), record);
         }
     }
 
-    private void publishComTaskMessageJournalEntry (ComTaskExecutionSessionShadow taskExecutionSession, LogRecord record) {
-        ComTaskExecutionMessageJournalEntryShadow shadow = new ComTaskExecutionMessageJournalEntryShadow();
-        shadow.setMessage(this.extractInfo(record));
-        shadow.setTimestamp(this.clock.now());
+    private void publishComTaskMessageJournalEntry (ComTaskExecutionSessionBuilder taskExecutionSession, LogRecord record) {
         Throwable thrown = record.getThrown();
-        if (thrown != null) {
-            shadow.setErrorDescription(StackTracePrinter.print(thrown));
-        }
-        taskExecutionSession.addComTaskJournalEntry(shadow);
+        taskExecutionSession.addComTaskExecutionMessageJournalEntry(clock.now(), thrown == null ? "" : StackTracePrinter.print(thrown), extractInfo(record));
     }
 
-    private void publishComSessionJournalEntry (ComSessionShadow sessionShadow, LogRecord record) {
-        ComSessionJournalEntryShadow shadow = new ComSessionJournalEntryShadow();
-        shadow.setMessage(this.extractInfo(record));
-        shadow.setTimestamp(this.clock.now());
-        Throwable thrown = record.getThrown();
-        if (thrown != null) {
-            shadow.setCause(thrown);
-        }
-        sessionShadow.addJournaleEntry(shadow);
+    private void publishComSessionJournalEntry (ComSessionBuilder builder, LogRecord record) {
+        builder.addJournalEntry(clock.now(), extractInfo(record), record.getThrown());
     }
 
     private String extractInfo (LogRecord record) {

@@ -9,6 +9,7 @@ import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
+import com.energyict.mdc.tasks.history.ComSessionBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -26,7 +27,7 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
     private Logger logger;
     private Cryptographer cryptographer;
     private InboundDAO inboundDAO;
-    private ComSessionShadow sessionShadow = new ComSessionShadow();
+    private ComSessionBuilder sessionBuilder = new ComSessionBuilder();
     private final InboundComPort comPort;
     private ComChannel comChannel;
     private HttpServletRequest servletRequest;
@@ -73,8 +74,8 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
         this.inboundDAO = inboundDAO;
     }
 
-    public ComSessionShadow getComSessionShadow () {
-        return sessionShadow;
+    public ComSessionBuilder getComSessionShadow () {
+        return sessionBuilder;
     }
 
     public InboundComPort getComPort () {

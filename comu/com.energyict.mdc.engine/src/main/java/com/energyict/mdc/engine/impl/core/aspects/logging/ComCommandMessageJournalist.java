@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.core.aspects.logging;
 
 import com.elster.jupiter.util.time.Clock;
+import com.energyict.mdc.tasks.history.ComTaskExecutionSessionBuilder;
 
 import java.text.MessageFormat;
 import java.util.MissingResourceException;
@@ -10,7 +11,7 @@ import java.util.logging.LogRecord;
 
 /**
  * Provides an implementation for the Handler class
- * that publishes a {@link com.energyict.mdc.journal.ComTaskExecutionMessageJournalEntry}
+ * that publishes a ComTaskExecutionMessageJournalEntry
  * containing the human readable format of the log message.
  *
  * @author Rudi Vankeirsbilck (rudi)
@@ -19,20 +20,17 @@ import java.util.logging.LogRecord;
 public class ComCommandMessageJournalist extends Handler {
 
     private final Clock clock;
-    private final ComTaskExecutionSessionShadow comTaskExecutionSessionShadow;
+    private final ComTaskExecutionSessionBuilder comTaskExecutionSessionBuilder;
 
-    public ComCommandMessageJournalist(Clock clock, ComTaskExecutionSessionShadow comTaskExecutionSessionShadow) {
+    public ComCommandMessageJournalist(Clock clock, ComTaskExecutionSessionBuilder comTaskExecutionSessionBuilder) {
         super();
         this.clock = clock;
-        this.comTaskExecutionSessionShadow = comTaskExecutionSessionShadow;
+        this.comTaskExecutionSessionBuilder = comTaskExecutionSessionBuilder;
     }
 
     @Override
     public void publish (LogRecord record) {
-        ComTaskExecutionMessageJournalEntryShadow journalEntryShadow = new ComTaskExecutionMessageJournalEntryShadow();
-        journalEntryShadow.setTimestamp(this.clock.now());
-        journalEntryShadow.setMessage(this.extractInfo(record));
-        this.comTaskExecutionSessionShadow.addComTaskJournalEntry(journalEntryShadow);
+        comTaskExecutionSessionBuilder.addComTaskExecutionMessageJournalEntry(clock.now(), "", extractInfo(record));
     }
 
     private String extractInfo (LogRecord record) {

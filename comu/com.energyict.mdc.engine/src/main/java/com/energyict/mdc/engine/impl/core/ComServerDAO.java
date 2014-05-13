@@ -5,7 +5,6 @@ import com.elster.jupiter.transaction.Transaction;
 import com.energyict.mdc.common.BusinessEvent;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.journal.ComSession;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
@@ -19,9 +18,11 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+import com.energyict.mdc.tasks.history.ComSession;
+import com.energyict.mdc.tasks.history.ComSessionBuilder;
+
 import java.text.DateFormat;
 import java.util.Collection;
 import java.util.List;
@@ -251,12 +252,11 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * in the ComSessionShadow for an outbound communication session.
      *
      * @param owner The OutboundConnectionTask that was responsible for creating the connection for the ComSession
-     * @param shadow The ComSessionShadow
+     * @param builder The ComSessionShadow
      * @return The newly created ComSession
-     * @see ComSessionFactory#createOutboundComSession(ScheduledConnectionTask, ComSessionShadow)
      */
     //TODO reenable and adjust this when JP-2460 is completely finished
-//    public ComSession createOutboundComSession (ScheduledConnectionTask owner, ComSessionShadow shadow);
+    public ComSession createOutboundComSession (ScheduledConnectionTask owner, ComSessionBuilder.EndedComSessionBuilder builder);
 
     /**
      * Creates a new ComSession from the specifications laid out
@@ -264,13 +264,11 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      *
      * @param owner the InboundConnectionTask that was used to determine what needed to happen during the inbound
      *              session or null of no data was pulled from the Device
-     * @param shadow the ComSessionShadow
+     * @param builder the ComSessionShadow
      * @return the newly created ComSession
-     * @see com.energyict.mdc.journal.ComSessionFactory#createInboundComSession(com.energyict.mdc.shadow.journal.ComSessionShadow)
-     * @see com.energyict.mdc.journal.ComSessionFactory#createInboundComSession(com.energyict.mdc.tasks.InboundConnectionTask, ComSessionShadow)
      */
     //TODO reenable and adjust this when JP-2460 is completely finished
-//    public ComSession createInboundComSession(InboundConnectionTask owner, ComSessionShadow shadow);
+    public ComSession createInboundComSession(InboundConnectionTask owner, ComSessionBuilder.EndedComSessionBuilder builder);
 
     /**
      * Stores the given list of Reading readings on the Meter.

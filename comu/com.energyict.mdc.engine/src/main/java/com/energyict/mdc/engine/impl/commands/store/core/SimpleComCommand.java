@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
-import com.energyict.mdc.device.data.journal.CompletionCode;
 import com.energyict.mdc.common.comserver.logging.CanProvideDescriptionTitle;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
@@ -18,12 +17,13 @@ import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.StackTracePrinter;
+import com.energyict.mdc.tasks.history.CompletionCode;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.energyict.mdc.device.data.journal.CompletionCode.*;
+import static com.energyict.mdc.tasks.history.CompletionCode.*;
 
 /**
  * Provides an implementation for a {@link ComCommand}

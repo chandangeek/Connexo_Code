@@ -13,12 +13,13 @@ import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.impl.ProblemImpl;
-import com.energyict.mdc.device.data.journal.CompletionCode;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
+import com.energyict.mdc.tasks.history.CompletionCode;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

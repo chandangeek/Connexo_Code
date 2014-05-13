@@ -14,10 +14,10 @@ import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.device.data.journal.CompletionCode;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.tasks.ClockTask;
+import com.energyict.mdc.tasks.history.CompletionCode;
 
 import java.util.List;
 

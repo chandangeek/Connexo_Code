@@ -7,6 +7,8 @@ import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
+import com.energyict.mdc.tasks.history.ComSession;
+import com.energyict.mdc.tasks.history.ComSessionBuilder;
 
 /**
  * Provides an implementation for the {@link DeviceCommand} interface
@@ -24,24 +26,25 @@ public class CreateInboundComSession extends ExecutionLoggerImpl implements Crea
 
     private InboundComPort comPort;
     private InboundConnectionTask connectionTask;
-    private ComSessionShadow shadow;
+    private ComSessionBuilder.EndedComSessionBuilder builder;
+    private ComSession inboundComSession;
 
-    public CreateInboundComSession (InboundComPort comPort, InboundConnectionTask connectionTask, ComSessionShadow shadow) {
+    public CreateInboundComSession (InboundComPort comPort, InboundConnectionTask connectionTask, ComSessionBuilder.EndedComSessionBuilder builder) {
         super(comPort.getComServer().getCommunicationLogLevel());
         this.comPort = comPort;
         this.connectionTask = connectionTask;
-        this.shadow = shadow;
+        this.builder = builder;
     }
 
     @Override
-    public ComSessionShadow getComSessionShadow () {
-        return shadow;
+    public ComSessionBuilder.EndedComSessionBuilder getComSessionBuilder() {
+        return builder;
     }
 
     @Override
     public void execute (ComServerDAO comServerDAO) {
         try {
-            comServerDAO.createInboundComSession(this.connectionTask, this.shadow);
+            inboundComSession = comServerDAO.createInboundComSession(this.connectionTask, this.builder);
         }
         catch (RuntimeException e) {
             if (this.connectionTask == null) {
@@ -75,14 +78,14 @@ public class CreateInboundComSession extends ExecutionLoggerImpl implements Crea
     }
 
     @Override
-    public String toJournalMessageDescription(ComServer.LogLevel serverLogLevel) {  //TODO: this method is currently nowhere used
+    public String toJournalMessageDescription(ComServer.LogLevel serverLogLevel) {
         DescriptionBuilder builder = new DescriptionBuilderImpl(this);
         if (isJournalingLevelEnabled(serverLogLevel, ComServer.LogLevel.DEBUG)) {
-            builder.addProperty("indicator").append(shadow.getSuccessIndicator());
-            builder.addProperty("connectionTaskId").append(shadow.getConnectionTaskId());
-            builder.addProperty("comPortId").append(shadow.getComPortId());
-            builder.addProperty("number of tasks").append(shadow.getComTaskExecutionSessionShadows().size());
-            builder.addProperty("number of journal entries").append(shadow.getJournalEntryShadows().size());
+            builder.addProperty("indicator").append(inboundComSession.getSuccessIndicator());
+            builder.addProperty("connectionTaskId").append(inboundComSession.getConnectionTask().getId());
+            builder.addProperty("comPortId").append(inboundComSession.getComPort().getId());
+            builder.addProperty("number of tasks").append(inboundComSession.getComTaskExecutionSessions().size());
+            builder.addProperty("number of journal entries").append(inboundComSession.getJournalEntries().size());
         }
         return builder.toString();
     }

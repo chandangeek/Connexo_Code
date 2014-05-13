@@ -4,8 +4,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.protocol.inbound.DeviceIdentifierById;
 
-import com.energyict.comserver.collections.Collections;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;

@@ -53,7 +53,7 @@ public class CreateInboundComSessionTest {
         CreateInboundComSession command = new CreateInboundComSession(this.comPort, mock(InboundConnectionTask.class), comSessionShadow);
 
         // Asserts
-        assertThat(command.getComSessionShadow()).isEqualTo(comSessionShadow);
+        assertThat(command.getComSessionBuilder()).isEqualTo(comSessionShadow);
     }
 
     @Test

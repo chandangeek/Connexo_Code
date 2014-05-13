@@ -1,17 +1,16 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.transaction.VoidTransaction;
+import com.elster.jupiter.util.Holder;
+import com.elster.jupiter.util.HolderBuilder;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
-import com.energyict.mdc.device.data.journal.ComSession;
-import com.energyict.mdc.device.data.journal.ComTaskExecutionSession;
-import com.energyict.mdc.device.data.journal.CompletionCode;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
@@ -25,8 +24,10 @@ import com.energyict.mdc.engine.impl.commands.store.ComSessionRootDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.CompositeDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.CreateInboundComSession;
 import com.energyict.mdc.engine.impl.commands.store.CreateOutboundComSession;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.commands.store.core.ComTaskExecutionComCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.engine.impl.core.aspects.journaling.ComCommandJournalist;
 import com.energyict.mdc.engine.impl.core.aspects.logging.ComChannelLogger;
@@ -56,11 +57,19 @@ import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 
 import com.elster.jupiter.transaction.Transaction;
+import com.energyict.mdc.tasks.history.ComSession;
+import com.energyict.mdc.tasks.history.ComSessionBuilder;
+import com.energyict.mdc.tasks.history.ComTaskExecutionSession;
+import com.energyict.mdc.tasks.history.ComTaskExecutionSessionBuilder;
+import com.energyict.mdc.tasks.history.CompletionCode;
+import com.energyict.mdc.tasks.history.TaskHistoryService;
+import org.joda.time.Duration;
 
 import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -115,7 +124,7 @@ public abstract class JobExecution implements ScheduledJob {
 
     public abstract List<ComTaskExecution> getSuccessfulComTaskExecutions();
 
-    public abstract ConnectionTask getConnectionTask();
+    public abstract ConnectionTask<?, ?> getConnectionTask();
 
     public JobExecution(ComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
         this.comPort = comPort;
@@ -133,13 +142,13 @@ public abstract class JobExecution implements ScheduledJob {
         return comServerDAO;
     }
 
-    protected PreparedComTaskExecution getPreparedComTaskExecution(ComTaskPreparationContext comTaskPreparationContext, ComTaskExecution comTaskExecution, ComTaskExecutionConnectionSteps connectionSteps, BaseDevice<?,?,?> masterDevice, DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
+    protected PreparedComTaskExecution getPreparedComTaskExecution(ComTaskPreparationContext comTaskPreparationContext, ComTaskExecution comTaskExecution, ComTaskExecutionConnectionSteps connectionSteps, BaseDevice<?, ?, ?> masterDevice, DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
         final List<? extends ProtocolTask> protocolTasks = comTaskExecution.getComTask().getProtocolTasks();
         makeSureBasicCheckTaskIsInFrontOfTheList(protocolTasks);
         comTaskPreparationContext.getCommandCreator().
                 createCommands(
                         comTaskPreparationContext.getRoot(),
-                        this.getProtocolDialectTypedProperties(comTaskExecution),
+                        this.getProtocolDialectTypedProperties(comTaskExecution, serviceProvider.deviceDataService()),
                         this.preparationContext.getComChannelPlaceHolder(),
                         comTaskPreparationContext.getOfflineDevice(),
                         protocolTasks,
@@ -148,9 +157,9 @@ public abstract class JobExecution implements ScheduledJob {
         return new PreparedComTaskExecution(comTaskExecution, comTaskPreparationContext.getRoot(), comTaskPreparationContext.getDeviceProtocol());
     }
 
-    private  TypedProperties getProtocolDialectTypedProperties(ComTaskExecution comTaskExecution) {
+    private static TypedProperties getProtocolDialectTypedProperties(ComTaskExecution comTaskExecution, DeviceDataService deviceDataService) {
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = comTaskExecution.getProtocolDialectConfigurationProperties();
-        Device device = this.serviceProvider.deviceDataService().findDeviceById(comTaskExecution.getDevice().getId());
+        Device device = deviceDataService.findDeviceById(comTaskExecution.getDevice().getId());
         ProtocolDialectProperties protocolDialectPropertiesWithName = device.getProtocolDialectProperties(protocolDialectConfigurationProperties.getDeviceProtocolDialectName());
         if (protocolDialectPropertiesWithName == null) {
             return TypedProperties.inheritingFrom(protocolDialectConfigurationProperties.getTypedProperties());
@@ -209,6 +218,7 @@ public abstract class JobExecution implements ScheduledJob {
     }
 
     protected boolean execute(PreparedComTaskExecution preparedComTaskExecution) {
+        ComTaskExecutionSession.SuccessIndicator successIndicator = ComTaskExecutionSession.SuccessIndicator.Success;
         try {
             this.start(preparedComTaskExecution.getComTaskExecution());
 
@@ -217,17 +227,17 @@ public abstract class JobExecution implements ScheduledJob {
             commandRoot.executeFor(preparedComTaskExecution, this.executionContext);
             List<Problem> problems = commandRoot.getProblems();
             if (!problems.isEmpty()) {
-                this.failureWithProblems(preparedComTaskExecution.getComTaskExecution(), problems);
+                successIndicator = ComTaskExecutionSession.SuccessIndicator.Failure;
                 return false;
-            }
-            else {
+            } else {
                 return true;
             }
         } catch (Throwable t) {
             this.failure(preparedComTaskExecution.getComTaskExecution(), t);
+            successIndicator = ComTaskExecutionSession.SuccessIndicator.Failure;
             throw t;
         } finally {
-            this.completeExecutedComTask(preparedComTaskExecution.getComTaskExecution());
+            this.completeExecutedComTask(preparedComTaskExecution.getComTaskExecution(), successIndicator);
         }
     }
 
@@ -247,9 +257,10 @@ public abstract class JobExecution implements ScheduledJob {
      * <i>Need to keep the comTaskExecution to properly AOP the statistics</i>
      *
      * @param comTaskExecution The ComTaskExecution
+     * @param successIndicator
      */
-    private void completeExecutedComTask(ComTaskExecution comTaskExecution) {
-        this.getExecutionContext().comTaskExecutionCompleted();
+    private void completeExecutedComTask(ComTaskExecution comTaskExecution, ComTaskExecutionSession.SuccessIndicator successIndicator) {
+        this.getExecutionContext().comTaskExecutionCompleted(successIndicator);
     }
 
     /**
@@ -257,7 +268,7 @@ public abstract class JobExecution implements ScheduledJob {
      * because of an exceptional situation that was not necessarily anticipated.
      *
      * @param comTaskExecution The ComTaskExecution
-     * @param t The failure
+     * @param t                The failure
      */
     private void failure(ComTaskExecution comTaskExecution, Throwable t) {
         this.getExecutionContext().fail(comTaskExecution, t);
@@ -268,9 +279,9 @@ public abstract class JobExecution implements ScheduledJob {
      * because of {@link Problem}s that were reported during its execution.
      *
      * @param comTaskExecution The ComTaskExecution
-     * @param problems The List of Problem
+     * @param problems         The List of Problem
      */
-    private void failureWithProblems (ComTaskExecution comTaskExecution, List<Problem> problems) {
+    private void failureWithProblems(ComTaskExecution comTaskExecution, List<Problem> problems) {
         this.getExecutionContext().failWithProblems(comTaskExecution, problems);
     }
 
@@ -289,48 +300,45 @@ public abstract class JobExecution implements ScheduledJob {
         this.getDeviceCommandExecutor().execute(this.getExecutionContext().getStoreCommand(), getToken());
     }
 
-    protected void completeFailedComSession (Throwable t, ComSession.SuccessIndicator reason) {
+    protected void completeFailedComSession(Throwable t, ComSession.SuccessIndicator reason) {
         this.getExecutionContext().fail(t, reason);
         this.getDeviceCommandExecutor().execute(this.getExecutionContext().getStoreCommand(), getToken());
     }
 
-    protected ExecutionContext newExecutionContext(ConnectionTask connectionTask, ComPort comPort) {
+    protected ExecutionContext newExecutionContext(ConnectionTask<?, ?> connectionTask, ComPort comPort) {
         return newExecutionContext(connectionTask, comPort, true);
     }
 
-    protected ExecutionContext newExecutionContext(ConnectionTask connectionTask, ComPort comPort, boolean logConnectionProperties) {
-        return new ExecutionContext(this, connectionTask, comPort, logConnectionProperties, this.serviceProvider.issueService());
+    protected ExecutionContext newExecutionContext(ConnectionTask<?, ?> connectionTask, ComPort comPort, boolean logConnectionProperties) {
+        return new ExecutionContext(this, connectionTask, comPort, logConnectionProperties, new ComCommandServiceProvider());
     }
 
     @Override
-    public void reschedule () {
+    public void reschedule() {
         this.doReschedule(RescheduleBehavior.RescheduleReason.COMTASKS);
         this.completeSuccessfulComSession();
     }
 
     @Override
-    public void reschedule (Throwable t, RescheduleBehavior.RescheduleReason rescheduleReason) {
+    public void reschedule(Throwable t, RescheduleBehavior.RescheduleReason rescheduleReason) {
         this.doReschedule(rescheduleReason);
         this.completeFailedComSession(t, this.getFailureIndicatorFor(rescheduleReason));
     }
 
-    private ComSession.SuccessIndicator getFailureIndicatorFor (RescheduleBehavior.RescheduleReason rescheduleReason) {
+    private ComSession.SuccessIndicator getFailureIndicatorFor(RescheduleBehavior.RescheduleReason rescheduleReason) {
         if (RescheduleBehavior.RescheduleReason.CONNECTION_BROKEN.equals(rescheduleReason)) {
             return ComSession.SuccessIndicator.Broken;
         }
-        else {
-            return ComSession.SuccessIndicator.SetupError;
-        }
+        return ComSession.SuccessIndicator.SetupError;
     }
 
-    protected final void doReschedule (final RescheduleBehavior.RescheduleReason rescheduleReason) {
+    protected final void doReschedule(final RescheduleBehavior.RescheduleReason rescheduleReason) {
         final RescheduleBehavior retryBehavior = this.getRescheduleBehavior();
         try {
-            Environment.DEFAULT.get().execute(new Transaction<Object>() {
+            serviceProvider.transactionService().execute(new VoidTransaction() {
                 @Override
-                public Object doExecute() throws BusinessException, SQLException {
+                protected void doPerform() {
                     retryBehavior.performRescheduling(rescheduleReason);
-                    return null;
                 }
             });
         } catch (BusinessException e) {
@@ -398,9 +406,9 @@ public abstract class JobExecution implements ScheduledJob {
              * as we are locking on the ConnectionTask. */
             this.executeAndUpdateSuccessRate(preparedComTaskExecution);
         } catch (ComServerRuntimeException e) {
-            if(checkIfWeCanPerformOtherComTaskExecutionsBasedOnConnectionRelatedExceptions(e)){
+            if (checkIfWeCanPerformOtherComTaskExecutionsBasedOnConnectionRelatedExceptions(e)) {
                 throw e;
-            } else if(checkWhetherAllNextComTasksShouldNotBeExecutedBasedonBasicCheckFailure(e)) {
+            } else if (checkWhetherAllNextComTasksShouldNotBeExecutedBasedonBasicCheckFailure(e)) {
                 getExecutionContext().setBasicCheckFailed(true);
             }
             // else the task will be logged, next task can be executed
@@ -408,8 +416,8 @@ public abstract class JobExecution implements ScheduledJob {
     }
 
     private boolean checkWhetherAllNextComTasksShouldNotBeExecutedBasedonBasicCheckFailure(ComServerRuntimeException e) {
-        if(DeviceConfigurationException.class.isAssignableFrom(e.getClass())){
-            switch (e.getMessageId()){
+        if (DeviceConfigurationException.class.isAssignableFrom(e.getClass())) {
+            switch (e.getMessageId()) {
                 case "CSC-CONF-112":
                 case "CSC-CONF-134":
                     return true;
@@ -427,37 +435,19 @@ public abstract class JobExecution implements ScheduledJob {
         this.token = deviceCommandExecutionToken;
     }
 
-    private enum ListAppendMode {
-        FIRST {
-            @Override
-            protected void startOn (StringBuilder builder) {
-                // Nothing to append before the first message
-            }
-        },
-        REMAINING {
-            @Override
-            protected void startOn (StringBuilder builder) {
-                builder.append(", ");
-            }
-        };
-
-        protected abstract void startOn (StringBuilder builder);
-
-    }
-
     public static final class ExecutionContext {
 
         private final JobExecution jobExecution;
         private final CommandRoot.ServiceProvider serviceProvider;
 
         private ComPortRelatedComChannel comChannel;
-        private ComSessionShadow sessionShadow = new ComSessionShadow();
-        private ComTaskExecutionSessionShadow currentTaskExecutionSession;
+        private ComSessionBuilder sessionBuilder;
+        private ComTaskExecutionSessionBuilder currentTaskExecutionBuilder;
         private ComCommandJournalist journalist;
         private ComCommandLogger comCommandLogger;
         private ComChannelLogger comChannelLogger;
         private ComPort comPort;
-        private ConnectionTask connectionTask;
+        private ConnectionTask<?, ?> connectionTask;
         private ComTaskExecution comTaskExecution;
         private Logger logger;
 
@@ -465,11 +455,11 @@ public abstract class JobExecution implements ScheduledJob {
         private CompositeDeviceCommand storeCommand;
         private boolean basicCheckFailed = false;
 
-        public ExecutionContext(JobExecution jobExecution, ConnectionTask connectionTask, ComPort comPort, CommandRoot.ServiceProvider serviceProvider) {
+        public ExecutionContext(JobExecution jobExecution, ConnectionTask<?, ?> connectionTask, ComPort comPort, CommandRoot.ServiceProvider serviceProvider) {
             this(jobExecution, connectionTask, comPort, true, serviceProvider);
         }
 
-        public ExecutionContext(JobExecution jobExecution, ConnectionTask connectionTask, ComPort comPort, boolean logConnectionProperties, CommandRoot.ServiceProvider serviceProvider) {
+        public ExecutionContext(JobExecution jobExecution, ConnectionTask<?, ?> connectionTask, ComPort comPort, boolean logConnectionProperties, CommandRoot.ServiceProvider serviceProvider) {
             super();
             this.jobExecution = jobExecution;
             this.comPort = comPort;
@@ -492,7 +482,6 @@ public abstract class JobExecution implements ScheduledJob {
         public boolean connect() {
             try {
                 this.setComChannel(this.jobExecution.findOrCreateComChannel());
-                this.getComSessionShadow().setSuccessIndicator(ComSession.SuccessIndicator.Success);
                 this.getComServerDAO().executionStarted(this.connectionTask, this.comPort.getComServer());
                 return this.jobExecution.isConnected();
             } catch (ConnectionException e) {
@@ -502,60 +491,54 @@ public abstract class JobExecution implements ScheduledJob {
             }
         }
 
-        private void initializeComSessionShadow (boolean logConnectionProperties) {
-            this.sessionShadow.setStartDate(Clocks.getAppServerClock().now());
-            this.sessionShadow.setConnectionTaskId((int) this.connectionTask.getId());
-            this.sessionShadow.setComPortId((int) this.comPort.getId()); // TODO replace with long
-            this.sessionShadow.setComPortPoolId((int) this.connectionTask.getComPortPool().getId());// TODO replace with long
-            this.sessionShadow.setSuccessIndicator(ComSession.SuccessIndicator.Success);   // Optimistic
+        private void initializeComSessionShadow(boolean logConnectionProperties) {
+            sessionBuilder = serviceProvider.getTaskHistoryService().buildComSession(connectionTask, connectionTask.getComPortPool(), comPort, now());
+//            this.sessionShadow.setSuccessIndicator(ComSession.SuccessIndicator.Success);   // Optimistic
             if (logConnectionProperties && this.isLogLevelEnabled(ComServer.LogLevel.DEBUG)) {
                 this.addConnectionPropertiesAsJournalEntries(this.connectionTask);
             }
         }
 
-        private void addConnectionPropertiesAsJournalEntries(ConnectionTask connectionTask) {
+        private void addConnectionPropertiesAsJournalEntries(ConnectionTask<?, ?> connectionTask) {
             List<ConnectionTaskProperty> connectionProperties = connectionTask.getProperties();
             if (!connectionProperties.isEmpty()) {
-                ComSessionJournalEntryShadow shadow = new ComSessionJournalEntryShadow();
-                shadow.setTimestamp(Clocks.getAppServerClock().now());
                 StringBuilder builder = new StringBuilder("Connection properties: ");
-                ListAppendMode appendMode = ListAppendMode.FIRST;
+                Holder<String> separator = HolderBuilder.first("").andThen(", ");
                 for (ConnectionTaskProperty connectionProperty : connectionProperties) {
-                    appendMode.startOn(builder);
+                    builder.append(separator.get());
                     this.appendPropertyToMessage(builder, connectionProperty);
-                    appendMode = ListAppendMode.REMAINING;
                 }
-                shadow.setMessage(builder.toString());
-                this.sessionShadow.addJournaleEntry(shadow);
+                sessionBuilder.addJournalEntry(now(), builder.toString(), null);
             }
         }
 
-        private void appendPropertyToMessage (StringBuilder builder, ConnectionTaskProperty property) {
+        private void appendPropertyToMessage(StringBuilder builder, ConnectionTaskProperty property) {
             this.appendPropertyToMessage(builder, property.getName(), property.getValue());
         }
 
         private void addProtocolDialectPropertiesAsJournalEntries(ComTaskExecution comTaskExecution) {
-            TypedProperties protocolDialectTypedProperties = getProtocolDialectTypedProperties(comTaskExecution);
+            TypedProperties protocolDialectTypedProperties = getProtocolDialectTypedProperties(comTaskExecution, serviceProvider.getDeviceDataService());
             if (!protocolDialectTypedProperties.propertyNames().isEmpty()) {
-                ComTaskExecutionMessageJournalEntryShadow shadow = new ComTaskExecutionMessageJournalEntryShadow();
-                shadow.setTimestamp(Clocks.getAppServerClock().now());
-                StringBuilder builder = new StringBuilder("Protocol dialect properties: ");
-                ListAppendMode appendMode = ListAppendMode.FIRST;
-                for (String propertyName : protocolDialectTypedProperties.propertyNames()) {
-                    appendMode.startOn(builder);
-                    this.appendPropertyToMessage(builder, propertyName, protocolDialectTypedProperties.getProperty(propertyName));
-                    appendMode = ListAppendMode.REMAINING;
-                }
-                shadow.setMessage(builder.toString());
-                this.currentTaskExecutionSession.addComTaskJournalEntry(shadow);
+                currentTaskExecutionBuilder.addComTaskExecutionMessageJournalEntry(now(), "", asString(protocolDialectTypedProperties));
             }
         }
 
-        private void appendPropertyToMessage (StringBuilder builder, String propertyName, Object propertyValue) {
+        private String asString(TypedProperties protocolDialectTypedProperties) {
+            StringBuilder builder = new StringBuilder("Protocol dialect properties: ");
+            Holder<String> separator = HolderBuilder.first("").andThen(", ");
+            for (String propertyName : protocolDialectTypedProperties.propertyNames()) {
+                builder.append(separator.get());
+                this.appendPropertyToMessage(builder, propertyName, protocolDialectTypedProperties.getProperty(propertyName));
+            }
+            return builder.toString();
+        }
+
+        private void appendPropertyToMessage(StringBuilder builder, String propertyName, Object propertyValue) {
             builder.append(
                     MessageFormat.format(
                             "{0} = {1}",
-                            propertyName, String.valueOf(propertyValue)));
+                            propertyName, String.valueOf(propertyValue))
+            );
         }
 
         /**
@@ -565,12 +548,12 @@ public abstract class JobExecution implements ScheduledJob {
          * @param logLevel The ComServer.LogLevel
          * @return A flag that indicates if the DeviceCommand should be logged
          */
-        private boolean isLogLevelEnabled (ComServer.LogLevel logLevel) {
+        private boolean isLogLevelEnabled(ComServer.LogLevel logLevel) {
             return this.comPort.getComServer().getCommunicationLogLevel().compareTo(logLevel) >= 0;
         }
 
         public void createJournalEntry(String message) {
-            if (this.getCurrentTaskExecutionSession() != null) {
+            if (this.getCurrentTaskExecutionBuilder() != null) {
                 this.createComTaskExecutionMessageJournalEntry(message);
             } else {
                 this.createComSessionJournalEntry(message);
@@ -578,17 +561,11 @@ public abstract class JobExecution implements ScheduledJob {
         }
 
         private void createComTaskExecutionMessageJournalEntry(String message) {
-            ComTaskExecutionMessageJournalEntryShadow shadow = new ComTaskExecutionMessageJournalEntryShadow();
-            shadow.setTimestamp(Clocks.getAppServerClock().now());
-            shadow.setMessage(message);
-            this.getCurrentTaskExecutionSession().addComTaskJournalEntry(shadow);
+            getCurrentTaskExecutionBuilder().addComTaskExecutionMessageJournalEntry(now(), "", message);
         }
 
         private void createComSessionJournalEntry(String message) {
-            ComSessionJournalEntryShadow shadow = new ComSessionJournalEntryShadow();
-            shadow.setTimestamp(Clocks.getAppServerClock().now());
-            shadow.setMessage(message);
-            this.getComSessionShadow().addJournaleEntry(shadow);
+            getComSessionBuilder().addJournalEntry(now(), message, null);
         }
 
         /**
@@ -605,29 +582,10 @@ public abstract class JobExecution implements ScheduledJob {
          * @param connectionTask The ConnectionTask that failed to connect
          * @see #initializeComSessionShadow(boolean)
          * @see #close()
-         *      <p/>
-         *      Note: Arguments are used by AOP
+         * <p/>
+         * Note: Arguments are used by AOP
          */
-        private void connectionFailed(ConnectionException e, ConnectionTask connectionTask) {
-            this.zeroOutTimings();
-            this.cleanStatistics();
-        }
-
-        private void zeroOutTimings() {
-            this.sessionShadow.setConnectMillis(0);
-            this.sessionShadow.setTalkMillis(0);
-            this.sessionShadow.setStoreMillis(0);
-        }
-
-        private void cleanStatistics() {
-            this.clean(this.sessionShadow.getComStatistics());
-        }
-
-        private void clean(ComStatisticsShadow shadow) {
-            shadow.setNrOfBytesSent(0);
-            shadow.setNrOfBytesRead(0);
-            shadow.setNrOfPacketsRead(0);
-            shadow.setNrOfPacketsSent(0);
+        private void connectionFailed(ConnectionException e, ConnectionTask<?, ?> connectionTask) {
         }
 
         public JobExecution getJob() {
@@ -646,7 +604,7 @@ public abstract class JobExecution implements ScheduledJob {
             return comPort;
         }
 
-        public ConnectionTask getConnectionTask() {
+        public ConnectionTask<?, ?> getConnectionTask() {
             return connectionTask;
         }
 
@@ -663,38 +621,34 @@ public abstract class JobExecution implements ScheduledJob {
             this.jobExecution.connected(comChannel);
         }
 
-        public ComSessionShadow getComSessionShadow() {
-            return sessionShadow;
+        public ComSessionBuilder getComSessionBuilder() {
+            return sessionBuilder;
         }
 
-        public ComTaskExecutionSessionShadow getCurrentTaskExecutionSession() {
-            return currentTaskExecutionSession;
+        public ComTaskExecutionSessionBuilder getCurrentTaskExecutionBuilder() {
+            return currentTaskExecutionBuilder;
         }
 
         public void start(ComTaskExecution comTaskExecution) {
             this.comTaskExecution = comTaskExecution;
-            this.currentTaskExecutionSession = new ComTaskExecutionSessionShadow();
-            this.currentTaskExecutionSession.setComTaskExecutionId((int) comTaskExecution.getId());
-            this.currentTaskExecutionSession.setSuccessIndicator(ComTaskExecutionSession.SuccessIndicator.Success);   // Optimistic
-            this.currentTaskExecutionSession.setStartDate(Clocks.getAppServerClock().now());
-            this.currentTaskExecutionSession.setDeviceId((int) this.connectionTask.getDevice().getId());
-            this.sessionShadow.addComTaskSession(this.currentTaskExecutionSession);
+            this.currentTaskExecutionBuilder = sessionBuilder.addComTaskExecutionSession(comTaskExecution, connectionTask.getDevice(), now());
             if (this.isLogLevelEnabled(ComServer.LogLevel.DEBUG)) {
                 this.addProtocolDialectPropertiesAsJournalEntries(comTaskExecution);
             }
         }
 
-        public void comTaskExecutionCompleted() {
+        public void comTaskExecutionCompleted(ComTaskExecutionSession.SuccessIndicator successIndicator) {
             if (hasBasicCheckFailed()) {
-                ComCommandJournalEntryShadow comCommandJournalEntryShadow = new ComCommandJournalEntryShadow();
-                comCommandJournalEntryShadow.setCompletionCode(CompletionCode.Rescheduled);
-                comCommandJournalEntryShadow.setTimestamp(Clocks.getAppServerClock().now());
-                comCommandJournalEntryShadow.setCommandDescription("ComTask will be rescheduled due to the failure of the BasicCheck task.");
-                this.currentTaskExecutionSession.addComTaskJournalEntry(comCommandJournalEntryShadow);
+                String commandDescription = "ComTask will be rescheduled due to the failure of the BasicCheck task.";
+                this.currentTaskExecutionBuilder.addComCommandJournalEntry(now(), CompletionCode.Rescheduled, "", commandDescription);
             }
-            this.currentTaskExecutionSession.setStopDate(Clocks.getAppServerClock().now());
-            this.currentTaskExecutionSession = null;
+            currentTaskExecutionBuilder.add(now(), successIndicator);
+            this.currentTaskExecutionBuilder = null;
             this.getStoreCommand().addAll(this.toDeviceCommands(this.getCommandRoot().getComTaskRoot(this.comTaskExecution)));
+        }
+
+        private Date now() {
+            return serviceProvider.getClock().now();
         }
 
         private List<DeviceCommand> toDeviceCommands(ComTaskExecutionComCommand commandRoot) {
@@ -703,49 +657,24 @@ public abstract class JobExecution implements ScheduledJob {
             for (CollectedData data : collectedData) {
                 serverCollectedData.add((ServerCollectedData) data);
             }
-            return new DeviceCommandFactoryImpl().newForAll(serverCollectedData, this.this.serviceProvider.issueService());
+            return new DeviceCommandFactoryImpl().newForAll(serverCollectedData, this.serviceProvider.issueService());
         }
 
-        public void fail(ComTaskExecution comTaskExecution, Throwable t) {
-            if (this.currentTaskExecutionSession != null) { // Check if the failure occurred in the context of an executing ComTask
+        private void fail(ComTaskExecution comTaskExecution, Throwable t) {
+            if (this.currentTaskExecutionBuilder != null) { // Check if the failure occurred in the context of an executing ComTask
                 if (!ComServerRuntimeException.class.isAssignableFrom(t.getClass())) {
-                    ComCommandJournalEntryShadow comCommandJournalEntryShadow = new ComCommandJournalEntryShadow();
-                    comCommandJournalEntryShadow.setCompletionCode(CompletionCode.UnexpectedError);
-                    comCommandJournalEntryShadow.setErrorDescription(t.getLocalizedMessage());
-                    comCommandJournalEntryShadow.setTimestamp(Clocks.getAppServerClock().now());
-                    comCommandJournalEntryShadow.setCommandDescription("General");
-                    this.currentTaskExecutionSession.addComTaskJournalEntry(comCommandJournalEntryShadow);
+                    currentTaskExecutionBuilder.addComCommandJournalEntry(now(), CompletionCode.UnexpectedError, t.getLocalizedMessage(), "General");
                 }// else the task will be logged, next task can be executed
-                this.currentTaskExecutionSession.setStopDate(Clocks.getAppServerClock().now());
-                this.currentTaskExecutionSession.setSuccessIndicator(ComTaskExecutionSession.SuccessIndicator.Failure);
-            }
-        }
-
-        public void failWithProblems (ComTaskExecution comTaskExecution, List<Problem> problems) {
-            if (this.currentTaskExecutionSession != null) { // Check if the failure occurred in the context of an executing ComTask
-                this.currentTaskExecutionSession.setStopDate(Clocks.getAppServerClock().now());
-                this.currentTaskExecutionSession.setSuccessIndicator(ComTaskExecutionSession.SuccessIndicator.Failure);
             }
         }
 
         public void fail(Throwable t, ComSession.SuccessIndicator reason) {
-            this.sessionShadow.setStopDate(Clocks.getAppServerClock().now());
-            this.sessionShadow.setSuccessIndicator(reason);
-            ComSessionJournalEntryShadow comSessionJournalEntryShadow = new ComSessionJournalEntryShadow();
-            comSessionJournalEntryShadow.setTimestamp(Clocks.getAppServerClock().now());
-            setMessageAndCause(t, comSessionJournalEntryShadow);
-            this.sessionShadow.addJournaleEntry(comSessionJournalEntryShadow);
-            this.createComSessionCommand();
+            sessionBuilder.addJournalEntry(now(), messageFor(t), t);
+            this.createComSessionCommand(sessionBuilder.endSession(now(), reason));
         }
 
-        private void setMessageAndCause(Throwable t, ComSessionJournalEntryShadow comSessionJournalEntryShadow) {
-            if(NullPointerException.class.isAssignableFrom(t.getClass())){
-                /* In case of a NullPointer we don't have any message */
-                comSessionJournalEntryShadow.setMessage("An exception occurred...");
-            } else {
-                comSessionJournalEntryShadow.setMessage(t.getMessage());
-            }
-            comSessionJournalEntryShadow.setCause(t);
+        private String messageFor(Throwable t) {
+            return t.getMessage() == null ? t.toString() : t.getMessage();
         }
 
         public void close() {
@@ -756,29 +685,31 @@ public abstract class JobExecution implements ScheduledJob {
         }
 
         public void complete() {
-            this.sessionShadow.setNumberOfFailedTasks(this.jobExecution.getFailedComTaskExecutions().size());
-            this.sessionShadow.setNumberOfSuccessFulTasks(this.jobExecution.getSuccessfulComTaskExecutions().size());
-            this.sessionShadow.setNumberOfPlannedButNotExecutedTasks(this.jobExecution.getNotExecutedComTaskExecutions().size());
-            this.sessionShadow.setStopDate(Clocks.getAppServerClock().now());
+            this.sessionBuilder.incrementFailedTasks(this.jobExecution.getFailedComTaskExecutions().size());
+            this.sessionBuilder.incrementSuccessFulTasks(this.jobExecution.getSuccessfulComTaskExecutions().size());
+            this.sessionBuilder.incrementNotExecutedTasks(this.jobExecution.getNotExecutedComTaskExecutions().size());
+            ComSessionBuilder.EndedComSessionBuilder endedComSessionBuilder;
             if (Thread.currentThread().isInterrupted()) {
-                this.sessionShadow.setSuccessIndicator(ComSession.SuccessIndicator.Broken);
+                endedComSessionBuilder = sessionBuilder.endSession(now(), ComSession.SuccessIndicator.Broken);
+            } else {
+                endedComSessionBuilder = sessionBuilder.endSession(now(), ComSession.SuccessIndicator.Success);
             }
-            this.createComSessionCommand();
+            this.createComSessionCommand(endedComSessionBuilder);
         }
 
-        private void createComSessionCommand() {
+        private void createComSessionCommand(ComSessionBuilder.EndedComSessionBuilder endedComSessionBuilder) {
             if (this.connectionTask instanceof OutboundConnectionTask) {
                 this.getStoreCommand().
-                    add(new CreateOutboundComSession(
-                            this.comPort.getComServer().getCommunicationLogLevel(),
-                            (ScheduledConnectionTask) this.connectionTask,
-                            this.sessionShadow));
+                        add(new CreateOutboundComSession(
+                                this.comPort.getComServer().getCommunicationLogLevel(),
+                                (ScheduledConnectionTask) this.connectionTask,
+                                endedComSessionBuilder));
             } else {
                 this.getStoreCommand().
-                    add(new CreateInboundComSession(
-                            (InboundComPort) getComPort(),
-                            (InboundConnectionTask) this.connectionTask,
-                            this.sessionShadow));
+                        add(new CreateInboundComSession(
+                                (InboundComPort) getComPort(),
+                                (InboundConnectionTask) this.connectionTask,
+                                endedComSessionBuilder));
             }
         }
 
@@ -802,7 +733,7 @@ public abstract class JobExecution implements ScheduledJob {
         }
 
         public void initializeJournalist() {
-            this.journalist = new ComCommandJournalist(this.getCurrentTaskExecutionSession());
+            this.journalist = new ComCommandJournalist(this.getCurrentTaskExecutionBuilder());
         }
 
         public ComCommandLogger getComCommandLogger() {
@@ -822,18 +753,13 @@ public abstract class JobExecution implements ScheduledJob {
         }
 
         public void markComTaskExecutionForConnectionSetupError(String reason) {
-            if (this.currentTaskExecutionSession != null) { // Check if the failure occurred in the context of an executing ComTask
-                ComCommandJournalEntryShadow comCommandJournalEntryShadow = new ComCommandJournalEntryShadow();
-                comCommandJournalEntryShadow.setCompletionCode(CompletionCode.ConnectionError);
-                comCommandJournalEntryShadow.setErrorDescription(reason);
-                comCommandJournalEntryShadow.setTimestamp(Clocks.getAppServerClock().now());
-                comCommandJournalEntryShadow.setCommandDescription("ConnectionType - Connect");
-                this.currentTaskExecutionSession.addComTaskJournalEntry(comCommandJournalEntryShadow);
+            if (this.currentTaskExecutionBuilder != null) { // Check if the failure occurred in the context of an executing ComTask
+                currentTaskExecutionBuilder.addComCommandJournalEntry(now(), CompletionCode.ConnectionError, reason, "ConnectionType - Connect");
             }
         }
 
-        public void setComSessionShadow(ComSessionShadow comSessionShadow) {
-            this.sessionShadow = comSessionShadow;
+        public void setComSessionShadow(ComSessionBuilder comSessionShadow) {
+            this.sessionBuilder = comSessionShadow;
         }
 
         public boolean hasBasicCheckFailed() {
@@ -842,6 +768,11 @@ public abstract class JobExecution implements ScheduledJob {
 
         public void setBasicCheckFailed(boolean basicCheckFailed) {
             this.basicCheckFailed = basicCheckFailed;
+        }
+
+        public void failForRetryAsapComTaskExec(ComTaskExecution notExecutedComTaskExecution, Throwable t) {
+            fail(notExecutedComTaskExecution, t);
+            comTaskExecutionCompleted(ComTaskExecutionSession.SuccessIndicator.Success);
         }
     }
 
@@ -914,6 +845,11 @@ public abstract class JobExecution implements ScheduledJob {
         public MdcReadingTypeUtilService getMdcReadingTypeUtilService() {
             return JobExecution.this.serviceProvider.mdcReadingTypeUtilService();
         }
+
+        @Override
+        public TaskHistoryService getTaskHistoryService() {
+            return JobExecution.this.serviceProvider.taskHistoryService();
+        }
     }
 
     /**
@@ -961,13 +897,14 @@ public abstract class JobExecution implements ScheduledJob {
             return this;
         }
 
-        private void takeDeviceOffline () {
+        private void takeDeviceOffline() {
             final OfflineDeviceForComTaskGroup offlineDeviceForComTaskGroup = new OfflineDeviceForComTaskGroup(deviceOrganizedComTaskExecution.getComTaskExecutions());
             offlineDevice = (OfflineDevice) deviceOrganizedComTaskExecution.getDevice().goOffline(offlineDeviceForComTaskGroup);
         }
     }
 
     private class PrepareAllTransaction implements Transaction<List<PreparedComTaskExecution>> {
+
         private final List<? extends ComTaskExecution> comTaskExecutions;
 
         private PrepareAllTransaction(List<? extends ComTaskExecution> comTaskExecutions) {
@@ -976,7 +913,6 @@ public abstract class JobExecution implements ScheduledJob {
 
         @Override
         public List<PreparedComTaskExecution> perform() {
-            getExecutionContext().getComSessionShadow().setNumberOfPlannedButNotExecutedTasks(comTaskExecutions.size());
             List<PreparedComTaskExecution> prepared = new ArrayList<>();
             List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions =
                     ComTaskExecutionOrganizer.
@@ -1007,6 +943,7 @@ public abstract class JobExecution implements ScheduledJob {
     }
 
     private class PrepareTransaction implements Transaction<PreparedComTaskExecution> {
+
         private final ComTaskExecution comTaskExecution;
 
         private PrepareTransaction(ComTaskExecution comTaskExecution) {
@@ -1016,7 +953,6 @@ public abstract class JobExecution implements ScheduledJob {
 
         @Override
         public PreparedComTaskExecution perform() {
-            getExecutionContext().getComSessionShadow().setNumberOfPlannedButNotExecutedTasks(1);
             final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = ComTaskExecutionOrganizer.defineComTaskExecutionOrders(comTaskExecution);
             final DeviceOrganizedComTaskExecution deviceOrganizedComTaskExecution = deviceOrganizedComTaskExecutions.get(0);
             if (deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity().size() == 1) {

@@ -69,7 +69,7 @@ public abstract class ScheduledJobImpl extends JobExecution {
     @Override
     public void rescheduleToNextComWindow () {
         this.createExecutionContext(false);
-        this.getExecutionContext().getComSessionShadow().setNumberOfPlannedButNotExecutedTasks(this.getComTaskExecutions().size());
+        this.getExecutionContext().getComSessionBuilder().setNumberOfPlannedButNotExecutedTasks(this.getComTaskExecutions().size());
         this.getExecutionContext().createJournalEntry("Rescheduling to next ComWindow because current timestamp is not " + this.getConnectionTask().getCommunicationWindow());
         this.doReschedule(RescheduleBehavior.RescheduleReason.OUTSIDE_COM_WINDOW);
         this.completeSuccessfulComSession();
