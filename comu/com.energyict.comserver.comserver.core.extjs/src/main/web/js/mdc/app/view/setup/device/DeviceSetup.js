@@ -5,7 +5,10 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
     itemId: 'deviceSetup',
     requires: [
         'Uni.view.breadcrumb.Trail',
-        'Mdc.view.setup.device.DeviceMenu'
+        'Mdc.view.setup.device.DeviceMenu',
+        'Mdc.view.setup.device.DeviceCommunicationTopologyPanel',
+        'Mdc.view.setup.device.DeviceGeneralInformationPanel',
+        'Mdc.view.setup.device.DeviceOpenIssuesPanel'
     ],
 //    border: 0,
 //    region: 'center',
@@ -31,7 +34,11 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                 },
                 {
                     xtype: 'container',
-                    itemId: 'DeviceContainer'
+                    itemId: 'DeviceContainer',
+                    layout: {
+                        type: 'column'
+                    },
+                    width: '100%'
                 }
             ]}
     ],
@@ -50,9 +57,39 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
         this.down('#DeviceContainer').add(
             {
                 xtype: 'deviceGeneralInformationPanel',
-                deviceId: this.deviceId
+                deviceId: this.deviceId,
+                columnWidth: 0.50
             }
         );
+        this.down('#DeviceContainer').add(
+            {
+                xtype: 'deviceCommunicationTopologyPanel',
+                deviceId: this.deviceId,
+                columnWidth: 0.50
+            }
+        );
+        this.down('#DeviceContainer').add(
+            {
+                xtype: 'deviceOpenIssuesPanel',
+                deviceId: this.deviceId,
+                columnWidth: 0.50
+            }
+        );
+    },
+
+    addSlaveDevice: function (mRID, id) {
+        var me = this;
+        var slaveDevices = me.down('#slaveDevicesContainer');
+        slaveDevices.add(
+            {
+                xtype: 'component',
+                cls: 'x-form-display-field',
+                autoEl: {
+                    tag: 'a',
+                    href: '#/setup/devices/' + id,
+                    html: mRID
+                }
+            });
     }
 })
 ;
