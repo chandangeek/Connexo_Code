@@ -44,12 +44,12 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                         html: '',
                         itemId: 'registerTypeEditCreateTitle'
                     },
-                    //{
-                    //    xtype: 'component',
-                    //    html: '',
-                    //    margins: '10 10 10 10',
-                    //    itemId: 'registerTypeEditCreateInformation'
-                    //},
+                    {
+                        xtype: 'component',
+                        html: '',
+                        margins: '10 10 10 10',
+                        itemId: 'registerTypeEditCreateInformation'
+                    },
                     {
                         xtype: 'container',
                         columnWidth: 0.5,

@@ -120,7 +120,6 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
         if(this.withPaging){
             this.dockedItems = [
                 {
-
                     xtype: 'pagingtoolbartop',
                     store: this.store,
                     dock: 'top',
