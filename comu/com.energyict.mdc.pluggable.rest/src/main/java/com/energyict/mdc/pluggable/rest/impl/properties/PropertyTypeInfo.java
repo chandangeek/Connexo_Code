@@ -2,6 +2,7 @@ package com.energyict.mdc.pluggable.rest.impl.properties;
 
 import java.net.URI;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  * Provides additional type information of a specific property.
@@ -20,11 +21,12 @@ public class PropertyTypeInfo {
     /**
      * Provides validation rules for this property (min/max/...)
      */
+    @XmlJavaTypeAdapter(PropertyValidationRuleAdapter.class)
     public PropertyValidationRule propertyValidationRule;
     /**
      * Defines predefined values which the user should be able to choose from
      */
-    public PredefinedPropertyValuesInfo predefinedPropertyValuesInfo;
+    public PredefinedPropertyValuesInfo<?> predefinedPropertyValuesInfo;
     /**
      * Provides a URI where a reference object-list can be fetched
      */
@@ -36,26 +38,11 @@ public class PropertyTypeInfo {
     public PropertyTypeInfo() {
     }
 
-    public PropertyTypeInfo(SimplePropertyType simplePropertyType, PropertyValidationRule propertyValidationRule, PredefinedPropertyValuesInfo predefinedPropertyValuesInfo, URI referenceUri) {
+    public PropertyTypeInfo(SimplePropertyType simplePropertyType, PropertyValidationRule propertyValidationRule, PredefinedPropertyValuesInfo<?> predefinedPropertyValuesInfo, URI referenceUri) {
         this.simplePropertyType = simplePropertyType;
         this.propertyValidationRule = propertyValidationRule;
         this.predefinedPropertyValuesInfo = predefinedPropertyValuesInfo;
         this.referenceUri = referenceUri;
     }
 
-    public SimplePropertyType getSimplePropertyType() {
-        return simplePropertyType;
-    }
-
-    public PropertyValidationRule getPropertyValidationRule() {
-        return propertyValidationRule;
-    }
-
-    public PredefinedPropertyValuesInfo getPredefinedPropertyValuesInfo() {
-        return predefinedPropertyValuesInfo;
-    }
-
-    public URI getReferenceUri() {
-        return referenceUri;
-    }
 }

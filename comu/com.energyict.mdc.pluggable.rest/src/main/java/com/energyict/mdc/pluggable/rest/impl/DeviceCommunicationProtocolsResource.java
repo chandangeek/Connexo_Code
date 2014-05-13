@@ -53,7 +53,7 @@ public class DeviceCommunicationProtocolsResource {
         List<DeviceCommunicationProtocolInfo> deviceCommunicationProtocolInfos = new ArrayList<>(deviceProtocolPluggableClasses.size());
         for (DeviceProtocolPluggableClass deviceProtocolPluggableClass : deviceProtocolPluggableClasses) {
             LicensedProtocol licensedProtocol = this.licensedProtocolService.findLicensedProtocolFor(deviceProtocolPluggableClass);
-            deviceCommunicationProtocolInfos.add(new DeviceCommunicationProtocolInfo(uriInfo, this.propertySpecService, deviceProtocolPluggableClass, licensedProtocol, false));
+            deviceCommunicationProtocolInfos.add(new DeviceCommunicationProtocolInfo(uriInfo, deviceProtocolPluggableClass, licensedProtocol, false));
         }
         return PagedInfoList.asJson("DeviceProtocolPluggableClass", deviceCommunicationProtocolInfos, queryParameters);
     }
@@ -64,7 +64,7 @@ public class DeviceCommunicationProtocolsResource {
     public DeviceCommunicationProtocolInfo getDeviceCommunicationProtocol(@Context UriInfo uriInfo, @PathParam("id") long id) {
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = this.protocolPluggableService.findDeviceProtocolPluggableClass(id);
         LicensedProtocol licensedProtocol = this.licensedProtocolService.findLicensedProtocolFor(deviceProtocolPluggableClass);
-        return new DeviceCommunicationProtocolInfo(uriInfo, this.propertySpecService, deviceProtocolPluggableClass, licensedProtocol, true);
+        return new DeviceCommunicationProtocolInfo(uriInfo, deviceProtocolPluggableClass, licensedProtocol, true);
     }
 
     @GET
@@ -110,7 +110,7 @@ public class DeviceCommunicationProtocolsResource {
             deviceCommunicationProtocolInfo.copyProperties(deviceProtocolPluggableClass);
             deviceProtocolPluggableClass.save();
             LicensedProtocol licensedProtocol = licensedProtocolService.findLicensedProtocolFor(deviceProtocolPluggableClass);
-            return new DeviceCommunicationProtocolInfo(uriInfo, propertySpecService, deviceProtocolPluggableClass, licensedProtocol, true);
+            return new DeviceCommunicationProtocolInfo(uriInfo, deviceProtocolPluggableClass, licensedProtocol, true);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -129,7 +129,7 @@ public class DeviceCommunicationProtocolsResource {
             deviceCommunicationProtocolInfo.copyProperties(deviceProtocolPluggableClass);
             deviceProtocolPluggableClass.save();
             LicensedProtocol licensedProtocol = licensedProtocolService.findLicensedProtocolFor(deviceProtocolPluggableClass);
-            return new DeviceCommunicationProtocolInfo(uriInfo, propertySpecService, deviceProtocolPluggableClass, licensedProtocol, true);
+            return new DeviceCommunicationProtocolInfo(uriInfo, protocolPluggableService.findDeviceProtocolPluggableClass(id), licensedProtocol, true);
         }
         catch (Exception e) {
             e.printStackTrace();

@@ -2,17 +2,15 @@ package com.energyict.mdc.pluggable.rest.impl;
 
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.pluggable.rest.PropertyInfo;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
-
-import javax.ws.rs.core.UriInfo;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import javax.ws.rs.core.UriInfo;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Copyrights EnergyICT
@@ -31,7 +29,7 @@ public class DeviceCommunicationProtocolInfo {
     public DeviceCommunicationProtocolInfo() {
     }
 
-    public DeviceCommunicationProtocolInfo(final UriInfo uriInfo, PropertySpecService propertySpecService, DeviceProtocolPluggableClass deviceProtocolPluggableClass, LicensedProtocol licensedProtocol, boolean embedProperties) {
+    public DeviceCommunicationProtocolInfo(final UriInfo uriInfo, DeviceProtocolPluggableClass deviceProtocolPluggableClass, LicensedProtocol licensedProtocol, boolean embedProperties) {
         this.name = deviceProtocolPluggableClass.getName();
         this.id = deviceProtocolPluggableClass.getId();
         try {
@@ -45,12 +43,12 @@ public class DeviceCommunicationProtocolInfo {
             this.licensedProtocol = new LicensedProtocolInfo(licensedProtocol);
         }
         if (embedProperties) {
-            List<PropertyInfo> propertyInfoList = createPropertyInfoList(uriInfo, propertySpecService, deviceProtocolPluggableClass);
+            List<PropertyInfo> propertyInfoList = createPropertyInfoList(uriInfo, deviceProtocolPluggableClass);
             this.properties = propertyInfoList.toArray(new PropertyInfo[propertyInfoList.size()]);
         }
     }
 
-    private List<PropertyInfo> createPropertyInfoList(UriInfo uriInfo, PropertySpecService propertySpecService, DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
+    private List<PropertyInfo> createPropertyInfoList(UriInfo uriInfo, DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
         List<PropertySpec> propertySpecs = deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpecs();
         TypedProperties properties = deviceProtocolPluggableClass.getProperties(propertySpecs);
         List<PropertyInfo> propertyInfoList = new ArrayList<>();
