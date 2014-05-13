@@ -24,6 +24,12 @@ Ext.define('Mdc.controller.history.Setup', {
         crossroads.addRoute('setup/devicetypes/{id}/edit',function(id){
             me.getApplication().getController('Mdc.controller.setup.DeviceTypes').showDeviceTypeEditView(id);
         });
+        crossroads.addRoute('setup/devicetypes/{id}/logbooktypes',function(id){
+            me.getApplication().getController('Mdc.controller.setup.DeviceTypes').showDeviceTypeLogbookTypesView(id);
+        });
+        crossroads.addRoute('setup/devicetypes/{id}/logbooktypes/add',function(id){
+            me.getApplication().getController('Mdc.controller.setup.DeviceTypes').showAddLogbookTypesView(id);
+        });
 
         //Device configuration routes
         crossroads.addRoute('setup/devicetypes/{id}/deviceconfigurations',function(id){
@@ -37,6 +43,15 @@ Ext.define('Mdc.controller.history.Setup', {
         });
         crossroads.addRoute('setup/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/edit',function(deviceTypeId,deviceConfigurationId){
             me.getApplication().getController('Mdc.controller.setup.DeviceConfigurations').showDeviceConfigurationEditView(deviceTypeId,deviceConfigurationId);
+        });
+        crossroads.addRoute('setup/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/logbookconfigurations',function(deviceTypeId, deviceConfigurationId){
+            me.getApplication().getController('Mdc.controller.setup.DeviceConfigurations').showDeviceConfigurationLogbooksView(deviceTypeId, deviceConfigurationId);
+        });
+        crossroads.addRoute('setup/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/logbookconfigurations/add',function(deviceTypeId, deviceConfigurationId){
+            me.getApplication().getController('Mdc.controller.setup.DeviceConfigurations').showAddDeviceConfigurationLogbooksView(deviceTypeId, deviceConfigurationId);
+        });
+        crossroads.addRoute('setup/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/logbookconfigurations/{logbookConfigurationId}/edit',function(deviceTypeId, deviceConfigurationId, logbookConfigurationId){
+            me.getApplication().getController('Mdc.controller.setup.DeviceConfigurations').showEditDeviceConfigurationLogbooksView(deviceTypeId, deviceConfigurationId, logbookConfigurationId);
         });
 
         //Comserver routes

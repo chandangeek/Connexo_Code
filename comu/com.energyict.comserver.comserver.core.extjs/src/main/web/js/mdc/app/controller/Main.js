@@ -15,7 +15,12 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.DeviceConfigurations',
         'Mdc.controller.setup.DeviceCommunicationProtocols',
         'Mdc.controller.setup.RegisterGroups',
-        'Mdc.controller.setup.ProtocolDialects'
+        'Mdc.controller.setup.ProtocolDialects',
+        'Mdc.controller.setup.LogbookTypes',
+        'Mdc.controller.setup.AddLogbookTypes',
+        'Mdc.controller.setup.LogbookConfigurations',
+        'Mdc.controller.setup.AddLogbookConfigurations',
+        'Mdc.controller.setup.EditLogbookConfiguration'
     ],
 
     controllers: [
@@ -30,7 +35,12 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.RegisterMappings',
         'Mdc.controller.setup.DeviceConfigurations',
         'Mdc.controller.setup.RegisterGroups',
-        'Mdc.controller.setup.ProtocolDialects'
+        'Mdc.controller.setup.ProtocolDialects',
+        'Mdc.controller.setup.LogbookTypes',
+        'Mdc.controller.setup.AddLogbookTypes',
+        'Mdc.controller.setup.LogbookConfigurations',
+        'Mdc.controller.setup.AddLogbookConfigurations',
+        'Mdc.controller.setup.EditLogbookConfiguration'
     ],
 
     config: {
