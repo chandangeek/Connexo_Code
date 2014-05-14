@@ -1,5 +1,7 @@
 /**
- * @class Uni.util.History
+ * @class Uni.util.Hydrator
+ *
+ * This is the hydrator which allows you to work with the associations of the Ext.data.model
  */
 Ext.define('Uni.util.Hydrator', {
     lazyLoading: true,
@@ -127,7 +129,7 @@ Ext.define('Uni.util.Hydrator', {
      */
     hydrateHasMany: function (data, store, callback) {
         var me = this;
-        store.removeAll();
+        store.removeAll(); //todo: replace on allowClear property
 
         if (!data) {
             return this;
