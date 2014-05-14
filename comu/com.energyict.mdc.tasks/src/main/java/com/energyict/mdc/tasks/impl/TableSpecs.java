@@ -103,7 +103,7 @@ public enum TableSpecs {
             Table<RegisterGroupUsage> table = dataModel.addTable(name(), RegisterGroupUsage.class);
             table.map(RegisterGroupUsageImpl.class);
             Column registerTaskId = table.column("REGISTERSTASK").number().conversion(NUMBER2INT).notNull().add(); // DO NOT MAP
-            Column registerGroupId = table.column("REGISTERGROUP").number().conversion(NUMBER2LONG).notNull().add(); // DO NOT MAP
+            Column registerGroupId = table.column("RTUREGISTERGROUP").number().conversion(NUMBER2LONG).notNull().add(); // DO NOT MAP
 
             table.foreignKey("FK_PROTOCOLTASK").
                     on(registerTaskId).references(MDCPROTOCOLTASK.name()).
