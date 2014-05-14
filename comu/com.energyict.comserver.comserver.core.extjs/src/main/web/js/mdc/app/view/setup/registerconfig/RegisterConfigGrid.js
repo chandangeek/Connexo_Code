@@ -127,7 +127,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigGrid', {
                     },
                     {
 
-                        text: Uni.I18n.translate('registerConfigs.createRegisterConfig', 'MDC', 'Create register configuration'),
+                        text: Uni.I18n.translate('registerConfigs.createRegisterConfig', 'MDC', 'Add register configuration'),
                         itemId: 'createRegisterConfigBtn',
                         xtype: 'button',
                         action: 'createRegisterConfig'

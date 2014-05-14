@@ -150,7 +150,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsGrid', {
                         flex: 1
                     },
                     {
-                        text: Uni.I18n.translate('deviceconfiguration.createDeviceConfiguration', 'MDC', 'Create device configuration'),
+                        text: Uni.I18n.translate('deviceconfiguration.createDeviceConfiguration', 'MDC', 'Add device configuration'),
                         itemId: 'createDeviceConfiguration',
                         xtype: 'button',
                         action: 'createDeviceConfiguration'
