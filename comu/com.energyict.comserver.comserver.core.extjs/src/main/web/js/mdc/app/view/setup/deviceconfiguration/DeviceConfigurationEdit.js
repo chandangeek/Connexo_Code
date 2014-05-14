@@ -2,11 +2,12 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.deviceConfigurationEdit',
     itemId: 'deviceConfigurationEdit',
-    cls: 'content-container',
     edit: false,
+
     isEdit: function () {
         return this.edit
     },
+
     setEdit: function (edit, returnLink) {
         if (edit) {
             this.edit = edit;
@@ -138,7 +139,6 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                             {
                                                 xtype: 'fieldcontainer',
                                                 fieldLabel: '&nbsp',
-                                                //width: 430,
                                                 layout: {
                                                     type: 'hbox',
                                                     align: 'stretch'
@@ -157,17 +157,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                                         ui: 'link',
                                                         itemId: 'cancelLink',
                                                         href: '#/setup/devicetypes/'
-                                                    }/*,
-                                                    {
-                                                        xtype: 'component',
-                                                        padding: '3 0 0 10',
-                                                        itemId: 'cancelLink',
-                                                        autoEl: {
-                                                            tag: 'a',
-                                                            href: '#setup/devicetypes/',
-                                                            html: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel')
-                                                        }
-                                                    } */
+                                                    }
                                                 ]
                                             }
                                         ]
@@ -193,6 +183,4 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
 
     }
 
-
 });
-

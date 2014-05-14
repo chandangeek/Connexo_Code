@@ -1,16 +1,14 @@
 Ext.define('Mdc.view.setup.searchitems.SideFilter', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.search-side-filter',
+    cls: 'filter-form',
+    width: 250,
     title: Uni.I18n.translate('searchItems.searchFor', 'MDC', 'Search for devices'),
-    //  cls: 'logbook-filter-form',
-    //width: 180,
-    padding: '10 10 10 10',
+    ui: 'filter',
 
     requires: [
         'Uni.component.filter.view.Filter'
-
     ],
-
     items: [
         {
         xtype: 'filter-form',
@@ -36,17 +34,16 @@ Ext.define('Mdc.view.setup.searchitems.SideFilter', {
                 ]
             }
         ],
-
-    buttons: [
-        {
-            text: Uni.I18n.translate('searchItems.clearAll', 'MDC', 'Search'),
-            itemId: 'searchAllItems',
-            action: 'applyfilter'
-        },
-        {
-            text: Uni.I18n.translate('searchItems.clearAll', 'MDC', 'Clear all'),
-            itemId: 'clearAllItems',
-            action: 'clearfilter'
-        }
-    ]
+        buttons: [
+            {
+                text: Uni.I18n.translate('searchItems.clearAll', 'MDC', 'Search'),
+                itemId: 'searchAllItems',
+                action: 'applyfilter'
+            },
+            {
+                text: Uni.I18n.translate('searchItems.clearAll', 'MDC', 'Clear all'),
+                itemId: 'clearAllItems',
+                action: 'clearfilter'
+            }
+        ]
 });

@@ -2,11 +2,12 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectEdit', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.protocolDialectEdit',
     itemId: 'protocolDialectEdit',
-    cls: 'content-container',
     edit: false,
+
     isEdit: function () {
-        return this.edit
+        return this.edit;
     },
+
     setEdit: function (edit, returnLink) {
         if (edit) {
             this.edit = edit;
@@ -33,11 +34,6 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectEdit', {
                 },
 
                 items: [
-                    {
-                        xtype: 'breadcrumbTrail',
-                        region: 'north',
-                        padding: 6
-                    },
                     {
                         xtype: 'component',
                         html: '',
@@ -141,7 +137,6 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectEdit', {
         this.down('#cancelLink').autoEl.href = this.returnLink;
 
     }
-
 
 });
 

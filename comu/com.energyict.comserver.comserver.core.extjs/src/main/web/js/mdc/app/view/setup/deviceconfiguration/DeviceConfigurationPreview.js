@@ -1,7 +1,5 @@
 Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
     extend: 'Ext.panel.Panel',
-    //border: true,
-    //margins: '0 10 10 10',
     alias: 'widget.deviceConfigurationPreview',
     itemId: 'deviceConfigurationPreview',
     requires: [
@@ -11,15 +9,15 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
     title: "Details",
     tools: [
         {
-                xtype: 'button',
-                icon: '../mdc/resources/images/actionsDetail.png',
-                text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-                menu: {
-                    items: [
-                        {
-                            text: Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
-                            itemId: 'activateDeviceconfigurationMenuItem',
-                            action: 'activateDeactivateDeviceConfiguration'
+            xtype: 'button',
+            icon: '../mdc/resources/images/actionsDetail.png',
+            text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
+            menu: {
+                items: [
+                    {
+                        text: Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
+                        itemId: 'activateDeviceconfigurationMenuItem',
+                        action: 'activateDeactivateDeviceConfiguration'
 
                         },
                         /*{
@@ -53,7 +51,6 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
         {
             xtype: 'panel',
             border: false,
-            //padding: '0 10 0 10',
             tbar: [
                 {
                     xtype: 'component',

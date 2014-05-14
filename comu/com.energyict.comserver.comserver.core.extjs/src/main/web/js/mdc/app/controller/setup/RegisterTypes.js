@@ -230,7 +230,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                         unitOfMeasureStore.load({
                             callback: function (store) {
                                 widget.down('form').loadRecord(registerType);
-                                widget.down('#registerTypeEditCreateTitle').update('<H1>' + registerType.get('name') + ' > ' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + Uni.I18n.translate('registerType.registerType', 'MDC', 'Register type') + '</H1>');
+                                widget.down('#registerTypeEditCreateTitle').update('<h1>' + registerType.get('name') + ' > ' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + Uni.I18n.translate('registerType.registerType', 'MDC', 'Register type') + '</h1>');
                                 widget.down('#editMrIdField').setValue(registerType.getReadingType().get('mrid'));
                                 if (registerType.get('isLinkedByDeviceType') === true) {
                                     widget.down('#editObisCodeField').setDisabled(true);
@@ -279,7 +279,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             callback: function (store) {
                 unitOfMeasureStore.load({
                     callback: function (store) {
-                        widget.down('#registerTypeEditCreateTitle').update('<H1>' + Uni.I18n.translate('registerType.createRegisterType', 'MDC', 'Create register type') + '</H1>');
+                        widget.down('#registerTypeEditCreateTitle').update('<h1>' + Uni.I18n.translate('registerType.createRegisterType', 'MDC', 'Create register type') + '</h1>');
                         me.createBreadCrumb();
                         widget.setLoading(false);
                     }

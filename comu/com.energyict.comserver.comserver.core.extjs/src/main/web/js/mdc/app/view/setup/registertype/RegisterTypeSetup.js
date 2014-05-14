@@ -1,42 +1,28 @@
 Ext.define('Mdc.view.setup.registertype.RegisterTypeSetup', {
-    //extend: 'Ext.panel.Panel',
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.registerTypeSetup',
     itemId: 'registerTypeSetup',
+
     requires: [
         'Mdc.view.setup.registertype.RegisterTypeGrid',
         'Mdc.view.setup.registertype.RegisterTypePreview',
         'Mdc.view.setup.registertype.RegisterTypeFilter'
-     //   'Uni.view.breadcrumb.Trail'
     ],
+
     hidden: true,
-   /* layout: {
-        type: 'vbox',
-        align: 'stretch'
-    },*/
- //   cls: 'content-container',
-//    border: 0,
-//    region: 'center',
 
     content: [
         {
             xtype: 'container',
-            cls: 'content-container',
             layout: {
                 type: 'vbox',
                 align: 'stretch'
             },
             padding: '0 10 0 10',
             items: [
-               /* {
-                    xtype: 'breadcrumbTrail',
-                    region: 'north',
-                    padding: 6
-                },*/
                 {
                     xtype: 'component',
-                    html: '<h1>' + Uni.I18n.translate('registerType.registerTypes','MDC','Register types') + '</h1>',
-                    //margins: '10 10 10 10',
+                    html: '<h1>' + Uni.I18n.translate('registerType.registerTypes', 'MDC', 'Register types') + '</h1>',
                     itemId: 'registerTypeTitle'
                 },
                 {
@@ -50,13 +36,13 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeSetup', {
             ]}
     ],
 
- /*   side: [
-           {
-               xtype: 'registerTypeFilter',
-               name: 'filter'
-           }
-       ],
-*/
+    /*   side: [
+     {
+     xtype: 'registerTypeFilter',
+     name: 'filter'
+     }
+     ],
+     */
 
     initComponent: function () {
         this.callParent(arguments);

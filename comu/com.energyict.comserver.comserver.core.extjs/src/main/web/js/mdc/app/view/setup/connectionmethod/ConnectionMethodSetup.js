@@ -7,13 +7,11 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodSetup', {
     requires: [
         'Uni.view.navigation.SubMenu',
         'Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu',
-        'Uni.view.breadcrumb.Trail',
         'Uni.view.container.EmptyGridContainer'
     ],
     content: [
         {
             xtype: 'container',
-            cls: 'content-container',
             itemId: 'stepsContainer',
             layout: {
                 type: 'vbox',
@@ -53,13 +51,15 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodSetup', {
 
 
     initComponent: function () {
-        this.side = [{
-            xtype: 'deviceConfigurationMenu',
-            itemId: 'stepsMenu',
-            deviceTypeId: this.deviceTypeId,
-            deviceConfigurationId: this.deviceConfigId,
-            toggle: 4
-        }];
+        this.side = [
+            {
+                xtype: 'deviceConfigurationMenu',
+                itemId: 'stepsMenu',
+                deviceTypeId: this.deviceTypeId,
+                deviceConfigurationId: this.deviceConfigId,
+                toggle: 4
+            }
+        ];
         this.callParent(arguments);
         this.down('#connectionMethodsGridContainer').add(
             {
@@ -90,7 +90,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodSetup', {
                             items: [
                                 {
                                     xtype: 'component',
-                                    html: '<h4>'+ Uni.I18n.translate('connectionMethod.empty.title', 'MDC', 'No connection methods found') +'</h4><br>' +
+                                    html: '<h4>' + Uni.I18n.translate('connectionMethod.empty.title', 'MDC', 'No connection methods found') + '</h4><br>' +
                                         Uni.I18n.translate('connectionMethod.empty.detail', 'MDC', 'There are no connection methods. This could be because:') + '<lv><li>&nbsp&nbsp' +
                                         Uni.I18n.translate('connectionMethod.empty.list.item1', 'MDC', 'No connection methods have been defined yet.') + '</li></lv><br>' +
                                         Uni.I18n.translate('connectionMethod.empty.steps', 'MDC', 'Possible steps:')

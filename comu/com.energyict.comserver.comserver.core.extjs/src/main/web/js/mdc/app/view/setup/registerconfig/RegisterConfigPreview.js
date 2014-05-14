@@ -1,7 +1,6 @@
 Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
     extend: 'Ext.panel.Panel',
     frame: true,
-    //margins: '0 10 10 10',
     alias: 'widget.registerConfigPreview',
     itemId: 'registerConfigPreview',
     requires: [
@@ -17,8 +16,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
         {
             xtype: 'button',
             icon: '../mdc/resources/images/actionsDetail.png',
-            //glyph: 71,
-            text: 'Action',
+            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
             menu: [
                 {
                     text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
@@ -48,21 +46,19 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
             {
                 xtype: 'panel',
                 border: false,
-                //padding: '0 10 0 10',
                 tbar: [
                     {
                         xtype: 'component',
-                        html: '<H4>' + Uni.I18n.translate('registerConfig.noRegisterConfigSelected', 'MDC', 'No register configuration selected') + '</H4>'
+                        html: '<h4>' + Uni.I18n.translate('registerConfig.noRegisterConfigSelected', 'MDC', 'No register configuration selected') + '</h4>'
                     }
                 ],
                 items: [
                     {
                         xtype: 'component',
                         height: '100px',
-                        html: '<H5>' + Uni.I18n.translate('registerConfig.selectRegisterConfig', 'MDC', 'Select a register configuration to see its details') + '</H5>'
+                        html: '<h5>' + Uni.I18n.translate('registerConfig.selectRegisterConfig', 'MDC', 'Select a register configuration to see its details') + '</h5>'
                     }
                 ]
-
             },
 
 
@@ -70,48 +66,15 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
                 xtype: 'form',
                 border: false,
                 itemId: 'registerConfigPreviewForm',
-                //padding: '10 10 0 10',
                 layout: {
                     type: 'vbox',
                     align: 'stretch'
                 },
-                /*tbar: [
-                    {
-                        xtype: 'component',
-                        html: '<h4>' + Uni.I18n.translate('registerConfig.previewTitle', 'MDC', 'Selected register configuration') + '</h4>',
-                        itemId: 'registerConfigPreviewTitle'
-                    },
-                    '->',
-                    {
-                        icon: '../mdc/resources/images/actionsDetail.png',
-                        text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-                        menu: {
-                            items: [
-                                {
-                                    text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                                    itemId: 'editRegisterConfig',
-                                    action: 'editRegisterConfig'
-
-                                },
-                                {
-                                    xtype: 'menuseparator'
-                                },
-                                {
-                                    text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
-                                    itemId: 'deleteRegisterConfig',
-                                    action: 'deleteRegisterConfig'
-
-                                }
-                            ]
-                        }
-                    }
-                ],*/
                 items: [
                     {
                         xtype: 'container',
                         layout: {
                             type: 'column'
-                            //                        align: 'stretch'
                         },
                         items: [
                             {
@@ -238,9 +201,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
                 ]
             }
         ];
+
         this.callParent(arguments);
-
     }
-})
-;
-
+});

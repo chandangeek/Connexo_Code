@@ -3,17 +3,14 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsSetup', {
     alias: 'widget.deviceConfigurationsSetup',
     deviceTypeId: null,
     itemId: 'deviceConfigurationsSetup',
+
     requires: [
-        'Uni.view.breadcrumb.Trail',
         'Mdc.view.setup.devicetype.DeviceTypeMenu'
     ],
-//    border: 0,
-//    region: 'center',
 
     content: [
         {
             xtype: 'container',
-            cls: 'content-container',
             layout: {
                 type: 'vbox',
                 align: 'stretch'
@@ -22,7 +19,6 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsSetup', {
                 {
                     xtype: 'component',
                     html: '<h1>' + Uni.I18n.translate('deviceconfiguration.deviceConfigurations', 'MDC', 'Device configurations') + '</h1>',
-                    //margins: '10 10 10 10'
                 },
                 {
                     xtype: 'container',
@@ -56,7 +52,4 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsSetup', {
             }
         );
     }
-})
-;
-
-
+});
