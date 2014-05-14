@@ -21,7 +21,7 @@ Ext.define('Usr.controller.User', {
     refs: [
         {
             ref: 'userDetails',
-            selector: 'userDetails'
+            selector: 'userBrowse userDetails'
         }
     ],
 
@@ -30,13 +30,13 @@ Ext.define('Usr.controller.User', {
             'userBrowse breadcrumbTrail': {
                 afterrender: this.onAfterRender
             },
-            '#userList': {
+            'userBrowse userList': {
                 itemclick: this.selectUser
             },
-            '#userDetails menuitem[action=editUser]': {
+            'userBrowse userDetails menuitem[action=editUser]': {
                 click: this.editUserMenu
             },
-            '#userList actioncolumn': {
+            'userBrowse userList actioncolumn': {
                 editUserItem: this.editUser
             }
         });
@@ -76,10 +76,9 @@ Ext.define('Usr.controller.User', {
     selectUser: function (grid, record) {
         // fill in the details panel
         var title = Uni.I18n.translate('user.user', 'USM', 'User') + ' "' + record.get('authenticationName') + '"';
-        var detailsPanel = this.getUserDetails(),
-            form = detailsPanel.down('form');
+        var form = this.getUserDetails();
 
-        detailsPanel.setTitle(title);
+        form.setTitle(title);
         form.loadRecord(record);
 
         var roles = '';
@@ -90,6 +89,6 @@ Ext.define('Usr.controller.User', {
 
         var detailsRoles = form.down('[name=roles]');
         detailsRoles.setValue(roles);
-        detailsPanel.show();
+        form.show();
     }
 });

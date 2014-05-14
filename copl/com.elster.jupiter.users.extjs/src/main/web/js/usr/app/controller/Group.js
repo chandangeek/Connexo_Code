@@ -19,7 +19,7 @@ Ext.define('Usr.controller.Group', {
     refs: [
         {
             ref: 'groupDetails',
-            selector: 'groupDetails'
+            selector: 'groupBrowse groupDetails'
         }
     ],
 
@@ -28,16 +28,16 @@ Ext.define('Usr.controller.Group', {
             'groupBrowse breadcrumbTrail': {
                 afterrender: this.onAfterRender
             },
-            '#groupList': {
+            'groupBrowse groupList': {
                 itemclick: this.selectGroup
             },
-            '#groupDetails menuitem[action=editGroup]': {
+            'groupBrowse groupDetails menuitem[action=editGroup]': {
                 click: this.editGroupMenu
             },
-            '#groupList actioncolumn': {
+            'groupBrowse groupList actioncolumn': {
                 editGroupItem: this.editGroup
             },
-            '#groupList button[action=createGroup]': {
+            'groupBrowse groupList button[action=createGroup]': {
                 click: this.createGroup
             }
         });
@@ -79,11 +79,10 @@ Ext.define('Usr.controller.Group', {
 
     selectGroup: function (grid, record) {
         // fill in the details panel
-        var panel = this.getGroupDetails(),
-            form = panel.down('form');
+        var form = this.getGroupDetails();
 
         var title = Uni.I18n.translate('group.group', 'USM', 'Role') + ' "' + record.get('name') + '"';
-        panel.setTitle(title);
+        form.setTitle(title);
         form.loadRecord(record);
 
         var privileges = '';
@@ -92,6 +91,6 @@ Ext.define('Usr.controller.Group', {
             privileges += currentPrivileges[i].data.name + '<br/>';
         }
         form.down('[name=privileges]').setValue(privileges);
-        panel.show();
+        form.show();
     }
 });

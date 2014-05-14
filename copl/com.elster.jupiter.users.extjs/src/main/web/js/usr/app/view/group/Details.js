@@ -97,6 +97,6 @@ Ext.define('Usr.view.group.Details', {
                 }
             ]
         }
-    ],
+    ]
 });
 
