@@ -115,14 +115,9 @@ Ext.define('Mdc.controller.setup.Properties', {
             }
         });
 
-
         var properties = objectWithProperties.propertiesStore.data.items;
         me.propertiesStore = objectWithProperties.propertiesStore;
-        if (properties.length > 0) {
-            view.down('#propertiesform').down('#propertiesTitle').setVisible(true);
-        } else {
-            view.down('#propertiesform').down('#propertiesTitle').setVisible(false);
-        }
+
         properties.forEach(function (entry) {
                 var property = entry;
                 var propertyType = property.getPropertyType().data.simplePropertyType;
@@ -152,10 +147,7 @@ Ext.define('Mdc.controller.setup.Properties', {
                         } else {
                             restoreValue = propertyValue.data.defaultValue;
                         }
-
                     }
-
-
                 } catch (ex) {
                 }
 
