@@ -3,6 +3,7 @@
 
 @import "breadcrumb/BreadcrumbLink";
 @import "breadcrumb/BreadcrumbLinkSeparator";
+@import "grid/ActionColumn";
 
 .#{$prefix}panel-login-container {
   background-image: url('images/container/loginBackground.png') !important;
@@ -18,5 +19,3 @@
   }
 }
 
-
-@import "grid/ActionColumn";
