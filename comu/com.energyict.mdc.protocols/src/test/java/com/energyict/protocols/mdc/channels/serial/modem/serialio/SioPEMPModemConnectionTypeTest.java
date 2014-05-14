@@ -1,23 +1,11 @@
 package com.energyict.protocols.mdc.channels.serial.modem.serialio;
 
-import com.energyict.dialer.coreimpl.PEMPModemConfiguration;
-import com.energyict.mdc.ManagerFactory;
-import com.energyict.mdc.SerialComponentFactory;
-import com.energyict.mdc.ServerManager;
-import com.energyict.mdc.channels.serial.SerialPortConfiguration;
+import com.energyict.dialer.core.impl.PEMPModemConfiguration;
 import com.energyict.protocols.mdc.channels.serial.ServerSerialPort;
-import com.energyict.mdc.channels.serial.SignalController;
-import com.energyict.mdc.channels.serial.direct.serialio.SioSerialPort;
-import com.energyict.mdc.channels.serial.modem.AbstractPEMPModemProperties;
-import com.energyict.mdc.channels.serial.modem.PEMPModemComponent;
-import com.energyict.mdc.channels.serial.modem.TypedPEMPModemProperties;
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.exceptions.ModemException;
-import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.SerialConnectionPropertyNames;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
-import com.energyict.mdc.tasks.ConnectionTaskPropertyImpl;
 import com.energyict.protocols.mdc.channels.serial.modem.AbstractModemTests;
 import org.junit.*;
 import org.junit.runner.*;
