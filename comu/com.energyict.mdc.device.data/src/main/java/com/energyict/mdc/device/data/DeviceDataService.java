@@ -1,18 +1,10 @@
 package com.energyict.mdc.device.data;
 
-import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.elster.jupiter.util.conditions.Condition;
+import com.energyict.mdc.common.services.Finder;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.data.impl.InfoType;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.device.data.tasks.*;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPortPool;
@@ -298,6 +290,13 @@ public interface DeviceDataService {
      * @return a list of all devices in the system
      */
     public List<Device> findAllDevices();
+
+    /**
+     * Finds all the devices in the system with the specific condition
+     *
+     * @return a list of all devices with the specific condition in the system
+     */
+    public Finder<Device> findAllDevices(Condition condition);
 
     /**
      * Finds all the devices which use the given TimeZone

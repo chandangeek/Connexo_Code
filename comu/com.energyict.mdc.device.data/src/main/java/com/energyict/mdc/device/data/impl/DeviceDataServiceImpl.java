@@ -19,13 +19,9 @@ import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.SqlBuilder;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.common.services.DefaultFinder;
+import com.energyict.mdc.common.services.Finder;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.Device;
@@ -876,6 +872,11 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
     @Override
     public List<Device> findAllDevices() {
         return this.dataModel.mapper(Device.class).find();
+    }
+
+    @Override
+    public Finder<Device> findAllDevices(Condition condition) {
+        return DefaultFinder.of(Device.class, condition, this.getDataModel());
     }
 
     @Override
