@@ -1,3 +1,15 @@
+/**
+ * @class Uni.override.GridPanelOverride
+ * override allows you so setup hydrator to the form.
+ * You can pass hydrator class to the configyration:
+ * ...
+ * hydrator: 'App.example.Hydrator'
+ * ...
+ * or via setter:
+ * form.setHydrator(hydrator);
+ *
+ * Once hydrator is set, data binding between form and bounded record goes through provided hydrator.
+ */
 Ext.define('Uni.override.FormOverride', {
     override: 'Ext.form.Basic',
     hydrator: null,
@@ -24,7 +36,7 @@ Ext.define('Uni.override.FormOverride', {
 
     updateRecord: function(record) {
         if (this.hydrator) {
-            this.hydrator.lazyLoading = false;
+            this.hydrator.lazyLoading = false; //todo: this is not supposed to be here
             var values = this.getValues();
             this.hydrator.hydrate(values, this._record, function() {});
             return this;
