@@ -94,9 +94,6 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsGrid', {
                                         }
                                     },
                                     {
-                                        xtype: 'menuseparator'
-                                    },
-                                    {
                                         xtype: 'menuitem',
                                         text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
                                         listeners: {
@@ -109,9 +106,6 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsGrid', {
                                             }
 
                                         }
-                                    },
-                                    {
-                                        xtype: 'menuseparator'
                                     },
                                     {
                                         xtype: 'menuitem',
