@@ -145,7 +145,7 @@ Ext.define('Mdc.controller.setup.PropertiesView', {
                         break;
                     case 'REFERENCE':
                         properties.addProperty(key, value, columnNumber);
-
+                        break;
                     case 'EAN13':
                         propertiesView.addProperty(key, value, columnNumber);
                         break;

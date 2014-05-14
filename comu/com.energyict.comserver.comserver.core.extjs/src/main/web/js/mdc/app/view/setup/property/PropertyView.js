@@ -61,7 +61,6 @@ Ext.define('Mdc.view.setup.property.PropertyView', {
             name: key,
             fieldLabel: key,
             value: text,
-            labelAlign: 'right',
             labelWidth: 250
         });
     }

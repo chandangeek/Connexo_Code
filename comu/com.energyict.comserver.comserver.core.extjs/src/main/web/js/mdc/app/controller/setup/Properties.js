@@ -293,6 +293,7 @@ Ext.define('Mdc.controller.setup.Properties', {
                         if (selectionMode === 'COMBOBOX') {
                             properties.addComboBoxTextProperty(key, predefinedPropertyValues, value, exhaustive, restoreValue, required);
                         }
+                        break;
                     case 'EAN13':
                         propertiesView.addEan13StringProperty(key, value, restoreValue, required);
                         break;

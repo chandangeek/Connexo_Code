@@ -5,8 +5,6 @@ Ext.define('Mdc.view.setup.searchitems.SearchItems', {
     id: 'search-items-id',
     cls: 'filter-form',
     requires: [
-//        'Uni.component.filter.view.Filter',
-//        'Uni.component.sort.model.Sort',
         'Mdc.view.setup.searchitems.SideFilter',
         'Mdc.view.setup.searchitems.ContentFilter',
         'Mdc.view.setup.searchitems.ContentLayout'
