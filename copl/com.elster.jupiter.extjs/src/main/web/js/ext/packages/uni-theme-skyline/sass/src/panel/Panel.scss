@@ -36,99 +36,94 @@ $ui-body-background-color: $panel-filter-background-color
 );
 
 .#{$prefix}panel-default-framed {
-  overflow: visible;
+    overflow: visible;
 
-  .#{$prefix}panel-header {
-    border-color: $panel-frame-header-border-color;
-    background: $panel-frame-header-border-color;
-    .#{$prefix}panel-header-text-container {
-      color: $panel-frame-header-color;
+    .#{$prefix}panel-header {
+        border-color: $panel-frame-header-border-color;
+        background: $panel-frame-header-border-color;
+        .#{$prefix}panel-header-text-container {
+            color: $panel-frame-header-color;
+        }
+
+        .#{$prefix}btn-default-small {
+            background-color: transparent;
+        }
+
+        .#{$prefix}btn-default-small-menu-active,
+        .#{$prefix}btn-default-small-focus,
+        .#{$prefix}btn-default-small-over {
+            background-color: $panel-frame-pressed-menu;
+        }
     }
-
-      .#{$prefix}btn-default-small {
-          background-color: black;
-      }
-
-      .#{$prefix}btn-default-small-menu-active {
-          background-color: $panel-frame-pressed-menu;
-      }
-      .#{$prefix}btn-default-small-focus {
-           background-color: $panel-frame-pressed-menu;
-      }
-
-      .#{$prefix}btn-default-small-over {
-          background-color: $panel-frame-pressed-menu;
-      }
-  }
-  .#{$prefix}panel-header-top {
-    padding: $panel-frame-header-padding;
-  }
-  .#{$prefix}panel {
-    padding: 0;
-  }
+    .#{$prefix}panel-header-top {
+        padding: $panel-frame-header-padding;
+    }
+    .#{$prefix}panel {
+        padding: 0;
+    }
 }
+
 .#{$prefix}panel-header {
-  .#{$prefix}panel-header-sub-text {
-    float: none;
-    color: $panel-header-sub-color;
-    clear: both;
-    display: block;
-  }
-  .#{$prefix}panel-header-sub-text-medium {
-    font-size: $panel-medium-header-sub-font-size;
-    line-height: $panel-medium-header-sub-font-size;
-  }
-  .#{$prefix}panel-header-sub-text-large {
-    font-size: $panel-large-header-sub-font-size;
-    line-height: $panel-medium-header-sub-font-size;
-  }
+    .#{$prefix}panel-header-sub-text {
+        float: none;
+        color: $panel-header-sub-color;
+        clear: both;
+        display: block;
+    }
+    .#{$prefix}panel-header-sub-text-medium {
+        font-size: $panel-medium-header-sub-font-size;
+        line-height: $panel-medium-header-sub-font-size;
+    }
+    .#{$prefix}panel-header-sub-text-large {
+        font-size: $panel-large-header-sub-font-size;
+        line-height: $panel-medium-header-sub-font-size;
+    }
 }
 
 .#{$prefix}panel-filter {
-  background-color: $panel-filter-background-color;
-  @include border-radius(10px);
+    background-color: $panel-filter-background-color;
+    @include border-radius(10px);
 
-  .#{$prefix}panel-body {
-    background: transparent;
-  }
+    .#{$prefix}panel-body {
+        background: transparent;
+    }
 }
 
 .#{$prefix}panel-filter-toolbar {
-  padding: 8px 0;
-  .#{$prefix}header-text-container {
-    width: 16px * 4;
-    color: $panel-filter-header-color;
-    font-weight: bold;
-  }
-  .#{$prefix}box-item {
-    margin-right: 8px;
-  }
-  .#{$prefix}panel-body {
-    background: transparent;
-  }
+    padding: 8px 0;
+    .#{$prefix}header-text-container {
+        width: 16px * 4;
+        color: $panel-filter-header-color;
+        font-weight: bold;
+    }
+    .#{$prefix}box-item {
+        margin-right: 8px;
+    }
+    .#{$prefix}panel-body {
+        background: transparent;
+    }
 }
 
 // Error message
 
 @include extjs-panel-ui(
-  $ui: 'form-error-framed',
-  $ui-padding: $panel-form-error-msg-padding,
-  $ui-border-color: $form-error-msg-color,
-  $ui-body-color: $form-error-msg-color,
-  $ui-border-width: $panel-form-error-msg-border-width,
-  $ui-border-radius: $panel-form-error-msg-border-radius
+$ui: 'form-error-framed',
+$ui-padding: $panel-form-error-msg-padding,
+$ui-border-color: $form-error-msg-color,
+$ui-body-color: $form-error-msg-color,
+$ui-border-width: $panel-form-error-msg-border-width,
+$ui-border-radius: $panel-form-error-msg-border-radius
 );
 
 @include extjs-panel-ui(
-  $ui: 'form-error',
-  $ui-padding: $panel-form-error-msg-padding,
-  $ui-border-color: $form-error-msg-color,
-  $ui-body-color: $form-error-msg-color
-
+$ui: 'form-error',
+$ui-padding: $panel-form-error-msg-padding,
+$ui-border-color: $form-error-msg-color,
+$ui-body-color: $form-error-msg-color
 );
 
 .#{$prefix}uni-form-error-msg-icon {
-  background-image: $panel-form-error-msg-icon;
+    background-image: $panel-form-error-msg-icon;
 }
 
 @import "StepPanel";
