@@ -6,4 +6,10 @@
     padding: {
         left: 14px;
     }
+
+    *[class*='#{$prefix}btn-link-'] {
+        margin: {
+            left: 16px;
+        }
+    }
 }

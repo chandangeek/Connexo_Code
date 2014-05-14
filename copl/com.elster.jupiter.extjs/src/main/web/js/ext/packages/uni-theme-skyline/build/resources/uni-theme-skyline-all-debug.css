@@ -20927,6 +20927,9 @@ h6 {
 .x-container-actions {
   margin-top: 32px;
   padding-left: 14px; }
+  /* line 10, ../../sass/src/container/ActionsContainer.scss */
+  .x-container-actions *[class*='x-btn-link-'] {
+    margin-left: 16px; }
 
 /* line 1, ../../sass/src/button/Button.scss */
 .x-uni-action-iconA {
