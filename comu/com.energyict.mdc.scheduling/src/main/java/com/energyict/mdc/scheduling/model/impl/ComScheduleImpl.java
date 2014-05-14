@@ -18,13 +18,14 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.ComTaskComScheduleLink;
 import com.energyict.mdc.scheduling.model.SchedulingStatus;
 import com.energyict.mdc.tasks.ComTask;
+
+import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 @UniqueName(groups = { Save.Update.class, Save.Create.class }, message = "{"+Constants.NOT_UNIQUE+"}")
 @UniqueMRID(groups = { Save.Update.class, Save.Create.class }, message = "{"+Constants.NOT_UNIQUE+"}")
