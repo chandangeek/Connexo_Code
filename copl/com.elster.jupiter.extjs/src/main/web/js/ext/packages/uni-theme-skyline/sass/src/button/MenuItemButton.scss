@@ -54,6 +54,11 @@
             @include uni-icon('workspace');
             @include uni-icon('devices');
             @include uni-icon('settings');
+
+            // TODO Use a default fallback icon when there is none.
+            .uni-icon-none {
+                background-image: url('images/container/menu/settings.png');
+            }
         }
     }
 
@@ -62,6 +67,11 @@
         @include uni-icon-pressed('workspace');
         @include uni-icon-pressed('devices');
         @include uni-icon-pressed('settings');
+
+        // TODO Use a default fallback icon when there is none.
+        .uni-icon-none {
+            background-image: url('images/container/menu/settingsSelected.png') !important;
+        }
     }
 }
 

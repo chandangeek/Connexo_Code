@@ -8,5 +8,6 @@
 log/
 target/
 .gradle/
+.sass-cache/
 bin/
 generated/

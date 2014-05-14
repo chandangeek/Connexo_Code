@@ -16392,7 +16392,7 @@ a.x-color-picker-item:hover {
 .x-column-header-sort-ASC,
 .x-column-header-sort-DESC {
   background-image: none;
-  background-color: #1e7d9e;
+  background-color: #71adc7;
 }
 
 /* line 75, ../../../ext-theme-neutral/sass/src/grid/column/Column.scss */
@@ -23601,17 +23601,14 @@ h6 {
   font-size: 16px;
 }
 /* line 16, ../../sass/src/container/ContentContainer.scss */
-.x-container-contentcontainer .west .x-toolbar {
-  padding: 6px;
-}
-/* line 20, ../../sass/src/container/ContentContainer.scss */
 .x-container-contentcontainer .west .x-toolbar-footer {
   background-color: transparent;
+  padding: 0;
 }
-/* line 25, ../../sass/src/container/ContentContainer.scss */
+/* line 22, ../../sass/src/container/ContentContainer.scss */
 .x-container-contentcontainer .center {
   background-color: transparent;
-  margin: 0px 16px 0px 16px;
+  padding: 0px 16px 0px 16px;
 }
 
 /* line 1, ../../sass/src/button/Button.scss */
@@ -23622,6 +23619,11 @@ h6 {
 /* line 5, ../../sass/src/button/Button.scss */
 .x-uni-action-icon {
   background-image: url("images/button/ico_actions.png");
+}
+
+/* line 9, ../../sass/src/button/Button.scss */
+.x-btn-default-toolbar-small .x-btn-arrow {
+  background-image: url("images/button/default-small-arrow.png");
 }
 
 /* line 255, ../../../ext-theme-neutral/sass/src/button/Button.scss */
