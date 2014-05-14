@@ -24,14 +24,14 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
             tbar: [
                 {
                     xtype: 'component',
-                    html: '<h4>'+Uni.I18n.translate('connectionmethod.noConnectionMethodSelected', 'MDC', 'No connection method selected')+'</h4>'
+                    html: '<h4>' + Uni.I18n.translate('connectionmethod.noConnectionMethodSelected', 'MDC', 'No connection method selected') + '</h4>'
                 }
             ],
             items: [
                 {
                     xtype: 'component',
                     height: '100px',
-                    html: '<h5>'+Uni.I18n.translate('connectionmethod.selectConnectionMethod', 'MDC', 'Select a connection method to see its details')+'</h5>'
+                    html: '<h5>' + Uni.I18n.translate('connectionmethod.selectConnectionMethod', 'MDC', 'Select a connection method to see its details') + '</h5>'
                 }
             ]
 
@@ -61,16 +61,11 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
                                 text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
                                 itemId: 'editConnectionMethod',
                                 action: 'editConnectionMethod'
-
-                            },
-                            {
-                                xtype: 'menuseparator'
                             },
                             {
                                 text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
                                 itemId: 'deleteConnectionMethod',
                                 action: 'deleteConnectionMethod'
-
                             }
                         ]
                     }
@@ -92,7 +87,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
                                 type: 'vbox',
                                 align: 'stretch'
                             },
-                            defaults:{
+                            defaults: {
                                 labelWidth: 250
                             },
                             items: [
@@ -122,7 +117,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
                                 type: 'vbox',
                                 align: 'stretch'
                             },
-                            defaults:{
+                            defaults: {
                                 labelWidth: 250
                             },
                             items: [

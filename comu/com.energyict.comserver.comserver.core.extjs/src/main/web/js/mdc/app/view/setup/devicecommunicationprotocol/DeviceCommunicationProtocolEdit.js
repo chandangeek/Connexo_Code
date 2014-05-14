@@ -17,11 +17,11 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
         if (edit) {
             this.edit = edit;
             console.log(this.down('#createEditButton'));
-            this.down('#createEditButton').setText(Uni.I18n.translate('general.edit', 'MDC', 'Edit'));
+            this.down('#createEditButton').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
             this.down('#createEditButton').action = 'editDeviceCommunicationProtocol';
         } else {
             this.edit = edit;
-            this.down('#createEditButton').setText(Uni.I18n.translate('general.create', 'MDC', 'Create'));
+            this.down('#createEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
             this.down('#createEditButton').action = 'createDeviceCommunicationProtocol';
         }
     },
@@ -105,29 +105,6 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
                             }
                         ]
                     }
-//                    ,
-//                    {
-//                        xtype: 'container',
-//                        width: '100%',
-//                        items: [
-//                            {
-//                                xtype: 'form',
-//                                border: false,
-//                                itemId: 'deviceCommunicationProtocolEditButtonsForm',
-//
-//                                width: '100%',
-//                                layout: {
-//                                    type: 'vbox'
-//                                },
-//                                defaults: {
-//                                    labelWidth: 250
-//                                },
-//                                items: [
-//
-//                                ]
-//                            }
-//                        ]
-//                    }
                 ]
             }
         ];
@@ -138,7 +115,7 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
             this.down('#createEditButton').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
             this.down('#createEditButton').action = 'editDeviceCommunicationProtocol';
         } else {
-            this.down('#createEditButton').setText(Uni.I18n.translate('general.create', 'MDC', 'Create'));
+            this.down('#createEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
             this.down('#createEditButton').action = 'createDeviceCommunicationProtocol';
         }
     }

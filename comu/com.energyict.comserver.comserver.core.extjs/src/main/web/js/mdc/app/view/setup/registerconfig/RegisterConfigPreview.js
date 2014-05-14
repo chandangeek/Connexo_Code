@@ -25,9 +25,6 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
 
                 },
                 {
-                    xtype: 'menuseparator'
-                },
-                {
                     text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
                     itemId: 'deleteRegisterConfig',
                     action: 'deleteRegisterConfig'

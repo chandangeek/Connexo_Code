@@ -66,25 +66,7 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectsGrid', {
                                             }
 
                                         }
-                                    }//,
-                                    /*{
-                                        xtype: 'menuseparator'
-                                    },
-                                    {
-                                        xtype: 'menuitem',
-                                        text: Uni.I18n.translate('protocolDialects.notAvailableForUse', 'MDC', 'Not available for use'),
-                                        text: record.get('availableForUse') === true ? Uni.I18n.translate('protocolDialects.notAvailableForUse', 'MDC', 'Not available for use') : Uni.I18n.translate('protocolDialects.availableForUse', 'MDC', 'Available For use'),
-                                        listeners: {
-                                            click: {
-                                                element: 'el',
-                                                fn: function () {
-                                                    this.fireEvent('changeAvailability', record);
-                                                },
-                                                scope: this
-                                            }
-
-                                        }
-                                    }*/
+                                    }
                                 ]
                             });
                             menu.showAt(e.getXY());

@@ -32,8 +32,8 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulesGrid', {
             {
                 header: Uni.I18n.translate('communicationschedule.schedule', 'MDC', 'Schedule'),
                 dataIndex: 'temporalExpression',
-                renderer: function(value,metadata){
-                    switch(value.every.timeUnit) {
+                renderer: function (value, metadata) {
+                    switch (value.every.timeUnit) {
                         case 'months':
                             return Uni.I18n.translate('general.monthly', 'MDC', 'Monthly');
                         case 'weeks':
@@ -45,25 +45,25 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulesGrid', {
                         case 'minutes':
                             return Uni.I18n.translate('general.everyFewMinutes', 'MDC', 'Every few minutes');
                     }
-                   return value.every.timeUnit;
+                    return value.every.timeUnit;
                 },
                 sortable: false,
                 hideable: false,
                 fixed: true,
                 flex: 0.4
             },
-             {
+            {
                 header: Uni.I18n.translate('communicationschedule.plannedDate', 'MDC', 'Planned date'),
                 dataIndex: 'plannedDate',
                 sortable: false,
                 hideable: false,
-                 renderer: function(value){
-                     if(value!==null){
-                         return new Date(value).toLocaleString();
-                     } else {
-                         return '';
-                     }
-                 },
+                renderer: function (value) {
+                    if (value !== null) {
+                        return new Date(value).toLocaleString();
+                    } else {
+                        return '';
+                    }
+                },
                 fixed: true,
                 flex: 0.4
             },
@@ -93,11 +93,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulesGrid', {
                                                 },
                                                 scope: this
                                             }
-
                                         }
-                                    },
-                                    {
-                                        xtype: 'menuseparator'
                                     },
                                     {
                                         xtype: 'menuitem',
@@ -110,7 +106,6 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulesGrid', {
                                                 },
                                                 scope: this
                                             }
-
                                         }
                                     }
                                 ]

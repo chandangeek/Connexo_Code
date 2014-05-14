@@ -64,9 +64,6 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulePreview', 
 
                             },
                             {
-                                xtype: 'menuseparator'
-                            },
-                            {
                                 text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
                                 itemId: 'deleteCommunicationSchedule',
                                 action: 'deleteCommunicationSchedule'

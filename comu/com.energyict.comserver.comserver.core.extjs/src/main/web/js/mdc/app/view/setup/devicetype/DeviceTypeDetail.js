@@ -46,16 +46,11 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                         text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
                                         itemId: 'editDeviceType',
                                         action: 'editDeviceType'
-
-                                    },
-                                    {
-                                        xtype: 'menuseparator'
                                     },
                                     {
                                         text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
                                         itemId: 'deleteDeviceType',
                                         action: 'deleteDeviceType'
-
                                     }
                                 ]
                             }
@@ -197,8 +192,8 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                         }
                     ]
                 }
-
-            ]}
+            ]
+        }
     ],
 
     initComponent: function () {

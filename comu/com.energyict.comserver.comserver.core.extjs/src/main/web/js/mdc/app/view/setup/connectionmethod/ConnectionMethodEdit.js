@@ -16,7 +16,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
     setEdit: function (edit, returnLink) {
         if (edit) {
             this.edit = edit;
-            this.down('#addEditButton').setText(Uni.I18n.translate('general.edit', 'MDC', 'Edit'));
+            this.down('#addEditButton').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
             this.down('#addEditButton').action = 'editConnectionMethod';
         } else {
             this.edit = edit;
@@ -257,7 +257,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
         ];
         this.callParent(arguments);
         if (this.isEdit()) {
-            this.down('#addEditButton').setText(Uni.I18n.translate('general.edit', 'MDC', 'Edit'));
+            this.down('#addEditButton').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
             if (this.direction === 'Outbound') {
                 this.down('#addEditButton').action = 'editOutboundConnectionMethod';
             } else if (this.direction === 'Inbound') {

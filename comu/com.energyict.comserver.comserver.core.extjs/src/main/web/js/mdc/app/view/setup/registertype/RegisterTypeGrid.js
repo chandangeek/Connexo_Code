@@ -61,7 +61,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
                 flex: 1
             }
         ];
-        if(this.withActions){
+        if (this.withActions) {
             this.columns.push(
                 {
                     xtype: 'actioncolumn',
@@ -93,9 +93,6 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
                                             }
                                         },
                                         {
-                                            xtype: 'menuseparator'
-                                        },
-                                        {
                                             xtype: 'menuitem',
                                             text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
                                             listeners: {
@@ -118,7 +115,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
                 }
             );
         }
-        if(this.withPaging){
+        if (this.withPaging) {
             this.dockedItems = [
                 {
                     xtype: 'pagingtoolbartop',
