@@ -58,15 +58,7 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectPreview', {
                                 itemId: 'editProtocolDialect',
                                 action: 'editProtocolDialect'
 
-                            }//,
-                            /*{
-                                xtype: 'menuseparator'
-                            },
-                            {
-                                text: Uni.I18n.translate('protocolDialects.notAvailableForUse', 'MDC', 'Not available for use'),
-                                itemId: 'changeAvailability',
-                                action: 'changeAvailability'
-                            }*/
+                            }
                         ]
                     }
                 }

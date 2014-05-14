@@ -23,8 +23,8 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodsGrid', {
                 dataIndex: 'isDefault',
                 sortable: false,
                 hideable: false,
-                renderer: function(value,metadata){
-                    if(value===true){
+                renderer: function (value, metadata) {
+                    if (value === true) {
                         metadata.style = "padding: 6px 16px 6px 16px;";
                         return '<img src=../mdc/resources/images/1rightarrow.png/>';
                     } else {
@@ -89,11 +89,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodsGrid', {
                                                 },
                                                 scope: this
                                             }
-
                                         }
-                                    },
-                                    {
-                                        xtype: 'menuseparator'
                                     },
                                     {
                                         xtype: 'menuitem',
@@ -106,11 +102,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodsGrid', {
                                                 },
                                                 scope: this
                                             }
-
                                         }
-                                    },
-                                    {
-                                        xtype: 'menuseparator'
                                     },
                                     {
                                         xtype: 'menuitem',
@@ -123,7 +115,6 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodsGrid', {
                                                 },
                                                 scope: this
                                             }
-
                                         }
                                     }
                                 ]
@@ -163,7 +154,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodsGrid', {
                 store: this.store,
                 params: [
                     {deviceType: this.deviceTypeId},
-                    {deviceConfig:this.deviceConfigId}
+                    {deviceConfig: this.deviceConfigId}
                 ],
                 dock: 'bottom'
             }

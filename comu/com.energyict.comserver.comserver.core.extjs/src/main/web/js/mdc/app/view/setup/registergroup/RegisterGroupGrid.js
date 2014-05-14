@@ -50,23 +50,6 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupGrid', {
 
                                         }
                                     }
-                                    /*{
-                                        xtype: 'menuseparator'
-                                    },
-                                    {
-                                        xtype: 'menuitem',
-                                        text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
-                                        listeners: {
-                                            click: {
-                                                element: 'el',
-                                                fn: function () {
-                                                    this.fireEvent('deleteItem', record);
-                                                },
-                                                scope: this
-                                            }
-
-                                        }
-                                    }*/
                                 ]
                             });
                             menu.showAt(e.getXY());

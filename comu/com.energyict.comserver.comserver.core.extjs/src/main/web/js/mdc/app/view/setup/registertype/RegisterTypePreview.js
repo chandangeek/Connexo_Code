@@ -45,9 +45,6 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
                                     action: 'editRegisterType'
                                 },
                                 {
-                                    xtype: 'menuseparator'
-                                },
-                                {
                                     text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
                                     itemId: 'deleteRegisterType',
                                     action: 'deleteRegisterType'
@@ -146,12 +143,12 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
                                         labelWidth: 150
                                     }
                                     /*{
-                                        xtype: 'displayfield',
-                                        name: 'dataCollectionGroup',
-                                        fieldLabel: Uni.I18n.translate('registerType.dataCollectionGroup', 'MDC', 'Data collection group'),
-                                        labelAlign: 'right',
-                                        labelWidth: 150
-                                    }*/
+                                     xtype: 'displayfield',
+                                     name: 'dataCollectionGroup',
+                                     fieldLabel: Uni.I18n.translate('registerType.dataCollectionGroup', 'MDC', 'Data collection group'),
+                                     labelAlign: 'right',
+                                     labelWidth: 150
+                                     }*/
 
                                 ]
                             }
@@ -162,7 +159,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
         ]
         this.callParent(arguments);
 
-        if(!this.withActions){
+        if (!this.withActions) {
             this.down('#actionsButton').hide();
         }
     }

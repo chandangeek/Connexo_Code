@@ -45,16 +45,11 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeDetail', {
                                     text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
                                     itemId: 'editRegisterType',
                                     action: 'editRegisterType'
-
-                                },
-                                {
-                                    xtype: 'menuseparator'
                                 },
                                 {
                                     text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
                                     itemId: 'deleteRegisterType',
                                     action: 'deleteRegisterType'
-
                                 }
                             ]
                         }

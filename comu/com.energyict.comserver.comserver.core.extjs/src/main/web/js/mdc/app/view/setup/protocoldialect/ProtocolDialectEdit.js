@@ -11,7 +11,7 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectEdit', {
     setEdit: function (edit, returnLink) {
         if (edit) {
             this.edit = edit;
-            this.down('#addEditButton').setText(Uni.I18n.translate('general.edit', 'MDC', 'Edit'));
+            this.down('#addEditButton').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
             this.down('#addEditButton').action = 'editProtocolDialect';
         } else {
             this.edit = edit;
@@ -128,7 +128,7 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectEdit', {
         ];
         this.callParent(arguments);
         if (this.isEdit()) {
-            this.down('#addEditButton').setText(Uni.I18n.translate('general.edit', 'MDC', 'Edit'));
+            this.down('#addEditButton').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
             this.down('#addEditButton').action = 'editProtocolDialect';
         } else {
             this.down('#addEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
