@@ -22,7 +22,7 @@ Ext.define('Uni.view.navigation.Header', {
         align: 'stretch'
     },
 
-    height: 47,
+    height: 48,
 
     /**
      * Most items here have been disabled until their respective stories are fully developed.
