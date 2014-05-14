@@ -20658,25 +20658,27 @@ h1, h2 {
 
 /* line 13, ../../sass/src/Headings.scss */
 h1 {
-  font-size: 60px; }
+  font-size: 60px;
+  margin-bottom: 16px;
+  margin-top: 16px; }
 
-/* line 17, ../../sass/src/Headings.scss */
+/* line 22, ../../sass/src/Headings.scss */
 h2 {
   font-size: 30px; }
 
-/* line 21, ../../sass/src/Headings.scss */
+/* line 26, ../../sass/src/Headings.scss */
 h3 {
   font-size: 20px; }
 
-/* line 25, ../../sass/src/Headings.scss */
+/* line 30, ../../sass/src/Headings.scss */
 h4 {
   font-size: 18px; }
 
-/* line 29, ../../sass/src/Headings.scss */
+/* line 34, ../../sass/src/Headings.scss */
 h5 {
   font-size: 16px; }
 
-/* line 33, ../../sass/src/Headings.scss */
+/* line 38, ../../sass/src/Headings.scss */
 h6 {
   font-size: 14px; }
 
@@ -20885,7 +20887,6 @@ h6 {
   bottom: 0;
   width: 48px !important;
   z-index: 1000;
-  padding-right: 1px;
   transition: width 400ms;
   -moz-transition: width 400ms;
   /* Firefox 4 */
@@ -20893,9 +20894,10 @@ h6 {
   /* Safari and Chrome */
   -o-transition: width 400ms;
   /* Opera */ }
-  /* line 26, ../../sass/src/container/NavigationMenu.scss */
+  /* line 25, ../../sass/src/container/NavigationMenu.scss */
   .x-container-navigationmenu:hover {
-    width: 245px !important; }
+    width: 244px !important;
+    padding-right: 1px; }
   /* line 30, ../../sass/src/container/NavigationMenu.scss */
   .x-container-navigationmenu .menu-item, .x-container-navigationmenu .x-box-inner, .x-container-navigationmenu .x-box-target {
     width: 100% !important; }
@@ -20936,7 +20938,15 @@ h6 {
   /* line 22, ../../sass/src/container/ContentContainer.scss */
   .x-container-contentcontainer .center {
     background-color: transparent;
-    padding: 0px 16px 0px 16px; }
+    padding: 0px 16px 16px 16px; }
+
+/* line 1, ../../sass/src/container/ActionsContainer.scss */
+.x-container-actions {
+  margin-top: 32px;
+  padding-left: 14px; }
+  /* line 10, ../../sass/src/container/ActionsContainer.scss */
+  .x-container-actions *[class*='x-btn-link-'] {
+    margin-left: 16px; }
 
 /* line 1, ../../sass/src/button/Button.scss */
 .x-uni-action-iconA {
@@ -38790,14 +38800,21 @@ div.x-form-spinner-down {
   font: 13px/16px "Lato", helvetica, arial, verdana, sans-serif;
   padding: 10px 0px 10px 0px; }
 
-/* line 1, ../../sass/src/form/Label.scss */
+/* line 3, ../../sass/src/form/Label.scss */
 .x-form-item-label {
   font-size: 13px;
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   font-weight: bold;
-  padding-right: 14px; }
+  padding-right: 14px;
+  text-align: right;
+  margin-left: 4px;
+  margin-right: 15px !important; }
 
-/* line 8, ../../sass/src/form/Label.scss */
+/* line 13, ../../sass/src/form/Label.scss */
+.x-form-item-body {
+  margin-right: 4px; }
+
+/* line 17, ../../sass/src/form/Label.scss */
 .uni-form-item-label-required {
   background-image: url("images/form/mandatory.png");
   background-repeat: no-repeat;
@@ -38899,6 +38916,36 @@ div.x-form-spinner-down {
 .x-toolbar-pagingtoolbartop, .x-toolbar-pagingtoolbarbottom {
   padding-right: 0;
   padding-left: 0; }
+
+/* line 25, ../../sass/src/toolbar/Paging.scss */
+.x-toolbar-pagingtoolbarbottom .pagenav {
+  padding-left: 13px;
+  padding-right: 2px; }
+  /* line 31, ../../sass/src/toolbar/Paging.scss */
+  .x-toolbar-pagingtoolbarbottom .pagenav .x-toolbar-text {
+    font-size: 14px;
+    color: #686868;
+    margin-right: 7px;
+    margin-left: 7px;
+    padding-top: 3px;
+    padding-bottom: 2px; }
+    /* line 45, ../../sass/src/toolbar/Paging.scss */
+    .x-toolbar-pagingtoolbarbottom .pagenav .x-toolbar-text.active {
+      margin-right: 1px;
+      margin-left: 1px;
+      padding-top: 2px;
+      padding-right: 6px;
+      padding-left: 6px;
+      color: #70bb51;
+      border: solid 1px #70bb51;
+      border-radius: 2px; }
+    /* line 62, ../../sass/src/toolbar/Paging.scss */
+    .x-toolbar-pagingtoolbarbottom .pagenav .x-toolbar-text a {
+      color: #686868;
+      text-decoration: none; }
+    /* line 67, ../../sass/src/toolbar/Paging.scss */
+    .x-toolbar-pagingtoolbarbottom .pagenav .x-toolbar-text a:hover {
+      text-decoration: underline; }
 
 /* line 1, ../../sass/src/picker/Date.scss */
 .x-datepicker {
