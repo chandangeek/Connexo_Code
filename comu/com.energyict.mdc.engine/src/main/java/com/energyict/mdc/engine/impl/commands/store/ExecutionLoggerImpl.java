@@ -34,7 +34,6 @@ public abstract class ExecutionLoggerImpl implements DeviceCommand.ExecutionLogg
             shadow.setMessage(deviceCommand.toJournalMessageDescription(this.logLevel));
             shadow.setTimestamp(Clocks.getAppServerClock().now());
             this.getComSessionBuilder().addJournaleEntry(shadow);
-
         }
     }
 

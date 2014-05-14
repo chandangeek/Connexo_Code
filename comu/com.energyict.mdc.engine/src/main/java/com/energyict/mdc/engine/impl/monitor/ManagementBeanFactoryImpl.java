@@ -1,14 +1,14 @@
 package com.energyict.mdc.engine.impl.monitor;
 
+import com.energyict.mdc.engine.impl.core.ComPortListener;
+import com.energyict.mdc.engine.impl.core.RunningComServer;
+import com.energyict.mdc.engine.impl.core.ScheduledComPort;
 import com.energyict.mdc.engine.impl.tools.JmxUtils;
+import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.monitor.ComServerMonitorImplMBean;
 import com.energyict.mdc.engine.monitor.InboundComPortMBean;
 import com.energyict.mdc.engine.monitor.ManagementBeanFactory;
 import com.energyict.mdc.engine.monitor.OutboundComPortMBean;
-import com.energyict.comserver.scheduling.ComPortListener;
-import com.energyict.comserver.scheduling.RunningComServer;
-import com.energyict.comserver.scheduling.ScheduledComPort;
-import com.energyict.mdc.engine.model.OnlineComServer;
 
 import javax.management.ObjectName;
 import java.util.HashMap;

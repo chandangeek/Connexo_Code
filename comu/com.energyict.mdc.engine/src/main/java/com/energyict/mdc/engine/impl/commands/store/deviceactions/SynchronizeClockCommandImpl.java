@@ -1,7 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
-import com.energyict.mdc.device.data.journal.CompletionCode;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.collect.ClockCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
@@ -11,6 +10,7 @@ import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.tasks.history.CompletionCode;
 import org.joda.time.DateTimeConstants;
 
 import java.text.MessageFormat;

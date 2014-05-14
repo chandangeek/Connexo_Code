@@ -7,6 +7,7 @@ import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.engine.model.ComPortPool;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -23,7 +24,7 @@ public class ComPortPoolRequest extends IdBusinessObjectRequest {
     private List<ComPortPool> comPortPools;
 
     public ComPortPoolRequest (long comPortPoolId) {
-        this(Collections.toSet(comPortPoolId));
+        this(Collections.singleton(comPortPoolId));
     }
 
     public ComPortPoolRequest (Set<Long> comPortPoolIds) {

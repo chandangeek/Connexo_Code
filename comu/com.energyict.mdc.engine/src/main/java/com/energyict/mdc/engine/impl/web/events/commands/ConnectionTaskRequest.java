@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static java.util.Collections.singleton;
+
 /**
  * Provides an implementation for the {@link Request} interface
  * that represents a request to register interest
@@ -23,7 +25,7 @@ public class ConnectionTaskRequest extends IdBusinessObjectRequest {
     private List<ConnectionTask> connectionTasks;
 
     public ConnectionTaskRequest (long connectionTaskId) {
-        this(Collections.toSet(connectionTaskId));
+        this(singleton(connectionTaskId));
     }
 
     public ConnectionTaskRequest (Set<Long> connectionTaskIds) {

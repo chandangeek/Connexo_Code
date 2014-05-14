@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static java.util.Collections.singleton;
+
 /**
  * Provides an implementation for the {@link Request} interface
  * that represents a request to register interest
@@ -23,7 +25,7 @@ public class ComPortRequest extends IdBusinessObjectRequest {
     private List<ComPort> comPorts;
 
     public ComPortRequest (long comPortId) {
-        this(Collections.toSet(comPortId));
+        this(singleton(comPortId));
     }
 
     public ComPortRequest (Set<Long> comPortIds) {

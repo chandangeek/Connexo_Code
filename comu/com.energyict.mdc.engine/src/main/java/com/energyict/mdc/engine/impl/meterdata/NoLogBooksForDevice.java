@@ -2,6 +2,8 @@ package com.energyict.mdc.engine.impl.meterdata;
 
 import com.energyict.comserver.commands.CreateNoLogBooksForDeviceEvent;
 import com.energyict.comserver.commands.DeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.CreateNoLogBooksForDeviceEvent;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.protocol.api.device.data.NoLogBooksCollectedData;

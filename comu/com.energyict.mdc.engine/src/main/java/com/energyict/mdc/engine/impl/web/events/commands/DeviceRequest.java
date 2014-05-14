@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static java.util.Collections.singleton;
+
 /**
  * Provides an implementation for the {@link Request} interface
  * that represents a request to register interest
@@ -21,7 +23,7 @@ public class DeviceRequest extends IdBusinessObjectRequest {
     private List<Device> devices;
 
     public DeviceRequest (long deviceId) {
-        this(Collections.toSet(deviceId));
+        this(singleton(deviceId));
     }
 
     public DeviceRequest (Set<Long> deviceIds) {

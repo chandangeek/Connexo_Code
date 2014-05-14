@@ -1,11 +1,10 @@
 package com.energyict.mdc.engine.impl.monitor;
 
-import com.energyict.cbo.TimeConstants;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.monitor.OperationalStatistics;
-import com.energyict.comserver.scheduling.RunningComServer;
-import com.energyict.comserver.time.Clocks;
+import org.joda.time.DateTimeConstants;
 
 import javax.management.openmbean.CompositeType;
 import javax.management.openmbean.OpenDataException;
@@ -60,7 +59,7 @@ public class OperationalStatisticsImpl extends CanConvertToCompositeDataSupport 
     }
 
     private int asSeconds (long millis) {
-        return (int) millis / TimeConstants.MILLISECONDS_IN_SECOND;
+        return (int) millis / DateTimeConstants.MILLIS_PER_SECOND;
     }
 
     @Override
