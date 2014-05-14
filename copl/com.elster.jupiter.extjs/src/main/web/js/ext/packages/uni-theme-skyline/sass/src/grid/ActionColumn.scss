@@ -1,5 +1,14 @@
 .uni-actioncolumn-gear {
-    content: url('images/grid/masterActions.png');
+    width: 0;
+    height: 0;
+
+    padding: {
+        top: 17px;
+        right: 17px;
+    }
+
+    background-repeat: no-repeat;
+    background-image: url('images/grid/masterActions.png');
 
     margin: {
         left: 12px;
@@ -8,6 +17,6 @@
     .#{$prefix}grid-row-selected &,
     .#{$prefix}grid-row-focused &,
     .#{$prefix}grid-row-over & {
-        content: url('images/grid/masterActionsHighlight.png');
+        background-image: url('images/grid/masterActionsHighlight.png');
     }
 }
