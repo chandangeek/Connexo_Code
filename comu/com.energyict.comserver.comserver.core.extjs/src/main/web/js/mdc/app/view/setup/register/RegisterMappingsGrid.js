@@ -35,7 +35,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                 header: Uni.I18n.translate('registerMappings.readingType', 'MDC', 'Reading type'),
                 items: [
                     {
-                        icon: '../mdc/resources/images/information.png',
+                        icon: '../mdc/resources/images/info.png',
                         iconCls: 'uni-info-icon',
                         tooltip: Uni.I18n.translate('readingType.tooltip','MDC','Reading type info'),
                         handler: function (grid, rowIndex, colIndex, item, e, record, row) {

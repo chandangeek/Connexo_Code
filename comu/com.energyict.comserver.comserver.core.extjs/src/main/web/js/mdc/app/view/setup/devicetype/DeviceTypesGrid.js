@@ -59,9 +59,10 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
 
             {
                 xtype: 'actioncolumn',
-                //align: 'left',
+                align: 'left',
                 //tdCls: 'view',
                 //iconCls: 'uni-centered-icon',
+                //iconCls: 'uni-actioncolumn-icon',
                 header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                 sortable: false,
                 hideable: false,

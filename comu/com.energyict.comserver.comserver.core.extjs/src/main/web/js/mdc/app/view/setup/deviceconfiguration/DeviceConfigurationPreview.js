@@ -22,18 +22,18 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
                             action: 'activateDeactivateDeviceConfiguration'
 
                         },
-                        {
+                        /*{
                             xtype: 'menuseparator'
-                        },
+                        },  */
                         {
                             text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
                             itemId: 'editDeviceConfiguration',
                             action: 'editDeviceConfiguration'
 
                         },
-                        {
+                        /*{
                             xtype: 'menuseparator'
-                        },
+                        }, */
                         {
                             text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
                             itemId: 'deleteDeviceConfiguration',
@@ -139,6 +139,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
                             items: [
                                 {
                                     xtype: 'displayfield',
+                                    labelAlign: 'right',
                                     name: 'name',
                                     fieldLabel: Uni.I18n.translate('deviceconfiguration.name', 'MDC', 'Name'),
                                     itemId: 'deviceName'
