@@ -2,10 +2,11 @@ Ext.define('Mdc.view.setup.searchitems.ContentFilter', {
     extend: 'Ext.panel.Panel',
     requires: [
         'Ext.form.Label',
-        'Mdc.view.setup.searchitems.SortMenu'
+        'Mdc.view.setup.searchitems.SortMenu',
+        'Mdc.model.ItemSort'
     ],
     alias: "widget.search-content-filter",
-    //store: 'Lbt.store.Logbook',
+    id: 'search-content-filter-id',
     border: true,
     header: false,
     collapsible: false,
@@ -13,98 +14,62 @@ Ext.define('Mdc.view.setup.searchitems.ContentFilter', {
         type: 'vbox',
         align: 'stretch'
     },
+
+
     items: [
         {
-            xtype: 'container',
-            name: 'criteriacontainer',
-            height: 45,
-            layout: {
-                type: 'hbox',
-                align: 'middle'
-            },
-            items: [
-                {
-                    xtype: 'component',
-                    html: '<b>Criteria</b>',
-                    width: 50
-                },
-                {
-                    xtype: 'container',
-                    name: 'filter',
-                    header: false,
-                    border: false,
-                    margin: '10 0 10 0',
-                    layout: {
-                        type: 'hbox',
-                        align: 'stretch',
-                        defaultMargins: '0 5'
-                    },
-                    flex: 1
-                },
+            title: 'Filters',
+            xtype: 'filter-toolbar',
+            name: 'filter',
+            emptyText: 'None'
+        },
+        { xtype: 'menuseparator' },
+
+// Sort
+        {
+            xtype: 'filter-toolbar',
+            title: 'Sort',
+            name: 'sortitemspanel',
+            itemId: 'sortitemid',
+            emptyText: 'None',
+            tools: [
                 {
                     xtype: 'button',
-                    name: 'clearitemsfilterbtn',
-                    action: 'clearitemsfilter',
-                    text: Uni.I18n.translate('searchItems.clearAll', 'MDC', 'Clear all'),
-                    disabled: true
-                }
-            ]
-        },
-        {
-            xtype: 'label',
-            html: '<hr>'
-        },
-        {
-            xtype: 'panel',
-            name: 'sortpanel',
-            header: false,
-            border: false,
-            flex: 1,
-            height: 45,
-            layout: {
-                type: 'hbox',
-                align: 'middle'
-            },
-            items: [
-                {
-                    xtype: 'component',
-                    html: '<b>Sort</b>',
-                    width: 50
-                },
-                {
-                    xtype: 'panel',
-                    border: false,
-                    name: 'sortitemsbtns',
-                    defaults: {
-                        margin: '0 5 0 0'
+                    action: 'addSort',
+                    text: 'Add sort',
+                    menu: {
+                        xtype: 'items-sort-menu',
+                        name: 'addsortitemmenu'
                     }
-                },
-                {
-                    xtype: 'panel',
-                    border: false,
-                    name: 'sortitemspanel',
-                    defaults: {
-                        margin: '0 5 0 0'
-                    },
-                    flex: 1,
-                    items: [
-                        {
-                            xtype: 'button',
-                            name: 'addsortitemsbtn',
-                            text: Uni.I18n.translate('searchItems.addSort', 'MDC', '+ Add sort'),
-                            menu: {
-                                xtype: 'items-sort-menu'
-                            }
-                        }
-                    ]
-                },
-                {
-                    xtype: 'button',
-                    name: 'clearitemssortbtn',
-                    text: Uni.I18n.translate('searchItems.clearAll', 'MDC', 'Clear all'),
-                    disabled: true
                 }
             ]
         }
-    ]
+    ],
+
+    addSortButtons: function () {
+        debugger;
+        var self = this.down('#sortitemid'),
+            container = self.getContainer(),
+            data = new Mdc.model.ItemSort().getData(),
+            menuItem,
+            cls;
+
+        container.removeAll();
+        Ext.Object.each(data, function (key, value) {
+            if (key != 'id' && value) {
+                menuItem = self.down('items-sort-menu [action=' + key + ']');
+                cls = value == Isu.model.IssueSort.ASC
+                    ? 'x-btn-sort-item-asc'
+                    : 'x-btn-sort-item-desc';
+
+                container.add({
+                    xtype: 'sort-item-btn',
+                    text: menuItem.text,
+                    sortName: key,
+                    sortDirection: value,
+                    iconCls: cls
+                });
+            }
+        });
+    }
 });

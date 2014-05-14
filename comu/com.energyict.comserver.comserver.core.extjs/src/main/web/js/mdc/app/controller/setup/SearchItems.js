@@ -14,11 +14,10 @@ Ext.define('Mdc.controller.setup.SearchItems', {
     ],
 
     stores: [
-        //'Devices'
+        'Mdc.store.Devices'
     ],
 
     refs: [
-        //{ref: 'registerTypeGrid', selector: '#registertypegrid'}
     ],
 
     init: function () {
@@ -32,7 +31,7 @@ Ext.define('Mdc.controller.setup.SearchItems', {
             'button[name=clearitemssortbtn]': {
                 click: this.clearSort
             },
-            'button[name=clearitemsfilterbtn]': {
+            'button[action=clear]': {
                 click: this.clearCriteria
             },
             'button[name=sortbymridbtn]': {
@@ -46,6 +45,9 @@ Ext.define('Mdc.controller.setup.SearchItems', {
             },
             '#searchAllItems[action=applyfilter]': {
                 click: this.searchAllItems
+            },
+            'button[action=customizeFilter]': {
+                closeclick: this.closeclick
             }
         });
     },
@@ -70,44 +72,6 @@ Ext.define('Mdc.controller.setup.SearchItems', {
     },
 
     chooseSort: function (menu, item) {
-        var sortBtnsPanel = menu.up('panel[name=sortpanel]').down('panel[name=sortitemsbtns]'),
-            action = item.action;
-        switch (action) {
-            case 'sortbymrid':
-                var button = sortBtnsPanel.down('button[name=sortbymridbtn]');
-                if (Ext.isEmpty(button)) {
-                    button = new Ext.Button({
-                        text: item.text,
-                        name: 'sortbymridbtn',
-                        arrowCls: ' isu-icon-cancel isu-button-close isu-icon-white', //todo: remove isu classes form this btn
-                        iconCls: 'isu-icon-up-big isu-icon-white',
-                        sortOrder: '',
-                        width: 150,
-                        split: true,
-                        menu: {}
-                    });
-                    sortBtnsPanel.add(button);
-                    sortBtnsPanel.up('panel[name=sortpanel]').down('button[name=clearitemssortbtn]').setDisabled(false);
-                }
-                break;
-            case 'sortbysn':
-                var button = sortBtnsPanel.down('button[name=sortbysnbtn]');
-                if (Ext.isEmpty(button)) {
-                    button = new Ext.Button({
-                        text: item.text,
-                        name: 'sortbysnbtn',
-                        arrowCls: ' isu-icon-cancel isu-button-close isu-icon-white', //todo: remove isu classes form this btn
-                        iconCls: 'isu-icon-up-big isu-icon-white',
-                        sortOrder: '',
-                        width: 150,
-                        split: true,
-                        menu: {}
-                    });
-                    sortBtnsPanel.add(button);
-                    sortBtnsPanel.up('panel[name=sortpanel]').down('button[name=clearitemssortbtn]').setDisabled(false);
-                }
-                break;
-        }
 
     },
 
@@ -121,7 +85,7 @@ Ext.define('Mdc.controller.setup.SearchItems', {
 
     clearCriteria: function (btn) {
         var searchItems = Ext.getCmp('search-items-id'),
-            criteriaContainer = searchItems.down('container[name=filter]');
+            criteriaContainer = searchItems.down('container[name=filter]').getContainer();
         criteriaContainer.items.each(function (btns) {
             btns.destroy();
         });
@@ -142,40 +106,64 @@ Ext.define('Mdc.controller.setup.SearchItems', {
 
     searchAllItems: function(btn) {
         var searchItems = Ext.getCmp('search-items-id'),
-            criteriaContainer = searchItems.down('container[name=filter]'),
-            isCriteriaSet = false;
+            criteriaContainer = searchItems.down('container[name=filter]').getContainer(),
+            store = this.getStore('Mdc.store.Devices');
+
         if(searchItems.down('#mrid').getValue() != "") {
-            var button = searchItems.down('button[name=criteriaMRIDbtn]');
-            button = this.createCriteriaButton(button, 'criteriaMRIDbtn', Uni.I18n.translate('searchItems.mrid', 'MDC', 'MRID')+': '+searchItems.down('#mrid').getValue());
+            var button = searchItems.down('button[name=mRIDBtn]');
+            button = this.createCriteriaButton(button, 'mRIDBtn', Uni.I18n.translate('searchItems.mrid', 'MDC', 'MRID')+': '+searchItems.down('#mrid').getValue());
             criteriaContainer.add(button);
-            isCriteriaSet = true;
+            store.getProxy().setExtraParam('mRID', searchItems.down('#mrid').getValue());
+        } else {
+            delete store.getProxy().extraParams.mRID;
         }
         if(searchItems.down('#sn').getValue() != "") {
-            var button = searchItems.down('button[name=criteriaSerialNumberbtn]');
-            button = this.createCriteriaButton(button, 'criteriaSerialNumberbtn', Uni.I18n.translate('searchItems.serialNumber', 'MDC', 'Serial number')+': '+searchItems.down('#sn').getValue());
+            var button = searchItems.down('button[name=serialNumberBtn]');
+            button = this.createCriteriaButton(button, 'serialNumberBtn', Uni.I18n.translate('searchItems.serialNumber', 'MDC', 'Serial number')+': '+searchItems.down('#sn').getValue());
             criteriaContainer.add(button);
-            isCriteriaSet = true;
+            store.getProxy().setExtraParam('serialNumber', searchItems.down('#sn').getValue());
+        } else {
+            delete store.getProxy().extraParams.serialNumber;
         }
-        if (isCriteriaSet == true) {
-            searchItems.down('button[name=clearitemsfilterbtn]').setDisabled(false);
-        }
+
+        store.load({
+            callback: function (devices) {
+                // TODO: display results
+                searchItems.down('#resultsPanel').removeAll()
+                searchItems.down('#resultsPanel').add(Ext.create('Mdc.view.setup.searchitems.SearchResults'));
+                searchItems.down('#contentLayout').getLayout().setActiveItem(1);
+                searchItems.down('#searchResults').reconfigure(store);
+
+                searchItems.down('#searchItemsToolbarBottom').reconfigure(store);
+                searchItems.down('#searchItemsToolbarTop').reconfigure(store);
+            }
+        });
+        searchItems.down('#contentLayout').getLayout().setActiveItem(2);
     },
 
     createCriteriaButton: function(button, name, text) {
         if (Ext.isEmpty(button)) {
-            button = new Ext.Button({
+            button = new Skyline.button.TagButton({
                 text: text,
                 name: name,
-                arrowCls: ' isu-icon-cancel isu-button-close isu-icon-white', //todo: remove isu classes form this btn
-                iconCls: 'isu-icon-up-big isu-icon-white',
-                sortOrder: '',
-                width: 150,
-                split: true
+                action: 'customizeFilter'
             });
         } else {
             button.setText(text);
         }
         return button;
-    }
+    },
 
+    closeclick: function(btn) {
+        var searchItems = Ext.getCmp('search-items-id');
+        switch (btn.name) {
+            case 'mRIDBtn':
+                searchItems.down('#mrid').setValue("");
+                break;
+            case 'serialNumberBtn':
+                searchItems.down('#sn').setValue("");
+                break;
+        }
+        this.searchAllItems(btn);
+    }
 });
