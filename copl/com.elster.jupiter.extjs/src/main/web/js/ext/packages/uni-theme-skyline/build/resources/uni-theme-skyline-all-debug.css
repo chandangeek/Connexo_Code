@@ -20870,7 +20870,6 @@ h6 {
   bottom: 0;
   width: 48px !important;
   z-index: 1000;
-  padding-right: 1px;
   transition: width 400ms;
   -moz-transition: width 400ms;
   /* Firefox 4 */
@@ -20878,9 +20877,10 @@ h6 {
   /* Safari and Chrome */
   -o-transition: width 400ms;
   /* Opera */ }
-  /* line 26, ../../sass/src/container/NavigationMenu.scss */
+  /* line 25, ../../sass/src/container/NavigationMenu.scss */
   .x-container-navigationmenu:hover {
-    width: 245px !important; }
+    width: 244px !important;
+    padding-right: 1px; }
   /* line 30, ../../sass/src/container/NavigationMenu.scss */
   .x-container-navigationmenu .menu-item, .x-container-navigationmenu .x-box-inner, .x-container-navigationmenu .x-box-target {
     width: 100% !important; }
