@@ -12,6 +12,11 @@ h1, h2 {
 
 h1 {
     font-size: $heading-font-size-h1;
+
+    margin: {
+        bottom: 16px;
+        top: 16px;
+    }
 }
 
 h2 {

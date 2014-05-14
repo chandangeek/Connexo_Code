@@ -14,7 +14,6 @@ $menu-width-collapsed: 48px;
     bottom: 0;
     width: $menu-width-collapsed !important;
     z-index: 1000;
-    padding-right: 1px;
 
     // Animation
     $transition-length: 400ms;
@@ -24,7 +23,8 @@ $menu-width-collapsed: 48px;
     -o-transition: width $transition-length; /* Opera */
 
     &:hover {
-        width: $menu-width-expanded !important;
+        width: $menu-width-expanded - 1px !important;
+        padding-right: 1px;
     }
 
     .menu-item, .#{$prefix}box-inner, .#{$prefix}box-target {
