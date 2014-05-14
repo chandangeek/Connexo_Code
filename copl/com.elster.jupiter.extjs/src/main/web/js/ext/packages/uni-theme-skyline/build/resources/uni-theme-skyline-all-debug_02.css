@@ -1,3 +1,9 @@
+/* line 691, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-nlg .x-btn-delete-small-menu-active,
+.x-nlg .x-btn-delete-small-pressed {
+  background-image: url(images/btn/btn-delete-small-pressed-bg.gif);
+}
+
 /* line 699, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-nlg .x-btn-delete-small-disabled {
   background-image: url(images/btn/btn-delete-small-disabled-bg.gif);

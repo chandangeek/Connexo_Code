@@ -23344,6 +23344,11 @@ h6 {
   padding-left: 12px;
 }
 
+/* line 7, ../../sass/src/Component.scss */
+.login-background {
+  background: url("images/container/loginBackground.png") no-repeat center center !important;
+}
+
 /* line 1, ../../sass/src/container/BreadcrumbTrailContainer.scss */
 .x-container-breadcrumbtrailcontainer {
   background-color: #71adc7;
@@ -24024,10 +24029,4 @@ h6 {
 /* line 682, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-nlg .x-btn-delete-small-over {
   background-image: url(images/btn/btn-delete-small-over-bg.gif);
-}
-
-/* line 691, ../../../ext-theme-neutral/sass/src/button/Button.scss */
-.x-nlg .x-btn-delete-small-menu-active,
-.x-nlg .x-btn-delete-small-pressed {
-  background-image: url(images/btn/btn-delete-small-pressed-bg.gif);
 }
