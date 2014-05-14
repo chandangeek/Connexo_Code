@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.meterdata.identifiers;
 
-import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 

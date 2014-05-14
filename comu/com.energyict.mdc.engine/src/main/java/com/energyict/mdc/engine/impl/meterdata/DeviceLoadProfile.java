@@ -1,9 +1,6 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.comserver.commands.CollectedLoadProfileDeviceCommand;
-import com.energyict.comserver.commands.DeviceCommand;
-import com.energyict.comserver.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.commands.store.CollectedLoadProfileDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.issues.IssueService;

@@ -1,7 +1,6 @@
 package com.energyict.mdc.engine.impl.events.registration;
 
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.engine.events.EventRegistrationRequestInitiator;
 import com.energyict.mdc.engine.model.ComServer;
 

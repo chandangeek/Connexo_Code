@@ -1,9 +1,7 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
 import com.energyict.mdc.common.NotFoundException;
-import com.energyict.comserver.collections.Collections;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
-import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 
 import java.util.ArrayList;

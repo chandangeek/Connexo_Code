@@ -36,7 +36,7 @@ public interface ComCommand {
      *
      * @return a List of occurred {@link Issue issues}
      */
-    public List<Issue> getIssues();
+    public List<Issue<?>> getIssues();
 
     /**
      * Get all the problems which occurred during the execution of this {@link ComCommand}.
@@ -46,7 +46,7 @@ public interface ComCommand {
      * @return a List of occurred {@link Problem}s
      * @see #getIssues()
      */
-    public List<Problem> getProblems ();
+    public List<Problem<?>> getProblems ();
 
     /**
      * Get all the warnings which occurred during the execution of this {@link ComCommand}.
@@ -56,7 +56,7 @@ public interface ComCommand {
      * @return a List of occurred {@link Warning}s
      * @see #getIssues()
      */
-    public List<Warning> getWarnings ();
+    public List<Warning<?>> getWarnings ();
 
     /**
      * Get all the {@link CollectedData} which is collected during this {@link ComCommand}.
