@@ -1,5 +1,6 @@
 package com.energyict.mdc.masterdata;
 
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.ObisCode;
 
 /**
@@ -7,7 +8,7 @@ import com.energyict.mdc.common.ObisCode;
  * Date: 24/10/12
  * Time: 9:38
  */
-public interface LogBookType {
+public interface LogBookType extends HasId {
 
     /**
      * Returns number that uniquely identifies this LogBookType.
