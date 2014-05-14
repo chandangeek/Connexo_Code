@@ -28,7 +28,7 @@ public class UniqueComSchedulingMRIDValidator implements ConstraintValidator<Uni
             return true;
         }
         for (ComSchedule comSchedule : schedulingService.findAllSchedules()) {
-            if (comSchedule.getmRID().equals(value.getmRID()) && comSchedule.getId()!=value.getId()) {
+            if (Checks.is(comSchedule.getmRID()).equalTo(value.getmRID()) && comSchedule.getId()!=value.getId()) {
                 context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate(message)
                         .addPropertyNode(ComScheduleImpl.Fields.MRID.fieldName())
