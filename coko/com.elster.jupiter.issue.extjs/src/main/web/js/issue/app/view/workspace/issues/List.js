@@ -52,16 +52,13 @@ Ext.define('Isu.view.workspace.issues.List', {
     },
     dockedItems: [
         {
-            xtype: 'toolbar',
+            xtype: 'pagingtoolbartop',
             dock: 'top',
+            store: 'Isu.store.Issues',
+            displayMsg: '{0} - {1} of {2} issues',
+            displayMoreMsg: '{0} - {1} of more than {2} issues',
+            emptyMsg: '0 issues',
             items: [
-                {
-                    xtype: 'pagingtoolbartop',
-                    store: 'Isu.store.Issues',
-                    displayMsg: '{0} - {1} of {2} issues',
-                    displayMoreMsg: '{0} - {1} of more than {2} issues',
-                    emptyMsg: '0 issues'
-                },
                 '->',
                 {
                     xtype: 'button',
