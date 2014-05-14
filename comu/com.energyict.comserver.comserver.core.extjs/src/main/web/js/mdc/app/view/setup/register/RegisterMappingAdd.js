@@ -30,15 +30,16 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAdd', {
                 },
                 {
                     xtype: 'fieldcontainer',
+                    ui: 'actions',
                     layout: {
                         type: 'hbox',
                         align: 'stretch'
                     },
-                    margins: '10 10 0 20',
                     items: [
                         {
                             text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
                             xtype: 'button',
+                            ui: 'action',
                             action: 'addRegisterMappingAction',
                             itemId: 'addButton'
                         },

@@ -97,6 +97,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                                             },
                                             {
                                                 xtype: 'fieldcontainer',
+                                                ui: 'actions',
                                                 fieldLabel: '&nbsp',
                                                 layout: {
                                                     type: 'hbox',
@@ -107,6 +108,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                                                     {
                                                         text: Uni.I18n.translate('general.create', 'MDC', 'Create'),
                                                         xtype: 'button',
+                                                        ui: 'action',
                                                         action: 'createAction',
                                                         itemId: 'createEditButton'
                                                     },

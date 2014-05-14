@@ -138,6 +138,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                             },
                                             {
                                                 xtype: 'fieldcontainer',
+                                                ui: 'actions',
                                                 fieldLabel: '&nbsp',
                                                 layout: {
                                                     type: 'hbox',
@@ -145,11 +146,11 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                                 },
                                                 items: [
                                                     {
-                                                        text: Uni.I18n.translate('general.create', 'MDC', 'Create'),
+                                                        text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
                                                         xtype: 'button',
+                                                        ui: 'action',
                                                         action: 'createAction',
                                                         itemId: 'createEditButton'
-//                                                        formBind: true
                                                     },
                                                     {
                                                         text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
