@@ -20658,25 +20658,27 @@ h1, h2 {
 
 /* line 13, ../../sass/src/Headings.scss */
 h1 {
-  font-size: 60px; }
+  font-size: 60px;
+  margin-bottom: 16px;
+  margin-top: 16px; }
 
-/* line 17, ../../sass/src/Headings.scss */
+/* line 22, ../../sass/src/Headings.scss */
 h2 {
   font-size: 30px; }
 
-/* line 21, ../../sass/src/Headings.scss */
+/* line 26, ../../sass/src/Headings.scss */
 h3 {
   font-size: 20px; }
 
-/* line 25, ../../sass/src/Headings.scss */
+/* line 30, ../../sass/src/Headings.scss */
 h4 {
   font-size: 18px; }
 
-/* line 29, ../../sass/src/Headings.scss */
+/* line 34, ../../sass/src/Headings.scss */
 h5 {
   font-size: 16px; }
 
-/* line 33, ../../sass/src/Headings.scss */
+/* line 38, ../../sass/src/Headings.scss */
 h6 {
   font-size: 14px; }
 
