@@ -13,6 +13,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
+import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -26,6 +27,7 @@ import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.DeviceMultiplier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
+import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.scheduling.TemporalExpression;
 
 import java.util.Date;
@@ -257,6 +259,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      * @return The number of EndDeviceEvents
      */
     public int countNumberOfEndDeviceEvents(List<EndDeviceEventType> eventTypes, Interval interval);
+
+    List<SecurityProperty> getSecurityProperties(SecurityPropertySet securityPropertySet);
 
     /**
      * Builder that support basic value setters for a ScheduledConnectionTask
