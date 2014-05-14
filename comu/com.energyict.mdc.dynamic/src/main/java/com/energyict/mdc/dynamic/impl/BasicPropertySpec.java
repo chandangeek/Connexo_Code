@@ -1,12 +1,11 @@
 package com.energyict.mdc.dynamic.impl;
 
-import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.InvalidValueException;
+import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.ValueRequiredException;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecPossibleValues;
 import com.energyict.mdc.dynamic.ValueFactory;
-
 import java.io.Serializable;
 
 /**
@@ -108,7 +107,20 @@ public class BasicPropertySpec<T> implements PropertySpec<T>, Serializable {
                     throw new InvalidValueException("XisNotCompatibleWithAttributeY", "The value \"{0}\" is not compatible with the attribute specification {1}.", this.getName(), value);
                 }
             }
+            if (possibleValues!=null && possibleValues.isExhaustive()) {
+                boolean found = false;
+                for (Object o : possibleValues.getAllValues()) {
+                    if (o.equals(value)) {
+                        found=true;
+                    }
+                }
+                if (!found) {
+                    throw new InvalidValueException("XisNotAPossibleValue", "The value \"{0}\" is not list a possible value for this property", this.getName());
+                }
+            }
+
         }
+
         return true;
     }
 
