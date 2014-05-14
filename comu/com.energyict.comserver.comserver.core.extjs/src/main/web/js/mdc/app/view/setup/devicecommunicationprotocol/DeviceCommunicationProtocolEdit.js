@@ -75,56 +75,59 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
                             {
                                 xtype: 'propertyEdit',
                                 width: '100%'
-                            }
-                        ]
-                    },
-                    {
-                        xtype: 'container',
-                        width: '100%',
-                        items: [
+                            },
                             {
-                                xtype: 'form',
-                                border: false,
-                                itemId: 'deviceCommunicationProtocolEditButtonsForm',
-
-                                width: '100%',
+                                xtype: 'fieldcontainer',
+                                ui: 'actions',
+                                fieldLabel: '&nbsp',
+                                labelWidth: 250,
                                 layout: {
-                                    type: 'vbox'
+                                    type: 'hbox',
+                                    align: 'stretch'
                                 },
-                                defaults: {
-                                    labelWidth: 250
-                                },
+                                width: '100%',
                                 items: [
                                     {
-                                        xtype: 'fieldcontainer',
-                                        fieldLabel: '&nbsp',
-                                        layout: {
-                                            type: 'hbox',
-                                            align: 'stretch'
-                                        },
-                                        width: '100%',
-                                        margin: '32 0 0 0',
-                                        items: [
-                                            {
-                                                text: Uni.I18n.translate('general.save', 'MDC', 'Save'),
-                                                xtype: 'button',
-                                                ui: 'action',
-                                                action: 'createAction',
-                                                itemId: 'createEditButton'
-                                            },
-                                            {
-                                                text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
-                                                xtype: 'button',
-                                                ui: 'link',
-                                                itemId: 'cancelLink',
-                                                href: '#/setup/devicecommunicationprotocols/'
-                                            }
-                                        ]
+                                        text: Uni.I18n.translate('general.save', 'MDC', 'Save'),
+                                        xtype: 'button',
+                                        ui: 'action',
+                                        action: 'createAction',
+                                        itemId: 'createEditButton'
+                                    },
+                                    {
+                                        text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                                        xtype: 'button',
+                                        ui: 'link',
+                                        itemId: 'cancelLink',
+                                        href: '#/setup/devicecommunicationprotocols/'
                                     }
                                 ]
                             }
                         ]
                     }
+//                    ,
+//                    {
+//                        xtype: 'container',
+//                        width: '100%',
+//                        items: [
+//                            {
+//                                xtype: 'form',
+//                                border: false,
+//                                itemId: 'deviceCommunicationProtocolEditButtonsForm',
+//
+//                                width: '100%',
+//                                layout: {
+//                                    type: 'vbox'
+//                                },
+//                                defaults: {
+//                                    labelWidth: 250
+//                                },
+//                                items: [
+//
+//                                ]
+//                            }
+//                        ]
+//                    }
                 ]
             }
         ];
