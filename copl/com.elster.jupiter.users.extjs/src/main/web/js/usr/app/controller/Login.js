@@ -14,7 +14,7 @@ Ext.define('Usr.controller.Login', {
     extend: 'Ext.app.Controller',
 
     views: [
-        'Login'
+        'Usr.view.Login'
     ],
 
     init: function(application) {
@@ -23,6 +23,11 @@ Ext.define('Usr.controller.Login', {
                 signin: this.signinuser
             }
         });
+    },
+
+    showOverview: function() {
+        var widget = Ext.widget("login");
+        this.getApplication().fireEvent('changecontentevent', widget);
     },
 
     signinuser : function(button, username, password)    {

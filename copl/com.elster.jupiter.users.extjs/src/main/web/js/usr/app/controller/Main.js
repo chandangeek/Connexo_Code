@@ -7,6 +7,7 @@ Ext.define('Usr.controller.Main', {
     ],
 
     controllers: [
+        'Usr.controller.Login',
         'Usr.controller.Home',
         'Usr.controller.User',
         'Usr.controller.UserGroups',
