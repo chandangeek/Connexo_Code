@@ -34,16 +34,18 @@ public class DataCollectionEventHandler implements MessageHandler {
 
         String topic = String.class.cast(map.get(EventConstants.EVENT_TOPIC));
         IssueEventType eventType = IssueEventType.getEventTypeByTopic(topic);
-        IssueEvent event = getEvent(map, eventType);
+        if (eventType != null) {
+            IssueEvent event = getEvent(map, eventType);
 
-        issueCreationService.dispatchCreationEvent(event);
+            issueCreationService.dispatchCreationEvent(event);
+        }
     }
 
     private IssueEvent getEvent(Map<?, ?> map, IssueEventType eventType) {
         IssueEvent event = null;
-        if (IssueEventType.DEVICE_EVENT.equals(eventType)){
+        if (IssueEventType.DEVICE_EVENT.equals(eventType)) {
             event = new MeterIssueEvent(issueService, meteringService, map);
-        } else{
+        } else {
             event = new DataCollectionEvent(issueService, meteringService, map);
         }
         return event;
