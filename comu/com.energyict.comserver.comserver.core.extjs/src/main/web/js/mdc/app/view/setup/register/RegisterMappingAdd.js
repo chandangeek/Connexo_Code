@@ -48,7 +48,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAdd', {
                             xtype: 'button',
                             ui: 'link',
                             itemId: 'cancelLink',
-                            href: '#setup/devicetypes/' + this.deviceTypeId + '/registertypes',
+                            href: '#setup/devicetypes/' + this.deviceTypeId + '/registertypes'
                         }
                     ]
                 }

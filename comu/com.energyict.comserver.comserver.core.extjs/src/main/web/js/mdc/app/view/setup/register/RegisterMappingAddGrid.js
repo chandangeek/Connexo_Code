@@ -52,7 +52,8 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
                 flex: 2,
                 items: [
                     {
-                        icon: '../mdc/resources/images/information.png',
+                        icon: '../mdc/resources/images/info.png',
+                        iconCls: 'uni-info-icon',
                         tooltip: Uni.I18n.translate('readingType.tooltip','MDC','Reading type info'),
                         handler: function (grid, rowIndex, colIndex, item, e, record, row) {
                             //var record = grid.getStore().getAt(rowIndex);
