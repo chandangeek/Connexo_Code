@@ -2,15 +2,15 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.communicationScheduleEdit',
     itemId: 'communicationScheduleEdit',
-    cls: 'content-container',
+
     edit: false,
     requires: [
 //        'Mdc.store.ConnectionTypes',
         'Mdc.widget.ScheduleField',
         'Mdc.widget.DateTimeField'
     ],
-    isEdit: function(){
-        return this.edit
+    isEdit: function () {
+        return this.edit;
     },
 //    setEdit: function(edit,returnLink){
 //        if(edit){
@@ -29,7 +29,6 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
         this.content = [
             {
                 xtype: 'container',
-                cls: 'content-container',
                 layout: {
                     type: 'vbox'
 //                    align: 'stretch'
@@ -58,15 +57,15 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                             type: 'vbox',
                             align: 'stretch'
                         },
-                        defaults:{
+                        defaults: {
                             labelWidth: 250
                         },
                         items: [
                             {
                                 xtype: 'textfield',
                                 name: 'name',
-                                validator:function(text){
-                                    if(Ext.util.Format.trim(text).length==0)
+                                validator: function (text) {
+                                    if (Ext.util.Format.trim(text).length == 0)
                                         return Uni.I18n.translate('communicationschedule.emptyName', 'MDC', 'The name of a communication schedule can not be empty.')
                                     else
                                         return true;
@@ -169,7 +168,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                             align: 'stretch'
                         },
                         width: '100%',
-                        defaults:{
+                        defaults: {
                             labelWidth: 250
                         },
                         items: [
@@ -193,7 +192,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                             align: 'stretch'
                         },
                         width: '100%',
-                        defaults:{
+                        defaults: {
                             labelWidth: 250
                         },
                         items: [
@@ -240,7 +239,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
             }
         ];
         this.callParent(arguments);
-        if(this.isEdit()){
+        if (this.isEdit()) {
             this.down('#createEditButton').setText(Uni.I18n.translate('general.edit', 'MDC', 'Edit'));
             this.down('#createEditButton').action = 'editCommunicationSchedule';
 //                this.down('#connectionStrategyComboBox').setVisible(false);
@@ -253,7 +252,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
 //                this.down('#rescheduleRetryDelay').setVisible(false);
 //                this.down('#isDefault').setVisible(false);
         }
-        this.down('#cancelLink').autoEl.href=this.returnLink;
+        this.down('#cancelLink').autoEl.href = this.returnLink;
 
     }
 

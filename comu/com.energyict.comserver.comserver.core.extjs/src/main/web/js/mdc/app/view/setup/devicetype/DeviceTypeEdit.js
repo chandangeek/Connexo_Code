@@ -5,12 +5,15 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
     requires: [
         'Mdc.store.DeviceCommunicationProtocols'
     ],
+
     edit: false,
-    isEdit: function(){
-        return this.edit
+
+    isEdit: function () {
+        return this.edit;
     },
-    setEdit: function(edit,returnLink){
-        if(edit){
+
+    setEdit: function (edit, returnLink) {
+        if (edit) {
             this.edit = edit;
             this.down('#createEditButton').setText(Uni.I18n.translate('general.edit', 'MDC', 'Edit'));
             this.down('#createEditButton').action = 'editDeviceType';
@@ -19,25 +22,19 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
             this.down('#createEditButton').setText(Uni.I18n.translate('general.create', 'MDC', 'Create'));
             this.down('#createEditButton').action = 'createDeviceType';
         }
-        this.down('#cancelLink').autoEl.href=returnLink;
+        this.down('#cancelLink').autoEl.href = returnLink;
     },
 
     initComponent: function () {
         this.content = [
             {
                 xtype: 'container',
-                cls: 'content-container',
                 layout: {
                     type: 'vbox',
                     align: 'stretch'
                 },
 
                 items: [
-                    {
-                        xtype: 'breadcrumbTrail',
-                        region: 'north',
-                        padding: 6
-                    },
                     {
                         xtype: 'component',
                         html: '',
@@ -63,7 +60,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                                             type: 'vbox',
                                             align: 'stretch'
                                         },
-                                        defaults:{
+                                        defaults: {
                                             labelWidth: 250
                                         },
                                         items: [
@@ -85,8 +82,8 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                                             {
                                                 xtype: 'textfield',
                                                 name: 'name',
-                                                validator:function(text){
-                                                    if(Ext.util.Format.trim(text).length==0)
+                                                validator: function (text) {
+                                                    if (Ext.util.Format.trim(text).length == 0)
                                                         return Uni.I18n.translate('devicetype.emptyName', 'MDC', 'The name of a device type can not be empty.')
                                                     else
                                                         return true;
@@ -101,28 +98,24 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                                             {
                                                 xtype: 'fieldcontainer',
                                                 fieldLabel: '&nbsp',
-                                                //width: 430,
                                                 layout: {
                                                     type: 'hbox',
                                                     align: 'stretch'
                                                 },
+                                                width: '100%',
                                                 items: [
                                                     {
                                                         text: Uni.I18n.translate('general.create', 'MDC', 'Create'),
                                                         xtype: 'button',
                                                         action: 'createAction',
                                                         itemId: 'createEditButton'
-//                                                        formBind: true
                                                     },
                                                     {
-                                                        xtype: 'component',
-                                                        padding: '3 0 0 10',
+                                                        text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                                                        xtype: 'button',
+                                                        ui: 'link',
                                                         itemId: 'cancelLink',
-                                                        autoEl: {
-                                                            tag: 'a',
-                                                            href: '#setup/devicetypes/',
-                                                            html: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel')
-                                                        }
+                                                        href: '#/setup/devicetypes/'
                                                     }
                                                 ]
                                             }
@@ -137,17 +130,16 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                 ]
             }
         ];
+
         this.callParent(arguments);
-        if(this.isEdit()){
+        if (this.isEdit()) {
             this.down('#createEditButton').setText(Uni.I18n.translate('general.edit', 'MDC', 'Edit'));
             this.down('#createEditButton').action = 'editDeviceType';
         } else {
             this.down('#createEditButton').setText(Uni.I18n.translate('general.create', 'MDC', 'Create'));
             this.down('#createEditButton').action = 'createDeviceType';
         }
-        this.down('#cancelLink').autoEl.href=this.returnLink;
-
+        this.down('#cancelLink').autoEl.href = this.returnLink;
     }
-
 
 });

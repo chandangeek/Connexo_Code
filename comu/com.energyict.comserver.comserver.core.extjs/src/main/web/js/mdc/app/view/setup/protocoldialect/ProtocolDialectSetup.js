@@ -4,15 +4,15 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectSetup', {
     itemId: 'protocolDialectSetup',
     deviceTypeId: null,
     deviceConfigId: null,
+
     requires: [
         'Uni.view.navigation.SubMenu',
-        'Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu',
-        'Uni.view.breadcrumb.Trail'
+        'Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu'
     ],
+
     content: [
         {
             xtype: 'container',
-            cls: 'content-container',
             itemId: 'stepsContainer',
             layout: {
                 type: 'vbox',
@@ -49,15 +49,16 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectSetup', {
         }
     ],
 
-
     initComponent: function () {
-        this.side = [{
-            xtype: 'deviceConfigurationMenu',
-            itemId: 'stepsMenu',
-            deviceTypeId: this.deviceTypeId,
-            deviceConfigurationId: this.deviceConfigId,
-            toggle: 5
-        }];
+        this.side = [
+            {
+                xtype: 'deviceConfigurationMenu',
+                itemId: 'stepsMenu',
+                deviceTypeId: this.deviceTypeId,
+                deviceConfigurationId: this.deviceConfigId,
+                toggle: 5
+            }
+        ];
         this.callParent(arguments);
         this.down('#protocolDialectsGridContainer').add(
             {

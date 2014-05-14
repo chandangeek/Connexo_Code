@@ -24,14 +24,14 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulePreview', 
             tbar: [
                 {
                     xtype: 'component',
-                    html: '<H4>' + Uni.I18n.translate('communicationschedule.noCommunicationScheduleSelected', 'MDC', 'No communication schedule selected') + '</H4>'
+                    html: '<h4>' + Uni.I18n.translate('communicationschedule.noCommunicationScheduleSelected', 'MDC', 'No communication schedule selected') + '</h4>'
                 }
             ],
             items: [
                 {
                     xtype: 'component',
                     height: '100px',
-                    html: '<H5>' + Uni.I18n.translate('communicationschedule.selectCommunicationSchedule', 'MDC', 'Select a communication schedule to see its details') + '</H5>'
+                    html: '<h5>' + Uni.I18n.translate('communicationschedule.selectCommunicationSchedule', 'MDC', 'Select a communication schedule to see its details') + '</h5>'
                 }
             ]
 
@@ -54,7 +54,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulePreview', 
                 '->',
                 {
                     icon: '../mdc/resources/images/gear-16x16.png',
-                    text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                    text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
                     menu: {
                         items: [
                             {

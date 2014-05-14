@@ -37,7 +37,8 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
         {ref: 'readingTypeDetailsForm', selector: '#readingTypeDetailsForm'},
         {ref: 'registerGroupGridContainer', selector: '#registerGroupGridContainer'},
         {ref: 'registerGroupEmptyGrid', selector: '#registerGroupEmptyGrid'},
-        {ref: 'registerTypeEmptyGrid', selector: '#registerTypeEmptyGrid'}
+        {ref: 'registerTypeEmptyGrid', selector: '#registerTypeEmptyGrid'},
+        {ref: 'contentPanel', selector: 'viewport > #contentPanel'}
     ],
 
     init: function () {
@@ -159,7 +160,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
                     callback: function (registerTypes) {
                         me.editBreadCrumb(registerGroup.get('name'));
                         widget.down('form').loadRecord(registerGroup);
-                        widget.down('#registerGroupEditCreateTitle').update('<H1>' + registerGroup.get('name') + ' > ' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + Uni.I18n.translate('registerGroup.registerGroup', 'MDC', 'Register group') + '</H1>');
+                        widget.down('#registerGroupEditCreateTitle').update('<h1>' + registerGroup.get('name') + ' > ' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + Uni.I18n.translate('registerGroup.registerGroup', 'MDC', 'Register group') + '</h1>');
                         if(this.data.items.length > 0){
                             me.getRegisterEditEmptyGrid().getLayout().setActiveItem('gridContainer');
                             widget.down('#editRegisterGroupGridField').getSelectionModel().doSelect(registerGroup.registerTypes().data.items);
@@ -184,18 +185,17 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
         var widget = Ext.widget('registerGroupEdit', {
             edit: false
         });
-        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
-        widget.setLoading(true);
-        widget.hide();
+
         var me = this;
+
+        //widget.down('#editRegisterGroupGridField').store.on('load', function () {
         me.getStore('Mdc.store.RegisterTypes').load({
-            params: { start: 0, limit: 2},
             callback: function (registerTypes) {
                 me.createBreadCrumb();
                 var registerGroup = Ext.create(Ext.ModelManager.getModel('Mdc.model.RegisterGroup'));
                 widget.down('form').loadRecord(registerGroup);
-                widget.down('#registerGroupEditCreateTitle').update('<H1>' + Uni.I18n.translate('registerGroup.create', 'MDC', 'Create register group') + '</H1>');
-                if(this.data.items.length > 0){
+                widget.down('#registerGroupEditCreateTitle').update('<h1>' + Uni.I18n.translate('registerGroup.create', 'MDC', 'Create register group') + '</h1>');
+                if(this.totalCount > 0){
                     me.getRegisterEditEmptyGrid().getLayout().setActiveItem('gridContainer');
                     widget.down('#editRegisterGroupSelectedField').setValue(Ext.String.format(Uni.I18n.translate('registerGroup.selectedRegisterTypes', 'MDC', '{0} register types selected'), 0));
                     widget.down('#editRegisterGroupGridField').store.add(registerTypes);
@@ -213,6 +213,10 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
                 widget.setLoading(false);
             }
         });
+
+        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
+        widget.setLoading(true);
+        widget.hide();
     },
 
     checkboxChanged: function (grid, selected) {
@@ -232,6 +236,19 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
         var me=this;
         record.save({
             success: function (record) {
+                /*Ext.create('widget.uxNotification', {
+                    position: 'tc',
+                    manager: me.getContentPanel(),
+                    cls: 'ux-notification-light',
+                    width: me.getContentPanel().getWidth()-20,
+//                  iconCls: 'ux-notification-icon-information',
+                    html: 'Register group saved',
+                    slideInDuration: 200,
+                    slideBackDuration: 200,
+                    autoCloseDelay: 7000,
+                    slideInAnimation: 'linear',
+                    slideBackAnimation: 'linear'
+                }).show();*/
                 location.href = form.down('#cancelLink').autoEl.href
             },
             failure: function(record,operation){

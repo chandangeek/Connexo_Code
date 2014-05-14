@@ -11,7 +11,6 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
     content: [
         {
             xtype: 'container',
-            cls: 'content-container',
             layout: {
                 type: 'vbox',
                 align: 'stretch'
@@ -19,7 +18,7 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
             items: [
                 {
                     xtype: 'component',
-                    html: '<h1>' + Uni.I18n.translate('deviceCommunicationProtocol.protocols','MDC','Protocols') + '</h1>',
+                    html: '<h1>' + Uni.I18n.translate('deviceCommunicationProtocol.protocols', 'MDC', 'Protocols') + '</h1>',
                     itemId: 'protocolTitle'
                 },
                 {
@@ -37,13 +36,13 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
             ]}
     ],
 
- /*   side: [
-           {
-               xtype: 'deviceCommunicationProtocolFilter',
-               name: 'filter'
-           }
-       ],
-*/
+    /*   side: [
+     {
+     xtype: 'deviceCommunicationProtocolFilter',
+     name: 'filter'
+     }
+     ],
+     */
 
     initComponent: function () {
         this.callParent(arguments);

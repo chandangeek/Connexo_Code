@@ -163,7 +163,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                                     returnLink: '#setup/devicetypes/' + deviceTypeId + '/deviceconfigurations/' + deviceConfigId + '/registerconfigurations'
                                 });
                                 me.getApplication().getController('Mdc.controller.Main').showContent(widget);
-                                widget.down('#registerConfigEditCreateTitle').update('<H2>' + Uni.I18n.translate('registerConfigs.createRegisterConfig', 'MDC', 'Create register configuration') + '</H2>');
+                                widget.down('#registerConfigEditCreateTitle').update('<h1>' + Uni.I18n.translate('registerConfigs.createRegisterConfig', 'MDC', 'Create register configuration') + '</h1>');
                                 widget.down('#editNumberOfDigitsField').setValue(8);
                                 widget.down('#editNumberOfFractionDigitsField').setValue(0);
                                 widget.down('#editMultiplierField').setValue(1);
@@ -421,7 +421,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                                     success: function (deviceConfiguration) {
                                         me.editBreadCrumb(deviceTypeId, deviceConfigurationId, registerConfigurationId, deviceType.get('name'), deviceConfiguration.get('name'), registerConfiguration.get('name'));
                                         widget.down('form').loadRecord(registerConfiguration);
-                                        widget.down('#registerConfigEditCreateTitle').update('<H2>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + registerConfiguration.get('name') + '"</H2>');
+                                        widget.down('#registerConfigEditCreateTitle').update('<h1>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + registerConfiguration.get('name') + '"</h1>');
                                         widget.down('#registerTypeComboBox').setValue(registerConfiguration.get('registerMapping'));
                                         widget.setLoading(false);
                                     }

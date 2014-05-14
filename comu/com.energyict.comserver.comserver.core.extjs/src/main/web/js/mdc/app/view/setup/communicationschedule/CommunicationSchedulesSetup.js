@@ -4,10 +4,9 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulesSetup', {
     itemId: 'CommunicationSchedulesSetup',
     requires: [
         'Mdc.view.setup.devicetype.DeviceTypesGrid',
-        'Mdc.view.setup.devicetype.DeviceTypePreview',
-        'Uni.view.breadcrumb.Trail'
+        'Mdc.view.setup.devicetype.DeviceTypePreview'
     ],
-    cls: 'content-container',
+
     side: [
 
     ],

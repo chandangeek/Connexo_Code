@@ -169,7 +169,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                                                  var deviceConfigName = deviceConfig.get('name');
                                                  var title = direction==='Outbound'?Uni.I18n.translate('connectionmethod.addOutboundConnectionMethod', 'MDC', 'Add outbound connection method'):Uni.I18n.translate('connectionmethod.addInboundConnectionMethod', 'MDC', 'Add inbound connection method');
                                                  title = deviceConfigName + ' > ' + title;
-                                                 widget.down('#connectionMethodEditAddTitle').update('<H2>' + title  + '</H2>');
+                                                 widget.down('#connectionMethodEditAddTitle').update('<h1>' + title  + '</h1>');
                                                  me.createBreadCrumbs(deviceTypeId, deviceConfigId, deviceTypeName, deviceConfigName, direction, 'add');
                                                  widget.setLoading(false);
                                              }
@@ -336,7 +336,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                                                         widget.down('form').loadRecord(connectionMethod);
                                                         var title = connectionMethod.get('direction')==='Outbound'?Uni.I18n.translate('connectionmethod.editOutboundConnectionMethod', 'MDC', 'Edit outbound connection method'):Uni.I18n.translate('connectionmethod.editInboundConnectionMethod', 'MDC', 'Edit inbound connection method');
                                                         title = deviceConfigName + ' > ' + title;
-                                                        widget.down('#connectionMethodEditAddTitle').update('<H2>' + title + '</H2>');
+                                                        widget.down('#connectionMethodEditAddTitle').update('<h1>' + title + '</h1>');
                                                         widget.down('form').down('#connectionTypeComboBox').setValue(connectionMethod.get('connectionType'));
                                                         widget.down('form').down('#communicationPortPoolComboBox').setValue(connectionMethod.get('comPortPool'));
                                                         widget.down('form').down('#connectionStrategyComboBox').setValue(connectionMethod.get('connectionStrategy'));

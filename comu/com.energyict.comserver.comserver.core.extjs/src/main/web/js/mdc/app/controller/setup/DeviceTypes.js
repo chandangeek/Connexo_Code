@@ -12,12 +12,15 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         'setup.devicetype.DeviceTypesGrid',
         'setup.devicetype.DeviceTypePreview',
         'setup.devicetype.DeviceTypeDetail',
-        'setup.devicetype.DeviceTypeEdit'
+        'setup.devicetype.DeviceTypeEdit',
+        'setup.devicetype.DeviceTypeLogbooks',
+        'setup.devicetype.AddLogbookTypes'
     ],
 
     stores: [
         'DeviceTypes',
-        'DeviceCommunicationProtocols'
+        'DeviceCommunicationProtocols',
+        'LogbookTypes'
     ],
 
     refs: [
@@ -38,7 +41,9 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         {ref: 'deviceTypeDetailLoadProfilesLink', selector: '#deviceTypeDetailLoadProfilesLink'},
         {ref: 'deviceTypeDetailForm', selector: '#deviceTypeDetailForm'},
         {ref: 'editDeviceTypeNameField', selector: '#editDeviceTypeNameField'},
-        {ref: 'breadCrumbs', selector: 'breadcrumbTrail'}
+        {ref: 'breadCrumbs', selector: 'breadcrumbTrail'},
+        {ref: 'deviceTypeLogbookTitle', selector: '#deviceTypeLogbookTitle'},
+        {ref: 'addLogbookTitle', selector: '#addLogbookTitle'}
     ],
 
     init: function () {
@@ -90,7 +95,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             var deviceTypeId = deviceTypes[0].get('id');
             this.getDeviceTypeRegisterLink().getEl().set({href: '#/setup/devicetypes/' + deviceTypeId + '/registertypes'});
             this.getDeviceTypeRegisterLink().getEl().setHTML(deviceTypes[0].get('registerCount') + ' ' + Uni.I18n.translatePlural('devicetype.registers', deviceTypes[0].get('registerCount'), 'MDC', 'register types'));
-            this.getDeviceTypeLogBookLink().getEl().set({href: '#/setup/devicetypes/' + deviceTypeId + '/logbooks'});
+            this.getDeviceTypeLogBookLink().getEl().set({href: '#/setup/devicetypes/' + deviceTypeId + '/logbooktypes'});
             this.getDeviceTypeLogBookLink().getEl().setHTML(deviceTypes[0].get('logBookCount') + ' ' + Uni.I18n.translatePlural('devicetype.logbooks', deviceTypes[0].get('logBookCount'), 'MDC', 'logbook types'));
             this.getDeviceTypeLoadProfilesLink().getEl().set({href: '#/setup/devicetypes/' + deviceTypeId + '/loadprofiles'});
             this.getDeviceTypeLoadProfilesLink().getEl().setHTML(deviceTypes[0].get('loadProfileCount') + ' ' + Uni.I18n.translatePlural('devicetype.loadprofiles', deviceTypes[0].get('loadProfileCount'), 'MDC', 'load profile types'));
@@ -114,7 +119,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
 
                 me.getDeviceTypeDetailRegistersLink().getEl().set({href: '#/setup/devicetypes/' + deviceTypeId + '/registertypes'});
                 me.getDeviceTypeDetailRegistersLink().getEl().setHTML(deviceType.get('registerCount') + ' ' + Uni.I18n.translatePlural('devicetype.registers', deviceType.get('registerCount'), 'MDC', 'register types'));
-                me.getDeviceTypeDetailLogBookLink().getEl().set({href: '#/setup/devicetypes/' + deviceTypeId + '/logbooks'});
+                me.getDeviceTypeDetailLogBookLink().getEl().set({href: '#/setup/devicetypes/' + deviceTypeId + '/logbooktypes'});
                 me.getDeviceTypeDetailLogBookLink().getEl().setHTML(deviceType.get('logBookCount') + ' ' + Uni.I18n.translatePlural('devicetype.logbooks', deviceType.get('logBookCount'), 'MDC', 'logbook types'));
                 me.getDeviceTypeDetailLoadProfilesLink().getEl().set({href: '#/setup/devicetypes/' + deviceTypeId + '/loadprofiles'});
                 me.getDeviceTypeDetailLoadProfilesLink().getEl().setHTML(deviceType.get('loadProfileCount') + ' ' + Uni.I18n.translatePlural('devicetype.loadprofiles', deviceType.get('loadProfileCount'), 'MDC', 'loadprofile types'));
@@ -202,13 +207,13 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                     var deviceType = results[0][0];
                     me.editBreadCrumb(deviceType.get('name'), deviceTypeId)
                     widget.down('form').loadRecord(deviceType);
-                    widget.down('#deviceTypeEditCreateTitle').update('<H2>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + deviceType.get('name') + '"</H2>');
+                    widget.down('#deviceTypeEditCreateTitle').update('<h1>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + deviceType.get('name') + '"</h1>');
                     widget.setLoading(false);
                 },
                 failure: function () {
                     me.editBreadCrumb(deviceType.get('name'), deviceTypeId)
                     widget.down('form').loadRecord(deviceType);
-                    widget.down('#deviceTypeEditCreateTitle').update('<H2>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + deviceType.get('name') + '"</H2>');
+                    widget.down('#deviceTypeEditCreateTitle').update('<h1>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + deviceType.get('name') + '"</h1>');
                     widget.setLoading(false);
                 }
             }
@@ -221,7 +226,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
 //                protocolStore.load({
 //                    callback: function (store) {
 //                        widget.down('form').loadRecord(deviceType);
-//                        widget.down('#deviceTypeEditCreateTitle').update('<H2>'+Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + deviceType.get('name')+'"</H2>');
+//                        widget.down('#deviceTypeEditCreateTitle').update('<h1>'+Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + deviceType.get('name')+'"</h1>');
 //                        widget.setLoading(false);
 //                    }
 //                })
@@ -243,7 +248,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         widget.setLoading(true);
         protocolStore.load({
             callback: function (store) {
-                widget.down('#deviceTypeEditCreateTitle').update('<H2>' + Uni.I18n.translate('general.create', 'MDC', 'Create') + ' ' + 'device type' + '</H2>');
+                widget.down('#deviceTypeEditCreateTitle').update('<h1>' + Uni.I18n.translate('general.create', 'MDC', 'Create') + ' ' + 'device type' + '</h1>');
                 me.createBreadCrumb();
                 widget.setLoading(false);
             }
@@ -386,6 +391,123 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             });
 
         }
+    },
+
+    showDeviceTypeLogbookTypesView: function (deviceTypeId) {
+        var me = this,
+            model = Ext.ModelManager.getModel('Mdc.model.DeviceType'),
+            store = Ext.data.StoreManager.lookup('LogbookTypes');
+        store.getProxy().setExtraParam('deviceType', deviceTypeId);
+        store.getProxy().setExtraParam('available', false);
+        store.load(
+            {
+                callback: function () {
+                    var self = this,
+                        widget = Ext.widget('device-type-logbooks', {deviceTypeId: deviceTypeId});
+                    me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+                    widget.setLoading(true);
+                    model.load(deviceTypeId, {
+                        success: function (deviceType) {
+                            me.logbookBreadCrumb(deviceType.get('name'), deviceTypeId);
+                            me.getDeviceTypeLogbookTitle().setTitle('<b>' + deviceType.get('name') + '</b>' + ' > ' + 'Logbook types');
+                            widget.setLoading(false);
+                        }
+                    });
+                    var numberOfLogbooksContainer = Ext.ComponentQuery.query('device-type-logbooks toolbar container[name=LogBookCount]')[0],
+                        grid = Ext.ComponentQuery.query('device-type-logbooks grid')[0],
+                        gridView = grid.getView(),
+                        selectionModel = gridView.getSelectionModel(),
+                        count = Ext.widget('container', {
+                            html: self.getCount() + ' logbook type(s)'
+                        });
+                    numberOfLogbooksContainer.removeAll(true);
+                    numberOfLogbooksContainer.add(count);
+                    if (self.getCount() < 1) {
+                        grid.hide();
+                        grid.next().show();
+                    } else {
+                        selectionModel.select(0);
+                        grid.fireEvent('itemclick', gridView, selectionModel.getLastSelected());
+                    }
+                }
+            }
+        );
+    },
+
+    logbookBreadCrumb: function (deviceTypeName, deviceTypeId) {
+        var breadcrumb1 = Ext.create('Uni.model.BreadcrumbItem', {
+            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
+            href: '#setup'
+        });
+        var breadcrumb2 = Ext.create('Uni.model.BreadcrumbItem', {
+            text: Uni.I18n.translate('devicetype.deviceTypes', 'MDC', 'Device types'),
+            href: 'devicetypes'
+        });
+        var breadcrumb3 = Ext.create('Uni.model.BreadcrumbItem', {
+            text: deviceTypeName,
+            href: deviceTypeId
+        });
+        var breadcrumb4 = Ext.create('Uni.model.BreadcrumbItem', {
+            text: 'Logbook types'
+        });
+        breadcrumb1.setChild(breadcrumb2).setChild(breadcrumb3).setChild(breadcrumb4);
+        this.getBreadCrumbs().setBreadcrumbItem(breadcrumb1);
+    },
+
+    showAddLogbookTypesView: function (deviceTypeId) {
+        var me = this,
+            model = Ext.ModelManager.getModel('Mdc.model.DeviceType'),
+            store = Ext.data.StoreManager.lookup('LogbookTypes');
+        store.getProxy().setExtraParam('deviceType', deviceTypeId);
+        store.getProxy().setExtraParam('available', true);
+        store.load(
+            {
+                callback: function () {
+                    var self = this,
+                        widget = Ext.widget('add-logbook-types', {deviceTypeId: deviceTypeId});
+                    me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+                    widget.setLoading(true);
+                    model.load(deviceTypeId, {
+                        success: function (deviceType) {
+                            me.addLogbookBreadCrumb(deviceType.get('name'), deviceTypeId);
+                            me.getAddLogbookTitle().setTitle('<b>' + deviceType.get('name') + '</b>' + ' > ' + 'Add logbook type');
+                            widget.setLoading(false);
+                        }
+                    });
+                    var numberOfLogbooksLabel = Ext.ComponentQuery.query('add-logbook-types toolbar label[name=LogBookCount]')[0],
+                        grid = Ext.ComponentQuery.query('add-logbook-types grid')[0];
+                    numberOfLogbooksLabel.setText('No logbooks selected');
+                    if (self.getCount() < 1) {
+                        grid.hide();
+                        grid.next().show();
+                    }
+                }
+            }
+        );
+    },
+
+    addLogbookBreadCrumb: function (deviceTypeName, deviceTypeId) {
+        var breadcrumb1 = Ext.create('Uni.model.BreadcrumbItem', {
+            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
+            href: '#setup'
+        });
+        var breadcrumb2 = Ext.create('Uni.model.BreadcrumbItem', {
+            text: Uni.I18n.translate('devicetype.deviceTypes', 'MDC', 'Device types'),
+            href: 'devicetypes'
+        });
+        var breadcrumb3 = Ext.create('Uni.model.BreadcrumbItem', {
+            text: deviceTypeName,
+            href: deviceTypeId
+        });
+        var breadcrumb4 = Ext.create('Uni.model.BreadcrumbItem', {
+            text: 'Logbook types',
+            href: 'logbooktypes'
+        });
+        var breadcrumb5 = Ext.create('Uni.model.BreadcrumbItem', {
+            text: 'Add logbook type'
+        });
+        breadcrumb1.setChild(breadcrumb2).setChild(breadcrumb3).setChild(breadcrumb4).setChild(breadcrumb5);
+        this.getBreadCrumbs().setBreadcrumbItem(breadcrumb1);
     }
 
 });

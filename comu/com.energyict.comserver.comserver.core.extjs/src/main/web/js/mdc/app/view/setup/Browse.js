@@ -2,11 +2,10 @@ Ext.define('Mdc.view.setup.Browse', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.setupBrowse',
     overflowY: 'auto',
-    cls: 'content-container',
+
     items: [
         {
             xtype: 'container',
-            cls: 'content-container',
             layout: {
                 type: 'column'
             },
@@ -60,6 +59,10 @@ Ext.define('Mdc.view.setup.Browse', {
                         {
                             xtype: 'component',
                             html: '<a href="#/setup/searchitems">Search items</a>'
+                        },
+                        {
+                            xtype: 'component',
+                            html: '<a href="#/setup/logbooktypes">Logbook types</a>'
                         }
                     ],
                     columnWidth: 0.5,

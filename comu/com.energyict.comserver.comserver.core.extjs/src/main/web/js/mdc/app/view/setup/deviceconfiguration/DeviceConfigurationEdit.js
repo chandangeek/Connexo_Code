@@ -2,11 +2,12 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.deviceConfigurationEdit',
     itemId: 'deviceConfigurationEdit',
-    cls: 'content-container',
     edit: false,
+
     isEdit: function () {
         return this.edit
     },
+
     setEdit: function (edit, returnLink) {
         if (edit) {
             this.edit = edit;
@@ -138,7 +139,6 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                             {
                                                 xtype: 'fieldcontainer',
                                                 fieldLabel: '&nbsp',
-                                                //width: 430,
                                                 layout: {
                                                     type: 'hbox',
                                                     align: 'stretch'
@@ -152,14 +152,11 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
 //                                                        formBind: true
                                                     },
                                                     {
-                                                        xtype: 'component',
-                                                        padding: '3 0 0 10',
+                                                        text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                                                        xtype: 'button',
+                                                        ui: 'link',
                                                         itemId: 'cancelLink',
-                                                        autoEl: {
-                                                            tag: 'a',
-                                                            href: '#setup/devicetypes/',
-                                                            html: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel')
-                                                        }
+                                                        href: '#/setup/devicetypes/'
                                                     }
                                                 ]
                                             }
@@ -186,6 +183,4 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
 
     }
 
-
 });
-

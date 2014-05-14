@@ -8,7 +8,9 @@ Ext.define('Mdc.view.setup.property.PropertyView', {
     itemId: 'propertyView',
     autoShow: true,
     border: 0,
+
     autoWidth: true,
+
     requires: ['Ext.form.Panel',
         'Mdc.widget.TimeInfoField'
     ],
@@ -18,7 +20,6 @@ Ext.define('Mdc.view.setup.property.PropertyView', {
             {
                 xtype: 'form',
                 itemId: 'propertiesViewform',
-                margin: '10 0 0 0',
                 border: 0,
                 layout: {
                     type: 'column',
@@ -52,6 +53,7 @@ Ext.define('Mdc.view.setup.property.PropertyView', {
 
         this.callParent(arguments);
     },
+
     addProperty: function (key, text, column) {
         var me = this;
         me.down('#propertyColumn' + column).add({

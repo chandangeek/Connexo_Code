@@ -2,14 +2,15 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.registerTypeEdit',
     itemId: 'registerTypeEdit',
+
     requires: [
 
     ],
+
     layout: {
         type: 'vbox',
         align: 'stretch'
     },
-    cls: 'content-container',
     edit: false,
 
     isEdit: function () {
@@ -44,12 +45,12 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                         html: '',
                         itemId: 'registerTypeEditCreateTitle'
                     },
-                    //{
-                    //    xtype: 'component',
-                    //    html: '',
-                    //    margins: '10 10 10 10',
-                    //    itemId: 'registerTypeEditCreateInformation'
-                    //},
+                    {
+                        xtype: 'component',
+                        html: '',
+                        margins: '10 10 10 10',
+                        itemId: 'registerTypeEditCreateInformation'
+                    },
                     {
                         xtype: 'container',
                         columnWidth: 0.5,
@@ -216,6 +217,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
             }
         ];
         this.callParent(arguments);
+
         if (this.isEdit()) {
             this.down('#createEditButton').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
             this.down('#createEditButton').action = 'editRegisterType';
@@ -223,8 +225,6 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
             this.down('#createEditButton').setText(Uni.I18n.translate('general.create', 'MDC', 'Create'));
             this.down('#createEditButton').action = 'createRegisterType';
         }
-
     }
-
 
 });

@@ -1,30 +1,22 @@
 Ext.define('Mdc.view.setup.register.RegisterMappingAdd', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.registerMappingAdd',
+
     requires: [
         'Mdc.view.setup.register.RegisterMappingAddGrid',
         'Mdc.view.setup.register.RegisterMappingsAddFilter'
     ],
-    /* layout: {
-     type: 'vbox',
-     align: 'stretch'
-     },*/
+
     deviceTypeId: null,
-    //cls: 'content-container',
+
     content: [
         {
             xtype: 'container',
-            cls: 'content-container',
             layout: {
                 type: 'vbox',
                 align: 'stretch'
             },
             items: [
-                {
-                    xtype: 'breadcrumbTrail',
-                    region: 'north',
-                    padding: 6
-                },
                 {
                     xtype: 'component',
                     html: '<h1>' + Uni.I18n.translate('registerMappingAdd.addRegisterTypes', 'MDC', 'Add register types') + '</h1>',
@@ -51,26 +43,23 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAdd', {
                             itemId: 'addButton'
                         },
                         {
-                            xtype: 'component',
-                            padding: '3 0 0 10',
+                            text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                            xtype: 'button',
+                            ui: 'link',
                             itemId: 'cancelLink',
-                            autoEl: {
-                                tag: 'a',
-                                href: '#setup/devicetypes/' + this.deviceTypeId + '/registertypes',
-                                html: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel')
-                            }
+                            href: '#setup/devicetypes/' + this.deviceTypeId + '/registertypes',
                         }
                     ]
                 }
             ]}
     ],
 
-   /* side: [
-        {
-            xtype: 'registerMappingAddFilter',
-            name: 'filter'
-        }
-    ],*/
+    /* side: [
+     {
+     xtype: 'registerMappingAddFilter',
+     name: 'filter'
+     }
+     ],*/
 
     initComponent: function () {
         this.callParent(arguments);

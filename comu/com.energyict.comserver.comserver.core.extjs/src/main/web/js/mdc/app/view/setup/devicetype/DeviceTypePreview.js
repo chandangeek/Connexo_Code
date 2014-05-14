@@ -1,29 +1,26 @@
 Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
     extend: 'Ext.panel.Panel',
     frame: true,
-    //margins: '0 10 10 10',
     alias: 'widget.deviceTypePreview',
     itemId: 'deviceTypePreview',
+
     requires: [
         'Mdc.model.DeviceType'
     ],
 
     title: 'Details',
+
     tools: [
         {
             xtype: 'button',
             icon: '../mdc/resources/images/actionsDetail.png',
-            //glyph: 71,
-            text: 'Action',
+            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
             menu: [
                 {
                     text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
                     itemId: 'editDeviceType',
                     action: 'editDeviceType'
 
-                },
-                {
-                    xtype: 'menuseparator'
                 },
                 {
                     text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
@@ -35,6 +32,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
         }
 
     ],
+
     items: {
         xtype: 'form',
         border: false,
@@ -182,21 +180,21 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
 
                 ]
             }/*,
-            {
-                xtype: 'toolbar',
-                docked: 'bottom',
-                border: false,
-                title: 'Bottom Toolbar',
-                items: [
-                    '->',
-                    {
-                        xtype: 'component',
-                        itemId: 'deviceTypeDetailsLink',
-                        html: '' // filled in in Controller
-                    }
+             {
+             xtype: 'toolbar',
+             docked: 'bottom',
+             border: false,
+             title: 'Bottom Toolbar',
+             items: [
+             '->',
+             {
+             xtype: 'component',
+             itemId: 'deviceTypeDetailsLink',
+             html: '' // filled in in Controller
+             }
 
-                ]
-            }   */
+             ]
+             }   */
         ]
     },
     // todo: set empty text

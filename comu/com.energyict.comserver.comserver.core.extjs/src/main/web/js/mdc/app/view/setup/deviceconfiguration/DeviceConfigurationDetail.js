@@ -13,7 +13,6 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
     content: [
         {
             xtype: 'container',
-            cls: 'content-container',
             layout: {
                 type: 'vbox',
                 align: 'stretch'
@@ -42,7 +41,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                         '->',
                         {
                             icon: '../mdc/resources/images/actionsDetail.png',
-                            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                            text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
                             menu: {
                                 items: [
                                     {
@@ -71,7 +70,6 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                             }
                         }
                     ],
-
 
                     items: [
                         {
@@ -230,19 +228,16 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
             ]}
     ],
 
-
     initComponent: function () {
-        this.side = [{
-            xtype: 'deviceConfigurationMenu',
-            itemId: 'stepsMenu',
-            deviceTypeId: this.deviceTypeId,
-            deviceConfigurationId: this.deviceConfigurationId,
-            toggle: 0
-        }];
+        this.side = [
+            {
+                xtype: 'deviceConfigurationMenu',
+                itemId: 'stepsMenu',
+                deviceTypeId: this.deviceTypeId,
+                deviceConfigurationId: this.deviceConfigurationId,
+                toggle: 0
+            }
+        ];
         this.callParent(arguments);
     }
-})
-;
-
-
-
+});
