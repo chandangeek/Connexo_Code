@@ -39,7 +39,7 @@ Ext.define('Usr.view.group.Edit', {
                         {
                             xtype: 'checkboxstore',
                             itemId: 'selectPrivileges',
-                            fieldLabel: Uni.I18n.translate('user.roles', 'USM', 'Roles'),
+                            fieldLabel: Uni.I18n.translate('group.privileges', 'USM', 'Privileges'),
                             store: 'Usr.store.Privileges',
                             columns: 1,
                             vertical: true,
@@ -49,6 +49,7 @@ Ext.define('Usr.view.group.Edit', {
                     ],
                     buttons: [
                         {
+                            ui: 'action',
                             action: 'save',
                             text: Uni.I18n.translate('general.save', 'USM', 'Save')
                         },
