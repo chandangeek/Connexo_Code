@@ -1,11 +1,10 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.events.NoLogBooksForDeviceEvent;
 import com.energyict.mdc.engine.impl.meterdata.NoLogBooksForDevice;
 import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 
 /**
@@ -27,7 +26,7 @@ public class CreateNoLogBooksForDeviceEvent extends DeviceCommandImpl {
 
     @Override
     public void doExecute(ComServerDAO comServerDAO) {
-        NoLogBooksForDeviceEvent event = new NoLogBooksForDeviceEvent(comServerDAO.getThisComServer(), deviceIdentifier);
+        NoLogBooksForDeviceEvent event = new NoLogBooksForDeviceEvent(this.deviceIdentifier);
         comServerDAO.signalEvent(event);
     }
 

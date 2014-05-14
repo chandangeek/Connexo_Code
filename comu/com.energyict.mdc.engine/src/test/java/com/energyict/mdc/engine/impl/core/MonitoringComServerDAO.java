@@ -1,8 +1,5 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.transaction.Transaction;
-import com.energyict.mdc.common.BusinessEvent;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -22,6 +19,9 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
+
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.transaction.Transaction;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -399,7 +399,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
-        public void signalEvent(BusinessEvent businessEvent) {
+        public void signalEvent(String topic, Object source) {
             // No implementation required
         }
 
@@ -491,7 +491,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public void signalEvent(BusinessEvent businessEvent) {
+    public void signalEvent(String topic, Object source) {
         // Not signaling events in monitor mode
     }
 

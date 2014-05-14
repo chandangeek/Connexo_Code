@@ -1,14 +1,9 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.transaction.Transaction;
-import com.energyict.mdc.common.BusinessEvent;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.journal.ComSession;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDAO;
 import com.energyict.mdc.engine.model.ComPort;
@@ -19,9 +14,12 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.transaction.Transaction;
+
 import java.text.DateFormat;
 import java.util.Collection;
 import java.util.List;
@@ -335,10 +333,12 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
     public void storeConfigurationFile (DeviceIdentifier deviceIdentifier, DateFormat timeStampFormat, String fileExtension, byte[] contents);
 
     /**
-     * Signals a new BusinessEvent
-     * @param businessEvent the businessEvent to signal
+     * Signals the occurrence of an event.
+     *
+     * @param topic The name of the event topic where the event will be published
+     * @param source The source that produced the event and that also holds the event data that will be published
      */
-    public void signalEvent (BusinessEvent businessEvent);
+    public void signalEvent (String topic, Object source);
 
     /**
      * Updates the new DeviceStatus and protocolInformation
