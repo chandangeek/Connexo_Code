@@ -4,7 +4,10 @@ import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.tasks.LogBooksTask;
+
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import javax.inject.Inject;
 
@@ -21,6 +24,22 @@ class LogBooksTaskImpl extends ProtocolTaskImpl implements LogBooksTask {
 
     private static final DeviceOfflineFlags FLAGS = new DeviceOfflineFlags(LOG_BOOKS_FLAG, SLAVE_DEVICES_FLAG);
 
+    enum Fields {
+        LOGBOOK_TYPE_USAGES("logBookTypeUsageInProtocolTasks");
+
+        private final String javaFieldName;
+
+        Fields(String javaFieldName) {
+            this.javaFieldName = javaFieldName;
+        }
+
+        String fieldName() {
+            return javaFieldName;
+        }
+    }
+
+    private List<LogBookTypeUsageInProtocolTask> logBookTypeUsageInProtocolTasks = new ArrayList<>();
+
     @Inject
     public LogBooksTaskImpl(DataModel dataModel) {
         super(dataModel);
@@ -28,13 +47,39 @@ class LogBooksTaskImpl extends ProtocolTaskImpl implements LogBooksTask {
     }
 
     @Override
+    void deleteDependents() {
+        logBookTypeUsageInProtocolTasks.clear();
+    }
+
+    @Override
     public List<LogBookType> getLogBookTypes() {
-        return Collections.emptyList(); // TODO Implement once JP-343 is done
+        List<LogBookType> logBookTypes = new ArrayList<>(logBookTypeUsageInProtocolTasks.size());
+        for (LogBookTypeUsageInProtocolTask logBookTypeUsageInProtocolTask : logBookTypeUsageInProtocolTasks) {
+            logBookTypes.add(logBookTypeUsageInProtocolTask.getLogBookType());
+        }
+        return logBookTypes;
     }
 
     @Override
     public void setLogBookTypes(List<LogBookType> logBookTypes) {
-        // TODO Implement once JP-343 is done
+        List<LogBookType> wantedLogBookTypes = new ArrayList<>(logBookTypes);
+        Iterator<LogBookTypeUsageInProtocolTask> iterator = logBookTypeUsageInProtocolTasks.iterator();
+        while(iterator.hasNext()){
+            LogBookTypeUsageInProtocolTask logBookTypeUsageInProtocolTask = iterator.next();
+            LogBookType stillWantedLogBookType = getById(wantedLogBookTypes, logBookTypeUsageInProtocolTask.getLogBookType().getId());
+            if(stillWantedLogBookType == null){
+                iterator.remove();
+            } else {
+                wantedLogBookTypes.remove(stillWantedLogBookType);
+            }
+        }
+
+        for (LogBookType wantedLogBookType : wantedLogBookTypes) {
+            LogBookTypeUsageInProtocolTaskImpl logBookTypeUsageInProtocolTask = new LogBookTypeUsageInProtocolTaskImpl();
+            logBookTypeUsageInProtocolTask.setLogBooksTask(this);
+            logBookTypeUsageInProtocolTask.setLogBookType(wantedLogBookType);
+            this.logBookTypeUsageInProtocolTasks.add(logBookTypeUsageInProtocolTask);
+        }
     }
 
 }

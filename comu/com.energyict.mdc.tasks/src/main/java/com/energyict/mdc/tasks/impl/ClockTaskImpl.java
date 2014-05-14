@@ -47,6 +47,11 @@ class ClockTaskImpl extends ProtocolTaskImpl implements ClockTask {
         setFlags(FLAGS);
     }
 
+    @Override
+    void deleteDependents() {
+        // currently no dependents to delete
+    }
+
     /**
      * Return the ClockTaskType for this task
      *

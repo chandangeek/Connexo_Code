@@ -11,6 +11,8 @@ import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -121,6 +123,10 @@ public class PersistenceTest {
 
     public final DeviceMessageService getDeviceMessageService() {
         return deviceMessageService;
+    }
+
+    public final DataModel getDataModel(){
+        return injector.getInstance(OrmService.class).getDataModel(TaskService.COMPONENT_NAME).get();
     }
 
     protected <T extends ProtocolTask> T getTaskByType(List<? extends ProtocolTask> protocolTasks, Class<T> clazz) {

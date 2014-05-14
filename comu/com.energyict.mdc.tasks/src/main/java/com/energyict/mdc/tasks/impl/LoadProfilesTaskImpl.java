@@ -5,13 +5,13 @@ import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.tasks.LoadProfilesTask;
-import java.util.Collections;
-import java.util.List;
-import javax.inject.Inject;
 
-import static com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags.ALL_LOAD_PROFILES_FLAG;
-import static com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags.MASTER_LOAD_PROFILES_FLAG;
-import static com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags.SLAVE_DEVICES_FLAG;
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import static com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags.*;
 
 /**
  * Implementation for a {@link com.energyict.mdc.tasks.LoadProfilesTask}
@@ -28,7 +28,9 @@ class LoadProfilesTaskImpl extends ProtocolTaskImpl implements LoadProfilesTask 
         FAIL_IF_CONFIGURATION_MISMATCH("failIfConfigurationMisMatch"),
         MARK_INTERVALS_AS_BAD_TIME("markIntervalsAsBadTime"),
         CREATE_METER_EVENTS_FROM_STATUS_FLAGS("createMeterEventsFromStatusFlags"),
-        MIN_CLOCK_DIFF_BEFORE_BAD_TIME("minClockDiffBeforeBadTime");
+        MIN_CLOCK_DIFF_BEFORE_BAD_TIME("minClockDiffBeforeBadTime"),
+        LOAD_PROFILE_TYPE_USAGES("loadProfileTypeUsageInProtocolTasks");
+
         private final String javaFieldName;
 
         Fields(String javaFieldName) {
@@ -45,10 +47,18 @@ class LoadProfilesTaskImpl extends ProtocolTaskImpl implements LoadProfilesTask 
     private boolean createMeterEventsFromStatusFlags;
     private TimeDuration minClockDiffBeforeBadTime;
 
+    private List<LoadProfileTypeUsageInProtocolTask> loadProfileTypeUsageInProtocolTasks = new ArrayList<>();
+
+
     @Inject
     public LoadProfilesTaskImpl(DataModel dataModel) {
         super(dataModel);
         setFlags(FLAGS);
+    }
+
+    @Override
+    void deleteDependents() {
+        this.loadProfileTypeUsageInProtocolTasks.clear();
     }
 
     /**
@@ -58,12 +68,33 @@ class LoadProfilesTaskImpl extends ProtocolTaskImpl implements LoadProfilesTask 
      */
     @Override
     public List<LoadProfileType> getLoadProfileTypes() {
-        return Collections.emptyList(); // TODO Implements once JP-343 is done
+        List<LoadProfileType> loadProfileTypes = new ArrayList<>(loadProfileTypeUsageInProtocolTasks.size());
+        for (LoadProfileTypeUsageInProtocolTask loadProfileTypeUsageInProtocolTask : loadProfileTypeUsageInProtocolTasks) {
+            loadProfileTypes.add(loadProfileTypeUsageInProtocolTask.getLoadProfileType());
+        }
+        return loadProfileTypes;
     }
 
     @Override
     public void setLoadProfileTypes(List<LoadProfileType> loadProfileTypes) {
-        // TODO Implements once JP-343 is done
+        List<LoadProfileType> wantedLoadProfileTypes = new ArrayList<>(loadProfileTypes);
+        Iterator<LoadProfileTypeUsageInProtocolTask> iterator = loadProfileTypeUsageInProtocolTasks.iterator();
+        while (iterator.hasNext()) {
+            LoadProfileTypeUsageInProtocolTask loadProfileTypeUsageInProtocolTask = iterator.next();
+            LoadProfileType stillWantedLoadProfileType =getById(wantedLoadProfileTypes, loadProfileTypeUsageInProtocolTask.getLoadProfileType().getId());
+            if(stillWantedLoadProfileType == null){
+                iterator.remove();
+            } else {
+                wantedLoadProfileTypes.remove(stillWantedLoadProfileType);
+            }
+        }
+
+        for (LoadProfileType wantedLoadProfileType : wantedLoadProfileTypes) {
+            LoadProfileTypeUsageInProtocolTaskImpl loadProfileTypeUsageInProtocolTask = new LoadProfileTypeUsageInProtocolTaskImpl();
+            loadProfileTypeUsageInProtocolTask.setLoadProfilesTask(this);
+            loadProfileTypeUsageInProtocolTask.setLoadProfileType(wantedLoadProfileType);
+            this.loadProfileTypeUsageInProtocolTasks.add(loadProfileTypeUsageInProtocolTask);
+        }
     }
 
     /**

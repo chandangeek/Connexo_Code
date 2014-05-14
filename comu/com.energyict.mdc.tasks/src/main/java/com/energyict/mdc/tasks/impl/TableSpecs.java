@@ -8,21 +8,10 @@ import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2BOOLEAN;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
-import static com.energyict.mdc.tasks.impl.BasicCheckTaskImpl.Fields.MAXIMUM_CLOCK_DIFFERENCE;
-import static com.energyict.mdc.tasks.impl.BasicCheckTaskImpl.Fields.VERIFY_CLOCK_DIFFERENCE;
-import static com.energyict.mdc.tasks.impl.BasicCheckTaskImpl.Fields.VERIFY_SERIAL_NUMBER;
-import static com.energyict.mdc.tasks.impl.ClockTaskImpl.Fields.CLOCK_TASK_TYPE;
-import static com.energyict.mdc.tasks.impl.ClockTaskImpl.Fields.MAXIMUM_CLOCK_DIFF;
-import static com.energyict.mdc.tasks.impl.ClockTaskImpl.Fields.MAXIMUM_CLOCK_SHIFT;
-import static com.energyict.mdc.tasks.impl.ClockTaskImpl.Fields.MINIMUM_CLOCK_DIFF;
-import static com.energyict.mdc.tasks.impl.LoadProfilesTaskImpl.Fields.CREATE_METER_EVENTS_FROM_STATUS_FLAGS;
-import static com.energyict.mdc.tasks.impl.LoadProfilesTaskImpl.Fields.FAIL_IF_CONFIGURATION_MISMATCH;
-import static com.energyict.mdc.tasks.impl.LoadProfilesTaskImpl.Fields.MARK_INTERVALS_AS_BAD_TIME;
-import static com.energyict.mdc.tasks.impl.LoadProfilesTaskImpl.Fields.MIN_CLOCK_DIFF_BEFORE_BAD_TIME;
+import static com.elster.jupiter.orm.ColumnConversion.*;
+import static com.energyict.mdc.tasks.impl.BasicCheckTaskImpl.Fields.*;
+import static com.energyict.mdc.tasks.impl.ClockTaskImpl.Fields.*;
+import static com.energyict.mdc.tasks.impl.LoadProfilesTaskImpl.Fields.*;
 import static com.energyict.mdc.tasks.impl.MessagesTaskImpl.Fields.ALL_CATEGORIES;
 import static com.energyict.mdc.tasks.impl.TopologyTaskImpl.Fields.TOPOLOGY_ACTION;
 
@@ -114,7 +103,50 @@ public enum TableSpecs {
             table.foreignKey("FK_REGISTERGROUP").on(registerGroupId).references(MasterDataService.COMPONENTNAME, "EISRTUREGISTERGROUP").map(RegisterGroupUsageImpl.Fields.REGISTERS_GROUP_REFERENCE.fieldName()).add();
             table.primaryKey("PK_REGISTERGROUPUSAGE").on(registerTaskId, registerGroupId).add();
         }
-    };
+    },
+
+    MDCLOADPROFILETYPEUSAGE {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<LoadProfileTypeUsageInProtocolTask> table = dataModel.addTable(name(), LoadProfileTypeUsageInProtocolTask.class);
+            table.map(LoadProfileTypeUsageInProtocolTaskImpl.class);
+            Column loadprofiletask = table.column("LOADPROFILETASK").number().notNull().add(); // DO NOT MAP
+            Column loadprofiletype = table.column("LOADPROFILETYPE").number().notNull().add(); // DO NOT MAP
+
+            table.primaryKey("PK_MDCLOADPRFLTYPEUSAGE").on(loadprofiletask,loadprofiletype).add();
+
+            table.foreignKey("FK_MDCLOADPRFLTYPEUSAGE_TASK")
+                    .on(loadprofiletask).references(MDCPROTOCOLTASK.name())
+                    .map(LoadProfileTypeUsageInProtocolTaskImpl.Fields.LOADPROFILE_TASK_REFERENCE.fieldName())
+                    .reverseMap(LoadProfilesTaskImpl.Fields.LOAD_PROFILE_TYPE_USAGES.fieldName())
+                    .composition()
+                    .add();
+            table.foreignKey("FK_MDCLOADPRFLTYPEUSAGE_TYPE").on(loadprofiletype).references(MasterDataService.COMPONENTNAME, "EISLOADPROFILETYPE")
+                    .map(LoadProfileTypeUsageInProtocolTaskImpl.Fields.LOADPROFILE_TYPE_REFERENCE.fieldName()).add();
+        }
+    },
+
+    MDCLOGBOOKTYPEUSAGE {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<LogBookTypeUsageInProtocolTask> table = dataModel.addTable(name(), LogBookTypeUsageInProtocolTask.class);
+            table.map(LogBookTypeUsageInProtocolTaskImpl.class);
+            Column logbookstask = table.column("LOGBOOKSTASK").number().notNull().add(); // DO NOT MAP
+            Column logbooktype = table.column("LOGBOOKTYPE").number().notNull().add(); // DO NOT MAP
+
+            table.primaryKey("PK_MDCLOGBOOKTYPEUSAGE").on(logbookstask,logbooktype).add();
+
+            table.foreignKey("FK_MDCLOGBOOKTYPEUSAGE_TASK")
+                    .on(logbookstask).references(MDCPROTOCOLTASK.name())
+                    .map(LogBookTypeUsageInProtocolTaskImpl.Fields.LOGBOOK_TASK_REFERENCE.fieldName())
+                    .reverseMap(LogBooksTaskImpl.Fields.LOGBOOK_TYPE_USAGES.fieldName())
+                    .composition()
+                    .add();
+            table.foreignKey("FK_MDCLOGBOOKTYPEUSAGE_TYPE").on(logbooktype).references(MasterDataService.COMPONENTNAME, "EISLOGBOOKTYPE")
+                    .map(LogBookTypeUsageInProtocolTaskImpl.Fields.LOGBOOK_TYPE_REFERENCE.fieldName()).add();
+        }
+    },
+    ;
 
     abstract void addTo(DataModel component);
 
