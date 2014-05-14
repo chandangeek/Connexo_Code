@@ -24,15 +24,17 @@ public class DeviceConfigurationResource {
     private final Provider<RegisterConfigurationResource> registerConfigurationResourceProvider;
     private final Provider<ConnectionMethodResource> connectionMethodResourceProvider;
     private final Provider<ProtocolDialectResource> protocolDialectResourceProvider;
+    private final Provider<SecurityPropertySetResource> securityPropertySetResourceProvider;
     private final Thesaurus thesaurus;
 
     @Inject
-    public DeviceConfigurationResource(ResourceHelper resourceHelper, DeviceConfigurationService deviceConfigurationService, Provider<RegisterConfigurationResource> registerConfigurationResourceProvider, Provider<ConnectionMethodResource> connectionMethodResourceProvider, Provider<ProtocolDialectResource> protocolDialectResourceProvider, Thesaurus thesaurus) {
+    public DeviceConfigurationResource(ResourceHelper resourceHelper, DeviceConfigurationService deviceConfigurationService, Provider<RegisterConfigurationResource> registerConfigurationResourceProvider, Provider<ConnectionMethodResource> connectionMethodResourceProvider, Provider<ProtocolDialectResource> protocolDialectResourceProvider, Provider<SecurityPropertySetResource> securityPropertySetResourceProvider, Thesaurus thesaurus) {
         this.resourceHelper = resourceHelper;
         this.deviceConfigurationService = deviceConfigurationService;
         this.registerConfigurationResourceProvider = registerConfigurationResourceProvider;
         this.connectionMethodResourceProvider = connectionMethodResourceProvider;
         this.protocolDialectResourceProvider = protocolDialectResourceProvider;
+        this.securityPropertySetResourceProvider = securityPropertySetResourceProvider;
         this.thesaurus = thesaurus;
     }
 
@@ -216,8 +218,13 @@ public class DeviceConfigurationResource {
     }
 
     @Path("/{deviceConfigurationId}/protocoldialects")
-       public ProtocolDialectResource getProtocolDialectsResource() {
-           return protocolDialectResourceProvider.get();
-       }
+    public ProtocolDialectResource getProtocolDialectsResource() {
+        return protocolDialectResourceProvider.get();
+    }
+
+    @Path("/{deviceConfigurationId}/securityproperties")
+    public SecurityPropertySetResource getSecurityPropertySetResource() {
+        return securityPropertySetResourceProvider.get();
+    }
 
 }
