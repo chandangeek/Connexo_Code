@@ -59,18 +59,14 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
 
             {
                 xtype: 'actioncolumn',
-                align: 'left',
-                //tdCls: 'view',
-                //iconCls: 'uni-centered-icon',
-                //iconCls: 'uni-actioncolumn-icon',
+                iconCls: 'uni-actioncolumn-gear',
+                columnWidth: 32,
+                fixed: true,
                 header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                 sortable: false,
                 hideable: false,
-                fixed: true,
-                flex: 0.1,
                 items: [
                     {
-                        icon: '../mdc/resources/images/masterActions.png',
                         handler: function (grid, rowIndex, colIndex, item, e, record, row) {
                             var menu = Ext.widget('menu', {
                                 items: [
@@ -85,7 +81,6 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
                                                 },
                                                 scope: this
                                             }
-
                                         }
                                     },
                                     {
@@ -99,7 +94,6 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
                                                 },
                                                 scope: this
                                             }
-
                                         }
                                     }
                                 ]

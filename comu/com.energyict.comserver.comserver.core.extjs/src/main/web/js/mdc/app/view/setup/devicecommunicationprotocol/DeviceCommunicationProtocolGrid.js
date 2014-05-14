@@ -37,11 +37,12 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
             },
             {
                 xtype: 'actioncolumn',
-                iconCls: 'uni-actioncolumn-icon',
+                iconCls: 'uni-actioncolumn-gear',
+                columnWidth: 32,
+                fixed: true,
                 header: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
                 sortable: false,
                 hideable: false,
-                fixed: true,
                 items: [
                     {
                         handler: function (grid, rowIndex, colIndex, item, e, record, row) {

@@ -24,12 +24,12 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupGrid', {
             },
             {
                 xtype: 'actioncolumn',
-                iconCls: 'uni-centered-icon',
-                tdCls: 'view',
+                iconCls: 'uni-actioncolumn-gear',
+                columnWidth: 32,
+                fixed: true,
                 header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                 sortable: false,
                 hideable: false,
-                fixed: true,
                 items: [
                     {
                         icon: '../mdc/resources/images/masterActions.png',

@@ -28,10 +28,13 @@ Ext.define('Mdc.view.setup.logbooktype.List', {
                 flex: 5
             },
             {
-                header: 'Actions',
                 xtype: 'actioncolumn',
-                iconCls: 'isu-action-icon', //todo: remove isu classes
-                flex: 1
+                iconCls: 'uni-actioncolumn-gear',
+                columnWidth: 32,
+                fixed: true,
+                header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                sortable: false,
+                hideable: false
             }
         ]
     }

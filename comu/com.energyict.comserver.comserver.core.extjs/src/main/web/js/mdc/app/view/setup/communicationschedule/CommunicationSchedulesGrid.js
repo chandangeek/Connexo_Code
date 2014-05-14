@@ -69,16 +69,14 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulesGrid', {
             },
             {
                 xtype: 'actioncolumn',
-                tdCls: 'view',
-                iconCls: 'uni-centered-icon',
+                iconCls: 'uni-actioncolumn-gear',
+                columnWidth: 32,
+                fixed: true,
                 header: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
                 sortable: false,
                 hideable: false,
-                fixed: true,
-                flex: 0.1,
                 items: [
                     {
-                        icon: '../mdc/resources/images/gear-16x16.png',
                         handler: function (grid, rowIndex, colIndex, item, e, record, row) {
                             var menu = Ext.widget('menu', {
                                 items: [

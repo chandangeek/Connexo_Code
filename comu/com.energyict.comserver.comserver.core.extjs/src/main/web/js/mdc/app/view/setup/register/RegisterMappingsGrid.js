@@ -37,7 +37,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                     {
                         icon: '../mdc/resources/images/info.png',
                         iconCls: 'uni-info-icon',
-                        tooltip: Uni.I18n.translate('readingType.tooltip','MDC','Reading type info'),
+                        tooltip: Uni.I18n.translate('readingType.tooltip', 'MDC', 'Reading type info'),
                         handler: function (grid, rowIndex, colIndex, item, e, record, row) {
                             //var record = grid.getStore().getAt(rowIndex);
                             this.fireEvent('showReadingTypeInfo', record);
@@ -59,16 +59,14 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
             },
             {
                 xtype: 'actioncolumn',
-                align: 'left',
-                //tdCls: 'view',
-                //iconCls: 'uni-centered-icon',
+                iconCls: 'uni-actioncolumn-gear',
+                columnWidth: 32,
+                fixed: true,
                 header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                 sortable: false,
                 hideable: false,
-                fixed: true,
                 items: [
                     {
-                        icon: '../mdc/resources/images/masterActions.png',
                         handler: function (grid, rowIndex, colIndex, item, e, record, row) {
                             var menu = Ext.widget('menu', {
                                 items: [

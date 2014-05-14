@@ -59,10 +59,13 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
                                 flex: 5
                             },
                             {
-                                header: 'Actions',
                                 xtype: 'actioncolumn',
-                                iconCls: 'x-uni-action-icon',
-                                flex: 1
+                                iconCls: 'uni-actioncolumn-gear',
+                                columnWidth: 32,
+                                fixed: true,
+                                header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                                sortable: false,
+                                hideable: false
                             }
                         ]
                     }

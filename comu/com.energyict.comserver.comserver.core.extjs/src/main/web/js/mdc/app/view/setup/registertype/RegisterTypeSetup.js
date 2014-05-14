@@ -9,8 +9,6 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeSetup', {
         'Mdc.view.setup.registertype.RegisterTypeFilter'
     ],
 
-    hidden: true,
-
     content: [
         {
             xtype: 'container',
@@ -18,7 +16,6 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeSetup', {
                 type: 'vbox',
                 align: 'stretch'
             },
-            padding: '0 10 0 10',
             items: [
                 {
                     xtype: 'component',
