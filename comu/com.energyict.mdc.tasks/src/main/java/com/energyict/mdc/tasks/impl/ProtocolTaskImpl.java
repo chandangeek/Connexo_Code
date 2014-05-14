@@ -4,11 +4,13 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
 
@@ -126,12 +128,19 @@ abstract class ProtocolTaskImpl implements ProtocolTask, OfflineDeviceContext {
         return flags.needsAllLoadProfiles();
     }
 
+    protected <T extends HasId> T getById(List<T> list, long id) {
+        for (T t : list) {
+            if (t.getId()==id) {
+                return t;
+            }
+        }
+        return null;
+    }
+
     /**
      * Inheritors should implement this method if they have internal elements that
      * require explicit removal before the element itself van be deleted,
      */
-    void deleteDependents() {
-
-    }
+    abstract void deleteDependents();
 
 }

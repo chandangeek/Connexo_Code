@@ -42,6 +42,11 @@ class BasicCheckTaskImpl extends ProtocolTaskImpl implements BasicCheckTask {
     }
 
     @Override
+    void deleteDependents() {
+        // currently no dependents to delete
+    }
+
+    @Override
     public boolean verifyClockDifference() {
         return verifyClockDifference;
     }

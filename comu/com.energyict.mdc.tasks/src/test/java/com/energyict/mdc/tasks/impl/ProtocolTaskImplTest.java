@@ -2,7 +2,10 @@ package com.energyict.mdc.tasks.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategoryPrimaryKey;
@@ -20,7 +23,11 @@ import com.energyict.mdc.tasks.PersistenceTest;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
+
 import java.util.Arrays;
+import java.util.List;
+
+import org.assertj.core.api.Condition;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -83,7 +90,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.TIMEDURATION_MUST_BE_POSITIVE +"}", property = "maximumClockDiff", strict=false)
+    @ExpectedConstraintViolation(messageId = "{" + Constants.TIMEDURATION_MUST_BE_POSITIVE + "}", property = "maximumClockDiff", strict = false)
     public void testCreateSETClockTaskMaximumIsZero() throws Exception {
         ComTask comTask = createSimpleComTask();
         comTask.createClockTask(ClockTaskType.SETCLOCK).minimumClockDifference(minimumClockDifference).maximumClockDifference(TimeDuration.millis(0)).maximumClockShift(maximumClockShift).add();
@@ -92,7 +99,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.CAN_NOT_BE_EMPTY+"}", property = "minimumClockDiff")
+    @ExpectedConstraintViolation(messageId = "{" + Constants.CAN_NOT_BE_EMPTY + "}", property = "minimumClockDiff")
     public void testCreateSETClockTaskWithoutMinimumDuration() throws Exception {
         ComTask comTask = createSimpleComTask();
         comTask.createClockTask(ClockTaskType.SETCLOCK).maximumClockDifference(maximumClockDifference).maximumClockShift(maximumClockShift).add();
@@ -101,7 +108,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.CAN_NOT_BE_EMPTY+"}", property = "maximumClockDiff")
+    @ExpectedConstraintViolation(messageId = "{" + Constants.CAN_NOT_BE_EMPTY + "}", property = "maximumClockDiff")
     public void testCreateSETClockTaskWithoutMaximumDuration() throws Exception {
         ComTask comTask = createSimpleComTask();
         comTask.createClockTask(ClockTaskType.SETCLOCK).minimumClockDifference(minimumClockDifference).maximumClockShift(maximumClockShift).add();
@@ -110,7 +117,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.MIN_MUST_BE_BELOW_MAX+"}", strict=false)
+    @ExpectedConstraintViolation(messageId = "{" + Constants.MIN_MUST_BE_BELOW_MAX + "}", strict = false)
     public void testCreateSETClockTaskWithMinClockLargerThenMaxClock() throws Exception {
         ComTask comTask = createSimpleComTask();
         comTask.createClockTask(ClockTaskType.SETCLOCK).
@@ -140,7 +147,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.CAN_NOT_BE_EMPTY +"}", property = "maximumClockShift", strict=false)
+    @ExpectedConstraintViolation(messageId = "{" + Constants.CAN_NOT_BE_EMPTY + "}", property = "maximumClockShift", strict = false)
     public void testCreateSYNCClockTaskMaximumShiftIsZero() throws Exception {
         ComTask comTask = createSimpleComTask();
         comTask.createClockTask(ClockTaskType.SYNCHRONIZECLOCK).minimumClockDifference(minimumClockDifference).maximumClockDifference(maximumClockDifference).add();
@@ -149,7 +156,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.TIMEDURATION_MUST_BE_POSITIVE+"}", property = "maximumClockShift")
+    @ExpectedConstraintViolation(messageId = "{" + Constants.TIMEDURATION_MUST_BE_POSITIVE + "}", property = "maximumClockShift")
     public void testCreateSYNCClockTaskWithoutMaximumDuration() throws Exception {
         ComTask comTask = createSimpleComTask();
         comTask.createClockTask(ClockTaskType.SYNCHRONIZECLOCK).minimumClockDifference(minimumClockDifference).maximumClockDifference(maximumClockDifference).maximumClockShift(TimeDuration.millis(0)).add();
@@ -158,7 +165,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.CAN_NOT_BE_EMPTY+"}", property = "minimumClockDiff")
+    @ExpectedConstraintViolation(messageId = "{" + Constants.CAN_NOT_BE_EMPTY + "}", property = "minimumClockDiff")
     public void testCreateSYNCClockTaskWithoutMinimumDuration() throws Exception {
         ComTask comTask = createSimpleComTask();
         comTask.createClockTask(ClockTaskType.SYNCHRONIZECLOCK).maximumClockDifference(maximumClockDifference).maximumClockShift(maximumClockShift).add();
@@ -210,7 +217,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.MIN_MUST_BE_BELOW_MAX+"}", strict=false)
+    @ExpectedConstraintViolation(messageId = "{" + Constants.MIN_MUST_BE_BELOW_MAX + "}", strict = false)
     public void testUpdateFORCECClockTaskToInvalidState() throws Exception {
         ComTask comTask = createSimpleComTask();
         comTask.createClockTask(ClockTaskType.FORCECLOCK).minimumClockDifference(maximumClockDifference).maximumClockDifference(minimumClockDifference).maximumClockShift(maximumClockShift).add();
@@ -723,4 +730,105 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         assertThat(actual).isNull();
     }
 
+    @Test
+    @Transactional
+    public void createLoadProfilesTaskWithLoadProfileTypeTest() {
+        ComTask comTask = createSimpleComTask();
+
+        final LoadProfileType myLPT = getMasterDataService().newLoadProfileType("MyLPT", ObisCode.fromString("1.0.99.1.0.255"), TimeDuration.days(1));
+        myLPT.save();
+        comTask.createLoadProfilesTask().loadProfileTypes(Arrays.asList(myLPT)).add();
+        comTask.save();
+
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        LoadProfilesTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), LoadProfilesTask.class);
+        final LoadProfileType myLPT2 = getMasterDataService().newLoadProfileType("MyLPT2", ObisCode.fromString("1.0.99.2.0.255"), TimeDuration.days(1));
+        myLPT2.save();
+        taskByType.setLoadProfileTypes(Arrays.asList(myLPT, myLPT2));
+        taskByType.save();
+
+        ComTask reReloadedComTask = getTaskService().findComTask(comTask.getId());
+        LoadProfilesTask loadProfileTask = getTaskByType(reReloadedComTask.getProtocolTasks(), LoadProfilesTask.class);
+        assertThat(loadProfileTask).isNotNull();
+        assertThat(loadProfileTask.getLoadProfileTypes()).hasSize(2);
+        assertThat(loadProfileTask.getLoadProfileTypes()).haveExactly(1, new Condition<LoadProfileType>() {
+            @Override
+            public boolean matches(LoadProfileType loadProfileType) {
+                return loadProfileType.getId() == myLPT.getId();
+            }
+        });
+        assertThat(loadProfileTask.getLoadProfileTypes()).haveExactly(1, new Condition<LoadProfileType>() {
+            @Override
+            public boolean matches(LoadProfileType loadProfileType) {
+                return loadProfileType.getId() == myLPT2.getId();
+            }
+        });
+    }
+
+    @Test
+    @Transactional
+    public void deleteComTaskWithLoadProfileTypeShouldClearTheLinkTableTest() {
+        ComTask comTask = createSimpleComTask();
+
+        final LoadProfileType myLPT = getMasterDataService().newLoadProfileType("MyLPT", ObisCode.fromString("1.0.99.1.0.255"), TimeDuration.days(1));
+        myLPT.save();
+        comTask.createLoadProfilesTask().loadProfileTypes(Arrays.asList(myLPT)).add();
+        comTask.save();
+
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        reloadedComTask.delete();
+
+        List<LoadProfileTypeUsageInProtocolTask> loadProfileTypeUsageInProtocolTasks = getDataModel().mapper(LoadProfileTypeUsageInProtocolTask.class).find();
+        assertThat(loadProfileTypeUsageInProtocolTasks).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void createLogBooksTaskWithLogBookTypesTest() {
+        ComTask comTask = createSimpleComTask();
+        final LogBookType lbType = getMasterDataService().newLogBookType("LBType", ObisCode.fromString("0.0.99.98.0.255"));
+        lbType.save();
+        comTask.createLogbooksTask().logBookTypes(Arrays.asList(lbType)).add();
+        comTask.save();
+
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        LogBooksTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), LogBooksTask.class);
+        final LogBookType lbType2 = getMasterDataService().newLogBookType("LBType2", ObisCode.fromString("0.0.99.97.0.255"));
+        lbType2.save();
+        taskByType.setLogBookTypes(Arrays.asList(lbType, lbType2));
+        taskByType.save();
+
+        ComTask reReloadedComTask = getTaskService().findComTask(comTask.getId());
+        LogBooksTask logBooksTask = getTaskByType(reloadedComTask.getProtocolTasks(), LogBooksTask.class);
+
+        assertThat(logBooksTask).isNotNull();
+        assertThat(logBooksTask.getLogBookTypes()).hasSize(2);
+        assertThat(logBooksTask.getLogBookTypes()).haveExactly(1, new Condition<LogBookType>() {
+            @Override
+            public boolean matches(LogBookType logBookType) {
+                return logBookType.getId() == lbType.getId();
+            }
+        });
+        assertThat(logBooksTask.getLogBookTypes()).haveExactly(1, new Condition<LogBookType>() {
+            @Override
+            public boolean matches(LogBookType logBookType) {
+                return logBookType.getId() == lbType2.getId();
+            }
+        });
+    }
+
+    @Test
+    @Transactional
+    public void deleteComTaskWithLogBookTypeShouldClearTheLinkTableTest() {
+        ComTask comTask = createSimpleComTask();
+        final LogBookType lbType = getMasterDataService().newLogBookType("LBType", ObisCode.fromString("0.0.99.98.0.255"));
+        lbType.save();
+        comTask.createLogbooksTask().logBookTypes(Arrays.asList(lbType)).add();
+        comTask.save();
+
+        comTask.delete();
+
+        List<LogBookTypeUsageInProtocolTask> logBookTypeUsageInProtocolTasks = getDataModel().mapper(LogBookTypeUsageInProtocolTask.class).find();
+        assertThat(logBookTypeUsageInProtocolTasks).isEmpty();
+    }
 }
