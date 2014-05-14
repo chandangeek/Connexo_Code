@@ -16,7 +16,7 @@ import static java.util.logging.Level.SEVERE;
  */
 public enum MessageSeeds implements MessageSeed {
     LEGACY(100, "DDC.legacy.exception", "Coding: BusinessException or SQLException from legacy code that has not been ported to the jupiter ORM framework", Level.SEVERE),
-    NAME_IS_REQUIRED(1000, Constants.NAME_REQUIRED_KEY, "The name of {0} is required", Level.SEVERE),
+    NAME_IS_REQUIRED(1000, Constants.NAME_REQUIRED_KEY, "The name is required", Level.SEVERE),
     CODING_RELATION_IS_ALREADY_OBSOLETE(1001, "DDC.relation.isAlreadyObsolete", "Cannot delete a property because the relation (of type ''{0}'') that holds it is already obsolete", Level.SEVERE),
     CODING_NO_PROPERTIES_EXPECTED(1002, "DDC.noAttributesExpected", "Was not expecting a value to be added for property ''{0}'' because the pluggable does not have any properties", Level.SEVERE),
     UNEXPECTED_RELATION_TRANSACTION_ERROR(1003, "DDC.unExpectedRelationTransactionError", "Unexpected problem occurred in the relation transaction framework", Level.SEVERE),

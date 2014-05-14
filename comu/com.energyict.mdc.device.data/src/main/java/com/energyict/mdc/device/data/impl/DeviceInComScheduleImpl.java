@@ -25,6 +25,9 @@ public class DeviceInComScheduleImpl implements DeviceInComSchedule {
     private Reference<Device> deviceReference = ValueReference.absent();
     private Reference<ComSchedule> comScheduleReference = ValueReference.absent();
 
+    public DeviceInComScheduleImpl() {
+    }
+
     public DeviceInComScheduleImpl(Device device, ComSchedule comSchedule) {
         this.deviceReference.set(device);
         this.comScheduleReference.set(comSchedule);

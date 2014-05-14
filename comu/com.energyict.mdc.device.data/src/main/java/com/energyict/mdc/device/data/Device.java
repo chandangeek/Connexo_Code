@@ -12,7 +12,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -208,10 +208,10 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     /**
      * Provides a builder that allows the creation of a ScheduledConnectionTask for the Device
      *
-     * @param partialConnectionTask the partialConnectionTask that will model the actual ScheduledConnectionTask
+     * @param partialOutboundConnectionTask the partialConnectionTask that will model the actual ScheduledConnectionTask
      * @return the builder
      */
-    ScheduledConnectionTaskBuilder getScheduledConnectionTaskBuilder(PartialScheduledConnectionTask partialConnectionTask);
+    ScheduledConnectionTaskBuilder getScheduledConnectionTaskBuilder(PartialOutboundConnectionTask partialOutboundConnectionTask);
 
     /**
      * Provides a builder that allows the creation of an InboundConnectionTask for the Device

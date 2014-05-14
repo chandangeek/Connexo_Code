@@ -77,6 +77,7 @@ import com.energyict.mdc.protocol.api.device.DeviceMultiplier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.scheduling.TemporalExpression;
+import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.google.common.base.Optional;
 import com.google.inject.Inject;
 
@@ -889,9 +890,17 @@ public class DeviceImpl implements Device, PersistenceAware {
         return mRID;
     }
 
+    public String getExternalName() {
+        return mRID;
+    }
+
+    public void setExternalName(String externalName) {
+        this.mRID = externalName;
+    }
+
     @Override
-    public ScheduledConnectionTaskBuilder getScheduledConnectionTaskBuilder(PartialScheduledConnectionTask partialScheduledConnectionTask) {
-        return new ScheduledConnectionTaskBuilderForDevice(this, partialScheduledConnectionTask);
+    public ScheduledConnectionTaskBuilder getScheduledConnectionTaskBuilder(PartialOutboundConnectionTask partialOutboundConnectionTask) {
+        return new ScheduledConnectionTaskBuilderForDevice(this, partialOutboundConnectionTask);
     }
 
     @Override
@@ -963,6 +972,18 @@ public class DeviceImpl implements Device, PersistenceAware {
 
         private ComTaskExecutionUpdaterForDevice(ComTaskExecutionImpl comTaskExecution) {
             super(comTaskExecution);
+        }
+
+        @Override
+        public ComTaskExecution.ComTaskExecutionUpdater comSchedule(ComSchedule comSchedule) {
+            //TODO automatically generated method body, provide implementation.
+            return null;
+        }
+
+        @Override
+        public ComTaskExecution.ComTaskExecutionUpdater setUseDefaultConnectionTask(ConnectionTask<?, ?> defaultConnectionTask) {
+            //TODO automatically generated method body, provide implementation.
+            return null;
         }
 
         @Override

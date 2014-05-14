@@ -7,6 +7,7 @@ import com.energyict.mdc.device.data.impl.tasks.ConnectionMethod;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.TemporalExpression;
+
 import java.util.Date;
 import java.util.List;
 

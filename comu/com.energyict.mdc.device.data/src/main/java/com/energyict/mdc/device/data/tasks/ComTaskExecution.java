@@ -4,7 +4,6 @@ import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.device.data.journal.ComTaskExecutionSession;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
@@ -49,7 +48,7 @@ import java.util.Date;
  * and executed before all others.
  * <p/>
  * Each time a ComTaskExecution is executed,
- * a {@link ComTaskExecutionSession} is created
+ * a ComTaskExecutionSession is created
  * that captures all the details of the communication with the device.
  * That communication overview is very imported and should not be deleted easily.
  * Therefore, ComTaskExecutions are never deleted but made obsolete.

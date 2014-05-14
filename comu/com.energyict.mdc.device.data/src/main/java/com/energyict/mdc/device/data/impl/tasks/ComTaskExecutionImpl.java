@@ -1044,18 +1044,6 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
             return this;
         }
 
-        public ComTaskExecution.ComTaskExecutionUpdater comSchedule(ComSchedule comSchedule) {
-            this.comTaskExecution.setComSchedule(comSchedule);
-            return this;
-        }
-
-        @Override
-        public ComTaskExecution.ComTaskExecutionUpdater setUseDefaultConnectionTask(ConnectionTask<?, ?> defaultConnectionTask) {
-            this.comTaskExecution.setConnectionTask(defaultConnectionTask);
-            this.comTaskExecution.useDefaultConnectionTask = true;
-            return this;
-        }
-
         @Override
         public ComTaskExecution update() {
             this.comTaskExecution.prepareForSaving();

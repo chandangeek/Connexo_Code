@@ -26,7 +26,6 @@ import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.exceptions.PartialConnectionTaskNotPartOfDeviceConfigurationException;
 import com.energyict.mdc.device.data.impl.DeviceDataServiceImpl;
 import com.energyict.mdc.device.data.impl.TableSpecs;
-import com.energyict.mdc.device.data.journal.ComSession;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
@@ -45,21 +44,21 @@ import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.scheduling.TemporalExpression;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.TimeZone;
 import org.assertj.core.api.Condition;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTimeConstants;
 import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;
+
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.TimeZone;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -1278,24 +1277,6 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
         // Asserts
         assertThat(comTaskExecution.getConnectionTask()).isNull();
-    }
-
-    @Test
-    @Transactional
-    @Ignore
-    // Todo: Enable when ComSession (and related classes) has been moved to this bundle
-    public void testDeleteWithComSessions() throws SQLException, BusinessException {
-        ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testDeleteWithComSessions");
-        connectionTask.save();
-        List<ComSession> comSessions = new ArrayList<>();
-        ComSession comSession = mock(ComSession.class);
-        comSessions.add(comSession);
-
-        // Business method
-        connectionTask.delete();
-
-        // Asserts
-        verify(comSession).delete();
     }
 
     @Test
