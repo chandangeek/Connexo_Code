@@ -1,10 +1,9 @@
 package com.elster.jupiter.util.collections;
 
+import com.elster.jupiter.util.Pair;
+
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.Objects;
-
-import static com.elster.jupiter.util.Checks.is;
 
 /**
  * The DualIterable is a wrapper around two Iterables that will loop over matching pairs.
@@ -21,7 +20,7 @@ import static com.elster.jupiter.util.Checks.is;
  *
  * @author Tom De Greyt (tgr)
  */
-public final class DualIterable<T, U> implements Iterable<DualIterable.Pair<T, U>> {
+public final class DualIterable<T, U> implements Iterable<Pair<T, U>> {
     private interface IteratingStrategy<T, U> extends Iterator<Pair<T, U>> {
     }
 
@@ -31,7 +30,7 @@ public final class DualIterable<T, U> implements Iterable<DualIterable.Pair<T, U
         }
 
         public Pair<T, U> next() {
-            return pairOf(first.next(), second.next());
+            return Pair.of(first.next(), second.next());
         }
 
         public void remove() {
@@ -48,66 +47,13 @@ public final class DualIterable<T, U> implements Iterable<DualIterable.Pair<T, U
             if (hasNext()) {
                 T firstValue = first.hasNext() ? first.next() : null;
                 U secondValue = second.hasNext() ? second.next() : null;
-                return pairOf(firstValue, secondValue);
+                return Pair.of(firstValue, secondValue);
             }
             throw new NoSuchElementException();
         }
 
         public void remove() {
             throw new UnsupportedOperationException();
-        }
-    }
-
-    public interface Pair<A, B> {
-        A getFirst();
-        B getLast();
-    }
-
-    private static class SimplePair<F, L> implements Pair<F, L> {
-        private static final int PRIME_FOR_HASH = 31;
-
-        private final F first;
-        private final L last;
-
-        public SimplePair(F first, L last) {
-            this.first = first;
-            this.last = last;
-        }
-
-        @Override
-        public final boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (!(obj instanceof Pair)) {
-                return false;
-            }
-
-            Pair<?, ?> other = (Pair<?, ?>) obj;
-
-            return is(first).equalTo(other.getFirst()) && is(last).equalTo(other.getLast());
-        }
-
-        public F getFirst() {
-            return first;
-        }
-
-        public L getLast() {
-            return last;
-        }
-
-        @Override
-        public final int hashCode() {
-            return Objects.hash(first, last);
-        }
-
-        @Override
-        public String toString() {
-            return '(' + safeToString(first) + ',' + safeToString(last) + ')';
-        }
-
-        private String safeToString(Object object) {
-            return String.valueOf(object);
         }
     }
 
@@ -134,10 +80,6 @@ public final class DualIterable<T, U> implements Iterable<DualIterable.Pair<T, U
     private DualIterable(Iterable<T> first, Iterable<U> second) {
         this.first = first.iterator();
         this.second = second.iterator();
-    }
-
-    private SimplePair<T, U> pairOf(T firstValue, U secondValue) {
-        return new SimplePair<>(firstValue, secondValue);
     }
 
     private void setStrategy(IteratingStrategy<T, U> strategy) {
