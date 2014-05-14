@@ -826,6 +826,11 @@ h6 {
   padding-left: 12px;
 }
 
+/* line 7, ../../sass/src/Component.scss */
+.login-background {
+  background: url("images/container/loginBackground.png") no-repeat center center !important;
+}
+
 /* line 1, ../../sass/src/container/BreadcrumbTrailContainer.scss */
 .x-container-breadcrumbtrailcontainer {
   background-color: #71adc7;
