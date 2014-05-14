@@ -36,7 +36,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigGrid', {
                 header: Uni.I18n.translate('registerConfigs.readingType', 'MDC', 'Reading type'),
                 items: [
                     {
-                        icon: '../mdc/resources/images/information.png',
+                        icon: '../mdc/resources/images/info.png',
                         iconCls: 'uni-info-icon',
                         tooltip: Uni.I18n.translate('readingType.tooltip', 'MDC', 'Reading type info'),
                         handler: function (grid, rowIndex, colIndex, item, e, record, row) {
@@ -124,7 +124,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigGrid', {
                     },
                     {
 
-                        text: Uni.I18n.translate('registerConfigs.createRegisterConfig', 'MDC', 'Create register configuration'),
+                        text: Uni.I18n.translate('registerConfigs.createRegisterConfig', 'MDC', 'Add register configuration'),
                         itemId: 'createRegisterConfigBtn',
                         xtype: 'button',
                         action: 'createRegisterConfig'

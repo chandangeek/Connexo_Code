@@ -1,6 +1,5 @@
 Ext.define('Mdc.view.setup.searchitems.ContentLayout', {
     extend: 'Ext.panel.Panel',
-    padding: '10 10 10 10',
     alias: 'widget.contentLayout',
     itemId: 'contentLayout',
     layout: {
@@ -8,12 +7,16 @@ Ext.define('Mdc.view.setup.searchitems.ContentLayout', {
         align: 'stretch',
         pack: 'center'
     },
+    requires: [
+        'Mdc.view.setup.searchitems.SearchResults'
+    ],
 
     initComponent: function () {
         var me = this;
         this.items = [
             {
                 xtype: 'panel',
+                itemId: 'infoPanel',
                 layout: {
                     type: 'vbox',
                     align: 'middle',
@@ -22,12 +25,22 @@ Ext.define('Mdc.view.setup.searchitems.ContentLayout', {
                 items: [
                     {
                         xtype: 'component',
-                        html: '<h5>' + Uni.I18n.translate('searchItems.selectText', 'MDC', 'Enter one or more search criteria on the left and click \'Search\'.') + '</h5>'
+                        html: '<H5>' + Uni.I18n.translate('searchItems.selectText', 'MDC', 'Enter one or more search criteria on the left and click \'Search\'.') + '</H5>'
                     }
                 ]
             },
             {
-                xtype: 'form',
+                xtype: 'container',
+                itemId: 'resultsPanel',
+                layout: {
+                    type: 'vbox',
+                    align: 'stretch'
+                },
+                items: []
+            },
+            {
+                xtype: 'container',
+                itemId: 'loadingPanel',
                 layout: {
                     type: 'vbox',
                     align: 'stretch'
@@ -35,7 +48,7 @@ Ext.define('Mdc.view.setup.searchitems.ContentLayout', {
                 items: [
                     {
                         xtype: 'component',
-                        html: '<h5>' + Uni.I18n.translate('registerGroup.selectRegisterGroup', 'MDC', 'Select a register group to see its details') + '</h5>'
+                        html: '<H5>' + Uni.I18n.translate('searchItems.selectText', 'MDC', 'Searching ...') + '</H5>'
                     }
                 ]
             }

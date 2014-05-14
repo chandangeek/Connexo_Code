@@ -79,14 +79,14 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
                                         name: 'name',
                                         fieldLabel: Uni.I18n.translate('registerMapping.name', 'MDC', 'Name'),
                                         labelAlign: 'right',
-                                        labelWidth: 150
+                                        labelWidth: 250
                                     },
                                     {
                                         xtype: 'fieldcontainer',
                                         columnWidth: 0.49,
                                         fieldLabel: Uni.I18n.translate('registerMapping.readingType', 'MDC', 'Reading type'),
                                         labelAlign: 'right',
-                                        labelWidth: 150,
+                                        labelWidth: 250,
                                         layout: {
                                             type: 'hbox',
                                             align: 'stretch'
@@ -103,7 +103,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
                                             },
                                             {
                                                 xtype: 'button',
-                                                icon: '../mdc/resources/images/information.png',
+                                                icon: '../mdc/resources/images/info.png',
                                                 tooltip: 'Reading type info',
                                                 cls: 'uni-btn-transparent',
                                                 handler: function (item, test) {
@@ -121,7 +121,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
                                         name: 'obisCode',
                                         fieldLabel: Uni.I18n.translate('registerMapping.obisCode', 'MDC', 'OBIS code'),
                                         labelAlign: 'right',
-                                        labelWidth: 150
+                                        labelWidth: 250
                                     }
                                 ]
                             },
@@ -138,7 +138,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
                                         name: 'dataCollectionGroup',
                                         fieldLabel: Uni.I18n.translate('registerMapping.dataCollectionGroup', 'MDC', 'Data collection group'),
                                         labelAlign: 'right',
-                                        labelWidth: 150
+                                        labelWidth: 250
                                     }
 
                                 ]
