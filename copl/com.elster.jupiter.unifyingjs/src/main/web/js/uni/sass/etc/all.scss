@@ -156,15 +156,6 @@
     }
 }
 
-// Content
-
-.uni-content-padded {
-    padding: 10px {
-        top: 0;
-    }
-}
-
-
 // Portal
 
 .uni-portal-container {
@@ -265,18 +256,6 @@
 
 .edit-window {
     padding: 10px;
-    $item-margin: 4px;
-
-    .x-form-item-label {
-        text-align: right;
-        color: $elster-black-75;
-        width: auto !important;
-        margin-left: $item-margin;
-    }
-
-    .x-form-item-body {
-        margin-right: $item-margin;
-    }
 
     td {
         width: auto !important;
@@ -375,7 +354,7 @@ a.x-form-display-field {
     color: blue;
 }
 
-.uni-info-icon{
-  float: right;
+.uni-info-icon {
+    float: right;
 }
 
