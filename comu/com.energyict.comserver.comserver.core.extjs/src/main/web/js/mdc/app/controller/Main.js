@@ -77,18 +77,62 @@ Ext.define('Mdc.controller.Main', {
 
         var portalItem1 = Ext.create('Uni.model.PortalItem', {
             title: Uni.I18n.translate('general.rMR', 'MDC', 'RMR'),
-            component: Ext.create('Mdc.view.setup.portal.RMR'),
-            portal: 'setup'
+            portal: 'setup',
+            items: [
+                {
+                    text: 'Comservers',
+                    href: '#/setup/comservers'
+                },
+                {
+                    text: 'Communication port pools',
+                    href: '#/setup/comportpools'
+                },
+                {
+                    text: 'Device communication protocols',
+                    href: '#/setup/devicecommunicationprotocols'
+                }
+            ]
         });
 
         var portalItem2 = Ext.create('Uni.model.PortalItem', {
             title: Uni.I18n.translate('general.deviceManagement', 'MDC', 'Device management'),
-            component: Ext.create('Mdc.view.setup.portal.DeviceManagement'),
+            portal: 'setup',
+            items: [
+                {
+                    text: 'Device types',
+                    href: '#/setup/devicetypes'
+                },
+                {
+                    text: 'Register types',
+                    href: '#/setup/registertypes'
+                },
+                {
+                    text: 'Register groups',
+                    href: '#/setup/registergroups'
+                },
+                {
+                    text: 'Communication schedules',
+                    href: '#/setup/communicationschedules'
+                },
+                {
+                    text: 'Search items',
+                    href: '#/setup/searchitems'
+                },
+                {
+                    text: 'Logbook types',
+                    href: '#/setup/logbooktypes'
+                }
+            ]
+        });
+
+        var portalItem3 = Ext.create('Uni.model.PortalItem', {
+            title: Uni.I18n.translate('general.deviceCommunication', 'MDC', 'Device communication'),
+            component: 'Mdc.view.setup.portal.DeviceCommunication',
             portal: 'setup'
         });
 
         Uni.store.PortalItems.add(
-            portalItem1, portalItem2
+            portalItem1, portalItem2, portalItem3
         );
 
         this.initNavigation();
