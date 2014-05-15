@@ -44,6 +44,9 @@ Ext.define('Isu.controller.history.Workspace', {
         crossroads.addRoute('workspace/datacollection/issues/{id}/close',function(id){
             me.getController('Isu.controller.CloseIssues').showOverview(id);
         });
+        crossroads.addRoute('workspace/datacollection/notify',function(){
+            me.getController('Isu.controller.Notify').showOverview();
+        });
 
         this.callParent(arguments);
     },

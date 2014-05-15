@@ -16,6 +16,14 @@ Ext.define('Isu.view.workspace.issues.ActionMenu', {
         {
             text: 'Add comment',
             action: 'addcomment'
+        },
+        {
+            text: 'Notify user',
+            action: 'notify'
+        },
+        {
+            text: 'Send to inspect',
+            action: 'send'
         }
     ]
 });
