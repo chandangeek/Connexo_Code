@@ -3,6 +3,7 @@ package com.energyict.mdc.tasks.impl;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.tasks.ComTask;
@@ -131,19 +132,22 @@ public enum TableSpecs {
         public void addTo(DataModel dataModel) {
             Table<LogBookTypeUsageInProtocolTask> table = dataModel.addTable(name(), LogBookTypeUsageInProtocolTask.class);
             table.map(LogBookTypeUsageInProtocolTaskImpl.class);
-            Column logbookstask = table.column("LOGBOOKSTASK").number().notNull().add(); // DO NOT MAP
-            Column logbooktype = table.column("LOGBOOKTYPE").number().notNull().add(); // DO NOT MAP
+            Column logbooksTask = table.column("LOGBOOKSTASK").number().notNull().add(); // DO NOT MAP
+            Column logbookType = table.column("LOGBOOKTYPE").number().notNull().add(); // DO NOT MAP
 
-            table.primaryKey("PK_MDCLOGBOOKTYPEUSAGE").on(logbookstask,logbooktype).add();
+            table.primaryKey("PK_MDCLOGBOOKTYPEUSAGE").on(logbooksTask,logbookType).add();
 
             table.foreignKey("FK_MDCLOGBOOKTYPEUSAGE_TASK")
-                    .on(logbookstask).references(MDCPROTOCOLTASK.name())
+                    .on(logbooksTask).references(MDCPROTOCOLTASK.name())
                     .map(LogBookTypeUsageInProtocolTaskImpl.Fields.LOGBOOK_TASK_REFERENCE.fieldName())
                     .reverseMap(LogBooksTaskImpl.Fields.LOGBOOK_TYPE_USAGES.fieldName())
                     .composition()
+                    .onDelete(DeleteRule.CASCADE)
                     .add();
-            table.foreignKey("FK_MDCLOGBOOKTYPEUSAGE_TYPE").on(logbooktype).references(MasterDataService.COMPONENTNAME, "EISLOGBOOKTYPE")
-                    .map(LogBookTypeUsageInProtocolTaskImpl.Fields.LOGBOOK_TYPE_REFERENCE.fieldName()).add();
+            table.foreignKey("FK_MDCLOGBOOKTYPEUSAGE_TYPE").
+                    on(logbookType).references(MasterDataService.COMPONENTNAME, "EISLOGBOOKTYPE").
+                    map(LogBookTypeUsageInProtocolTaskImpl.Fields.LOGBOOK_TYPE_REFERENCE.fieldName()).
+                    add();
         }
     },
     ;
