@@ -20,8 +20,8 @@ Ext.define('Uni.view.container.PortalContainer', {
     },
 
     createPortalWidgetFromItem: function (model) {
-        var component = model.get('component'),
-            title = model.get('title'),
+        var title = model.get('title'),
+            items = model.get('items'),
             widget;
 
         widget = Ext.create('Ext.panel.Panel', {
@@ -31,7 +31,11 @@ Ext.define('Uni.view.container.PortalContainer', {
             columnWidth: 1 / 3,
             height: 256,
             items: [
-                Ext.create(component)
+                {
+                    xtype: 'menu',
+                    floating: false,
+                    items: items
+                }
             ]
         });
 

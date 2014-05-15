@@ -14,9 +14,9 @@ Ext.define('Uni.model.PortalItem', {
     extend: 'Ext.data.Model',
     fields: [
         'title',
-        'component',
         'portal',
-        'index'
+        'index',
+        'items'
     ],
     proxy: {
         type: 'memory'
