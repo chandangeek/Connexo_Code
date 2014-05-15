@@ -99,14 +99,14 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                                     html: '<b>Due date</b>',
                                     width: 150,
                                     style: 'margin-right: 5px',
-                                    cls: 'x-form-item-label uni-form-item-bold x-form-item-label-right'
+                                    cls: 'x-form-item-label'
                                 },
                                 {
                                     xtype: 'numberfield',
                                     name: 'dueIn.number',
                                     minValue: 1,
                                     width: 60,
-                                    margin: '0 10 0 10'
+                                    margin: '0 10 0 6'
                                 },
                                 {
 //                                    xtype: 'combobox',
@@ -158,7 +158,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                                             layout: {
                                                 type: 'hbox'
                                             },
-                                            margin: '26 0 0 -30',
+                                            margin: '26 0 0 10',
                                             items: [
                                                 {
                                                     xtype: 'numberfield',
@@ -217,7 +217,6 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                             xtype: 'component',
                             html: '<b>Actions</b>',
                             width: 150,
-                            style: 'margin-right: 5px',
                             cls: 'x-form-item-label uni-form-item-bold x-form-item-label-right'
                         },
                         {
@@ -235,13 +234,13 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                 },
                 {
                     xtype: 'issues-creation-rules-actions-list',
-                    margin: '15 20 0 150'
+                    margin: '15 20 0 165'
                 },
                 {
                     xtype: 'container',
                     layout: 'hbox',
                     defaultType: 'button',
-                    margin: '20 0',
+                    margin: '20 165',
                     items: [
                         {
                             name: 'ruleAction',

@@ -542,7 +542,7 @@ Ext.define('Isu.controller.Issues', {
     onIssuesGridRefresh: function (grid) {
         var store = grid.getStore(),
             grouping = this.extraParamsModel.get('group').get('value'),
-            groupingField = this.extraParamsModel.get('filter').get(grouping) || this.extraParamsModel.get('groupValue'),
+           // groupingField = this.extraParamsModel.get('filter').get(grouping) || this.extraParamsModel.get('groupValue'),
             extraParams = store.getProxy().extraParams,
             emptyText;
 

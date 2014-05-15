@@ -31,7 +31,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.List', {
         {
             xtype: 'grid',
             store: 'Isu.store.CreationRule',
-            height: 285,
+            height: 280,
             columns: {
                 defaults: {
                     sortable: false,
@@ -63,7 +63,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.List', {
                         xtype: 'actioncolumn',
                         iconCls: 'isu-action-icon',
                         align: 'left',
-                        width: 70
+                        width: 100
                     }
                 ]
             }

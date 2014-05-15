@@ -106,6 +106,7 @@ Ext.define('Isu.controller.IssueCreationRules', {
                 buttons: [
                     {
                         text: 'Delete',
+                        ui: 'action',
                         handler: function () {
                             rule.destroy({
                                 params: {
@@ -134,7 +135,7 @@ Ext.define('Isu.controller.IssueCreationRules', {
                     },
                     {
                         text: 'Cancel',
-                        cls: 'isu-btn-link',
+                        ui: 'link',
                         handler: function () {
                             confirmMessage.close();
                         }

@@ -84,6 +84,7 @@ Ext.define('Isu.util.IsuGrid', {
         this.gridActionIcon.setHeight(0);
         this.gridActionBtn = Ext.create('widget.grid-action', {
             renderTo: cell,
+            menuAlign: 'tr-br?',
             menu: {
                 xtype: this.actionMenuXtype,
                 issueId: record.data.id
