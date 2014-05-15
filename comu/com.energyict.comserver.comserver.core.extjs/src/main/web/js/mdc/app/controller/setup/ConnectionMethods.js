@@ -10,7 +10,6 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
     ],
 
     views: [
-        'setup.Browse',
         'setup.connectionmethod.ConnectionMethodSetup',
         'setup.connectionmethod.ConnectionMethodsGrid',
         'setup.connectionmethod.ConnectionMethodPreview',
