@@ -58,7 +58,13 @@ public class TypedProperties {
      * @return The copy of the TypedProperties
      */
     public static TypedProperties copyOf (TypedProperties other) {
-        TypedProperties typedProperties = empty();
+        TypedProperties typedProperties;
+        if (other.getInheritedProperties() == null) {
+            typedProperties = empty();
+        }
+        else {
+            typedProperties = inheritingFrom(other.getInheritedProperties());
+        }
         typedProperties.setAllProperties(other);
         return typedProperties;
     }
