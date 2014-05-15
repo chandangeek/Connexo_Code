@@ -31,7 +31,7 @@ Ext.define('Uni.view.container.PortalContainer', {
             columnWidth: 1 / 3,
             height: 256,
             items: [
-                component
+                Ext.create(component)
             ]
         });
 
