@@ -24,6 +24,10 @@ Ext.define('Uni.view.container.PortalContainer', {
             title = model.get('title'),
             widget;
 
+        if (!component) {
+            return widget;
+        }
+
         widget = Ext.create('Ext.panel.Panel', {
             title: title,
             frame: true,
