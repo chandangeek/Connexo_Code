@@ -64,17 +64,15 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsGrid', {
 
             {
                 xtype: 'actioncolumn',
-                align: 'left',
-                //tdCls: 'view',
-                //iconCls: 'uni-centered-icon',
-                header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                iconCls: 'uni-actioncolumn-gear',
+                columnWidth: 32,
+                fixed: true,
+                header: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
                 sortable: false,
                 hideable: false,
-                fixed: true,
-                flex: 0.1,
                 items: [
                     {
-                        icon: '../mdc/resources/images/masterActions.png',
+                        //icon: '../mdc/resources/images/masterActions.png',
                         handler: function (grid, rowIndex, colIndex, item, e, record, row) {
                             grid.getSelectionModel().select(rowIndex);
                             var menu = Ext.widget('menu', {
