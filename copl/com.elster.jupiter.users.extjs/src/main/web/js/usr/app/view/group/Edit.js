@@ -30,7 +30,8 @@ Ext.define('Usr.view.group.Edit', {
                     items: [
                         {
                             name: 'name',
-                            fieldLabel: Uni.I18n.translate('group.name', 'USM', 'Name') + '*'
+                            fieldLabel: Uni.I18n.translate('group.name', 'USM', 'Name'),
+                            required: true
                         },
                         {
                             name: 'description',

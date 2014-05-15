@@ -38,44 +38,48 @@ Ext.define('Usr.controller.Main', {
     ],
 
     init: function () {
+        var me = this;
         this.initNavigation();
-        this.initDefaultHistoryToken();
         this.getApplication().on('changecontentevent', this.showContent, this);
-
-        var me= this;
-        var menuItemGroup = Ext.create('Uni.model.MenuItem', {
-            text: Uni.I18n.translate('group.title', 'USM', 'Roles'),
-            href: me.getApplication().getController('Usr.controller.history.Group').tokenizeShowOverview(),
-            glyph: 'settings'
-        });
-
-        var menuItemUser = Ext.create('Uni.model.MenuItem', {
-            text: Uni.I18n.translate('user.title', 'USM', 'Users'),
-            href: me.getApplication().getController('Usr.controller.history.User').tokenizeShowOverview(),
-            glyph: 'settings'
-        });
-
-        Uni.store.MenuItems.add(menuItemUser);
-        Uni.store.MenuItems.add(menuItemGroup);
 
         this.control({
             'viewport menuitem[action=logout]': {
                 click: this.signout
             }
         });
+
+        var menuItem = Ext.create('Uni.model.MenuItem', {
+            text: 'User management',
+            glyph: 'users',
+            portal: 'usermanagement'
+        });
+
+        Uni.store.MenuItems.add(menuItem);
+
+        var users = Ext.create('Uni.model.PortalItem', {
+            title: 'User management',
+            portal: 'usermanagement',
+            route: 'usermanagement',
+            items: [
+                {
+                    text: 'Users',
+                    href: '#/users'
+                },
+                {
+                    text: 'Roles',
+                    href: '#/roles'
+                }
+            ]
+        });
+
+        Uni.store.PortalItems.add(
+            users
+        );
     },
 
     initNavigation: function () {
         var controller = this.getController('Uni.controller.Navigation');
         this.setNavigationController(controller);
-    },
-
-    initDefaultHistoryToken: function () {
-        var setupController = this.getApplication().getController('Usr.controller.history.Home'),
-            eventBus = this.getController('Uni.controller.history.EventBus'),
-            defaultToken = setupController.tokenizeShowOverview();
-
-        eventBus.setDefaultToken(defaultToken);
     },
 
     showContent: function (widget) {
