@@ -1,3 +1,8 @@
+.x-btn-step-active-small-over .x-frame-ml,
+.x-btn-step-active-small-over .x-frame-mr {
+  background-image: url(images/btn/btn-step-active-small-over-sides.gif);
+}
+/* line 617, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-step-active-small-over .x-frame-mc {
   background-color: #7ec162;
   background-image: url(images/btn/btn-step-active-small-over-fbg.gif);
@@ -6082,6 +6087,18 @@ div.x-form-spinner-down {
   padding: 10px 0px 10px 0px;
 }
 
+/* line 1, ../../sass/src/form/field/CheckBox.scss */
+.x-form-cb-label {
+  color: #686868;
+  font-family: "Lato", helvetica, arial, verdana, sans-serif;
+}
+
+/* line 6, ../../sass/src/form/field/CheckBox.scss */
+.x-form-checkbox {
+  height: 15px !important;
+  width: 15px !important;
+}
+
 /* line 3, ../../sass/src/form/Label.scss */
 .x-form-item-label {
   font-size: 13px;
@@ -6090,7 +6107,6 @@ div.x-form-spinner-down {
   padding-right: 14px;
   text-align: right;
   margin-left: 4px;
-  margin-right: 15px !important;
 }
 
 /* line 13, ../../sass/src/form/Label.scss */

@@ -780,29 +780,31 @@ h1, h2 {
 /* line 13, ../../sass/src/Headings.scss */
 h1 {
   font-size: 60px;
+  margin-bottom: 16px;
+  margin-top: 16px;
 }
 
-/* line 17, ../../sass/src/Headings.scss */
+/* line 22, ../../sass/src/Headings.scss */
 h2 {
   font-size: 30px;
 }
 
-/* line 21, ../../sass/src/Headings.scss */
+/* line 26, ../../sass/src/Headings.scss */
 h3 {
   font-size: 20px;
 }
 
-/* line 25, ../../sass/src/Headings.scss */
+/* line 30, ../../sass/src/Headings.scss */
 h4 {
   font-size: 18px;
 }
 
-/* line 29, ../../sass/src/Headings.scss */
+/* line 34, ../../sass/src/Headings.scss */
 h5 {
   font-size: 16px;
 }
 
-/* line 33, ../../sass/src/Headings.scss */
+/* line 38, ../../sass/src/Headings.scss */
 h6 {
   font-size: 14px;
 }
@@ -826,9 +828,38 @@ h6 {
   padding-left: 12px;
 }
 
-/* line 7, ../../sass/src/Component.scss */
-.login-background {
-  background: url("images/container/loginBackground.png") no-repeat center center !important;
+/* line 1, ../../sass/src/grid/ActionColumn.scss */
+.uni-actioncolumn-gear {
+  width: 0;
+  height: 0;
+  padding-top: 17px;
+  padding-right: 17px;
+  background-repeat: no-repeat;
+  background-image: url("images/grid/masterActions.png");
+  margin-left: 12px;
+}
+/* line 19, ../../sass/src/grid/ActionColumn.scss */
+.x-grid-row-selected .uni-actioncolumn-gear, .x-grid-row-focused .uni-actioncolumn-gear, .x-grid-row-over .uni-actioncolumn-gear {
+  background-image: url("images/grid/masterActionsHighlight.png");
+}
+
+/* line 8, ../../sass/src/Component.scss */
+.x-panel-login-container {
+  background-image: url("images/container/loginBackground.png") !important;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: 100% auto;
+  z-index: 9999;
+}
+/* line 15, ../../sass/src/Component.scss */
+.x-panel-login-container .x-panel-login-panel {
+  background-color: white;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  -ms-border-radius: 10px;
+  -o-border-radius: 10px;
+  border-radius: 10px;
+  padding: 65px 82px;
 }
 
 /* line 1, ../../sass/src/container/BreadcrumbTrailContainer.scss */
@@ -1011,7 +1042,6 @@ h6 {
   bottom: 0;
   width: 48px !important;
   z-index: 1000;
-  padding-right: 1px;
   transition: width 400ms;
   -moz-transition: width 400ms;
   /* Firefox 4 */
@@ -1020,9 +1050,10 @@ h6 {
   -o-transition: width 400ms;
   /* Opera */
 }
-/* line 26, ../../sass/src/container/NavigationMenu.scss */
+/* line 25, ../../sass/src/container/NavigationMenu.scss */
 .x-container-navigationmenu:hover {
-  width: 245px !important;
+  width: 244px !important;
+  padding-right: 1px;
 }
 /* line 30, ../../sass/src/container/NavigationMenu.scss */
 .x-container-navigationmenu .menu-item, .x-container-navigationmenu .x-box-inner, .x-container-navigationmenu .x-box-target {
@@ -1075,7 +1106,17 @@ h6 {
 /* line 22, ../../sass/src/container/ContentContainer.scss */
 .x-container-contentcontainer .center {
   background-color: transparent;
-  padding: 0px 16px 0px 16px;
+  padding: 0px 16px 16px 16px;
+}
+
+/* line 1, ../../sass/src/container/ActionsContainer.scss */
+.x-container-actions {
+  margin-top: 32px;
+  padding-left: 14px;
+}
+/* line 10, ../../sass/src/container/ActionsContainer.scss */
+.x-container-actions *[class*='x-btn-link-'] {
+  margin-left: 16px;
 }
 
 /* line 1, ../../sass/src/button/Button.scss */

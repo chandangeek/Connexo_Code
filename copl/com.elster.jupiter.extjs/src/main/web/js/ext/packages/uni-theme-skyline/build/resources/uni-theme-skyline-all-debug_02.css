@@ -1,3 +1,23 @@
+.x-btn-delete-small-disabled .x-frame-ml,
+.x-btn-delete-small-disabled .x-frame-mr {
+  background-image: url(images/btn/btn-delete-small-disabled-sides.gif);
+}
+/* line 662, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-delete-small-disabled .x-frame-mc {
+  background-color: #eb5642;
+  background-image: url(images/btn/btn-delete-small-disabled-fbg.gif);
+}
+
+/* line 674, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-nlg .x-btn-delete-small-focus {
+  background-image: url(images/btn/btn-delete-small-focus-bg.gif);
+}
+
+/* line 682, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-nlg .x-btn-delete-small-over {
+  background-image: url(images/btn/btn-delete-small-over-bg.gif);
+}
+
 /* line 691, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-nlg .x-btn-delete-small-menu-active,
 .x-nlg .x-btn-delete-small-pressed {
@@ -14725,30 +14745,4 @@
 .x-btn-step-active-small-over .x-frame-tc,
 .x-btn-step-active-small-over .x-frame-bc {
   background-image: url(images/btn/btn-step-active-small-over-corners.gif);
-}
-/* line 614, ../../../ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-step-active-small-over .x-frame-ml,
-.x-btn-step-active-small-over .x-frame-mr {
-  background-image: url(images/btn/btn-step-active-small-over-sides.gif);
-}
-/* line 617, ../../../ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-step-active-small-over .x-frame-mc {
-  background-color: #7ec162;
-  background-image: url(images/btn/btn-step-active-small-over-fbg.gif);
-}
-
-/* line 633, ../../../ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-step-active-small-menu-active .x-frame-tl,
-.x-btn-step-active-small-menu-active .x-frame-bl,
-.x-btn-step-active-small-menu-active .x-frame-tr,
-.x-btn-step-active-small-menu-active .x-frame-br,
-.x-btn-step-active-small-menu-active .x-frame-tc,
-.x-btn-step-active-small-menu-active .x-frame-bc,
-.x-btn-step-active-small-pressed .x-frame-tl,
-.x-btn-step-active-small-pressed .x-frame-bl,
-.x-btn-step-active-small-pressed .x-frame-tr,
-.x-btn-step-active-small-pressed .x-frame-br,
-.x-btn-step-active-small-pressed .x-frame-tc,
-.x-btn-step-active-small-pressed .x-frame-bc {
-  background-image: url(images/btn/btn-step-active-small-pressed-corners.gif);
 }
