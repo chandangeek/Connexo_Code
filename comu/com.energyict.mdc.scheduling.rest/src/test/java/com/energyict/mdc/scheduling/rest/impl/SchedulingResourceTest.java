@@ -4,11 +4,14 @@ import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceDataService;
@@ -16,6 +19,7 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.SchedulingStatus;
+import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 import java.util.ArrayList;
@@ -23,6 +27,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
@@ -353,6 +358,19 @@ public class SchedulingResourceTest extends JerseyTest {
     }
 
     @Test
+    public void testPreviewMinutelyWithoutOffset() throws Exception {
+        PreviewInfo previewInfo = new PreviewInfo();
+        previewInfo.temporalExpression = new TemporalExpressionInfo();
+        previewInfo.temporalExpression.every=new TimeDurationInfo(new TimeDuration(10, TimeDuration.MINUTES));
+
+        Entity<PreviewInfo> entity = Entity.json(previewInfo);
+        Response response = target("/schedules/preview").request().put(entity);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        PreviewInfo responseEntity = (PreviewInfo) response.getEntity();
+        assertThat(responseEntity.summary).isEqualTo("Repeat every 15 minute(s)");
+    }
+
+    @Test
     public void testGetAvailableComTasksOfScheduleWithFaultyFilter() throws Exception {
         NlsMessageFormat nlsMessageFormat = mock(NlsMessageFormat.class);
         when(thesaurus.getFormat(com.energyict.mdc.common.impl.MessageSeeds.INVALID_VALUE)).thenReturn(nlsMessageFormat);
@@ -371,6 +389,48 @@ public class SchedulingResourceTest extends JerseyTest {
         when(comTask1.getName()).thenReturn(name);
         when(taskService.findComTask(id)).thenReturn(comTask1);
         return comTask1;
+    }
+
+    class MockedTheasaurus implements Thesaurus {
+
+        @Override
+        public String getString(String key, String defaultMessage) {
+            return null;
+        }
+
+        @Override
+        public String getString(Locale locale, String key, String defaultMessage) {
+            return null;
+        }
+
+        @Override
+        public String getComponent() {
+            return null;
+        }
+
+        @Override
+        public NlsMessageFormat getFormat(final MessageSeed seed) {
+            return new NlsMessageFormat() {
+                @Override
+                public String format(Object... args) {
+                    return seed.getDefaultFormat();
+                }
+
+                @Override
+                public String format(Locale locale, Object... args) {
+                    return null;
+                }
+            };
+        }
+
+        @Override
+        public void addTranslations(Iterable<? extends Translation> translations) {
+        }
+
+        @Override
+        public Map<String, String> getTranslations() {
+            return null;
+        }
     }
 
 }
