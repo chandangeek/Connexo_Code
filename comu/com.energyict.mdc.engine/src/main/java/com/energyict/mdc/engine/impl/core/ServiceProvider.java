@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
@@ -25,6 +26,8 @@ import java.util.concurrent.atomic.AtomicReference;
 public interface ServiceProvider {
 
     public final AtomicReference<ServiceProvider> instance = new AtomicReference<>();
+
+    public EventService eventService();
 
     public TransactionService transactionService();
 

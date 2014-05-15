@@ -478,14 +478,8 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void signalEvent(final BusinessEvent businessEvent) {
-        this.executeTransaction(new Transaction<Void>() {
-            @Override
-            public Void perform() {
-                ManagerFactory.getCurrent().getMdwInterface().signalEvent(businessEvent);
-                return null;
-            }
-        });
+    public void signalEvent(String topic, Object source) {
+        this.serviceProvider.eventService().postEvent(topic, source);
     }
 
     @Override

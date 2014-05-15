@@ -1,9 +1,6 @@
 package com.energyict.mdc.engine.impl.core.remote;
 
-import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.transaction.Transaction;
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.common.BusinessEvent;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
@@ -31,6 +28,9 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
+
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.transaction.Transaction;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketClient;
 import org.eclipse.jetty.websocket.WebSocketClientFactory;
@@ -285,7 +285,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void signalEvent (BusinessEvent businessEvent) {
+    public void signalEvent(String topic, Object source) {
     }
 
     @Override

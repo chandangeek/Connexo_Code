@@ -3,6 +3,8 @@ package com.energyict.mdc.engine.impl.commands.store;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.events.DeviceTopologyChangedEvent;
+import com.energyict.mdc.engine.impl.events.UnknownSlaveDeviceEvent;
 import com.energyict.mdc.engine.impl.meterdata.DeviceTopology;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.issues.IssueService;
@@ -137,7 +139,7 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl {
      */
     private void handleAdditionOfSlave(ComServerDAO comServerDAO, DeviceIdentifier addedSlave) {
         DeviceIdentifier deviceFinder = deviceTopology.getDeviceIdentifier();
-        comServerDAO.signalEvent(new UnknownSlaveDeviceEvent(deviceFinder.findDevice(), addedSlave));
+        comServerDAO.signalEvent(new UnknownSlaveDeviceEvent(deviceFinder, addedSlave));
     }
 
     /**

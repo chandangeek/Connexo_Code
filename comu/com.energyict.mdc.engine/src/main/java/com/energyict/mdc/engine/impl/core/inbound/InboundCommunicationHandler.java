@@ -16,6 +16,7 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.InboundJobExecutionDataProcessor;
 import com.energyict.mdc.engine.impl.core.InboundJobExecutionGroup;
+import com.energyict.mdc.engine.impl.events.UnknownInboundDeviceEvent;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -151,7 +152,7 @@ public class InboundCommunicationHandler {
     }
 
     private void handleUnknownDevice(InboundDeviceProtocol inboundDeviceProtocol) {
-        this.comServerDAO.signalEvent(new UnknownInboundDeviceEvent(this.comPort, inboundDeviceProtocol, inboundDeviceProtocol.getDeviceIdentifier()));
+        this.comServerDAO.signalEvent(new UnknownInboundDeviceEvent(this.comPort, inboundDeviceProtocol.getDeviceIdentifier(), inboundDeviceProtocol));
         // Todo: do something for the DoS attacks?
         this.provideResponse(inboundDeviceProtocol, InboundDeviceProtocol.DiscoverResponseType.DEVICE_NOT_FOUND);
     }
