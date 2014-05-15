@@ -90,13 +90,13 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
             } else {
                 typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), property);
             }
-            typedProperties.setProperty(SECURITY_LEVEL_PROPERTY_NAME, String.valueOf(deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel()));
-            typedProperties.setProperty("KeyC",
-                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.ENCRYPTION_KEY_2.toString(), ""));
             typedProperties.setProperty("KeyT",
                     deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.ENCRYPTION_KEY_1.toString(), ""));
+            typedProperties.setProperty("KeyC",
+                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.ENCRYPTION_KEY_2.toString(), ""));
             typedProperties.setProperty("KeyF",
                     deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.ENCRYPTION_KEY_3.toString(), ""));
+            typedProperties.setProperty(SECURITY_LEVEL_PROPERTY_NAME, String.valueOf(deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel()));
         }
         return typedProperties;
     }
@@ -118,18 +118,25 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
                 typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), property);
             }
 
-            typedProperties.setProperty(SECURITY_LEVEL_PROPERTY_NAME, String.valueOf(securityProperties.get(0).getSecurityPropertySet().getEncryptionDeviceAccessLevel().getId()));
-            typedProperties.setProperty("KeyC",
-                    typedSecurityProperties.getProperty(SecurityPropertySpecName.ENCRYPTION_KEY_2.toString(), ""));
-            typedProperties.setProperty("KeyT",
-                    typedSecurityProperties.getProperty(SecurityPropertySpecName.ENCRYPTION_KEY_1.toString(), ""));
-            typedProperties.setProperty("KeyF",
-                    typedSecurityProperties.getProperty(SecurityPropertySpecName.ENCRYPTION_KEY_3.toString(), ""));
+            String keyTValue = (String) typedSecurityProperties.getProperty(SecurityPropertySpecName.ENCRYPTION_KEY_1.toString(), "");
+            String keyCValue = (String) typedSecurityProperties.getProperty(SecurityPropertySpecName.ENCRYPTION_KEY_2.toString(), "");
+            String keyFValue = (String) typedSecurityProperties.getProperty(SecurityPropertySpecName.ENCRYPTION_KEY_3.toString(), "");
+            typedProperties.setProperty("KeyT", keyTValue);
+            typedProperties.setProperty("KeyC", keyCValue);
+            typedProperties.setProperty("KeyF", keyFValue);
 
+            int securityLevel;
+            if (!keyTValue.isEmpty()) {
+                securityLevel = AccessLevelIds.KEYT.getAccessLevel();
+            } else if (!keyCValue.isEmpty()) {
+                securityLevel = AccessLevelIds.KEYC.getAccessLevel();
+            } else {
+                securityLevel = AccessLevelIds.KEYF.getAccessLevel();
+            }
+            typedProperties.setProperty(SECURITY_LEVEL_PROPERTY_NAME, Integer.toString(securityLevel));
         }
         return typedProperties;
     }
-
 
     @Override
     public DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
@@ -141,7 +148,6 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
         final TypedProperties securityRelatedTypedProperties = TypedProperties.empty();
         securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, 0, getAuthenticationAccessLevels()));
         securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, encryptionDeviceAccessLevel, getEncryptionAccessLevels()));
-
 
         return new DeviceProtocolSecurityPropertySet() {
             @Override
