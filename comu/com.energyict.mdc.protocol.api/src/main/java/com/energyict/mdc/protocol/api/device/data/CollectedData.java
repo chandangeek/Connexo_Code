@@ -17,7 +17,7 @@ public interface CollectedData {
     /**
      * @return additional information about why the data is not complete
      */
-    public List<Issue> getIssues();
+    public List<Issue<?>> getIssues();
 
     /**
      * Set all failure information.
@@ -25,7 +25,7 @@ public interface CollectedData {
      * @param resultType indication of what the resultType is
      * @param issue      indication of what the issue is
      */
-    public void setFailureInformation(ResultType resultType, Issue issue);
+    public void setFailureInformation(ResultType resultType, Issue<?> issue);
 
     /**
      * Tests if this type of CollectedData is configured

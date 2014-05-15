@@ -23,7 +23,7 @@ public interface OfflineDevice extends Offline {
      *
      * @return the ID
      */
-    public int getId();
+    public long getId();
 
     /**
      * Get the device TimeZone.
