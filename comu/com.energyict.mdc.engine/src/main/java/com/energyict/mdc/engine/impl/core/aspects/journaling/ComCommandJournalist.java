@@ -25,9 +25,10 @@ public class ComCommandJournalist {
     public static final NumberFormat NUMBER_FORMAT = new DecimalFormat("00");
     public static final DateTimeFormatter DATE_FORMAT = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss:SSS");
 
-    public ComCommandJournalist(ComTaskExecutionSessionBuilder comTaskExecutionSessionBuilder) {
+    public ComCommandJournalist(ComTaskExecutionSessionBuilder comTaskExecutionSessionBuilder, Clock clock) {
         super();
         this.comTaskExecutionSessionBuilder = comTaskExecutionSessionBuilder;
+        this.clock = clock;
     }
 
     /**

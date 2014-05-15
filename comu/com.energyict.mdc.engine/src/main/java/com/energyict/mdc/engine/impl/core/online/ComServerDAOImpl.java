@@ -51,6 +51,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.tasks.history.ComSession;
+import com.energyict.mdc.tasks.history.ComSessionBuilder;
 
 import java.sql.SQLException;
 import java.text.DateFormat;
@@ -418,35 +419,31 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     //TODO reenable and adjust this when JP-2460 is completely finished
     @Override
-    public ComSession createOutboundComSession(final ScheduledConnectionTask owner, final ComSessionShadow shadow) {
+    public ComSession createOutboundComSession(final ScheduledConnectionTask owner, final ComSessionBuilder.EndedComSessionBuilder builder) {
         return this.executeTransaction(new Transaction<ComSession>() {
             @Override
             public ComSession perform() {
-                return getComSessionFactory().createOutboundComSession(owner, shadow);
+                return builder.create();
             }
         });
     }
 
     //TODO reenable and adjust this when JP-2460 is completely finished
-    public ComSession createOutboundComSession(final OutboundConnectionTask owner, final ComSessionShadow shadow) {
+    public ComSession createOutboundComSession(final OutboundConnectionTask owner, final ComSessionBuilder.EndedComSessionBuilder builder) {
         return this.executeTransaction(new Transaction<ComSession>() {
             @Override
             public ComSession perform() {
-                return getComSessionFactory().createOutboundComSession(owner, shadow);
+                return builder.create();
             }
         });
     }
 
     @Override
-    public ComSession createInboundComSession(final InboundConnectionTask owner, final ComSessionShadow shadow) {
+    public ComSession createInboundComSession(final InboundConnectionTask owner, final ComSessionBuilder.EndedComSessionBuilder builder) {
         return this.executeTransaction(new Transaction<ComSession>() {
             @Override
             public ComSession perform() {
-                if (owner == null) {
-                    return getComSessionFactory().createInboundComSession(shadow);
-                } else {
-                    return getComSessionFactory().createInboundComSession(owner, shadow);
-                }
+                return builder.create();
             }
         });
     }

@@ -85,7 +85,7 @@ public abstract class ScheduledJobImpl extends JobExecution {
      * @param comTaskExecution The ComTaskExecution
      * @return A flag that indicates a successful locking of the ComTaskExecution
      */
-    protected boolean attemptLock (ComTaskExecution comTaskExecution) {
+    boolean attemptLock (ComTaskExecution comTaskExecution) {
         return this.getComServerDAO().attemptLock(comTaskExecution, this.getComPort());
     }
 
@@ -99,36 +99,31 @@ public abstract class ScheduledJobImpl extends JobExecution {
      * @param connectionTask The ConnectionTask
      * @return A flag that indicates a successful locking of the ConnectionTask
      */
-    protected boolean attemptLock (ScheduledConnectionTask connectionTask) {
+    boolean attemptLock (ScheduledConnectionTask connectionTask) {
         return this.getComServerDAO().attemptLock(connectionTask, this.getComPort().getComServer()) != null;
     }
 
-    protected void unlock (ScheduledConnectionTask connectionTask) {
+    void unlock (ScheduledConnectionTask connectionTask) {
         this.getComServerDAO().unlock(connectionTask);
     }
 
-    protected void unlock (ComTaskExecution comTaskExecution) {
+    void unlock (ComTaskExecution comTaskExecution) {
         this.getComServerDAO().unlock(comTaskExecution);
     }
 
-    public boolean establishConnectionFor(ComPort comPort) {
-        ExecutionContext executionContext = this.getExecutionContext();
-        if (executionContext == null) {
-            this.createExecutionContext(comPort);
-            executionContext = this.getExecutionContext();
-        }
-        return executionContext.connect();
+    boolean establishConnectionFor() {
+        return this.getExecutionContext().connect();
     }
 
-    protected void createExecutionContext () {
+    void createExecutionContext () {
         this.createExecutionContext(true);
     }
 
-    protected void createExecutionContext (boolean logConnectionProperties) {
+    void createExecutionContext (boolean logConnectionProperties) {
         this.createExecutionContext(this.getComPort(), logConnectionProperties);
     }
 
-    protected void createExecutionContext (ComPort comPort) {
+    void createExecutionContext (ComPort comPort) {
         this.createExecutionContext(comPort, true);
     }
 
@@ -136,7 +131,7 @@ public abstract class ScheduledJobImpl extends JobExecution {
         this.setExecutionContext(this.newExecutionContext(this.getConnectionTask(), comPort, logConnectionProperties));
     }
 
-    protected void completeConnection () {
+    void completeConnection () {
         if (getExecutionContext() != null) {
             try {
                 this.getConnectionTask().disconnect(getExecutionContext().getComChannel());

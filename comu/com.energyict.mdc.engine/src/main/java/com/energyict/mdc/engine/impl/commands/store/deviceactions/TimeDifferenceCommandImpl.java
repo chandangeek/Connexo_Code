@@ -10,6 +10,7 @@ import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
+
 import java.text.MessageFormat;
 import java.util.Date;
 
@@ -31,16 +32,14 @@ public class TimeDifferenceCommandImpl extends SimpleComCommand implements TimeD
     }
 
     @Override
-    public void doExecute (final DeviceProtocol deviceProtocol, JobExecution.ExecutionContext executionContext) {
+    public void doExecute(final DeviceProtocol deviceProtocol, JobExecution.ExecutionContext executionContext) {
         Clock clock = getCommandRoot().getServiceProvider().getClock();
         RoundTripTimer roundTripTimer = new RoundTripTimer(clock);
         roundTripTimer.start();
         Date meterTime = deviceProtocol.getTime();
         roundTripTimer.stop();
         long halfRoundTrip = roundTripTimer.getRoundTrip();
-        if (halfRoundTrip != 0) {
-            halfRoundTrip = halfRoundTrip / 2;
-        }
+        halfRoundTrip = halfRoundTrip / 2;
         long differenceInMillis = clock.now().getTime() - (meterTime.getTime() - halfRoundTrip);
         this.timeDifference = new TimeDuration((int) differenceInMillis, TimeDuration.MILLISECONDS);
     }
@@ -49,7 +48,7 @@ public class TimeDifferenceCommandImpl extends SimpleComCommand implements TimeD
      * @return the {@link #timeDifference}
      */
     public TimeDuration getTimeDifference() {
-        if(this.timeDifference == null){
+        if (this.timeDifference == null) {
             return TimeDifferenceCommand.DID_NOT_READ_TIME_DIFFERENCE;
         }
         return timeDifference;
@@ -61,7 +60,7 @@ public class TimeDifferenceCommandImpl extends SimpleComCommand implements TimeD
     }
 
     @Override
-    protected void toJournalMessageDescription (DescriptionBuilder builder, LogLevel serverLogLevel) {
+    protected void toJournalMessageDescription(DescriptionBuilder builder, LogLevel serverLogLevel) {
         super.toJournalMessageDescription(builder, serverLogLevel);
         if (this.isJournalingLevelEnabled(serverLogLevel, LogLevel.INFO)) {
             builder.addLabel(MessageFormat.format("Time difference is {0}", this.timeDifference));

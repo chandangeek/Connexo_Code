@@ -101,7 +101,7 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
                     if (!loadProfileConfiguration.isSupportedByMeter()) {
                         readersToRemove.add(loadProfileReader);
                         if (!loadProfileConfiguration.getIssues().isEmpty()){
-                            for (Issue issue : loadProfileConfiguration.getIssues()) {
+                            for (Issue<?> issue : loadProfileConfiguration.getIssues()) {
                                 addIssue(issue, CompletionCode.forResultType(loadProfileConfiguration.getResultType()));
                             }
                         } else {

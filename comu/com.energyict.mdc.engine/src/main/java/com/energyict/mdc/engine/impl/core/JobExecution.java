@@ -63,15 +63,19 @@ import com.energyict.mdc.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.tasks.history.CompletionCode;
 import com.energyict.mdc.tasks.history.TaskHistoryService;
-import org.joda.time.Duration;
 
 import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
+
+import static com.energyict.mdc.tasks.history.ComTaskExecutionSession.SuccessIndicator.Failure;
+import static com.energyict.mdc.tasks.history.ComTaskExecutionSession.SuccessIndicator.Success;
 
 /**
  * Provides code reuse for in- and outbound {@link com.energyict.mdc.engine.model.ComPort ComPorts }
@@ -138,13 +142,13 @@ public abstract class JobExecution implements ScheduledJob {
         return comPort;
     }
 
-    protected ComServerDAO getComServerDAO() {
+    final ComServerDAO getComServerDAO() {
         return comServerDAO;
     }
 
-    protected PreparedComTaskExecution getPreparedComTaskExecution(ComTaskPreparationContext comTaskPreparationContext, ComTaskExecution comTaskExecution, ComTaskExecutionConnectionSteps connectionSteps, BaseDevice<?, ?, ?> masterDevice, DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
+    private PreparedComTaskExecution getPreparedComTaskExecution(ComTaskPreparationContext comTaskPreparationContext, ComTaskExecution comTaskExecution, ComTaskExecutionConnectionSteps connectionSteps, BaseDevice<?, ?, ?> masterDevice, DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
         final List<? extends ProtocolTask> protocolTasks = comTaskExecution.getComTask().getProtocolTasks();
-        makeSureBasicCheckTaskIsInFrontOfTheList(protocolTasks);
+        Collections.sort(protocolTasks, BasicCheckTasks.FIRST);
         comTaskPreparationContext.getCommandCreator().
                 createCommands(
                         comTaskPreparationContext.getRoot(),
@@ -168,20 +172,15 @@ public abstract class JobExecution implements ScheduledJob {
         }
     }
 
-    /**
-     * Adapt the given list so the BasicCheckTask is the first element of the list.
-     *
-     * @param protocolTasks the given list of ProtocolTasks
-     */
-    private void makeSureBasicCheckTaskIsInFrontOfTheList(List<? extends ProtocolTask> protocolTasks) {
-        int basicCheckIndex = -1;
-        for (ProtocolTask protocolTask : protocolTasks) {
-            if (BasicCheckTask.class.isAssignableFrom(protocolTask.getClass())) {
-                basicCheckIndex = protocolTasks.indexOf(protocolTask) + 1;
+    enum BasicCheckTasks implements Comparator<ProtocolTask> {
+        FIRST;
+
+        @Override
+        public int compare(ProtocolTask o1, ProtocolTask o2) {
+            if (o1 instanceof BasicCheckTask) {
+                return o2 instanceof BasicCheckTask ? 0 : -1;
             }
-        }
-        if (basicCheckIndex != -1) {
-            Collections.rotate(protocolTasks.subList(0, basicCheckIndex), 1);
+            return o2 instanceof BasicCheckTask ? 1 : 0;
         }
     }
 
@@ -217,24 +216,20 @@ public abstract class JobExecution implements ScheduledJob {
         this.executionContext = executionContext;
     }
 
-    protected boolean execute(PreparedComTaskExecution preparedComTaskExecution) {
-        ComTaskExecutionSession.SuccessIndicator successIndicator = ComTaskExecutionSession.SuccessIndicator.Success;
+    boolean execute(PreparedComTaskExecution preparedComTaskExecution) {
+        ComTaskExecutionSession.SuccessIndicator successIndicator = Success;
         try {
             this.start(preparedComTaskExecution.getComTaskExecution());
 
             CommandRoot commandRoot = preparedComTaskExecution.getCommandRoot();
             this.executionContext.setCommandRoot(commandRoot);
             commandRoot.executeFor(preparedComTaskExecution, this.executionContext);
-            List<Problem> problems = commandRoot.getProblems();
-            if (!problems.isEmpty()) {
-                successIndicator = ComTaskExecutionSession.SuccessIndicator.Failure;
-                return false;
-            } else {
-                return true;
-            }
+            boolean hasProblems = executionContext.getCommandRoot().getProblems().isEmpty();
+            successIndicator = hasProblems ? Success : Failure;
+            return hasProblems;
         } catch (Throwable t) {
             this.failure(preparedComTaskExecution.getComTaskExecution(), t);
-            successIndicator = ComTaskExecutionSession.SuccessIndicator.Failure;
+            successIndicator = Failure;
             throw t;
         } finally {
             this.completeExecutedComTask(preparedComTaskExecution.getComTaskExecution(), successIndicator);
@@ -465,7 +460,10 @@ public abstract class JobExecution implements ScheduledJob {
             this.comPort = comPort;
             this.connectionTask = connectionTask;
             this.serviceProvider = serviceProvider;
-            this.initializeComSessionShadow(logConnectionProperties);
+            sessionBuilder = this.serviceProvider.getTaskHistoryService().buildComSession(this.connectionTask, this.connectionTask.getComPortPool(), this.comPort, now());
+            if (logConnectionProperties && this.isLogLevelEnabled(ComServer.LogLevel.DEBUG)) {
+                this.addConnectionPropertiesAsJournalEntries(this.connectionTask);
+            }
             this.logger = Logger.getAnonymousLogger();  // Start with an anonymous one, refine it later
         }
 
@@ -488,14 +486,6 @@ public abstract class JobExecution implements ScheduledJob {
                 this.comChannel = null;
                 this.connectionFailed(e, this.connectionTask);
                 throw new ConnectionSetupException(e);
-            }
-        }
-
-        private void initializeComSessionShadow(boolean logConnectionProperties) {
-            sessionBuilder = serviceProvider.getTaskHistoryService().buildComSession(connectionTask, connectionTask.getComPortPool(), comPort, now());
-//            this.sessionShadow.setSuccessIndicator(ComSession.SuccessIndicator.Success);   // Optimistic
-            if (logConnectionProperties && this.isLogLevelEnabled(ComServer.LogLevel.DEBUG)) {
-                this.addConnectionPropertiesAsJournalEntries(this.connectionTask);
             }
         }
 
@@ -580,7 +570,6 @@ public abstract class JobExecution implements ScheduledJob {
          *
          * @param e              The ConnectionException that explains the failure
          * @param connectionTask The ConnectionTask that failed to connect
-         * @see #initializeComSessionShadow(boolean)
          * @see #close()
          * <p/>
          * Note: Arguments are used by AOP
@@ -733,7 +722,7 @@ public abstract class JobExecution implements ScheduledJob {
         }
 
         public void initializeJournalist() {
-            this.journalist = new ComCommandJournalist(this.getCurrentTaskExecutionBuilder());
+            this.journalist = new ComCommandJournalist(this.getCurrentTaskExecutionBuilder(), serviceProvider.getClock());
         }
 
         public ComCommandLogger getComCommandLogger() {
@@ -772,7 +761,7 @@ public abstract class JobExecution implements ScheduledJob {
 
         public void failForRetryAsapComTaskExec(ComTaskExecution notExecutedComTaskExecution, Throwable t) {
             fail(notExecutedComTaskExecution, t);
-            comTaskExecutionCompleted(ComTaskExecutionSession.SuccessIndicator.Success);
+            comTaskExecutionCompleted(Success);
         }
     }
 
@@ -913,32 +902,29 @@ public abstract class JobExecution implements ScheduledJob {
 
         @Override
         public List<PreparedComTaskExecution> perform() {
-            List<PreparedComTaskExecution> prepared = new ArrayList<>();
-            List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions =
-                    ComTaskExecutionOrganizer.
-                            defineComTaskExecutionOrders(
-                                    comTaskExecutions.toArray(new ComTaskExecution[comTaskExecutions.size()]));
-            for (DeviceOrganizedComTaskExecution deviceOrganizedComTaskExecution : deviceOrganizedComTaskExecutions) {
+            List<PreparedComTaskExecution> result = new ArrayList<>();
+            ComTaskExecutionOrganizer organizer = new ComTaskExecutionOrganizer(serviceProvider.deviceConfigurationService());
+            for (DeviceOrganizedComTaskExecution deviceOrganizedComTaskExecution : organizer.defineComTaskExecutionOrders(comTaskExecutions)) {
                 ComTaskPreparationContext comTaskPreparationContext = new ComTaskPreparationContext(deviceOrganizedComTaskExecution).invoke();
                 for (DeviceOrganizedComTaskExecution.ComTaskWithSecurityAndConnectionSteps comTaskWithSecurityAndConnectionSteps : deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity()) {
-                    final ComTaskExecution comTaskExecution = comTaskWithSecurityAndConnectionSteps.getComTaskExecution();
-                    final ComTaskExecutionConnectionSteps connectionSteps = comTaskWithSecurityAndConnectionSteps.getComTaskExecutionConnectionSteps();
-                    final DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = comTaskWithSecurityAndConnectionSteps.getDeviceProtocolSecurityPropertySet();
-                    final PreparedComTaskExecution preparedComTaskExecution =
+                    ComTaskExecution comTaskExecution = comTaskWithSecurityAndConnectionSteps.getComTaskExecution();
+                    ComTaskExecutionConnectionSteps connectionSteps = comTaskWithSecurityAndConnectionSteps.getComTaskExecutionConnectionSteps();
+                    DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = comTaskWithSecurityAndConnectionSteps.getDeviceProtocolSecurityPropertySet();
+                    PreparedComTaskExecution preparedComTaskExecution =
                             getPreparedComTaskExecution(
                                     comTaskPreparationContext,
                                     comTaskExecution,
                                     connectionSteps,
                                     deviceOrganizedComTaskExecution.getDevice(),
                                     deviceProtocolSecurityPropertySet);
-                    prepared.add(preparedComTaskExecution);
+                    result.add(preparedComTaskExecution);
                 }
                 //GenericDeviceProtocols can reorganize the commands
                 if (GenericDeviceProtocol.class.isAssignableFrom(comTaskPreparationContext.getDeviceProtocol().getClass())) {
                     comTaskPreparationContext.setRoot(((GenericDeviceProtocol) comTaskPreparationContext.getDeviceProtocol()).organizeComCommands(comTaskPreparationContext.getRoot()));
                 }
             }
-            return prepared;
+            return result;
         }
     }
 
@@ -953,7 +939,8 @@ public abstract class JobExecution implements ScheduledJob {
 
         @Override
         public PreparedComTaskExecution perform() {
-            final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = ComTaskExecutionOrganizer.defineComTaskExecutionOrders(comTaskExecution);
+            ComTaskExecutionOrganizer organizer = new ComTaskExecutionOrganizer(serviceProvider.deviceConfigurationService());
+            final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = organizer.defineComTaskExecutionOrders(Arrays.asList(comTaskExecution));
             final DeviceOrganizedComTaskExecution deviceOrganizedComTaskExecution = deviceOrganizedComTaskExecutions.get(0);
             if (deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity().size() == 1) {
                 final DeviceOrganizedComTaskExecution.ComTaskWithSecurityAndConnectionSteps comTaskWithSecurityAndConnectionSteps = deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity().get(0);

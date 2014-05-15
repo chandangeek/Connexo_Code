@@ -4,6 +4,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.Clock;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.model.EngineModelService;
@@ -46,4 +47,6 @@ public interface ServiceProvider {
     public EngineModelService engineModelService();
 
     public TaskHistoryService taskHistoryService();
+
+    public DeviceConfigurationService deviceConfigurationService();
 }

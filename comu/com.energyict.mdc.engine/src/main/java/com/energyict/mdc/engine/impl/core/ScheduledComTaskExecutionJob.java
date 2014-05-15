@@ -82,7 +82,7 @@ public class ScheduledComTaskExecutionJob extends ScheduledJobImpl {
             this.createExecutionContext();
             JobExecution.PreparedComTaskExecution preparedComTaskExecution = this.prepareOne(this.comTaskExecution);
             Environment.DEFAULT.get().closeConnection();
-            if (this.establishConnectionFor(this.getComPort())) {
+            if (this.establishConnectionFor()) {
                 connectionOk = true;
                 performPreparedComTaskExecution(preparedComTaskExecution);
             }

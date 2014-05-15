@@ -1,8 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.offline;
 
-import com.energyict.mdc.common.CanGoOffline;
 import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.Offline;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -52,7 +50,7 @@ public class OfflineDeviceImpl implements OfflineDevice {
     /**
      * The ID of the Persistent Device object
      */
-    private int id;
+    private long id;
 
     /**
      * The SerialNumber of the Device
@@ -266,7 +264,7 @@ public class OfflineDeviceImpl implements OfflineDevice {
     }
 
     @Override
-    public int getId() {
+    public long getId() {
         return id;
     }
 

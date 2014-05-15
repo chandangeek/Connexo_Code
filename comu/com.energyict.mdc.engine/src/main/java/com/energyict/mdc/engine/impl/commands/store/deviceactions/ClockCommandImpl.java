@@ -120,7 +120,7 @@ public class ClockCommandImpl extends CompositeComCommandImpl implements ClockCo
     }
 
     @Override
-    public List<Issue> getIssues() {
+    public List<Issue<?>> getIssues() {
         return clockCommand.getIssues();
     }
 

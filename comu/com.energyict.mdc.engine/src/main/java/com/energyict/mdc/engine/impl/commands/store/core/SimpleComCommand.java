@@ -40,7 +40,7 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
     /**
      * A List containing all the issue which occurred during the execution of this {@link ComCommand}
      */
-    private List<Issue> issueList = new ArrayList<>();
+    private List<Issue<?>> issueList = new ArrayList<>();
 
     /**
      * A List containing all the {@link CollectedData} which is collected during the execution of this {@link ComCommand}
@@ -120,8 +120,8 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
     }
 
     @Override
-    public List<Issue> getIssues() {
-        List<Issue> issues = new ArrayList<>(this.issueList);
+    public List<Issue<?>> getIssues() {
+        List<Issue<?>> issues = new ArrayList<>(this.issueList);
         for (CollectedData collectedData : this.getCollectedData()) {
             issues.addAll(collectedData.getIssues());
         }
@@ -129,24 +129,24 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
     }
 
     @Override
-    public List<Problem> getProblems () {
-        List<Issue> issues = this.getIssues();
-        List<Problem> problems = new ArrayList<>(issues.size());    // At most all issues are problems
-        for (Issue issue : issues) {
+    public List<Problem<?>> getProblems () {
+        List<Issue<?>> issues = this.getIssues();
+        List<Problem<?>> problems = new ArrayList<>(issues.size());    // At most all issues are problems
+        for (Issue<?> issue : issues) {
             if (issue.isProblem()) {
-                problems.add((Problem) issue);
+                problems.add((Problem<?>) issue);
             }
         }
         return problems;
     }
 
     @Override
-    public List<Warning> getWarnings () {
-        List<Issue> issues = this.getIssues();
-        List<Warning> warnings = new ArrayList<>(issues.size());    // At most all issues are warnings
-        for (Issue issue : issues) {
+    public List<Warning<?>> getWarnings () {
+        List<Issue<?>> issues = this.getIssues();
+        List<Warning<?>> warnings = new ArrayList<>(issues.size());    // At most all issues are warnings
+        for (Issue<?> issue : issues) {
             if (issue.isWarning()) {
-                warnings.add((Warning) issue);
+                warnings.add((Warning<?>) issue);
             }
         }
         return warnings;

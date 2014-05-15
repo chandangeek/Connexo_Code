@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.energyict.mdc.device.data.journal.CompletionCode;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.engine.model.ComServer;

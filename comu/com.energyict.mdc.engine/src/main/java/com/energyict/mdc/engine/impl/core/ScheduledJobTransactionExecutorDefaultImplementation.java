@@ -3,8 +3,6 @@ package com.energyict.mdc.engine.impl.core;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Transaction;
-import com.energyict.mdw.core.TransactionExecutor;
-import com.energyict.mdw.core.TransactionExecutorProvider;
 
 import java.sql.SQLException;
 

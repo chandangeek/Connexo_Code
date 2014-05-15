@@ -279,8 +279,8 @@ public class LoadProfileCommandImpl extends CompositeComCommandImpl implements R
     }
 
     @Override
-    public List<Issue> getIssues() {
-        List<Issue> issues = super.getIssues();
+    public List<Issue<?>> getIssues() {
+        List<Issue<?>> issues = super.getIssues();
         if(getVerifyLoadProfilesCommand() != null) {
             issues.addAll(getVerifyLoadProfilesCommand().getIssues());
         }
