@@ -61,7 +61,8 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupPreview', {
                             xtype: 'registerTypeGrid',
                             withPaging: false,
                             withActions: false,
-                            maxHeight: 500
+                            store: 'AvailableRegisterTypesForRegisterGroup',
+                            maxHeight: 650
                         },
                         emptyComponent: {
                             xtype: 'container',
