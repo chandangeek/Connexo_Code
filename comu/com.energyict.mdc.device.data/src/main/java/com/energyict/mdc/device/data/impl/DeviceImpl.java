@@ -57,6 +57,7 @@ import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationPropertiesIsRequiredException;
 import com.energyict.mdc.device.data.exceptions.StillGatewayException;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueMrid;
+import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
@@ -119,6 +120,8 @@ public class DeviceImpl implements Device, PersistenceAware {
     private final Clock clock;
     private final MeteringService meteringService;
     private final DeviceDataService deviceDataService;
+    private final SecurityPropertyService securityPropertyService;
+
     private final List<LoadProfile> loadProfiles = new ArrayList<>();
     private final List<LogBook> logBooks = new ArrayList<>();
     private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
@@ -165,6 +168,7 @@ public class DeviceImpl implements Device, PersistenceAware {
                       Clock clock,
                       MeteringService meteringService,
                       DeviceDataService deviceDataService,
+                      SecurityPropertyService securityPropertyService,
                       Provider<ScheduledConnectionTaskImpl> scheduledConnectionTaskProvider,
                       Provider<InboundConnectionTaskImpl> inboundConnectionTaskProvider,
                       Provider<ConnectionInitiationTaskImpl> connectionInitiationTaskProvider,
@@ -175,6 +179,7 @@ public class DeviceImpl implements Device, PersistenceAware {
         this.clock = clock;
         this.meteringService = meteringService;
         this.deviceDataService = deviceDataService;
+        this.securityPropertyService = securityPropertyService;
         this.scheduledConnectionTaskProvider = scheduledConnectionTaskProvider;
         this.inboundConnectionTaskProvider = inboundConnectionTaskProvider;
         this.connectionInitiationTaskProvider = connectionInitiationTaskProvider;
@@ -1026,8 +1031,20 @@ public class DeviceImpl implements Device, PersistenceAware {
 
     @Override
     public List<SecurityProperty> getSecurityProperties(SecurityPropertySet securityPropertySet) {
-        //TODO Rudi Vankeirsbilck as per our agreement
-        return null;
+        return this.getSecurityProperties(this.clock.now(), securityPropertySet);
+    }
+
+    private List<SecurityProperty> getSecurityProperties(Date when, SecurityPropertySet securityPropertySet) {
+        return this.securityPropertyService.getSecurityProperties(this, when, securityPropertySet);
+    }
+
+    @Override
+    public boolean hasSecurityProperties(SecurityPropertySet securityPropertySet) {
+        return this.hasSecurityProperties(this.clock.now(), securityPropertySet);
+    }
+
+    private boolean hasSecurityProperties(Date when, SecurityPropertySet securityPropertySet) {
+        return this.securityPropertyService.hasSecurityProperties(this, when, securityPropertySet);
     }
 
     private int countUniqueEndDeviceEvents(Meter slaveMeter, List<EndDeviceEventType> eventTypes, Interval interval) {

@@ -40,6 +40,7 @@ import com.energyict.mdc.device.data.ServerComTaskExecution;
 import com.energyict.mdc.device.data.finders.DeviceFinder;
 import com.energyict.mdc.device.data.finders.LoadProfileFinder;
 import com.energyict.mdc.device.data.finders.LogBookFinder;
+import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionMethod;
@@ -115,16 +116,17 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
     private volatile SchedulingService schedulingService;
     private volatile Environment environment;
     private volatile MessageService messagingService;
+    private volatile SecurityPropertyService securityPropertyService;
 
     public DeviceDataServiceImpl() {
     }
 
     @Inject
-    public DeviceDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, Environment environment, RelationService relationService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, SchedulingService schedulingService, MessageService messageService) {
-        this(ormService, eventService, nlsService, clock, environment, relationService, protocolPluggableService, engineModelService, deviceConfigurationService, meteringService, false, schedulingService, messageService);
+    public DeviceDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, Environment environment, RelationService relationService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, SchedulingService schedulingService, MessageService messageService, SecurityPropertyService securityPropertyService) {
+        this(ormService, eventService, nlsService, clock, environment, relationService, protocolPluggableService, engineModelService, deviceConfigurationService, meteringService, false, schedulingService, messageService, securityPropertyService);
     }
 
-    public DeviceDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, Environment environment, RelationService relationService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, boolean createMasterData, SchedulingService schedulingService, MessageService messageService) {
+    public DeviceDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, Environment environment, RelationService relationService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, boolean createMasterData, SchedulingService schedulingService, MessageService messageService, SecurityPropertyService securityPropertyService) {
         super();
         this.setOrmService(ormService);
         this.setEventService(eventService);
@@ -138,6 +140,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
         this.setMeteringService(meteringService);
         this.setSchedulingService(schedulingService);
         this.setMessagingService(messageService);
+        this.setSecurityPropertyService(securityPropertyService);
         this.activate();
         if (!this.dataModel.isInstalled()) {
             this.install(true, createMasterData);
@@ -775,12 +778,18 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
         this.messagingService = messagingService;
     }
 
+    @Reference
+    public void setSecurityPropertyService(SecurityPropertyService securityPropertyService) {
+        this.securityPropertyService = securityPropertyService;
+    }
+
     private Module getModule() {
         return new AbstractModule() {
             @Override
             public void configure() {
                 bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
                 bind(DeviceDataService.class).toInstance(DeviceDataServiceImpl.this);
+                bind(SecurityPropertyService.class).toInstance(DeviceDataServiceImpl.this.securityPropertyService);
                 bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
                 bind(RelationService.class).toInstance(relationService);
                 bind(DataModel.class).toInstance(dataModel);
@@ -996,7 +1005,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
     public List<ComTaskExecution> findComTasksByDefaultConnectionTask(Device device) {
         return this.dataModel.mapper(ComTaskExecution.class).find(ComTaskExecutionFields.DEVICE.fieldName(), device, ComTaskExecutionFields.USEDEFAULTCONNECTIONTASK.fieldName(), true);
     }
-    
+
     @Override
     public List<ComTaskExecution> findComTaskExecutionsByComSchedule(ComSchedule comSchedule) {
         return this.dataModel.query(ComTaskExecution.class)
@@ -1089,6 +1098,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
         Condition condition = Where.where(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isLessThanOrEqual(now)
                 .and(ListOperator.IN.contains("id", new ArrayList<>(comTaskExecutionIds)))
                 .and(where("connectionTask.comServer").isNull());
-        return this.dataModel.query(ComTaskExecution.class, ConnectionTask.class).select(condition).size() > 0;
+        return !this.dataModel.query(ComTaskExecution.class, ConnectionTask.class).select(condition).isEmpty();
     }
+
 }

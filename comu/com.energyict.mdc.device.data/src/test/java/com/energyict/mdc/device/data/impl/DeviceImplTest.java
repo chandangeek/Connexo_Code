@@ -59,7 +59,7 @@ import static org.fest.assertions.api.Fail.fail;
 import static org.mockito.Mockito.*;
 
 /**
- * Tests the {@link com.energyict.mdc.device.data.impl.DeviceImpl} component
+ * Tests the {@link com.energyict.mdc.device.data.impl.DeviceImpl} component.
  * <p/>
  * Copyrights EnergyICT
  * Date: 05/03/14
