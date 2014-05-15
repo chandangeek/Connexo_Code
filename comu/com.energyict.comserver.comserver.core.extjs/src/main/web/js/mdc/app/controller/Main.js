@@ -65,13 +65,32 @@ Ext.define('Mdc.controller.Main', {
     ],
 
     init: function () {
-        var me= this;
+        var me = this;
         var menuItem = Ext.create('Uni.model.MenuItem', {
             text: Uni.I18n.translate('general.setup', 'MDC', 'Setup'),
+            glyph: 'settings',
+            // TODO Rename the below properties when merging into 1 menu item.
             href: me.getApplication().getController('Mdc.controller.history.Setup').tokenizeShowOverview(),
-            glyph: 'settings'
+            portal: 'setup'
         });
         Uni.store.MenuItems.add(menuItem);
+
+        var portalItem1 = Ext.create('Uni.model.PortalItem', {
+            title: Uni.I18n.translate('general.rMR', 'MDC', 'RMR'),
+            component: Ext.create('Mdc.view.setup.portal.RMR'),
+            portal: 'setup'
+        });
+
+        var portalItem2 = Ext.create('Uni.model.PortalItem', {
+            title: Uni.I18n.translate('general.deviceManagement', 'MDC', 'Device management'),
+            component: Ext.create('Mdc.view.setup.portal.DeviceManagement'),
+            portal: 'setup'
+        });
+
+        Uni.store.PortalItems.add(
+            portalItem1, portalItem2
+        );
+
         this.initNavigation();
         this.initDefaultHistoryToken();
     },
@@ -98,7 +117,7 @@ Ext.define('Mdc.controller.Main', {
     clearContentPanel: function () {
         var widget;
         while (widget = this.getContentPanel().items.first()) {
-            this.getContentPanel().remove(widget,true);
+            this.getContentPanel().remove(widget, true);
         }
     }
 });

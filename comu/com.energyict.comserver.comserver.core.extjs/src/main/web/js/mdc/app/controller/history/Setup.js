@@ -7,9 +7,9 @@ Ext.define('Mdc.controller.history.Setup', {
 
     init: function () {
         var me = this;
-        crossroads.addRoute('setup', function () {
-            me.getApplication().getController('Mdc.controller.setup.SetupOverview').showOverview();
-        });
+//        crossroads.addRoute('setup', function () {
+//            me.getApplication().getController('Mdc.controller.setup.SetupOverview').showOverview();
+//        });
 
         //Logbook type routes
         crossroads.addRoute('setup/logbooktypes',function(){
