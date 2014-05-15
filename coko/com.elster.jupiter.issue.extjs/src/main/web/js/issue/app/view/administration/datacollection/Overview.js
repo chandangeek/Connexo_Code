@@ -34,13 +34,13 @@ Ext.define('Isu.view.administration.datacollection.Overview', {
         menu.add({
             text: 'Data collection',
             pressed: true,
-            href: '#/issue-administration/datacollection',
+            href: '#/issue-administration',
             hrefTarget: '_self'
         });
 
         menu.add({
             text: 'Issue assignment rules',
-            href: '#/issue-administration/datacollection/issueassignmentrules',
+            href: '#/issue-administration/issueassignmentrules',
             hrefTarget: '_self'
         });
 

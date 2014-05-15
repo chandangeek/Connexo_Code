@@ -9,10 +9,6 @@ Ext.define('Isu.controller.history.Workspace', {
         var me = this;
 
         crossroads.addRoute('workspace/datacollection',function(){
-            me.getController('Isu.controller.DataCollection').showOverview();
-        });
-
-        crossroads.addRoute('workspace/datacollection/overview',function(){
             me.getController('Isu.controller.DataCollectionOverview').showOverview();
         });
 

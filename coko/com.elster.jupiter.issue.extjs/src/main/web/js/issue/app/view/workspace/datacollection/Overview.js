@@ -24,7 +24,6 @@ Ext.define('Isu.view.workspace.datacollection.Overview', {
 
     initComponent: function () {
         this.callParent(this);
-
         this.initMenu();
     },
 

@@ -46,7 +46,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Overview',
         menu.add({
             text: 'Issue creation rules',
             pressed: true,
-            href: '#/issue-administration/datacollection/issuecreationrules',
+            href: '#/issue-administration/issuecreationrules',
             hrefTarget: '_self'
         });
     },

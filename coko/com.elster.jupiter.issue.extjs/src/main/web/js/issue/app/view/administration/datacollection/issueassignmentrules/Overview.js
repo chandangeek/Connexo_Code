@@ -35,7 +35,7 @@ Ext.define('Isu.view.administration.datacollection.issueassignmentrules.Overview
         menu.add({
             text: 'Issue assignment rules',
             pressed: true,
-            href: '#/issue-administration/datacollection/issueassignmentrules',
+            href: '#/issue-administration/issueassignmentrules',
             hrefTarget: '_self'
         });
     },
