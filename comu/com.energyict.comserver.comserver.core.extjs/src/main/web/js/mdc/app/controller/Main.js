@@ -77,13 +77,13 @@ Ext.define('Mdc.controller.Main', {
 
         var portalItem1 = Ext.create('Uni.model.PortalItem', {
             title: Uni.I18n.translate('general.rMR', 'MDC', 'RMR'),
-            component: Ext.create('Mdc.view.setup.portal.RMR'),
+            component: 'Mdc.view.setup.portal.RMR',
             portal: 'setup'
         });
 
         var portalItem2 = Ext.create('Uni.model.PortalItem', {
             title: Uni.I18n.translate('general.deviceManagement', 'MDC', 'Device management'),
-            component: Ext.create('Mdc.view.setup.portal.DeviceManagement'),
+            component: 'Mdc.view.setup.portal.DeviceManagement',
             portal: 'setup'
         });
 
