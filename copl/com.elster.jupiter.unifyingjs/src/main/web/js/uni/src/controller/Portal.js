@@ -121,9 +121,23 @@ Ext.define('Uni.controller.Portal', {
         portalView = this.portalViews[portal];
 
         store.filter('portal', portal);
+        var portalItemsToDisplay = {};
         store.each(function (portalItem) {
-            portalView.addPortalItem(portalItem);
+            if(portalItemsToDisplay.hasOwnProperty(portalItem.get('title'))){
+                Ext.each(portalItem.get('items'),function(item){
+                    portalItemsToDisplay[portalItem.get('title')].get('items').push(item);
+                });
+                store.remove(portalItem);
+            } else {
+                portalItemsToDisplay[portalItem.get('title')]=portalItem;
+            }
         });
+
+        for(portalItemToDisplay in portalItemsToDisplay){
+            if (portalItemsToDisplay.hasOwnProperty(portalItemToDisplay)) {
+                portalView.addPortalItem(portalItemsToDisplay[portalItemToDisplay]);
+            }
+        }
 
         this.getApplication().fireEvent('changemaincontentevent', portalView);
 
