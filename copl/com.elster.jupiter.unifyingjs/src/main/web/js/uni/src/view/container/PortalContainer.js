@@ -24,7 +24,7 @@ Ext.define('Uni.view.container.PortalContainer', {
             items = model.get('items'),
             widget;
 
-        if (typeof items !== 'undefined') {
+        if (typeof items === 'undefined') {
             return widget;
         }
 
