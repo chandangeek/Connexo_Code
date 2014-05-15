@@ -20,10 +20,10 @@ Ext.define('Sam.view.licensing.List', {
                     items: [
                         {
                             xtype: 'container',
-                            flex: 1,
                             items: [
                                 {
-                                    html: '0 licenses'
+                                    xtype: 'label',
+                                    text: '0 licenses'
                                 }
                             ]
                         },
@@ -41,7 +41,6 @@ Ext.define('Sam.view.licensing.List', {
         {
             xtype: 'grid',
             store: 'Sam.store.Licensing',
-            cls: 'license-list-grid',
             height: 285,
             columns: {
                 defaults: {
@@ -76,8 +75,7 @@ Ext.define('Sam.view.licensing.List', {
                     items: [
                         {
                             xtype: 'container',
-                            name: 'gridcontainer',
-                            flex: 1
+                            name: 'gridcontainer'
                         },
                         {
                             xtype: 'button',
@@ -113,7 +111,8 @@ Ext.define('Sam.view.licensing.List', {
         if (storeTotal) {
             gridTop.removeAll();
             gridTop.add({
-                html: storeTotal + ' licenses'
+                xtype: 'label',
+                text: storeTotal + ' licenses'
             });
             this.hideEmptyText();
         } else {

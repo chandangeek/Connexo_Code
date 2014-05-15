@@ -28,12 +28,13 @@ Ext.define('Sam.view.licensing.Details', {
                         {
                             xtype: 'container',
                             flex: 1,
-                            html:  record.data.applicationname
+                            html: record.data.applicationname
                         }
                     ]
                 },
                 {
                     data: record.data,
+                    ui: 'medium',
                     bodyPadding: '20 40',
                     tpl: new Ext.XTemplate(
                         '<table class="isu-item-data-table">',

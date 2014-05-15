@@ -52,10 +52,9 @@ Ext.define('Sam.view.licensing.Upload', {
                                 },
                                 {
                                     text: 'Cancel',
-                                    name: 'cancel',
+                                    ui: 'link',
                                     hrefTarget: '',
                                     href: '#/sysadministration/licensing/licenses',
-                                    cls: 'isu-btn-link'
                                 }
                             ]
                         }

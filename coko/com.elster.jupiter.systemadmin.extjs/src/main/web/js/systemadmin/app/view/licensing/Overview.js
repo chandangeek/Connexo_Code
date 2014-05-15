@@ -19,8 +19,8 @@ Ext.define('Sam.view.licensing.Overview', {
             cls: 'content-wrapper',
             items: [
                 {
-                    html: '<h1>Licenses</h1>',
-                    cls: 'license-overview-title'
+                    title: 'Licenses',
+                    ui: 'large'
                 },
                 {
                     xtype: 'licensing-list',
