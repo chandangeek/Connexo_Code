@@ -122,6 +122,7 @@ Ext.define('Uni.controller.Portal', {
         });
         portalView = this.portalViews[portal];
 
+        store.clearFilter();
         store.filter('portal', portal);
         var portalItemsToDisplay = {};
         store.each(function (portalItem) {
