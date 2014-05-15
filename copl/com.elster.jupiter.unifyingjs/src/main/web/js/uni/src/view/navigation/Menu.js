@@ -41,12 +41,13 @@ Ext.define('Uni.view.navigation.Menu', {
     },
 
     createMenuItemFromModel: function (model) {
-        var iconCls = model.data.glyph ? 'uni-icon-' + model.data.glyph : 'uni-icon-none';
+        var iconCls = model.data.glyph ? 'uni-icon-' + model.data.glyph : 'uni-icon-none',
+            href = model.data.portal ? '#/' + model.data.portal : model.data.href;
 
         return {
             tooltip: model.data.text,
             text: model.data.text,
-            href: model.data.href,
+            href: href,
             data: model,
             iconCls: iconCls
         };

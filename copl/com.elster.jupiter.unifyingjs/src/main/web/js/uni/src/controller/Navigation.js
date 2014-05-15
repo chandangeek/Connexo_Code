@@ -95,6 +95,7 @@ Ext.define('Uni.controller.Navigation', {
     },
 
     addMenuItem: function (title, href, glyph) {
+        href = portal ? '#/' + portal : href;
         var item = {
             text: title,
             tooltip: title,

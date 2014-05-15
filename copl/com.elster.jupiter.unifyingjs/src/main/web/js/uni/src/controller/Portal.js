@@ -117,7 +117,6 @@ Ext.define('Uni.controller.Portal', {
             portalView.removeAll();
         }
 
-        // TODO Fix the having to reload the page.
         this.portalViews[portal] = Ext.create('Uni.view.container.PortalContainer');
         portalView = this.portalViews[portal];
 
@@ -130,7 +129,7 @@ Ext.define('Uni.controller.Portal', {
 
         // TODO Make a more stylized breadcrumb.
         var portalBreadcrumb = Ext.create('Uni.model.BreadcrumbItem', {
-            text: '<h2>' + title + '</h2>'
+            text: title
         });
 
         this.getApplication().fireEvent('changemainbreadcrumbevent', portalBreadcrumb);
