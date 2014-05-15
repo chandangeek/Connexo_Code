@@ -37,7 +37,7 @@ public class RegisterGroupResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public PagedInfoList getRegisterGroups(@BeanParam QueryParameters queryParameters) {
-        List<RegisterGroup> allRegisterGroups = this.masterDataService.findAllRegisterGroups().from(queryParameters).find();;
+        List<RegisterGroup> allRegisterGroups = this.masterDataService.findAllRegisterGroups().from(queryParameters).find();
         List<RegisterGroupInfo> registerGroupInfos = new ArrayList<>();
         for(RegisterGroup registerGroup : allRegisterGroups){
             registerGroupInfos.add(new RegisterGroupInfo(registerGroup.getId(), registerGroup.getName()));
@@ -56,8 +56,13 @@ public class RegisterGroupResource {
     @GET
     @Path("/{id}/registertypes")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<RegisterMappingInfo> getRegisterTypesOfRegisterGroup(@PathParam("id") long id) {
-        return new RegisterGroupInfo(resourceHelper.findRegisterGroupByIdOrThrowException(id)).registerTypes;
+    public PagedInfoList getRegisterTypesOfRegisterGroup(@PathParam("id") long id, @BeanParam QueryParameters queryParameters) {
+        RegisterGroupInfo registerGroupInfo = new RegisterGroupInfo(resourceHelper.findRegisterGroupByIdOrThrowException(id));
+        List<RegisterMappingInfo> registerMappingInfos = registerGroupInfo.registerTypes;
+        if(queryParameters.getStart() != null && queryParameters.getStart() < registerGroupInfo.registerTypes.size()){
+            registerMappingInfos = registerMappingInfos.subList(queryParameters.getStart(), registerMappingInfos.size());
+        }
+        return PagedInfoList.asJson("registerTypes", registerMappingInfos, queryParameters);
     }
 
     @DELETE
