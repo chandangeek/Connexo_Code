@@ -22,6 +22,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import java.util.Calendar;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import javax.inject.Inject;
 import org.osgi.service.component.annotations.Activate;
@@ -113,6 +114,12 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService 
         NextExecutionSpecsImpl instance = dataModel.getInstance(NextExecutionSpecsImpl.class);
         instance.setTemporalExpression(temporalExpression);
         return instance;
+    }
+
+    @Override
+    public NextExecutionSpecs previewNextExecutions(TemporalExpression temporalExpression, Date startDate) {
+
+        return null;
     }
 
     @Override
