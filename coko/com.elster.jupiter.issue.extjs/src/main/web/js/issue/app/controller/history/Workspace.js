@@ -4,16 +4,9 @@ Ext.define('Isu.controller.history.Workspace', {
     rootToken: 'workspace',
     previousPath: '',
     currentPath: null,
-    requires: [
-        'Isu.controller.Workspace'
-    ],
 
     init: function () {
         var me = this;
-
-        crossroads.addRoute('workspace',function(){
-            me.getController('Isu.controller.Workspace').showOverview();
-        });
 
         crossroads.addRoute('workspace/datacollection',function(){
             me.getController('Isu.controller.DataCollection').showOverview();

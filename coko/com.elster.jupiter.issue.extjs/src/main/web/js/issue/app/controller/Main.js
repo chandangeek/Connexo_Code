@@ -5,12 +5,14 @@ Ext.define('Isu.controller.Main', {
         'Ext.window.Window',
         'Uni.controller.Navigation',
         'Uni.controller.Configuration',
-        'Uni.controller.history.EventBus'
+        'Uni.controller.history.EventBus',
+        'Uni.model.PortalItem',
+        'Uni.store.PortalItems',
+        'Uni.store.MenuItems'
     ],
 
     controllers: [
         'Isu.controller.history.Workspace',
-        'Isu.controller.Workspace',
         'Isu.controller.DataCollection',
         'Isu.controller.Issues',
         'Isu.controller.AssignIssues',
@@ -22,7 +24,6 @@ Ext.define('Isu.controller.Main', {
         'Isu.controller.history.Workspace',
         'Isu.controller.IssueDetail',
         'Isu.controller.history.Administration',
-        'Isu.controller.Administration',
         'Isu.controller.AdministrationDataCollection'
     ],
 
@@ -48,7 +49,6 @@ Ext.define('Isu.controller.Main', {
 
     init: function () {
         this.getApplication().on('changecontentevent', this.showContent, this);
-        this.initDefaultHistoryToken();
         this.initNavigation();
         this.initMenu();
     },
@@ -58,19 +58,28 @@ Ext.define('Isu.controller.Main', {
 
         var menuItem = Ext.create('Uni.model.MenuItem', {
             text: 'Workspace',
-            href: me.getController('Isu.controller.history.Workspace').tokenizeShowOverview(),
-            glyph: 'workspace'
+            glyph: 'workspace',
+            portal: 'workspace'
         });
 
         Uni.store.MenuItems.add(menuItem);
 
-        var menuItem = Ext.create('Uni.model.MenuItem', {
-            text: 'Administration',
-            href: me.getController('Isu.controller.history.Administration').tokenizeShowOverview(),
-            glyph: 'settings'
+        var portalItem1 = Ext.create('Uni.model.PortalItem', {
+            title: 'Workspace',
+            component: 'Isu.view.workspace.Menu',
+            portal: 'workspace'
         });
 
-        Uni.store.MenuItems.add(menuItem);
+        var portalItem2 = Ext.create('Uni.model.PortalItem', {
+            title: 'Administration',
+            component: 'Isu.view.administration.Menu',
+            portal: 'workspace'
+        });
+
+        Uni.store.PortalItems.add(
+            portalItem1,
+            portalItem2
+        );
     },
 
     initNavigation: function () {
@@ -79,14 +88,6 @@ Ext.define('Isu.controller.Main', {
 
         this.setNavigationController(navigationController);
         this.setConfigurationController(configurationController);
-    },
-
-    initDefaultHistoryToken: function () {
-        var workspaceController = this.getController('Isu.controller.history.Workspace'),
-            eventBus = this.getController('Uni.controller.history.EventBus'),
-            defaultToken = workspaceController.tokenizeShowOverview();
-
-        eventBus.setDefaultToken(defaultToken);
     },
 
     showContent: function (widget) {

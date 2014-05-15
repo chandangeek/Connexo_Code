@@ -8,10 +8,6 @@ Ext.define('Isu.controller.history.Administration', {
     init: function () {
         var me = this;
 
-        crossroads.addRoute('issue-administration',function(){
-            me.getController('Isu.controller.Administration').showOverview();
-        });
-
         crossroads.addRoute('issue-administration/datacollection',function(){
             me.getController('Isu.controller.AdministrationDataCollection').showOverview();
         });
