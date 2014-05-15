@@ -31,7 +31,7 @@ public class InboundComPortExecutorImpl implements InboundComPortExecutor {
 
     @Override
     public void execute(ComChannel comChannel) {
-        final InboundCommunicationHandler inboundCommunicationHandler = new InboundCommunicationHandler(getServerInboundComPort(), this.comServerDAO, this.deviceCommandExecutor, issueService);
+        final InboundCommunicationHandler inboundCommunicationHandler = new InboundCommunicationHandler(getServerInboundComPort(), this.comServerDAO, this.deviceCommandExecutor, issueService, taskHistoryService, clock);
         BinaryInboundDeviceProtocol inboundDeviceProtocol = this.newInboundDeviceProtocol();
         InboundDiscoveryContextImpl context = this.newInboundDiscoveryContext(comChannel);
         inboundDeviceProtocol.initializeDiscoveryContext(context);

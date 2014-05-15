@@ -1,7 +1,5 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
-import com.energyict.comserver.commands.DeviceCommand;
-import com.energyict.comserver.commands.UpdateDeviceIpAddress;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.UpdateDeviceIpAddress;

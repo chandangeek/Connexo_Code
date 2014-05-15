@@ -255,8 +255,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * @param builder The ComSessionShadow
      * @return The newly created ComSession
      */
-    //TODO reenable and adjust this when JP-2460 is completely finished
-    public ComSession createOutboundComSession (ScheduledConnectionTask owner, ComSessionBuilder.EndedComSessionBuilder builder);
+    public ComSession createOutboundComSession (ScheduledConnectionTask owner, ComSessionBuilder builder, ComSession.SuccessIndicator successIndicator);
 
     /**
      * Creates a new ComSession from the specifications laid out
@@ -267,8 +266,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * @param builder the ComSessionShadow
      * @return the newly created ComSession
      */
-    //TODO reenable and adjust this when JP-2460 is completely finished
-    public ComSession createInboundComSession(InboundConnectionTask owner, ComSessionBuilder.EndedComSessionBuilder builder);
+    public ComSession createInboundComSession(InboundConnectionTask owner, ComSessionBuilder builder, ComSession.SuccessIndicator successIndicator);
 
     /**
      * Stores the given list of Reading readings on the Meter.

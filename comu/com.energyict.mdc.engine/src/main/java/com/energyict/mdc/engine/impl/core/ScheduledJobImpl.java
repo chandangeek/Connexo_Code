@@ -8,7 +8,6 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionFailureException;
@@ -29,8 +28,8 @@ import java.util.Calendar;
  */
 public abstract class ScheduledJobImpl extends JobExecution {
 
-    protected ScheduledJobImpl(ComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, IssueService issueService) {
-        super(comPort, comServerDAO, deviceCommandExecutor, issueService);
+    protected ScheduledJobImpl(ComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
+        super(comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
     }
 
     /**
@@ -61,7 +60,7 @@ public abstract class ScheduledJobImpl extends JobExecution {
         }
         else {
             Calendar now = Calendar.getInstance();
-            now.setTimeInMillis(Clocks.getAppServerClock().now().getTime());
+            now.setTimeInMillis(getServiceProvider().clock().now().getTime());
             return comWindow.includes(now);
         }
     }
@@ -69,7 +68,7 @@ public abstract class ScheduledJobImpl extends JobExecution {
     @Override
     public void rescheduleToNextComWindow () {
         this.createExecutionContext(false);
-        this.getExecutionContext().getComSessionBuilder().setNumberOfPlannedButNotExecutedTasks(this.getComTaskExecutions().size());
+        this.getExecutionContext().getComSessionBuilder().incrementNotExecutedTasks(this.getComTaskExecutions().size());
         this.getExecutionContext().createJournalEntry("Rescheduling to next ComWindow because current timestamp is not " + this.getConnectionTask().getCommunicationWindow());
         this.doReschedule(RescheduleBehavior.RescheduleReason.OUTSIDE_COM_WINDOW);
         this.completeSuccessfulComSession();

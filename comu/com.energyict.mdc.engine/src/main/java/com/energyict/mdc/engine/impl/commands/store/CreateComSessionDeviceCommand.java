@@ -12,6 +12,6 @@ import com.energyict.mdc.tasks.history.ComSessionBuilder;
  */
 public interface CreateComSessionDeviceCommand extends DeviceCommand, DeviceCommand.ExecutionLogger, CanProvideDescriptionTitle {
 
-    public ComSessionBuilder.EndedComSessionBuilder getComSessionBuilder();
+    public ComSessionBuilder getComSessionBuilder();
 
 }

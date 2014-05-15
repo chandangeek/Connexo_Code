@@ -51,7 +51,7 @@ public class ComServlet extends HttpServlet {
 
     public ComServlet(ServletBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, IssueService issueService) {
         super();
-        this.communicationHandler = new InboundCommunicationHandler(comPort, comServerDAO, deviceCommandExecutor, issueService);
+        this.communicationHandler = new InboundCommunicationHandler(comPort, comServerDAO, deviceCommandExecutor, issueService, taskHistoryService, clock);
         this.comPort = comPort;
         this.comServerDAO = comServerDAO;
     }

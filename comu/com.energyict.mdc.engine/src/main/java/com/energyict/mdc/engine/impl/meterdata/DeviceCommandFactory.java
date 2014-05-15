@@ -4,6 +4,7 @@ import com.energyict.mdc.engine.impl.commands.store.CompositeDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.tasks.history.ComTaskExecutionSessionBuilder;
 
 import java.util.List;
 
@@ -25,9 +26,10 @@ public interface DeviceCommandFactory {
      * @param collectedData The ServerCollectedData
      * @param communicationLogLevel
      * @param issueService
+     * @param builder
      * @return The CompositeDeviceCommand
      */
-    public CompositeDeviceCommand newCompositeForAll(List<ServerCollectedData> collectedData, ComServer.LogLevel communicationLogLevel, IssueService issueService);
+    public CompositeDeviceCommand newCompositeForAll(List<ServerCollectedData> collectedData, ComServer.LogLevel communicationLogLevel, IssueService issueService, ComTaskExecutionSessionBuilder builder);
 
     /**
      * Creates a {@link DeviceCommand} for every {@link ServerCollectedData}.

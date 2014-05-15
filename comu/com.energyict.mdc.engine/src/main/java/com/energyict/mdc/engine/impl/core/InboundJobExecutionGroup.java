@@ -33,7 +33,7 @@ public class InboundJobExecutionGroup extends JobExecution {
     private List<ComTaskExecution> failedComTaskExecutions = new ArrayList<>();
     private List<ComTaskExecution> successfulComTaskExecutions = new ArrayList<>();
 
-    public InboundJobExecutionGroup(ComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundDiscoveryContextImpl inboundDiscoveryContext) {
+    public InboundJobExecutionGroup(ComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundDiscoveryContextImpl inboundDiscoveryContext, ServiceProvider serviceProvider) {
         super(comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
         this.inboundDiscoveryContext = inboundDiscoveryContext;
     }

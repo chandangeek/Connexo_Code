@@ -27,7 +27,6 @@ import com.energyict.mdc.device.data.journal.ComSession;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
@@ -145,7 +144,7 @@ public class InboundCommunicationHandlerTest {
         when(this.comPort.getId()).thenReturn(Long.valueOf(COMPORT_ID));
         when(this.comPort.getComPortPool()).thenReturn(this.comPortPool);
         when(this.comPort.getComServer()).thenReturn(this.comServer);
-        this.handler = new InboundCommunicationHandler(this.comPort, this.comServerDAO, this.deviceCommandExecutor, mock(IssueService.class));
+        this.handler = new InboundCommunicationHandler(this.comPort, this.comServerDAO, this.deviceCommandExecutor, mock(IssueService.class), taskHistoryService, clock);
 
         when(this.manager.getComTaskEnablementFactory()).thenReturn(this.comTaskEnablementFactory);
         when(this.comTaskEnablementFactory.findByDeviceCommunicationConfigurationAndComTask(

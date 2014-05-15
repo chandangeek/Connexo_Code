@@ -21,18 +21,20 @@ import com.energyict.mdc.tasks.history.ComSessionBuilder;
  */
 public class CreateOutboundComSession extends ExecutionLoggerImpl implements CreateComSessionDeviceCommand {
 
-    private ScheduledConnectionTask connectionTask;
-    private ComSessionBuilder.EndedComSessionBuilder builder;
+    private final ScheduledConnectionTask connectionTask;
+    private final ComSessionBuilder builder;
+    private final ComSession.SuccessIndicator successIndicator;
     private ComSession outboundComSession;
 
-    public CreateOutboundComSession (ComServer.LogLevel communicationLogLevel, ScheduledConnectionTask connectionTask, ComSessionBuilder.EndedComSessionBuilder builder) {
-        super(communicationLogLevel);
+    public CreateOutboundComSession(ComServer.LogLevel communicationLogLevel, ScheduledConnectionTask connectionTask, ComSessionBuilder builder, ComSession.SuccessIndicator successIndicator) {
+        super(communicationLogLevel, clock);
         this.connectionTask = connectionTask;
         this.builder = builder;
+        this.successIndicator = successIndicator;
     }
 
     @Override
-    public ComSessionBuilder.EndedComSessionBuilder getComSessionBuilder() {
+    public ComSessionBuilder getComSessionBuilder() {
         return builder;
     }
 

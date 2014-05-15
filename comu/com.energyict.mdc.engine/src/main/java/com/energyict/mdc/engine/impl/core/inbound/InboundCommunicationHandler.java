@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.journal.ComSession;
@@ -33,6 +34,7 @@ import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.tasks.history.ComSession;
 import com.energyict.mdc.tasks.history.ComSessionBuilder;
+import com.energyict.mdc.tasks.history.TaskHistoryService;
 
 import java.util.List;
 
@@ -55,6 +57,9 @@ import java.util.List;
 public class InboundCommunicationHandler {
 
     private final IssueService issueService;
+    private final TaskHistoryService taskHistoryService;
+    private final Clock clock;
+
     private InboundComPort comPort;
     private ComServerDAO comServerDAO;
     private DeviceCommandExecutor deviceCommandExecutor;
@@ -63,12 +68,14 @@ public class InboundCommunicationHandler {
     private InboundDiscoveryContextImpl context;
     private InboundDeviceProtocol.DiscoverResponseType responseType;
 
-    public InboundCommunicationHandler(InboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, IssueService issueService) {
+    public InboundCommunicationHandler(InboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, IssueService issueService, TaskHistoryService taskHistoryService, Clock clock) {
         super();
         this.comPort = comPort;
         this.comServerDAO = comServerDAO;
         this.deviceCommandExecutor = deviceCommandExecutor;
         this.issueService = issueService;
+        this.taskHistoryService = taskHistoryService;
+        this.clock = clock;
     }
 
     /**
@@ -138,19 +145,9 @@ public class InboundCommunicationHandler {
      * @return the CreateInboundComSession
      */
     private CreateInboundComSession createFailedInboundComSessionForDuplicateDevice(DuplicateException e){
-        ComSessionBuilder comSessionShadow = new ComSessionShadow();
-        comSessionShadow.setComPortId((int) this.comPort.getId());
-        comSessionShadow.setComPortPoolId((int) this.comPort.getComPortPool().getId());
-        comSessionShadow.setStartDate(Clocks.getAppServerClock().now());
-        comSessionShadow.setConnectionTaskId((int) this.connectionTask.getId());
-        comSessionShadow.setSuccessIndicator(ComSession.SuccessIndicator.SetupError);
-        ComSessionJournalEntryShadow comSessionJournalEntryShadow = new ComSessionJournalEntryShadow();
-        comSessionJournalEntryShadow.setCause(e);
-        comSessionJournalEntryShadow.setTimestamp(Clocks.getAppServerClock().now());
-        comSessionJournalEntryShadow.setMessage(e.getMessage());
-        comSessionShadow.addJournaleEntry(comSessionJournalEntryShadow);
-        comSessionShadow.setStopDate(Clocks.getAppServerClock().now());
-        return new CreateInboundComSession(getComPort(), this.connectionTask, comSessionShadow);
+        ComSessionBuilder comSessionBuilder = taskHistoryService.buildComSession(connectionTask, comPort.getComPortPool(), comPort, clock.now())
+                .addJournalEntry(clock.now(), e.getMessage(), e);
+        return new CreateInboundComSession(getComPort(), this.connectionTask, comSessionBuilder, ComSession.SuccessIndicator.SetupError);
     }
 
     private void handleUnknownDevice(InboundDeviceProtocol inboundDeviceProtocol) {
@@ -288,7 +285,7 @@ public class InboundCommunicationHandler {
                         getComPort(),
                         comServerDAO,
                         deviceCommandExecutor,
-                        getContext());
+                        getContext(), serviceProvider);
         inboundJobExecutionGroup.setToken(token);
         inboundJobExecutionGroup.setConnectionTask(this.connectionTask);
         inboundJobExecutionGroup.executeDeviceProtocol(this.deviceComTaskExecutions);

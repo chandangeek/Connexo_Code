@@ -50,7 +50,7 @@ public class CreateInboundComSessionTest {
         ComSessionShadow comSessionShadow = new ComSessionShadow();
 
         // Business method
-        CreateInboundComSession command = new CreateInboundComSession(this.comPort, mock(InboundConnectionTask.class), comSessionShadow);
+        CreateInboundComSession command = new CreateInboundComSession(this.comPort, mock(InboundConnectionTask.class), comSessionShadow, successIndicator);
 
         // Asserts
         assertThat(command.getComSessionBuilder()).isEqualTo(comSessionShadow);
@@ -60,7 +60,7 @@ public class CreateInboundComSessionTest {
     public void testExecuteDelegatesToComServerDAO () {
         ComSessionShadow comSessionShadow = new ComSessionShadow();
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
-        CreateInboundComSession command = new CreateInboundComSession(this.comPort, connectionTask, comSessionShadow);
+        CreateInboundComSession command = new CreateInboundComSession(this.comPort, connectionTask, comSessionShadow, successIndicator);
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
 
         // Business method
@@ -74,7 +74,7 @@ public class CreateInboundComSessionTest {
     public void testExecuteDuringShutdownDelegatesToComServerDAO () {
         ComSessionShadow comSessionShadow = new ComSessionShadow();
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
-        CreateInboundComSession command = new CreateInboundComSession(this.comPort, connectionTask, comSessionShadow);
+        CreateInboundComSession command = new CreateInboundComSession(this.comPort, connectionTask, comSessionShadow, successIndicator);
         command.logExecutionWith(this.executionLogger);
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
 
@@ -89,7 +89,7 @@ public class CreateInboundComSessionTest {
     public void testExecuteWithFailureRethrowsFailure () {
         ComSessionShadow comSessionShadow = new ComSessionShadow();
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
-        CreateInboundComSession command = new CreateInboundComSession(this.comPort, connectionTask, comSessionShadow);
+        CreateInboundComSession command = new CreateInboundComSession(this.comPort, connectionTask, comSessionShadow, successIndicator);
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         doThrow(MockedComServerDAOFailure.class).when(comServerDAO).createInboundComSession(any(InboundConnectionTask.class), any(ComSessionShadow.class));
 
@@ -103,7 +103,7 @@ public class CreateInboundComSessionTest {
     public void testExecuteDuringShutdownWithFailureRethrowsFailure () {
         ComSessionShadow comSessionShadow = new ComSessionShadow();
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
-        CreateInboundComSession command = new CreateInboundComSession(this.comPort, connectionTask, comSessionShadow);
+        CreateInboundComSession command = new CreateInboundComSession(this.comPort, connectionTask, comSessionShadow, successIndicator);
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         doThrow(MockedComServerDAOFailure.class).when(comServerDAO).createInboundComSession(any(InboundConnectionTask.class), any(ComSessionShadow.class));
 
@@ -121,7 +121,7 @@ public class CreateInboundComSessionTest {
         comSessionShadow.setSuccessIndicator(ComSession.SuccessIndicator.Success);
         comSessionShadow.setComPortId(COMPORT_ID);
         comSessionShadow.setConnectionTaskId(CONNECTION_TASK_ID);
-        CreateInboundComSession command = new CreateInboundComSession(comPort, connectionTask, comSessionShadow);
+        CreateInboundComSession command = new CreateInboundComSession(comPort, connectionTask, comSessionShadow, successIndicator);
 
         // Business method
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.DEBUG);

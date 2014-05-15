@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.engine.model.ComServer;
@@ -8,6 +9,7 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.StackTracePrint
 import com.energyict.mdc.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.tasks.history.CompletionCode;
+import com.google.common.base.Optional;
 
 /**
  * Provides an implementation for the {@link DeviceCommand.ExecutionLogger} interface.
@@ -18,21 +20,20 @@ import com.energyict.mdc.tasks.history.CompletionCode;
 public abstract class ExecutionLoggerImpl implements DeviceCommand.ExecutionLogger {
 
     private ComServer.LogLevel logLevel;
+    private final Clock clock;
 
-    protected ExecutionLoggerImpl (ComServer.LogLevel logLevel) {
+    protected ExecutionLoggerImpl(ComServer.LogLevel logLevel, Clock clock) {
         super();
         this.logLevel = logLevel;
+        this.clock = clock;
     }
 
-    protected abstract ComSessionBuilder.EndedComSessionBuilder getComSessionBuilder();
+    protected abstract ComSessionBuilder getComSessionBuilder();
 
     @Override
     public void executed (DeviceCommand deviceCommand) {
         if (this.isLogLevelEnabled(deviceCommand)) {
-            ComSessionJournalEntryShadow shadow = new ComSessionJournalEntryShadow();
-            shadow.setMessage(deviceCommand.toJournalMessageDescription(this.logLevel));
-            shadow.setTimestamp(Clocks.getAppServerClock().now());
-            this.getComSessionBuilder().addJournaleEntry(shadow);
+            getComSessionBuilder().addJournalEntry(clock.now(), deviceCommand.toJournalMessageDescription(this.logLevel), null);
         }
     }
 
@@ -52,11 +53,10 @@ public abstract class ExecutionLoggerImpl implements DeviceCommand.ExecutionLogg
         this.logFailure(t, this.findComTaskExecutionSession(comTaskExecution));
     }
 
-    private ComTaskExecutionSessionShadow findComTaskExecutionSession (ComTaskExecution comTaskExecution) {
-        for (ComTaskExecutionSessionShadow shadow : this.getComSessionBuilder().getComTaskExecutionSessionShadows()) {
-            if (shadow.getComTaskExecutionId() == comTaskExecution.getId()) {
-                return shadow;
-            }
+    private ComTaskExecutionSessionBuilder findComTaskExecutionSession (ComTaskExecution comTaskExecution) {
+        Optional<ComTaskExecutionSessionBuilder> found = getComSessionBuilder().findFor(comTaskExecution);
+        if (found.isPresent()) {
+            return found.get();
         }
         throw CodingException.comTaskSessionMissing(comTaskExecution);
     }
@@ -66,11 +66,11 @@ public abstract class ExecutionLoggerImpl implements DeviceCommand.ExecutionLogg
     }
 
     @Override
-    public void addIssue(CompletionCode completionCode, Issue issue, ComTaskExecution comTaskExecution){
+    public void addIssue(CompletionCode completionCode, Issue<?> issue, ComTaskExecution comTaskExecution){
         this.logIssue(completionCode, issue, this.findComTaskExecutionSession(comTaskExecution));
     }
 
-    private void logIssue(CompletionCode completionCode, Issue issue, ComTaskExecutionSessionBuilder builder) {
+    private void logIssue(CompletionCode completionCode, Issue<?> issue, ComTaskExecutionSessionBuilder builder) {
         builder.addComCommandJournalEntry(issue.getTimestamp(), completionCode, issue.isProblem() ? issue.getDescription() : "", issue.getDescription());
     }
 

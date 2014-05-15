@@ -45,7 +45,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
     private DeviceProtocol deviceProtocol;
 
     public InboundJobExecutionDataProcessor(ComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundDiscoveryContextImpl inboundDiscoveryContext, InboundDeviceProtocol inboundDeviceProtocol, OfflineDevice offlineDevice, IssueService issueService) {
-        super(comPort, comServerDAO, deviceCommandExecutor, inboundDiscoveryContext);
+        super(comPort, comServerDAO, deviceCommandExecutor, inboundDiscoveryContext, serviceProvider);
         this.inboundDeviceProtocol = inboundDeviceProtocol;
         this.offlineDevice = offlineDevice;
         this.issueService = issueService;
