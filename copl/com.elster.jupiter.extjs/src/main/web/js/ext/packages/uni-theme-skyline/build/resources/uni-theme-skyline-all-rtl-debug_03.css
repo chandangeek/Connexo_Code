@@ -7016,34 +7016,40 @@
 .x-panel-default-framed .x-panel-header .x-btn-default-small {
   background-color: transparent;
 }
-/* line 52, ../../sass/src/panel/Panel.scss */
+/* line 54, ../../sass/src/panel/Panel.scss */
+.x-panel-default-framed .x-panel-header .x-btn-default-small-menu-active,
+.x-panel-default-framed .x-panel-header .x-btn-default-small-focus,
+.x-panel-default-framed .x-panel-header .x-btn-default-small-over {
+  background-color: #1e7d9e;
+}
+/* line 58, ../../sass/src/panel/Panel.scss */
 .x-panel-default-framed .x-panel-header-top {
   padding: 4px 4px 4px 16px;
 }
-/* line 55, ../../sass/src/panel/Panel.scss */
+/* line 61, ../../sass/src/panel/Panel.scss */
 .x-panel-default-framed .x-panel {
   padding: 0;
 }
 
-/* line 60, ../../sass/src/panel/Panel.scss */
+/* line 67, ../../sass/src/panel/Panel.scss */
 .x-panel-header .x-panel-header-sub-text {
   float: none;
   color: #686868;
   clear: both;
   display: block;
 }
-/* line 66, ../../sass/src/panel/Panel.scss */
+/* line 73, ../../sass/src/panel/Panel.scss */
 .x-panel-header .x-panel-header-sub-text-medium {
   font-size: 20px;
   line-height: 20px;
 }
-/* line 70, ../../sass/src/panel/Panel.scss */
+/* line 77, ../../sass/src/panel/Panel.scss */
 .x-panel-header .x-panel-header-sub-text-large {
   font-size: 30px;
   line-height: 20px;
 }
 
-/* line 76, ../../sass/src/panel/Panel.scss */
+/* line 83, ../../sass/src/panel/Panel.scss */
 .x-panel-filter {
   background-color: #ebebeb;
   -webkit-border-radius: 10px;
@@ -7052,26 +7058,26 @@
   -o-border-radius: 10px;
   border-radius: 10px;
 }
-/* line 80, ../../sass/src/panel/Panel.scss */
+/* line 87, ../../sass/src/panel/Panel.scss */
 .x-panel-filter .x-panel-body {
   background: transparent;
 }
 
-/* line 85, ../../sass/src/panel/Panel.scss */
+/* line 92, ../../sass/src/panel/Panel.scss */
 .x-panel-filter-toolbar {
   padding: 8px 0;
 }
-/* line 87, ../../sass/src/panel/Panel.scss */
+/* line 94, ../../sass/src/panel/Panel.scss */
 .x-panel-filter-toolbar .x-header-text-container {
   width: 64px;
   color: #686868;
   font-weight: bold;
 }
-/* line 92, ../../sass/src/panel/Panel.scss */
+/* line 99, ../../sass/src/panel/Panel.scss */
 .x-panel-filter-toolbar .x-box-item {
   margin-right: 8px;
 }
-/* line 95, ../../sass/src/panel/Panel.scss */
+/* line 102, ../../sass/src/panel/Panel.scss */
 .x-panel-filter-toolbar .x-panel-body {
   background: transparent;
 }
@@ -9190,7 +9196,7 @@
   border-width: 1px !important;
 }
 
-/* line 119, ../../sass/src/panel/Panel.scss */
+/* line 125, ../../sass/src/panel/Panel.scss */
 .x-uni-form-error-msg-icon {
   background-image: url("images/form/ico_warning.png");
 }
@@ -9341,15 +9347,23 @@ div.x-form-spinner-down {
   padding: 10px 0px 10px 0px;
 }
 
-/* line 1, ../../sass/src/form/Label.scss */
+/* line 3, ../../sass/src/form/Label.scss */
 .x-form-item-label {
   font-size: 13px;
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   font-weight: bold;
   padding-right: 14px;
+  text-align: right;
+  margin-left: 4px;
+  margin-right: 15px !important;
 }
 
-/* line 8, ../../sass/src/form/Label.scss */
+/* line 13, ../../sass/src/form/Label.scss */
+.x-form-item-body {
+  margin-right: 4px;
+}
+
+/* line 17, ../../sass/src/form/Label.scss */
 .uni-form-item-label-required {
   background-image: url("images/form/mandatory.png");
   background-repeat: no-repeat;
@@ -9466,6 +9480,41 @@ div.x-form-spinner-down {
 .x-toolbar-pagingtoolbartop, .x-toolbar-pagingtoolbarbottom {
   padding-right: 0;
   padding-left: 0;
+}
+
+/* line 25, ../../sass/src/toolbar/Paging.scss */
+.x-toolbar-pagingtoolbarbottom .pagenav {
+  padding-left: 13px;
+  padding-right: 2px;
+}
+/* line 31, ../../sass/src/toolbar/Paging.scss */
+.x-toolbar-pagingtoolbarbottom .pagenav .x-toolbar-text {
+  font-size: 14px;
+  color: #686868;
+  margin-right: 7px;
+  margin-left: 7px;
+  padding-top: 3px;
+  padding-bottom: 2px;
+}
+/* line 45, ../../sass/src/toolbar/Paging.scss */
+.x-toolbar-pagingtoolbarbottom .pagenav .x-toolbar-text.active {
+  margin-right: 1px;
+  margin-left: 1px;
+  padding-top: 2px;
+  padding-right: 6px;
+  padding-left: 6px;
+  color: #70bb51;
+  border: solid 1px #70bb51;
+  border-radius: 2px;
+}
+/* line 62, ../../sass/src/toolbar/Paging.scss */
+.x-toolbar-pagingtoolbarbottom .pagenav .x-toolbar-text a {
+  color: #686868;
+  text-decoration: none;
+}
+/* line 67, ../../sass/src/toolbar/Paging.scss */
+.x-toolbar-pagingtoolbarbottom .pagenav .x-toolbar-text a:hover {
+  text-decoration: underline;
 }
 
 /* line 1, ../../sass/src/picker/Date.scss */
