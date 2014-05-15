@@ -4,11 +4,9 @@ import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
@@ -27,7 +25,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
@@ -38,6 +35,7 @@ import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
+import org.joda.time.DateTimeConstants;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -362,12 +360,38 @@ public class SchedulingResourceTest extends JerseyTest {
         PreviewInfo previewInfo = new PreviewInfo();
         previewInfo.temporalExpression = new TemporalExpressionInfo();
         previewInfo.temporalExpression.every=new TimeDurationInfo(new TimeDuration(10, TimeDuration.MINUTES));
+        previewInfo.startDate=new Date(1400146123000L); //  Thu, 15 May 2014 09:28:43 GMT
 
         Entity<PreviewInfo> entity = Entity.json(previewInfo);
         Response response = target("/schedules/preview").request().put(entity);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        PreviewInfo responseEntity = (PreviewInfo) response.getEntity();
-        assertThat(responseEntity.summary).isEqualTo("Repeat every 15 minute(s)");
+        PreviewInfo responseEntity = response.readEntity(PreviewInfo.class);
+        assertThat(responseEntity.nextOccurrences).hasSize(5);
+        assertThat(responseEntity.nextOccurrences.get(0)).isEqualTo(new Date(1400146200000L));
+        assertThat(responseEntity.nextOccurrences.get(1)).isEqualTo(new Date(1400146200000L + 10*DateTimeConstants.MILLIS_PER_MINUTE));
+        assertThat(responseEntity.nextOccurrences.get(2)).isEqualTo(new Date(1400146200000L + 20*DateTimeConstants.MILLIS_PER_MINUTE));
+        assertThat(responseEntity.nextOccurrences.get(3)).isEqualTo(new Date(1400146200000L + 30*DateTimeConstants.MILLIS_PER_MINUTE));
+        assertThat(responseEntity.nextOccurrences.get(4)).isEqualTo(new Date(1400146200000L + 40*DateTimeConstants.MILLIS_PER_MINUTE));
+    }
+
+    @Test
+    public void testPreviewMinutelyWithOffset() throws Exception {
+        PreviewInfo previewInfo = new PreviewInfo();
+        previewInfo.temporalExpression = new TemporalExpressionInfo();
+        previewInfo.temporalExpression.every=new TimeDurationInfo(new TimeDuration(10, TimeDuration.MINUTES));
+        previewInfo.temporalExpression.offset=new TimeDurationInfo(new TimeDuration(5, TimeDuration.SECONDS));
+        previewInfo.startDate=new Date(1400146123000L); //  Thu, 15 May 2014 09:28:43 GMT
+
+        Entity<PreviewInfo> entity = Entity.json(previewInfo);
+        Response response = target("/schedules/preview").request().put(entity);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        PreviewInfo responseEntity = response.readEntity(PreviewInfo.class);
+        assertThat(responseEntity.nextOccurrences).hasSize(5);
+        assertThat(responseEntity.nextOccurrences.get(0)).isEqualTo(new Date(1400146205000L));
+        assertThat(responseEntity.nextOccurrences.get(1)).isEqualTo(new Date(1400146205000L + 10*DateTimeConstants.MILLIS_PER_MINUTE));
+        assertThat(responseEntity.nextOccurrences.get(2)).isEqualTo(new Date(1400146205000L + 20*DateTimeConstants.MILLIS_PER_MINUTE));
+        assertThat(responseEntity.nextOccurrences.get(3)).isEqualTo(new Date(1400146205000L + 30*DateTimeConstants.MILLIS_PER_MINUTE));
+        assertThat(responseEntity.nextOccurrences.get(4)).isEqualTo(new Date(1400146205000L + 40*DateTimeConstants.MILLIS_PER_MINUTE));
     }
 
     @Test
@@ -389,48 +413,6 @@ public class SchedulingResourceTest extends JerseyTest {
         when(comTask1.getName()).thenReturn(name);
         when(taskService.findComTask(id)).thenReturn(comTask1);
         return comTask1;
-    }
-
-    class MockedTheasaurus implements Thesaurus {
-
-        @Override
-        public String getString(String key, String defaultMessage) {
-            return null;
-        }
-
-        @Override
-        public String getString(Locale locale, String key, String defaultMessage) {
-            return null;
-        }
-
-        @Override
-        public String getComponent() {
-            return null;
-        }
-
-        @Override
-        public NlsMessageFormat getFormat(final MessageSeed seed) {
-            return new NlsMessageFormat() {
-                @Override
-                public String format(Object... args) {
-                    return seed.getDefaultFormat();
-                }
-
-                @Override
-                public String format(Locale locale, Object... args) {
-                    return null;
-                }
-            };
-        }
-
-        @Override
-        public void addTranslations(Iterable<? extends Translation> translations) {
-        }
-
-        @Override
-        public Map<String, String> getTranslations() {
-            return null;
-        }
     }
 
 }

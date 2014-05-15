@@ -1,5 +1,6 @@
 package com.energyict.mdc.scheduling.rest.impl;
 
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.UtcInstant;
@@ -11,6 +12,7 @@ import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
@@ -166,84 +168,28 @@ public class SchedulingResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response generatePreviewForSchedule(PreviewInfo previewInfo) {
         if (previewInfo.temporalExpression==null) {
-            return Response.status(Response.Status.BAD_REQUEST.getStatusCode()).entity("Missing temporal expression").build();
+            throw new LocalizedFieldValidationException(thesaurus, MessageSeeds.CAN_NOT_BE_EMPTY, "temporalExpression");
         }
-        Calendar instance = Calendar.getInstance();
-        Date occurrence = previewInfo.startDate==null ? new Date() : previewInfo.startDate;
-        previewInfo.nextOccurrences=new ArrayList<>();
-        for (int i=0; i<5; i++) {
-            instance.setTime(occurrence);
-            occurrence = previewInfo.temporalExpression.asTemporalExpression().nextOccurrence(instance);
-            previewInfo.nextOccurrences.add(occurrence);
+        if (previewInfo.temporalExpression.every==null) {
+            throw new LocalizedFieldValidationException(thesaurus, MessageSeeds.CAN_NOT_BE_EMPTY, "temporalExpression.every");
         }
-//        previewInfo.summary=thesaurus.getFormat(MessageSeeds.REPEAT_EVERY).format(
-//                previewInfo.temporalExpression.every.count, translateTimeUnit(previewInfo.temporalExpression.every));
-//        if (previewInfo.temporalExpression.offset!=null) {
-//            previewInfo.summary+=" "+translateOffset(previewInfo.temporalExpression);
-//        }
+        previewInfo.nextOccurrences = calculateNextOccurrences(previewInfo);
         return Response.ok().entity(previewInfo).build();
     }
 
-//    private String translateOffset(TemporalExpressionInfo temporalExpression) {
-//        StringBuilder stringBuilder = new StringBuilder();
-//        switch (temporalExpression.every.timeUnit) {
-//            case "minutes":
-//                if (temporalExpression.offset.count>0) {
-//                    stringBuilder
-//                            .append(thesaurus.getFormat(MessageSeeds.AT).format())
-//                            .append(" ")
-//                            .append(temporalExpression.offset.count)
-//                            .append(" ")
-//                            .append(thesaurus.getFormat(MessageSeeds.SECONDS).format());
-//                }
-//                break;
-//            case "hours":
-//                if (temporalExpression.offset.count>0) {
-//                        stringBuilder
-//                            .append(thesaurus.getFormat(MessageSeeds.AT).format())
-//                            .append(" ");
-//                    if (temporalExpression.offset.count> DateTimeConstants.SECONDS_PER_MINUTE) {
-//                        stringBuilder
-//                                .append(temporalExpression.offset.count / DateTimeConstants.SECONDS_PER_MINUTE)
-//                                .append(" ")
-//                                .append(thesaurus.getFormat(MessageSeeds.MINUTES));
-//                    }
-//                    stringBuilder
-//                        .append(temporalExpression.offset.count % DateTimeConstants.SECONDS_PER_MINUTE)
-//                        .append(" ")
-//                        .append(thesaurus.getFormat(MessageSeeds.SECONDS).format());
-//                }
-//                break;
-//            case "days":
-//                if (temporalExpression.offset.count>0) {
-//                    stringBuilder
-//                        .append(thesaurus.getFormat(MessageSeeds.AT).format())
-//                        .append(" ");
-//                    stringBuilder
-//                        .append(temporalExpression.offset.count / DateTimeConstants.SECONDS_PER_HOUR)
-//                        .append(":")
-//                        .append((temporalExpression.offset.count % DateTimeConstants.SECONDS_PER_HOUR) / DateTimeConstants.SECONDS_PER_MINUTE)
-//                        .append(":")
-//                        .append((temporalExpression.offset.count % DateTimeConstants.SECONDS_PER_MINUTE));
-//                }
-//                break;
-//            case "weeks":
-//            case "months": return thesaurus.getFormat(MessageSeeds.MONTHS).format();
-//        }
-//        return stringBuilder.toString();
-//    }
-//
-//    private String translateTimeUnit(TimeDurationInfo timeDurationInfo) {
-//        switch (timeDurationInfo.timeUnit) {
-//            case "minutes": return thesaurus.getFormat(MessageSeeds.MINUTES).format();
-//            case "hours": return thesaurus.getFormat(MessageSeeds.HOURS).format();
-//            case "days": return thesaurus.getFormat(MessageSeeds.DAYS).format();
-//            case "weeks": return thesaurus.getFormat(MessageSeeds.WEEKS).format();
-//            case "months": return thesaurus.getFormat(MessageSeeds.MONTHS).format();
-//            default: throw new WebApplicationException("unsupported time unit "+timeDurationInfo.timeUnit, Response.Status.BAD_REQUEST);
-//        }
-//    }
-//
+    private List<Date> calculateNextOccurrences(PreviewInfo previewInfo) {
+        TemporalExpression temporalExpression = previewInfo.temporalExpression.asTemporalExpression();
+        List<Date> nextOccurrences = new ArrayList<>();
+        Date occurrence = previewInfo.startDate==null ? new Date() : previewInfo.startDate;
+        Calendar latestOccurrence = Calendar.getInstance();
+        for (int i=0; i<5; i++) {
+            latestOccurrence.setTime(occurrence);
+            occurrence = temporalExpression.nextOccurrence(latestOccurrence);
+            nextOccurrences.add(occurrence);
+        }
+        return nextOccurrences;
+    }
+
     private List<ComTask> getAvailableComTasksExcludingAlreadyAssigned(ComSchedule comSchedule) {
         List<ComTask> remainingComTasks = new ArrayList<>();
         Map<Long, ComTask> existingComTasks = IdListBuilder.asIdMap(comSchedule.getComTasks());

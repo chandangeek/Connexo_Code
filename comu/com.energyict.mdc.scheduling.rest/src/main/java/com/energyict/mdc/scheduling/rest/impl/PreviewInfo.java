@@ -11,6 +11,5 @@ public class PreviewInfo {
     public TemporalExpressionInfo temporalExpression;
     public Date startDate;
 
-    public String summary;
     public List<Date> nextOccurrences;
 }

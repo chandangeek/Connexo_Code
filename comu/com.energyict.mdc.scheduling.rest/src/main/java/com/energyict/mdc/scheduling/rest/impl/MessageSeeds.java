@@ -6,16 +6,8 @@ import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
     INVALID_VALUE(1, "SCR.InvalidValue", "Invalid value"),
-    REPEAT_EVERY(2, Constants.PREVIEW_MESSAGE, "Repeat every {0}"),
-    NOW(3, Constants.NOW, "now"),
-    FROM(4, "from", "from"),
-    DAYS(5, "days", "day(s)"),
-    HOURS(6, "hours", "hour(s)"),
-    MINUTES(7, "minutes", "minute(s)"),
-    SECONDS(8, "seconds", "second(s)"),
-    WEEKS(9, "weeks", "week(s)"),
-    MONTHS(10, "months", "month(s)"),
-    AT(11, "at", "at");
+    CAN_NOT_BE_EMPTY(1, "SCR.CanNotBeEmpty", "Field can not be empty"),
+    ;
 
     public static final String COMPONENT_NAME = "SCR";
 
@@ -62,12 +54,5 @@ public enum MessageSeeds implements MessageSeed {
     @Override
     public Level getLevel() {
         return level;
-    }
-
-
-    public static class Constants {
-        public static final String PREVIEW_MESSAGE = SchedulingService.COMPONENT_NAME+".PreviewMessage_starting_at";
-        public static final String NOW = SchedulingService.COMPONENT_NAME+".now";
-        public static final String FROM = SchedulingService.COMPONENT_NAME+".from";
     }
 }
