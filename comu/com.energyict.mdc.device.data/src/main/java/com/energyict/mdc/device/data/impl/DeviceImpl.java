@@ -617,10 +617,10 @@ public class DeviceImpl implements Device, PersistenceAware {
     }
 
     private void loadComTaskExecutions() {
-        this.comTaskExecutions = getComTAskExecutionImpls();
+        this.comTaskExecutions = getComTaskExecutionImpls();
     }
 
-    private List<ComTaskExecutionImpl> getComTAskExecutionImpls() {
+    private List<ComTaskExecutionImpl> getComTaskExecutionImpls() {
         List<ComTaskExecutionImpl> comTaskExecutionImpls = new ArrayList<>();
         for (ComTaskExecution comTaskExecution : this.deviceDataService.findComTaskExecutionsByDevice(this)) {
             comTaskExecutionImpls.add((ComTaskExecutionImpl) comTaskExecution);
