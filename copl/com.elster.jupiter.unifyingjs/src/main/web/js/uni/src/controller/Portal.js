@@ -117,23 +117,25 @@ Ext.define('Uni.controller.Portal', {
             portalView.removeAll();
         }
 
-        this.portalViews[portal] = Ext.create('Uni.view.container.PortalContainer');
+        this.portalViews[portal] = Ext.create('Uni.view.container.PortalContainer', {
+            title: title
+        });
         portalView = this.portalViews[portal];
 
         store.filter('portal', portal);
         var portalItemsToDisplay = {};
         store.each(function (portalItem) {
-            if(portalItemsToDisplay.hasOwnProperty(portalItem.get('title'))){
-                Ext.each(portalItem.get('items'),function(item){
+            if (portalItemsToDisplay.hasOwnProperty(portalItem.get('title'))) {
+                Ext.each(portalItem.get('items'), function (item) {
                     portalItemsToDisplay[portalItem.get('title')].get('items').push(item);
                 });
                 store.remove(portalItem);
             } else {
-                portalItemsToDisplay[portalItem.get('title')]=portalItem;
+                portalItemsToDisplay[portalItem.get('title')] = portalItem;
             }
         });
 
-        for(portalItemToDisplay in portalItemsToDisplay){
+        for (portalItemToDisplay in portalItemsToDisplay) {
             if (portalItemsToDisplay.hasOwnProperty(portalItemToDisplay)) {
                 portalView.addPortalItem(portalItemsToDisplay[portalItemToDisplay]);
             }
@@ -141,7 +143,6 @@ Ext.define('Uni.controller.Portal', {
 
         this.getApplication().fireEvent('changemaincontentevent', portalView);
 
-        // TODO Make a more stylized breadcrumb.
         var portalBreadcrumb = Ext.create('Uni.model.BreadcrumbItem', {
             text: title
         });

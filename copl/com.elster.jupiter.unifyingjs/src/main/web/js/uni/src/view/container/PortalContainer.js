@@ -1,13 +1,15 @@
 Ext.define('Uni.view.container.PortalContainer', {
-    extend: 'Ext.container.Container',
+    extend: 'Ext.panel.Panel',
     xtype: 'portal-container',
+    ui: 'large',
 
-    baseCls: Uni.About.baseCssPrefix + 'portal-container',
-
+    padding: '16px 0 0 0 ',
     layout: 'column',
+    columnCount: 3,
 
     addPortalItem: function (model) {
-        var component = this.createPortalWidgetFromItem(model),
+        var me = this,
+            component = this.createPortalWidgetFromItem(model),
             index = model.get('index');
 
         if (index === '' || index === null || typeof index === 'undefined') {
@@ -16,11 +18,17 @@ Ext.define('Uni.view.container.PortalContainer', {
             this.insert(index, component);
         }
 
-        this.add(component);
+        var count = this.items.items.length,
+            remainder = count % me.columnCount;
+
+        if (remainder !== 0 && remainder !== 1) {
+            component.addCls('middle');
+        }
     },
 
     createPortalWidgetFromItem: function (model) {
-        var title = model.get('title'),
+        var me = this,
+            title = model.get('title'),
             items = model.get('items'),
             widget;
 
@@ -30,13 +38,13 @@ Ext.define('Uni.view.container.PortalContainer', {
 
         widget = Ext.create('Ext.panel.Panel', {
             title: title,
-            frame: true,
-            cls: Uni.About.baseCssPrefix + 'portal-panel',
-            columnWidth: 1 / 3,
+            ui: 'tile',
+            columnWidth: 1 / me.columnCount,
             height: 256,
             items: [
                 {
                     xtype: 'menu',
+                    ui: 'tilemenu',
                     floating: false,
                     items: items
                 }
