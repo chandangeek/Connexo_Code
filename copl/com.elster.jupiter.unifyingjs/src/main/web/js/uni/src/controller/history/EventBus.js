@@ -47,7 +47,7 @@ Ext.define('Uni.controller.history.EventBus', {
         }
 
         this.notifyRootObservers(tokens);
-        this.notifyObserversIfNecessary(tokens,token);
+        this.notifyObserversIfNecessary(tokens, token);
     },
 
     /**
@@ -60,7 +60,10 @@ Ext.define('Uni.controller.history.EventBus', {
         if (typeof token === 'undefined') {
             this.getRootObservers().push(callback);
         } else {
-            this.getObservers()[token] = callback;
+            if (!Ext.isDefined(this.getObservers()[token])) {
+                this.getObservers()[token] = [];
+            }
+            this.getObservers()[token].push(callback);
         }
     },
 
@@ -92,15 +95,17 @@ Ext.define('Uni.controller.history.EventBus', {
         }
     },
 
-    notifyObserversIfNecessary: function (tokens,token) {
+    notifyObserversIfNecessary: function (tokens, token) {
         var errorController = this.getController('Uni.controller.Error'),
-            callback = this.getObservers()[tokens[0]];
+            callbacks = this.getObservers()[tokens[0]];
 
-        if (typeof callback !== 'undefined' && callback != null) {
-            callback(tokens,token, Uni.controller.history.Settings.tokenDelimiter);
-        } else {
-            // TODO Design the basic error controller.
+        Ext.each(callbacks, function (callback) {
+            if (typeof callback !== 'undefined' && callback != null) {
+                callback(tokens, token, Uni.controller.history.Settings.tokenDelimiter);
+            } else {
+                // TODO Design the basic error controller.
 //            errorController.showHttp404();
-        }
+            }
+        });
     }
 });

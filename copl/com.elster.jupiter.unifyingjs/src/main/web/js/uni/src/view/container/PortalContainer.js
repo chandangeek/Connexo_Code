@@ -26,6 +26,7 @@ Ext.define('Uni.view.container.PortalContainer', {
 
         widget = Ext.create('Ext.panel.Panel', {
             title: title,
+            frame: true,
             cls: Uni.About.baseCssPrefix + 'portal-panel',
             columnWidth: 1 / 3,
             height: 256,

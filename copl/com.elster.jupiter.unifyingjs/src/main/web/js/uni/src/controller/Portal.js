@@ -51,6 +51,8 @@ Ext.define('Uni.controller.Portal', {
         'Uni.view.container.PortalContainer'
     ],
 
+    portalViews: [],
+
     init: function () {
         this.initMenuItems();
         this.refreshPortals();
@@ -98,8 +100,10 @@ Ext.define('Uni.controller.Portal', {
                 title = item.get('text');
 
             if (!Ext.isEmpty(portal)) {
-                eventBus.addTokenObserver(function () {
-                    me.showPortalOverview(portal, title);
+                eventBus.addTokenObserver(function (tokens, token) {
+                    if (tokens.length === 1) {
+                        me.showPortalOverview(portal, title);
+                    }
                 }, portal);
             }
         });
@@ -107,21 +111,28 @@ Ext.define('Uni.controller.Portal', {
 
     showPortalOverview: function (portal, title) {
         var store = Uni.store.PortalItems,
-            mainView = Ext.create('Uni.view.container.PortalContainer');
+            portalView = this.portalViews[portal];
+
+        if (Ext.isDefined(portalView)) {
+            portalView.removeAll();
+        }
+
+        // TODO Fix the having to reload the page.
+        this.portalViews[portal] = Ext.create('Uni.view.container.PortalContainer');
+        portalView = this.portalViews[portal];
 
         store.filter('portal', portal);
-
         store.each(function (portalItem) {
-            mainView.addPortalItem(portalItem);
+            portalView.addPortalItem(portalItem);
         });
 
-        this.getApplication().fireEvent('changemaincontentevent', mainView);
+        this.getApplication().fireEvent('changemaincontentevent', portalView);
 
         // TODO Make a more stylized breadcrumb.
         var portalBreadcrumb = Ext.create('Uni.model.BreadcrumbItem', {
             text: '<h2>' + title + '</h2>'
         });
 
-        this.getApplication().fireEvent('changemainbreadcrumbevent', portalBreadcrumb)
+        this.getApplication().fireEvent('changemainbreadcrumbevent', portalBreadcrumb);
     }
 });
