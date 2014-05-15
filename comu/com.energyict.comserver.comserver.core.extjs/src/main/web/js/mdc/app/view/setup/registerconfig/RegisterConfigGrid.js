@@ -63,12 +63,11 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigGrid', {
                 iconCls: 'uni-actioncolumn-gear',
                 columnWidth: 32,
                 fixed: true,
-                header: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
+                header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                 sortable: false,
                 hideable: false,
                 items: [
                     {
-                        //icon: '../mdc/resources/images/masterActions.png',
                         handler: function (grid, rowIndex, colIndex, item, e, record, row) {
                             var menu = Ext.widget('menu', {
                                 items: [

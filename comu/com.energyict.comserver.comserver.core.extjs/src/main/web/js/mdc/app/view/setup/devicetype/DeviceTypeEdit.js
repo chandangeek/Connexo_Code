@@ -15,11 +15,11 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
     setEdit: function (edit, returnLink) {
         if (edit) {
             this.edit = edit;
-            this.down('#createEditButton').setText(Uni.I18n.translate('general.edit', 'MDC', 'Edit'));
+            this.down('#createEditButton').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
             this.down('#createEditButton').action = 'editDeviceType';
         } else {
             this.edit = edit;
-            this.down('#createEditButton').setText(Uni.I18n.translate('general.create', 'MDC', 'Create'));
+            this.down('#createEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
             this.down('#createEditButton').action = 'createDeviceType';
         }
         this.down('#cancelLink').autoEl.href = returnLink;
@@ -97,6 +97,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                                             },
                                             {
                                                 xtype: 'fieldcontainer',
+                                                ui: 'actions',
                                                 fieldLabel: '&nbsp',
                                                 layout: {
                                                     type: 'hbox',
@@ -107,6 +108,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                                                     {
                                                         text: Uni.I18n.translate('general.create', 'MDC', 'Create'),
                                                         xtype: 'button',
+                                                        ui: 'action',
                                                         action: 'createAction',
                                                         itemId: 'createEditButton'
                                                     },
@@ -133,10 +135,10 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
 
         this.callParent(arguments);
         if (this.isEdit()) {
-            this.down('#createEditButton').setText(Uni.I18n.translate('general.edit', 'MDC', 'Edit'));
+            this.down('#createEditButton').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
             this.down('#createEditButton').action = 'editDeviceType';
         } else {
-            this.down('#createEditButton').setText(Uni.I18n.translate('general.create', 'MDC', 'Create'));
+            this.down('#createEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
             this.down('#createEditButton').action = 'createDeviceType';
         }
         this.down('#cancelLink').autoEl.href = this.returnLink;

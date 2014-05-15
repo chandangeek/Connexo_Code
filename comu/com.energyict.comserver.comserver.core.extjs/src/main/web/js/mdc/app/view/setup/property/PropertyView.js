@@ -59,7 +59,7 @@ Ext.define('Mdc.view.setup.property.PropertyView', {
         me.down('#propertyColumn' + column).add({
             xtype: 'displayfield',
             name: key,
-            fieldLabel: key,
+            fieldLabel: Uni.I18n.translate('property.' + key, 'MDC', key),
             value: text,
             labelWidth: 250
         });

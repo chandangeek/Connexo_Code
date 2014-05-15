@@ -18,28 +18,19 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
                         text: Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
                         itemId: 'activateDeviceconfigurationMenuItem',
                         action: 'activateDeactivateDeviceConfiguration'
-
-                        },
-                        /*{
-                            xtype: 'menuseparator'
-                        },  */
-                        {
-                            text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                            itemId: 'editDeviceConfiguration',
-                            action: 'editDeviceConfiguration'
-
-                        },
-                        /*{
-                            xtype: 'menuseparator'
-                        }, */
-                        {
-                            text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
-                            itemId: 'deleteDeviceConfiguration',
-                            action: 'deleteDeviceConfiguration'
-
-                        }
-                    ]
-                }
+                    },
+                    {
+                        text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                        itemId: 'editDeviceConfiguration',
+                        action: 'editDeviceConfiguration'
+                    },
+                    {
+                        text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
+                        itemId: 'deleteDeviceConfiguration',
+                        action: 'deleteDeviceConfiguration'
+                    }
+                ]
+            }
         }
 
     ],
@@ -54,14 +45,14 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
             tbar: [
                 {
                     xtype: 'component',
-                    html: '<H4>'+Uni.I18n.translate('deviceconfiguration.noDeviceConfigurationSelected', 'MDC', 'No device configuration selected')+'</H4>'
+                    html: '<h4>' + Uni.I18n.translate('deviceconfiguration.noDeviceConfigurationSelected', 'MDC', 'No device configuration selected') + '</h4>'
                 }
             ],
             items: [
                 {
                     xtype: 'component',
                     height: '100px',
-                    html: '<H5>'+Uni.I18n.translate('deviceconfiguration.selectDeviceConfiguration', 'MDC', 'Select a device configuration to see its details')+'</H5>'
+                    html: '<h5>' + Uni.I18n.translate('deviceconfiguration.selectDeviceConfiguration', 'MDC', 'Select a device configuration to see its details') + '</h5>'
                 }
             ]
 
@@ -69,59 +60,17 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
         {
             xtype: 'form',
             itemId: 'deviceConfigurationPreviewForm',
-            //padding: '0 10 0 10',
             layout: {
                 type: 'vbox',
                 align: 'stretch'
             },
-            /*tbar: [
-                {
-                    xtype: 'component',
-                    html: '<h4>Device type</h4>',
-                    itemId: 'deviceConfigurationPreviewTitle'
-                },
-                '->',
-                {
-                    icon: 'resources/images/gear-16x16.png',
-                    text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-                    menu: {
-                        items: [
-                            {
-                                text: Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
-                                itemId: 'activateDeviceconfigurationMenuItem',
-                                action: 'activateDeactivateDeviceConfiguration'
 
-                            },
-                            {
-                                xtype: 'menuseparator'
-                            },
-                            {
-                                text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                                itemId: 'editDeviceConfiguration',
-                                action: 'editDeviceConfiguration'
-
-                            },
-                            {
-                                xtype: 'menuseparator'
-                            },
-                            {
-                                text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
-                                itemId: 'deleteDeviceConfiguration',
-                                action: 'deleteDeviceConfiguration'
-
-                            }
-                        ]
-                    }
-                }
-            ], */
             items: [
                 {
                     xtype: 'container',
                     layout: {
                         type: 'column'
-//                        align: 'stretch'
                     },
-                    //padding: '10 0 0 0',
                     items: [
                         {
                             xtype: 'container',
@@ -130,23 +79,17 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
                                 type: 'vbox',
                                 align: 'stretch'
                             },
-                            defaults:{
+                            defaults: {
                                 labelWidth: 250
                             },
                             items: [
                                 {
                                     xtype: 'displayfield',
-                                    labelAlign: 'right',
                                     name: 'name',
                                     fieldLabel: Uni.I18n.translate('deviceconfiguration.name', 'MDC', 'Name'),
                                     itemId: 'deviceName'
 
                                 }
-//                                {
-//                                    xtype: 'displayfield',
-//                                    name: 'communicationProtocolName',
-//                                    fieldLabel: Uni.I18n.translate('devicetype.communicationProtocol', 'MDC', 'Device Communication protocol')
-//                                },
                             ]
                         },
                         {
@@ -156,7 +99,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
                                 type: 'vbox',
                                 align: 'stretch'
                             },
-                            defaults:{
+                            defaults: {
                                 labelWidth: 250
                             },
                             items: [
@@ -211,22 +154,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
                         }
 
                     ]
-                }/*,
-                {
-                    xtype: 'toolbar',
-                    docked: 'bottom',
-                    border: false,
-                    title: 'Bottom Toolbar',
-                    items: [
-                        '->',
-                        {
-                            xtype: 'component',
-                            itemId: 'deviceConfigurationDetailsLink',
-                            html: '' // filled in in Controller
-                        }
-
-                    ]
-                } */
+                }
             ]
         }
     ],
@@ -235,5 +163,3 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
         this.callParent(arguments);
     }
 });
-
-

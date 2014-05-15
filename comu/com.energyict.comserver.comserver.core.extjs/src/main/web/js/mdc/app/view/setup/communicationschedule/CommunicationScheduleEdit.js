@@ -240,13 +240,13 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
         ];
         this.callParent(arguments);
         if (this.isEdit()) {
-            this.down('#createEditButton').setText(Uni.I18n.translate('general.edit', 'MDC', 'Edit'));
+            this.down('#createEditButton').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
             this.down('#createEditButton').action = 'editCommunicationSchedule';
 //                this.down('#connectionStrategyComboBox').setVisible(false);
 //                this.down('#rescheduleRetryDelay').setVisible(false);
 //                this.down('#isDefault').setVisible(false);
         } else {
-            this.down('#createEditButton').setText(Uni.I18n.translate('general.create', 'MDC', 'Create'));
+            this.down('#createEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
             this.down('#createEditButton').action = 'createCommunicationSchedule';
 //                this.down('#connectionStrategyComboBox').setVisible(false);
 //                this.down('#rescheduleRetryDelay').setVisible(false);

@@ -22,7 +22,6 @@ Ext.define('Mdc.view.setup.property.Edit', {
             {
                 xtype: 'form',
                 itemId: 'propertiesform',
-                margin: '0 0 0 0',
                 border: 0,
                 defaults: {
                     labelWidth: 250
@@ -32,16 +31,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     align: 'stretch'
 
                 },
-                items: [
-                    {
-                        xtype: 'displayfield',
-                        itemId: 'propertiesTitle',
-                        fieldLabel: this.propertiesTitle,
-                        labelStyle: 'font-size: 17px;',
-                        width: 395,
-                        hidden: true
-                    }
-                ]
+                items: []
             }
         ];
 

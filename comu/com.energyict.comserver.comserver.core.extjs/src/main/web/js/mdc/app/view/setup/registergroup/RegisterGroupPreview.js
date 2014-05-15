@@ -40,15 +40,6 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupPreview', {
                                     itemId: 'editRegisterGroup',
                                     action: 'editRegisterGroup'
                                 }
-                                /*{
-                                    xtype: 'menuseparator'
-                                },
-                                {
-                                    text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
-                                    itemId: 'deleteRegisterType',
-                                    action: 'deleteRegisterType'
-
-                                }*/
                             ]
                         }
                     }
@@ -61,7 +52,8 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupPreview', {
                             xtype: 'registerTypeGrid',
                             withPaging: false,
                             withActions: false,
-                            maxHeight: 500
+                            store: 'AvailableRegisterTypesForRegisterGroup',
+                            maxHeight: 650
                         },
                         emptyComponent: {
                             xtype: 'container',
@@ -83,7 +75,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupPreview', {
                                     items: [
                                         {
                                             xtype: 'component',
-                                            html: '<b>'+ Uni.I18n.translate('registerGroupPreview.empty.title', 'MDC', 'No register types found') +'</b><br>' +
+                                            html: '<b>' + Uni.I18n.translate('registerGroupPreview.empty.title', 'MDC', 'No register types found') + '</b><br>' +
                                                 Uni.I18n.translate('registerGroupPreview.empty.detail', 'MDC', 'There are no register types. This could be because:') + '<lv><li>&nbsp&nbsp' +
                                                 Uni.I18n.translate('registerGroupPreview.empty.list.item1', 'MDC', 'No register types are associated to this register group.') + '</li></lv><br>' +
                                                 Uni.I18n.translate('registerGroupPreview.empty.steps', 'MDC', 'Possible steps:')

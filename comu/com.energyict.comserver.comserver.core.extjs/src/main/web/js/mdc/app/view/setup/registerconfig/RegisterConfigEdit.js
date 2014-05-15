@@ -12,11 +12,11 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
     setEdit: function (edit, returnLink) {
         if (edit) {
             this.edit = edit;
-            this.down('#createEditButton').setText(Uni.I18n.translate('general.edit', 'MDC', 'Edit'));
+            this.down('#createEditButton').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
             this.down('#createEditButton').action = 'editRegisterConfiguration';
         } else {
             this.edit = edit;
-            this.down('#createEditButton').setText(Uni.I18n.translate('general.create', 'MDC', 'Create'));
+            this.down('#createEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
             this.down('#createEditButton').action = 'createRegisterConfiguration';
         }
         this.down('#cancelLink').autoEl.href = returnLink;
@@ -186,19 +186,19 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                                     },
                                     {
                                         xtype: 'fieldcontainer',
+                                        ui: 'actions',
                                         fieldLabel: '&nbsp',
-                                        //width: 430,
                                         layout: {
                                             type: 'hbox',
                                             align: 'stretch'
                                         },
                                         items: [
                                             {
-                                                text: Uni.I18n.translate('general.create', 'MDC', 'Create'),
+                                                text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
                                                 xtype: 'button',
+                                                ui: 'action',
                                                 action: 'createAction',
                                                 itemId: 'createEditButton'
-//                                                        formBind: true
                                             },
                                             {
                                                 text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),

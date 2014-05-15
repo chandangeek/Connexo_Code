@@ -20,6 +20,7 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
     tools: [
         {
             xtype: 'button',
+            // TODO Replace this icon below with an 'actions' ui.
             icon: '../mdc/resources/images/actionsDetail.png',
             text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
             menu: {

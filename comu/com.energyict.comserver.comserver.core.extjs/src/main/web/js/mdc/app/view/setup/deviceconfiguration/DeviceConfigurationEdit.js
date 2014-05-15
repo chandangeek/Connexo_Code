@@ -11,11 +11,11 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
     setEdit: function (edit, returnLink) {
         if (edit) {
             this.edit = edit;
-            this.down('#createEditButton').setText(Uni.I18n.translate('general.edit', 'MDC', 'Edit'));
+            this.down('#createEditButton').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
             this.down('#createEditButton').action = 'editDeviceConfiguration';
         } else {
             this.edit = edit;
-            this.down('#createEditButton').setText(Uni.I18n.translate('general.create', 'MDC', 'Create'));
+            this.down('#createEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
             this.down('#createEditButton').action = 'createDeviceConfiguration';
         }
         this.down('#cancelLink').autoEl.href = returnLink;
@@ -138,6 +138,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                             },
                                             {
                                                 xtype: 'fieldcontainer',
+                                                ui: 'actions',
                                                 fieldLabel: '&nbsp',
                                                 layout: {
                                                     type: 'hbox',
@@ -145,11 +146,11 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                                 },
                                                 items: [
                                                     {
-                                                        text: Uni.I18n.translate('general.create', 'MDC', 'Create'),
+                                                        text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
                                                         xtype: 'button',
+                                                        ui: 'action',
                                                         action: 'createAction',
                                                         itemId: 'createEditButton'
-//                                                        formBind: true
                                                     },
                                                     {
                                                         text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
@@ -173,10 +174,10 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
         ];
         this.callParent(arguments);
         if (this.isEdit()) {
-            this.down('#createEditButton').setText(Uni.I18n.translate('general.edit', 'MDC', 'Edit'));
+            this.down('#createEditButton').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
             this.down('#createEditButton').action = 'editDeviceConfiguration';
         } else {
-            this.down('#createEditButton').setText(Uni.I18n.translate('general.create', 'MDC', 'Create'));
+            this.down('#createEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
             this.down('#createEditButton').action = 'createDeviceConfiguration';
         }
         this.down('#cancelLink').autoEl.href = this.returnLink;

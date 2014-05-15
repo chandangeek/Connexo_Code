@@ -12,9 +12,9 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
         'Mdc.store.RegisterTypes'
     ],
     store: 'RegisterTypes',
-    //padding: '10 10 10 10',
     withPaging: true,
     withActions: true,
+
     initComponent: function () {
         var me = this;
         this.columns = [
@@ -61,20 +61,18 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
                 flex: 1
             }
         ];
-        if(this.withActions){
+        if (this.withActions) {
             this.columns.push(
                 {
                     xtype: 'actioncolumn',
-                    align: 'left',
-                    //iconCls: 'uni-centered-icon',
-                    //tdCls: 'view',
+                    iconCls: 'uni-actioncolumn-gear',
+                    columnWidth: 32,
+                    fixed: true,
                     header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                     sortable: false,
                     hideable: false,
-                    fixed: true,
                     items: [
                         {
-                            icon: '../mdc/resources/images/masterActions.png',
                             handler: function (grid, rowIndex, colIndex, item, e, record, row) {
                                 var menu = Ext.widget('menu', {
                                     items: [
@@ -91,9 +89,6 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
                                                 }
 
                                             }
-                                        },
-                                        {
-                                            xtype: 'menuseparator'
                                         },
                                         {
                                             xtype: 'menuitem',
@@ -118,7 +113,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
                 }
             );
         }
-        if(this.withPaging){
+        if (this.withPaging) {
             this.dockedItems = [
                 {
                     xtype: 'pagingtoolbartop',

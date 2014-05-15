@@ -64,12 +64,12 @@ Ext.define('Mdc.view.setup.deviceconfiguration.EditLogbookConfiguration', {
                             items: [
                                 '->',
                                 {
-                                    text: 'Save',
+                                    text: Uni.I18n.translate('general.save', 'MDC', 'Save'),
                                     action: 'save',
                                     ui: 'action'
                                 },
                                 {
-                                    text: 'Cancel',
+                                    text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
                                     action: 'cancel',
                                     ui: 'link',
                                     listeners: {

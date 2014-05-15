@@ -113,6 +113,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                             enableColumnMove: false,
                                             enableColumnResize: false,
                                             sortableColumns: false,
+                                            // TODO: uncomment this to activate infinite scrolling when JP-2844 is fixed
                                             /*store: new Ext.data.Store({
                                              model: 'Mdc.model.RegisterType',
                                              buffered: true,

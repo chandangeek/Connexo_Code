@@ -87,12 +87,12 @@ Ext.define('Mdc.view.setup.deviceconfiguration.AddLogbookConfigurations', {
                     },
                     items: [
                         {
-                            text: 'Add',
+                            text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
                             action: 'add',
                             ui: 'action'
                         },
                         {
-                            text: 'Cancel',
+                            text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
                             action: 'cancel',
                             ui: 'link',
                             listeners: {

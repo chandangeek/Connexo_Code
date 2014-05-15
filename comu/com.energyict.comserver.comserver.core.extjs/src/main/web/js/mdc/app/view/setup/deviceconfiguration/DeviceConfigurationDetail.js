@@ -23,7 +23,6 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                     xtype: 'form',
                     border: false,
                     itemId: 'deviceConfigurationDetailForm',
-                    //padding: '10 10 0 10',
                     layout: {
                         type: 'vbox',
                         align: 'stretch'
@@ -49,7 +48,6 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                                         itemId: 'activateDeactivateDeviceConfiguration',
                                         action: 'activateDeactivateDeviceConfiguration'
                                     },
-
                                     {
                                         text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
                                         itemId: 'editDeviceConfiguration',

@@ -100,7 +100,7 @@ Ext.define('Mdc.controller.setup.LogForm', {
         var self = this,
             btn = self.getLogBtn(),
             title = self.getLogTitle();
-        btn.setText('Create');
+        btn.setText('Add');
         btn.action = 'create';
         title.add({
             html: '<h1>Create logbook type</h1>'

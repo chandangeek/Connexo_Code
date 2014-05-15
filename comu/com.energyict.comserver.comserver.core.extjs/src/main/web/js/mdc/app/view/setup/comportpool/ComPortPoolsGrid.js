@@ -19,19 +19,19 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolsGrid', {
     initComponent: function () {
         this.columns = [
             {
-                header : 'name',
+                header: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                 dataIndex: 'name',
                 flex: 1
             },
             {
-                header : 'direction',
+                header: Uni.I18n.translate('general.direction', 'MDC', 'Direction'),
                 dataIndex: 'direction'
             },
             {
-               dataIndex: 'active',
+                dataIndex: 'active',
                 width: 24,
-               renderer: function(value,metadata){
-                    if(value===true){
+                renderer: function (value, metadata) {
+                    if (value === true) {
                         metadata.style = "background-color:lightgreen;";
                     } else {
                         metadata.style = "background-color:pink;";
@@ -39,78 +39,89 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolsGrid', {
                 }
             },
             {
-                xtype:'actioncolumn',
-                tdCls:'view',
-                width:24,
-                items: [{
-                    icon: '../mdc/resources/images/masterActions.png',
-                    tooltip: 'View',
-                    handler: function(grid, rowIndex, colIndex,item,e, record, row) {
-                        var menu = Ext.widget('menu', {
-                            items: [{
-                                xtype: 'menuitem',
-                                text: 'Edit',
-                                listeners: {
-                                    click: {
-                                        element: 'el',
-                                        fn: function(){
-                                            this.fireEvent('edit',record);
-                                        },
-                                        scope: this
+                xtype: 'actioncolumn',
+                iconCls: 'uni-actioncolumn-gear',
+                columnWidth: 32,
+                fixed: true,
+                header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                sortable: false,
+                hideable: false,
+                items: [
+                    {
+                        handler: function (grid, rowIndex, colIndex, item, e, record, row) {
+                            var menu = Ext.widget('menu', {
+                                items: [
+                                    {
+                                        xtype: 'menuitem',
+                                        text: 'Edit',
+                                        listeners: {
+                                            click: {
+                                                element: 'el',
+                                                fn: function () {
+                                                    this.fireEvent('edit', record);
+                                                },
+                                                scope: this
+                                            }
+                                        }
+                                    },
+                                    {
+                                        xtype: 'menuitem',
+                                        text: 'Delete',
+                                        listeners: {
+                                            click: {
+                                                element: 'el',
+                                                fn: function () {
+                                                    console.log('deleteItem');
+                                                    this.fireEvent('deleteItem', record);
+                                                },
+                                                scope: this
+                                            }
+                                        }
                                     }
-
-                                }
-                            }, {
-                                xtype: 'menuitem',
-                                text: 'Delete',
-                                listeners: {
-                                    click: {
-                                        element: 'el',
-                                        fn: function(){
-                                            console.log('deleteItem');
-                                            this.fireEvent('deleteItem',record);
-                                        },
-                                        scope: this
-                                    }
-
-                                }
-                            }]
-                        });
-                        menu.showAt(e.getXY());
+                                ]
+                            });
+                            menu.showAt(e.getXY());
+                        }
                     }
-                }]
+                ]
             }
         ];
 
-        this.dockedItems = [{
-            xtype: 'pagingtoolbarbottom',
-            store: this.store,
-            dock: 'bottom'
-        },{
-            xtype: 'toolbar',
-            dock: 'top',
-            ui: 'footer',
-            defaults: {minWidth: this.minButtonWidth},
-            items: [
-                {
-                    xtype: 'component',
-                    flex: 1
-                },
-                {
-                    text: 'Add',
-                    action: 'add',
-                    menu: [{
-                        text: 'Inbound'
-                    },{
-                        text: 'Outbound'
-                    }]
-                },
-                {
-                    text: 'Delete',
-                    action: 'delete'
-                }
-            ]
-        }];
+        this.dockedItems = [
+            {
+                xtype: 'pagingtoolbarbottom',
+                store: this.store,
+                dock: 'bottom'
+            },
+            {
+                xtype: 'toolbar',
+                dock: 'top',
+                ui: 'footer',
+                defaults: {minWidth: this.minButtonWidth},
+                items: [
+                    {
+                        xtype: 'component',
+                        flex: 1
+                    },
+                    {
+                        text: 'Add',
+                        action: 'add',
+                        menu: [
+                            {
+                                text: 'Inbound'
+                            },
+                            {
+                                text: 'Outbound'
+                            }
+                        ]
+                    },
+                    {
+                        text: 'Delete',
+                        action: 'delete'
+                    }
+                ]
+            }
+        ];
 
         this.callParent();
     }

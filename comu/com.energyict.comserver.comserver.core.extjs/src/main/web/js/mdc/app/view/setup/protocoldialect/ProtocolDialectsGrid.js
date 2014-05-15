@@ -26,29 +26,16 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectsGrid', {
                 fixed: true,
                 flex: 0.6
             },
-            /*{
-                header: Uni.I18n.translate('protocolDialect.availableForUse', 'MDC', 'Available for use'),
-                dataIndex: 'availableForUse',
-                sortable: false,
-                hideable: false,
-                renderer: function (value, b, record) {
-                    return value === true ? Uni.I18n.translate('general.yes', 'MDC', 'Yes') : Uni.I18n.translate('general.no', 'MDC', 'No');
-                },
-                fixed: true,
-                flex: 0.2
-            },*/
             {
                 xtype: 'actioncolumn',
-                tdCls: 'view',
-                iconCls: 'uni-centered-icon',
+                iconCls: 'uni-actioncolumn-gear',
+                columnWidth: 32,
+                fixed: true,
                 header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                 sortable: false,
                 hideable: false,
-                fixed: true,
-                flex: 0.1,
                 items: [
                     {
-                        icon: '../mdc/resources/images/masterActions.png',
                         handler: function (grid, rowIndex, colIndex, item, e, record, row) {
                             grid.getSelectionModel().select(rowIndex);
                             var menu = Ext.widget('menu', {
@@ -66,25 +53,7 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectsGrid', {
                                             }
 
                                         }
-                                    }//,
-                                    /*{
-                                        xtype: 'menuseparator'
-                                    },
-                                    {
-                                        xtype: 'menuitem',
-                                        text: Uni.I18n.translate('protocolDialects.notAvailableForUse', 'MDC', 'Not available for use'),
-                                        text: record.get('availableForUse') === true ? Uni.I18n.translate('protocolDialects.notAvailableForUse', 'MDC', 'Not available for use') : Uni.I18n.translate('protocolDialects.availableForUse', 'MDC', 'Available For use'),
-                                        listeners: {
-                                            click: {
-                                                element: 'el',
-                                                fn: function () {
-                                                    this.fireEvent('changeAvailability', record);
-                                                },
-                                                scope: this
-                                            }
-
-                                        }
-                                    }*/
+                                    }
                                 ]
                             });
                             menu.showAt(e.getXY());
