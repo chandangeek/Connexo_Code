@@ -1,3 +1,4 @@
+@import url(http://fonts.googleapis.com/css?family=Lato|Marvel);
 /* including package ext-theme-base */
 /**
  * Creates a background gradient.
@@ -63,7 +64,6 @@
 /* including package ext-theme-neutral */
 /* including package ext-theme-neptune */
 /* including package uni-theme-skyline */
-@import url(http://fonts.googleapis.com/css?family=Lato|Marvel);
 /* including package uni-theme-skyline */
 /**
  * @class Ext.button.Button
@@ -20699,8 +20699,17 @@ h6 {
   padding-left: 12px; }
 
 /* line 1, ../../sass/src/grid/ActionColumn.scss */
-.uni-actioncolumn-icon {
-  background: url("images/grid/masterActions.png"); }
+.uni-actioncolumn-gear {
+  width: 0;
+  height: 0;
+  padding-top: 17px;
+  padding-right: 17px;
+  background-repeat: no-repeat;
+  background-image: url("images/grid/masterActions.png");
+  margin-left: 12px; }
+  /* line 19, ../../sass/src/grid/ActionColumn.scss */
+  .x-grid-row-selected .uni-actioncolumn-gear, .x-grid-row-focused .uni-actioncolumn-gear, .x-grid-row-over .uni-actioncolumn-gear {
+    background-image: url("images/grid/masterActionsHighlight.png"); }
 
 /* line 8, ../../sass/src/Component.scss */
 .x-panel-login-container {
@@ -36978,39 +36987,35 @@ h6 {
       color: white; }
     /* line 48, ../../sass/src/panel/Panel.scss */
     .x-panel-default-framed .x-panel-header .x-btn-default-small {
-      background-color: black; }
-    /* line 52, ../../sass/src/panel/Panel.scss */
-    .x-panel-default-framed .x-panel-header .x-btn-default-small-menu-active {
-      background-color: #1e7d9e; }
-    /* line 55, ../../sass/src/panel/Panel.scss */
-    .x-panel-default-framed .x-panel-header .x-btn-default-small-focus {
-      background-color: #1e7d9e; }
-    /* line 59, ../../sass/src/panel/Panel.scss */
+      background-color: transparent; }
+    /* line 54, ../../sass/src/panel/Panel.scss */
+    .x-panel-default-framed .x-panel-header .x-btn-default-small-menu-active,
+    .x-panel-default-framed .x-panel-header .x-btn-default-small-focus,
     .x-panel-default-framed .x-panel-header .x-btn-default-small-over {
       background-color: #1e7d9e; }
-  /* line 63, ../../sass/src/panel/Panel.scss */
+  /* line 58, ../../sass/src/panel/Panel.scss */
   .x-panel-default-framed .x-panel-header-top {
     padding: 4px 4px 4px 16px; }
-  /* line 66, ../../sass/src/panel/Panel.scss */
+  /* line 61, ../../sass/src/panel/Panel.scss */
   .x-panel-default-framed .x-panel {
     padding: 0; }
 
-/* line 71, ../../sass/src/panel/Panel.scss */
+/* line 67, ../../sass/src/panel/Panel.scss */
 .x-panel-header .x-panel-header-sub-text {
   float: none;
   color: #686868;
   clear: both;
   display: block; }
-/* line 77, ../../sass/src/panel/Panel.scss */
+/* line 73, ../../sass/src/panel/Panel.scss */
 .x-panel-header .x-panel-header-sub-text-medium {
   font-size: 20px;
   line-height: 20px; }
-/* line 81, ../../sass/src/panel/Panel.scss */
+/* line 77, ../../sass/src/panel/Panel.scss */
 .x-panel-header .x-panel-header-sub-text-large {
   font-size: 30px;
   line-height: 20px; }
 
-/* line 87, ../../sass/src/panel/Panel.scss */
+/* line 83, ../../sass/src/panel/Panel.scss */
 .x-panel-filter {
   background-color: #ebebeb;
   -webkit-border-radius: 10px;
@@ -37018,22 +37023,22 @@ h6 {
   -ms-border-radius: 10px;
   -o-border-radius: 10px;
   border-radius: 10px; }
-  /* line 91, ../../sass/src/panel/Panel.scss */
+  /* line 87, ../../sass/src/panel/Panel.scss */
   .x-panel-filter .x-panel-body {
     background: transparent; }
 
-/* line 96, ../../sass/src/panel/Panel.scss */
+/* line 92, ../../sass/src/panel/Panel.scss */
 .x-panel-filter-toolbar {
   padding: 8px 0; }
-  /* line 98, ../../sass/src/panel/Panel.scss */
+  /* line 94, ../../sass/src/panel/Panel.scss */
   .x-panel-filter-toolbar .x-header-text-container {
     width: 64px;
     color: #686868;
     font-weight: bold; }
-  /* line 103, ../../sass/src/panel/Panel.scss */
+  /* line 99, ../../sass/src/panel/Panel.scss */
   .x-panel-filter-toolbar .x-box-item {
     margin-right: 8px; }
-  /* line 106, ../../sass/src/panel/Panel.scss */
+  /* line 102, ../../sass/src/panel/Panel.scss */
   .x-panel-filter-toolbar .x-panel-body {
     background: transparent; }
 
@@ -38682,7 +38687,7 @@ h6 {
   border-color: #d2d2d2 !important;
   border-width: 1px !important; }
 
-/* line 130, ../../sass/src/panel/Panel.scss */
+/* line 125, ../../sass/src/panel/Panel.scss */
 .x-uni-form-error-msg-icon {
   background-image: url("images/form/ico_warning.png"); }
 
