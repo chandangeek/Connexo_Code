@@ -21,7 +21,7 @@ public class MockCollectedLogBook implements CollectedLogBook {
     private final LogBookIdentifier logBookIdentifier;
     private List<MeterProtocolEvent> collectedMeterEvents;
     private ResultType resultType = ResultType.Supported;
-    private List<Issue> issues = new ArrayList<>();
+    private List<Issue<?>> issues = new ArrayList<>();
 
     public MockCollectedLogBook(LogBookIdentifier logBookIdentifier) {
         super();
@@ -53,7 +53,7 @@ public class MockCollectedLogBook implements CollectedLogBook {
     }
 
     @Override
-    public List<Issue> getIssues() {
+    public List<Issue<?>> getIssues() {
         return this.issues;
     }
 
