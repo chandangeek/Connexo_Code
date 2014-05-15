@@ -1,0 +1,27 @@
+@include extjs-panel-ui(
+$ui: 'tile',
+$ui-padding: $panel-tile-padding,
+$ui-border-radius: $panel-tile-border-radius,
+$ui-border-color: $panel-tile-border-color,
+$ui-border-width: $panel-tile-border-width,
+$ui-header-padding: $panel-tile-header-padding,
+$ui-header-color: $panel-tile-header-color,
+$ui-header-font-family: $panel-tile-header-font-family,
+$ui-header-font-size: $panel-tile-header-font-size,
+$ui-header-line-height: $panel-tile-header-font-size,
+$ui-header-font-weight: $panel-tile-header-font-weight,
+$ui-body-color: $panel-tile-body-color
+);
+
+.#{$prefix}panel-tile {
+    margin: {
+        top: 16px;
+    }
+}
+
+.#{$prefix}panel-tile.middle {
+    margin: {
+        right: 48px;
+        left: 48px;
+    }
+}
