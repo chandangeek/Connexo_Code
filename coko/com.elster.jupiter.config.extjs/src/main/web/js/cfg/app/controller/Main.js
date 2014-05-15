@@ -25,10 +25,27 @@ Ext.define('Cfg.controller.Main', {
         var menuItem = Ext.create('Uni.model.MenuItem', {
             text: 'Validation',
             href: me.getApplication().getController('Cfg.controller.history.Validation').tokenizeShowOverview(),
-            glyph: 'settings'
+            glyph: 'settings',
+            portal: 'validation'
         });
 
         Uni.store.MenuItems.add(menuItem);
+
+        var portalItem1 = Ext.create('Uni.model.PortalItem', {
+            title: 'Validation',
+            portal: 'validation',
+            items: [
+                {
+                    text: 'Validation rule sets',
+                    href: '#/validation'
+                }
+            ]
+        });
+
+        Uni.store.PortalItems.add(
+            portalItem1
+        );
+
         this.initNavigation();
         this.initDefaultHistoryToken();
     },

@@ -1,7 +1,7 @@
 Ext.define('Cfg.controller.history.Validation', {
     extend: 'Uni.controller.history.Converter',
 
-    rootToken: 'administration',
+    rootToken: 'validation',
     previousTokens: ['administration'],
 
     doConversion: function (tokens) {
@@ -27,7 +27,7 @@ Ext.define('Cfg.controller.history.Validation', {
                 }
             }
         } else {
-            this.unknownTokensReturnToOverview();
+            //this.unknownTokensReturnToOverview();
         }
     },
 
