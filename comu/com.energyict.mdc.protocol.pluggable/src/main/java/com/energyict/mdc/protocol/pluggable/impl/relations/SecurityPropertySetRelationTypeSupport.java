@@ -36,7 +36,8 @@ public class SecurityPropertySetRelationTypeSupport extends AbstractSecurityProp
             DataModel dataModel,
             ProtocolPluggableService protocolPluggableService,
             RelationService relationService,
-            DeviceSecuritySupport securitySupport, DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
+            DeviceSecuritySupport securitySupport,
+            DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
         super(protocolPluggableService, relationService, securitySupport);
         this.mapper = dataModel.mapper(PluggableClassRelationAttributeTypeUsage.class);
         this.deviceProtocolPluggableClass = deviceProtocolPluggableClass;
