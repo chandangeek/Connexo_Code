@@ -16,10 +16,6 @@ Ext.define('Mdc.view.setup.portal.DeviceManagement', {
         },
         {
             xtype: 'component',
-            html: '<a href="#/setup/communicationschedules">Communication schedules</a>'
-        },
-        {
-            xtype: 'component',
             html: '<a href="#/setup/searchitems">Search items</a>'
         },
         {

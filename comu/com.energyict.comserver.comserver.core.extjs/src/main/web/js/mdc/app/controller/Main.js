@@ -87,8 +87,14 @@ Ext.define('Mdc.controller.Main', {
             portal: 'setup'
         });
 
+        var portalItem3 = Ext.create('Uni.model.PortalItem', {
+            title: Uni.I18n.translate('general.deviceCommunication', 'MDC', 'Device communication'),
+            component: 'Mdc.view.setup.portal.DeviceCommunication',
+            portal: 'setup'
+        });
+
         Uni.store.PortalItems.add(
-            portalItem1, portalItem2
+            portalItem1, portalItem2, portalItem3
         );
 
         this.initNavigation();
