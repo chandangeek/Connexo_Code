@@ -83,6 +83,11 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.google.common.base.Optional;
 import com.google.inject.Inject;
+
+import javax.inject.Provider;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -92,10 +97,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
-import javax.inject.Provider;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 @UniqueMrid(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_DEVICE_MRID + "}")
 public class DeviceImpl implements Device, PersistenceAware {
@@ -268,8 +269,8 @@ public class DeviceImpl implements Device, PersistenceAware {
         deleteCache();
         deleteLoadProfiles();
         deleteLogBooks();
-        deleteConnectionTasks();
         deleteComTaskExecutions();
+        deleteConnectionTasks();
         // TODO delete messages
         this.getDataMapper().remove(this);
     }
