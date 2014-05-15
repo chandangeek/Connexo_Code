@@ -24,7 +24,7 @@ public class MockCollectedLoadProfile implements CollectedLoadProfile {
     private LoadProfileIdentifier loadProfileIdentifier;
     private boolean storeOlderValues;
     private ResultType resultType;
-    private List<Issue> issues = new ArrayList<>();
+    private List<Issue<?>> issues = new ArrayList<>();
     private List<IntervalData> collectedIntervalData = Collections.emptyList();
     private List<ChannelInfo> deviceChannelInfo = Collections.emptyList();
 
@@ -79,12 +79,12 @@ public class MockCollectedLoadProfile implements CollectedLoadProfile {
     }
 
     @Override
-    public List<Issue> getIssues() {
+    public List<Issue<?>> getIssues() {
         return this.issues;
     }
 
     @Override
-    public void setFailureInformation(ResultType resultType, Issue issue) {
+    public void setFailureInformation(ResultType resultType, Issue<?> issue) {
         this.setResultType(resultType);
         this.issues.add(issue);
     }

@@ -26,7 +26,7 @@ public class MockCollectedRegister implements CollectedRegister {
     private RegisterIdentifier registerIdentifier;
     private Quantity collectedQuantity;
     private ResultType resultType;
-    private List<Issue> issues = new ArrayList<>();
+    private List<Issue<?>> issues = new ArrayList<>();
 
     public MockCollectedRegister(RegisterIdentifier registerIdentifier) {
         super();
@@ -138,7 +138,7 @@ public class MockCollectedRegister implements CollectedRegister {
     }
 
     @Override
-    public List<Issue> getIssues() {
+    public List<Issue<?>> getIssues() {
         return this.issues;
     }
 
