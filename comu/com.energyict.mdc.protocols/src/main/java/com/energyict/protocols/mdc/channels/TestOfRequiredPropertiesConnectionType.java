@@ -1,15 +1,28 @@
 package com.energyict.protocols.mdc.channels;
 
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.common.IdBusinessObjectFactory;
+import com.energyict.mdc.dynamic.BigDecimalFactory;
+import com.energyict.mdc.dynamic.DateAndTimeFactory;
+import com.energyict.mdc.dynamic.Ean13Factory;
+import com.energyict.mdc.dynamic.Ean18Factory;
+import com.energyict.mdc.dynamic.EncryptedStringFactory;
+import com.energyict.mdc.dynamic.HexStringFactory;
+import com.energyict.mdc.dynamic.LargeStringFactory;
+import com.energyict.mdc.dynamic.ObisCodeValueFactory;
+import com.energyict.mdc.dynamic.PasswordFactory;
+import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.dynamic.SpatialCoordinatesFactory;
+import com.energyict.mdc.dynamic.StringFactory;
+import com.energyict.mdc.dynamic.ThreeStateFactory;
+import com.energyict.mdc.dynamic.TimeDurationValueFactory;
+import com.energyict.mdc.dynamic.TimeOfDayFactory;
+import com.energyict.mdc.dynamic.TimeZoneFactory;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
-import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdc.dynamic.PropertySpecFactory;
-import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
+
 import com.energyict.protocols.mdc.protocoltasks.ConnectionTypeImpl;
 
 import java.util.EnumSet;
@@ -58,49 +71,28 @@ public class TestOfRequiredPropertiesConnectionType extends ConnectionTypeImpl {
 
     @Override
     protected void addPropertySpecs (List<PropertySpec> propertySpecs) {
-        PropertySpecFactory requiredPropertySpecFactory = RequiredPropertySpecFactory.newInstance();
-        propertySpecs.add(requiredPropertySpecFactory.bigDecimalPropertySpec("BigDecimal"));
-        propertySpecs.add(requiredPropertySpecFactory.booleanPropertySpec("Boolean"));
-        propertySpecs.add(requiredPropertySpecFactory.dateTimePropertySpec("DateTime"));
-        propertySpecs.add(requiredPropertySpecFactory.dateTimePropertySpec("MyDate"));
-        propertySpecs.add(requiredPropertySpecFactory.ean13PropertySpec("Ean13"));
-        propertySpecs.add(requiredPropertySpecFactory.ean18PropertySpec("Ean18"));
-        propertySpecs.add(requiredPropertySpecFactory.encryptedStringPropertySpec("EncryptedString"));
-        propertySpecs.add(requiredPropertySpecFactory.hexStringPropertySpec("HexString"));
-        propertySpecs.add(requiredPropertySpecFactory.largeStringPropertySpec("LargeString"));
-        propertySpecs.add(requiredPropertySpecFactory.obisCodePropertySpec("ObisCode"));
-        propertySpecs.add(requiredPropertySpecFactory.passwordPropertySpec("Password"));
-        propertySpecs.add(requiredPropertySpecFactory.spatialCoordinatesPropertySpec("SpatialCoordinates"));
-        propertySpecs.add(requiredPropertySpecFactory.stringPropertySpec("String"));
-        propertySpecs.add(requiredPropertySpecFactory.timeDurationPropertySpec("TimeDuration"));
-        propertySpecs.add(requiredPropertySpecFactory.timeOfDayPropertySpec("TimeOfDay"));
+        PropertySpecService propertySpecService = PropertySpecService.INSTANCE.get();
+        propertySpecs.add(propertySpecService.basicPropertySpec("BigDecimal", true, new BigDecimalFactory()));
+        propertySpecs.add(propertySpecService.basicPropertySpec("Boolean", true, new ThreeStateFactory()));
+        propertySpecs.add(propertySpecService.basicPropertySpec("DateTime", true, new DateAndTimeFactory()));
+        propertySpecs.add(propertySpecService.basicPropertySpec("MyDate", true, new DateAndTimeFactory()));
+        propertySpecs.add(propertySpecService.basicPropertySpec("Ean13", true, new Ean13Factory()));
+        propertySpecs.add(propertySpecService.basicPropertySpec("Ean18", true, new Ean18Factory()));
+        propertySpecs.add(propertySpecService.basicPropertySpec("EncryptedString", true, new EncryptedStringFactory()));
+        propertySpecs.add(propertySpecService.basicPropertySpec("HexString", true, new HexStringFactory()));
+        propertySpecs.add(propertySpecService.basicPropertySpec("LargeString", true, new LargeStringFactory()));
+        propertySpecs.add(propertySpecService.basicPropertySpec("ObisCode", true, new ObisCodeValueFactory()));
+        propertySpecs.add(propertySpecService.basicPropertySpec("Password", true, new PasswordFactory()));
+        propertySpecs.add(propertySpecService.basicPropertySpec("SpatialCoordinates", true, new SpatialCoordinatesFactory()));
+        propertySpecs.add(propertySpecService.basicPropertySpec("String", true, new StringFactory()));
+        propertySpecs.add(propertySpecService.basicPropertySpec("TimeDuration", true, new TimeDurationValueFactory()));
+        propertySpecs.add(propertySpecService.basicPropertySpec("TimeOfDay", true, new TimeOfDayFactory()));
+        propertySpecs.add(propertySpecService.basicPropertySpec("TimeZoneInUse", true, new TimeZoneFactory()));
         //references
-        propertySpecs.add(
-                requiredPropertySpecFactory.
-                        referencePropertySpec(
-                                "CodeTable",
-                                (IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(FactoryIds.CODE.id())));
-        propertySpecs.add(
-                requiredPropertySpecFactory.
-                        referencePropertySpec(
-                                "LoadProfile",
-                                (IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(FactoryIds.LOADPROFILE.id())));
-        propertySpecs.add(
-                requiredPropertySpecFactory.
-                        referencePropertySpec(
-                                "LoadProfileType",
-                                (IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(FactoryIds.LOADPROFILE.id())));
-        propertySpecs.add(
-                requiredPropertySpecFactory.
-                        referencePropertySpec(
-                                "Lookup",
-                                (IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(FactoryIds.LOOKUP.id())));
-        propertySpecs.add(requiredPropertySpecFactory.timeZonePropertySpec("TimeZoneInUse"));
-        propertySpecs.add(
-                requiredPropertySpecFactory.
-                        referencePropertySpec(
-                                "UserFile",
-                                (IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(FactoryIds.USERFILE.id())));
+        propertySpecs.add(propertySpecService.referencePropertySpec("CodeTable", true, FactoryIds.CODE));
+        propertySpecs.add(propertySpecService.referencePropertySpec("LoadProfile", true, FactoryIds.LOADPROFILE));
+        propertySpecs.add(propertySpecService.referencePropertySpec("LoadProfileType", true, FactoryIds.LOADPROFILE_TYPE));
+        propertySpecs.add(propertySpecService.referencePropertySpec("UserFile", true, FactoryIds.USERFILE));
     }
 
 }

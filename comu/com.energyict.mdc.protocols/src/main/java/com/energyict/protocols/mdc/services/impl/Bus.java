@@ -1,6 +1,8 @@
 package com.energyict.protocols.mdc.services.impl;
 
 import com.elster.jupiter.util.time.Clock;
+
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issues.IssueService;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -16,6 +18,7 @@ public final class Bus {
 
     private static AtomicReference<IssueService> issueServiceProvider = new AtomicReference<>();
     private static AtomicReference<Clock> clockProvider = new AtomicReference<>();
+    private static AtomicReference<PropertySpecService> propertySpecServiceProvider = new AtomicReference<>();
 
     public static IssueService getIssueService() {
         return issueServiceProvider.get();
@@ -39,6 +42,18 @@ public final class Bus {
 
     public static void clearClock(Clock old) {
         clockProvider.compareAndSet(old, null);
+    }
+
+    public static PropertySpecService getPropertySpecService() {
+        return propertySpecServiceProvider.get();
+    }
+
+    public static void setPropertySpecService(PropertySpecService propertySpecService) {
+        propertySpecServiceProvider.set(propertySpecService);
+    }
+
+    public static void clearPropertySpecService(PropertySpecService old) {
+        propertySpecServiceProvider.compareAndSet(old, null);
     }
 
 }

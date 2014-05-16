@@ -1,11 +1,43 @@
 package com.energyict.protocolimplv2.sdksample;
 
-import com.energyict.mdc.common.*;
-import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
+import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.FactoryIds;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.dynamic.BigDecimalFactory;
+import com.energyict.mdc.dynamic.BooleanFactory;
+import com.energyict.mdc.dynamic.DateAndTimeFactory;
+import com.energyict.mdc.dynamic.DateFactory;
+import com.energyict.mdc.dynamic.Ean13Factory;
+import com.energyict.mdc.dynamic.Ean18Factory;
+import com.energyict.mdc.dynamic.EncryptedStringFactory;
+import com.energyict.mdc.dynamic.HexStringFactory;
+import com.energyict.mdc.dynamic.LargeStringFactory;
+import com.energyict.mdc.dynamic.PasswordFactory;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.*;
-import com.energyict.mdc.protocol.api.device.data.*;
+import com.energyict.mdc.dynamic.SpatialCoordinatesFactory;
+import com.energyict.mdc.dynamic.StringFactory;
+import com.energyict.mdc.dynamic.TimeDurationValueFactory;
+import com.energyict.mdc.dynamic.TimeOfDayFactory;
+import com.energyict.mdc.protocol.api.ComChannel;
+import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceFunction;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolCache;
+import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.LogBookReader;
+import com.energyict.mdc.protocol.api.ManufacturerInformation;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
@@ -15,14 +47,21 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
+import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -109,30 +148,37 @@ public class SDKDeviceProtocolTestWithAllProperties implements DeviceProtocol {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
+        PropertySpecService propertySpecService = Bus.getPropertySpecService();
         List<PropertySpec> optionalProperties = new ArrayList<>();
-        optionalProperties.add(OptionalPropertySpecFactory.newInstance().stringPropertySpec("SDKStringProperty"));
-        optionalProperties.add(OptionalPropertySpecFactory.newInstance().stringPropertySpec("SDKStringPropertyWithDefault", "Test"));
-        optionalProperties.add(OptionalPropertySpecFactory.newInstance().stringPropertySpecWithValues("SDKStringPropertyWithValues", "value 1", "value 2", "value 3", "value 4"));
-        optionalProperties.add(OptionalPropertySpecFactory.newInstance().stringPropertySpecWithValuesAndDefaultValue("SDKStringPropertyWithValuesAndDefault", "value 3", "value 1", "value 2", "value 4", "value 5"));
-        optionalProperties.add(OptionalPropertySpecFactory.newInstance().largeStringPropertySpec("SDKLargeStringProperty"));
-        optionalProperties.add(OptionalPropertySpecFactory.newInstance().hexStringPropertySpec("SDKHexStringProperty"));
-        optionalProperties.add(OptionalPropertySpecFactory.newInstance().passwordPropertySpec("SDKPasswordProperty"));
-        optionalProperties.add(OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec("SDKBigDecimalProperty"));
-        optionalProperties.add(OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec("SDKBigDecimalWithDefault", new BigDecimal("666.156")));
-        optionalProperties.add(OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpecWithValues("SDKBigDecimalWithValues", new BigDecimal("0"), new BigDecimal("1"), new BigDecimal("2"), new BigDecimal("3")));
-        optionalProperties.add(OptionalPropertySpecFactory.newInstance().boundedDecimalPropertySpec("SDKBoundedDecimal", new BigDecimal(2), new BigDecimal(10)));
-        optionalProperties.add(OptionalPropertySpecFactory.newInstance().positiveDecimalPropertySpec("SDKPositiveDecimalProperty"));
-        optionalProperties.add(OptionalPropertySpecFactory.newInstance().booleanPropertySpec("SDKBooleanProperty"));
-        optionalProperties.add(OptionalPropertySpecFactory.newInstance().notNullableBooleanPropertySpec("SDKNotNullableBoolean"));
-        optionalProperties.add(OptionalPropertySpecFactory.newInstance().datePropertySpec("SDKDateProperty"));
-        optionalProperties.add(OptionalPropertySpecFactory.newInstance().timeOfDayPropertySpec("SDKTimeOfDayProperty"));
-        optionalProperties.add(OptionalPropertySpecFactory.newInstance().dateTimePropertySpec("SDKDateTimeProperty"));
-        optionalProperties.add(OptionalPropertySpecFactory.newInstance().timeDurationPropertySpec("SDKTimeDurationProperty"));
-        optionalProperties.add(OptionalPropertySpecFactory.newInstance().timeDurationPropertySpec("SDKTimeDurationPropertyWithDefault", new TimeDuration(3,3)));
-        optionalProperties.add(OptionalPropertySpecFactory.newInstance().timeDurationPropertySpecWithValues("SDKTimeDurationPropertyWithValues", new TimeDuration(4,5), new TimeDuration(5,5), new TimeDuration(3,3)));
+        optionalProperties.add(propertySpecService.basicPropertySpec("SDKStringProperty", false, new StringFactory()));
+        optionalProperties.add(propertySpecService.stringPropertySpec("SDKStringPropertyWithDefault", false, "Test"));
+        optionalProperties.add(propertySpecService.stringPropertySpecWithValues("SDKStringPropertyWithValues", false, "value 1", "value 2", "value 3", "value 4"));
+        optionalProperties.add(propertySpecService.stringPropertySpecWithValuesAndDefaultValue("SDKStringPropertyWithValuesAndDefault", false, "value 3", "value 1", "value 2", "value 4", "value 5"));
+        optionalProperties.add(propertySpecService.basicPropertySpec("SDKLargeStringProperty", false, new LargeStringFactory()));
+        optionalProperties.add(propertySpecService.basicPropertySpec("SDKHexStringProperty", false, new HexStringFactory()));
+        optionalProperties.add(propertySpecService.basicPropertySpec("SDKPasswordProperty", false, new PasswordFactory()));
+        optionalProperties.add(propertySpecService.basicPropertySpec("SDKBigDecimalProperty", false, new BigDecimalFactory()));
+        optionalProperties.add(propertySpecService.bigDecimalPropertySpec("SDKBigDecimalWithDefault", false, new BigDecimal("666.156")));
+        optionalProperties.add(
+                propertySpecService.bigDecimalPropertySpecWithValues(
+                        "SDKBigDecimalWithValues",
+                        false,
+                        BigDecimal.ZERO,
+                        BigDecimal.ONE,
+                        new BigDecimal("2"),
+                        new BigDecimal("3")));
+        optionalProperties.add(propertySpecService.boundedDecimalPropertySpec("SDKBoundedDecimal", false, new BigDecimal(2), new BigDecimal(10)));
+        optionalProperties.add(propertySpecService.positiveDecimalPropertySpec("SDKPositiveDecimalProperty", false));
+        optionalProperties.add(propertySpecService.basicPropertySpec("SDKBooleanProperty", false, new BooleanFactory()));
+        optionalProperties.add(propertySpecService.basicPropertySpec("SDKDateProperty", false, new DateFactory()));
+        optionalProperties.add(propertySpecService.basicPropertySpec("SDKTimeOfDayProperty", false, new TimeOfDayFactory()));
+        optionalProperties.add(propertySpecService.basicPropertySpec("SDKDateTimeProperty", false, new DateAndTimeFactory()));
+        optionalProperties.add(propertySpecService.basicPropertySpec("SDKTimeDurationProperty", false, new TimeDurationValueFactory()));
 
-        //optionalProperties.add(OptionalPropertySpecFactory.newInstance().timeZoneInUseReferencePropertySpec("SDKTimeZoneInUseProperty"));
-        optionalProperties.add(OptionalPropertySpecFactory.newInstance().obisCodePropertySpecWithValues("SDKObisCodeProperty",
+        optionalProperties.add(
+                propertySpecService.obisCodePropertySpecWithValues(
+                        "SDKObisCodeProperty",
+                        false,
                         ObisCode.fromString("1.0.1.8.0.255"),
                         ObisCode.fromString("1.0.1.8.1.255"),
                         ObisCode.fromString("1.0.1.8.2.255"),
@@ -140,22 +186,14 @@ public class SDKDeviceProtocolTestWithAllProperties implements DeviceProtocol {
                         ObisCode.fromString("1.0.2.8.1.255"),
                         ObisCode.fromString("1.0.2.8.2.255")));
 
-        optionalProperties.add(OptionalPropertySpecFactory.newInstance().referencePropertySpec("SDKCodeTableProperty", this.findFactory(FactoryIds.CODE)));
-        optionalProperties.add(OptionalPropertySpecFactory.newInstance().referencePropertySpec("SDKUserFileReferenceProperty", this.findFactory(FactoryIds.USERFILE)));
-        optionalProperties.add(OptionalPropertySpecFactory.newInstance().referencePropertySpec("SDKLookupProperty", this.findFactory(FactoryIds.LOOKUP)));
-//        optionalProperties.add(OptionalPropertySpecFactory.newInstance().referencePropertySpec("SDKLoadProfileTypeProperty", this.findFactory(FactoryIds.LOADPROFILE_TYPE)));
-//        optionalProperties.add(OptionalPropertySpecFactory.newInstance().referencePropertySpec("SDKLoadProfileProperty", this.findFactory(FactoryIds.LOADPROFILE)));
-        optionalProperties.add(OptionalPropertySpecFactory.newInstance().ean13PropertySpec("SDKEan13Property"));
-        optionalProperties.add(OptionalPropertySpecFactory.newInstance().ean18PropertySpec("SDKEan18Property"));
-        optionalProperties.add(OptionalPropertySpecFactory.newInstance().encryptedStringPropertySpec("SDKEncryptedStringProperty"));
-        optionalProperties.add(OptionalPropertySpecFactory.newInstance().spatialCoordinatesPropertySpec("SDKSpatialCoordinatesProperty"));
-
+        optionalProperties.add(propertySpecService.referencePropertySpec("SDKCodeTableProperty", false, FactoryIds.CODE));
+        optionalProperties.add(propertySpecService.referencePropertySpec("SDKUserFileReferenceProperty", false, FactoryIds.USERFILE));
+        optionalProperties.add(propertySpecService.basicPropertySpec("SDKEan13Property", false, new Ean13Factory()));
+        optionalProperties.add(propertySpecService.basicPropertySpec("SDKEan18Property", false, new Ean18Factory()));
+        optionalProperties.add(propertySpecService.basicPropertySpec("SDKEncryptedStringProperty", false, new EncryptedStringFactory()));
+        optionalProperties.add(propertySpecService.basicPropertySpec("SDKSpatialCoordinatesProperty", false, new SpatialCoordinatesFactory()));
 
         return optionalProperties;
-    }
-
-    private IdBusinessObjectFactory findFactory (FactoryIds id) {
-        return (IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(id.id());
     }
 
     @Override

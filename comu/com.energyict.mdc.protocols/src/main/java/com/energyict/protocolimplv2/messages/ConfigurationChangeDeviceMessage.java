@@ -1,17 +1,24 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.common.IdBusinessObjectFactory;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.common.UserEnvironment;
+import com.energyict.mdc.dynamic.BigDecimalFactory;
+import com.energyict.mdc.dynamic.BooleanFactory;
+import com.energyict.mdc.dynamic.DateAndTimeFactory;
+import com.energyict.mdc.dynamic.DateFactory;
+import com.energyict.mdc.dynamic.HexStringFactory;
+import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.dynamic.StringFactory;
+import com.energyict.mdc.dynamic.TimeDurationValueFactory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecPrimaryKey;
-import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
+
+import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -22,90 +29,242 @@ import java.util.List;
  */
 public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
 
-    WriteExchangeStatus(RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.WriteExchangeStatus)),
-    WriteRadioAcknowledge(RequiredPropertySpecFactory.newInstance().notNullableBooleanPropertySpec(DeviceMessageConstants.WriteRadioAcknowledge)),
-    WriteRadioUserTimeout(RequiredPropertySpecFactory.newInstance().timeDurationPropertySpec(DeviceMessageConstants.WriteRadioUserTimeout)),
-    WriteNewPDRNumber(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.newPDRAttributeName)),
-    ConfigureConverterMasterData(
-            RequiredPropertySpecFactory.newInstance().stringPropertySpecWithValues(DeviceMessageConstants.converterTypeAttributeName, "VOL1", "VOL2", "VEN1", "VEN2"),
-            RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.converterSerialNumberAttributeName)),
-    ConfigureGasMeterMasterData(
-            RequiredPropertySpecFactory.newInstance().stringPropertySpecWithValues(DeviceMessageConstants.meterTypeAttributeName, "MASS", "USON", "CORI", "VENT", "MEMB", "TURB", "ROTO", "Axxx"),
-            RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.meterCaliberAttributeName),
-            RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.meterSerialNumberAttributeName)),
-    ConfigureGasParameters(
-            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.gasDensityAttributeName),
-            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.airDensityAttributeName),
-            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.relativeDensityAttributeName),
-            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.molecularNitrogenAttributeName),
-            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.carbonDioxideAttributeName),
-            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.molecularHydrogenAttributeName),
-            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.higherCalorificValueAttributeName)),
+    WriteExchangeStatus {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.WriteExchangeStatus, true, new BigDecimalFactory()));
+        }
+    },
+    WriteRadioAcknowledge {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.WriteRadioAcknowledge, true, new BooleanFactory()));
+        }
+    },
+    WriteRadioUserTimeout {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.WriteRadioUserTimeout, true, new TimeDurationValueFactory()));
+        }
+    },
+    WriteNewPDRNumber {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.WriteRadioUserTimeout, true, new StringFactory()));
+        }
+    },
+    ConfigureConverterMasterData {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.stringPropertySpecWithValues(DeviceMessageConstants.converterTypeAttributeName, true, "VOL1", "VOL2", "VEN1", "VEN2"));
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.converterSerialNumberAttributeName, true, new StringFactory()));
+        }
+    },
+    ConfigureGasMeterMasterData {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.stringPropertySpecWithValues(DeviceMessageConstants.meterTypeAttributeName, true, "MASS", "USON", "CORI", "VENT", "MEMB", "TURB", "ROTO", "Axxx"));
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.meterCaliberAttributeName, true, new StringFactory()));
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.meterSerialNumberAttributeName, true, new StringFactory()));
+        }
+    },
+    ConfigureGasParameters {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.gasDensityAttributeName, true, new BigDecimalFactory()));
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.airDensityAttributeName, true, new BigDecimalFactory()));
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.relativeDensityAttributeName, true, new BigDecimalFactory()));
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.molecularNitrogenAttributeName, true, new BigDecimalFactory()));
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.carbonDioxideAttributeName, true, new BigDecimalFactory()));
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.molecularHydrogenAttributeName, true, new BigDecimalFactory()));
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.higherCalorificValueAttributeName, true, new BigDecimalFactory()));
+        }
+    },
 
     //EIWeb general messages
-    SetDescription(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetDescriptionAttributeName)),
-    SetIntervalInSeconds(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetIntervalInSecondsAttributeName)),
-    SetUpgradeUrl(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetUpgradeUrlAttributeName)),
-    SetUpgradeOptions(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetUpgradeOptionsAttributeName)),
-    SetDebounceTreshold(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetDebounceTresholdAttributeName)),
-    SetTariffMoment(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetTariffMomentAttributeName)),
-    SetCommOffset(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetCommOffsetAttributeName)),
-    SetAggIntv(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetAggIntvAttributeName)),
-    SetPulseTimeTrue(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetPulseTimeTrueAttributeName)),
+    SetDescription {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.SetDescriptionAttributeName, true, new StringFactory()));
+        }
+    },
+    SetIntervalInSeconds {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.SetIntervalInSecondsAttributeName, true, new StringFactory()));
+        }
+    },
+    SetUpgradeUrl {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.SetUpgradeUrlAttributeName, true, new StringFactory()));
+        }
+    },
+    SetUpgradeOptions {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.SetUpgradeOptionsAttributeName, true, new StringFactory()));
+        }
+    },
+    SetDebounceTreshold {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.SetDebounceTresholdAttributeName, true, new StringFactory()));
+        }
+    },
+    SetTariffMoment {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.SetTariffMomentAttributeName, true, new StringFactory()));
+        }
+    },
+    SetCommOffset {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.SetCommOffsetAttributeName, true, new StringFactory()));
+        }
+    },
+    SetAggIntv {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.SetAggIntvAttributeName, true, new StringFactory()));
+        }
+    },
+    SetPulseTimeTrue {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.SetPulseTimeTrueAttributeName, true, new StringFactory()));
+        }
+    },
 
-    SetDukePowerID(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetDukePowerIDAttributeName)),
-    SetDukePowerPassword(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetDukePowerPasswordAttributeName)),
-    SetDukePowerIdleTime(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetDukePowerIdleTimeAttributeName)),
+    SetDukePowerID {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.SetDukePowerIDAttributeName, true, new StringFactory()));
+        }
+    },
+    SetDukePowerPassword {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.SetDukePowerPasswordAttributeName, true, new StringFactory()));
+        }
+    },
+    SetDukePowerIdleTime {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.SetDukePowerIdleTimeAttributeName, true, new StringFactory()));
+        }
+    },
 
-    UploadMeterScheme(
-            RequiredPropertySpecFactory.newInstance().
-                    referencePropertySpec(
-                            DeviceMessageConstants.MeterScheme,
-                            (IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(FactoryIds.USERFILE.id()))),
-    UploadSwitchPointClockSettings(
-            RequiredPropertySpecFactory.newInstance().
-                    referencePropertySpec(
-                            DeviceMessageConstants.SwitchPointClockSettings,
-                            (IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(FactoryIds.USERFILE.id()))),
-    UploadSwitchPointClockUpdateSettings(
-            RequiredPropertySpecFactory.newInstance().
-                    referencePropertySpec(
-                            DeviceMessageConstants.SwitchPointClockUpdateSettings,
-                            (IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(FactoryIds.USERFILE.id()))),
+    UploadMeterScheme {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.referencePropertySpec(DeviceMessageConstants.MeterScheme, true, FactoryIds.USERFILE));
+        }
+    },
+    UploadSwitchPointClockSettings {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.referencePropertySpec(DeviceMessageConstants.SwitchPointClockSettings, true, FactoryIds.USERFILE));
+        }
+    },
+    UploadSwitchPointClockUpdateSettings {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.referencePropertySpec(DeviceMessageConstants.SwitchPointClockUpdateSettings, true, FactoryIds.USERFILE));
+        }
+    },
 
-    ProgramBatteryExpiryDate(RequiredPropertySpecFactory.newInstance().datePropertySpec(DeviceMessageConstants.ConfigurationChangeDate)),
+    ProgramBatteryExpiryDate {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.ConfigurationChangeDate, true, new DateFactory()));
+        }
+    },
 
-    ChangeOfSupplier(
-            RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.ChangeOfSupplierName),
-            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.ChangeOfSupplierID),
-            RequiredPropertySpecFactory.newInstance().dateTimePropertySpec(DeviceMessageConstants.ConfigurationChangeActivationDate)
-    ),
-    ChangeOfTenancy(RequiredPropertySpecFactory.newInstance().dateTimePropertySpec(DeviceMessageConstants.ConfigurationChangeActivationDate)),
-    SetCalorificValue(
-            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.CalorificValue),
-            RequiredPropertySpecFactory.newInstance().dateTimePropertySpec(DeviceMessageConstants.ConfigurationChangeActivationDate)
-    ),
-    SetConversionFactor(
-            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.ConversionFactor),
-            RequiredPropertySpecFactory.newInstance().dateTimePropertySpec(DeviceMessageConstants.ConfigurationChangeActivationDate)
-    ),
-    SetAlarmFilter(RequiredPropertySpecFactory.newInstance().hexStringPropertySpec(DeviceMessageConstants.AlarmFilterAttributeName)),
-    ChangeDefaultResetWindow(RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.DefaultResetWindowAttributeName)),
-    ChangeAdministrativeStatus(
-            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpecWithValues(
-                    DeviceMessageConstants.AdministrativeStatusAttributeName,
-                    new BigDecimal(0),
-                    new BigDecimal(1),
-                    new BigDecimal(2),
-                    new BigDecimal(3)
-            )
-    );
-
-    private final List<PropertySpec> deviceMessagePropertySpecs;
-
-    private ConfigurationChangeDeviceMessage(PropertySpec... deviceMessagePropertySpecs) {
-        this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
-    }
+    ChangeOfSupplier {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.ChangeOfSupplierName, true, new StringFactory()));
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.ChangeOfSupplierID, true, new BigDecimalFactory()));
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.ConfigurationChangeActivationDate, true, new DateAndTimeFactory()));
+        }
+    },
+    ChangeOfTenancy {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.ConfigurationChangeActivationDate, true, new DateAndTimeFactory()));
+        }
+    },
+    SetCalorificValue {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.CalorificValue, true, new BigDecimalFactory()));
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.ConfigurationChangeActivationDate, true, new DateAndTimeFactory()));
+        }
+    },
+    SetConversionFactor {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.ConversionFactor, true, new BigDecimalFactory()));
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.ConfigurationChangeActivationDate, true, new DateAndTimeFactory()));
+        }
+    },
+    SetAlarmFilter {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.AlarmFilterAttributeName, true, new HexStringFactory()));
+        }
+    },
+    ChangeDefaultResetWindow {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.DefaultResetWindowAttributeName, true, new BigDecimalFactory()));
+        }
+    },
+    ChangeAdministrativeStatus {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(
+                    propertySpecService.bigDecimalPropertySpecWithValues(
+                            DeviceMessageConstants.AdministrativeStatusAttributeName,
+                            true,
+                            BigDecimal.ZERO,
+                            BigDecimal.ONE,
+                            new BigDecimal(2),
+                            new BigDecimal(3)));
+        }
+    };
 
     @Override
     public DeviceMessageCategory getCategory() {
@@ -129,8 +288,14 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return deviceMessagePropertySpecs;
+        List<PropertySpec> propertySpecs = new ArrayList<>();
+        this.addPropertySpecs(propertySpecs, Bus.getPropertySpecService());
+        return propertySpecs;
     }
+
+    protected void addPropertySpecs (List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+        // Default behavior is not to add anything
+    };
 
     @Override
     public PropertySpec getPropertySpec(String name) {

@@ -1,16 +1,16 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.UserEnvironment;
+import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecPrimaryKey;
-import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.UserFileConfigAttributeName;
@@ -25,17 +25,27 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.xmlCo
  */
 public enum AdvancedTestMessage implements DeviceMessageSpec {
 
-    XML_CONFIG(RequiredPropertySpecFactory.newInstance().stringPropertySpec(xmlConfigAttributeName)),
-    USERFILE_CONFIG(RequiredPropertySpecFactory.newInstance().referencePropertySpec(UserFileConfigAttributeName, (IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(FactoryIds.USERFILE.id()))),
-    LogObjectList();
+    XML_CONFIG {
+        @Override
+        public List<PropertySpec> getPropertySpecs() {
+            return Arrays.<PropertySpec>asList(RequiredPropertySpecFactory.newInstance().stringPropertySpec(xmlConfigAttributeName));
+        }
+    },
+    USERFILE_CONFIG {
+        @Override
+        public List<PropertySpec> getPropertySpecs() {
+            PropertySpecService propertySpecService = PropertySpecService.INSTANCE.get();
+            return Arrays.asList(propertySpecService.referencePropertySpec(UserFileConfigAttributeName, true, FactoryIds.USERFILE));
+        }
+    },
+    LogObjectList {
+        @Override
+        public List<PropertySpec> getPropertySpecs() {
+            return Collections.emptyList();
+        }
+    };
 
     private static final DeviceMessageCategory advancedTestCategory = DeviceMessageCategories.ADVANCED_TEST;
-
-    private final List<PropertySpec> deviceMessagePropertySpecs;
-
-    private AdvancedTestMessage(PropertySpec... deviceMessagePropertySpecs) {
-        this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
-    }
 
     @Override
     public DeviceMessageCategory getCategory() {
@@ -55,11 +65,6 @@ public enum AdvancedTestMessage implements DeviceMessageSpec {
      */
     private String getNameResourceKey() {
         return AdvancedTestMessage.class.getSimpleName() + "." + this.toString();
-    }
-
-    @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return deviceMessagePropertySpecs;
     }
 
     @Override

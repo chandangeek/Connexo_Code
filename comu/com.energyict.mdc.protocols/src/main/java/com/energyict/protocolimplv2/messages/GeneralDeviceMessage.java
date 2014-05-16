@@ -1,17 +1,18 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.UserEnvironment;
+import com.energyict.mdc.dynamic.HexStringFactory;
+import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecPrimaryKey;
-import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
+
+import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,23 +26,24 @@ import java.util.List;
  */
 public enum GeneralDeviceMessage implements DeviceMessageSpec {
 
-    WRITE_RAW_IEC1107_CLASS(
-            RequiredPropertySpecFactory.newInstance().boundedDecimalPropertySpec(DeviceMessageConstants.IEC1107ClassIdAttributeName, BigDecimal.valueOf(0), BigDecimal.valueOf(9999)),
-            RequiredPropertySpecFactory.newInstance().boundedDecimalPropertySpec(DeviceMessageConstants.OffsetAttributeName, BigDecimal.valueOf(0), BigDecimal.valueOf(9999)),
-            RequiredPropertySpecFactory.newInstance().hexStringPropertySpec(DeviceMessageConstants.RawDataAttributeName)),
-    WRITE_FULL_CONFIGURATION(
-            RequiredPropertySpecFactory.newInstance().
-                    referencePropertySpec(
-                            DeviceMessageConstants.configUserFileAttributeName,
-                            (IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(FactoryIds.USERFILE.id())));
+    WRITE_RAW_IEC1107_CLASS {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.boundedDecimalPropertySpec(DeviceMessageConstants.IEC1107ClassIdAttributeName, true, BigDecimal.ZERO, BigDecimal.valueOf(9999)));
+            propertySpecs.add(propertySpecService.boundedDecimalPropertySpec(DeviceMessageConstants.OffsetAttributeName, true, BigDecimal.ZERO, BigDecimal.valueOf(9999)));
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.RawDataAttributeName, true, new HexStringFactory()));
+        }
+    },
+    WRITE_FULL_CONFIGURATION {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.referencePropertySpec(DeviceMessageConstants.configUserFileAttributeName, true, FactoryIds.USERFILE));
+        }
+    };
 
     private static final DeviceMessageCategory generalCategory = DeviceMessageCategories.GENERAL;
-
-    private final List<PropertySpec> deviceMessagePropertySpecs;
-
-    private GeneralDeviceMessage(PropertySpec... deviceMessagePropertySpecs) {
-        this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
-    }
 
     @Override
     public DeviceMessageCategory getCategory() {
@@ -65,8 +67,14 @@ public enum GeneralDeviceMessage implements DeviceMessageSpec {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return this.deviceMessagePropertySpecs;
+        List<PropertySpec> propertySpecs = new ArrayList<>();
+        this.addPropertySpecs(propertySpecs, Bus.getPropertySpecService());
+        return propertySpecs;
     }
+
+    protected void addPropertySpecs (List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+        // Default behavior is not to add anything
+    };
 
     @Override
     public PropertySpec getPropertySpec(String name) {

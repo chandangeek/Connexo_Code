@@ -1,17 +1,20 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.common.IdBusinessObjectFactory;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.common.UserEnvironment;
+import com.energyict.mdc.dynamic.DateAndTimeFactory;
+import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.dynamic.TimeDurationValueFactory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecPrimaryKey;
-import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
+
 import com.energyict.protocolimplv2.messages.enums.LoadProfileMode;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.capturePeriodAttributeName;
@@ -29,42 +32,83 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.toDat
  */
 public enum LoadProfileMessage implements DeviceMessageSpec {
 
-    PARTIAL_LOAD_PROFILE_REQUEST(
-            RequiredPropertySpecFactory.newInstance().
-                    idReferencePropertySpec(
-                            loadProfileAttributeName,
-                            Environment.DEFAULT.get().finderFor(FactoryIds.LOADPROFILE)),
-            RequiredPropertySpecFactory.newInstance().dateTimePropertySpec(fromDateAttributeName),
-            RequiredPropertySpecFactory.newInstance().dateTimePropertySpec(toDateAttributeName)
-    ),
-    ResetActiveImportLP(),
-    ResetActiveExportLP(),
-    ResetDailyProfile(),
-    ResetMonthlyProfile(),
-    WRITE_CAPTURE_PERIOD_LP1(RequiredPropertySpecFactory.newInstance().timeDurationPropertySpec(capturePeriodAttributeName)),
-    WRITE_CAPTURE_PERIOD_LP2(RequiredPropertySpecFactory.newInstance().timeDurationPropertySpec(capturePeriodAttributeName)),
-    WriteConsumerProducerMode(RequiredPropertySpecFactory.newInstance().stringPropertySpecWithValues(consumerProducerModeAttributeName, LoadProfileMode.getAllDescriptions())),
-    LOAD_PROFILE_REGISTER_REQUEST(
-            RequiredPropertySpecFactory.newInstance().
-                    idReferencePropertySpec(
-                            loadProfileAttributeName,
-                            Environment.DEFAULT.get().finderFor(FactoryIds.LOADPROFILE)),
-            RequiredPropertySpecFactory.newInstance().dateTimePropertySpec(fromDateAttributeName)
-    );
+    PARTIAL_LOAD_PROFILE_REQUEST {
+        @Override
+        public List<PropertySpec> getPropertySpecs() {
+            PropertySpecService propertySpecService = PropertySpecService.INSTANCE.get();
+            return Arrays.asList(
+                    propertySpecService.referencePropertySpec(loadProfileAttributeName, true, FactoryIds.LOADPROFILE),
+                    propertySpecService.basicPropertySpec(fromDateAttributeName, true, new DateAndTimeFactory()),
+                    propertySpecService.basicPropertySpec(toDateAttributeName, true, new DateAndTimeFactory()));
+        }
+    },
+    ResetActiveImportLP() {
+        @Override
+        public List<PropertySpec> getPropertySpecs() {
+            return Collections.emptyList();
+        }
+    },
+    ResetActiveExportLP() {
+        @Override
+        public List<PropertySpec> getPropertySpecs() {
+            return Collections.emptyList();
+        }
+    },
+    ResetDailyProfile() {
+        @Override
+        public List<PropertySpec> getPropertySpecs() {
+            return Collections.emptyList();
+        }
+    },
+    ResetMonthlyProfile() {
+        @Override
+        public List<PropertySpec> getPropertySpecs() {
+            return Collections.emptyList();
+        }
+    },
+    WRITE_CAPTURE_PERIOD_LP1 {
+        @Override
+        public List<PropertySpec> getPropertySpecs() {
+            PropertySpecService propertySpecService = PropertySpecService.INSTANCE.get();
+            List<PropertySpec> propertySpecs = new ArrayList<>();
+            propertySpecs.add(propertySpecService.basicPropertySpec(capturePeriodAttributeName, true, new TimeDurationValueFactory()));
+            return propertySpecs;
+        }
+    },
+    WRITE_CAPTURE_PERIOD_LP2 {
+        @Override
+        public List<PropertySpec> getPropertySpecs() {
+            PropertySpecService propertySpecService = PropertySpecService.INSTANCE.get();
+            List<PropertySpec> propertySpecs = new ArrayList<>();
+            propertySpecs.add(propertySpecService.basicPropertySpec(capturePeriodAttributeName, true, new TimeDurationValueFactory()));
+            return propertySpecs;
+        }
+    },
+    WriteConsumerProducerMode {
+        @Override
+        public List<PropertySpec> getPropertySpecs() {
+            PropertySpecService propertySpecService = PropertySpecService.INSTANCE.get();
+            List<PropertySpec> propertySpecs = new ArrayList<>();
+            propertySpecs.add(propertySpecService.stringPropertySpecWithValues(consumerProducerModeAttributeName, true, LoadProfileMode.getAllDescriptions()));
+            return propertySpecs;
+        }
+    },
+    LOAD_PROFILE_REGISTER_REQUEST {
+        @Override
+        public List<PropertySpec> getPropertySpecs() {
+            PropertySpecService propertySpecService = PropertySpecService.INSTANCE.get();
+            return Arrays.asList(
+                    propertySpecService.referencePropertySpec(loadProfileAttributeName, true, FactoryIds.LOADPROFILE),
+                    propertySpecService.basicPropertySpec(fromDateAttributeName, true, new DateAndTimeFactory()));
+        }
+    };
 
     private static final DeviceMessageCategory loadProfileCategory = DeviceMessageCategories.LOAD_PROFILES;
-
-    private final List<PropertySpec> deviceMessagePropertySpecs;
-
-    private LoadProfileMessage(PropertySpec... deviceMessagePropertySpecs) {
-        this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
-    }
 
     @Override
     public DeviceMessageCategory getCategory() {
         return loadProfileCategory;
     }
-
 
     @Override
     public String getName() {
@@ -79,11 +123,6 @@ public enum LoadProfileMessage implements DeviceMessageSpec {
      */
     private String getNameResourceKey() {
         return LoadProfileMessage.class.getSimpleName() + "." + this.toString();
-    }
-
-    @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return deviceMessagePropertySpecs;
     }
 
     @Override

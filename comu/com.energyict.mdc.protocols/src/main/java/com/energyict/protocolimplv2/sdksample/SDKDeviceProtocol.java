@@ -2,11 +2,11 @@ package com.energyict.protocolimplv2.sdksample;
 
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
+import com.energyict.mdc.dynamic.BooleanFactory;
+import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.ComChannel;
@@ -35,11 +35,13 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
+import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -137,23 +139,23 @@ public class SDKDeviceProtocol implements DeviceProtocol {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
+        PropertySpecService propertySpecService = Bus.getPropertySpecService();
         List<PropertySpec> optionalProperties = new ArrayList<>();
-        optionalProperties.add(OptionalPropertySpecFactory.newInstance().booleanPropertySpec(defaultOptionalProperty));
+        optionalProperties.add(propertySpecService.basicPropertySpec(defaultOptionalProperty, false, new BooleanFactory()));
+        optionalProperties.add(propertySpecService.referencePropertySpec("SDKCodeTableProperty", false, FactoryIds.CODE));
         optionalProperties.add(
-                OptionalPropertySpecFactory.newInstance().
-                        referencePropertySpec(
-                                "SDKCodeTableProperty",
-                                (IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(FactoryIds.CODE.id())));
-        optionalProperties.add(OptionalPropertySpecFactory.newInstance().obisCodePropertySpecWithValues("SDKObisCodeProperty",
-                ObisCode.fromString("1.0.1.8.0.255"),
-                ObisCode.fromString("1.0.1.8.1.255"),
-                ObisCode.fromString("1.0.1.8.2.255"),
-                ObisCode.fromString("1.0.2.8.0.255"),
-                ObisCode.fromString("1.0.2.8.1.255"),
-                ObisCode.fromString("1.0.2.8.2.255")));
-        optionalProperties.add(OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec("SDKBigDecimalWithDefault", new BigDecimal("666.156")));
-        optionalProperties.add(OptionalPropertySpecFactory.newInstance().dateTimePropertySpec("MyDateTimeProperty"));
-//        optionalProperties.add(OptionalPropertySpecFactory.newInstance().fixedLengthHexStringPropertySpec("MyFixedHexStringPropertySpec", 16));
+                propertySpecService.
+                        obisCodePropertySpecWithValues(
+                                "SDKObisCodeProperty",
+                                false,
+                                ObisCode.fromString("1.0.1.8.0.255"),
+                                ObisCode.fromString("1.0.1.8.1.255"),
+                                ObisCode.fromString("1.0.1.8.2.255"),
+                                ObisCode.fromString("1.0.2.8.0.255"),
+                                ObisCode.fromString("1.0.2.8.1.255"),
+                                ObisCode.fromString("1.0.2.8.2.255")));
+        optionalProperties.add(propertySpecService.bigDecimalPropertySpec("SDKBigDecimalWithDefault", false, new BigDecimal("666.156")));
+        optionalProperties.add(propertySpecService.basicPropertySpec("MyDateTimeProperty", false, new DateAndTimeFactory()));
         return optionalProperties;
     }
 

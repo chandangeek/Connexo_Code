@@ -1,16 +1,18 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.common.IdBusinessObjectFactory;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.common.UserEnvironment;
+import com.energyict.mdc.dynamic.BigDecimalFactory;
+import com.energyict.mdc.dynamic.DateAndTimeFactory;
+import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecPrimaryKey;
-import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 
-import java.util.Arrays;
+import com.energyict.protocols.mdc.services.impl.Bus;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -22,32 +24,34 @@ import java.util.List;
  */
 public enum PricingInformationMessage implements DeviceMessageSpec {
 
-    ReadPricingInformation,
-    SetPricingInformation(
-            RequiredPropertySpecFactory.newInstance().
-                    referencePropertySpec(
-                            DeviceMessageConstants.PricingInformationUserFileAttributeName,
-                            (IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(FactoryIds.USERFILE.id())),
-            RequiredPropertySpecFactory.newInstance().dateTimePropertySpec(DeviceMessageConstants.PricingInformationActivationDateAttributeName)
-    ),
-    SetStandingCharge(
-            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.StandingChargeAttributeName),
-            RequiredPropertySpecFactory.newInstance().dateTimePropertySpec(DeviceMessageConstants.PricingInformationActivationDateAttributeName)
-    ),
-    UpdatePricingInformation(
-            RequiredPropertySpecFactory.newInstance().
-                    referencePropertySpec(
-                            DeviceMessageConstants.PricingInformationUserFileAttributeName,
-                            (IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(FactoryIds.USERFILE.id()))
-    );
+    ReadPricingInformation {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            // No properties to add
+        }
+    },
+    SetPricingInformation {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            propertySpecs.add(propertySpecService.referencePropertySpec(DeviceMessageConstants.PricingInformationUserFileAttributeName, true, FactoryIds.USERFILE));
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.PricingInformationActivationDateAttributeName, true, new DateAndTimeFactory()));
+        }
+    },
+    SetStandingCharge {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.StandingChargeAttributeName, true, new BigDecimalFactory()));
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.PricingInformationActivationDateAttributeName, true, new DateAndTimeFactory()));
+        }
+    },
+    UpdatePricingInformation {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            propertySpecs.add(propertySpecService.referencePropertySpec(DeviceMessageConstants.PricingInformationUserFileAttributeName, true, FactoryIds.USERFILE));
+        }
+    };
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.PRICING_INFORMATION;
-
-    private final List<PropertySpec> deviceMessagePropertySpecs;
-
-    private PricingInformationMessage(PropertySpec... deviceMessagePropertySpecs) {
-        this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
-    }
 
     private static String translate(final String key) {
         return UserEnvironment.getDefault().getTranslation(key);
@@ -75,8 +79,12 @@ public enum PricingInformationMessage implements DeviceMessageSpec {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return this.deviceMessagePropertySpecs;
+        List<PropertySpec> propertySpecs = new ArrayList<>();
+        this.addPropertySpecs(propertySpecs, Bus.getPropertySpecService());
+        return propertySpecs;
     }
+
+    protected abstract void addPropertySpecs (List<PropertySpec> propertySpecs, PropertySpecService propertySpecService);
 
     @Override
     public PropertySpec getPropertySpec(String name) {
