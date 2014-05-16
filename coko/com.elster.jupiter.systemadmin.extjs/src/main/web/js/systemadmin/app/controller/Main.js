@@ -7,7 +7,6 @@ Ext.define('Sam.controller.Main', {
     ],
 
     controllers: [
-        'Sam.controller.Administration',
         'Sam.controller.history.Administration',
         'Sam.controller.licensing.Licenses',
         'Sam.controller.licensing.Upload'
@@ -42,12 +41,29 @@ Ext.define('Sam.controller.Main', {
         var me = this;
 
         var menuItem = Ext.create('Uni.model.MenuItem', {
-            text: 'System administration',
+            text: Uni.I18n.translate('general.administration', 'SAM', 'Administration'),
             href: me.getController('Sam.controller.history.Administration').tokenizeShowOverview(),
+            portal: 'administration',
             glyph: 'settings'
         });
-
         Uni.store.MenuItems.add(menuItem);
+
+        var licensingItem = Ext.create('Uni.model.PortalItem', {
+            title: Uni.I18n.translate('general.licenses', 'SAM', 'Licensing'),
+            portal: 'administration',
+            route: 'licensing',
+            items: [
+                {
+                    text: Uni.I18n.translate('general.licenses', 'MDC', 'Licenses'),
+                    href: '#/administration/licensing/licenses',
+                    route: 'licenses'
+                }
+            ]
+        });
+
+        Uni.store.PortalItems.add(
+            licensingItem
+        );
     },
 
     initNavigation: function () {
