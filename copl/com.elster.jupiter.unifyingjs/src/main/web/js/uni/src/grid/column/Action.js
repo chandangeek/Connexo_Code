@@ -42,7 +42,8 @@ Ext.define('Uni.grid.column.Action', {
         var me = this;
         me.menu = Ext.widget('menu', me.menu);
         me.menu.on('click', function(menu, item, e, eOpts) {
-            me.fireEvent('menuclick', menu, item, e, eOpts)
+            me.fireEvent('menuclick', menu, item, e, eOpts);
+            me.fireEvent(item.action, menu.record);
         });
     },
 
