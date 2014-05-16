@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -32,6 +33,7 @@ public class DeviceApplication extends Application {
     private volatile DeviceDataService deviceDataService;
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile DeviceImportService deviceImportService;
+    private volatile IssueService issueService;
     private volatile TransactionService transactionService;
     private volatile NlsService nlsService;
     private volatile JsonService jsonService;
@@ -74,6 +76,11 @@ public class DeviceApplication extends Application {
     }
 
     @Reference
+    public void setIssueService(IssueService issueService) {
+        this.issueService = issueService;
+    }
+
+    @Reference
     public void setProtocolPluggableService(ProtocolPluggableService protocolPluggableService) {
         this.protocolPluggableService = protocolPluggableService;
     }
@@ -103,6 +110,7 @@ public class DeviceApplication extends Application {
             bind(deviceDataService).to(DeviceDataService.class);
             bind(protocolPluggableService).to(ProtocolPluggableService.class);
             bind(transactionService).to(TransactionService.class);
+            bind(issueService).to(IssueService.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(nlsService).to(NlsService.class);

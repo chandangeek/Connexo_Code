@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
@@ -41,11 +42,12 @@ public class DeviceInfo {
     public String masterDevicemRID;
     public Long masterDeviceId;
     public List<DeviceInfo> slaveDevices;
+    public long nbrOfDataCollectionIssues;
 
     public DeviceInfo() {
     }
 
-    public static DeviceInfo from(Device device, DeviceImportService deviceImportService) {
+    public static DeviceInfo from(Device device, DeviceImportService deviceImportService, IssueService issueService) {
         DeviceInfo deviceInfo = new DeviceInfo();
         deviceInfo.id = device.getId();
         deviceInfo.mRID = device.getmRID();
@@ -74,13 +76,14 @@ public class DeviceInfo {
             slaveInfo.mRID = ((Device)dev).getmRID();
             deviceInfo.slaveDevices.add(slaveInfo);
         }
+        deviceInfo.nbrOfDataCollectionIssues = issueService.findNbrOfOpenDataCollectionIssues(device.getmRID());
         return deviceInfo;
     }
 
-    public static List<DeviceInfo> from(List<Device> devices, DeviceImportService deviceImportService) {
+    public static List<DeviceInfo> from(List<Device> devices, DeviceImportService deviceImportService, IssueService issueService) {
         List<DeviceInfo> deviceInfos = new ArrayList<>();
         for (Device device : devices) {
-            deviceInfos.add(DeviceInfo.from(device, deviceImportService));
+            deviceInfos.add(DeviceInfo.from(device, deviceImportService, issueService));
         }
         return deviceInfos;
     }
