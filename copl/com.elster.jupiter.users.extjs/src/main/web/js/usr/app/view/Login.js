@@ -10,7 +10,7 @@ Ext.define('Usr.view.Login', {
         'Ext.button.Button'
     ],
 
-    id: 'usm_elster_login',
+    itemId: 'loginPage',
     cls:'uni-content-container uni-content-container-default',
     layout: {
         type: 'vbox',

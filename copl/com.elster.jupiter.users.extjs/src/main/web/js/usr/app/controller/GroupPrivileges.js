@@ -46,41 +46,11 @@ Ext.define('Usr.controller.GroupPrivileges', {
         location.href = '#roles/' + groupId + '/edit';
     },
 
-    /**
-     * todo: merge edit and create methods to reduce code duplicateness.
-     * @param groupId
-     */
     showEditOverview: function (groupId) {
         var me = this;
-        var groupStore = this.getStore('Usr.store.Groups');
-        var widget = Ext.widget('groupEdit');
-        var panel = widget.getCenterContainer().items.getAt(0);
-
-        this.backUrl = this.getApplication().getController('Usr.controller.history.Group').tokenizePreviousTokens();
-
-        widget.hide();
-        widget.setLoading(true);
-
         Ext.ModelManager.getModel('Usr.model.Group').load(groupId, {
             success: function (group) {
-                groupStore.load({
-                    callback: function (store) {
-                        var title = Uni.I18n.translate('group.edit', 'USM', 'Edit role');
-                        panel.setTitle(title + ' "' + group.get('name') + '"');
-
-                        widget.down('[name=name]').disable();
-
-                        me.getStore('Usr.store.Privileges').load(function () {
-                            widget.down('form').loadRecord(group);
-
-                            me.getApplication().fireEvent('changecontentevent', widget);
-                            me.displayBreadcrumb(title + ' "' + group.get("name") + '"');
-
-                            widget.setLoading(false);
-                            widget.show();
-                        });
-                    }
-                })
+                me.showOverview(group, Uni.I18n.translate('group.edit', 'USM', 'Edit role') + ' "' + group.get('name') + '"');
             }
         });
     },
@@ -90,11 +60,13 @@ Ext.define('Usr.controller.GroupPrivileges', {
     },
 
     showCreateOverview: function () {
-        var me = this;
-        var record = Ext.create('Usr.model.Group');
-        var widget = Ext.widget('groupEdit');
-        var panel = widget.getCenterContainer().items.getAt(0);
-        var title = Uni.I18n.translate('group.create', 'USM', 'Create role');
+        this.showOverview(Ext.create('Usr.model.Group'), Uni.I18n.translate('group.create', 'USM', 'Create role'));
+    },
+
+    showOverview: function (record, title) {
+        var me = this,
+            widget = Ext.widget('groupEdit'),
+            panel = widget.getCenterContainer().items.getAt(0);
 
         this.backUrl = this.getApplication().getController('Usr.controller.history.Group').tokenizePreviousTokens();
 
@@ -106,7 +78,7 @@ Ext.define('Usr.controller.GroupPrivileges', {
 
             widget.setLoading(false);
 
-            me.getApplication().fireEvent('changecontentevent', widget);
+            me.getApplication().getController('Usr.controller.Main').showContent(widget);
             me.displayBreadcrumb(title);
         });
     },

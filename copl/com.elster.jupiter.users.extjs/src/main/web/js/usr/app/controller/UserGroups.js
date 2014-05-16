@@ -45,7 +45,6 @@ Ext.define('Usr.controller.UserGroups', {
         location.href = '#users/' + groupId + '/edit';
     },
 
-//    backUrl: this.getApplication().getController('Usr.controller.history.User').tokenizeShowOverview(),
     backUrl: null,
 
     back: function() {
@@ -57,44 +56,39 @@ Ext.define('Usr.controller.UserGroups', {
      * @param userId
      */
     showEditOverview: function (userId) {
-        var userStore = Ext.StoreManager.get('Usr.store.Users');
-        var widget = Ext.widget('userEdit');
-        var panel = widget.getCenterContainer().items.getAt(0);
+        var widget = Ext.widget('userEdit'),
+            panel = widget.getCenterContainer().items.getAt(0);
 
         this.backUrl = this.getApplication().getController('Usr.controller.history.User').tokenizePreviousTokens();
+
+        this.getApplication().getController('Usr.controller.Main').showContent(widget);
         widget.hide();
         widget.setLoading(true);
 
         var me = this;
         Ext.ModelManager.getModel('Usr.model.User').load(userId, {
             success: function (user) {
-                userStore.load({
-                    callback: function (store) {
-                        var title = Uni.I18n.translate('user.edit.with.name', 'USM', 'Edit user');
+                var title = Uni.I18n.translate('user.edit.with.name', 'USM', 'Edit user');
+                panel.setTitle(title + ' "' + user.get('authenticationName') + '"');
 
-                        panel.setTitle(title + ' "' + user.get('authenticationName') + '"');
-                        widget.down('[name=authenticationName]').disable();
-                        widget.down('[name=domain]').disable();
+                panel.down('[name=authenticationName]').disable();
+                panel.down('[name=domain]').disable();
 
-                        me.getStore('Usr.store.Groups').load(function () {
-                            widget.down('form').loadRecord(user);
+                Ext.StoreManager.get('Usr.store.Groups').load(function () {
+                    panel.down('form').loadRecord(user);
 
-                            Ext.ModelManager.getModel('Usr.model.UserDirectory').load(user.get('domain'), {
-                                callback: function (domain) {
-                                    if(!domain.get('manageGroupsInternal')){
-                                        widget.down('[itemId=selectRoles]').disable();
-                                    }
+                    Ext.ModelManager.getModel('Usr.model.UserDirectory').load(user.get('domain'), {
+                        callback: function (domain) {
+                            if(!domain.get('manageGroupsInternal')){
+                                panel.down('[itemId=selectRoles]').disable();
+                            }
 
-                                    me.getApplication().getController('Usr.controller.Main').showContent(widget);
-                                    me.displayBreadcrumb(user.get("authenticationName"));
-
-                                    widget.setLoading(false);
-                                    widget.show();
-                                }
-                            });
-                        });
-                    }
-                })
+                            me.displayBreadcrumb(user.get("authenticationName"));
+                            widget.setLoading(false);
+                            widget.show();
+                        }
+                    });
+                });
             }
         });
     },

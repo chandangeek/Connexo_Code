@@ -29,6 +29,7 @@ Ext.define('Usr.view.user.Details', {
     items: [
         {
             xtype: 'form',
+            itemId: 'userDetailsForm',
             defaults: {
                 xtype: 'container',
                 layout: 'form',
@@ -48,6 +49,9 @@ Ext.define('Usr.view.user.Details', {
                             layout: {
                                 type: 'vbox',
                                 align: 'stretch'
+                            },
+                            defaults: {
+                                labelWidth: 150
                             },
                             items: [
                                 {
@@ -93,6 +97,9 @@ Ext.define('Usr.view.user.Details', {
                             layout: {
                                 type: 'vbox',
                                 align: 'stretch'
+                            },
+                            defaults: {
+                                labelWidth: 150
                             },
                             items: [
                                 {

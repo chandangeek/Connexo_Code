@@ -17,10 +17,17 @@ Ext.define('Usr.controller.Login', {
         'Login'
     ],
 
+    refs: [
+        { ref: 'loginPage', selector: '#loginPage'}
+    ],
+
     init: function(application) {
         this.control({
             "login #loginButton": {
                 signin: this.signinuser
+            },
+            'viewport menuitem[action=logout]': {
+                click: this.signout
             }
         });
     },
@@ -32,10 +39,8 @@ Ext.define('Usr.controller.Login', {
         var unencodedToken = username + ":" + password;
         var encodedToken = "Basic " + Usr.controller.Base64.encode(unencodedToken);
 
-        //var widget =  Ext.getCmp('usm_elster_login').down('#contentPanel');
-        //widget.setLoading(true);
-        var myMask = new Ext.LoadMask(Ext.getBody(), {msg:"Verifying credentials..."});
-        myMask.show();
+        var loginMask = new Ext.LoadMask(Ext.getBody(), {msg:"Verifying credentials..."});
+        loginMask.show();
 
         var request = Ext.Ajax.request({
             url: '/apps/usr/index.html',
@@ -45,20 +50,19 @@ Ext.define('Usr.controller.Login', {
             },
             scope: this,
             success: function(response, opt){
-                //widget.setLoading(false);
-                myMask.hide();
+                loginMask.hide();
                 this.loginOK(button);
             },
             failure: function(response, opt){
-                //widget.setLoading(false);
-                myMask.hide();
+                loginMask.hide();
                 this.loginNOK();
             }
         });
     },
 
     loginOK : function(button){
-        Ext.Ajax.resumeEvent('requestexception');
+        window.location.replace("http://localhost:8080/apps/master/login-dev.html");
+        /*Ext.Ajax.resumeEvent('requestexception');
 
         var loader = Ext.create('Uni.Loader');
         loader.initI18n(['USM']);
@@ -69,7 +73,7 @@ Ext.define('Usr.controller.Login', {
 
         var me=this;
         loader.onReady(function () {
-            Ext.getCmp('usm_elster_login').destroy();
+            this.getLoginPage().destroy();
             me.getApplication().destroy();
 
             Ext.application({
@@ -80,7 +84,7 @@ Ext.define('Usr.controller.Login', {
                 autoCreateViewport: true
             });
 
-        });
+        });*/
     },
 
     loginNOK : function(){
@@ -88,7 +92,7 @@ Ext.define('Usr.controller.Login', {
     },
 
     hideLoginError: function () {
-        var widget =  Ext.getCmp('usm_elster_login').down('#contentPanel'),
+        var widget =  this.getLoginPage().down('#contentPanel'),
             errorLabel = widget.down('#errorLabel');
 
         widget.setHeight(250);
@@ -101,7 +105,7 @@ Ext.define('Usr.controller.Login', {
     },
 
     showLoginError: function () {
-        var widget =  Ext.getCmp('usm_elster_login').down('#contentPanel'),
+        var widget =  this.getLoginPage().down('#contentPanel'),
             errorLabel = widget.down('#errorLabel');
 
         widget.setHeight(300);
@@ -112,6 +116,20 @@ Ext.define('Usr.controller.Login', {
 
         widget.down('#errorContainer').show();
         widget.doLayout();
-    }
+    },
 
+    signout: function () {
+        var request = Ext.Ajax.request({
+            url: '/apps/usr/login.html',
+            method: 'GET',
+            params: {
+                logout: 'true'
+            },
+            scope: this,
+            success: function(){
+                window.location.replace('/apps/usr/login.html');
+            }
+        });
+
+    }
 });

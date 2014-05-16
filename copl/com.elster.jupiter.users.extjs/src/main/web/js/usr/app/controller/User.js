@@ -9,21 +9,20 @@ Ext.define('Usr.controller.User', {
         'Usr.store.Users'
     ],
 
-    models: [
+    /*models: [
         'Usr.model.Group',
         'Usr.model.User'
-    ],
+    ],*/
 
     views: [
         'Usr.view.user.Browse'
     ],
 
-    refs: [
-        {
-            ref: 'userDetails',
-            selector: 'userDetails'
-        }
-    ],
+    /*refs: [
+        { ref: 'userDetails', selector: 'userDetails' },
+        { ref: 'userBrowse', selector: '#userBrowse'},
+        { ref: 'userList', selector: '#userList'}
+    ],*/
 
     init: function () {
         this.control({
@@ -31,7 +30,7 @@ Ext.define('Usr.controller.User', {
                 afterrender: this.onAfterRender
             },
             '#userList': {
-                itemclick: this.selectUser
+                selectionchange: this.selectUser
             },
             '#userDetails menuitem[action=editUser]': {
                 click: this.editUserMenu
@@ -44,7 +43,16 @@ Ext.define('Usr.controller.User', {
 
     showOverview: function () {
         var widget = Ext.widget('userBrowse');
-        this.getApplication().fireEvent('changecontentevent', widget);
+        this.getApplication().getController('Usr.controller.Main').showContent(widget);
+
+        var me = this;
+        Ext.StoreManager.get('Usr.store.Users').on('load', function onLoad () {
+            if(this.data.items.length > 0){
+                widget.show();
+                widget.down('#userList').getSelectionModel().doSelect(0);
+            }
+            //this.removeListener('load', onLoad);
+        });
     },
 
     onAfterRender: function (breadcrumbs) {
@@ -63,9 +71,7 @@ Ext.define('Usr.controller.User', {
     },
 
     editUserMenu: function (button) {
-        var form = this.getUserDetails().down('form'),
-            record = form.getRecord();
-
+        var record = button.up('#userBrowse').down('#userDetailsForm').getRecord();
         this.editUser(record);
     },
 
@@ -74,22 +80,23 @@ Ext.define('Usr.controller.User', {
     },
 
     selectUser: function (grid, record) {
-        // fill in the details panel
-        var title = Uni.I18n.translate('user.user', 'USM', 'User') + ' "' + record.get('authenticationName') + '"';
-        var detailsPanel = this.getUserDetails(),
-            form = detailsPanel.down('form');
+        if(record.length > 0) {
+            var detailsPanel = grid.view.up('#userBrowse').down('#userDetails'),
+                form = detailsPanel.down('form');
 
-        detailsPanel.setTitle(title);
-        form.loadRecord(record);
+            var title = Uni.I18n.translate('user.user', 'USM', 'User') + ' "' + record[0].get('authenticationName') + '"';
+            detailsPanel.setTitle(title);
+            form.loadRecord(record[0]);
 
-        var roles = '';
-        var currentGroups = record.groups().data.items;
-        for (var i = 0; i < currentGroups.length; i++) {
-            roles += currentGroups[i].data.name + '<br/>';
+            var roles = '';
+            var currentGroups = record[0].groups().data.items;
+            for (var i = 0; i < currentGroups.length; i++) {
+                roles += currentGroups[i].data.name + '<br/>';
+            }
+
+            var detailsRoles = form.down('[name=roles]');
+            detailsRoles.setValue(roles);
+            detailsPanel.show();
         }
-
-        var detailsRoles = form.down('[name=roles]');
-        detailsRoles.setValue(roles);
-        detailsPanel.show();
     }
 });

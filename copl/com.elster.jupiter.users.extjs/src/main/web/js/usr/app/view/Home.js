@@ -10,23 +10,16 @@ Ext.define('Usr.view.Home', {
         {
             xtype: 'container',
             cls: 'content-container',
-            border: 1,
-            style: {
-                borderColor: 'lightgray',
-                borderStyle: 'solid'
-            },
-            maxWidth: 500,
-            minHeight: 200,
-            padding: '10 10 0 10',
-            margins: '0 0 0 10',
             layout: {
                 type: 'vbox',
                 align: 'stretch'
             },
+            padding: '0 10 0 10',
             items: [
                 {
                     xtype: 'component',
-                    html: '<h1>' + Uni.I18n.translate('user.root', 'USM', 'User Management') + '</h1>'
+                    html: '<h1>' + Uni.I18n.translate('user.root', 'USM', 'User Management') + '</h1>',
+                    itemId: 'usmHomePageTitle'
                 },
                 {
                     xtype: 'box',

@@ -17,15 +17,17 @@ Ext.define('Usr.view.user.Edit', {
             items: [
                 {
                     xtype: 'form',
-                    width: 400,
+                    width: 650,
                     itemId: 'editForm',
                     hydrator: 'Uni.util.Hydrator',
+                    buttonAlign: 'left',
                     layout: {
                         type: 'vbox',
                         align: 'stretch'
                     },
                     defaults: {
-                        xtype: 'textfield'
+                        xtype: 'textfield',
+                        labelWidth: 250
                     },
                     items: [
                         {
@@ -45,6 +47,8 @@ Ext.define('Usr.view.user.Edit', {
                             itemId: 'selectRoles',
                             fieldLabel: Uni.I18n.translate('user.roles', 'USM', 'Roles'),
                             store: 'Usr.store.Groups',
+                            autoScroll: true,
+                            maxHeight: 500,
                             columns: 1,
                             vertical: true,
                             name: 'groups'
@@ -53,13 +57,15 @@ Ext.define('Usr.view.user.Edit', {
                     buttons: [
                         {
                             action: 'save',
-                            text: Uni.I18n.translate('general.save', 'USM', 'Save')
+                            text: Uni.I18n.translate('general.save', 'USM', 'Save'),
+                            margin: '10 10 10 255'
                         },
                         {
                             ui: 'link',
                             action: 'cancel',
                             itemId: 'cancelLink',
-                            text: Uni.I18n.translate('general.cancel', 'USM', 'Cancel')
+                            text: Uni.I18n.translate('general.cancel', 'USM', 'Cancel'),
+                            margin: '10 10 10 0'
                         }
                     ]
                 }

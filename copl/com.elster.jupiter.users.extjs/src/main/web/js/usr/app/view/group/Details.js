@@ -35,6 +35,7 @@ Ext.define('Usr.view.group.Details', {
     items: [
         {
             xtype: 'form',
+            itemId: 'groupDetailsForm',
             defaults: {
                 xtype: 'container',
                 layout: 'form',
@@ -54,6 +55,9 @@ Ext.define('Usr.view.group.Details', {
                             layout: {
                                 type: 'vbox',
                                 align: 'stretch'
+                            },
+                            defaults: {
+                                labelWidth: 150
                             },
                             items: [
                                 {
@@ -80,6 +84,9 @@ Ext.define('Usr.view.group.Details', {
                                 type: 'vbox',
                                 align: 'stretch'
                             },
+                            defaults: {
+                                labelWidth: 150
+                            },
                             items: [
                                 {
                                     xtype: 'displayfield',
@@ -97,6 +104,6 @@ Ext.define('Usr.view.group.Details', {
                 }
             ]
         }
-    ],
+    ]
 });
 

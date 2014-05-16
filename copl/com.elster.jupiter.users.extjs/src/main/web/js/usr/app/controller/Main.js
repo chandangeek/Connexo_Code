@@ -3,7 +3,15 @@ Ext.define('Usr.controller.Main', {
 
     requires: [
         'Ext.window.Window',
-        'Uni.controller.Navigation'
+        'Uni.controller.Navigation',
+        'Usr.controller.Home',
+        'Usr.controller.User',
+        'Usr.controller.UserGroups',
+        'Usr.controller.Group',
+        'Usr.controller.GroupPrivileges',
+        'Usr.controller.history.Group',
+        'Usr.controller.history.User',
+        'Usr.controller.history.Home'
     ],
 
     controllers: [
@@ -56,12 +64,6 @@ Ext.define('Usr.controller.Main', {
 
         Uni.store.MenuItems.add(menuItemUser);
         Uni.store.MenuItems.add(menuItemGroup);
-
-        this.control({
-            'viewport menuitem[action=logout]': {
-                click: this.signout
-            }
-        });
     },
 
     initNavigation: function () {
@@ -88,8 +90,5 @@ Ext.define('Usr.controller.Main', {
         while (widget = this.getContentPanel().items.first()) {
             this.getContentPanel().remove(widget, false);
         }
-    },
-    signout: function () {
-        this.getApplication().getController('Usr.controller.Home').signout();
     }
 });

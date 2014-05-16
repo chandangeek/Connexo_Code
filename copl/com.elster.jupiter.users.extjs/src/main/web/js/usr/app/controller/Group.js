@@ -8,19 +8,8 @@ Ext.define('Usr.controller.Group', {
         'Usr.store.Privileges',
         'Usr.store.Groups'
     ],
-    models: [
-        'Usr.model.Privilege',
-        'Usr.model.Group'
-    ],
     views: [
         'Usr.view.group.Browse'
-    ],
-
-    refs: [
-        {
-            ref: 'groupDetails',
-            selector: 'groupDetails'
-        }
     ],
 
     init: function () {
@@ -29,7 +18,7 @@ Ext.define('Usr.controller.Group', {
                 afterrender: this.onAfterRender
             },
             '#groupList': {
-                itemclick: this.selectGroup
+                selectionchange: this.selectGroup
             },
             '#groupDetails menuitem[action=editGroup]': {
                 click: this.editGroupMenu
@@ -45,7 +34,17 @@ Ext.define('Usr.controller.Group', {
 
     showOverview: function () {
         var widget = Ext.widget('groupBrowse');
-        this.getApplication().fireEvent('changecontentevent', widget);
+        this.getApplication().getController('Usr.controller.Main').showContent(widget);
+        widget.setLoading(true);
+
+        var me = this;
+        Ext.StoreManager.get('Usr.store.Groups').on('load', function onLoad () {
+            widget.setLoading(false);
+            if(this.data.items.length > 0){
+                widget.show();
+                widget.down('#groupList').getSelectionModel().doSelect(0);
+            }
+        });
     },
 
     onAfterRender: function (breadcrumbs) {
@@ -64,7 +63,7 @@ Ext.define('Usr.controller.Group', {
     },
 
     editGroupMenu: function (button) {
-        var record = button.up('form').up('form').getRecord();
+        var record = button.up('#groupBrowse').down('#groupDetailsForm').getRecord();
         this.editGroup(record);
 
     },
@@ -78,20 +77,21 @@ Ext.define('Usr.controller.Group', {
     },
 
     selectGroup: function (grid, record) {
-        // fill in the details panel
-        var panel = this.getGroupDetails(),
-            form = panel.down('form');
+        if(record.length > 0){
+            var panel = grid.view.up('#groupBrowse').down('#groupDetails'),
+                form = panel.down('form');
 
-        var title = Uni.I18n.translate('group.group', 'USM', 'Role') + ' "' + record.get('name') + '"';
-        panel.setTitle(title);
-        form.loadRecord(record);
+            var title = Uni.I18n.translate('group.group', 'USM', 'Role') + ' "' + record[0].get('name') + '"';
+            panel.setTitle(title);
+            form.loadRecord(record[0]);
 
-        var privileges = '';
-        var currentPrivileges = record.privileges().data.items;
-        for (var i = 0; i < currentPrivileges.length; i++) {
-            privileges += currentPrivileges[i].data.name + '<br/>';
+            var privileges = '';
+            var currentPrivileges = record[0].privileges().data.items;
+            for (var i = 0; i < currentPrivileges.length; i++) {
+                privileges += currentPrivileges[i].data.name + '<br/>';
+            }
+            form.down('[name=privileges]').setValue(privileges);
+            panel.show();
         }
-        form.down('[name=privileges]').setValue(privileges);
-        panel.show();
     }
 });

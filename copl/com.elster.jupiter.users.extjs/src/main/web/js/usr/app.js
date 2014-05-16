@@ -1,33 +1,25 @@
-/*
-    This file is generated and updated by Sencha Cmd. You can edit this file as
-    needed for your application, but these edits will have to be merged by
-    Sencha Cmd when upgrading.
-*/
+Ext.require('Uni.Loader');
+Ext.require('Usr.Application');
 
-
-//Ext.require('Dvi.Application');
 
 Ext.onReady(function () {
-    Ext.require('Uni.Loader');
-    var loader = Ext.create('Uni.Loader');
-    Ext.application( {
-        name: 'Usr',
-        extend: 'Ext.app.Application',
-        controllers: [
-            'Usr.controller.Login'
-        ],
+//    var loader = Ext.create('Uni.Loader');
+//    loader.initI18n(['USM']);
+//    loader.onReady(function () {
+//        Ext.Loader.setConfig({
+//            enabled: true,
+//            disableCaching: true // For debug only.
+//        });
 
-        launch: function () {
-            // Removes the loading indicator.
-            Ext.fly('appLoadingWrapper').destroy();
+//        Ext.application({
+//            name: 'Usr',
+//
+//            extend: 'Usr.Application',
+//
+//            autoCreateViewport: true
+//        });
+//    });
 
-            this.callParent(arguments);
-            var login = Ext.create("widget.login");
-
-            // Show window
-            login.show();
-        }
-    });
 });
 
 
