@@ -1,9 +1,5 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessObjectFactory;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
@@ -12,7 +8,7 @@ import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.JupiterReferenceFactory;
 import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdc.dynamic.LegacyReferenceFactory;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.ValueFactory;
 import com.energyict.mdc.dynamic.relation.ConstraintShadow;
 import com.energyict.mdc.dynamic.relation.Relation;
@@ -27,6 +23,11 @@ import com.energyict.mdc.pluggable.PluggableClassType;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.time.Interval;
 
 import javax.inject.Inject;
 import java.text.MessageFormat;
@@ -47,14 +48,16 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
     private DataModel dataModel;
     private RelationService relationService;
     private ConnectionTypeService connectionTypeService;
+    private PropertySpecService propertySpecService;
     private RelationType relationType;  // Cache
 
     @Inject
-    public ConnectionTypePluggableClassImpl(EventService eventService, Thesaurus thesaurus, DataModel dataModel, RelationService relationService, ConnectionTypeService connectionTypeService) {
+    public ConnectionTypePluggableClassImpl(EventService eventService, Thesaurus thesaurus, DataModel dataModel, RelationService relationService, ConnectionTypeService connectionTypeService, PropertySpecService propertySpecService) {
         super(eventService, thesaurus);
         this.dataModel = dataModel;
         this.relationService = relationService;
         this.connectionTypeService = connectionTypeService;
+        this.propertySpecService = propertySpecService;
     }
 
     static ConnectionTypePluggableClassImpl from (DataModel dataModel, PluggableClass pluggableClass) {
@@ -309,13 +312,14 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
         Class<? extends ValueFactory> valueFactoryClass = valueFactory.getClass();
         shadow.setValueFactoryClass(valueFactoryClass);
         if (valueFactory.isReference()) {
-            BusinessObjectFactory businessObjectFactory = Environment.DEFAULT.get().findFactory(valueFactory.getValueType().getName());
-            if (businessObjectFactory == null) {
-                // Most likely a reference to a type of object that has already been moved to the new ORM framework
-                CanFindByLongPrimaryKey finder = Environment.DEFAULT.get().finderFor(valueFactory.getValueType());
-                shadow.setObjectFactoryId(finder.registrationKey().id());
+            if (valueFactory instanceof JupiterReferenceFactory) {
+                JupiterReferenceFactory jupiterReferenceFactory = (JupiterReferenceFactory) valueFactory;
+                CanFindByLongPrimaryKey finder = jupiterReferenceFactory.getFinder();
+                shadow.setObjectFactoryId(finder.factoryId().id());
             }
             else {
+                // Must be a LegacyReferenceFactory
+                BusinessObjectFactory businessObjectFactory = Environment.DEFAULT.get().findFactory(valueFactory.getValueType().getName());
                 shadow.setObjectFactoryId(businessObjectFactory.getId());
             }
         }

@@ -20,14 +20,18 @@ import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryIds;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.common.license.License;
 import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.StringFactory;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
+import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -61,7 +65,10 @@ import java.security.Principal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+
 import org.joda.time.DateMidnight;
 import org.junit.After;
 import org.junit.Before;
@@ -101,6 +108,7 @@ public class DeviceProtocolPluggableClassImplTest {
     private TransactionService transactionService;
     private ProtocolPluggableService protocolPluggableService;
     private DeviceProtocolService deviceProtocolService = mock(DeviceProtocolService.class);
+    private PropertySpecServiceImpl propertySpecService;
 
     private DataModel dataModel;
     private IdBusinessObjectFactory codeFactory = mock(IdBusinessObjectFactory.class);
@@ -137,6 +145,7 @@ public class DeviceProtocolPluggableClassImplTest {
             injector.getInstance(OrmService.class);
             transactionService = injector.getInstance(TransactionService.class);
             protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
+            propertySpecService = (PropertySpecServiceImpl) injector.getInstance(PropertySpecService.class);
             dataModel = ((ProtocolPluggableServiceImpl) protocolPluggableService).getDataModel();
             ctx.commit();
         }
@@ -154,7 +163,14 @@ public class DeviceProtocolPluggableClassImplTest {
                 fail("Code Factory was not cleaned up properly by previous test");
             }
         }
-        Environment.DEFAULT.get().registerFinder(new ProtocolDialectPropertiesFinder());
+        propertySpecService.addFactoryProvider(new ReferencePropertySpecFinderProvider() {
+            @Override
+            public List<CanFindByLongPrimaryKey<? extends HasId>> finders() {
+                List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
+                finders.add(new ProtocolDialectPropertiesFinder());
+                return finders;
+            }
+        });
 
         when(applicationContext.findFactory(FactoryIds.CODE.id())).thenReturn(codeFactory);
         Translator translator = mock(Translator.class);
@@ -460,7 +476,7 @@ public class DeviceProtocolPluggableClassImplTest {
 
     private class ProtocolDialectPropertiesFinder implements CanFindByLongPrimaryKey {
         @Override
-        public FactoryIds registrationKey() {
+        public FactoryIds factoryId() {
             return FactoryIds.DEVICE_PROTOCOL_DIALECT;
         }
 

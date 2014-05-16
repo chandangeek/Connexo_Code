@@ -6,6 +6,7 @@ import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessObjectFactory;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryIds;
+import com.energyict.mdc.dynamic.JupiterReferenceFactory;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.LegacyReferenceFactory;
 import com.energyict.mdc.dynamic.ValueFactory;
@@ -88,7 +89,7 @@ public class SecurityPropertySetRelationTypeSupport extends AbstractSecurityProp
         shadow.setIsDefault(true);
         shadow.setNavigatable(false);
         shadow.setObjectFactoryId(FactoryIds.DEVICE.id());
-        shadow.setValueFactoryClass(LegacyReferenceFactory.class);
+        shadow.setValueFactoryClass(JupiterReferenceFactory.class);
         return shadow;
     }
 
@@ -99,7 +100,7 @@ public class SecurityPropertySetRelationTypeSupport extends AbstractSecurityProp
         shadow.setIsDefault(false);
         shadow.setNavigatable(false);
         shadow.setObjectFactoryId(FactoryIds.SECURITY_SET.id());
-        shadow.setValueFactoryClass(LegacyReferenceFactory.class);
+        shadow.setValueFactoryClass(JupiterReferenceFactory.class);
         return shadow;
     }
 

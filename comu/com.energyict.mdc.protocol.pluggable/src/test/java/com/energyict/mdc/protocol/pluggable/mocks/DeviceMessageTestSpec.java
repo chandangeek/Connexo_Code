@@ -1,7 +1,9 @@
 package com.energyict.mdc.protocol.pluggable.mocks;
 
-import com.energyict.mdc.common.IdBusinessObjectFactory;
+import com.energyict.mdc.common.FactoryIds;
+import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
@@ -30,10 +32,10 @@ public final class DeviceMessageTestSpec implements DeviceMessageSpec {
     private List<PropertySpec> deviceMessagePropertySpecs;
     private String name;
 
-    public static List<DeviceMessageSpec> allTestSpecs (IdBusinessObjectFactory codeFactory) {
+    public static List<DeviceMessageSpec> allTestSpecs (PropertySpecService propertySpecService) {
         List<DeviceMessageSpec> allTestSpecs = new ArrayList<>(3);
         allTestSpecs.add(allSimpleSpecs());
-        allTestSpecs.add(extendedSpecs(codeFactory));
+        allTestSpecs.add(extendedSpecs(propertySpecService));
         allTestSpecs.add(noSpecs());
         return allTestSpecs;
     }
@@ -45,11 +47,11 @@ public final class DeviceMessageTestSpec implements DeviceMessageSpec {
                         RequiredPropertySpecFactory.newInstance().stringPropertySpec(SIMPLE_STRING_PROPERTY_SPEC_NAME));
     };
 
-    public static DeviceMessageTestSpec extendedSpecs(IdBusinessObjectFactory codeFactory) {
+    public static DeviceMessageTestSpec extendedSpecs(PropertySpecService propertySpecService) {
         return new DeviceMessageTestSpec(
                 "TEST_SPEC_WITH_EXTENDED_SPECS",
-                RequiredPropertySpecFactory.newInstance().referencePropertySpec(CODETABLE_PROPERTY_SPEC_NAME, codeFactory),
-                RequiredPropertySpecFactory.newInstance().dateTimePropertySpec(ACTIVATIONDATE_PROPERTY_SPEC_NAME));
+                propertySpecService.referencePropertySpec(CODETABLE_PROPERTY_SPEC_NAME, true, FactoryIds.CODE),
+                propertySpecService.basicPropertySpec(ACTIVATIONDATE_PROPERTY_SPEC_NAME, true, new DateAndTimeFactory()));
     }
     public static DeviceMessageTestSpec noSpecs() {
         return new DeviceMessageTestSpec("TEST_SPEC_WITHOUT_SPECS");
