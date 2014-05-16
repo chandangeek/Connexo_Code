@@ -134,10 +134,10 @@ Ext.define('Uni.controller.Portal', {
             } else {
                 portalItemsToDisplay[portalItem.get('title')] = portalItem;
             }
-            portalItemsToDisplay[portalItem.get('title')].get('items').sort(function(item1,item2){
-                if(item1.text < item2.text){
+            portalItemsToDisplay[portalItem.get('title')].get('items').sort(function (item1, item2) {
+                if (item1.text < item2.text) {
                     return -1;
-                } else if (item1.text > item2.text){
+                } else if (item1.text > item2.text) {
                     return 1;
                 } else {
                     return 0;
