@@ -10,7 +10,6 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
     ],
 
     views: [
-        'setup.Browse',
         'setup.protocoldialect.ProtocolDialectSetup',
         'setup.protocoldialect.ProtocolDialectsGrid',
         'setup.protocoldialect.ProtocolDialectPreview',

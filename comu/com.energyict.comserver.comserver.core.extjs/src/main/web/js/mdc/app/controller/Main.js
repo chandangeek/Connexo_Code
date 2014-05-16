@@ -65,13 +65,82 @@ Ext.define('Mdc.controller.Main', {
     ],
 
     init: function () {
-        var me= this;
+        var me = this;
         var menuItem = Ext.create('Uni.model.MenuItem', {
             text: Uni.I18n.translate('general.setup', 'MDC', 'Setup'),
+            glyph: 'settings',
+            // TODO Rename the below properties when merging into 1 menu item.
             href: me.getApplication().getController('Mdc.controller.history.Setup').tokenizeShowOverview(),
-            glyph: 'settings'
+            portal: 'setup'
         });
         Uni.store.MenuItems.add(menuItem);
+
+        var deviceManagementItem = Ext.create('Uni.model.PortalItem', {
+            title: Uni.I18n.translate('general.deviceManagement', 'MDC', 'Device management'),
+            portal: 'setup',
+            route: 'devicemanagement',
+            items: [
+                {
+                    text: Uni.I18n.translate('devicetype.deviceTypes', 'MDC', 'Device types'),
+                    href: '#/setup/devicetypes',
+                    route: 'devicetypes'
+                },
+                {
+                    text: Uni.I18n.translate('registerMapping.registerTypes', 'MDC', 'Register types'),
+                    href: '#/setup/registertypes',
+                    route: 'registertypes'
+                },
+                {
+                    text: Uni.I18n.translate('registerGroup.registerGroups', 'MDC', 'Register groups'),
+                    href: '#/setup/registergroups',
+                    route: 'registergroups'
+                },
+                {
+                    text: Uni.I18n.translate('searchItems.searchItems', 'MDC', 'Search items'),
+                    href: '#/setup/searchitems',
+                    route: 'searchitems'
+                },
+                {
+                    text: Uni.I18n.translate('general.logbookTypes', 'MDC', 'Logbook types'),
+                    href: '#/setup/logbooktypes',
+                    route: 'logbooktypes'
+                }
+            ]
+        });
+
+        var deviceCommunicationItem = Ext.create('Uni.model.PortalItem', {
+            title: Uni.I18n.translate('general.deviceCommunication', 'MDC', 'Device communication'),
+            portal: 'setup',
+            route: 'devicecommunication',
+            items: [
+                {
+                    text: Uni.I18n.translate('general.comServers', 'MDC', 'Communication servers'),
+                    href: '#/setup/comservers',
+                    route: 'comservers'
+                },
+                {
+                    text: Uni.I18n.translate('general.comPortPools', 'MDC', 'Communication port pools'),
+                    href: '#/setup/comportpools',
+                    route: 'comportpools'
+                },
+                {
+                    text: Uni.I18n.translate('general.deviceComProtocols', 'MDC', 'Device communication protocols'),
+                    href: '#/setup/devicecommunicationprotocols',
+                    route: 'devicecommunicationprotocols'
+                },
+                {
+                    text: Uni.I18n.translate('general.comSchedules', 'MDC', 'Communication schedules'),
+                    href: '#/setup/communicationschedules',
+                    route: 'communicationschedules'
+                }
+            ]
+        });
+
+        Uni.store.PortalItems.add(
+            deviceManagementItem,
+            deviceCommunicationItem
+        );
+
         this.initNavigation();
         this.initDefaultHistoryToken();
     },
@@ -98,7 +167,7 @@ Ext.define('Mdc.controller.Main', {
     clearContentPanel: function () {
         var widget;
         while (widget = this.getContentPanel().items.first()) {
-            this.getContentPanel().remove(widget,true);
+            this.getContentPanel().remove(widget, true);
         }
     }
 });

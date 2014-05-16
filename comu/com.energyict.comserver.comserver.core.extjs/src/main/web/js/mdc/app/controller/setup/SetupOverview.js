@@ -2,7 +2,6 @@ Ext.define('Mdc.controller.setup.SetupOverview', {
     extend: 'Ext.app.Controller',
 
     views: [
-        'setup.Browse',
         'setup.comserver.ComServersGrid',
         'setup.comserver.ComServersSetup',
         'setup.comportpool.ComPortPoolsGrid',
