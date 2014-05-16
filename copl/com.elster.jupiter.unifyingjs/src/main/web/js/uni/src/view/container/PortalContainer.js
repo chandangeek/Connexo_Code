@@ -21,8 +21,16 @@ Ext.define('Uni.view.container.PortalContainer', {
         var count = this.items.items.length,
             remainder = count % me.columnCount;
 
-        if (remainder !== 0 && remainder !== 1) {
-            component.addCls('middle');
+        switch (remainder) {
+            case 1:
+                component.addCls('first');
+                break;
+            case 2:
+                component.addCls('middle');
+                break;
+            default:
+                component.addCls('last');
+                break;
         }
     },
 

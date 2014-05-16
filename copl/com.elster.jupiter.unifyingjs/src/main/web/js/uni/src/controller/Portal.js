@@ -134,10 +134,10 @@ Ext.define('Uni.controller.Portal', {
             } else {
                 portalItemsToDisplay[portalItem.get('title')] = portalItem;
             }
-            portalItemsToDisplay[portalItem.get('title')].get('items').sort(function(item1,item2){
-                if(item1.text < item2.text){
+            portalItemsToDisplay[portalItem.get('title')].get('items').sort(function (item1, item2) {
+                if (item1.text < item2.text) {
                     return -1;
-                } else if (item1.text > item2.text){
+                } else if (item1.text > item2.text) {
                     return 1;
                 } else {
                     return 0;
@@ -145,10 +145,15 @@ Ext.define('Uni.controller.Portal', {
             });
         });
 
+        var sortArrayForPortalItems = [];
         for (portalItemToDisplay in portalItemsToDisplay) {
             if (portalItemsToDisplay.hasOwnProperty(portalItemToDisplay)) {
-                portalView.addPortalItem(portalItemsToDisplay[portalItemToDisplay]);
+                sortArrayForPortalItems.push(portalItemToDisplay);
             }
+        }
+        sortArrayForPortalItems.sort();
+        for (var i = 0; i < sortArrayForPortalItems.length; i++) {
+            portalView.addPortalItem(portalItemsToDisplay[sortArrayForPortalItems[i]]);
         }
 
         this.getApplication().fireEvent('changemaincontentevent', portalView);
