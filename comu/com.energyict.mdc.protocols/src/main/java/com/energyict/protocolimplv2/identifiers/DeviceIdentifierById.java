@@ -8,8 +8,6 @@ package com.energyict.protocolimplv2.identifiers;
  */
 
 import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.DeviceFactory;
@@ -26,7 +24,7 @@ import java.util.List;
  */
 public class DeviceIdentifierById implements DeviceIdentifier {
 
-    private int id;
+    private int id; // TODO : change to long?
 
     public DeviceIdentifierById(int id) {
         super();
