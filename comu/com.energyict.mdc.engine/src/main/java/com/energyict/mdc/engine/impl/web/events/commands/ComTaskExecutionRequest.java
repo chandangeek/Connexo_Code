@@ -1,14 +1,15 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
 import com.energyict.mdc.common.NotFoundException;
-import com.energyict.comserver.collections.Collections;
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
-import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
+import static java.util.Collections.singleton;
 
 /**
  * Provides an implementation for the {@link Request} interface
@@ -20,14 +21,17 @@ import java.util.Set;
  */
 public class ComTaskExecutionRequest extends IdBusinessObjectRequest {
 
+    private final DeviceDataService deviceDataService;
+
     private List<ComTaskExecution> comTaskExecutions;
 
-    public ComTaskExecutionRequest (long comTaskExecutionId) {
-        this(Collections.toSet(comTaskExecutionId));
+    public ComTaskExecutionRequest(DeviceDataService deviceDataService, long comTaskExecutionId) {
+        this(deviceDataService, singleton(comTaskExecutionId));
     }
 
-    public ComTaskExecutionRequest (Set<Long> comTaskExecutionIds) {
+    public ComTaskExecutionRequest(DeviceDataService deviceDataService, Set<Long> comTaskExecutionIds) {
         super(comTaskExecutionIds);
+        this.deviceDataService = deviceDataService;
         this.validateComTaskExecutionIds();
     }
 
@@ -39,7 +43,7 @@ public class ComTaskExecutionRequest extends IdBusinessObjectRequest {
     }
 
     private ComTaskExecution findComTaskExecution (long comTaskExecutionId) {
-        ComTaskExecution comTaskExecution = ManagerFactory.getCurrent().getComTaskExecutionFactory().find(comTaskExecutionId);
+        ComTaskExecution comTaskExecution = deviceDataService.findComTaskExecution(comTaskExecutionId);
         if (comTaskExecution == null) {
             throw new NotFoundException("ComTaskExecution with id " + comTaskExecutionId + " not found");
         }

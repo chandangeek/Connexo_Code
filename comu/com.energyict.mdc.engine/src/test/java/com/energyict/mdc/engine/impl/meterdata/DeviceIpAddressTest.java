@@ -1,7 +1,6 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
 import com.energyict.comserver.commands.DeviceCommand;
-import com.energyict.mdc.engine.impl.meterdata.DeviceIpAddress;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifierById;

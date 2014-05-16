@@ -3,10 +3,10 @@ package com.energyict.mdc.engine.impl.web;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
 import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
-import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.ServletBasedInboundDeviceProtocol;
@@ -43,17 +43,19 @@ import java.util.logging.Logger;
 public class ComServlet extends HttpServlet {
 
     private static final Logger LOGGER = Logger.getLogger(ComServlet.class.getName());
+    private final ServiceProvider serviceProvider;
 
     private Statistics statistics = new Statistics();
     private InboundCommunicationHandler communicationHandler;
     private ServletBasedInboundComPort comPort;
     private ComServerDAO comServerDAO;
 
-    public ComServlet(ServletBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, IssueService issueService) {
+    public ComServlet(ServletBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
         super();
-        this.communicationHandler = new InboundCommunicationHandler(comPort, comServerDAO, deviceCommandExecutor, issueService);
+        this.communicationHandler = new InboundCommunicationHandler(comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
         this.comPort = comPort;
         this.comServerDAO = comServerDAO;
+        this.serviceProvider = serviceProvider;
     }
 
     public void service (HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -131,7 +133,7 @@ public class ComServlet extends HttpServlet {
     }
 
     private InboundDiscoveryContextImpl newInboundDiscoveryContext (HttpServletRequest request, HttpServletResponse response) {
-        InboundDiscoveryContextImpl context = new InboundDiscoveryContextImpl(this.comPort, request, response);
+        InboundDiscoveryContextImpl context = new InboundDiscoveryContextImpl(this.comPort, request, response, serviceProvider.taskHistoryService());
         context.setInboundDAO(this.comServerDAO);
         context.setLogger(Logger.getAnonymousLogger());
         return context;

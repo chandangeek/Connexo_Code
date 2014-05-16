@@ -90,7 +90,7 @@ public class InboundCommunicationStatisticsMonitorTest {
         // Asserts
         ScheduledJobImpl.ExecutionContext executionContext = scheduledJob.getExecutionContext();
         assertThat(executionContext).isNotNull();
-        ComSessionShadow comSessionShadow = executionContext.getComSessionShadow();
+        ComSessionShadow comSessionShadow = executionContext.getComSessionBuilder();
         assertThat(comSessionShadow).isNotNull();
         ComStatisticsShadow sessionStatistics = comSessionShadow.getComStatistics();
         assertThat(sessionStatistics).isNotNull();
@@ -132,7 +132,7 @@ public class InboundCommunicationStatisticsMonitorTest {
         // Asserts
         ScheduledJobImpl.ExecutionContext executionContext = scheduledJob.getExecutionContext();
         assertThat(executionContext).isNotNull();
-        ComSessionShadow comSessionShadow = executionContext.getComSessionShadow();
+        ComSessionShadow comSessionShadow = executionContext.getComSessionBuilder();
         assertThat(comSessionShadow).isNotNull();
         ComStatisticsShadow sessionStatistics = comSessionShadow.getComStatistics();
         assertThat(sessionStatistics).isNotNull();
@@ -177,7 +177,7 @@ public class InboundCommunicationStatisticsMonitorTest {
         // Asserts
         ScheduledJobImpl.ExecutionContext executionContext = scheduledJob.getExecutionContext();
         assertThat(executionContext).isNotNull();
-        ComSessionShadow comSessionShadow = executionContext.getComSessionShadow();
+        ComSessionShadow comSessionShadow = executionContext.getComSessionBuilder();
         assertThat(comSessionShadow).isNotNull();
         ComStatisticsShadow sessionStatistics = comSessionShadow.getComStatistics();
         assertThat(sessionStatistics).isNotNull();

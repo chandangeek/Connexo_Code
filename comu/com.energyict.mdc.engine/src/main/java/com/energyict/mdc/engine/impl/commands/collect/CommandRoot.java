@@ -13,6 +13,7 @@ import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.TopologyTask;
+import com.energyict.mdc.tasks.history.TaskHistoryService;
 
 /**
  * A CommandRoot contains all {@link ComCommand ComCommands} which are to be executed
@@ -264,5 +265,7 @@ public interface CommandRoot extends CompositeComCommand {
         public DeviceDataService getDeviceDataService();
 
         public MdcReadingTypeUtilService getMdcReadingTypeUtilService();
+
+        public TaskHistoryService getTaskHistoryService();
     }
 }

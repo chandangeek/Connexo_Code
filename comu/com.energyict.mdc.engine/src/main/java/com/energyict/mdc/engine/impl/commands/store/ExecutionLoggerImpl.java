@@ -1,11 +1,15 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.energyict.mdc.device.data.journal.CompletionCode;
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.StackTracePrinter;
+import com.energyict.mdc.tasks.history.ComSessionBuilder;
+import com.energyict.mdc.tasks.history.ComTaskExecutionSessionBuilder;
+import com.energyict.mdc.tasks.history.CompletionCode;
+import com.google.common.base.Optional;
 
 /**
  * Provides an implementation for the {@link DeviceCommand.ExecutionLogger} interface.
@@ -16,21 +20,20 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.StackTracePrint
 public abstract class ExecutionLoggerImpl implements DeviceCommand.ExecutionLogger {
 
     private ComServer.LogLevel logLevel;
+    private final Clock clock;
 
-    protected ExecutionLoggerImpl (ComServer.LogLevel logLevel) {
+    protected ExecutionLoggerImpl(ComServer.LogLevel logLevel, Clock clock) {
         super();
         this.logLevel = logLevel;
+        this.clock = clock;
     }
 
-    protected abstract ComSessionShadow getComSessionShadow();
+    protected abstract ComSessionBuilder getComSessionBuilder();
 
     @Override
     public void executed (DeviceCommand deviceCommand) {
         if (this.isLogLevelEnabled(deviceCommand)) {
-            ComSessionJournalEntryShadow shadow = new ComSessionJournalEntryShadow();
-            shadow.setMessage(deviceCommand.toJournalMessageDescription(this.logLevel));
-            shadow.setTimestamp(Clocks.getAppServerClock().now());
-            this.getComSessionShadow().addJournaleEntry(shadow);
+            getComSessionBuilder().addJournalEntry(clock.now(), deviceCommand.toJournalMessageDescription(this.logLevel), null);
         }
     }
 
@@ -50,38 +53,25 @@ public abstract class ExecutionLoggerImpl implements DeviceCommand.ExecutionLogg
         this.logFailure(t, this.findComTaskExecutionSession(comTaskExecution));
     }
 
-    private ComTaskExecutionSessionShadow findComTaskExecutionSession (ComTaskExecution comTaskExecution) {
-        for (ComTaskExecutionSessionShadow shadow : this.getComSessionShadow().getComTaskExecutionSessionShadows()) {
-            if (shadow.getComTaskExecutionId() == comTaskExecution.getId()) {
-                return shadow;
-            }
+    private ComTaskExecutionSessionBuilder findComTaskExecutionSession (ComTaskExecution comTaskExecution) {
+        Optional<ComTaskExecutionSessionBuilder> found = getComSessionBuilder().findFor(comTaskExecution);
+        if (found.isPresent()) {
+            return found.get();
         }
         throw CodingException.comTaskSessionMissing(comTaskExecution);
     }
 
-    private void logFailure (Throwable t, ComTaskExecutionSessionShadow shadow) {
-        ComCommandJournalEntryShadow comCommandJournalEntryShadow = new ComCommandJournalEntryShadow();
-        comCommandJournalEntryShadow.setCompletionCode(CompletionCode.UnexpectedError);
-        comCommandJournalEntryShadow.setErrorDescription(StackTracePrinter.print(t));
-        comCommandJournalEntryShadow.setTimestamp(Clocks.getAppServerClock().now());
-        comCommandJournalEntryShadow.setCommandDescription("General");
-        shadow.addComTaskJournalEntry(comCommandJournalEntryShadow);
+    private void logFailure (Throwable t, ComTaskExecutionSessionBuilder builder) {
+        builder.addComCommandJournalEntry(clock.now(), CompletionCode.UnexpectedError, StackTracePrinter.print(t), "General");
     }
 
     @Override
-    public void addIssue(CompletionCode completionCode, Issue issue, ComTaskExecution comTaskExecution){
+    public void addIssue(CompletionCode completionCode, Issue<?> issue, ComTaskExecution comTaskExecution){
         this.logIssue(completionCode, issue, this.findComTaskExecutionSession(comTaskExecution));
     }
 
-    private void logIssue(CompletionCode completionCode, Issue issue, ComTaskExecutionSessionShadow comTaskExecutionSession) {
-        ComCommandJournalEntryShadow comCommandJournalEntryShadow = new ComCommandJournalEntryShadow();
-        comCommandJournalEntryShadow.setCompletionCode(completionCode);
-        comCommandJournalEntryShadow.setCommandDescription(issue.getDescription());
-        comCommandJournalEntryShadow.setTimestamp(issue.getTimestamp());
-        if (issue.isProblem()) {
-            comCommandJournalEntryShadow.setErrorDescription(issue.getDescription());
-        }
-        comTaskExecutionSession.addComTaskJournalEntry(comCommandJournalEntryShadow);
+    private void logIssue(CompletionCode completionCode, Issue<?> issue, ComTaskExecutionSessionBuilder builder) {
+        builder.addComCommandJournalEntry(issue.getTimestamp(), completionCode, issue.isProblem() ? issue.getDescription() : "", issue.getDescription());
     }
 
 }

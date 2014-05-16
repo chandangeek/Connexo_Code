@@ -159,7 +159,7 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
     }
 
     private ComPortListener add (InboundComPort comPort) {
-        ComPortListener comPortListener = getComPortListenerFactory().newFor(comPort, this.serviceProvider.issueService());
+        ComPortListener comPortListener = getComPortListenerFactory().newFor(comPort, this.serviceProvider);
         if (comPortListener == null) {
             return null;
         }

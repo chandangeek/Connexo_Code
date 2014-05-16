@@ -1,9 +1,8 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.journal.ComSession;
-import com.energyict.mdc.device.data.journal.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceImpl;
@@ -15,6 +14,7 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.InboundJobExecutionDataProcessor;
 import com.energyict.mdc.engine.impl.core.InboundJobExecutionGroup;
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.events.UnknownInboundDeviceEvent;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.issues.IssueService;
@@ -32,6 +32,9 @@ import com.energyict.mdc.protocol.api.inbound.FindMultipleDevices;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.tasks.history.ComSession;
+import com.energyict.mdc.tasks.history.ComSessionBuilder;
+import com.energyict.mdc.tasks.history.TaskHistoryService;
 
 import java.util.List;
 
@@ -53,7 +56,8 @@ import java.util.List;
  */
 public class InboundCommunicationHandler {
 
-    private final IssueService issueService;
+    private final ServiceProvider serviceProvider;
+
     private InboundComPort comPort;
     private ComServerDAO comServerDAO;
     private DeviceCommandExecutor deviceCommandExecutor;
@@ -62,12 +66,12 @@ public class InboundCommunicationHandler {
     private InboundDiscoveryContextImpl context;
     private InboundDeviceProtocol.DiscoverResponseType responseType;
 
-    public InboundCommunicationHandler(InboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, IssueService issueService) {
+    public InboundCommunicationHandler(InboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
         super();
         this.comPort = comPort;
         this.comServerDAO = comServerDAO;
         this.deviceCommandExecutor = deviceCommandExecutor;
-        this.issueService = issueService;
+        this.serviceProvider = serviceProvider;
     }
 
     /**
@@ -137,19 +141,9 @@ public class InboundCommunicationHandler {
      * @return the CreateInboundComSession
      */
     private CreateInboundComSession createFailedInboundComSessionForDuplicateDevice(DuplicateException e){
-        ComSessionShadow comSessionShadow = new ComSessionShadow();
-        comSessionShadow.setComPortId((int) this.comPort.getId());
-        comSessionShadow.setComPortPoolId((int) this.comPort.getComPortPool().getId());
-        comSessionShadow.setStartDate(Clocks.getAppServerClock().now());
-        comSessionShadow.setConnectionTaskId((int) this.connectionTask.getId());
-        comSessionShadow.setSuccessIndicator(ComSession.SuccessIndicator.SetupError);
-        ComSessionJournalEntryShadow comSessionJournalEntryShadow = new ComSessionJournalEntryShadow();
-        comSessionJournalEntryShadow.setCause(e);
-        comSessionJournalEntryShadow.setTimestamp(Clocks.getAppServerClock().now());
-        comSessionJournalEntryShadow.setMessage(e.getMessage());
-        comSessionShadow.addJournaleEntry(comSessionJournalEntryShadow);
-        comSessionShadow.setStopDate(Clocks.getAppServerClock().now());
-        return new CreateInboundComSession(getComPort(), this.connectionTask, comSessionShadow);
+        ComSessionBuilder comSessionBuilder = serviceProvider.taskHistoryService().buildComSession(connectionTask, comPort.getComPortPool(), comPort, serviceProvider.clock().now())
+                .addJournalEntry(serviceProvider.clock().now(), e.getMessage(), e);
+        return new CreateInboundComSession(getComPort(), this.connectionTask, comSessionBuilder, ComSession.SuccessIndicator.SetupError, serviceProvider.clock());
     }
 
     private void handleUnknownDevice(InboundDeviceProtocol inboundDeviceProtocol) {
@@ -188,7 +182,7 @@ public class InboundCommunicationHandler {
     }
 
     private void startDeviceSessionInContext() {
-        this.context.getComSessionShadow().setConnectionTaskId((int) this.connectionTask.getId());
+        context.buildComSession(connectionTask, comPort.getComPortPool(), comPort, serviceProvider.clock().now());
     }
 
     public InboundComPort getComPort() {
@@ -213,30 +207,27 @@ public class InboundCommunicationHandler {
 
     private void initializeContext(InboundDiscoveryContextImpl context) {
         this.context = context;
-        ComSessionShadow comSessionShadow = context.getComSessionShadow();
-        comSessionShadow.setComPortId((int) this.comPort.getId());
-        comSessionShadow.setComPortPoolId((int) this.comPort.getComPortPool().getId());
-        comSessionShadow.setStartDate(Clocks.getAppServerClock().now());
     }
 
     private void closeContext() {
-        ComSessionShadow comSessionShadow = context.getComSessionShadow();
-        comSessionShadow.setStopDate(Clocks.getAppServerClock().now());
+        ComSessionBuilder sessionBuilder = context.getComSessionBuilder();
         if (InboundDeviceProtocol.DiscoverResponseType.SUCCESS.equals(this.responseType)) {
-            this.markSuccessful(comSessionShadow);
+            this.markSuccessful(sessionBuilder);
         } else {
-            this.markFailed(comSessionShadow, this.responseType);
+            this.markFailed(sessionBuilder, this.responseType);
         }
     }
 
-    private void markSuccessful(ComSessionShadow comSessionShadow) {
+    private ComSessionBuilder.EndedComSessionBuilder markSuccessful(ComSessionBuilder comSessionShadow) {
+
         comSessionShadow.setSuccessIndicator(ComSession.SuccessIndicator.Success);
         for (ComTaskExecutionSessionShadow taskSessionShadow : comSessionShadow.getComTaskExecutionSessionShadows()) {
             taskSessionShadow.setSuccessIndicator(ComTaskExecutionSession.SuccessIndicator.Success);
         }
+
     }
 
-    private void markFailed(ComSessionShadow comSessionShadow, InboundDeviceProtocol.DiscoverResponseType reason) {
+    private void markFailed(ComSessionBuilder comSessionShadow, InboundDeviceProtocol.DiscoverResponseType reason) {
         switch (reason) {
             case SUCCESS: {
                 assert false : "if-test that was supposed to verify that the discovery response type was NOT success clearly failed";
@@ -287,7 +278,7 @@ public class InboundCommunicationHandler {
                         getComPort(),
                         comServerDAO,
                         deviceCommandExecutor,
-                        getContext());
+                        getContext(), serviceProvider);
         inboundJobExecutionGroup.setToken(token);
         inboundJobExecutionGroup.setConnectionTask(this.connectionTask);
         inboundJobExecutionGroup.executeDeviceProtocol(this.deviceComTaskExecutions);
@@ -301,7 +292,7 @@ public class InboundCommunicationHandler {
                         deviceCommandExecutor,
                         getContext(),
                         inboundDeviceProtocol,
-                        offlineDevice, issueService);
+                        offlineDevice, serviceProvider);
         inboundJobExecutionDataProcessor.setToken(token);
         inboundJobExecutionDataProcessor.setConnectionTask(this.connectionTask);
         inboundJobExecutionDataProcessor.executeDeviceProtocol(this.deviceComTaskExecutions);

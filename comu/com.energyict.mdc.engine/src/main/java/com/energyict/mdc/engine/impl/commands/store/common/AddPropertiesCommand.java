@@ -34,7 +34,7 @@ public class AddPropertiesCommand extends SimpleComCommand {
         /*
        Do not change the order in which these three actions are called:
 
-       1/ deviceProtocol.addProperties(...)
+       1/ deviceProtocol.copyProperties(...)
        2/ deviceProtocol.addDeviceProtocolDialectProperties(...)
        3/ deviceProtocol.setSecurityPropertySet(...)
 

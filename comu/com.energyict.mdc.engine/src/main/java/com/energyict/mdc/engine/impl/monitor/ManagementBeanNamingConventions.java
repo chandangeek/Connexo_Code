@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.monitor;
 
-import com.energyict.comserver.scheduling.RunningComServer;
 import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.impl.core.RunningComServer;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;

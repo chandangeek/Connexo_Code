@@ -6,7 +6,6 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.OutboundComPort;
-import com.energyict.mdc.issues.IssueService;
 import org.joda.time.DateTimeConstants;
 
 import java.util.List;
@@ -26,7 +25,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable {
 
-    private final IssueService issueService;
+    private final ServiceProvider serviceProvider;
     private volatile ServerProcessStatus status = ServerProcessStatus.SHUTDOWN;
     private OutboundComPort comPort;
     private ComServerDAO comServerDAO;
@@ -37,13 +36,13 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     private DeviceCommandExecutor deviceCommandExecutor;
     private TimeDuration schedulingInterpollDelay;
 
-    public ScheduledComPortImpl(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, IssueService issueService) {
-        this(comPort, comServerDAO, deviceCommandExecutor, Executors.defaultThreadFactory(), issueService);
+    public ScheduledComPortImpl(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
+        this(comPort, comServerDAO, deviceCommandExecutor, Executors.defaultThreadFactory(), serviceProvider);
     }
 
-    public ScheduledComPortImpl(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ThreadFactory threadFactory, IssueService issueService) {
+    public ScheduledComPortImpl(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ThreadFactory threadFactory, ServiceProvider serviceProvider) {
         super();
-        this.issueService = issueService;
+        this.serviceProvider = serviceProvider;
         assert comPort != null : "Scheduling a ComPort requires at least the ComPort to be scheduled instead of null!";
         this.comPort = comPort;
         this.comServerDAO = comServerDAO;
@@ -201,11 +200,11 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     }
 
     protected ScheduledComTaskExecutionJob newComTaskJob (ComTaskExecution comTask) {
-        return new ScheduledComTaskExecutionJob(this.getComPort(), this.getComServerDAO(), this.deviceCommandExecutor, comTask, issueService);
+        return new ScheduledComTaskExecutionJob(this.getComPort(), this.getComServerDAO(), this.deviceCommandExecutor, comTask, serviceProvider);
     }
 
     protected ScheduledComTaskExecutionGroup newComTaskGroup (ScheduledConnectionTask connectionTask) {
-        return new ScheduledComTaskExecutionGroup(this.getComPort(), this.getComServerDAO(), this.deviceCommandExecutor, connectionTask, issueService);
+        return new ScheduledComTaskExecutionGroup(this.getComPort(), this.getComServerDAO(), this.deviceCommandExecutor, connectionTask, serviceProvider);
     }
 
     protected ScheduledComTaskExecutionGroup newComTaskGroup (ComJob groupComJob) {

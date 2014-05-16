@@ -23,7 +23,7 @@ public class DeviceRequestType extends IdBusinessObjectRequestType {
 
     @Override
     protected Request newRequestFor (Set<Long> ids) {
-        return new DeviceRequest(ids);
+        return new DeviceRequest(deviceDataService, ids);
     }
 
 }

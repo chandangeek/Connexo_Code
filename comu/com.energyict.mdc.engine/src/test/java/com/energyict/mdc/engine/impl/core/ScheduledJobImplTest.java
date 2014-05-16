@@ -151,7 +151,7 @@ public class ScheduledJobImplTest {
         ServerComTaskExecution scheduledComTask = createMockServerScheduledComTask(device, connectionTask, comTask, mockProtocolDialectConfigurationProperties);
 
         ScheduledComTaskExecutionJob scheduledComTaskExecutionJob = new ScheduledComTaskExecutionJob(comPort, comServerDAO, this.deviceCommandExecutor, scheduledComTask, mock(IssueService.class));
-        scheduledComTaskExecutionJob.establishConnectionFor(comPort);
+        scheduledComTaskExecutionJob.establishConnectionFor();
         JobExecution.PreparedComTaskExecution preparedComTaskExecution = scheduledComTaskExecutionJob.prepareOne(scheduledComTask);
 
         // asserts
@@ -186,7 +186,7 @@ public class ScheduledJobImplTest {
         ServerComTaskExecution comTask3 = createMockServerScheduledComTask(device, connectionTask, comTask, mockProtocolDialectConfigurationProperties);
 
         ScheduledComTaskExecutionGroup group = new ScheduledComTaskExecutionGroup(comPort, comServerDAO, this.deviceCommandExecutor, connectionTask, mock(IssueService.class));
-        group.establishConnectionFor(comPort);
+        group.establishConnectionFor();
         group.add(comTask1);
         group.add(comTask2);
         group.add(comTask3);

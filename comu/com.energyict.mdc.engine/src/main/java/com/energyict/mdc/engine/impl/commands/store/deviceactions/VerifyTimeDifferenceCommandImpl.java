@@ -2,7 +2,6 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.device.data.journal.CompletionCode;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.engine.impl.commands.collect.BasicCheckCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
@@ -13,6 +12,7 @@ import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
+import com.energyict.mdc.tasks.history.CompletionCode;
 
 /**
  * Proper implementation for a {@link VerifyTimeDifferenceCommand}

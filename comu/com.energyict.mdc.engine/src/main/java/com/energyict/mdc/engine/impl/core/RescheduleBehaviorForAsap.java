@@ -114,7 +114,7 @@ public class RescheduleBehaviorForAsap extends AbstractRescheduleBehavior implem
             if (this.executionContext != null) {
                 this.executionContext.start(notExecutedComTaskExecution);
                 this.executionContext.markComTaskExecutionForConnectionSetupError(reason);
-                this.executionContext.fail(notExecutedComTaskExecution, t); // I know we just started it, but the start creates the proper shadow for the ComTaskExecution
+                this.executionContext.failForRetryAsapComTaskExec(notExecutedComTaskExecution, t); // I know we just started it, but the start creates the proper shadow for the ComTaskExecution
             }
             getComServerDAO().executionFailed(notExecutedComTaskExecution);
         }

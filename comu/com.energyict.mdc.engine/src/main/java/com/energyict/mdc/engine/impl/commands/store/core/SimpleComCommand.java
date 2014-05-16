@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
-import com.energyict.mdc.device.data.journal.CompletionCode;
 import com.energyict.mdc.common.comserver.logging.CanProvideDescriptionTitle;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
@@ -18,12 +17,13 @@ import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.StackTracePrinter;
+import com.energyict.mdc.tasks.history.CompletionCode;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.energyict.mdc.device.data.journal.CompletionCode.*;
+import static com.energyict.mdc.tasks.history.CompletionCode.*;
 
 /**
  * Provides an implementation for a {@link ComCommand}
@@ -40,7 +40,7 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
     /**
      * A List containing all the issue which occurred during the execution of this {@link ComCommand}
      */
-    private List<Issue> issueList = new ArrayList<>();
+    private List<Issue<?>> issueList = new ArrayList<>();
 
     /**
      * A List containing all the {@link CollectedData} which is collected during the execution of this {@link ComCommand}
@@ -120,8 +120,8 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
     }
 
     @Override
-    public List<Issue> getIssues() {
-        List<Issue> issues = new ArrayList<>(this.issueList);
+    public List<Issue<?>> getIssues() {
+        List<Issue<?>> issues = new ArrayList<>(this.issueList);
         for (CollectedData collectedData : this.getCollectedData()) {
             issues.addAll(collectedData.getIssues());
         }
@@ -129,24 +129,24 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
     }
 
     @Override
-    public List<Problem> getProblems () {
-        List<Issue> issues = this.getIssues();
-        List<Problem> problems = new ArrayList<>(issues.size());    // At most all issues are problems
-        for (Issue issue : issues) {
+    public List<Problem<?>> getProblems () {
+        List<Issue<?>> issues = this.getIssues();
+        List<Problem<?>> problems = new ArrayList<>(issues.size());    // At most all issues are problems
+        for (Issue<?> issue : issues) {
             if (issue.isProblem()) {
-                problems.add((Problem) issue);
+                problems.add((Problem<?>) issue);
             }
         }
         return problems;
     }
 
     @Override
-    public List<Warning> getWarnings () {
-        List<Issue> issues = this.getIssues();
-        List<Warning> warnings = new ArrayList<>(issues.size());    // At most all issues are warnings
-        for (Issue issue : issues) {
+    public List<Warning<?>> getWarnings () {
+        List<Issue<?>> issues = this.getIssues();
+        List<Warning<?>> warnings = new ArrayList<>(issues.size());    // At most all issues are warnings
+        for (Issue<?> issue : issues) {
             if (issue.isWarning()) {
-                warnings.add((Warning) issue);
+                warnings.add((Warning<?>) issue);
             }
         }
         return warnings;

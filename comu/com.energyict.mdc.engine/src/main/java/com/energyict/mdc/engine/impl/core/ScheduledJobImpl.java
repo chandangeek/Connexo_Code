@@ -8,7 +8,6 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionFailureException;
@@ -29,8 +28,8 @@ import java.util.Calendar;
  */
 public abstract class ScheduledJobImpl extends JobExecution {
 
-    protected ScheduledJobImpl(ComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, IssueService issueService) {
-        super(comPort, comServerDAO, deviceCommandExecutor, issueService);
+    protected ScheduledJobImpl(ComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
+        super(comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
     }
 
     /**
@@ -61,7 +60,7 @@ public abstract class ScheduledJobImpl extends JobExecution {
         }
         else {
             Calendar now = Calendar.getInstance();
-            now.setTimeInMillis(Clocks.getAppServerClock().now().getTime());
+            now.setTimeInMillis(getServiceProvider().clock().now().getTime());
             return comWindow.includes(now);
         }
     }
@@ -69,7 +68,7 @@ public abstract class ScheduledJobImpl extends JobExecution {
     @Override
     public void rescheduleToNextComWindow () {
         this.createExecutionContext(false);
-        this.getExecutionContext().getComSessionShadow().setNumberOfPlannedButNotExecutedTasks(this.getComTaskExecutions().size());
+        this.getExecutionContext().getComSessionBuilder().incrementNotExecutedTasks(this.getComTaskExecutions().size());
         this.getExecutionContext().createJournalEntry("Rescheduling to next ComWindow because current timestamp is not " + this.getConnectionTask().getCommunicationWindow());
         this.doReschedule(RescheduleBehavior.RescheduleReason.OUTSIDE_COM_WINDOW);
         this.completeSuccessfulComSession();
@@ -85,7 +84,7 @@ public abstract class ScheduledJobImpl extends JobExecution {
      * @param comTaskExecution The ComTaskExecution
      * @return A flag that indicates a successful locking of the ComTaskExecution
      */
-    protected boolean attemptLock (ComTaskExecution comTaskExecution) {
+    boolean attemptLock (ComTaskExecution comTaskExecution) {
         return this.getComServerDAO().attemptLock(comTaskExecution, this.getComPort());
     }
 
@@ -99,36 +98,31 @@ public abstract class ScheduledJobImpl extends JobExecution {
      * @param connectionTask The ConnectionTask
      * @return A flag that indicates a successful locking of the ConnectionTask
      */
-    protected boolean attemptLock (ScheduledConnectionTask connectionTask) {
+    boolean attemptLock (ScheduledConnectionTask connectionTask) {
         return this.getComServerDAO().attemptLock(connectionTask, this.getComPort().getComServer()) != null;
     }
 
-    protected void unlock (ScheduledConnectionTask connectionTask) {
+    void unlock (ScheduledConnectionTask connectionTask) {
         this.getComServerDAO().unlock(connectionTask);
     }
 
-    protected void unlock (ComTaskExecution comTaskExecution) {
+    void unlock (ComTaskExecution comTaskExecution) {
         this.getComServerDAO().unlock(comTaskExecution);
     }
 
-    public boolean establishConnectionFor(ComPort comPort) {
-        ExecutionContext executionContext = this.getExecutionContext();
-        if (executionContext == null) {
-            this.createExecutionContext(comPort);
-            executionContext = this.getExecutionContext();
-        }
-        return executionContext.connect();
+    boolean establishConnectionFor() {
+        return this.getExecutionContext().connect();
     }
 
-    protected void createExecutionContext () {
+    void createExecutionContext () {
         this.createExecutionContext(true);
     }
 
-    protected void createExecutionContext (boolean logConnectionProperties) {
+    void createExecutionContext (boolean logConnectionProperties) {
         this.createExecutionContext(this.getComPort(), logConnectionProperties);
     }
 
-    protected void createExecutionContext (ComPort comPort) {
+    void createExecutionContext (ComPort comPort) {
         this.createExecutionContext(comPort, true);
     }
 
@@ -136,7 +130,7 @@ public abstract class ScheduledJobImpl extends JobExecution {
         this.setExecutionContext(this.newExecutionContext(this.getConnectionTask(), comPort, logConnectionProperties));
     }
 
-    protected void completeConnection () {
+    void completeConnection () {
         if (getExecutionContext() != null) {
             try {
                 this.getConnectionTask().disconnect(getExecutionContext().getComChannel());

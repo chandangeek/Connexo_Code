@@ -1,8 +1,8 @@
 package com.energyict.mdc.engine.impl.monitor;
 
-import com.energyict.mdc.engine.monitor.ComServerOperationalStatistics;
-import com.energyict.comserver.scheduling.RunningComServer;
+import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.monitor.ComServerOperationalStatistics;
 
 import javax.management.openmbean.OpenType;
 import javax.management.openmbean.SimpleType;

@@ -79,7 +79,7 @@ public privileged aspect InboundCommunicationStatisticsMonitor extends AbstractC
     after (InboundCommunicationHandler handler): closeContext(handler) {
         InboundDiscoveryContextImpl context = handler.getContext();
         if (this.inWebContext(handler)) {
-            ComSessionShadow comSessionShadow = context.getComSessionShadow();
+            ComSessionShadow comSessionShadow = context.getComSessionBuilder();
             comSessionShadow.setConnectMillis(0);
             StatisticsMonitoringHttpServletRequest request = this.getMonitoringRequest(handler);
             StatisticsMonitoringHttpServletResponse response = this.getMonitoringResponse(handler);
@@ -92,7 +92,7 @@ public privileged aspect InboundCommunicationStatisticsMonitor extends AbstractC
             statistics.setNrOfPacketsSent(1);
         }
         else {
-            ComSessionShadow comSessionShadow = context.getComSessionShadow();
+            ComSessionShadow comSessionShadow = context.getComSessionBuilder();
             comSessionShadow.setConnectMillis(0);
             ComPortRelatedComChannelImpl comChannel = this.getComChannel(handler);
             long talkMillis = handler.discovering.getTotalElapsedTime() + comChannel.talking.getTotalElapsedTime();

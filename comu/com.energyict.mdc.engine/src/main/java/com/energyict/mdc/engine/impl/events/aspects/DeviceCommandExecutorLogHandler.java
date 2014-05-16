@@ -19,7 +19,7 @@ public class DeviceCommandExecutorLogHandler extends EventPublishingLogHandler {
 
     @Override
     protected ComServerEvent toEvent (Date eventOccurrenceTimestamp, LogLevel level, String logMessage) {
-        return new UnrelatedLoggingEvent(eventOccurrenceTimestamp, level, logMessage);
+        return new UnrelatedLoggingEvent(level, logMessage, serviceProvider);
     }
 
 }

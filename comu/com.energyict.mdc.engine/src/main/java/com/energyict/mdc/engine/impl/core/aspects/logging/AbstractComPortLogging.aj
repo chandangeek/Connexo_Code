@@ -66,16 +66,15 @@ public abstract aspect AbstractComPortLogging {
 
     protected abstract ComPortConnectionLogger initializeUniqueLogger (ComPort comPort, JobExecution.ExecutionContext executionContext, LogLevel logLevel);
 
-    private pointcut establishConnectionFor (ComPort comPort, ScheduledJobImpl scheduledJob):
-            execution(boolean ScheduledJobImpl.establishConnectionFor(ComPort))
-         && target(scheduledJob)
-         && args(comPort);
+    private pointcut establishConnectionFor (ScheduledJobImpl scheduledJob):
+            execution(boolean ScheduledJobImpl.establishConnectionFor())
+         && target(scheduledJob);
 
-    after (ComPort comPort, ScheduledJobImpl scheduledJob) returning (boolean succes) : establishConnectionFor(comPort, scheduledJob) {
+    after (ScheduledJobImpl scheduledJob) returning (boolean success) : establishConnectionFor(scheduledJob) {
         JobExecution.ExecutionContext executionContext = scheduledJob.getExecutionContext();
         ComPortConnectionLogger logger = executionContext.connectionLogger;
-        if (succes) {
-            this.connectionEstablished(logger, comPort, scheduledJob);
+        if (success) {
+            this.connectionEstablished(logger, scheduledJob.getComPort(), scheduledJob);
         }
     }
 
