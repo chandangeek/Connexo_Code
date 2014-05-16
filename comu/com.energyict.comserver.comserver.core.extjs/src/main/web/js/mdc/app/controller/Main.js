@@ -67,90 +67,77 @@ Ext.define('Mdc.controller.Main', {
     init: function () {
         var me = this;
         var menuItem = Ext.create('Uni.model.MenuItem', {
-            text: Uni.I18n.translate('general.setup', 'MDC', 'Setup'),
-            glyph: 'settings',
-            // TODO Rename the below properties when merging into 1 menu item.
+            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
             href: me.getApplication().getController('Mdc.controller.history.Setup').tokenizeShowOverview(),
-            portal: 'setup'
+            portal: 'administration',
+            glyph: 'settings'
         });
         Uni.store.MenuItems.add(menuItem);
 
-        var portalItem1 = Ext.create('Uni.model.PortalItem', {
-            title: Uni.I18n.translate('general.rMR', 'MDC', 'RMR'),
-            portal: 'setup',
-            route: 'RMR',
-            items: [
-                {
-                    text: 'Comservers',
-                    href: '#/setup/comservers',
-                    route: 'comservers'
-                },
-                {
-                    text: 'Communication port pools',
-                    href: '#/setup/comportpools',
-                    route: 'comportpools'
-                },
-                {
-                    text: 'Device communication protocols',
-                    href: '#/setup/devicecommunicationprotocols',
-                    route: 'devicecommunicationprotocols'
-                }
-            ]
-        });
-
-        var portalItem2 = Ext.create('Uni.model.PortalItem', {
+        var deviceManagementItem = Ext.create('Uni.model.PortalItem', {
             title: Uni.I18n.translate('general.deviceManagement', 'MDC', 'Device management'),
-            portal: 'setup',
+            portal: 'administration',
             route: 'devicemanagement',
             items: [
                 {
-                    text: 'Device types',
-                    href: '#/setup/devicetypes',
+                    text: Uni.I18n.translate('devicetype.deviceTypes', 'MDC', 'Device types'),
+                    href: '#/administration/devicetypes',
                     route: 'devicetypes'
                 },
                 {
-                    text: 'Register types',
-                    href: '#/setup/registertypes',
+                    text: Uni.I18n.translate('registerMapping.registerTypes', 'MDC', 'Register types'),
+                    href: '#/administration/registertypes',
                     route: 'registertypes'
                 },
                 {
-                    text: 'Register groups',
-                    href: '#/setup/registergroups',
+                    text: Uni.I18n.translate('registerGroup.registerGroups', 'MDC', 'Register groups'),
+                    href: '#/administration/registergroups',
                     route: 'registergroups'
                 },
                 {
-                    text: 'Communication schedules',
-                    href: '#/setup/communicationschedules',
-                    route: 'communicationschedules'
-                },
-                {
-                    text: 'Search items',
-                    href: '#/setup/searchitems',
+                    text: Uni.I18n.translate('searchItems.searchItems', 'MDC', 'Search items'),
+                    href: '#/administration/searchitems',
                     route: 'searchitems'
                 },
                 {
-                    text: 'Logbook types',
-                    href: '#/setup/logbooktypes',
+                    text: Uni.I18n.translate('general.logbookTypes', 'MDC', 'Logbook types'),
+                    href: '#/administration/logbooktypes',
                     route: 'logbooktypes'
                 }
             ]
         });
 
-        var portalItem3 = Ext.create('Uni.model.PortalItem', {
+        var deviceCommunicationItem = Ext.create('Uni.model.PortalItem', {
             title: Uni.I18n.translate('general.deviceCommunication', 'MDC', 'Device communication'),
-            portal: 'setup',
+            portal: 'administration',
             route: 'devicecommunication',
             items: [
                 {
-                    text: 'Communication schedules',
-                    href: '#/setup/communicationschedules',
+                    text: Uni.I18n.translate('general.comServers', 'MDC', 'Communication servers'),
+                    href: '#/administration/comservers',
+                    route: 'comservers'
+                },
+                {
+                    text: Uni.I18n.translate('general.comPortPools', 'MDC', 'Communication port pools'),
+                    href: '#/administration/comportpools',
+                    route: 'comportpools'
+                },
+                {
+                    text: Uni.I18n.translate('general.deviceComProtocols', 'MDC', 'Device communication protocols'),
+                    href: '#/administration/devicecommunicationprotocols',
+                    route: 'devicecommunicationprotocols'
+                },
+                {
+                    text: Uni.I18n.translate('general.comSchedules', 'MDC', 'Communication schedules'),
+                    href: '#/administration/communicationschedules',
                     route: 'communicationschedules'
                 }
             ]
         });
 
         Uni.store.PortalItems.add(
-            portalItem1, portalItem2, portalItem3
+            deviceManagementItem,
+            deviceCommunicationItem
         );
 
         this.initNavigation();

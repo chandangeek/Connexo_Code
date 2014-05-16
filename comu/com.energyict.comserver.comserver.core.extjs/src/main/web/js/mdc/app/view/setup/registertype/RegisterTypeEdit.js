@@ -200,7 +200,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                                 itemId: 'cancelLink',
                                                 autoEl: {
                                                     tag: 'a',
-                                                    href: '#setup/registertypes/',
+                                                    href: '#/administration/registertypes/',
                                                     html: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel')
                                                 }
                                             }

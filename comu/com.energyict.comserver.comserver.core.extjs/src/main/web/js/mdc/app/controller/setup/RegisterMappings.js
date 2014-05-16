@@ -91,7 +91,7 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
         var me = this;
         this.getRegisterTypesOfDevicetypeStore().getProxy().setExtraParam('deviceType', id);
         var widget = Ext.widget('registerMappingsSetup', {deviceTypeId: id});
-        me.getAddRegisterMappingBtn().href = '#/setup/devicetypes/' + id + '/registertypes/add';
+        me.getAddRegisterMappingBtn().href = '#/administration/devicetypes/' + id + '/registertypes/add';
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(id, {
             success: function (deviceType) {
                 var deviceTypeName = deviceType.get('name');
@@ -141,7 +141,7 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
         });
         var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
             text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#setup'
+            href: '#/administration'
         });
 
         breadcrumbParent.setChild(breadcrumbDeviceTypes).setChild(breadcrumbDevicetype).setChild(breadcrumbRegisterTypes);
@@ -173,7 +173,7 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
         });
         var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
             text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#setup'
+            href: '#/administration'
         });
 
         breadcrumbParent.setChild(breadcrumbDeviceTypes).setChild(breadcrumbDevicetype).setChild(breadcrumbRegisterTypes).setChild(breadcrumbAddRegisterTypes);
@@ -198,7 +198,7 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
                     callback: function () {
                         deviceType.commit();
                         me.getRegisterTypesOfDevicetypeStore().add(registerMappings);
-                        location.href = '#setup/devicetypes/' + me.deviceTypeId + '/registertypes';
+                        location.href = '#/administration/devicetypes/' + me.deviceTypeId + '/registertypes';
                     }
                 });
             }
@@ -294,7 +294,7 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
             deviceType.save({
                 success: function () {
                     me.getRegisterTypesOfDevicetypeStore().remove(registerMappingToDelete);
-                    location.href = '#setup/devicetypes/' + deviceType.get('id') + '/registertypes';
+                    location.href = '#/administration/devicetypes/' + deviceType.get('id') + '/registertypes';
                 }
             });
 

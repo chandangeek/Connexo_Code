@@ -153,15 +153,15 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
     },
 
     createRegisterTypeHistory: function () {
-        location.href = '#setup/registertypes/create';
+        location.href = '#/administration/registertypes/create';
     },
 
     editRegisterTypeHistory: function (item) {
-        location.href = '#setup/registertypes/' + item.get('id') + '/edit';
+        location.href = '#/administration/registertypes/' + item.get('id') + '/edit';
     },
 
     editRegisterTypeHistoryFromPreview: function () {
-        location.href = '#setup/registertypes/' + this.getRegisterTypeGrid().getSelectionModel().getSelection()[0].get('id') + '/edit';
+        location.href = '#/administration/registertypes/' + this.getRegisterTypeGrid().getSelectionModel().getSelection()[0].get('id') + '/edit';
     },
 
     deleteRegisterType: function (registerTypeToDelete) {
@@ -189,7 +189,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             var registerTypeToDelete = opt.config.registerTypeToDelete;
             registerTypeToDelete.destroy({
                 callback: function () {
-                    location.href = '#setup/registertypes/';
+                    location.href = '#/administration/registertypes/';
                 }
             });
 
@@ -267,7 +267,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         var unitOfMeasureStore = Ext.create('Mdc.store.UnitOfMeasures');
         var widget = Ext.widget('registerTypeEdit', {
             edit: false,
-            returnLink: '#setup/registertypes/',
+            returnLink: '#/administration/registertypes/',
             unitOfMeasure: unitOfMeasureStore,
             timeOfUse: timeOfUseStore
         });
@@ -306,7 +306,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
 
             record.save({
                 success: function (record) {
-                    location.href = '#setup/registertypes/';
+                    location.href = '#/administration/registertypes/';
                 },
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText);
@@ -337,7 +337,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             record.setReadingType(readingType);
             record.save({
                 success: function (record) {
-                    location.href = '#setup/registertypes/';
+                    location.href = '#/administration/registertypes/';
                 },
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText);
@@ -357,7 +357,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
 
         var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
             text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#setup'
+            href: '#/administration'
         });
         breadcrumbParent.setChild(breadcrumbChild);
         breadcrumbs.setBreadcrumbItem(breadcrumbParent);
@@ -366,7 +366,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
     createBreadCrumb: function () {
         var breadcrumb1 = Ext.create('Uni.model.BreadcrumbItem', {
             text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#setup'
+            href: '#/administration'
         });
         var breadcrumb2 = Ext.create('Uni.model.BreadcrumbItem', {
             text: Uni.I18n.translate('registertype.registerTypes', 'MDC', 'Register types'),
@@ -383,7 +383,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
     editBreadCrumb: function (registerTypeName, registerTypeId) {
         var breadcrumb1 = Ext.create('Uni.model.BreadcrumbItem', {
             text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#setup'
+            href: '#/administration'
         });
         var breadcrumb2 = Ext.create('Uni.model.BreadcrumbItem', {
             text: Uni.I18n.translate('registertype.registerTypes', 'MDC', 'Register types'),
@@ -400,7 +400,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
     detailBreadCrumb: function (registerTypeName, registerTypeId) {
         var breadcrumb1 = Ext.create('Uni.model.BreadcrumbItem', {
             text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#setup'
+            href: '#/administration'
         });
         var breadcrumb2 = Ext.create('Uni.model.BreadcrumbItem', {
             text: Uni.I18n.translate('registertype.registerTypes', 'MDC', 'Register types'),
@@ -419,7 +419,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
 
     editRegisterTypeFromDetails: function () {
         var record = this.getRegisterTypeDetailForm().getRecord();
-        location.href = '#setup/registertypes/' + record.get('id') + '/edit';
+        location.href = '#/administration/registertypes/' + record.get('id') + '/edit';
     },
 
     showReadingType: function (record) {

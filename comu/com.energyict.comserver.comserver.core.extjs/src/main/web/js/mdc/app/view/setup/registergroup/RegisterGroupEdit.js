@@ -242,7 +242,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                                 itemId: 'cancelLink',
                                                 autoEl: {
                                                     tag: 'a',
-                                                    href: '#setup/registergroups/',
+                                                    href: '#/administration/registergroups/',
                                                     html: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel')
                                                 }
                                             }

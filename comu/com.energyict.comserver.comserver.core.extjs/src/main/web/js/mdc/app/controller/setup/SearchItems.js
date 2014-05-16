@@ -18,6 +18,7 @@ Ext.define('Mdc.controller.setup.SearchItems', {
     ],
 
     refs: [
+        {ref: 'searchItems', selector: '#searchItems'}
     ],
 
     init: function () {
@@ -28,27 +29,28 @@ Ext.define('Mdc.controller.setup.SearchItems', {
             'items-sort-menu': {
                 click: this.chooseSort
             },
-            'button[name=clearitemssortbtn]': {
-                click: this.clearSort
-            },
-            'button[action=clear]': {
+            '#filteritemid button[action=clear]': {
                 click: this.clearCriteria
             },
-            'button[name=sortbymridbtn]': {
-                click: this.switchSort
-            },
-            'button[name=sortbysnbtn]': {
-                click: this.switchSort
+            '#sortitemid button[action=clear]': {
+                click: this.clearSort
             },
             '#clearAllItems[action=clearfilter]': {
                 click: this.clearAllItems
             },
             '#searchAllItems[action=applyfilter]': {
-                click: this.searchAllItems
+                click: this.searchClick
             },
-            'button[action=customizeFilter]': {
-                closeclick: this.closeclick
+            '#filteritemid button[action=customizeFilter]': {
+                closeclick: this.filterCloseclick
+            },
+            '#sortitemid button': {
+                closeclick: this.sortCloseclick
+            },
+            '#sortitemid #itemsContainer button': {
+                click: this.switchSort
             }
+
         });
     },
 
@@ -65,97 +67,147 @@ Ext.define('Mdc.controller.setup.SearchItems', {
 
         var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
             text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#setup'
+            href: '#/administration'
         });
         breadcrumbParent.setChild(breadcrumbChild);
         breadcrumbs.setBreadcrumbItem(breadcrumbParent);
     },
 
-    chooseSort: function (menu, item) {
+    searchAllItems: function() {
 
-    },
-
-    clearSort: function (btn) {
-        var sortBtnsPanel = btn.up('panel[name=sortpanel]').down('panel[name=sortitemsbtns]');
-        sortBtnsPanel.items.each(function (btns) {
-            btns.destroy();
-        });
-        btn.setDisabled(true);
-    },
-
-    clearCriteria: function (btn) {
-        var searchItems = Ext.getCmp('search-items-id'),
-            criteriaContainer = searchItems.down('container[name=filter]').getContainer();
-        criteriaContainer.items.each(function (btns) {
-            btns.destroy();
-        });
-        btn.setDisabled(true);
-    },
-
-    switchSort: function (btn) {
-        console.log('switch items sorting'); // todo: switch sort
-    },
-
-    clearAllItems: function(btn) {
-        var searchItems = Ext.getCmp('search-items-id');
-        searchItems.down('#mrid').setValue("");
-        searchItems.down('#sn').setValue("");
-        this.clearSort(searchItems.down('button[name=clearitemssortbtn]'));
-        this.clearCriteria(searchItems.down('button[name=clearitemsfilterbtn]'));
-    },
-
-    searchAllItems: function(btn) {
-        var searchItems = Ext.getCmp('search-items-id'),
+        var searchItems = this.getSearchItems(),
             criteriaContainer = searchItems.down('container[name=filter]').getContainer(),
             store = this.getStore('Mdc.store.Devices');
 
         if(searchItems.down('#mrid').getValue() != "") {
             var button = searchItems.down('button[name=mRIDBtn]');
-            button = this.createCriteriaButton(button, 'mRIDBtn', Uni.I18n.translate('searchItems.mrid', 'MDC', 'MRID')+': '+searchItems.down('#mrid').getValue());
-            criteriaContainer.add(button);
+            button = this.createCriteriaButton(button, criteriaContainer, 'mRIDBtn', Uni.I18n.translate('searchItems.mrid', 'MDC', 'MRID')+': '+searchItems.down('#mrid').getValue());
             store.getProxy().setExtraParam('mRID', searchItems.down('#mrid').getValue());
         } else {
             delete store.getProxy().extraParams.mRID;
         }
         if(searchItems.down('#sn').getValue() != "") {
             var button = searchItems.down('button[name=serialNumberBtn]');
-            button = this.createCriteriaButton(button, 'serialNumberBtn', Uni.I18n.translate('searchItems.serialNumber', 'MDC', 'Serial number')+': '+searchItems.down('#sn').getValue());
-            criteriaContainer.add(button);
+            button = this.createCriteriaButton(button, criteriaContainer, 'serialNumberBtn', Uni.I18n.translate('searchItems.serialNumber', 'MDC', 'Serial number')+': '+searchItems.down('#sn').getValue());
             store.getProxy().setExtraParam('serialNumber', searchItems.down('#sn').getValue());
         } else {
             delete store.getProxy().extraParams.serialNumber;
         }
 
-        store.load({
-            callback: function (devices) {
-                // TODO: display results
-                searchItems.down('#resultsPanel').removeAll()
-                searchItems.down('#resultsPanel').add(Ext.create('Mdc.view.setup.searchitems.SearchResults'));
-                searchItems.down('#contentLayout').getLayout().setActiveItem(1);
-                searchItems.down('#searchResults').reconfigure(store);
+        this.applySort();
 
-                searchItems.down('#searchItemsToolbarBottom').reconfigure(store);
-                searchItems.down('#searchItemsToolbarTop').reconfigure(store);
-            }
+        searchItems.down('#resultsPanel').removeAll();
+        searchItems.down('#resultsPanel').add(Ext.create('Mdc.view.setup.searchitems.SearchResults', {store: store}));
+
+        searchItems.down('#searchResults').store.on('load', function showResults() {
+            searchItems.down('#contentLayout').getLayout().setActiveItem(1);
+            this.removeListener('load', showResults);
         });
         searchItems.down('#contentLayout').getLayout().setActiveItem(2);
     },
 
-    createCriteriaButton: function(button, name, text) {
+    chooseSort: function (menu, item) {
+        var searchItems = this.getSearchItems(),
+            sortContainer = searchItems.down('container[name=sortitemspanel]').getContainer(),
+            value = item.value;
+        switch (value) {
+            case 'mRID':
+                var button = sortContainer.down('button[name=sortbymridbtn]');
+                this.createSortButton(button, sortContainer, 'sortbymridbtn', item.value, item.text);
+                break;
+            case 'serialNumber':
+                var button = sortContainer.down('button[name=sortbysnbtn]');
+                this.createSortButton(button, sortContainer, 'sortbysnbtn', item.value, item.text);
+                break;
+        }
+        this.searchAllItems();
+    },
+
+    clearCriteria: function (btn) {
+        var searchItems = this.getSearchItems(),
+            criteriaContainer = searchItems.down('container[name=filter]').getContainer(),
+            me = this;
+        criteriaContainer.items.each(function (btns) {
+            me.filterCloseclick(btns);
+            btns.destroy();
+        });
+    },
+
+    clearSort: function (btn) {
+        var searchItems = this.getSearchItems(),
+            sortContainer = searchItems.down('container[name=sortitemspanel]').getContainer();
+        sortContainer.items.each(function (btns) {
+            btns.destroy();
+        });
+        this.searchAllItems();
+    },
+
+    clearFilterContent: function (criteriaContainer) {
+        criteriaContainer.items.each(function (btns) {
+            btns.destroy();
+        });
+    },
+
+    clearSortContent: function (sortContainer) {
+        sortContainer.items.each(function (btns) {
+            btns.destroy();
+        });
+    },
+
+    switchSort: function (btn) {
+        btn.sortDirection = btn.sortDirection == Uni.component.sort.model.Sort.ASC
+            ? Uni.component.sort.model.Sort.DESC
+            : Uni.component.sort.model.Sort.ASC;
+        var iconCls = btn.sortDirection == Uni.component.sort.model.Sort.ASC
+            ? 'x-btn-sort-item-asc'
+            : 'x-btn-sort-item-desc';
+        btn.setIconCls(iconCls);
+        this.searchAllItems();
+    },
+
+    searchClick: function(btn) {
+        var searchItems = this.getSearchItems();
+        this.clearFilterContent(searchItems.down('container[name=filter]').getContainer());
+        this.searchAllItems();
+    },
+
+    clearAllItems: function(btn) {
+        var searchItems = this.getSearchItems();
+        searchItems.down('#mrid').setValue("");
+        searchItems.down('#sn').setValue("");
+        this.clearFilterContent(searchItems.down('container[name=filter]').getContainer());
+        this.clearFilterContent(searchItems.down('container[name=sortitemspanel]').getContainer());
+        this.searchAllItems();
+     },
+
+    createCriteriaButton: function(button, container, name, text) {
         if (Ext.isEmpty(button)) {
             button = new Skyline.button.TagButton({
                 text: text,
                 name: name,
                 action: 'customizeFilter'
             });
+            container.add(button);
         } else {
             button.setText(text);
         }
-        return button;
     },
 
-    closeclick: function(btn) {
-        var searchItems = Ext.getCmp('search-items-id');
+    createSortButton: function(button, container, name, sortName, text) {
+        if (Ext.isEmpty(button)) {
+            container.add({
+                xtype: 'sort-item-btn',
+                name: name,
+                sortName: sortName,
+                text: text,
+                iconCls: 'x-btn-sort-item-asc',
+                sortDirection: Uni.component.sort.model.Sort.ASC
+            });
+        }
+    },
+
+    filterCloseclick: function(btn) {
+        var searchItems = this.getSearchItems();
         switch (btn.name) {
             case 'mRIDBtn':
                 searchItems.down('#mrid').setValue("");
@@ -164,6 +216,26 @@ Ext.define('Mdc.controller.setup.SearchItems', {
                 searchItems.down('#sn').setValue("");
                 break;
         }
-        this.searchAllItems(btn);
+        this.searchAllItems();
+    },
+
+    sortCloseclick: function(btn) {
+        btn.destroy();
+        this.searchAllItems();
+    },
+
+    applySort: function() {
+        var searchItems = this.getSearchItems(),
+            sortContainer = searchItems.down('container[name=sortitemspanel]').getContainer(),
+            store = this.getStore('Mdc.store.Devices'),
+            sortItems = [];
+
+        sortContainer.items.each(function (btns) {
+            var dir = btns.sortDirection == Uni.component.sort.model.Sort.ASC
+                ? 'ASC'
+                : 'DSC';
+            sortItems.push({property:btns.sortName,direction:dir});
+        });
+        store.getProxy().setExtraParam('sort', Ext.JSON.encode(sortItems));
     }
 });

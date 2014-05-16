@@ -40,7 +40,7 @@ Ext.define('Mdc.controller.setup.AddLogbookTypes', {
                     text: 'Cancel',
                     cls: 'isu-btn-link',
                     hnd: function () {
-                        window.location = '#setup/devicetypes/' + addView.deviceTypeId + '/logbooktypes';
+                        window.location = '#/administration/devicetypes/' + addView.deviceTypeId + '/logbooktypes';
                     }
                 }
             ],
@@ -81,7 +81,7 @@ Ext.define('Mdc.controller.setup.AddLogbookTypes', {
             method: 'POST',
             jsonData: jsonIds,
             success: function () {
-                window.location.href = '#setup/devicetypes/' + addView.deviceTypeId + '/logbooktypes';
+                window.location.href = '#/administration/devicetypes/' + addView.deviceTypeId + '/logbooktypes';
                 header.text = 'Successfully added';
                 self.getApplication().fireEvent('isushowmsg', {
                     type: 'notify',
@@ -108,7 +108,7 @@ Ext.define('Mdc.controller.setup.AddLogbookTypes', {
                                 text: 'Cancel',
                                 cls: 'isu-btn-link',
                                 hnd: function () {
-                                    window.location = '#setup/devicetypes/' + addView.deviceTypeId + '/logbooktypes/add';
+                                    window.location = '#/administration/devicetypes/' + addView.deviceTypeId + '/logbooktypes/add';
                                 }
                             }
                         ],

@@ -91,7 +91,7 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
                     text: 'Cancel',
                     cls: 'isu-btn-link',
                     hnd: function () {
-                        window.location = '#setup/devicetypes/' + logbooksView.deviceTypeId + '/logbooktypes';
+                        window.location = '#/administration/devicetypes/' + logbooksView.deviceTypeId + '/logbooktypes';
                     }
                 }
             ],
@@ -186,7 +186,7 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
                                                     text: 'Cancel',
                                                     cls: 'isu-btn-link',
                                                     hnd: function () {
-                                                        window.location = '#setup/devicetypes/' + logbooksView.deviceTypeId + '/logbooktypes';
+                                                        window.location = '#/administration/devicetypes/' + logbooksView.deviceTypeId + '/logbooktypes';
                                                     }
                                                 }
                                             ],

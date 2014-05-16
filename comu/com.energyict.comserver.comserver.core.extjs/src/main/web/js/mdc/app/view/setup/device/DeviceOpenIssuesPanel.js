@@ -25,7 +25,16 @@ Ext.define('Mdc.view.setup.device.DeviceOpenIssuesPanel', {
                     labelWidth: 200
                 },
                 items: [
-
+                    {
+                        xtype: 'component',
+                        cls: 'x-form-display-field',
+                        autoEl: {
+                            tag: 'a',
+                            href: '#/workspace/datacollection/issues?issueType=datacollection&group=none&status=1&meter=' + this.deviceId,
+                            html: 'data collection issues'
+                        },
+                        itemId: 'dataCollectionIssuesLink'
+                    }
 
                 ]
             }

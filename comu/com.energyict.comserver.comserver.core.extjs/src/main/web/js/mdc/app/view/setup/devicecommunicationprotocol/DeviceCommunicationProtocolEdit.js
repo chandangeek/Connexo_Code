@@ -99,7 +99,7 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
                                         xtype: 'button',
                                         ui: 'link',
                                         itemId: 'cancelLink',
-                                        href: '#/setup/devicecommunicationprotocols/'
+                                        href: '#/administration/devicecommunicationprotocols/'
                                     }
                                 ]
                             }

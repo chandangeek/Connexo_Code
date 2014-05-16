@@ -117,7 +117,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                                                         xtype: 'button',
                                                         ui: 'link',
                                                         itemId: 'cancelLink',
-                                                        href: '#/setup/devicetypes/'
+                                                        href: '#/administration/devicetypes/'
                                                     }
                                                 ]
                                             }

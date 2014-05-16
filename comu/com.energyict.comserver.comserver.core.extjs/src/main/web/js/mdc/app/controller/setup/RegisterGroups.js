@@ -130,19 +130,19 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
     },
 
     createRegisterGroupHistory: function () {
-        location.href = '#setup/registergroups/create';
+        location.href = '#/administration/registergroups/create';
     },
 
     editRegisterGroupHistory: function (item) {
-        location.href = '#setup/registergroups/' + item.get('id') + '/edit';
+        location.href = '#/administration/registergroups/' + item.get('id') + '/edit';
     },
 
     editRegisterGroupHistoryFromPreview: function () {
-        location.href = '#setup/registergroups/' + this.getRegisterGroupGrid().getSelectionModel().getSelection()[0].get('id') + '/edit';
+        location.href = '#/administration/registergroups/' + this.getRegisterGroupGrid().getSelectionModel().getSelection()[0].get('id') + '/edit';
     },
 
     createRegisterTypeHistory: function () {
-        location.href = '#setup/registertypes/create';
+        location.href = '#/administration/registertypes/create';
     },
 
     showRegisterGroupEditView: function (registerGroupId) {
@@ -279,7 +279,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
 
         var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
             text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#setup'
+            href: '#/administration'
         });
         breadcrumbParent.setChild(breadcrumbChild);
         breadcrumbs.setBreadcrumbItem(breadcrumbParent);
@@ -288,7 +288,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
     createBreadCrumb: function () {
         var breadcrumb1 = Ext.create('Uni.model.BreadcrumbItem', {
             text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#setup'
+            href: '#/administration'
         });
         var breadcrumb2 = Ext.create('Uni.model.BreadcrumbItem', {
             text: Uni.I18n.translate('registerGroup.registerGroups', 'MDC', 'Register groups'),
@@ -305,7 +305,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
     editBreadCrumb: function (registerGroupName) {
         var breadcrumb1 = Ext.create('Uni.model.BreadcrumbItem', {
             text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#setup'
+            href: '#/administration'
         });
         var breadcrumb2 = Ext.create('Uni.model.BreadcrumbItem', {
             text: Uni.I18n.translate('registerGroup.registerGroups', 'MDC', 'Register groups'),

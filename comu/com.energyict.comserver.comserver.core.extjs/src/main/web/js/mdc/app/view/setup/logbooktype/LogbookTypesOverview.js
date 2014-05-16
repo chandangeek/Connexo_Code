@@ -50,7 +50,7 @@ Ext.define('Mdc.view.setup.logbooktype.LogbookTypesOverview', {
         menu.add({
             text: 'Logbook types',
             pressed: true,
-            href: '#setup/logbooktypes',
+            href: '#/administration/logbooktypes',
             hrefTarget: '_self'
         });
     },

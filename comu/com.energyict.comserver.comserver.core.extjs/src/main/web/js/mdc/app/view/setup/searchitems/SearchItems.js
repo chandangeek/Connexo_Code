@@ -2,7 +2,7 @@ Ext.define('Mdc.view.setup.searchitems.SearchItems', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.searchItems',
     itemId: 'searchItems',
-    id: 'search-items-id',
+    //id: 'search-items-id',
     cls: 'filter-form',
     requires: [
         'Mdc.view.setup.searchitems.SideFilter',
@@ -12,6 +12,10 @@ Ext.define('Mdc.view.setup.searchitems.SearchItems', {
     ],
 
     content: [
+        {
+            title: Uni.I18n.translate('searchItems.filter.title', 'MDC', 'Search'),
+            ui: 'medium'
+        },
         {
             xtype: 'search-content-filter'
         },
