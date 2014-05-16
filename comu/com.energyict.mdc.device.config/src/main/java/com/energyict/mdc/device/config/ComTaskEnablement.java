@@ -31,6 +31,8 @@ public interface ComTaskEnablement extends HasId {
 
     public SecurityPropertySet getSecurityPropertySet ();
 
+    public void  setSecurityPropertySet (SecurityPropertySet securityPropertySet);
+
     /**
      * Tests if this ComTaskEnablement has preferred specifications
      * for the calculation of the next execution timestamp.

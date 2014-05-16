@@ -1,13 +1,5 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.IsPresent;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -19,10 +11,20 @@ import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.tasks.ComTask;
+
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.google.common.base.Optional;
+import org.hibernate.validator.constraints.Range;
+
 import javax.inject.Inject;
 import javax.validation.Valid;
-import org.hibernate.validator.constraints.Range;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -205,6 +207,11 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
     }
 
     @Override
+    public void setSecurityPropertySet(SecurityPropertySet securityPropertySet) {
+        this.securityPropertySet.set(securityPropertySet);
+    }
+
+    @Override
     public boolean hasNextExecutionSpecs() {
         return this.nextExecutionSpecs.isPresent();
     }
@@ -367,7 +374,6 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
 
         private CreateNextExecutionSpecs(TemporalExpression temporalExpression) {
             this(schedulingService.newNextExecutionSpecs(temporalExpression));
-            setNextExecutionSpecs(this.getNextExecutionSpecs());
         }
 
         private CreateNextExecutionSpecs(NextExecutionSpecs nextExecutionSpecs) {
@@ -382,6 +388,7 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
         @Override
         public void prepare() {
             this.nextExecutionSpecs.save();
+            setNextExecutionSpecs(this.nextExecutionSpecs);
         }
 
         @Override
