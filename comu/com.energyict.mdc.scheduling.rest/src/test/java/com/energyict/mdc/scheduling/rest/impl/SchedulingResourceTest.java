@@ -9,6 +9,7 @@ import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceDataService;
@@ -16,6 +17,7 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.SchedulingStatus;
+import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 import java.util.ArrayList;
@@ -33,6 +35,7 @@ import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
+import org.joda.time.DateTimeConstants;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -350,6 +353,45 @@ public class SchedulingResourceTest extends JerseyTest {
         List<Map<String, Object>> list = target("/schedules/1/comTasks").queryParam("filter", ExtjsFilter.filter().property("available", "true").create()).request().get(List.class);
         assertThat(list).hasSize(1);
         assertThat(list.get(0).get("id")).isEqualTo((int)COMTASK_3);
+    }
+
+    @Test
+    public void testPreviewMinutelyWithoutOffset() throws Exception {
+        PreviewInfo previewInfo = new PreviewInfo();
+        previewInfo.temporalExpression = new TemporalExpressionInfo();
+        previewInfo.temporalExpression.every=new TimeDurationInfo(new TimeDuration(10, TimeDuration.MINUTES));
+        previewInfo.startDate=new Date(1400146123000L); //  Thu, 15 May 2014 09:28:43 GMT
+
+        Entity<PreviewInfo> entity = Entity.json(previewInfo);
+        Response response = target("/schedules/preview").request().put(entity);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        PreviewInfo responseEntity = response.readEntity(PreviewInfo.class);
+        assertThat(responseEntity.nextOccurrences).hasSize(5);
+        assertThat(responseEntity.nextOccurrences.get(0)).isEqualTo(new Date(1400146200000L));
+        assertThat(responseEntity.nextOccurrences.get(1)).isEqualTo(new Date(1400146200000L + 10*DateTimeConstants.MILLIS_PER_MINUTE));
+        assertThat(responseEntity.nextOccurrences.get(2)).isEqualTo(new Date(1400146200000L + 20*DateTimeConstants.MILLIS_PER_MINUTE));
+        assertThat(responseEntity.nextOccurrences.get(3)).isEqualTo(new Date(1400146200000L + 30*DateTimeConstants.MILLIS_PER_MINUTE));
+        assertThat(responseEntity.nextOccurrences.get(4)).isEqualTo(new Date(1400146200000L + 40*DateTimeConstants.MILLIS_PER_MINUTE));
+    }
+
+    @Test
+    public void testPreviewMinutelyWithOffset() throws Exception {
+        PreviewInfo previewInfo = new PreviewInfo();
+        previewInfo.temporalExpression = new TemporalExpressionInfo();
+        previewInfo.temporalExpression.every=new TimeDurationInfo(new TimeDuration(10, TimeDuration.MINUTES));
+        previewInfo.temporalExpression.offset=new TimeDurationInfo(new TimeDuration(5, TimeDuration.SECONDS));
+        previewInfo.startDate=new Date(1400146123000L); //  Thu, 15 May 2014 09:28:43 GMT
+
+        Entity<PreviewInfo> entity = Entity.json(previewInfo);
+        Response response = target("/schedules/preview").request().put(entity);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        PreviewInfo responseEntity = response.readEntity(PreviewInfo.class);
+        assertThat(responseEntity.nextOccurrences).hasSize(5);
+        assertThat(responseEntity.nextOccurrences.get(0)).isEqualTo(new Date(1400146205000L));
+        assertThat(responseEntity.nextOccurrences.get(1)).isEqualTo(new Date(1400146205000L + 10*DateTimeConstants.MILLIS_PER_MINUTE));
+        assertThat(responseEntity.nextOccurrences.get(2)).isEqualTo(new Date(1400146205000L + 20*DateTimeConstants.MILLIS_PER_MINUTE));
+        assertThat(responseEntity.nextOccurrences.get(3)).isEqualTo(new Date(1400146205000L + 30*DateTimeConstants.MILLIS_PER_MINUTE));
+        assertThat(responseEntity.nextOccurrences.get(4)).isEqualTo(new Date(1400146205000L + 40*DateTimeConstants.MILLIS_PER_MINUTE));
     }
 
     @Test

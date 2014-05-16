@@ -1,5 +1,6 @@
 package com.energyict.mdc.scheduling.rest.impl;
 
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.UtcInstant;
@@ -11,10 +12,17 @@ import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
-
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -28,12 +36,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Path("/schedules")
 public class SchedulingResource {
@@ -160,6 +162,34 @@ public class SchedulingResource {
         } else {
             return Response.ok().entity(ComTaskInfo.from(comSchedule.getComTasks())).build();
         }
+    }
+
+    @PUT
+    @Path("/preview")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response generatePreviewForSchedule(PreviewInfo previewInfo) {
+        if (previewInfo.temporalExpression==null) {
+            throw new LocalizedFieldValidationException(thesaurus, MessageSeeds.CAN_NOT_BE_EMPTY, "temporalExpression");
+        }
+        if (previewInfo.temporalExpression.every==null) {
+            throw new LocalizedFieldValidationException(thesaurus, MessageSeeds.CAN_NOT_BE_EMPTY, "temporalExpression.every");
+        }
+        previewInfo.nextOccurrences = calculateNextOccurrences(previewInfo);
+        return Response.ok().entity(previewInfo).build();
+    }
+
+    private List<Date> calculateNextOccurrences(PreviewInfo previewInfo) {
+        TemporalExpression temporalExpression = previewInfo.temporalExpression.asTemporalExpression();
+        List<Date> nextOccurrences = new ArrayList<>();
+        Date occurrence = previewInfo.startDate==null ? new Date() : previewInfo.startDate;
+        Calendar latestOccurrence = Calendar.getInstance();
+        for (int i=0; i<5; i++) {
+            latestOccurrence.setTime(occurrence);
+            occurrence = temporalExpression.nextOccurrence(latestOccurrence);
+            nextOccurrences.add(occurrence);
+        }
+        return nextOccurrences;
     }
 
     private List<ComTask> getAvailableComTasksExcludingAlreadyAssigned(ComSchedule comSchedule) {
