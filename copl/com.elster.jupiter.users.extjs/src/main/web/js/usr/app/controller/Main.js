@@ -6,9 +6,9 @@ Ext.define('Usr.controller.Main', {
         'Uni.controller.Navigation',
         'Usr.controller.Home',
         'Usr.controller.User',
-        'Usr.controller.UserGroups',
+        'Usr.controller.UserEdit',
         'Usr.controller.Group',
-        'Usr.controller.GroupPrivileges',
+        'Usr.controller.GroupEdit',
         'Usr.controller.history.UserManagement'
     ],
 
@@ -16,9 +16,9 @@ Ext.define('Usr.controller.Main', {
         'Usr.controller.Login',
         'Usr.controller.Home',
         'Usr.controller.User',
-        'Usr.controller.UserGroups',
+        'Usr.controller.UserEdit',
         'Usr.controller.Group',
-        'Usr.controller.GroupPrivileges',
+        'Usr.controller.GroupEdit',
         'Usr.controller.history.UserManagement'
     ],
 

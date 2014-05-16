@@ -7,27 +7,8 @@ Ext.define('Usr.controller.Home', {
         'Home'
     ],
 
-    init: function () {
-        this.control({
-            /*'Home breadcrumbTrail': {
-                afterrender: this.onAfterRender
-            },*/
-        })
-    },
-    /*onAfterRender: function (breadcrumbs) {
-        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('user.root', 'USM', 'User Management'),
-            href: '#'
-        });
-
-        breadcrumbs.setBreadcrumbItem(breadcrumbParent);
-    },*/
     showOverview: function () {
         var widget = Ext.widget('Home');
-
         this.getApplication().getController('Usr.controller.Main').showContent(widget);
-
-        //widget.down('#usersLink').autoEl.href = this.getApplication().getController('Usr.controller.history.UserManagement').tokenizePreviousTokens();
-        //widget.down('#groupsLink').autoEl.href = this.getApplication().getController('Usr.controller.history.UserManagement').tokenizePreviousTokens();
     }
 });

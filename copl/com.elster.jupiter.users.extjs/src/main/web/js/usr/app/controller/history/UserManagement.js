@@ -15,20 +15,17 @@ Ext.define('Usr.controller.history.UserManagement', {
             me.getApplication().getController('Usr.controller.User').showOverview();
         });
         crossroads.addRoute('usermanagement/users/{id}/edit', function (id) {
-            me.getApplication().getController('Usr.controller.UserGroups').showEditOverview(id);
+            me.getApplication().getController('Usr.controller.UserEdit').showEditOverview(id);
         });
-        //crossroads.addRoute('usermanagement/users/login', function () {
-        //    me.getApplication().getController('Usr.controller.Login').showOverview();
-        //});
 
         crossroads.addRoute('usermanagement/roles',function(){
             me.getApplication().getController('Usr.controller.Group').showOverview();
         });
         crossroads.addRoute('usermanagement/roles/{id}/edit',function(id){
-            me.getApplication().getController('Usr.controller.GroupPrivileges').showEditOverview(id);
+            me.getApplication().getController('Usr.controller.GroupEdit').showEditOverview(id);
         });
         crossroads.addRoute('usermanagement/roles/create',function(){
-            me.getApplication().getController('Usr.controller.GroupPrivileges').showCreateOverview();
+            me.getApplication().getController('Usr.controller.GroupEdit').showCreateOverview();
         });
 
         this.callParent(arguments);

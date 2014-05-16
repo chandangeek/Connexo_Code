@@ -14,12 +14,10 @@ Ext.define('Usr.Application', {
         'Usr.controller.Main',
         'Usr.controller.Home',
         'Usr.controller.User',
-        'Usr.controller.UserGroups',
+        'Usr.controller.UserEdit',
         'Usr.controller.Group',
-        'Usr.controller.GroupPrivileges',
-        'Usr.controller.history.Group',
-        'Usr.controller.history.User',
-        'Usr.controller.history.Home'
+        'Usr.controller.GroupEdit',
+        'Usr.controller.history.UserManagement'
     ],
 
     stores: [

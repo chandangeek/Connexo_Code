@@ -1,4 +1,4 @@
-Ext.define('Usr.controller.GroupPrivileges', {
+Ext.define('Usr.controller.GroupEdit', {
     extend: 'Ext.app.Controller',
     requires: [
         'Uni.model.BreadcrumbItem'
