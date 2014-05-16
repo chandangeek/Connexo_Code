@@ -1,10 +1,8 @@
 Ext.define('Cfg.view.validation.RuleSetPreview', {
     extend: 'Ext.panel.Panel',
     border: true,
-    margins: '0 10 10 10',
     alias: 'widget.ruleSetPreview',
     itemId: 'ruleSetPreview',
-    //hidden: true,
     requires: [
         'Cfg.model.ValidationRuleSet'
     ],
@@ -13,7 +11,6 @@ Ext.define('Cfg.view.validation.RuleSetPreview', {
         type: 'card',
         align: 'stretch'
     },
-
 
     items: [
         {

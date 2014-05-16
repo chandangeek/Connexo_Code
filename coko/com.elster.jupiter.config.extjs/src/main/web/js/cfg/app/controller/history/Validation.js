@@ -1,7 +1,7 @@
 Ext.define('Cfg.controller.history.Validation', {
     extend: 'Uni.controller.history.Converter',
 
-    rootToken: 'validation',
+    rootToken: 'administration',
     previousTokens: ['administration'],
 
     doConversion: function (tokens) {
@@ -19,15 +19,13 @@ Ext.define('Cfg.controller.history.Validation', {
                 } else if (tokens[2] === 'overview') {
                     var id = parseInt(tokens[3]);
                     this.showRuleSetOverview(id);
-                }  else if (tokens[2] === 'createset') {
+                } else if (tokens[2] === 'createset') {
                     this.newRuleSet();
                 } else if (tokens[2] === 'addRule') {
                     var id = parseInt(tokens[3]);
                     this.addRule(id);
                 }
             }
-        } else {
-            //this.unknownTokensReturnToOverview();
         }
     },
 
@@ -39,7 +37,7 @@ Ext.define('Cfg.controller.history.Validation', {
         this.getApplication().getController('Cfg.controller.Administration').showOverview();
     },
 
-    addRule: function(ruleSetId) {
+    addRule: function (ruleSetId) {
         this.getApplication().getController('Cfg.controller.Validation').addRule(ruleSetId);
     },
 
@@ -58,9 +56,5 @@ Ext.define('Cfg.controller.history.Validation', {
     newRuleSet: function () {
         this.getApplication().getController('Cfg.controller.Validation').newRuleSet();
     }
-
-
-
-
 
 });

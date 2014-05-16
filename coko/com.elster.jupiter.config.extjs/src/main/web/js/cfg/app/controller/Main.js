@@ -21,23 +21,23 @@ Ext.define('Cfg.controller.Main', {
         }
     ],
     init: function () {
-        var me=this;
+        var me = this;
         var menuItem = Ext.create('Uni.model.MenuItem', {
-            text: 'Validation',
+            text: Uni.I18n.translate('general.administration', 'CFG', 'Administration'),
             href: me.getApplication().getController('Cfg.controller.history.Validation').tokenizeShowOverview(),
-            glyph: 'settings',
-            portal: 'validation'
+            portal: 'administration',
+            glyph: 'settings'
         });
 
         Uni.store.MenuItems.add(menuItem);
 
         var portalItem1 = Ext.create('Uni.model.PortalItem', {
-            title: 'Validation',
-            portal: 'validation',
+            title: Uni.I18n.translate('general.validation', 'CFG', 'Validation'),
+            portal: 'administration',
             items: [
                 {
-                    text: 'Validation rule sets',
-                    href: '#/validation/validation'
+                    text: Uni.I18n.translate('general.validationRuleSets', 'CFG', 'Validation rule sets'),
+                    href: '#/administration/validation'
                 }
             ]
         });

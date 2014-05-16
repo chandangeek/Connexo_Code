@@ -3,12 +3,12 @@ Ext.define('Cfg.view.validation.RuleBrowse', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.validationruleBrowse',
     itemId: 'validationruleBrowse',
-   // cls: 'content-container',
-  //  overflowY: 'auto',
+    // cls: 'content-container',
+    //  overflowY: 'auto',
     requires: [
         'Cfg.view.validation.RuleList',
         'Cfg.view.validation.RulePreview'
-     //   'Uni.view.breadcrumb.Trail'
+        //   'Uni.view.breadcrumb.Trail'
     ],
 
     ruleSetId: null,
@@ -36,7 +36,7 @@ Ext.define('Cfg.view.validation.RuleBrowse', {
                 },
                 {
                     xtype: 'component',
-                    height : 50
+                    height: 50
                 },
                 {
                     xtype: 'rulePreview'

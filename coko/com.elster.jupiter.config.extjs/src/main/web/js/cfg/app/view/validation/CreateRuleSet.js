@@ -35,17 +35,10 @@ Ext.define('Cfg.view.validation.CreateRuleSet', {
                         {
                             xtype: 'textfield',
                             name: 'name',
-                            /*validator:function(text){
-                                if(Ext.util.Format.trim(text).length==0)
-                                    return Uni.I18n.translate('validation.requiredField', 'CFG', 'This field is required');
-                                else
-                                    return true;
-                            },
-                            required: true,   */
                             msgTarget: 'under',
                             fieldLabel: Uni.I18n.translate('validation.name', 'CFG', 'Name'),
                             labelAlign: 'right',
-                            labelWidth:	150,
+                            labelWidth: 150,
                             maxLength: 80,
                             enforceMaxLength: true
                         },
@@ -53,7 +46,7 @@ Ext.define('Cfg.view.validation.CreateRuleSet', {
                             xtype: 'textarea',
                             name: 'description',
                             fieldLabel: Uni.I18n.translate('validation.description', 'CFG', 'Description'),
-                            labelWidth:	150,
+                            labelWidth: 150,
                             maxLength: 256,
                             enforceMaxLength: true
                         },
@@ -61,26 +54,21 @@ Ext.define('Cfg.view.validation.CreateRuleSet', {
                             xtype: 'fieldcontainer',
                             margin: '20 0 0 0',
                             fieldLabel: '&nbsp',
-                            labelWidth:	150,
+                            labelWidth: 150,
                             layout: 'hbox',
-                            defaults: {
-                                //flex: 1,
-                                //hideLabel: true
-                            },
                             items: [
                                 {
-                                    text: Uni.I18n.translate('general.create', 'CFG', 'Create'),
+                                    text: Uni.I18n.translate('general.add', 'CFG', 'Add'),
                                     xtype: 'button',
+                                    ui: 'action',
                                     action: 'createNewRuleSet',
-                                    itemId: 'createNewRuleSet',
-                                    width: 100
+                                    itemId: 'createNewRuleSet'
                                 },
                                 {
-                                    xtype: 'component',
-                                    padding: '3 0 0 0',
-                                    html: '<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#/validation">Cancel</a>',
-                                    margin: '0 0 0 20',
-                                    width: 100
+                                    xtype: 'button',
+                                    ui: 'link',
+                                    text: Uni.I18n.translate('general.cancel', 'CFG', 'Cancel'),
+                                    href: '#/administration/validation'
                                 }
                             ]
                         }

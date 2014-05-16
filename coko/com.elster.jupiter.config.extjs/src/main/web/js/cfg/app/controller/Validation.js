@@ -31,46 +31,46 @@ Ext.define('Cfg.controller.Validation', {
     ],
 
     refs: [
-        {ref: 'ruleSetForm',selector: 'ruleSetPreview #rulesetForm'} ,
-        {ref: 'rulesetOverviewForm',selector: 'ruleSetOverview #rulesetOverviewForm'} ,
-        {ref: 'ruleForm',selector: 'rulePreview #ruleForm'} ,
-        {ref: 'rulesetPreviewTitle',selector: 'ruleSetPreview #rulesetPreviewTitle'} ,
-        {ref: 'rulePreviewTitle',selector: 'rulePreview #rulePreviewTitle'} ,
-        {ref: 'readingTypesArea',selector: 'rulePreview #readingTypesArea'} ,
-        {ref: 'propertiesArea',selector: 'rulePreview #propertiesArea'} ,
-        {ref: 'ruleForm',selector: 'rulePreview #ruleForm'} ,
-        {ref: 'rulesetOverviewTitle',selector: 'ruleSetOverview #rulesetOverviewTitle'} ,
-        {ref: 'ruleBrowseTitle',selector: 'validationruleBrowse #ruleBrowseTitle'} ,
-        {ref: 'ruleSetDetailsLink',selector: 'ruleSetPreview #ruleSetDetailsLink'} ,
-        {ref: 'cancelAddRuleLink',selector: 'addRule #cancelAddRuleLink'} ,
+        {ref: 'ruleSetForm', selector: 'ruleSetPreview #rulesetForm'} ,
+        {ref: 'rulesetOverviewForm', selector: 'ruleSetOverview #rulesetOverviewForm'} ,
+        {ref: 'ruleForm', selector: 'rulePreview #ruleForm'} ,
+        {ref: 'rulesetPreviewTitle', selector: 'ruleSetPreview #rulesetPreviewTitle'} ,
+        {ref: 'rulePreviewTitle', selector: 'rulePreview #rulePreviewTitle'} ,
+        {ref: 'readingTypesArea', selector: 'rulePreview #readingTypesArea'} ,
+        {ref: 'propertiesArea', selector: 'rulePreview #propertiesArea'} ,
+        {ref: 'ruleForm', selector: 'rulePreview #ruleForm'} ,
+        {ref: 'rulesetOverviewTitle', selector: 'ruleSetOverview #rulesetOverviewTitle'} ,
+        {ref: 'ruleBrowseTitle', selector: 'validationruleBrowse #ruleBrowseTitle'} ,
+        {ref: 'ruleSetDetailsLink', selector: 'ruleSetPreview #ruleSetDetailsLink'} ,
+        {ref: 'cancelAddRuleLink', selector: 'addRule #cancelAddRuleLink'} ,
         {ref: 'rulesListContainer', selector: 'rulesContainer > #rulesListContainer'},
 
-        {ref: 'ruleSetOverviewLink',selector: 'rulesContainer #ruleSetOverviewLink'} ,
-        {ref: 'rulesLink',selector: 'rulesContainer #rulesLink'} ,
-        {ref: 'addRuleLink',selector: 'validationruleList #addRuleLink'} ,
+        {ref: 'ruleSetOverviewLink', selector: 'rulesContainer #ruleSetOverviewLink'} ,
+        {ref: 'rulesLink', selector: 'rulesContainer #rulesLink'} ,
+        {ref: 'addRuleLink', selector: 'validationruleList #addRuleLink'} ,
 
-        {ref: 'rulesContainer',selector: 'rulesContainer'} ,
-        {ref: 'ruleSetsGrid',selector: 'validationrulesetList'},
-        {ref: 'rulesGrid',selector: 'validationruleList'},
-        {ref: 'ruleSetPreview',selector:'ruleSetPreview'},
-        {ref: 'ruleSetOverview',selector:'ruleSetOverview'},
-        {ref: 'rulePreview',selector:'rulePreview'},
-        {ref: 'ruleSetDetails',selector: 'ruleSetPreview #ruleSetDetails'},
-        {ref: 'ruleSetEdit',selector: 'validationrulesetEdit'},
+        {ref: 'rulesContainer', selector: 'rulesContainer'} ,
+        {ref: 'ruleSetsGrid', selector: 'validationrulesetList'},
+        {ref: 'rulesGrid', selector: 'validationruleList'},
+        {ref: 'ruleSetPreview', selector: 'ruleSetPreview'},
+        {ref: 'ruleSetOverview', selector: 'ruleSetOverview'},
+        {ref: 'rulePreview', selector: 'rulePreview'},
+        {ref: 'ruleSetDetails', selector: 'ruleSetPreview #ruleSetDetails'},
+        {ref: 'ruleSetEdit', selector: 'validationrulesetEdit'},
 
         {ref: 'stepsContainer', selector: 'rulesContainer > #stepsContainer'},
         {ref: 'newRuleSetForm', selector: 'createRuleSet > #newRuleSetForm'},
 
-        {ref: 'createRuleSet',selector: 'createRuleSet'},
-        {ref: 'addRule',selector: 'addRule'},
+        {ref: 'createRuleSet', selector: 'createRuleSet'},
+        {ref: 'addRule', selector: 'addRule'},
 
         {ref: 'rulesContainer', selector: 'rulesContainer'},
         {ref: 'stepsMenu', selector: 'rulesContainer > #stepsMenu'},
 
-        {ref: 'readingValuesTextFieldsContainer',selector: 'addRule #readingValuesTextFieldsContainer'} ,
-        {ref: 'propertiesContainer',selector: 'addRule #propertiesContainer'},
-        {ref: 'removeReadingTypesButtonsContainer',selector: 'addRule #removeReadingTypesButtonsContainer'},
-        {ref: 'validatorCombo',selector: 'addRule #validatorCombo'},
+        {ref: 'readingValuesTextFieldsContainer', selector: 'addRule #readingValuesTextFieldsContainer'} ,
+        {ref: 'propertiesContainer', selector: 'addRule #propertiesContainer'},
+        {ref: 'removeReadingTypesButtonsContainer', selector: 'addRule #removeReadingTypesButtonsContainer'},
+        {ref: 'validatorCombo', selector: 'addRule #validatorCombo'},
 
         {ref: 'breadCrumbs', selector: 'breadcrumbTrail'}
     ],
@@ -92,7 +92,7 @@ Ext.define('Cfg.controller.Validation', {
                 click: this.createNewRuleSet
             },
             'addRule button[action=createRuleAction]': {
-            click: this.createNewRule
+                click: this.createNewRule
             },
             'addRule button[action=addRuleAction]': {
                 click: this.addRule
@@ -107,67 +107,66 @@ Ext.define('Cfg.controller.Validation', {
         });
     },
 
-    getRuleSetIdFromHref: function() {
-        var urlPart = 'validation/validation/addRule/';
+    getRuleSetIdFromHref: function () {
+        var urlPart = 'administration/validation/addRule/';
         var index = location.href.indexOf(urlPart);
         return parseInt(location.href.substring(index + urlPart.length));
     },
 
-
-    createNewRule: function(button) {
+    createNewRule: function (button) {
         var me = this;
         var form = button.up('panel');
         //if (form.isValid()) {
-            var ruleSetId = this.getRuleSetIdFromHref();
-            var record = Ext.create(Cfg.model.ValidationRule);
-            var values = form.getValues();
+        var ruleSetId = this.getRuleSetIdFromHref();
+        var record = Ext.create(Cfg.model.ValidationRule);
+        var values = form.getValues();
 
-            var readingTypes = this.getReadingValuesTextFieldsContainer().items;
-            var rule = values.implementation;
-            var name = values.name;
-            var properties = this.getPropertiesContainer().items;
+        var readingTypes = this.getReadingValuesTextFieldsContainer().items;
+        var rule = values.implementation;
+        var name = values.name;
+        var properties = this.getPropertiesContainer().items;
 
-            record.set('implementation', rule);
-            record.set('name', name);
+        record.set('implementation', rule);
+        record.set('name', name);
 
-            for (var i = 0; i < readingTypes.items.length; i++) {
-                var readingTypeRecord = Ext.create(Cfg.model.ReadingType);
-                var readingType = readingTypes.items[i].items.items[0].value;
-                readingTypeRecord.set('mRID',readingType );
-                record.readingTypes().add(readingTypeRecord);
-            }
+        for (var i = 0; i < readingTypes.items.length; i++) {
+            var readingTypeRecord = Ext.create(Cfg.model.ReadingType);
+            var readingType = readingTypes.items[i].items.items[0].value;
+            readingTypeRecord.set('mRID', readingType);
+            record.readingTypes().add(readingTypeRecord);
+        }
 
-            for (var i = 0; i < properties.items.length; i++) {
-                var propertyRecord = Ext.create(Cfg.model.ValidationRuleProperty);
-                propertyRecord.set('value', properties.items[i].value);
-                propertyRecord.set('name', properties.items[i].itemId);
-                record.properties().add(propertyRecord);
+        for (var i = 0; i < properties.items.length; i++) {
+            var propertyRecord = Ext.create(Cfg.model.ValidationRuleProperty);
+            propertyRecord.set('value', properties.items[i].value);
+            propertyRecord.set('name', properties.items[i].itemId);
+            record.properties().add(propertyRecord);
 
-            }
-            record.save({
-                params: {
-                    id: ruleSetId
-                },
-                success: function (record, operation) {
-                    record.commit();
-                    me.getValidationRuleSetsStore().reload(
-                        {
-                            callback: function(){
-                                location.href = '#validation/validation/rules/' + ruleSetId;
-                            }
-                        });
-                },
-                failure: function(record,operation){
-                    var json = Ext.decode(operation.response.responseText);
-                    if (json && json.errors) {
-                        form.getForm().markInvalid(json.errors);
-                    }
+        }
+        record.save({
+            params: {
+                id: ruleSetId
+            },
+            success: function (record, operation) {
+                record.commit();
+                me.getValidationRuleSetsStore().reload(
+                    {
+                        callback: function () {
+                            location.href = '#/administration/validation/rules/' + ruleSetId;
+                        }
+                    });
+            },
+            failure: function (record, operation) {
+                var json = Ext.decode(operation.response.responseText);
+                if (json && json.errors) {
+                    form.getForm().markInvalid(json.errors);
                 }
-                });
+            }
+        });
         //}
     },
 
-    updateProperties: function(field, oldValue, newValue) {
+    updateProperties: function (field, oldValue, newValue) {
         this.getPropertiesContainer().removeAll();
         var allPropertiesStore = this.getValidationPropertySpecsStore();
         allPropertiesStore.clearFilter();
@@ -176,7 +175,7 @@ Ext.define('Cfg.controller.Validation', {
             var property = allPropertiesStore.data.items[i];
             var label = property.data.name;
             var itemIdValue = property.data.name;
-            var optional =  property.data.optional;
+            var optional = property.data.optional;
             if (optional) {
                 label = label + ' (optional)';
             }
@@ -187,16 +186,16 @@ Ext.define('Cfg.controller.Validation', {
                         fieldLabel: label,
                         labelAlign: 'right',
                         itemId: itemIdValue,
-                        labelWidth:	250
+                        labelWidth: 250
                     }
                 );
-            } else{
+            } else {
                 this.getPropertiesContainer().add(
                     {
                         xtype: 'numberfield',
                         fieldLabel: label,
-                        validator:function(text){
-                            if(Ext.util.Format.trim(text).length==0)
+                        validator: function (text) {
+                            if (Ext.util.Format.trim(text).length == 0)
                                 return 'This field is required';
                             else
                                 return true;
@@ -205,7 +204,7 @@ Ext.define('Cfg.controller.Validation', {
                         msgTarget: 'under',
                         labelAlign: 'right',
                         itemId: itemIdValue,
-                        labelWidth:	250
+                        labelWidth: 250
                     }
                 );
             }
@@ -215,12 +214,11 @@ Ext.define('Cfg.controller.Validation', {
 
     },
 
-    addReadingType: function() {
+    addReadingType: function () {
         var me = this;
         var indexToRemove = me.readingTypeIndex;
 
         this.getReadingValuesTextFieldsContainer().add(
-
             {
                 xtype: 'container',
                 itemId: 'readingType' + me.readingTypeIndex,
@@ -232,18 +230,10 @@ Ext.define('Cfg.controller.Validation', {
                     {
                         xtype: 'textfield',
                         fieldLabel: '&nbsp',
-                        labelAlign: 'right',
-                        /*validator:function(text){
-                            if(Ext.util.Format.trim(text).length==0)
-                                return Uni.I18n.translate('validation.requiredField', 'CFG', 'This field is required');
-                            else
-                                return true;
-                        },
-                        required: true,    */
                         msgTarget: 'under',
-                        labelWidth:	250,
+                        labelWidth: 250,
                         maxLength: 80,
-                        enforceMaxLength: true ,
+                        enforceMaxLength: true,
                         width: 600
                     },
                     {
@@ -251,21 +241,20 @@ Ext.define('Cfg.controller.Validation', {
                         xtype: 'button',
                         action: 'removeReadingTypeAction',
                         pack: 'center',
-                        margin:'0 0 5 5',
+                        margin: '0 0 5 5',
                         width: 30,
-                        itemId: 'readingTypeRemoveButton'  + me.readingTypeIndex,
-                        handler: function() {
-                            me.getReadingValuesTextFieldsContainer().remove(Ext.ComponentQuery.query('#readingType'  + indexToRemove)[0]);
+                        itemId: 'readingTypeRemoveButton' + me.readingTypeIndex,
+                        handler: function () {
+                            me.getReadingValuesTextFieldsContainer().remove(Ext.ComponentQuery.query('#readingType' + indexToRemove)[0]);
                         }
                     }
                 ]
             }
-
         );
         me.readingTypeIndex = me.readingTypeIndex + 1;
     },
 
-    addRule: function(id) {
+    addRule: function (id) {
         var me = this;
         var view = Ext.create('Cfg.view.validation.AddRule');
         this.getCancelAddRuleLink().update('<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#validation/validation/rules/' + id + '">' + Uni.I18n.translate('general.cancel', 'CFG', 'Cancel') + '</a>');
@@ -283,7 +272,7 @@ Ext.define('Cfg.controller.Validation', {
         });
     },
 
-    createAddRuleBreadCrumbs: function(ruleSetId, ruleSetName) {
+    createAddRuleBreadCrumbs: function (ruleSetId, ruleSetName) {
         var me = this;
 
         var breadcrumbs = me.getBreadCrumbs();
@@ -302,7 +291,7 @@ Ext.define('Cfg.controller.Validation', {
         });
         var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
             text: 'Administration',
-            href: '#validation'
+            href: '#/administration'
         });
         breadcrumbRuleSet.setChild(breadcrumbRules);
         breadcrumbRuleSets.setChild(breadcrumbRuleSet);
@@ -312,29 +301,29 @@ Ext.define('Cfg.controller.Validation', {
 
     },
 
-    createNewRuleSet: function(button) {
+    createNewRuleSet: function (button) {
         var me = this;
         var form = button.up('panel');
         if (form.isValid()) {
             var record = record = Ext.create(Cfg.model.ValidationRuleSet);
             var values = form.getValues();
-                record.set(values);
-                record.save({
-                    success: function (record, operation) {
-                        //record.commit();
-                        me.getValidationRuleSetsStore().reload(
-                            {
-                                callback: function(){
-                                    location.href = '#validation/validation/rules/' + record.getId();
-                                }
-                            });
-                    },
-                    failure: function(record,operation){
-                        var json = Ext.decode(operation.response.responseText);
-                        if (json && json.errors) {
-                            form.getForm().markInvalid(json.errors);
-                        }
+            record.set(values);
+            record.save({
+                success: function (record, operation) {
+                    //record.commit();
+                    me.getValidationRuleSetsStore().reload(
+                        {
+                            callback: function () {
+                                location.href = '#/administration/validation/rules/' + record.getId();
+                            }
+                        });
+                },
+                failure: function (record, operation) {
+                    var json = Ext.decode(operation.response.responseText);
+                    if (json && json.errors) {
+                        form.getForm().markInvalid(json.errors);
                     }
+                }
             })
         }
     },
@@ -350,7 +339,7 @@ Ext.define('Cfg.controller.Validation', {
 
     },
 
-    createNewRuleSetBreadCrumbs: function() {
+    createNewRuleSetBreadCrumbs: function () {
         var me = this;
 
         var breadcrumbs = me.getBreadCrumbs();
@@ -365,7 +354,7 @@ Ext.define('Cfg.controller.Validation', {
         });
         var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
             text: 'Administration',
-            href: '#validation'
+            href: '#/administration'
         });
         breadcrumbRuleSets.setChild(breadcrumbNewRuleSet);
         breadcrumbParent.setChild(breadcrumbRuleSets);
@@ -380,7 +369,7 @@ Ext.define('Cfg.controller.Validation', {
         this.createRuleSetsBreadCrumbs();
     },
 
-    createRuleSetsBreadCrumbs: function() {
+    createRuleSetsBreadCrumbs: function () {
         var me = this;
 
         var breadcrumbs = me.getBreadCrumbs();
@@ -390,7 +379,7 @@ Ext.define('Cfg.controller.Validation', {
         });
         var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
             text: 'Administration',
-            href: '#validation'
+            href: '#/administration'
         });
         breadcrumbParent.setChild(breadcrumbRulesets);
 
@@ -398,7 +387,7 @@ Ext.define('Cfg.controller.Validation', {
 
     },
 
-    createRulesBreadCrumbs: function(ruleSetId, ruleSetName) {
+    createRulesBreadCrumbs: function (ruleSetId, ruleSetName) {
         var me = this;
 
         var breadcrumbs = me.getBreadCrumbs();
@@ -417,7 +406,7 @@ Ext.define('Cfg.controller.Validation', {
         });
         var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
             text: 'Administration',
-            href: '#validation'
+            href: '#/administration'
         });
         breadcrumbRuleSet.setChild(breadcrumbRules);
         breadcrumbRuleSets.setChild(breadcrumbRuleSet);
@@ -427,7 +416,7 @@ Ext.define('Cfg.controller.Validation', {
 
     },
 
-    createRulesOverviewBreadCrumbs: function(ruleSetId, ruleSetName) {
+    createRulesOverviewBreadCrumbs: function (ruleSetId, ruleSetName) {
         var me = this;
 
         var breadcrumbs = me.getBreadCrumbs();
@@ -446,7 +435,7 @@ Ext.define('Cfg.controller.Validation', {
         });
         var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
             text: 'Administration',
-            href: '#validation'
+            href: '#/administration'
         });
         breadcrumbRuleSet.setChild(breadcrumbRulesOverview);
         breadcrumbRuleSets.setChild(breadcrumbRuleSet);
@@ -457,8 +446,7 @@ Ext.define('Cfg.controller.Validation', {
     },
 
 
-
-    showRules: function(id) {
+    showRules: function (id) {
         var me = this;
         var ruleSetsStore = Ext.create('Cfg.store.ValidationRuleSets');
 
@@ -485,12 +473,12 @@ Ext.define('Cfg.controller.Validation', {
         });
     },
 
-    goToMenuItem: function(i) {
+    goToMenuItem: function (i) {
         Ext.ComponentQuery.query('#stepsContainer')[0].getLayout().setActiveItem(i);
     },
 
 
-    showRuleSetOverview: function(id) {
+    showRuleSetOverview: function (id) {
         var me = this;
 
         var ruleSetsStore = Ext.create('Cfg.store.ValidationRuleSets');
@@ -522,7 +510,7 @@ Ext.define('Cfg.controller.Validation', {
             this.getRuleSetForm().loadRecord(selectedSets[0]);
             var ruleSetName = this.getRuleSetForm().form.findField('name').getSubmitValue();
             this.getRuleSetPreview().getLayout().setActiveItem(1);
-            this.getRuleSetDetailsLink().update('<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#validation/validation/overview/' + selectedSets[0].getId() + '">View details</a>');
+            this.getRuleSetDetailsLink().update('<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#/administration/validation/overview/' + selectedSets[0].getId() + '">View details</a>');
             this.getRulesetPreviewTitle().update('<h4>' + ruleSetName + '</h4>');
         } else {
             this.getRuleSetPreview().getLayout().setActiveItem(0);
@@ -545,8 +533,7 @@ Ext.define('Cfg.controller.Validation', {
     },
 
 
-
-    addProperties: function(selectedRule) {
+    addProperties: function (selectedRule) {
         var properties = selectedRule.data.properties;
         this.getRuleForm()
         this.getPropertiesArea().removeAll();
@@ -565,7 +552,7 @@ Ext.define('Cfg.controller.Validation', {
                     fieldLabel: label,
                     value: propertyValue,
                     //labelAlign: 'right',
-                    labelWidth:	250
+                    labelWidth: 250
                 }
             );
 
@@ -573,7 +560,7 @@ Ext.define('Cfg.controller.Validation', {
 
     },
 
-    addReadingTypes: function(selectedRule) {
+    addReadingTypes: function (selectedRule) {
         var readingTypes = selectedRule.data.readingTypes;
         this.getReadingTypesArea().removeAll();
         for (var i = 0; i < readingTypes.length; i++) {
@@ -585,28 +572,27 @@ Ext.define('Cfg.controller.Validation', {
                 fieldlabel = '&nbsp';
             }
             this.getReadingTypesArea().add(
-
                 {
-                            xtype: 'container',
-                            layout: {
-                                type: 'hbox'
-                            },
-                            items: [
-                                {
-                                    xtype: 'displayfield',
-                                    fieldLabel: fieldlabel,
-                                    labelWidth:	250,
-                                    width: 500,
-                                    value: mRID
-                                }, {
-                                    xtype: 'component',
-                                    width: 500,
-                                    html: '<span style="color:grey"><i>' + aliasName + '</i></span>',
-                                    margin: '5 0 0 10'
-                                }
-                            ]
+                    xtype: 'container',
+                    layout: {
+                        type: 'hbox'
+                    },
+                    items: [
+                        {
+                            xtype: 'displayfield',
+                            fieldLabel: fieldlabel,
+                            labelWidth: 250,
+                            width: 500,
+                            value: mRID
+                        },
+                        {
+                            xtype: 'component',
+                            width: 500,
+                            html: '<span style="color:grey"><i>' + aliasName + '</i></span>',
+                            margin: '5 0 0 10'
+                        }
+                    ]
                 }
-
             );
         }
     }
