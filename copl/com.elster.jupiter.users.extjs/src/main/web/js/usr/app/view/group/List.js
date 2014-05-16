@@ -28,35 +28,14 @@ Ext.define('Usr.view.group.List', {
                 flex: 7
             },
             {
-                xtype:'actioncolumn',
-                tdCls:'view',
-                header : Uni.I18n.translate('general.actions', 'USM', 'Actions'),
-                flex: 0.5,
-                items: [{
-                    iconCls: 'x-uni-action-icon',
-                    handler: function(grid, rowIndex, colIndex,item,e) {
-                        var menu = Ext.widget('menu', {
-                            itemId: 'menuGroupsList',
-                            items: [{
-                                xtype: 'menuitem',
-                                itemId: 'menuGroupsListEdit',
-                                text: Uni.I18n.translate('general.edit', 'USM', 'Edit'),
-                                listeners: {
-                                    click: {
-                                        element: 'el',
-                                        fn: function(){
-                                            this.fireEvent('editGroupItem',grid.getRecord(rowIndex));
-                                        },
-                                        scope: this
-                                    }
-
-                                }
-                            }]
-                        });
-
-                        menu.showAt(e.getXY());
+                xtype: 'uni-actioncolumn',
+                items: [
+                    {
+                        text: Uni.I18n.translate('general.edit', 'USM', 'Edit'),
+                        itemId: 'editGroup',
+                        action: 'edit'
                     }
-                }]
+                ]
             }
         ]
     },
