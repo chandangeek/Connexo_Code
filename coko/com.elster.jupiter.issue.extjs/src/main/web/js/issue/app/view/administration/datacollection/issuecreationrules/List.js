@@ -9,7 +9,6 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.List', {
     ],
     alias: 'widget.issues-creation-rules-list',
     border: false,
-    height: 365,
     items: [
         {
             name: 'empty-text',
@@ -31,7 +30,6 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.List', {
         {
             xtype: 'grid',
             store: 'Isu.store.CreationRule',
-            height: 280,
             columns: {
                 defaults: {
                     sortable: false,
@@ -59,11 +57,8 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.List', {
                         flex: 1
                     },
                     {
-                        header: 'Action',
-                        xtype: 'actioncolumn',
-                        iconCls: 'isu-action-icon',
-                        align: 'left',
-                        width: 100
+                        xtype: 'uni-actioncolumn',
+                        items: 'Isu.view.administration.datacollection.issuecreationrules.ActionMenu'
                     }
                 ]
             }

@@ -4,9 +4,10 @@ Ext.define('Isu.view.workspace.issues.List', {
         'Ext.grid.column.Date',
         'Ext.form.field.ComboBox',
         'Ext.grid.column.Template',
-        'Ext.grid.column.Action',
+        'Uni.grid.column.Action',
         'Uni.view.toolbar.PagingTop',
-        'Uni.view.toolbar.PagingBottom'
+        'Uni.view.toolbar.PagingBottom',
+        'Isu.view.workspace.issues.Actions'
     ],
     alias: 'widget.issues-list',
     store: 'Isu.store.Issues',
@@ -42,11 +43,8 @@ Ext.define('Isu.view.workspace.issues.List', {
                 flex: 1
             },
             {
-                header: 'Actions',
-                xtype: 'actioncolumn',
-                iconCls: 'x-uni-action-icon',
-                width: 70,
-                align: 'left'
+                xtype: 'uni-actioncolumn',
+                items: 'Isu.view.workspace.issues.ActionMenu'
             }
         ]
     },

@@ -3,7 +3,8 @@ Ext.define('Isu.view.workspace.issues.Item', {
     requires: [
         'Isu.view.ext.button.ItemAction',
         'Isu.view.workspace.issues.ActionMenu',
-        'Isu.view.workspace.issues.Form'
+        'Isu.view.workspace.issues.Form',
+        'Isu.view.workspace.issues.Actions'
     ],
     alias: 'widget.issues-item',
     title: 'Details',

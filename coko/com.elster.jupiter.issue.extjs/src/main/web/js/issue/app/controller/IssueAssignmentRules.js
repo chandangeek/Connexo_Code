@@ -25,16 +25,8 @@ Ext.define('Isu.controller.IssueAssignmentRules', {
             },
             'issue-assignment-rules-overview issues-assignment-rules-list gridview': {
                 refresh: this.onGridRefresh
-            },
-            'issue-assignment-rules-overview issues-assignment-rules-list actioncolumn': {
-                click: this.showItemAction
-            },
-            'rule-action-menu': {
-                beforehide: this.hideItemAction
             }
         });
-
-        this.actionMenuXtype = 'rule-action-menu';
     },
 
     showOverview: function () {

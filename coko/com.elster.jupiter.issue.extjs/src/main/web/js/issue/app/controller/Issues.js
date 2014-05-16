@@ -85,12 +85,8 @@ Ext.define('Isu.controller.Issues', {
                 itemclick: this.loadGridItemDetail,
                 refresh: this.onIssuesGridRefresh
             },
-            'issues-overview issues-list actioncolumn': {
-                click: this.showItemAction
-            },
-            'issue-action-menu': {
-                beforehide: this.hideItemAction,
-                click: this.chooseIssuesAction
+            'issues-list uni-actioncolumn': {
+                menuclick: this.chooseIssuesAction
             },
             'issues-overview issues-item': {
                 afterChange: this.setFilterIconsActions
@@ -128,7 +124,6 @@ Ext.define('Isu.controller.Issues', {
             }
         });
 
-        this.actionMenuXtype = 'issue-action-menu';
         this.gridItemModel = this.getModel('Isu.model.Issues');
     },
 
@@ -356,7 +351,7 @@ Ext.define('Isu.controller.Issues', {
 
     chooseIssuesAction: function (menu, item) {
         var action = item.action;
-        var issueId = this.getItemPanel().down('form').getRecord().getId();
+        var issueId = menu.record.getId();
 
         switch (action) {
             case 'assign':
