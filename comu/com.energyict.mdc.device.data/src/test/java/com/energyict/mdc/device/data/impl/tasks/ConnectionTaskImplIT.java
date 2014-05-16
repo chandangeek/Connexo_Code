@@ -162,16 +162,10 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         when(codeTableFactory.get(CODE_TABLE_ID)).thenReturn(codeTable);
         when(codeTableFactory.findByPrimaryKey(CODE_TABLE_ID)).thenReturn(codeTable);
         when(codeTableFactory.getId()).thenReturn(FactoryIds.CODE.id());
-        IpConnectionType.setCodeTableFactory(codeTableFactory);
 
         ApplicationContext applicationContext = Environment.DEFAULT.get().getApplicationContext();
         when(applicationContext.findFactory(FactoryIds.CODE.id())).thenReturn(codeTableFactory);
         when(applicationContext.findFactory(Code.class.getName())).thenReturn(codeTableFactory);
-    }
-
-    @AfterClass
-    public static void clearCodeTableFactory () {
-        IpConnectionType.setCodeTableFactory(null);
     }
 
     private static <T extends ConnectionType> ConnectionTypePluggableClass registerConnectionTypePluggableClass(Class<T> connectionTypeClass) {

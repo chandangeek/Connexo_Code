@@ -1,23 +1,8 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.ListOperator;
-import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.conditions.Where;
-import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.FactoryIds;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -34,16 +19,16 @@ import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.DeviceFields;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.ServerComTaskExecution;
-import com.energyict.mdc.device.data.finders.DeviceFinder;
-import com.energyict.mdc.device.data.finders.LoadProfileFinder;
-import com.energyict.mdc.device.data.finders.LogBookFinder;
+import com.energyict.mdc.device.data.impl.finders.ConnectionMethodFinder;
+import com.energyict.mdc.device.data.impl.finders.DeviceFinder;
+import com.energyict.mdc.device.data.impl.finders.LoadProfileFinder;
+import com.energyict.mdc.device.data.impl.finders.LogBookFinder;
+import com.energyict.mdc.device.data.impl.finders.ProtocolDialectPropertiesFinder;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.ConnectionMethod;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
@@ -55,6 +40,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
@@ -72,9 +58,31 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
+
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.ListOperator;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+import org.joda.time.DateTimeConstants;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import javax.inject.Inject;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -85,11 +93,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
-import javax.inject.Inject;
-import org.joda.time.DateTimeConstants;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -99,8 +102,8 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-03-10 (16:27)
  */
-@Component(name="com.energyict.mdc.device.data", service = {DeviceDataService.class, InstallService.class}, property = "name=" + DeviceDataService.COMPONENTNAME)
-public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallService {
+@Component(name="com.energyict.mdc.device.data", service = {DeviceDataService.class, ReferencePropertySpecFinderProvider.class, InstallService.class}, property = "name=" + DeviceDataService.COMPONENTNAME)
+public class DeviceDataServiceImpl implements ServerDeviceDataService, ReferencePropertySpecFinderProvider, InstallService {
 
     private volatile DataModel dataModel;
     private volatile EventService eventService;
@@ -145,6 +148,17 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
         if (!this.dataModel.isInstalled()) {
             this.install(true, createMasterData);
         }
+    }
+
+    @Override
+    public List<CanFindByLongPrimaryKey<? extends HasId>> finders() {
+        List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
+        finders.add(new DeviceFinder(this.dataModel));
+        finders.add(new LoadProfileFinder(this.dataModel));
+        finders.add(new LogBookFinder(this.dataModel));
+        finders.add(new ConnectionMethodFinder(this.dataModel));
+        finders.add(new ProtocolDialectPropertiesFinder(this.dataModel));
+        return finders;
     }
 
     @Override
@@ -806,15 +820,6 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
     @Activate
     public void activate() {
         this.dataModel.register(this.getModule());
-        registerFinders();
-    }
-
-    private void registerFinders() {
-        environment.registerFinder(new DeviceFinder(this.dataModel));
-        environment.registerFinder(new LoadProfileFinder(this.dataModel));
-        environment.registerFinder(new LogBookFinder(this.dataModel));
-        environment.registerFinder(new ConnectionMethodFinder());
-        environment.registerFinder(new ProtocolDialectPropertiesFinder());
     }
 
     @Override
@@ -824,42 +829,6 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
 
     private void install(boolean exeuteDdl, boolean createMasterData) {
         new Installer(this.dataModel, this.eventService, this.thesaurus, messagingService).install(exeuteDdl, createMasterData);
-    }
-
-    private class ConnectionMethodFinder implements CanFindByLongPrimaryKey<ConnectionMethod> {
-        @Override
-        public FactoryIds registrationKey() {
-            return FactoryIds.CONNECTION_METHOD;
-        }
-
-        @Override
-        public Class<ConnectionMethod> valueDomain() {
-            return ConnectionMethod.class;
-        }
-
-        @Override
-        public Optional<ConnectionMethod> findByPrimaryKey(long id) {
-            return dataModel.mapper(this.valueDomain()).getUnique("id", id);
-        }
-
-    }
-
-    private class ProtocolDialectPropertiesFinder implements CanFindByLongPrimaryKey<ProtocolDialectProperties> {
-        @Override
-        public FactoryIds registrationKey() {
-            return FactoryIds.DEVICE_PROTOCOL_DIALECT;
-        }
-
-        @Override
-        public Class<ProtocolDialectProperties> valueDomain() {
-            return ProtocolDialectProperties.class;
-        }
-
-        @Override
-        public Optional<ProtocolDialectProperties> findByPrimaryKey(long id) {
-            return dataModel.mapper(this.valueDomain()).getUnique("id", id);
-        }
-
     }
 
     @Override

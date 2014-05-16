@@ -1,9 +1,10 @@
-package com.energyict.mdc.device.data.finders;
+package com.energyict.mdc.device.data.impl.finders;
 
-import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.device.data.LogBook;
+
+import com.elster.jupiter.orm.DataModel;
 import com.google.common.base.Optional;
 
 /**
@@ -20,7 +21,7 @@ public class LogBookFinder implements CanFindByLongPrimaryKey<LogBook>{
     }
 
     @Override
-    public FactoryIds registrationKey() {
+    public FactoryIds factoryId() {
         return FactoryIds.LOADPROFILE;
     }
 
@@ -33,4 +34,5 @@ public class LogBookFinder implements CanFindByLongPrimaryKey<LogBook>{
     public Optional<LogBook> findByPrimaryKey(long id) {
         return this.dataModel.mapper(LogBook.class).getUnique("id", id);
     }
+
 }
