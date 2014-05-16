@@ -20,7 +20,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAdd', {
                 {
                     xtype: 'component',
                     html: '<h1>' + Uni.I18n.translate('registerMappingAdd.addRegisterTypes', 'MDC', 'Add register types') + '</h1>',
-                    margins: '10 10 10 10',
+                    //margins: '10 10 10 10',
                     itemId: 'registerTypeAddTitle'
                 },
                 {

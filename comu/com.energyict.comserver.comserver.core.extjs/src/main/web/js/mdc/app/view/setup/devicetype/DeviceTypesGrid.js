@@ -94,6 +94,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
                                                 },
                                                 scope: this
                                             }
+
                                         }
                                     }
                                 ]
