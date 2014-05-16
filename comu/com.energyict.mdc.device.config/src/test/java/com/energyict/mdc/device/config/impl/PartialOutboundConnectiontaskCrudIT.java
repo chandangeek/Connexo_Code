@@ -28,6 +28,7 @@ import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryIds;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Translator;
@@ -39,7 +40,10 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
+import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
@@ -87,6 +91,9 @@ import java.math.BigDecimal;
 import java.security.Principal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
@@ -127,6 +134,7 @@ public class PartialOutboundConnectiontaskCrudIT {
     private Injector injector;
     @Mock
     private ApplicationContext applicationContext;
+    private PropertySpecServiceImpl propertySpecService;
     private ProtocolPluggableService protocolPluggableService;
     private MdcReadingTypeUtilService readingTypeUtilService;
     private EngineModelService engineModelService;
@@ -187,6 +195,7 @@ public class PartialOutboundConnectiontaskCrudIT {
             ormService = injector.getInstance(OrmService.class);
             eventService = (SpyEventService) injector.getInstance(EventService.class);
             nlsService = injector.getInstance(NlsService.class);
+            propertySpecService = (PropertySpecServiceImpl) injector.getInstance(PropertySpecService.class);
             meteringService = injector.getInstance(MeteringService.class);
             readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
             engineModelService = injector.getInstance(EngineModelService.class);
@@ -217,7 +226,14 @@ public class PartialOutboundConnectiontaskCrudIT {
 
         initializeDatabase(false, false);
 
-        Environment.DEFAULT.get().registerFinder(new ConnectionMethodFinder());
+        propertySpecService.addFactoryProvider(new ReferencePropertySpecFinderProvider() {
+            @Override
+            public List<CanFindByLongPrimaryKey<? extends HasId>> finders() {
+                List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
+                finders.add(new ConnectionMethodFinder());
+                return finders;
+            }
+        });
 
         protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
         engineModelService = injector.getInstance(EngineModelService.class);
@@ -762,7 +778,7 @@ public class PartialOutboundConnectiontaskCrudIT {
     public class ConnectionMethodFinder implements CanFindByLongPrimaryKey {
 
         @Override
-        public FactoryIds registrationKey() {
+        public FactoryIds factoryId() {
             return FactoryIds.CONNECTION_METHOD;
         }
 
