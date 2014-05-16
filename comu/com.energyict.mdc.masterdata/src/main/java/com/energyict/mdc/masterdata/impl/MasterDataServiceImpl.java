@@ -9,13 +9,17 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+
+import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.services.DefaultFinder;
 import com.energyict.mdc.common.services.Finder;
+import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -23,11 +27,13 @@ import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.masterdata.exceptions.RegisterTypesRequiredException;
 import com.energyict.mdc.masterdata.exceptions.UnitHasNoMatchingPhenomenonException;
-import com.energyict.mdc.masterdata.finders.LoadProfileTypeFinder;
+import com.energyict.mdc.masterdata.impl.finders.LoadProfileTypeFinder;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+
+import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
 import org.osgi.service.component.annotations.Activate;
@@ -42,8 +48,8 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-04-11 (16:41)
  */
-@Component(name="com.energyict.mdc.masterdata", service = {MasterDataService.class, InstallService.class}, property = "name=" + MasterDataService.COMPONENTNAME, immediate = true)
-public class MasterDataServiceImpl implements MasterDataService, InstallService {
+@Component(name="com.energyict.mdc.masterdata", service = {MasterDataService.class, ReferencePropertySpecFinderProvider.class, InstallService.class}, property = "name=" + MasterDataService.COMPONENTNAME, immediate = true)
+public class MasterDataServiceImpl implements MasterDataService, ReferencePropertySpecFinderProvider, InstallService {
 
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
@@ -73,6 +79,13 @@ public class MasterDataServiceImpl implements MasterDataService, InstallService 
         if (!this.dataModel.isInstalled()) {
             this.install(true, createDefaults);
         }
+    }
+
+    @Override
+    public List<CanFindByLongPrimaryKey<? extends HasId>> finders() {
+        List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
+        finders.add(new LoadProfileTypeFinder(this.dataModel));
+        return finders;
     }
 
     @Override
@@ -209,7 +222,7 @@ public class MasterDataServiceImpl implements MasterDataService, InstallService 
 
     @Override
     public void validateRegisterGroup(RegisterGroup group) {
-        if(group.getRegisterMappings().size()==0){
+        if (group.getRegisterMappings().isEmpty()) {
             throw new RegisterTypesRequiredException(this.thesaurus);
         }
     }
@@ -273,11 +286,6 @@ public class MasterDataServiceImpl implements MasterDataService, InstallService 
     @Activate
     public void activate() {
         this.dataModel.register(this.getModule());
-        registerFinders();
-    }
-
-    private void registerFinders() {
-        this.environment.registerFinder(new LoadProfileTypeFinder(this.dataModel));
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.energyict.mdc.masterdata.finders;
+package com.energyict.mdc.masterdata.impl.finders;
 
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
@@ -20,7 +20,7 @@ public class LoadProfileTypeFinder implements CanFindByLongPrimaryKey<LoadProfil
     }
 
     @Override
-    public FactoryIds registrationKey() {
+    public FactoryIds factoryId() {
         return FactoryIds.LOADPROFILE_TYPE;
     }
 
@@ -33,4 +33,5 @@ public class LoadProfileTypeFinder implements CanFindByLongPrimaryKey<LoadProfil
     public Optional<LoadProfileType> findByPrimaryKey(long id) {
         return this.dataModel.mapper(LoadProfileType.class).getUnique("id", id);
     }
+
 }

@@ -41,6 +41,11 @@
     </dependency>
     <dependency>
       <groupId>com.energyict</groupId>
+      <artifactId>mdc.dynamic</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
       <artifactId>mdc.metering</artifactId>
       <version>${project.version}</version>
     </dependency>
