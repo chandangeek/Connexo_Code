@@ -86,12 +86,33 @@ Ext.define('Uni.controller.Navigation', {
         var menu = this.getNavigationMenu(),
             store = Uni.store.MenuItems;
 
+        this.removeDuplicatesFromStore(store);
+
         if (menu !== undefined) {
             menu.removeAllMenuItems();
             store.each(function (record) {
                 menu.addMenuItem(record);
             });
         }
+    },
+
+    removeDuplicatesFromStore: function (store) {
+        var hits = [],
+            duplicates = [];
+
+        store.each(function (record) {
+            var text = record.get('text'),
+                portal = record.get('portal');
+
+            if (hits[text + portal]) {
+                duplicates.push(record);
+            } else {
+                hits[text + portal] = true;
+            }
+        });
+
+        // Delete the duplicates.
+        store.remove(duplicates);
     },
 
     addMenuItem: function (title, href, glyph) {
