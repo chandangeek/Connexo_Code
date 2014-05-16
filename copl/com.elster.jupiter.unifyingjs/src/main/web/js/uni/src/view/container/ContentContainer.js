@@ -77,6 +77,7 @@ Ext.define('Uni.view.container.ContentContainer', {
             cls: 'north',
             layout: 'hbox',
             ui: 'breadcrumbtrailcontainer',
+            height: 48,
             items: [
                 {
                     xtype: 'breadcrumbTrail',
