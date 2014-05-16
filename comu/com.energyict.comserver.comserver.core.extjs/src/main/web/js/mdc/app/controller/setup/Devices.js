@@ -25,7 +25,8 @@ Ext.define('Mdc.controller.setup.Devices', {
         {ref: 'deviceOpenIssuesForm', selector: '#deviceOpenIssuesForm'},
         {ref: 'deviceSetupTitle', selector: '#deviceSetupTitle'},
         {ref: 'deviceGeneralInformationDeviceTypeLink', selector: '#deviceGeneralInformationDeviceTypeLink'},
-        {ref: 'deviceGeneralInformationDeviceConfigurationLink', selector: '#deviceGeneralInformationDeviceConfigurationLink'}
+        {ref: 'deviceGeneralInformationDeviceConfigurationLink', selector: '#deviceGeneralInformationDeviceConfigurationLink'},
+        {ref: 'dataCollectionIssuesLink', selector: '#dataCollectionIssuesLink'}
     ],
 
 
@@ -45,6 +46,7 @@ Ext.define('Mdc.controller.setup.Devices', {
                 device.slaveDevicesStore.data.items.forEach(function (slaveDevice) {
                     widget.addSlaveDevice(slaveDevice.get('mRID'), slaveDevice.get('id'));
                 });
+                me.getDataCollectionIssuesLink().getEl().setHTML(device.get('nbrOfDataCollectionIssues') + ' ' + Uni.I18n.translatePlural('deviceOpenIssues.dataCollectionIssues', device.get('nbrOfDataCollectionIssues'), 'MDC', 'data collection issue(s)'));
                 me.overviewBreadCrumb(id, device.get('mRID'));
                 me.getDeviceGeneralInformationForm().loadRecord(device);
                 me.getDeviceCommunicationTopologyForm().loadRecord(device);

@@ -14,7 +14,8 @@ Ext.define('Mdc.model.Device', {
         {name: 'yearOfCertification', type: 'string', useNull: true},
         {name: 'batch', type: 'string', useNull: true},
         {name: 'masterDevicemRID', type: 'string', useNull: true},
-        {name: 'masterDeviceId', type: 'number', useNull: true}
+        {name: 'masterDeviceId', type: 'number', useNull: true},
+        {name: 'nbrOfDataCollectionIssues', type: 'number', useNull: true}
     ],
 
     associations: [
