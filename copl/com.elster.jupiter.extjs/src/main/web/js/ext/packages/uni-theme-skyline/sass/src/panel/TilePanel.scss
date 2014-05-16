@@ -19,9 +19,21 @@ $ui-body-color: $panel-tile-body-color
     }
 }
 
+.#{$prefix}panel-tile.first {
+    margin: {
+        right: 24px;
+    }
+}
+
 .#{$prefix}panel-tile.middle {
     margin: {
-        right: 48px;
-        left: 48px;
+        right: 24px;
+        left: 24px;
+    }
+}
+
+.#{$prefix}panel-tile.last {
+    margin: {
+        left: 24px;
     }
 }
