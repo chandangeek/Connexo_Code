@@ -8,17 +8,17 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.fest.assertions.api.Assertions.assertThat;
 
 /**
- * Tests the {@link ReferencePropertySpec} component.
+ * Tests the {@link LegacyReferencePropertySpec} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-07-03 (11:42)
  */
 @RunWith(MockitoJUnitRunner.class)
-public class ReferencePropertySpecTest extends AbstractPropertySpecTest {
+public class LegacyReferencePropertySpecTest extends AbstractPropertySpecTest {
 
     @Test
     public void testIsAReference () {
-        ReferencePropertySpec propertySpec = this.newReferencePropertySpec(true);
+        LegacyReferencePropertySpec propertySpec = this.newReferencePropertySpec(true);
 
         // Business Method and assert
         assertThat(propertySpec.isReference()).isTrue();
@@ -26,7 +26,7 @@ public class ReferencePropertySpecTest extends AbstractPropertySpecTest {
 
     @Test
     public void testNullIsValidWhenOptional () throws InvalidValueException {
-        ReferencePropertySpec<TestBusinessObject> propertySpec = this.newReferencePropertySpec(false);
+        LegacyReferencePropertySpec<TestBusinessObject> propertySpec = this.newReferencePropertySpec(false);
 
         // Business Method and assert
         assertThat(propertySpec.validateValue(null)).isTrue();
@@ -34,7 +34,7 @@ public class ReferencePropertySpecTest extends AbstractPropertySpecTest {
 
     @Test(expected = InvalidValueException.class)
     public void testNullIsNotValidWhenRequired () throws InvalidValueException {
-        ReferencePropertySpec<TestBusinessObject> propertySpec = this.newReferencePropertySpec(true);
+        LegacyReferencePropertySpec<TestBusinessObject> propertySpec = this.newReferencePropertySpec(true);
 
         // Business Method and assert
         assertThat(propertySpec.validateValue(null)).isTrue();
@@ -42,7 +42,7 @@ public class ReferencePropertySpecTest extends AbstractPropertySpecTest {
 
     @Test
     public void testTestBusinessObjectIsValidRequiredValue () throws InvalidValueException {
-        ReferencePropertySpec<TestBusinessObject> propertySpec = this.newReferencePropertySpec(true);
+        LegacyReferencePropertySpec<TestBusinessObject> propertySpec = this.newReferencePropertySpec(true);
         TestBusinessObject value = this.newPersistentTestBusinessObject();
 
         // Business method
@@ -51,7 +51,7 @@ public class ReferencePropertySpecTest extends AbstractPropertySpecTest {
 
     @Test
     public void testTestBusinessObjectIsValidOptionalValue () throws InvalidValueException {
-        ReferencePropertySpec<TestBusinessObject> propertySpec = this.newReferencePropertySpec(false);
+        LegacyReferencePropertySpec<TestBusinessObject> propertySpec = this.newReferencePropertySpec(false);
         TestBusinessObject value = this.newPersistentTestBusinessObject();
 
         // Business method
@@ -60,7 +60,7 @@ public class ReferencePropertySpecTest extends AbstractPropertySpecTest {
 
     @Test(expected = InvalidValueException.class)
     public void testStringIsNotValidRequiredValue () throws InvalidValueException {
-        ReferencePropertySpec propertySpec = this.newReferencePropertySpec(true);
+        LegacyReferencePropertySpec propertySpec = this.newReferencePropertySpec(true);
         String string = "a String";
 
         // Business method
@@ -69,15 +69,15 @@ public class ReferencePropertySpecTest extends AbstractPropertySpecTest {
 
     @Test(expected = InvalidValueException.class)
     public void testStringIsNotValidOptionalValue () throws InvalidValueException {
-        ReferencePropertySpec propertySpec = this.newReferencePropertySpec(false);
+        LegacyReferencePropertySpec propertySpec = this.newReferencePropertySpec(false);
         String string = "a String";
 
         // Business method
         propertySpec.validateValue(string); // expecting an InvalidValueException
     }
 
-    private ReferencePropertySpec<TestBusinessObject> newReferencePropertySpec (boolean required) {
-        return new ReferencePropertySpec<>("SomeBusinessObject", required, new TestBusinessObjectFactoryImpl());
+    private LegacyReferencePropertySpec<TestBusinessObject> newReferencePropertySpec (boolean required) {
+        return new LegacyReferencePropertySpec<>("SomeBusinessObject", required, new TestBusinessObjectFactoryImpl());
     }
 
 }

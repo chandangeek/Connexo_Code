@@ -159,7 +159,7 @@ public class BasicPropertySpecTest extends AbstractPropertySpecTest {
     }
 
     private BasicPropertySpec<TestBusinessObject> newTestBusinessObjectPropertySpec (boolean required) {
-        return new ReferencePropertySpec<>("SomeBusinessObject", required, new TestBusinessObjectFactoryImpl());
+        return new LegacyReferencePropertySpec<>("SomeBusinessObject", required, new TestBusinessObjectFactoryImpl());
     }
 
 

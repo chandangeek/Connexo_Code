@@ -19,22 +19,26 @@ import java.sql.SQLException;
  */
 public class JupiterReferenceFactory<T extends HasId> extends AbstractValueFactory<T> {
 
-    private CanFindByLongPrimaryKey<T> factory;
+    private CanFindByLongPrimaryKey<T> finder;
     private Class<T> domainClass;
 
     public JupiterReferenceFactory() {
         super();
     }
 
-    public JupiterReferenceFactory(CanFindByLongPrimaryKey<T> factory) {
+    public JupiterReferenceFactory(CanFindByLongPrimaryKey<T> finder) {
         this();
-        this.factory = factory;
-        this.domainClass = factory.valueDomain();
+        this.finder = finder;
+        this.domainClass = finder.valueDomain();
+    }
+
+    public CanFindByLongPrimaryKey<T> getFinder() {
+        return finder;
     }
 
     @Override
     public int getObjectFactoryId() {
-        return this.factory.registrationKey().id();
+        return this.finder.factoryId().id();
     }
 
     @Override
@@ -70,7 +74,7 @@ public class JupiterReferenceFactory<T extends HasId> extends AbstractValueFacto
     @Override
     public T valueFromDatabase (Object object) throws SQLException {
         if (object instanceof Number) {
-            return LazyLoadProxy.newInstance(new HasIdLazyLoader<>((Number) object, this.domainClass, this.factory));
+            return LazyLoadProxy.newInstance(new HasIdLazyLoader<>((Number) object, this.domainClass, this.finder));
         }
         else {
             return null;
@@ -96,7 +100,7 @@ public class JupiterReferenceFactory<T extends HasId> extends AbstractValueFacto
     public T fromStringValue (String stringValue) {
         try {
             Integer id = new Integer(stringValue);
-            return LazyLoadProxy.newInstance(new HasIdLazyLoader<>(id, this.domainClass, this.factory));
+            return LazyLoadProxy.newInstance(new HasIdLazyLoader<>(id, this.domainClass, this.finder));
         }
         catch (NumberFormatException e) {
             throw new ApplicationException("Error parsing identifier of an " + this.domainClass.getName() + " from string value: " + stringValue);

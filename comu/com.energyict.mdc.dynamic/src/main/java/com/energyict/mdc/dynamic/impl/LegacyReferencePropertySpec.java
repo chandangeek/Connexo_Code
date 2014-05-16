@@ -12,9 +12,9 @@ import com.energyict.mdc.dynamic.LegacyReferenceFactory;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-06-05 (13:59)
  */
-public class ReferencePropertySpec<T extends IdBusinessObject> extends BasicPropertySpec<T> {
+public class LegacyReferencePropertySpec<T extends IdBusinessObject> extends BasicPropertySpec<T> {
 
-    public ReferencePropertySpec (String name, boolean required, IdBusinessObjectFactory<T> factory) {
+    public LegacyReferencePropertySpec(String name, boolean required, IdBusinessObjectFactory<T> factory) {
         super(name, required, new LegacyReferenceFactory<>(factory));
     }
 

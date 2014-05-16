@@ -15,6 +15,8 @@ import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.dynamic.JupiterReferenceFactory;
 import com.energyict.mdc.dynamic.LegacyReferenceFactory;
+import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.ValueFactory;
 import com.energyict.mdc.dynamic.relation.exceptions.CannotDeleteDefaultRelationAttributeException;
 import com.energyict.mdc.dynamic.relation.CompositeAttributeTypeDetective;
@@ -45,6 +47,7 @@ import java.util.List;
 public class RelationAttributeTypeImpl extends PersistentNamedObject implements RelationAttributeType {
 
     private Thesaurus thesaurus;
+    private PropertySpecService propertySpecService;
     private String valueFactoryClassName;
     private ValueFactory valueFactory;
     private String displayName;
@@ -59,9 +62,10 @@ public class RelationAttributeTypeImpl extends PersistentNamedObject implements 
     private Boolean isDefault = null;
 
     @Inject
-    RelationAttributeTypeImpl(Thesaurus thesaurus) {
+    RelationAttributeTypeImpl(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super();
         this.thesaurus = thesaurus;
+        this.propertySpecService = propertySpecService;
     }
 
     public RelationAttributeTypeImpl(RelationType relationType, Thesaurus thesaurus, String name) {
@@ -241,7 +245,12 @@ public class RelationAttributeTypeImpl extends PersistentNamedObject implements 
                 return new LegacyReferenceFactory((IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(objectFactoryId));
             }
             else if (valueFactoryClassName.equals(JupiterReferenceFactory.class.getCanonicalName())) {
-                return new JupiterReferenceFactory(Environment.DEFAULT.get().finderFor(FactoryIds.forId(objectFactoryId)));
+                PropertySpec propertySpec =
+                        this.propertySpecService.referencePropertySpec(
+                                valueFactoryClassName,  // Don't care as we are only interested in the ValueFactory
+                                false,                  // Don't care as we are only interested in the ValueFactory
+                                FactoryIds.forId(objectFactoryId));
+                return propertySpec.getValueFactory();
             }
             return (ValueFactory) Class.forName(valueFactoryClassName).newInstance();
         }
