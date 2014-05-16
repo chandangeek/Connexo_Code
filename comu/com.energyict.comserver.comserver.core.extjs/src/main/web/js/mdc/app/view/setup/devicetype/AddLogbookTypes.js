@@ -30,7 +30,7 @@ Ext.define('Mdc.view.setup.devicetype.AddLogbookTypes', {
                             listeners: {
                                 click: {
                                     fn: function () {
-                                        window.location.href = '#/lbtadministration/logbook';
+                                        window.location.href = '#/administration/logbook';
                                     }
                                 }
                             }
