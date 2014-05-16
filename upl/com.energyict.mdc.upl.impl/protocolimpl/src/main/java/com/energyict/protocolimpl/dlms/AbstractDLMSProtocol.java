@@ -260,6 +260,10 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
         return serialNumber.getBytes();
     }
 
+    protected String getSerialNumberProperty() {
+        return serialNumber;
+    }
+
     /**
      * Starts the DLMS connection
      *

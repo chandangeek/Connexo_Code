@@ -147,6 +147,10 @@
 
 -keepnames class com.energyict.protocolimpl.iec1107.kamstrup.Kamstrup
 
+-keepnames class com.energyict.protocolimpl.dlms.edp.CX20009
+
+-keepnames class com.energyict.protocolimpl.dlms.edp.JanzB280
+
 -keepnames class com.energyict.protocolimpl.iec1107.abba1500.ABBA1500
 
 -keepnames class com.energyict.protocolimpl.iec1107.ferranti.Ferranti
