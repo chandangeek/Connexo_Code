@@ -152,13 +152,19 @@ public class NlsServiceImpl implements NlsService, InstallService {
 	
 	private String resolveParameter(String parameter) {
 		String base = removeCurlyBrace(parameter);
-		String[] parts = base.split("\\.",2);
-		if (parts.length < 2) {
-			return parameter;
-		}
-		Thesaurus thesaurus = getThesaurus(parts[0], Layer.DOMAIN);
+
+        int index = base.indexOf('.');
+
+        if (index == -1) {
+            return parameter;
+        }
+
+        String module = base.substring(0, index);
+        String key = base.substring(index + 1);
+
+		Thesaurus thesaurus = getThesaurus(module, Layer.DOMAIN);
 		if (thesaurus != null) {
-			String result = thesaurus.getString(parts[1], parameter);
+			String result = thesaurus.getString(key, parameter);
 			if (result.equals(parameter)) {
 				return parameter;
 			} else {
@@ -192,4 +198,5 @@ public class NlsServiceImpl implements NlsService, InstallService {
 			}
 		};
 	}
+
 }
