@@ -1,4 +1,5 @@
 Ext.define('Cfg.view.validation.RuleBrowse', {
+    //extend: 'Ext.panel.Panel',
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.validationruleBrowse',
     itemId: 'validationruleBrowse',

@@ -31,46 +31,46 @@ Ext.define('Cfg.controller.Validation', {
     ],
 
     refs: [
-        {ref: 'ruleSetForm',selector: 'ruleSetPreview #rulesetForm'} ,
-        {ref: 'rulesetOverviewForm',selector: 'ruleSetOverview #rulesetOverviewForm'} ,
-        {ref: 'ruleForm',selector: 'rulePreview #ruleForm'} ,
-        {ref: 'rulesetPreviewTitle',selector: 'ruleSetPreview #rulesetPreviewTitle'} ,
-        {ref: 'rulePreviewTitle',selector: 'rulePreview #rulePreviewTitle'} ,
-        {ref: 'readingTypesArea',selector: 'rulePreview #readingTypesArea'} ,
-        {ref: 'propertiesArea',selector: 'rulePreview #propertiesArea'} ,
-        {ref: 'ruleForm',selector: 'rulePreview #ruleForm'} ,
-        {ref: 'rulesetOverviewTitle',selector: 'ruleSetOverview #rulesetOverviewTitle'} ,
-        {ref: 'ruleBrowseTitle',selector: 'validationruleBrowse #ruleBrowseTitle'} ,
-        {ref: 'ruleSetDetailsLink',selector: 'ruleSetPreview #ruleSetDetailsLink'} ,
-        {ref: 'cancelAddRuleLink',selector: 'addRule #cancelAddRuleLink'} ,
+        {ref: 'ruleSetForm', selector: 'ruleSetPreview #rulesetForm'} ,
+        {ref: 'rulesetOverviewForm', selector: 'ruleSetOverview #rulesetOverviewForm'} ,
+        {ref: 'ruleForm', selector: 'rulePreview #ruleForm'} ,
+        {ref: 'rulesetPreviewTitle', selector: 'ruleSetPreview #rulesetPreviewTitle'} ,
+        {ref: 'rulePreviewTitle', selector: 'rulePreview #rulePreviewTitle'} ,
+        {ref: 'readingTypesArea', selector: 'rulePreview #readingTypesArea'} ,
+        {ref: 'propertiesArea', selector: 'rulePreview #propertiesArea'} ,
+        {ref: 'ruleForm', selector: 'rulePreview #ruleForm'} ,
+        {ref: 'rulesetOverviewTitle', selector: 'ruleSetOverview #rulesetOverviewTitle'} ,
+        {ref: 'ruleBrowseTitle', selector: 'validationruleBrowse #ruleBrowseTitle'} ,
+        {ref: 'ruleSetDetailsLink', selector: 'ruleSetPreview #ruleSetDetailsLink'} ,
+        {ref: 'cancelAddRuleLink', selector: 'addRule #cancelAddRuleLink'} ,
         {ref: 'rulesListContainer', selector: 'rulesContainer > #rulesListContainer'},
 
-        {ref: 'ruleSetOverviewLink',selector: 'rulesContainer #ruleSetOverviewLink'} ,
-        {ref: 'rulesLink',selector: 'rulesContainer #rulesLink'} ,
-        {ref: 'addRuleLink',selector: 'validationruleList #addRuleLink'} ,
+        {ref: 'ruleSetOverviewLink', selector: 'rulesContainer #ruleSetOverviewLink'} ,
+        {ref: 'rulesLink', selector: 'rulesContainer #rulesLink'} ,
+        {ref: 'addRuleLink', selector: 'validationruleList #addRuleLink'} ,
 
-        {ref: 'rulesContainer',selector: 'rulesContainer'} ,
-        {ref: 'ruleSetsGrid',selector: 'validationrulesetList'},
-        {ref: 'rulesGrid',selector: 'validationruleList'},
-        {ref: 'ruleSetPreview',selector:'ruleSetPreview'},
-        {ref: 'ruleSetOverview',selector:'ruleSetOverview'},
-        {ref: 'rulePreview',selector:'rulePreview'},
-        {ref: 'ruleSetDetails',selector: 'ruleSetPreview #ruleSetDetails'},
-        {ref: 'ruleSetEdit',selector: 'validationrulesetEdit'},
+        {ref: 'rulesContainer', selector: 'rulesContainer'} ,
+        {ref: 'ruleSetsGrid', selector: 'validationrulesetList'},
+        {ref: 'rulesGrid', selector: 'validationruleList'},
+        {ref: 'ruleSetPreview', selector: 'ruleSetPreview'},
+        {ref: 'ruleSetOverview', selector: 'ruleSetOverview'},
+        {ref: 'rulePreview', selector: 'rulePreview'},
+        {ref: 'ruleSetDetails', selector: 'ruleSetPreview #ruleSetDetails'},
+        {ref: 'ruleSetEdit', selector: 'validationrulesetEdit'},
 
         {ref: 'stepsContainer', selector: 'rulesContainer > #stepsContainer'},
         {ref: 'newRuleSetForm', selector: 'createRuleSet > #newRuleSetForm'},
 
-        {ref: 'createRuleSet',selector: 'createRuleSet'},
-        {ref: 'addRule',selector: 'addRule'},
+        {ref: 'createRuleSet', selector: 'createRuleSet'},
+        {ref: 'addRule', selector: 'addRule'},
 
         {ref: 'rulesContainer', selector: 'rulesContainer'},
         {ref: 'stepsMenu', selector: 'rulesContainer > #stepsMenu'},
 
-        {ref: 'readingValuesTextFieldsContainer',selector: 'addRule #readingValuesTextFieldsContainer'} ,
-        {ref: 'propertiesContainer',selector: 'addRule #propertiesContainer'},
-        {ref: 'removeReadingTypesButtonsContainer',selector: 'addRule #removeReadingTypesButtonsContainer'},
-        {ref: 'validatorCombo',selector: 'addRule #validatorCombo'},
+        {ref: 'readingValuesTextFieldsContainer', selector: 'addRule #readingValuesTextFieldsContainer'} ,
+        {ref: 'propertiesContainer', selector: 'addRule #propertiesContainer'},
+        {ref: 'removeReadingTypesButtonsContainer', selector: 'addRule #removeReadingTypesButtonsContainer'},
+        {ref: 'validatorCombo', selector: 'addRule #validatorCombo'},
 
         {ref: 'breadCrumbs', selector: 'breadcrumbTrail'}
     ],
@@ -92,7 +92,7 @@ Ext.define('Cfg.controller.Validation', {
                 click: this.createNewRuleSet
             },
             'addRule button[action=createRuleAction]': {
-            click: this.createNewRule
+                click: this.createNewRule
             },
             'addRule button[action=addRuleAction]': {
                 click: this.addRule
@@ -251,7 +251,7 @@ Ext.define('Cfg.controller.Validation', {
                         xtype: 'button',
                         action: 'removeReadingTypeAction',
                         pack: 'center',
-                        margin:'0 0 4 4',
+                        margin:'0 0 5 5',
                         width: 30,
                         itemId: 'readingTypeRemoveButton'  + me.readingTypeIndex,
                         handler: function() {
