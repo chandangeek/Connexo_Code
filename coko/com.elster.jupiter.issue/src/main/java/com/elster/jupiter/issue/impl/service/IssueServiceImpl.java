@@ -2,6 +2,7 @@ package com.elster.jupiter.issue.impl.service;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.issue.impl.database.DatabaseConst;
 import com.elster.jupiter.issue.impl.database.groups.GroupIssuesOperation;
 import com.elster.jupiter.issue.impl.records.IssueReasonImpl;
 import com.elster.jupiter.issue.impl.records.IssueStatusImpl;
@@ -13,9 +14,13 @@ import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.issue.share.service.GroupQueryBuilder;
 import com.elster.jupiter.issue.share.service.IssueMappingService;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Where;
 import com.google.common.base.Optional;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -23,6 +28,8 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import java.util.List;
 import java.util.logging.Logger;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.jupiter.issue", service = IssueService.class)
 public class IssueServiceImpl implements IssueService {
@@ -67,7 +74,7 @@ public class IssueServiceImpl implements IssueService {
     @Override
     public Optional<Issue> findIssue(long id, boolean searchInHistory) {
         Optional<Issue> issue = find(Issue.class, id);
-        if (!issue.isPresent() && searchInHistory){
+        if (!issue.isPresent() && searchInHistory) {
             Issue historicalIssue = Issue.class.cast(find(HistoricalIssue.class, id).orNull());
             issue = historicalIssue != null ? Optional.<Issue>of(historicalIssue) : Optional.<Issue>absent();
         }
@@ -168,7 +175,23 @@ public class IssueServiceImpl implements IssueService {
     }
 
     @Override
-    public List<GroupByReasonEntity> getIssueGroupList (GroupQueryBuilder builder) {
+    public List<GroupByReasonEntity> getIssueGroupList(GroupQueryBuilder builder) {
         return GroupIssuesOperation.init(builder, this.dataModel).execute();
     }
+
+    @Override
+    public int findNbrOfOpenDataCollectionIssues(String mRID) {
+        Optional<IssueType> issueType = findIssueType("datacollection");
+        if (issueType.isPresent()) {
+            Condition condition = Where.where("reason.issueType").isEqualTo(issueType.get())
+                    .and(where("device.mRID").isEqualTo(mRID))
+                    .and(where("status.id").isEqualTo(1));
+            List<Issue> issues = dataModel.query(Issue.class, IssueReason.class, IssueStatus.class, EndDevice.class)
+                    .select(condition);
+            return issues.size();
+        } else {
+            return 0;
+        }
+    }
+
 }
