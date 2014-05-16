@@ -92,7 +92,9 @@ public class SchedulingResource {
     public Response createSchedule(ComScheduleInfo comScheduleInfo) {
         ComSchedule comSchedule = schedulingService.newComSchedule(comScheduleInfo.name, comScheduleInfo.temporalExpression.asTemporalExpression(),
                 comScheduleInfo.startDate==null?null:new UtcInstant(comScheduleInfo.startDate)).mrid(comScheduleInfo.mRID).build();
-        updateTasks(comSchedule, comScheduleInfo.comTaskUsages);
+        if(comScheduleInfo.comTaskUsages!=null){
+            updateTasks(comSchedule, comScheduleInfo.comTaskUsages);
+        }
         return Response.status(Response.Status.CREATED).entity(ComScheduleInfo.from(comSchedule, isInUse(comSchedule))).build();
     }
 
