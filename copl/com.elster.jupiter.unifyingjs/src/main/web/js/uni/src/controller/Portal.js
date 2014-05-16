@@ -145,10 +145,15 @@ Ext.define('Uni.controller.Portal', {
             });
         });
 
+        var sortArrayForPortalItems = [];
         for (portalItemToDisplay in portalItemsToDisplay) {
             if (portalItemsToDisplay.hasOwnProperty(portalItemToDisplay)) {
-                portalView.addPortalItem(portalItemsToDisplay[portalItemToDisplay]);
+                sortArrayForPortalItems.push(portalItemToDisplay);
             }
+        }
+        sortArrayForPortalItems.sort();
+        for (var i = 0; i < sortArrayForPortalItems.length; i++) {
+            portalView.addPortalItem(portalItemsToDisplay[sortArrayForPortalItems[i]]);
         }
 
         this.getApplication().fireEvent('changemaincontentevent', portalView);
