@@ -1,30 +1,29 @@
-Ext.require('Uni.Loader');
-Ext.require('Ext.Viewport');
-Ext.require('Usr.controller.Base64');
-
-Ext.Loader.setConfig({
-    enabled: true,
-    disableCaching: true, // For debug only.
-    paths: {
-        'Uni' : '../uni/src'
-    }
-});
-
 Ext.define('Usr.controller.Login', {
     extend: 'Ext.app.Controller',
 
+    requires: [
+        'Usr.controller.Base64'
+    ],
+
     views: [
-        'Login'
+        'Usr.view.Login'
     ],
 
     refs: [
-        { ref: 'loginPage', selector: '#loginPage'}
+        {
+            ref: 'loginViewport',
+            selector: 'login'
+        },
+        {
+            ref: 'loginForm',
+            selector: 'login #login-form'
+        }
     ],
 
     init: function(application) {
         this.control({
-            "login #loginButton": {
-                signin: this.signinuser
+            "login #login-form [action=login]": {
+                click: this.signinuser
             },
             'viewport menuitem[action=logout]': {
                 click: this.signout
@@ -32,11 +31,18 @@ Ext.define('Usr.controller.Login', {
         });
     },
 
-    signinuser : function(button, username, password)    {
-        Ext.Ajax.suspendEvent('requestexception');
+    showOverview: function() {
+        var widget = Ext.widget("login");
+    },
+
+    signinuser : function()    {
+        var me = this,
+            form = this.getLoginForm(),
+            data = form.getValues();
+
         this.hideLoginError();
 
-        var unencodedToken = username + ":" + password;
+        var unencodedToken = data.username + ":" + data.password;
         var encodedToken = "Basic " + Usr.controller.Base64.encode(unencodedToken);
 
         var loginMask = new Ext.LoadMask(Ext.getBody(), {msg:"Verifying credentials..."});
@@ -50,41 +56,20 @@ Ext.define('Usr.controller.Login', {
             },
             scope: this,
             success: function(response, opt){
-                loginMask.hide();
-                this.loginOK(button);
+                me.loginOK();
             },
             failure: function(response, opt){
-                loginMask.hide();
-                this.loginNOK();
+                me.loginNOK();
+            },
+            callback: function() {
+                myMask.hide();
             }
         });
     },
 
-    loginOK : function(button){
-        window.location.replace("http://localhost:8080/apps/master/login-dev.html");
-        /*Ext.Ajax.resumeEvent('requestexception');
-
-        var loader = Ext.create('Uni.Loader');
-        loader.initI18n(['USM']);
-
-        Uni.I18n.currencyFormatKey = 'mtr.playground.i18n.currencyformat';
-        Uni.I18n.decimalSeparatorKey = 'mtr.playground.i18n.decimalseparator';
-        Uni.I18n.thousandsSeparatorKey = 'mtr.playground.i18n.thousandsseparator';
-
-        var me=this;
-        loader.onReady(function () {
-            this.getLoginPage().destroy();
-            me.getApplication().destroy();
-
-            Ext.application({
-                name: 'Usr',
-
-                extend: 'Usr.Application',
-
-                autoCreateViewport: true
-            });
-
-        });*/
+    loginOK : function(){
+        //window.location.replace("http://localhost:8080/apps/master/login-dev.html");
+        this.getLoginViewport().destroy();
     },
 
     loginNOK : function(){
@@ -92,30 +77,14 @@ Ext.define('Usr.controller.Login', {
     },
 
     hideLoginError: function () {
-        var widget =  this.getLoginPage().down('#contentPanel'),
-            errorLabel = widget.down('#errorLabel');
-
-        widget.setHeight(250);
-        widget.down('#errorIcon').setHeight(0);
-
-        errorLabel.setHeight(0);
-
-        widget.down('#errorContainer').hide();
-        widget.doLayout();
+        var errorLabel =  this.getLoginForm().down('#errorLabel');
+        errorLabel.hide();
     },
 
     showLoginError: function () {
-        var widget =  this.getLoginPage().down('#contentPanel'),
-            errorLabel = widget.down('#errorLabel');
-
-        widget.setHeight(300);
-        widget.down('#errorIcon').setHeight(50);
-
-        errorLabel.setHeight(50);
+        var errorLabel =  this.getLoginForm().down('#errorLabel');
         errorLabel.setValue('Failed to log in. Please contact your administrator if the problem persists.');
-
-        widget.down('#errorContainer').show();
-        widget.doLayout();
+        errorLabel.show();
     },
 
     signout: function () {
@@ -130,6 +99,5 @@ Ext.define('Usr.controller.Login', {
                 window.location.replace('/apps/usr/login.html');
             }
         });
-
     }
 });

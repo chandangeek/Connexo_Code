@@ -1,6 +1,7 @@
 Ext.define('Usr.view.Login', {
     extend: 'Ext.container.Viewport',
     alias: 'widget.login',
+    itemId: 'login',
 
     requires: [
         'Ext.form.Panel',
@@ -10,159 +11,88 @@ Ext.define('Usr.view.Login', {
         'Ext.button.Button'
     ],
 
-    itemId: 'loginPage',
-    cls:'uni-content-container uni-content-container-default',
-    layout: {
-        type: 'vbox',
-        align: 'center',
-        pack: 'center'
-    },
+    //cls:'uni-content-container uni-content-container-default',
 
-    initComponent: function() {
-        var me = this;
-
-        Ext.applyIf(me, {
+    layout: 'fit',
+    items: {
+        xtype: 'panel',
+        ui: 'login-container',
+        layout: {
+            type: 'vbox',
+            align: 'center',
+            pack: 'center'
+        },
+        items: {
+            xtype: 'panel',
+            ui: 'login-panel',
+//            height: 330,
+            width: 500,
+            itemId: 'contentPanel',
+            layout: {
+                type: 'vbox',
+                align: 'stretch',
+                pack: 'center'
+            },
             items: [
                 {
-                xtype: 'form',
-                height: 250,
-                width: 400,
-                border: 1,
-                style: {
-                    borderColor: 'lightgray',
-                    borderStyle: 'solid'
-                },
-                itemId: 'contentPanel',
-                title: 'Welcome to Jupiter',
-                bodyPadding: 10,
-                layout: {
-                    type: 'vbox',
-                    align: 'stretch'
-                },
-                items: [
-                    {
-                        xtype: 'container',
-                        itemId: 'errorContainer',
-                        layout: {
-                            type: 'hbox',
-                            align: 'stretch'
-                        },
-                        border: 1,
-                        style: {
-                            borderColor: 'orangered',
-                            borderStyle: 'solid'
-                        },
-                        hidden: true,
-                        items: [
-                            {
-                                xtype: 'image',
-                                itemId: 'errorIcon',
-                                src: 'resources/images/warning_icon.png',
-                                height: 0,
-                                width: 50,
-                                padding: 10
-                            },
-                            {
-                                xtype: 'displayfield',
-                                itemId: 'errorLabel',
-                                height: 0,
-                                width: 290,
-                                padding: 10,
-                                fieldStyle: {
-                                    color: 'orangered'
-                                }
-                            }
-                        ]
+                    layout: {
+                        type: 'hbox',
+                        pack: 'center'
                     },
-                    {
-                        xtype: 'container',
-                        layout: {
-                            type: 'hbox',
-                            align: 'stretch'
-                        },
-                        items: [
-                            {
-                                xtype: 'container',
-                                height: 131,
-                                maxWidth: 150,
-                                width: 342,
-                                layout: {
-                                    type: 'vbox',
-                                    align: 'stretch',
-                                    pack: 'center',
-                                    padding: 20
-                                },
-                                items: [
-                                    {
-                                        xtype: 'image',
-                                        src: 'resources/images/user_icon.jpg',
-                                        height: 115,
-                                        width: 115
-                                    }
-                                ]
-                            },
-                            {
-                                xtype: 'container',
-                                flex: 3,
-                                maxWidth: 280,
-                                layout: {
-                                    type: 'vbox',
-                                    align: 'stretch',
-                                    pack: 'center',
-                                    padding: 20
-                                },
-                                items: [
-                                    {
-                                        xtype: 'label',
-                                        text: 'User name'
-                                    },
-                                    {
-                                        xtype: 'textfield',
-                                        fieldLabel: '',
-                                        name: 'username',
-                                        itemId: 'username',
-                                        allowBlank: true
-                                    },
-                                    {
-                                        xtype: 'label',
-                                        margins: '10 0 0 0',
-                                        text: 'Password'
-                                    },
-                                    {
-                                        xtype: 'textfield',
-                                        fieldLabel: '',
-                                        name: 'password',
-                                        itemId: 'password',
-                                        inputType: 'password',
-                                        allowBlank: true
-                                    },
-                                    {
-                                        xtype: 'button',
-                                        itemId: 'loginButton',
-                                        listeners: {
-                                            click: function(){
-                                                var username = this.up('container').down('#username').getValue();
-                                                var password = this.up('container').down('#password').getValue();
-                                                this.fireEvent('signin', this, username, password);
-                                            }
-                                        },
-                                        formBind: true,
-                                        margin: '20 0 0 0 ',
-                                        maxWidth: 80,
-                                        text: 'Login'
-
-                                    }
-                                ]
-                            }
-                        ]
+                    items: {
+                        xtype: 'image',
+                        align: 'center',
+                        src: '/apps/usr/resources/images/connexo.png',
+                        width: 248,
+                        height: 46,
+                        margin: '0 0 24'
                     }
-                ]
+                },
+                {
+                    xtype: 'form',
+                    itemId: 'login-form',
+                    layout: {
+                        type: 'vbox',
+                        align: 'stretch'
+                    },
+                    items: [
+                        {
+                            xtype: 'displayfield',
+                            itemId: 'errorLabel',
+                            hidden: true,
+                            fieldStyle: {
+                                color: 'orangered'
+                            },
+                            margin: '0 0 8 116'
+                        },
+                        {
+                            xtype: 'textfield',
+                            fieldLabel: 'User name',
+                            name: 'username',
+                            itemId: 'username',
+                            allowBlank: true
+                        },
+                        {
+                            xtype: 'textfield',
+                            fieldLabel: 'Password',
+                            name: 'password',
+                            itemId: 'password',
+                            inputType: 'password',
+                            allowBlank: true
+                        }
+                    ],
+                    buttons: [
+                        {
+                            ui: 'action',
+                            formBind: true,
+                            type: 'submit',
+                            action: 'login',
+                            itemId: 'loginButton',
+                            text: 'Login'
+                        }
+                    ]
                 }
             ]
-
-        });
-
-        me.callParent(arguments);
+        }
     }
-
 });

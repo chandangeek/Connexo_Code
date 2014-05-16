@@ -18,24 +18,26 @@ Ext.define('Usr.controller.User', {
         'Usr.view.user.Browse'
     ],
 
-    /*refs: [
-        { ref: 'userDetails', selector: 'userDetails' },
-        { ref: 'userBrowse', selector: '#userBrowse'},
-        { ref: 'userList', selector: '#userList'}
-    ],*/
+    refs: [
+        {
+            ref: 'userDetails',
+            selector: 'userBrowse userDetails'
+        }
+    ],
 
     init: function () {
         this.control({
             'userBrowse breadcrumbTrail': {
                 afterrender: this.onAfterRender
             },
-            '#userList': {
+            'userBrowse userList': {
+                //itemclick: this.selectUser
                 selectionchange: this.selectUser
             },
-            '#userDetails menuitem[action=editUser]': {
+            'userBrowse userDetails menuitem[action=editUser]': {
                 click: this.editUserMenu
             },
-            '#userList actioncolumn': {
+            'userBrowse userList actioncolumn': {
                 editUserItem: this.editUser
             }
         });
@@ -80,6 +82,12 @@ Ext.define('Usr.controller.User', {
     },
 
     selectUser: function (grid, record) {
+        /*var title = Uni.I18n.translate('user.user', 'USM', 'User') + ' "' + record.get('authenticationName') + '"';
+         var form = this.getUserDetails();
+
+         form.setTitle(title);
+         form.loadRecord(record);*/
+
         if(record.length > 0) {
             var detailsPanel = grid.view.up('#userBrowse').down('#userDetails'),
                 form = detailsPanel.down('form');

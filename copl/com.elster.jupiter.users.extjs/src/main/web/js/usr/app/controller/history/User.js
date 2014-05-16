@@ -7,17 +7,19 @@ Ext.define('Usr.controller.history.User', {
 
     init: function () {
         var me = this;
-        crossroads.addRoute('users',function(){
+        crossroads.addRoute('users', function () {
             me.getApplication().getController('Usr.controller.User').showOverview();
         });
-        crossroads.addRoute('users/{id}/edit',function(id){
+        crossroads.addRoute('users/{id}/edit', function (id) {
             me.getApplication().getController('Usr.controller.UserGroups').showEditOverview(id);
         });
-
+        crossroads.addRoute('users/login', function () {
+            me.getApplication().getController('Usr.controller.Login').showOverview();
+        });
         this.callParent(arguments);
     },
 
-    doConversion: function (tokens,token) {
+    doConversion: function (tokens, token) {
         var queryStringIndex = token.indexOf('?');
         if (queryStringIndex > 0) {
             token = token.substring(0, queryStringIndex);

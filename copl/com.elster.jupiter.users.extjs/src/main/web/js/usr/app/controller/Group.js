@@ -12,21 +12,29 @@ Ext.define('Usr.controller.Group', {
         'Usr.view.group.Browse'
     ],
 
+    refs: [
+        {
+            ref: 'groupDetails',
+            selector: 'groupBrowse groupDetails'
+        }
+    ],
+
     init: function () {
         this.control({
             'groupBrowse breadcrumbTrail': {
                 afterrender: this.onAfterRender
             },
-            '#groupList': {
+            'groupBrowse groupList': {
+                //itemclick: this.selectGroup
                 selectionchange: this.selectGroup
             },
-            '#groupDetails menuitem[action=editGroup]': {
+            'groupBrowse groupDetails menuitem[action=editGroup]': {
                 click: this.editGroupMenu
             },
-            '#groupList actioncolumn': {
+            'groupBrowse groupList actioncolumn': {
                 editGroupItem: this.editGroup
             },
-            '#groupList button[action=createGroup]': {
+            'groupBrowse groupList button[action=createGroup]': {
                 click: this.createGroup
             }
         });
@@ -77,6 +85,12 @@ Ext.define('Usr.controller.Group', {
     },
 
     selectGroup: function (grid, record) {
+        /*var form = this.getGroupDetails();
+
+         var title = Uni.I18n.translate('group.group', 'USM', 'Role') + ' "' + record.get('name') + '"';
+         form.setTitle(title);
+         form.loadRecord(record);*/
+
         if(record.length > 0){
             var panel = grid.view.up('#groupBrowse').down('#groupDetails'),
                 form = panel.down('form');

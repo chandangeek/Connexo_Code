@@ -57,6 +57,7 @@ Ext.define('Usr.view.user.Edit', {
                     buttons: [
                         {
                             action: 'save',
+                            ui: 'action',
                             text: Uni.I18n.translate('general.save', 'USM', 'Save'),
                             margin: '10 10 10 255'
                         },
