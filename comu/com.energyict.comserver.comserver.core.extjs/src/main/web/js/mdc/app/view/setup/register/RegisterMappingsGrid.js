@@ -37,7 +37,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                     {
                         icon: '../mdc/resources/images/info.png',
                         iconCls: 'uni-info-icon',
-                        tooltip: Uni.I18n.translate('readingType.tooltip','MDC','Reading type info'),
+                        tooltip: Uni.I18n.translate('readingType.tooltip', 'MDC', 'Reading type info'),
                         handler: function (grid, rowIndex, colIndex, item, e, record, row) {
                             //var record = grid.getStore().getAt(rowIndex);
                             this.fireEvent('showReadingTypeInfo', record);
