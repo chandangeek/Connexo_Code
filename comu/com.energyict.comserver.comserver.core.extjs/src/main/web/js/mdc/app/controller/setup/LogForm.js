@@ -62,7 +62,7 @@ Ext.define('Mdc.controller.setup.LogForm', {
         var me = this;
         var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
                 text: 'Administration',
-                href: '#setup'
+                href: '#/administration'
             }),
             breadcrumbChild1 = Ext.create('Uni.model.BreadcrumbItem', {
                 text: 'Logbook types',
@@ -113,7 +113,7 @@ Ext.define('Mdc.controller.setup.LogForm', {
         menu.add({
             text: 'Create logbook type',
             pressed: true,
-            href: '#setup/logbooktypes/create',
+            href: '#/administration/logbooktypes/create',
             hrefTarget: '_self'
         });
     },
@@ -123,7 +123,7 @@ Ext.define('Mdc.controller.setup.LogForm', {
         menu.add({
             text: 'Edit logbook type',
             pressed: true,
-            href: '#setup/logbooktypes/edit/' + id,
+            href: '#/administration/logbooktypes/edit/' + id,
             hrefTarget: '_self'
         });
     },
@@ -177,7 +177,7 @@ Ext.define('Mdc.controller.setup.LogForm', {
                         text: 'Cancel',
                         cls: 'isu-btn-link',
                         hnd: function () {
-                            window.location = '#/setup/logbooktypes';
+                            window.location = '#/administration/logbooktypes';
                         }
                     }
                 ],
@@ -210,7 +210,7 @@ Ext.define('Mdc.controller.setup.LogForm', {
                     text: 'Cancel',
                     cls: 'isu-btn-link',
                     hnd: function () {
-                        window.location = '#/setup/logbooktypes';
+                        window.location = '#/administration/logbooktypes';
                     }
                 }
             ],
@@ -237,7 +237,7 @@ Ext.define('Mdc.controller.setup.LogForm', {
             method: 'POST',
             jsonData: jsonValues,
             success: function () {
-                window.location.href = '#/setup/logbooktypes';
+                window.location.href = '#/administration/logbooktypes';
                 header.text = 'Successfully created';
                 self.getApplication().fireEvent('isushowmsg', {
                     type: 'notify',
@@ -279,7 +279,7 @@ Ext.define('Mdc.controller.setup.LogForm', {
             jsonData: jsonValues,
             waitMsg: 'Loading...',
             success: function () {
-                window.location.href = '#/setup/logbooktypes';
+                window.location.href = '#/administration/logbooktypes';
                 header.text = 'Successfully edited';
                 self.getApplication().fireEvent('isushowmsg', {
                     type: 'notify',

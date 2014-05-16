@@ -37,7 +37,7 @@ Ext.define('Mdc.controller.setup.EditLogbookConfiguration', {
                     text: 'Cancel',
                     cls: 'isu-btn-link',
                     hnd: function () {
-                        window.location = '#setup/devicetypes/' + editView.deviceTypeId + '/deviceconfigurations/' + editView.deviceConfigurationId + '/logbookconfigurations';
+                        window.location = '#/administration/devicetypes/' + editView.deviceTypeId + '/deviceconfigurations/' + editView.deviceConfigurationId + '/logbookconfigurations';
                     }
                 }
             ],
@@ -76,7 +76,7 @@ Ext.define('Mdc.controller.setup.EditLogbookConfiguration', {
                 method: 'PUT',
                 jsonData: jsonValues,
                 success: function () {
-                    window.location.href = '#setup/devicetypes/' + editView.deviceTypeId + '/deviceconfigurations/' + editView.deviceConfigurationId + '/logbookconfigurations';
+                    window.location.href = '#/administration/devicetypes/' + editView.deviceTypeId + '/deviceconfigurations/' + editView.deviceConfigurationId + '/logbookconfigurations';
                     header.text = 'Successfully edited';
                     self.getApplication().fireEvent('isushowmsg', {
                         type: 'notify',
@@ -103,7 +103,7 @@ Ext.define('Mdc.controller.setup.EditLogbookConfiguration', {
                                     text: 'Cancel',
                                     cls: 'isu-btn-link',
                                     hnd: function () {
-                                        window.location = '#setup/devicetypes/' + editView.deviceTypeId + '/deviceconfigurations/' + editView.deviceConfigurationId + '/logbookconfigurations/' + editView.logbookConfigurationId + '/edit';
+                                        window.location = '#/administration/devicetypes/' + editView.deviceTypeId + '/deviceconfigurations/' + editView.deviceConfigurationId + '/logbookconfigurations/' + editView.logbookConfigurationId + '/edit';
                                     }
                                 }
                             ],

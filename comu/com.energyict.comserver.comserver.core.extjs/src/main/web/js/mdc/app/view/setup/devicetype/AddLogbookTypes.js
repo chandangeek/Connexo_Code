@@ -98,7 +98,7 @@ Ext.define('Mdc.view.setup.devicetype.AddLogbookTypes', {
                             listeners: {
                                 click: {
                                     fn: function () {
-                                        window.location.href = '#setup/devicetypes/' + this.up('add-logbook-types').deviceTypeId + '/logbooktypes';
+                                        window.location.href = '#/administration/devicetypes/' + this.up('add-logbook-types').deviceTypeId + '/logbooktypes';
                                     }
                                 }
                             }

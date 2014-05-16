@@ -239,7 +239,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                         itemId: 'cancelLink',
                                         autoEl: {
                                             tag: 'a',
-                                            href: '#setup/devicetypes/',
+                                            href: '#/administration/devicetypes/',
                                             html: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel')
                                         }
                                     }

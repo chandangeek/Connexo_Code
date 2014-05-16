@@ -110,7 +110,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                         text: Uni.I18n.translate('registerMapping.addRegisterMapping', 'MDC', 'Add register types'),
                         itemId: 'addRegisterMappingBtn',
                         xtype: 'button',
-                        href: '#setup/devicetypes/' + this.deviceTypeId + '/registertypes/add',
+                        href: '#/administration/devicetypes/' + this.deviceTypeId + '/registertypes/add',
                         hrefTarget: '_self',
                         action: 'addRegisterMapping'
                     }

@@ -219,7 +219,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                         itemId: 'cancelLink',
                                         autoEl: {
                                             tag: 'a',
-                                            href: '#setup/communicationschedules/',
+                                            href: '#/administration/communicationschedules/',
                                             html: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel')
                                         }
                                     }

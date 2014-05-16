@@ -101,7 +101,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
                     },
                     {
                         xtype: 'component',
-                        html:'<a href = "#/setup/registertypes" target = "_blank">' + Uni.I18n.translate('registerMappings.manageRegisterTypes', 'MDC', 'Manage register types') + '</a>'
+                        html:'<a href = "#/administration/registertypes" target = "_blank">' + Uni.I18n.translate('registerMappings.manageRegisterTypes', 'MDC', 'Manage register types') + '</a>'
                     }
                 ]
             }

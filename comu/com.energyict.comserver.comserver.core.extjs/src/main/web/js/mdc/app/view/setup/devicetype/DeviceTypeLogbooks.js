@@ -30,7 +30,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
                             listeners: {
                                 click: {
                                     fn: function () {
-                                        window.location.href = '#setup/devicetypes/' + this.up('device-type-logbooks').deviceTypeId + '/logbooktypes/add';
+                                        window.location.href = '#/administration/devicetypes/' + this.up('device-type-logbooks').deviceTypeId + '/logbooktypes/add';
                                     }
                                 }
                             }
@@ -90,7 +90,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
                             listeners: {
                                 click: {
                                     fn: function () {
-                                        window.location.href = '#setup/devicetypes/' + this.up('device-type-logbooks').deviceTypeId + '/logbooktypes/add';
+                                        window.location.href = '#/administration/devicetypes/' + this.up('device-type-logbooks').deviceTypeId + '/logbooktypes/add';
                                     }
                                 }
                             }

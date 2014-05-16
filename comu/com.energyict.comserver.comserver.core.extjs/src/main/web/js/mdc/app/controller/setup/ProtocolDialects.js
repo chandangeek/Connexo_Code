@@ -48,7 +48,7 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
     },
 
     editProtocolDialectHistory: function (record) {
-        location.href = '#setup/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/protocols/' + record.get('id') + '/edit';
+        location.href = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/protocols/' + record.get('id') + '/edit';
     },
 
     showProtocolDialectsView: function (deviceTypeId, deviceConfigurationId) {
@@ -96,7 +96,7 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
     },
 
     addProtocolDialectHistory: function () {
-        location.href = '#setup/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/protocols/add';
+        location.href = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/protocols/add';
     },
 
     editProtocolDialectHistoryFromPreview: function () {
@@ -134,7 +134,7 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
         });
         var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
             text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#setup'
+            href: '#/administration'
         });
 
         breadcrumbParent.setChild(breadcrumbDeviceTypes).setChild(breadcrumbDevicetype).setChild(breadcrumbDeviceConfigs).setChild(breadcrumbDeviceConfig).setChild(breadcrumbRegisterConfigurations);
@@ -212,7 +212,7 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
         });
         var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
             text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#setup'
+            href: '#/administration'
         });
 
         breadcrumbParent.setChild(breadcrumbDeviceTypes).setChild(breadcrumbDevicetype).setChild(breadcrumbDeviceConfigs).setChild(breadcrumbDeviceConfig).setChild(breadcrumbProtocolDialects).setChild(breadcrumbEdit);
@@ -230,7 +230,7 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
             record.propertiesStore = me.getPropertiesController().updateProperties();
             record.save({
                 success: function (record) {
-                    location.href = '#setup/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/protocols';
+                    location.href = '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/protocols';
                 },
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText);

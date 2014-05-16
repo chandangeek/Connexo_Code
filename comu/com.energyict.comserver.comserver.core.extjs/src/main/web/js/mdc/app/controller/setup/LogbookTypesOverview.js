@@ -68,7 +68,7 @@ Ext.define('Mdc.controller.setup.LogbookTypesOverview', {
         var me = this;
         var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
                 text: 'Administration',
-                href: '#setup'
+                href: '#/administration'
             }),
             breadcrumbChild1 = Ext.create('Uni.model.BreadcrumbItem', {
                 text: 'Logbook types',
@@ -160,7 +160,7 @@ Ext.define('Mdc.controller.setup.LogbookTypesOverview', {
         var action = item.action;
         switch (action) {
             case 'edit':
-                window.location.href = '#/setup/logbooktypes/edit/' + menu.logBookId;
+                window.location.href = '#/administration/logbooktypes/edit/' + menu.logBookId;
                 break;
             case 'delete':
                 this.showConfirmationPanel(menu.logBookId);

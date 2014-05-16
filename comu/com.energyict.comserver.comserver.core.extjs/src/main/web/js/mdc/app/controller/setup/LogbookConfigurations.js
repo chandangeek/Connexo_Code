@@ -64,7 +64,7 @@ Ext.define('Mdc.controller.setup.LogbookConfigurations', {
             logbooksView = this.getDeviceConfigurationLogbooks();
         switch (action) {
             case 'edit':
-                window.location.href = '#setup/devicetypes/' + logbooksView.deviceTypeId + '/deviceconfigurations/' + logbooksView.deviceConfigurationId + '/logbookconfigurations/' + this.logbookConfigId + '/edit';
+                window.location.href = '#/administration/devicetypes/' + logbooksView.deviceTypeId + '/deviceconfigurations/' + logbooksView.deviceConfigurationId + '/logbookconfigurations/' + this.logbookConfigId + '/edit';
                 break;
             case 'delete':
                 this.deleteLogbookType();
@@ -111,7 +111,7 @@ Ext.define('Mdc.controller.setup.LogbookConfigurations', {
                     text: 'Cancel',
                     cls: 'isu-btn-link',
                     hnd: function () {
-                        window.location = '#setup/devicetypes/' + logbooksView.deviceTypeId + '/deviceconfigurations/' + logbooksView.deviceConfigurationId + '/logbookconfigurations';
+                        window.location = '#/administration/devicetypes/' + logbooksView.deviceTypeId + '/deviceconfigurations/' + logbooksView.deviceConfigurationId + '/logbookconfigurations';
                     }
                 }
             ],
@@ -206,7 +206,7 @@ Ext.define('Mdc.controller.setup.LogbookConfigurations', {
                                                     text: 'Cancel',
                                                     cls: 'isu-btn-link',
                                                     hnd: function () {
-                                                        window.location = '#setup/devicetypes/' + logbooksView.deviceTypeId + '/deviceconfigurations/' + logbooksView.deviceConfigurationId + '/logbookconfigurations';
+                                                        window.location = '#/administration/devicetypes/' + logbooksView.deviceTypeId + '/deviceconfigurations/' + logbooksView.deviceConfigurationId + '/logbookconfigurations';
                                                     }
                                                 }
                                             ],

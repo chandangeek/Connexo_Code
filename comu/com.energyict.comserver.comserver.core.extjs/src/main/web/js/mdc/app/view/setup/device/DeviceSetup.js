@@ -82,7 +82,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                 cls: 'x-form-display-field',
                 autoEl: {
                     tag: 'a',
-                    href: '#/setup/devices/' + id,
+                    href: '#/administration/devices/' + id,
                     html: mRID
                 }
             });

@@ -67,42 +67,41 @@ Ext.define('Mdc.controller.Main', {
     init: function () {
         var me = this;
         var menuItem = Ext.create('Uni.model.MenuItem', {
-            text: Uni.I18n.translate('general.setup', 'MDC', 'Setup'),
-            glyph: 'settings',
-            // TODO Rename the below properties when merging into 1 menu item.
+            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
             href: me.getApplication().getController('Mdc.controller.history.Setup').tokenizeShowOverview(),
-            portal: 'setup'
+            portal: 'administration',
+            glyph: 'settings'
         });
         Uni.store.MenuItems.add(menuItem);
 
         var deviceManagementItem = Ext.create('Uni.model.PortalItem', {
             title: Uni.I18n.translate('general.deviceManagement', 'MDC', 'Device management'),
-            portal: 'setup',
+            portal: 'administration',
             route: 'devicemanagement',
             items: [
                 {
                     text: Uni.I18n.translate('devicetype.deviceTypes', 'MDC', 'Device types'),
-                    href: '#/setup/devicetypes',
+                    href: '#/administration/devicetypes',
                     route: 'devicetypes'
                 },
                 {
                     text: Uni.I18n.translate('registerMapping.registerTypes', 'MDC', 'Register types'),
-                    href: '#/setup/registertypes',
+                    href: '#/administration/registertypes',
                     route: 'registertypes'
                 },
                 {
                     text: Uni.I18n.translate('registerGroup.registerGroups', 'MDC', 'Register groups'),
-                    href: '#/setup/registergroups',
+                    href: '#/administration/registergroups',
                     route: 'registergroups'
                 },
                 {
                     text: Uni.I18n.translate('searchItems.searchItems', 'MDC', 'Search items'),
-                    href: '#/setup/searchitems',
+                    href: '#/administration/searchitems',
                     route: 'searchitems'
                 },
                 {
                     text: Uni.I18n.translate('general.logbookTypes', 'MDC', 'Logbook types'),
-                    href: '#/setup/logbooktypes',
+                    href: '#/administration/logbooktypes',
                     route: 'logbooktypes'
                 }
             ]
@@ -110,27 +109,27 @@ Ext.define('Mdc.controller.Main', {
 
         var deviceCommunicationItem = Ext.create('Uni.model.PortalItem', {
             title: Uni.I18n.translate('general.deviceCommunication', 'MDC', 'Device communication'),
-            portal: 'setup',
+            portal: 'administration',
             route: 'devicecommunication',
             items: [
                 {
                     text: Uni.I18n.translate('general.comServers', 'MDC', 'Communication servers'),
-                    href: '#/setup/comservers',
+                    href: '#/administration/comservers',
                     route: 'comservers'
                 },
                 {
                     text: Uni.I18n.translate('general.comPortPools', 'MDC', 'Communication port pools'),
-                    href: '#/setup/comportpools',
+                    href: '#/administration/comportpools',
                     route: 'comportpools'
                 },
                 {
                     text: Uni.I18n.translate('general.deviceComProtocols', 'MDC', 'Device communication protocols'),
-                    href: '#/setup/devicecommunicationprotocols',
+                    href: '#/administration/devicecommunicationprotocols',
                     route: 'devicecommunicationprotocols'
                 },
                 {
                     text: Uni.I18n.translate('general.comSchedules', 'MDC', 'Communication schedules'),
-                    href: '#/setup/communicationschedules',
+                    href: '#/administration/communicationschedules',
                     route: 'communicationschedules'
                 }
             ]

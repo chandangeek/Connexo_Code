@@ -40,7 +40,7 @@ Ext.define('Mdc.controller.setup.AddLogbookConfigurations', {
                     text: 'Cancel',
                     cls: 'isu-btn-link',
                     hnd: function () {
-                        window.location = '#setup/devicetypes/' + addView.deviceTypeId + '/deviceconfigurations/' + addView.deviceConfigurationId + '/logbookconfigurations';
+                        window.location = '#/administration/devicetypes/' + addView.deviceTypeId + '/deviceconfigurations/' + addView.deviceConfigurationId + '/logbookconfigurations';
                     }
                 }
             ],
@@ -81,7 +81,7 @@ Ext.define('Mdc.controller.setup.AddLogbookConfigurations', {
             method: 'POST',
             jsonData: jsonIds,
             success: function () {
-                window.location.href = '#setup/devicetypes/' + addView.deviceTypeId + '/deviceconfigurations/' + addView.deviceConfigurationId + '/logbookconfigurations';
+                window.location.href = '#/administration/devicetypes/' + addView.deviceTypeId + '/deviceconfigurations/' + addView.deviceConfigurationId + '/logbookconfigurations';
                 header.text = 'Successfully added';
                 self.getApplication().fireEvent('isushowmsg', {
                     type: 'notify',
@@ -108,7 +108,7 @@ Ext.define('Mdc.controller.setup.AddLogbookConfigurations', {
                                 text: 'Cancel',
                                 cls: 'isu-btn-link',
                                 hnd: function () {
-                                    window.location = '#setup/devicetypes/' + addView.deviceTypeId + '/deviceconfigurations/' + addView.deviceConfigurationId + '/logbookconfigurations/add';
+                                    window.location = '#/administration/devicetypes/' + addView.deviceTypeId + '/deviceconfigurations/' + addView.deviceConfigurationId + '/logbookconfigurations/add';
                                 }
                             }
                         ],

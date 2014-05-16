@@ -37,11 +37,11 @@ Ext.define('Mdc.controller.setup.Devices', {
             success: function (device) {
                 me.getApplication().getController('Mdc.controller.Main').showContent(widget);
                 me.getDeviceSetupTitle().update('<h1>' + device.get('mRID') + '</h1>');
-                me.getDeviceGeneralInformationDeviceTypeLink().getEl().set({href: '#/setup/devicetypes/' + device.get('deviceTypeId')});
+                me.getDeviceGeneralInformationDeviceTypeLink().getEl().set({href: '#/administration/devicetypes/' + device.get('deviceTypeId')});
                 me.getDeviceGeneralInformationDeviceTypeLink().getEl().setHTML(device.get('deviceTypeName'));
-                me.getDeviceGeneralInformationDeviceConfigurationLink().getEl().set({href: '#/setup/devicetypes/' + device.get('deviceTypeId') + '/deviceconfigurations/' + device.get('deviceConfigurationId')});
+                me.getDeviceGeneralInformationDeviceConfigurationLink().getEl().set({href: '#/administration/devicetypes/' + device.get('deviceTypeId') + '/deviceconfigurations/' + device.get('deviceConfigurationId')});
                 me.getDeviceGeneralInformationDeviceConfigurationLink().getEl().setHTML(device.get('deviceConfigurationName'));
-                me.getDeviceCommunicationtopologyMasterLink().getEl().set({href: '#/setup/devices/' + device.get('masterDeviceId')});
+                me.getDeviceCommunicationtopologyMasterLink().getEl().set({href: '#/administration/devices/' + device.get('masterDeviceId')});
                 me.getDeviceCommunicationtopologyMasterLink().getEl().setHTML(device.get('masterDevicemRID'));
                 device.slaveDevicesStore.data.items.forEach(function (slaveDevice) {
                     widget.addSlaveDevice(slaveDevice.get('mRID'), slaveDevice.get('id'));

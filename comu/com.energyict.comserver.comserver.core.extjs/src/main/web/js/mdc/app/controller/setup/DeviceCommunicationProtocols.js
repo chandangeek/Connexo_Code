@@ -76,11 +76,11 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
 
 
     editDeviceCommunicatonProtocolHistory: function (item) {
-        location.href = '#setup/devicecommunicationprotocols/' + item.get('id') + '/edit';
+        location.href = '#/administration/devicecommunicationprotocols/' + item.get('id') + '/edit';
     },
 
     editDeviceCommunicationProtocolHistoryFromPreview: function () {
-        location.href = '#setup/devicecommunicationprotocols/' + this.getDeviceCommunicationProtocolGrid().getSelectionModel().getSelection()[0].get('id') + '/edit';
+        location.href = '#/administration/devicecommunicationprotocols/' + this.getDeviceCommunicationProtocolGrid().getSelectionModel().getSelection()[0].get('id') + '/edit';
     },
 
     showDeviceCommunicationProtocolEditView: function (deviceCommunicationProtocol) {
@@ -112,7 +112,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
             record.propertiesStore = me.getPropertiesController().updateProperties();
             record.save({
                 success: function (record) {
-                    location.href = '#setup/devicecommunicationprotocols/';
+                    location.href = '#/administration/devicecommunicationprotocols/';
                 },
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText);
@@ -132,7 +132,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
 
         var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
             text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#setup'
+            href: '#/administration'
         });
         breadcrumbParent.setChild(breadcrumbChild);
         breadcrumbs.setBreadcrumbItem(breadcrumbParent);
@@ -141,7 +141,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
     editBreadCrumb: function (registerTypeName, registerTypeId) {
         var breadcrumb1 = Ext.create('Uni.model.BreadcrumbItem', {
             text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#setup'
+            href: '#/administration'
         });
         var breadcrumb2 = Ext.create('Uni.model.BreadcrumbItem', {
             text: Uni.I18n.translate('deviceCommunicationProtocol.prototocls', 'MDC', 'Protocols'),

@@ -48,7 +48,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAdd', {
                             xtype: 'button',
                             ui: 'link',
                             itemId: 'cancelLink',
-                            href: '#setup/devicetypes/' + this.deviceTypeId + '/registertypes'
+                            href: '#/administration/devicetypes/' + this.deviceTypeId + '/registertypes'
                         }
                     ]
                 }
@@ -70,7 +70,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAdd', {
                 deviceTypeId: this.deviceTypeId
             }
         );
-        this.down('#cancelLink').autoEl.href = '#setup/devicetypes/' + this.deviceTypeId + '/registertypes';
+        this.down('#cancelLink').autoEl.href = '#/administration/devicetypes/' + this.deviceTypeId + '/registertypes';
     }
 });
 
