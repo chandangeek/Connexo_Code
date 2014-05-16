@@ -9,11 +9,6 @@ Ext.define('Usr.controller.User', {
         'Usr.store.Users'
     ],
 
-    /*models: [
-        'Usr.model.Group',
-        'Usr.model.User'
-    ],*/
-
     views: [
         'Usr.view.user.Browse'
     ],
@@ -31,7 +26,6 @@ Ext.define('Usr.controller.User', {
                 afterrender: this.onAfterRender
             },
             'userBrowse userList': {
-                //itemclick: this.selectUser
                 selectionchange: this.selectUser
             },
             'userBrowse userDetails menuitem[action=editUser]': {
@@ -48,19 +42,15 @@ Ext.define('Usr.controller.User', {
         this.getApplication().getController('Usr.controller.Main').showContent(widget);
 
         var me = this;
-        Ext.StoreManager.get('Usr.store.Users').on('load', function onLoad () {
-            if(this.data.items.length > 0){
-                widget.show();
-                widget.down('#userList').getSelectionModel().doSelect(0);
-            }
-            //this.removeListener('load', onLoad);
+        Ext.StoreManager.get('Usr.store.Users').on('load', function () {
+            widget.down('#userList').getSelectionModel().doSelect(0);
         });
     },
 
     onAfterRender: function (breadcrumbs) {
         var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
             text: Uni.I18n.translate('user.root', 'USM', 'User Management'),
-            href: '#'
+            href: '#usermanagement'
         });
         var breadcrumbChild = Ext.create('Uni.model.BreadcrumbItem', {
             text: Uni.I18n.translate('user.title', 'USM', 'Users'),
@@ -82,12 +72,6 @@ Ext.define('Usr.controller.User', {
     },
 
     selectUser: function (grid, record) {
-        /*var title = Uni.I18n.translate('user.user', 'USM', 'User') + ' "' + record.get('authenticationName') + '"';
-         var form = this.getUserDetails();
-
-         form.setTitle(title);
-         form.loadRecord(record);*/
-
         if(record.length > 0) {
             var detailsPanel = grid.view.up('#userBrowse').down('#userDetails'),
                 form = detailsPanel.down('form');

@@ -13,10 +13,8 @@ Ext.define('Usr.controller.Group', {
     ],
 
     refs: [
-        {
-            ref: 'groupDetails',
-            selector: 'groupBrowse groupDetails'
-        }
+        { ref: 'groupBrowse', selector: 'groupBrowse' },
+        { ref: 'groupDetails', selector: 'groupBrowse groupDetails' }
     ],
 
     init: function () {
@@ -25,7 +23,6 @@ Ext.define('Usr.controller.Group', {
                 afterrender: this.onAfterRender
             },
             'groupBrowse groupList': {
-                //itemclick: this.selectGroup
                 selectionchange: this.selectGroup
             },
             'groupBrowse groupDetails menuitem[action=editGroup]': {
@@ -43,22 +40,16 @@ Ext.define('Usr.controller.Group', {
     showOverview: function () {
         var widget = Ext.widget('groupBrowse');
         this.getApplication().getController('Usr.controller.Main').showContent(widget);
-        widget.setLoading(true);
 
-        var me = this;
-        Ext.StoreManager.get('Usr.store.Groups').on('load', function onLoad () {
-            widget.setLoading(false);
-            if(this.data.items.length > 0){
-                widget.show();
-                widget.down('#groupList').getSelectionModel().doSelect(0);
-            }
+        Ext.StoreManager.get('Usr.store.Groups').on('load', function () {
+            widget.down('#groupList').getSelectionModel().doSelect(0);
         });
     },
 
     onAfterRender: function (breadcrumbs) {
         var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
             text: Uni.I18n.translate('user.root', 'USM', 'User Management'),
-            href: '#'
+            href: '#usermanagement'
         });
         var breadcrumbChild = Ext.create('Uni.model.BreadcrumbItem', {
             text: Uni.I18n.translate('group.title', 'USM', 'Roles'),
@@ -85,12 +76,6 @@ Ext.define('Usr.controller.Group', {
     },
 
     selectGroup: function (grid, record) {
-        /*var form = this.getGroupDetails();
-
-         var title = Uni.I18n.translate('group.group', 'USM', 'Role') + ' "' + record.get('name') + '"';
-         form.setTitle(title);
-         form.loadRecord(record);*/
-
         if(record.length > 0){
             var panel = grid.view.up('#groupBrowse').down('#groupDetails'),
                 form = panel.down('form');

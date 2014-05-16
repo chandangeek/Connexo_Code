@@ -25,10 +25,9 @@ Ext.define('Usr.controller.Home', {
     showOverview: function () {
         var widget = Ext.widget('Home');
 
-        location.href = '#home';
-        this.getApplication().fireEvent('changecontentevent', widget);
+        this.getApplication().getController('Usr.controller.Main').showContent(widget);
 
-        widget.down('#usersLink').autoEl.href = this.getApplication().getController('Usr.controller.history.User').tokenizePreviousTokens();
-        widget.down('#groupsLink').autoEl.href = this.getApplication().getController('Usr.controller.history.Group').tokenizePreviousTokens();
+        //widget.down('#usersLink').autoEl.href = this.getApplication().getController('Usr.controller.history.UserManagement').tokenizePreviousTokens();
+        //widget.down('#groupsLink').autoEl.href = this.getApplication().getController('Usr.controller.history.UserManagement').tokenizePreviousTokens();
     }
 });

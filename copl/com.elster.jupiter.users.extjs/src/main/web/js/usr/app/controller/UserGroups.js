@@ -42,7 +42,7 @@ Ext.define('Usr.controller.UserGroups', {
     },
 
     showEditOverviewWithHistory: function(groupId) {
-        location.href = '#users/' + groupId + '/edit';
+        location.href = '#usermanagement/users/' + groupId + '/edit';
     },
 
     backUrl: null,
@@ -59,7 +59,7 @@ Ext.define('Usr.controller.UserGroups', {
         var widget = Ext.widget('userEdit'),
             panel = widget.getCenterContainer().items.getAt(0);
 
-        this.backUrl = this.getApplication().getController('Usr.controller.history.User').tokenizePreviousTokens();
+        this.backUrl = this.getApplication().getController('Usr.controller.history.UserManagement').tokenizePreviousTokens();
 
         this.getApplication().getController('Usr.controller.Main').showContent(widget);
         widget.hide();
@@ -96,7 +96,7 @@ Ext.define('Usr.controller.UserGroups', {
     displayBreadcrumb: function (userName) {
         var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
             text: Uni.I18n.translate('user.root', 'USM', 'User Management'),
-            href: '#'
+            href: '#usermanagement'
         });
         var breadcrumbChild1 = Ext.create('Uni.model.BreadcrumbItem', {
             text: Uni.I18n.translate('user.title', 'USM', 'Users'),

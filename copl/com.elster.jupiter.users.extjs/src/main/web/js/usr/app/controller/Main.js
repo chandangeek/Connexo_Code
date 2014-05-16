@@ -9,9 +9,7 @@ Ext.define('Usr.controller.Main', {
         'Usr.controller.UserGroups',
         'Usr.controller.Group',
         'Usr.controller.GroupPrivileges',
-        'Usr.controller.history.Group',
-        'Usr.controller.history.User',
-        'Usr.controller.history.Home'
+        'Usr.controller.history.UserManagement'
     ],
 
     controllers: [
@@ -21,9 +19,7 @@ Ext.define('Usr.controller.Main', {
         'Usr.controller.UserGroups',
         'Usr.controller.Group',
         'Usr.controller.GroupPrivileges',
-        'Usr.controller.history.Group',
-        'Usr.controller.history.User',
-        'Usr.controller.history.Home'
+        'Usr.controller.history.UserManagement'
     ],
 
     stores: [
@@ -48,13 +44,6 @@ Ext.define('Usr.controller.Main', {
     init: function () {
         var me = this;
         this.initNavigation();
-        this.getApplication().on('changecontentevent', this.showContent, this);
-
-        this.control({
-            'viewport menuitem[action=logout]': {
-                click: this.signout
-            }
-        });
 
         var menuItem = Ext.create('Uni.model.MenuItem', {
             text: 'User management',
@@ -71,11 +60,11 @@ Ext.define('Usr.controller.Main', {
             items: [
                 {
                     text: 'Users',
-                    href: '#/users'
+                    href: '#usermanagement/users'
                 },
                 {
                     text: 'Roles',
-                    href: '#/roles'
+                    href: '#usermanagement/roles'
                 }
             ]
         });

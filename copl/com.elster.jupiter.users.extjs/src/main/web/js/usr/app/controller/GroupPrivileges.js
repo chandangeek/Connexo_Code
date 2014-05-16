@@ -43,7 +43,7 @@ Ext.define('Usr.controller.GroupPrivileges', {
     },
 
     showEditOverviewWithHistory: function(groupId) {
-        location.href = '#roles/' + groupId + '/edit';
+        location.href = '#usermanagement/roles/' + groupId + '/edit';
     },
 
     showEditOverview: function (groupId) {
@@ -56,7 +56,7 @@ Ext.define('Usr.controller.GroupPrivileges', {
     },
 
     showCreateOverviewWithHistory: function(groupId) {
-        location.href = '#roles/create';
+        location.href = '#usermanagement/roles/create';
     },
 
     showCreateOverview: function () {
@@ -68,7 +68,7 @@ Ext.define('Usr.controller.GroupPrivileges', {
             widget = Ext.widget('groupEdit'),
             panel = widget.getCenterContainer().items.getAt(0);
 
-        this.backUrl = this.getApplication().getController('Usr.controller.history.Group').tokenizePreviousTokens();
+        this.backUrl = this.getApplication().getController('Usr.controller.history.UserManagement').tokenizePreviousTokens();
 
         widget.setLoading(true);
         panel.setTitle(title);
@@ -86,7 +86,7 @@ Ext.define('Usr.controller.GroupPrivileges', {
     displayBreadcrumb: function (current) {
         var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
             text: Uni.I18n.translate('user.root', 'USM', 'User Management'),
-            href: '#'
+            href: '#usermanagement'
         });
         var breadcrumbChild1 = Ext.create('Uni.model.BreadcrumbItem', {
             text: Uni.I18n.translate('group.title', 'USM', 'Roles'),
