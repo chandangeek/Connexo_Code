@@ -7,11 +7,11 @@ Ext.define('Mdc.view.setup.searchitems.SortMenu', {
     items: [
         {
             text: Uni.I18n.translate('searchItems.mrid', 'MDC', 'MRID'),
-            action: 'sortbymrid'
+            value: 'mRID'
         },
         {
             text: Uni.I18n.translate('searchItems.serialNumber', 'MDC', 'Serial number'),
-            action: 'sortbysn'
+            value: 'serialNumber'
         }
     ]
 });

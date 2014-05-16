@@ -6,7 +6,6 @@ Ext.define('Mdc.view.setup.searchitems.SearchResults', {
     selModel: {
         mode: 'SINGLE'
     },
-    store: undefined,
     initComponent: function () {
         var me = this;
         this.columns = [
@@ -15,6 +14,9 @@ Ext.define('Mdc.view.setup.searchitems.SearchResults', {
                 dataIndex: 'mRID',
                 sortable: false,
                 hideable: false,
+                renderer: function (value, b, record) {
+                    return '<a href="#/setup/devices/' + record.get('id') + '">' + value + '</a>';
+                },
                 fixed: true,
                 flex: 3
             },
@@ -48,8 +50,7 @@ Ext.define('Mdc.view.setup.searchitems.SearchResults', {
             {
                 xtype: 'pagingtoolbartop',
                 itemId: 'searchItemsToolbarTop',
-                //store: this.store,
-                store: undefined,
+                store: this.store,
                 dock: 'top',
                 displayMsg: Uni.I18n.translate('devices.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} devices'),
                 displayMoreMsg: Uni.I18n.translate('devices.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} devices'),
@@ -58,8 +59,7 @@ Ext.define('Mdc.view.setup.searchitems.SearchResults', {
             {
                 xtype: 'pagingtoolbarbottom',
                 itemId: 'searchItemsToolbarBottom',
-                //store: this.store,
-                store: undefined,
+                store: this.store,
                 dock: 'bottom',
                 itemsPerPageMsg: Uni.I18n.translate('devices.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Devices per page')
             }
