@@ -55,13 +55,21 @@ Ext.define('Isu.controller.Main', {
     initMenu: function () {
         var me = this;
 
-        var menuItem = Ext.create('Uni.model.MenuItem', {
+        var workspaceItem = Ext.create('Uni.model.MenuItem', {
             text: 'Workspace',
             glyph: 'workspace',
             portal: 'workspace'
         });
 
-        Uni.store.MenuItems.add(menuItem);
+        Uni.store.MenuItems.add(workspaceItem);
+
+        var administrationItem = Ext.create('Uni.model.MenuItem', {
+            text: 'Administration',
+            glyph: 'settings',
+            portal: 'administration'
+        });
+
+        Uni.store.MenuItems.add(administrationItem);
 
         var datacollection = Ext.create('Uni.model.PortalItem', {
             title: 'Data collection',
@@ -128,16 +136,16 @@ Ext.define('Isu.controller.Main', {
 
         var issuemanagement = Ext.create('Uni.model.PortalItem', {
             title: 'Issue management',
-            portal: 'administartion',
+            portal: 'administration',
             route: 'issuemanagement',
             items: [
                 {
                     text: 'Issue assignment rules',
-                    href: '#/issue-administration/issueassignmentrules'
+                    href: '#/administration/issueassignmentrules'
                 },
                 {
                     text: 'Issue creation rules',
-                    href: '#/issue-administration/issuecreationrules'
+                    href: '#/administration/issuecreationrules'
                 }
             ]
         });
