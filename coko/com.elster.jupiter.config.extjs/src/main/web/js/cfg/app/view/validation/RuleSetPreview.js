@@ -1,10 +1,8 @@
 Ext.define('Cfg.view.validation.RuleSetPreview', {
     extend: 'Ext.panel.Panel',
-    border: true,
-    margins: '0 10 10 10',
+    frame: true,
     alias: 'widget.ruleSetPreview',
     itemId: 'ruleSetPreview',
-    //hidden: true,
     requires: [
         'Cfg.model.ValidationRuleSet'
     ],
@@ -14,12 +12,36 @@ Ext.define('Cfg.view.validation.RuleSetPreview', {
         align: 'stretch'
     },
 
+    title: "Details",
+    tools: [
+        {
+            xtype: 'button',
+            icon: '../cfg/resources/images/actionsDetail.png',
+            text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
+            menu: {
+                items: [
+                    {
+                        text: Uni.I18n.translate('general.edit', 'CFG', 'Edit'),
+                        itemId: 'editRuleset',
+                        action: 'editRuleset'
+
+                    },
+                    {
+                        text: Uni.I18n.translate('general.delete', 'CFG', 'Delete'),
+                        itemId: 'deleteRuleset',
+                        action: 'deleteRuleset'
+
+                    }
+                ]
+            }
+        }
+    ],
+
 
     items: [
         {
             xtype: 'panel',
             border: false,
-            padding: '0 10 0 10',
             tbar: [
                 {
                     xtype: 'component',
@@ -40,13 +62,13 @@ Ext.define('Cfg.view.validation.RuleSetPreview', {
             xtype: 'form',
             border: false,
             itemId: 'rulesetForm',
-            padding: '0 10 0 10',
+            //padding: '0 10 0 10',
             layout: {
                 type: 'vbox',
                 align: 'stretch'
             },
 
-            tbar: [
+            /*tbar: [
                 {
                     xtype: 'component',
                     html: '<h4>' + Uni.I18n.translate('validation.validationRuleSets', 'CFG', 'Validation rule sets')  + '</h4>',
@@ -75,12 +97,12 @@ Ext.define('Cfg.view.validation.RuleSetPreview', {
                             }
                         ]
                     }
-                }],
+                }],  */
 
             items: [
                 {
                     xtype: 'displayfield',
-                    margin: '10 0 0 0',
+                    //margin: '10 0 0 0',
                     name: 'name',
                     fieldLabel: Uni.I18n.translate('validation.name', 'CFG', 'Name'),
                     //labelAlign: 'right',
@@ -106,8 +128,8 @@ Ext.define('Cfg.view.validation.RuleSetPreview', {
                     fieldLabel:  Uni.I18n.translate('validation.numberOfInActiveRules', 'CFG', 'Number of inactive rules'),
                     //labelAlign: 'right',
                     labelWidth:	250
-                },
-                {
+                }
+                /*{
                     xtype: 'toolbar',
                     docked: 'bottom',
                     border: false,
@@ -121,7 +143,7 @@ Ext.define('Cfg.view.validation.RuleSetPreview', {
                         }
 
                     ]
-                }
+                }  */
             ]
         }
     ],

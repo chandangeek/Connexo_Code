@@ -2,7 +2,7 @@ Ext.define('Cfg.view.validation.RuleSetList', {
     extend: 'Ext.grid.Panel',
     border: true,
     //margins: '0 10 0 10',
-    margins: '0 10 10 10',
+    //margins: '0 10 10 10',
     alias: 'widget.validationrulesetList',
     itemId: 'validationrulesetList',
     store: 'ValidationRuleSets',
@@ -19,21 +19,22 @@ Ext.define('Cfg.view.validation.RuleSetList', {
     columns: {
         items: [
             { header: Uni.I18n.translate('general.name', 'CFG', 'Name'), dataIndex: 'name', flex: 0.3, sortable: false, fixed: true,
-                renderer: function(value, metaData, record, rowIndex, colIndex, store) {
-                    return '<a style="color:#007dc3" href="#validation/validation/overview/' + record.getId() + '">' + value + '</a>'
+
+                renderer: function (value, b, record) {
+                    return '<a href="#validation/validation/overview/' + record.getId() + '">' + value + '</a>'
                 }
             },
             { header: Uni.I18n.translate('validation.numberOfRules', 'CFG', 'Number of rules'), dataIndex: 'numberOfRules', flex: 0.3, align: 'center', sortable: false, fixed: true  },
             { header:Uni.I18n.translate('validation.numberOfInActiveRules', 'CFG', 'Number of inactive rules'), dataIndex: 'numberOfInactiveRules', flex: 0.3, align: 'center', sortable: false, fixed: true },
             {
-                xtype:'actioncolumn',
+                xtype: 'actioncolumn',
+                iconCls: 'uni-actioncolumn-gear',
+                columnWidth: 32,
                 fixed: true,
-                sortable: false,
-                align: 'center',
                 header: Uni.I18n.translate('validation.actions', 'CFG', 'Actions'),
-                flex: 0.1,
+                sortable: false,
+                hideable: false,
                 items: [{
-                    icon: '../cfg/resources/images/gear-16x16.png',
                     handler: function(grid, rowIndex, colIndex,item,e) {
                         var menu = Ext.widget('menu', {
                             items: [{
@@ -48,9 +49,6 @@ Ext.define('Cfg.view.validation.RuleSetList', {
                                         scope: this
                                     }
                                 }
-                            },
-                            {
-                                    xtype: 'menuseparator'
                             },
                             {
                                 xtype: 'menuitem',

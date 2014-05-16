@@ -1,7 +1,6 @@
 Ext.define('Cfg.view.validation.RulePreview', {
     extend: 'Ext.panel.Panel',
-    border: true,
-    margins: '0 10 10 10',
+    frame: true,
     alias: 'widget.rulePreview',
     itemId: 'rulePreview',
     requires: [
@@ -13,12 +12,36 @@ Ext.define('Cfg.view.validation.RulePreview', {
         align: 'stretch'
     },
 
+    title: "Details",
+    tools: [
+        {
+            xtype: 'button',
+            icon: '../cfg/resources/images/actionsDetail.png',
+            text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
+            menu: {
+                items: [
+                    {
+                        text: Uni.I18n.translate('general.edit', 'CFG', 'Edit'),
+                        itemId: 'editRule',
+                        action: 'editRule'
+
+                    },
+                    {
+                        text: Uni.I18n.translate('general.delete', 'CFG', 'Delete'),
+                        itemId: 'deleteRule',
+                        action: 'deleteRule'
+
+                    }
+                ]
+            }
+        }
+    ],
+
 
     items: [
         {
             xtype: 'panel',
             border: false,
-            padding: '0 10 0 10',
             tbar: [
                 {
                     xtype: 'component',
@@ -39,43 +62,9 @@ Ext.define('Cfg.view.validation.RulePreview', {
             xtype: 'form',
             border: false,
             itemId: 'ruleForm',
-            padding: '0 10 0 10',
             layout: {
-                type: 'vbox'//,
-                //align: 'stretch'
+                type: 'vbox'
             },
-
-            tbar: [
-                {
-                    xtype: 'component',
-                    html: '<h4>' + Uni.I18n.translate('validation.validationRule', 'CFG', 'Validation rule') + '</h4>',
-                    itemId: 'rulePreviewTitle'
-                },
-                '->',
-                {
-                    icon: 'resources/images/gear-16x16.png',
-                    text: Uni.I18n.translate('validation.actions', 'CFG', 'Actions'),
-                    menu:{
-                        items:[
-                            {
-                                text: Uni.I18n.translate('general.edit', 'CFG', 'Edit'),
-                                itemId: 'editRule',
-                                action: 'editRule'
-
-                            },
-                            {
-                                xtype: 'menuseparator'
-                            },
-                            {
-                                text: Uni.I18n.translate('general.delete', 'CFG', 'Delete'),
-                                itemId: 'deleteRule',
-                                action: 'deleteRule'
-
-                            }
-                        ]
-                    }
-                }],
-
 
 
             items: [

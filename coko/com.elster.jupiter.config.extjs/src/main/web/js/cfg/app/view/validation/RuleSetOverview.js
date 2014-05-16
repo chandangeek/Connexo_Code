@@ -1,10 +1,7 @@
 Ext.define('Cfg.view.validation.RuleSetOverview', {
     extend: 'Ext.panel.Panel',
     border: false,
-    //overflowY: 'auto',
-    //cls: 'content-container',
     region: 'center',
-    //margins: '0 10 10 10',
     alias: 'widget.ruleSetOverview',
     itemId: 'ruleSetOverview',
     requires: [
@@ -24,12 +21,11 @@ Ext.define('Cfg.view.validation.RuleSetOverview', {
                     xtype: 'component',
                     border: false,
                     html: '<h4>' +  Uni.I18n.translate('validation.validationRuleSets', 'CFG', 'Validation rule sets') + '</h4>',
-                    itemId: 'rulesetOverviewTitle',
-                    margins: '0 0 10 0'
+                    itemId: 'rulesetOverviewTitle'
                 },
                 '->',
                 {
-                    icon: 'resources/images/gear-16x16.png',
+                    icon: '../cfg/resources/images/actionsDetail.png',
                     text:  Uni.I18n.translate('validation.actions', 'CFG', 'Actions'),
                     menu:{
                         items:[
@@ -38,9 +34,6 @@ Ext.define('Cfg.view.validation.RuleSetOverview', {
                                 itemId: 'editRuleset',
                                 action: 'editRuleset'
 
-                            },
-                            {
-                                xtype: 'menuseparator'
                             },
                             {
                                 text: Uni.I18n.translate('general.delete', 'CFG', 'Delete'),

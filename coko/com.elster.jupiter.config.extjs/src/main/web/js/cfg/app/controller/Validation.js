@@ -251,7 +251,7 @@ Ext.define('Cfg.controller.Validation', {
                         xtype: 'button',
                         action: 'removeReadingTypeAction',
                         pack: 'center',
-                        margin:'0 0 5 5',
+                        margin:'0 0 4 4',
                         width: 30,
                         itemId: 'readingTypeRemoveButton'  + me.readingTypeIndex,
                         handler: function() {
@@ -522,8 +522,8 @@ Ext.define('Cfg.controller.Validation', {
             this.getRuleSetForm().loadRecord(selectedSets[0]);
             var ruleSetName = this.getRuleSetForm().form.findField('name').getSubmitValue();
             this.getRuleSetPreview().getLayout().setActiveItem(1);
-            this.getRuleSetDetailsLink().update('<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#validation/validation/overview/' + selectedSets[0].getId() + '">View details</a>');
-            this.getRulesetPreviewTitle().update('<h4>' + ruleSetName + '</h4>');
+            //this.getRulesetPreviewTitle().update('<h4>' + ruleSetName + '</h4>');
+            this.getRuleSetPreview().getHeader().setTitle(ruleSetName);
         } else {
             this.getRuleSetPreview().getLayout().setActiveItem(0);
         }
@@ -535,7 +535,8 @@ Ext.define('Cfg.controller.Validation', {
             var selectedRule = selectedRules[0];
             this.getRuleForm().loadRecord(selectedRule);
             this.getRulePreview().getLayout().setActiveItem(1);
-            this.getRulePreviewTitle().update('<h4>' + selectedRule.get("name") + '</h4>');
+            //this.getRulePreviewTitle().update('<h4>' + selectedRule.get("name") + '</h4>');
+            this.getRulePreview().getHeader().setTitle(selectedRule.get("name"));
             this.addProperties(selectedRule);
             this.addReadingTypes(selectedRule);
             this.getRulePreview().show();

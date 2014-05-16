@@ -2,9 +2,7 @@ Ext.define('Cfg.view.validation.RulesContainer', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.rulesContainer',
     itemId: 'rulesContainer',
-    //cls: 'content-container',
     border: false,
-    //overflowY: 'auto',
     requires: [
         'Cfg.view.validation.RuleSetPreview',
         'Cfg.view.validation.RuleBrowse',

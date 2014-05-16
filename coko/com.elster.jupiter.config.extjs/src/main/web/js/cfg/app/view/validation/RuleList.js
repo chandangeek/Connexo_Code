@@ -1,7 +1,6 @@
 Ext.define('Cfg.view.validation.RuleList', {
     extend: 'Ext.grid.Panel',
     border: true,
-    margins: '0 10 10 10',
     alias: 'widget.validationruleList',
     itemId: 'validationruleList',
     store: 'ValidationRules',
@@ -33,15 +32,14 @@ Ext.define('Cfg.view.validation.RuleList', {
             },
             {
                 xtype: 'actioncolumn',
+                iconCls: 'uni-actioncolumn-gear',
+                columnWidth: 32,
                 fixed: true,
-                sortable: false,
                 header: Uni.I18n.translate('validation.actions', 'CFG', 'Actions'),
-                align: 'center',
-                //width:150,
-                flex: 0.1,
+                sortable: false,
+                hideable: false,
                 items: [
                     {
-                        icon: '../cfg/resources/images/gear-16x16.png',
                         handler: function (grid, rowIndex, colIndex, item, e) {
                             var menu = Ext.widget('menu', {
                                 items: [
@@ -57,9 +55,6 @@ Ext.define('Cfg.view.validation.RuleList', {
                                                 scope: this
                                             }
                                         }
-                                    },
-                                    {
-                                        xtype: 'menuseparator'
                                     },
                                     {
                                         xtype: 'menuitem',
@@ -110,6 +105,7 @@ Ext.define('Cfg.view.validation.RuleList', {
             },
             {
                 xtype: 'pagingtoolbarbottom',
+                margins: '10 10 10 10',
                 store: this.store,
                 dock: 'bottom',
                 itemsPerPageMsg: 'Rules per page',
