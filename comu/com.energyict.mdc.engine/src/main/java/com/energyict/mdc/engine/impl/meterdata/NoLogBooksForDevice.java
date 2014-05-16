@@ -27,7 +27,7 @@ public class NoLogBooksForDevice extends CollectedDeviceData implements NoLogBoo
 
     @Override
     public DeviceCommand toDeviceCommand(IssueService issueService) {
-        return new CreateNoLogBooksForDeviceEvent(this, issueService);
+        return new CreateNoLogBooksForDeviceEvent(this);
     }
 
     @Override

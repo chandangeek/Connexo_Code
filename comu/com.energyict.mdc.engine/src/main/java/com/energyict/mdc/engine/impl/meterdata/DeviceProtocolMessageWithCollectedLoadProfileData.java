@@ -61,6 +61,6 @@ public class DeviceProtocolMessageWithCollectedLoadProfileData extends Collected
 
     @Override
     public DeviceCommand toDeviceCommand(IssueService issueService) {
-        return new CollectedLoadProfileDeviceCommand(collectedLoadProfile, issueService);
+        return new CollectedLoadProfileDeviceCommand(collectedLoadProfile);
     }
 }

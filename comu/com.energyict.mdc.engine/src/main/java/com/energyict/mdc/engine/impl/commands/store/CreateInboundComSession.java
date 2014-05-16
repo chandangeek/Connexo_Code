@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
@@ -30,7 +31,7 @@ public class CreateInboundComSession extends ExecutionLoggerImpl implements Crea
     private final ComSession.SuccessIndicator successIndicator;
     private ComSession inboundComSession;
 
-    public CreateInboundComSession(InboundComPort comPort, InboundConnectionTask connectionTask, ComSessionBuilder builder, ComSession.SuccessIndicator successIndicator) {
+    public CreateInboundComSession(InboundComPort comPort, InboundConnectionTask connectionTask, ComSessionBuilder builder, ComSession.SuccessIndicator successIndicator, Clock clock) {
         super(comPort.getComServer().getCommunicationLogLevel(), clock);
         this.comPort = comPort;
         this.connectionTask = connectionTask;
@@ -46,7 +47,7 @@ public class CreateInboundComSession extends ExecutionLoggerImpl implements Crea
     @Override
     public void execute (ComServerDAO comServerDAO) {
         try {
-            inboundComSession = comServerDAO.createInboundComSession(this.connectionTask, this.builder);
+            inboundComSession = comServerDAO.createInboundComSession(this.connectionTask, this.builder, successIndicator);
         }
         catch (RuntimeException e) {
             if (this.connectionTask == null) {

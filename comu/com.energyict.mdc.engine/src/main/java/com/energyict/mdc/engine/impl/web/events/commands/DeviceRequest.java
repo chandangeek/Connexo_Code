@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.protocol.inbound.DeviceIdentifierById;
 
@@ -20,14 +21,16 @@ import static java.util.Collections.singleton;
  */
 public class DeviceRequest extends IdBusinessObjectRequest {
 
+    private final DeviceDataService deviceDataService;
     private List<Device> devices;
 
-    public DeviceRequest (long deviceId) {
-        this(singleton(deviceId));
+    public DeviceRequest(DeviceDataService deviceDataService, long deviceId) {
+        this(deviceDataService, singleton(deviceId));
     }
 
-    public DeviceRequest (Set<Long> deviceIds) {
+    public DeviceRequest(DeviceDataService deviceDataService, Set<Long> deviceIds) {
         super(deviceIds);
+        this.deviceDataService = deviceDataService;
         this.validateDeviceIds();
     }
 

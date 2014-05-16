@@ -4,9 +4,9 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.MultiThreadedScheduledComPort;
 import com.energyict.mdc.engine.impl.core.ScheduledComPort;
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.core.SingleThreadedScheduledComPort;
 import com.energyict.mdc.engine.model.OutboundComPort;
-import com.energyict.mdc.issues.IssueService;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -35,17 +35,17 @@ public class ScheduledComPortFactoryImpl implements ScheduledComPortFactory {
     }
 
     @Override
-    public ScheduledComPort newFor(OutboundComPort comPort, IssueService issueService) {
+    public ScheduledComPort newFor(OutboundComPort comPort, ServiceProvider serviceProvider) {
         if (comPort.isActive()) {
             switch (comPort.getNumberOfSimultaneousConnections()) {
                 case 0: {
                     return null;
                 }
                 case 1: {
-                    return new SingleThreadedScheduledComPort(comPort, this.comServerDAO, this.deviceCommandExecutor, this.threadFactory, issueService);
+                    return new SingleThreadedScheduledComPort(comPort, this.comServerDAO, this.deviceCommandExecutor, this.threadFactory, serviceProvider);
                 }
                 default: {
-                    return new MultiThreadedScheduledComPort(comPort, this.comServerDAO, this.deviceCommandExecutor, this.threadFactory, issueService);
+                    return new MultiThreadedScheduledComPort(comPort, this.comServerDAO, this.deviceCommandExecutor, this.threadFactory, serviceProvider);
                 }
             }
         }

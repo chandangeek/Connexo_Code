@@ -14,7 +14,7 @@ import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import java.util.List;
 
 /**
- * An implementation of the {@link com.energyict.mdc.meterdata.CollectedMessage} interface,
+ * An implementation of the CollectedMessage interface,
  * containing additional {@link CollectedRegister} data.
  *
  * @author sva
@@ -67,7 +67,7 @@ public class DeviceProtocolMessageWithCollectedRegisterData extends CollectedDev
 
     @Override
     public DeviceCommand toDeviceCommand(IssueService issueService) {
-        return new CollectedRegisterListDeviceCommand(this, issueService);
+        return new CollectedRegisterListDeviceCommand(this);
     }
 
     @Override

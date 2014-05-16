@@ -689,13 +689,13 @@ public abstract class JobExecution implements ScheduledJob {
                         add(new CreateOutboundComSession(
                                 this.comPort.getComServer().getCommunicationLogLevel(),
                                 (ScheduledConnectionTask) this.connectionTask,
-                                comSessionBuilder, successIndicator));
+                                comSessionBuilder, successIndicator, serviceProvider.getClock()));
             } else {
                 this.getStoreCommand().
                         add(new CreateInboundComSession(
                                 (InboundComPort) getComPort(),
                                 (InboundConnectionTask) this.connectionTask,
-                                comSessionBuilder, successIndicator));
+                                comSessionBuilder, successIndicator, serviceProvider.getClock()));
             }
         }
 

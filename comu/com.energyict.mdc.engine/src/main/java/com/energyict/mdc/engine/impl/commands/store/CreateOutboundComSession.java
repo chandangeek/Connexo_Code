@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
@@ -26,7 +27,7 @@ public class CreateOutboundComSession extends ExecutionLoggerImpl implements Cre
     private final ComSession.SuccessIndicator successIndicator;
     private ComSession outboundComSession;
 
-    public CreateOutboundComSession(ComServer.LogLevel communicationLogLevel, ScheduledConnectionTask connectionTask, ComSessionBuilder builder, ComSession.SuccessIndicator successIndicator) {
+    public CreateOutboundComSession(ComServer.LogLevel communicationLogLevel, ScheduledConnectionTask connectionTask, ComSessionBuilder builder, ComSession.SuccessIndicator successIndicator, Clock clock) {
         super(communicationLogLevel, clock);
         this.connectionTask = connectionTask;
         this.builder = builder;
@@ -41,7 +42,7 @@ public class CreateOutboundComSession extends ExecutionLoggerImpl implements Cre
     @Override
     public void execute (ComServerDAO comServerDAO) {
         try {
-            outboundComSession = comServerDAO.createOutboundComSession(this.connectionTask, this.builder);
+            outboundComSession = comServerDAO.createOutboundComSession(this.connectionTask, this.builder, successIndicator);
         }
         catch (RuntimeException e) {
             LoggerFactory.getLoggerFor(DeviceCommandLogger.class).outboundComSessionCreationFailed(e, this.connectionTask);

@@ -30,7 +30,7 @@ public class DeviceProtocolMessageList extends CompositeCollectedData<CollectedM
 
     @Override
     public DeviceCommand toDeviceCommand(IssueService issueService) {
-        return new CollectedMessageListDeviceCommand(this, offlineDeviceMessages, issueService);
+        return new CollectedMessageListDeviceCommand(this, offlineDeviceMessages);
     }
 
     @Override

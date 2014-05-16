@@ -41,7 +41,7 @@ public class DeviceRegisterList extends CompositeCollectedData<CollectedRegister
 
     @Override
     public DeviceCommand toDeviceCommand(IssueService issueService) {
-        return new CollectedRegisterListDeviceCommand(this, issueService);
+        return new CollectedRegisterListDeviceCommand(this);
     }
 
     @Override

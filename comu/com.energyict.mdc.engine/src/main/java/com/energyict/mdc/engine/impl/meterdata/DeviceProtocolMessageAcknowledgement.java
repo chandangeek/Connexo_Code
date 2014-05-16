@@ -49,7 +49,7 @@ public class DeviceProtocolMessageAcknowledgement extends CollectedDeviceData im
 
     @Override
     public DeviceCommand toDeviceCommand(IssueService issueService) {
-        return new UpdateDeviceMessage(this, issueService);
+        return new UpdateDeviceMessage(this, issueService, clock);
     }
 
     @Override

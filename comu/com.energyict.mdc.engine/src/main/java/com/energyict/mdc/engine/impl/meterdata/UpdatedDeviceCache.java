@@ -63,6 +63,6 @@ public class UpdatedDeviceCache extends CollectedDeviceData implements Collected
 
     @Override
     public DeviceCommand toDeviceCommand(IssueService issueService) {
-        return new CollectedDeviceCacheCommand(this, issueService);
+        return new CollectedDeviceCacheCommand(this);
     }
 }

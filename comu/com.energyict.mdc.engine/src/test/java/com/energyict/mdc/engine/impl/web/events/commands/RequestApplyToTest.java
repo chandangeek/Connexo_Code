@@ -68,7 +68,7 @@ public class RequestApplyToTest {
     @Test
     public void testDeviceRequest () {
         BaseDevice device = this.mockDevice();
-        DeviceRequest request = new DeviceRequest(DEVICE1_ID);
+        DeviceRequest request = new DeviceRequest(deviceDataService, DEVICE1_ID);
         EventPublisher eventPublisher = mock(EventPublisher.class);
 
         // Business method
@@ -98,7 +98,7 @@ public class RequestApplyToTest {
     @Test
     public void testComTaskExecutionRequest () {
         ComTaskExecution comTaskExecution = this.mockComTaskExecution();
-        ComTaskExecutionRequest comTaskExecutionRequest = new ComTaskExecutionRequest(COM_TASK_EXECUTION_ID);
+        ComTaskExecutionRequest comTaskExecutionRequest = new ComTaskExecutionRequest(deviceDataService, COM_TASK_EXECUTION_ID);
         EventPublisher eventPublisher = mock(EventPublisher.class);
 
         // Business method
@@ -113,7 +113,7 @@ public class RequestApplyToTest {
     @Test
     public void testComPortRequest () {
         ComPort comPort = this.mockComPort();
-        ComPortRequest request = new ComPortRequest(COM_PORT_ID);
+        ComPortRequest request = new ComPortRequest(engineModelService, COM_PORT_ID);
         EventPublisher eventPublisher = mock(EventPublisher.class);
 
         // Business method
@@ -128,7 +128,7 @@ public class RequestApplyToTest {
     @Test
     public void testComPortPoolRequest () {
         ComPortPool comPortPool = this.mockComPortPool();
-        ComPortPoolRequest request = new ComPortPoolRequest(COM_PORT_POOL_ID);
+        ComPortPoolRequest request = new ComPortPoolRequest(engineModelService, COM_PORT_POOL_ID);
         EventPublisher eventPublisher = mock(EventPublisher.class);
 
         // Business method

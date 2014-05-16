@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.core.factories;
 
 import com.energyict.mdc.engine.impl.core.ComPortListener;
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.issues.IssueService;
 
@@ -23,6 +24,6 @@ public interface ComPortListenerFactory {
      * @return The ComPortListener or <code>null</code> if it was not necessary to schedule
      *         the InboundComPort
      */
-    public ComPortListener newFor(InboundComPort comPort, IssueService issueService);
+    public ComPortListener newFor(InboundComPort comPort, ServiceProvider serviceProvider);
 
 }

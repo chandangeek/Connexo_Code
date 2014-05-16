@@ -4,8 +4,8 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.InboundComPortExecutor;
 import com.energyict.mdc.engine.impl.core.InboundComPortExecutorImpl;
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.model.InboundComPort;
-import com.energyict.mdc.issues.IssueService;
 
 /**
  * Provides simple functionality to create an {@link InboundComPortExecutor}
@@ -23,7 +23,7 @@ public class InboundComPortExecutorFactoryImpl implements InboundComPortExecutor
     }
 
     @Override
-    public InboundComPortExecutor create(InboundComPort inboundComPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, IssueService issueService) {
-        return new InboundComPortExecutorImpl(inboundComPort, comServerDAO, deviceCommandExecutor, issueService);
+    public InboundComPortExecutor create(InboundComPort inboundComPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
+        return new InboundComPortExecutorImpl(inboundComPort, comServerDAO, deviceCommandExecutor, serviceProvider);
     }
 }

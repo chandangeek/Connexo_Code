@@ -5,7 +5,6 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.model.OutboundComPort;
-import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 
 import java.util.ArrayList;
@@ -29,8 +28,8 @@ public class ScheduledComTaskExecutionGroup extends ScheduledJobImpl {
     private List<ComTaskExecution> failedComTaskExecutions = new ArrayList<>();
     private List<ComTaskExecution> successfulComTaskExecutions = new ArrayList<>();
 
-    public ScheduledComTaskExecutionGroup(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ScheduledConnectionTask connectionTask, IssueService issueService) {
-        super(comPort, comServerDAO, deviceCommandExecutor, issueService);
+    public ScheduledComTaskExecutionGroup(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ScheduledConnectionTask connectionTask, ServiceProvider serviceProvider) {
+        super(comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
         this.connectionTask = connectionTask;
     }
 

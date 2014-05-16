@@ -63,7 +63,7 @@ public class DeviceTopology extends CollectedDeviceData implements CollectedTopo
 
     @Override
     public DeviceCommand toDeviceCommand(IssueService issueService) {
-        return new CollectedDeviceTopologyDeviceCommand(this, comTaskExecution, issueService);
+        return new CollectedDeviceTopologyDeviceCommand(this, comTaskExecution, issueService, clock);
     }
 
     @Override

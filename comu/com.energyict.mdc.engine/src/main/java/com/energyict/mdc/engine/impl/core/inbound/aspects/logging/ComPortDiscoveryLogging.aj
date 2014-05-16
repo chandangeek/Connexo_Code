@@ -21,7 +21,7 @@ public aspect ComPortDiscoveryLogging extends AbstractComPortDiscoveryLogging {
 
     protected Logger attachHandlerTo (ComPortDiscoveryLogger loggger, InboundDiscoveryContextImpl context) {
         Logger actualLogger = ((LoggerFactory.LoggerHolder) loggger).getLogger();
-        actualLogger.addHandler(new DiscoveryContextLogHandler(context));
+        actualLogger.addHandler(new DiscoveryContextLogHandler(clock, context));
         context.setLogger(actualLogger);
         return actualLogger;
     }

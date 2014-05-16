@@ -1,6 +1,9 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.crypto.Cryptographer;
@@ -10,9 +13,11 @@ import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.tasks.history.ComSessionBuilder;
+import com.energyict.mdc.tasks.history.TaskHistoryService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -24,26 +29,30 @@ import java.util.logging.Logger;
  */
 public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
 
+    private final TaskHistoryService taskHistoryService;
+
     private Logger logger;
     private Cryptographer cryptographer;
     private InboundDAO inboundDAO;
-    private ComSessionBuilder sessionBuilder = new ComSessionBuilder();
+    private ComSessionBuilder sessionBuilder;
     private final InboundComPort comPort;
     private ComChannel comChannel;
     private HttpServletRequest servletRequest;
     private HttpServletResponse servletResponse;
 
-    public InboundDiscoveryContextImpl(InboundComPort comPort, ComChannel comChannel) {
+    public InboundDiscoveryContextImpl(InboundComPort comPort, ComChannel comChannel, TaskHistoryService taskHistoryService) {
         super();
         this.comPort = comPort;
         this.comChannel = comChannel;
+        this.taskHistoryService = taskHistoryService;
     }
 
-    public InboundDiscoveryContextImpl(InboundComPort comPort, HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
+    public InboundDiscoveryContextImpl(InboundComPort comPort, HttpServletRequest servletRequest, HttpServletResponse servletResponse, TaskHistoryService taskHistoryService) {
         super();
         this.comPort = comPort;
         this.servletRequest = servletRequest;
         this.servletResponse = servletResponse;
+        this.taskHistoryService = taskHistoryService;
     }
 
     @Override
@@ -74,7 +83,12 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
         this.inboundDAO = inboundDAO;
     }
 
-    public ComSessionBuilder getComSessionShadow () {
+    public ComSessionBuilder getComSessionBuilder() {
+        return sessionBuilder;
+    }
+
+    public ComSessionBuilder buildComSession(ConnectionTask<?, ?> connectionTask, ComPortPool comPortPool, ComPort comPort, Date startTime) {
+        sessionBuilder = taskHistoryService.buildComSession(connectionTask, comPortPool, comPort, startTime);
         return sessionBuilder;
     }
 

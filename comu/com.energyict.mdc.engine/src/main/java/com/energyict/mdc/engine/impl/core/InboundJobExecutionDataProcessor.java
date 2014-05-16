@@ -11,7 +11,6 @@ import com.energyict.mdc.engine.impl.commands.store.deviceactions.inbound.Inboun
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.inbound.InboundCollectedRegisterCommandImpl;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
 import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -41,19 +40,19 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
 
     private final InboundDeviceProtocol inboundDeviceProtocol;
     private final OfflineDevice offlineDevice;
-    private final IssueService issueService;
+    private final ServiceProvider serviceProvider;
     private DeviceProtocol deviceProtocol;
 
-    public InboundJobExecutionDataProcessor(ComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundDiscoveryContextImpl inboundDiscoveryContext, InboundDeviceProtocol inboundDeviceProtocol, OfflineDevice offlineDevice, IssueService issueService) {
+    public InboundJobExecutionDataProcessor(ComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundDiscoveryContextImpl inboundDiscoveryContext, InboundDeviceProtocol inboundDeviceProtocol, OfflineDevice offlineDevice, ServiceProvider serviceProvider) {
         super(comPort, comServerDAO, deviceCommandExecutor, inboundDiscoveryContext, serviceProvider);
         this.inboundDeviceProtocol = inboundDeviceProtocol;
         this.offlineDevice = offlineDevice;
-        this.issueService = issueService;
+        this.serviceProvider = serviceProvider;
     }
 
     @Override
     protected void setExecutionContext(ExecutionContext executionContext) {
-        executionContext.setComSessionShadow(getInboundDiscoveryContext().getComSessionShadow());
+        executionContext.setComSessionShadow(getInboundDiscoveryContext().getComSessionBuilder());
         super.setExecutionContext(executionContext);
     }
 
@@ -70,13 +69,13 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
                 ProtocolTask logBooksTask = getLogBooksTask(comTaskExecution);
                 ProtocolTask messageTask = getMessageTask(comTaskExecution);
                 if (registersTask != null) {
-                    InboundCollectedRegisterCommandImpl inboundCollectedRegisterListCommand = new InboundCollectedRegisterCommandImpl((RegistersTask) registersTask, offlineDevice, root, comTaskExecution, data, deviceDataService);
+                    InboundCollectedRegisterCommandImpl inboundCollectedRegisterListCommand = new InboundCollectedRegisterCommandImpl((RegistersTask) registersTask, offlineDevice, root, comTaskExecution, data, serviceProvider.deviceDataService());
                     addNewInboundComCommand(allPreparedComTaskExecutions, root, comTaskExecution, inboundCollectedRegisterListCommand);
                 } else if (loadProfilesTask != null) {
                     InboundCollectedLoadProfileCommandImpl inboundCollectedLoadProfileReadCommand = new InboundCollectedLoadProfileCommandImpl((LoadProfilesTask) loadProfilesTask, offlineDevice, root, comTaskExecution, data);
                     addNewInboundComCommand(allPreparedComTaskExecutions, root, comTaskExecution, inboundCollectedLoadProfileReadCommand);
                 } else if (logBooksTask != null) {
-                    InboundCollectedLogBookCommandImpl inboundCollectedLogBookReadCommand = new InboundCollectedLogBookCommandImpl((LogBooksTask) logBooksTask, offlineDevice, root, comTaskExecution, data, deviceDataService);
+                    InboundCollectedLogBookCommandImpl inboundCollectedLogBookReadCommand = new InboundCollectedLogBookCommandImpl((LogBooksTask) logBooksTask, offlineDevice, root, comTaskExecution, data, serviceProvider.deviceDataService());
                     addNewInboundComCommand(allPreparedComTaskExecutions, root, comTaskExecution, inboundCollectedLogBookReadCommand);
 
                     //tOdO reenable onces Messages are ported
@@ -97,7 +96,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
 
     private void addNewInboundComCommand(List<PreparedComTaskExecution> allPreparedComTaskExecutions, CommandRoot root, ComTaskExecution comTaskExecution, ComCommand comCommand) {
         root.addCommand(comCommand, comTaskExecution);
-        getInboundDiscoveryContext().getComSessionShadow().setNumberOfPlannedButNotExecutedTasks(getInboundDiscoveryContext().getComSessionShadow().getNumberOfPlannedButNotExecutedTasks() + 1);
+        getInboundDiscoveryContext().getComSessionBuilder().setNumberOfPlannedButNotExecutedTasks(getInboundDiscoveryContext().getComSessionBuilder().getNumberOfPlannedButNotExecutedTasks() + 1);
         allPreparedComTaskExecutions.add(new PreparedComTaskExecution(comTaskExecution, root, getDeviceProtocol()));
     }
 

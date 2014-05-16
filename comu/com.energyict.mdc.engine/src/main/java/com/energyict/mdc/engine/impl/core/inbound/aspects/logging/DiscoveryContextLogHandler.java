@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core.inbound.aspects.logging;
 
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
 
 import java.text.MessageFormat;
@@ -18,27 +19,18 @@ import java.util.logging.LogRecord;
  */
 public class DiscoveryContextLogHandler extends Handler {
 
+    private final Clock clock;
     private InboundDiscoveryContextImpl context;
 
-    public DiscoveryContextLogHandler (InboundDiscoveryContextImpl context) {
+    public DiscoveryContextLogHandler(Clock clock, InboundDiscoveryContextImpl context) {
         super();
+        this.clock = clock;
         this.context = context;
     }
 
     @Override
     public void publish(LogRecord record) {
-        this.publishComSessionJournalEntry(this.context.getComSessionShadow(), record);
-    }
-
-    private void publishComSessionJournalEntry (ComSessionShadow sessionShadow, LogRecord record) {
-        ComSessionJournalEntryShadow shadow = new ComSessionJournalEntryShadow();
-        shadow.setMessage(this.extractInfo(record));
-        shadow.setTimestamp(Clocks.getAppServerClock().now());
-        Throwable thrown = record.getThrown();
-        if (thrown != null) {
-            shadow.setCause(thrown);
-        }
-        sessionShadow.addJournaleEntry(shadow);
+        this.context.getComSessionBuilder().addJournalEntry(clock.now(), extractInfo(record), record.getThrown());
     }
 
     private String extractInfo (LogRecord record) {

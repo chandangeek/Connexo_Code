@@ -4,7 +4,6 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactory;
 import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactoryImpl;
 import com.energyict.mdc.engine.model.InboundComPort;
-import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.protocols.mdc.channels.VoidComChannel;
 
@@ -21,19 +20,19 @@ import java.util.concurrent.ThreadFactory;
  */
 public class SingleThreadedComPortListener extends ComChannelBasedComPortListenerImpl {
 
-    private final IssueService issueService;
+    private final ServiceProvider serviceProvider;
     private InboundComPortExecutorFactory inboundComPortExecutorFactory;
 
     public SingleThreadedComPortListener(InboundComPort comPort, ComServerDAO comServerDAO,
                                          ThreadFactory threadFactory, DeviceCommandExecutor deviceCommandExecutor,
-                                         InboundComPortExecutorFactory inboundComPortExecutorFactory, IssueService issueService) {
+                                         InboundComPortExecutorFactory inboundComPortExecutorFactory, ServiceProvider serviceProvider) {
         super(comPort, comServerDAO, threadFactory, deviceCommandExecutor);
         this.inboundComPortExecutorFactory = inboundComPortExecutorFactory;
-        this.issueService = issueService;
+        this.serviceProvider = serviceProvider;
     }
 
-    public SingleThreadedComPortListener(InboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, IssueService issueService) {
-        this(comPort, comServerDAO, new PooledThreadFactory(), deviceCommandExecutor, new InboundComPortExecutorFactoryImpl(), issueService);
+    public SingleThreadedComPortListener(InboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
+        this(comPort, comServerDAO, new PooledThreadFactory(), deviceCommandExecutor, new InboundComPortExecutorFactoryImpl(), serviceProvider);
     }
 
     @Override
@@ -59,6 +58,6 @@ public class SingleThreadedComPortListener extends ComChannelBasedComPortListene
      * @param comChannel the CommunicationChannel which can be used to transfer bits and bytes over to the Device
      */
     protected void handleInboundDeviceProtocol(ComChannel comChannel) {
-        this.inboundComPortExecutorFactory.create(getServerInboundComPort(), getComServerDAO(), getDeviceCommandExecutor(), issueService).execute(comChannel);
+        this.inboundComPortExecutorFactory.create(getServerInboundComPort(), getComServerDAO(), getDeviceCommandExecutor(), serviceProvider).execute(comChannel);
     }
 }

@@ -3,7 +3,6 @@ package com.energyict.mdc.engine.impl.core;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
-import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.inbound.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
@@ -20,18 +19,18 @@ public class InboundComPortExecutorImpl implements InboundComPortExecutor {
     private final InboundComPort comPort;
     private final ComServerDAO comServerDAO;
     private final DeviceCommandExecutor deviceCommandExecutor;
-    private final IssueService issueService;
+    private final ServiceProvider serviceProvider;
 
-    public InboundComPortExecutorImpl(InboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, IssueService issueService) {
+    public InboundComPortExecutorImpl(InboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
         this.comPort = comPort;
         this.comServerDAO = comServerDAO;
         this.deviceCommandExecutor = deviceCommandExecutor;
-        this.issueService = issueService;
+        this.serviceProvider = serviceProvider;
     }
 
     @Override
     public void execute(ComChannel comChannel) {
-        final InboundCommunicationHandler inboundCommunicationHandler = new InboundCommunicationHandler(getServerInboundComPort(), this.comServerDAO, this.deviceCommandExecutor, issueService, taskHistoryService, clock);
+        final InboundCommunicationHandler inboundCommunicationHandler = new InboundCommunicationHandler(getServerInboundComPort(), this.comServerDAO, this.deviceCommandExecutor, serviceProvider);
         BinaryInboundDeviceProtocol inboundDeviceProtocol = this.newInboundDeviceProtocol();
         InboundDiscoveryContextImpl context = this.newInboundDiscoveryContext(comChannel);
         inboundDeviceProtocol.initializeDiscoveryContext(context);
@@ -44,7 +43,7 @@ public class InboundComPortExecutorImpl implements InboundComPortExecutor {
     }
 
     private InboundDiscoveryContextImpl newInboundDiscoveryContext (ComChannel comChannel) {
-        InboundDiscoveryContextImpl context = new InboundDiscoveryContextImpl(comPort, comChannel);
+        InboundDiscoveryContextImpl context = new InboundDiscoveryContextImpl(comPort, comChannel, serviceProvider.taskHistoryService());
         // Todo: needs revision as soon as we get more experience with inbound protocols that need encryption
         context.setLogger(Logger.getAnonymousLogger());
         return context;
