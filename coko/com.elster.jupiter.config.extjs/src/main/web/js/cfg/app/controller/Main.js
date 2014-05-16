@@ -37,7 +37,7 @@ Ext.define('Cfg.controller.Main', {
             items: [
                 {
                     text: 'Validation rule sets',
-                    href: '#/validation'
+                    href: '#/validation/validation'
                 }
             ]
         });

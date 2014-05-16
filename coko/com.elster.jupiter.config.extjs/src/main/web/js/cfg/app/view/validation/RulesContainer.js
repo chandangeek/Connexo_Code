@@ -64,14 +64,14 @@ Ext.define('Cfg.view.validation.RulesContainer', {
             text: 'Overview',
             pressed: true,
             itemId: 'ruleSetOverviewLink',
-            href: '#administration/validation/overview/' + me.ruleSetId,
+            href: '#validation/validation/overview/' + me.ruleSetId,
             hrefTarget: '_self'
         });
 
         var rulesButton = stepsMenu.add({
             text: 'Rules',
             itemId: 'rulesLink',
-            href: '#administration/validation/rules/' + me.ruleSetId,
+            href: '#validation/validation/rules/' + me.ruleSetId,
             hrefTarget: '_self'
         });
 

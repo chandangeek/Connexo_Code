@@ -42,11 +42,11 @@ Ext.define('Cfg.view.validation.RuleSetBrowse', {
         }
     ],
 
-    side: [
+    /*side: [
         {
             xtype: 'rulesetbrowsefilter'
         }
-    ],
+    ], */
 
 
 
