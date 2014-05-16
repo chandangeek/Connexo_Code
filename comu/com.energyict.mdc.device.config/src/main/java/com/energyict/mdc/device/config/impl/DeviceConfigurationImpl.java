@@ -45,6 +45,10 @@ import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.tasks.ComTask;
+
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -55,9 +59,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.validation.Valid;
 
 /**
  *     //TODO the creation of the CommunicationConfiguration is currently skipped ...
@@ -279,6 +280,12 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         this.registerSpecs.clear();
         this.channelSpecs.clear();
         this.logBookSpecs.clear();
+        if (this.communicationConfiguration == null) {
+            communicationConfiguration = deviceConfigurationService.findDeviceCommunicationConfigurationFor(this);
+        }
+        if (communicationConfiguration != null) {
+            communicationConfiguration.delete();
+        }
     }
 
     private void validateAllChannelSpecsHaveUniqueObisCodes() {

@@ -6,7 +6,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
@@ -28,14 +27,12 @@ import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
 import com.energyict.mdc.device.config.ServerDeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.exceptions.CannotDisableComTaskThatWasNotEnabledException;
-import com.energyict.mdc.device.config.exceptions.PartialConnectionTaskDoesNotExist;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.tasks.ComTask;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -196,30 +193,6 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
 //        }
 //    }
 
-    /**
-     * Deletes the existing {@link com.energyict.mdc.device.config.PartialConnectionTask} that matches
-     * the id of the specified PartialConnectionTaskShadow
-     * and throws a BusinessException if there is no matching PartialConnectionTask.
-     * The updated PartialConnectionTask is added to the list of updated PartialConnectionTasks.
-     *
-     * @param id The id of the obsolete PartialConnectionTask
-     * @throws BusinessException Thrown if the delete of the PartialConnectionTask violates a business constraint or
-     *                           when there is no PartialConnectionTask with a matching id.
-     * @throws SQLException      Thrown if the delete of the PartialConnectionTask violates a database constraint
-     */
-    private void deletePartialConnectionTask(int id)
-        throws
-            BusinessException,
-            SQLException {
-        for (Iterator<PartialConnectionTask> iterator = partialConnectionTasks.iterator(); iterator.hasNext(); ) {
-            PartialConnectionTask next = iterator.next();
-            if (next.getId() == id) {
-                iterator.remove();
-                return;
-            }
-        }
-    }
-
 
 //    private void createNewPartialConnectionTasks(List<PartialConnectionTaskShadow> newShadows, List<PartialConnectionTask> currentPartialConnectionTasks)
 //        throws
@@ -241,16 +214,7 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
 //        }
 //    }
 
-    private PartialConnectionTask getPartialConnectionTask(int id) throws BusinessException {
-        for (PartialConnectionTask partialConnectionTask : this.getPartialConnectionTasks()) {
-            if (partialConnectionTask.getId() == id) {
-                return partialConnectionTask; // There is only one such PartialConnectionTask so we are done now
-            }
-        }
-        throw new PartialConnectionTaskDoesNotExist(thesaurus, id);
-    }
-
-//    private BusinessException partialConnectionTaskDoesNotExist(int id) {
+    //    private BusinessException partialConnectionTaskDoesNotExist(int id) {
 //        return new BusinessException(
 //                "noPartialConnectionTaskWithIdXInDeviceConfigurationY",
 //                "There is no partial connection task with id {0} in device configuration with name {1} (id: {2})",
@@ -432,12 +396,6 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
 //            comTaskEnablement.delete();
 //        }
 //    }
-
-    private void deleteConfigurationProperties() throws SQLException, BusinessException {
-        for (ProtocolDialectConfigurationProperties configurationProperty : configurationPropertiesList) {
-            configurationProperty.delete();
-        }
-    }
 
     @Override
     public DeviceConfiguration getDeviceConfiguration() {

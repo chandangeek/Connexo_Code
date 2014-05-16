@@ -286,7 +286,7 @@ public enum TableSpecs {
                 foreignKey("FK_MDCSECPROPSET_DEVCOMCONFIG").
                 on(devicecomconfig).references(MDCDEVICECOMMCONFIG.name()).
                     map("deviceCommunicationConfiguration").
-                    reverseMap(DeviceCommunicationConfigurationImpl.Fields.SECURITY_PROPERTY_SETS.fieldName()).composition().add();
+                    reverseMap(DeviceCommunicationConfigurationImpl.Fields.SECURITY_PROPERTY_SETS.fieldName()).onDelete(CASCADE).composition().add();
             table.primaryKey("PK_MDCSECURITYPROPERTYSET").on(id).add();
         }
     },
@@ -337,7 +337,7 @@ public enum TableSpecs {
                 on(deviceCommunicationConfigation).
                 references(MDCDEVICECOMMCONFIG.name()).
                     map(ComTaskEnablementImpl.Fields.CONFIGURATION.fieldName()).
-                    reverseMap(DeviceCommunicationConfigurationImpl.Fields.COM_TASK_ENABLEMENTS.fieldName()).composition().add();
+                    reverseMap(DeviceCommunicationConfigurationImpl.Fields.COM_TASK_ENABLEMENTS.fieldName()).onDelete(CASCADE).composition().add();
             table.
                 foreignKey("FK_MDCCOMTASKENABLMNT_NEXTEXEC").
                 on(nextExecutionSpecs).
