@@ -108,7 +108,7 @@ Ext.define('Cfg.controller.Validation', {
     },
 
     getRuleSetIdFromHref: function() {
-        var urlPart = 'validation/validation/addRule/';
+        var urlPart = 'administration/validation/addRule/';
         var index = location.href.indexOf(urlPart);
         return parseInt(location.href.substring(index + urlPart.length));
     },
@@ -153,7 +153,7 @@ Ext.define('Cfg.controller.Validation', {
                     me.getValidationRuleSetsStore().reload(
                         {
                             callback: function(){
-                                location.href = '#validation/validation/rules/' + ruleSetId;
+                                location.href = '#administration/validation/rules/' + ruleSetId;
                             }
                         });
                 },
@@ -268,7 +268,7 @@ Ext.define('Cfg.controller.Validation', {
     addRule: function(id) {
         var me = this;
         var view = Ext.create('Cfg.view.validation.AddRule');
-        this.getCancelAddRuleLink().update('<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#validation/validation/rules/' + id + '">' + Uni.I18n.translate('general.cancel', 'CFG', 'Cancel') + '</a>');
+        this.getCancelAddRuleLink().update('<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#administration/validation/rules/' + id + '">' + Uni.I18n.translate('general.cancel', 'CFG', 'Cancel') + '</a>');
         this.getApplication().getController('Cfg.controller.Main').showContent(view);
         var ruleSetsStore = Ext.create('Cfg.store.ValidationRuleSets');
         ruleSetsStore.load({
@@ -302,7 +302,7 @@ Ext.define('Cfg.controller.Validation', {
         });
         var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
             text: 'Administration',
-            href: '#validation'
+            href: '#administration'
         });
         breadcrumbRuleSet.setChild(breadcrumbRules);
         breadcrumbRuleSets.setChild(breadcrumbRuleSet);
@@ -325,7 +325,7 @@ Ext.define('Cfg.controller.Validation', {
                         me.getValidationRuleSetsStore().reload(
                             {
                                 callback: function(){
-                                    location.href = '#validation/validation/rules/' + record.getId();
+                                    location.href = '#administration/validation/rules/' + record.getId();
                                 }
                             });
                     },
@@ -365,7 +365,7 @@ Ext.define('Cfg.controller.Validation', {
         });
         var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
             text: 'Administration',
-            href: '#validation'
+            href: '#administration'
         });
         breadcrumbRuleSets.setChild(breadcrumbNewRuleSet);
         breadcrumbParent.setChild(breadcrumbRuleSets);
@@ -390,7 +390,7 @@ Ext.define('Cfg.controller.Validation', {
         });
         var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
             text: 'Administration',
-            href: '#validation'
+            href: '#administration'
         });
         breadcrumbParent.setChild(breadcrumbRulesets);
 
@@ -417,7 +417,7 @@ Ext.define('Cfg.controller.Validation', {
         });
         var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
             text: 'Administration',
-            href: '#validation'
+            href: '#administration'
         });
         breadcrumbRuleSet.setChild(breadcrumbRules);
         breadcrumbRuleSets.setChild(breadcrumbRuleSet);
@@ -446,7 +446,7 @@ Ext.define('Cfg.controller.Validation', {
         });
         var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
             text: 'Administration',
-            href: '#validation'
+            href: '#administration'
         });
         breadcrumbRuleSet.setChild(breadcrumbRulesOverview);
         breadcrumbRuleSets.setChild(breadcrumbRuleSet);

@@ -78,7 +78,7 @@ Ext.define('Cfg.view.validation.CreateRuleSet', {
                                         text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
                                         xtype: 'button',
                                         ui: 'link',
-                                        href: '#/validation/validation'
+                                        href: '#/administration/validation'
                                     }
                                 ]
                             }
