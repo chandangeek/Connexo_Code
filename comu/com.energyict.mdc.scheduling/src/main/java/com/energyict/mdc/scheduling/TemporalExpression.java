@@ -23,7 +23,6 @@ public final class TemporalExpression {
 
     private TimeDuration offset = new TimeDuration();
     private TimeDuration every = new TimeDuration();
-    private boolean lastDay;
 
     /**
      * Creates a new instance of TemporalExpression.
@@ -101,6 +100,9 @@ public final class TemporalExpression {
         every.truncate(base);
         TimeDuration offset = this.offset;
         if (this.indicatesLastOfMonth()) {
+            if (previous.get(Calendar.DAY_OF_MONTH)==previous.getActualMaximum(Calendar.DAY_OF_MONTH)) {
+                base.add(Calendar.MONTH,1);
+            }
             offset = this.offsetToLastOfMonth(base, this.offset);
         }
         offset.addTo(base, true);
@@ -113,9 +115,10 @@ public final class TemporalExpression {
     }
 
     private TimeDuration offsetToLastOfMonth (Calendar base, TimeDuration offset) {
-        /* Base will already be set to the first of the month
+        /** Base will already be set to the first of the month
          * so to get to midnight of the last day,
-         * we need to add max - 1 days to the first day of the month. */
+         * we need to add max - 1 days to the first day of the month.
+         **/
         int lastDayOfMonth = base.getActualMaximum(Calendar.DAY_OF_MONTH) - 1;
         int remainingSecondsInDay = offset.getSeconds() % DateTimeConstants.SECONDS_PER_DAY;
         if (remainingSecondsInDay > 0) {
@@ -128,7 +131,7 @@ public final class TemporalExpression {
 
     private boolean indicatesLastOfMonth () {
         return every.getTimeUnitCode() == TimeDuration.MONTHS
-            && offset.getSeconds() > NUMBER_OF_SECONDS_IN_MAXIMUM_DAYS_IN_ALL_MONTHS;
+            && offset.getSeconds() >= NUMBER_OF_SECONDS_IN_MAXIMUM_DAYS_IN_ALL_MONTHS;
     }
 
 
@@ -164,10 +167,15 @@ public final class TemporalExpression {
     }
 
     public boolean isLastDay() {
-        return lastDay;
+        return this.indicatesLastOfMonth();
     }
 
-    public void setLastDay(boolean lastDay) {
-        this.lastDay = lastDay;
+    public void setLastDay() {
+        if (this.every.getTimeUnitCode()!= TimeDuration.MONTHS) {
+            throw new IllegalStateException("Can only switch to lastOfMonth is period is monthly");
+        }
+        if (!this.indicatesLastOfMonth()) {
+            offset=new TimeDuration(this.offset.getSeconds()+NUMBER_OF_SECONDS_IN_MAXIMUM_DAYS_IN_ALL_MONTHS, TimeDuration.SECONDS);
+        }
     }
 }

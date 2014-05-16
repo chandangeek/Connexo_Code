@@ -481,6 +481,106 @@ public final class TemporalExpressionTest extends EqualsContractTest {
     }
 
     @Test
+    public void testOnLastDayOfMonthSpecifiedWithOffset31And6PMWithSetLastDay() {
+        int offsetInSeconds = DateTimeConstants.SECONDS_PER_HOUR * 18;
+        TemporalExpression expression = new TemporalExpression(new TimeDuration(1, TimeDuration.MONTHS), new TimeDuration(offsetInSeconds));
+        expression.setLastDay();
+        Calendar february1st2013 = Calendar.getInstance();
+        february1st2013.set(2013, Calendar.FEBRUARY, 1, 0, 0, 0);
+        Date nextOccurrence = expression.nextOccurrence(february1st2013);
+        Calendar nextCalendar = Calendar.getInstance();
+        nextCalendar.setTime(nextOccurrence);
+        assertThat(nextCalendar.get(Calendar.MONTH)).describedAs("Calculated nextOccurrence month is not correct !").isEqualTo(Calendar.FEBRUARY);
+        assertThat(nextCalendar.get(Calendar.DAY_OF_MONTH)).describedAs("Calculated nextOccurrence day is not correct !").isEqualTo(28);
+        assertThat(nextCalendar.get(Calendar.HOUR_OF_DAY)).describedAs("Calculated nextOccurrence hour is not correct !").isEqualTo(18);
+        assertThat(nextCalendar.get(Calendar.MINUTE)).describedAs("Calculated nextOccurrence minute is not correct !").isEqualTo(0);
+        assertThat(nextCalendar.get(Calendar.SECOND)).describedAs("Calculated nextOccurrence second is not correct !").isEqualTo(0);
+    }
+
+    @Test
+    public void testGetLastDayNotSet() throws Exception {
+        int offsetInSeconds = DateTimeConstants.SECONDS_PER_HOUR * 18;
+        TemporalExpression expression = new TemporalExpression(new TimeDuration(1, TimeDuration.MONTHS), new TimeDuration(offsetInSeconds));
+        assertThat(expression.isLastDay()).isFalse();
+    }
+
+    @Test
+    public void testGetLastDaySet() throws Exception {
+        int offsetInSeconds = DateTimeConstants.SECONDS_PER_HOUR * 18;
+        TemporalExpression expression = new TemporalExpression(new TimeDuration(1, TimeDuration.MONTHS), new TimeDuration(offsetInSeconds));
+        expression.setLastDay();
+        assertThat(expression.isLastDay()).isTrue();
+    }
+
+    @Test
+    public void testLastOfMonthStartingAfterLastWithOffset() throws Exception {
+        TemporalExpression expression = new TemporalExpression(new TimeDuration(1, TimeDuration.MONTHS), new TimeDuration(4, TimeDuration.HOURS));
+        expression.setLastDay();
+        Calendar march5th2013 = Calendar.getInstance();
+        march5th2013.set(2013, Calendar.MARCH, 5, 16, 0, 0);
+        Date nextOccurrence = expression.nextOccurrence(march5th2013);
+        Calendar nextCalendar = Calendar.getInstance();
+        nextCalendar.setTime(nextOccurrence);
+        assertThat(nextCalendar.get(Calendar.MONTH)).describedAs("Calculated nextOccurrence month is not correct !").isEqualTo(Calendar.APRIL);
+        assertThat(nextCalendar.get(Calendar.DAY_OF_MONTH)).describedAs("Calculated nextOccurrence day is not correct !").isEqualTo(30);
+        assertThat(nextCalendar.get(Calendar.HOUR_OF_DAY)).describedAs("Calculated nextOccurrence hour is not correct !").isEqualTo(4);
+        assertThat(nextCalendar.get(Calendar.MINUTE)).describedAs("Calculated nextOccurrence minute is not correct !").isEqualTo(0);
+        assertThat(nextCalendar.get(Calendar.SECOND)).describedAs("Calculated nextOccurrence second is not correct !").isEqualTo(0);
+    }
+
+    @Test
+    public void testLastOfAfterAprilWithoutOffset() throws Exception {
+        TemporalExpression expression = new TemporalExpression(new TimeDuration(1, TimeDuration.MONTHS));
+        expression.setLastDay();
+        Calendar april5th2013 = Calendar.getInstance();
+        april5th2013.set(2013, Calendar.APRIL, 5, 0, 0, 0);
+        Date nextOccurrence = expression.nextOccurrence(april5th2013);
+        Calendar nextCalendar = Calendar.getInstance();
+        nextCalendar.setTime(nextOccurrence);
+        assertThat(nextCalendar.get(Calendar.MONTH)).describedAs("Calculated nextOccurrence month is not correct !").isEqualTo(Calendar.APRIL);
+        assertThat(nextCalendar.get(Calendar.DAY_OF_MONTH)).describedAs("Calculated nextOccurrence day is not correct !").isEqualTo(30);
+        assertThat(nextCalendar.get(Calendar.HOUR_OF_DAY)).describedAs("Calculated nextOccurrence hour is not correct !").isEqualTo(0);
+        assertThat(nextCalendar.get(Calendar.MINUTE)).describedAs("Calculated nextOccurrence minute is not correct !").isEqualTo(0);
+        assertThat(nextCalendar.get(Calendar.SECOND)).describedAs("Calculated nextOccurrence second is not correct !").isEqualTo(0);
+    }
+
+    @Test
+    public void testLastOfAfterJulyWithoutOffset() throws Exception {
+        TemporalExpression expression = new TemporalExpression(new TimeDuration(1, TimeDuration.MONTHS));
+        expression.setLastDay();
+        Calendar july5th2013 = Calendar.getInstance();
+        july5th2013.set(2013, Calendar.JULY, 5, 0, 0, 0);
+        Date nextOccurrence = expression.nextOccurrence(july5th2013);
+        Calendar nextCalendar = Calendar.getInstance();
+        nextCalendar.setTime(nextOccurrence);
+        assertThat(nextCalendar.get(Calendar.MONTH)).describedAs("Calculated nextOccurrence month is not correct !").isEqualTo(Calendar.JULY);
+        assertThat(nextCalendar.get(Calendar.DAY_OF_MONTH)).describedAs("Calculated nextOccurrence day is not correct !").isEqualTo(31);
+        assertThat(nextCalendar.get(Calendar.HOUR_OF_DAY)).describedAs("Calculated nextOccurrence hour is not correct !").isEqualTo(0);
+        assertThat(nextCalendar.get(Calendar.MINUTE)).describedAs("Calculated nextOccurrence minute is not correct !").isEqualTo(0);
+        assertThat(nextCalendar.get(Calendar.SECOND)).describedAs("Calculated nextOccurrence second is not correct !").isEqualTo(0);
+    }
+
+    @Test
+    public void testLastOfMonthRoundRobin() throws Exception {
+        int[] lastDayIndex = {31,28,31,30,31,30,31,31,30,31,30,31};
+        TemporalExpression expression = new TemporalExpression(new TimeDuration(1, TimeDuration.MONTHS), new TimeDuration(1, TimeDuration.HOURS));
+        expression.setLastDay();
+        Calendar januari5th2013 = Calendar.getInstance();
+        januari5th2013.set(2013, Calendar.JANUARY, 5, 0, 0, 0);
+        Calendar nextCalendar = januari5th2013;
+        for (int month=Calendar.JANUARY; month<=Calendar.DECEMBER; month++) {
+            Date nextOccurrence = expression.nextOccurrence(januari5th2013);
+            System.out.println(nextOccurrence);
+            nextCalendar.setTime(nextOccurrence);
+//            assertThat(nextCalendar.get(Calendar.MONTH)).describedAs("Calculated nextOccurrence month is not correct for month "+month).isEqualTo(month);
+//            assertThat(nextCalendar.get(Calendar.DAY_OF_MONTH)).describedAs("Calculated nextOccurrence day is not correct for month "+month).isEqualTo(lastDayIndex[month]);
+//            assertThat(nextCalendar.get(Calendar.HOUR_OF_DAY)).describedAs("Calculated nextOccurrence hour is not correct for month " + month).isEqualTo(0);
+//            assertThat(nextCalendar.get(Calendar.MINUTE)).describedAs("Calculated nextOccurrence minute is not correct for month " + month).isEqualTo(0);
+//            assertThat(nextCalendar.get(Calendar.SECOND)).describedAs("Calculated nextOccurrence second is not correct for month " + month).isEqualTo(0);
+        }
+    }
+
+    @Test
     public void testOnLastDayOfMonthSpecifiedWithOffset30 () {
         TemporalExpression expression = new TemporalExpression(new TimeDuration(1, TimeDuration.MONTHS), new TimeDuration(31, TimeDuration.DAYS));
         Calendar february1st2013 = Calendar.getInstance();
