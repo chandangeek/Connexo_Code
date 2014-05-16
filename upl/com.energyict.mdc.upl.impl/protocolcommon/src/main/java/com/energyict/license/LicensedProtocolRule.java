@@ -224,7 +224,6 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     SDK_DEVICE_PROTOCOL(193, "com.energyict.protocolimplv2.sdksample.SDKDeviceProtocol", FamilyRule.TEST),
     RTU_PLUS_IDIS(194, "com.energyict.protocolimplv2.eict.rtuplusserver.idis.RtuPlusServer", FamilyRule.IDIS_GATEWAY),
     AS220_GAS(195, "com.energyict.protocolimpl.dlms.as220.GasDevice", FamilyRule.ELSTER_MULTI_FREQ),
-    RTU_PLUS_EIWEBPLUS(195, "com.energyict.protocolimplv2.eict.rtuplusserver.eiwebplus.RtuServer", FamilyRule.EICT_RTU_EMS),
 
     // Rtu+ Server
     RtuServer(196, "com.energyict.rtuprotocol.RtuServer", FamilyRule.EICT_RTU_EMS, FamilyRule.ELSTER_MULTI_FREQ, FamilyRule.IDIS_P1),
@@ -246,6 +245,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     WATCHTALK_MBUS(211, "com.energyict.smartmeterprotocolimpl.nta.dsmr23.xemex.MbusDevice", FamilyRule.EICT_NTA),
     EK280_DLMS(212, "com.elster.protocolimpl.dlms.EK280"),
     CUBE350(213, "com.energyict.protocolimpl.modbus.northerndesign.cube350.Cube350", FamilyRule.EICT_RTU_EMS),
+    RTU_PLUS_EIWEBPLUS(214, "com.energyict.protocolimplv2.eict.rtuplusserver.eiwebplus.RtuServer", FamilyRule.EICT_RTU_EMS),
 
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),
