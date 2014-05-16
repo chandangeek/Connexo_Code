@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 public class StandardParametersBean {
 
     private UriInfo uriInfo;
+    private boolean isRegExp;
 
     public StandardParametersBean(@Context UriInfo uriInfo) {
         this.uriInfo = uriInfo;
@@ -27,9 +28,15 @@ public class StandardParametersBean {
     }
 
     public String getFirst(Object key){
+        isRegExp = false;
         List<String> values = get(key);
         if (values != null && values.size() > 0) {
-            return values.get(0);
+            String value = values.get(0);
+            if (value.contains("*")) {
+                value = value.replaceAll("\\*","%");
+                isRegExp = true;
+            }
+            return value;
         }
         return null;
     }
@@ -57,5 +64,9 @@ public class StandardParametersBean {
 
     public UriInfo getUriInfo() {
         return uriInfo;
+    }
+
+    public boolean isRegExp() {
+        return isRegExp;
     }
 }

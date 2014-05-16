@@ -61,12 +61,16 @@ public class DeviceResource {
     private Condition addDeviceQueryCondition(StandardParametersBean params) {
         Condition conditionDevice = Condition.TRUE;
         String mRID = params.getFirst("mRID");
-        String serialNumber = params.getFirst("serialNumber");
         if (mRID != null) {
-            conditionDevice = conditionDevice.and(where("mRID").isEqualTo(mRID));
+            conditionDevice =  !params.isRegExp()
+                    ? conditionDevice.and(where("mRID").isEqualTo(mRID))
+                    : conditionDevice.and(where("mRID").likeIgnoreCase(mRID));
         }
+        String serialNumber = params.getFirst("serialNumber");
         if (serialNumber != null) {
-            conditionDevice = conditionDevice.and(where("serialNumber").isEqualTo(serialNumber));
+            conditionDevice =  !params.isRegExp()
+                    ? conditionDevice.and(where("serialNumber").isEqualTo(serialNumber))
+                    : conditionDevice.and(where("serialNumber").likeIgnoreCase(serialNumber));
         }
         return conditionDevice;
     }
