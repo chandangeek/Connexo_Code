@@ -215,7 +215,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
 
     // DeviceProtocols
     ELSTER_MBUS(185, "com.energyict.protocolimplv2.nta.elster.MbusDevice", FamilyRule.ELSTER_AM100),
-    RTU_PLUS(186, "com.energyict.protocolimplv2.eict.rtuplusserver.g3.RtuPlusServer", FamilyRule.G3_LINKY_DLMS),
+    RTU_PLUS_G3(186, "com.energyict.protocolimplv2.eict.rtuplusserver.g3.RtuPlusServer", FamilyRule.G3_LINKY_DLMS),
     AM100(188, "com.energyict.protocolimplv2.nta.elster.AM100", FamilyRule.ELSTER_AM100),
     MTU155(189, "com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155"),
     WEB_RTU_WAVENIS_GATEWAY(190, "com.energyict.protocolimplv2.coronis.muc.WebRTUWavenisGateway", FamilyRule.CORONIS),
@@ -224,6 +224,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     SDK_DEVICE_PROTOCOL(193, "com.energyict.protocolimplv2.sdksample.SDKDeviceProtocol", FamilyRule.TEST),
     RTU_PLUS_IDIS(194, "com.energyict.protocolimplv2.eict.rtuplusserver.idis.RtuPlusServer", FamilyRule.IDIS_GATEWAY),
     AS220_GAS(195, "com.energyict.protocolimpl.dlms.as220.GasDevice", FamilyRule.ELSTER_MULTI_FREQ),
+    RTU_PLUS_EIWEBPLUS(195, "com.energyict.protocolimplv2.eict.rtuplusserver.eiwebplus.RtuServer", FamilyRule.EICT_RTU_EMS),
 
     // Rtu+ Server
     RtuServer(196, "com.energyict.rtuprotocol.RtuServer", FamilyRule.EICT_RTU_EMS, FamilyRule.ELSTER_MULTI_FREQ, FamilyRule.IDIS_P1),
@@ -269,6 +270,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     private Set<ProtocolFamily> families;
 
     LicensedProtocolRule(int code, String className, ProtocolFamily... families) {
+        this.name();
         this.code = code;
         this.className = className;
         this.families = new HashSet<>(Arrays.asList(families));
