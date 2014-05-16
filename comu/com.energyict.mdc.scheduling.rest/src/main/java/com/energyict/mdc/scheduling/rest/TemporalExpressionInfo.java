@@ -29,7 +29,9 @@ public class TemporalExpressionInfo {
             } else {
                 temporalExpression = new TemporalExpression(this.every.asTimeDuration(), this.offset.asTimeDuration());
             }
-            temporalExpression.setLastDay(this.lastDay);
+            if (this.lastDay) {
+                temporalExpression.setLastDay();
+            }
             return temporalExpression;
         }
     }
