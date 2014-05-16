@@ -167,7 +167,8 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
      */
     @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-        List<AuthenticationDeviceAccessLevel> authenticationAccessLevels = getMeterProtocol().getAuthenticationAccessLevels();
+        List<AuthenticationDeviceAccessLevel> authenticationAccessLevels = new ArrayList<>();
+        authenticationAccessLevels.addAll(getMeterProtocol().getAuthenticationAccessLevels());
         authenticationAccessLevels.add(new InheritedAuthenticationDeviceAccessLevel());
         return authenticationAccessLevels;
     }
@@ -179,7 +180,8 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
      */
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
-        List<EncryptionDeviceAccessLevel> encryptionAccessLevels = getMeterProtocol().getEncryptionAccessLevels();
+        List<EncryptionDeviceAccessLevel> encryptionAccessLevels = new ArrayList<>();
+        encryptionAccessLevels.addAll(getMeterProtocol().getEncryptionAccessLevels());
         encryptionAccessLevels.add(new InheritedEncryptionDeviceAccessLevel());
         return encryptionAccessLevels;
     }

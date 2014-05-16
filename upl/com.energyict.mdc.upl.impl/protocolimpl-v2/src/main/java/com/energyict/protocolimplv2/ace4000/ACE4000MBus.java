@@ -27,14 +27,16 @@ public class ACE4000MBus extends ACE4000Outbound {
 
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
-        List<EncryptionDeviceAccessLevel> encryptionAccessLevels = super.getEncryptionAccessLevels();
+        List<EncryptionDeviceAccessLevel> encryptionAccessLevels = new ArrayList<>();
+        encryptionAccessLevels.addAll(super.getEncryptionAccessLevels());
         encryptionAccessLevels.add(new InheritedEncryptionDeviceAccessLevel());
         return encryptionAccessLevels;
     }
 
     @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-        List<AuthenticationDeviceAccessLevel> authenticationAccessLevels = super.getAuthenticationAccessLevels();
+        List<AuthenticationDeviceAccessLevel> authenticationAccessLevels = new ArrayList<>();
+        authenticationAccessLevels.addAll(super.getAuthenticationAccessLevels());
         authenticationAccessLevels.add(new InheritedAuthenticationDeviceAccessLevel());
         return authenticationAccessLevels;
     }
