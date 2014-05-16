@@ -27,6 +27,8 @@ import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP;
+import com.energyict.protocolimplv2.security.InheritedAuthenticationDeviceAccessLevel;
+import com.energyict.protocolimplv2.security.InheritedEncryptionDeviceAccessLevel;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,10 +39,11 @@ import java.util.logging.Logger;
 
 /**
  * The Abstract NTA Mbus device implements the {@link DeviceProtocol} interface so we can
-  * define this as a pluggable class in EIS 9.1.
-  * Most of the methods throw an unsupportedMethod CodingException, if your subclass wants
-  * to use one of these, then simple override them.
+ * define this as a pluggable class in EIS 9.1.
+ * Most of the methods throw an unsupportedMethod CodingException, if your subclass wants
+ * to use one of these, then simply override them.
  * <p/>
+ *
  * @author sva
  * @since 29/11/13 - 9:21
  */
@@ -158,14 +161,27 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
         return getMeterProtocol().getSecurityRelationTypeName();
     }
 
+    /**
+     * Return the access levels of the master AND a dummy level that indicates that this device can also
+     * simply inherit the security properties of the master device, instead of specifying the security properties again
+     */
     @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-        return getMeterProtocol().getAuthenticationAccessLevels();
+        List<AuthenticationDeviceAccessLevel> authenticationAccessLevels = getMeterProtocol().getAuthenticationAccessLevels();
+        authenticationAccessLevels.add(new InheritedAuthenticationDeviceAccessLevel());
+        return authenticationAccessLevels;
     }
 
+
+    /**
+     * Return the access levels of the master AND a dummy level that indicates that this device can also
+     * simply inherit the security properties of the master device, instead of specifying the security properties again
+     */
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
-        return getMeterProtocol().getEncryptionAccessLevels();
+        List<EncryptionDeviceAccessLevel> encryptionAccessLevels = getMeterProtocol().getEncryptionAccessLevels();
+        encryptionAccessLevels.add(new InheritedEncryptionDeviceAccessLevel());
+        return encryptionAccessLevels;
     }
 
     @Override

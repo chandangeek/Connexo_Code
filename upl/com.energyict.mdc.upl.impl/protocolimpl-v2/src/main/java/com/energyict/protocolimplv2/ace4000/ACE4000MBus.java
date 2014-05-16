@@ -1,6 +1,10 @@
 package com.energyict.protocolimplv2.ace4000;
 
+import com.energyict.comserver.adapters.common.InheritedAuthenticationDeviceAccessLevel;
+import com.energyict.comserver.adapters.common.InheritedEncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +23,20 @@ public class ACE4000MBus extends ACE4000Outbound {
         List<DeviceProtocolCapabilities> capabilities = new ArrayList<DeviceProtocolCapabilities>();
         capabilities.add(DeviceProtocolCapabilities.PROTOCOL_SLAVE);
         return capabilities;
+    }
+
+    @Override
+    public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
+        List<EncryptionDeviceAccessLevel> encryptionAccessLevels = super.getEncryptionAccessLevels();
+        encryptionAccessLevels.add(new InheritedEncryptionDeviceAccessLevel());
+        return encryptionAccessLevels;
+    }
+
+    @Override
+    public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
+        List<AuthenticationDeviceAccessLevel> authenticationAccessLevels = super.getAuthenticationAccessLevels();
+        authenticationAccessLevels.add(new InheritedAuthenticationDeviceAccessLevel());
+        return authenticationAccessLevels;
     }
 
     @Override
