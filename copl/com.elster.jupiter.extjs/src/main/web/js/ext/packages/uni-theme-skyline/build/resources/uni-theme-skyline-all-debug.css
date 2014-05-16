@@ -20886,6 +20886,7 @@ h6 {
 
 /* line 4, ../../sass/src/container/NavigationMenu.scss */
 .x-container-navigationmenu {
+  padding-top: 48px;
   background: -webkit-linear-gradient(top, #2e587e, #478bae);
   /* For Safari 5.1 to 6.0 */
   background: -o-linear-gradient(bottom, #2e587e, #478bae);
@@ -20907,27 +20908,27 @@ h6 {
   /* Safari and Chrome */
   -o-transition: width 400ms;
   /* Opera */ }
-  /* line 25, ../../sass/src/container/NavigationMenu.scss */
+  /* line 27, ../../sass/src/container/NavigationMenu.scss */
   .x-container-navigationmenu:hover {
     width: 244px !important;
     padding-right: 1px; }
-  /* line 30, ../../sass/src/container/NavigationMenu.scss */
+  /* line 32, ../../sass/src/container/NavigationMenu.scss */
   .x-container-navigationmenu .menu-item, .x-container-navigationmenu .x-box-inner, .x-container-navigationmenu .x-box-target {
     width: 100% !important; }
-  /* line 34, ../../sass/src/container/NavigationMenu.scss */
+  /* line 36, ../../sass/src/container/NavigationMenu.scss */
   .x-container-navigationmenu .x-panel-body-default {
     background-color: transparent; }
-  /* line 38, ../../sass/src/container/NavigationMenu.scss */
+  /* line 40, ../../sass/src/container/NavigationMenu.scss */
   .x-container-navigationmenu .x-pressed {
     background-color: white; }
-    /* line 42, ../../sass/src/container/NavigationMenu.scss */
+    /* line 44, ../../sass/src/container/NavigationMenu.scss */
     .x-container-navigationmenu .x-pressed .x-btn-button .x-btn-inner, .x-container-navigationmenu .x-pressed .x-btn-button .x-btn-glyph {
       color: #2f77ac; }
-    /* line 46, ../../sass/src/container/NavigationMenu.scss */
+    /* line 48, ../../sass/src/container/NavigationMenu.scss */
     .x-container-navigationmenu .x-pressed .x-btn-button:hover {
       background-color: white; }
 
-/* line 53, ../../sass/src/container/NavigationMenu.scss */
+/* line 55, ../../sass/src/container/NavigationMenu.scss */
 .x-container-navigationwrapper {
   padding-right: 48px; }
 

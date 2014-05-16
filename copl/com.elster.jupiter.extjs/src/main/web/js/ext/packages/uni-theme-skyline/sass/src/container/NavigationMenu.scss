@@ -2,6 +2,8 @@ $menu-width-expanded: 245px;
 $menu-width-collapsed: 48px;
 
 .#{$prefix}container-navigationmenu {
+    padding-top: 48px;
+
     background: -webkit-linear-gradient(top, $navigationmenu-default-bg-gradient-start-color, $navigationmenu-default-bg-gradient-end-color); /* For Safari 5.1 to 6.0 */
     background: -o-linear-gradient(bottom, $navigationmenu-default-bg-gradient-start-color, $navigationmenu-default-bg-gradient-end-color); /* For Opera 11.1 to 12.0 */
     background: -moz-linear-gradient(bottom, $navigationmenu-default-bg-gradient-start-color, $navigationmenu-default-bg-gradient-end-color); /* For Firefox 3.6 to 15 */
