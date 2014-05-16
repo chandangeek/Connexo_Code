@@ -20,12 +20,10 @@ import com.energyict.mdc.dynamic.ThreeStateFactory;
 import com.energyict.mdc.dynamic.TimeDurationValueFactory;
 import com.energyict.mdc.dynamic.TimeOfDayFactory;
 import com.energyict.mdc.dynamic.ValueFactory;
-import com.energyict.mdc.pluggable.rest.impl.CodeTableInfo;
-import com.energyict.mdc.pluggable.rest.impl.LoadProfileTypeInfo;
-import com.energyict.mdc.pluggable.rest.impl.TimeZoneInUseInfo;
-import com.energyict.mdc.pluggable.rest.impl.UserFileReferenceInfo;
-
-import java.util.Map;
+import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.protocol.api.UserFile;
+import com.energyict.mdc.protocol.api.codetables.Code;
+import com.energyict.mdc.protocol.api.timezones.TimeZoneInUse;
 
 /**
  * Represents simple types which a property can have
@@ -35,173 +33,62 @@ import java.util.Map;
  * Time: 11:44
  */
 public enum SimplePropertyType {
-    UNKNOWN(false) {
-        @Override
-        public Object getInfoObject(Map<String, Object> map) {
-            throw new UnsupportedOperationException("GetInfoObject is not supported on the type 'UNKNOWN'");
-        }
-    },
-    PASSWORD(false, PasswordFactory.class) {
-        @Override
-        public Object getInfoObject(Map<String, Object> map) {
-            throw new UnsupportedOperationException("GetInfoObject is not supported on the type 'PASSWORD', JSON should have properly deserialized this");
-        }
-    },
-    HEXSTRING(false, HexStringFactory.class) {
-        @Override
-        public Object getInfoObject(Map<String, Object> map) {
-            throw new UnsupportedOperationException("GetInfoObject is not supported on the type 'HEXSTRING', JSON should have properly deserialized this");
-        }
-    },
-    NUMBER(false, BigDecimalFactory.class) {
-        @Override
-        public Object getInfoObject(Map<String, Object> map) {
-            throw new UnsupportedOperationException("GetInfoObject is not supported on the type 'NUMBER', JSON should have properly deserialized this");
-        }
-    },
-    NULLABLE_BOOLEAN(false, ThreeStateFactory.class) {
-        @Override
-        public Object getInfoObject(Map<String, Object> map) {
-            throw new UnsupportedOperationException("GetInfoObject is not supported on the type 'NULLABLE_BOOLEAN', JSON should have properly deserialized this");
-        }
-    },
-    BOOLEAN(false, BooleanFactory.class) {
-        @Override
-        public Object getInfoObject(Map<String, Object> map) {
-            throw new UnsupportedOperationException("GetInfoObject is not supported on the type 'BOOLEAN', JSON should have properly deserialized this");
-        }
-    },
-    TIMEDURATION(false, TimeDurationValueFactory.class) {
-        @Override
-        public Object getInfoObject(Map<String, Object> map) {
-            throw new UnsupportedOperationException("GetInfoObject is not supported on the type 'TIMEDURATION', JSON should have properly deserialized this");
-        }
-    },
-    TIMEOFDAY(false, TimeOfDayFactory.class) {
-        @Override
-        public Object getInfoObject(Map<String, Object> map) {
-            throw new UnsupportedOperationException("GetInfoObject is not supported on the type 'TIMEOFDAY', JSON should have properly deserialized this");
-        }
-    },
-    CLOCK(false, DateAndTimeFactory.class) {
-        @Override
-        public Object getInfoObject(Map<String, Object> map) {
-            throw new UnsupportedOperationException("GetInfoObject is not supported on the type 'CLOCK', JSON should have properly deserialized this");
-        }
-    },
-    CODETABLE(true, Environment.DEFAULT.get().findFactory(FactoryIds.CODE.id()).getClass()) {
-        @Override
-        public Object getInfoObject(Map<String, Object> map) {
-            return new CodeTableInfo(map);
-        }
-    },
-    TIMEZONEINUSE(true, Environment.DEFAULT.get().findFactory(FactoryIds.TIMEZONE_IN_USE.id()).getClass()) {
-        @Override
-        public Object getInfoObject(Map<String, Object> map) {
-            return new TimeZoneInUseInfo(map);
-        }
-    },
-    USERFILEREFERENCE(true, Environment.DEFAULT.get().findFactory(FactoryIds.USERFILE.id()).getClass()) {
-        @Override
-        public Object getInfoObject(Map<String, Object> map) {
-            return new UserFileReferenceInfo(map);
-        }
-    },
-    LOADPROFILETYPE(true, Environment.DEFAULT.get().finderFor(FactoryIds.LOADPROFILE_TYPE).getClass()) {
-        @Override
-        public Object getInfoObject(Map<String, Object> map) {
-            return new LoadProfileTypeInfo(map);
-        }
-    },
-  /*  LOADPROFILE(true, LoadProfileFactory.class) {
-        @Override
-        public Object getInfoObject(Map<String, Object> map) {
-            return new LoadProfileInfo(map);
-        }
-    },*/
-    EAN13(false, Ean13Factory.class) {
-        @Override
-        public Object getInfoObject(Map<String, Object> map) {
-            throw new UnsupportedOperationException("GetInfoObject is not supported on the type 'EAN13', JSON should have properly deserialized this");
-        }
-    },
-    EAN18(false, Ean18Factory.class) {
-        @Override
-        public Object getInfoObject(Map<String, Object> map) {
-            throw new UnsupportedOperationException("GetInfoObject is not supported on the type 'EAN13', JSON should have properly deserialized this");
-        }
-    },
-    SPATIAL_COORDINATES(false, SpatialCoordinatesFactory.class) {
-        @Override
-        public Object getInfoObject(Map<String, Object> map) {
-            throw new UnsupportedOperationException("GetInfoObject is not supported on the type 'EAN13', JSON should have properly deserialized this");
-        }
-    },
-    DATE(false, DateFactory.class) {
-        @Override
-        public Object getInfoObject(Map<String, Object> map) {
-            throw new UnsupportedOperationException("GetInfoObject is not supported on the type 'DATE', JSON should have properly deserialized this");
-        }
-    },
+    UNKNOWN(Void.class),
+    PASSWORD(PasswordFactory.class),
+    HEXSTRING(HexStringFactory.class),
+    NUMBER(BigDecimalFactory.class),
+    NULLABLE_BOOLEAN(ThreeStateFactory.class),
+    BOOLEAN(BooleanFactory.class),
+    TIMEDURATION(TimeDurationValueFactory.class),
+    TIMEOFDAY(TimeOfDayFactory.class),
+    CLOCK(DateAndTimeFactory.class),
+    CODETABLE(FactoryIds.CODE, Code.class),
+    TIMEZONEINUSE(FactoryIds.TIMEZONE_IN_USE, TimeZoneInUse.class),
+    USERFILEREFERENCE(FactoryIds.USERFILE, UserFile.class),
+    LOADPROFILETYPE(FactoryIds.LOADPROFILE_TYPE, LoadProfileType.class),
+    EAN13(Ean13Factory.class),
+    EAN18(Ean18Factory.class),
+    SPATIAL_COORDINATES(SpatialCoordinatesFactory.class),
+    DATE(DateFactory.class),
+    TEXTAREA(LargeStringFactory.class),
+    ENCRYPTED_STRING(EncryptedStringFactory.class),
+    OBISCODE(ObisCodeValueFactory.class),
+    READINGTYPE(ReadingType.class),
+    TEXT(StringFactory.class);
 
-    TEXTAREA(false, LargeStringFactory.class) {
-        public Object getInfoObject(Map<String, Object> map) {
-            throw new UnsupportedOperationException("GetInfoObject is not supported on the type 'TEXTAREA', JSON should have properly deserialized this");
-        }
-    },
-
-    ENCRYPTED_STRING(false, EncryptedStringFactory.class) {
-        public Object getInfoObject(Map<String, Object> map) {
-            throw new UnsupportedOperationException("GetInfoObject is not supported on the type 'ENCRYPTED_STRING', JSON should have properly deserialized this");
-        }
-    },
-
-    OBISCODE(false, ObisCodeValueFactory.class) {
-        public Object getInfoObject(Map<String, Object> map) {
-            throw new UnsupportedOperationException("GetInfoObject is not supported on the type 'OBISCODE', JSON should have properly deserialized this");
-        }
-    },
-
-    READINGTYPE(false, ReadingType.class) {
-        public Object getInfoObject(Map<String, Object> map) {
-            throw new UnsupportedOperationException("GetInfoObject is not supported on the type 'READINGTYPE', JSON should have properly deserialized this");
-        }
-    },
-
-    TEXT(false, StringFactory.class) {
-        @Override
-        public Object getInfoObject(Map<String, Object> map) {
-            throw new UnsupportedOperationException("GetInfoObject is not supported on the type 'TEXT', JSON should have properly deserialized this");
-        }
-    };
-
-    private Class[] classes;
+    private Class valueFactoryClass;
+    private Class domainClass;
+    private FactoryIds factoryId;
     private boolean isReference;
 
-    SimplePropertyType(boolean reference, Class... classes) {
-        isReference = reference;
-        this.classes = classes;
+    SimplePropertyType(Class valueFactoryClass) {
+        this.isReference = false;
+        this.valueFactoryClass = valueFactoryClass;
     }
 
-    /**
-     * Returns the Referenced object from the JSON HashMap
-     *
-     * @param map the Map JSON created from the PropertyValueInfo object value
-     * @return the corresponding known xxxInfo object
-     */
-
-    public abstract Object getInfoObject(Map<String, Object> map);
+    SimplePropertyType(FactoryIds factoryId, Class domainClass) {
+        this.isReference = true;
+        this.factoryId = factoryId;
+        this.domainClass = domainClass;
+    }
 
     public boolean isReference() {
         return isReference;
     }
 
+    private boolean matches (ValueFactory valueFactory) {
+        if (this.isReference()) {
+            return this.domainClass.isAssignableFrom(valueFactory.getValueType());
+        }
+        else {
+            return this.valueFactoryClass.isAssignableFrom(valueFactory.getClass());
+        }
+    }
+
     public static SimplePropertyType getTypeFrom(ValueFactory valueFactory) {
         for (SimplePropertyType simplePropertyType : values()) {
-            for (Class aClass : simplePropertyType.classes) {
-                if (aClass.isAssignableFrom(valueFactory.getClass())) {
-                    return simplePropertyType;
-                }
+            if (simplePropertyType.matches(valueFactory)) {
+                return simplePropertyType;
             }
         }
         return UNKNOWN;
