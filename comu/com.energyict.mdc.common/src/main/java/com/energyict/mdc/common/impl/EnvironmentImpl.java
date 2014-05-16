@@ -1,7 +1,5 @@
 package com.energyict.mdc.common.impl;
 
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.ApplicationComponent;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.ApplicationException;
@@ -10,16 +8,17 @@ import com.energyict.mdc.common.BusinessEventManager;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.BusinessObjectFactory;
 import com.energyict.mdc.common.CacheHolder;
-import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.DatabaseException;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryFinder;
-import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.FormatPreferences;
 import com.energyict.mdc.common.JmsSessionContext;
 import com.energyict.mdc.common.MultiBundleTranslator;
 import com.energyict.mdc.common.Transaction;
 import com.energyict.mdc.common.Translator;
+
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.TransactionService;
 import oracle.jdbc.OracleConnection;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -89,8 +88,6 @@ public class EnvironmentImpl implements Environment {
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile BundleContext context;
-    private volatile Map<FactoryIds, CanFindByLongPrimaryKey> findersById = new HashMap<>();
-    private volatile Map<Class, CanFindByLongPrimaryKey> findersByClass = new HashMap<>();
 
     public EnvironmentImpl () {
         this.localNamedObjectsHolder = new ThreadLocal<NamedObjects>() {
@@ -554,22 +551,6 @@ public class EnvironmentImpl implements Environment {
         protected GlobalNamedObjects () {
             super(Collections.synchronizedMap(new HashMap<String, Object>()));
         }
-    }
-
-    @Override
-    public void registerFinder(CanFindByLongPrimaryKey finder) {
-        this.findersById.put(finder.registrationKey(), finder);
-        this.findersByClass.put(finder.valueDomain(), finder);
-    }
-
-    @Override
-    public CanFindByLongPrimaryKey finderFor(Class valueDomain) {
-        return this.findersByClass.get(valueDomain);
-    }
-
-    @Override
-    public CanFindByLongPrimaryKey finderFor(FactoryIds registrationKey) {
-        return this.findersById.get(registrationKey);
     }
 
     private class ConnectionUnwrapper {

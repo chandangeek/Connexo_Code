@@ -100,10 +100,4 @@ public interface Environment extends Translator, FormatProvider {
 
     public int getBatchSize ();
 
-    public void registerFinder (CanFindByLongPrimaryKey finder);
-
-    public CanFindByLongPrimaryKey finderFor(Class valueDomain);
-
-    public CanFindByLongPrimaryKey finderFor(FactoryIds registrationKey);
-
 }

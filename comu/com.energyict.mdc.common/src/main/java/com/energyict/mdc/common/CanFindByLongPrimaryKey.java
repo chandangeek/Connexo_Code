@@ -17,7 +17,7 @@ public interface CanFindByLongPrimaryKey<T extends HasId> {
      *
      * @return The registration key
      */
-    public FactoryIds registrationKey ();
+    public FactoryIds factoryId();
 
     /**
      * Returns the domain of objects that are returned by the this component.
