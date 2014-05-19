@@ -4,9 +4,10 @@
 Ext.define('Uni.view.user.Menu', {
     extend: 'Ext.button.Button',
     alias: 'widget.userMenu',
-    glyph: 'xe004@icomoon',
+//    glyph: 'xe004@icomoon',
     scale: 'small',
     cls: 'user-menu',
+    iconCls: 'icon-logout',
 
     menu: [
         /*{
@@ -21,7 +22,6 @@ Ext.define('Uni.view.user.Menu', {
         },*/
         {
             text: 'Logout',
-            glyph: 'xe00d@icomoon',
             action: 'logout'
         }
     ],
