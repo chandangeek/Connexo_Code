@@ -57,6 +57,13 @@ public interface ComTaskEnablement extends HasId {
     public void setNextExecutionSpecsFrom (TemporalExpression temporalExpression);
 
     /**
+     * Removes the {@link NextExecutionSpecs} from this ComTaskEnablement
+     * in a single business transaction. This does not behave like a normal
+     * setter and therefore does not need an additional call to the save method.
+     */
+    public void removeNextExecutionSpecs ();
+
+    /**
      * Gets the flag that indicates if the ComTaskExecution
      * should ignore the {@link NextExecutionSpecs} and therefore
      * always execute in an inbound context.
