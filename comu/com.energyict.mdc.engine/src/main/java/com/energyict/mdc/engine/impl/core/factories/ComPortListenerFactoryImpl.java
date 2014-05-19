@@ -42,7 +42,7 @@ public class ComPortListenerFactoryImpl implements ComPortListenerFactory {
                     }
                 }
             } else {
-                return new ServletInboundComPortListener(comPort, this.comServerDAO, this.deviceCommandExecutor, serviceProvider.issueService());
+                return new ServletInboundComPortListener(comPort, this.comServerDAO, this.deviceCommandExecutor, serviceProvider);
             }
         } else {
             return null;

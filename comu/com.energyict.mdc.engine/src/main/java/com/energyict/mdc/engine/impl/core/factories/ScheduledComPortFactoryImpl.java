@@ -19,16 +19,19 @@ import java.util.concurrent.ThreadFactory;
  */
 public class ScheduledComPortFactoryImpl implements ScheduledComPortFactory {
 
+    private final ServiceProvider serviceProvider;
+
     private ComServerDAO comServerDAO;
     private DeviceCommandExecutor deviceCommandExecutor;
     private ThreadFactory threadFactory;
 
-    public ScheduledComPortFactoryImpl (ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor) {
-        this(comServerDAO, deviceCommandExecutor, Executors.defaultThreadFactory());
+    public ScheduledComPortFactoryImpl(ServiceProvider serviceProvider, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor) {
+        this(serviceProvider, comServerDAO, deviceCommandExecutor, Executors.defaultThreadFactory());
     }
 
-    public ScheduledComPortFactoryImpl (ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ThreadFactory threadFactory) {
+    public ScheduledComPortFactoryImpl(ServiceProvider serviceProvider, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ThreadFactory threadFactory) {
         super();
+        this.serviceProvider = serviceProvider;
         this.comServerDAO = comServerDAO;
         this.deviceCommandExecutor = deviceCommandExecutor;
         this.threadFactory = threadFactory;

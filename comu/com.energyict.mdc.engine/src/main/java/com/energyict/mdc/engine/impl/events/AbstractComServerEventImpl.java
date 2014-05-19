@@ -42,6 +42,30 @@ public abstract class AbstractComServerEventImpl implements ComServerEvent {
 
     }
 
+    public static class ServiceProviderAdapter implements ServiceProvider {
+
+        private final com.energyict.mdc.engine.impl.core.ServiceProvider delegate;
+
+        public ServiceProviderAdapter(com.energyict.mdc.engine.impl.core.ServiceProvider delegate) {
+            this.delegate = delegate;
+        }
+
+        @Override
+        public Clock clock() {
+            return delegate.clock();
+        }
+
+        @Override
+        public DeviceDataService deviceDataService() {
+            return delegate.deviceDataService();
+        }
+
+        @Override
+        public EngineModelService engineModelService() {
+            return delegate.engineModelService();
+        }
+    }
+
     private Date occurrenceTimestamp;
 
     /**

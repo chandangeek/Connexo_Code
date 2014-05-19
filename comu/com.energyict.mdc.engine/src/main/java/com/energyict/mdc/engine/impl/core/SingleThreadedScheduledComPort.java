@@ -18,20 +18,12 @@ import java.util.concurrent.ThreadFactory;
  */
 public class SingleThreadedScheduledComPort extends ScheduledComPortImpl {
 
-    private ScheduledJobTransactionExecutor transactionExecutor;
-
     public SingleThreadedScheduledComPort(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
         super(comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
-        this.transactionExecutor = new ScheduledJobTransactionExecutorDefaultImplementation();
     }
 
     public SingleThreadedScheduledComPort(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ThreadFactory threadFactory, ServiceProvider serviceProvider) {
-        this(comPort, comServerDAO, deviceCommandExecutor, new ScheduledJobTransactionExecutorDefaultImplementation(), threadFactory, serviceProvider);
-    }
-
-    public SingleThreadedScheduledComPort(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ScheduledJobTransactionExecutor transactionExecutor, ThreadFactory threadFactory, ServiceProvider serviceProvider) {
         super(comPort, comServerDAO, deviceCommandExecutor, threadFactory, serviceProvider);
-        this.transactionExecutor = transactionExecutor;
     }
 
     @Override
@@ -47,7 +39,7 @@ public class SingleThreadedScheduledComPort extends ScheduledComPortImpl {
 
     /**
      * Organizes a Collection of {@link ComTaskExecution}s
-     * into a Collection of {@link com.energyict.comserver.core.ComTaskExecutionGroup}s.
+     * into a Collection of ComTaskExecutionGroups.
      */
     private class SingleThreadedJobScheduler implements JobScheduler, ScheduledJobExecutionEventListener {
 
@@ -66,7 +58,7 @@ public class SingleThreadedScheduledComPort extends ScheduledComPortImpl {
         @Override
         public int scheduleAll(List<ComJob> jobs) {
             for (ScheduledJob job : this.toScheduledJobs(jobs)) {
-                new SingleThreadedScheduledJobExecutor(transactionExecutor, this.logLevel, getDeviceCommandExecutor()).acquireTokenAndPerformSingleJob(job);
+                new SingleThreadedScheduledJobExecutor(getServiceProvider().transactionService(), this.logLevel, getDeviceCommandExecutor()).acquireTokenAndPerformSingleJob(job);
             }
             return jobs.size();
         }

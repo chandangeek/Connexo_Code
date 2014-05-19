@@ -1,16 +1,13 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.Transaction;
-import com.energyict.mdc.engine.exceptions.CodingException;
-import com.energyict.mdc.engine.exceptions.PersistenceCodingException;
+import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.VoidTransaction;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionSetupException;
 
-import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -30,11 +27,11 @@ public abstract class ScheduledJobExecutor {
     // The minimum log level that needs to be set before the stacktrace of a error is logged to System.err
     private static final ComServer.LogLevel REQUIRED_DEBUG_LEVEL = ComServer.LogLevel.DEBUG;
 
-    private ScheduledJobTransactionExecutor transactionExecutor;
+    private TransactionService transactionExecutor;
     private ComServer.LogLevel logLevel;
     private DeviceCommandExecutor deviceCommandExecutor;
 
-    public ScheduledJobExecutor(ScheduledJobTransactionExecutor transactionExecutor, ComServer.LogLevel logLevel, DeviceCommandExecutor deviceCommandExecutor) {
+    public ScheduledJobExecutor(TransactionService transactionExecutor, ComServer.LogLevel logLevel, DeviceCommandExecutor deviceCommandExecutor) {
         this.transactionExecutor = transactionExecutor;
         this.logLevel = logLevel;
         this.deviceCommandExecutor = deviceCommandExecutor;
@@ -50,8 +47,7 @@ public abstract class ScheduledJobExecutor {
             List<DeviceCommandExecutionToken> deviceCommandExecutionTokens = this.deviceCommandExecutor.acquireTokens(1);
             updateTokens(scheduledJob, deviceCommandExecutionTokens);
             this.execute(scheduledJob);
-        }
-        catch (InterruptedException e) {
+        } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
     }
@@ -96,20 +92,12 @@ public abstract class ScheduledJobExecutor {
                     logIfDebuggingIsEnabled(t);
                     job.reschedule(t, RescheduleBehavior.RescheduleReason.CONNECTION_BROKEN);
                 } finally {
-                    try {
-                        Environment.DEFAULT.get().execute(new Transaction<Object>() {
-                            @Override
-                            public Object doExecute() throws BusinessException, SQLException {
-                                job.unlock();
-                                return null;
-                            }
-                        });
-                    } catch (BusinessException e) {
-                        throw CodingException.unexpectedBusinessException(e);
-                    } catch (SQLException e) {
-                        throw PersistenceCodingException.unexpectedSqlError(e);
-                    }
-                    Environment.DEFAULT.get().closeConnection();
+                    transactionExecutor.execute(new VoidTransaction() {
+                        @Override
+                        public void doPerform() {
+                            job.unlock();
+                        }
+                    });
                 }
             }
             break;
@@ -140,7 +128,7 @@ public abstract class ScheduledJobExecutor {
         }
 
         @Override
-        public synchronized ValidationReturnStatus doExecute() throws BusinessException, SQLException {
+        public synchronized ValidationReturnStatus perform() {
             if (!this.job.isStillPending()) {
                 return ValidationReturnStatus.NOT_PENDING_ANYMORE;
             } else if (this.job.isWithinComWindow()) {
@@ -155,7 +143,7 @@ public abstract class ScheduledJobExecutor {
         ATTEMPT_LOCK_SUCCESS,
         ATTEMPT_LOCK_FAILED,
         JOB_OUTSIDE_COM_WINDOW,
-        NOT_PENDING_ANYMORE;
+        NOT_PENDING_ANYMORE
     }
 
 }

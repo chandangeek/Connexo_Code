@@ -25,7 +25,7 @@ public class UpdateDeviceIpAddressTest {
     public void testToJournalMessageDescription() throws Exception {
         final DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID);
         final DeviceIpAddress deviceIpAddress = new DeviceIpAddress(deviceIdentifier, ipAddress, connectionTaskPropertyName);
-        UpdateDeviceIpAddress command = new UpdateDeviceIpAddress(deviceIpAddress, issueService, clock);
+        UpdateDeviceIpAddress command = new UpdateDeviceIpAddress(deviceIpAddress);
 
         // Business method
         final String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);

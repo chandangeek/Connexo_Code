@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.impl.web.events;
 
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
+
 /**
  * Provides factory services for {@link WebSocketEventPublisher}s.
  *
@@ -22,7 +24,7 @@ public class WebSocketEventPublisherFactory {
     }
 
     public WebSocketEventPublisher newWebSocketEventPublisher () {
-        return new WebSocketEventPublisher();
+        return new WebSocketEventPublisher(ServiceProvider.instance.get());
     }
 
     // Hide utility class constructor

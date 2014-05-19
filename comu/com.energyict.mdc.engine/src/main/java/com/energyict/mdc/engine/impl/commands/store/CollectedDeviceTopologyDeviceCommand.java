@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.DeviceTopologyChangedEvent;
 import com.energyict.mdc.engine.impl.events.UnknownSlaveDeviceEvent;
@@ -29,7 +30,7 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl {
     private List<String> serialNumbersRemovedFromTopology = new ArrayList<>();
     private List<String> serialNumbersAddedToTopology = new ArrayList<>();
 
-    public CollectedDeviceTopologyDeviceCommand(DeviceTopology deviceTopology, ComTaskExecution comTaskExecution, IssueService issueService, Clock clock) {
+    public CollectedDeviceTopologyDeviceCommand(DeviceTopology deviceTopology, ComTaskExecution comTaskExecution) {
         super();
         this.deviceTopology = deviceTopology;
         this.comTaskExecution = comTaskExecution;
@@ -45,7 +46,7 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl {
         this.handleSlaveMoves(comServerDAO, oldSlavesBySerialNumber, actualSlavesByDeviceId);
         if (this.topologyChanged && this.deviceTopology.getTopologyAction().equals(TopologyAction.VERIFY)) {
             DeviceIdentifier deviceFinder = deviceTopology.getDeviceIdentifier();
-            comServerDAO.signalEvent(new DeviceTopologyChangedEvent(deviceFinder.findDevice(), deviceTopology.getSlaveDeviceIdentifiers()));
+            comServerDAO.signalEvent(new DeviceTopologyChangedEvent((Device) deviceFinder.findDevice(), deviceTopology.getSlaveDeviceIdentifiers()));
         }
         if (!this.serialNumbersRemovedFromTopology.isEmpty()) {
             String allSerials = getSerialNumbersAsString(this.serialNumbersRemovedFromTopology);

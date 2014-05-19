@@ -5,7 +5,6 @@ import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
-import com.energyict.mdc.issues.IssueService;
 
 /**
  * Implementation of a ComPortListener which servers functionality to use a Jetty server to process
@@ -18,14 +17,14 @@ import com.energyict.mdc.issues.IssueService;
  */
 public class ServletInboundComPortListener extends ServletBasedComPortListenerImpl {
 
-    private final IssueService issueService;
+    private final ServiceProvider serviceProvider;
     private EmbeddedWebServer embeddedWebServer;
     private long sleepTime;
 
-    public ServletInboundComPortListener(InboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, IssueService issueService) {
+    public ServletInboundComPortListener(InboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
         super(comPort, comServerDAO, deviceCommandExecutor);
-        this.issueService = issueService;
-        this.embeddedWebServer = EmbeddedWebServerFactory.DEFAULT.get().findOrCreateFor(getServletBasedInboundComPort(), comServerDAO, deviceCommandExecutor, issueService);
+        this.serviceProvider = serviceProvider;
+        this.embeddedWebServer = EmbeddedWebServerFactory.DEFAULT.get().findOrCreateFor(getServletBasedInboundComPort(), comServerDAO, deviceCommandExecutor, serviceProvider);
         this.sleepTime = getComPort().getComServer().getChangesInterPollDelay().getMilliSeconds();
     }
 
@@ -63,7 +62,7 @@ public class ServletInboundComPortListener extends ServletBasedComPortListenerIm
     @Override
     protected void applyChangesForNewComPort(InboundComPort inboundComPort) {
         this.embeddedWebServer.shutdown(); // is already a blocking call until the embedded webserver has shut down
-        this.embeddedWebServer = EmbeddedWebServerFactory.DEFAULT.get().findOrCreateFor((ServletBasedInboundComPort) inboundComPort, getComServerDAO(), getDeviceCommandExecutor(), issueService);
+        this.embeddedWebServer = EmbeddedWebServerFactory.DEFAULT.get().findOrCreateFor((ServletBasedInboundComPort) inboundComPort, getComServerDAO(), getDeviceCommandExecutor(), serviceProvider);
         if (inboundComPort.isActive()) {
             this.embeddedWebServer.start();
             this.sleepTime = inboundComPort.getComServer().getChangesInterPollDelay().getMilliSeconds();

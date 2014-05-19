@@ -47,7 +47,7 @@ public class CreateInboundComSession extends ExecutionLoggerImpl implements Crea
     @Override
     public void execute (ComServerDAO comServerDAO) {
         try {
-            inboundComSession = comServerDAO.createInboundComSession(this.connectionTask, this.builder, successIndicator);
+            inboundComSession = comServerDAO.createComSession(this.builder, successIndicator);
         }
         catch (RuntimeException e) {
             if (this.connectionTask == null) {

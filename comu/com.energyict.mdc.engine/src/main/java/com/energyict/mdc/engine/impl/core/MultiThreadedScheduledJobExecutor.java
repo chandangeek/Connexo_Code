@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.model.ComServer;
 
@@ -17,7 +18,7 @@ public class MultiThreadedScheduledJobExecutor extends ScheduledJobExecutor impl
 
     private BlockingQueue<ScheduledJob> jobBlockingQueue;
 
-    public MultiThreadedScheduledJobExecutor(ScheduledJobTransactionExecutor transactionExecutor, ComServer.LogLevel logLevel, BlockingQueue<ScheduledJob> jobBlockingQueue, DeviceCommandExecutor deviceCommandExecutor) {
+    public MultiThreadedScheduledJobExecutor(TransactionService transactionExecutor, ComServer.LogLevel logLevel, BlockingQueue<ScheduledJob> jobBlockingQueue, DeviceCommandExecutor deviceCommandExecutor) {
         super(transactionExecutor, logLevel, deviceCommandExecutor);
         this.jobBlockingQueue = jobBlockingQueue;
     }

@@ -38,7 +38,7 @@ public class ComTaskExecutionCollectedDataTest {
         ServerCollectedData cd2 = mock(ServerCollectedData.class);
         ServerCollectedData cd3 = mock(ServerCollectedData.class);
 
-        ComTaskExecutionCollectedData collectedData = new ComTaskExecutionCollectedData(mock(ComTaskExecution.class), Arrays.asList(cd1, cd2, cd3));
+        ComTaskExecutionCollectedData collectedData = new ComTaskExecutionCollectedData(transactionService, mock(ComTaskExecution.class), Arrays.asList(cd1, cd2, cd3));
         ConnectionTask connectionTask = mock(ConnectionTask.class);
 
         // Business method
@@ -59,7 +59,7 @@ public class ComTaskExecutionCollectedDataTest {
         ServerCollectedData cd3 = mock(ServerCollectedData.class);
         when(cd3.getResultType()).thenReturn(ResultType.Supported);
 
-        ComTaskExecutionCollectedData collectedData = new ComTaskExecutionCollectedData(mock(ComTaskExecution.class), Arrays.asList(cd1, cd2, cd3));
+        ComTaskExecutionCollectedData collectedData = new ComTaskExecutionCollectedData(transactionService, mock(ComTaskExecution.class), Arrays.asList(cd1, cd2, cd3));
 
         // Business method
         collectedData.getResultType();
@@ -80,7 +80,7 @@ public class ComTaskExecutionCollectedDataTest {
         ServerCollectedData cd3 = mock(ServerCollectedData.class);
         when(cd3.getResultType()).thenReturn(expectedResultType);
 
-        ComTaskExecutionCollectedData collectedData = new ComTaskExecutionCollectedData(mock(ComTaskExecution.class), Arrays.asList(cd1, cd2, cd3));
+        ComTaskExecutionCollectedData collectedData = new ComTaskExecutionCollectedData(transactionService, mock(ComTaskExecution.class), Arrays.asList(cd1, cd2, cd3));
 
         // Business method
         ResultType resultType = collectedData.getResultType();
@@ -98,7 +98,7 @@ public class ComTaskExecutionCollectedDataTest {
         ServerCollectedData cd3 = mock(ServerCollectedData.class);
         when(cd3.getResultType()).thenReturn(ResultType.DataIncomplete);
 
-        ComTaskExecutionCollectedData collectedData = new ComTaskExecutionCollectedData(mock(ComTaskExecution.class), Arrays.asList(cd1, cd2, cd3));
+        ComTaskExecutionCollectedData collectedData = new ComTaskExecutionCollectedData(transactionService, mock(ComTaskExecution.class), Arrays.asList(cd1, cd2, cd3));
 
         // Business method
         ResultType resultType = collectedData.getResultType();
@@ -113,7 +113,7 @@ public class ComTaskExecutionCollectedDataTest {
         ServerCollectedData cd2 = mock(ServerCollectedData.class);
         ServerCollectedData cd3 = mock(ServerCollectedData.class);
 
-        ComTaskExecutionCollectedData collectedData = new ComTaskExecutionCollectedData(mock(ComTaskExecution.class), Arrays.asList(cd1, cd2, cd3));
+        ComTaskExecutionCollectedData collectedData = new ComTaskExecutionCollectedData(transactionService, mock(ComTaskExecution.class), Arrays.asList(cd1, cd2, cd3));
 
         // Business method
         collectedData.getIssues();
@@ -130,7 +130,7 @@ public class ComTaskExecutionCollectedDataTest {
         ServerCollectedData cd2 = mock(ServerCollectedData.class);
         ServerCollectedData cd3 = mock(ServerCollectedData.class);
 
-        ComTaskExecutionCollectedData collectedData = new ComTaskExecutionCollectedData(mock(ComTaskExecution.class), Arrays.asList(cd1, cd2, cd3));
+        ComTaskExecutionCollectedData collectedData = new ComTaskExecutionCollectedData(transactionService, mock(ComTaskExecution.class), Arrays.asList(cd1, cd2, cd3));
 
         // Business method
         collectedData.toDeviceCommand(issueService);
@@ -146,7 +146,7 @@ public class ComTaskExecutionCollectedDataTest {
         ComTask comTask = mock(ComTask.class, withSettings().extraInterfaces(DataCollectionConfiguration.class));
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(comTaskExecution.getComTask()).thenReturn(comTask);
-        ComTaskExecutionCollectedData collectedData = new ComTaskExecutionCollectedData(comTaskExecution, new ArrayList<ServerCollectedData>(0));
+        ComTaskExecutionCollectedData collectedData = new ComTaskExecutionCollectedData(transactionService, comTaskExecution, new ArrayList<ServerCollectedData>(0));
 
         // Business method
         boolean configuredIn = collectedData.isConfiguredIn((DataCollectionConfiguration) comTask);
@@ -161,7 +161,7 @@ public class ComTaskExecutionCollectedDataTest {
         ComTask otherComTask = mock(ComTask.class, withSettings().extraInterfaces(DataCollectionConfiguration.class));
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(comTaskExecution.getComTask()).thenReturn(comTask);
-        ComTaskExecutionCollectedData collectedData = new ComTaskExecutionCollectedData(comTaskExecution, new ArrayList<ServerCollectedData>(0));
+        ComTaskExecutionCollectedData collectedData = new ComTaskExecutionCollectedData(transactionService, comTaskExecution, new ArrayList<ServerCollectedData>(0));
 
         // Business method
         boolean configuredIn = collectedData.isConfiguredIn((DataCollectionConfiguration) otherComTask);

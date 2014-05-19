@@ -3,7 +3,6 @@ package com.energyict.mdc.engine.impl.core.factories;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.comserver.commands.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.core.factories.ScheduledComPortFactoryImpl;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import org.junit.*;
@@ -26,19 +25,19 @@ public class ScheduledComPortFactoryImplTest {
 
     @Test
     public void testWithActivePort () {
-        ScheduledComPortFactoryImpl factory = new ScheduledComPortFactoryImpl(this.comServerDAO(), this.deviceCommandExecutor);
+        ScheduledComPortFactoryImpl factory = new ScheduledComPortFactoryImpl(serviceProvider, this.comServerDAO(), this.deviceCommandExecutor);
         assertNotNull("Was NOT expecting the factory to return null for an active port", factory.newFor(this.activeComPort(), issueService));
     }
 
     @Test
     public void testWithInactivePort () {
-        ScheduledComPortFactoryImpl factory = new ScheduledComPortFactoryImpl(this.comServerDAO(), this.deviceCommandExecutor);
+        ScheduledComPortFactoryImpl factory = new ScheduledComPortFactoryImpl(serviceProvider, this.comServerDAO(), this.deviceCommandExecutor);
         assertNull("Was expecting the factory to return null for an inactive port", factory.newFor(this.inactiveComPort(), issueService));
     }
 
     @Test
     public void testWithActivePortWithZeroSimultaneousConnections () {
-        ScheduledComPortFactoryImpl factory = new ScheduledComPortFactoryImpl(this.comServerDAO(), this.deviceCommandExecutor);
+        ScheduledComPortFactoryImpl factory = new ScheduledComPortFactoryImpl(serviceProvider, this.comServerDAO(), this.deviceCommandExecutor);
         assertNull("Was expecting the factory to return null for active port with 0 simultaneous connections", factory.newFor(this.activeComPortWithZeroSimultaneousConnections(), issueService));
     }
 

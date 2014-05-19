@@ -71,7 +71,7 @@ public class ComTaskExecutionRootDeviceCommandTest {
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         ApplicationException toBeThrown = new ApplicationException(errorMessage);
         Mockito.doThrow(toBeThrown).when(deviceCommand).execute(comServerDAO);
-        ComTaskExecutionRootDeviceCommand command = new ComTaskExecutionRootDeviceCommand(this.comTaskExecution, ComServer.LogLevel.INFO, Arrays.asList(deviceCommand));
+        ComTaskExecutionRootDeviceCommand command = new ComTaskExecutionRootDeviceCommand(transactionService, this.comTaskExecution, ComServer.LogLevel.INFO, Arrays.asList(deviceCommand));
         DeviceCommand.ExecutionLogger executionLogger = mock(DeviceCommand.ExecutionLogger.class);
         command.logExecutionWith(executionLogger);
 
@@ -89,7 +89,7 @@ public class ComTaskExecutionRootDeviceCommandTest {
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         ApplicationException toBeThrown = new ApplicationException(errorMessage);
         Mockito.doThrow(toBeThrown).when(deviceCommand).executeDuringShutdown(comServerDAO);
-        ComTaskExecutionRootDeviceCommand command = new ComTaskExecutionRootDeviceCommand(this.comTaskExecution, ComServer.LogLevel.INFO, Arrays.asList(deviceCommand));
+        ComTaskExecutionRootDeviceCommand command = new ComTaskExecutionRootDeviceCommand(transactionService, this.comTaskExecution, ComServer.LogLevel.INFO, Arrays.asList(deviceCommand));
         DeviceCommand.ExecutionLogger executionLogger = mock(DeviceCommand.ExecutionLogger.class);
         command.logExecutionWith(executionLogger);
 

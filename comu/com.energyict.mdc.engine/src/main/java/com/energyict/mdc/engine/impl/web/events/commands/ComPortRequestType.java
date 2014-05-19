@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
+import com.energyict.mdc.engine.model.EngineModelService;
+
 import java.util.Set;
 
 /**
@@ -10,6 +12,12 @@ import java.util.Set;
  * @since 2012-11-15 (16:55)
  */
 public class ComPortRequestType extends IdBusinessObjectRequestType {
+
+    private final EngineModelService engineModelService;
+
+    public ComPortRequestType(EngineModelService engineModelService) {
+        this.engineModelService = engineModelService;
+    }
 
     @Override
     protected String getBusinessObjectTypeName () {

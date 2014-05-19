@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
 
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
@@ -25,10 +26,12 @@ import java.util.Set;
  */
 public class ComTaskExecutionComCommandImpl extends CompositeComCommandImpl implements ComTaskExecutionComCommand {
 
+    private final TransactionService transactionService;
     private ComTaskExecution comTaskExecution;
 
-    public ComTaskExecutionComCommandImpl (CommandRoot commandRoot, ComTaskExecution comTaskExecution) {
+    public ComTaskExecutionComCommandImpl(CommandRoot commandRoot, TransactionService transactionService, ComTaskExecution comTaskExecution) {
         super(commandRoot);
+        this.transactionService = transactionService;
         this.comTaskExecution = comTaskExecution;
     }
 
@@ -37,7 +40,7 @@ public class ComTaskExecutionComCommandImpl extends CompositeComCommandImpl impl
         List<CollectedData> collectedData = new ArrayList<>();
         collectedData.add(
                 new ComTaskExecutionCollectedData(
-                        this.comTaskExecution,
+                        transactionService, this.comTaskExecution,
                         this.getNestedCollectedData(),
                         this.getCommandRoot().getExecutionContext().getComPort().getComServer().getCommunicationLogLevel()));
         return collectedData;

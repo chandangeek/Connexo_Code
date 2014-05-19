@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.Holder;
 import com.elster.jupiter.util.HolderBuilder;
@@ -818,6 +819,11 @@ public abstract class JobExecution implements ScheduledJob {
         @Override
         public TaskHistoryService getTaskHistoryService() {
             return JobExecution.this.serviceProvider.taskHistoryService();
+        }
+
+        @Override
+        public TransactionService transactionService() {
+            return JobExecution.this.serviceProvider.transactionService();
         }
     }
 

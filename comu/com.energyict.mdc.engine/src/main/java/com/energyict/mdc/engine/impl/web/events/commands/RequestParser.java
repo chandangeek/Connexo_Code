@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -17,6 +19,11 @@ public class RequestParser {
 
     private static final Pattern COMMAND_PATTERN = Pattern.compile("(?i)register request (?:for (text|binary) events )?for (.*):\\s*(.*)");
     private List<RequestType> requestTypes;
+    private final ServiceProvider serviceProvider;
+
+    public RequestParser(ServiceProvider serviceProvider) {
+        this.serviceProvider = serviceProvider;
+    }
 
     public Request parse (String message) throws RequestParseException {
         Matcher matcher = COMMAND_PATTERN.matcher(message);
@@ -65,11 +72,11 @@ public class RequestParser {
                         new InfoLoggingRequestType(),
                         new DebugLoggingRequestType(),
                         new TraceLoggingRequestType(),
-                        new DeviceRequestType(),
-                        new ConnectionTaskRequestType(),
-                        new ComTaskExecutionRequestType(),
-                        new ComPortRequestType(),
-                        new ComPortPoolRequestType());
+                        new DeviceRequestType(serviceProvider.deviceDataService()),
+                        new ConnectionTaskRequestType(serviceProvider.deviceDataService()),
+                        new ComTaskExecutionRequestType(serviceProvider.deviceDataService()),
+                        new ComPortRequestType(serviceProvider.engineModelService()),
+                        new ComPortPoolRequestType(serviceProvider.engineModelService()));
     }
 
 }

@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
+import com.energyict.mdc.device.data.DeviceDataService;
+
 import java.util.Set;
 
 /**
@@ -10,6 +12,12 @@ import java.util.Set;
  * @since 2012-11-15 (17:00)
  */
 public class DeviceRequestType extends IdBusinessObjectRequestType {
+
+    private final DeviceDataService deviceDataService;
+
+    public DeviceRequestType(DeviceDataService deviceDataService) {
+        this.deviceDataService = deviceDataService;
+    }
 
     @Override
     protected String getBusinessObjectTypeName () {

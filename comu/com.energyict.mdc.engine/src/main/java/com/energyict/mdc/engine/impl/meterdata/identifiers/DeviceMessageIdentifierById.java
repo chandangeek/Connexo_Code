@@ -21,7 +21,7 @@ public class DeviceMessageIdentifierById implements MessageIdentifier {
 
     @Override
     public DeviceMessage getDeviceMessage() {
-        return ManagerFactory.getCurrent().getDeviceMessageFactory().find(messageId);
+        return null; //ManagerFactory.getCurrent().getDeviceMessageFactory().find(messageId); // TODO fix when adding messages
     }
 
     @Override

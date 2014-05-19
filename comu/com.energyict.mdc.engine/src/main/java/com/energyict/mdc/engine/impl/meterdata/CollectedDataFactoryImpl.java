@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.protocol.api.device.data.CollectedConfigurationInformation;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
@@ -28,6 +29,12 @@ import java.util.List;
  * Time: 11:31
  */
 public class CollectedDataFactoryImpl implements CollectedDataFactory {
+
+    private final ServiceProvider serviceProvider;
+
+    public CollectedDataFactoryImpl(ServiceProvider serviceProvider) {
+        this.serviceProvider = serviceProvider;
+    }
 
     @Override
     public CollectedLoadProfile createCollectedLoadProfile(LoadProfileIdentifier loadProfileIdentifier) {

@@ -35,7 +35,7 @@ public class DeviceUserFileConfigurationInformation extends CollectedDeviceData 
 
     @Override
     public DeviceCommand toDeviceCommand(IssueService issueService) {
-        return new StoreConfigurationUserFile(this, issueService, clock);
+        return new StoreConfigurationUserFile(this);
     }
 
     @Override

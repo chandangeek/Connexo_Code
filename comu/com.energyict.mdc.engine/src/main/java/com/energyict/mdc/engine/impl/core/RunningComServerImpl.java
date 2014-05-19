@@ -120,7 +120,7 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
     }
 
     private ScheduledComPort add (OutboundComPort comPort) {
-        ScheduledComPort scheduledComPort = this.getScheduledComPortFactory().newFor(comPort, this.serviceProvider.issueService());
+        ScheduledComPort scheduledComPort = this.getScheduledComPortFactory().newFor(comPort, this.serviceProvider);
         if (scheduledComPort == null) {
             return null;
         }
@@ -132,7 +132,7 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
 
     private ScheduledComPortFactory getScheduledComPortFactory () {
         if (this.scheduledComPortFactory == null) {
-            this.scheduledComPortFactory = new ScheduledComPortFactoryImpl(this.comServerDAO, this.deviceCommandExecutor, this.getThreadFactory());
+            this.scheduledComPortFactory = new ScheduledComPortFactoryImpl(serviceProvider, this.comServerDAO, this.deviceCommandExecutor, this.getThreadFactory());
         }
         return this.scheduledComPortFactory;
     }
