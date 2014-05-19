@@ -5,59 +5,55 @@ Ext.define('Mdc.view.setup.logbooktype.LogbookTypesOverview', {
     ],
     alias: 'widget.logbook-overview',
 
-    side: [
-        {
-            xtype: 'navigationSubMenu',
-            itemId: 'sideMenu'
-        }
-    ],
+    side: {
+        xtype: 'panel',
+        ui: 'medium',
+        title: "Navigation",
+        layout: {
+            type: 'vbox',
+            align: 'stretch'
+        },
+        items: [
+            {
+                xtype: 'menu',
+                ui: 'side-menu',
+                layout: {
+                    type: 'vbox',
+                    align: 'stretch'
+                },
+                floating: false,
+                plain: true,
+                items: [
+                    {
+                        text: 'Logbook types',
+                        cls: 'current'
+                    }
+                ]
+            }
+        ]
+    },
 
     content: [
         {
-            cls: 'content-wrapper',
+            ui: 'large',
+            xtype: 'panel',
+            title: 'Logbook types',
             items: [
-                {
-                    html: '<h1>Logbook types</h1>',
-                    margin: '0 0 10 0'
-                },
                 {
                     xtype: 'logbook-docked-buttons'
                 },
                 {
-                    xtype: 'logbook-list',
-                    margin: '0 0 20 0'
+                    xtype: 'logbook-list'
                 },
                 {
-                    xtype: 'logbook-empty-list-message',
-                    margin: '0 0 20 0'
+                    xtype: 'logbook-empty-list-message'
                 },
                 {
-                    xtype: 'logbook-item',
-                    margin: '0 0 20 0'
+                    xtype: 'logbook-item'
                 }
             ]
         }
-    ],
-
-    initComponent: function () {
-        this.callParent(this);
-        this.initMenu();
-    },
-
-    initMenu: function () {
-        var menu = this.getSideMenuCmp();
-
-        menu.add({
-            text: 'Logbook types',
-            pressed: true,
-            href: '#/administration/logbooktypes',
-            hrefTarget: '_self'
-        });
-    },
-
-    getSideMenuCmp: function () {
-        return this.down('#sideMenu');
-    }
+    ]
 });
 
 

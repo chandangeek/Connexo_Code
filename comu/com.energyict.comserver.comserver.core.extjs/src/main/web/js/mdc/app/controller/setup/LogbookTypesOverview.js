@@ -29,10 +29,10 @@ Ext.define('Mdc.controller.setup.LogbookTypesOverview', {
                 afterrender: this.loadStore,
                 itemclick: this.loadGridItemDetail
             },
-            'logbook-overview logbook-list actioncolumn': {
-                click: this.showItemAction
+            'logbook-overview logbook-list uni-actioncolumn': {
+                menuclick: this.chooseAction
             },
-            'logbook-action-menu': {
+            'logbook-overview logbook-item logbook-action-menu': {
                 click: this.chooseAction
             },
             'logbook-floating-panel button[action=cancel]': {
@@ -114,6 +114,7 @@ Ext.define('Mdc.controller.setup.LogbookTypesOverview', {
         var itemForm = itemPanel.down('form');
         itemForm.loadRecord(record);
         itemPanel.down().setTitle(record.get('name'));
+        itemPanel.down('logbook-action-menu').record = record;
         preloader.destroy();
     },
 
@@ -122,48 +123,14 @@ Ext.define('Mdc.controller.setup.LogbookTypesOverview', {
         this.getApplication().fireEvent('changecontentevent', widget);
     },
 
-    showItemAction: function (grid, cell, rowIndex, colIndex, e, record) {
-        var cellEl = Ext.get(cell);
-
-        this.hideItemAction();
-
-        this.gridActionIcon = cellEl.first();
-
-        this.gridActionIcon.hide();
-        this.gridActionIcon.setHeight(0);
-        this.gridActionBtn = Ext.create('widget.grid-action', {
-            renderTo: cell,
-            menu: {
-                xtype: 'logbook-action-menu',
-                logBookId: record.getData().id,
-                isDefault: record.getData().default
-            }
-        });
-        this.gridActionBtn.showMenu();
-    },
-
-    /**
-     * Hide menu for actioncolumn icon.
-     */
-    hideItemAction: function () {
-        if (this.gridActionBtn) {
-            this.gridActionBtn.destroy();
-        }
-
-        if (this.gridActionIcon) {
-            this.gridActionIcon.show();
-            this.gridActionIcon.setHeight(22);
-        }
-    },
-
     chooseAction: function (menu, item) {
         var action = item.action;
         switch (action) {
             case 'edit':
-                window.location.href = '#/administration/logbooktypes/edit/' + menu.logBookId;
+                window.location.href = '#/administration/logbooktypes/edit/' + menu.record.getId();
                 break;
             case 'delete':
-                this.showConfirmationPanel(menu.logBookId);
+                this.showConfirmationPanel(menu.record.getId());
                 break;
         }
     },
