@@ -5,6 +5,7 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.Organization;
@@ -26,6 +27,8 @@ import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.sql.Fetcher;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -138,6 +141,15 @@ public class DataModelTest {
         	}
         	context.commit();
         	assertThat(context.getStats().getSqlCount()).isEqualTo(1);
+        }
+        DataMapper<Party> mapper = dataModel.mapper(Party.class);
+        SqlBuilder builder = mapper.builder("P", "FIRST_ROWS(1)");
+        int count = 0;
+        try (Fetcher<Party> iterator = mapper.fetcher(builder)) {
+        	for (Party each : iterator) {
+        		count++;
+        	}
+        	assertThat(count).isNotZero();
         }
     }
     
