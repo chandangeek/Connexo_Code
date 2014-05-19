@@ -1,6 +1,6 @@
 Ext.define('Cfg.view.validation.RuleBrowse', {
-    //extend: 'Ext.panel.Panel',
-    extend: 'Uni.view.container.ContentContainer',
+    extend: 'Ext.panel.Panel',
+    //extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.validationruleBrowse',
     itemId: 'validationruleBrowse',
     requires: [
@@ -10,7 +10,7 @@ Ext.define('Cfg.view.validation.RuleBrowse', {
 
     ruleSetId: null,
 
-    content: [
+    items: [
         {
             xtype: 'container',
             layout: {
@@ -48,5 +48,6 @@ Ext.define('Cfg.view.validation.RuleBrowse', {
                 ruleSetId: this.ruleSetId
             }
         );
+
     }
 });

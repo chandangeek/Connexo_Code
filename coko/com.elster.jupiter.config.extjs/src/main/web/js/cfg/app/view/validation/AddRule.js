@@ -1,20 +1,18 @@
 Ext.define('Cfg.view.validation.AddRule', {
-    extend: 'Ext.panel.Panel',
+    extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.addRule',
     itemId: 'addRule',
-    cls: 'content-container',
-    overflowY: 'auto',
+    overflowY: true,
     requires: [
         'Cfg.store.Validators',
-        'Cfg.model.Validator',
-        'Uni.view.breadcrumb.Trail'
+        'Cfg.model.Validator'
     ],
 
 
     readingTypeIndex : 1,
 
 
-    items: [
+    content: [
         {
             xtype: 'container',
             cls: 'content-container',
@@ -149,14 +147,17 @@ Ext.define('Cfg.view.validation.AddRule', {
                                         {
                                             text: Uni.I18n.translate('general.create', 'CFG', 'Create'),
                                             xtype: 'button',
+                                            ui: 'action',
                                             action: 'createRuleAction',
                                             itemId: 'createRuleAction',
                                             width: 100
                                         },
                                         {
                                             xtype: 'component',
-                                            html: '<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#/validation">' + Uni.I18n.translate('general.cancel', 'CFG', 'Cancel') + '</a>',
+                                            text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                                            href: '#/administration/validation',
                                             itemId: 'cancelAddRuleLink',
+                                            ui: 'link',
                                             padding: '3 0 0 0',
                                             margin: '0 0 0 20',
                                             width: 100

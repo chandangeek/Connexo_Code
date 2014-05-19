@@ -314,7 +314,7 @@ Ext.define('Cfg.controller.Validation', {
 
     createNewRuleSet: function(button) {
         var me = this;
-        var form = button.up('panel');
+        var form = Ext.ComponentQuery.query('#newRuleSetForm')[0].form;
         if (form.isValid()) {
             var record = record = Ext.create(Cfg.model.ValidationRuleSet);
             var values = form.getValues();

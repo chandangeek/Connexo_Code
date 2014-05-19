@@ -12,7 +12,7 @@ Ext.define('Cfg.view.validation.RulesContainer', {
 
     ruleSetId: null,
 
-    layout:'border',
+    //layout:'border',
     side: [
         {
             xtype: 'navigationSubMenu',
@@ -33,7 +33,7 @@ Ext.define('Cfg.view.validation.RulesContainer', {
                 },
                 {
                     xtype: 'container',
-                    layout: 'fit',
+                    //layout: 'fit',
                     items: [],
                     itemId: 'ruleListContainer'
                 }

@@ -1,17 +1,16 @@
 Ext.define('Cfg.view.validation.RuleSetOverview', {
     extend: 'Ext.panel.Panel',
-    border: false,
-    region: 'center',
+    //border: false,
+    //region: 'center',
     alias: 'widget.ruleSetOverview',
     itemId: 'ruleSetOverview',
     requires: [
-        'Cfg.model.ValidationRuleSet' ,
-        'Uni.view.breadcrumb.Trail'
+        'Cfg.model.ValidationRuleSet'
     ],
-    layout: {
+    /*layout: {
         type: 'vbox',
         align: 'stretch'
-    },
+    },  */
 
 
     items: [
@@ -50,7 +49,6 @@ Ext.define('Cfg.view.validation.RuleSetOverview', {
             border: false,
             itemId: 'rulesetOverviewForm',
             name: 'rulesetOverviewForm',
-            padding: '10 10 0 10',
             layout: {
                 type: 'vbox',
                 align: 'stretch'

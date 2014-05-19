@@ -42,7 +42,7 @@ Ext.define('Cfg.view.validation.CreateRuleSet', {
                                     {
                                         xtype: 'textfield',
                                         name: 'name',
-                                        //width: 600,
+                                        width: 600,
                                         msgTarget: 'under',
                                         fieldLabel: Uni.I18n.translate('validation.name', 'CFG', 'Name'),
                                         enforceMaxLength: true
@@ -50,7 +50,7 @@ Ext.define('Cfg.view.validation.CreateRuleSet', {
                                     {
                                         xtype: 'textarea',
                                         name: 'description',
-                                        //width: 600,
+                                        width: 600,
                                         fieldLabel: Uni.I18n.translate('validation.description', 'CFG', 'Description'),
                                         enforceMaxLength: true
                                     }
