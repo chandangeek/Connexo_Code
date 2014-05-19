@@ -12,6 +12,7 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.services.HexService;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.history.TaskHistoryService;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -52,4 +53,6 @@ public interface ServiceProvider {
     public TaskHistoryService taskHistoryService();
 
     public DeviceConfigurationService deviceConfigurationService();
+
+    public ProtocolPluggableService protocolPluggableService();
 }

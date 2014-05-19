@@ -58,7 +58,22 @@ public enum EventType {
         protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
             return super.addCustomProperties(eventTypeBuilder).
                     withProperty("deviceIdentifier", ValueType.STRING, "deviceIdentifier").
-                    withProperty("masterDeviceId", ValueType.LONG, "masterDeviceId");
+                    withProperty("masterDeviceId", ValueType.STRING, "masterDeviceId");
+        }
+    },
+    DEVICE_TOPOLOGY_CHANGED("outboundcommunication/DEVICETOPOLOGYCHANGED") {
+        @Override
+        protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
+            return super.addCustomProperties(eventTypeBuilder).
+                    withProperty("deviceIdentifiers", ValueType.STRING, "slaveIdentifiers").
+                    withProperty("masterDeviceId", ValueType.STRING, "masterDeviceId");
+        }
+    },
+    NO_LOGBOOKS_FOR_DEVICE("outboundcommunication/NOLOGBOOKSFORDEVICE") {
+        @Override
+        protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
+            return super.addCustomProperties(eventTypeBuilder).
+                    withProperty("deviceIdentifier", ValueType.STRING, "deviceIdentifier");
         }
     };
 

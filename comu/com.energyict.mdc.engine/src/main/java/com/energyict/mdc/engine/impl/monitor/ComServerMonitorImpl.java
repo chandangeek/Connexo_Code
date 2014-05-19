@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.monitor;
 
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.monitor.CollectedDataStorageStatistics;
 import com.energyict.mdc.engine.monitor.ComServerMonitorImplMBean;
@@ -16,6 +17,7 @@ import javax.management.openmbean.CompositeData;
  * @since 2013-04-03 (14:08)
  */
 public class ComServerMonitorImpl implements ComServerMonitorImplMBean, ComServerMonitor {
+    private final Clock clock;
 
     private RunningComServer comServer;
     private ComServerOperationalStatisticsImpl operationalStatistics;
@@ -23,10 +25,11 @@ public class ComServerMonitorImpl implements ComServerMonitorImplMBean, ComServe
     private QueryAPIStatisticsImpl queryAPIStatistics;
     private CollectedDataStorageStatisticsImpl collectedDataStorageStatistics;
 
-    public ComServerMonitorImpl (RunningComServer comServer) {
+    public ComServerMonitorImpl(RunningComServer comServer, Clock clock) {
         super();
         this.comServer = comServer;
-        this.operationalStatistics = new ComServerOperationalStatisticsImpl(comServer);
+        this.clock = clock;
+        this.operationalStatistics = new ComServerOperationalStatisticsImpl(comServer, this.clock);
         this.eventAPIStatistics = new EventAPIStatisticsImpl();
         if (comServer.isRemoteQueryApiStarted()) {
             this.queryAPIStatistics = new QueryAPIStatisticsImpl(comServer.getComServer());

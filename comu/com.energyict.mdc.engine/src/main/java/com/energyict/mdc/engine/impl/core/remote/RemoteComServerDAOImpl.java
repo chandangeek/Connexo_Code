@@ -31,6 +31,8 @@ import com.energyict.mdc.protocol.api.security.SecurityProperty;
 
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.transaction.Transaction;
+import com.energyict.mdc.tasks.history.ComSession;
+import com.energyict.mdc.tasks.history.ComSessionBuilder;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketClient;
 import org.eclipse.jetty.websocket.WebSocketClientFactory;
@@ -238,17 +240,12 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         return this.toTimeDuration(response);
     }
 
-//    @Override
-//    public ComSession createOutboundComSession (ScheduledConnectionTask owner, ComSessionShadow shadow) {
-//        return null;
-//    }
-//
-//    @Override
-//    public ComSession createInboundComSession (InboundConnectionTask owner, ComSessionShadow shadow) {
-//        return null;
-//    }
+    @Override
+    public ComSession createComSession(ComSessionBuilder builder, ComSession.SuccessIndicator successIndicator) {
+        return builder.endSession(serviceProvider.clock().now(), successIndicator).create();
+    }
 
-//    private EndDeviceCache createOrUpdateDeviceCache(int deviceId, DeviceCacheShadow shadow) {
+    //    private EndDeviceCache createOrUpdateDeviceCache(int deviceId, DeviceCacheShadow shadow) {
 //        return null;
 //    }
 

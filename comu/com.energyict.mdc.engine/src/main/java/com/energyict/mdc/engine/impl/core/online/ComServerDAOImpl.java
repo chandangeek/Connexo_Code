@@ -4,7 +4,6 @@ import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.time.Clock;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
@@ -42,7 +41,6 @@ import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
@@ -52,7 +50,6 @@ import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.tasks.history.ComSession;
 import com.energyict.mdc.tasks.history.ComSessionBuilder;
 
-import java.sql.SQLException;
 import java.text.DateFormat;
 import java.util.Arrays;
 import java.util.Collection;
@@ -700,7 +697,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 //        };
         ;
 
-        public abstract void applyTo(DeviceMessage message) throws BusinessException, SQLException;
+        //public abstract void applyTo(DeviceMessage message) throws BusinessException, SQLException;
 
     }
 

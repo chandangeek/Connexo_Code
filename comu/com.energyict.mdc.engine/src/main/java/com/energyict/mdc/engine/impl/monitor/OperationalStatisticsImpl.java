@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.monitor;
 
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.core.RunningComServer;
@@ -35,11 +36,13 @@ public class OperationalStatisticsImpl extends CanConvertToCompositeDataSupport 
     private Date startTimestamp;
     private TimeDuration changesInterPollDelay;
     private Date lastCheckForChangesTimestamp;
+    private final Clock clock;
 
-    public OperationalStatisticsImpl (RunningComServer runningComServer) {
+    public OperationalStatisticsImpl(RunningComServer runningComServer, Clock clock) {
         super();
         this.runningComServer = runningComServer;
-        this.startTimestamp = Clocks.getAppServerClock().now();
+        this.clock = clock;
+        this.startTimestamp = this.clock.now();
         this.changesInterPollDelay = runningComServer.getComServer().getChangesInterPollDelay();
     }
 
@@ -54,7 +57,7 @@ public class OperationalStatisticsImpl extends CanConvertToCompositeDataSupport 
 
     @Override
     public TimeDuration getRunningTime () {
-        Date now = Clocks.getAppServerClock().now();
+        Date now = clock.now();
         return new TimeDuration(this.asSeconds(now.getTime() - this.startTimestamp.getTime()), TimeDuration.SECONDS);
     }
 
