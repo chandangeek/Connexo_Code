@@ -40,6 +40,11 @@ public class AdHocComTaskExecutionImpl extends ComTaskExecutionImpl implements A
     }
 
     @Override
+    public int getMaxNumberOfTries() {
+        return getComTask().getMaxNumberOfTries();
+    }
+
+    @Override
     public ComTask getComTask() {
         return comTask.get();       // we do an explicit get because ComTask is required and should not be null
     }

@@ -131,13 +131,6 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         }
     }
 
-    private void setComSchedule(ComSchedule comSchedule) {
-        if (comSchedule==null) {
-            this.comScheduleReference.setNull();
-        }
-        this.comScheduleReference.set(comSchedule);
-    }
-
     /**
      * Serves as a <i>provider</i> for the current NextExecutionSpec.
      * The NextExecutionSpec will either be owned by:
@@ -234,11 +227,6 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     @Override
     public Date getNextExecutionTimestamp() {
         return this.nextExecutionTimestamp;
-    }
-
-    @Override
-    public int getMaxNumberOfTries() {
-        return this.getComTask().getMaxNumberOfTries();
     }
 
     @Override

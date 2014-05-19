@@ -985,16 +985,17 @@ public class DeviceImpl implements Device, PersistenceAware {
         }
     }
 
-    private class AbstractComTaskExecutionBuilderForDevice extends ComTaskExecutionImpl.AbstractComTaskExecutionBuilder {
+    private class AbstractComTaskExecutionBuilderForDevice
+            extends ComTaskExecutionImpl.AbstractComTaskExecutionBuilder<AbstractComTaskExecutionBuilderForDevice, ComTaskExecutionImpl> {
 
         private AbstractComTaskExecutionBuilderForDevice(Provider<ComTaskExecutionImpl> comTaskExecutionProvider, Device device, ComTaskEnablement comTaskEnablement) {
-            super(comTaskExecutionProvider, device, comTaskEnablement);
+            super(comTaskExecutionProvider.get(), device, comTaskEnablement, AbstractComTaskExecutionBuilderForDevice.class);
         }
 
         @Override
-        public ComTaskExecution add() {
-            ComTaskExecution comTaskExecution = super.add();
-            DeviceImpl.this.comTaskExecutions.add((ComTaskExecutionImpl) comTaskExecution);
+        public ComTaskExecutionImpl add() {
+            ComTaskExecutionImpl comTaskExecution = super.add();
+            DeviceImpl.this.comTaskExecutions.add(comTaskExecution);
             return comTaskExecution;
         }
     }

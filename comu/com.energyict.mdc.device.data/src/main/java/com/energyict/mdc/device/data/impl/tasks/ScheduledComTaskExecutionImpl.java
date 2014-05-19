@@ -13,6 +13,7 @@ import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.tasks.ComTask;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
@@ -40,6 +41,26 @@ public class ScheduledComTaskExecutionImpl extends ComTaskExecutionImpl implemen
         return false;
     }
 
+    private void setComSchedule(ComSchedule comSchedule) {
+        if (comSchedule==null) {
+            this.comScheduleReference.setNull();
+        }
+        this.comScheduleReference.set(comSchedule);
+    }
+
+
+    @Override
+    public int getMaxNumberOfTries() {
+        int minimalNrOfRetries = Integer.MAX_VALUE;
+        for (ComTask comTask : this.getComSchedule().getComTasks()) {
+            if (comTask.getMaxNumberOfTries()<minimalNrOfRetries) {
+                minimalNrOfRetries=comTask.getMaxNumberOfTries();
+            }
+        }
+
+        return minimalNrOfRetries;
+    }
+
     interface ScheduledComTaskExecutionBuilder extends ComTaskExecutionBuilder<ScheduledComTaskExecutionBuilder, ScheduledComTaskExecutionImpl> {
         public ScheduledComTaskExecutionBuilder comSchedule(ComSchedule comSchedule);
     }
@@ -54,7 +75,7 @@ public class ScheduledComTaskExecutionImpl extends ComTaskExecutionImpl implemen
         }
 
         public ScheduledComTaskExecutionBuilder comSchedule(ComSchedule comSchedule) {
-            this.comTaskExecution.comScheduleReference.set(comSchedule);
+            this.comTaskExecution.setComSchedule(comSchedule);
             return self;
         }
 
