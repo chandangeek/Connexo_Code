@@ -261,7 +261,9 @@ public class Unilog extends AbstractUnilog {
             if (meterSerial == null) {
                 throw new IOException("SerialNumber mismatch! configured serial = " + pSerialNumber + " meter serial unknown");
             } else {
-                String trimMeterSerial = meterSerial.substring(5, meterSerial.length() - 2);
+                String trimMeterSerial = meterSerial.substring(5, meterSerial.length());
+                trimMeterSerial = trimMeterSerial.replace(new String(new byte[]{0x0D, 0x0A}), "");  // Remove \r\n, but only if necessary
+
                 if (!trimMeterSerial.equals(pSerialNumber)) {
                     throw new IOException("SerialNumber mismatch! configured serial = " + pSerialNumber + " meter serial = " + trimMeterSerial);
                 }
