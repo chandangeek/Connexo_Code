@@ -16,12 +16,14 @@ import com.elster.jupiter.orm.fields.impl.ColumnEqualsFragment;
 import com.elster.jupiter.orm.fields.impl.FieldMapping;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
+import com.elster.jupiter.util.sql.TupleParser;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
 
-public class DataMapperReader<T> {
+public class DataMapperReader<T> implements TupleParser<T> {
 	private final DataMapperImpl<T> dataMapper;
 	
 	DataMapperReader(DataMapperImpl<T> dataMapper) {
@@ -210,6 +212,20 @@ public class DataMapperReader<T> {
 			}
 		}
 		throw MappingException.noDiscriminatorColumn();
+	}
+	
+	public T construct(ResultSet rs) throws SQLException {
+		return construct(rs,1);
+	}
+	
+	Fetcher<T> fetcher(SqlBuilder builder) throws SQLException {
+		Connection connection = getConnection(false);
+		try {
+			return builder.fetcher(connection, this);
+		} catch (SQLException ex) {
+			connection.close();
+			throw ex;
+		}
 	}
 	
 	T construct(ResultSet rs, int startIndex) throws SQLException {		

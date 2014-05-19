@@ -43,16 +43,24 @@ public class TableSqlGenerator {
         }
     }
 
-    String getSelectFromClause(String alias) {
-		return getSelectFromClause(table.getRealColumns(),alias);
+    String getSelectFromClause(String alias, String... hints) {
+		return getSelectFromClause(table.getRealColumns(),alias, hints);
 	}
 
     String getSelectFromJournalClause(String alias) {
         return getSelectFromJournalClause(table.getRealColumns(),alias);
     }
 
-    String getSelectFromClause(List<? extends Column> columns , String alias) {
+    String getSelectFromClause(List<? extends Column> columns , String alias, String ... hints) {
 		StringBuilder sb = new StringBuilder("select");
+		if (hints.length > 0) {
+			sb.append("/*+ ");
+			for (String hint : hints) {
+				sb.append(hint);
+				sb.append(" ");
+			}
+			sb.append("*/"); 
+		}
 		appendColumns(sb, " " , alias , columns);		
 		sb.append(" from ");
 		appendTable(sb," ",alias);

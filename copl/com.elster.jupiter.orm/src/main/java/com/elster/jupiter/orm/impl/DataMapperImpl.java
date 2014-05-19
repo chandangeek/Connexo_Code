@@ -6,6 +6,8 @@ import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.query.impl.QueryExecutorImpl;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.sql.Fetcher;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.google.common.base.Optional;
 
 import java.sql.ResultSet;
@@ -484,5 +486,19 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	@Deprecated
 	public List<T> find(Map<String, Object> valueMap, String order,String... orders) {
 		return find(valueMap,Order.from(order,orders));
+	}
+
+	@Override
+	public Fetcher<T> fetcher(SqlBuilder builder) {
+		try {
+			return reader.fetcher(builder);
+		} catch (SQLException ex) {
+			throw new UnderlyingSQLFailedException(ex);
+		}
+	}
+
+	@Override
+	public SqlBuilder builder(String alias, String... hints) {
+		return new SqlBuilder(getSqlGenerator().getSelectFromClause(alias, hints));
 	}
 }

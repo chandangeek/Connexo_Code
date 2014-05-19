@@ -1,5 +1,7 @@
 package com.elster.jupiter.orm;
 
+import com.elster.jupiter.util.sql.Fetcher;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.google.common.base.Optional;
 
 import java.util.List;
@@ -52,4 +54,8 @@ public interface DataMapper<T> extends Finder<T> {
 	Optional<T> getEager(Object ... object);
 	// meta data access
 	Object getAttribute(Object target , String fieldName);
+	
+	Fetcher<T> fetcher(SqlBuilder builder);
+	SqlBuilder builder(String alias, String... hints);
+	
 }
