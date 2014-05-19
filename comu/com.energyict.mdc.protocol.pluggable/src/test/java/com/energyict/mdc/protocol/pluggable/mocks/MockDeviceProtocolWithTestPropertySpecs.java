@@ -1,8 +1,5 @@
 package com.energyict.mdc.protocol.pluggable.mocks;
 
-import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -42,6 +39,8 @@ import java.util.List;
  * @since 2014-01-16 (10:57)
  */
 public class MockDeviceProtocolWithTestPropertySpecs implements DeviceProtocol {
+
+    private PropertySpecService propertySpecService;
 
     @Override
     public void setPropertySpecService(PropertySpecService propertySpecService) {
@@ -225,16 +224,16 @@ public class MockDeviceProtocolWithTestPropertySpecs implements DeviceProtocol {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return DeviceMessageTestSpec.extendedSpecs(this.getCodeFactory()).getPropertySpecs();
+        return DeviceMessageTestSpec.extendedSpecs(this.getPropertySpecService()).getPropertySpecs();
     }
 
     @Override
     public PropertySpec getPropertySpec(String name) {
-        return DeviceMessageTestSpec.extendedSpecs(this.getCodeFactory()).getPropertySpec(name);
+        return DeviceMessageTestSpec.extendedSpecs(this.getPropertySpecService()).getPropertySpec(name);
     }
 
-    private IdBusinessObjectFactory getCodeFactory() {
-        return (IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(FactoryIds.CODE.id());
+    private PropertySpecService getPropertySpecService() {
+        return propertySpecService;
     }
 
 }

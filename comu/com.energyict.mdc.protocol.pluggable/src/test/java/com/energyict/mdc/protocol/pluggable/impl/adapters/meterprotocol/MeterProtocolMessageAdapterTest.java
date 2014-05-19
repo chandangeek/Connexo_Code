@@ -2,6 +2,7 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.ApplicationContext;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
@@ -41,6 +42,7 @@ public class MeterProtocolMessageAdapterTest {
 
     private InMemoryPersistence inMemoryPersistence;
     private ProtocolPluggableServiceImpl protocolPluggableService;
+    private PropertySpecService propertySpecService;
 
     @Before
     public void initializeDatabaseAndMocks () {
@@ -70,7 +72,7 @@ public class MeterProtocolMessageAdapterTest {
 
         DeviceProtocolMessageService deviceProtocolMessageService = this.inMemoryPersistence.getDeviceProtocolMessageService();
         when(deviceProtocolMessageService.createDeviceProtocolMessagesFor(SimpleLegacyMessageConverter.class.getName())).
-            thenReturn(new SimpleLegacyMessageConverter());
+            thenReturn(new SimpleLegacyMessageConverter(propertySpecService));
         doThrow(DeviceProtocolAdapterCodingExceptions.class).
             when(deviceProtocolMessageService).createDeviceProtocolMessagesFor("com.energyict.comserver.adapters.meterprotocol.Certainly1NotKnown2ToThisClass3PathLegacyConverter");
     }

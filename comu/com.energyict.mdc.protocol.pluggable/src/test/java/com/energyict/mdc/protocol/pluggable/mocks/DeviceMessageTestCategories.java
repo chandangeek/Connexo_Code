@@ -1,9 +1,7 @@
 package com.energyict.mdc.protocol.pluggable.mocks;
 
-import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.UserEnvironment;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategoryPrimaryKey;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
@@ -51,6 +49,7 @@ public enum DeviceMessageTestCategories implements DeviceMessageCategory {
             return DeviceMessageTestSpec.allTestSpecs(getCodeFactory());
         }
     };
+    private PropertySpecService propertySpecService;
 
     @Override
     public String getName() {
@@ -96,8 +95,8 @@ public enum DeviceMessageTestCategories implements DeviceMessageCategory {
         return new DeviceMessageCategoryPrimaryKey(this, name());
     }
 
-    protected IdBusinessObjectFactory getCodeFactory() {
-        return (IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(FactoryIds.CODE.id());
+    protected PropertySpecService getCodeFactory() {
+        return propertySpecService;
     }
 
 }

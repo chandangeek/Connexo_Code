@@ -61,14 +61,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
-import java.security.Principal;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import org.joda.time.DateMidnight;
 import org.junit.After;
 import org.junit.Before;
@@ -78,6 +70,14 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+
+import java.security.Principal;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -111,7 +111,7 @@ public class DeviceProtocolPluggableClassImplTest {
     private PropertySpecServiceImpl propertySpecService;
 
     private DataModel dataModel;
-    private IdBusinessObjectFactory codeFactory = mock(IdBusinessObjectFactory.class);
+//    private IdBusinessObjectFactory codeFactory = mock(IdBusinessObjectFactory.class);
     @Mock
     private License license;
     private InMemoryBootstrapModule bootstrapModule;
@@ -155,7 +155,7 @@ public class DeviceProtocolPluggableClassImplTest {
         IdBusinessObjectFactory deviceProtocolDialectFactory = mock(IdBusinessObjectFactory.class);
         when(deviceProtocolDialectFactory.getInstanceType()).thenReturn(DeviceProtocolDialect.class);
         when(applicationContext.findFactory(FactoryIds.DEVICE_PROTOCOL_DIALECT.id())).thenReturn(deviceProtocolDialectFactory);
-        when(codeFactory.getInstanceType()).thenReturn(Code.class);
+//        when(codeFactory.getInstanceType()).thenReturn(Code.class);
 
         if (Environment.DEFAULT.get().getApplicationContext() != null) {
             fail("Application context was not cleaned up properly by previous test");
@@ -172,7 +172,7 @@ public class DeviceProtocolPluggableClassImplTest {
             }
         });
 
-        when(applicationContext.findFactory(FactoryIds.CODE.id())).thenReturn(codeFactory);
+//        when(applicationContext.findFactory(FactoryIds.CODE.id())).thenReturn(codeFactory);
         Translator translator = mock(Translator.class);
         when(translator.getTranslation(anyString())).thenReturn("Translation missing in unit testing");
         when(translator.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
@@ -253,7 +253,7 @@ public class DeviceProtocolPluggableClassImplTest {
         Code code = mock(Code.class);
         when(code.getId()).thenReturn(CODE_ID);
         when(code.getName()).thenReturn(CODE_NAME);
-        when(codeFactory.get(CODE_ID)).thenReturn(code);
+//        when(codeFactory.get(CODE_ID)).thenReturn(code);
         final TypedProperties creationProperties = TypedProperties.empty();
         Date activationDate = new DateMidnight().toDate();
         creationProperties.setProperty(DeviceMessageTestSpec.ACTIVATIONDATE_PROPERTY_SPEC_NAME, activationDate);
@@ -295,7 +295,7 @@ public class DeviceProtocolPluggableClassImplTest {
         final Code code = mock(Code.class);
         when(code.getId()).thenReturn(CODE_ID);
         when(code.getName()).thenReturn(CODE_NAME);
-        when(codeFactory.get(CODE_ID)).thenReturn(code);
+//        when(codeFactory.get(CODE_ID)).thenReturn(code);
         final TypedProperties creationProperties = TypedProperties.empty();
         final Date activationDate = new DateMidnight().toDate();
         creationProperties.setProperty(DeviceMessageTestSpec.ACTIVATIONDATE_PROPERTY_SPEC_NAME, activationDate);
@@ -308,10 +308,10 @@ public class DeviceProtocolPluggableClassImplTest {
                     public DeviceProtocolPluggableClass perform() {
                         DeviceProtocolPluggableClass deviceProtocolPluggableClass = protocolPluggableService.newDeviceProtocolPluggableClass(DEVICE_PROTOCOL_NAME, MOCK_DEVICE_PROTOCOL_WITH_PROPERTIES);
                         deviceProtocolPluggableClass.setProperty(
-                                DeviceMessageTestSpec.extendedSpecs(codeFactory).getPropertySpec(DeviceMessageTestSpec.ACTIVATIONDATE_PROPERTY_SPEC_NAME),
+                                DeviceMessageTestSpec.extendedSpecs(propertySpecService).getPropertySpec(DeviceMessageTestSpec.ACTIVATIONDATE_PROPERTY_SPEC_NAME),
                                 activationDate);
                         deviceProtocolPluggableClass.setProperty(
-                                DeviceMessageTestSpec.extendedSpecs(codeFactory).getPropertySpec(DeviceMessageTestSpec.CODETABLE_PROPERTY_SPEC_NAME),
+                                DeviceMessageTestSpec.extendedSpecs(propertySpecService).getPropertySpec(DeviceMessageTestSpec.CODETABLE_PROPERTY_SPEC_NAME),
                                 code);
                         deviceProtocolPluggableClass.save();
                         return deviceProtocolPluggableClass;

@@ -3,6 +3,7 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.pluggable.mocks.DeviceMessageTestSpec;
 import com.energyict.protocols.messaging.LegacyMessageConverter;
@@ -27,11 +28,16 @@ public class SimpleLegacyMessageConverter implements LegacyMessageConverter {
 
     public static final String codeTableFormattingResult = "ThisIsTheCodeTableFormattingResult";
     public static final String dateFormattingResult = "ThisIsTheDateFormattingResult";
+    private final PropertySpecService propertySpecService;
+
+    public SimpleLegacyMessageConverter(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
         return Arrays.<DeviceMessageSpec>asList(
-                DeviceMessageTestSpec.extendedSpecs(getCodeFactory()),
+                DeviceMessageTestSpec.extendedSpecs(propertySpecService),
                 DeviceMessageTestSpec.allSimpleSpecs());
     }
 

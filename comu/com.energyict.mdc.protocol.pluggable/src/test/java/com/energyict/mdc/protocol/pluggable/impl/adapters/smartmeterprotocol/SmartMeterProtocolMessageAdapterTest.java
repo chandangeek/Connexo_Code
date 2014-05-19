@@ -5,6 +5,7 @@ import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
@@ -71,6 +72,8 @@ public class SmartMeterProtocolMessageAdapterTest {
     private InMemoryPersistence inMemoryPersistence;
     private ProtocolPluggableServiceImpl protocolPluggableService;
     private DataModel dataModel;
+    @Mock
+    private PropertySpecService propertySpecService;
 
     @Before
     public void initializeDatabaseAndMocks() {
@@ -92,7 +95,7 @@ public class SmartMeterProtocolMessageAdapterTest {
 
     private void initializeMocks() {
         DeviceProtocolMessageService deviceProtocolMessageService = this.inMemoryPersistence.getDeviceProtocolMessageService();
-        when(deviceProtocolMessageService.createDeviceProtocolMessagesFor(SimpleLegacyMessageConverter.class.getCanonicalName())).thenReturn(new SimpleLegacyMessageConverter());
+        when(deviceProtocolMessageService.createDeviceProtocolMessagesFor(SimpleLegacyMessageConverter.class.getCanonicalName())).thenReturn(new SimpleLegacyMessageConverter(propertySpecService));
         doThrow(DeviceProtocolAdapterCodingExceptions.class).when(deviceProtocolMessageService).createDeviceProtocolMessagesFor("com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.Certainly1NotKnown2ToThisClass3PathLegacyConverter");
         when(deviceProtocolMessageService.createDeviceProtocolMessagesFor(ThirdSimpleTestSmartMeterProtocol.class.getCanonicalName())).thenReturn(new ThirdSimpleTestSmartMeterProtocol());
 
@@ -168,7 +171,7 @@ public class SmartMeterProtocolMessageAdapterTest {
         // asserts
         assertThat(supportedMessages).isNotNull();
         assertThat(supportedMessages).containsOnly(
-                DeviceMessageTestSpec.extendedSpecs(this.codeFactory),
+                DeviceMessageTestSpec.extendedSpecs(propertySpecService),
                 DeviceMessageTestSpec.allSimpleSpecs());
     }
 
