@@ -125,6 +125,7 @@ mvn:com.energyict/mdc.masterdata.extjs/1.0.0-SNAPSHOT
 mvn:com.energyict/mdc.device.config/1.0.0-SNAPSHOT
 mvn:com.energyict/mdc.device.config.rest/1.0.0-SNAPSHOT
 mvn:com.energyict/mdc.device.data/1.0.0-SNAPSHOT
+mvn:com.energyict/mdc.device.data.rest/1.0.0-SNAPSHOT
 mvn:com.energyict/mdc.tasks/1.0.0-SNAPSHOT
 mvn:com.energyict/mdc.protocol.pluggable/1.0.0-SNAPSHOT
 mvn:com.energyict/mdc.device.data.imp/1.0.0-SNAPSHOT
