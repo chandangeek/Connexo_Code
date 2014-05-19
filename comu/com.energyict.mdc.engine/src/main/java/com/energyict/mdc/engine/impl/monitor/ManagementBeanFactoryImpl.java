@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.monitor;
 import com.energyict.mdc.engine.impl.core.ComPortListener;
 import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.impl.core.ScheduledComPort;
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.tools.JmxUtils;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.monitor.ComServerMonitorImplMBean;
@@ -43,7 +44,7 @@ public class ManagementBeanFactoryImpl implements ManagementBeanFactory {
             ObjectName jmxName = ManagementBeanNamingConventions.nameFor(runningComServer);
             Object registeredMBean = this.registeredMBeans.get(jmxName);
             if (registeredMBean == null) {
-                comServerMBean = new ComServerMonitorImpl(runningComServer);
+                comServerMBean = new ComServerMonitorImpl(runningComServer, ServiceProvider.instance.get().clock());
                 this.registeredMBeans.put(jmxName, comServerMBean);
                 JmxUtils.registerMBean(comServerMBean, jmxName);
             }

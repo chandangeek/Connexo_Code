@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
+import com.energyict.mdc.engine.impl.EventType;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.NoLogBooksForDeviceEvent;
 import com.energyict.mdc.engine.impl.meterdata.NoLogBooksForDevice;
@@ -26,8 +27,7 @@ public class CreateNoLogBooksForDeviceEvent extends DeviceCommandImpl {
 
     @Override
     public void doExecute(ComServerDAO comServerDAO) {
-        NoLogBooksForDeviceEvent event = new NoLogBooksForDeviceEvent(this.deviceIdentifier);
-        comServerDAO.signalEvent(event);
+        comServerDAO.signalEvent(EventType.NO_LOGBOOKS_FOR_DEVICE.topic(), new NoLogBooksForDeviceEvent(this.deviceIdentifier));
     }
 
     @Override

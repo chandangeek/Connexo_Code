@@ -23,6 +23,7 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.services.HexService;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.history.TaskHistoryService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -56,6 +57,7 @@ public class EngineServiceImpl implements EngineService, InstallService {
     private volatile MdcReadingTypeUtilService mdcReadingTypeUtilService;
     private volatile UserService userService;
     private volatile DeviceConfigurationService deviceConfigurationService;
+    private volatile ProtocolPluggableService protocolPluggableService;
 
     @Inject
     public EngineServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService) {
@@ -169,6 +171,11 @@ public class EngineServiceImpl implements EngineService, InstallService {
         this.userService = userService;
     }
 
+    @Reference
+    public void setProtocolPluggableService(ProtocolPluggableService protocolPluggableService) {
+        this.protocolPluggableService = protocolPluggableService;
+    }
+
     DataModel getDataModel() {
         return dataModel;
     }
@@ -256,6 +263,11 @@ public class EngineServiceImpl implements EngineService, InstallService {
         @Override
         public UserService userService() {
             return userService;
+        }
+
+        @Override
+        public ProtocolPluggableService protocolPluggableService() {
+            return protocolPluggableService;
         }
     }
 }

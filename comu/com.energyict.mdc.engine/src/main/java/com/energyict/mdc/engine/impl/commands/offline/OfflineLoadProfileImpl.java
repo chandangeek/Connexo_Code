@@ -101,7 +101,7 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
     protected List<OfflineLoadProfileChannel> convertToOfflineChannels(final List<Channel> channels) {
         List<OfflineLoadProfileChannel> offlineChannelList = new ArrayList<>(channels.size());
         for (Channel channel : channels) {
-            offlineChannelList.add(channel.goOffline());
+            offlineChannelList.add(new OfflineLoadProfileChannelImpl(channel));
         }
         return offlineChannelList;
     }

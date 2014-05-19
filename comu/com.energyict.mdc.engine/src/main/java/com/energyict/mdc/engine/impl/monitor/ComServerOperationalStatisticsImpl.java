@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.monitor;
 
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.monitor.ComServerOperationalStatistics;
@@ -21,8 +22,8 @@ public class ComServerOperationalStatisticsImpl extends OperationalStatisticsImp
     public static final String COMMUNICATION_LOG_LEVEL_ITEM_NAME = "communicationLogLevel";
     private static final String COMMUNICATION_LOG_LEVEL_ITEM_DESCRIPTION = "communication log level";
 
-    public ComServerOperationalStatisticsImpl (RunningComServer runningComServer) {
-        super(runningComServer);
+    public ComServerOperationalStatisticsImpl(RunningComServer runningComServer, Clock clock) {
+        super(runningComServer, clock);
     }
 
     @Override

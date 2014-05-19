@@ -1,30 +1,50 @@
 package com.energyict.mdc.engine.impl.events;
 
-import com.energyict.mdc.device.data.Device;
+import com.elster.jupiter.util.Holder;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+import com.google.common.collect.ImmutableList;
 
-import java.util.Collections;
 import java.util.List;
+
+import static com.elster.jupiter.util.HolderBuilder.first;
 
 public class DeviceTopologyChangedEvent {
 
-    private final Device master;
-    /**
-     * A list containing the device identifiers of all attached slave devices.
-     */
-    private List<DeviceIdentifier> slaveDeviceIdentifiers;
+    private final String masterDeviceId;
+    private final DeviceIdentifier masterDevice;
+    private final String slaveIdentifiers;
+    private final List<DeviceIdentifier> slaveDevices;
 
-    public DeviceTopologyChangedEvent(Device master, List<DeviceIdentifier>  slaveDeviceIdentifiers) {
-        this.master = master;
-        this.slaveDeviceIdentifiers = slaveDeviceIdentifiers;
+    public DeviceTopologyChangedEvent(DeviceIdentifier masterDeviceIdentifier, List<DeviceIdentifier> slaveIdentifiers) {
+        super();
+        masterDevice = masterDeviceIdentifier;
+        this.masterDeviceId = masterDeviceIdentifier.getIdentifier();
+        slaveDevices = ImmutableList.copyOf(slaveIdentifiers);
+        this.slaveIdentifiers = asString(slaveIdentifiers);
     }
 
-    public Device getMasterDevice() {
-        return master;
+    private String asString(List<DeviceIdentifier> slaveIdentifiers) {
+        Holder<String> separator = first("").andThen(",");
+        StringBuilder builder = new StringBuilder();
+        for (DeviceIdentifier slaveIdentifier : slaveIdentifiers) {
+            builder.append(separator.get()).append(slaveIdentifier.getIdentifier());
+        }
+        return builder.toString();
     }
 
-    public List<DeviceIdentifier> getSlaveDeviceIdentifiers() {
-        return Collections.unmodifiableList(this.slaveDeviceIdentifiers);
+    public String getMasterDeviceId() {
+        return masterDeviceId;
     }
 
+    public String getSlaveIdentifiers() {
+        return slaveIdentifiers;
+    }
+
+    public DeviceIdentifier getMasterDevice() {
+        return masterDevice;
+    }
+
+    public List<DeviceIdentifier> getSlaveDevices() {
+        return slaveDevices;
+    }
 }

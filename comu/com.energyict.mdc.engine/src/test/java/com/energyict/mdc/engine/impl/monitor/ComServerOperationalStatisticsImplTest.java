@@ -6,7 +6,6 @@ import com.energyict.comserver.time.Clocks;
 import com.energyict.comserver.time.FrozenClock;
 import com.energyict.comserver.time.PredefinedTickingClock;
 import com.energyict.mdc.common.UserEnvironment;
-import com.energyict.mdc.engine.impl.monitor.ComServerOperationalStatisticsImpl;
 import com.energyict.mdc.engine.model.ComServer;
 import org.junit.*;
 import org.junit.runner.*;
@@ -75,7 +74,7 @@ public class ComServerOperationalStatisticsImplTest {
 
     @Test
     public void testCompositeDataItemTypes () {
-        ComServerOperationalStatisticsImpl operationalStatistics = new ComServerOperationalStatisticsImpl(this.runningComServer);
+        ComServerOperationalStatisticsImpl operationalStatistics = new ComServerOperationalStatisticsImpl(this.runningComServer, clock);
 
         // Business method
         CompositeData compositeData = operationalStatistics.toCompositeData();
@@ -95,7 +94,7 @@ public class ComServerOperationalStatisticsImplTest {
         FrozenClock now = FrozenClock.frozenOn(2013, Calendar.APRIL, 6, 23, 24, 5, 0);
         PredefinedTickingClock clock = new PredefinedTickingClock(startTimestamp, now);
         Clocks.setAppServerClock(clock);
-        ComServerOperationalStatisticsImpl operationalStatistics = new ComServerOperationalStatisticsImpl(this.runningComServer);
+        ComServerOperationalStatisticsImpl operationalStatistics = new ComServerOperationalStatisticsImpl(this.runningComServer, clock);
 
         // Business method
         CompositeData compositeData = operationalStatistics.toCompositeData();

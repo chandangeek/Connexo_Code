@@ -1,20 +1,19 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.engine.impl.EventType;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.DeviceTopologyChangedEvent;
 import com.energyict.mdc.engine.impl.events.UnknownSlaveDeviceEvent;
 import com.energyict.mdc.engine.impl.meterdata.DeviceTopology;
 import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.tasks.history.CompletionCode;
 import com.energyict.protocolimplv2.identifiers.SerialNumberDeviceIdentifier;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -46,7 +45,7 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl {
         this.handleSlaveMoves(comServerDAO, oldSlavesBySerialNumber, actualSlavesByDeviceId);
         if (this.topologyChanged && this.deviceTopology.getTopologyAction().equals(TopologyAction.VERIFY)) {
             DeviceIdentifier deviceFinder = deviceTopology.getDeviceIdentifier();
-            comServerDAO.signalEvent(new DeviceTopologyChangedEvent((Device) deviceFinder.findDevice(), deviceTopology.getSlaveDeviceIdentifiers()));
+            comServerDAO.signalEvent(EventType.DEVICE_TOPOLOGY_CHANGED.topic(), new DeviceTopologyChangedEvent(deviceFinder, deviceTopology.getSlaveDeviceIdentifiers()));
         }
         if (!this.serialNumbersRemovedFromTopology.isEmpty()) {
             String allSerials = getSerialNumbersAsString(this.serialNumbersRemovedFromTopology);
@@ -139,8 +138,8 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl {
      * @param addedSlave   the new slave that has been added to the device
      */
     private void handleAdditionOfSlave(ComServerDAO comServerDAO, DeviceIdentifier addedSlave) {
-        DeviceIdentifier deviceFinder = deviceTopology.getDeviceIdentifier();
-        comServerDAO.signalEvent(new UnknownSlaveDeviceEvent(deviceFinder, addedSlave));
+        UnknownSlaveDeviceEvent event = new UnknownSlaveDeviceEvent(deviceTopology.getDeviceIdentifier(), addedSlave);
+        comServerDAO.signalEvent(EventType.UNKNOWN_SLAVE_DEVICE.topic(), event);
     }
 
     /**

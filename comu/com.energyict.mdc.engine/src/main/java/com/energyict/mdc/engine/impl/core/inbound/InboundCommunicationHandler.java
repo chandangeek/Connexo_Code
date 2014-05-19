@@ -1,10 +1,10 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
-import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.impl.EventType;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceImpl;
 import com.energyict.mdc.engine.impl.commands.store.ComSessionRootDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.CompositeDeviceCommand;
@@ -17,7 +17,6 @@ import com.energyict.mdc.engine.impl.core.InboundJobExecutionGroup;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.events.UnknownInboundDeviceEvent;
 import com.energyict.mdc.engine.model.InboundComPort;
-import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.crypto.Cryptographer;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
@@ -32,9 +31,9 @@ import com.energyict.mdc.protocol.api.inbound.FindMultipleDevices;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.tasks.history.ComSession;
 import com.energyict.mdc.tasks.history.ComSessionBuilder;
-import com.energyict.mdc.tasks.history.TaskHistoryService;
 
 import java.util.List;
 
@@ -147,7 +146,12 @@ public class InboundCommunicationHandler {
     }
 
     private void handleUnknownDevice(InboundDeviceProtocol inboundDeviceProtocol) {
-        this.comServerDAO.signalEvent(new UnknownInboundDeviceEvent(this.comPort, inboundDeviceProtocol.getDeviceIdentifier(), inboundDeviceProtocol));
+        List<InboundDeviceProtocolPluggableClass> classes = serviceProvider.protocolPluggableService().findInboundDeviceProtocolPluggableClassByClassName(inboundDeviceProtocol.getClass().getName());
+        UnknownInboundDeviceEvent event = null;
+        if (!classes.isEmpty()) {
+            event = new UnknownInboundDeviceEvent(this.comPort, inboundDeviceProtocol.getDeviceIdentifier(), classes.get(0));
+        }
+        this.comServerDAO.signalEvent(EventType.UNKNOWN_INBOUND_DEVICE.topic(), event);
         // Todo: do something for the DoS attacks?
         this.provideResponse(inboundDeviceProtocol, InboundDeviceProtocol.DiscoverResponseType.DEVICE_NOT_FOUND);
     }
@@ -220,18 +224,9 @@ public class InboundCommunicationHandler {
 
     private ComSessionBuilder.EndedComSessionBuilder markSuccessful(ComSessionBuilder comSessionBuilder) {
         return comSessionBuilder.endSession(serviceProvider.clock().now(), ComSession.SuccessIndicator.Success);
-        //TODO : retroactively mark all builders as successful?
-        for (ComTaskExecutionSessionShadow taskSessionShadow : comSessionBuilder.getComTaskExecutionSessionShadows()) {
-            taskSessionShadow.setSuccessIndicator(ComTaskExecutionSession.SuccessIndicator.Success);
-        }
-
     }
 
     private ComSessionBuilder.EndedComSessionBuilder markFailed(ComSessionBuilder comSessionBuilder, InboundDeviceProtocol.DiscoverResponseType reason) {
-        //TODO : retroactively mark all builders as failed?
-        for (ComTaskExecutionSessionShadow taskSessionShadow : comSessionBuilder.getComTaskExecutionSessionShadows()) {
-            taskSessionShadow.setSuccessIndicator(ComTaskExecutionSession.SuccessIndicator.Failure);
-        }
         switch (reason) {
             case SUCCESS: {
                 assert false : "if-test that was supposed to verify that the discovery response type was NOT success clearly failed";
