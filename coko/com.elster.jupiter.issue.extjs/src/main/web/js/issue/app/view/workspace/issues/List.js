@@ -6,8 +6,7 @@ Ext.define('Isu.view.workspace.issues.List', {
         'Ext.grid.column.Template',
         'Uni.grid.column.Action',
         'Uni.view.toolbar.PagingTop',
-        'Uni.view.toolbar.PagingBottom',
-        'Isu.view.workspace.issues.Actions'
+        'Uni.view.toolbar.PagingBottom'
     ],
     alias: 'widget.issues-list',
     store: 'Isu.store.Issues',
