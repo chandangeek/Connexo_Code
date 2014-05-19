@@ -45,17 +45,31 @@ Ext.define('Mdc.controller.setup.LogForm', {
     },
 
     showOverview: function (id) {
+        var self = this;
         var widget = Ext.widget('form-logbook');
+        var form = widget.down('form');
+        var btn = form.down('button[name=logAction]');
+        var title;
+
+        this.getApplication().fireEvent('changecontentevent', widget);
+
         if (id) {
             this.crumbId = this.logId = id;
-            this.setEditPage();
-            this.initEditMenu(id);
-            this.fillForm(id);
+            self.getModel('Mdc.model.Logbook').load(id, {
+                success: function (record) {
+                    form.loadRecord(record);
+                }
+            });
+            title = 'Edit logbook type';
+            btn.setText('Save');
+            btn.action = 'edit';
         } else {
-            this.setCreatePage();
-            this.initCreateMenu();
+            title = 'Create logbook type';
+            btn.setText('Add');
+            btn.action = 'create';
         }
-        this.getApplication().fireEvent('changecontentevent', widget);
+
+        form.setTitle(title);
     },
 
     setBreadcrumb: function (breadcrumbs) {
@@ -83,74 +97,6 @@ Ext.define('Mdc.controller.setup.LogForm', {
         }
         breadcrumbParent.setChild(breadcrumbChild1).setChild(breadcrumbChild2);
         breadcrumbs.setBreadcrumbItem(breadcrumbParent);
-    },
-
-    setEditPage: function () {
-        var self = this,
-            btn = self.getLogBtn(),
-            title = self.getLogTitle();
-        btn.setText('Save');
-        btn.action = 'edit';
-        title.add({
-            html: '<h1>Edit logbook type</h1>'
-        });
-    },
-
-    setCreatePage: function () {
-        var self = this,
-            btn = self.getLogBtn(),
-            title = self.getLogTitle();
-        btn.setText('Add');
-        btn.action = 'create';
-        title.add({
-            html: '<h1>Create logbook type</h1>'
-        });
-    },
-
-    initCreateMenu: function () {
-        var menu = this.getSideMenuCmp();
-
-        menu.add({
-            text: 'Create logbook type',
-            pressed: true,
-            href: '#/administration/logbooktypes/create',
-            hrefTarget: '_self'
-        });
-    },
-
-    initEditMenu: function (id) {
-        var menu = this.getSideMenuCmp();
-        menu.add({
-            text: 'Edit logbook type',
-            pressed: true,
-            href: '#/administration/logbooktypes/edit/' + id,
-            hrefTarget: '_self'
-        });
-    },
-
-    getSideMenuCmp: function () {
-        return this.getFormPanel().down('#sideMenu');
-    },
-
-    fillForm: function (id) {
-        var self = this;
-
-        self.getModel('Mdc.model.Logbook').load(id, {
-            success: function (record) {
-                self.modelToForm(record);
-            }
-        });
-    },
-
-    modelToForm: function (record) {
-        var self = this,
-            formPanel = self.getFormPanel(),
-            form = formPanel.down('form'),
-            data = record.getData(),
-            nameField = form.down('[name=name]'),
-            obisField = form.down('[name=obis]');
-        nameField.setValue(data.name);
-        obisField.setValue(data.obis);
     },
 
     showNameNotUniqueError: function(result, msges, formErrorsPanel) {
