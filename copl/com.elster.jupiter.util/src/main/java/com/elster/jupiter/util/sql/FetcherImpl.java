@@ -81,7 +81,7 @@ class FetcherImpl<T> implements Fetcher<T> {
 			}
 			T result = nextValue;
 			nextValue = null;
-			return nextValue;
+			return result;
 		}
 
 		@Override
