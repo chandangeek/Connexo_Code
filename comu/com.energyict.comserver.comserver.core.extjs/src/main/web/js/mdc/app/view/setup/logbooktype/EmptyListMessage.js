@@ -2,7 +2,6 @@ Ext.define('Mdc.view.setup.logbooktype.EmptyListMessage', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.logbook-empty-list-message',
     hidden: true,
-    height: 395,
     items: [
         {
             xtype: 'panel',
@@ -19,7 +18,5 @@ Ext.define('Mdc.view.setup.logbooktype.EmptyListMessage', {
             hrefTarget: '',
             href: '#/administration/logbooktypes/create'
         }
-
     ]
-
 });
