@@ -5,6 +5,8 @@ import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.sql.Fetcher;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
@@ -264,6 +266,18 @@ public enum Fakes {
 		@Override
 		public Optional<T> lockNoWait(Object... values) {
 			return Optional.absent();
+		}
+
+		@Override
+		public Fetcher<T> fetcher(SqlBuilder builder) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public SqlBuilder builder(String alias, String... hints) {
+			// TODO Auto-generated method stub
+			return null;
 		}
 
     }
