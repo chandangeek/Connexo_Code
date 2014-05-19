@@ -10,6 +10,7 @@ Ext.define('Mdc.store.DeviceCommunicationProtocols', {
         property: 'name',
         direction: 'ASC'
     }],
+    pageSize: 10,
     proxy: {
         type: 'rest',
         limitParam: false,

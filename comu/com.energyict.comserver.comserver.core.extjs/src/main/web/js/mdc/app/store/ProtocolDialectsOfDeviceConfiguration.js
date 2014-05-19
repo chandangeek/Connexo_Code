@@ -5,6 +5,7 @@ Ext.define('Mdc.store.ProtocolDialectsOfDeviceConfiguration', {
     ],
     model: 'Mdc.model.ProtocolDialect',
     storeId: 'ProtocolDialectsOfDeviceConfiguration',
+    pageSize: 10,
     proxy: {
         type: 'rest',
         url: '../../api/dtc/devicetypes/{deviceType}/deviceconfigurations/{deviceConfig}/protocoldialects',
