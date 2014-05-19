@@ -145,8 +145,8 @@ public class DataModelTest {
         DataMapper<Party> mapper = dataModel.mapper(Party.class);
         SqlBuilder builder = mapper.builder("P", "FIRST_ROWS(1)");
         int count = 0;
-        try (Fetcher<Party> iterator = mapper.fetcher(builder)) {
-        	for (Party each : iterator) {
+        try (Fetcher<Party> fetcher = mapper.fetcher(builder)) {
+        	for (Party each : fetcher) {
         		count++;
         	}
         	assertThat(count).isNotZero();
