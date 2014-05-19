@@ -147,6 +147,7 @@ public class DataModelTest {
         int count = 0;
         try (Fetcher<Party> fetcher = mapper.fetcher(builder)) {
         	for (Party each : fetcher) {
+        		assertThat(each).isNotNull();
         		count++;
         	}
         	assertThat(count).isNotZero();
