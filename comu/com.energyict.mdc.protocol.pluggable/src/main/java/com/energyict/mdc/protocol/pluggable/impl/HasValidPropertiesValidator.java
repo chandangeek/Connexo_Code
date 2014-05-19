@@ -3,6 +3,7 @@ package com.energyict.mdc.protocol.pluggable.impl;
 import com.energyict.mdc.common.InvalidValueException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import java.util.List;
 import javax.validation.ConstraintValidator;
@@ -20,11 +21,16 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
 
     @Override
     public boolean isValid(DeviceProtocolPluggableClassImpl deviceProtocolPluggableClass, ConstraintValidatorContext context) {
-        TypedProperties properties = deviceProtocolPluggableClass.getProperties();
-        List<PropertySpec> propertySpecs = deviceProtocolPluggableClass.getPropertySpecs();
-        this.validatePropertiesAreLinkedToAttributeSpecs(properties, propertySpecs, context);
-        this.validatePropertyValues(properties, propertySpecs, context);
-        return this.valid;
+        try {
+            TypedProperties properties = deviceProtocolPluggableClass.getProperties();
+            List<PropertySpec> propertySpecs = deviceProtocolPluggableClass.getPropertySpecs();
+            this.validatePropertiesAreLinkedToAttributeSpecs(properties, propertySpecs, context);
+            this.validatePropertyValues(properties, propertySpecs, context);
+            return this.valid;
+        } catch (ProtocolCreationException e) {
+            context.buildConstraintViolationWithTemplate("{"+MessageSeeds.Constants.PLUGGABLE_CLASS_NEW_INSTANCE_FAILURE+"}").addConstraintViolation().disableDefaultConstraintViolation();
+            return false;
+        }
     }
 
     private void validatePropertiesAreLinkedToAttributeSpecs(TypedProperties properties, List<PropertySpec> propertySpecs, ConstraintValidatorContext context) {
