@@ -4,6 +4,7 @@ Ext.define('Mdc.view.setup.device.DeviceOpenIssuesPanel', {
     overflowY: 'auto',
     itemId: 'deviceopenissuespanel',
     deviceId: null,
+    mRID: null,
     margin: '0 10 10 10',
     initComponent: function () {
         var me = this;
@@ -30,7 +31,7 @@ Ext.define('Mdc.view.setup.device.DeviceOpenIssuesPanel', {
                         cls: 'x-form-display-field',
                         autoEl: {
                             tag: 'a',
-                            href: '#/workspace/datacollection/issues?issueType=datacollection&group=none&status=1&meter=' + this.deviceId,
+                            href: '#/workspace/datacollection/issues?issueType=datacollection&group=none&status=1&meter=' + this.mRID,
                             html: 'data collection issues'
                         },
                         itemId: 'dataCollectionIssuesLink'
