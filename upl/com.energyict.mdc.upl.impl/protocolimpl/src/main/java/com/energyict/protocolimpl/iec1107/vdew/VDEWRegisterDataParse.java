@@ -17,7 +17,11 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.StringTokenizer;
+import java.util.TimeZone;
 
 /**
  *
@@ -439,22 +443,29 @@ abstract public class VDEWRegisterDataParse {
 
         rawdata = stripExtraCharacters(rawdata);
 
-        if ((rawdata.length % 2) != 0) {
-            throw new IOException("parseDate, rawdata wrong length (" + rawdata.length + ")!");
+        int dataLength = rawdata.length;
+        if ((dataLength % 2) != 0) {
+            throw new IOException("parseDate, rawdata wrong length (" + dataLength + ")!");
         }
 
-        if (rawdata.length == 14) {
+        if (dataLength == 14) {
             int mode = ProtocolUtils.bcd2nibble(rawdata, 0);
             ProtocolUtils.arrayCopy(ProtocolUtils.getSubArray2(rawdata, 1, 6), timedate, 0);
             ProtocolUtils.arrayCopy(ProtocolUtils.getSubArray2(rawdata, 8, 6), timedate, 6);
             calendar = ProtocolUtils.getCleanCalendar((mode == MODE_UTCTIME) ? TimeZone.getTimeZone("GMT") : getProtocolLink().getTimeZone());
-        } else if (rawdata.length == 10) {
+        } else if (dataLength == 10) {
             Arrays.fill(timedate, (byte) '0');
             ProtocolUtils.arrayCopy(ProtocolUtils.getSubArray2(rawdata, 0, 4), timedate, 0);
             ProtocolUtils.arrayCopy(ProtocolUtils.getSubArray2(rawdata, 4, 6), timedate, 6);
             calendar = ProtocolUtils.getCleanCalendar(getProtocolLink().getTimeZone());
         } else {
-            ProtocolUtils.arrayCopy(rawdata, timedate, 0);
+            ProtocolUtils.arrayCopy(
+                    dataLength > 12 // This is the case when 0.9.2 contains both date AND time (thus 0.9.1 0.9.2 combination contains time info twice)
+                            ? ProtocolUtils.getSubArray2(rawdata, dataLength - 12, 12) // only copy 0.9.2
+                            : rawdata,
+                    timedate,
+                    0
+            );
             calendar = ProtocolUtils.getCleanCalendar(getProtocolLink().getTimeZone());
         }
 
@@ -476,11 +487,11 @@ abstract public class VDEWRegisterDataParse {
         StringTokenizer tokenizer = new StringTokenizer(getDateFormat(), "/");    //E.g. yy/mm/dd
         for (int i = 3; i < 6; i++) {
             String token = tokenizer.nextToken();
-            if (token.equals("yy")) {
+            if (token.toLowerCase().equals("yy")) {
                 calendar.set(Calendar.YEAR, getYear1900_2000(ProtocolUtils.BCD2hex(data[i])));
-            } else if (token.equals("mm")) {
+            } else if (token.toLowerCase().equals("mm")) {
                 calendar.set(Calendar.MONTH, ProtocolUtils.BCD2hex(data[i]) - 1);
-            } else if (token.equals("dd")) {
+            } else if (token.toLowerCase().equals("dd")) {
                 calendar.set(Calendar.DAY_OF_MONTH, ProtocolUtils.BCD2hex(data[i]));
             }
         }
