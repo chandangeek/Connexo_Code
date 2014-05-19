@@ -1,7 +1,7 @@
 package com.elster.jupiter.util;
 
-public class HolderBuilder<T> {
-
+public enum HolderBuilder {
+    ;
 
     public static <M> AndThenBuilder<M> first(M first) {
         return new AndThenBuilder<>(first);
