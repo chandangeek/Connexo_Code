@@ -23,7 +23,7 @@ public class ComTaskExecutionRequestType extends IdBusinessObjectRequestType {
 
     @Override
     protected Request newRequestFor (Set<Long> ids) {
-        return new ComTaskExecutionRequest(ids);
+        return new ComTaskExecutionRequest(deviceDataService, ids);
     }
 
 }

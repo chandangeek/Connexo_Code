@@ -1,14 +1,15 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
 import com.energyict.mdc.common.NotFoundException;
-import com.energyict.comserver.collections.Collections;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
-import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.model.EngineModelService;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
+import static java.util.Collections.singleton;
 
 /**
  * Provides an implementation for the {@link Request} interface
@@ -20,14 +21,16 @@ import java.util.Set;
  */
 public class ComPortRequest extends IdBusinessObjectRequest {
 
+    private final EngineModelService engineModelService;
     private List<ComPort> comPorts;
 
-    public ComPortRequest (long comPortId) {
-        this(Collections.toSet(comPortId));
+    public ComPortRequest(EngineModelService engineModelService, long comPortId) {
+        this(engineModelService, singleton(comPortId));
     }
 
-    public ComPortRequest (Set<Long> comPortIds) {
+    public ComPortRequest(EngineModelService engineModelService, Set<Long> comPortIds) {
         super(comPortIds);
+        this.engineModelService = engineModelService;
         this.validateComPortIds();
     }
 
@@ -39,7 +42,7 @@ public class ComPortRequest extends IdBusinessObjectRequest {
     }
 
     private ComPort findComPort (long comPortId) {
-        ComPort comPort = ManagerFactory.getCurrent().getComPortFactory().find(comPortId);
+        ComPort comPort = engineModelService.findComPort(comPortId);
         if (comPort == null) {
             throw new NotFoundException("ComPort with id " + comPortId + " not found");
         }

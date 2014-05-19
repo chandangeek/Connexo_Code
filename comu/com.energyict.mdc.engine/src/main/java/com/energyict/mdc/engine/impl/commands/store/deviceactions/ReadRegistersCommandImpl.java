@@ -53,16 +53,19 @@ public class ReadRegistersCommandImpl extends SimpleComCommand implements ReadRe
      * @param offlineRegister the register to check
      * @return true if it does not exist yet, false otherwise
      */
-    protected boolean canWeAddIt(final OfflineRegister offlineRegister) {
-        boolean duplicate = false;
+    private boolean canWeAddIt(final OfflineRegister offlineRegister) {
         for (OfflineRegister register : this.registers) {
-            if (register.getSerialNumber().equals(offlineRegister.getSerialNumber())
-                    && register.getRegisterId() == offlineRegister.getRegisterId()
-                    && register.getObisCode().equals(offlineRegister.getObisCode())) {
-                duplicate |= true;
+            if (areDuplicates(offlineRegister, register)) {
+                return false;
             }
         }
-        return !duplicate;
+        return true;
+    }
+
+    private boolean areDuplicates(OfflineRegister register1, OfflineRegister register2) {
+        return register2.getSerialNumber().equals(register1.getSerialNumber())
+                && register2.getRegisterId() == register1.getRegisterId()
+                && register2.getObisCode().equals(register1.getObisCode());
     }
 
     @Override
@@ -95,7 +98,7 @@ public class ReadRegistersCommandImpl extends SimpleComCommand implements ReadRe
         return ComCommandTypes.READ_REGISTERS_COMMAND;
     }
 
-    protected List<OfflineRegister> getOfflineRegisters () {
+    List<OfflineRegister> getOfflineRegisters () {
         return this.registers;
     }
 

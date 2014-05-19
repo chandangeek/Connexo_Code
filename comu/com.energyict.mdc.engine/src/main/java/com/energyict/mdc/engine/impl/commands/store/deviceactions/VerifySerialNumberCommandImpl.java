@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.mdc.device.data.journal.CompletionCode;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.VerifySerialNumberCommand;
@@ -10,6 +9,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
+import com.energyict.mdc.tasks.history.CompletionCode;
 
 /**
  * Proper implementation for a {@link VerifySerialNumberCommand}

@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.core.aspects.journaling;
 
-import com.energyict.mdc.engine.impl.core.aspects.journaling.ComCommandJournalist;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.comserver.time.Clocks;
 import org.fest.assertions.api.Assertions;
@@ -36,7 +35,7 @@ public class ComCommandJournalistTest {
     @Before
     public void initializeJournalist () {
         this.comTaskExecutionSessionShadow = new ComTaskExecutionSessionShadow();
-        this.journalist = new ComCommandJournalist(this.comTaskExecutionSessionShadow);
+        this.journalist = new ComCommandJournalist(this.comTaskExecutionSessionShadow, clock);
     }
 
     @Test

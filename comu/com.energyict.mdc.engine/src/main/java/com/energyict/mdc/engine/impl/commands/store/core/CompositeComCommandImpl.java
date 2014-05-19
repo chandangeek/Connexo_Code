@@ -48,7 +48,7 @@ public abstract class CompositeComCommandImpl extends SimpleComCommand implement
         for (Map.Entry<ComCommandTypes, ComCommand> comCommandEntry : comCommands.entrySet()) {
             final ComCommand comCommand = comCommandEntry.getValue();
             final ComCommandTypes commandType = comCommandEntry.getKey();
-            if(areWeAllowedToPerformTheCommand(executionContext, firstException, canWeStillDoADisconnect, commandType)){
+            if(areWeAllowedToPerformTheCommand(firstException, canWeStillDoADisconnect, commandType, executionContext.hasBasicCheckFailed())){
                 try {
                     performTheComCommandIfAllowed(deviceProtocol, executionContext, comCommand);
                 } catch (ComServerRuntimeException e) {
@@ -71,14 +71,14 @@ public abstract class CompositeComCommandImpl extends SimpleComCommand implement
      *     <li>Or the command is a logOff related command and we didn't get a Connection related exception</li>
      * </ul>
      *
-     * @param executionContext the current ExecutionContext
      * @param firstException the firstException
      * @param canWeStillDoADisconnect indication whether the firstException was related to Communication
      * @param commandType the type fo the Command
+     * @param hasBasicCheckFailed
      * @return true or false
      */
-    private boolean areWeAllowedToPerformTheCommand(JobExecution.ExecutionContext executionContext, ComServerRuntimeException firstException, boolean canWeStillDoADisconnect, ComCommandTypes commandType) {
-        return (firstException == null && !executionContext.hasBasicCheckFailed()) || areWeStillAllowedToPerformTheCommand(commandType, canWeStillDoADisconnect);
+    private boolean areWeAllowedToPerformTheCommand(ComServerRuntimeException firstException, boolean canWeStillDoADisconnect, ComCommandTypes commandType, boolean hasBasicCheckFailed) {
+        return (firstException == null && !hasBasicCheckFailed) || areWeStillAllowedToPerformTheCommand(commandType, canWeStillDoADisconnect);
     }
 
     protected void performTheComCommandIfAllowed(DeviceProtocol deviceProtocol, JobExecution.ExecutionContext executionContext, ComCommand comCommand) {

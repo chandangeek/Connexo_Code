@@ -2,8 +2,9 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.engine.impl.meterdata.DeviceCommandFactory;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
-import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.tasks.history.ComTaskExecutionSessionBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +18,7 @@ import java.util.List;
 public class DeviceCommandFactoryImpl implements DeviceCommandFactory {
 
     @Override
-    public CompositeDeviceCommand newCompositeForAll(List<ServerCollectedData> collectedData, ComServer.LogLevel communicationLogLevel, IssueService issueService) {
+    public CompositeDeviceCommand newCompositeForAll(List<ServerCollectedData> collectedData, ComServer.LogLevel communicationLogLevel, IssueService issueService, ComTaskExecutionSessionBuilder builder) {
         CompositeDeviceCommand composite = new ComSessionRootDeviceCommand(communicationLogLevel);
         for (DeviceCommand command : this.newForAll(collectedData, issueService)) {
             composite.add(command);

@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
@@ -7,6 +8,8 @@ import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
+import com.energyict.mdc.tasks.history.ComSession;
+import com.energyict.mdc.tasks.history.ComSessionBuilder;
 
 /**
  * Provides an implementation for the {@link DeviceCommand} interface
@@ -22,26 +25,29 @@ import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
  */
 public class CreateInboundComSession extends ExecutionLoggerImpl implements CreateComSessionDeviceCommand {
 
-    private InboundComPort comPort;
-    private InboundConnectionTask connectionTask;
-    private ComSessionShadow shadow;
+    private final InboundComPort comPort;
+    private final InboundConnectionTask connectionTask;
+    private final ComSessionBuilder builder;
+    private final ComSession.SuccessIndicator successIndicator;
+    private ComSession inboundComSession;
 
-    public CreateInboundComSession (InboundComPort comPort, InboundConnectionTask connectionTask, ComSessionShadow shadow) {
-        super(comPort.getComServer().getCommunicationLogLevel());
+    public CreateInboundComSession(InboundComPort comPort, InboundConnectionTask connectionTask, ComSessionBuilder builder, ComSession.SuccessIndicator successIndicator, Clock clock) {
+        super(comPort.getComServer().getCommunicationLogLevel(), clock);
         this.comPort = comPort;
         this.connectionTask = connectionTask;
-        this.shadow = shadow;
+        this.builder = builder;
+        this.successIndicator = successIndicator;
     }
 
     @Override
-    public ComSessionShadow getComSessionShadow () {
-        return shadow;
+    public ComSessionBuilder getComSessionBuilder() {
+        return builder;
     }
 
     @Override
     public void execute (ComServerDAO comServerDAO) {
         try {
-            comServerDAO.createInboundComSession(this.connectionTask, this.shadow);
+            inboundComSession = comServerDAO.createInboundComSession(this.connectionTask, this.builder, successIndicator);
         }
         catch (RuntimeException e) {
             if (this.connectionTask == null) {
@@ -75,14 +81,14 @@ public class CreateInboundComSession extends ExecutionLoggerImpl implements Crea
     }
 
     @Override
-    public String toJournalMessageDescription(ComServer.LogLevel serverLogLevel) {  //TODO: this method is currently nowhere used
+    public String toJournalMessageDescription(ComServer.LogLevel serverLogLevel) {
         DescriptionBuilder builder = new DescriptionBuilderImpl(this);
         if (isJournalingLevelEnabled(serverLogLevel, ComServer.LogLevel.DEBUG)) {
-            builder.addProperty("indicator").append(shadow.getSuccessIndicator());
-            builder.addProperty("connectionTaskId").append(shadow.getConnectionTaskId());
-            builder.addProperty("comPortId").append(shadow.getComPortId());
-            builder.addProperty("number of tasks").append(shadow.getComTaskExecutionSessionShadows().size());
-            builder.addProperty("number of journal entries").append(shadow.getJournalEntryShadows().size());
+            builder.addProperty("indicator").append(inboundComSession.getSuccessIndicator());
+            builder.addProperty("connectionTaskId").append(inboundComSession.getConnectionTask().getId());
+            builder.addProperty("comPortId").append(inboundComSession.getComPort().getId());
+            builder.addProperty("number of tasks").append(inboundComSession.getComTaskExecutionSessions().size());
+            builder.addProperty("number of journal entries").append(inboundComSession.getJournalEntries().size());
         }
         return builder.toString();
     }

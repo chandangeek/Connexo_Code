@@ -27,11 +27,9 @@ import com.energyict.mdc.device.data.journal.ComSession;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
-import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.meterdata.DefaultDeviceRegister;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -145,7 +143,7 @@ public class InboundCommunicationHandlerTest {
         when(this.comPort.getId()).thenReturn(Long.valueOf(COMPORT_ID));
         when(this.comPort.getComPortPool()).thenReturn(this.comPortPool);
         when(this.comPort.getComServer()).thenReturn(this.comServer);
-        this.handler = new InboundCommunicationHandler(this.comPort, this.comServerDAO, this.deviceCommandExecutor, mock(IssueService.class));
+        this.handler = new InboundCommunicationHandler(this.comPort, this.comServerDAO, this.deviceCommandExecutor, serviceProvider);
 
         when(this.manager.getComTaskEnablementFactory()).thenReturn(this.comTaskEnablementFactory);
         when(this.comTaskEnablementFactory.findByDeviceCommunicationConfigurationAndComTask(
@@ -223,7 +221,7 @@ public class InboundCommunicationHandlerTest {
         this.handler.handle(inboundDeviceProtocol, context);
 
         // Asserts
-        ComSessionShadow comSessionShadow = context.getComSessionShadow();
+        ComSessionShadow comSessionShadow = context.getComSessionBuilder();
         Assertions.assertThat(comSessionShadow).isNotNull();
         Assertions.assertThat(comSessionShadow.getComPortId()).isEqualTo((int) COMPORT_ID);
         Assertions.assertThat(comSessionShadow.getComPortPoolId()).isEqualTo((int) COMPORT_POOL_ID);
@@ -303,7 +301,7 @@ public class InboundCommunicationHandlerTest {
         this.handler.handle(inboundDeviceProtocol, context);
 
         // Asserts
-        ComSessionShadow comSessionShadow = context.getComSessionShadow();
+        ComSessionShadow comSessionShadow = context.getComSessionBuilder();
         Assertions.assertThat(comSessionShadow).isNotNull();
         Assertions.assertThat(comSessionShadow.getComPortId()).isEqualTo((int) COMPORT_ID);
         Assertions.assertThat(comSessionShadow.getComPortPoolId()).isEqualTo((int) COMPORT_POOL_ID);
@@ -386,7 +384,7 @@ public class InboundCommunicationHandlerTest {
         this.handler.handle(inboundDeviceProtocol, context);
 
         // Asserts
-        ComSessionShadow comSessionShadow = context.getComSessionShadow();
+        ComSessionShadow comSessionShadow = context.getComSessionBuilder();
         Assertions.assertThat(comSessionShadow).isNotNull();
         Assertions.assertThat(comSessionShadow.getComPortId()).isEqualTo((int) COMPORT_ID);
         Assertions.assertThat(comSessionShadow.getComPortPoolId()).isEqualTo((int) COMPORT_POOL_ID);
@@ -513,7 +511,7 @@ public class InboundCommunicationHandlerTest {
         this.handler.handle(inboundDeviceProtocol, context);
 
         // Asserts
-        ComSessionShadow comSessionShadow = context.getComSessionShadow();
+        ComSessionShadow comSessionShadow = context.getComSessionBuilder();
         Assertions.assertThat(comSessionShadow).isNotNull();
         Assertions.assertThat(comSessionShadow.getComPortId()).isEqualTo((int) COMPORT_ID);
         Assertions.assertThat(comSessionShadow.getComPortPoolId()).isEqualTo((int) COMPORT_POOL_ID);
@@ -661,13 +659,13 @@ public class InboundCommunicationHandlerTest {
     }
 
     private InboundDiscoveryContextImpl newBinaryInboundDiscoveryContext () {
-        InboundDiscoveryContextImpl context = new InboundDiscoveryContextImpl(comPort, mock(ComChannel.class));
+        InboundDiscoveryContextImpl context = new InboundDiscoveryContextImpl(comPort, mock(ComChannel.class), taskHistoryService);
         this.initializeInboundDiscoveryContext(context);
         return context;
     }
 
     private InboundDiscoveryContextImpl newServletInboundDiscoveryContext () {
-        InboundDiscoveryContextImpl context = new InboundDiscoveryContextImpl(comPort, mock(HttpServletRequest.class), mock(HttpServletResponse.class));
+        InboundDiscoveryContextImpl context = new InboundDiscoveryContextImpl(comPort, mock(HttpServletRequest.class), mock(HttpServletResponse.class), taskHistoryService);
         this.initializeInboundDiscoveryContext(context);
         return context;
     }

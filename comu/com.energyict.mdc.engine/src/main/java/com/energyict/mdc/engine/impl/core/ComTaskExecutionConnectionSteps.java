@@ -14,10 +14,10 @@ package com.energyict.mdc.engine.impl.core;
  */
 public class ComTaskExecutionConnectionSteps {
 
-    public static final int FIRST_OF_CONNECTION_SERIES                      = 0b0000_0000_0000_0001;
-    public static final int FIRST_OF_SAME_CONNECTION_BUT_NOT_FIRST_DEVICE   = 0b0000_0000_0000_0010;
-    public static final int LAST_OF_SAME_CONNECTION_BUT_NOT_LAST_DEVICE     = 0b0000_0000_0000_0100;
-    public static final int LAST_OF_CONNECTION_SERIES                       = 0b0000_0000_0000_1000;
+    public static final int SIGNON = 0b0000_0000_0000_0001;
+    public static final int DAISYCHAIN_LOGON = 0b0000_0000_0000_0010;
+    public static final int DAISYCHAIN_LOGOFF = 0b0000_0000_0000_0100;
+    public static final int SIGNOFF = 0b0000_0000_0000_1000;
 
     private int flags;
 
@@ -26,23 +26,43 @@ public class ComTaskExecutionConnectionSteps {
     }
 
     public boolean isLogOnRequired() {
-        return isSet(FIRST_OF_CONNECTION_SERIES);
+        return isSet(SIGNON);
     }
 
     public boolean isDaisyChainedLogOnRequired() {
-        return isSet(FIRST_OF_SAME_CONNECTION_BUT_NOT_FIRST_DEVICE) && !isSet(FIRST_OF_CONNECTION_SERIES);
+        return isSet(DAISYCHAIN_LOGON) && !isSet(SIGNON);
     }
 
     public boolean isDaisyChainedLogOffRequired() {
-        return isSet(LAST_OF_SAME_CONNECTION_BUT_NOT_LAST_DEVICE) && !isSet(LAST_OF_CONNECTION_SERIES);
+        return isSet(DAISYCHAIN_LOGOFF) && !isSet(SIGNOFF);
     }
 
     public boolean isLogOffRequired() {
-        return isSet(LAST_OF_CONNECTION_SERIES);
+        return isSet(SIGNOFF);
     }
 
     public void addFlag(int flag) {
         this.flags |= flag;
+    }
+
+    public ComTaskExecutionConnectionSteps signOn() {
+        addFlag(SIGNON);
+        return this;
+    }
+
+    public ComTaskExecutionConnectionSteps signOff() {
+        addFlag(SIGNOFF);
+        return this;
+    }
+
+    public ComTaskExecutionConnectionSteps logOn() {
+        addFlag(DAISYCHAIN_LOGON);
+        return this;
+    }
+
+    public ComTaskExecutionConnectionSteps logOff() {
+        addFlag(DAISYCHAIN_LOGOFF);
+        return this;
     }
 
     private boolean isSet(int flag) {

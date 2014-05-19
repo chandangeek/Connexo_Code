@@ -4,7 +4,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
-import com.energyict.mdc.issues.IssueService;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadFactory;
@@ -20,17 +20,17 @@ public class SingleThreadedScheduledComPort extends ScheduledComPortImpl {
 
     private ScheduledJobTransactionExecutor transactionExecutor;
 
-    public SingleThreadedScheduledComPort(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, IssueService issueService) {
-        super(comPort, comServerDAO, deviceCommandExecutor, issueService);
+    public SingleThreadedScheduledComPort(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
+        super(comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
         this.transactionExecutor = new ScheduledJobTransactionExecutorDefaultImplementation();
     }
 
-    public SingleThreadedScheduledComPort(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ThreadFactory threadFactory, IssueService issueService) {
-        this(comPort, comServerDAO, deviceCommandExecutor, new ScheduledJobTransactionExecutorDefaultImplementation(), threadFactory, issueService);
+    public SingleThreadedScheduledComPort(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ThreadFactory threadFactory, ServiceProvider serviceProvider) {
+        this(comPort, comServerDAO, deviceCommandExecutor, new ScheduledJobTransactionExecutorDefaultImplementation(), threadFactory, serviceProvider);
     }
 
-    public SingleThreadedScheduledComPort(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ScheduledJobTransactionExecutor transactionExecutor, ThreadFactory threadFactory, IssueService issueService) {
-        super(comPort, comServerDAO, deviceCommandExecutor, threadFactory, issueService);
+    public SingleThreadedScheduledComPort(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ScheduledJobTransactionExecutor transactionExecutor, ThreadFactory threadFactory, ServiceProvider serviceProvider) {
+        super(comPort, comServerDAO, deviceCommandExecutor, threadFactory, serviceProvider);
         this.transactionExecutor = transactionExecutor;
     }
 

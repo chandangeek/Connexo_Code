@@ -50,6 +50,8 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
+import com.energyict.mdc.tasks.history.ComSession;
+import com.energyict.mdc.tasks.history.ComSessionBuilder;
 
 import java.sql.SQLException;
 import java.text.DateFormat;
@@ -416,39 +418,35 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     //TODO reenable and adjust this when JP-2460 is completely finished
-//    @Override
-//    public ComSession createOutboundComSession(final ScheduledConnectionTask owner, final ComSessionShadow shadow) {
-//        return this.executeTransaction(new Transaction<ComSession>() {
-//            @Override
-//            public ComSession perform() throws SQLException, BusinessException {
-//                return getComSessionFactory().createOutboundComSession(owner, shadow);
-//            }
-//        });
-//    }
+    @Override
+    public ComSession createOutboundComSession(final ScheduledConnectionTask owner, final ComSessionBuilder.EndedComSessionBuilder builder) {
+        return this.executeTransaction(new Transaction<ComSession>() {
+            @Override
+            public ComSession perform() {
+                return builder.create();
+            }
+        });
+    }
 
     //TODO reenable and adjust this when JP-2460 is completely finished
-//    public ComSession createOutboundComSession(final OutboundConnectionTask owner, final ComSessionShadow shadow) {
-//        return this.executeTransaction(new Transaction<ComSession>() {
-//            @Override
-//            public ComSession perform() throws SQLException, BusinessException {
-//                return getComSessionFactory().createOutboundComSession(owner, shadow);
-//            }
-//        });
-//    }
+    public ComSession createOutboundComSession(final OutboundConnectionTask owner, final ComSessionBuilder.EndedComSessionBuilder builder) {
+        return this.executeTransaction(new Transaction<ComSession>() {
+            @Override
+            public ComSession perform() {
+                return builder.create();
+            }
+        });
+    }
 
-//    @Override
-//    public ComSession createInboundComSession(final InboundConnectionTask owner, final ComSessionShadow shadow) {
-//        return this.executeTransaction(new Transaction<ComSession>() {
-//            @Override
-//            public ComSession perform() throws SQLException, BusinessException {
-//                if (owner == null) {
-//                    return getComSessionFactory().createInboundComSession(shadow);
-//                } else {
-//                    return getComSessionFactory().createInboundComSession(owner, shadow);
-//                }
-//            }
-//        });
-//    }
+    @Override
+    public ComSession createInboundComSession(final InboundConnectionTask owner, final ComSessionBuilder.EndedComSessionBuilder builder) {
+        return this.executeTransaction(new Transaction<ComSession>() {
+            @Override
+            public ComSession perform() {
+                return builder.create();
+            }
+        });
+    }
 
     // TODO still required?
 //    private EndDeviceCache createOrUpdateDeviceCache(final int deviceId, final DeviceCacheShadow shadow) {

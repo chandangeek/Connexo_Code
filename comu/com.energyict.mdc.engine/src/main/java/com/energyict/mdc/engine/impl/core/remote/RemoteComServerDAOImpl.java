@@ -388,7 +388,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
             throw new DataAccessException(e);
         }
         catch (InterruptedException e) {
-            throw new DataAccessException(e);
+            throw new DataAccessException(e); // TODO thread safety hazard : this is not responsive to interruption
         }
         catch (ExecutionException e) {
             throw new DataAccessException(e);

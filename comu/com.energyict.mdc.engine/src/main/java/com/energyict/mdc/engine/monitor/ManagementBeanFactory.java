@@ -1,5 +1,8 @@
 package com.energyict.mdc.engine.monitor;
 
+import com.energyict.mdc.engine.impl.core.ComPortListener;
+import com.energyict.mdc.engine.impl.core.RunningComServer;
+import com.energyict.mdc.engine.impl.core.ScheduledComPort;
 import com.energyict.mdc.engine.model.OnlineComServer;
 
 /**

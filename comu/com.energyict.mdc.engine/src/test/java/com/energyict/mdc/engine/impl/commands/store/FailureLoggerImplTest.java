@@ -48,7 +48,7 @@ public class FailureLoggerImplTest {
         ComSessionShadow shadow = new ComSessionShadow();
         ExecutionLoggerImpl failureLogger = mock(ExecutionLoggerImpl.class);
         doCallRealMethod().when(failureLogger).logUnexpected(any(Throwable.class), eq(this.comTaskExecution));
-        when(failureLogger.getComSessionShadow()).thenReturn(shadow);
+        when(failureLogger.getComSessionBuilder()).thenReturn(shadow);
 
         // Business method
         failureLogger.logUnexpected(new Exception("For testing purposes only"), this.comTaskExecution);
@@ -64,13 +64,13 @@ public class FailureLoggerImplTest {
         comSessionShadow.addComTaskSession(comTaskExecutionSessionShadow);
         ExecutionLoggerImpl failureLogger = mock(ExecutionLoggerImpl.class);
         doCallRealMethod().when(failureLogger).logUnexpected(any(Throwable.class), eq(this.comTaskExecution));
-        when(failureLogger.getComSessionShadow()).thenReturn(comSessionShadow);
+        when(failureLogger.getComSessionBuilder()).thenReturn(comSessionShadow);
 
         // Business method
         failureLogger.logUnexpected(new Exception("For testing purposes only"), this.comTaskExecution);
 
         // Asserts
-        verify(failureLogger).getComSessionShadow();
+        verify(failureLogger).getComSessionBuilder();
         Assertions.assertThat(comTaskExecutionSessionShadow.getJournalEntryShadows()).isNotEmpty();
     }
 

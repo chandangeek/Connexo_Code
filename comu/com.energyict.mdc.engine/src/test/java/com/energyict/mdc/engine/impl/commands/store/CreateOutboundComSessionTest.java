@@ -29,17 +29,17 @@ public class CreateOutboundComSessionTest {
         ComSessionShadow comSessionShadow = new ComSessionShadow();
 
         // Business method
-        CreateOutboundComSession command = new CreateOutboundComSession(ComServer.LogLevel.INFO, mock(OutboundConnectionTask.class), comSessionShadow);
+        CreateOutboundComSession command = new CreateOutboundComSession(ComServer.LogLevel.INFO, mock(OutboundConnectionTask.class), comSessionShadow, successIndicator, clock);
 
         // Asserts
-        assertThat(command.getComSessionShadow()).isEqualTo(comSessionShadow);
+        assertThat(command.getComSessionBuilder()).isEqualTo(comSessionShadow);
     }
 
     @Test
     public void testExecuteDelegatesToComServerDAO () {
         ComSessionShadow comSessionShadow = new ComSessionShadow();
         OutboundConnectionTask connectionTask = mock(OutboundConnectionTask.class);
-        CreateOutboundComSession command = new CreateOutboundComSession(ComServer.LogLevel.INFO, connectionTask, comSessionShadow);
+        CreateOutboundComSession command = new CreateOutboundComSession(ComServer.LogLevel.INFO, connectionTask, comSessionShadow, successIndicator, clock);
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
 
         // Business method
@@ -53,7 +53,7 @@ public class CreateOutboundComSessionTest {
     public void testExecuteDuringShutdownDelegatesToComServerDAO () {
         ComSessionShadow comSessionShadow = new ComSessionShadow();
         OutboundConnectionTask connectionTask = mock(OutboundConnectionTask.class);
-        CreateOutboundComSession command = new CreateOutboundComSession(ComServer.LogLevel.INFO, connectionTask, comSessionShadow);
+        CreateOutboundComSession command = new CreateOutboundComSession(ComServer.LogLevel.INFO, connectionTask, comSessionShadow, successIndicator, clock);
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
 
         // Business method
@@ -67,7 +67,7 @@ public class CreateOutboundComSessionTest {
     public void testExecuteWithFailureRethrowsFailure () {
         ComSessionShadow comSessionShadow = new ComSessionShadow();
         OutboundConnectionTask connectionTask = mock(OutboundConnectionTask.class);
-        CreateOutboundComSession command = new CreateOutboundComSession(ComServer.LogLevel.INFO, connectionTask, comSessionShadow);
+        CreateOutboundComSession command = new CreateOutboundComSession(ComServer.LogLevel.INFO, connectionTask, comSessionShadow, successIndicator, clock);
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         doThrow(MockedComServerDAOFailure.class).when(comServerDAO).createOutboundComSession(any(OutboundConnectionTask.class), any(ComSessionShadow.class));
 
@@ -81,7 +81,7 @@ public class CreateOutboundComSessionTest {
     public void testExecuteDuringShutdownWithFailureRethrowsFailure () {
         ComSessionShadow comSessionShadow = new ComSessionShadow();
         OutboundConnectionTask connectionTask = mock(OutboundConnectionTask.class);
-        CreateOutboundComSession command = new CreateOutboundComSession(ComServer.LogLevel.INFO, connectionTask, comSessionShadow);
+        CreateOutboundComSession command = new CreateOutboundComSession(ComServer.LogLevel.INFO, connectionTask, comSessionShadow, successIndicator, clock);
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         doThrow(MockedComServerDAOFailure.class).when(comServerDAO).createOutboundComSession(any(OutboundConnectionTask.class), any(ComSessionShadow.class));
 
@@ -98,7 +98,7 @@ public class CreateOutboundComSessionTest {
         ComSessionShadow comSessionShadow = new ComSessionShadow();
         comSessionShadow.setSuccessIndicator(ComSession.SuccessIndicator.Success);
         comSessionShadow.setConnectionTaskId(CONNECTION_TASK_ID);
-        CreateOutboundComSession command = new CreateOutboundComSession(ComServer.LogLevel.INFO, connectionTask, comSessionShadow);
+        CreateOutboundComSession command = new CreateOutboundComSession(ComServer.LogLevel.INFO, connectionTask, comSessionShadow, successIndicator, clock);
 
         // Business method
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.DEBUG);

@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
-import com.energyict.comserver.commands.CollectedDeviceTopologyDeviceCommand;
-import com.energyict.comserver.commands.DeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.CollectedDeviceTopologyDeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
@@ -63,7 +63,7 @@ public class DeviceTopology extends CollectedDeviceData implements CollectedTopo
 
     @Override
     public DeviceCommand toDeviceCommand(IssueService issueService) {
-        return new CollectedDeviceTopologyDeviceCommand(this, comTaskExecution, issueService);
+        return new CollectedDeviceTopologyDeviceCommand(this, comTaskExecution, issueService, clock);
     }
 
     @Override

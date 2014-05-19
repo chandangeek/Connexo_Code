@@ -5,7 +5,7 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
-import com.energyict.mdc.issues.IssueService;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -34,13 +34,13 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
      */
     private BlockingQueue<ScheduledJob> jobQueue;
 
-    public MultiThreadedScheduledComPort(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, IssueService issueService) {
-        super(comPort, comServerDAO, deviceCommandExecutor, issueService);
+    public MultiThreadedScheduledComPort(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
+        super(comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
         this.jobQueue = new ArrayBlockingQueue<>(comPort.getNumberOfSimultaneousConnections());
     }
 
-    public MultiThreadedScheduledComPort(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ThreadFactory threadFactory, IssueService issueService) {
-        super(comPort, comServerDAO, deviceCommandExecutor, new ComPortThreadFactory(comPort, threadFactory), issueService);
+    public MultiThreadedScheduledComPort(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ThreadFactory threadFactory, ServiceProvider serviceProvider) {
+        super(comPort, comServerDAO, deviceCommandExecutor, new ComPortThreadFactory(comPort, threadFactory), serviceProvider);
         this.jobQueue = new ArrayBlockingQueue<>(comPort.getNumberOfSimultaneousConnections());
     }
 

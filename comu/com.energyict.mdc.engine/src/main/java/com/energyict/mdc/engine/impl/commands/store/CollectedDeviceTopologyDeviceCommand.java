@@ -12,6 +12,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.tasks.history.CompletionCode;
 import com.energyict.protocolimplv2.identifiers.SerialNumberDeviceIdentifier;
 import java.util.ArrayList;
 import java.util.HashMap;

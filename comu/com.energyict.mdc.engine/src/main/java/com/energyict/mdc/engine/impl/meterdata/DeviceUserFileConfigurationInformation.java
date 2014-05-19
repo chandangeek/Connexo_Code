@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
-import com.energyict.comserver.commands.DeviceCommand;
-import com.energyict.comserver.commands.StoreConfigurationUserFile;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.StoreConfigurationUserFile;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.device.data.CollectedConfigurationInformation;
@@ -35,7 +35,7 @@ public class DeviceUserFileConfigurationInformation extends CollectedDeviceData 
 
     @Override
     public DeviceCommand toDeviceCommand(IssueService issueService) {
-        return new StoreConfigurationUserFile(this, issueService);
+        return new StoreConfigurationUserFile(this, issueService, clock);
     }
 
     @Override

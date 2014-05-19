@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
-import com.energyict.comserver.commands.DeviceCommand;
-import com.energyict.comserver.commands.UpdateDeviceMessage;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.UpdateDeviceMessage;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageAcknowledgement;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
@@ -49,7 +49,7 @@ public class DeviceProtocolMessageAcknowledgement extends CollectedDeviceData im
 
     @Override
     public DeviceCommand toDeviceCommand(IssueService issueService) {
-        return new UpdateDeviceMessage(this, issueService);
+        return new UpdateDeviceMessage(this, issueService, clock);
     }
 
     @Override

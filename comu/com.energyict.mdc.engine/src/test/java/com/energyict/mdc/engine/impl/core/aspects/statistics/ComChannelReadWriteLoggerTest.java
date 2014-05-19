@@ -317,14 +317,14 @@ public class ComChannelReadWriteLoggerTest {
     }
 
     private void assertComSessionJournalMessage (String expectedMessage) {
-        List<ComSessionJournalEntryShadow> journalEntryShadows = this.jobExecution.getExecutionContext().getComSessionShadow().getJournalEntryShadows();
+        List<ComSessionJournalEntryShadow> journalEntryShadows = this.jobExecution.getExecutionContext().getComSessionBuilder().getJournalEntryShadows();
         assertThat(journalEntryShadows).hasSize(1);
         ComSessionJournalEntryShadow messageJournalEntryShadow = journalEntryShadows.get(0);
         Assertions.assertThat(messageJournalEntryShadow.getMessage()).isEqualTo(expectedMessage);
     }
 
     private void assertNoComSessionJournalMessage () {
-        List<ComSessionJournalEntryShadow> journalEntryShadows = this.jobExecution.getExecutionContext().getComSessionShadow().getJournalEntryShadows();
+        List<ComSessionJournalEntryShadow> journalEntryShadows = this.jobExecution.getExecutionContext().getComSessionBuilder().getJournalEntryShadows();
         assertThat(journalEntryShadows).isEmpty();
     }
 

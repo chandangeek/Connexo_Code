@@ -4,6 +4,8 @@ import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.model.EngineModelService;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.json.JSONException;
 import org.json.JSONStringer;
 import org.json.JSONWriter;
@@ -11,9 +13,7 @@ import org.json.JSONWriter;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.TimeZone;
 
 /**
  * Provides code reuse opportunities for components
@@ -24,13 +24,12 @@ import java.util.TimeZone;
  */
 public abstract class AbstractComServerEventImpl implements ComServerEvent {
 
-    private static final SimpleDateFormat OCCURRENCE_TIMESTAMP_FORMAT;
+    private static final DateTimeFormatter OCCURRENCE_TIMESTAMP_FORMAT;
 
     private final ServiceProvider serviceProvider;
 
     static {
-        OCCURRENCE_TIMESTAMP_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS (Z)");
-        OCCURRENCE_TIMESTAMP_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
+        OCCURRENCE_TIMESTAMP_FORMAT = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss:SSS (Z)").withZoneUTC();
     }
 
     public interface ServiceProvider {
@@ -79,7 +78,7 @@ public abstract class AbstractComServerEventImpl implements ComServerEvent {
 
     protected String formatOccurrenceTimeStamp (Date occurrenceTimestamp) {
         if (occurrenceTimestamp != null) {
-            return OCCURRENCE_TIMESTAMP_FORMAT.format(occurrenceTimestamp);
+            return OCCURRENCE_TIMESTAMP_FORMAT.print(occurrenceTimestamp.getTime());
         }
         else {
             return "null";

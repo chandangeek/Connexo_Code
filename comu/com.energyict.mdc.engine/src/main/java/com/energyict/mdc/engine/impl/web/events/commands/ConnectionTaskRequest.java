@@ -1,14 +1,14 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
 import com.energyict.mdc.common.NotFoundException;
-import com.energyict.comserver.collections.Collections;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
-import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
+import static java.util.Collections.singleton;
 
 /**
  * Provides an implementation for the {@link Request} interface
@@ -23,7 +23,7 @@ public class ConnectionTaskRequest extends IdBusinessObjectRequest {
     private List<ConnectionTask> connectionTasks;
 
     public ConnectionTaskRequest (long connectionTaskId) {
-        this(Collections.toSet(connectionTaskId));
+        this(singleton(connectionTaskId));
     }
 
     public ConnectionTaskRequest (Set<Long> connectionTaskIds) {
