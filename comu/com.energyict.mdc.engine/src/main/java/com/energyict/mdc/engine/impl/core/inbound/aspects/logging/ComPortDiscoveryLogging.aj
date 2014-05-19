@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core.inbound.aspects.logging;
 
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
@@ -21,7 +22,7 @@ public aspect ComPortDiscoveryLogging extends AbstractComPortDiscoveryLogging {
 
     protected Logger attachHandlerTo (ComPortDiscoveryLogger loggger, InboundDiscoveryContextImpl context) {
         Logger actualLogger = ((LoggerFactory.LoggerHolder) loggger).getLogger();
-        actualLogger.addHandler(new DiscoveryContextLogHandler(clock, context));
+        actualLogger.addHandler(new DiscoveryContextLogHandler(ServiceProvider.instance.get().clock(), context));
         context.setLogger(actualLogger);
         return actualLogger;
     }

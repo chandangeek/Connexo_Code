@@ -9,6 +9,8 @@ import com.energyict.mdc.engine.impl.protocol.inbound.aspects.statistics.Statist
 import com.energyict.mdc.engine.impl.protocol.inbound.aspects.statistics.StatisticsMonitoringHttpServletResponse;
 
 import com.elster.jupiter.util.time.StopWatch;
+import com.energyict.mdc.tasks.history.ComSessionBuilder;
+import org.joda.time.Duration;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -79,31 +81,27 @@ public privileged aspect InboundCommunicationStatisticsMonitor extends AbstractC
     after (InboundCommunicationHandler handler): closeContext(handler) {
         InboundDiscoveryContextImpl context = handler.getContext();
         if (this.inWebContext(handler)) {
-            ComSessionShadow comSessionShadow = context.getComSessionBuilder();
-            comSessionShadow.setConnectMillis(0);
+            ComSessionBuilder comSessionBuilder = context.getComSessionBuilder();
+            comSessionBuilder.connectDuration(new Duration(0));
             StatisticsMonitoringHttpServletRequest request = this.getMonitoringRequest(handler);
             StatisticsMonitoringHttpServletResponse response = this.getMonitoringResponse(handler);
-            long talkMillis = handler.discovering.getTotalElapsedTime() + request.getTalkTime() + response.getTalkTime();
-            comSessionShadow.setTalkMillis(talkMillis);
-            ComStatisticsShadow statistics = comSessionShadow.getComStatistics();
-            statistics.setNrOfBytesRead(request.getBytesRead());
-            statistics.setNrOfBytesSent(response.getBytesSent());
-            statistics.setNrOfPacketsRead(1);
-            statistics.setNrOfPacketsSent(1);
+            long talkMillis = handler.discovering.getElapsed() + request.getTalkTime() + response.getTalkTime();
+            comSessionBuilder.talkDuration(Duration.millis(talkMillis));
+            comSessionBuilder.addReceivedBytes(request.getBytesRead()).addSentBytes(response.getBytesSent());
+            comSessionBuilder.addReceivedPackets(1).addSentPackets(1);
         }
         else {
-            ComSessionShadow comSessionShadow = context.getComSessionBuilder();
-            comSessionShadow.setConnectMillis(0);
+            ComSessionBuilder comSessionBuilder = context.getComSessionBuilder();
+            comSessionBuilder.connectDuration(new Duration(0));
             ComPortRelatedComChannelImpl comChannel = this.getComChannel(handler);
-            long talkMillis = handler.discovering.getTotalElapsedTime() + comChannel.talking.getTotalElapsedTime();
-            comSessionShadow.setTalkMillis(talkMillis);
-            ComStatisticsShadow statistics = comSessionShadow.getComStatistics();
+            long talkMillis = handler.discovering.getElapsed() + comChannel.talking.getElapsed();
+            comSessionBuilder.talkDuration(Duration.millis(talkMillis));
             Counters sessionCounters = this.getComChannelSessionCounters(comChannel);
             Counters taskSessionCounters = this.getComChannelTaskSessionCounters(comChannel);
-            statistics.setNrOfBytesRead(sessionCounters.getBytesRead() + taskSessionCounters.getBytesRead());
-            statistics.setNrOfBytesSent(sessionCounters.getBytesSent() + taskSessionCounters.getBytesSent());
-            statistics.setNrOfPacketsRead(sessionCounters.getPacketsRead() + taskSessionCounters.getPacketsRead());
-            statistics.setNrOfPacketsSent(sessionCounters.getPacketsSent() + taskSessionCounters.getPacketsSent());
+            comSessionBuilder.addReceivedBytes(sessionCounters.getBytesRead() + taskSessionCounters.getBytesRead());
+            comSessionBuilder.addSentBytes(sessionCounters.getBytesSent() + taskSessionCounters.getBytesSent());
+            comSessionBuilder.addReceivedPackets(sessionCounters.getPacketsRead() + taskSessionCounters.getPacketsRead());
+            comSessionBuilder.addSentPackets(sessionCounters.getPacketsSent() + taskSessionCounters.getPacketsSent());
         }
     }
 

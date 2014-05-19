@@ -34,7 +34,7 @@ public aspect ComCommandLogging extends AbstractComCommandLogging {
     }
 
     protected ComCommandLogger getActualLogger (Logger logger, JobExecution.ExecutionContext executionContext) {
-        logger.addHandler(new ComCommandMessageJournalist(ServiceProvider.instance.get().clock(), executionContext.getCurrentTaskExecutionSession()));
+        logger.addHandler(new ComCommandMessageJournalist(ServiceProvider.instance.get().clock(), executionContext.getCurrentTaskExecutionBuilder()));
         return LoggerFactory.getLoggerFor(ComCommandLogger.class, logger);
     }
 

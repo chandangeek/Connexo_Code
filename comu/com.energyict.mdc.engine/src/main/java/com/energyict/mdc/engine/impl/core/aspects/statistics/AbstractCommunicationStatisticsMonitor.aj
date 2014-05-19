@@ -13,9 +13,9 @@ import com.elster.jupiter.util.time.StopWatch;
  */
 public abstract aspect AbstractCommunicationStatisticsMonitor {
 
-    private StopWatch ComPortRelatedComChannelImpl.talking = new StopWatch(false);  // No cpu required;
-    private Counters ComPortRelatedComChannelImpl.sessionCounters = new Counters();
-    private Counters ComPortRelatedComChannelImpl.taskSessionCounters = new Counters();
+    StopWatch ComPortRelatedComChannelImpl.talking = new StopWatch(false);  // No cpu required;
+    Counters ComPortRelatedComChannelImpl.sessionCounters = new Counters();
+    Counters ComPortRelatedComChannelImpl.taskSessionCounters = new Counters();
 
     public StopWatch getComChannelTalkCounter (ComPortRelatedComChannelImpl comChannel) {
         return comChannel.talking;

@@ -1,13 +1,13 @@
 package com.energyict.mdc.engine.impl.monitor;
 
+import com.energyict.mdc.engine.impl.core.RunningComServer;
+import com.energyict.mdc.engine.impl.core.RunningComServerImpl;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.impl.core.remote.QueryMethod;
 import com.energyict.mdc.engine.exceptions.DataAccessException;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
-import com.energyict.comserver.scheduling.RunningComServer;
-import com.energyict.comserver.scheduling.RunningComServerImpl;
-import com.energyict.comserver.web.queryapi.QueryApiServlet;
-import com.energyict.comserver.web.queryapi.WebSocketQueryApiService;
+import com.energyict.mdc.engine.impl.web.queryapi.QueryApiServlet;
+import com.energyict.mdc.engine.impl.web.queryapi.WebSocketQueryApiService;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -139,7 +139,7 @@ public aspect ComServerMonitoring {
             }
             return result;
         }
-        catch (JSONException | IOException | DataAccessException e) {
+        catch (DataAccessException e) {
             if (monitor != null) {  // May occur in test conditions where the execute method is not invoked from a RunningComServer context
                 monitor.getQueryApiStatistics().callFailed(System.currentTimeMillis() - startTime);
             }

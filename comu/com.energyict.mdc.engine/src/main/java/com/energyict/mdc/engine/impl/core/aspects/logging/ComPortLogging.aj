@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.core.aspects.logging;
 
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.core.ScheduledJobImpl;
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 import com.energyict.mdc.engine.impl.core.ComPortServerProcess;
@@ -59,7 +60,7 @@ public aspect ComPortLogging extends AbstractComPortLogging {
 
     private void attachHandlerTo (ComPortConnectionLogger logger, JobExecution.ExecutionContext executionContext) {
         Logger actualLogger = ((LoggerFactory.LoggerHolder) logger).getLogger();
-        actualLogger.addHandler(new ExecutionContextLogHandler(clock, executionContext));
+        actualLogger.addHandler(new ExecutionContextLogHandler(ServiceProvider.instance.get().clock(), executionContext));
     }
 
     private ComPortConnectionLogger getUniqueLogger (ComPort comPort, LogLevel logLevel) {

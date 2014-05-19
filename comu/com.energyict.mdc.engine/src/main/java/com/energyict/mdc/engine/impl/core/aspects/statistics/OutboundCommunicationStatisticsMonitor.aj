@@ -4,6 +4,8 @@ import com.elster.jupiter.util.time.StopWatch;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.tasks.history.ComSessionBuilder;
+import org.joda.time.Duration;
 
 /**
  * Defines pointcuts and advice to monitor the execution time
@@ -44,18 +46,19 @@ public privileged aspect OutboundCommunicationStatisticsMonitor extends Abstract
         /* closeConnection is called from finally block
          * even when the connection was never established.
          * So first test if there was a connection. */
-        ComSessionShadow comSessionShadow = executionContext.getComSessionShadow();
+//        ComSessionShadow comSessionShadow = executionContext.getComSessionShadow();
         if (this.isConnected(executionContext)) {
             ComPortRelatedComChannelImpl comChannel = (ComPortRelatedComChannelImpl) executionContext.getComChannel();
             StopWatch talking = this.getComChannelTalkCounter(comChannel);
             talking.stop();
-            comSessionShadow.setConnectMillis(executionContext.connecting.getTotalElapsedTime());
-            comSessionShadow.setTalkMillis(talking.getTotalElapsedTime());
+            ComSessionBuilder comSessionBuilder = executionContext.getComSessionBuilder();
+            comSessionBuilder.connectDuration(Duration.millis(executionContext.connecting.getElapsed()));
+            comSessionBuilder.talkDuration(Duration.millis(talking.getElapsed()));
             Counters sessionCounters = this.getComChannelSessionCounters(comChannel);
-            comSessionShadow.getComStatistics().setNrOfBytesSent(sessionCounters.getBytesSent());
-            comSessionShadow.getComStatistics().setNrOfBytesRead(sessionCounters.getBytesRead());
-            comSessionShadow.getComStatistics().setNrOfPacketsSent(sessionCounters.getPacketsSent());
-            comSessionShadow.getComStatistics().setNrOfPacketsRead(sessionCounters.getPacketsRead());
+            comSessionBuilder.addSentBytes(sessionCounters.getBytesSent());
+            comSessionBuilder.addReceivedBytes(sessionCounters.getBytesRead());
+            comSessionBuilder.addSentPackets(sessionCounters.getPacketsSent());
+            comSessionBuilder.addReceivedPackets(sessionCounters.getPacketsRead());
         }
     }
 
@@ -103,18 +106,18 @@ public privileged aspect OutboundCommunicationStatisticsMonitor extends Abstract
     private void comTaskExecutionCompleted (JobExecution jobExecution, ComTaskExecution comTaskExecution, Throwable t) {
         if (this.isConnected(jobExecution.getExecutionContext()) && this.hasCurrentTaskSession(jobExecution)) {
             ComPortRelatedComChannelImpl comChannel = (ComPortRelatedComChannelImpl) jobExecution.getExecutionContext().getComChannel();
-            ComStatisticsShadow comStatistics = jobExecution.getExecutionContext().getCurrentTaskExecutionSession().getComStatistics();
+            ComSessionBuilder comSessionBuilder = jobExecution.getExecutionContext().getComSessionBuilder();
             Counters taskSessionCounters = this.getComChannelTaskSessionCounters(comChannel);
-            comStatistics.setNrOfBytesSent(taskSessionCounters.getBytesSent());
-            comStatistics.setNrOfBytesRead(taskSessionCounters.getBytesRead());
-            comStatistics.setNrOfPacketsSent(taskSessionCounters.getPacketsSent());
-            comStatistics.setNrOfPacketsRead(taskSessionCounters.getPacketsRead());
+            comSessionBuilder.addSentBytes(taskSessionCounters.getBytesSent());
+            comSessionBuilder.addReceivedBytes(taskSessionCounters.getBytesRead());
+            comSessionBuilder.addSentPackets(taskSessionCounters.getPacketsSent());
+            comSessionBuilder.addReceivedPackets(taskSessionCounters.getPacketsRead());
         }
 
     }
 
     private boolean hasCurrentTaskSession(JobExecution jobExecution){
-        return jobExecution.getExecutionContext().getCurrentTaskExecutionSession() != null;
+        return jobExecution.getExecutionContext().getComSessionBuilder() != null;
     }
 
     private pointcut reading (ComPortRelatedComChannelImpl comChannel):
