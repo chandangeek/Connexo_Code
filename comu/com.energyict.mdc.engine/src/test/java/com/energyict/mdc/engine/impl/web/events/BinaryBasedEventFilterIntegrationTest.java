@@ -364,7 +364,7 @@ public class BinaryBasedEventFilterIntegrationTest {
         private CountDownLatch latch;
 
         private LatchDrivenWebSocketEventPublisher (CountDownLatch latch) {
-            super();
+            super(serviceProvider);
             this.latch = latch;
         }
 

@@ -1,14 +1,14 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
 import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ComChannel;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
+import com.energyict.mdc.protocol.api.ConnectionException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,7 +70,7 @@ public class InboundJobExecutionGroup extends JobExecution {
         The InboundJobExecutor already has a token from the InboundCommunicationHandler. We are sure nobody else
         will pick up this task, as it is the ComPort which received the trigger to start.
          */
-        new InboundScheduledJobExecutor(new ScheduledJobTransactionExecutorDefaultImplementation(), this.getComPort().getComServer().getCommunicationLogLevel(), getDeviceCommandExecutor()).execute(this);
+        new InboundScheduledJobExecutor(getServiceProvider().transactionService(), this.getComPort().getComServer().getCommunicationLogLevel(), getDeviceCommandExecutor()).execute(this);
     }
 
     @Override

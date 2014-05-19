@@ -3,17 +3,12 @@ package com.energyict.mdc.engine.impl.web;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.web.events.EventServlet;
 import com.energyict.mdc.engine.impl.web.queryapi.QueryApiServlet;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
-import com.energyict.mdc.issues.IssueService;
-import java.io.IOException;
-import java.io.Writer;
-import java.net.URI;
-import javax.servlet.http.HttpServletRequest;
-
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ErrorHandler;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
@@ -22,6 +17,11 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.joda.time.DateTimeConstants;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.io.Writer;
+import java.net.URI;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -48,17 +48,16 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
      * It will use the {@link ComServerDAO} to get access to persistent data.
      * Furthermore, it will use the {@link DeviceCommandExecutor} to execute
      * commands against devices for which data was collected.
-     *
-     * @param comPort The ServerServletBasedInboundComPort
+     *  @param comPort The ServerServletBasedInboundComPort
      * @param comServerDAO The ComServerDAO
      * @param deviceCommandExecutor The DeviceCommandExecutor
-     * @param issueService The IssueService
+     * @param serviceProvider The IssueService
      */
-    public static EmbeddedJettyServer newForInboundDeviceCommunication(ServletBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, IssueService issueService) {
-        return new EmbeddedJettyServer(comPort, comServerDAO, deviceCommandExecutor, issueService);
+    public static EmbeddedJettyServer newForInboundDeviceCommunication(ServletBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
+        return new EmbeddedJettyServer(comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
     }
 
-    private EmbeddedJettyServer(ServletBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, IssueService issueService) {
+    private EmbeddedJettyServer(ServletBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
         super();
         this.jetty = new Server();
         if (comPort.isHttps()) {
@@ -80,7 +79,7 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
         initCustomErrorHandling();
 
         ServletContextHandler handler = new ServletContextHandler(ServletContextHandler.SESSIONS);
-        ComServlet servlet = new ComServlet(comPort, comServerDAO, deviceCommandExecutor, issueService);
+        ComServlet servlet = new ComServlet(comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
         handler.addServlet(new ServletHolder(servlet), this.getContextPath(comPort));
         this.jetty.setHandler(handler);
     }

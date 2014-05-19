@@ -1,13 +1,12 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.DeviceUserFileConfigurationInformation;
 import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+
 import java.text.SimpleDateFormat;
 
 /**
@@ -25,7 +24,7 @@ public class StoreConfigurationUserFile extends DeviceCommandImpl {
     private String fileExtension;
     private byte[] contents;
 
-    public StoreConfigurationUserFile(DeviceUserFileConfigurationInformation configurationInformation, IssueService issueService, Clock clock) {
+    public StoreConfigurationUserFile(DeviceUserFileConfigurationInformation configurationInformation) {
         super();
         this.deviceIdentifier = configurationInformation.getDeviceIdentifier();
         this.fileExtension = configurationInformation.getFileExtension();

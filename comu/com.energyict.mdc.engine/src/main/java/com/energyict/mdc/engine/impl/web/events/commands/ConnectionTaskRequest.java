@@ -1,8 +1,10 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
 import com.energyict.mdc.common.NotFoundException;
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.google.common.base.Optional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,14 +22,16 @@ import static java.util.Collections.singleton;
  */
 public class ConnectionTaskRequest extends IdBusinessObjectRequest {
 
+    private final DeviceDataService deviceDataService;
     private List<ConnectionTask> connectionTasks;
 
-    public ConnectionTaskRequest (long connectionTaskId) {
-        this(singleton(connectionTaskId));
+    public ConnectionTaskRequest(DeviceDataService deviceDataService, long connectionTaskId) {
+        this(deviceDataService, singleton(connectionTaskId));
     }
 
-    public ConnectionTaskRequest (Set<Long> connectionTaskIds) {
+    public ConnectionTaskRequest(DeviceDataService deviceDataService, Set<Long> connectionTaskIds) {
         super(connectionTaskIds);
+        this.deviceDataService = deviceDataService;
         this.validateConnectionTaskIds();
     }
 
@@ -39,13 +43,11 @@ public class ConnectionTaskRequest extends IdBusinessObjectRequest {
     }
 
     private ConnectionTask findConnectionTask (long connectionTaskId) {
-        ConnectionTask connectionTask = ManagerFactory.getCurrent().getConnectionTaskFactory().find(connectionTaskId);
-        if (connectionTask == null) {
-            throw new NotFoundException("ConnectionTask with id " + connectionTaskId + " not found");
+        Optional<ConnectionTask> connectionTask = deviceDataService.findConnectionTask(connectionTaskId);
+        if (connectionTask.isPresent()) {
+            return connectionTask.get();
         }
-        else {
-            return connectionTask;
-        }
+        throw new NotFoundException("ConnectionTask with id " + connectionTaskId + " not found");
     }
 
     @Override

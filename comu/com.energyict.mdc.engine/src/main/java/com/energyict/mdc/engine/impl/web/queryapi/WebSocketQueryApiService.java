@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.web.queryapi;
 
 import com.energyict.mdc.engine.impl.core.RemoteComServerQueryJSonPropertyNames;
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.impl.core.remote.QueryMethod;
 import com.energyict.mdc.engine.exceptions.DataAccessException;
@@ -70,7 +71,7 @@ public class WebSocketQueryApiService implements WebSocket.OnTextMessage {
         mapper.setSerializationConfig(mapper.getSerializationConfig().with(SerializationConfig.Feature.REQUIRE_SETTERS_FOR_GETTERS));
         mapper.setSerializationConfig(mapper.getSerializationConfig().without(SerializationConfig.Feature.AUTO_DETECT_GETTERS));
         mapper.setSerializationConfig(mapper.getSerializationConfig().withSerializationInclusion(JsonSerialize.Inclusion.NON_EMPTY));
-        Object queryResultValue = queryMethod.execute(parameters, new ComServerDAOImpl(serviceProvider));
+        Object queryResultValue = queryMethod.execute(parameters, new ComServerDAOImpl(ServiceProvider.instance.get()));
         mapper.writeValue(
                 writer,
                 QueryResult.forResult(

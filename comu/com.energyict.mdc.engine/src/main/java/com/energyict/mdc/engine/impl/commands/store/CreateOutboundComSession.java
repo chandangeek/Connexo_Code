@@ -42,7 +42,7 @@ public class CreateOutboundComSession extends ExecutionLoggerImpl implements Cre
     @Override
     public void execute (ComServerDAO comServerDAO) {
         try {
-            outboundComSession = comServerDAO.createOutboundComSession(this.connectionTask, this.builder, successIndicator);
+            outboundComSession = comServerDAO.createComSession(this.builder, successIndicator);
         }
         catch (RuntimeException e) {
             LoggerFactory.getLoggerFor(DeviceCommandLogger.class).outboundComSessionCreationFailed(e, this.connectionTask);

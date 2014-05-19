@@ -217,4 +217,7 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
 
     }
 
+    ServiceProvider getServiceProvider() {
+        return serviceProvider;
+    }
 }

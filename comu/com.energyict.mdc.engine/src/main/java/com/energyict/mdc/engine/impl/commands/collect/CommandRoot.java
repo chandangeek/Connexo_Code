@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.collect;
 
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -267,5 +268,7 @@ public interface CommandRoot extends CompositeComCommand {
         public MdcReadingTypeUtilService getMdcReadingTypeUtilService();
 
         public TaskHistoryService getTaskHistoryService();
+
+        public TransactionService transactionService();
     }
 }

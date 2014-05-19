@@ -83,7 +83,7 @@ public class RequestApplyToTest {
     @Test
     public void testConnectionTaskRequest () {
         ConnectionTask connectionTask = this.mockConnectionTask();
-        ConnectionTaskRequest request = new ConnectionTaskRequest(CONNECTION_TASK_ID);
+        ConnectionTaskRequest request = new ConnectionTaskRequest(deviceDataService, CONNECTION_TASK_ID);
         EventPublisher eventPublisher = mock(EventPublisher.class);
 
         // Business method

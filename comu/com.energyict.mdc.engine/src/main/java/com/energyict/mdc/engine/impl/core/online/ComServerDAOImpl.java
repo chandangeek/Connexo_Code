@@ -4,7 +4,6 @@ import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.time.Clock;
-import com.energyict.mdc.common.BusinessEvent;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.TimeDuration;
@@ -417,33 +416,12 @@ public class ComServerDAOImpl implements ComServerDAO {
         });
     }
 
-    //TODO reenable and adjust this when JP-2460 is completely finished
     @Override
-    public ComSession createOutboundComSession(final ScheduledConnectionTask owner, final ComSessionBuilder.EndedComSessionBuilder builder) {
+    public ComSession createComSession(final ComSessionBuilder builder, final ComSession.SuccessIndicator successIndicator) {
         return this.executeTransaction(new Transaction<ComSession>() {
             @Override
             public ComSession perform() {
-                return builder.create();
-            }
-        });
-    }
-
-    //TODO reenable and adjust this when JP-2460 is completely finished
-    public ComSession createOutboundComSession(final OutboundConnectionTask owner, final ComSessionBuilder.EndedComSessionBuilder builder) {
-        return this.executeTransaction(new Transaction<ComSession>() {
-            @Override
-            public ComSession perform() {
-                return builder.create();
-            }
-        });
-    }
-
-    @Override
-    public ComSession createInboundComSession(final InboundConnectionTask owner, final ComSessionBuilder.EndedComSessionBuilder builder) {
-        return this.executeTransaction(new Transaction<ComSession>() {
-            @Override
-            public ComSession perform() {
-                return builder.create();
+                return builder.endSession(serviceProvider.clock().now(), successIndicator).create();
             }
         });
     }

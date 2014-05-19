@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.web.events;
 
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.events.ComServerEvent;
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.events.EventReceiver;
@@ -32,18 +33,21 @@ import java.util.Set;
  */
 public class WebSocketEventPublisher implements EventReceiver, EventPublisher, WebSocket.OnTextMessage {
 
+    private final ServiceProvider serviceProvider;
     private EventPublisher systemWideEventPublisher;
     private Connection connection;
-    private RequestParser parser = new RequestParser();
+    private RequestParser parser;
     private boolean sendBinary = false;
 
-    public WebSocketEventPublisher () {
-        this(EventPublisherImpl.getInstance());
+    public WebSocketEventPublisher(ServiceProvider serviceProvider) {
+        this(serviceProvider, EventPublisherImpl.getInstance());
     }
 
-    public WebSocketEventPublisher (EventPublisher systemWideEventPublisher) {
+    public WebSocketEventPublisher(ServiceProvider serviceProvider, EventPublisher systemWideEventPublisher) {
         super();
+        this.serviceProvider = serviceProvider;
         this.systemWideEventPublisher = systemWideEventPublisher;
+        parser = new RequestParser(serviceProvider);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.impl.commands.store.ComTaskExecutionRootDeviceCommand;
@@ -20,15 +21,17 @@ import java.util.List;
  */
 public class ComTaskExecutionCollectedData extends CompositeCollectedData<ServerCollectedData> {
 
+    private final TransactionService transactionService;
     private ComTaskExecution comTaskExecution;
     private ComServer.LogLevel communicationLogLevel;
 
-    public ComTaskExecutionCollectedData (ComTaskExecution comTaskExecution, List<ServerCollectedData> relatedCollectedData) {
-        this(comTaskExecution, relatedCollectedData, ComServer.LogLevel.INFO);
+    public ComTaskExecutionCollectedData(TransactionService transactionService, ComTaskExecution comTaskExecution, List<ServerCollectedData> relatedCollectedData) {
+        this(transactionService, comTaskExecution, relatedCollectedData, ComServer.LogLevel.INFO);
     }
 
-    public ComTaskExecutionCollectedData (ComTaskExecution comTaskExecution, List<ServerCollectedData> relatedCollectedData, ComServer.LogLevel communicationLogLevel) {
+    public ComTaskExecutionCollectedData(TransactionService transactionService, ComTaskExecution comTaskExecution, List<ServerCollectedData> relatedCollectedData, ComServer.LogLevel communicationLogLevel) {
         super();
+        this.transactionService = transactionService;
         this.comTaskExecution = comTaskExecution;
         this.communicationLogLevel = communicationLogLevel;
         for (ServerCollectedData collectedData : relatedCollectedData) {
@@ -54,7 +57,7 @@ public class ComTaskExecutionCollectedData extends CompositeCollectedData<Server
         for (ServerCollectedData collectedData : this.getElements()) {
             nestedCommands.add(collectedData.toDeviceCommand(issueService));
         }
-        return new ComTaskExecutionRootDeviceCommand(this.comTaskExecution, this.communicationLogLevel, nestedCommands);
+        return new ComTaskExecutionRootDeviceCommand(transactionService, this.comTaskExecution, this.communicationLogLevel, nestedCommands);
     }
 
 }

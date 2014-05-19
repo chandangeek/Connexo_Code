@@ -1,10 +1,11 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.transaction.Transaction;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDAO;
 import com.energyict.mdc.engine.model.ComPort;
@@ -19,10 +20,6 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.tasks.history.ComSession;
 import com.energyict.mdc.tasks.history.ComSessionBuilder;
-
-
-import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.transaction.Transaction;
 
 import java.text.DateFormat;
 import java.util.Collection;
@@ -252,22 +249,10 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * Creates a new ComSession from the specifications laid out
      * in the ComSessionShadow for an outbound communication session.
      *
-     * @param owner The OutboundConnectionTask that was responsible for creating the connection for the ComSession
      * @param builder The ComSessionShadow
      * @return The newly created ComSession
      */
-    public ComSession createOutboundComSession (ScheduledConnectionTask owner, ComSessionBuilder builder, ComSession.SuccessIndicator successIndicator);
-
-    /**
-     * Creates a new ComSession from the specifications laid out
-     * in the ComSessionShadow for an inbound communication session.
-     *
-     * @param owner the InboundConnectionTask that was used to determine what needed to happen during the inbound
-     *              session or null of no data was pulled from the Device
-     * @param builder the ComSessionShadow
-     * @return the newly created ComSession
-     */
-    public ComSession createInboundComSession(InboundConnectionTask owner, ComSessionBuilder builder, ComSession.SuccessIndicator successIndicator);
+    public ComSession createComSession(ComSessionBuilder builder, ComSession.SuccessIndicator successIndicator);
 
     /**
      * Stores the given list of Reading readings on the Meter.

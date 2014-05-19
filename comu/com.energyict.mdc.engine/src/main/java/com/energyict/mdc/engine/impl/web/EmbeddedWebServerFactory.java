@@ -2,10 +2,10 @@ package com.energyict.mdc.engine.impl.web;
 
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
-import com.energyict.mdc.issues.IssueService;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -27,10 +27,10 @@ public interface EmbeddedWebServerFactory {
      * @param comPort The ServerServletBasedInboundComPort
      * @param comServerDAO The ComServerDAO
      * @param deviceCommandExecutor The DeviceCommandExecutor
-     * @param issueService The IssueService
+     * @param serviceProvider The IssueService
      * @return The EmbeddedWebServer
      */
-    public EmbeddedWebServer findOrCreateFor(ServletBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, IssueService issueService);
+    public EmbeddedWebServer findOrCreateFor(ServletBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider);
 
     /**
      * Finds or creates the {@link EmbeddedWebServer} that hosts

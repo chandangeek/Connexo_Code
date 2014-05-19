@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.model.ComServer;
 
@@ -12,7 +13,7 @@ import com.energyict.mdc.engine.model.ComServer;
  */
 public class SingleThreadedScheduledJobExecutor extends ScheduledJobExecutor {
 
-    public SingleThreadedScheduledJobExecutor(ScheduledJobTransactionExecutor transactionExecutor, ComServer.LogLevel logLevel, DeviceCommandExecutor deviceCommandExecutor) {
+    public SingleThreadedScheduledJobExecutor(TransactionService transactionExecutor, ComServer.LogLevel logLevel, DeviceCommandExecutor deviceCommandExecutor) {
         super(transactionExecutor, logLevel, deviceCommandExecutor);
     }
 }

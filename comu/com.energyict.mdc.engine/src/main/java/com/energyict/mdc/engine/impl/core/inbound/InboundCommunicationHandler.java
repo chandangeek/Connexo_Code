@@ -218,43 +218,40 @@ public class InboundCommunicationHandler {
         }
     }
 
-    private ComSessionBuilder.EndedComSessionBuilder markSuccessful(ComSessionBuilder comSessionShadow) {
-
-        comSessionShadow.setSuccessIndicator(ComSession.SuccessIndicator.Success);
-        for (ComTaskExecutionSessionShadow taskSessionShadow : comSessionShadow.getComTaskExecutionSessionShadows()) {
+    private ComSessionBuilder.EndedComSessionBuilder markSuccessful(ComSessionBuilder comSessionBuilder) {
+        return comSessionBuilder.endSession(serviceProvider.clock().now(), ComSession.SuccessIndicator.Success);
+        //TODO : retroactively mark all builders as successful?
+        for (ComTaskExecutionSessionShadow taskSessionShadow : comSessionBuilder.getComTaskExecutionSessionShadows()) {
             taskSessionShadow.setSuccessIndicator(ComTaskExecutionSession.SuccessIndicator.Success);
         }
 
     }
 
-    private void markFailed(ComSessionBuilder comSessionShadow, InboundDeviceProtocol.DiscoverResponseType reason) {
+    private ComSessionBuilder.EndedComSessionBuilder markFailed(ComSessionBuilder comSessionBuilder, InboundDeviceProtocol.DiscoverResponseType reason) {
+        //TODO : retroactively mark all builders as failed?
+        for (ComTaskExecutionSessionShadow taskSessionShadow : comSessionBuilder.getComTaskExecutionSessionShadows()) {
+            taskSessionShadow.setSuccessIndicator(ComTaskExecutionSession.SuccessIndicator.Failure);
+        }
         switch (reason) {
             case SUCCESS: {
                 assert false : "if-test that was supposed to verify that the discovery response type was NOT success clearly failed";
-                break;
+                throw CodingException.unrecognizedEnumValue(reason);
             }
             case DEVICE_DOES_NOT_EXPECT_INBOUND: {
-                comSessionShadow.setSuccessIndicator(ComSession.SuccessIndicator.SetupError);
-                break;
+                return comSessionBuilder.endSession(serviceProvider.clock().now(), ComSession.SuccessIndicator.SetupError);
             }
             case DEVICE_NOT_FOUND: {
-                comSessionShadow.setSuccessIndicator(ComSession.SuccessIndicator.Success);
-                break;
+                return comSessionBuilder.endSession(serviceProvider.clock().now(), ComSession.SuccessIndicator.Success);
             }
             case ENCRYPTION_REQUIRED: {
-                comSessionShadow.setSuccessIndicator(ComSession.SuccessIndicator.SetupError);
-                break;
+                return comSessionBuilder.endSession(serviceProvider.clock().now(), ComSession.SuccessIndicator.SetupError);
             }
             case SERVER_BUSY: {
-                comSessionShadow.setSuccessIndicator(ComSession.SuccessIndicator.Broken);
-                break;
+                return comSessionBuilder.endSession(serviceProvider.clock().now(), ComSession.SuccessIndicator.Broken);
             }
             default: {
                 throw CodingException.unrecognizedEnumValue(reason);
             }
-        }
-        for (ComTaskExecutionSessionShadow taskSessionShadow : comSessionShadow.getComTaskExecutionSessionShadows()) {
-            taskSessionShadow.setSuccessIndicator(ComTaskExecutionSession.SuccessIndicator.Failure);
         }
     }
 

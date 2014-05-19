@@ -1,11 +1,10 @@
 package com.energyict.mdc.engine.impl.events.aspects;
 
 import com.energyict.mdc.engine.events.ComServerEvent;
+import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.EventPublishingLogHandler;
 import com.energyict.mdc.engine.impl.events.logging.UnrelatedLoggingEvent;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-
-import java.util.Date;
 
 /**
  * Provides an implementation for the log Handler interface
@@ -18,7 +17,7 @@ import java.util.Date;
 public class DeviceCommandExecutorLogHandler extends EventPublishingLogHandler {
 
     @Override
-    protected ComServerEvent toEvent (Date eventOccurrenceTimestamp, LogLevel level, String logMessage) {
+    protected ComServerEvent toEvent(AbstractComServerEventImpl.ServiceProvider serviceProvider, LogLevel level, String logMessage) {
         return new UnrelatedLoggingEvent(level, logMessage, serviceProvider);
     }
 

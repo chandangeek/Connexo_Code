@@ -96,7 +96,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
 
     private void addNewInboundComCommand(List<PreparedComTaskExecution> allPreparedComTaskExecutions, CommandRoot root, ComTaskExecution comTaskExecution, ComCommand comCommand) {
         root.addCommand(comCommand, comTaskExecution);
-        getInboundDiscoveryContext().getComSessionBuilder().setNumberOfPlannedButNotExecutedTasks(getInboundDiscoveryContext().getComSessionBuilder().getNumberOfPlannedButNotExecutedTasks() + 1);
+        getInboundDiscoveryContext().getComSessionBuilder().incrementNotExecutedTasks();
         allPreparedComTaskExecutions.add(new PreparedComTaskExecution(comTaskExecution, root, getDeviceProtocol()));
     }
 

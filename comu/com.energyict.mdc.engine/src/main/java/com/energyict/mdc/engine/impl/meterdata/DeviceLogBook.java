@@ -47,7 +47,7 @@ public class DeviceLogBook extends CollectedDeviceData implements CollectedLogBo
 
     @Override
     public DeviceCommand toDeviceCommand(IssueService issueService) {
-        return new CollectedLogBookDeviceCommand(this, issueService);
+        return new CollectedLogBookDeviceCommand(this);
     }
 
     @Override

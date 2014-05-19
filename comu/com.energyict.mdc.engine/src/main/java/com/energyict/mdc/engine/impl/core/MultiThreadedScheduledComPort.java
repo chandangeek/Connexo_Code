@@ -132,10 +132,9 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
         private MultiThreadedJobScheduler (int threadPoolSize, ThreadFactory threadFactory) {
             super();
             this.executorService = Executors.newFixedThreadPool(threadPoolSize, threadFactory);
-            ScheduledJobTransactionExecutorDefaultImplementation transactionExecutor = new ScheduledJobTransactionExecutorDefaultImplementation();
             ComServer.LogLevel communicationLogLevel = MultiThreadedScheduledComPort.this.getComPort().getComServer().getCommunicationLogLevel();
             for (int i = 0; i < threadPoolSize; i++) {
-                executorService.submit(new MultiThreadedScheduledJobExecutor(transactionExecutor, communicationLogLevel, jobQueue, getDeviceCommandExecutor()));
+                executorService.submit(new MultiThreadedScheduledJobExecutor(getServiceProvider().transactionService(), communicationLogLevel, jobQueue, getDeviceCommandExecutor()));
             }
         }
 

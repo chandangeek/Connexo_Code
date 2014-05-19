@@ -23,7 +23,7 @@ public class UpdateDeviceMessageTest {
         final DeviceProtocolMessageAcknowledgement messageAcknowledgement = new DeviceProtocolMessageAcknowledgement(messageIdentifier);
         messageAcknowledgement.setDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
         messageAcknowledgement.setProtocolInfo("Additional ProolInfo");
-        UpdateDeviceMessage command = new UpdateDeviceMessage(messageAcknowledgement, issueService, clock);
+        UpdateDeviceMessage command = new UpdateDeviceMessage(messageAcknowledgement);
 
         // Business method
         final String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
@@ -38,7 +38,7 @@ public class UpdateDeviceMessageTest {
         final DeviceProtocolMessageAcknowledgement messageAcknowledgement = new DeviceProtocolMessageAcknowledgement(messageIdentifier);
         messageAcknowledgement.setDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
         messageAcknowledgement.setProtocolInfo("Additional ProtocolInfo");
-        UpdateDeviceMessage command = new UpdateDeviceMessage(messageAcknowledgement, issueService, clock);
+        UpdateDeviceMessage command = new UpdateDeviceMessage(messageAcknowledgement);
 
         // Business method
         final String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.DEBUG);

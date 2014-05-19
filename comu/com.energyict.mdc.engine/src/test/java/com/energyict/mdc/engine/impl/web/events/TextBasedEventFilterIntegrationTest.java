@@ -355,7 +355,7 @@ public class TextBasedEventFilterIntegrationTest {
         private CountDownLatch latch;
 
         private LatchDrivenWebSocketEventPublisher (CountDownLatch latch) {
-            super();
+            super(serviceProvider);
             this.latch = latch;
         }
 
