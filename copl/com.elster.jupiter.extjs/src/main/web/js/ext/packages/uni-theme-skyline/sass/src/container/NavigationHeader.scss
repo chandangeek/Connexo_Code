@@ -18,6 +18,12 @@
     }
 }
 
+.icon-logout {
+  background-image: url('images/container/ico_profile.png') !important;
+  width: 20px;
+  height: 20px;
+}
+
 .#{$prefix}container-navigationheader {
     background-color: $header-default-background-color;
     color: $header-default-color;
@@ -38,9 +44,16 @@
     .user-menu {
         @include transparent-button;
 
+        .icon-logout {
+          margin: 14px 8px;
+          width: 20px !important;
+          height: 20px !important;
+        }
+
         &:hover {
             @include highlight-header-background;
         }
+        padding: 0 4px;
     }
 
     .x-menu-active {
