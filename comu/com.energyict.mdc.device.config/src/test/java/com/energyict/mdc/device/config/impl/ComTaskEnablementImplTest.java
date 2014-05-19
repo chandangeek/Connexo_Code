@@ -236,6 +236,26 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
 
     @Test
     @Transactional
+    public void testRemoveNextExecutionSpecs() {
+        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1);
+        comTaskEnablementBuilder.setNextExecutionSpecsFrom(EVERY_DAY_AT_3AM);
+        ComTaskEnablement comTaskEnablement = comTaskEnablementBuilder.add();
+
+        // Business method
+        comTaskEnablement.removeNextExecutionSpecs();
+
+        // Asserts
+        assertThat(comTaskEnablement.getNextExecutionSpecs()).isNull();
+
+        // Assert that none of the other attributes have changed
+        assertThat(comTaskEnablement.getComTask().getId()).isEqualTo(this.comTask1.getId());
+        assertThat(comTaskEnablement.getDeviceConfiguration().getId()).isEqualTo(this.deviceConfiguration1.getId());
+        assertThat(comTaskEnablement.getSecurityPropertySet().getId()).isEqualTo(this.securityPropertySet1.getId());
+        assertThat(comTaskEnablement.getPriority()).isEqualTo(ComTaskEnablement.DEFAULT_PRIORITY);
+    }
+
+    @Test
+    @Transactional
     public void testCreateWithPriority() {
         int expectedPriority = ComTaskEnablement.HIGHEST_PRIORITY + 100;
         ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1);

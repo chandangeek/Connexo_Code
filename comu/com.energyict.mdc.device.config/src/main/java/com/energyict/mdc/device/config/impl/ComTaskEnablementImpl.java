@@ -231,6 +231,16 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
     }
 
     @Override
+    public void removeNextExecutionSpecs() {
+        NextExecutionSpecs obsolete = this.getNextExecutionSpecs();
+        if (obsolete != null) {
+            this.setNextExecutionSpecs(null);
+            this.save();
+            obsolete.delete();
+        }
+    }
+
+    @Override
     public boolean isIgnoreNextExecutionSpecsForInbound () {
         return ignoreNextExecutionSpecsForInbound;
     }
