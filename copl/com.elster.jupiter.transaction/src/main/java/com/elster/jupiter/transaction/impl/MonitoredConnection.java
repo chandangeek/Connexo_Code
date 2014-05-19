@@ -13,7 +13,7 @@ class MonitoredConnection extends ConnectionWrapper {
 	
 	@Override
 	PreparedStatement wrap(PreparedStatement statement,String text) {
-		return new MonitoredStatement(transactionService , statement,text);
+		return new MonitoredStatement(transactionService , statement, this, text);
 	}
 
 

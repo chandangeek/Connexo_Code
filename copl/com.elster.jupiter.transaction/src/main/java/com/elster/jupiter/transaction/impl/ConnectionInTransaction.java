@@ -10,7 +10,7 @@ class ConnectionInTransaction extends ConnectionWrapper {
 	
 	@Override
 	PreparedStatement wrap(PreparedStatement statement,String text) {
-		return statement;
+		return new PreparedStatementWrapper(statement,this);
 	}
 	
 	@Override
