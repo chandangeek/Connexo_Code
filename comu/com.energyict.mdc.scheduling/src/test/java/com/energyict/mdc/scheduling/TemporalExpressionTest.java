@@ -583,6 +583,24 @@ public final class TemporalExpressionTest extends EqualsContractTest {
     }
 
     @Test
+    public void testDailyRoundRobinWithOffset() throws Exception {
+        TemporalExpression expression = new TemporalExpression(new TimeDuration(1, TimeDuration.MONTHS), new TimeDuration(14, TimeDuration.HOURS));
+        expression.setLastDay();
+        Calendar januari1th2013 = Calendar.getInstance(TIMEZONE_WITH_DST);
+        januari1th2013.set(2013, Calendar.JANUARY, 1, 0, 0, 0);
+        Calendar nextCalendar = januari1th2013;
+        for (int day=1; day<=365; day++) {
+            Date nextOccurrence = expression.nextOccurrence(januari1th2013);
+            System.out.println(nextOccurrence+"\t"+(nextOccurrence.getTime()-nextCalendar.getTime().getTime()));
+            nextCalendar.setTime(nextOccurrence);
+//            assertThat(nextCalendar.get(Calendar.DAY_OF_YEAR)).describedAs("Calculated nextOccurrence day is not correct for day " + day).isEqualTo(day);
+//            assertThat(nextCalendar.get(Calendar.HOUR_OF_DAY)).describedAs("Calculated nextOccurrence hour is not correct for day " + day).isEqualTo(2);
+//            assertThat(nextCalendar.get(Calendar.MINUTE)).describedAs("Calculated nextOccurrence minute is not correct for day " + day).isEqualTo(30);
+//            assertThat(nextCalendar.get(Calendar.SECOND)).describedAs("Calculated nextOccurrence second is not correct for day " + day).isEqualTo(0);
+        }
+    }
+
+    @Test
     public void testOnLastDayOfMonthSpecifiedWithOffset30 () {
         TemporalExpression expression = new TemporalExpression(new TimeDuration(1, TimeDuration.MONTHS), new TimeDuration(31, TimeDuration.DAYS));
         Calendar february1st2013 = Calendar.getInstance();
