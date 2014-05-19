@@ -263,6 +263,14 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     List<SecurityProperty> getSecurityProperties(SecurityPropertySet securityPropertySet);
 
     /**
+     * Indicates if there are properties for the device and the passed securityPropertySet.
+     *
+     * @param securityPropertySet The SecurityPropertySet
+     * @return A flag that indicates if this Device has properties for the SecurityPropertySet
+     */
+    boolean hasSecurityProperties(SecurityPropertySet securityPropertySet);
+
+    /**
      * Builder that support basic value setters for a ScheduledConnectionTask
      */
     interface ScheduledConnectionTaskBuilder {

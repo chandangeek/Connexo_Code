@@ -7,6 +7,8 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
+import com.energyict.mdc.device.data.impl.security.SecurityPropertyServiceImpl;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
@@ -34,6 +36,7 @@ public class DeviceDataModule extends AbstractModule {
         requireBinding(ProtocolPluggableService.class);
         requireBinding(SchedulingService.class);
 
+        bind(SecurityPropertyService.class).to(SecurityPropertyServiceImpl.class).in(Scopes.SINGLETON);
         bind(DeviceDataService.class).to(DeviceDataServiceImpl.class).in(Scopes.SINGLETON);
     }
 
