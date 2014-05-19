@@ -65,11 +65,11 @@ public final class SqlBuilder implements SqlFragment {
 		return statement;
 	}
 	
-	public <T> QueryIterator<T> iterator(Connection connection, TupleParser<T> tupleParser) throws SQLException {
+	public <T> Fetcher<T> fetcher(Connection connection, TupleParser<T> tupleParser) throws SQLException {
 		PreparedStatement statement = prepare(connection);
 		try {
 			ResultSet resultSet = statement.executeQuery();
-			return new QueryIteratorImpl<>(resultSet, tupleParser);
+			return new FetcherImpl<>(resultSet, tupleParser);
 		} catch (SQLException ex) {
 			statement.close();
 			throw ex;

@@ -11,17 +11,16 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-class QueryIteratorImpl<T> implements QueryIterator<T> {
+class FetcherImpl<T> implements Fetcher<T> {
 	
 	private final TupleParser<T> tupleParser;
 	private final ResultSet resultSet;
-	private T nextValue;
 	
-	QueryIteratorImpl(ResultSet resultSet, TupleParser<T> tupleParser) {
+	FetcherImpl(ResultSet resultSet, TupleParser<T> tupleParser) {
 		this.resultSet = resultSet;
 		this.tupleParser = tupleParser;
 	}
-
+	
 	@Override
 	public void close() {
 		try {
@@ -44,40 +43,50 @@ class QueryIteratorImpl<T> implements QueryIterator<T> {
 	}
 
 	@Override
-	public boolean hasNext() {
-		if (nextValue == null) {
-			advance();
-		}
-		return nextValue != null;		
-	}
-
-	private void advance() {
-		try {
-			if  (resultSet.next()) {
-				nextValue = Objects.requireNonNull(tupleParser.construct(resultSet));
-			} else {
-				nextValue = null;
-			}
-		} catch (SQLException ex) {
-			throw new RuntimeException(ex);
-		}
+	public Iterator<T> iterator() {
+		return new FetcherIterator();
 	}
 	
-	@Override
-	public T next() {
-		if (nextValue == null) {
-			advance();
+	private class FetcherIterator implements Iterator<T> {
+		private T nextValue;
+	
+		@Override
+		public boolean hasNext() {
+			if (nextValue == null) {
+				advance();
+			}
+			return nextValue != null;
 		}
-		if (nextValue == null) {
-			throw new NoSuchElementException();
-		}
-		T result = nextValue;
-		nextValue = null;
-		return nextValue;
-	}
+	
 
-	@Override
-	public void remove() {
-		throw new UnsupportedOperationException();
+		private void advance() {
+			try {
+				if  (resultSet.next()) {
+					nextValue = Objects.requireNonNull(tupleParser.construct(resultSet));
+				} else {
+					nextValue = null;
+				}
+			} catch (SQLException ex) {
+				throw new RuntimeException(ex);
+			}
+		}
+	
+		@Override
+		public T next() {
+			if (nextValue == null) {
+				advance();
+			}
+			if (nextValue == null) {
+				throw new NoSuchElementException();
+			}
+			T result = nextValue;
+			nextValue = null;
+			return nextValue;
+		}
+
+		@Override
+		public void remove() {
+			throw new UnsupportedOperationException();
+		}
 	}
 }
