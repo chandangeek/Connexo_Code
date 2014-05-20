@@ -1,6 +1,7 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.StackTracePrinter;
 import org.junit.*;
 
 import java.io.IOError;
@@ -8,7 +9,7 @@ import java.io.IOError;
 import static org.fest.assertions.api.Assertions.assertThat;
 
 /**
- * Tests the {@link StackTracePrinter} component.
+ * Tests the {@link com.energyict.mdc.common.StackTracePrinter} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-15 (16:23)
