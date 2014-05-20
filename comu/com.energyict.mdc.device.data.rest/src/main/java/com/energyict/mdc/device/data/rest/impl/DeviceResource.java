@@ -69,6 +69,10 @@ public class DeviceResource {
                     ? conditionDevice.and(where("serialNumber").isEqualTo(serialNumber))
                     : conditionDevice.and(where("serialNumber").likeIgnoreCase(serialNumber));
         }
+        String deviceType = params.getFirst("deviceTypeName");
+        if (deviceType != null) {
+            conditionDevice = conditionDevice.and(where("deviceConfiguration.deviceType.name").isEqualTo(deviceType));
+        }
         return conditionDevice;
     }
 
