@@ -1,4 +1,4 @@
-package com.energyict.genericprotocolimpl.edmi.mk10.packets;
+package com.energyict.protocolimpl.edmi.mk10.packets;
 
 import java.util.Date;
 

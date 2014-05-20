@@ -1,4 +1,4 @@
-package com.energyict.genericprotocolimpl.edmi.mk10.packets;
+package com.energyict.protocolimpl.edmi.mk10.packets;
 
 /**
  * This enum describes the possible EDMI MK10 push packet types

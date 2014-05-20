@@ -1,6 +1,6 @@
-package com.energyict.genericprotocolimpl.edmi.mk10.streamfilters;
+package com.energyict.protocolimpl.edmi.mk10.streamfilters;
 
-import com.energyict.genericprotocolimpl.edmi.mk10.parsers.MK10OutputStreamParser;
+import com.energyict.protocolimpl.edmi.mk10.parsers.MK10OutputStreamParser;
 import com.energyict.protocol.tools.OutputStreamDecorator;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
