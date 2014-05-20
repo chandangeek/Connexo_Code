@@ -2,9 +2,10 @@ package com.energyict.mdc.engine.impl.logging;
 
 import com.energyict.mdc.common.comserver.logging.CanProvideDescriptionTitle;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
-import org.junit.Test;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import org.junit.*;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests the {@link com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl} component.
@@ -27,7 +28,7 @@ public class DescriptionBuilderImplTest implements CanProvideDescriptionTitle {
         String description = builder.toString();
 
         // Asserts
-        Assertions.assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName());
+        assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName());
     }
 
     @Test
@@ -39,7 +40,7 @@ public class DescriptionBuilderImplTest implements CanProvideDescriptionTitle {
         String description = builder.toString();
 
         // Asserts
-        Assertions.assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {only one label}");
+        assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {only one label}");
     }
 
     @Test
@@ -53,7 +54,7 @@ public class DescriptionBuilderImplTest implements CanProvideDescriptionTitle {
         String description = builder.toString();
 
         // Asserts
-        Assertions.assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {First; Second; Third}");
+        assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {First; Second; Third}");
     }
 
     @Test
@@ -65,7 +66,7 @@ public class DescriptionBuilderImplTest implements CanProvideDescriptionTitle {
         String description = builder.toString();
 
         // Asserts
-        Assertions.assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: 1String}");
+        assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: 1String}");
     }
 
     @Test
@@ -77,7 +78,7 @@ public class DescriptionBuilderImplTest implements CanProvideDescriptionTitle {
         String description = builder.toString();
 
         // Asserts
-        Assertions.assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: To dutch first=eerst and last=laatst}");
+        assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: To dutch first=eerst and last=laatst}");
     }
 
     @Test
@@ -89,7 +90,7 @@ public class DescriptionBuilderImplTest implements CanProvideDescriptionTitle {
         String description = builder.toString();
 
         // Asserts
-        Assertions.assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: String}");
+        assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: String}");
     }
 
     @Test
@@ -101,7 +102,7 @@ public class DescriptionBuilderImplTest implements CanProvideDescriptionTitle {
         String description = builder.toString();
 
         // Asserts
-        Assertions.assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: String}");
+        assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: String}");
     }
 
     @Test
@@ -113,7 +114,7 @@ public class DescriptionBuilderImplTest implements CanProvideDescriptionTitle {
         CharSequence description = builder.toString();
 
         // Asserts
-        Assertions.assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: CharSequence}");
+        assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: CharSequence}");
     }
 
     @Test
@@ -125,7 +126,7 @@ public class DescriptionBuilderImplTest implements CanProvideDescriptionTitle {
         CharSequence description = builder.toString();
 
         // Asserts
-        Assertions.assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: CharSequence}");
+        assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: CharSequence}");
     }
 
     @Test
@@ -137,7 +138,7 @@ public class DescriptionBuilderImplTest implements CanProvideDescriptionTitle {
         String description = builder.toString();
 
         // Asserts
-        Assertions.assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: 1}");
+        assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: 1}");
     }
 
     @Test
@@ -149,7 +150,7 @@ public class DescriptionBuilderImplTest implements CanProvideDescriptionTitle {
         String description = builder.toString();
 
         // Asserts
-        Assertions.assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: 123}");
+        assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: 123}");
     }
 
     @Test
@@ -161,7 +162,7 @@ public class DescriptionBuilderImplTest implements CanProvideDescriptionTitle {
         String description = builder.toString();
 
         // Asserts
-        Assertions.assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: true}");
+        assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: true}");
     }
 
     @Test
@@ -173,7 +174,7 @@ public class DescriptionBuilderImplTest implements CanProvideDescriptionTitle {
         String description = builder.toString();
 
         // Asserts
-        Assertions.assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: truefalsefalse}");
+        assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: truefalsefalse}");
     }
 
     @Test
@@ -185,7 +186,7 @@ public class DescriptionBuilderImplTest implements CanProvideDescriptionTitle {
         String description = builder.toString();
 
         // Asserts
-        Assertions.assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: 123}");
+        assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: 123}");
     }
 
     @Test
@@ -197,7 +198,7 @@ public class DescriptionBuilderImplTest implements CanProvideDescriptionTitle {
         String description = builder.toString();
 
         // Asserts
-        Assertions.assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: 123}");
+        assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: 123}");
     }
 
     @Test
@@ -209,7 +210,7 @@ public class DescriptionBuilderImplTest implements CanProvideDescriptionTitle {
         String description = builder.toString();
 
         // Asserts
-        Assertions.assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: " + Long.MAX_VALUE + "}");
+        assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: " + Long.MAX_VALUE + "}");
     }
 
     @Test
@@ -221,7 +222,7 @@ public class DescriptionBuilderImplTest implements CanProvideDescriptionTitle {
         String description = builder.toString();
 
         // Asserts
-        Assertions.assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: 123}");
+        assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: 123}");
     }
 
     @Test
@@ -234,7 +235,7 @@ public class DescriptionBuilderImplTest implements CanProvideDescriptionTitle {
         String description = builder.toString();
 
         // Asserts
-        Assertions.assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: " + o + "}");
+        assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: " + o + "}");
     }
 
     @Test
@@ -246,7 +247,7 @@ public class DescriptionBuilderImplTest implements CanProvideDescriptionTitle {
         String description = builder.toString();
 
         // Asserts
-        Assertions.assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: String}");
+        assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: String}");
     }
 
     @Test
@@ -258,7 +259,7 @@ public class DescriptionBuilderImplTest implements CanProvideDescriptionTitle {
         String description = builder.toString();
 
         // Asserts
-        Assertions.assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: String}");
+        assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: String}");
     }
 
     @Test
@@ -270,7 +271,7 @@ public class DescriptionBuilderImplTest implements CanProvideDescriptionTitle {
         CharSequence description = builder.toString();
 
         // Asserts
-        Assertions.assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: CharSequence}");
+        assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: CharSequence}");
     }
 
     @Test
@@ -282,7 +283,7 @@ public class DescriptionBuilderImplTest implements CanProvideDescriptionTitle {
         CharSequence description = builder.toString();
 
         // Asserts
-        Assertions.assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: CharSequence}");
+        assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: CharSequence}");
     }
 
     @Test
@@ -294,7 +295,7 @@ public class DescriptionBuilderImplTest implements CanProvideDescriptionTitle {
         String description = builder.toString();
 
         // Asserts
-        Assertions.assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: 1}");
+        assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: 1}");
     }
 
     @Test
@@ -306,7 +307,7 @@ public class DescriptionBuilderImplTest implements CanProvideDescriptionTitle {
         String description = builder.toString();
 
         // Asserts
-        Assertions.assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: 123}");
+        assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: 123}");
     }
 
     @Test
@@ -318,7 +319,7 @@ public class DescriptionBuilderImplTest implements CanProvideDescriptionTitle {
         String description = builder.toString();
 
         // Asserts
-        Assertions.assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: true}");
+        assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: true}");
     }
 
     @Test
@@ -330,7 +331,7 @@ public class DescriptionBuilderImplTest implements CanProvideDescriptionTitle {
         String description = builder.toString();
 
         // Asserts
-        Assertions.assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: true, false, false}");
+        assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: true, false, false}");
     }
 
     @Test
@@ -342,7 +343,7 @@ public class DescriptionBuilderImplTest implements CanProvideDescriptionTitle {
         String description = builder.toString();
 
         // Asserts
-        Assertions.assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: 123}");
+        assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: 123}");
     }
 
     @Test
@@ -354,7 +355,7 @@ public class DescriptionBuilderImplTest implements CanProvideDescriptionTitle {
         String description = builder.toString();
 
         // Asserts
-        Assertions.assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: 123}");
+        assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: 123}");
     }
 
     @Test
@@ -366,7 +367,7 @@ public class DescriptionBuilderImplTest implements CanProvideDescriptionTitle {
         String description = builder.toString();
 
         // Asserts
-        Assertions.assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: " + Long.MAX_VALUE + "}");
+        assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: " + Long.MAX_VALUE + "}");
     }
 
     @Test
@@ -378,7 +379,7 @@ public class DescriptionBuilderImplTest implements CanProvideDescriptionTitle {
         String description = builder.toString();
 
         // Asserts
-        Assertions.assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: 123}");
+        assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: 123}");
     }
 
     @Test
@@ -392,7 +393,7 @@ public class DescriptionBuilderImplTest implements CanProvideDescriptionTitle {
         String description = builder.toString();
 
         // Asserts
-        Assertions.assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: " + o1 + ", " + o2 + "}");
+        assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {Property1: " + o1 + ", " + o2 + "}");
     }
 
     @Test
@@ -405,7 +406,7 @@ public class DescriptionBuilderImplTest implements CanProvideDescriptionTitle {
         String description = builder.toString();
 
         // Asserts
-        Assertions.assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {StringListProperty: First, Second, Third; IntegerProperty: 123}");
+        assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {StringListProperty: First, Second, Third; IntegerProperty: 123}");
     }
 
     @Test
@@ -417,7 +418,7 @@ public class DescriptionBuilderImplTest implements CanProvideDescriptionTitle {
         String description = builder.toString();
 
         // Asserts
-        Assertions.assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {StringListProperty: First, Second}");
+        assertThat(description).isEqualTo(DescriptionBuilderImplTest.class.getSimpleName() + " {StringListProperty: First, Second}");
     }
 
 }
