@@ -2,11 +2,11 @@ package com.energyict.mdc.engine.impl.events.filtering;
 
 import com.energyict.mdc.engine.events.ComPortPoolRelatedEvent;
 import com.energyict.mdc.engine.events.ComServerEvent;
-import com.energyict.mdc.engine.impl.events.filtering.ComPortPoolFilter;
 import com.energyict.mdc.engine.model.ComPortPool;
-import org.junit.*;
 
 import java.util.Arrays;
+
+import org.junit.*;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

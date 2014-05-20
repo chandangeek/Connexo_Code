@@ -8,13 +8,16 @@ import com.energyict.mdc.engine.model.RemoteComServer;
 import com.energyict.mdc.engine.model.impl.OfflineComServerImpl;
 import com.energyict.mdc.engine.model.impl.OnlineComServerImpl;
 import com.energyict.mdc.engine.model.impl.RemoteComServerImpl;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link com.energyict.mdc.engine.impl.events.registration.EventRegistrationRequestInitiatorImpl} component.
@@ -26,7 +29,7 @@ import static org.mockito.Mockito.*;
 public class EventRegistrationRequestInitiatorImplTest {
 
     private static final String EVENT_REGISTRATION_URI = "ws://comserver.energyict.com/events/registration";
-    
+
     @Mock
     private EngineModelService engineModelService;
 

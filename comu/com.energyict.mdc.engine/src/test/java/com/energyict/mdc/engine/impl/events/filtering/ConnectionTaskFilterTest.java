@@ -1,13 +1,13 @@
 package com.energyict.mdc.engine.impl.events.filtering;
 
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.events.ConnectionTaskRelatedEvent;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.engine.impl.events.filtering.ConnectionTaskFilter;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-import org.junit.*;
 
 import java.util.Arrays;
+
+import org.junit.*;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -23,7 +23,7 @@ public class ConnectionTaskFilterTest {
 
     @Test
     public void testMatchExpected () {
-        BaseDevice device = mock(BaseDevice.class);
+        Device device = mock(Device.class);
         ConnectionTask interestedTask = mock(ConnectionTask.class);
         when(interestedTask.getDevice()).thenReturn(device);
         ConnectionTask otherTask = mock(ConnectionTask.class);
@@ -39,7 +39,7 @@ public class ConnectionTaskFilterTest {
 
     @Test
     public void testNoMatchExpected () {
-        BaseDevice device = mock(BaseDevice.class);
+        Device device = mock(Device.class);
         ConnectionTask interestedTask = mock(ConnectionTask.class);
         when(interestedTask.getDevice()).thenReturn(device);
         ConnectionTaskFilter filter = new ConnectionTaskFilter(Arrays.asList(interestedTask));
@@ -53,7 +53,7 @@ public class ConnectionTaskFilterTest {
 
     @Test
     public void testNoMatchExpectedForNonConnectionTaskEvents () {
-        BaseDevice device = mock(BaseDevice.class);
+        Device device = mock(Device.class);
         ConnectionTask interestedTask = mock(ConnectionTask.class);
         when(interestedTask.getDevice()).thenReturn(device);
         ConnectionTaskFilter filter = new ConnectionTaskFilter(Arrays.asList(interestedTask));
