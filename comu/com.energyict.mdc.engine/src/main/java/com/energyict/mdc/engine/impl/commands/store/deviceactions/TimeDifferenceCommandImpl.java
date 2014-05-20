@@ -7,7 +7,7 @@ import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.TimeDifferenceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
-import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 
@@ -32,7 +32,7 @@ public class TimeDifferenceCommandImpl extends SimpleComCommand implements TimeD
     }
 
     @Override
-    public void doExecute(final DeviceProtocol deviceProtocol, JobExecution.ExecutionContext executionContext) {
+    public void doExecute(final DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         Clock clock = getCommandRoot().getServiceProvider().getClock();
         RoundTripTimer roundTripTimer = new RoundTripTimer(clock);
         roundTripTimer.start();

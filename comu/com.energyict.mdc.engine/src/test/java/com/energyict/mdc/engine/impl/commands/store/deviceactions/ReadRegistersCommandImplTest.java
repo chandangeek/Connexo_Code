@@ -1,25 +1,25 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.comserver.commands.AbstractComCommandExecuteTest;
-import com.energyict.comserver.commands.core.CommandRootImpl;
-import com.energyict.comserver.core.JobExecution;
-import com.energyict.mdc.commands.ComCommandTypes;
-import com.energyict.mdc.commands.CommandRoot;
-import com.energyict.mdc.commands.CompositeComCommand;
-import com.energyict.mdc.commands.ReadRegistersCommand;
-import com.energyict.mdc.protocol.api.device.BaseRegister;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.masterdata.RegisterGroup;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.collect.CompositeComCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ReadRegistersCommand;
+import com.energyict.mdc.engine.impl.commands.offline.OfflineRegisterImpl;
+import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTest;
+import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
+import com.energyict.mdc.masterdata.RegisterGroup;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-import com.energyict.mdc.engine.impl.commands.offline.OfflineRegisterImpl;
-import com.energyict.mdc.common.ObisCode;
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -27,7 +27,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -50,14 +50,14 @@ public class ReadRegistersCommandImplTest extends AbstractComCommandExecuteTest 
         ReadRegistersCommand readRegistersCommand = new ReadRegistersCommandImpl(commandOwner, commandRoot);
 
         // asserts
-        Assertions.assertThat(readRegistersCommand.getCommandType()).isEqualTo(ComCommandTypes.READ_REGISTERS_COMMAND);
+        assertThat(readRegistersCommand.getCommandType()).isEqualTo(ComCommandTypes.READ_REGISTERS_COMMAND);
     }
 
     @Test
     public void readRegistersTest() {
         OfflineDevice device = mock(OfflineDevice.class);
-        JobExecution.ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext();
-        CommandRoot commandRoot = new CommandRootImpl(device, executionContext, issueService);
+        ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext();
+        CommandRoot commandRoot = new CommandRootImpl(device, executionContext, commandRootServiceProvider);
         ReadRegistersCommand readRegistersCommand = commandRoot.getReadRegistersCommand(commandRoot, comTaskExecution);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         CollectedRegister collectedRegister = mock(CollectedRegister.class);
@@ -66,10 +66,10 @@ public class ReadRegistersCommandImplTest extends AbstractComCommandExecuteTest 
         readRegistersCommand.execute(deviceProtocol, executionContext);
 
         // asserts
-        Assertions.assertThat(readRegistersCommand.getCommandOwner().getCollectedData()).hasSize(1);
-        Assertions.assertThat(readRegistersCommand.getIssues()).isEmpty();
-        Assertions.assertThat(readRegistersCommand.getProblems()).isEmpty();
-        Assertions.assertThat(readRegistersCommand.getWarnings()).isEmpty();
+        assertThat(readRegistersCommand.getCommandOwner().getCollectedData()).hasSize(1);
+        assertThat(readRegistersCommand.getIssues()).isEmpty();
+        assertThat(readRegistersCommand.getProblems()).isEmpty();
+        assertThat(readRegistersCommand.getWarnings()).isEmpty();
     }
 
     @Test
@@ -81,12 +81,12 @@ public class ReadRegistersCommandImplTest extends AbstractComCommandExecuteTest 
         final ObisCode regObisCode4 = ObisCode.fromString("1.0.1.8.4.255");
 
         OfflineDevice device = mock(OfflineDevice.class);
-        BaseRegister reg1 = createMockedRegisters(regObisCode1);
-        BaseRegister reg2 = createMockedRegisters(regObisCode2);
-        BaseRegister reg3 = createMockedRegisters(regObisCode3);
-        BaseRegister reg4 = createMockedRegisters(regObisCode4);
+        Register reg1 = createMockedRegisters(regObisCode1);
+        Register reg2 = createMockedRegisters(regObisCode2);
+        Register reg3 = createMockedRegisters(regObisCode3);
+        Register reg4 = createMockedRegisters(regObisCode4);
 
-        CommandRoot commandRoot = new CommandRootImpl(device, AbstractComCommandExecuteTest.newTestExecutionContext(), issueService);
+        CommandRoot commandRoot = new CommandRootImpl(device, AbstractComCommandExecuteTest.newTestExecutionContext(), commandRootServiceProvider);
         ReadRegistersCommandImpl readRegistersCommand = (ReadRegistersCommandImpl) commandRoot.getReadRegistersCommand(commandRoot, comTaskExecution);
         OfflineRegister register1 = new OfflineRegisterImpl(reg1);
         OfflineRegister register2 = new OfflineRegisterImpl(reg2);
@@ -100,15 +100,15 @@ public class ReadRegistersCommandImplTest extends AbstractComCommandExecuteTest 
         assertThat(readRegistersCommand.getOfflineRegisters()).hasSize(4);
     }
 
-    private BaseRegister createMockedRegisters(final ObisCode obisCode) {
+    private Register createMockedRegisters(final ObisCode obisCode) {
         final String serialNumber = "MeterSerialNumber";
         RegisterSpec registerSpec = mock(RegisterSpec.class);
         when(registerSpec.getDeviceObisCode()).thenReturn(obisCode);
         RegisterGroup registerGroup = mock(RegisterGroup.class);
-        when(registerGroup.getId()).thenReturn(1);
-        BaseDevice mockedDevice = mock(BaseDevice.class);
+        when(registerGroup.getId()).thenReturn(1L);
+        Device mockedDevice = mock(Device.class);
         when(mockedDevice.getSerialNumber()).thenReturn(serialNumber);
-        BaseRegister register = mock(BaseRegister.class);
+        Register register = mock(Register.class);
         when(register.getRegisterGroup()).thenReturn(registerGroup);
         when(register.getRegisterSpec()).thenReturn(registerSpec);
         when(register.getDevice()).thenReturn(mockedDevice);

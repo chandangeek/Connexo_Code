@@ -5,6 +5,7 @@ import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.store.core.ComTaskExecutionComCommand;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -28,12 +29,12 @@ import com.energyict.mdc.tasks.history.TaskHistoryService;
 public interface CommandRoot extends CompositeComCommand {
 
     /**
-     * Gets the {@link JobExecution.ExecutionContext} in which
+     * Gets the {@link com.energyict.mdc.engine.impl.core.ExecutionContext} in which
      * all the {@link ComCommand}s are running.
      *
      * @return The ExecutionContext
      */
-    public JobExecution.ExecutionContext getExecutionContext ();
+    public ExecutionContext getExecutionContext ();
 
     /**
      * Gets the requested ComCommand from the command list based on the given type.
@@ -248,7 +249,7 @@ public interface CommandRoot extends CompositeComCommand {
      * @param preparedComTaskExecution    the given PreparedComTaskExecution
      * @param executionContext the executionContext
      */
-    public void executeFor(JobExecution.PreparedComTaskExecution preparedComTaskExecution, JobExecution.ExecutionContext executionContext);
+    public void executeFor(JobExecution.PreparedComTaskExecution preparedComTaskExecution, ExecutionContext executionContext);
 
     /**
      * Gets the ServiceProvider which collects the Services which are required for the creation/execution of ComCommands

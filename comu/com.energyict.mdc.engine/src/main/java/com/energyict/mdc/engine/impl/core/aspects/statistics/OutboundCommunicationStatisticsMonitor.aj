@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.core.aspects.statistics;
 
 import com.elster.jupiter.util.time.StopWatch;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -20,29 +21,29 @@ public privileged aspect OutboundCommunicationStatisticsMonitor extends Abstract
             com.energyict.comserver.aspects.logging.ComChannelReadWriteLogger,
             com.energyict.comserver.aspects.events.ComChannelReadWriteEventPublisher;
 
-    private StopWatch JobExecution.ExecutionContext.connecting;
-    private StopWatch JobExecution.ExecutionContext.executing;
+    private StopWatch ExecutionContext.connecting;
+    private StopWatch ExecutionContext.executing;
 
-    private pointcut establishConnectionFor (JobExecution.ExecutionContext executionContext):
+    private pointcut establishConnectionFor (ExecutionContext executionContext):
             execution(public boolean JobExecution.ExecutionContext.connect())
                     && target(executionContext);
 
-    before (JobExecution.ExecutionContext executionContext): establishConnectionFor(executionContext) {
+    before (ExecutionContext executionContext): establishConnectionFor(executionContext) {
         executionContext.connecting = new StopWatch();
         executionContext.executing = new StopWatch(false);  // Do not auto start but start it manually as soon as execution starts.
     }
 
-    after (JobExecution.ExecutionContext executionContext): establishConnectionFor(executionContext) {
+    after (ExecutionContext executionContext): establishConnectionFor(executionContext) {
         if (this.isConnected(executionContext)) {
             executionContext.connecting.stop();
         }
     }
 
-    private pointcut closeConnection (JobExecution.ExecutionContext executionContext):
+    private pointcut closeConnection (ExecutionContext executionContext):
             execution(public void JobExecution.ExecutionContext.close())
                     && target(executionContext);
 
-    after (JobExecution.ExecutionContext executionContext): closeConnection(executionContext) {
+    after (ExecutionContext executionContext): closeConnection(executionContext) {
         /* closeConnection is called from finally block
          * even when the connection was never established.
          * So first test if there was a connection. */
@@ -62,7 +63,7 @@ public privileged aspect OutboundCommunicationStatisticsMonitor extends Abstract
         }
     }
 
-    private boolean isConnected (JobExecution.ExecutionContext executionContext) {
+    private boolean isConnected (ExecutionContext executionContext) {
         return executionContext.getComChannel() != null;
     }
 

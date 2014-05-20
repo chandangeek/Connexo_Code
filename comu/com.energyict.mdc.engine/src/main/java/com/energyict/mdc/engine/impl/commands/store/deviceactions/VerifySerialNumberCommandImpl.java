@@ -4,7 +4,7 @@ import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.VerifySerialNumberCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
-import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
@@ -38,7 +38,7 @@ public class VerifySerialNumberCommandImpl extends SimpleComCommand implements V
      * @param executionContext The ExecutionContext
      */
     @Override
-    public void doExecute (final DeviceProtocol deviceProtocol, JobExecution.ExecutionContext executionContext) {
+    public void doExecute (final DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         if(!(MeterProtocolAdapter.class.isAssignableFrom(deviceProtocol.getClass()))){
             String meterSerialNumber = deviceProtocol.getSerialNumber();
             if (!meterSerialNumber.equals(offlineDevice.getSerialNumber())) {

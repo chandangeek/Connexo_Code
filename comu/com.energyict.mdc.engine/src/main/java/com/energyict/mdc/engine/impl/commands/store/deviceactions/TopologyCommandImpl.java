@@ -6,7 +6,7 @@ import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.TopologyCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
-import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
@@ -48,7 +48,7 @@ public class TopologyCommandImpl extends SimpleComCommand implements TopologyCom
     }
 
     @Override
-    public void doExecute(final DeviceProtocol deviceProtocol, JobExecution.ExecutionContext executionContext) {
+    public void doExecute(final DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         this.deviceTopology = deviceProtocol.getDeviceTopology();
         this.deviceTopology.setTopologyAction(this.topologyAction);
         this.deviceTopology.setDataCollectionConfiguration(this.comTaskExecution);

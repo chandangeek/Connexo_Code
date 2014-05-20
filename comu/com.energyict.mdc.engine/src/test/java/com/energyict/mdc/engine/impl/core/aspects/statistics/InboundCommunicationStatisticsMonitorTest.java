@@ -5,6 +5,7 @@ import com.energyict.comserver.commands.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.comserver.core.ComTaskExecutionJob;
 import com.energyict.comserver.core.ConfigurableReadComChannel;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.ScheduledJobImpl;
 import com.energyict.comserver.core.SystemOutComChannel;
 import org.fest.assertions.api.Assertions;
@@ -88,7 +89,7 @@ public class InboundCommunicationStatisticsMonitorTest {
         }
 
         // Asserts
-        ScheduledJobImpl.ExecutionContext executionContext = scheduledJob.getExecutionContext();
+        ExecutionContext executionContext = scheduledJob.getExecutionContext();
         assertThat(executionContext).isNotNull();
         ComSessionShadow comSessionShadow = executionContext.getComSessionBuilder();
         assertThat(comSessionShadow).isNotNull();
@@ -130,7 +131,7 @@ public class InboundCommunicationStatisticsMonitorTest {
         }
 
         // Asserts
-        ScheduledJobImpl.ExecutionContext executionContext = scheduledJob.getExecutionContext();
+        ExecutionContext executionContext = scheduledJob.getExecutionContext();
         assertThat(executionContext).isNotNull();
         ComSessionShadow comSessionShadow = executionContext.getComSessionBuilder();
         assertThat(comSessionShadow).isNotNull();
@@ -175,7 +176,7 @@ public class InboundCommunicationStatisticsMonitorTest {
         }
 
         // Asserts
-        ScheduledJobImpl.ExecutionContext executionContext = scheduledJob.getExecutionContext();
+        ExecutionContext executionContext = scheduledJob.getExecutionContext();
         assertThat(executionContext).isNotNull();
         ComSessionShadow comSessionShadow = executionContext.getComSessionBuilder();
         assertThat(comSessionShadow).isNotNull();

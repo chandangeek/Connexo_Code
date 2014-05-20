@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.collect;
 
-import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.Problem;
@@ -71,7 +71,7 @@ public interface ComCommand {
      * @param deviceProtocol the {@link DeviceProtocol} which will perform the actions
      * @param executionContext The ExecutionContext
      */
-    public void execute (DeviceProtocol deviceProtocol, JobExecution.ExecutionContext executionContext);
+    public void execute (DeviceProtocol deviceProtocol, ExecutionContext executionContext);
 
     /**
      * Add the given {@link CollectedData} to the collectedDataList.

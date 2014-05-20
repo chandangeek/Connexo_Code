@@ -5,7 +5,7 @@ import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.ForceClockCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
-import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 
@@ -23,7 +23,7 @@ public class ForceClockCommandImpl extends SimpleComCommand implements ForceCloc
         super(commandRoot);
     }
 
-    public void doExecute (final DeviceProtocol deviceProtocol, JobExecution.ExecutionContext executionContext) {
+    public void doExecute (final DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         Date now = getCommandRoot().getServiceProvider().getClock().now();
         deviceProtocol.setTime(now);
         this.timeSet = now;

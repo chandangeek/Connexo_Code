@@ -1,9 +1,8 @@
 package com.energyict.mdc.engine.impl.core.aspects.events;
 
-import com.energyict.comserver.core.ConfigurableReadComChannel;
-import com.energyict.comserver.core.SystemOutComChannel;
 import com.energyict.mdc.engine.events.ComServerEvent;
-import com.energyict.mdc.engine.impl.core.aspects.events.ComChannelReadWriteEventPublisher;
+import com.energyict.mdc.engine.impl.core.ConfigurableReadComChannel;
+import com.energyict.mdc.engine.impl.core.SystemOutComChannel;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.events.io.ReadEvent;
 import com.energyict.mdc.engine.impl.events.io.WriteEvent;

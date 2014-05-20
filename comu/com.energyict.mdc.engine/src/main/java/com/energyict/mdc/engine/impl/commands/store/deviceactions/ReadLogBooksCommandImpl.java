@@ -7,7 +7,7 @@ import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.LogBooksCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ReadLogBooksCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
-import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.LogBookReader;
@@ -89,7 +89,7 @@ public class ReadLogBooksCommandImpl extends SimpleComCommand implements ReadLog
     }
 
     @Override
-    public void doExecute(final DeviceProtocol deviceProtocol, JobExecution.ExecutionContext executionContext) {
+    public void doExecute(final DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         List<LogBookReader> logBookReaders = this.getLogBooksToCollect();
         this.logBooksCommand.addListOfCollectedDataItems(deviceProtocol.getLogBookData(logBookReaders));
     }

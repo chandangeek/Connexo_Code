@@ -7,7 +7,7 @@ import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.CompositeComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ReadRegistersCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
-import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
@@ -69,7 +69,7 @@ public class ReadRegistersCommandImpl extends SimpleComCommand implements ReadRe
     }
 
     @Override
-    public void doExecute (final DeviceProtocol deviceProtocol, JobExecution.ExecutionContext executionContext) {
+    public void doExecute (final DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         List<OfflineRegister> offlineRegisters = this.getOfflineRegisters();
         List<CollectedRegister> collectedRegisters = deviceProtocol.readRegisters(offlineRegisters);
         this.commandOwner.addListOfCollectedDataItems(collectedRegisters);

@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.core.aspects.events;
 
 import com.energyict.mdc.engine.impl.core.ComPortServerProcess;
-import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.aspects.logging.AbstractComPortLogging;
 import com.energyict.mdc.engine.impl.core.aspects.logging.ComPortConnectionLogger;
 import com.energyict.mdc.engine.impl.core.aspects.logging.ComPortOperationsLogger;
@@ -23,7 +23,7 @@ import java.util.logging.Logger;
  */
 public aspect ComPortLogEventPublisher extends AbstractComPortLogging {
 
-    private Logger getAnonymousLogger (JobExecution.ExecutionContext executionContext) {
+    private Logger getAnonymousLogger (ExecutionContext executionContext) {
         return this.getAnonymousLogger(new ComPortLogHandler(executionContext.getComPort()));
     }
 
@@ -35,7 +35,7 @@ public aspect ComPortLogEventPublisher extends AbstractComPortLogging {
     }
 
     @Override
-    protected ComPortConnectionLogger initializeUniqueLogger (ComPort comPort, JobExecution.ExecutionContext executionContext, LogLevel logLevel) {
+    protected ComPortConnectionLogger initializeUniqueLogger (ComPort comPort, ExecutionContext executionContext, LogLevel logLevel) {
         return LoggerFactory.getLoggerFor(ComPortConnectionLogger.class, this.getAnonymousLogger(executionContext));
     }
 

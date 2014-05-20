@@ -144,11 +144,11 @@ public class JobExecutionTest {
         when(comServer.getServerLogLevel()).thenReturn(ComServer.LogLevel.TRACE);
         when(comServer.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.TRACE);
 
-        JobExecution.ExecutionContext executionContext = newTestExecutionContext();
+        ExecutionContext executionContext = newTestExecutionContext();
         root = spy(new CommandRootImpl(offlineDevice, executionContext, issueService));
         root2 = spy(new CommandRootImpl(offlineDevice, executionContext, issueService));
-        doNothing().when(root).execute(any(DeviceProtocol.class), any(JobExecution.ExecutionContext.class));
-        doNothing().when(root2).execute(any(DeviceProtocol.class), any(JobExecution.ExecutionContext.class));
+        doNothing().when(root).execute(any(DeviceProtocol.class), any(ExecutionContext.class));
+        doNothing().when(root2).execute(any(DeviceProtocol.class), any(ExecutionContext.class));
         when(genericDeviceProtocol.organizeComCommands(root)).thenReturn(root2);
         ManagerFactory.setCurrent(this.manager);
         when(this.manager.getComTaskEnablementFactory()).thenReturn(this.comTaskEnablementFactory);
@@ -162,7 +162,7 @@ public class JobExecutionTest {
         when(preparedComTaskExecution.getCommandRoot()).thenReturn(root);
         OutboundComPort outboundComPort = mock(OutboundComPort.class);
         ScheduledComTaskExecutionGroup jobExecution = spy(new MockScheduledComTaskExecutionGroup(outboundComPort, comServerDAO, this.deviceCommandExecutor, connectionTask));
-        JobExecution.ExecutionContext executionContext = newTestExecutionContext();
+        ExecutionContext executionContext = newTestExecutionContext();
         when(jobExecution.getExecutionContext()).thenReturn(executionContext);
         when(preparedComTaskExecution.getDeviceProtocol()).thenReturn(genericDeviceProtocol);
         createMockedComTaskWithGivenProtocolTasks();
@@ -184,7 +184,7 @@ public class JobExecutionTest {
         when(preparedComTaskExecution.getCommandRoot()).thenReturn(root);
         OutboundComPort outboundComPort = mock(OutboundComPort.class);
         ScheduledComTaskExecutionGroup jobExecution = spy(new MockScheduledComTaskExecutionGroup(outboundComPort, comServerDAO, this.deviceCommandExecutor, connectionTask));
-        JobExecution.ExecutionContext executionContext = newTestExecutionContext();
+        ExecutionContext executionContext = newTestExecutionContext();
         when(jobExecution.getExecutionContext()).thenReturn(executionContext);
         when(preparedComTaskExecution.getDeviceProtocol()).thenReturn(deviceProtocol);
         createMockedComTaskWithGivenProtocolTasks();
@@ -379,11 +379,11 @@ public class JobExecutionTest {
         return new ScheduledComTaskExecutionGroup(outboundComPort, comServerDAO, this.deviceCommandExecutor, connectionTask, issueService);
     }
 
-    private JobExecution.ExecutionContext newTestExecutionContext() {
+    private ExecutionContext newTestExecutionContext() {
         return newTestExecutionContext(Logger.getAnonymousLogger());
     }
 
-    private JobExecution.ExecutionContext newTestExecutionContext(Logger logger) {
+    private ExecutionContext newTestExecutionContext(Logger logger) {
         ComPortPool comPortPool = mock(ComPortPool.class);
         when(comPortPool.getId()).thenReturn(COMPORT_POOL_ID);
         ComPort comPort = mock(ComPort.class);
@@ -392,8 +392,8 @@ public class JobExecutionTest {
         OutboundConnectionTask connectionTask = mock(OutboundConnectionTask.class);
         when(connectionTask.getId()).thenReturn(CONNECTION_TASK_ID);
         when(connectionTask.getComPortPool()).thenReturn(comPortPool);
-        JobExecution.ExecutionContext executionContext =
-                new JobExecution.ExecutionContext(
+        ExecutionContext executionContext =
+                new ExecutionContext(
                         mock(JobExecution.class),
                         connectionTask,
                         comPort, issueService);

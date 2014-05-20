@@ -7,7 +7,7 @@ import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.SynchronizeClockCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
-import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.tasks.history.CompletionCode;
@@ -53,7 +53,7 @@ public class SynchronizeClockCommandImpl extends SimpleComCommand implements Syn
     /**
      * Perform the actions which are owned by this ComCommand
      */
-    public void doExecute(final DeviceProtocol deviceProtocol, JobExecution.ExecutionContext executionContext) {
+    public void doExecute(final DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         long timeDifference = clockCommand.getTimeDifference().getMilliSeconds();
         if (Math.abs(timeDifference) <= clockCommand.getClockTask().getMaximumClockDifference().getMilliSeconds()){
             long timeShift = getTimeShift(timeDifference);

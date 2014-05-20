@@ -2,7 +2,7 @@ package com.energyict.mdc.engine.impl.core.aspects.events;
 
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.events.ComServerEvent;
-import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.EventPublishingLogHandler;
 import com.energyict.mdc.engine.impl.events.logging.CommunicationLoggingEvent;
@@ -20,9 +20,9 @@ import com.energyict.mdc.engine.model.ComPort;
  */
 public class ExecutionContextLogHandler extends EventPublishingLogHandler {
 
-    private JobExecution.ExecutionContext executionContext;
+    private ExecutionContext executionContext;
 
-    public ExecutionContextLogHandler (JobExecution.ExecutionContext executionContext) {
+    public ExecutionContextLogHandler (ExecutionContext executionContext) {
         super();
         this.executionContext = executionContext;
     }

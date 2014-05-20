@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine;
 
 import com.energyict.comserver.commands.core.CommandRootImpl;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.commands.ComCommandTypes;
 import com.energyict.mdc.commands.CommandRoot;
@@ -69,11 +70,11 @@ public class GenericDeviceProtocolTest {
         assertThat(root.getCommands()).contains(MapEntry.entry(readRegistersCommand.getCommandType(), readRegistersCommand));
     }
 
-    private JobExecution.ExecutionContext newTestExecutionContext () {
+    private ExecutionContext newTestExecutionContext () {
         return newTestExecutionContext(Logger.getAnonymousLogger());
     }
 
-    private JobExecution.ExecutionContext newTestExecutionContext (Logger logger) {
+    private ExecutionContext newTestExecutionContext (Logger logger) {
         ComServer comServer = mock(OnlineComServer.class);
         when(comServer.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.INFO);
         ComPortPool comPortPool = mock(ComPortPool.class);
@@ -84,8 +85,8 @@ public class GenericDeviceProtocolTest {
         ConnectionTask connectionTask = mock(ConnectionTask.class);
         when(connectionTask.getId()).thenReturn(CONNECTION_TASK_ID);
         when(connectionTask.getComPortPool()).thenReturn(comPortPool);
-        JobExecution.ExecutionContext executionContext =
-                new JobExecution.ExecutionContext(
+        ExecutionContext executionContext =
+                new ExecutionContext(
                         mock(JobExecution.class),
                         connectionTask,
                         comPort, issueService);

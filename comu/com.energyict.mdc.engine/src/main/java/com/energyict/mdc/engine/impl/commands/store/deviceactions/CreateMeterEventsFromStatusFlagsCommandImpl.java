@@ -7,7 +7,7 @@ import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.CreateMeterEventsFromStatusFlagsCommand;
 import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
-import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLoadProfile;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLogBook;
@@ -64,7 +64,7 @@ public class CreateMeterEventsFromStatusFlagsCommandImpl extends SimpleComComman
     }
 
     @Override
-    public void doExecute(final DeviceProtocol deviceProtocol, JobExecution.ExecutionContext executionContext) {
+    public void doExecute(final DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         for (CollectedData collectedData : loadProfileCommand.getCollectedData()) {
             if (collectedData instanceof DeviceLoadProfile) {
                 DeviceLoadProfile deviceLoadProfile = (DeviceLoadProfile) collectedData;

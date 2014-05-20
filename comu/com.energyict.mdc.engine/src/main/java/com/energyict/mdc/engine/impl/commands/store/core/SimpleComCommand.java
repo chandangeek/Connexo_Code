@@ -6,7 +6,7 @@ import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
-import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
@@ -77,7 +77,7 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
      * @param deviceProtocol the {@link DeviceProtocol} which will perform the actions
      * @param executionContext The ExecutionContext
      */
-    public abstract void doExecute (final DeviceProtocol deviceProtocol, JobExecution.ExecutionContext executionContext);
+    public abstract void doExecute (final DeviceProtocol deviceProtocol, ExecutionContext executionContext);
 
     protected SimpleComCommand(final CommandRoot commandRoot) {
         this.commandRoot = commandRoot;
@@ -182,7 +182,7 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
     }
 
     @Override
-    public void execute(final DeviceProtocol deviceProtocol, JobExecution.ExecutionContext executionContext) {
+    public void execute(final DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         this.validateArguments(deviceProtocol, executionContext);
         if (!hasExecuted()) {
             this.setCompletionCode(Ok);  // First optimistic
@@ -214,7 +214,7 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
         return e.getMessage().toLowerCase().contains("timeout") && IOException.class.isAssignableFrom(e.getCause().getClass());
     }
 
-    private void validateArguments (DeviceProtocol deviceProtocol, JobExecution.ExecutionContext executionContext) {
+    private void validateArguments (DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         if (deviceProtocol == null) {
             throw CodingException.methodArgumentCanNotBeNull(getClass(), "execute", "deviceProtocol");
         }

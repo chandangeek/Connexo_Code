@@ -1,9 +1,9 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.comserver.logging.LogLevel;
-import com.energyict.mdc.commands.ClockCommand;
-import com.energyict.mdc.commands.CommandRoot;
 import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.engine.impl.commands.collect.ClockCommand;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.tasks.ClockTask;
 import org.junit.Test;
 

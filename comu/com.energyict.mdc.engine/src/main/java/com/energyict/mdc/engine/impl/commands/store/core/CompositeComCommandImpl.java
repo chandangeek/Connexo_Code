@@ -5,7 +5,7 @@ import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.CompositeComCommand;
-import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.protocol.api.exceptions.ComServerRuntimeException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionFailureException;
@@ -23,7 +23,7 @@ import java.util.Map;
  * We are also responsible for making sure that all {@link ComCommand ComCommands} in the CommandRoot
  * are unique by ComCommandType, if not a
  * ComCommandException#uniqueCommandViolation must be thrown.<br/>
- * The {@link SimpleComCommand#doExecute(DeviceProtocol, JobExecution.ExecutionContext)} will call the {@link ComCommand#execute(DeviceProtocol, JobExecution.ExecutionContext)} of all the
+ * The {@link SimpleComCommand#doExecute(DeviceProtocol, com.energyict.mdc.engine.impl.core.ExecutionContext)} will call the {@link ComCommand#execute(DeviceProtocol, com.energyict.mdc.engine.impl.core.ExecutionContext)} of all the
  * {@link ComCommand commands} in the {@link #comCommands commandList} <b>in chronological order.</b>
  *
  * @author gna
@@ -42,7 +42,7 @@ public abstract class CompositeComCommandImpl extends SimpleComCommand implement
     }
 
     @Override
-    public void doExecute (final DeviceProtocol deviceProtocol, JobExecution.ExecutionContext executionContext) {
+    public void doExecute (final DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         ComServerRuntimeException firstException = null;
         boolean canWeStillDoADisconnect = true;
         for (Map.Entry<ComCommandTypes, ComCommand> comCommandEntry : comCommands.entrySet()) {
@@ -81,7 +81,7 @@ public abstract class CompositeComCommandImpl extends SimpleComCommand implement
         return (firstException == null && !hasBasicCheckFailed) || areWeStillAllowedToPerformTheCommand(commandType, canWeStillDoADisconnect);
     }
 
-    protected void performTheComCommandIfAllowed(DeviceProtocol deviceProtocol, JobExecution.ExecutionContext executionContext, ComCommand comCommand) {
+    protected void performTheComCommandIfAllowed(DeviceProtocol deviceProtocol, ExecutionContext executionContext, ComCommand comCommand) {
         comCommand.execute(deviceProtocol, executionContext);
     }
 

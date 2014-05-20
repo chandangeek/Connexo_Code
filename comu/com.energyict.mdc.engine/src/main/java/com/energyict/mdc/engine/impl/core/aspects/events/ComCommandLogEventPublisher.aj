@@ -2,7 +2,7 @@ package com.energyict.mdc.engine.impl.core.aspects.events;
 
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.core.CommandCreator;
-import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.aspects.logging.AbstractComCommandLogging;
 import com.energyict.mdc.engine.impl.core.aspects.logging.ComCommandLogger;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
@@ -30,7 +30,7 @@ public aspect ComCommandLogEventPublisher extends AbstractComCommandLogging {
     }
 
     @Override
-    protected ComCommandLogger getActualLogger (Logger sharedLogger, JobExecution.ExecutionContext executionContext) {
+    protected ComCommandLogger getActualLogger (Logger sharedLogger, ExecutionContext executionContext) {
         Logger logger = Logger.getAnonymousLogger();
         logger.setLevel(Level.FINEST);
         logger.addHandler(new ComCommandLogHandler(executionContext.getComPort(), executionContext.getConnectionTask(), executionContext.getComTaskExecution()));
@@ -43,97 +43,97 @@ public aspect ComCommandLogEventPublisher extends AbstractComCommandLogging {
     }
 
     @Override
-    protected void logStartOfBasicCheckCommand (JobExecution.ExecutionContext executionContext) {
+    protected void logStartOfBasicCheckCommand (ExecutionContext executionContext) {
         // The logging is actually done by my sibbling class
     }
 
     @Override
-    protected void logStartOfVerifySerialNumberCommand (JobExecution.ExecutionContext executionContext) {
+    protected void logStartOfVerifySerialNumberCommand (ExecutionContext executionContext) {
         // The logging is actually done by my sibbling class
     }
 
     @Override
-    protected void logSerialNumberMisMatch (JobExecution.ExecutionContext executionContext, String meterSerialNumber, String configuredSerialNumber) {
+    protected void logSerialNumberMisMatch (ExecutionContext executionContext, String meterSerialNumber, String configuredSerialNumber) {
         // The logging is actually done by my sibbling class
     }
 
     @Override
-    protected void logStartOfClockCommand (JobExecution.ExecutionContext executionContext) {
+    protected void logStartOfClockCommand (ExecutionContext executionContext) {
         // The logging is actually done by my sibbling class
     }
 
     @Override
-    protected void logStartOfSetTime (JobExecution.ExecutionContext executionContext, Date timeToSet) {
+    protected void logStartOfSetTime (ExecutionContext executionContext, Date timeToSet) {
         // The logging is actually done by my sibbling class
     }
 
     @Override
-    protected void logTimeDifferenceAboveMaximum (JobExecution.ExecutionContext executionContext, long timeDifference) {
+    protected void logTimeDifferenceAboveMaximum (ExecutionContext executionContext, long timeDifference) {
         // The logging is actually done by my sibbling class
     }
 
     @Override
-    protected void logTimeDifferenceBelowMinimum (JobExecution.ExecutionContext executionContext, long timeDifference) {
+    protected void logTimeDifferenceBelowMinimum (ExecutionContext executionContext, long timeDifference) {
         // The logging is actually done by my sibbling class
     }
 
     @Override
-    protected void logStartOfSynchronizeClockCommand (JobExecution.ExecutionContext executionContext) {
+    protected void logStartOfSynchronizeClockCommand (ExecutionContext executionContext) {
         // The logging is actually done by my sibbling class
     }
 
     @Override
-    protected void logSynchronizeClockWithTimeShift (JobExecution.ExecutionContext executionContext, long timeShift) {
+    protected void logSynchronizeClockWithTimeShift (ExecutionContext executionContext, long timeShift) {
         // The logging is actually done by my sibbling class
     }
 
     @Override
-    protected void logStartOfTimeDifferenceCommand (JobExecution.ExecutionContext executionContext) {
+    protected void logStartOfTimeDifferenceCommand (ExecutionContext executionContext) {
         // The logging is actually done by my sibbling class
     }
 
     @Override
-    protected void logStartOfVerifyTimeDifferenceCommand (JobExecution.ExecutionContext executionContext) {
+    protected void logStartOfVerifyTimeDifferenceCommand (ExecutionContext executionContext) {
         // The logging is actually done by my sibbling class
     }
 
     @Override
-    protected void logTimeDifferenceExceeded (JobExecution.ExecutionContext executionContext, long actualTimeDifference, long maximumTimeDifference) {
+    protected void logTimeDifferenceExceeded (ExecutionContext executionContext, long actualTimeDifference, long maximumTimeDifference) {
         // The logging is actually done by my sibbling class
     }
 
     @Override
-    protected void logStartOfForceClockCommand (JobExecution.ExecutionContext executionContext) {
+    protected void logStartOfForceClockCommand (ExecutionContext executionContext) {
         // The logging is actually done by my sibbling class
     }
 
     @Override
-    protected void logStartOfLoadProfileCommand (JobExecution.ExecutionContext executionContext) {
+    protected void logStartOfLoadProfileCommand (ExecutionContext executionContext) {
         // The logging is actually done by my sibbling class
     }
 
     @Override
-    protected void logStartOfMarkIntervalsAsBadTimeCommand (JobExecution.ExecutionContext executionContext) {
+    protected void logStartOfMarkIntervalsAsBadTimeCommand (ExecutionContext executionContext) {
         // The logging is actually done by my sibbling class
     }
 
     @Override
-    protected void logStartOfCreateMeterEventsFromStatusBits (JobExecution.ExecutionContext executionContext) {
+    protected void logStartOfCreateMeterEventsFromStatusBits (ExecutionContext executionContext) {
         // The logging is actually done by my sibbling class
     }
 
     @Override
-    protected void logStartOfReadLoadProfileCommand (JobExecution.ExecutionContext executionContext) {
+    protected void logStartOfReadLoadProfileCommand (ExecutionContext executionContext) {
         // The logging is actually done by my sibbling class
     }
 
     @Override
-    protected void logStartOfVerifyLoadProfileCommand (JobExecution.ExecutionContext executionContext) {
+    protected void logStartOfVerifyLoadProfileCommand (ExecutionContext executionContext) {
         // The logging is actually done by my sibbling class
     }
 
     @Override
-    protected void logReadLoadProfileConfigurationsFromDevice (JobExecution.ExecutionContext executionContext, List<CollectedLoadProfileConfiguration> loadProfileConfigurations) {
+    protected void logReadLoadProfileConfigurationsFromDevice (ExecutionContext executionContext, List<CollectedLoadProfileConfiguration> loadProfileConfigurations) {
         // The logging is actually done by my sibbling class
     }
 

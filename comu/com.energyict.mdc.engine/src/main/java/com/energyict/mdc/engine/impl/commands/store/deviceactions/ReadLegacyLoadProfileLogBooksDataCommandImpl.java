@@ -7,7 +7,7 @@ import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.LegacyLoadProfileLogBooksCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ReadLegacyLoadProfileLogBooksDataCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
-import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -28,7 +28,7 @@ public class ReadLegacyLoadProfileLogBooksDataCommandImpl extends SimpleComComma
     }
 
     @Override
-    public void doExecute (final DeviceProtocol deviceProtocol, JobExecution.ExecutionContext executionContext) {
+    public void doExecute (final DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         this.legacyLoadProfileLogBooksCommand.addListOfCollectedDataItems(
                 ((MeterProtocolAdapter) deviceProtocol).getLoadProfileLogBooksData(
                         legacyLoadProfileLogBooksCommand.getLoadProfileReaders(),

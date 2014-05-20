@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core.aspects.logging;
 
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.core.ScheduledJobImpl;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
@@ -39,7 +40,7 @@ public aspect ComPortLogging extends AbstractComPortLogging {
     }
 
     @Override
-    protected ComPortConnectionLogger initializeUniqueLogger (ComPort comPort, JobExecution.ExecutionContext executionContext, LogLevel logLevel) {
+    protected ComPortConnectionLogger initializeUniqueLogger (ComPort comPort, ExecutionContext executionContext, LogLevel logLevel) {
         ComPortConnectionLogger logger = this.getUniqueLogger(comPort, logLevel);
         this.attachHandlerTo(logger, executionContext);
         return logger;
@@ -58,7 +59,7 @@ public aspect ComPortLogging extends AbstractComPortLogging {
         return LoggerFactory.getLoggerFor(ComPortOperationsLogger.class, logLevel);
     }
 
-    private void attachHandlerTo (ComPortConnectionLogger logger, JobExecution.ExecutionContext executionContext) {
+    private void attachHandlerTo (ComPortConnectionLogger logger, ExecutionContext executionContext) {
         Logger actualLogger = ((LoggerFactory.LoggerHolder) logger).getLogger();
         actualLogger.addHandler(new ExecutionContextLogHandler(ServiceProvider.instance.get().clock(), executionContext));
     }

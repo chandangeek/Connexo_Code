@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.core.aspects.logging;
 
-import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannel;
 
 import java.text.MessageFormat;
@@ -20,9 +20,9 @@ import java.util.logging.LogRecord;
  */
 public class ComChannelLogHandler extends Handler {
 
-    private JobExecution.ExecutionContext executionContext;
+    private ExecutionContext executionContext;
 
-    public ComChannelLogHandler (JobExecution.ExecutionContext executionContext) {
+    public ComChannelLogHandler (ExecutionContext executionContext) {
         super();
         this.executionContext = executionContext;
     }

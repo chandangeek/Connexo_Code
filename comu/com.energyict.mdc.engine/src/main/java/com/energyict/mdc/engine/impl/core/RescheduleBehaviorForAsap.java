@@ -42,13 +42,13 @@ import java.util.List;
  */
 public class RescheduleBehaviorForAsap extends AbstractRescheduleBehavior implements RescheduleBehavior {
 
-    private final JobExecution.ExecutionContext executionContext;
+    private final ExecutionContext executionContext;
 
     protected RescheduleBehaviorForAsap(ComServerDAO comServerDAO,
                                         List<ComTaskExecution> successfulComTaskExecutions,
                                         List<ComTaskExecution> failedComTaskExecutions,
                                         List<ComTaskExecution> notExecutedComTaskExecutions,
-                                        ConnectionTask connectionTask, JobExecution.ExecutionContext executionContext) {
+                                        ConnectionTask connectionTask, ExecutionContext executionContext) {
         super(comServerDAO, successfulComTaskExecutions, failedComTaskExecutions, notExecutedComTaskExecutions, connectionTask);
         this.executionContext = executionContext;
     }

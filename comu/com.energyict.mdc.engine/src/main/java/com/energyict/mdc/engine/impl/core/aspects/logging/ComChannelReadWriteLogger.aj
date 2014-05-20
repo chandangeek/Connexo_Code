@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core.aspects.logging;
 
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
@@ -41,7 +42,7 @@ public aspect ComChannelReadWriteLogger {
 
     private ByteArrayOutputStream AbstractComChannel.bytesReadForLogging;
     private ByteArrayOutputStream AbstractComChannel.bytesWrittenForLogging;
-    private JobExecution.ExecutionContext AbstractComChannel.executionContext;
+    private ExecutionContext AbstractComChannel.executionContext;
 
     private pointcut findOrCreateComChannel (JobExecution jobExecution):
             call(ServerComChannel findOrCreateComChannel())
@@ -50,7 +51,7 @@ public aspect ComChannelReadWriteLogger {
     after (JobExecution jobExecution) returning (ComPortRelatedComChannel serverComChannel): findOrCreateComChannel(jobExecution) {
         AbstractComChannel comChannel = (AbstractComChannel) serverComChannel;
         if (comChannel != null) {
-            JobExecution.ExecutionContext executionContext = jobExecution.getExecutionContext();
+            ExecutionContext executionContext = jobExecution.getExecutionContext();
             executionContext.setComChannelLogger(this.newComChannelLogger(executionContext));
             comChannel.executionContext = executionContext;
         }
@@ -207,7 +208,7 @@ public aspect ComChannelReadWriteLogger {
         comChannel.executionContext.getComChannelLogger().bytesRead(hexBytes);
     }
 
-    private ComChannelLogger newComChannelLogger (JobExecution.ExecutionContext executionContext) {
+    private ComChannelLogger newComChannelLogger (ExecutionContext executionContext) {
         ComChannelLogger logger = LoggerFactory.getUniqueLoggerFor(ComChannelLogger.class, this.getServerLogLevel(executionContext));
         LoggerFactory.LoggerHolder loggerHolder = (LoggerFactory.LoggerHolder) logger;
         loggerHolder.getLogger().addHandler(new ComChannelLogHandler(executionContext));
@@ -232,7 +233,7 @@ public aspect ComChannelReadWriteLogger {
         this.logRemainingBytesOnClose(jobExecution);
     }
 
-    private LogLevel getServerLogLevel (JobExecution.ExecutionContext executionContext) {
+    private LogLevel getServerLogLevel (ExecutionContext executionContext) {
         return this.getServerLogLevel(executionContext.getComPort());
     }
 

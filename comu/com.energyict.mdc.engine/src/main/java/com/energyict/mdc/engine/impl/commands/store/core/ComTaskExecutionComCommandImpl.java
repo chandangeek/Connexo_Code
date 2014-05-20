@@ -5,7 +5,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
-import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.ComTaskExecutionCollectedData;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
@@ -68,7 +68,7 @@ public class ComTaskExecutionComCommandImpl extends CompositeComCommandImpl impl
     }
 
     @Override
-    public void doExecute (DeviceProtocol deviceProtocol, JobExecution.ExecutionContext executionContext) {
+    public void doExecute (DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         /* All contained ComCommands are in fact also contained in the root
          * and will be executed as part of the execution of the root.
          * My only purpose in life is to group them

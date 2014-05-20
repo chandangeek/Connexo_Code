@@ -9,7 +9,7 @@ import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
 import com.energyict.mdc.engine.impl.commands.collect.VerifyLoadProfilesCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
-import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.impl.ProblemImpl;
@@ -84,7 +84,7 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
     }
 
     @Override
-    public void doExecute(final DeviceProtocol deviceProtocol, JobExecution.ExecutionContext executionContext) {
+    public void doExecute(final DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         setLoadProfileConfigurations(deviceProtocol.fetchLoadProfileConfiguration(loadProfileCommand.getLoadProfileReaders()));
         verifyConfigurations();
     }

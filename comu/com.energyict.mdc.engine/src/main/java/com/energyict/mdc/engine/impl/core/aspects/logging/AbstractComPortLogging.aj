@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core.aspects.logging;
 
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.core.RescheduleBehavior;
 import com.energyict.mdc.engine.impl.core.ScheduledJobImpl;
@@ -35,7 +36,7 @@ public abstract aspect AbstractComPortLogging {
             ComPortLogging,
             com.energyict.comserver.scheduling.aspects.events.ComPortLogEventPublisher;
 
-    private CompositeComPortConnectionLogger JobExecution.ExecutionContext.connectionLogger;
+    private CompositeComPortConnectionLogger ExecutionContext.connectionLogger;
     private ComPortOperationsLogger ComPortServerProcess.normalOperationsLogger;
     private ComPortOperationsLogger ComPortServerProcess.eventOperationsLogger;
 
@@ -44,7 +45,7 @@ public abstract aspect AbstractComPortLogging {
          && target(jobExecution)
          && args(connectionTask, comPort, logConnectionProperties);
 
-    after (JobExecution jobExecution, ConnectionTask connectionTask, ComPort comPort, boolean logConnectionProperties) returning (JobExecution.ExecutionContext executionContext) : initializeExecutionContext(jobExecution, connectionTask, comPort, logConnectionProperties) {
+    after (JobExecution jobExecution, ConnectionTask connectionTask, ComPort comPort, boolean logConnectionProperties) returning (ExecutionContext executionContext) : initializeExecutionContext(jobExecution, connectionTask, comPort, logConnectionProperties) {
         if (executionContext.connectionLogger == null) {
             executionContext.connectionLogger = new CompositeComPortConnectionLogger();
         }
@@ -64,14 +65,14 @@ public abstract aspect AbstractComPortLogging {
         }
     }
 
-    protected abstract ComPortConnectionLogger initializeUniqueLogger (ComPort comPort, JobExecution.ExecutionContext executionContext, LogLevel logLevel);
+    protected abstract ComPortConnectionLogger initializeUniqueLogger (ComPort comPort, ExecutionContext executionContext, LogLevel logLevel);
 
     private pointcut establishConnectionFor (ScheduledJobImpl scheduledJob):
             execution(boolean ScheduledJobImpl.establishConnectionFor())
          && target(scheduledJob);
 
     after (ScheduledJobImpl scheduledJob) returning (boolean success) : establishConnectionFor(scheduledJob) {
-        JobExecution.ExecutionContext executionContext = scheduledJob.getExecutionContext();
+        ExecutionContext executionContext = scheduledJob.getExecutionContext();
         ComPortConnectionLogger logger = executionContext.connectionLogger;
         if (success) {
             this.connectionEstablished(logger, scheduledJob.getComPort(), scheduledJob);
@@ -106,12 +107,12 @@ public abstract aspect AbstractComPortLogging {
         this.getOperationsLogger(comPort).monitoringChanges(comPort.getComPort());
     }
 
-    private pointcut connectionFailed (JobExecution.ExecutionContext context, ConnectionException e, ConnectionTask connectionTask):
+    private pointcut connectionFailed (ExecutionContext context, ConnectionException e, ConnectionTask connectionTask):
             execution(void JobExecution.ExecutionContext.connectionFailed(ConnectionException, ConnectionTask))
          && target(context)
          && args(e, connectionTask);
 
-    after (JobExecution.ExecutionContext context, ConnectionException e, ConnectionTask connectionTask) : connectionFailed(context, e, connectionTask) {
+    after (ExecutionContext context, ConnectionException e, ConnectionTask connectionTask) : connectionFailed(context, e, connectionTask) {
         this.failedToEstablishConnection(context.connectionLogger, e, context.getJob().getThreadName());
     }
 
@@ -125,7 +126,7 @@ public abstract aspect AbstractComPortLogging {
          && args(comTaskExecution);
 
     before (JobExecution job, ComTaskExecution comTaskExecution): startTask(job, comTaskExecution) {
-        JobExecution.ExecutionContext executionContext = job.getExecutionContext();
+        ExecutionContext executionContext = job.getExecutionContext();
         this.startingTask(executionContext.connectionLogger, job, comTaskExecution);
     }
 
@@ -166,7 +167,7 @@ public abstract aspect AbstractComPortLogging {
          && args(comTaskExecution);
 
     before (JobExecution job, ComTaskExecution comTaskExecution): completeTask(job, comTaskExecution) {
-        JobExecution.ExecutionContext executionContext = job.getExecutionContext();
+        ExecutionContext executionContext = job.getExecutionContext();
         this.completingTask(executionContext.connectionLogger, job, comTaskExecution);
     }
 
@@ -180,7 +181,7 @@ public abstract aspect AbstractComPortLogging {
             && args(.., rescheduleReason);
 
     before(JobExecution job, RescheduleBehavior.RescheduleReason rescheduleReason): rescheduleAfterFailure(job, rescheduleReason) {
-        JobExecution.ExecutionContext executionContext = job.getExecutionContext();
+        ExecutionContext executionContext = job.getExecutionContext();
         for (ComTaskExecution failedComTasks : job.getFailedComTaskExecutions()) {
             this.rescheduleAfterFailure(executionContext.connectionLogger, job, failedComTasks);
         }
@@ -197,13 +198,13 @@ public abstract aspect AbstractComPortLogging {
 
     after (JobExecution job, JobExecution.PreparedComTaskExecution comTaskExecution) returning (boolean success) : executeTask(job, comTaskExecution) {
         if (!success) {
-            JobExecution.ExecutionContext executionContext = job.getExecutionContext();
+            ExecutionContext executionContext = job.getExecutionContext();
             this.executionFailedDueToProblems(executionContext.connectionLogger, job, comTaskExecution.getComTaskExecution());
         }
     }
 
     after (JobExecution job, JobExecution.PreparedComTaskExecution comTaskExecution) throwing (RuntimeException e) : executeTask(job, comTaskExecution) {
-        JobExecution.ExecutionContext executionContext = job.getExecutionContext();
+        ExecutionContext executionContext = job.getExecutionContext();
         this.executionFailed(executionContext.connectionLogger, e, job, comTaskExecution.getComTaskExecution());
     }
 

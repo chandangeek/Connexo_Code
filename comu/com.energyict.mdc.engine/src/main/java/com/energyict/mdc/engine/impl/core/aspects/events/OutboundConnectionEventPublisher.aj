@@ -2,7 +2,7 @@ package com.energyict.mdc.engine.impl.core.aspects.events;
 
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.events.ComServerEvent;
-import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.ScheduledJobImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.events.connection.CannotEstablishConnectionEvent;
@@ -31,20 +31,20 @@ public aspect OutboundConnectionEventPublisher {
          }
     }
 
-    private pointcut connectionFailed (JobExecution.ExecutionContext context, ConnectionException e, ConnectionTask connectionTask):
+    private pointcut connectionFailed (ExecutionContext context, ConnectionException e, ConnectionTask connectionTask):
             execution(void JobExecution.ExecutionContext.connectionFailed(ConnectionException, ConnectionTask))
          && target(context)
          && args(e, connectionTask);
 
-    after (JobExecution.ExecutionContext context, ConnectionException e, ConnectionTask connectionTask) : connectionFailed(context, e, connectionTask) {
+    after (ExecutionContext context, ConnectionException e, ConnectionTask connectionTask) : connectionFailed(context, e, connectionTask) {
         this.publish(new CannotEstablishConnectionEvent(context.getComPort(), connectionTask, e, EventPublisherImpl.getInstance().serviceProvider()));
     }
 
-    private pointcut closeConnection (JobExecution.ExecutionContext executionContext):
+    private pointcut closeConnection (ExecutionContext executionContext):
             execution(public void JobExecution.ExecutionContext.close())
                     && target(executionContext);
 
-    after (JobExecution.ExecutionContext executionContext): closeConnection(executionContext) {
+    after (ExecutionContext executionContext): closeConnection(executionContext) {
         /* closeConnection is called from finally block
          * even when the connection was never established.
          * So first test if there was a connection. */
@@ -57,7 +57,7 @@ public aspect OutboundConnectionEventPublisher {
         EventPublisherImpl.getInstance().publish(event);
     }
 
-    private boolean isConnected (JobExecution.ExecutionContext executionContext) {
+    private boolean isConnected (ExecutionContext executionContext) {
         return executionContext.getComChannel() != null;
     }
 

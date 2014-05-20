@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.core.aspects.statistics;
 import com.energyict.comserver.commands.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.comserver.core.ConfigurableReadComChannel;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.comserver.core.SystemOutComChannel;
 

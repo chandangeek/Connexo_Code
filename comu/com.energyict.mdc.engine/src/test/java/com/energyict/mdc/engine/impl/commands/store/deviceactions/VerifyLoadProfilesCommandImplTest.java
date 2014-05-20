@@ -1,17 +1,18 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.comserver.logging.LogLevel;
-import com.energyict.mdc.commands.LoadProfileCommand;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.meterdata.DeviceLoadProfileConfiguration;
+import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
+import com.energyict.mdc.engine.impl.logging.LogLevel;
+import com.energyict.mdc.engine.impl.meterdata.DeviceLoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.tasks.LoadProfilesTask;
-import java.util.Arrays;
 import org.junit.Test;
 import org.mockito.Matchers;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import java.util.Arrays;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -36,7 +37,7 @@ public class VerifyLoadProfilesCommandImplTest {
         when(deviceProtocol.fetchLoadProfileConfiguration(Matchers.anyList())).thenReturn(Arrays.asList(config1, config2));
         command.doExecute(deviceProtocol, null);
         String description = command.toJournalMessageDescription(LogLevel.TRACE);
-        Assertions.assertThat(description).isEqualTo("VerifyLoadProfilesCommandImpl {executionState: NOT_EXECUTED; completionCode: Ok; nrOfWarnings: 0; nrOfProblems: 0; loadProfileObisCodes: 1.1.1.1.1.1, 2.2.2.2.2.2}");
+        assertThat(description).isEqualTo("VerifyLoadProfilesCommandImpl {executionState: NOT_EXECUTED; completionCode: Ok; nrOfWarnings: 0; nrOfProblems: 0; loadProfileObisCodes: 1.1.1.1.1.1, 2.2.2.2.2.2}");
     }
 
     @Test
@@ -52,7 +53,7 @@ public class VerifyLoadProfilesCommandImplTest {
         when(deviceProtocol.fetchLoadProfileConfiguration(Matchers.anyList())).thenReturn(Arrays.asList(config1, config2));
         command.doExecute(deviceProtocol, null);
         String description = command.toJournalMessageDescription(LogLevel.INFO);
-        Assertions.assertThat(description).isEqualTo("VerifyLoadProfilesCommandImpl {executionState: NOT_EXECUTED; completionCode: Ok; loadProfileObisCodes: 1.1.1.1.1.1, 2.2.2.2.2.2}");
+        assertThat(description).isEqualTo("VerifyLoadProfilesCommandImpl {executionState: NOT_EXECUTED; completionCode: Ok; loadProfileObisCodes: 1.1.1.1.1.1, 2.2.2.2.2.2}");
     }
 
     @Test
@@ -68,7 +69,7 @@ public class VerifyLoadProfilesCommandImplTest {
         when(deviceProtocol.fetchLoadProfileConfiguration(Matchers.anyList())).thenReturn(Arrays.asList(config1, config2));
         command.doExecute(deviceProtocol, null);
         String description = command.toJournalMessageDescription(LogLevel.ERROR);
-        Assertions.assertThat(description).isEqualTo("VerifyLoadProfilesCommandImpl {loadProfileObisCodes: 1.1.1.1.1.1, 2.2.2.2.2.2}");
+        assertThat(description).isEqualTo("VerifyLoadProfilesCommandImpl {loadProfileObisCodes: 1.1.1.1.1.1, 2.2.2.2.2.2}");
     }
 
 }

@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.core.aspects.journaling;
 
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
@@ -35,17 +36,17 @@ public aspect ComCommandJournaling {
         jobExecution.getExecutionContext().initializeJournalist();
     }
 
-    private pointcut comCommandExecution (ComCommand comCommand, DeviceProtocol deviceProtocol, JobExecution.ExecutionContext executionContext):
+    private pointcut comCommandExecution (ComCommand comCommand, DeviceProtocol deviceProtocol, ExecutionContext executionContext):
         execution(void ComCommand.execute(DeviceProtocol, JobExecution.ExecutionContext))
      && target(comCommand)
      && args(deviceProtocol, executionContext);
 
 
-    after (DeviceProtocol deviceProtocol, JobExecution.ExecutionContext executionContext, ComCommand comCommand): comCommandExecution(comCommand, deviceProtocol, executionContext) {
+    after (DeviceProtocol deviceProtocol, ExecutionContext executionContext, ComCommand comCommand): comCommandExecution(comCommand, deviceProtocol, executionContext) {
         this.delegateToJournalistIfAny(executionContext, comCommand);
     }
 
-    private void delegateToJournalistIfAny (JobExecution.ExecutionContext executionContext, ComCommand comCommand) {
+    private void delegateToJournalistIfAny (ExecutionContext executionContext, ComCommand comCommand) {
         /* Business code validates that execution context can be null
          * and will throw a CodingException when that is the case. */
         if (executionContext != null) {
@@ -56,7 +57,7 @@ public aspect ComCommandJournaling {
         }
     }
 
-    private LogLevel getServerLogLevel (JobExecution.ExecutionContext executionContext) {
+    private LogLevel getServerLogLevel (ExecutionContext executionContext) {
         return this.getServerLogLevel(executionContext.getComPort());
     }
 

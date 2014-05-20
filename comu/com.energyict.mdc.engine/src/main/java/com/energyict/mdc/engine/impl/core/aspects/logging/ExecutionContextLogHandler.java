@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.core.aspects.logging;
 
-import com.energyict.mdc.engine.impl.core.ScheduledJobImpl;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
 
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.StackTracePrinter;
@@ -17,7 +17,7 @@ import java.util.logging.LogRecord;
  * Provides an implementation for the Handler class
  * that creates ComSessionJournalEntries
  * or ComTaskMessageJournalEntries
- * depending on the state of the {@link ScheduledJobImpl.ExecutionContext} it is working in.
+ * depending on the state of the {@link com.energyict.mdc.engine.impl.core.ExecutionContext} it is working in.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-08-08 (15:44)
@@ -25,9 +25,9 @@ import java.util.logging.LogRecord;
 public class ExecutionContextLogHandler extends Handler {
 
     private final Clock clock;
-    private final ScheduledJobImpl.ExecutionContext executionContext;
+    private final ExecutionContext executionContext;
 
-    public ExecutionContextLogHandler(Clock clock, ScheduledJobImpl.ExecutionContext executionContext) {
+    public ExecutionContextLogHandler(Clock clock, ExecutionContext executionContext) {
         super();
         this.clock = clock;
         this.executionContext = executionContext;

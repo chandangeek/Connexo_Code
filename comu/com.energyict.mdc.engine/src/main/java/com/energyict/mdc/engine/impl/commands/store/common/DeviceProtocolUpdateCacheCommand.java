@@ -5,7 +5,7 @@ import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
-import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.UpdatedDeviceCache;
 import com.energyict.mdc.engine.impl.protocol.inbound.DeviceIdentifierById;
@@ -31,7 +31,7 @@ public class DeviceProtocolUpdateCacheCommand extends SimpleComCommand {
     }
 
     @Override
-    public void doExecute (DeviceProtocol deviceProtocol, JobExecution.ExecutionContext executionContext) {
+    public void doExecute (DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         UpdatedDeviceCache updatedDeviceCache = new UpdatedDeviceCache(new DeviceIdentifierById(device.getId(), getDeviceDataService()));
         updatedDeviceCache.setDeviceCache(deviceProtocol.getDeviceCache());
         addCollectedDataItem(updatedDeviceCache);

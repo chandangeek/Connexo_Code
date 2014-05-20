@@ -1,48 +1,42 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.ManagerFactory;
-import com.energyict.mdc.ServerManager;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.ProgrammableClock;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.communication.tasks.ProtocolDialectConfigurationPropertiesFactory;
-import com.energyict.mdc.communication.tasks.ProtocolDialectPropertiesFactory;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.ServerComTaskExecution;
-import com.energyict.mdc.device.data.journal.CompletionCode;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.engine.FakeServiceProvider;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.store.core.CommandRootServiceProviderAdapter;
 import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
-import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.shadow.journal.ComCommandJournalEntryShadow;
-import com.energyict.mdc.shadow.journal.ComTaskExecutionJournalEntryShadow;
-import com.energyict.mdc.shadow.journal.ComTaskExecutionSessionShadow;
-import org.fest.assertions.core.Condition;
+import com.energyict.mdc.tasks.history.ComSessionBuilder;
+import com.energyict.mdc.tasks.history.TaskHistoryService;
+import org.joda.time.DateTime;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
+import java.util.Date;
 import java.util.logging.Logger;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.withSettings;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link com.energyict.mdc.engine.impl.core.RescheduleBehaviorForAsap} component
@@ -69,22 +63,26 @@ public class RescheduleBehaviorForAsapTest {
     private Device device;
     @Mock
     private ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties;
+    private FakeServiceProvider serviceProvider = new FakeServiceProvider();
+    private final CommandRoot.ServiceProvider commandRootServiceProvider = new CommandRootServiceProviderAdapter(serviceProvider);
     @Mock
-    private ProtocolDialectConfigurationPropertiesFactory protocolDialectConfigurationPropertiesFactory;
-    @Mock
-    protected ServerManager manager;
-    @Mock
-    private ProtocolDialectPropertiesFactory protocolDialectPropertiesFactory;
+    private TaskHistoryService taskHistoryService;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private ComSessionBuilder comSessionBuilder;
+    private Clock clock = new ProgrammableClock().frozenAt(new DateTime(2014, 5, 20, 16, 16, 17, 222).toDate());
 
     @Before
     public void setUp() {
         when(this.protocolDialectConfigurationProperties.getId()).thenReturn(PROTOCOL_DIALECT_CONFIG_PROPS_ID);
-        when(this.protocolDialectConfigurationPropertiesFactory.find((int) PROTOCOL_DIALECT_CONFIG_PROPS_ID)).thenReturn(this.protocolDialectConfigurationProperties);
-        when(this.manager.getProtocolDialectConfigurationPropertiesFactory()).thenReturn(this.protocolDialectConfigurationPropertiesFactory);
-        when(this.manager.getProtocolDialectPropertiesFactory()).thenReturn(this.protocolDialectPropertiesFactory);
-        ManagerFactory.setCurrent(this.manager);
+//        when(this.protocolDialectConfigurationPropertiesFactory.find((int) PROTOCOL_DIALECT_CONFIG_PROPS_ID)).thenReturn(this.protocolDialectConfigurationProperties);
+//        when(this.manager.getProtocolDialectConfigurationPropertiesFactory()).thenReturn(this.protocolDialectConfigurationPropertiesFactory);
+//        when(this.manager.getProtocolDialectPropertiesFactory()).thenReturn(this.protocolDialectPropertiesFactory);
+//        ManagerFactory.setCurrent(this.manager);
         when(device.getId()).thenReturn(DEVICE_ID);
         when(connectionTask.getDevice()).thenReturn(device);
+        serviceProvider.setTaskHistoryService(taskHistoryService);
+        serviceProvider.setClock(clock);
+        when(taskHistoryService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Date.class))).thenReturn(comSessionBuilder);
     }
 
     @Test
@@ -142,7 +140,7 @@ public class RescheduleBehaviorForAsapTest {
     public void rescheduleDueToConnectionSetupErrorTest() {
         ComTaskExecution notExecutedComTaskExecution = getMockedComTaskExecution();
 
-        final JobExecution.ExecutionContext executionContext = newTestExecutionContext();
+        final ExecutionContext executionContext = newTestExecutionContext();
         RescheduleBehaviorForAsap rescheduleBehavior = new RescheduleBehaviorForAsap(
                 comServerDAO, Collections.<ComTaskExecution>emptyList(),
                 Collections.<ComTaskExecution>emptyList(), Arrays.<ComTaskExecution>asList(notExecutedComTaskExecution),
@@ -155,9 +153,9 @@ public class RescheduleBehaviorForAsapTest {
         verify(comServerDAO, times(1)).executionFailed(any(ComTaskExecution.class)); // we want the comTask to be rescheduled in ASAP
         verify(comServerDAO, times(1)).executionFailed(connectionTask);
         final List<ComTaskExecutionSessionShadow> comTaskExecutionSessionShadows = executionContext.getComSessionBuilder().getComTaskExecutionSessionShadows();
-        Assertions.assertThat(comTaskExecutionSessionShadows).hasSize(1);
-        Assertions.assertThat(comTaskExecutionSessionShadows.get(0).getJournalEntryShadows()).isNotEmpty();
-        Assertions.assertThat(comTaskExecutionSessionShadows.get(0).getJournalEntryShadows()).has(new Condition<List<ComTaskExecutionJournalEntryShadow>>() {
+        assertThat(comTaskExecutionSessionShadows).hasSize(1);
+        assertThat(comTaskExecutionSessionShadows.get(0).getJournalEntryShadows()).isNotEmpty();
+        assertThat(comTaskExecutionSessionShadows.get(0).getJournalEntryShadows()).has(new Condition<List<ComTaskExecutionJournalEntryShadow>>() {
             @Override
             public boolean matches(List<ComTaskExecutionJournalEntryShadow> comTaskExecutionJournalEntryShadows) {
                 boolean correctCompletionCode = false;
@@ -169,6 +167,7 @@ public class RescheduleBehaviorForAsapTest {
                 return correctCompletionCode;
             }
         });
+        verify(comSessionBuilder.addComTaskExecutionSession(notExecutedComTaskExecution, device, clock.now())); // TODO stub
     }
 
     @Test
@@ -204,11 +203,11 @@ public class RescheduleBehaviorForAsapTest {
         return comTaskExecution;
     }
 
-    private JobExecution.ExecutionContext newTestExecutionContext() {
+    private ExecutionContext newTestExecutionContext() {
         return newTestExecutionContext(Logger.getAnonymousLogger());
     }
 
-    private JobExecution.ExecutionContext newTestExecutionContext(Logger logger) {
+    private ExecutionContext newTestExecutionContext(Logger logger) {
         ComServer comServer = mock(OnlineComServer.class);
         when(comServer.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.INFO);
         OutboundComPortPool comPortPool = mock(OutboundComPortPool.class);
@@ -218,12 +217,12 @@ public class RescheduleBehaviorForAsapTest {
         when(comPort.getComServer()).thenReturn(comServer);
         when(connectionTask.getId()).thenReturn(CONNECTION_TASK_ID);
         when(connectionTask.getComPortPool()).thenReturn(comPortPool);
-        JobExecution.ExecutionContext executionContext =
-                new JobExecution.ExecutionContext(
+        ExecutionContext executionContext =
+                new ExecutionContext(
                         mock(JobExecution.class),
                         connectionTask,
                         comPort,
-                        mock(IssueService.class));
+                        commandRootServiceProvider);
         executionContext.setLogger(logger);
         return executionContext;
     }

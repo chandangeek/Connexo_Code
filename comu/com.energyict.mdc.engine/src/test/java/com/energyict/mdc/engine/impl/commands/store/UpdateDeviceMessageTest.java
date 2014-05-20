@@ -1,13 +1,13 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.energyict.mdc.meterdata.DeviceProtocolMessageAcknowledgement;
-import com.energyict.mdc.meterdata.identifiers.DeviceMessageIdentifierById;
+import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolMessageAcknowledgement;
+import com.energyict.mdc.engine.impl.meterdata.identifiers.DeviceMessageIdentifierById;
+import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
-import com.energyict.mdc.engine.model.ComServer;
-import org.junit.*;
+import org.junit.Test;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author sva
@@ -29,7 +29,7 @@ public class UpdateDeviceMessageTest {
         final String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
 
         // Asserts
-        Assertions.assertThat(journalMessage).isEqualTo(UpdateDeviceMessage.class.getSimpleName() + " {messageIdentifier: messageId = 1; message status: confirmed}");
+        assertThat(journalMessage).isEqualTo(UpdateDeviceMessage.class.getSimpleName() + " {messageIdentifier: messageId = 1; message status: confirmed}");
     }
 
     @Test
@@ -44,6 +44,6 @@ public class UpdateDeviceMessageTest {
         final String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.DEBUG);
 
         // Asserts
-        Assertions.assertThat(journalMessage).isEqualTo(UpdateDeviceMessage.class.getSimpleName() + " {messageIdentifier: messageId = 1; message status: confirmed; protocolInfo: Additional ProtocolInfo}");
+        assertThat(journalMessage).isEqualTo(UpdateDeviceMessage.class.getSimpleName() + " {messageIdentifier: messageId = 1; message status: confirmed; protocolInfo: Additional ProtocolInfo}");
     }
 }

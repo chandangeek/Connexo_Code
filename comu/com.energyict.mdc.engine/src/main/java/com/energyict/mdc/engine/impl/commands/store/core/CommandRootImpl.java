@@ -1,8 +1,5 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.time.Clock;
-import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.collect.BasicCheckCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ClockCommand;
@@ -50,11 +47,10 @@ import com.energyict.mdc.engine.impl.commands.store.deviceactions.TopologyComman
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.VerifyLoadProfilesCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.VerifySerialNumberCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.VerifyTimeDifferenceCommandImpl;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
@@ -65,7 +61,6 @@ import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.TopologyTask;
 import com.energyict.mdc.tasks.history.CompletionCode;
-import com.energyict.mdc.tasks.history.TaskHistoryService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -85,26 +80,26 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
      */
     private final OfflineDevice offlineDevice;
     private final ServiceProvider serviceProvider;
-    private final JobExecution.ExecutionContext executionContext;
+    private final ExecutionContext executionContext;
     private JobExecution.PreparedComTaskExecution preparedComTaskExecution;
     private Map<ComTaskExecution, ComTaskExecutionComCommand> comCommandsPerComTaskExecution = new HashMap<>();
 
-    public CommandRootImpl(OfflineDevice offlineDevice, JobExecution.ExecutionContext executionContext, ServiceProvider serviceProvider) {
+    public CommandRootImpl(OfflineDevice offlineDevice, ExecutionContext executionContext, ServiceProvider serviceProvider) {
         super(null);
         this.offlineDevice = offlineDevice;
         this.executionContext = executionContext;
         this.serviceProvider = serviceProvider;
     }
 
-    public CommandRootImpl(OfflineDevice offlineDevice, JobExecution.ExecutionContext executionContext, com.energyict.mdc.engine.impl.core.ServiceProvider serviceProvider) {
+    public CommandRootImpl(OfflineDevice offlineDevice, ExecutionContext executionContext, com.energyict.mdc.engine.impl.core.ServiceProvider serviceProvider) {
         super(null);
         this.offlineDevice = offlineDevice;
         this.executionContext = executionContext;
-        this.serviceProvider = new ServiceProviderAdapter(serviceProvider);
+        this.serviceProvider = new CommandRootServiceProviderAdapter(serviceProvider);
     }
 
     @Override
-    public JobExecution.ExecutionContext getExecutionContext () {
+    public ExecutionContext getExecutionContext () {
         return this.executionContext;
     }
 
@@ -495,7 +490,7 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
     }
 
     @Override
-    public void executeFor(JobExecution.PreparedComTaskExecution preparedComTaskExecution, JobExecution.ExecutionContext executionContext) {
+    public void executeFor(JobExecution.PreparedComTaskExecution preparedComTaskExecution, ExecutionContext executionContext) {
         this.preparedComTaskExecution = preparedComTaskExecution;
         super.execute(preparedComTaskExecution.getDeviceProtocol(), executionContext);
         this.preparedComTaskExecution = null;
@@ -507,7 +502,7 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
     }
 
     @Override
-    protected void performTheComCommandIfAllowed(DeviceProtocol deviceProtocol, JobExecution.ExecutionContext executionContext, ComCommand comCommand) {
+    protected void performTheComCommandIfAllowed(DeviceProtocol deviceProtocol, ExecutionContext executionContext, ComCommand comCommand) {
         if(this.preparedComTaskExecution != null){
             ComTaskExecutionComCommand comTaskExecutionComCommand = this.comCommandsPerComTaskExecution.get(this.preparedComTaskExecution.getComTaskExecution());
             if (comTaskExecutionComCommand != null && comTaskExecutionComCommand.contains(comCommand)){
@@ -551,41 +546,4 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
         return LogLevel.DEBUG;
     }
 
-    private class ServiceProviderAdapter implements ServiceProvider {
-        private final com.energyict.mdc.engine.impl.core.ServiceProvider delegate;
-
-        private ServiceProviderAdapter(com.energyict.mdc.engine.impl.core.ServiceProvider delegate) {
-            this.delegate = delegate;
-        }
-
-        @Override
-        public IssueService getIssueService() {
-            return delegate.issueService();
-        }
-
-        @Override
-        public Clock getClock() {
-            return delegate.clock();
-        }
-
-        @Override
-        public DeviceDataService getDeviceDataService() {
-            return delegate.deviceDataService();
-        }
-
-        @Override
-        public MdcReadingTypeUtilService getMdcReadingTypeUtilService() {
-            return delegate.mdcReadingTypeUtilService();
-        }
-
-        @Override
-        public TaskHistoryService getTaskHistoryService() {
-            return delegate.taskHistoryService();
-        }
-
-        @Override
-        public TransactionService transactionService() {
-            return delegate.transactionService();
-        }
-    }
 }

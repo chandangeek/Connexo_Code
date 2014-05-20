@@ -3,7 +3,7 @@ package com.energyict.mdc.engine.impl.commands.store.access;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
-import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 
 /**
@@ -20,7 +20,7 @@ public class DaisyChainedLogOffCommand extends SimpleComCommand {
     }
 
     @Override
-    public void doExecute (DeviceProtocol deviceProtocol, JobExecution.ExecutionContext executionContext) {
+    public void doExecute (DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         deviceProtocol.daisyChainedLogOff();
     }
 

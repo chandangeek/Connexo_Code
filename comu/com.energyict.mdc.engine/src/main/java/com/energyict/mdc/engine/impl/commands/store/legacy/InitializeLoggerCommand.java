@@ -4,7 +4,7 @@ import com.energyict.mdc.engine.exceptions.ComCommandException;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
-import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocolAdapter;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -28,7 +28,7 @@ public class InitializeLoggerCommand extends SimpleComCommand {
     }
 
     @Override
-    public void doExecute (DeviceProtocol deviceProtocol, JobExecution.ExecutionContext executionContext) {
+    public void doExecute (DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         if (deviceProtocol instanceof DeviceProtocolAdapter) {
             Logger logger = this.newProtocolLogger(executionContext);
             ((DeviceProtocolAdapter) deviceProtocol).initializeLogger(logger);
@@ -40,11 +40,11 @@ public class InitializeLoggerCommand extends SimpleComCommand {
     /**
      * Creates a logger that will log all entries produced
      * by the protocol, except INFO and CONFIG in the
-     * {@link JobExecution.ExecutionContext}'s ComSession.
+     * {@link com.energyict.mdc.engine.impl.core.ExecutionContext}'s ComSession.
      *
      * @return The Logger
      */
-    private Logger newProtocolLogger (JobExecution.ExecutionContext executionContext) {
+    private Logger newProtocolLogger (ExecutionContext executionContext) {
         Logger logger = Logger.getAnonymousLogger();
         logger.setLevel(Level.FINEST);
         logger.addHandler(new ExecutionContextForwardHandler(executionContext));
@@ -61,7 +61,7 @@ public class InitializeLoggerCommand extends SimpleComCommand {
     }
 
     /**
-     * A Handler that forwards all records to the {@link JobExecution.ExecutionContext}'s Logger
+     * A Handler that forwards all records to the {@link com.energyict.mdc.engine.impl.core.ExecutionContext}'s Logger
      * leaving it to that Logger's responsibility if the record should be logged or not.
      * Note that the level of every record is actually set to FINEST before forwarding it
      * so that the log messages produced by old device protocols are only visible
@@ -69,9 +69,9 @@ public class InitializeLoggerCommand extends SimpleComCommand {
      * Note that the ComCommand classes are already mimicking quite a lot of that logging today.
      */
     private final class ExecutionContextForwardHandler extends Handler {
-        private JobExecution.ExecutionContext executionContext;
+        private ExecutionContext executionContext;
 
-        private ExecutionContextForwardHandler (JobExecution.ExecutionContext executionContext) {
+        private ExecutionContextForwardHandler (ExecutionContext executionContext) {
             this.executionContext = executionContext;
         }
 

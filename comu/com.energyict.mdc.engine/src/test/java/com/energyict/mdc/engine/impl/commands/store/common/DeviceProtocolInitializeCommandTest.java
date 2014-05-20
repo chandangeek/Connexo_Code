@@ -1,15 +1,12 @@
 package com.energyict.mdc.engine.impl.commands.store.common;
 
-import com.energyict.comserver.commands.AbstractComCommandExecuteTest;
-import com.energyict.comserver.commands.core.CommandRootImpl;
-import com.energyict.comserver.core.CommandFactory;
-import com.energyict.comserver.core.JobExecution;
-import com.energyict.mdc.commands.ComCommandTypes;
-import com.energyict.mdc.commands.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTest;
+import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
+import com.energyict.mdc.engine.impl.core.inbound.ComChannelPlaceHolder;
+import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannel;
 import com.energyict.mdc.protocol.api.ComChannel;
-import com.energyict.mdc.protocol.ComChannelPlaceHolder;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.ComPortRelatedComChannel;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import org.junit.*;
 
