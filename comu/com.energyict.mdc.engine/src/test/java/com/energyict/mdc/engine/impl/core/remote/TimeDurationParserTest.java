@@ -1,12 +1,13 @@
 package com.energyict.mdc.engine.impl.core.remote;
 
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.engine.impl.core.remote.TimeDurationParser;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import org.junit.*;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests the {@link com.energyict.mdc.engine.impl.core.remote.TimeDurationParser} component.
@@ -24,7 +25,7 @@ public class TimeDurationParserTest {
         TimeDuration timeDuration = new TimeDurationParser().parse(new JSONObject(QUERY_RESULT));
 
         // Asserts
-        Assertions.assertThat(timeDuration.getSeconds()).isEqualTo(1800);
+        assertThat(timeDuration.getSeconds()).isEqualTo(1800);
     }
 
 }
