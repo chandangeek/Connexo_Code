@@ -222,6 +222,8 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      */
     public ConnectionTask<?,?> getConnectionTask ();
 
+    public boolean usesSameConnectionTaskAs(ComTaskExecution anotherTask);
+
     /**
      * Gets the timestamp of the last execution of this ComTaskExecution.
      *

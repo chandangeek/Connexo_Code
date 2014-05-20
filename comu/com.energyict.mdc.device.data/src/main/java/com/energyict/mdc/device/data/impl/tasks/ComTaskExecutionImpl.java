@@ -84,6 +84,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     private Reference<ComSchedule> comScheduleReference = ValueReference.absent();
 
+    private long connectionTaskId;  // Required for performance of ComTaskExecution query to avoid loading the ConnectionTask to only get the id
     private Reference<ConnectionTask<?, ?>> connectionTask = ValueReference.absent();
 
     private Reference<ComPort> comPort = ValueReference.absent();
@@ -276,7 +277,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     private void setUseDefaultConnectionTask(boolean useDefaultConnectionTask) {
         this.useDefaultConnectionTask = useDefaultConnectionTask;
         if (this.useDefaultConnectionTask) {
-            this.connectionTask.set(this.deviceDataService.findDefaultConnectionTaskForDevice(getDevice()));
+            this.setConnectionTask(this.deviceDataService.findDefaultConnectionTaskForDevice(getDevice()));
         }
     }
 
@@ -302,7 +303,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         if (updatedVersionOfMyself != null) {
             this.comPort.set(updatedVersionOfMyself.getExecutingComPort());
             this.obsoleteDate = updatedVersionOfMyself.getObsoleteDate();
-            this.connectionTask.set(updatedVersionOfMyself.getConnectionTask());
+            this.setConnectionTask(updatedVersionOfMyself.getConnectionTask());
         }
     }
 
@@ -340,6 +341,23 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     private void setConnectionTask(ConnectionTask<?, ?> connectionTask) {
         this.connectionTask.set(connectionTask);
+        if (connectionTask != null) {
+            this.connectionTaskId = connectionTask.getId();
+        }
+        else {
+            this.connectionTaskId = 0;
+        }
+    }
+
+    @Override
+    public boolean usesSameConnectionTaskAs (ComTaskExecution anotherTask) {
+        if (anotherTask instanceof ComTaskExecutionImpl) {
+            ComTaskExecutionImpl comTaskExecution = (ComTaskExecutionImpl) anotherTask;
+            return this.connectionTaskId == comTaskExecution.connectionTaskId;
+        }
+        else {
+            return this.connectionTaskId == anotherTask.getConnectionTask().getId();
+        }
     }
 
     @Override

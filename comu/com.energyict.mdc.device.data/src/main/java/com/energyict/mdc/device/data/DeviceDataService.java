@@ -13,6 +13,8 @@ import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
+
+import com.elster.jupiter.util.sql.Fetcher;
 import com.google.common.base.Optional;
 
 import java.util.Collection;
@@ -424,7 +426,7 @@ public interface DeviceDataService {
      */
     public boolean isLinkedToDevices(ComSchedule comSchedule);
 
-    List<ComTaskExecution> getPlannedComTaskExecutionsFor(ComPort comPort);
+    Fetcher<ComTaskExecution> getPlannedComTaskExecutionsFor(ComPort comPort);
 
     boolean areComTasksStillPending(Collection<Long> comTaskExecutionIds);
 

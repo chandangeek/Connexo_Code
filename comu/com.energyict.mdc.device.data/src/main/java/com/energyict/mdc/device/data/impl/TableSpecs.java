@@ -282,7 +282,7 @@ public enum TableSpecs {
             table.column("EXECUTIONSTART").number().conversion(NUMBERINUTCSECONDS2DATE).map(ComTaskExecutionFields.EXECUTIONSTART.fieldName()).add();
             table.column("LASTSUCCESSFULCOMPLETION").number().conversion(NUMBERINUTCSECONDS2DATE).map(ComTaskExecutionFields.LASTSUCCESSFULCOMPLETIONTIMESTAMP.fieldName()).add();
             table.column("LASTEXECUTIONFAILED").number().conversion(NUMBER2BOOLEAN).map(ComTaskExecutionFields.LASTEXECUTIONFAILED.fieldName()).add();
-            Column connectionTask = table.column("CONNECTIONTASK").number().add();
+            Column connectionTask = table.column("CONNECTIONTASK").number().conversion(NUMBER2LONG).map("connectionTaskId").add();
             Column protocolDialectConfigurationProperties = table.column("PROTOCOLDIALECTCONFIGPROPS").number().notNull().add();
             table.column("IGNORENEXTEXECSPECS").number().conversion(NUMBER2BOOLEAN).notNull().map(ComTaskExecutionFields.IGNORENEXTEXECUTIONSPECSFORINBOUND.fieldName()).add();
             table.foreignKey("FK_MDCCOMTASKEXEC_COMPORT").on(comport).references(EngineModelService.COMPONENT_NAME, "MDCCOMPORT").map(ComTaskExecutionFields.COMPORT.fieldName()).add();

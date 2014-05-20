@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -13,7 +14,7 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.Environment;
@@ -76,6 +77,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
 import javax.inject.Inject;
@@ -354,7 +356,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
     }
 
     private void collectComTaskWithDefaultConnectionTaskForCompleteTopology(Device device, List<ComTaskExecution> scheduledComTasks, ConnectionTask connectionTask) {
-        Condition query = Where.where(ComTaskExecutionFields.USEDEFAULTCONNECTIONTASK.fieldName()).isEqualTo(true)
+        Condition query = where(ComTaskExecutionFields.USEDEFAULTCONNECTIONTASK.fieldName()).isEqualTo(true)
                 .and(where(ComTaskExecutionFields.DEVICE.fieldName()).isEqualTo(device)
                         .and((where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isNull())
                                 .or(where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isNotEqual(connectionTask))));
@@ -956,23 +958,23 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
     @Override
     public List<ComTaskExecution> findComTaskExecutionsByComSchedule(ComSchedule comSchedule) {
         return this.dataModel.query(ComTaskExecution.class)
-                .select(Where.where(ComTaskExecutionFields.COM_SCHEDULE_REFERENCE.fieldName()).isEqualTo(comSchedule)
-                        .and(Where.where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull()));
+                .select(where(ComTaskExecutionFields.COM_SCHEDULE_REFERENCE.fieldName()).isEqualTo(comSchedule)
+                        .and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull()));
     }
 
     @Override
     public List<ComTaskExecution> findComTaskExecutionsByComScheduleWithinRange(ComSchedule comSchedule, long minId, long maxId) {
         return this.dataModel.query(ComTaskExecution.class)
-                .select(Where.where(ComTaskExecutionFields.COM_SCHEDULE_REFERENCE.fieldName()).isEqualTo(comSchedule)
-                    .and(Where.where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull())
-                    .and(Where.where(ComTaskExecutionFields.ID.fieldName()).between(minId).and(maxId)));
+                .select(where(ComTaskExecutionFields.COM_SCHEDULE_REFERENCE.fieldName()).isEqualTo(comSchedule)
+                    .and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull())
+                    .and(where(ComTaskExecutionFields.ID.fieldName()).between(minId).and(maxId)));
     }
 
 
     @Override
     public boolean isLinkedToDevices(ComSchedule comSchedule) {
         return !this.dataModel.query(DeviceInComScheduleImpl.class)
-                .select(Where.where(DeviceInComScheduleImpl.Fields.COM_SCHEDULE_REFERENCE.fieldName()).isEqualTo(comSchedule),new Order[0], false, new String[0], 0,1)
+                .select(where(DeviceInComScheduleImpl.Fields.COM_SCHEDULE_REFERENCE.fieldName()).isEqualTo(comSchedule),new Order[0], false, new String[0], 0,1)
                 .isEmpty();
     }
 
@@ -986,7 +988,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
     @Override
     public Date getPlannedDate(ComSchedule comSchedule) {
         List<ComTaskExecution> comTaskExecutions = dataModel.query(ComTaskExecution.class)
-                .select(Where.where(ComTaskExecutionFields.COM_SCHEDULE_REFERENCE.fieldName()).isEqualTo(comSchedule), new Order[0], false, new String[0], 0, 1);
+                .select(where(ComTaskExecutionFields.COM_SCHEDULE_REFERENCE.fieldName()).isEqualTo(comSchedule), new Order[0], false, new String[0], 0, 1);
         if (comTaskExecutions.isEmpty()) {
             return null;
         }
@@ -999,33 +1001,63 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
     }
 
     @Override
-    public List<ComTaskExecution> getPlannedComTaskExecutionsFor(ComPort comPort) {
+    public Fetcher<ComTaskExecution> getPlannedComTaskExecutionsFor(ComPort comPort) {
         List<OutboundComPortPool> comPortPools = this.engineModelService.findContainingComPortPoolsForComPort((OutboundComPort) comPort);
-        if(!comPortPools.isEmpty()){
-            Date now = this.clock.now();
-            Condition condition = Where.where("connectionTask.paused").isEqualTo(false)
-                    .and(where("connectionTask.comServer").isNull())
-                    .and(where("connectionTask.obsoleteDate").isNull())
-                    .and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull())
-                    .and(where(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isLessThanOrEqual(now))
-                    .and(where("connectionTask.nextExecutionTimestamp").isLessThanOrEqual(now))
-                    .and(where(ComTaskExecutionFields.COMPORT.fieldName()).isNull())
-                    .and(ListOperator.IN.contains("connectionTask.comPortPool", comPortPools));
-            return this.dataModel.query(ComTaskExecution.class, ConnectionTask.class).select(condition,
-                    Order.ascending(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()),
-                    Order.ascending(ComTaskExecutionFields.PRIORITY.fieldName()),
-                    Order.ascending(ComTaskExecutionFields.CONNECTIONTASK.fieldName()));
+        if (!comPortPools.isEmpty()) {
+            long now = this.clock.now().getTime();
+            DataMapper<ComTaskExecution> mapper = this.dataModel.mapper(ComTaskExecution.class);
+            com.elster.jupiter.util.sql.SqlBuilder sqlBuilder = mapper.builder("cte", "FIRST_ROWS(1)");
+            sqlBuilder.append(", ");
+            sqlBuilder.append(TableSpecs.MDCCONNECTIONTASK.name());
+            sqlBuilder.append(" ct");
+            sqlBuilder.append(" where ct.paused = 0");
+            sqlBuilder.append("   and ct.comserver is null");
+            sqlBuilder.append("   and ct.obsolete_date is null");
+            sqlBuilder.append("   and cte.connectiontask = ct.id");
+            sqlBuilder.append("   and cte.nextexecutiontimestamp <=");
+            sqlBuilder.addLong(now);
+            sqlBuilder.append("   and cte.comport is null");
+            sqlBuilder.append("   and ct.nextExecutionTimestamp <=");
+            sqlBuilder.addLong(now);
+            sqlBuilder.append("   and ct.comportpool in (");
+            int count = 1;
+            for (ComPortPool comPortPool : comPortPools) {
+                sqlBuilder.addLong(comPortPool.getId());
+                if (count < comPortPools.size()) {
+                    sqlBuilder.append(", ");
+                }
+                count++;
+            }
+            sqlBuilder.append(") order by cte.nextexecutiontimestamp, cte.priority, cte.connectiontask");
+            return mapper.fetcher(sqlBuilder);
         } else {
-            return Collections.emptyList();
+            return new NoComTaskExecutions();
         }
     }
 
     @Override
     public boolean areComTasksStillPending(Collection<Long> comTaskExecutionIds) {
         Date now = this.clock.now();
-        Condition condition = Where.where(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isLessThanOrEqual(now)
+        Condition condition = where(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isLessThanOrEqual(now)
                 .and(ListOperator.IN.contains("id", new ArrayList<>(comTaskExecutionIds)))
                 .and(where("connectionTask.comServer").isNull());
-        return this.dataModel.query(ComTaskExecution.class, ConnectionTask.class).select(condition).size() > 0;
+        return !this.dataModel.query(ComTaskExecution.class, ConnectionTask.class).select(condition).isEmpty();
+    }
+
+    /**
+     * Provides an implementation for the Fetcher interface
+     * that never returns any {@link ComTaskExecution}.
+     */
+    private class NoComTaskExecutions implements Fetcher<ComTaskExecution> {
+        @Override
+        public void close() {
+            // Nothing to close because there was nothing to read from.
+        }
+
+        @Override
+        public Iterator<ComTaskExecution> iterator() {
+            return Collections.emptyIterator();
+        }
+
     }
 }
