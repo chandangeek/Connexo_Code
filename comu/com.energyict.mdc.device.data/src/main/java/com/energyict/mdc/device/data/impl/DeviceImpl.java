@@ -64,6 +64,8 @@ import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
@@ -483,7 +485,7 @@ public class DeviceImpl implements Device, PersistenceAware {
 
     private void updateComTasksToUseNonExistingDefaultConnectionTask(List<ComTaskExecution> comTasksForDefaultConnectionTask) {
         for (ComTaskExecution comTaskExecution : comTasksForDefaultConnectionTask) {
-            ComTaskExecution.ComTaskExecutionUpdater comTaskExecutionUpdater = getComTaskExecutionUpdater(comTaskExecution);
+            ComTaskExecutionUpdater comTaskExecutionUpdater = getComTaskExecutionUpdater(comTaskExecution);
             comTaskExecutionUpdater.setConnectionTask(null);
             comTaskExecutionUpdater.setUseDefaultConnectionTaskFlag(true);
             comTaskExecutionUpdater.update();
@@ -493,7 +495,7 @@ public class DeviceImpl implements Device, PersistenceAware {
     private void updateComTasksToUseNewDefaultConnectionTask(List<ComTaskExecution> comTasksForDefaultConnectionTask){
         ConnectionTask<?,?> defaultConnectionTaskForGateway = getDefaultConnectionTask();
         for (ComTaskExecution comTaskExecution : comTasksForDefaultConnectionTask) {
-            ComTaskExecution.ComTaskExecutionUpdater comTaskExecutionUpdater = getComTaskExecutionUpdater(comTaskExecution);
+            ComTaskExecutionUpdater comTaskExecutionUpdater = getComTaskExecutionUpdater(comTaskExecution);
             comTaskExecutionUpdater.setUseDefaultConnectionTask(defaultConnectionTaskForGateway);
             comTaskExecutionUpdater.update();
         }
@@ -946,13 +948,13 @@ public class DeviceImpl implements Device, PersistenceAware {
     }
 
     @Override
-    public ComTaskExecution.ComTaskExecutionBuilder getComTaskExecutionBuilder(ComTaskEnablement comTaskEnablement) {
+    public ComTaskExecutionBuilder<AbstractComTaskExecutionBuilderForDevice, ComTaskExecutionImpl> getComTaskExecutionBuilder(ComTaskEnablement comTaskEnablement) {
         return new AbstractComTaskExecutionBuilderForDevice(comTaskExecutionProvider, this, comTaskEnablement);
     }
 
     @Override
-    public ComTaskExecution.ComTaskExecutionUpdater getComTaskExecutionUpdater(ComTaskExecution comTaskExecution) {
-        return new ComTaskExecutionUpdaterForDevice((ComTaskExecutionImpl) comTaskExecution);
+    public ComTaskExecutionUpdater getComTaskExecutionUpdater(ComTaskExecution comTaskExecution) {
+        return comTaskExecution.getUpdater();
     }
 
     @Override
@@ -969,19 +971,6 @@ public class DeviceImpl implements Device, PersistenceAware {
         }
         if(removedNone){
             throw new CannotDeleteComTaskExecutionWhichIsNotFromThisDevice(thesaurus, comTaskExecution, this);
-        }
-    }
-
-    private class ComTaskExecutionUpdaterForDevice extends ComTaskExecutionImpl.ComTaskExecutionUpdater {
-
-        private ComTaskExecutionUpdaterForDevice(ComTaskExecutionImpl comTaskExecution) {
-            super(comTaskExecution);
-        }
-
-        @Override
-        public ComTaskExecution update() {
-            //TODO validate unique ComTaskEnablement?
-            return super.update();
         }
     }
 

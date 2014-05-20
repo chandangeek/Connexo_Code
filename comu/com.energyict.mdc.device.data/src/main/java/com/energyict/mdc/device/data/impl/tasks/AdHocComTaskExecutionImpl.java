@@ -14,8 +14,19 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.tasks.AdHocComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.tasks.BasicCheckTask;
+import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.LoadProfilesTask;
+import com.energyict.mdc.tasks.LogBooksTask;
+import com.energyict.mdc.tasks.MessagesTask;
+import com.energyict.mdc.tasks.ProtocolTask;
+import com.energyict.mdc.tasks.RegistersTask;
+import com.energyict.mdc.tasks.StatusInformationTask;
+import com.energyict.mdc.tasks.TopologyTask;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
@@ -56,6 +67,60 @@ public class AdHocComTaskExecutionImpl extends ComTaskExecutionImpl implements A
         return initialize;
     }
 
+    @Override
+    public boolean isConfiguredToCollectRegisterData() {
+        return isConfiguredToCollectDataOfClass(RegistersTask.class);
+    }
+
+    @Override
+    public boolean isConfiguredToCollectLoadProfileData() {
+        return isConfiguredToCollectDataOfClass(LoadProfilesTask.class);
+    }
+
+    @Override
+    public boolean isConfiguredToRunBasicChecks() {
+        return isConfiguredToCollectDataOfClass(BasicCheckTask.class);
+    }
+
+    @Override
+    public boolean isConfiguredToCheckClock() {
+        return isConfiguredToCollectDataOfClass(ClockTask.class);
+    }
+
+    @Override
+    public boolean isConfiguredToCollectEvents() {
+        return isConfiguredToCollectDataOfClass(LogBooksTask.class);
+    }
+
+    @Override
+    public boolean isConfiguredToSendMessages() {
+        return isConfiguredToCollectDataOfClass(MessagesTask.class);
+    }
+
+    @Override
+    public boolean isConfiguredToReadStatusInformation() {
+        return isConfiguredToCollectDataOfClass(StatusInformationTask.class);
+    }
+
+    @Override
+    public boolean isConfiguredToUpdateTopology() {
+        return isConfiguredToCollectDataOfClass(TopologyTask.class);
+    }
+
+    private <T extends ProtocolTask> boolean isConfiguredToCollectDataOfClass (Class<T> protocolTaskClass) {
+        for (ProtocolTask protocolTask : getComTask().getProtocolTasks()) {
+            if (protocolTaskClass.isAssignableFrom(protocolTask.getClass())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public AdHocComTaskExecutionUpdater getUpdater() {
+        return new AdHocComTaskExecutionUpdaterImpl(this);
+    }
+
     interface AdHocComTaskExecutionBuilder extends ComTaskExecutionBuilder<AdHocComTaskExecutionBuilder, AdHocComTaskExecutionImpl> {
 
     }
@@ -66,4 +131,21 @@ public class AdHocComTaskExecutionImpl extends ComTaskExecutionImpl implements A
             super(provider.get(), device, comTaskEnablement, AdHocComTaskExecutionBuilder.class);
         }
     }
+
+    public interface AdHocComTaskExecutionUpdater extends ComTaskExecutionUpdater<AdHocComTaskExecutionUpdater, AdHocComTaskExecutionImpl> {
+
+    }
+
+    class AdHocComTaskExecutionUpdaterImpl
+        extends AbstractComTaskExecutionUpdater<AdHocComTaskExecutionUpdater, AdHocComTaskExecutionImpl>
+        implements AdHocComTaskExecutionUpdater {
+
+        protected AdHocComTaskExecutionUpdaterImpl(AdHocComTaskExecutionImpl comTaskExecution) {
+            super(comTaskExecution, AdHocComTaskExecutionUpdater.class);
+        }
+
+    }
+
+
+
 }

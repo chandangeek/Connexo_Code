@@ -10,6 +10,8 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
@@ -48,6 +50,45 @@ public class ScheduledComTaskExecutionImpl extends ComTaskExecutionImpl implemen
         this.comScheduleReference.set(comSchedule);
     }
 
+    @Override
+    public boolean isConfiguredToCollectRegisterData() {
+        return getComSchedule().isConfiguredToCollectRegisterData();
+    }
+
+    @Override
+    public boolean isConfiguredToCollectLoadProfileData() {
+        return getComSchedule().isConfiguredToCollectLoadProfileData();
+    }
+
+    @Override
+    public boolean isConfiguredToRunBasicChecks() {
+        return getComSchedule().isConfiguredToRunBasicChecks();
+    }
+
+    @Override
+    public boolean isConfiguredToCheckClock() {
+        return getComSchedule().isConfiguredToCheckClock();
+    }
+
+    @Override
+    public boolean isConfiguredToCollectEvents() {
+        return getComSchedule().isConfiguredToCollectEvents();
+    }
+
+    @Override
+    public boolean isConfiguredToSendMessages() {
+        return getComSchedule().isConfiguredToSendMessages();
+    }
+
+    @Override
+    public boolean isConfiguredToReadStatusInformation() {
+        return getComSchedule().isConfiguredToReadStatusInformation();
+    }
+
+    @Override
+    public boolean isConfiguredToUpdateTopology() {
+        return getComSchedule().isConfiguredToUpdateTopology();
+    }
 
     @Override
     public int getMaxNumberOfTries() {
@@ -78,7 +119,31 @@ public class ScheduledComTaskExecutionImpl extends ComTaskExecutionImpl implemen
             this.comTaskExecution.setComSchedule(comSchedule);
             return self;
         }
-
-
     }
+
+    @Override
+    public ScheduledComTaskExecutionUpdater getUpdater() {
+        return new ScheduledComTaskExecutionUpdaterImpl(this);
+    }
+
+    interface ScheduledComTaskExecutionUpdater extends ComTaskExecutionUpdater<ScheduledComTaskExecutionUpdater, ScheduledComTaskExecutionImpl> {
+        public ScheduledComTaskExecutionUpdater comSchedule(ComSchedule comSchedule);
+    }
+
+    class ScheduledComTaskExecutionUpdaterImpl
+        extends AbstractComTaskExecutionUpdater<ScheduledComTaskExecutionUpdater, ScheduledComTaskExecutionImpl>
+        implements ScheduledComTaskExecutionUpdater {
+
+        protected ScheduledComTaskExecutionUpdaterImpl(ScheduledComTaskExecutionImpl comTaskExecution) {
+            super(comTaskExecution, ScheduledComTaskExecutionUpdater.class);
+        }
+
+        @Override
+        public ScheduledComTaskExecutionUpdater comSchedule(ComSchedule comSchedule) {
+            super.comTaskExecution.setComSchedule(comSchedule);
+            return self;
+        }
+    }
+
+
 }

@@ -4,13 +4,10 @@ import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.journal.ComTaskExecutionSession;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
-import com.energyict.mdc.scheduling.TemporalExpression;
-import com.energyict.mdc.scheduling.model.ComSchedule;
 import java.util.Date;
 
 /**
@@ -296,94 +293,7 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      */
     public void schedule(Date when);
 
-    /**
-     * Builder that supports basic value setters for a ComTaskExecution
-     */
-    interface ComTaskExecutionBuilder<B extends ComTaskExecutionBuilder<B, C>, C extends ComTaskExecutionImpl> {
+    ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?,?>, ? extends ComTaskExecution> getUpdater();
 
-        B setUseDefaultConnectionTask(boolean useDefaultConnectionTask);
 
-        /**
-         * Explicitly setting a ConnectionTask will result in NOT using the default connectionTask.
-         * This may be the default connectionTask, but if the default flag changes, then this ComTaskExecution
-         * will still be marked to use the ConnectionTask from this setter.<br/>
-         * Setting an Empty value will result in using the default ConnectionTask
-         * <p/>
-         * <i>If you want to use the default ConnectionTask, just set {@link #setUseDefaultConnectionTask(boolean)} to true</i>
-         *
-         * @param connectionTask the ConnectionTask to set
-         * @return the current updater
-         */
-        B setConnectionTask(ConnectionTask<?, ?> connectionTask);
-
-        B setPriority(int executionPriority);
-
-        B createNextExecutionSpec(TemporalExpression temporalExpression);
-
-        B setMasterNextExecutionSpec(NextExecutionSpecs masterNextExecutionSpec);
-
-        B setIgnoreNextExecutionSpecForInbound(boolean ignoreNextExecutionSpecsForInbound);
-
-        B setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties);
-
-        /**
-         * Creates the actual ComTaskExecution with the objects set in the builder
-         *
-         * @return the newly created ComTaskExecution
-         */
-        C add();
-    }
-
-    /**
-     * Updater that supports basic value setters for a ComTaskExecution
-     */
-    interface ComTaskExecutionUpdater {
-
-        ComTaskExecutionUpdater setUseDefaultConnectionTaskFlag(boolean useDefaultConnectionTask);
-
-        /**
-         * Explicitly setting a ConnectionTask will result in NOT using the default connectionTask.
-         * This may be the default connectionTask, but if the default flag changes, then this ComTaskExecution
-         * will still be marked to use the ConnectionTask from this setter.<br/>
-         * Setting an Empty value will result in using the default ConnectionTask
-         * <p/>
-         * <i>If you want to use the default ConnectionTask, just set {@link #setUseDefaultConnectionTaskFlag(boolean)} to true</i>
-         *
-         * @param connectionTask the ConnectionTask to set
-         * @return the current updater
-         */
-        ComTaskExecutionUpdater setConnectionTask(ConnectionTask<?, ?> connectionTask);
-
-        ComTaskExecutionUpdater setPriority(int executionPriority);
-
-        ComTaskExecutionUpdater createOrUpdateNextExecutionSpec(TemporalExpression temporalExpression);
-
-        ComTaskExecutionUpdater removeNextExecutionSpec();
-
-        ComTaskExecutionUpdater setMasterNextExecutionSpec(NextExecutionSpecs masterNextExecutionSpec);
-
-        ComTaskExecutionUpdater setIgnoreNextExecutionSpecForInbound(boolean ignoreNextExecutionSpecsForInbound);
-
-        ComTaskExecutionUpdater setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties);
-
-        ComTaskExecutionUpdater comSchedule(ComSchedule comSchedule);
-
-        /**
-         * Sets the given nextExecutionTimeStamp and priority
-         *
-         * @param nextExecutionTimestamp the timeStamp to set
-         * @param priority the priority to set
-         * @return the current updater
-         */
-        ComTaskExecutionUpdater setNextExecutionTimeStampAndPriority(Date nextExecutionTimestamp, int priority);
-
-        ComTaskExecutionUpdater setUseDefaultConnectionTask(ConnectionTask<?, ?> defaultConnectionTask);
-
-        /**
-         * Updates the actual ComTaskExecution with the objects set in this builder
-         *
-         * @return the updated created ComTaskExecution
-         */
-        ComTaskExecution update();
-    }
 }
