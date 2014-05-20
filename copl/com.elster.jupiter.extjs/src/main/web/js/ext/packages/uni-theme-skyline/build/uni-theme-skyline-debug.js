@@ -597,14 +597,17 @@ Ext.define('ExtThemeNeptune.form.field.HtmlEditor', {
 
 Ext.define('Skyline.grid.Panel', {
     override: 'Ext.grid.Panel',
-    border: true,
+//    border: false,
+//    frame: true,
+    bodyBorder: true,
     enableColumnHide: false,
     enableColumnMove: false,
     enableColumnResize: false
 });
 
 Ext.define('Skyline.view.Table', {
-    override: 'Ext.view.Table'
+    override: 'Ext.view.Table',
+    bodyBorder: true
 //    ,
 //    scroll: true,
 //    scrollbarTpl: '<div class="scrollbar"><div class="up"><span class="arrow-up"></span></div><div class="down"><span class="arrow-down"></span></div><div class="track"><div class="thumb"></div></div></div>',

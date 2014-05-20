@@ -1,3 +1,18 @@
+.x-btn-step-active-small-focus .x-frame-mc {
+  background-color: #67ac4a;
+  background-image: url(images/btn/btn-step-active-small-focus-fbg.gif);
+}
+
+/* line 610, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-active-small-over .x-frame-tl,
+.x-btn-step-active-small-over .x-frame-bl,
+.x-btn-step-active-small-over .x-frame-tr,
+.x-btn-step-active-small-over .x-frame-br,
+.x-btn-step-active-small-over .x-frame-tc,
+.x-btn-step-active-small-over .x-frame-bc {
+  background-image: url(images/btn/btn-step-active-small-over-corners.gif);
+}
+/* line 614, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-step-active-small-over .x-frame-ml,
 .x-btn-step-active-small-over .x-frame-mr {
   background-image: url(images/btn/btn-step-active-small-over-sides.gif);
@@ -7576,9 +7591,19 @@
 }
 
 /* line 22, ../../sass/src/panel/TilePanel.scss */
+.x-panel-tile.first {
+  margin-right: 24px;
+}
+
+/* line 28, ../../sass/src/panel/TilePanel.scss */
 .x-panel-tile.middle {
-  margin-right: 48px;
-  margin-left: 48px;
+  margin-right: 24px;
+  margin-left: 24px;
+}
+
+/* line 35, ../../sass/src/panel/TilePanel.scss */
+.x-panel-tile.last {
+  margin-left: 24px;
 }
 
 /* line 1, ../../sass/src/tip/Tip.scss */
@@ -7989,151 +8014,25 @@ a.x-datepicker-date:hover {
 
 /* line 9, ../../sass/src/panel/Table.scss */
 .x-grid-body {
-  border-top-width: 0;
-  border-top-style: none;
+  border-top-width: 0 !important;
   -webkit-border-radius: 0 0 10px 10px;
   -moz-border-radius: 0 0 10px 10px;
   -ms-border-radius: 0 0 10px 10px;
   -o-border-radius: 0 0 10px 10px;
   border-radius: 0 0 10px 10px;
-  /* Tiny Scrollbar */
 }
-/* line 15, ../../sass/src/panel/Table.scss */
+/* line 16, ../../sass/src/panel/Table.scss */
 .x-grid-body .x-grid-row a {
   color: #686868;
   text-decoration: none;
 }
-/* line 22, ../../sass/src/panel/Table.scss */
+/* line 23, ../../sass/src/panel/Table.scss */
 .x-grid-body .x-grid-row a:hover {
   text-decoration: underline;
 }
-/* line 28, ../../sass/src/panel/Table.scss */
+/* line 29, ../../sass/src/panel/Table.scss */
 .x-grid-body .x-grid-row-selected a, .x-grid-body .x-grid-row-over a {
   color: white;
-}
-/* line 9, ../../sass/src/Arrow_legacy.scss */
-.x-grid-body .arrow-up {
-  width: 5px;
-  height: 5px;
-  font-size: 0;
-  line-height: 0;
-  display: block;
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  border-bottom: 5px solid white;
-  border-top: none;
-}
-/* line 9, ../../sass/src/Arrow_legacy.scss */
-.x-grid-body .arrow-down {
-  width: 5px;
-  height: 5px;
-  font-size: 0;
-  line-height: 0;
-  display: block;
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  border-bottom: none;
-  border-top: 5px solid white;
-}
-/* line 13, ../../sass/src/Scrollbar.scss */
-.x-grid-body .arrow-up {
-  margin: 3.5px;
-  margin-top: 7px;
-}
-/* line 17, ../../sass/src/Scrollbar.scss */
-.x-grid-body .arrow-down {
-  margin: 3.5px;
-  margin-bottom: 7px;
-}
-/* line 23, ../../sass/src/Scrollbar.scss */
-.x-grid-body .viewport {
-  overflow: hidden;
-  position: relative;
-}
-/* line 28, ../../sass/src/Scrollbar.scss */
-.x-grid-body .overview {
-  list-style: none;
-  position: absolute;
-  left: 0;
-  top: 0;
-  padding: 0;
-  margin: 0;
-}
-/* line 37, ../../sass/src/Scrollbar.scss */
-.x-grid-body .scrollbar {
-  background: transparent;
-  position: absolute;
-  padding: 20px 4px;
-  right: 0;
-  top: 0px;
-  width: 24px;
-  height: 100%;
-}
-/* line 47, ../../sass/src/Scrollbar.scss */
-.x-grid-body .scrollbar .up, .x-grid-body .scrollbar .down {
-  background: #a0a0a0;
-  width: 16px;
-  height: 16px;
-  position: absolute;
-  top: 0;
-  left: 0;
-  margin: 4px;
-  cursor: pointer;
-}
-/* line 58, ../../sass/src/Scrollbar.scss */
-.x-grid-body .scrollbar .up {
-  -webkit-border-radius: 4px 4px 0 0;
-  -moz-border-radius: 4px 4px 0 0;
-  -ms-border-radius: 4px 4px 0 0;
-  -o-border-radius: 4px 4px 0 0;
-  border-radius: 4px 4px 0 0;
-}
-/* line 62, ../../sass/src/Scrollbar.scss */
-.x-grid-body .scrollbar .down {
-  top: 100%;
-  margin-top: -20px;
-  -webkit-border-radius: 0 0 4px 4px;
-  -moz-border-radius: 0 0 4px 4px;
-  -ms-border-radius: 0 0 4px 4px;
-  -o-border-radius: 0 0 4px 4px;
-  border-radius: 0 0 4px 4px;
-}
-/* line 68, ../../sass/src/Scrollbar.scss */
-.x-grid-body .track {
-  background: #a0a0a0;
-  height: 100%;
-  width: 16px;
-  position: relative;
-  padding: 0;
-  margin: 0;
-}
-/* line 77, ../../sass/src/Scrollbar.scss */
-.x-grid-body .thumb {
-  background: white;
-  height: 20px;
-  width: 12px;
-  cursor: pointer;
-  overflow: hidden;
-  position: absolute;
-  top: 0;
-  left: 2px;
-  -webkit-border-radius: 2px;
-  -moz-border-radius: 2px;
-  -ms-border-radius: 2px;
-  -o-border-radius: 2px;
-  border-radius: 2px;
-}
-/* line 89, ../../sass/src/Scrollbar.scss */
-.x-grid-body .disable {
-  display: none;
-}
-/* line 93, ../../sass/src/Scrollbar.scss */
-.x-grid-body .noSelect {
-  user-select: none;
-  -o-user-select: none;
-  -moz-user-select: none;
-  -khtml-user-select: none;
-  -webkit-user-select: none;
 }
 
 /* line 1, ../../sass/src/grid/header/Container.scss */
