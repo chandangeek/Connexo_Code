@@ -37,7 +37,7 @@ public aspect ComCommandJournaling {
     }
 
     private pointcut comCommandExecution (ComCommand comCommand, DeviceProtocol deviceProtocol, ExecutionContext executionContext):
-        execution(void ComCommand.execute(DeviceProtocol, JobExecution.ExecutionContext))
+        execution(void ComCommand.execute(DeviceProtocol, ExecutionContext))
      && target(comCommand)
      && args(deviceProtocol, executionContext);
 

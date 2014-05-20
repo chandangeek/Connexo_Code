@@ -32,7 +32,7 @@ public aspect OutboundConnectionEventPublisher {
     }
 
     private pointcut connectionFailed (ExecutionContext context, ConnectionException e, ConnectionTask connectionTask):
-            execution(void JobExecution.ExecutionContext.connectionFailed(ConnectionException, ConnectionTask))
+            execution(void ExecutionContext.connectionFailed(ConnectionException, ConnectionTask))
          && target(context)
          && args(e, connectionTask);
 
@@ -41,7 +41,7 @@ public aspect OutboundConnectionEventPublisher {
     }
 
     private pointcut closeConnection (ExecutionContext executionContext):
-            execution(public void JobExecution.ExecutionContext.close())
+            execution(public void ExecutionContext.close())
                     && target(executionContext);
 
     after (ExecutionContext executionContext): closeConnection(executionContext) {

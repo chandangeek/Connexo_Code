@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
-import com.energyict.mdc.engine.CollectedDataFactoryProvider;
+import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 

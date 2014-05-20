@@ -25,7 +25,7 @@ public privileged aspect OutboundCommunicationStatisticsMonitor extends Abstract
     private StopWatch ExecutionContext.executing;
 
     private pointcut establishConnectionFor (ExecutionContext executionContext):
-            execution(public boolean JobExecution.ExecutionContext.connect())
+            execution(public boolean ExecutionContext.connect())
                     && target(executionContext);
 
     before (ExecutionContext executionContext): establishConnectionFor(executionContext) {
@@ -40,7 +40,7 @@ public privileged aspect OutboundCommunicationStatisticsMonitor extends Abstract
     }
 
     private pointcut closeConnection (ExecutionContext executionContext):
-            execution(public void JobExecution.ExecutionContext.close())
+            execution(public void ExecutionContext.close())
                     && target(executionContext);
 
     after (ExecutionContext executionContext): closeConnection(executionContext) {

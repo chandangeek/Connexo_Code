@@ -14,7 +14,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 public aspect ComCommandPerformance {
 
     private pointcut executeCommand (ComCommand command, DeviceProtocol deviceProtocol, ExecutionContext executionContext):
-           execution(public void execute (DeviceProtocol, JobExecution.ExecutionContext))
+           execution(public void execute (DeviceProtocol, ExecutionContext))
         && target(command)
         && args(deviceProtocol, executionContext);
 
