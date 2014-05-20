@@ -32,13 +32,13 @@ public class DeviceRegisterTest {
     @Test
     public void registerIdTest() {
         BillingDeviceRegisters billingDeviceRegisters = new BillingDeviceRegisters(getMockedRegisterIdentifier());
-        assertThat(billingDeviceRegisters.getRegisterIdentifier().findRegister().getId()).isEqualTo(REGISTER_ID);
+        assertThat(billingDeviceRegisters.getRegisterIdentifier()).isNotNull();
 
         DefaultDeviceRegister defaultDeviceRegister = new DefaultDeviceRegister(getMockedRegisterIdentifier());
-        assertThat(billingDeviceRegisters.getRegisterIdentifier().findRegister().getId()).isEqualTo(REGISTER_ID);
+        assertThat(defaultDeviceRegister.getRegisterIdentifier()).isNotNull();
 
         MaximumDemandDeviceRegister maximumDemandDeviceRegister = new MaximumDemandDeviceRegister(getMockedRegisterIdentifier());
-        assertThat(billingDeviceRegisters.getRegisterIdentifier().findRegister().getId()).isEqualTo(REGISTER_ID);
+        assertThat(maximumDemandDeviceRegister.getRegisterIdentifier()).isNotNull();
     }
 
     @Test
