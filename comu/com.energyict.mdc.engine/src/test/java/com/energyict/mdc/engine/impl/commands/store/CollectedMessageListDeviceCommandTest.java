@@ -1,15 +1,13 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.energyict.comserver.core.ComServerDAO;
-import com.energyict.mdc.ManagerFactory;
-import com.energyict.mdc.ServerManager;
-import com.energyict.mdc.messages.EndDeviceMessageFactory;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolMessage;
+import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolMessageList;
+import com.energyict.mdc.engine.impl.meterdata.identifiers.DeviceMessageIdentifierById;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
-import com.energyict.mdc.meterdata.DeviceProtocolMessage;
-import com.energyict.mdc.meterdata.DeviceProtocolMessageList;
-import com.energyict.mdc.meterdata.identifiers.DeviceMessageIdentifierById;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import org.junit.*;
@@ -19,7 +17,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -38,24 +36,22 @@ public class CollectedMessageListDeviceCommandTest {
     private static final int MESSAGE_ID2 = 32;
 
     @Mock
-    private ServerManager manager;
-    @Mock
-    private EndDeviceMessageFactory deviceMessageFactory;
-    @Mock
     private DeviceMessage deviceMessage1;
     @Mock
     private DeviceMessage deviceMessage2;
     @Mock
     private DeviceCommand.ExecutionLogger executionLogger;
+    @Mock
+    private IssueService issueService;
 
     @Before
     public void initialize(){
-        ManagerFactory.setCurrent(manager);
+//        ManagerFactory.setCurrent(manager);
         when(deviceMessage1.getId()).thenReturn(MESSAGE_ID1);
         when(deviceMessage2.getId()).thenReturn(MESSAGE_ID2);
-        when(manager.getDeviceMessageFactory()).thenReturn(deviceMessageFactory);
-        when(deviceMessageFactory.find(MESSAGE_ID1)).thenReturn(deviceMessage1);
-        when(deviceMessageFactory.find(MESSAGE_ID2)).thenReturn(deviceMessage2);
+//        when(manager.getDeviceMessageFactory()).thenReturn(deviceMessageFactory);
+//        when(deviceMessageFactory.find(MESSAGE_ID1)).thenReturn(deviceMessage1);
+//        when(deviceMessageFactory.find(MESSAGE_ID2)).thenReturn(deviceMessage2);
     }
 
     @Test
@@ -104,7 +100,7 @@ public class CollectedMessageListDeviceCommandTest {
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.DEBUG);
 
         // Asserts
-        Assertions.assertThat(journalMessage).isEqualTo(CollectedMessageListDeviceCommand.class.getSimpleName()
+        assertThat(journalMessage).isEqualTo(CollectedMessageListDeviceCommand.class.getSimpleName()
                 + " {messageIdentifier: messageId = 12, message status: confirmed, protocolInfo: null; messageIdentifier: messageId = 32, message status: indoubt, protocolInfo: null}");
     }
 
@@ -133,7 +129,7 @@ public class CollectedMessageListDeviceCommandTest {
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
 
         // Asserts
-        Assertions.assertThat(journalMessage).isEqualTo(CollectedMessageListDeviceCommand.class.getSimpleName()
+        assertThat(journalMessage).isEqualTo(CollectedMessageListDeviceCommand.class.getSimpleName()
                 + " {messageIdentifier: messageId = 12, message status: confirmed; messageIdentifier: messageId = 32, message status: indoubt}");
     }
 

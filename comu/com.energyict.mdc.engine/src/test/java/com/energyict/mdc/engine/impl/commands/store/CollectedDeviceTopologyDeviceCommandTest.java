@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.common.BusinessEvent;
+import com.energyict.mdc.engine.impl.EventType;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.DeviceTopologyChangedEvent;
 import com.energyict.mdc.engine.impl.events.UnknownSlaveDeviceEvent;
@@ -13,6 +14,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.tasks.history.CompletionCode;
 import com.energyict.protocolimplv2.identifiers.SerialNumberDeviceIdentifier;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,7 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -41,7 +43,8 @@ public class CollectedDeviceTopologyDeviceCommandTest {
     private static final DeviceIdentifier SLAVE_1_IDENTIFIER = new SerialNumberDeviceIdentifier(SLAVE_1_SERIAL_NUMBER);
     private static final DeviceIdentifier SLAVE_2_IDENTIFIER = new SerialNumberDeviceIdentifier(SLAVE_2_SERIAL_NUMBER);
 
-    public IssueService issueService = new MockIssueService();
+    @Mock
+    public IssueService issueService;
 
     @Mock
     private BaseDevice device;
@@ -106,7 +109,7 @@ public class CollectedDeviceTopologyDeviceCommandTest {
 
         // Asserts
         verify(comServerDAO, times(1)).updateGateway(SLAVE_1_IDENTIFIER, deviceIdentifier);
-        verify(comServerDAO, times(1)).signalEvent((UnknownSlaveDeviceEvent) any());
+        verify(comServerDAO, times(1)).signalEvent(EventType.UNKNOWN_SLAVE_DEVICE.topic(), (UnknownSlaveDeviceEvent) any());
         verify(mockedExecutionLogger).addIssue(Matchers.eq(CompletionCode.ConfigurationWarning), Matchers.any(Issue.class), Matchers.eq(comTaskExecution));
     }
 
@@ -148,7 +151,7 @@ public class CollectedDeviceTopologyDeviceCommandTest {
         // Asserts
         verify(comServerDAO, times(0)).updateGateway(any(DeviceIdentifier.class), any(DeviceIdentifier.class));
         ArgumentCaptor<BusinessEvent> argumentCaptor = ArgumentCaptor.forClass(BusinessEvent.class);
-        verify(comServerDAO, times(2)).signalEvent(argumentCaptor.capture());
+        verify(comServerDAO, times(2)).signalEvent(anyString(), argumentCaptor.capture());
         assertThat(argumentCaptor.getAllValues().get(0)).isInstanceOf(UnknownSlaveDeviceEvent.class);
         assertThat(argumentCaptor.getAllValues().get(1)).isInstanceOf(DeviceTopologyChangedEvent.class);
         verify(mockedExecutionLogger).addIssue(Matchers.eq(CompletionCode.ConfigurationWarning), Matchers.any(Issue.class), Matchers.eq(comTaskExecution));
@@ -188,7 +191,7 @@ public class CollectedDeviceTopologyDeviceCommandTest {
 
         // Asserts
         verify(comServerDAO, times(1)).updateGateway(SLAVE_1_IDENTIFIER, null);
-        verify(comServerDAO, never()).signalEvent(any(BusinessEvent.class));
+        verify(comServerDAO, never()).signalEvent(anyString(), any(BusinessEvent.class));
         verify(mockedExecutionLogger).addIssue(Matchers.eq(CompletionCode.ConfigurationWarning), Matchers.any(Issue.class), Matchers.eq(comTaskExecution));
     }
 
@@ -226,7 +229,7 @@ public class CollectedDeviceTopologyDeviceCommandTest {
 
         // Asserts
         verify(comServerDAO, never()).updateGateway(any(DeviceIdentifier.class), any(DeviceIdentifier.class));
-        verify(comServerDAO, times(1)).signalEvent(any(BusinessEvent.class));
+        verify(comServerDAO, times(1)).signalEvent(anyString(), any(BusinessEvent.class));
         verify(mockedExecutionLogger).addIssue(Matchers.eq(CompletionCode.ConfigurationWarning), Matchers.any(Issue.class), Matchers.eq(comTaskExecution));
     }
 
@@ -248,7 +251,7 @@ public class CollectedDeviceTopologyDeviceCommandTest {
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
 
         // Asserts
-        Assertions.assertThat(journalMessage).isEqualTo(CollectedDeviceTopologyDeviceCommand.class.getSimpleName()
+        assertThat(journalMessage).isEqualTo(CollectedDeviceTopologyDeviceCommand.class.getSimpleName()
                 + " {topologyAction.verify; deviceIdentifier: deviceIdentifier}");
     }
 

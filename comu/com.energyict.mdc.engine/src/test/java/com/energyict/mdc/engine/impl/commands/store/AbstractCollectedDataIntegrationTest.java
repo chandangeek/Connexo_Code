@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bootstrap.h2.impl.InMemoryPersistence;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
@@ -18,11 +19,15 @@ import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.util.time.impl.ServiceLocator;
 import com.energyict.comserver.core.impl.online.ComServerDAOImpl;
 import com.energyict.comserver.time.Clocks;
 import com.energyict.mdc.InMemoryPersistence;
 import com.energyict.mdc.common.impl.MdcCommonModule;
+import com.energyict.mdc.device.data.impl.DeviceImpl;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
+import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
+import com.energyict.mdc.protocol.api.device.DeviceFactory;
 import com.energyict.mdc.services.impl.Bus;
 import com.energyict.mdc.services.impl.ServiceLocator;
 import com.energyict.mdw.core.DeviceFactory;
@@ -58,8 +63,8 @@ public abstract class AbstractCollectedDataIntegrationTest {
 
     private static Injector injector;
 
-    @Mock
-    private DeviceFactoryProvider deviceFactoryProvider;
+//    @Mock
+//    private DeviceFactoryProvider deviceFactoryProvider;
     @Mock
     private DeviceFactory deviceFactory;
 
@@ -106,11 +111,6 @@ public abstract class AbstractCollectedDataIntegrationTest {
         InMemoryPersistence.cleanUpDataBase();
     }
 
-    @After
-    public void cleanupAfterSingleTest(){
-        Clocks.resetAll();
-    }
-
     protected static Injector getInjector(){
         return injector;
     }
@@ -125,20 +125,13 @@ public abstract class AbstractCollectedDataIntegrationTest {
         return comServerDAO;
     }
 
-    protected void mockDevice(int deviceId) {
+    protected void mockDevice(long deviceId) {
         DeviceImpl device = mock(DeviceImpl.class);
         when(device.getId()).thenReturn(deviceId);
         doCallRealMethod().when(device).store(any(MeterReading.class));
-        when(deviceFactory.find(deviceId)).thenReturn(device);
-        when(deviceFactoryProvider.getDeviceFactory()).thenReturn(deviceFactory);
-        DeviceFactoryProvider.instance.set(deviceFactoryProvider);
-    }
-
-    protected void mockServiceLocator() {
-        ServiceLocator serviceLocator = mock(ServiceLocator.class);
-        Bus.setServiceLocator(serviceLocator);
-        MeteringService meteringService = getInjector().getInstance(MeteringService.class);
-        when(serviceLocator.getMeteringService()).thenReturn(meteringService);
+        when(deviceFactory.findById(deviceId)).thenReturn(device);
+//        when(deviceFactoryProvider.getDeviceFactory()).thenReturn(deviceFactory);
+//        DeviceFactoryProvider.instance.set(deviceFactoryProvider);
     }
 
     private static class MockModule extends AbstractModule {
