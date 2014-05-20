@@ -3,15 +3,12 @@ Ext.define('Mdc.view.setup.devicetype.AddLogbookTypes', {
     alias: 'widget.add-logbook-types',
     deviceTypeId: null,
 
-
     content: [
         {
+            xtype: 'panel',
+            ui: 'large',
+            itemId: 'addLogbookPanel',
             items: [
-                {
-                    xtype: 'panel',
-                    ui: 'large',
-                    itemId: 'addLogbookTitle'
-                },
                 {
                     xtype: 'toolbar',
                     border: 0,
@@ -47,7 +44,7 @@ Ext.define('Mdc.view.setup.devicetype.AddLogbookTypes', {
                         enableKeyNav: false,
                         showHeaderCheckbox: false
                     },
-                    forceFit: true,
+//                    forceFit: true,
                     columns: {
                         defaults: {
                             sortable: false,
@@ -65,27 +62,8 @@ Ext.define('Mdc.view.setup.devicetype.AddLogbookTypes', {
                                 flex: 5
                             }
                         ]
-                    }
-                },
-                {
-                    xtype: 'panel',
-                    hidden: true,
-                    height: 200,
-                    items: [
-                        {
-                            xtype: 'panel',
-                            html: "<h3>No logbook type found</h3><br>\
-          There are no logbooks. This could be because:<br>\
-          &nbsp;&nbsp; - No logbook type have been defined yet.<br>"
-                        }
-                    ]
-                },
-                {
-                    layout: 'hbox',
-                    defaults: {
-                        xtype: 'button'
                     },
-                    items: [
+                    buttons: [
                         {
                             text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
                             action: 'add',
@@ -104,13 +82,21 @@ Ext.define('Mdc.view.setup.devicetype.AddLogbookTypes', {
                             }
                         }
                     ]
+                },
+                {
+                    xtype: 'panel',
+                    hidden: true,
+                    height: 200,
+                    items: [
+                        {
+                            xtype: 'panel',
+                            html: "<h3>No logbook type found</h3><br>\
+          There are no logbooks. This could be because:<br>\
+          &nbsp;&nbsp; - No logbook type have been defined yet.<br>"
+                        }
+                    ]
                 }
-
             ]
         }
-    ],
-
-    initComponent: function () {
-        this.callParent(arguments);
-    }
+    ]
 });

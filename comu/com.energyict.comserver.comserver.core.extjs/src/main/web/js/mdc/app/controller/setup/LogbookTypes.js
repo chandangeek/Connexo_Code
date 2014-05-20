@@ -227,7 +227,7 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
         confirmMessage.show({
             title: 'Remove logbook type ' + record.data.name + ' ?',
             msg: '<p>The logbook type will no longer be available on this device type.</p>',
-            icon: Ext.MessageBox.QUESTION,
+            icon: Ext.MessageBox.WARNING,
             cls: 'isu-delete-message'
         });
     }
