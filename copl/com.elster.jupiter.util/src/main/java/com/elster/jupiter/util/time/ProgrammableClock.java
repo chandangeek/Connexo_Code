@@ -1,6 +1,11 @@
 package com.elster.jupiter.util.time;
 
+import com.google.common.collect.ImmutableList;
+
+import java.util.Arrays;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 import java.util.TimeZone;
 
 public class ProgrammableClock implements Clock {
@@ -88,6 +93,21 @@ public class ProgrammableClock implements Clock {
         }
     }
 
+    private static class PredefinedTicksClock implements DateComponent {
+
+        private final Iterator<Date> ticks;
+
+        private PredefinedTicksClock(List<Date> ticks) {
+            this.ticks = ImmutableList.copyOf(ticks).iterator();
+
+        }
+
+        @Override
+        public Date now() {
+            return ticks.next();
+        }
+    }
+
     private final DateComponent dateComponent;
     private final TimeZoneComponent timeZoneComponent;
     private final SystemAbstraction systemAbstraction;
@@ -137,4 +157,7 @@ public class ProgrammableClock implements Clock {
         return new ProgrammableClock(new OffsetDateComponent(offset, systemAbstraction), timeZoneComponent, systemAbstraction);
     }
 
+    public ProgrammableClock ticksAt(Date... dates) {
+        return new ProgrammableClock(new PredefinedTicksClock(Arrays.asList(dates)), timeZoneComponent, systemAbstraction);
+    }
 }
