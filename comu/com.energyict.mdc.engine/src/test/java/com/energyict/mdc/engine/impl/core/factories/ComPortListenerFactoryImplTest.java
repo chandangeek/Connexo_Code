@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.core.factories;
 
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.comserver.commands.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ComPortListener;
 import com.energyict.mdc.engine.impl.core.MultiThreadedComPortListener;

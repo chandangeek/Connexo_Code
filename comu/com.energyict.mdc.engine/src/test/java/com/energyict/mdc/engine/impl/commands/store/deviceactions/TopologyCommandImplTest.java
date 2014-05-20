@@ -1,28 +1,26 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.collect.TopologyCommand;
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
-import com.energyict.comserver.logging.LogLevel;
-import com.energyict.mdc.commands.CommandRoot;
-import com.energyict.mdc.commands.TopologyCommand;
+import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
-import com.energyict.mdc.protocol.tasks.TopologyTask;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.tasks.ComTaskExecution;
 import com.energyict.mdc.tasks.TopologyTask;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests for the {@link com.energyict.comserver.commands.deviceactions.TopologyCommandImpl} component
+ * Tests for the TopologyCommandImpl component
  *
  * @author gna
  * @since 31/05/12 - 11:53
@@ -49,11 +47,11 @@ public class TopologyCommandImplTest extends CommonCommandImplTests {
         topologyCommand.execute(deviceProtocol, newTestExecutionContext());
 
         // asserts
-        Assertions.assertThat(topologyCommand.getCollectedData()).isNotNull();
-        Assertions.assertThat(topologyCommand.getCollectedData()).hasSize(1);
+        assertThat(topologyCommand.getCollectedData()).isNotNull();
+        assertThat(topologyCommand.getCollectedData()).hasSize(1);
         CollectedData collectedData = topologyCommand.getCollectedData().get(0);
-        Assertions.assertThat(collectedData).isInstanceOf(CollectedTopology.class);
-        Assertions.assertThat(topologyCommand.toJournalMessageDescription(LogLevel.ERROR)).isEqualTo("TopologyCommandImpl {topologyAction: UPDATE}");
+        assertThat(collectedData).isInstanceOf(CollectedTopology.class);
+        assertThat(topologyCommand.toJournalMessageDescription(LogLevel.ERROR)).isEqualTo("TopologyCommandImpl {topologyAction: UPDATE}");
     }
 
     @Test
@@ -69,8 +67,8 @@ public class TopologyCommandImplTest extends CommonCommandImplTests {
         String description = topologyCommand.toJournalMessageDescription(LogLevel.TRACE);
 
         // Asserts
-        Assertions.assertThat(description).isNotNull();
-        Assertions.assertThat(description).isEqualTo("TopologyCommandImpl {executionState: NOT_EXECUTED; completionCode: Ok; nrOfWarnings: 0; nrOfProblems: 0; topologyAction: UPDATE}");
+        assertThat(description).isNotNull();
+        assertThat(description).isEqualTo("TopologyCommandImpl {executionState: NOT_EXECUTED; completionCode: Ok; nrOfWarnings: 0; nrOfProblems: 0; topologyAction: UPDATE}");
     }
 
 }

@@ -1,22 +1,24 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.ProgrammableClock;
+import com.energyict.mdc.engine.impl.commands.collect.ClockCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.collect.TimeDifferenceCommand;
+import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTest;
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
-import com.energyict.comserver.logging.LogLevel;
-import com.energyict.comserver.time.Clocks;
-import com.energyict.comserver.time.FrozenClock;
-import com.energyict.mdc.commands.ClockCommand;
-import com.energyict.mdc.commands.ComCommandTypes;
-import com.energyict.mdc.commands.CommandRoot;
-import com.energyict.mdc.commands.TimeDifferenceCommand;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.tasks.ClockTask;
-import com.energyict.test.MockEnvironmentTranslations;
 import java.text.MessageFormat;
 import java.util.Calendar;
 import java.util.Date;
+
+import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -90,9 +92,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
 
     @Test
     public void smallerThanMaxClockShiftTest() {
-        FrozenClock currentTime = FrozenClock.frozenOn(2013, Calendar.SEPTEMBER, 2, 10, 10, 10, 0);
-        FrozenClock shiftTime = FrozenClock.frozenOn(2013, Calendar.SEPTEMBER, 2, 10, 10, 10, 0);
-        Clocks.setAppServerClock(currentTime);
+        Clock currentTime = new ProgrammableClock().frozenAt(new DateTime(2013, 9, 2, 10, 10, 10, 0).toDate());
         TimeDuration maxClockDifference = new TimeDuration(111);
         TimeDuration maxClockShift = new TimeDuration(50);
         TimeDuration minClockDifference = new TimeDuration(1);
@@ -116,14 +116,12 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         assertThat(command.getIssues()).isEmpty();
         assertThat(command.getWarnings()).isEmpty();
         assertThat(command.getProblems()).isEmpty();
-        verify(deviceProtocol, times(1)).setTime(shiftTime.now());
+        verify(deviceProtocol, times(1)).setTime(new DateTime(2013, 9, 2, 10, 10, 10, 0).toDate());
     }
 
     @Test
     public void largerThanMaxShiftSmallerThanMaxDiffTest() {
-        FrozenClock currentTime = FrozenClock.frozenOn(2013, Calendar.SEPTEMBER, 2, 10, 10, 10, 0);
-        FrozenClock shiftTime = FrozenClock.frozenOn(2013, Calendar.SEPTEMBER, 2, 10, 9, 50, 0);
-        Clocks.setAppServerClock(currentTime);
+        Clock currentTime = new ProgrammableClock().frozenAt(new DateTime(2013, Calendar.SEPTEMBER, 2, 10, 10, 10, 0).toDate());
         TimeDuration maxClockDifference = new TimeDuration(111);
         TimeDuration maxClockShift = new TimeDuration(50);
         TimeDuration minClockDifference = new TimeDuration(1);
@@ -147,14 +145,12 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         assertThat(command.getIssues()).isEmpty();
         assertThat(command.getWarnings()).isEmpty();
         assertThat(command.getProblems()).isEmpty();
-        verify(deviceProtocol, times(1)).setTime(shiftTime.now());
+        verify(deviceProtocol, times(1)).setTime(new DateTime(2013, 9, 2, 10, 9, 50, 0).toDate());
     }
 
     @Test
     public void largerThanMaxShiftSmallerThanMaxDiffButNegativeTest() {
-        FrozenClock currentTime = FrozenClock.frozenOn(2013, Calendar.SEPTEMBER, 2, 10, 10, 10, 0);
-        FrozenClock shiftTime = FrozenClock.frozenOn(2013, Calendar.SEPTEMBER, 2, 10, 10, 30, 0);
-        Clocks.setAppServerClock(currentTime);
+        Clock currentTime = new ProgrammableClock().frozenAt(new DateTime(2013, 9, 2, 10, 10, 10, 0).toDate());
         TimeDuration maxClockDifference = new TimeDuration(111);
         TimeDuration maxClockShift = new TimeDuration(50);
         TimeDuration minClockDifference = new TimeDuration(1);
@@ -178,13 +174,12 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         assertThat(command.getIssues()).isEmpty();
         assertThat(command.getProblems()).isEmpty();
         assertThat(command.getWarnings()).isEmpty();
-        verify(deviceProtocol, times(1)).setTime(shiftTime.now());
+        verify(deviceProtocol, times(1)).setTime(new DateTime(2013, 9, 2, 10, 10, 30, 0).toDate());
     }
 
     @Test
     public void largerThanMaxShiftLargerThanMaxDiffButNegativeTest() {
-        FrozenClock currentTime = FrozenClock.frozenOn(2013, Calendar.SEPTEMBER, 2, 10, 10, 10, 0);
-        Clocks.setAppServerClock(currentTime);
+        Clock currentTime = new ProgrammableClock().frozenAt(new DateTime(2013, Calendar.SEPTEMBER, 2, 10, 10, 10, 0).toDate());
         TimeDuration maxClockDifference = new TimeDuration(111);
         TimeDuration maxClockShift = new TimeDuration(50);
         TimeDuration minClockDifference = new TimeDuration(1);

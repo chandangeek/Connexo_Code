@@ -1,23 +1,15 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.ProgrammableClock;
+import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
-import com.energyict.comserver.exceptions.CodingException;
-import com.energyict.comserver.time.FrozenClock;
-import com.energyict.mdc.commands.ComCommandTypes;
-import com.energyict.mdc.commands.CommandRoot;
-import com.energyict.mdc.commands.CreateMeterEventsFromStatusFlagsCommand;
-import com.energyict.mdc.commands.LegacyLoadProfileLogBooksCommand;
-import com.energyict.mdc.commands.LoadProfileCommand;
-import com.energyict.mdc.commands.MarkIntervalsAsBadTimeCommand;
-import com.energyict.mdc.commands.ReadLegacyLoadProfileLogBooksDataCommand;
-import com.energyict.mdc.commands.TimeDifferenceCommand;
-import com.energyict.mdc.commands.VerifyLoadProfilesCommand;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.meterdata.identifiers.LogBookIdentifierByIdImpl;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
@@ -25,14 +17,9 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfileChannel;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLogBookSpec;
-import com.energyict.mdc.tasks.ComTaskExecution;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
-import com.energyict.mdc.protocol.tasks.LoadProfilesTask;
-import com.energyict.mdc.protocol.tasks.LogBooksTask;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.test.MockEnvironmentTranslations;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -68,9 +55,9 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplTests {
 
-    private static final int LOGBOOK_ID_1 = 1;
-    private static final int LOGBOOK_ID_2 = 2;
-    private static final int LOGBOOK_ID_3 = 3;
+    private static final long LOGBOOK_ID_1 = 1;
+    private static final long LOGBOOK_ID_2 = 2;
+    private static final long LOGBOOK_ID_3 = 3;
 
     private static final int LOGBOOK_TYPE_1 = 10;
     private static final int LOGBOOK_TYPE_2 = 20;
@@ -112,8 +99,8 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
 
     private static final ObisCode FIXED_LOAD_PROFILE_OBIS_CODE = ObisCode.fromString("1.0.99.1.0.255");
     private static final TimeDuration FIXED_LOAD_PROFILE_INTERVAL = new TimeDuration(900);
-    private static final FrozenClock LAST_READING = FrozenClock.currentTime();
-    private static final int FIXED_DEVICE_ID = 123;
+    private static final Clock LAST_READING = new ProgrammableClock().frozenAt(new Date());
+    private static final long FIXED_DEVICE_ID = 123;
     private static final String FIXED_DEVICE_SERIAL_NUMBER = "FIXED_DEVICE_SERIAL_NUMBER";
     private static final int LOAD_PROFILE_TYPE_ID = 651;
     private static final Unit FIXED_CHANNEL_UNIT = Unit.get("kWh");
@@ -265,7 +252,7 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
 
     @Test
     public void createLoadProfileReadersWithSpecificLoadProfileTypeTest() {
-        final int loadProfileTypeId = 165;
+        final long loadProfileTypeId = 165;
         LoadProfileType loadProfileType = mock(LoadProfileType.class);
         when(loadProfileType.getId()).thenReturn(loadProfileTypeId);
         when(loadProfileType.getObisCode()).thenReturn(FIXED_LOAD_PROFILE_OBIS_CODE);

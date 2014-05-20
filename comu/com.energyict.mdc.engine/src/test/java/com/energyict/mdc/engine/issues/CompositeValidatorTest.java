@@ -1,16 +1,14 @@
 package com.energyict.mdc.engine.issues;
 
-import com.energyict.comserver.time.Clocks;
-import com.energyict.comserver.tools.Strings;
-import com.energyict.mdc.engine.issues.CompositeValidator;
-import com.energyict.mdc.engine.issues.Validator;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.impl.ProblemImpl;
 import org.junit.*;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.Set;
 
+import static com.elster.jupiter.util.Checks.is;
 import static org.fest.assertions.api.Assertions.assertThat;
 
 /**
@@ -33,17 +31,17 @@ public class CompositeValidatorTest {
     private static class NeverOkValidator implements Validator<String> {
 
         public Set<Issue<String>> validate(String target) {
-            return Collections.singleton((Issue<String>) new ProblemImpl<>(Clocks.getAppServerClock().now(), target, PROBLEM_DESCRIPTION));
+            return Collections.singleton((Issue<String>) new ProblemImpl<>(new Date(), target, PROBLEM_DESCRIPTION));
         }
     }
 
     private static class StartsWithCapitalValidator implements Validator<String> {
 
         public Set<Issue<String>> validate(String target) {
-            if (! Strings.isEmpty(target) && Character.isUpperCase(target.charAt(0))) {
+            if (! is(target).empty() && Character.isUpperCase(target.charAt(0))) {
                 return Collections.emptySet();
             }
-            return Collections.singleton((Issue<String>) new ProblemImpl<>(Clocks.getAppServerClock().now(), target, "Not capitalized."));
+            return Collections.singleton((Issue<String>) new ProblemImpl<>(new Date(), target, "Not capitalized."));
         }
     }
 

@@ -1,18 +1,13 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.energyict.comserver.core.ComServerDAO;
-import com.energyict.mdc.ManagerFactory;
-import com.energyict.mdc.MdwInterface;
-import com.energyict.mdc.ServerManager;
+import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.Transaction;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.tasks.ComTaskExecution;
-import java.sql.SQLException;
-import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,11 +17,10 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import java.sql.SQLException;
+import java.util.Arrays;
+
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link ComTaskExecutionRootDeviceCommand} component.
@@ -37,31 +31,35 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ComTaskExecutionRootDeviceCommandTest {
 
-    private static final int COM_TASK_EXECUTION_ID = 97;
+    private static final long COM_TASK_EXECUTION_ID = 97;
 
     @Mock
     private ComTask comTask;
     @Mock
     private ComTaskExecution comTaskExecution;
     @Mock
-    private MdwInterface mdwInterface;
-    @Mock
-    private ServerManager manager;
+    private TransactionService transactionService;
 
     @Before
     public void initializeMocks () throws SQLException, BusinessException {
         when(this.comTask.getName()).thenReturn(FailureLoggerImplTest.class.getSimpleName());
         when(this.comTaskExecution.getId()).thenReturn(COM_TASK_EXECUTION_ID);
         when(this.comTaskExecution.getComTask()).thenReturn(this.comTask);
-        when(this.manager.getMdwInterface()).thenReturn(this.mdwInterface);
-        when(this.mdwInterface.execute(any(Transaction.class))).thenAnswer(new Answer<Object>() {
+        when(transactionService.execute(any(Transaction.class))).thenAnswer(new Answer<Object>() {
             @Override
-            public Object answer (InvocationOnMock invocation) throws Throwable {
-                Transaction transaction = (Transaction) invocation.getArguments()[0];
-                return transaction.doExecute();
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                return ((Transaction<?>) invocation.getArguments()[0]).perform();
             }
         });
-        ManagerFactory.setCurrent(this.manager);
+//        when(this.manager.getMdwInterface()).thenReturn(this.mdwInterface);
+//        when(this.mdwInterface.execute(any(Transaction.class))).thenAnswer(new Answer<Object>() {
+//            @Override
+//            public Object answer (InvocationOnMock invocation) throws Throwable {
+//                Transaction transaction = (Transaction) invocation.getArguments()[0];
+//                return transaction.doExecute();
+//            }
+//        });
+//        ManagerFactory.setCurrent(this.manager);
     }
 
     @Test

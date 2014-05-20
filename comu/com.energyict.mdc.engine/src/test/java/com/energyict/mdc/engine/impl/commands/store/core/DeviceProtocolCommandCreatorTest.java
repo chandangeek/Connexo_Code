@@ -1,43 +1,43 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
-import com.energyict.comserver.commands.access.DaisyChainedLogOffCommand;
-import com.energyict.comserver.commands.access.DaisyChainedLogOnCommand;
-import com.energyict.comserver.commands.access.LogOffCommand;
-import com.energyict.comserver.commands.access.LogOnCommand;
-import com.energyict.comserver.commands.common.AddPropertiesCommand;
-import com.energyict.comserver.commands.common.DeviceProtocolInitializeCommand;
-import com.energyict.comserver.commands.common.DeviceProtocolSetCacheCommand;
-import com.energyict.comserver.commands.common.DeviceProtocolTerminateCommand;
-import com.energyict.comserver.commands.common.DeviceProtocolUpdateCacheCommand;
-import com.energyict.comserver.core.ComTaskExecutionConnectionSteps;
-import com.energyict.comserver.core.JobExecution;
-import com.energyict.mdc.commands.CommandRoot;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.store.access.DaisyChainedLogOffCommand;
+import com.energyict.mdc.engine.impl.commands.store.access.DaisyChainedLogOnCommand;
+import com.energyict.mdc.engine.impl.commands.store.access.LogOffCommand;
+import com.energyict.mdc.engine.impl.commands.store.access.LogOnCommand;
+import com.energyict.mdc.engine.impl.commands.store.common.AddPropertiesCommand;
+import com.energyict.mdc.engine.impl.commands.store.common.DeviceProtocolInitializeCommand;
+import com.energyict.mdc.engine.impl.commands.store.common.DeviceProtocolSetCacheCommand;
+import com.energyict.mdc.engine.impl.commands.store.common.DeviceProtocolTerminateCommand;
+import com.energyict.mdc.engine.impl.commands.store.common.DeviceProtocolUpdateCacheCommand;
+import com.energyict.mdc.engine.impl.core.ComTaskExecutionConnectionSteps;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
+import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.core.inbound.ComChannelPlaceHolder;
+import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
-import com.energyict.mdc.protocol.ComChannelPlaceHolder;
-import com.energyict.mdc.protocol.ComPortRelatedComChannel;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.device.config.ProtocolTask;
 import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.ComTaskExecution;
-import com.energyict.mdc.tasks.ConnectionTask;
 import com.energyict.mdc.tasks.ProtocolTask;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InOrder;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import java.util.Collections;
 import java.util.logging.Logger;
-import org.junit.Test;
-import org.mockito.InOrder;
-import org.mockito.Mockito;
 
 import static org.mockito.Matchers.isA;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the DeviceProtocolCommandCreator
@@ -46,14 +46,20 @@ import static org.mockito.Mockito.when;
  * Date: 10/10/12
  * Time: 8:49
  */
+@RunWith(MockitoJUnitRunner.class)
 public class DeviceProtocolCommandCreatorTest {
 
-    private static final int COMPORT_POOL_ID = 1;
-    private static final int COMPORT_ID = COMPORT_POOL_ID + 1;
-    private static final int CONNECTION_TASK_ID = COMPORT_ID + 1;
+    private static final long COMPORT_POOL_ID = 1;
+    private static final long COMPORT_ID = COMPORT_POOL_ID + 1;
+    private static final long CONNECTION_TASK_ID = COMPORT_ID + 1;
+
+    @Mock
+    private CommandRoot.ServiceProvider serviceProvider;
+    @Mock
+    private IssueService issueService;
 
     private ComTaskExecutionConnectionSteps createSingleDeviceComTaskExecutionSteps() {
-        return new ComTaskExecutionConnectionSteps(ComTaskExecutionConnectionSteps.FIRST_OF_CONNECTION_SERIES, ComTaskExecutionConnectionSteps.LAST_OF_CONNECTION_SERIES);
+        return new ComTaskExecutionConnectionSteps(ComTaskExecutionConnectionSteps.SIGNON, ComTaskExecutionConnectionSteps.SIGNOFF);
     }
 
     private ComTaskExecutionConnectionSteps createMiddleDeviceComTaskExecutionSteps() {
@@ -61,7 +67,7 @@ public class DeviceProtocolCommandCreatorTest {
     }
 
     private ComTaskExecutionConnectionSteps createLastDeviceComTaskExecutionSteps() {
-        return new ComTaskExecutionConnectionSteps(ComTaskExecutionConnectionSteps.LAST_OF_CONNECTION_SERIES);
+        return new ComTaskExecutionConnectionSteps(ComTaskExecutionConnectionSteps.SIGNOFF);
     }
 
     @Test
@@ -152,11 +158,11 @@ public class DeviceProtocolCommandCreatorTest {
         verify(root, times(0)).addCommand(isA(LogOnCommand.class), any(ComTaskExecution.class));
     }
 
-    private JobExecution.ExecutionContext newTestExecutionContext () {
+    private ExecutionContext newTestExecutionContext () {
         return newTestExecutionContext(Logger.getAnonymousLogger());
     }
 
-    private JobExecution.ExecutionContext newTestExecutionContext (Logger logger) {
+    private ExecutionContext newTestExecutionContext (Logger logger) {
         ComServer comServer = mock(OnlineComServer.class);
         when(comServer.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.INFO);
         ComPortPool comPortPool = mock(ComPortPool.class);
@@ -167,11 +173,11 @@ public class DeviceProtocolCommandCreatorTest {
         ConnectionTask connectionTask = mock(ConnectionTask.class);
         when(connectionTask.getId()).thenReturn(CONNECTION_TASK_ID);
         when(connectionTask.getComPortPool()).thenReturn(comPortPool);
-        JobExecution.ExecutionContext executionContext =
-                new JobExecution.ExecutionContext(
+        ExecutionContext executionContext =
+                new ExecutionContext(
                         mock(JobExecution.class),
                         connectionTask,
-                        comPort, issueService);
+                        comPort, serviceProvider);
         executionContext.setLogger(logger);
         return executionContext;
     }

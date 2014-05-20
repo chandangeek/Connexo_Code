@@ -2,27 +2,19 @@ package com.energyict.mdc.engine.impl.core.online;
 
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.exceptions.DataAccessException;
-import com.energyict.comserver.time.Clocks;
-import com.energyict.mdc.ManagerFactory;
-import com.energyict.mdc.MdwInterface;
-import com.energyict.mdc.ServerManager;
 import com.energyict.mdc.common.BusinessEvent;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Transaction;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.communication.tasks.ServerComTaskExecutionFactory;
-import com.energyict.mdc.communication.tasks.ServerConnectionTaskFactory;
 import com.energyict.mdc.device.data.ServerComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OutboundCapableComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
-import com.energyict.mdc.ports.ComPortFactory;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
-import com.energyict.mdc.servers.ComServerFactory;
-import com.energyict.test.MockEnvironmentTranslations;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -66,21 +58,9 @@ public class ComServerDAOImplTest {
     public static TestRule mockEnvironmentTranslactions = new MockEnvironmentTranslations();
 
     @Mock
-    private ServerManager manager;
-    @Mock
-    private MdwInterface mdwInterface;
-    @Mock
     private OutboundCapableComServer comServer;
     @Mock
-    private ComServerFactory comServerFactory;
-    @Mock
     private OutboundComPort comPort;
-    @Mock
-    private ComPortFactory comPortFactory;
-    @Mock
-    private ServerComTaskExecutionFactory comTaskExecutionFactory;
-    @Mock
-    private ServerConnectionTaskFactory connectionTaskFactory;
     @Mock
     private ServerComTaskExecution scheduledComTask;
     @Mock
@@ -91,6 +71,8 @@ public class ComServerDAOImplTest {
     private DeviceIdentifier gatewayDeviceIdentifier;
     @Mock
     private BusinessEvent businessEvent;
+    @Mock
+    private ServiceProvider serviceProvider;
 
     private ComServerDAO comServerDAO = new ComServerDAOImpl(serviceProvider);
 
@@ -99,27 +81,23 @@ public class ComServerDAOImplTest {
 
     @Before
     public void initializeMocksAndFactories () throws SQLException, BusinessException {
-        when(this.manager.getComServerFactory()).thenReturn(this.comServerFactory);
-        when(this.manager.getComPortFactory()).thenReturn(this.comPortFactory);
-        when(this.manager.getComTaskExecutionFactory()).thenReturn(this.comTaskExecutionFactory);
-        when(this.manager.getConnectionTaskFactory()).thenReturn(this.connectionTaskFactory);
-        when(this.manager.getMdwInterface()).thenReturn(this.mdwInterface);
-        ManagerFactory.setCurrent(this.manager);
+//        when(this.manager.getComServerFactory()).thenReturn(this.comServerFactory);
+//        when(this.manager.getComPortFactory()).thenReturn(this.comPortFactory);
+//        when(this.manager.getComTaskExecutionFactory()).thenReturn(this.comTaskExecutionFactory);
+//        when(this.manager.getConnectionTaskFactory()).thenReturn(this.connectionTaskFactory);
+//        when(this.manager.getMdwInterface()).thenReturn(this.mdwInterface);
+//        ManagerFactory.setCurrent(this.manager);
         this.mockMdwInterfaceTransactionExecutor();
 
         when(this.comServer.getId()).thenReturn(Long.valueOf(COMSERVER_ID));
-        when(this.comServerFactory.find(COMSERVER_ID)).thenReturn(this.comServer);
-        when(this.comServerFactory.findBySystemName()).thenReturn(this.comServer);
+//        when(this.comServerFactory.find(COMSERVER_ID)).thenReturn(this.comServer);
+//        when(this.comServerFactory.findBySystemName()).thenReturn(this.comServer);
         when(this.comPort.getId()).thenReturn(Long.valueOf(COMPORT_ID));
-        when(this.comPortFactory.find(COMPORT_ID)).thenReturn(this.comPort);
+//        when(this.comPortFactory.find(COMPORT_ID)).thenReturn(this.comPort);
         when(this.scheduledComTask.getId()).thenReturn(SCHEDULED_COMTASK_ID);
-        when(this.comTaskExecutionFactory.find((int) SCHEDULED_COMTASK_ID)).thenReturn(this.scheduledComTask);
+//        when(this.comTaskExecutionFactory.find((int) SCHEDULED_COMTASK_ID)).thenReturn(this.scheduledComTask);
     }
 
-    @After
-    public void resetTimeFactory () {
-        Clocks.resetAll();
-    }
 
     @Test
     public void testGetThisComServer () {
@@ -134,7 +112,7 @@ public class ComServerDAOImplTest {
         when(this.comServer.getModificationDate()).thenReturn(modificationDate);
         OutboundCapableComServer reloaded = mock(OutboundCapableComServer.class);
         when(reloaded.getModificationDate()).thenReturn(modificationDate);
-        when(this.comServerFactory.find((int) this.comServer.getId())).thenReturn(reloaded);
+//        when(this.comServerFactory.find((int) this.comServer.getId())).thenReturn(reloaded);
 
         // Business method and asserts
         ComServer refreshed = this.comServerDAO.refreshComServer(this.comServer);
@@ -149,7 +127,7 @@ public class ComServerDAOImplTest {
         Date february1st2012 = this.newDate(YEAR, Calendar.FEBRUARY, 1);
         when(this.comServer.getModificationDate()).thenReturn(january1st2012);
         when(changed.getModificationDate()).thenReturn(february1st2012);
-        when(this.comServerFactory.find(COMSERVER_ID)).thenReturn(changed);
+//        when(this.comServerFactory.find(COMSERVER_ID)).thenReturn(changed);
 
         // Business method and asserts
         assertThat(this.comServerDAO.refreshComServer(this.comServer)).isSameAs(changed);
@@ -159,7 +137,7 @@ public class ComServerDAOImplTest {
     public void testRefreshComServerThatWasMadeObsolete () {
         ComServer obsolete = mock(ComServer.class);
         when(obsolete.isObsolete()).thenReturn(true);
-        when(this.comServerFactory.find(COMSERVER_ID)).thenReturn(obsolete);
+//        when(this.comServerFactory.find(COMSERVER_ID)).thenReturn(obsolete);
 
         // Business method and asserts
         assertThat(this.comServerDAO.refreshComServer(this.comServer)).isNull();
@@ -167,7 +145,7 @@ public class ComServerDAOImplTest {
 
     @Test
     public void testRefreshComServerThatWasDeleted () {
-        when(this.comServerFactory.find(COMSERVER_ID)).thenReturn(null);
+//        when(this.comServerFactory.find(COMSERVER_ID)).thenReturn(null);
 
         // Business method and asserts
         assertThat(this.comServerDAO.refreshComServer(this.comServer)).isNull();
@@ -178,7 +156,7 @@ public class ComServerDAOImplTest {
         Date modificationDate = new Date();
         OutboundComPort reloaded = mock(OutboundComPort.class);
         when(reloaded.getModificationDate()).thenReturn(modificationDate);
-        when(this.comPortFactory.find((int) this.comPort.getId())).thenReturn(reloaded);
+//        when(this.comPortFactory.find((int) this.comPort.getId())).thenReturn(reloaded);
         when(this.comPort.getModificationDate()).thenReturn(modificationDate);
 
         // Business method and asserts
@@ -194,7 +172,7 @@ public class ComServerDAOImplTest {
         Date february1st2012 = this.newDate(YEAR, Calendar.FEBRUARY, 1);
         when(this.comPort.getModificationDate()).thenReturn(january1st2012);
         when(changed.getModificationDate()).thenReturn(february1st2012);
-        when(this.comPortFactory.find(COMPORT_ID)).thenReturn(changed);
+//        when(this.comPortFactory.find(COMPORT_ID)).thenReturn(changed);
 
         // Business method and asserts
         assertThat(this.comServerDAO.refreshComPort(this.comPort)).isSameAs(changed);
@@ -204,7 +182,7 @@ public class ComServerDAOImplTest {
     public void testRefreshComPortThatWasMadeObsolete () {
         ComPort obsolete = mock(ComPort.class);
         when(obsolete.isObsolete()).thenReturn(true);
-        when(this.comPortFactory.find(COMPORT_ID)).thenReturn(obsolete);
+//        when(this.comPortFactory.find(COMPORT_ID)).thenReturn(obsolete);
 
         // Business method and asserts
         assertThat(this.comServerDAO.refreshComPort(this.comPort)).isNull();
@@ -212,7 +190,7 @@ public class ComServerDAOImplTest {
 
     @Test
     public void testRefreshComPortThatWasDeleted () {
-        when(this.comPortFactory.find(COMPORT_ID)).thenReturn(null);
+//        when(this.comPortFactory.find(COMPORT_ID)).thenReturn(null);
 
         // Business method and asserts
         assertThat(this.comServerDAO.refreshComPort(this.comPort)).isNull();
@@ -304,8 +282,8 @@ public class ComServerDAOImplTest {
         this.comServerDAO.releaseInterruptedTasks(this.comServer);
 
         // Asserts
-        verify(this.connectionTaskFactory).releaseInterruptedConnectionTasks(this.comServer);
-        verify(this.comTaskExecutionFactory).releaseInterruptedComTasks(this.comServer);
+//        verify(this.connectionTaskFactory).releaseInterruptedConnectionTasks(this.comServer);
+//        verify(this.comTaskExecutionFactory).releaseInterruptedComTasks(this.comServer);
     }
 
     @Test
@@ -314,8 +292,8 @@ public class ComServerDAOImplTest {
         this.comServerDAO.releaseTimedOutTasks(this.comServer);
 
         // Asserts
-        verify(this.connectionTaskFactory).releaseTimedOutConnectionTasks(this.comServer);
-        verify(this.comTaskExecutionFactory).releaseTimedOutComTasks(this.comServer);
+//        verify(this.connectionTaskFactory).releaseTimedOutConnectionTasks(this.comServer);
+//        verify(this.comTaskExecutionFactory).releaseTimedOutComTasks(this.comServer);
     }
 
     @Test
@@ -345,30 +323,30 @@ public class ComServerDAOImplTest {
     @Test
     public void testIsStillPendingDelegatesToComTaskExecutionFactory () {
         int id = 97;
-        when(this.comTaskExecutionFactory.isStillPending(id)).thenReturn(true);
+//        when(this.comTaskExecutionFactory.isStillPending(id)).thenReturn(true);
 
         // Business method
         boolean stillPending = this.comServerDAO.isStillPending(id);
 
         // Asserts
         assertThat(stillPending).isTrue();
-        verify(this.comTaskExecutionFactory).isStillPending(id);
+//        verify(this.comTaskExecutionFactory).isStillPending(id);
     }
 
     @Test
     public void testAreStillPendingDelegatesToComTaskExecutionFactory () {
-        int id1 = 97;
-        int id2 = 101;
-        int id3 = 103;
-        List<Integer> comTaskExecutionIds = Arrays.asList(id1, id2, id3);
-        when(this.comTaskExecutionFactory.areStillPending(comTaskExecutionIds)).thenReturn(true);
+        long id1 = 97;
+        long id2 = 101;
+        long id3 = 103;
+        List<Long> comTaskExecutionIds = Arrays.asList(id1, id2, id3);
+//        when(this.comTaskExecutionFactory.areStillPending(comTaskExecutionIds)).thenReturn(true);
 
         // Business method
         boolean stillPending = this.comServerDAO.areStillPending(comTaskExecutionIds);
 
         // Asserts
         assertThat(stillPending).isTrue();
-        verify(this.comTaskExecutionFactory).areStillPending(comTaskExecutionIds);
+//        verify(this.comTaskExecutionFactory).areStillPending(comTaskExecutionIds);
     }
 
     @Test

@@ -1,14 +1,14 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.energyict.comserver.core.ComServerDAO;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.meterdata.UpdatedDeviceCache;
+import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.meterdata.UpdatedDeviceCache;
+import com.energyict.mdc.engine.impl.protocol.inbound.DeviceIdentifierById;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
-import com.energyict.mdc.protocol.inbound.DeviceIdentifierById;
 import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdw.shadow.DeviceCacheShadow;
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Mock;
@@ -17,7 +17,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.io.Serializable;
 import java.sql.SQLException;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
@@ -35,10 +35,12 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class CollectedDeviceCacheCommandTest {
 
-    private final int DEVICE_ID = 654;
+    private final long DEVICE_ID = 654;
 
     @Mock
     private DeviceCommand.ExecutionLogger executionLogger;
+    @Mock
+    private DeviceDataService deviceDataService;
 
     @Test
     public void updateWithoutChangeTest() throws BusinessException, SQLException {
@@ -77,7 +79,7 @@ public class CollectedDeviceCacheCommandTest {
 
     @Test
     public void testToJournalMessageDescription() {
-        final DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID);
+        final DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceDataService);
         UpdatedDeviceCache updatedDeviceCache = new UpdatedDeviceCache(deviceIdentifier);
         CollectedDeviceCacheCommand command = new CollectedDeviceCacheCommand(updatedDeviceCache);
 
@@ -85,7 +87,7 @@ public class CollectedDeviceCacheCommandTest {
         final String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
 
         // Asserts
-        Assertions.assertThat(journalMessage).isEqualTo(CollectedDeviceCacheCommand.class.getSimpleName() + " {deviceIdentifier: id 654}");
+        assertThat(journalMessage).isEqualTo(CollectedDeviceCacheCommand.class.getSimpleName() + " {deviceIdentifier: id 654}");
     }
 
     private DeviceIdentifier getMockedDeviceIdentifier(){
