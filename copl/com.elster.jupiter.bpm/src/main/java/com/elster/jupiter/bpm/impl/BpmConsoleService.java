@@ -22,7 +22,7 @@ public class BpmConsoleService {
     private Map<String, Object> getParameters(String parameters) {
         Map<String, Object> result = new HashMap<>();
         if (parameters != null) {
-            String[] params = parameters.split("&");
+            String[] params = parameters.split("\\[&&\\]");
             for (String param : params) {
                 String[] group = param.split("=");
                 if (group.length == 2) {
