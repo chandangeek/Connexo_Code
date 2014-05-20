@@ -7,6 +7,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.energyict.mdc.common.BusinessObject;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationParticipant;
 import com.energyict.mdc.dynamic.relation.RelationService;
@@ -34,6 +35,7 @@ public class RelationServiceImpl implements RelationService, ServiceLocator, Ins
     private volatile DataModel dataModel;
     private volatile OrmClient ormClient;
     private volatile Thesaurus thesaurus;
+    private volatile PropertySpecService propertySpecService;
 
     public RelationServiceImpl() {
         super();
@@ -56,8 +58,14 @@ public class RelationServiceImpl implements RelationService, ServiceLocator, Ins
             public void configure() {
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(DataModel.class).toInstance(dataModel);
+                bind(PropertySpecService.class).toInstance(propertySpecService);
             }
         };
+    }
+
+    @Reference
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
     }
 
     @Reference

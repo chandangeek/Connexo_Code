@@ -15,6 +15,7 @@ import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.StringFactory;
 import com.energyict.mdc.dynamic.ValueFactory;
 
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -40,6 +41,11 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     private static final Logger LOGGER = Logger.getLogger(PropertySpecServiceImpl.class.getName());
 
     private volatile List<ReferencePropertySpecFinderProvider> factoryProviders = new CopyOnWriteArrayList<>();
+
+    @Activate
+    public void activate(){
+
+    }
 
     @Override
     public <T> PropertySpec<T> basicPropertySpec(String name, boolean required, ValueFactory<T> valueFactory) {
