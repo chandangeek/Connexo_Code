@@ -28,12 +28,12 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
     /**
      * The ID of the {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile} that will go offline
      */
-    private int loadProfileId;
+    private long loadProfileId;
 
     /**
      * The ID of the {@link LoadProfileType LoadProfileType} of this {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile}
      */
-    private int loadProfileTypeId;
+    private long loadProfileTypeId;
 
     /**
      * The ID of the {@link com.energyict.mdc.protocol.api.device.BaseDevice} which owns this {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile}
@@ -112,7 +112,7 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
      * @return the ID of the {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile}
      */
     @Override
-    public int getLoadProfileId() {
+    public long getLoadProfileId() {
         return loadProfileId;
     }
 
@@ -122,7 +122,7 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
      * @return the ID of the {@link LoadProfileType LoadProfileType}
      */
     @Override
-    public int getLoadProfileTypeId() {
+    public long getLoadProfileTypeId() {
         return loadProfileTypeId;
     }
 
