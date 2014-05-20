@@ -1,7 +1,5 @@
 package com.energyict.mdc.engine.impl.core.verification;
 
-import com.energyict.comserver.tools.Counter;
-
 /**
  * Provides factory services for {@link CounterVerifier}.
  *
@@ -39,7 +37,7 @@ public class CounterVerifierFactory {
 
     /**
      * Returns a {@link CounterVerifier} that verifies
-     * that the {@link Counter} was never incremented,
+     * that the counter was never incremented,
      * i.e. its value is zero.
      *
      * @return The CounterVerifier
@@ -50,7 +48,7 @@ public class CounterVerifierFactory {
 
     /**
      * Returns a {@link CounterVerifier} that verifies
-     * that the {@link Counter}'s value is the expected value.
+     * that the counter's value is the expected value.
      *
      * @param expectedValue The expected Counter value
      * @return The CounterVerifier
@@ -61,7 +59,7 @@ public class CounterVerifierFactory {
 
     /**
      * Returns a {@link CounterVerifier} that verifies
-     * that the {@link Counter}'s value &lt;= maximum value.
+     * that the counter's value &lt;= maximum value.
      *
      * @param maximumValue The maximum Counter value
      * @return The CounterVerifier
@@ -72,7 +70,7 @@ public class CounterVerifierFactory {
 
     /**
      * Returns a {@link CounterVerifier} that verifies
-     * that the {@link Counter} was incremented at most once,
+     * that the counter was incremented at most once,
      * i.e. its value is one.
      *
      * @return The CounterVerifier
@@ -83,7 +81,7 @@ public class CounterVerifierFactory {
 
     /**
      * Returns a {@link CounterVerifier} that verifies
-     * that the {@link Counter} was incremented at least once,
+     * that the counter was incremented at least once,
      * i.e. its value &gt; one.
      *
      * @param minimumValue The minimum Counter value
@@ -95,7 +93,7 @@ public class CounterVerifierFactory {
 
     /**
      * Returns a {@link CounterVerifier} that verifies
-     * that the {@link Counter} was incremented at least once,
+     * that the counter was incremented at least once,
      * i.e. its value is at least one.
      *
      * @return The CounterVerifier
