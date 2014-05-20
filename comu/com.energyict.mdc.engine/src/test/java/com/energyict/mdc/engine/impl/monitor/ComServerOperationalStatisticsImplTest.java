@@ -1,19 +1,20 @@
 package com.energyict.mdc.engine.impl.monitor;
 
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.comserver.scheduling.RunningComServer;
-import com.energyict.comserver.time.Clocks;
-import com.energyict.comserver.time.FrozenClock;
-import com.energyict.comserver.time.PredefinedTickingClock;
 import com.energyict.mdc.common.UserEnvironment;
+import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.model.ComServer;
+
+import com.elster.jupiter.util.time.Clock;
+import org.joda.time.DateTime;
+
+import javax.management.openmbean.CompositeData;
+import java.util.Date;
+
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import javax.management.openmbean.CompositeData;
-import java.util.Calendar;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -32,6 +33,8 @@ public class ComServerOperationalStatisticsImplTest {
     private ComServer comServer;
     @Mock
     private RunningComServer runningComServer;
+    @Mock
+    private Clock clock;
 
     @Before
     public void initializeMocks () {
@@ -40,11 +43,6 @@ public class ComServerOperationalStatisticsImplTest {
         when(this.comServer.getChangesInterPollDelay()).thenReturn(new TimeDuration(5, TimeDuration.MINUTES));
         when(this.comServer.getServerLogLevel()).thenReturn(ComServer.LogLevel.WARN);
         when(this.comServer.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.TRACE);
-    }
-
-    @After
-    public void restoreTimeFactory () {
-        Clocks.resetAll();
     }
 
     @Before
@@ -90,17 +88,16 @@ public class ComServerOperationalStatisticsImplTest {
 
     @Test
     public void testCompositeDataItemValues () {
-        FrozenClock startTimestamp = FrozenClock.frozenOn(2013, Calendar.APRIL, 6, 22, 23, 4, 0);
-        FrozenClock now = FrozenClock.frozenOn(2013, Calendar.APRIL, 6, 23, 24, 5, 0);
-        PredefinedTickingClock clock = new PredefinedTickingClock(startTimestamp, now);
-        Clocks.setAppServerClock(clock);
+        Date startTimestamp = new DateTime(2013, 4, 6, 22, 23, 4, 0).toDate();
+        Date now = new DateTime(2013, 4, 6, 23, 24, 5, 0).toDate();
+        when(this.clock.now()).thenReturn(startTimestamp, now);
         ComServerOperationalStatisticsImpl operationalStatistics = new ComServerOperationalStatisticsImpl(this.runningComServer, clock);
 
         // Business method
         CompositeData compositeData = operationalStatistics.toCompositeData();
 
         // Asserts
-        assertThat(compositeData.get(ComServerOperationalStatisticsImpl.START_TIMESTAMP_ITEM_NAME)).isEqualTo(startTimestamp.now());
+        assertThat(compositeData.get(ComServerOperationalStatisticsImpl.START_TIMESTAMP_ITEM_NAME)).isEqualTo(startTimestamp);
         assertThat(compositeData.get(ComServerOperationalStatisticsImpl.RUNNING_TIME_ITEM_NAME)).isEqualTo("1 hour, 1 minute and 1 second");
         assertThat(compositeData.get(ComServerOperationalStatisticsImpl.CHANGES_INTERPOLL_DELAY_ITEM_NAME)).isEqualTo("5 minutes");
         assertThat(compositeData.get(ComServerOperationalStatisticsImpl.LAST_CHECK_FOR_CHANGES_ITEM_NAME)).isNull();

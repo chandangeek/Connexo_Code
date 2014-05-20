@@ -9,7 +9,6 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.impl.core.ComJob;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
-import com.energyict.mdc.engine.impl.tools.Equality;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPort;
@@ -34,6 +33,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.elster.jupiter.util.Checks.is;
 
 /**
  * Provides an implementation for the {@link ComServerDAO} interface
@@ -172,7 +173,7 @@ public class MockComServerDAO implements ComServerDAO {
     @Override
     public ComServer getComServer (String hostName) {
         for (ComServer comServer : this.comServers) {
-            if (Equality.equalityHoldsFor(comServer.getName()).and(hostName)) {
+            if (is(comServer.getName()).equalTo(hostName)) {
                 return comServer;
             }
         }

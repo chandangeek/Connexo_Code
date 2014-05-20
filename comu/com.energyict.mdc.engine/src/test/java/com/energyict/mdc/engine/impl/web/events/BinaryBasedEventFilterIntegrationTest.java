@@ -4,7 +4,10 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.events.ComServerEvent;
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
+import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.events.connection.CloseConnectionEvent;
 import com.energyict.mdc.engine.impl.events.connection.EstablishConnectionEvent;
@@ -16,7 +19,7 @@ import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.tasks.ComTask;
 
-import com.elster.jupiter.util.time.impl.DefaultClock;
+import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketClient;
@@ -62,6 +65,8 @@ public class BinaryBasedEventFilterIntegrationTest {
     private static final long COMPORT_POOL_ID = CONNECTIONTASK_ID + 1;
 
     @Mock
+    private Clock clock;
+    @Mock
     private EngineModelService engineModelService;
     @Mock
     private DeviceDataService deviceDataService;
@@ -73,6 +78,10 @@ public class BinaryBasedEventFilterIntegrationTest {
     private OutboundComPort comPort;
     @Mock
     private OutboundComPortPool comPortPool;
+    @Mock
+    private AbstractComServerEventImpl.ServiceProvider eventServiceProvider;
+
+    private ServiceProvider serviceProvider = new FakeServiceProvider();
 
     @Before
     public void initializeMocksAndFactories () {
@@ -89,6 +98,9 @@ public class BinaryBasedEventFilterIntegrationTest {
         List<OutboundComPort> outboundComPorts = Arrays.asList(this.comPort);
         when(this.comPortPool.getId()).thenReturn(COMPORT_POOL_ID);
         when(this.comPortPool.getComPorts()).thenReturn(outboundComPorts);
+        when(this.eventServiceProvider.clock()).thenReturn(this.clock);
+        when(this.eventServiceProvider.deviceDataService()).thenReturn(this.deviceDataService);
+        when(this.eventServiceProvider.engineModelService()).thenReturn(this.engineModelService);
     }
 
     /**
@@ -340,7 +352,7 @@ public class BinaryBasedEventFilterIntegrationTest {
     private class EventGenerator extends EventPublisherImpl {
 
         private EventGenerator() {
-            super(clock, engineModelService);
+            super(clock, engineModelService, deviceDataService);
         }
 
         public void produceConnectDisconnectEvents () {
@@ -349,12 +361,12 @@ public class BinaryBasedEventFilterIntegrationTest {
         }
 
         private void sendMockedConnectionEstablishedEvent () {
-            EstablishConnectionEvent connectionEvent = new EstablishConnectionEvent(comPort, connectionTask, new DefaultClock(), deviceDataService, engineModelService);
+            EstablishConnectionEvent connectionEvent = new EstablishConnectionEvent(comPort, connectionTask, eventServiceProvider);
             this.publish(connectionEvent);
         }
 
         private void sendMockedConnectionClosedEvent () {
-            CloseConnectionEvent connectionEvent = new CloseConnectionEvent(comPort, connectionTask, new DefaultClock(), deviceDataService, engineModelService);
+            CloseConnectionEvent connectionEvent = new CloseConnectionEvent(comPort, connectionTask, eventServiceProvider);
             this.publish(connectionEvent);
         }
 

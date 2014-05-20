@@ -1,11 +1,10 @@
 package com.energyict.mdc.engine.impl.logging;
 
-import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 import com.energyict.mdc.engine.model.ComServer;
-import org.junit.*;
 
 import java.util.logging.Level;
+
+import org.junit.*;
 
 import static junit.framework.Assert.assertEquals;
 

@@ -14,6 +14,8 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.HostName;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.RemoteComServer;
+
+import com.elster.jupiter.util.Checks;
 import org.apache.log4j.PropertyConfigurator;
 
 import java.io.File;
@@ -92,7 +94,7 @@ public final class ComServerLauncher {
     }
 
     private boolean shouldStartRemote () {
-        return !Strings.isEmpty(this.remoteQueryApiUrl);
+        return !Checks.is(this.remoteQueryApiUrl).empty();
     }
 
     private InputStream getRemoteComServerPropertiesStream() throws FileNotFoundException {

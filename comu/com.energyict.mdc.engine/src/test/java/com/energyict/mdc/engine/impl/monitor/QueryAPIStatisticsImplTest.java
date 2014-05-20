@@ -1,14 +1,14 @@
 package com.energyict.mdc.engine.impl.monitor;
 
-import com.energyict.mdc.engine.impl.monitor.QueryAPIStatisticsImpl;
 import com.energyict.mdc.engine.model.ComServer;
+
+import javax.management.openmbean.CompositeData;
+import javax.management.openmbean.CompositeDataSupport;
+
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import javax.management.openmbean.CompositeData;
-import javax.management.openmbean.CompositeDataSupport;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;

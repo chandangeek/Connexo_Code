@@ -1,9 +1,8 @@
 package com.energyict.mdc.engine.impl.monitor;
 
-import com.energyict.mdc.engine.impl.monitor.EventAPIStatisticsImpl;
-import org.junit.*;
-
 import javax.management.openmbean.CompositeData;
+
+import org.junit.*;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
