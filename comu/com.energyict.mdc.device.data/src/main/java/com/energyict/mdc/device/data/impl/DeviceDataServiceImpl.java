@@ -230,8 +230,8 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
 
     private SqlBuilder releaseTimedOutComTaskExecutionsSqlBuilder(OutboundComPortPool outboundComPortPool, long now, int timeOutSeconds) {
         SqlBuilder sqlBuilder = new SqlBuilder("UPDATE " + TableSpecs.MDCCOMTASKEXEC.name());
-        sqlBuilder.append("   set comport = null, executionStart");
-        sqlBuilder.append(" where id in (select connectiontask from mdccomtaskexec = null");
+        sqlBuilder.append("   set comport = null, executionStart = null");
+        sqlBuilder.append(" where id in (");
         TimedOutTasksSqlBuilder.appendTimedOutComTaskExecutionSql(sqlBuilder, outboundComPortPool, now, timeOutSeconds);
         sqlBuilder.append(")");
         return sqlBuilder;

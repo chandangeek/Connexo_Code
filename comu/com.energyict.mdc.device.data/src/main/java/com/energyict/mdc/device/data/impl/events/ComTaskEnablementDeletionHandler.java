@@ -25,7 +25,7 @@ public class ComTaskEnablementDeletionHandler extends EventHandler<LocalEvent> {
     private volatile ServerDeviceDataService deviceDataService;
     private volatile Thesaurus thesaurus;
 
-    protected ComTaskEnablementDeletionHandler() {
+    public ComTaskEnablementDeletionHandler() {
         super(LocalEvent.class);
     }
 

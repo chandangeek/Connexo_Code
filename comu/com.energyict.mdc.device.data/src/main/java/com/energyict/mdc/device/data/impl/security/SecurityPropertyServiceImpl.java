@@ -36,6 +36,9 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
 
     private volatile ProtocolPluggableService protocolPluggableService;
 
+    public SecurityPropertyServiceImpl() {
+    }
+
     @Inject
     public SecurityPropertyServiceImpl(ProtocolPluggableService protocolPluggableService) {
         super();
