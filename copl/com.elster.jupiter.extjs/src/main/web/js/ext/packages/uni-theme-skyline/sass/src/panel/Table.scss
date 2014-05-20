@@ -4,6 +4,10 @@
   .#{$prefix}toolbar {
     border: none;
   }
+  .#{$prefix}docked-bottom {
+    margin-bottom: -$panel-padding;
+  }
+  padding-bottom: $panel-padding;
 }
 
 .#{$prefix}grid-body {
@@ -12,9 +16,15 @@
   border-style: $grid-body-border-style !important;
   border-top-width: 0 !important;
 
+  // this removes horisontal scrollbar, which appears probably because of ext-neptune border management override
   .#{$prefix}grid-view {
     margin: -$grid-body-border-width !important;
     margin-top: 0 !important;
+  }
+
+  // this is add margin at the grid bottom when no bottom toolbar is applied
+  &.#{$prefix}noborder-rbl {
+      margin-bottom: 16px;
   }
 
   @include border-radius(0 0 $grid-header-border-radius $grid-header-border-radius);
