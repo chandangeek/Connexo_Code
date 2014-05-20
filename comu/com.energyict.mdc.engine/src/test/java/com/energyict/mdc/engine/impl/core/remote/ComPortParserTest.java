@@ -1,13 +1,21 @@
 package com.energyict.mdc.engine.impl.core.remote;
 
-import com.energyict.mdc.engine.impl.core.remote.ComPortParser;
 import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OutboundComPort;
+import com.energyict.mdc.engine.model.impl.EngineModelServiceImpl;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.orm.OrmService;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import org.junit.*;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests the {@link com.energyict.mdc.engine.impl.core.remote.ComPortParser} component.
@@ -20,16 +28,30 @@ public class ComPortParserTest {
     private static final String OUTBOUND_COMPORT_AS_QUERY_RESULT = "{\"query-id\":\"refreshComPort\",\"single-value\":{\"name\":\"TCP\",\"active\":true,\"numberOfSimultaneousConnections\":5,\"type\":\"OutboundComPortImpl\"}}";
 
     @Test
-    public void testOutbound () throws JSONException {
+    public void testDelegateToEngineModelService () throws JSONException {
+        EngineModelService engineModelService = mock(EngineModelService.class);
+
         // Business method
-        ComPort comPort = new ComPortParser().parse(new JSONObject(OUTBOUND_COMPORT_AS_QUERY_RESULT));
+        JSONObject jsonObject = new JSONObject(OUTBOUND_COMPORT_AS_QUERY_RESULT);
+        ComPort comPort = new ComPortParser(engineModelService).parse(jsonObject);
 
         // Asserts
-        Assertions.assertThat(comPort).isInstanceOf(OutboundComPort.class);
+        verify(engineModelService.parseComPortQueryResult(jsonObject));
+    }
+
+    @Test
+    public void testOutbound () throws JSONException {
+        // Business method
+        JSONObject jsonObject = new JSONObject(OUTBOUND_COMPORT_AS_QUERY_RESULT);
+        EngineModelServiceImpl engineModelService = new EngineModelServiceImpl(mock(OrmService.class), mock(NlsService.class), mock(ProtocolPluggableService.class));
+        ComPort comPort = new ComPortParser(engineModelService).parse(jsonObject);
+
+        // Asserts
+        assertThat(comPort).isInstanceOf(OutboundComPort.class);
         OutboundComPort outboundComPort = (OutboundComPort) comPort;
-        Assertions.assertThat(outboundComPort.getName()).isEqualTo("TCP");
-        Assertions.assertThat(outboundComPort.isActive()).isTrue();
-        Assertions.assertThat(outboundComPort.getNumberOfSimultaneousConnections()).isEqualTo(5);
+        assertThat(outboundComPort.getName()).isEqualTo("TCP");
+        assertThat(outboundComPort.isActive()).isTrue();
+        assertThat(outboundComPort.getNumberOfSimultaneousConnections()).isEqualTo(5);
     }
 
 }

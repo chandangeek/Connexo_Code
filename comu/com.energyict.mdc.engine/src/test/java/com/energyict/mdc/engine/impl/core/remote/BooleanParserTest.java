@@ -1,11 +1,10 @@
 package com.energyict.mdc.engine.impl.core.remote;
 
-import com.energyict.mdc.engine.impl.core.remote.BooleanParser;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.*;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests the {@link com.energyict.mdc.engine.impl.core.remote.BooleanParser} component.
@@ -26,7 +25,7 @@ public class BooleanParserTest {
         boolean parsed = parser.parse(new JSONObject(TRUE_AS_QUERY_RESULT));
 
         // Asserts
-        Assertions.assertThat(parsed).isTrue();
+        assertThat(parsed).isTrue();
     }
 
     @Test
@@ -37,7 +36,7 @@ public class BooleanParserTest {
         boolean parsed = parser.parse(new JSONObject(FALSE_AS_QUERY_RESULT));
 
         // Asserts
-        Assertions.assertThat(parsed).isFalse();
+        assertThat(parsed).isFalse();
     }
 
 }
