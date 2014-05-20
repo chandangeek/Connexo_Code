@@ -1,23 +1,23 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
-import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
-import com.energyict.comserver.commands.deviceactions.ClockCommandImpl;
-import com.energyict.comserver.commands.deviceactions.LoadProfileCommandImpl;
-import com.energyict.comserver.commands.deviceactions.TimeDifferenceCommandImpl;
-import com.energyict.comserver.commands.deviceactions.TopologyCommandImpl;
-import com.energyict.comserver.exceptions.ComCommandException;
-import com.energyict.mdc.commands.ClockCommand;
-import com.energyict.mdc.commands.ComCommand;
-import com.energyict.mdc.commands.CommandRoot;
-import com.energyict.mdc.commands.LoadProfileCommand;
-import com.energyict.mdc.commands.TimeDifferenceCommand;
-import com.energyict.mdc.commands.TopologyCommand;
 import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.engine.exceptions.ComCommandException;
+import com.energyict.mdc.engine.impl.commands.collect.ClockCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
+import com.energyict.mdc.engine.impl.commands.collect.TimeDifferenceCommand;
+import com.energyict.mdc.engine.impl.commands.collect.TopologyCommand;
+import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
+import com.energyict.mdc.engine.impl.commands.store.deviceactions.ClockCommandImpl;
+import com.energyict.mdc.engine.impl.commands.store.deviceactions.LoadProfileCommandImpl;
+import com.energyict.mdc.engine.impl.commands.store.deviceactions.TimeDifferenceCommandImpl;
+import com.energyict.mdc.engine.impl.commands.store.deviceactions.TopologyCommandImpl;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ClockTaskType;
-import com.energyict.mdc.tasks.ComTaskExecution;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,7 +29,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests for the {@link com.energyict.comserver.commands.core.CompositeComCommandImpl} component
+ * Tests for the CompositeComCommandImpl component
  *
  * @author gna
  * @since 29/05/12 - 11:55

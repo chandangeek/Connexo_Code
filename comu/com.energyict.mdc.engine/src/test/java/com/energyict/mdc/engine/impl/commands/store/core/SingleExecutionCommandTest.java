@@ -1,40 +1,32 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
-import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
-import com.energyict.comserver.commands.deviceactions.TimeDifferenceCommandImpl;
-import com.energyict.comserver.core.JobExecution;
-import com.energyict.comserver.exceptions.CodingException;
-import com.energyict.comserver.time.Clocks;
-import com.energyict.comserver.time.FrozenClock;
-import com.energyict.mdc.commands.CommandRoot;
-import com.energyict.mdc.commands.CompositeComCommand;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.ProgrammableClock;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import org.junit.*;
+import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.collect.CompositeComCommand;
+import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
+import com.energyict.mdc.engine.impl.commands.store.deviceactions.TimeDifferenceCommandImpl;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
+import org.joda.time.DateTime;
+import org.junit.Test;
 import org.mockito.Matchers;
 
-import java.sql.SQLException;
-import java.util.Calendar;
 import java.util.Date;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
- * Tests for the {@link com.energyict.comserver.commands.core.SimpleComCommand} component
+ * Tests for the SimpleComCommand component
  *
  * @author gna
  * @since 10/05/12 - 10:54
  */
 public class SingleExecutionCommandTest extends CommonCommandImplTests {
-
-    @After
-    public void resetTimeFactory () throws SQLException {
-        Clocks.resetAll();
-    }
 
     private CommandRoot getMockedCommandRoot(){
         CommandRoot commandRoot = mock(CommandRoot.class);
@@ -60,9 +52,8 @@ public class SingleExecutionCommandTest extends CommonCommandImplTests {
 
     @Test
     public void executionTest() {
-        FrozenClock frozenClock = FrozenClock.frozenOn(2012, Calendar.MAY, 1, 10, 52, 13, 111);
+        Clock frozenClock = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate());
         final long timeDifferenceInMillis = 1000L;
-        Clocks.setAppServerClock(frozenClock);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
 
         long deviceTime = frozenClock.now().getTime() - timeDifferenceInMillis;
@@ -97,15 +88,14 @@ public class SingleExecutionCommandTest extends CommonCommandImplTests {
 
     @Test
     public void multipleExecutionTest(){
-        FrozenClock frozenClock = FrozenClock.frozenOn(2012, Calendar.MAY, 1, 10, 52, 13, 111);
+        Clock frozenClock = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate());
         final long timeDifferenceInMillis = 1000L;
-        Clocks.setAppServerClock(frozenClock);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
 
         long deviceTime = frozenClock.now().getTime() - timeDifferenceInMillis;
         when(deviceProtocol.getTime()).thenReturn(new Date(deviceTime)); // 1 seconds time difference
         TimeDifferenceCommandImpl timeDifferenceCommand = new TimeDifferenceCommandImpl(getMockedCommandRoot());
-        JobExecution.ExecutionContext executionContext = this.newTestExecutionContext();
+        ExecutionContext executionContext = this.newTestExecutionContext();
         timeDifferenceCommand.execute(deviceProtocol, executionContext);
         timeDifferenceCommand.execute(deviceProtocol, executionContext);
         timeDifferenceCommand.execute(deviceProtocol, executionContext);
