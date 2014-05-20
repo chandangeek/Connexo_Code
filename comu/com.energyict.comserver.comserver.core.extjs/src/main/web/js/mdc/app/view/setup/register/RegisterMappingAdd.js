@@ -38,6 +38,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAdd', {
                     items: [
                         {
                             text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
+                            //margins: '0 0 0 10',
                             xtype: 'button',
                             ui: 'action',
                             action: 'addRegisterMappingAction',

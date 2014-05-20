@@ -55,8 +55,8 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                         xtype: 'container',
                         columnWidth: 0.5,
                         layout: {
-                            type: 'vbox'//,
-                            //align: 'stretch'
+                            type: 'vbox',
+                            align: 'stretch'
                         },
                         defaults: {
                             labelWidth: 250
@@ -98,8 +98,8 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                         xtype: 'container',
                         columnWidth: 0.5,
                         layout: {
-                            type: 'vbox'//,
-                            //align: 'stretch'
+                            type: 'vbox',
+                            align: 'stretch'
                         },
                         defaults: {
                             labelWidth: 250

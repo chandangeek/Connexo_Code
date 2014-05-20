@@ -49,7 +49,11 @@ Ext.define('Mdc.controller.setup.SearchItems', {
             },
             '#sortitemid #itemsContainer button': {
                 click: this.switchSort
+            },
+            '#cancelSearching': {
+                click: this.cancelSearching
             }
+
 
         });
     },
@@ -93,11 +97,23 @@ Ext.define('Mdc.controller.setup.SearchItems', {
         } else {
             delete store.getProxy().extraParams.serialNumber;
         }
+        if(searchItems.down('#type').getValue() != null) {
+            var button = searchItems.down('button[name=typeBtn]');
+            button = this.createCriteriaButton(button, criteriaContainer, 'typeBtn', Uni.I18n.translate('searchItems.type', 'MDC', 'Type')+': '+searchItems.down('#type').getRawValue());
+            store.getProxy().setExtraParam('deviceTypeName', searchItems.down('#type').getRawValue());
+        } else {
+            delete store.getProxy().extraParams.deviceTypeName;
+        }
 
         this.applySort();
 
         searchItems.down('#resultsPanel').removeAll();
         searchItems.down('#resultsPanel').add(Ext.create('Mdc.view.setup.searchitems.SearchResults', {store: store}));
+
+//        searchItems.down('#searchResults').store.on('beforeload', function setLastOperation(store, operation) {
+//            store.lastOperation = operation;
+//            this.removeListener('beforeload', setLastOperation);
+//        }, this, { single: true });
 
         searchItems.down('#searchResults').store.on('load', function showResults() {
             searchItems.down('#contentLayout').getLayout().setActiveItem(1);
@@ -118,6 +134,10 @@ Ext.define('Mdc.controller.setup.SearchItems', {
             case 'serialNumber':
                 var button = sortContainer.down('button[name=sortbysnbtn]');
                 this.createSortButton(button, sortContainer, 'sortbysnbtn', item.value, item.text);
+                break;
+            case 'deviceConfiguration.deviceType.name':
+                var button = sortContainer.down('button[name=sortbytypebtn]');
+                this.createSortButton(button, sortContainer, 'sortbytypebtn', item.value, item.text);
                 break;
         }
         this.searchAllItems();
@@ -175,6 +195,7 @@ Ext.define('Mdc.controller.setup.SearchItems', {
         var searchItems = this.getSearchItems();
         searchItems.down('#mrid').setValue("");
         searchItems.down('#sn').setValue("");
+        searchItems.down('#type').setValue(null);
         this.clearFilterContent(searchItems.down('container[name=filter]').getContainer());
         this.clearFilterContent(searchItems.down('container[name=sortitemspanel]').getContainer());
         this.searchAllItems();
@@ -215,6 +236,9 @@ Ext.define('Mdc.controller.setup.SearchItems', {
             case 'serialNumberBtn':
                 searchItems.down('#sn').setValue("");
                 break;
+        case 'typeBtn':
+            searchItems.down('#type').setValue(null);
+            break;
         }
         this.searchAllItems();
     },
@@ -237,5 +261,9 @@ Ext.define('Mdc.controller.setup.SearchItems', {
             sortItems.push({property:btns.sortName,direction:dir});
         });
         store.getProxy().setExtraParam('sort', Ext.JSON.encode(sortItems));
+    },
+
+    cancelSearching: function(btn) {
+
     }
 });

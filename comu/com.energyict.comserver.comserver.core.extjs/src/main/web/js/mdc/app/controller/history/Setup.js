@@ -144,6 +144,17 @@ Ext.define('Mdc.controller.history.Setup', {
             me.getApplication().getController('Mdc.controller.setup.RegisterConfigs').showRegisterConfigurationEditView(deviceTypeId, deviceConfigurationId, registerConfigurationId);
         });
 
+        //Security settings routes
+        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/securitysettings',function(deviceTypeId,deviceConfigurationId){
+            me.getApplication().getController('Mdc.controller.setup.SecuritySettings').showSecuritySettings(deviceTypeId, deviceConfigurationId);
+        });
+        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/securitysettings/create',function(deviceTypeId, deviceConfigurationId){
+            me.getApplication().getController('Mdc.controller.setup.SecuritySettings').showSecuritySettingsCreateView(deviceTypeId, deviceConfigurationId);
+        });
+        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/securitysettings/{securitySettingId}/edit',function(deviceTypeId,deviceConfigurationId,securitySettingId){
+            me.getApplication().getController('Mdc.controller.setup.SecuritySettings').showSecuritySettingsEditView(deviceTypeId,deviceConfigurationId,securitySettingId);
+        });
+
         //connection methods routes
         crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/connectionmethods', function (deviceTypeId, deviceConfigurationId) {
             me.getApplication().getController('Mdc.controller.setup.ConnectionMethods').showConnectionMethods(deviceTypeId, deviceConfigurationId);
