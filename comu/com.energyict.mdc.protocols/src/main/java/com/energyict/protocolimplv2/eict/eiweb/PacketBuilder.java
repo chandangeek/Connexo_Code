@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
-import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.crypto.Cryptographer;
 import com.energyict.mdc.protocol.api.crypto.MD5Seed;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
@@ -468,13 +468,7 @@ public class PacketBuilder {
     }
 
     protected CollectedDataFactory getCollectedDataFactory() {
-        List<CollectedDataFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(CollectedDataFactory.class);
-        if (factories.isEmpty()) {
-            throw CommunicationException.missingModuleException(CollectedDataFactory.class);
-        }
-        else {
-            return factories.get(0);
-        }
+        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
     }
 
 }

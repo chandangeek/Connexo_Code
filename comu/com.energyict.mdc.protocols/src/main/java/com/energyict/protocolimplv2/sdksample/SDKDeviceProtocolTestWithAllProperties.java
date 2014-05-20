@@ -21,6 +21,7 @@ import com.energyict.mdc.dynamic.SpatialCoordinatesFactory;
 import com.energyict.mdc.dynamic.StringFactory;
 import com.energyict.mdc.dynamic.TimeDurationValueFactory;
 import com.energyict.mdc.dynamic.TimeOfDayFactory;
+import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
@@ -442,13 +443,7 @@ public class SDKDeviceProtocolTestWithAllProperties implements DeviceProtocol {
     }
 
     private CollectedDataFactory getCollectedDataFactory() {
-        List<CollectedDataFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(CollectedDataFactory.class);
-        if (factories.isEmpty()) {
-            throw CommunicationException.missingModuleException(CollectedDataFactory.class);
-        }
-        else {
-            return factories.get(0);
-        }
+        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
     }
 
 }

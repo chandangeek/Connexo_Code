@@ -1,13 +1,12 @@
 package com.energyict.protocolimplv2.ace4000.requests;
 
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.exceptions.ComServerExecutionException;
-import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.protocolimplv2.ace4000.ACE4000Outbound;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestType;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
@@ -119,13 +118,7 @@ public class ReadMBusRegisters extends AbstractRequest<List<OfflineRegister>, Li
     }
 
     private CollectedDataFactory getCollectedDataFactory() {
-        List<CollectedDataFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(CollectedDataFactory.class);
-        if (factories.isEmpty()) {
-            throw CommunicationException.missingModuleException(CollectedDataFactory.class);
-        }
-        else {
-            return factories.get(0);
-        }
+        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
     }
 
 }

@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.ace4000.objects;
 
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
@@ -10,7 +10,6 @@ import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.api.exceptions.InboundFrameException;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport;
@@ -1072,13 +1071,7 @@ public class ObjectFactory {
     }
 
     private CollectedDataFactory getCollectedDataFactory() {
-        List<CollectedDataFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(CollectedDataFactory.class);
-        if (factories.isEmpty()) {
-            throw CommunicationException.missingModuleException(CollectedDataFactory.class);
-        }
-        else {
-            return factories.get(0);
-        }
+        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
     }
 
 }

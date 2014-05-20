@@ -23,6 +23,7 @@ import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
@@ -136,11 +137,8 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
     }
 
     private CollectedRegister createMaximumDemandCollectedRegister(RegisterIdentifier registerIdentifier) {
-        List<CollectedDataFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(CollectedDataFactory.class);
-        for (CollectedDataFactory factory : factories) {
-            return factory.createMaximumDemandCollectedRegister(registerIdentifier);
-        }
-        throw CommunicationException.missingModuleException(CollectedDataFactory.class);
+        CollectedDataFactory collectedDataFactory = CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
+        return collectedDataFactory.createMaximumDemandCollectedRegister(registerIdentifier);
     }
 
     /**
@@ -341,11 +339,8 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
     }
 
     private CollectedRegister createDefaultCollectedRegister(RegisterIdentifier registerIdentifier) {
-        List<CollectedDataFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(CollectedDataFactory.class);
-        for (CollectedDataFactory factory : factories) {
-            return factory.createDefaultCollectedRegister(registerIdentifier);
-        }
-        throw CommunicationException.missingModuleException(CollectedDataFactory.class);
+        CollectedDataFactory collectedDataFactory = CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
+        return collectedDataFactory.createDefaultCollectedRegister(registerIdentifier);
     }
 
 }

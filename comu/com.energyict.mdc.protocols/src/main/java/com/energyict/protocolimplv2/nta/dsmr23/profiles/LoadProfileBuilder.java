@@ -14,10 +14,10 @@ import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.issues.Issue;
+import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.LoadProfileConfigurationException;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
@@ -490,13 +490,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport{
     }
 
     private CollectedDataFactory getCollectedDataFactory() {
-        List<CollectedDataFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(CollectedDataFactory.class);
-        if (factories.isEmpty()) {
-            throw CommunicationException.missingModuleException(CollectedDataFactory.class);
-        }
-        else {
-            return factories.get(0);
-        }
+        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
     }
 
 }
