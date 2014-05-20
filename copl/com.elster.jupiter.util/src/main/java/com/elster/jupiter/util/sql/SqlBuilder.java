@@ -2,6 +2,7 @@ package com.elster.jupiter.util.sql;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,6 +63,17 @@ public final class SqlBuilder implements SqlFragment {
 			}
 		}
 		return statement;
+	}
+	
+	public <T> Fetcher<T> fetcher(Connection connection, TupleParser<T> tupleParser) throws SQLException {
+		PreparedStatement statement = prepare(connection);
+		try {
+			ResultSet resultSet = statement.executeQuery();
+			return new FetcherImpl<>(resultSet, tupleParser);
+		} catch (SQLException ex) {
+			statement.close();
+			throw ex;
+		}
 	}
 
 	public void space() {
