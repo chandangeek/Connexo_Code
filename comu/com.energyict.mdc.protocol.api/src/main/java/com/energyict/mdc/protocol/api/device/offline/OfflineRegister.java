@@ -15,7 +15,7 @@ public interface OfflineRegister extends Offline {
     /**
      * @return the ID of the Register
      */
-    public int getRegisterId ();
+    public long getRegisterId ();
 
     /**
      * Returns the ObisCode for this Register, known by the Device. The will be the overruled ObisCode,
@@ -32,7 +32,7 @@ public interface OfflineRegister extends Offline {
      *
      * @return the ID of the RegisterGroup
      */
-    public int getRegisterGroupId();
+    public long getRegisterGroupId();
 
     /**
      * The {@link Unit} corresponding with this register
@@ -47,7 +47,7 @@ public interface OfflineRegister extends Offline {
      *
      * @return The Device's id
      */
-    public int getDeviceId ();
+    public long getDeviceId ();
 
     /**
      * The serialNumber of the {@link OfflineDevice} owning this OfflineRegister.

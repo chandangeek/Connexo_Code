@@ -17,7 +17,7 @@ import java.math.BigDecimal;
 
 public class ChannelInfo implements java.io.Serializable {
 
-    private int id;
+    private long id;
     /**
      * Logical name of the channel. Use OBIS code from the registerMapping is used.
      */
@@ -26,7 +26,7 @@ public class ChannelInfo implements java.io.Serializable {
      * The <CODE>Unit</CODE> for this channel
      */
     private Unit unit;
-    private int channelId;
+    private long channelId;
     /**
      * Indicates the overFlow value for the cumulative channel
      */
@@ -52,7 +52,7 @@ public class ChannelInfo implements java.io.Serializable {
      * @param name logical channel name (use OBIS code if device uses OBIS codes)
      * @param unit the logical channel unit
      */
-    public ChannelInfo(int id, String name, Unit unit) {
+    public ChannelInfo(long id, String name, Unit unit) {
         this.id = id;
         this.channelId = id;
         this.name = name;
@@ -66,9 +66,9 @@ public class ChannelInfo implements java.io.Serializable {
      * @param name   logical channel name (use OBIS code if device uses OBIS codes)
      * @param unit   the logical channel unit
      * @param scaler unit scale
-     * @deprecated scaler is obsolete (contained in unit), use {@link #ChannelInfo(int, int, String, Unit)} instead
+     * @deprecated scaler is obsolete (contained in unit), use {@link #ChannelInfo(long, long, String, Unit)} instead
      */
-    public ChannelInfo(int id, String name, Unit unit, int scaler) {
+    public ChannelInfo(long id, String name, Unit unit, int scaler) {
         this(id, name, unit);
     }
 
@@ -82,7 +82,7 @@ public class ChannelInfo implements java.io.Serializable {
      * @param scaler    unit scale
      * @deprecated scaler is obsolete (contained in unit)
      */
-    public ChannelInfo(int id, String name, Unit unit, int scaler, int channelId) {
+    public ChannelInfo(long id, String name, Unit unit, int scaler, long channelId) {
         this(id, name, unit, scaler);
         this.channelId = channelId;
     }
@@ -99,7 +99,7 @@ public class ChannelInfo implements java.io.Serializable {
      * @param channelId  logical channel id (0 based, contrary to previous documentation all protocols use zero base)
      * @param multiplier BigDecimal multiplier to calculate engineering values from basic pulse values
      */
-    public ChannelInfo(int id, String name, Unit unit, int scaler, int channelId, BigDecimal multiplier) {
+    public ChannelInfo(long id, String name, Unit unit, int scaler, long channelId, BigDecimal multiplier) {
         this(id, name, unit, scaler);
         this.channelId = channelId;
         this.multiplier = multiplier;
@@ -113,7 +113,7 @@ public class ChannelInfo implements java.io.Serializable {
      * @param name      logical channel name (use OBIS code if device uses OBIS codes, 0 based)
      * @param unit      the logical channel unit
      */
-    public ChannelInfo(int id, int channelId, String name, Unit unit) {
+    public ChannelInfo(long id, long channelId, String name, Unit unit) {
         this(id, name, unit);
         this.channelId = channelId;
     }
@@ -128,7 +128,7 @@ public class ChannelInfo implements java.io.Serializable {
      * @param unit                the logical channel unit
      * @param meterIdentification identifier (SerialNumber) of the meter which will provide data for this channel
      */
-    public ChannelInfo(int id, String name, Unit unit, String meterIdentification) {
+    public ChannelInfo(long id, String name, Unit unit, String meterIdentification) {
         this(id, name, unit);
         this.meterIdentifier = meterIdentification;
     }
@@ -144,7 +144,7 @@ public class ChannelInfo implements java.io.Serializable {
      * @param cumulative          indicates whether the channel is cumulative
      * @param meterIdentification identifier (SerialNumber) of the meter which will provide data for this channel
      */
-    public ChannelInfo(int id, String name, Unit unit, String meterIdentification, boolean cumulative) {
+    public ChannelInfo(long id, String name, Unit unit, String meterIdentification, boolean cumulative) {
         this(id, name, unit);
         this.meterIdentifier = meterIdentification;
         this.cumulative = cumulative;
@@ -155,7 +155,7 @@ public class ChannelInfo implements java.io.Serializable {
      *
      * @return the id of the logical channel (1 based)
      */
-    public int getId() {
+    public long getId() {
         return id;
     }
 
@@ -190,18 +190,18 @@ public class ChannelInfo implements java.io.Serializable {
     /**
      * Getter for the channelId
      *
-     * @return int
+     * @return long
      */
-    public int getChannelId() {
+    public long getChannelId() {
         return channelId;
     }
 
     /**
      * Setter for the id
      *
-     * @param id int
+     * @param id long
      */
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -235,9 +235,9 @@ public class ChannelInfo implements java.io.Serializable {
     /**
      * Setter for channelId
      *
-     * @param channelId int
+     * @param channelId long
      */
-    public void setChannelId(int channelId) {
+    public void setChannelId(long channelId) {
         this.channelId = channelId;
     }
 
