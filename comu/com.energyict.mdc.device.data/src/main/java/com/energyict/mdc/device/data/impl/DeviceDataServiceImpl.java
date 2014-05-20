@@ -876,7 +876,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
 
     @Override
     public Finder<Device> findAllDevices(Condition condition) {
-        return DefaultFinder.of(Device.class, condition, this.getDataModel());
+        return DefaultFinder.of(Device.class, condition, this.getDataModel(), DeviceType.class);
     }
 
     @Override
