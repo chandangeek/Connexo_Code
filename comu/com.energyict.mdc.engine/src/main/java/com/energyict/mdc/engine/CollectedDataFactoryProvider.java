@@ -1,4 +1,4 @@
-package com.energyict.mdc.engine.impl.meterdata;
+package com.energyict.mdc.engine;
 
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 

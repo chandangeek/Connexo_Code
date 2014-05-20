@@ -8,7 +8,10 @@ import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.impl.core.remote.RemoteComServerDAOImpl;
+import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
+import com.energyict.mdc.engine.CollectedDataFactoryProvider;
+import com.energyict.mdc.engine.impl.meterdata.DefaultCollectedDataFactoryProvider;
 import com.energyict.mdc.engine.impl.tools.Strings;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.HostName;
@@ -78,11 +81,17 @@ public final class ComServerLauncher {
 
     public void startComServer () {
         this.attemptLoadRemoteComServerProperties();
+        this.initializeProviders();
         if (this.shouldStartRemote()) {
             this.startRemoteComServer();
         } else {
             this.startOnlineComServer();
         }
+    }
+
+    private void initializeProviders() {
+        CollectedDataFactoryProvider.instance.set(new DefaultCollectedDataFactoryProvider());
+        EventPublisherImpl.setInstance(new EventPublisherImpl(serviceProvider.clock(), serviceProvider.engineModelService(), serviceProvider.deviceDataService()));
     }
 
     public void stopComServer(){

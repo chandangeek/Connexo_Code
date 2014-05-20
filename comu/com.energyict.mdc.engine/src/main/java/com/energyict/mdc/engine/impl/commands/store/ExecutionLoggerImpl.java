@@ -5,7 +5,7 @@ import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.StackTracePrinter;
+import com.energyict.mdc.common.StackTracePrinter;
 import com.energyict.mdc.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.tasks.history.CompletionCode;

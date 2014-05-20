@@ -91,7 +91,7 @@ public class LaunchComServer {
     }
 
     private ServiceProvider getServiceProvider() {
-        return null;
+        return ServiceProvider.instance.get();
     }
 
     @Reference
