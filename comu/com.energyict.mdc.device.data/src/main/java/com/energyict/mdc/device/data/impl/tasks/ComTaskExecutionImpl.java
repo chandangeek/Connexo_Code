@@ -1,19 +1,9 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.IsPresent;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
 import com.energyict.mdc.device.data.ComTaskExecutionDependant;
@@ -50,6 +40,16 @@ import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
+
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.elster.jupiter.util.time.Clock;
 import org.hibernate.validator.constraints.Range;
 
 import javax.inject.Inject;
@@ -57,6 +57,8 @@ import javax.inject.Provider;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+
+import static com.elster.jupiter.util.Checks.is;
 
 /**
  * Implementation of a ComTaskExecution
@@ -72,7 +74,6 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     private final Clock clock;
     private final DeviceDataService deviceDataService;
-    private final DeviceConfigurationService deviceConfigurationService;
     private final SchedulingService schedulingService;
 
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DEVICE_IS_REQUIRED + "}")
@@ -163,11 +164,10 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     @Inject
-    public ComTaskExecutionImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, DeviceDataService deviceDataService, DeviceConfigurationService deviceConfigurationService, SchedulingService schedulingService) {
+    public ComTaskExecutionImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, DeviceDataService deviceDataService, SchedulingService schedulingService) {
         super(ComTaskExecution.class, dataModel, eventService, thesaurus);
         this.clock = clock;
         this.deviceDataService = deviceDataService;
-        this.deviceConfigurationService = deviceConfigurationService;
         this.schedulingService = schedulingService;
     }
 
@@ -830,7 +830,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
             this.masterScheduleNextExecutionSpecId = (masterScheduleNextExecutionSpec != null ? masterScheduleNextExecutionSpec.getId() : 0);
         }
 
-        public MasterNextExecutionSpecHolder(long nextExecutionSpecId) {
+        private MasterNextExecutionSpecHolder(long nextExecutionSpecId) {
             this.masterScheduleNextExecutionSpecId = nextExecutionSpecId;
         }
 
@@ -938,7 +938,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         }
     }
 
-    public static abstract class ComTaskExecutionBuilder implements ComTaskExecution.ComTaskExecutionBuilder {
+    public abstract static class ComTaskExecutionBuilder implements ComTaskExecution.ComTaskExecutionBuilder {
 
         private final ComTaskExecutionImpl comTaskExecution;
 
@@ -1004,7 +1004,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         }
     }
 
-    public static abstract class ComTaskExecutionUpdater implements ComTaskExecution.ComTaskExecutionUpdater {
+    public abstract static class ComTaskExecutionUpdater implements ComTaskExecution.ComTaskExecutionUpdater {
 
         private final ComTaskExecutionImpl comTaskExecution;
 

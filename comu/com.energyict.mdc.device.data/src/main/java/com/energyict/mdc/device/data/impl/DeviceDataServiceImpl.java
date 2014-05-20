@@ -1004,7 +1004,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
     public Fetcher<ComTaskExecution> getPlannedComTaskExecutionsFor(ComPort comPort) {
         List<OutboundComPortPool> comPortPools = this.engineModelService.findContainingComPortPoolsForComPort((OutboundComPort) comPort);
         if (!comPortPools.isEmpty()) {
-            long now = this.clock.now().getTime();
+            long nowInSeconds = this.clock.now().getTime() / DateTimeConstants.MILLIS_PER_SECOND;
             DataMapper<ComTaskExecution> mapper = this.dataModel.mapper(ComTaskExecution.class);
             com.elster.jupiter.util.sql.SqlBuilder sqlBuilder = mapper.builder("cte", "FIRST_ROWS(1)");
             sqlBuilder.append(", ");
@@ -1013,12 +1013,13 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
             sqlBuilder.append(" where ct.paused = 0");
             sqlBuilder.append("   and ct.comserver is null");
             sqlBuilder.append("   and ct.obsolete_date is null");
+            sqlBuilder.append("   and cte.obsolete_date is null");
             sqlBuilder.append("   and cte.connectiontask = ct.id");
             sqlBuilder.append("   and cte.nextexecutiontimestamp <=");
-            sqlBuilder.addLong(now);
+            sqlBuilder.addLong(nowInSeconds);
             sqlBuilder.append("   and cte.comport is null");
             sqlBuilder.append("   and ct.nextExecutionTimestamp <=");
-            sqlBuilder.addLong(now);
+            sqlBuilder.addLong(nowInSeconds);
             sqlBuilder.append("   and ct.comportpool in (");
             int count = 1;
             for (ComPortPool comPortPool : comPortPools) {

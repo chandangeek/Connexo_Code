@@ -99,7 +99,7 @@ import java.util.Set;
 import java.util.TimeZone;
 
 @UniqueMrid(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_DEVICE_MRID + "}")
-public class DeviceImpl implements Device, PersistenceAware {
+public class DeviceImpl implements Device {
 
     enum Fields {
         COM_SCHEDULE_USAGES("comScheduleUsages");
@@ -146,9 +146,9 @@ public class DeviceImpl implements Device, PersistenceAware {
     @Valid
     private List<DeviceProtocolProperty> deviceProperties = new ArrayList<>();
     @Valid
-    private List<ConnectionTaskImpl<?,?>> connectionTasks = new ArrayList<>();
+    private List<ConnectionTaskImpl<?,?>> connectionTasks;
     @Valid
-    private List<ComTaskExecutionImpl> comTaskExecutions = new ArrayList<>();
+    private List<ComTaskExecutionImpl> comTaskExecutions;
     @Valid
     private List<ProtocolDialectProperties> dialectPropertiesList = new ArrayList<>();
     private List<ProtocolDialectProperties> newDialectProperties = new ArrayList<>();
@@ -199,14 +199,20 @@ public class DeviceImpl implements Device, PersistenceAware {
     }
 
     private void saveAllComTaskExecutions() {
-        for (ComTaskExecutionImpl comTaskExecution : comTaskExecutions) {
-            comTaskExecution.save();
+        if (this.comTaskExecutions != null) {
+            // No need to call the getComTaskExecutionImpls getter because if they have not been loaded before, they cannot be dirty
+            for (ComTaskExecutionImpl comTaskExecution : comTaskExecutions) {
+                comTaskExecution.save();
+            }
         }
     }
 
     private void saveAllConnectionTasks() {
-        for (ConnectionTaskImpl<?,?> connectionTask : connectionTasks) {
-            connectionTask.save();
+        if (this.connectionTasks != null) {
+            // No need to call the getConnectionTaskImpls getter because if they have not been loaded before, they cannot be dirty
+            for (ConnectionTaskImpl<?,?> connectionTask : connectionTasks) {
+                connectionTask.save();
+            }
         }
     }
 
@@ -282,7 +288,7 @@ public class DeviceImpl implements Device, PersistenceAware {
     }
 
     private void deleteConnectionTasks() {
-        for (ConnectionTaskImpl<?,?> connectionTask : connectionTasks) {
+        for (ConnectionTaskImpl<?,?> connectionTask : this.getConnectionTaskImpls()) {
             connectionTask.delete();
         }
     }
@@ -501,8 +507,8 @@ public class DeviceImpl implements Device, PersistenceAware {
     }
 
     private ConnectionTask<?, ?> getDefaultConnectionTask() {
-        for (ConnectionTaskImpl<?, ?> connectionTask : connectionTasks) {
-            if(connectionTask.isDefault()){
+        for (ConnectionTaskImpl<?, ?> connectionTask : this.getConnectionTaskImpls()) {
+            if (connectionTask.isDefault()) {
                 return connectionTask;
             }
         }
@@ -604,36 +610,6 @@ public class DeviceImpl implements Device, PersistenceAware {
     @Override
     public LogBook.LogBookUpdater getLogBookUpdaterFor(LogBook logBook) {
         return new LogBookUpdaterForDevice((LogBookImpl) logBook);
-    }
-
-    @Override
-    public void postLoad() {
-        loadConnectionTasks();
-        loadComTaskExecutions();
-    }
-
-    private void loadComTaskExecutions() {
-        this.comTaskExecutions = getComTAskExecutionImpls();
-    }
-
-    private List<ComTaskExecutionImpl> getComTAskExecutionImpls() {
-        List<ComTaskExecutionImpl> comTaskExecutionImpls = new ArrayList<>();
-        for (ComTaskExecution comTaskExecution : this.deviceDataService.findComTaskExecutionsByDevice(this)) {
-            comTaskExecutionImpls.add((ComTaskExecutionImpl) comTaskExecution);
-        }
-        return comTaskExecutionImpls;
-    }
-
-    private void loadConnectionTasks() {
-        this.connectionTasks = getConnectionTaskImpls();
-    }
-
-    private List<ConnectionTaskImpl<?,?>> getConnectionTaskImpls() {
-        List<ConnectionTaskImpl<?,?>> connectionTaskImpls = new ArrayList<>();
-        for (ConnectionTask connectionTask : this.deviceDataService.findConnectionTasksByDevice(this)) {
-            connectionTaskImpls.add((ConnectionTaskImpl<?,?>) connectionTask);
-        }
-        return connectionTaskImpls;
     }
 
     class LogBookUpdaterForDevice extends LogBookImpl.LogBookUpdater {
@@ -920,12 +896,27 @@ public class DeviceImpl implements Device, PersistenceAware {
 
     @Override
     public List<ConnectionTask<?, ?>> getConnectionTasks() {
-        return new ArrayList<ConnectionTask<?,?>>(connectionTasks);
+        return new ArrayList<ConnectionTask<?,?>>(this.getConnectionTaskImpls());
+    }
+
+    private List<ConnectionTaskImpl<?,?>> getConnectionTaskImpls() {
+        if (this.connectionTasks == null) {
+            this.loadConnectionTasks();
+        }
+        return this.connectionTasks;
+    }
+
+    private void loadConnectionTasks() {
+        List<ConnectionTaskImpl<?,?>> connectionTaskImpls = new ArrayList<>();
+        for (ConnectionTask connectionTask : this.deviceDataService.findConnectionTasksByDevice(this)) {
+            connectionTaskImpls.add((ConnectionTaskImpl<?,?>) connectionTask);
+        }
+        this.connectionTasks = connectionTaskImpls;
     }
 
     @Override
     public void removeConnectionTask(ConnectionTask<?, ?> connectionTask) {
-        Iterator<ConnectionTaskImpl<?,?>> connectionTaskIterator = this.connectionTasks.iterator();
+        Iterator<ConnectionTaskImpl<?,?>> connectionTaskIterator = this.getConnectionTaskImpls().iterator();
         boolean removedNone = true;
         while(connectionTaskIterator.hasNext() && removedNone){
             ConnectionTaskImpl<?,?> connectionTaskToRemove = connectionTaskIterator.next();
@@ -943,7 +934,22 @@ public class DeviceImpl implements Device, PersistenceAware {
 
     @Override
     public List<ComTaskExecution> getComTaskExecutions() {
-        return new ArrayList<ComTaskExecution>(this.comTaskExecutions);
+        return new ArrayList<ComTaskExecution>(this.getComTaskExecutionImpls());
+    }
+
+    private List<ComTaskExecutionImpl> getComTaskExecutionImpls() {
+        if (this.comTaskExecutions == null) {
+            this.loadComTaskExecutions();
+        }
+        return this.comTaskExecutions;
+    }
+
+    private void loadComTaskExecutions() {
+        List<ComTaskExecutionImpl> comTaskExecutionImpls = new ArrayList<>();
+        for (ComTaskExecution comTaskExecution : this.deviceDataService.findComTaskExecutionsByDevice(this)) {
+            comTaskExecutionImpls.add((ComTaskExecutionImpl) comTaskExecution);
+        }
+        this.comTaskExecutions = comTaskExecutionImpls;
     }
 
     @Override
@@ -958,7 +964,7 @@ public class DeviceImpl implements Device, PersistenceAware {
 
     @Override
     public void removeComTaskExecution(ComTaskExecution comTaskExecution) {
-        Iterator<ComTaskExecutionImpl> comTaskExecutionIterator = this.comTaskExecutions.iterator();
+        Iterator<ComTaskExecutionImpl> comTaskExecutionIterator = this.getComTaskExecutionImpls().iterator();
         boolean removedNone = true;
         while (comTaskExecutionIterator.hasNext() && removedNone){
             ComTaskExecution comTaskExecutionToRemove = comTaskExecutionIterator.next();
@@ -995,7 +1001,7 @@ public class DeviceImpl implements Device, PersistenceAware {
         @Override
         public ComTaskExecution add() {
             ComTaskExecution comTaskExecution = super.add();
-            DeviceImpl.this.comTaskExecutions.add((ComTaskExecutionImpl) comTaskExecution);
+            DeviceImpl.this.getComTaskExecutionImpls().add((ComTaskExecutionImpl) comTaskExecution);
             return comTaskExecution;
         }
     }
@@ -1046,7 +1052,7 @@ public class DeviceImpl implements Device, PersistenceAware {
 
         @Override
         public ConnectionInitiationTask add() {
-            DeviceImpl.this.connectionTasks.add(this.connectionInitiationTask);
+            DeviceImpl.this.getConnectionTaskImpls().add(this.connectionInitiationTask);
             return this.connectionInitiationTask;
         }
     }
@@ -1074,7 +1080,7 @@ public class DeviceImpl implements Device, PersistenceAware {
 
         @Override
         public InboundConnectionTask add() {
-            DeviceImpl.this.connectionTasks.add(this.inboundConnectionTask);
+            DeviceImpl.this.getConnectionTaskImpls().add(this.inboundConnectionTask);
             return this.inboundConnectionTask;
         }
     }
@@ -1134,7 +1140,7 @@ public class DeviceImpl implements Device, PersistenceAware {
 
         @Override
         public ScheduledConnectionTask add() {
-            DeviceImpl.this.connectionTasks.add(this.scheduledConnectionTask);
+            DeviceImpl.this.getConnectionTaskImpls().add(this.scheduledConnectionTask);
             return scheduledConnectionTask;
         }
     }
