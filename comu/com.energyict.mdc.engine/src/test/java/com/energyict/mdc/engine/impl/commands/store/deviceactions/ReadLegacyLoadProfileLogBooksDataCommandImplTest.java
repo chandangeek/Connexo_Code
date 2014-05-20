@@ -1,14 +1,15 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
-import com.energyict.comserver.logging.LogLevel;
-import com.energyict.mdc.commands.LegacyLoadProfileLogBooksCommand;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.engine.impl.commands.collect.LegacyLoadProfileLogBooksCommand;
+import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
+import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.tasks.LoadProfilesTask;
-import java.util.Arrays;
 import org.junit.Test;
+
+import java.util.Arrays;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

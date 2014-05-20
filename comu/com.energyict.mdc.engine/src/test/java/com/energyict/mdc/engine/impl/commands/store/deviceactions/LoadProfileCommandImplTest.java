@@ -1,50 +1,42 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
-import com.energyict.comserver.exceptions.CodingException;
-import com.energyict.comserver.logging.LogLevel;
-import com.energyict.comserver.time.FrozenClock;
-import com.energyict.mdc.commands.CommandRoot;
-import com.energyict.mdc.commands.CreateMeterEventsFromStatusFlagsCommand;
-import com.energyict.mdc.commands.LoadProfileCommand;
-import com.energyict.mdc.commands.MarkIntervalsAsBadTimeCommand;
-import com.energyict.mdc.commands.ReadLoadProfileDataCommand;
-import com.energyict.mdc.commands.TimeDifferenceCommand;
-import com.energyict.mdc.protocol.tasks.LoadProfilesTask;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.collect.CreateMeterEventsFromStatusFlagsCommand;
+import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
+import com.energyict.mdc.engine.impl.commands.collect.MarkIntervalsAsBadTimeCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ReadLoadProfileDataCommand;
+import com.energyict.mdc.engine.impl.commands.collect.TimeDifferenceCommand;
+import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
+import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfileChannel;
-import com.energyict.mdc.tasks.ComTaskExecution;
 import com.energyict.mdc.tasks.LoadProfilesTask;
-import com.energyict.test.MockEnvironmentTranslations;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.junit.Assert;
-import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests for the {@link com.energyict.comserver.commands.deviceactions.LoadProfileCommandImpl} component
+ * Tests for the LoadProfileCommandImpl component
  *
  * @author gna
  * @since 21/05/12 - 14:40
@@ -52,24 +44,24 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class LoadProfileCommandImplTest extends CommonCommandImplTests {
 
-    @ClassRule
-    public static TestRule mockEnvironmentTranslactions = new MockEnvironmentTranslations();
+//    @ClassRule
+//    public static TestRule mockEnvironmentTranslactions = new MockEnvironmentTranslations();
 
     @Mock
     ComTaskExecution comTaskExecution;
 
     private static final ObisCode FIXED_LOAD_PROFILE_OBIS_CODE = ObisCode.fromString("1.0.99.1.0.255");
     private static final TimeDuration FIXED_LOAD_PROFILE_INTERVAL = new TimeDuration(900);
-    private static final FrozenClock LAST_READING = FrozenClock.currentTime();
-    private static final int FIXED_DEVICE_ID = 123;
+    private static final Date LAST_READING = new Date();
+    private static final long FIXED_DEVICE_ID = 123;
     private static final String FIXED_DEVICE_SERIAL_NUMBER = "FIXED_DEVICE_SERIAL_NUMBER";
-    private static final int LOAD_PROFILE_TYPE_ID = 651;
+    private static final long LOAD_PROFILE_TYPE_ID = 651;
     private static final Unit FIXED_CHANNEL_UNIT = Unit.get("kWh");
 
     private OfflineLoadProfile getMockedOfflineLoadProfile() {
         OfflineLoadProfile loadProfile = mock(OfflineLoadProfile.class);
         when(loadProfile.getLoadProfileTypeId()).thenReturn(LOAD_PROFILE_TYPE_ID);
-        when(loadProfile.getLastReading()).thenReturn(LAST_READING.now());
+        when(loadProfile.getLastReading()).thenReturn(LAST_READING);
         when(loadProfile.getDeviceId()).thenReturn(FIXED_DEVICE_ID);
         when(loadProfile.getObisCode()).thenReturn(FIXED_LOAD_PROFILE_OBIS_CODE);
         when(loadProfile.getInterval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL);
@@ -113,7 +105,7 @@ public class LoadProfileCommandImplTest extends CommonCommandImplTests {
         LoadProfileReader loadProfileReader = loadProfileCommand.getLoadProfileReaders().get(0);
         Assert.assertEquals(FIXED_LOAD_PROFILE_OBIS_CODE, loadProfileReader.getProfileObisCode());
         Assert.assertEquals(FIXED_DEVICE_SERIAL_NUMBER, loadProfileReader.getMeterSerialNumber());
-        Assert.assertEquals(LAST_READING.now(), loadProfileReader.getStartReadingTime());
+        Assert.assertEquals(LAST_READING, loadProfileReader.getStartReadingTime());
         assertNotNull(loadProfileReader.getEndReadingTime());
     }
 
@@ -187,7 +179,7 @@ public class LoadProfileCommandImplTest extends CommonCommandImplTests {
 
     @Test
     public void createLoadProfileReadersWithSpecificLoadProfileTypeTest() {
-        final int loadProfileTypeId = 165;
+        final long loadProfileTypeId = 165;
         LoadProfileType loadProfileType = mock(LoadProfileType.class);
         when(loadProfileType.getId()).thenReturn(loadProfileTypeId);
         when(loadProfileType.getObisCode()).thenReturn(FIXED_LOAD_PROFILE_OBIS_CODE);

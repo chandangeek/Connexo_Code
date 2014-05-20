@@ -2,12 +2,22 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.ProgrammableClock;
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.collect.CreateMeterEventsFromStatusFlagsCommand;
+import com.energyict.mdc.engine.impl.commands.collect.LegacyLoadProfileLogBooksCommand;
+import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
+import com.energyict.mdc.engine.impl.commands.collect.MarkIntervalsAsBadTimeCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ReadLegacyLoadProfileLogBooksDataCommand;
+import com.energyict.mdc.engine.impl.commands.collect.TimeDifferenceCommand;
+import com.energyict.mdc.engine.impl.commands.collect.VerifyLoadProfilesCommand;
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.engine.impl.meterdata.identifiers.LogBookIdentifierByIdImpl;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
@@ -34,7 +44,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.fest.api.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -59,9 +70,9 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
     private static final long LOGBOOK_ID_2 = 2;
     private static final long LOGBOOK_ID_3 = 3;
 
-    private static final int LOGBOOK_TYPE_1 = 10;
-    private static final int LOGBOOK_TYPE_2 = 20;
-    private static final int LOGBOOK_TYPE_3 = 30;
+    private static final long LOGBOOK_TYPE_1 = 10;
+    private static final long LOGBOOK_TYPE_2 = 20;
+    private static final long LOGBOOK_TYPE_3 = 30;
 
     private static final Date LAST_LOGBOOK_1 = new Date(1354320000L * 1000L); // 01 Dec 2012 00:00:00 GMT
     private static final Date LAST_LOGBOOK_2 = new Date(1351728000L * 1000L); // 01 Nov 2012 00:00:00 GMT
@@ -71,8 +82,8 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
     private static final ObisCode DEVICE_OBISCODE_LOGBOOK_2 = ObisCode.fromString("2.2.2.2.2.2");
     private static final ObisCode DEVICE_OBISCODE_LOGBOOK_3 = ObisCode.fromString("3.3.3.3.3.3");
 
-    @ClassRule
-    public static TestRule mockEnvironmentTranslactions = new MockEnvironmentTranslations();
+//    @ClassRule
+//    public static TestRule mockEnvironmentTranslactions = new MockEnvironmentTranslations();
 
     @Mock
     private OfflineLogBook offlineLogBook_A;
@@ -102,8 +113,11 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
     private static final Clock LAST_READING = new ProgrammableClock().frozenAt(new Date());
     private static final long FIXED_DEVICE_ID = 123;
     private static final String FIXED_DEVICE_SERIAL_NUMBER = "FIXED_DEVICE_SERIAL_NUMBER";
-    private static final int LOAD_PROFILE_TYPE_ID = 651;
+    private static final long LOAD_PROFILE_TYPE_ID = 651;
     private static final Unit FIXED_CHANNEL_UNIT = Unit.get("kWh");
+    
+    @Mock
+    private DeviceDataService deviceDataService;
 
     private OfflineLoadProfile getMockedOfflineLoadProfile() {
         OfflineLoadProfile loadProfile = mock(OfflineLoadProfile.class);
@@ -416,17 +430,17 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
         LegacyLoadProfileLogBooksCommand legacyCommand = new LegacyLoadProfileLogBooksCommandImpl(mock(LoadProfilesTask.class), logBooksTask, device, commandRoot, comTaskExecution);
         List<LogBookReader> logBookReaders = legacyCommand.getLogBookReaders();
 
-        LogBookReader expectedLogBookReader_1 = new LogBookReader(DEVICE_OBISCODE_LOGBOOK_1, LAST_LOGBOOK_1, new LogBookIdentifierByIdImpl(LOGBOOK_ID_1), FIXED_DEVICE_SERIAL_NUMBER);
-        LogBookReader expectedLogBookReader_2 = new LogBookReader(DEVICE_OBISCODE_LOGBOOK_2, LAST_LOGBOOK_2, new LogBookIdentifierByIdImpl(LOGBOOK_ID_2), FIXED_DEVICE_SERIAL_NUMBER);
-        LogBookReader expectedLogBookReader_3 = new LogBookReader(DEVICE_OBISCODE_LOGBOOK_3, LAST_LOGBOOK_3, new LogBookIdentifierByIdImpl(LOGBOOK_ID_3), FIXED_DEVICE_SERIAL_NUMBER);
+        LogBookReader expectedLogBookReader_1 = new LogBookReader(DEVICE_OBISCODE_LOGBOOK_1, LAST_LOGBOOK_1, new LogBookIdentifierByIdImpl(LOGBOOK_ID_1, deviceDataService), FIXED_DEVICE_SERIAL_NUMBER);
+        LogBookReader expectedLogBookReader_2 = new LogBookReader(DEVICE_OBISCODE_LOGBOOK_2, LAST_LOGBOOK_2, new LogBookIdentifierByIdImpl(LOGBOOK_ID_2, deviceDataService), FIXED_DEVICE_SERIAL_NUMBER);
+        LogBookReader expectedLogBookReader_3 = new LogBookReader(DEVICE_OBISCODE_LOGBOOK_3, LAST_LOGBOOK_3, new LogBookIdentifierByIdImpl(LOGBOOK_ID_3, deviceDataService), FIXED_DEVICE_SERIAL_NUMBER);
 
         // asserts
         Assert.assertEquals(ComCommandTypes.LEGACY_LOAD_PROFILE_LOGBOOKS_COMMAND, legacyCommand.getCommandType());
         assertNotNull(legacyCommand.getLogBooksTask());
         assertEquals(logBooksForDevice.size(), logBookReaders.size());
-        Assertions.assertThat(logBookReaders.get(0)).isEqualsToByComparingFields(expectedLogBookReader_1);
-        Assertions.assertThat(logBookReaders.get(1)).isEqualsToByComparingFields(expectedLogBookReader_2);
-        Assertions.assertThat(logBookReaders.get(2)).isEqualsToByComparingFields(expectedLogBookReader_3);
+        assertThat(logBookReaders.get(0)).isEqualsToByComparingFields(expectedLogBookReader_1);
+        assertThat(logBookReaders.get(1)).isEqualsToByComparingFields(expectedLogBookReader_2);
+        assertThat(logBookReaders.get(2)).isEqualsToByComparingFields(expectedLogBookReader_3);
     }
 
     @Test
@@ -444,15 +458,15 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
         LegacyLoadProfileLogBooksCommand legacyCommand = new LegacyLoadProfileLogBooksCommandImpl(mock(LoadProfilesTask.class), logBooksTask, device, commandRoot, comTaskExecution);
         List<LogBookReader> logBookReaders = legacyCommand.getLogBookReaders();
 
-        LogBookReader expectedLogBookReader_1 = new LogBookReader(DEVICE_OBISCODE_LOGBOOK_1, LAST_LOGBOOK_1, new LogBookIdentifierByIdImpl(LOGBOOK_ID_1), FIXED_DEVICE_SERIAL_NUMBER);
-        LogBookReader expectedLogBookReader_3 = new LogBookReader(DEVICE_OBISCODE_LOGBOOK_3, LAST_LOGBOOK_3, new LogBookIdentifierByIdImpl(LOGBOOK_ID_3), FIXED_DEVICE_SERIAL_NUMBER);
+        LogBookReader expectedLogBookReader_1 = new LogBookReader(DEVICE_OBISCODE_LOGBOOK_1, LAST_LOGBOOK_1, new LogBookIdentifierByIdImpl(LOGBOOK_ID_1, deviceDataService), FIXED_DEVICE_SERIAL_NUMBER);
+        LogBookReader expectedLogBookReader_3 = new LogBookReader(DEVICE_OBISCODE_LOGBOOK_3, LAST_LOGBOOK_3, new LogBookIdentifierByIdImpl(LOGBOOK_ID_3, deviceDataService), FIXED_DEVICE_SERIAL_NUMBER);
 
         // asserts
         Assert.assertEquals(ComCommandTypes.LEGACY_LOAD_PROFILE_LOGBOOKS_COMMAND, legacyCommand.getCommandType());
         assertNotNull(legacyCommand.getLogBooksTask());
         Assert.assertEquals(logBooksTask.getLogBookTypes().size(), logBookReaders.size());
-        Assertions.assertThat(logBookReaders.get(0)).isEqualsToByComparingFields(expectedLogBookReader_1);
-        Assertions.assertThat(logBookReaders.get(1)).isEqualsToByComparingFields(expectedLogBookReader_3);
+        assertThat(logBookReaders.get(0)).isEqualsToByComparingFields(expectedLogBookReader_1);
+        assertThat(logBookReaders.get(1)).isEqualsToByComparingFields(expectedLogBookReader_3);
     }
 
     @Test
@@ -472,20 +486,20 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
         LegacyLoadProfileLogBooksCommand legacyCommand = new LegacyLoadProfileLogBooksCommandImpl(null, logBooksTask, device, commandRoot, comTaskExecution);
 
         // asserts
-        Assertions.assertThat(legacyCommand.getLogBookReaders()).isNotNull();
-        Assertions.assertThat(legacyCommand.getLogBookReaders()).isNotEmpty();
-        Assertions.assertThat(legacyCommand.getLoadProfileReaders()).isNotNull();
-        Assertions.assertThat(legacyCommand.getLoadProfileReaders()).isEmpty();
-        Assertions.assertThat(legacyCommand.getReadLegacyLoadProfileLogBooksDataCommand()).isNotNull();
-        Assertions.assertThat(legacyCommand.getVerifyLoadProfilesCommand()).isNull();
-        Assertions.assertThat(legacyCommand.getMarkIntervalsAsBadTimeCommand()).isNull();
-        Assertions.assertThat(legacyCommand.getCreateMeterEventsFromStatusFlagsCommand()).isNull();
-        Assertions.assertThat(legacyCommand.getTimeDifferenceCommand()).isNull();
+        assertThat(legacyCommand.getLogBookReaders()).isNotNull();
+        assertThat(legacyCommand.getLogBookReaders()).isNotEmpty();
+        assertThat(legacyCommand.getLoadProfileReaders()).isNotNull();
+        assertThat(legacyCommand.getLoadProfileReaders()).isEmpty();
+        assertThat(legacyCommand.getReadLegacyLoadProfileLogBooksDataCommand()).isNotNull();
+        assertThat(legacyCommand.getVerifyLoadProfilesCommand()).isNull();
+        assertThat(legacyCommand.getMarkIntervalsAsBadTimeCommand()).isNull();
+        assertThat(legacyCommand.getCreateMeterEventsFromStatusFlagsCommand()).isNull();
+        assertThat(legacyCommand.getTimeDifferenceCommand()).isNull();
     }
 
     @Test
     public void createWithOnlyLoadProfilesTaskTest() {
-        final int loadProfileTypeId = 165;
+        final long loadProfileTypeId = 165;
         LoadProfileType loadProfileType = mock(LoadProfileType.class);
         when(loadProfileType.getId()).thenReturn(loadProfileTypeId);
         when(loadProfileType.getObisCode()).thenReturn(FIXED_LOAD_PROFILE_OBIS_CODE);

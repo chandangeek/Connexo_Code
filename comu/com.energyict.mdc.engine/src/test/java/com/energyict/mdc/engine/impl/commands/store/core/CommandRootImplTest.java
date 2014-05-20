@@ -48,7 +48,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.*;
 
 /**
- * Tests for the {@link com.energyict.comserver.commands.core.CommandRootImpl} component
+ * Tests for the CommandRootImpl component
  *
  * @author gna
  * @since 10/05/12 - 16:48
