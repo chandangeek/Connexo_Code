@@ -51,7 +51,7 @@ public abstract aspect AbstractComCommandLogging {
     protected abstract ComCommandLogger getActualLogger (Logger logger, ExecutionContext executionContext);
 
     private pointcut executeCommandRoot (CommandRootImpl commandRoot, ExecutionContext executionContext):
-            execution(void com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand.execute(DeviceProtocol, JobExecution.ExecutionContext))
+            execution(void com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand.execute(DeviceProtocol, ExecutionContext))
          && target(commandRoot)
          && args(.., executionContext);
 
@@ -83,7 +83,7 @@ public abstract aspect AbstractComCommandLogging {
     protected abstract void logCreatedCommands (CommandCreator commandCreator, CommandRoot commandRoot);
 
     private pointcut startBasicCheckCommand(DeviceProtocol deviceProtocol, ExecutionContext executionContext):
-            execution(void com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand.execute(DeviceProtocol, JobExecution.ExecutionContext))
+            execution(void com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand.execute(DeviceProtocol, ExecutionContext))
          && target(com.energyict.mdc.engine.impl.commands.store.deviceactions.BasicCheckCommandImpl)
          && args(deviceProtocol, executionContext);
 
@@ -94,7 +94,7 @@ public abstract aspect AbstractComCommandLogging {
     protected abstract void logStartOfBasicCheckCommand (ExecutionContext executionContext);
 
     private pointcut startVerifySerialNumberCommand(DeviceProtocol deviceProtocol, ExecutionContext executionContext):
-            execution(void com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand.execute(DeviceProtocol, JobExecution.ExecutionContext))
+            execution(void com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand.execute(DeviceProtocol, ExecutionContext))
          && target(com.energyict.mdc.engine.impl.commands.store.deviceactions.VerifySerialNumberCommandImpl)
          && args(deviceProtocol, executionContext);
 
@@ -116,7 +116,7 @@ public abstract aspect AbstractComCommandLogging {
     protected abstract void logSerialNumberMisMatch (ExecutionContext executionContext, String meterSerialNumber, String configuredSerialNumber);
 
     private pointcut startClockCommand(DeviceProtocol deviceProtocol, ExecutionContext executionContext):
-            execution(void com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand.execute(DeviceProtocol, JobExecution.ExecutionContext))
+            execution(void com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand.execute(DeviceProtocol, ExecutionContext))
          && target(com.energyict.mdc.engine.impl.commands.store.deviceactions.ClockCommandImpl)
          && args(deviceProtocol, executionContext);
 
@@ -142,7 +142,7 @@ public abstract aspect AbstractComCommandLogging {
     protected abstract void logStartOfSetTime (ExecutionContext executionContext, Date timeToSet);
 
     private pointcut startedSetClockCommand(DeviceProtocol deviceProtocol, ExecutionContext executionContext):
-            execution(void com.energyict.mdc.engine.impl.commands.store.deviceactions.SetClockCommandImpl.execute(DeviceProtocol, JobExecution.ExecutionContext))
+            execution(void com.energyict.mdc.engine.impl.commands.store.deviceactions.SetClockCommandImpl.execute(DeviceProtocol, ExecutionContext))
          && args(deviceProtocol, executionContext);
 
     private pointcut timeDiffAboveMaximum(long timeDifference):
@@ -174,7 +174,7 @@ public abstract aspect AbstractComCommandLogging {
     protected abstract void logTimeDifferenceBelowMinimum (ExecutionContext executionContext, long timeDifference);
 
     private pointcut startedSynchronizeClockCommand(DeviceProtocol deviceProtocol, ExecutionContext executionContext):
-            execution(void com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand.execute(DeviceProtocol, JobExecution.ExecutionContext))
+            execution(void com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand.execute(DeviceProtocol, ExecutionContext))
          && target(com.energyict.mdc.engine.impl.commands.store.deviceactions.SynchronizeClockCommandImpl)
          && args(deviceProtocol, executionContext);
 
@@ -201,7 +201,7 @@ public abstract aspect AbstractComCommandLogging {
     protected abstract void logSynchronizeClockWithTimeShift (ExecutionContext executionContext, long timeShift);
 
     private pointcut startTimeDifferenceCommand(DeviceProtocol deviceProtocol, ExecutionContext executionContext):
-            execution(void com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand.execute(DeviceProtocol, JobExecution.ExecutionContext))
+            execution(void com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand.execute(DeviceProtocol, ExecutionContext))
          && target(com.energyict.mdc.engine.impl.commands.store.deviceactions.TimeDifferenceCommandImpl)
          && args(deviceProtocol, executionContext);
 
@@ -212,7 +212,7 @@ public abstract aspect AbstractComCommandLogging {
     protected abstract void logStartOfTimeDifferenceCommand (ExecutionContext executionContext);
 
     private pointcut startVerifyTimeDifferenceCommand(DeviceProtocol deviceProtocol, ExecutionContext executionContext):
-            execution(void com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand.execute(DeviceProtocol, JobExecution.ExecutionContext))
+            execution(void com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand.execute(DeviceProtocol, ExecutionContext))
          && target(com.energyict.mdc.engine.impl.commands.store.deviceactions.VerifyTimeDifferenceCommandImpl)
          && args(deviceProtocol, executionContext);
 
@@ -234,7 +234,7 @@ public abstract aspect AbstractComCommandLogging {
     protected abstract void logTimeDifferenceExceeded (ExecutionContext executionContext, long actualTimeDifference, long maximumTimeDifference);
 
     private pointcut startedForceClockCommand(DeviceProtocol deviceProtocol, ExecutionContext executionContext):
-            execution(void com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand.execute(DeviceProtocol, JobExecution.ExecutionContext))
+            execution(void com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand.execute(DeviceProtocol, ExecutionContext))
          && target(com.energyict.mdc.engine.impl.commands.store.deviceactions.ForceClockCommandImpl)
          && args(deviceProtocol, executionContext);
 
@@ -245,7 +245,7 @@ public abstract aspect AbstractComCommandLogging {
     protected abstract void logStartOfForceClockCommand (ExecutionContext executionContext);
 
     private pointcut startLoadProfileCommand(DeviceProtocol deviceProtocol, ExecutionContext executionContext):
-            execution(void com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand.execute(DeviceProtocol, JobExecution.ExecutionContext))
+            execution(void com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand.execute(DeviceProtocol, ExecutionContext))
          && target(com.energyict.mdc.engine.impl.commands.store.deviceactions.LoadProfileCommandImpl)
          && args(deviceProtocol, executionContext);
 
@@ -256,7 +256,7 @@ public abstract aspect AbstractComCommandLogging {
     protected abstract void logStartOfLoadProfileCommand (ExecutionContext executionContext);
 
     private pointcut startMarkIntervalsAsBadTimeCommand(DeviceProtocol deviceProtocol, ExecutionContext executionContext):
-            execution(void com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand.execute(DeviceProtocol, JobExecution.ExecutionContext))
+            execution(void com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand.execute(DeviceProtocol, ExecutionContext))
          && target(com.energyict.mdc.engine.impl.commands.store.deviceactions.MarkIntervalsAsBadTimeCommandImpl)
          && args(deviceProtocol, executionContext);
 
@@ -267,7 +267,7 @@ public abstract aspect AbstractComCommandLogging {
     protected abstract void logStartOfMarkIntervalsAsBadTimeCommand (ExecutionContext executionContext);
 
     private pointcut startCreateMeterEventsFromStatusBits(DeviceProtocol deviceProtocol, ExecutionContext executionContext):
-            execution(void com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand.execute(DeviceProtocol, JobExecution.ExecutionContext))
+            execution(void com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand.execute(DeviceProtocol, ExecutionContext))
          && target(com.energyict.mdc.engine.impl.commands.store.deviceactions.CreateMeterEventsFromStatusFlagsCommandImpl)
          && args(deviceProtocol, executionContext);
 
@@ -278,7 +278,7 @@ public abstract aspect AbstractComCommandLogging {
     protected abstract void logStartOfCreateMeterEventsFromStatusBits (ExecutionContext executionContext);
 
     private pointcut startReadLoadProfileCommand(DeviceProtocol deviceProtocol, ExecutionContext executionContext):
-            execution(void com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand.execute(DeviceProtocol, JobExecution.ExecutionContext))
+            execution(void com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand.execute(DeviceProtocol, ExecutionContext))
          && target(com.energyict.mdc.engine.impl.commands.store.deviceactions.ReadLoadProfileDataCommandImpl)
          && args(deviceProtocol, executionContext);
 
@@ -289,7 +289,7 @@ public abstract aspect AbstractComCommandLogging {
     protected abstract void logStartOfReadLoadProfileCommand (ExecutionContext executionContext);
 
     private pointcut startVerifyLoadProfileCommand(DeviceProtocol deviceProtocol, ExecutionContext executionContext):
-            execution(void com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand.execute(DeviceProtocol, JobExecution.ExecutionContext))
+            execution(void com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand.execute(DeviceProtocol, ExecutionContext))
          && target(com.energyict.mdc.engine.impl.commands.store.deviceactions.VerifyLoadProfilesCommandImpl)
          && args(deviceProtocol, executionContext);
 

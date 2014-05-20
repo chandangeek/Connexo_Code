@@ -36,12 +36,12 @@ public abstract aspect AbstractComPortLogging {
             ComPortLogging,
             com.energyict.comserver.scheduling.aspects.events.ComPortLogEventPublisher;
 
-    private CompositeComPortConnectionLogger ExecutionContext.connectionLogger;
-    private ComPortOperationsLogger ComPortServerProcess.normalOperationsLogger;
-    private ComPortOperationsLogger ComPortServerProcess.eventOperationsLogger;
+    CompositeComPortConnectionLogger ExecutionContext.connectionLogger;
+    ComPortOperationsLogger ComPortServerProcess.normalOperationsLogger;
+    ComPortOperationsLogger ComPortServerProcess.eventOperationsLogger;
 
     private pointcut initializeExecutionContext (JobExecution jobExecution, ConnectionTask connectionTask, ComPort comPort, boolean logConnectionProperties):
-            execution(JobExecution.ExecutionContext newExecutionContext(ConnectionTask, ComPort, boolean))
+            execution(ExecutionContext newExecutionContext(ConnectionTask, ComPort, boolean))
          && target(jobExecution)
          && args(connectionTask, comPort, logConnectionProperties);
 
@@ -108,7 +108,7 @@ public abstract aspect AbstractComPortLogging {
     }
 
     private pointcut connectionFailed (ExecutionContext context, ConnectionException e, ConnectionTask connectionTask):
-            execution(void JobExecution.ExecutionContext.connectionFailed(ConnectionException, ConnectionTask))
+            execution(void ExecutionContext.connectionFailed(ConnectionException, ConnectionTask))
          && target(context)
          && args(e, connectionTask);
 

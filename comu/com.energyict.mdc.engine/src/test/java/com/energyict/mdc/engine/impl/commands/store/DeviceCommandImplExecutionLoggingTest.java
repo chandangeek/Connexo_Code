@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.energyict.comserver.core.ComServerDAO;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.issues.IssueService;
 import org.junit.Test;
@@ -9,7 +9,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 
@@ -26,22 +26,24 @@ public class DeviceCommandImplExecutionLoggingTest {
     private DeviceCommand.ExecutionLogger executionLogger;
     @Mock
     private ComServerDAO comServerDAO;
+    @Mock
+    private IssueService issueService;
 
     @Test
     public void testExecuted () {
-        ForTestingPurposesOnly command = new ForTestingPurposesOnly();
+        ForTestingPurposesOnly command = new ForTestingPurposesOnly(issueService);
         command.logExecutionWith(this.executionLogger);
 
          // Business method
         command.execute(this.comServerDAO);
 
         // Asserts
-        Assertions.assertThat(command.executed).isTrue();
+        assertThat(command.executed).isTrue();
     }
 
     @Test
     public void testLoggedAfterExecuted () {
-        DeviceCommand command = new ForTestingPurposesOnly();
+        DeviceCommand command = new ForTestingPurposesOnly(issueService);
         command.logExecutionWith(this.executionLogger);
 
          // Business method

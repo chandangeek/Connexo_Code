@@ -3,7 +3,7 @@ package com.energyict.mdc.engine.impl.core.aspects.logging;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 
 import com.elster.jupiter.util.time.Clock;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.StackTracePrinter;
+import com.energyict.mdc.common.StackTracePrinter;
 import com.energyict.mdc.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.tasks.history.ComTaskExecutionSessionBuilder;
 

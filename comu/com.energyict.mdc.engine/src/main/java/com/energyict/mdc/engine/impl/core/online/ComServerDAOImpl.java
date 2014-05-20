@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.core.online;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.TimeDuration;
@@ -484,9 +485,14 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void setMaxNumberOfTries(ScheduledConnectionTask connectionTask, int maxNumberOfTries) {
-        connectionTask.setMaxNumberOfTries(maxNumberOfTries);
-        connectionTask.save();
+    public void setMaxNumberOfTries(final ScheduledConnectionTask connectionTask, final int maxNumberOfTries) {
+        executeTransaction(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                connectionTask.setMaxNumberOfTries(maxNumberOfTries);
+                connectionTask.save();
+            }
+        });
     }
 
     @Override

@@ -59,6 +59,9 @@ public class EngineServiceImpl implements EngineService, InstallService {
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile ProtocolPluggableService protocolPluggableService;
 
+    public EngineServiceImpl() {
+    }
+
     @Inject
     public EngineServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService) {
         super();

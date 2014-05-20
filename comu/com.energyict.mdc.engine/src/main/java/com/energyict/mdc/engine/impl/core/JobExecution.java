@@ -151,12 +151,7 @@ public abstract class JobExecution implements ScheduledJob {
 
     protected final void doReschedule(final RescheduleBehavior.RescheduleReason rescheduleReason) {
         final RescheduleBehavior retryBehavior = this.getRescheduleBehavior();
-        serviceProvider.transactionService().execute(new VoidTransaction() {
-            @Override
-            protected void doPerform() {
-                retryBehavior.performRescheduling(rescheduleReason);
-            }
-        });
+        retryBehavior.performRescheduling(rescheduleReason);
     }
 
     /**
@@ -327,7 +322,7 @@ public abstract class JobExecution implements ScheduledJob {
     }
 
     PreparedComTaskExecution getPreparedComTaskExecution(ComTaskPreparationContext comTaskPreparationContext, ComTaskExecution comTaskExecution, ComTaskExecutionConnectionSteps connectionSteps, BaseDevice<?, ?, ?> masterDevice, DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-        final List<? extends ProtocolTask> protocolTasks = comTaskExecution.getComTask().getProtocolTasks();
+        final List<? extends ProtocolTask> protocolTasks = new ArrayList<>(comTaskExecution.getComTask().getProtocolTasks()); // copied the ImmutableList
         Collections.sort(protocolTasks, BasicCheckTasks.FIRST);
         comTaskPreparationContext.getCommandCreator().
                 createCommands(
