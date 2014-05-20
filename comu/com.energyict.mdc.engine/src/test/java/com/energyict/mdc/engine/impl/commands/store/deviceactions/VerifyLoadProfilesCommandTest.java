@@ -1,41 +1,32 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
-import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
-import com.energyict.mdc.commands.ComCommandTypes;
-import com.energyict.mdc.commands.CommandRoot;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.meterdata.DeviceLoadProfileConfiguration;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
+import com.energyict.mdc.engine.impl.meterdata.DeviceLoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
 import com.energyict.mdc.tasks.LoadProfilesTask;
-import com.energyict.test.MockEnvironmentTranslations;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 /**
- * Tests for the {@link com.energyict.comserver.commands.deviceactions.VerifyLoadProfilesCommandImpl} component
+ * Tests for the VerifyLoadProfilesCommandImpl component
  *
  * @author gna
  * @since 22/05/12 - 14:46
