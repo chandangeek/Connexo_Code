@@ -6,11 +6,10 @@ import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.dynamic.ObisCodeValueFactory;
 import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.impl.PropertySpecBuilderImpl;
+import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
@@ -132,18 +131,13 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
         List<PropertySpec> propertySpecs = new ArrayList<>();
         propertySpecs.add(OptionalPropertySpecFactory.newInstance().stringPropertySpec("SDKStringProperty"));
         propertySpecs.add(
-                PropertySpecBuilderImpl.
-                        forClass(new ObisCodeValueFactory()).
-                        name("SDKObisCodeProperty").
-                        markRequired().
-                        markExhaustive().
-                        addValues(ObisCode.fromString("1.0.1.8.0.255"),
+                RequiredPropertySpecFactory.newInstance()
+                        .obisCodePropertySpecWithValuesExhaustive("SDKObisCodeProperty", ObisCode.fromString("1.0.1.8.0.255"),
                                 ObisCode.fromString("1.0.1.8.1.255"),
                                 ObisCode.fromString("1.0.1.8.2.255"),
                                 ObisCode.fromString("1.0.2.8.0.255"),
                                 ObisCode.fromString("1.0.2.8.1.255"),
-                                ObisCode.fromString("1.0.2.8.2.255")).
-                        finish());
+                                ObisCode.fromString("1.0.2.8.2.255")));
 
         return propertySpecs;
     }
