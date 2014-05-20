@@ -6,7 +6,7 @@ Ext.define('Mdc.view.setup.searchitems.ContentFilter', {
         'Mdc.model.ItemSort'
     ],
     alias: "widget.search-content-filter",
-    id: 'search-content-filter-id',
+    //id: 'search-content-filter-id',
     itemId: 'searchContentFilter',
     border: true,
     header: false,
