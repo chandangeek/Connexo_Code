@@ -1,14 +1,19 @@
 package com.energyict.mdc.engine;
 
-import com.energyict.comserver.commands.core.CommandRootImpl;
-import com.energyict.mdc.commands.ComCommandTypes;
-import com.energyict.mdc.commands.CommandRoot;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.engine.GenericDeviceProtocol;
+import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.protocol.api.ComChannel;
+import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
@@ -20,14 +25,9 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.LogBookReader;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,6 +54,11 @@ public class MockGenericDeviceProtocol implements GenericDeviceProtocol {
     @Override
     public void terminate() {
         //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+
     }
 
     @Override
@@ -216,7 +221,7 @@ public class MockGenericDeviceProtocol implements GenericDeviceProtocol {
      */
     @Override
     public CommandRoot organizeComCommands(CommandRoot commandRoot) {
-        CommandRoot resultRoot = new CommandRootImpl(offlineDevice, commandRoot.getExecutionContext(), issueService);
+        CommandRoot resultRoot = new CommandRootImpl(offlineDevice, commandRoot.getExecutionContext(), new FakeServiceProvider());
         resultRoot.getCommands().putAll(commandRoot.getCommands());
         resultRoot.getCommands().remove(ComCommandTypes.READ_REGISTERS_COMMAND);
         return resultRoot;

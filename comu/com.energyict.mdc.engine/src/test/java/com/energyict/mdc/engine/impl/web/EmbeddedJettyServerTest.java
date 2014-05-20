@@ -1,11 +1,11 @@
 package com.energyict.mdc.engine.impl.web;
 
+import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
-import com.energyict.mdc.issues.IssueService;
 
 import org.eclipse.jetty.server.Server;
 
@@ -14,7 +14,6 @@ import java.net.URISyntaxException;
 
 import org.junit.*;
 import org.junit.runner.*;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -33,11 +32,9 @@ public class EmbeddedJettyServerTest {
 
     private static final int PORT_NUMBER = 9000;
 
-    @Mock
-    private IssueService issueService;
-
     private EmbeddedJettyServer embeddedJettyServer;
     private Server jettyServer;
+    private FakeServiceProvider serviceProvider;
 
     @After
     public void stopRunningJettyServer () {
@@ -62,7 +59,8 @@ public class EmbeddedJettyServerTest {
         ServletBasedInboundComPort comPort = mock(ServletBasedInboundComPort.class);
         when(comPort.getPortNumber()).thenReturn(PORT_NUMBER);
         when(comPort.getContextPath()).thenReturn("/embeddedJettyTest");
-        this.embeddedJettyServer = EmbeddedJettyServer.newForInboundDeviceCommunication(comPort, mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), issueService);
+        serviceProvider = new FakeServiceProvider();
+        this.embeddedJettyServer = EmbeddedJettyServer.newForInboundDeviceCommunication(comPort, mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), this.serviceProvider);
 
         // Business method
         this.embeddedJettyServer.start();
@@ -76,7 +74,7 @@ public class EmbeddedJettyServerTest {
         ServletBasedInboundComPort comPort = mock(ServletBasedInboundComPort.class);
         when(comPort.getPortNumber()).thenReturn(PORT_NUMBER);
         when(comPort.getContextPath()).thenReturn(null);    // Note that business actually validates that the context path of a com port is not null
-        this.embeddedJettyServer = EmbeddedJettyServer.newForInboundDeviceCommunication(comPort, mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), issueService);
+        this.embeddedJettyServer = EmbeddedJettyServer.newForInboundDeviceCommunication(comPort, mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), this.serviceProvider);
 
         // Business method
         this.embeddedJettyServer.start();
@@ -90,7 +88,7 @@ public class EmbeddedJettyServerTest {
         ServletBasedInboundComPort comPort = mock(ServletBasedInboundComPort.class);
         when(comPort.getPortNumber()).thenReturn(PORT_NUMBER);
         when(comPort.getContextPath()).thenReturn("");    // Note that business actually validates that the context path of a com port is not empty
-        this.embeddedJettyServer = EmbeddedJettyServer.newForInboundDeviceCommunication(comPort, mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), issueService);
+        this.embeddedJettyServer = EmbeddedJettyServer.newForInboundDeviceCommunication(comPort, mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), this.serviceProvider);
 
         // Business method
         this.embeddedJettyServer.start();
@@ -104,7 +102,7 @@ public class EmbeddedJettyServerTest {
         ServletBasedInboundComPort comPort = mock(ServletBasedInboundComPort.class);
         when(comPort.getPortNumber()).thenReturn(PORT_NUMBER);
         when(comPort.getContextPath()).thenReturn("embeddedJettyTest");
-        this.embeddedJettyServer = EmbeddedJettyServer.newForInboundDeviceCommunication(comPort, mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), issueService);
+        this.embeddedJettyServer = EmbeddedJettyServer.newForInboundDeviceCommunication(comPort, mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), this.serviceProvider);
 
         // Business method
         this.embeddedJettyServer.start();
@@ -126,7 +124,7 @@ public class EmbeddedJettyServerTest {
         ServletBasedInboundComPort comPort = mock(ServletBasedInboundComPort.class);
         when(comPort.getPortNumber()).thenReturn(PORT_NUMBER);
         when(comPort.getContextPath()).thenReturn("/embeddedJettyTest");
-        this.embeddedJettyServer = EmbeddedJettyServer.newForInboundDeviceCommunication(comPort, mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), issueService);
+        this.embeddedJettyServer = EmbeddedJettyServer.newForInboundDeviceCommunication(comPort, mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), this.serviceProvider);
 
         // Business method
         this.embeddedJettyServer.start();
@@ -138,7 +136,7 @@ public class EmbeddedJettyServerTest {
     @Test
     public void testInboundShutdown () {
         ServletBasedInboundComPort comPort = mock(ServletBasedInboundComPort.class);
-        this.embeddedJettyServer = EmbeddedJettyServer.newForInboundDeviceCommunication(comPort, mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), issueService);
+        this.embeddedJettyServer = EmbeddedJettyServer.newForInboundDeviceCommunication(comPort, mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), this.serviceProvider);
         this.embeddedJettyServer.start();
 
         // Business method
@@ -151,7 +149,7 @@ public class EmbeddedJettyServerTest {
     @Test
     public void testInboundShutdownImmediate () {
         ServletBasedInboundComPort comPort = mock(ServletBasedInboundComPort.class);
-        this.embeddedJettyServer = EmbeddedJettyServer.newForInboundDeviceCommunication(comPort, mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), issueService);
+        this.embeddedJettyServer = EmbeddedJettyServer.newForInboundDeviceCommunication(comPort, mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), this.serviceProvider);
         this.embeddedJettyServer.start();
 
         // Business method

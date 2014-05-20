@@ -4,6 +4,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.model.ComPort;
@@ -51,6 +52,14 @@ public class RequestParserTest {
     private DeviceDataService deviceDataService;
     @Mock
     private EngineModelService engineModelService;
+
+    private FakeServiceProvider serviceProvider = new FakeServiceProvider();
+
+    @Before
+    public void initializeServiceProvider () {
+        this.serviceProvider.setDeviceDataService(this.deviceDataService);
+        this.serviceProvider.setEngineModelService(this.engineModelService);
+    }
 
     @Test(expected = UnexpectedRequestFormatException.class)
     public void testWrongFormat () throws RequestParseException {

@@ -1,17 +1,22 @@
 package com.energyict.mdc.engine.impl.web.events;
 
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
+import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.events.ConnectionEvent;
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
 import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.tasks.ComTask;
 
+import com.elster.jupiter.util.time.Clock;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketClient;
 import org.eclipse.jetty.websocket.WebSocketClientFactory;
@@ -25,6 +30,10 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.*;
+import org.junit.runner.*;
+
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -41,7 +50,17 @@ import static org.mockito.Mockito.when;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-05 (14:54)
  */
+@RunWith(MockitoJUnitRunner.class)
 public class TextBasedEventFilterIntegrationTest {
+
+    @Mock
+    private Clock clock;
+    @Mock
+    private EngineModelService engineModelService;
+    @Mock
+    private DeviceDataService deviceDataService;
+
+    private ServiceProvider serviceProvider = new FakeServiceProvider();
 
     /**
      * Tests that the a client receives a "message not understood"
@@ -305,7 +324,7 @@ public class TextBasedEventFilterIntegrationTest {
         private OutboundComPortPool comPortPool;
 
         private EventGenerator () {
-            super(clock, engineModelService);
+            super(clock, engineModelService, deviceDataService);
             this.device = mock(BaseDevice.class);
             this.connectionTask = mock(OutboundConnectionTask.class);
             this.comPort = mock(OutboundComPort.class);
