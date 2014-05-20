@@ -3,7 +3,6 @@ package com.energyict.mdc.dynamic.impl;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecFactory;
 import com.energyict.mdc.dynamic.ValueFactory;
-
 import java.util.ArrayList;
 import java.util.List;
 

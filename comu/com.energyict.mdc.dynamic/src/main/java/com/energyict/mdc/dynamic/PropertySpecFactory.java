@@ -12,7 +12,6 @@ import com.energyict.mdc.common.TimeOfDay;
 import com.energyict.mdc.common.coordinates.SpatialCoordinates;
 import com.energyict.mdc.common.ean.Ean13;
 import com.energyict.mdc.common.ean.Ean18;
-
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
@@ -298,5 +297,7 @@ public interface PropertySpecFactory {
      * @return The list of PropertySpecs
      */
     public List<PropertySpec> toPropertySpecs(List<String> keys);
+
+    public PropertySpec<ObisCode> obisCodePropertySpecWithValuesExhaustive(String name, ObisCode... values);
 
 }

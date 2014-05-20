@@ -15,7 +15,6 @@ import com.energyict.mdc.common.ean.Ean18;
 import com.energyict.mdc.dynamic.impl.BoundedBigDecimalPropertySpecImpl;
 import com.energyict.mdc.dynamic.impl.PropertySpecBuilderImpl;
 import com.energyict.mdc.dynamic.impl.PropertySpecFactoryImpl;
-
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.TimeZone;
@@ -211,5 +210,17 @@ public class OptionalPropertySpecFactory extends PropertySpecFactoryImpl {
     // Hide utility class constructor
     private OptionalPropertySpecFactory () {
     }
+
+    @Override
+    public PropertySpec<ObisCode> obisCodePropertySpecWithValuesExhaustive(String name, ObisCode... values) {
+        return PropertySpecBuilderImpl.
+                forClass(new ObisCodeValueFactory()).
+                name(name).
+                markExhaustive().
+                addValues(values).
+                finish();
+    }
+
+
 
 }
