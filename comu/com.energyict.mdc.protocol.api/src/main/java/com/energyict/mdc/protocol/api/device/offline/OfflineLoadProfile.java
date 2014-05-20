@@ -20,14 +20,14 @@ public interface OfflineLoadProfile extends Offline {
      *
      * @return the ID of the LoadProfile
      */
-    public int getLoadProfileId();
+    public long getLoadProfileId();
 
     /**
      * Returns the database ID of the LoadProfileType of this LoadProfile
      *
      * @return the ID of the LoadProfileType
      */
-    public int getLoadProfileTypeId();
+    public long getLoadProfileTypeId();
 
     /**
      * Returns the ObisCode for the LoadProfileType.
