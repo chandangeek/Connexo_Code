@@ -1,8 +1,7 @@
 package com.energyict.mdc.engine.impl.monitor;
 
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.comserver.scheduling.RunningComServer;
-import com.energyict.mdc.engine.impl.monitor.CollectedDataStorageStatisticsImpl;
+import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.model.ComServer;
 import org.junit.*;
 import org.junit.runner.*;

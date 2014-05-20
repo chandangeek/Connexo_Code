@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.elster.jupiter.util.Checks.is;
+
 /**
  * Provides various methods to manipulate/test Strings.
  *
@@ -38,19 +40,6 @@ public class Strings {
     }
 
     /**
-     * Capitalizes the specified String, assuming it does not contain any spaces.
-     * Replaces the fist character with the uppercase alternative.
-     *
-     * @param notCapitalized The String that will be capitalized
-     * @return The capitalized String
-     */
-    public static String capitalizeWord (String notCapitalized) {
-        char chars[] = notCapitalized.toCharArray();
-        chars[0] = Character.toUpperCase(chars[0]);
-        return new String(chars);
-    }
-
-    /**
      * Returns a String that contains the specified number of space characters.<br>
      * Note that this will throw an IllegalArgumentException when
      * the specified number of space characters is negative.
@@ -65,20 +54,6 @@ public class Strings {
         char[] chars = new char[numberOfSpaces];
         Arrays.fill(chars, ' ');
         return new String(chars);
-    }
-
-    /**
-     * Reverses the given string.<br>
-     * Example StringManipulator.reverse("NotAPalindrome") returns "emordnilaPAtoN".
-     * Example StringManipulator.reverse("was it a cat i saw") returns "was it a cat i saw", with a little imagination.
-     *
-     * @param aString The String that will be reversed
-     * @return The reversed string
-     */
-    public static String reverse (String aString) {
-        StringBuilder reverser = new StringBuilder(aString);
-        reverser.reverse();
-        return reverser.toString();
     }
 
     /**
@@ -106,7 +81,7 @@ public class Strings {
      * @see Character#isWhitespace(char)
      */
     public static String removeWhiteSpace (String withWhiteSpace) {
-        if (isEmpty(withWhiteSpace)) {
+        if (is(withWhiteSpace).empty()) {
             return withWhiteSpace;
         }
         else {
@@ -126,7 +101,7 @@ public class Strings {
      * @see #removeWhiteSpace(String) For more information on whitespace characters
      */
     public static void removeWhiteSpace (String withWhiteSpace, StringBuilder sb) {
-        if (!isEmpty(withWhiteSpace)) {
+        if (!is(withWhiteSpace).empty()) {
             int length = withWhiteSpace.length();
             for (int i = 0; i < length; i++) {
                 char c = withWhiteSpace.charAt(i);
@@ -191,8 +166,8 @@ public class Strings {
      * @return The chunks
      */
     public static List<String> chopUp (String string, int chunkLength) {
-        if (Strings.isEmpty(string)) {
-            return new ArrayList<String>(0);
+        if (is(string).empty()) {
+            return new ArrayList<>(0);
         }
         else {
             List<String> chunks = new ArrayList<String>(estimateNumberOfChunks(string, chunkLength));
@@ -206,45 +181,6 @@ public class Strings {
 
     private static int estimateNumberOfChunks (String string, int chunkLength) {
         return (string.length() / chunkLength) + 1;
-    }
-
-    /**
-     * Tests if the specified String is empty.
-     * A String is considered to be empty if it is either <code>null</code> or if the length is zero.
-     *
-     * @param mistery The String that is tested
-     * @return A flag that indicates if the specified String is empty.
-     */
-    public static boolean isEmpty (String mistery) {
-        return ((mistery == null) || (mistery.isEmpty()));
-    }
-
-    /**
-     * Tests if the specified String is empty.
-     * Trimming the string is only considered when the String does not seem to be empty at first sight.
-     * A String is considered to be empty if it is either <code>null</code> or if the length is zero.
-     *
-     * @param mistery The String that is tested
-     * @param considerTrimming A flag that indicates if this test should consider trimming the String to check if it is empty.
-     *        If set to <code>true</code>, <code>String.isEmpty("  ", true)</code> will return <code>true</code>
-     *        If set to <code>false</code>, <code>String.isEmpty("  ", false)</code> will return <code>false</code>
-     * @return A flag that indicates if the specified String is empty.
-     */
-    public static boolean isEmpty (String mistery, boolean considerTrimming) {
-        boolean empty = isEmpty(mistery);
-        return empty || considerTrimming && isEmpty(mistery.trim());
-    }
-
-    /**
-     * Tests if the first String is equal to the second String.
-     * If both are null, they are considered being equal.
-     *
-     * @param first The first String
-     * @param second The second String
-     * @return A flag that indicates if the first string is equals to the second
-     */
-    public static boolean isEqual (String first, String second) {
-        return Equality.equalityHoldsFor(first).and(second);
     }
 
     /**
