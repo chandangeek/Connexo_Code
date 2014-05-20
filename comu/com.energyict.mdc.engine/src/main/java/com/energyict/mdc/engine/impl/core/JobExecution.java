@@ -326,7 +326,7 @@ public abstract class JobExecution implements ScheduledJob {
         return ComSession.SuccessIndicator.SetupError;
     }
 
-    private PreparedComTaskExecution getPreparedComTaskExecution(ComTaskPreparationContext comTaskPreparationContext, ComTaskExecution comTaskExecution, ComTaskExecutionConnectionSteps connectionSteps, BaseDevice<?, ?, ?> masterDevice, DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
+    PreparedComTaskExecution getPreparedComTaskExecution(ComTaskPreparationContext comTaskPreparationContext, ComTaskExecution comTaskExecution, ComTaskExecutionConnectionSteps connectionSteps, BaseDevice<?, ?, ?> masterDevice, DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
         final List<? extends ProtocolTask> protocolTasks = comTaskExecution.getComTask().getProtocolTasks();
         Collections.sort(protocolTasks, BasicCheckTasks.FIRST);
         comTaskPreparationContext.getCommandCreator().

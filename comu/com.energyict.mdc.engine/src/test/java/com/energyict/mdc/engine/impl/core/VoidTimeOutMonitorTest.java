@@ -1,7 +1,5 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
-import com.energyict.mdc.engine.impl.core.VoidTimeOutMonitor;
 import org.junit.*;
 
 import static org.fest.assertions.api.Assertions.assertThat;

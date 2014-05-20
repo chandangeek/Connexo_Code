@@ -12,14 +12,20 @@ import com.energyict.mdc.engine.impl.core.mocks.MockTCPInboundComPort;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
+
 import org.joda.time.DateTimeConstants;
-import org.junit.Test;
 
 import java.sql.SQLException;
 
-import static org.junit.Assert.assertTrue;
+import org.junit.*;
+
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests how the {@link com.energyict.mdc.engine.impl.core.RunningComServerImpl} component picks up on changes
@@ -31,7 +37,8 @@ import static org.mockito.Mockito.*;
 public class RunningComServerChangesTest {
 
     private static final int HALF_A_SECOND = 500;
-    private FakeServiceProvider serviceProvider;
+
+    private FakeServiceProvider serviceProvider = new FakeServiceProvider();
 
     @Test
     public void testAddOutboundComPort () throws InterruptedException, BusinessException, SQLException {

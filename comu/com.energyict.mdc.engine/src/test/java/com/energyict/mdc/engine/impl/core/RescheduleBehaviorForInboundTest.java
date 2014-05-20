@@ -1,20 +1,17 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import com.energyict.mdc.tasks.ComTask;
 
-import com.energyict.mdc.tasks.ComTaskExecution;
-import com.energyict.mdc.tasks.ConnectionTask;
-import com.energyict.mdc.tasks.InboundConnectionTask;
 import java.util.Arrays;
 import java.util.Collections;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;

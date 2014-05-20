@@ -1,21 +1,8 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.users.UserService;
-import com.energyict.cbo.TimeConstants;
-import com.energyict.comserver.commands.DeviceCommand;
-import com.energyict.comserver.commands.DeviceCommandExecutionToken;
-import com.energyict.comserver.commands.DeviceCommandExecutor;
-import com.energyict.mdc.engine.impl.core.devices.DeviceCommandExecutorImpl;
-import com.energyict.comserver.time.Clocks;
-import com.energyict.comserver.time.FrozenClock;
-import com.energyict.mdc.ManagerFactory;
-import com.energyict.mdc.ServerManager;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.communication.tasks.ServerComTaskEnablementFactory;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -26,15 +13,19 @@ import com.energyict.mdc.device.data.ServerComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.engine.FakeServiceProvider;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.core.devices.DeviceCommandExecutorImpl;
+import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannel;
+import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundCapableComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.journal.ServerComSessionFactory;
-import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannel;
-import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
@@ -42,12 +33,16 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdw.core.TransactionExecutorProvider;
-import com.energyict.test.FakeTransactionExecutorProvider;
+
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.time.Clock;
+import org.apache.log4j.PropertyConfigurator;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeConstants;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -56,27 +51,23 @@ import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.TimeZone;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.LogManager;
-import org.apache.log4j.PropertyConfigurator;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Matchers.anyInt;
@@ -112,10 +103,6 @@ public class SingleThreadedScheduledComPortTest {
     private static final String LOG4J_PROPERTIES_FILE_NAME = "log4j.properties";
 
     @Mock
-    private ServerManager manager;
-    @Mock
-    private ServerComSessionFactory comSessionFactory;
-    @Mock
     private ConnectionType simultaneousConnectionType;
     @Mock
     private OutboundComPortPool comPortPool;
@@ -140,8 +127,6 @@ public class SingleThreadedScheduledComPortTest {
     @Mock
     private DeviceCommunicationConfiguration deviceCommunicationConfiguration;
     @Mock
-    private OfflineDevice offlineDevice;
-    @Mock
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     @Mock
     private DeviceProtocol deviceProtocol;
@@ -154,16 +139,15 @@ public class SingleThreadedScheduledComPortTest {
     @Mock
     private DeviceCommandExecutor deviceCommandExecutor;
     @Mock
-    private ServerComTaskEnablementFactory comTaskEnablementFactory;
-    @Mock
-    private Environment environment;
-    @Mock
     private ThreadPrincipalService threadPrincipalService;
     @Mock
     private UserService userService;
     @Mock
     private IssueService issueService;
+    @Mock
+    private Clock clock;
 
+    private FakeServiceProvider serviceProvider = new FakeServiceProvider();
     private ComPortRelatedComChannel comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class));
 
     @BeforeClass
@@ -207,23 +191,10 @@ public class SingleThreadedScheduledComPortTest {
     }
 
     @Before
-    public void setUpEnvironment () {
-        Environment.DEFAULT.set(this.environment);
-    }
-
-    @After
-    public void tearDownEnvironment () {
-        Environment.DEFAULT.set(null);
-    }
-
-    @Before
-    public void setUp() {
-        TransactionExecutorProvider.instance.set(new FakeTransactionExecutorProvider());
-    }
-
-    @After
-    public void tearDown() {
-        TransactionExecutorProvider.instance.set(null);
+    public void setupServiceProvider () {
+        this.serviceProvider.setIssueService(this.issueService);
+        this.serviceProvider.setUserService(this.userService);
+        this.serviceProvider.setClock(this.clock);
     }
 
     @Before
@@ -231,22 +202,15 @@ public class SingleThreadedScheduledComPortTest {
         when(this.protocolDialectProperties.getId()).thenReturn(PROTOCOL_DIALECT_PROPERTIES);
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(this.deviceProtocol);
         when(this.deviceProtocolPluggableClass.getJavaClassName()).thenReturn(SingleThreadedScheduledComPortTest.class.getName());
-        when(this.offlineDevice.getDeviceProtocolPluggableClass()).thenReturn(this.deviceProtocolPluggableClass);
         when(this.device.getDeviceType()).thenReturn(this.deviceType);
         when(this.device.getDeviceConfiguration()).thenReturn(this.deviceConfiguration);
         when(this.deviceConfiguration.getCommunicationConfiguration()).thenReturn(this.deviceCommunicationConfiguration);
         when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(this.deviceProtocolPluggableClass);
         when(this.device.getId()).thenReturn(DEVICE_ID);
-        when(this.device.goOffline()).thenReturn(this.offlineDevice);
-        when(this.device.goOffline(any(OfflineDeviceContext.class))).thenReturn(this.offlineDevice);
-        when(this.offlineDevice.getId()).thenReturn((int) DEVICE_ID);
         when(this.deviceCommandExecutor.getLogLevel()).thenReturn(ComServer.LogLevel.ERROR);
 
-        ManagerFactory.setCurrent(this.manager);
-        when(this.manager.getComSessionFactory()).thenReturn(this.comSessionFactory);
         DeviceProtocolService deviceProtocolService = mock(DeviceProtocolService.class);
         when(deviceProtocolService.loadProtocolClass(SingleThreadedScheduledComPortTest.class.getName())).thenReturn(SingleThreadedScheduledComPortTest.class);
-        when(this.manager.getComTaskEnablementFactory()).thenReturn(this.comTaskEnablementFactory);
 
         when(this.comPortPool.getId()).thenReturn(COM_PORT_POOL_ID);
         when(this.comPortPool.getComPortType()).thenReturn(ComPortType.TCP);
@@ -273,7 +237,13 @@ public class SingleThreadedScheduledComPortTest {
         ThreadFactory threadFactory = mock(ThreadFactory.class);
         Thread mockedThread = this.mockedThread();
         when(threadFactory.newThread(any(Runnable.class))).thenReturn(mockedThread);
-        SingleThreadedScheduledComPort scheduledComPort = new SingleThreadedScheduledComPort(this.mockComPort("testStart"), mock(ComServerDAO.class), this.deviceCommandExecutor, threadFactory, issueService);
+        SingleThreadedScheduledComPort scheduledComPort =
+                new SingleThreadedScheduledComPort(
+                        this.mockComPort("testStart"),
+                        mock(ComServerDAO.class),
+                        this.deviceCommandExecutor,
+                        threadFactory,
+                        this.serviceProvider);
 
         // Business method
         scheduledComPort.start();
@@ -288,7 +258,7 @@ public class SingleThreadedScheduledComPortTest {
         ThreadFactory threadFactory = mock(ThreadFactory.class);
         Thread mockedThread = this.mockedThread();
         when(threadFactory.newThread(any(Runnable.class))).thenReturn(mockedThread);
-        SingleThreadedScheduledComPort scheduledComPort = new SingleThreadedScheduledComPort(this.mockComPort("testShutdown"), mock(ComServerDAO.class), this.deviceCommandExecutor, threadFactory, issueService);
+        SingleThreadedScheduledComPort scheduledComPort = new SingleThreadedScheduledComPort(this.mockComPort("testShutdown"), mock(ComServerDAO.class), this.deviceCommandExecutor, threadFactory, this.serviceProvider);
 
         scheduledComPort.start();
 
@@ -305,7 +275,7 @@ public class SingleThreadedScheduledComPortTest {
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksWithNoWork");
         when(comServerDAO.refreshComPort(comPort)).thenReturn(comPort);
-        SpySingleThreadedScheduledComPort scheduledComPort = new SpySingleThreadedScheduledComPort(comPort, comServerDAO, this.deviceCommandExecutor);
+        SpySingleThreadedScheduledComPort scheduledComPort = new SpySingleThreadedScheduledComPort(comPort, comServerDAO, this.deviceCommandExecutor, this.serviceProvider);
         final CountDownLatch stopLatch = new CountDownLatch(NUMBER_OF_SIMULTANEOUS_CONNECTIONS);
         when(comServerDAO.findExecutableOutboundComTasks(comPort)).then(new Answer<List<ComJob>>() {
             @Override
@@ -364,7 +334,7 @@ public class SingleThreadedScheduledComPortTest {
         });
         List<DeviceCommandExecutionToken> tokens = this.mockTokens(1);
         when(this.deviceCommandExecutor.tryAcquireTokens(1)).thenReturn(tokens);
-        SpySingleThreadedScheduledComPort scheduledComPort = new SpySingleThreadedScheduledComPort(comPort, comServerDAO, this.deviceCommandExecutor);
+        SpySingleThreadedScheduledComPort scheduledComPort = new SpySingleThreadedScheduledComPort(comPort, comServerDAO, this.deviceCommandExecutor, this.serviceProvider);
 
         try {
             // Business method
@@ -416,7 +386,7 @@ public class SingleThreadedScheduledComPortTest {
         });
         List<DeviceCommandExecutionToken> tokens = this.mockTokens(1);
         when(this.deviceCommandExecutor.tryAcquireTokens(1)).thenReturn(tokens);
-        SpySingleThreadedScheduledComPort scheduledComPort = new SpySingleThreadedScheduledComPort(comPort, comServerDAO, this.deviceCommandExecutor);
+        SpySingleThreadedScheduledComPort scheduledComPort = new SpySingleThreadedScheduledComPort(comPort, comServerDAO, this.deviceCommandExecutor, this.serviceProvider);
 
         try {
             // Business method
@@ -461,7 +431,7 @@ public class SingleThreadedScheduledComPortTest {
         List<DeviceCommandExecutionToken> tokens = this.mockTokens(NUMBER_OF_TASKS);
 
         when(this.deviceCommandExecutor.tryAcquireTokens(1)).thenReturn(tokens);
-        SpySingleThreadedScheduledComPort scheduledComPort = new SpySingleThreadedScheduledComPort(comPort, comServerDAO, this.deviceCommandExecutor, true, false);
+        SpySingleThreadedScheduledComPort scheduledComPort = new SpySingleThreadedScheduledComPort(comPort, comServerDAO, this.deviceCommandExecutor, this.serviceProvider, true, false);
 
         try {
             // Business method
@@ -502,7 +472,7 @@ public class SingleThreadedScheduledComPortTest {
         when(this.deviceCommandExecutor.tryAcquireTokens(1)).thenReturn(tokens);
         CountDownLatch stopLatch = new CountDownLatch(1);
         DeviceCommandExecutor deviceCommandExecutor = new LatchDrivenDeviceCommandExecutor(this.deviceCommandExecutor, stopLatch);
-        SpySingleThreadedScheduledComPort scheduledComPort = new SpySingleThreadedScheduledComPort(comPort, comServerDAO, deviceCommandExecutor);
+        SpySingleThreadedScheduledComPort scheduledComPort = new SpySingleThreadedScheduledComPort(comPort, comServerDAO, deviceCommandExecutor, this.serviceProvider);
 
         try {
             // Business method
@@ -542,7 +512,7 @@ public class SingleThreadedScheduledComPortTest {
         List<DeviceCommandExecutionToken> tokens = this.mockTokens(1);
         when(this.deviceCommandExecutor.tryAcquireTokens(1)).thenReturn(tokens);
         DeviceCommandExecutor deviceCommandExecutor = new LatchDrivenDeviceCommandExecutor(this.deviceCommandExecutor, stopLatch);
-        SpySingleThreadedScheduledComPort scheduledComPort = new SpySingleThreadedScheduledComPort(comPort, comServerDAO, deviceCommandExecutor);
+        SpySingleThreadedScheduledComPort scheduledComPort = new SpySingleThreadedScheduledComPort(comPort, comServerDAO, deviceCommandExecutor, this.serviceProvider);
 
         try {
             // Business method
@@ -566,8 +536,9 @@ public class SingleThreadedScheduledComPortTest {
 
     @Test(timeout = 7000)
     public void testExecuteTasksOneByOneOutsideComWindow () throws InterruptedException, BusinessException, SQLException, ConnectionException {
-        Clocks.setAppServerClock(FrozenClock.frozenOn(2013, Calendar.AUGUST, 22, 9, 0, 0, 0));    // It's now 9 am
-        ComWindow comWindow = new ComWindow(TimeConstants.SECONDS_IN_HOUR * 4, TimeConstants.SECONDS_IN_HOUR * 6); // Window is from 4 am to 6 am
+        Date now = new DateTime(2013, 8, 22, 9, 0, 0, 0).toDate();    // It's now 9 am
+        when(this.clock.now()).thenReturn(now);
+        ComWindow comWindow = new ComWindow(DateTimeConstants.SECONDS_PER_HOUR * 4, DateTimeConstants.SECONDS_PER_DAY * 6); // Window is from 4 am to 6 am
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksOneByOneOutsideComWindow");
         when(comServerDAO.refreshComPort(comPort)).thenReturn(comPort);
@@ -586,7 +557,7 @@ public class SingleThreadedScheduledComPortTest {
         List<DeviceCommandExecutionToken> tokens = this.mockTokens(1);
         when(this.deviceCommandExecutor.tryAcquireTokens(1)).thenReturn(tokens);
         DeviceCommandExecutor deviceCommandExecutor = new LatchDrivenDeviceCommandExecutor(this.deviceCommandExecutor, stopLatch);
-        SpySingleThreadedScheduledComPort scheduledComPort = new SpySingleThreadedScheduledComPort(comPort, comServerDAO, deviceCommandExecutor);
+        SpySingleThreadedScheduledComPort scheduledComPort = new SpySingleThreadedScheduledComPort(comPort, comServerDAO, deviceCommandExecutor, this.serviceProvider);
 
         try {
             // Business method
@@ -610,8 +581,9 @@ public class SingleThreadedScheduledComPortTest {
 
     @Test
     public void testPreventNoResourcesAcquiredExceptionWhenSchedulingJustOutsideComWindow() throws ConnectionException, InterruptedException {
-        Clocks.setAppServerClock(FrozenClock.frozenOn(2013, Calendar.AUGUST, 22, 9, 1, 0, 0, TimeZone.getDefault()));    // It's now 09:01 am
-        ComWindow comWindow = new ComWindow(TimeConstants.SECONDS_IN_HOUR * 4, TimeConstants.SECONDS_IN_HOUR * 9); // Window is from 4 am to 9 am
+        Date now = new DateTime(2013, Calendar.AUGUST, 22, 9, 1, 0, 0).toDate();    // It's now 09:01 am
+        when(this.clock.now()).thenReturn(now);
+        ComWindow comWindow = new ComWindow(DateTimeConstants.SECONDS_PER_HOUR * 4, DateTimeConstants.SECONDS_PER_DAY * 9); // Window is from 4 am to 9 am
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksOneByOneOutsideComWindow");
         when(comServerDAO.refreshComPort(comPort)).thenReturn(comPort);
@@ -627,7 +599,7 @@ public class SingleThreadedScheduledComPortTest {
         when(comServerDAO.findExecutableOutboundComTasks(comPort)).thenReturn(jobs);
         DeviceCommandExecutor deviceCommandExecutor = spy(new RealTimeWorkingLatchDrivenDeviceCommandExecutor("RealTimeDevComExec", 10, 1, 1, ComServer.LogLevel.TRACE, comServerDAO, devComExecStartedLatch, stopLatch));
         deviceCommandExecutor.start();
-        SpySingleThreadedScheduledComPort scheduledComPort = new SpySingleThreadedScheduledComPort(comPort, comServerDAO, deviceCommandExecutor);
+        SpySingleThreadedScheduledComPort scheduledComPort = new SpySingleThreadedScheduledComPort(comPort, comServerDAO, deviceCommandExecutor, this.serviceProvider);
 
         try {
             devComExecStartedLatch.await();
@@ -668,7 +640,7 @@ public class SingleThreadedScheduledComPortTest {
         });
         List<DeviceCommandExecutionToken> tokens = this.mockTokens(1);
         when(this.deviceCommandExecutor.tryAcquireTokens(1)).thenReturn(tokens);
-        SpySingleThreadedScheduledComPort scheduledComPort = new SpySingleThreadedScheduledComPort(comPort, comServerDAO, this.deviceCommandExecutor, false, true);
+        SpySingleThreadedScheduledComPort scheduledComPort = new SpySingleThreadedScheduledComPort(comPort, comServerDAO, this.deviceCommandExecutor, this.serviceProvider, false, true);
 
         try {
             // Business method
@@ -714,12 +686,12 @@ public class SingleThreadedScheduledComPortTest {
     }
 
     private ComJob toComJob (ServerComTaskExecution comTask) {
-        return new ScheduledComTaskExecutionJob(comTask);
+        return new ComTaskExecutionJob(comTask);
     }
 
     private List<ComJob> toComJob (List<ServerComTaskExecution> serialComTasks) {
         OutboundConnectionTask connectionTask = (OutboundConnectionTask) serialComTasks.get(0).getConnectionTask();
-        ScheduledComTaskExecutionGroup group = new ScheduledComTaskExecutionGroup(connectionTask);
+        ComTaskExecutionGroup group = new ComTaskExecutionGroup(connectionTask);
         for (ServerComTaskExecution comTask : serialComTasks) {
             group.add(comTask);
         }
@@ -754,12 +726,12 @@ public class SingleThreadedScheduledComPortTest {
         private int numberOfGroupExecuteCalls = 0;
         private int numberOfJobExecuteCalls = 0;
 
-        private SpySingleThreadedScheduledComPort (OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor) {
-            this(comPort, comServerDAO, deviceCommandExecutor, true, true);
+        private SpySingleThreadedScheduledComPort (OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
+            this(comPort, comServerDAO, deviceCommandExecutor, serviceProvider, true, true);
         }
 
-        private SpySingleThreadedScheduledComPort (OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, boolean neverFailConnectionTaskLockAttempt, boolean neverFailComTaskLockAttempt) {
-            super(comPort, comServerDAO, deviceCommandExecutor, issueService);
+        private SpySingleThreadedScheduledComPort (OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider, boolean neverFailConnectionTaskLockAttempt, boolean neverFailComTaskLockAttempt) {
+            super(comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
             this.neverFailConnectionTaskLockAttempt = neverFailConnectionTaskLockAttempt;
             this.neverFailComTaskLockAttempt = neverFailComTaskLockAttempt;
         }
@@ -808,18 +780,18 @@ public class SingleThreadedScheduledComPortTest {
 
 
         @Override
-        protected com.energyict.comserver.core.ComTaskExecutionJob newComTaskJob (ComTaskExecution comTask) {
-            return new CountingComTaskExecutionJob(this.getComPort(), this.getComServerDAO(), this.getDeviceCommandExecutor(), comTask);
+        protected ScheduledComTaskExecutionJob newComTaskJob (ComTaskExecution comTask) {
+            return new CountingComTaskExecutionJob(this.getComPort(), this.getComServerDAO(), this.getDeviceCommandExecutor(), serviceProvider, comTask);
         }
 
         @Override
-        protected com.energyict.comserver.core.ComTaskExecutionGroup newComTaskGroup (ScheduledConnectionTask connectionTask) {
-            return new CountingComTaskExecutionGroup(this.getComPort(), this.getComServerDAO(), this.getDeviceCommandExecutor(), connectionTask);
+        protected ScheduledComTaskExecutionGroup newComTaskGroup (ScheduledConnectionTask connectionTask) {
+            return new CountingComTaskExecutionGroup(this.getComPort(), this.getComServerDAO(), this.getDeviceCommandExecutor(), serviceProvider, connectionTask);
         }
 
-        private class CountingComTaskExecutionJob extends com.energyict.comserver.core.ComTaskExecutionJob {
-            private CountingComTaskExecutionJob (OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ComTaskExecution comTask) {
-                super(comPort, comServerDAO, deviceCommandExecutor, comTask, issueService);
+        private class CountingComTaskExecutionJob extends ScheduledComTaskExecutionJob {
+            private CountingComTaskExecutionJob (OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider, ComTaskExecution comTask) {
+                super(comPort, comServerDAO, deviceCommandExecutor, comTask, serviceProvider);
             }
 
             @Override
@@ -841,13 +813,13 @@ public class SingleThreadedScheduledComPortTest {
             }
         }
 
-        private class CountingComTaskExecutionGroup extends com.energyict.comserver.core.ComTaskExecutionGroup {
-            private CountingComTaskExecutionGroup (OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ScheduledConnectionTask connectionTask) {
-                super(comPort, comServerDAO, deviceCommandExecutor, connectionTask, issueService);
+        private class CountingComTaskExecutionGroup extends ScheduledComTaskExecutionGroup {
+            private CountingComTaskExecutionGroup (OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider, ScheduledConnectionTask connectionTask) {
+                super(comPort, comServerDAO, deviceCommandExecutor, connectionTask, serviceProvider);
             }
 
             @Override
-            protected boolean execute (PreparedComTaskExecution preparedComTaskExecution) {
+            protected boolean execute (JobExecution.PreparedComTaskExecution preparedComTaskExecution) {
                 numberOfJobExecuteCalls++;
                 return super.execute(preparedComTaskExecution);
             }

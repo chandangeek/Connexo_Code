@@ -1,13 +1,12 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.protocols.mdc.channels.AbstractComChannel;
-import com.energyict.mdc.protocol.ComPortRelatedComChannel;
 
 import java.io.IOException;
 
 /**
- * Provides an implementation for the {@link ComPortRelatedComChannel} interface
- * that write all bytes to System.out.
+ * Provides an implementation for the {@link com.energyict.mdc.protocol.api.ComChannel} interface
+ * that writes all bytes to System.out.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-06-19 (10:42)

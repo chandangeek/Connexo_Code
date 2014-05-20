@@ -1,18 +1,12 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.comserver.commands.common.CommonCommandImplTests;
-import com.energyict.comserver.commands.core.CommandRootImpl;
-import com.energyict.mdc.engine.impl.core.CommandFactory;
-import com.energyict.mdc.protocol.tasks.LoadProfilesTask;
-import com.energyict.mdc.protocol.tasks.LogBooksTask;
-import com.energyict.mdc.device.config.ProtocolTask;
-import com.energyict.mdc.protocol.tasks.RegistersTask;
+import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
+import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.energyict.mdc.tasks.ComTaskExecution;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.tasks.ProtocolTask;

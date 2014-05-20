@@ -19,6 +19,8 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
+import com.energyict.mdc.tasks.history.ComSession;
+import com.energyict.mdc.tasks.history.ComSessionBuilder;
 
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.transaction.Transaction;
@@ -209,6 +211,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
     @Override
     public <T> T executeTransaction(Transaction<T> transaction) {
         return this.actual.executeTransaction(transaction);
+    }
+
+    @Override
+    public ComSession createComSession(ComSessionBuilder builder, ComSession.SuccessIndicator successIndicator) {
+        return this.actual.createComSession(builder, successIndicator);
     }
 
     private class VerifingComServerDAO implements ComServerDAO {
@@ -433,6 +440,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
 
         @Override
         public void shutdownImmediate () {
+        }
+
+        @Override
+        public ComSession createComSession(ComSessionBuilder builder, ComSession.SuccessIndicator successIndicator) {
+            return null;
         }
     }
 

@@ -1,67 +1,67 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.comserver.commands.CompositeDeviceCommand;
-import com.energyict.comserver.commands.CreateOutboundComSession;
-import com.energyict.comserver.commands.DeviceCommand;
-import com.energyict.comserver.commands.DeviceCommandExecutionToken;
-import com.energyict.comserver.commands.DeviceCommandExecutor;
-import com.energyict.mdc.ManagerFactory;
-import com.energyict.mdc.ServerManager;
-import com.energyict.mdc.commands.ComCommand;
-import com.energyict.mdc.commands.ComCommandTypes;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.Transaction;
-import com.energyict.mdc.communication.tasks.ProtocolDialectPropertiesFactory;
-import com.energyict.mdc.communication.tasks.ServerComTaskEnablementFactory;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.ServerComTaskExecution;
-import com.energyict.mdc.device.data.journal.ComSession;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.engine.FakeServiceProvider;
+import com.energyict.mdc.engine.FakeTransactionService;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
+import com.energyict.mdc.engine.impl.commands.store.CompositeDeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.CreateOutboundComSession;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
-import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.ServerDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
-import com.energyict.mdw.core.CommunicationDevice;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
-
 import com.energyict.mdc.tasks.StatusInformationTask;
+import com.energyict.mdc.tasks.history.ComSession;
+import com.energyict.mdc.tasks.history.ComSessionBuilder;
+import com.energyict.mdc.tasks.history.TaskHistoryService;
+
+import com.elster.jupiter.transaction.TransactionService;
 
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
-import static org.fest.assertions.api.Assertions.assertThat;
-import static org.junit.Assert.assertNotNull;
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Answers;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -81,11 +81,9 @@ public class ScheduledJobImplTest {
     private static final long DEVICE_ID = CONNECTION_TASK_ID + 1;
 
     @Mock
-    private ServerManager manager;
-    @Mock
     private OutboundComPortPool comPortPool;
     @Mock
-    private ServerDeviceProtocolPluggableClass deviceProtocolPluggableClass;
+    private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     @Mock
     public DeviceProtocolDialect deviceProtocolDialect;
     @Mock
@@ -99,39 +97,31 @@ public class ScheduledJobImplTest {
     @Mock
     private DeviceCommunicationConfiguration deviceCommunicationConfiguration;
     @Mock
-    private ServerComTaskEnablementFactory comTaskEnablementFactory;
-    @Mock
     private ComTaskEnablement comTaskEnablement;
     @Mock
     private BasicCheckTask basicCheckTask;
     @Mock
     private StatusInformationTask statusInformationTask;
     @Mock
-    private ProtocolDialectPropertiesFactory protocolDialectPropertiesFactory;
-    @Mock
-    private ScheduledJobTransactionExecutor scheduledJobTransactionExecutor;
+    private TaskHistoryService taskHistoryService;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private ComSessionBuilder comSessionBuilder;
+
+    private TransactionService transactionService = new FakeTransactionService();
+    private FakeServiceProvider serviceProvider = new FakeServiceProvider();
+
+    @Before
+    public void setupServiceProvider () {
+        this.serviceProvider.setTransactionService(this.transactionService);
+        this.serviceProvider.setTaskHistoryService(this.taskHistoryService);
+        when(this.taskHistoryService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Date.class))).thenReturn(this.comSessionBuilder);
+    }
 
     @Before
     public void initMocksAndFactories() throws BusinessException {
         when(this.comPortPool.getId()).thenReturn(COM_PORT_POOL_ID);
         when(this.comPortPool.getComPortType()).thenReturn(ComPortType.TCP);
-        when(this.manager.getComTaskEnablementFactory()).thenReturn(this.comTaskEnablementFactory);
-        when(this.comTaskEnablementFactory.
-                findByDeviceCommunicationConfigurationAndComTask(
-                        any(DeviceCommunicationConfiguration.class),
-                        any(ComTask.class))).
-                thenReturn(comTaskEnablement);
         when(this.deviceConfiguration.getDeviceType()).thenReturn(this.deviceType);
-        when(this.manager.getProtocolDialectPropertiesFactory()).thenReturn(this.protocolDialectPropertiesFactory);
-        ManagerFactory.setCurrent(this.manager);
-        when(this.scheduledJobTransactionExecutor.execute(any(Transaction.class))).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer (InvocationOnMock invocation) throws Throwable {
-                Transaction transaction = (Transaction) invocation.getArguments()[0];
-                transaction.doExecute();
-                return ScheduledJobExecutor.ValidationReturnStatus.ATTEMPT_LOCK_SUCCESS;
-            }
-        });
     }
 
     @Test
@@ -140,7 +130,7 @@ public class ScheduledJobImplTest {
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(this.deviceProtocolPluggableClass);
         OfflineDevice offlineDevice = createMockOfflineDevice();
-        CommunicationDevice device = createMockDevice(offlineDevice);
+        Device device = createMockDevice(offlineDevice);
         OnlineComServer comServer = createMockOnlineComServer();
         OutboundComPort comPort = createMockOutBoundComPort(comServer);
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
@@ -150,21 +140,21 @@ public class ScheduledJobImplTest {
 
         ServerComTaskExecution scheduledComTask = createMockServerScheduledComTask(device, connectionTask, comTask, mockProtocolDialectConfigurationProperties);
 
-        ScheduledComTaskExecutionJob scheduledComTaskExecutionJob = new ScheduledComTaskExecutionJob(comPort, comServerDAO, this.deviceCommandExecutor, scheduledComTask, mock(IssueService.class));
+        ScheduledComTaskExecutionJob scheduledComTaskExecutionJob = new ScheduledComTaskExecutionJob(comPort, comServerDAO, this.deviceCommandExecutor, scheduledComTask, this.serviceProvider);
         scheduledComTaskExecutionJob.establishConnectionFor();
         JobExecution.PreparedComTaskExecution preparedComTaskExecution = scheduledComTaskExecutionJob.prepareOne(scheduledComTask);
 
         // asserts
-        assertNotNull(preparedComTaskExecution.getCommandRoot());
+        assertThat(preparedComTaskExecution.getCommandRoot()).isNotNull();
         Map<ComCommandTypes, ComCommand> commandMap = preparedComTaskExecution.getCommandRoot().getCommands();
-        assertNotNull(commandMap);
-        Assertions.assertThat(commandMap.keySet()).contains(ComCommandTypes.BASIC_CHECK_COMMAND);
-        Assertions.assertThat(commandMap.keySet()).contains(ComCommandTypes.STATUS_INFORMATION_COMMAND);
-        Assertions.assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE);
-        Assertions.assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE);
-        Assertions.assertThat(commandMap.keySet()).contains(ComCommandTypes.ADD_PROPERTIES_COMMAND);
-        Assertions.assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_SET_CACHE_COMMAND);
-        Assertions.assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_UPDATE_CACHE_COMMAND);
+        assertThat(commandMap).isNotNull();
+        assertThat(commandMap.keySet()).contains(ComCommandTypes.BASIC_CHECK_COMMAND);
+        assertThat(commandMap.keySet()).contains(ComCommandTypes.STATUS_INFORMATION_COMMAND);
+        assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE);
+        assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE);
+        assertThat(commandMap.keySet()).contains(ComCommandTypes.ADD_PROPERTIES_COMMAND);
+        assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_SET_CACHE_COMMAND);
+        assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_UPDATE_CACHE_COMMAND);
     }
 
     @Test
@@ -173,7 +163,7 @@ public class ScheduledJobImplTest {
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(this.deviceProtocolPluggableClass);
         OfflineDevice offlineDevice = createMockOfflineDevice();
-        CommunicationDevice device = createMockDevice(offlineDevice);
+        Device device = createMockDevice(offlineDevice);
         OnlineComServer comServer = createMockOnlineComServer();
         OutboundComPort comPort = createMockOutBoundComPort(comServer);
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
@@ -185,7 +175,7 @@ public class ScheduledJobImplTest {
         ServerComTaskExecution comTask2 = createMockServerScheduledComTask(device, connectionTask, comTask, mockProtocolDialectConfigurationProperties);
         ServerComTaskExecution comTask3 = createMockServerScheduledComTask(device, connectionTask, comTask, mockProtocolDialectConfigurationProperties);
 
-        ScheduledComTaskExecutionGroup group = new ScheduledComTaskExecutionGroup(comPort, comServerDAO, this.deviceCommandExecutor, connectionTask, mock(IssueService.class));
+        ScheduledComTaskExecutionGroup group = new ScheduledComTaskExecutionGroup(comPort, comServerDAO, this.deviceCommandExecutor, connectionTask, this.serviceProvider);
         group.establishConnectionFor();
         group.add(comTask1);
         group.add(comTask2);
@@ -194,45 +184,45 @@ public class ScheduledJobImplTest {
         JobExecution.PreparedComTaskExecution preparedComTaskExecution = group.prepareOne(comTask1);
 
         // asserts
-        assertNotNull(preparedComTaskExecution.getCommandRoot());
+        assertThat(preparedComTaskExecution.getCommandRoot()).isNotNull();
         Map<ComCommandTypes, ComCommand> commandMap = preparedComTaskExecution.getCommandRoot().getCommands();
-        assertNotNull(commandMap);
-        Assertions.assertThat(commandMap.keySet()).contains(ComCommandTypes.BASIC_CHECK_COMMAND);
-        Assertions.assertThat(commandMap.keySet()).contains(ComCommandTypes.STATUS_INFORMATION_COMMAND);
-        Assertions.assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE);
-        Assertions.assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE);
-        Assertions.assertThat(commandMap.keySet()).contains(ComCommandTypes.ADD_PROPERTIES_COMMAND);
-        Assertions.assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_SET_CACHE_COMMAND);
-        Assertions.assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_UPDATE_CACHE_COMMAND);
+        assertThat(commandMap).isNotNull();
+        assertThat(commandMap.keySet()).contains(ComCommandTypes.BASIC_CHECK_COMMAND);
+        assertThat(commandMap.keySet()).contains(ComCommandTypes.STATUS_INFORMATION_COMMAND);
+        assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE);
+        assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE);
+        assertThat(commandMap.keySet()).contains(ComCommandTypes.ADD_PROPERTIES_COMMAND);
+        assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_SET_CACHE_COMMAND);
+        assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_UPDATE_CACHE_COMMAND);
 
         // creating the commands for the middle comtask
         JobExecution.PreparedComTaskExecution preparedComTaskExecution2 = group.prepareOne(comTask2);
 
         // asserts
-        assertNotNull(preparedComTaskExecution2.getCommandRoot());
+        assertThat(preparedComTaskExecution2.getCommandRoot()).isNotNull();
         commandMap = preparedComTaskExecution2.getCommandRoot().getCommands();
-        assertNotNull(commandMap);
-        Assertions.assertThat(commandMap.keySet()).contains(ComCommandTypes.BASIC_CHECK_COMMAND);
-        Assertions.assertThat(commandMap.keySet()).contains(ComCommandTypes.STATUS_INFORMATION_COMMAND);
-        Assertions.assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE);
-        Assertions.assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE);
-        Assertions.assertThat(commandMap.keySet()).contains(ComCommandTypes.ADD_PROPERTIES_COMMAND);
-        Assertions.assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_SET_CACHE_COMMAND);
-        Assertions.assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_UPDATE_CACHE_COMMAND);
+        assertThat(commandMap).isNotNull();
+        assertThat(commandMap.keySet()).contains(ComCommandTypes.BASIC_CHECK_COMMAND);
+        assertThat(commandMap.keySet()).contains(ComCommandTypes.STATUS_INFORMATION_COMMAND);
+        assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE);
+        assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE);
+        assertThat(commandMap.keySet()).contains(ComCommandTypes.ADD_PROPERTIES_COMMAND);
+        assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_SET_CACHE_COMMAND);
+        assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_UPDATE_CACHE_COMMAND);
 
         // creating the commands for the last comtask
         JobExecution.PreparedComTaskExecution preparedComTaskExecution3 = group.prepareOne(comTask3);
 
-        assertNotNull(preparedComTaskExecution3.getCommandRoot());
+        assertThat(preparedComTaskExecution3.getCommandRoot()).isNotNull();
         commandMap = preparedComTaskExecution3.getCommandRoot().getCommands();
-        assertNotNull(commandMap);
-        Assertions.assertThat(commandMap.keySet()).contains(ComCommandTypes.BASIC_CHECK_COMMAND);
-        Assertions.assertThat(commandMap.keySet()).contains(ComCommandTypes.STATUS_INFORMATION_COMMAND);
-        Assertions.assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE);
-        Assertions.assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE);
-        Assertions.assertThat(commandMap.keySet()).contains(ComCommandTypes.ADD_PROPERTIES_COMMAND);
-        Assertions.assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_SET_CACHE_COMMAND);
-        Assertions.assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_UPDATE_CACHE_COMMAND);
+        assertThat(commandMap).isNotNull();
+        assertThat(commandMap.keySet()).contains(ComCommandTypes.BASIC_CHECK_COMMAND);
+        assertThat(commandMap.keySet()).contains(ComCommandTypes.STATUS_INFORMATION_COMMAND);
+        assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE);
+        assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE);
+        assertThat(commandMap.keySet()).contains(ComCommandTypes.ADD_PROPERTIES_COMMAND);
+        assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_SET_CACHE_COMMAND);
+        assertThat(commandMap.keySet()).contains(ComCommandTypes.DEVICE_PROTOCOL_UPDATE_CACHE_COMMAND);
     }
 
     @Test(timeout = 5000)
@@ -247,16 +237,16 @@ public class ScheduledJobImplTest {
         when(connectionTask.getId()).thenReturn(CONNECTION_TASK_ID);
         when(connectionTask.getComPortPool()).thenReturn(this.comPortPool);
         when(connectionTask.getConnectionStrategy()).thenReturn(ConnectionStrategy.MINIMIZE_CONNECTIONS);
-        CommunicationDevice device = this.createMockDevice(this.createMockOfflineDevice());
+        Device device = this.createMockDevice(this.createMockOfflineDevice());
         when(connectionTask.getDevice()).thenReturn(device);
         when(connectionTask.connect(comPort)).thenReturn(mock(ComChannel.class));
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = this.createMockProtocolDialectConfigurationProperties();
         CountDownLatch deviceCommandExecutionStartedLatch = new CountDownLatch(1);
         DeviceCommandExecutor deviceCommandExecutor = new LatchDrivenDeviceCommandExecutor(this.deviceCommandExecutor, deviceCommandExecutionStartedLatch);
         ServerComTaskExecution scheduledComTask = this.createMockServerScheduledComTask(device, connectionTask, this.createMockComTask(), protocolDialectConfigurationProperties);
-        final ScheduledComTaskExecutionJob job = new ScheduledComTaskExecutionJob(comPort, mock(ComServerDAO.class), deviceCommandExecutor, scheduledComTask, mock(IssueService.class));
+        final ScheduledComTaskExecutionJob job = new ScheduledComTaskExecutionJob(comPort, mock(ComServerDAO.class), deviceCommandExecutor, scheduledComTask, this.serviceProvider);
         BlockingQueue<ScheduledJob> blockingQueue = mock(BlockingQueue.class);
-        final ScheduledJobExecutor jobExecutor = new MultiThreadedScheduledJobExecutor(this.scheduledJobTransactionExecutor, ComServer.LogLevel.TRACE, blockingQueue, this.deviceCommandExecutor);
+        final ScheduledJobExecutor jobExecutor = new MultiThreadedScheduledJobExecutor(this.transactionService, ComServer.LogLevel.TRACE, blockingQueue, this.deviceCommandExecutor);
         final CountDownLatch startLatch = new CountDownLatch(2);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
@@ -287,7 +277,7 @@ public class ScheduledJobImplTest {
         ArgumentCaptor<DeviceCommand> deviceCommandArgumentCaptor = ArgumentCaptor.forClass(DeviceCommand.class);
         verify(this.deviceCommandExecutor).execute(deviceCommandArgumentCaptor.capture(), any(DeviceCommandExecutionToken.class));
         DeviceCommand deviceCommand = deviceCommandArgumentCaptor.getValue();
-        Assertions.assertThat(deviceCommand).isInstanceOf(CompositeDeviceCommand.class);
+        assertThat(deviceCommand).isInstanceOf(CompositeDeviceCommand.class);
         CompositeDeviceCommand compositeDeviceCommand = (CompositeDeviceCommand) deviceCommand;
         CreateOutboundComSession createComSession = null;
         for (DeviceCommand command : compositeDeviceCommand.getChildren()) {
@@ -295,12 +285,12 @@ public class ScheduledJobImplTest {
                 createComSession = (CreateOutboundComSession) command;
             }
         }
-        Assertions.assertThat(createComSession).isNotNull();
-        assertThat(createComSession.getComSessionShadow()).isNotNull();
-        assertThat(createComSession.getComSessionShadow().getSuccessIndicator()).isEqualTo(ComSession.SuccessIndicator.Broken);
+        assertThat(createComSession).isNotNull();
+        assertThat(createComSession.getComSessionBuilder()).isNotNull();
+        verify(this.comSessionBuilder).endSession(any(Date.class), eq(ComSession.SuccessIndicator.Broken));
     }
 
-    private ServerComTaskExecution createMockServerScheduledComTask (CommunicationDevice device, ConnectionTask connectionTask, ComTask comTask, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
+    private ServerComTaskExecution createMockServerScheduledComTask (Device device, ConnectionTask connectionTask, ComTask comTask, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
         ServerComTaskExecution scheduledComTask = mock(ServerComTaskExecution.class);
         when(scheduledComTask.getDevice()).thenReturn(device);
         when(scheduledComTask.getConnectionTask()).thenReturn(connectionTask);
@@ -340,10 +330,9 @@ public class ScheduledJobImplTest {
         return comServer;
     }
 
-    private CommunicationDevice createMockDevice (OfflineDevice offlineDevice) {
-        CommunicationDevice device = mock(CommunicationDevice.class);
+    private Device createMockDevice (OfflineDevice offlineDevice) {
+        Device device = mock(Device.class);
         when(device.getId()).thenReturn(DEVICE_ID);
-        when(device.goOffline(any(OfflineDeviceContext.class))).thenReturn(offlineDevice);
         when(device.getDeviceType()).thenReturn(this.deviceType);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(deviceConfiguration.getCommunicationConfiguration()).thenReturn(deviceCommunicationConfiguration);

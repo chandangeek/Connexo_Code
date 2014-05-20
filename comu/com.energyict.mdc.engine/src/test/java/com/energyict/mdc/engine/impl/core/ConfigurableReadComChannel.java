@@ -1,12 +1,11 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.protocols.mdc.channels.AbstractComChannel;
-import com.energyict.mdc.protocol.ComPortRelatedComChannel;
 
 import java.io.IOException;
 
 /**
- * Provides an implementation for the {@link ComPortRelatedComChannel} interface
+ * Provides an implementation for the {@link com.energyict.mdc.protocol.api.ComChannel} interface
  * that can be configured to return bytes while reading from it.
  *
  * @author Rudi Vankeirsbilck (rudi)

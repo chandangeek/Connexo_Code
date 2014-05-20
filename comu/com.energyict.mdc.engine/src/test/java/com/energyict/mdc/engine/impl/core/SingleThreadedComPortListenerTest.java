@@ -1,26 +1,27 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.comserver.commands.DeviceCommandExecutor;
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.core.SingleThreadedComPortListener;
-import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactoryImpl;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.engine.model.InboundComPort;
-import com.energyict.mdc.engine.impl.core.inbound.InboundComPortConnector;
+import com.energyict.mdc.engine.FakeServiceProvider;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactoryImpl;
 import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannelImpl;
-import com.energyict.protocols.mdc.channels.VoidComChannel;
-import com.energyict.mdc.protocol.api.ComChannel;
+import com.energyict.mdc.engine.impl.core.inbound.InboundComPortConnector;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundCapableComServer;
+import com.energyict.mdc.engine.model.InboundComPort;
+import com.energyict.mdc.protocol.api.ComChannel;
+
+import com.energyict.protocols.mdc.channels.VoidComChannel;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ThreadFactory;
+
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ThreadFactory;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.atLeast;
@@ -47,6 +48,7 @@ public class SingleThreadedComPortListenerTest {
 
     @Mock
     private DeviceCommandExecutor deviceCommandExecutor;
+    private FakeServiceProvider serviceProvider = new FakeServiceProvider();
 
     private Thread mockedThread() {
         return mock(Thread.class);
@@ -58,7 +60,7 @@ public class SingleThreadedComPortListenerTest {
         Thread mockedThread = this.mockedThread();
         when(threadFactory.newThread(any(Runnable.class))).thenReturn(mockedThread);
 
-        SingleThreadedComPortListener singleThreadedComPortListener = new SingleThreadedComPortListener(this.mockComPort("testStart"), mock(ComServerDAO.class), threadFactory, this.deviceCommandExecutor, new InboundComPortExecutorFactoryImpl(), issueService);
+        SingleThreadedComPortListener singleThreadedComPortListener = new SingleThreadedComPortListener(this.mockComPort("testStart"), mock(ComServerDAO.class), threadFactory, this.deviceCommandExecutor, new InboundComPortExecutorFactoryImpl(), this.serviceProvider);
 
         // business method
         singleThreadedComPortListener.start();
@@ -74,7 +76,7 @@ public class SingleThreadedComPortListenerTest {
         Thread mockedThread = this.mockedThread();
         when(threadFactory.newThread(any(Runnable.class))).thenReturn(mockedThread);
 
-        SingleThreadedComPortListener singleThreadedComPortListener = new SingleThreadedComPortListener(this.mockComPort("testShutdown"), mock(ComServerDAO.class), threadFactory, this.deviceCommandExecutor, new InboundComPortExecutorFactoryImpl(), issueService);
+        SingleThreadedComPortListener singleThreadedComPortListener = new SingleThreadedComPortListener(this.mockComPort("testShutdown"), mock(ComServerDAO.class), threadFactory, this.deviceCommandExecutor, new InboundComPortExecutorFactoryImpl(), this.serviceProvider);
 
         // business method
         singleThreadedComPortListener.start();
@@ -92,7 +94,7 @@ public class SingleThreadedComPortListenerTest {
         InboundComPortConnector connector = spy(new LatchDrivenTimeOutInboundComPortConnector(startLatch, progressLatch));
 
         SingleThreadedComPortListener singleThreadedComPortListener =
-                spy(new SingleThreadedComPortListener(this.mockComPort("simTimeout", connector), mock(ComServerDAO.class), this.deviceCommandExecutor, issueService));
+                spy(new SingleThreadedComPortListener(this.mockComPort("simTimeout", connector), mock(ComServerDAO.class), this.deviceCommandExecutor, this.serviceProvider));
         // business method
         singleThreadedComPortListener.start();
         startLatch.await(); // wait until the accept has occurred
@@ -109,7 +111,12 @@ public class SingleThreadedComPortListenerTest {
         CountDownLatch protocolLatch = new CountDownLatch(1);
         final ComPortRelatedComChannel comChannel = mock(ComPortRelatedComChannel.class);
         final InboundComPortConnector connector = spy(new LatchDrivenAcceptInboundComPortConnector(startLatch, progressLatch, comChannel));
-        LatchDrivenSingleThreadedComPortListener singleThreadedComPortListener = spy(new LatchDrivenSingleThreadedComPortListener(this.mockComPort("accept", connector), mock(ComServerDAO.class), this.deviceCommandExecutor));
+        LatchDrivenSingleThreadedComPortListener singleThreadedComPortListener =
+                spy(new LatchDrivenSingleThreadedComPortListener(
+                        this.mockComPort("accept", connector),
+                        mock(ComServerDAO.class),
+                        this.deviceCommandExecutor,
+                        this.serviceProvider));
         singleThreadedComPortListener.setCounter(protocolLatch);
         // business method
         singleThreadedComPortListener.start();
@@ -192,8 +199,8 @@ public class SingleThreadedComPortListenerTest {
 
         private CountDownLatch counter;
 
-        private LatchDrivenSingleThreadedComPortListener (InboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor) {
-            super(comPort, comServerDAO, deviceCommandExecutor, issueService);
+        private LatchDrivenSingleThreadedComPortListener (InboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
+            super(comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
         }
 
         private void setCounter(CountDownLatch countDownLatch){
@@ -215,7 +222,7 @@ public class SingleThreadedComPortListenerTest {
         when(comServer.getServerLogLevel()).thenReturn(ComServer.LogLevel.INFO);
         when(comServer.getSchedulingInterPollDelay()).thenReturn(TIME_DURATION);
         when(comServer.getChangesInterPollDelay()).thenReturn(TIME_DURATION);
-        ServerComChannelBasedInboundComPort comPort = mock(ServerComChannelBasedInboundComPort.class);
+        InboundComPort comPort = mock(InboundComPort.class);
         when(comPort.getName()).thenReturn("SingleThreadedComPortListener#" + name);
         when(comPort.getNumberOfSimultaneousConnections()).thenReturn(NUMBER_OF_SIMULTANEOUS_CONNECTIONS);
         when(comPort.getComServer()).thenReturn(comServer);

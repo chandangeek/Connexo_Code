@@ -108,7 +108,7 @@ public class ComTaskExecutionOrganizerTest {
         ComTaskExecution comTaskExecution = createMockedComTaskExecution(device, createMockedTopologyComTask());
 
         // business exception
-        final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(comTaskExecution);
+        final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(Arrays.asList(comTaskExecution));
 
         // asserts
         assertThat(deviceOrganizedComTaskExecutions).isNotNull();
@@ -135,7 +135,7 @@ public class ComTaskExecutionOrganizerTest {
         ComTaskExecution comTaskExecution2 = createMockedComTaskExecution(device, createMockedTopologyComTask());
 
         // business exception
-        final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(comTaskExecution1, comTaskExecution2);
+        final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(Arrays.asList(comTaskExecution1, comTaskExecution2));
 
         // asserts
         assertThat(deviceOrganizedComTaskExecutions).isNotNull();
@@ -173,8 +173,7 @@ public class ComTaskExecutionOrganizerTest {
 
         // business exception
         final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions =
-                new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(
-                        comTaskExecution1, comTaskExecution2, comTaskExecution3, comTaskExecution4);
+                new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(Arrays.asList(comTaskExecution1, comTaskExecution2, comTaskExecution3, comTaskExecution4));
 
         // asserts
         assertThat(deviceOrganizedComTaskExecutions).isNotNull();
@@ -229,8 +228,7 @@ public class ComTaskExecutionOrganizerTest {
 
         // business exception
         final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions =
-                new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(
-                        comTaskExecution1, comTaskExecution2);
+                new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(Arrays.asList(comTaskExecution1, comTaskExecution2));
 
         // asserts
         assertThat(deviceOrganizedComTaskExecutions).isNotNull();
@@ -275,8 +273,7 @@ public class ComTaskExecutionOrganizerTest {
 
         // business exception
         final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions =
-                new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(
-                        comTaskExecution1, comTaskExecution2, comTaskExecution3, comTaskExecution4);
+                new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(Arrays.asList(comTaskExecution1, comTaskExecution2, comTaskExecution3, comTaskExecution4));
 
         // asserts
         assertThat(deviceOrganizedComTaskExecutions).isNotNull();
@@ -345,9 +342,9 @@ public class ComTaskExecutionOrganizerTest {
 
         // business exception
         final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions =
-                new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(
+                new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(Arrays.asList(
                         comTaskExecution1_d1, comTaskExecution2_d1, comTaskExecution3_d1, comTaskExecution4_d1,
-                        comTaskExecution1_d2, comTaskExecution2_d2, comTaskExecution3_d2, comTaskExecution4_d2);
+                        comTaskExecution1_d2, comTaskExecution2_d2, comTaskExecution3_d2, comTaskExecution4_d2));
 
         // asserts
         assertThat(deviceOrganizedComTaskExecutions).isNotNull();
@@ -456,10 +453,10 @@ public class ComTaskExecutionOrganizerTest {
 
         // business exception
         final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions =
-                new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(
+                new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(Arrays.asList(
                         comTaskExecution1_d1, comTaskExecution2_d1, comTaskExecution3_d1,
                         comTaskExecution1_d2, comTaskExecution2_d2, comTaskExecution3_d2,
-                        comTaskExecution1_d3, comTaskExecution2_d3, comTaskExecution3_d3);
+                        comTaskExecution1_d3, comTaskExecution2_d3, comTaskExecution3_d3));
 
         // asserts
         assertThat(deviceOrganizedComTaskExecutions).isNotNull();
@@ -572,8 +569,8 @@ public class ComTaskExecutionOrganizerTest {
 
         // business method
         final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions =
-                new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(
-                        comTaskExecution1, comTaskExecution2, comTaskExecution3, comTaskExecution4, comTaskExecution5);
+                new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(Arrays.asList(
+                        comTaskExecution1, comTaskExecution2, comTaskExecution3, comTaskExecution4, comTaskExecution5));
 
         final DeviceOrganizedComTaskExecution deviceOrganizedComTaskExecution = deviceOrganizedComTaskExecutions.get(0);
         final List<DeviceOrganizedComTaskExecution.ComTaskWithSecurityAndConnectionSteps> comTasksWithSteps = deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity();
@@ -596,8 +593,8 @@ public class ComTaskExecutionOrganizerTest {
 
         // business method
         final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions =
-                new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(
-                        comTaskExecution1, comTaskExecution2, comTaskExecution3);
+                new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(Arrays.asList(
+                        comTaskExecution1, comTaskExecution2, comTaskExecution3));
 
         assertThat(deviceOrganizedComTaskExecutions).isNotNull();
         assertThat(deviceOrganizedComTaskExecutions).hasSize(1);
@@ -617,8 +614,8 @@ public class ComTaskExecutionOrganizerTest {
 
         // business method
         final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions =
-                new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(
-                        comTaskExecution1, comTaskExecution2, comTaskExecution3);
+                new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(Arrays.asList(
+                        comTaskExecution1, comTaskExecution2, comTaskExecution3));
 
         assertThat(deviceOrganizedComTaskExecutions).isNotNull();
         assertThat(deviceOrganizedComTaskExecutions).hasSize(1);
@@ -641,8 +638,8 @@ public class ComTaskExecutionOrganizerTest {
 
         // business method
         final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions =
-                new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(
-                        comTaskExecution1, comTaskExecution2, comTaskExecution3);
+                new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(Arrays.asList(
+                        comTaskExecution1, comTaskExecution2, comTaskExecution3));
 
         assertThat(deviceOrganizedComTaskExecutions).isNotNull();
         assertThat(deviceOrganizedComTaskExecutions).hasSize(1);
@@ -664,8 +661,8 @@ public class ComTaskExecutionOrganizerTest {
 
         // business method
         final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions =
-                new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(
-                        comTaskExecution1, comTaskExecution2, comTaskExecution3);
+                new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(Arrays.asList(
+                        comTaskExecution1, comTaskExecution2, comTaskExecution3));
 
         assertThat(deviceOrganizedComTaskExecutions).isNotNull();
         assertThat(deviceOrganizedComTaskExecutions).hasSize(1);
@@ -687,8 +684,8 @@ public class ComTaskExecutionOrganizerTest {
 
         // business method
         final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions =
-                new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(
-                        comTaskExecution1, comTaskExecution2, comTaskExecution3);
+                new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(Arrays.asList(
+                        comTaskExecution1, comTaskExecution2, comTaskExecution3));
 
         assertThat(deviceOrganizedComTaskExecutions).isNotNull();
         assertThat(deviceOrganizedComTaskExecutions).hasSize(1);
@@ -705,7 +702,7 @@ public class ComTaskExecutionOrganizerTest {
         ComTaskExecution comTaskExecution = createMockedComTaskExecution(device, createMockedTopologyComTask());
 
         // business exception
-        final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(comTaskExecution);
+        final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(Arrays.asList(comTaskExecution));
 
         // asserts
         assertThat(deviceOrganizedComTaskExecutions).isNotNull();
@@ -740,7 +737,7 @@ public class ComTaskExecutionOrganizerTest {
                 device.getDeviceConfiguration())).thenReturn(Optional.of(comTaskEnablement));
 
         // business method
-        final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(comTaskExecution);
+        final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(Arrays.asList(comTaskExecution));
 
         // asserts
         final List<DeviceOrganizedComTaskExecution.ComTaskWithSecurityAndConnectionSteps> comTasksWithStepsAndSecurity = deviceOrganizedComTaskExecutions.get(0).getComTasksWithStepsAndSecurity();
@@ -791,7 +788,7 @@ public class ComTaskExecutionOrganizerTest {
                 device.getDeviceConfiguration())).thenReturn(Optional.of(secondComTaskEnablement));
 
         // business method
-        final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(firstComTaskExecution, secondComTaskExecution);
+        final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(Arrays.asList(firstComTaskExecution, secondComTaskExecution));
 
         // asserts
         assertThat(deviceOrganizedComTaskExecutions).hasSize(1);
@@ -891,7 +888,7 @@ public class ComTaskExecutionOrganizerTest {
 
         // business method
         final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions =
-                new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(firstCTD_1, firstCTD_2, secondCTD_1, secondCTD_2, thirdCTD_1, thirdCTD_2, fourthCTD_1, fourthCTD_2);
+                new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(Arrays.asList(firstCTD_1, firstCTD_2, secondCTD_1, secondCTD_2, thirdCTD_1, thirdCTD_2, fourthCTD_1, fourthCTD_2));
 
         // asserts
         assertThat(deviceOrganizedComTaskExecutions).hasSize(2);
@@ -1026,7 +1023,7 @@ public class ComTaskExecutionOrganizerTest {
 
         // business method
         final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions =
-                new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(firstCTD_1, firstCTD_2, secondCTD_1, secondCTD_2, thirdCTD_1, thirdCTD_2, fourthCTD_1, fourthCTD_2, fifthCTD_1);
+                new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(Arrays.asList(firstCTD_1, firstCTD_2, secondCTD_1, secondCTD_2, thirdCTD_1, thirdCTD_2, fourthCTD_1, fourthCTD_2, fifthCTD_1));
 
         // asserts
         assertThat(deviceOrganizedComTaskExecutions).isNotNull();
@@ -1149,7 +1146,7 @@ public class ComTaskExecutionOrganizerTest {
 
         // business method
         final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions =
-                new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(firstComTaskExecution, secondComTaskExecution, thirdComTaskExecution, fourthComTaskExecution);
+                new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(Arrays.asList(firstComTaskExecution, secondComTaskExecution, thirdComTaskExecution, fourthComTaskExecution));
 
         // asserts
         assertThat(deviceOrganizedComTaskExecutions).hasSize(1);

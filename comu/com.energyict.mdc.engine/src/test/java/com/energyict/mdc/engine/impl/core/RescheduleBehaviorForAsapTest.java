@@ -1,7 +1,5 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.ProgrammableClock;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
@@ -19,14 +17,13 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.tasks.history.ComSessionBuilder;
+import com.energyict.mdc.tasks.history.ComTaskExecutionSessionBuilder;
+import com.energyict.mdc.tasks.history.CompletionCode;
 import com.energyict.mdc.tasks.history.TaskHistoryService;
+
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.ProgrammableClock;
 import org.joda.time.DateTime;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Answers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -34,9 +31,21 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.logging.Logger;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Answers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 /**
  * Tests the {@link com.energyict.mdc.engine.impl.core.RescheduleBehaviorForAsap} component
@@ -146,28 +155,15 @@ public class RescheduleBehaviorForAsapTest {
                 Collections.<ComTaskExecution>emptyList(), Arrays.<ComTaskExecution>asList(notExecutedComTaskExecution),
                 connectionTask, executionContext);
 
+        ComTaskExecutionSessionBuilder comTaskExecutionSessionBuilder = mock(ComTaskExecutionSessionBuilder.class);
+        when(this.comSessionBuilder.addComTaskExecutionSession(eq(notExecutedComTaskExecution), eq(device), any(Date.class))).thenReturn(comTaskExecutionSessionBuilder);
         rescheduleBehavior.performRescheduling(RescheduleBehavior.RescheduleReason.CONNECTION_SETUP);
 
         // asserts
         verify(comServerDAO, never()).executionCompleted(any(ComTaskExecution.class));
         verify(comServerDAO, times(1)).executionFailed(any(ComTaskExecution.class)); // we want the comTask to be rescheduled in ASAP
         verify(comServerDAO, times(1)).executionFailed(connectionTask);
-        final List<ComTaskExecutionSessionShadow> comTaskExecutionSessionShadows = executionContext.getComSessionBuilder().getComTaskExecutionSessionShadows();
-        assertThat(comTaskExecutionSessionShadows).hasSize(1);
-        assertThat(comTaskExecutionSessionShadows.get(0).getJournalEntryShadows()).isNotEmpty();
-        assertThat(comTaskExecutionSessionShadows.get(0).getJournalEntryShadows()).has(new Condition<List<ComTaskExecutionJournalEntryShadow>>() {
-            @Override
-            public boolean matches(List<ComTaskExecutionJournalEntryShadow> comTaskExecutionJournalEntryShadows) {
-                boolean correctCompletionCode = false;
-                for (ComTaskExecutionJournalEntryShadow comTaskExecutionJournalEntryShadow : comTaskExecutionJournalEntryShadows) {
-                    if(comTaskExecutionJournalEntryShadow instanceof ComCommandJournalEntryShadow){
-                        correctCompletionCode |= ((ComCommandJournalEntryShadow) comTaskExecutionJournalEntryShadow).getCompletionCode() ==  CompletionCode.ConnectionError;
-                    }
-                }
-                return correctCompletionCode;
-            }
-        });
-        verify(comSessionBuilder.addComTaskExecutionSession(notExecutedComTaskExecution, device, clock.now())); // TODO stub
+        verify(comTaskExecutionSessionBuilder).addComCommandJournalEntry(any(Date.class), eq(CompletionCode.ConnectionError), anyString(), anyString());
     }
 
     @Test

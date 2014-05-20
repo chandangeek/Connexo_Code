@@ -1,17 +1,17 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.comserver.commands.DeviceCommandExecutor;
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.core.ServletInboundComPortListener;
-import com.energyict.mdc.engine.impl.web.EmbeddedJettyServer;
-import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.engine.model.InboundComPort;
+import com.energyict.mdc.engine.FakeServiceProvider;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.web.EmbeddedJettyServer;
+import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundCapableComServer;
+import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
 import com.energyict.mdc.issues.IssueService;
+
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Mock;
@@ -38,13 +38,15 @@ public class ServletInboundComPortListenerTest {
     @Mock
     private DeviceCommandExecutor deviceCommandExecutor;
 
+    private FakeServiceProvider serviceProvider = new FakeServiceProvider();
+
     @Test(timeout = 10000)
     public void testNewComPortIsReturned() throws BusinessException {
         final InboundComPort inboundComPort = mockComPort("originalComPort");
         when(inboundComPort.getNumberOfSimultaneousConnections()).thenReturn(NUMBER_OF_SIMULTANEOUS_CONNECTIONS);
         final ComServerDAO comServerDAO = mock(ComServerDAO.class);
 
-        ServletInboundComPortListener servletInboundComPortListener = new ServletInboundComPortListener(inboundComPort, comServerDAO, deviceCommandExecutor, mock(IssueService.class));
+        ServletInboundComPortListener servletInboundComPortListener = new ServletInboundComPortListener(inboundComPort, comServerDAO, deviceCommandExecutor, this.serviceProvider);
 
         int addedCapacity = 10;
         InboundComPort newComPort = mockComPort("newComPort");
@@ -64,7 +66,7 @@ public class ServletInboundComPortListenerTest {
         when(inboundComPort.getNumberOfSimultaneousConnections()).thenReturn(NUMBER_OF_SIMULTANEOUS_CONNECTIONS);
         final ComServerDAO comServerDAO = mock(ComServerDAO.class);
 
-        ServletInboundComPortListener servletInboundComPortListener = new ServletInboundComPortListener(inboundComPort, comServerDAO, deviceCommandExecutor, mock(IssueService.class));
+        ServletInboundComPortListener servletInboundComPortListener = new ServletInboundComPortListener(inboundComPort, comServerDAO, deviceCommandExecutor, this.serviceProvider);
 
         final ServletBasedInboundComPort newComPort = mockComPort("newComPort");
         when(newComPort.getPortNumber()).thenReturn(80);
@@ -74,7 +76,7 @@ public class ServletInboundComPortListenerTest {
                 findOrCreateFor(
                     any(ServletBasedInboundComPort.class),
                     any(ComServerDAO.class),
-                    any(DeviceCommandExecutor.class), mock(IssueService.class))).
+                    any(DeviceCommandExecutor.class), this.serviceProvider)).
         thenReturn(mockedJetty);
         servletInboundComPortListener.applyChanges(newComPort, inboundComPort);
     }

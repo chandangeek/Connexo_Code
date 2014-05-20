@@ -1,15 +1,15 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
-import com.energyict.mdc.tasks.ServerOutboundConnectionTask;
+import com.energyict.mdc.tasks.ComTask;
+
 import java.util.Arrays;
 import java.util.Collections;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -39,8 +39,8 @@ public class RescheduleBehaviorForMinimizeConnectionsTest {
     private ComServerDAO comServerDAO;
     @Mock
     private ScheduledComTaskExecutionGroup scheduledComTaskExecutionGroup;
-    @Mock(extraInterfaces = {OutboundConnectionTask.class, ServerOutboundConnectionTask.class})
-    private ConnectionTask connectionTask;
+    @Mock
+    private OutboundConnectionTask connectionTask;
     @Mock
     private ComTask comTask;
 
