@@ -17,7 +17,16 @@ import com.energyict.mdc.scheduling.events.VetoComTaskAdditionException;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.ComTaskComScheduleLink;
 import com.energyict.mdc.scheduling.model.SchedulingStatus;
+import com.energyict.mdc.tasks.BasicCheckTask;
+import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.LoadProfilesTask;
+import com.energyict.mdc.tasks.LogBooksTask;
+import com.energyict.mdc.tasks.MessagesTask;
+import com.energyict.mdc.tasks.ProtocolTask;
+import com.energyict.mdc.tasks.RegistersTask;
+import com.energyict.mdc.tasks.StatusInformationTask;
+import com.energyict.mdc.tasks.TopologyTask;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -217,4 +226,57 @@ public class ComScheduleImpl implements ComSchedule, HasId {
     public void setSchedulingStatus(SchedulingStatus schedulingStatus) {
         this.schedulingStatus = schedulingStatus;
     }
+
+
+    @Override
+    public boolean isConfiguredToCollectRegisterData() {
+        return isConfiguredToCollectDataOfClass(RegistersTask.class);
+    }
+
+    @Override
+    public boolean isConfiguredToCollectLoadProfileData() {
+        return isConfiguredToCollectDataOfClass(LoadProfilesTask.class);
+    }
+
+    @Override
+    public boolean isConfiguredToRunBasicChecks() {
+        return isConfiguredToCollectDataOfClass(BasicCheckTask.class);
+    }
+
+    @Override
+    public boolean isConfiguredToCheckClock() {
+        return isConfiguredToCollectDataOfClass(ClockTask.class);
+    }
+
+    @Override
+    public boolean isConfiguredToCollectEvents() {
+        return isConfiguredToCollectDataOfClass(LogBooksTask.class);
+    }
+
+    @Override
+    public boolean isConfiguredToSendMessages() {
+        return isConfiguredToCollectDataOfClass(MessagesTask.class);
+    }
+
+    @Override
+    public boolean isConfiguredToReadStatusInformation() {
+        return isConfiguredToCollectDataOfClass(StatusInformationTask.class);
+    }
+
+    @Override
+    public boolean isConfiguredToUpdateTopology() {
+        return isConfiguredToCollectDataOfClass(TopologyTask.class);
+    }
+
+    private <T extends ProtocolTask> boolean isConfiguredToCollectDataOfClass (Class<T> protocolTaskClass) {
+        for (ComTask comTask : this.getComTasks()) {
+            for (ProtocolTask protocolTask : comTask.getProtocolTasks()) {
+                if (protocolTaskClass.isAssignableFrom(protocolTask.getClass())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
 }
