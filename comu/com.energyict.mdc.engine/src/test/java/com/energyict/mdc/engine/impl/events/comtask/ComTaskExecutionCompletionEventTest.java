@@ -1,31 +1,32 @@
 package com.energyict.mdc.engine.impl.events.comtask;
 
-import com.energyict.mdc.engine.events.Category;
-import com.energyict.comserver.time.Clocks;
-import com.energyict.comserver.time.FrozenClock;
-import com.energyict.mdc.ManagerFactory;
-import com.energyict.mdc.ServerManager;
-import com.energyict.mdc.engine.impl.events.comtask.ComTaskExecutionCompletionEvent;
-import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.InboundComPortPool;
-import com.energyict.mdc.ports.ComPortFactory;
-import com.energyict.mdc.engine.model.InboundComPort;
-import com.energyict.mdc.engine.model.OutboundComPort;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.communication.tasks.ServerComTaskExecutionFactory;
-import com.energyict.mdc.communication.tasks.ServerConnectionTaskFactory;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-import org.junit.*;
+import com.energyict.mdc.engine.events.Category;
+import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
+import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.model.InboundComPort;
+import com.energyict.mdc.engine.model.InboundComPortPool;
+import com.energyict.mdc.engine.model.OutboundComPort;
+
+import com.elster.jupiter.util.time.Clock;
+import org.joda.time.DateTime;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.Date;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -37,21 +38,33 @@ import static org.mockito.Mockito.when;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-06 (15:50)
  */
+@RunWith(MockitoJUnitRunner.class)
 public class ComTaskExecutionCompletionEventTest {
 
-    private static final int DEVICE_ID = 1;
+    private static final long DEVICE_ID = 1;
     private static final long COMPORT_ID = DEVICE_ID + 1;
-    private static final int CONNECTION_TASK_ID = (int) (COMPORT_ID + 1);
-    private static final int COM_TASK_EXECUTION_ID = CONNECTION_TASK_ID + 1;
+    private static final long CONNECTION_TASK_ID = (int) (COMPORT_ID + 1);
+    private static final long COM_TASK_EXECUTION_ID = CONNECTION_TASK_ID + 1;
 
-    @After
-    public void resetTimeFactory () throws SQLException {
-        Clocks.resetAll();
+    @Mock
+    public Clock clock;
+    @Mock
+    public DeviceDataService deviceDataService;
+    @Mock
+    public EngineModelService engineModelService;
+    @Mock
+    private AbstractComServerEventImpl.ServiceProvider serviceProvider;
+
+    @Before
+    public void setupServiceProvider () {
+        when(this.serviceProvider.clock()).thenReturn(this.clock);
+        when(this.serviceProvider.engineModelService()).thenReturn(this.engineModelService);
+        when(this.serviceProvider.deviceDataService()).thenReturn(this.deviceDataService);
     }
 
     @Test
     public void testCategory () {
-        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent();
+        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent(this.serviceProvider);
 
         // Business method
         Category category = event.getCategory();
@@ -62,14 +75,13 @@ public class ComTaskExecutionCompletionEventTest {
 
     @Test
     public void testOccurrenceTimestamp () {
-        FrozenClock frozenClock = FrozenClock.frozenOn(2012, Calendar.NOVEMBER, 6, 15, 50, 44, 0);  // Random pick
-        Clocks.setAppServerClock(frozenClock);
-        Date now = Clocks.getAppServerClock().now();
+        Date now = new DateTime(2012, Calendar.NOVEMBER, 6, 15, 50, 44, 0).toDate();  // Random pick
+        when(this.clock.now()).thenReturn(now);
 
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         ComPort comPort = mock(ComPort.class);
         ConnectionTask connectionTask = mock(ConnectionTask.class);
-        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent(comTaskExecution, comPort, connectionTask);
+        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent(comTaskExecution, comPort, connectionTask, this.serviceProvider);
 
         // Business method
         Date timestamp = event.getOccurrenceTimestamp();
@@ -80,7 +92,7 @@ public class ComTaskExecutionCompletionEventTest {
 
     @Test
     public void testIsNotStart () {
-        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent();
+        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent(this.serviceProvider);
 
         // Business method & asserts
         assertThat(event.isStart()).isFalse();
@@ -89,7 +101,7 @@ public class ComTaskExecutionCompletionEventTest {
 
     @Test
     public void testIsCompletion () {
-        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent();
+        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent(this.serviceProvider);
 
         // Business method & asserts
         assertThat(event.isCompletion()).isTrue();
@@ -97,7 +109,7 @@ public class ComTaskExecutionCompletionEventTest {
 
     @Test
     public void testIsNotFailure () {
-        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent();
+        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent(this.serviceProvider);
 
         // Business method & asserts
         assertThat(event.isFailure()).isFalse();
@@ -106,7 +118,7 @@ public class ComTaskExecutionCompletionEventTest {
 
     @Test
     public void testIsNotLoggingRelatedByDefault () {
-        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent();
+        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent(this.serviceProvider);
 
         // Business method & asserts
         assertThat(event.isLoggingRelated()).isFalse();
@@ -114,7 +126,7 @@ public class ComTaskExecutionCompletionEventTest {
 
     @Test
     public void testIsNotComTaskRelatedByDefault () {
-        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent();
+        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent(this.serviceProvider);
 
         // Business method & asserts
         assertThat(event.isComTaskExecutionRelated()).isFalse();
@@ -122,7 +134,7 @@ public class ComTaskExecutionCompletionEventTest {
 
     @Test
     public void testIsNotComPortRelatedByDefault () {
-        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent();
+        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent(this.serviceProvider);
 
         // Business method & asserts
         assertThat(event.isComPortRelated()).isFalse();
@@ -130,7 +142,7 @@ public class ComTaskExecutionCompletionEventTest {
 
     @Test
     public void testIsNotComPortPoolRelatedByDefault () {
-        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent();
+        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent(this.serviceProvider);
 
         // Business method & asserts
         assertThat(event.isComPortPoolRelated()).isFalse();
@@ -138,7 +150,7 @@ public class ComTaskExecutionCompletionEventTest {
 
     @Test
     public void testIsNotConnectionTaskRelatedByDefault () {
-        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent();
+        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent(this.serviceProvider);
 
         // Business method & asserts
         assertThat(event.isConnectionTaskRelated()).isFalse();
@@ -146,7 +158,7 @@ public class ComTaskExecutionCompletionEventTest {
 
     @Test
     public void testIsNotDeviceRelatedByDefault () {
-        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent();
+        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent(this.serviceProvider);
 
         // Business method & asserts
         assertThat(event.isDeviceRelated()).isFalse();
@@ -157,7 +169,7 @@ public class ComTaskExecutionCompletionEventTest {
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         ComPort comPort = mock(ComPort.class);
         ConnectionTask connectionTask = mock(ConnectionTask.class);
-        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent(comTaskExecution, comPort, connectionTask);
+        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent(comTaskExecution, comPort, connectionTask, this.serviceProvider);
 
         // Business method & asserts
         assertThat(event.isComTaskExecutionRelated()).isTrue();
@@ -169,7 +181,7 @@ public class ComTaskExecutionCompletionEventTest {
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         ComPort comPort = mock(ComPort.class);
         ConnectionTask connectionTask = mock(ConnectionTask.class);
-        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent(comTaskExecution, comPort, connectionTask);
+        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent(comTaskExecution, comPort, connectionTask, this.serviceProvider);
 
         // Business method & asserts
         assertThat(event.isComPortRelated()).isTrue();
@@ -181,7 +193,7 @@ public class ComTaskExecutionCompletionEventTest {
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         OutboundComPort comPort = mock(OutboundComPort.class);
         ConnectionTask connectionTask = mock(ConnectionTask.class);
-        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent(comTaskExecution, comPort, connectionTask);
+        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent(comTaskExecution, comPort, connectionTask, this.serviceProvider);
 
         // Business method & asserts
         assertThat(event.isComPortPoolRelated()).isFalse();
@@ -195,7 +207,7 @@ public class ComTaskExecutionCompletionEventTest {
         when(comPort.isInbound()).thenReturn(true);
         when(comPort.getComPortPool()).thenReturn(comPortPool);
         ConnectionTask connectionTask = mock(ConnectionTask.class);
-        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent(comTaskExecution, comPort, connectionTask);
+        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent(comTaskExecution, comPort, connectionTask, this.serviceProvider);
 
         // Business method & asserts
         assertThat(event.isComPortPoolRelated()).isTrue();
@@ -207,7 +219,7 @@ public class ComTaskExecutionCompletionEventTest {
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         ComPort comPort = mock(ComPort.class);
         ConnectionTask connectionTask = mock(ConnectionTask.class);
-        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent(comTaskExecution, comPort, connectionTask);
+        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent(comTaskExecution, comPort, connectionTask, this.serviceProvider);
 
         // Business method & asserts
         assertThat(event.isConnectionTaskRelated()).isTrue();
@@ -216,12 +228,12 @@ public class ComTaskExecutionCompletionEventTest {
 
     @Test
     public void testIsDeviceRelated () {
-        BaseDevice device = mock(BaseDevice.class);
+        Device device = mock(Device.class);
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         ComPort comPort = mock(ComPort.class);
         ConnectionTask connectionTask = mock(ConnectionTask.class);
         when(connectionTask.getDevice()).thenReturn(device);
-        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent(comTaskExecution, comPort, connectionTask);
+        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent(comTaskExecution, comPort, connectionTask, this.serviceProvider);
 
         // Business method & asserts
         assertThat(event.isDeviceRelated()).isTrue();
@@ -230,7 +242,7 @@ public class ComTaskExecutionCompletionEventTest {
 
     @Test
     public void testSerializationDoesNotFailForDefaultObject () throws IOException {
-        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent();
+        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent(this.serviceProvider);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -243,15 +255,7 @@ public class ComTaskExecutionCompletionEventTest {
 
     @Test
     public void testRestoreAfterSerializationForDefaultObject () throws IOException, ClassNotFoundException {
-        ServerComTaskExecutionFactory comTaskExecutionFactory = mock(ServerComTaskExecutionFactory.class);
-        ComPortFactory comPortFactory = mock(ComPortFactory.class);
-        ServerConnectionTaskFactory connectionTaskFactory = mock(ServerConnectionTaskFactory.class);
-        ServerManager manager = mock(ServerManager.class);
-        when(manager.getComTaskExecutionFactory()).thenReturn(comTaskExecutionFactory);
-        when(manager.getComPortFactory()).thenReturn(comPortFactory);
-        when(manager.getConnectionTaskFactory()).thenReturn(connectionTaskFactory);
-        ManagerFactory.setCurrent(manager);
-        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent();
+        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent(this.serviceProvider);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -268,7 +272,7 @@ public class ComTaskExecutionCompletionEventTest {
 
     @Test
     public void testSerializationDoesNotFail () throws IOException {
-        BaseDevice device = mock(BaseDevice.class);
+        Device device = mock(Device.class);
         when(device.getId()).thenReturn(DEVICE_ID);
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(comTaskExecution.getId()).thenReturn(COM_TASK_EXECUTION_ID);
@@ -277,7 +281,7 @@ public class ComTaskExecutionCompletionEventTest {
         ConnectionTask connectionTask = mock(ConnectionTask.class);
         when(connectionTask.getId()).thenReturn(CONNECTION_TASK_ID);
         when(connectionTask.getDevice()).thenReturn(device);
-        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent(comTaskExecution, comPort, connectionTask);
+        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent(comTaskExecution, comPort, connectionTask, this.serviceProvider);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -290,7 +294,7 @@ public class ComTaskExecutionCompletionEventTest {
 
     @Test
     public void testRestoreAfterSerialization () throws IOException, ClassNotFoundException {
-        BaseDevice device = mock(BaseDevice.class);
+        Device device = mock(Device.class);
         when(device.getId()).thenReturn(DEVICE_ID);
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(comTaskExecution.getId()).thenReturn(COM_TASK_EXECUTION_ID);
@@ -299,18 +303,7 @@ public class ComTaskExecutionCompletionEventTest {
         ConnectionTask connectionTask = mock(ConnectionTask.class);
         when(connectionTask.getId()).thenReturn(CONNECTION_TASK_ID);
         when(connectionTask.getDevice()).thenReturn(device);
-        ServerComTaskExecutionFactory comTaskExecutionFactory = mock(ServerComTaskExecutionFactory.class);
-        when(comTaskExecutionFactory.find(COM_TASK_EXECUTION_ID)).thenReturn(comTaskExecution);
-        ComPortFactory comPortFactory = mock(ComPortFactory.class);
-        when(comPortFactory.find((int) COMPORT_ID)).thenReturn(comPort);
-        ServerConnectionTaskFactory connectionTaskFactory = mock(ServerConnectionTaskFactory.class);
-        when(connectionTaskFactory.find(CONNECTION_TASK_ID)).thenReturn(connectionTask);
-        ServerManager manager = mock(ServerManager.class);
-        when(manager.getComTaskExecutionFactory()).thenReturn(comTaskExecutionFactory);
-        when(manager.getComPortFactory()).thenReturn(comPortFactory);
-        when(manager.getConnectionTaskFactory()).thenReturn(connectionTaskFactory);
-        ManagerFactory.setCurrent(manager);
-        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent(comTaskExecution, comPort, connectionTask);
+        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent(comTaskExecution, comPort, connectionTask, this.serviceProvider);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -329,7 +322,7 @@ public class ComTaskExecutionCompletionEventTest {
 
     @Test
     public void testToStringDoesNotFailForDefaultObject () throws IOException {
-        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent();
+        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent(this.serviceProvider);
 
         // Business method
         String eventString = event.toString();
@@ -340,7 +333,7 @@ public class ComTaskExecutionCompletionEventTest {
 
     @Test
     public void testToStringDoesNotFail () throws IOException {
-        BaseDevice device = mock(BaseDevice.class);
+        Device device = mock(Device.class);
         when(device.getId()).thenReturn(DEVICE_ID);
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(comTaskExecution.getId()).thenReturn(COM_TASK_EXECUTION_ID);
@@ -349,7 +342,7 @@ public class ComTaskExecutionCompletionEventTest {
         ConnectionTask connectionTask = mock(ConnectionTask.class);
         when(connectionTask.getId()).thenReturn(CONNECTION_TASK_ID);
         when(connectionTask.getDevice()).thenReturn(device);
-        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent(comTaskExecution, comPort, connectionTask);
+        ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent(comTaskExecution, comPort, connectionTask, this.serviceProvider);
 
         // Business method
         String eventString = event.toString();
