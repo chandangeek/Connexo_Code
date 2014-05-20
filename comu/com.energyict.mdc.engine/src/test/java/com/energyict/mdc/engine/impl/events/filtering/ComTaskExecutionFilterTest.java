@@ -1,12 +1,12 @@
 package com.energyict.mdc.engine.impl.events.filtering;
 
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.events.ComTaskExecutionEvent;
 import com.energyict.mdc.engine.events.ConnectionEvent;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.engine.impl.events.filtering.ComTaskExecutionFilter;
-import org.junit.*;
 
 import java.util.Arrays;
+
+import org.junit.*;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

@@ -1,22 +1,22 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
-import com.energyict.comserver.core.JobExecution;
-import com.energyict.mdc.commands.ComCommandTypes;
-import com.energyict.mdc.commands.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.Problem;
 import com.energyict.mdc.issues.Warning;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -37,10 +37,10 @@ public class SimpleComCommandTest {
         SimpleComCommandForTestingPurposes command = this.newTestCommand();
 
         // Business method
-        List<Issue> issues = command.getIssues();
+        List<Issue<?>> issues = command.getIssues();
 
         // Asserts
-        Assertions.assertThat(issues).isEmpty();
+        assertThat(issues).isEmpty();
     }
 
     @Test
@@ -52,14 +52,14 @@ public class SimpleComCommandTest {
                         this.mockWarning("testGetIssuess-Warning"));
 
         // Business method
-        List<Issue> issues = command.getIssues();
-        List<Problem> problems = command.getProblems();
-        List<Warning> warnings = command.getWarnings();
+        List<Issue<?>> issues = command.getIssues();
+        List<Problem<?>> problems = command.getProblems();
+        List<Warning<?>> warnings = command.getWarnings();
 
         // Asserts
-        Assertions.assertThat(issues).hasSize(3);
-        Assertions.assertThat(problems).hasSize(2);
-        Assertions.assertThat(warnings).hasSize(1);
+        assertThat(issues).hasSize(3);
+        assertThat(problems).hasSize(2);
+        assertThat(warnings).hasSize(1);
     }
 
     @Test
@@ -71,14 +71,14 @@ public class SimpleComCommandTest {
                         this.mockCollectedDataWithProblem("testGetIssuesFromCollectedData-Problem"));
 
         // Business method
-        List<Issue> issues = command.getIssues();
-        List<Problem> problems = command.getProblems();
-        List<Warning> warnings = command.getWarnings();
+        List<Issue<?>> issues = command.getIssues();
+        List<Problem<?>> problems = command.getProblems();
+        List<Warning<?>> warnings = command.getWarnings();
 
         // Asserts
-        Assertions.assertThat(issues).hasSize(3);
-        Assertions.assertThat(problems).hasSize(1);
-        Assertions.assertThat(warnings).hasSize(2);
+        assertThat(issues).hasSize(3);
+        assertThat(problems).hasSize(1);
+        assertThat(warnings).hasSize(2);
     }
 
     @Test
@@ -92,14 +92,14 @@ public class SimpleComCommandTest {
         command.addIssue(this.mockWarning("testGetIssuesFromCollectedDataAndOthers-Warning"));
 
         // Business method
-        List<Issue> issues = command.getIssues();
-        List<Problem> problems = command.getProblems();
-        List<Warning> warnings = command.getWarnings();
+        List<Issue<?>> issues = command.getIssues();
+        List<Problem<?>> problems = command.getProblems();
+        List<Warning<?>> warnings = command.getWarnings();
 
         // Asserts
-        Assertions.assertThat(issues).hasSize(5);
-        Assertions.assertThat(problems).hasSize(2);
-        Assertions.assertThat(warnings).hasSize(3);
+        assertThat(issues).hasSize(5);
+        assertThat(problems).hasSize(2);
+        assertThat(warnings).hasSize(3);
     }
 
     private SimpleComCommandForTestingPurposes newTestCommand () {
@@ -141,14 +141,14 @@ public class SimpleComCommandTest {
     private CollectedData mockCollectedDataWithWarning (String description) {
         CollectedData collectedData = mock(CollectedData.class);
         Issue warning = this.mockWarning(description);
-        when(collectedData.getIssues()).thenReturn(Arrays.asList(warning));
+        when(collectedData.getIssues()).thenReturn(Arrays.<Issue<?>>asList(warning));
         return collectedData;
     }
 
     private CollectedData mockCollectedDataWithProblem (String description) {
         CollectedData collectedData = mock(CollectedData.class);
         Issue problem = this.mockProblem(description);
-        when(collectedData.getIssues()).thenReturn(Arrays.asList(problem));
+        when(collectedData.getIssues()).thenReturn(Arrays.<Issue<?>>asList(problem));
         return collectedData;
     }
 
@@ -159,7 +159,7 @@ public class SimpleComCommandTest {
         }
 
         @Override
-        public void doExecute (DeviceProtocol deviceProtocol, JobExecution.ExecutionContext executionContext) {
+        public void doExecute (DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
             // Remember: for testing purposes only
         }
 

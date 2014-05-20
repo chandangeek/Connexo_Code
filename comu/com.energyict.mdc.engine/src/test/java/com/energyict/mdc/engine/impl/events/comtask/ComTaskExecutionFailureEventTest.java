@@ -1,31 +1,32 @@
 package com.energyict.mdc.engine.impl.events.comtask;
 
-import com.energyict.mdc.engine.events.Category;
-import com.energyict.comserver.time.Clocks;
-import com.energyict.comserver.time.FrozenClock;
-import com.energyict.mdc.ManagerFactory;
-import com.energyict.mdc.ServerManager;
-import com.energyict.mdc.engine.impl.events.comtask.ComTaskExecutionFailureEvent;
-import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.InboundComPortPool;
-import com.energyict.mdc.ports.ComPortFactory;
-import com.energyict.mdc.engine.model.InboundComPort;
-import com.energyict.mdc.engine.model.OutboundComPort;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.communication.tasks.ServerComTaskExecutionFactory;
-import com.energyict.mdc.communication.tasks.ServerConnectionTaskFactory;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-import org.junit.*;
+import com.energyict.mdc.engine.events.Category;
+import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
+import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.model.InboundComPort;
+import com.energyict.mdc.engine.model.InboundComPortPool;
+import com.energyict.mdc.engine.model.OutboundComPort;
+
+import com.elster.jupiter.util.time.Clock;
+import org.joda.time.DateTime;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.Date;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -37,22 +38,34 @@ import static org.mockito.Mockito.when;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-06 (17:05)
  */
+@RunWith(MockitoJUnitRunner.class)
 public class ComTaskExecutionFailureEventTest {
 
-    private static final int DEVICE_ID = 1;
+    private static final long DEVICE_ID = 1;
     private static final long COMPORT_ID = DEVICE_ID + 1;
-    private static final int CONNECTION_TASK_ID = (int) (COMPORT_ID + 1);
-    private static final int COM_TASK_EXECUTION_ID = CONNECTION_TASK_ID + 1;
+    private static final long CONNECTION_TASK_ID = (int) (COMPORT_ID + 1);
+    private static final long COM_TASK_EXECUTION_ID = CONNECTION_TASK_ID + 1;
     private static final String ERROR_MESSAGE = "For testing purposes only";
 
-    @After
-    public void resetTimeFactory () throws SQLException {
-        Clocks.resetAll();
+    @Mock
+    public Clock clock;
+    @Mock
+    public DeviceDataService deviceDataService;
+    @Mock
+    public EngineModelService engineModelService;
+    @Mock
+    private AbstractComServerEventImpl.ServiceProvider serviceProvider;
+
+    @Before
+    public void setupServiceProvider () {
+        when(this.serviceProvider.clock()).thenReturn(this.clock);
+        when(this.serviceProvider.engineModelService()).thenReturn(this.engineModelService);
+        when(this.serviceProvider.deviceDataService()).thenReturn(this.deviceDataService);
     }
 
     @Test
     public void testCategory () {
-        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent();
+        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent(this.serviceProvider);
 
         // Business method
         Category category = event.getCategory();
@@ -63,9 +76,8 @@ public class ComTaskExecutionFailureEventTest {
 
     @Test
     public void testOccurrenceTimestamp () {
-        FrozenClock frozenClock = FrozenClock.frozenOn(2012, Calendar.NOVEMBER, 6, 15, 50, 44, 0);  // Random pick
-        Clocks.setAppServerClock(frozenClock);
-        Date now = Clocks.getAppServerClock().now();
+        Date now = new DateTime(2012, Calendar.NOVEMBER, 6, 15, 50, 44, 0).toDate();  // Random pick
+        when(this.clock.now()).thenReturn(now);
 
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         ComPort comPort = mock(ComPort.class);
@@ -81,7 +93,7 @@ public class ComTaskExecutionFailureEventTest {
 
     @Test
     public void testIsNotStart () {
-        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent();
+        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent(this.serviceProvider);
 
         // Business method & asserts
         assertThat(event.isStart()).isFalse();
@@ -102,7 +114,7 @@ public class ComTaskExecutionFailureEventTest {
 
     @Test
     public void testIsNotCompletion () {
-        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent();
+        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent(this.serviceProvider);
 
         // Business method & asserts
         assertThat(event.isCompletion()).isFalse();
@@ -110,7 +122,7 @@ public class ComTaskExecutionFailureEventTest {
 
     @Test
     public void testIsNotLoggingRelatedByDefault () {
-        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent();
+        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent(this.serviceProvider);
 
         // Business method & asserts
         assertThat(event.isLoggingRelated()).isFalse();
@@ -118,7 +130,7 @@ public class ComTaskExecutionFailureEventTest {
 
     @Test
     public void testIsNotComTaskRelatedByDefault () {
-        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent();
+        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent(this.serviceProvider);
 
         // Business method & asserts
         assertThat(event.isComTaskExecutionRelated()).isFalse();
@@ -126,7 +138,7 @@ public class ComTaskExecutionFailureEventTest {
 
     @Test
     public void testIsNotComPortRelatedByDefault () {
-        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent();
+        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent(this.serviceProvider);
 
         // Business method & asserts
         assertThat(event.isComPortRelated()).isFalse();
@@ -134,7 +146,7 @@ public class ComTaskExecutionFailureEventTest {
 
     @Test
     public void testIsNotComPortPoolRelatedByDefault () {
-        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent();
+        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent(this.serviceProvider);
 
         // Business method & asserts
         assertThat(event.isComPortPoolRelated()).isFalse();
@@ -142,7 +154,7 @@ public class ComTaskExecutionFailureEventTest {
 
     @Test
     public void testIsNotConnectionTaskRelatedByDefault () {
-        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent();
+        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent(this.serviceProvider);
 
         // Business method & asserts
         assertThat(event.isConnectionTaskRelated()).isFalse();
@@ -150,7 +162,7 @@ public class ComTaskExecutionFailureEventTest {
 
     @Test
     public void testIsNotDeviceRelatedByDefault () {
-        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent();
+        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent(this.serviceProvider);
 
         // Business method & asserts
         assertThat(event.isDeviceRelated()).isFalse();
@@ -220,7 +232,7 @@ public class ComTaskExecutionFailureEventTest {
 
     @Test
     public void testIsDeviceRelated () {
-        BaseDevice device = mock(BaseDevice.class);
+        Device device = mock(Device.class);
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         ComPort comPort = mock(ComPort.class);
         ConnectionTask connectionTask = mock(ConnectionTask.class);
@@ -234,7 +246,7 @@ public class ComTaskExecutionFailureEventTest {
 
     @Test
     public void testSerializationDoesNotFailForDefaultObject () throws IOException {
-        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent();
+        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent(this.serviceProvider);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -247,15 +259,7 @@ public class ComTaskExecutionFailureEventTest {
 
     @Test
     public void testRestoreAfterSerializationForDefaultObject () throws IOException, ClassNotFoundException {
-        ServerComTaskExecutionFactory comTaskExecutionFactory = mock(ServerComTaskExecutionFactory.class);
-        ComPortFactory comPortFactory = mock(ComPortFactory.class);
-        ServerConnectionTaskFactory connectionTaskFactory = mock(ServerConnectionTaskFactory.class);
-        ServerManager manager = mock(ServerManager.class);
-        when(manager.getComTaskExecutionFactory()).thenReturn(comTaskExecutionFactory);
-        when(manager.getComPortFactory()).thenReturn(comPortFactory);
-        when(manager.getConnectionTaskFactory()).thenReturn(connectionTaskFactory);
-        ManagerFactory.setCurrent(manager);
-        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent();
+        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent(this.serviceProvider);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -272,7 +276,7 @@ public class ComTaskExecutionFailureEventTest {
 
     @Test
     public void testSerializationDoesNotFail () throws IOException {
-        BaseDevice device = mock(BaseDevice.class);
+        Device device = mock(Device.class);
         when(device.getId()).thenReturn(DEVICE_ID);
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(comTaskExecution.getId()).thenReturn(COM_TASK_EXECUTION_ID);
@@ -294,7 +298,7 @@ public class ComTaskExecutionFailureEventTest {
 
     @Test
     public void testRestoreAfterSerialization () throws IOException, ClassNotFoundException {
-        BaseDevice device = mock(BaseDevice.class);
+        Device device = mock(Device.class);
         when(device.getId()).thenReturn(DEVICE_ID);
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(comTaskExecution.getId()).thenReturn(COM_TASK_EXECUTION_ID);
@@ -303,17 +307,6 @@ public class ComTaskExecutionFailureEventTest {
         ConnectionTask connectionTask = mock(ConnectionTask.class);
         when(connectionTask.getId()).thenReturn(CONNECTION_TASK_ID);
         when(connectionTask.getDevice()).thenReturn(device);
-        ServerComTaskExecutionFactory comTaskExecutionFactory = mock(ServerComTaskExecutionFactory.class);
-        when(comTaskExecutionFactory.find(COM_TASK_EXECUTION_ID)).thenReturn(comTaskExecution);
-        ComPortFactory comPortFactory = mock(ComPortFactory.class);
-        when(comPortFactory.find((int) COMPORT_ID)).thenReturn(comPort);
-        ServerConnectionTaskFactory connectionTaskFactory = mock(ServerConnectionTaskFactory.class);
-        when(connectionTaskFactory.find(CONNECTION_TASK_ID)).thenReturn(connectionTask);
-        ServerManager manager = mock(ServerManager.class);
-        when(manager.getComTaskExecutionFactory()).thenReturn(comTaskExecutionFactory);
-        when(manager.getComPortFactory()).thenReturn(comPortFactory);
-        when(manager.getConnectionTaskFactory()).thenReturn(connectionTaskFactory);
-        ManagerFactory.setCurrent(manager);
         ComTaskExecutionFailureEvent event = this.newEvent(comTaskExecution, comPort, connectionTask);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -334,7 +327,7 @@ public class ComTaskExecutionFailureEventTest {
 
     @Test
     public void testToStringDoesNotFailForDefaultObject () throws IOException {
-        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent();
+        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent(this.serviceProvider);
 
         // Business method
         String eventString = event.toString();
@@ -345,7 +338,7 @@ public class ComTaskExecutionFailureEventTest {
 
     @Test
     public void testToStringDoesNotFail () throws IOException {
-        BaseDevice device = mock(BaseDevice.class);
+        Device device = mock(Device.class);
         when(device.getId()).thenReturn(DEVICE_ID);
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(comTaskExecution.getId()).thenReturn(COM_TASK_EXECUTION_ID);
@@ -364,7 +357,7 @@ public class ComTaskExecutionFailureEventTest {
     }
 
     private ComTaskExecutionFailureEvent newEvent (ComTaskExecution comTaskExecution, ComPort comPort, ConnectionTask connectionTask) {
-        return new ComTaskExecutionFailureEvent(comTaskExecution, comPort, connectionTask, new RuntimeException(ERROR_MESSAGE, new Exception()));
+        return new ComTaskExecutionFailureEvent(comTaskExecution, comPort, connectionTask, new RuntimeException(ERROR_MESSAGE, new Exception()), this.serviceProvider);
     }
 
 }

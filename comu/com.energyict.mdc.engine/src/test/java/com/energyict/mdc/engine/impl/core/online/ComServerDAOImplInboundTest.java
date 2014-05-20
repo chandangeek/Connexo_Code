@@ -2,14 +2,10 @@ package com.energyict.mdc.engine.impl.core.online;
 
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.exceptions.DataAccessException;
-import com.energyict.mdc.ManagerFactory;
-import com.energyict.mdc.MdwInterface;
-import com.energyict.mdc.ServerManager;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.Transaction;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.communication.tasks.ServerComTaskExecutionFactory;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -17,10 +13,9 @@ import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
-import com.energyict.mdc.messages.EndDeviceMessage;
-import com.energyict.mdc.messages.EndDeviceMessageFactory;
 import com.energyict.mdc.engine.impl.meterdata.identifiers.DeviceMessageIdentifierById;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
@@ -29,8 +24,6 @@ import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDAO;
 import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdw.core.CommunicationDevice;
-import com.energyict.test.MockEnvironmentTranslations;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -72,13 +65,7 @@ public class ComServerDAOImplInboundTest {
     @Mock
     private DeviceIdentifier deviceIdentifier;
     @Mock
-    private ServerManager manager;
-    @Mock
-    private MdwInterface mdwInterface;
-    @Mock
-    private EndDeviceMessageFactory deviceMessageFactory;
-    @Mock
-    private ServerComTaskExecutionFactory comTaskExecutionFactory;
+    private ServiceProvider serviceProvider;
 
     private ComServerDAO comServerDAO = new ComServerDAOImpl(serviceProvider);
 
@@ -86,10 +73,10 @@ public class ComServerDAOImplInboundTest {
     public void initializeMocksAndFactories () throws SQLException, BusinessException {
         this.mockMdwInterfaceTransactionExecutor();
         when(this.deviceIdentifier.findDevice()).thenReturn(this.device);
-        when(this.manager.getMdwInterface()).thenReturn(this.mdwInterface);
-        when(this.manager.getDeviceMessageFactory()).thenReturn(this.deviceMessageFactory);
-        when(this.manager.getComTaskExecutionFactory()).thenReturn(this.comTaskExecutionFactory);
-        ManagerFactory.setCurrent(this.manager);
+//        when(this.manager.getMdwInterface()).thenReturn(this.mdwInterface);
+//        when(this.manager.getDeviceMessageFactory()).thenReturn(this.deviceMessageFactory);
+//        when(this.manager.getComTaskExecutionFactory()).thenReturn(this.comTaskExecutionFactory);
+//        ManagerFactory.setCurrent(this.manager);
     }
 
     /**

@@ -1,45 +1,33 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
-import com.energyict.comserver.commands.core.SimpleComCommand;
-import com.energyict.comserver.exceptions.CodingException;
-import com.energyict.comserver.logging.LogLevel;
-import com.energyict.comserver.time.Clocks;
-import com.energyict.comserver.time.FrozenClock;
-import com.energyict.mdc.commands.ComCommandTypes;
-import com.energyict.mdc.device.data.journal.CompletionCode;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.ProgrammableClock;
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.journal.CompletionCode;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.tasks.BasicCheckTask;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
+import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
+import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
+import com.energyict.mdc.engine.impl.logging.LogLevel;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
 import com.energyict.mdc.tasks.BasicCheckTask;
-import com.energyict.mdc.tasks.ComTaskExecution;
-import com.energyict.test.MockEnvironmentTranslations;
-import java.sql.SQLException;
-import java.util.Calendar;
-import java.util.Date;
-import org.junit.After;
-import org.junit.ClassRule;
+import com.energyict.mdc.tasks.history.CompletionCode;
+import org.joda.time.DateTime;
 import org.junit.Test;
-import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.fest.assertions.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import java.util.Date;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 /**
- * Tests for the {@link com.energyict.comserver.commands.deviceactions.BasicCheckCommandImpl} component
+ * Tests for the BasicCheckCommandImpl component
  *
  * @author gna
  * @since 11/06/12 - 12:12
@@ -47,18 +35,13 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class BasicCheckCommandImplTest extends CommonCommandImplTests {
 
-    @ClassRule
-    public static TestRule mockEnvironmentTranslactions = new MockEnvironmentTranslations();
+//    @ClassRule
+//    public static TestRule mockEnvironmentTranslactions = new MockEnvironmentTranslations();
 
     @Mock
     private DeviceProtocol deviceProtocol;
     @Mock
     private ComTaskExecution comTaskExecution;
-
-    @After
-    public void resetTimeFactory() throws SQLException {
-        Clocks.resetAll();
-    }
 
     private BasicCheckTask createCheckTimeDifference() {
         BasicCheckTask basicCheckTask = mock(BasicCheckTask.class);
@@ -101,9 +84,8 @@ public class BasicCheckCommandImplTest extends CommonCommandImplTests {
 
     @Test
     public void verifyTimeDifferenceWithinBoundariesTest() {
-        FrozenClock frozenClock = FrozenClock.frozenOn(2012, Calendar.MAY, 1, 10, 52, 13, 111);
+        Clock frozenClock = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate());
         final long timeDifferenceInMillis = 3000L;
-        Clocks.setAppServerClock(frozenClock);
         long deviceTime = frozenClock.now().getTime() - timeDifferenceInMillis;
         when(deviceProtocol.getTime()).thenReturn(new Date(deviceTime)); // 3 seconds time difference
 
@@ -128,9 +110,8 @@ public class BasicCheckCommandImplTest extends CommonCommandImplTests {
 
     @Test
     public void verifyTimeDifferenceOutsideBoundariesTest() {
-        FrozenClock frozenClock = FrozenClock.frozenOn(2012, Calendar.MAY, 1, 10, 52, 13, 111);
+        Clock frozenClock = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate());
         long timeDifferenceInMillis = 60000L;
-        Clocks.setAppServerClock(frozenClock);
         long deviceTime = frozenClock.now().getTime() - timeDifferenceInMillis;
         when(deviceProtocol.getTime()).thenReturn(new Date(deviceTime)); // 60 seconds time difference
 
@@ -170,9 +151,8 @@ public class BasicCheckCommandImplTest extends CommonCommandImplTests {
 
     @Test
     public void testJournalDescriptionWithErrorLevel () {
-        FrozenClock frozenClock = FrozenClock.frozenOn(2012, Calendar.MAY, 1, 10, 52, 13, 111);
+        Clock frozenClock = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate());
         final long timeDifferenceInMillis = 3000L;
-        Clocks.setAppServerClock(frozenClock);
         long deviceTime = frozenClock.now().getTime() - timeDifferenceInMillis;
         when(deviceProtocol.getTime()).thenReturn(new Date(deviceTime)); // 3 seconds time difference
         String correctMeterSerialNumber = "testJournalDescriptionWithErrorLevel";
@@ -185,14 +165,13 @@ public class BasicCheckCommandImplTest extends CommonCommandImplTests {
         String description = basicCheckCommand.toJournalMessageDescription(LogLevel.ERROR);
 
         // Asserts
-        Assertions.assertThat(description).isEqualTo("BasicCheckCommandImpl {readClockDifference: true; check serial number; getTimeDifference: }");
+        assertThat(description).isEqualTo("BasicCheckCommandImpl {readClockDifference: true; check serial number; getTimeDifference: }");
     }
 
     @Test
     public void testJournalDescriptionWithInfoLevel () {
-        FrozenClock frozenClock = FrozenClock.frozenOn(2012, Calendar.MAY, 1, 10, 52, 13, 111);
+        Clock frozenClock = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate());
         final long timeDifferenceInMillis = 3000L;
-        Clocks.setAppServerClock(frozenClock);
         long deviceTime = frozenClock.now().getTime() - timeDifferenceInMillis;
         when(deviceProtocol.getTime()).thenReturn(new Date(deviceTime)); // 3 seconds time difference
         String correctMeterSerialNumber = "testJournalDescriptionWithInfoLevel";
@@ -205,14 +184,13 @@ public class BasicCheckCommandImplTest extends CommonCommandImplTests {
         String description = basicCheckCommand.toJournalMessageDescription(LogLevel.INFO);
 
         // Asserts
-        Assertions.assertThat(description).isEqualTo("BasicCheckCommandImpl {executionState: NOT_EXECUTED; completionCode: Ok; readClockDifference: true; check serial number; getTimeDifference: }");
+        assertThat(description).isEqualTo("BasicCheckCommandImpl {executionState: NOT_EXECUTED; completionCode: Ok; readClockDifference: true; check serial number; getTimeDifference: }");
     }
 
     @Test
     public void testJournalDescriptionWithTraceLevel () {
-        FrozenClock frozenClock = FrozenClock.frozenOn(2012, Calendar.MAY, 1, 10, 52, 13, 111);
+        Clock frozenClock = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate());
         final long timeDifferenceInMillis = 3000L;
-        Clocks.setAppServerClock(frozenClock);
         long deviceTime = frozenClock.now().getTime() - timeDifferenceInMillis;
         when(deviceProtocol.getTime()).thenReturn(new Date(deviceTime)); // 3 seconds time difference
         String correctMeterSerialNumber = "testJournalDescriptionWithTraceLevel";
@@ -225,7 +203,7 @@ public class BasicCheckCommandImplTest extends CommonCommandImplTests {
         String description = basicCheckCommand.toJournalMessageDescription(LogLevel.TRACE);
 
         // Asserts
-        Assertions.assertThat(description).isEqualTo("BasicCheckCommandImpl {executionState: NOT_EXECUTED; completionCode: Ok; nrOfWarnings: 0; nrOfProblems: 0; readClockDifference: true; readClockDifferenceMaximum(s): 111; check serial number; getTimeDifference: }");
+        assertThat(description).isEqualTo("BasicCheckCommandImpl {executionState: NOT_EXECUTED; completionCode: Ok; nrOfWarnings: 0; nrOfProblems: 0; readClockDifference: true; readClockDifferenceMaximum(s): 111; check serial number; getTimeDifference: }");
     }
 
 }

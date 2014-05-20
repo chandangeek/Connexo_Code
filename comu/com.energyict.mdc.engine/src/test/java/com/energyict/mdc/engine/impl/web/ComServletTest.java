@@ -1,13 +1,13 @@
 package com.energyict.mdc.engine.impl.web;
 
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
-import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.ServletBasedInboundDeviceProtocol;
@@ -22,7 +22,6 @@ import java.io.PrintWriter;
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -43,13 +42,12 @@ public class ComServletTest {
     private static final long COMSERVER_ID = 1;
     private static final long COMPORT_POOL_ID = COMSERVER_ID + 1;
     private static final long COMPORT_ID = COMPORT_POOL_ID + 1;
-
-    @Mock
-    private IssueService issueService;
+    private FakeServiceProvider serviceProvider;
 
     @Test
     public void testDoGetDoesNotFail () throws IOException, ServletException {
-        ComServlet comServlet = new ComServlet(mock(ServletBasedInboundComPort.class), mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), issueService);
+        serviceProvider = new FakeServiceProvider();
+        ComServlet comServlet = new ComServlet(mock(ServletBasedInboundComPort.class), mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), this.serviceProvider);
         HttpServletResponse servletResponse = mock(HttpServletResponse.class);
         PrintWriter printWriter = mock(PrintWriter.class);
         when(servletResponse.getWriter()).thenReturn(printWriter);
@@ -82,7 +80,7 @@ public class ComServletTest {
         when(comPort.getComServer()).thenReturn(comServer);
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         when(comServerDAO.findDevice(any(DeviceIdentifier.class))).thenReturn(null);
-        ComServlet comServlet = new ComServlet(comPort, comServerDAO, mock(DeviceCommandExecutor.class), issueService);
+        ComServlet comServlet = new ComServlet(comPort, comServerDAO, mock(DeviceCommandExecutor.class), this.serviceProvider);
         HttpServletRequest servletRequest = mock(HttpServletRequest.class);
         HttpServletResponse servletResponse = mock(HttpServletResponse.class);
 

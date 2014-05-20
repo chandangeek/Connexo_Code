@@ -1,59 +1,54 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
-import com.energyict.comserver.commands.access.DaisyChainedLogOffCommand;
-import com.energyict.comserver.commands.access.LogOffCommand;
-import com.energyict.comserver.commands.common.AddPropertiesCommand;
-import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
-import com.energyict.comserver.commands.common.DeviceProtocolTerminateCommand;
-import com.energyict.comserver.commands.common.DeviceProtocolUpdateCacheCommand;
-import com.energyict.comserver.commands.deviceactions.ForceClockCommandImpl;
-import com.energyict.comserver.commands.deviceactions.ReadRegistersCommandImpl;
-import com.energyict.comserver.core.JobExecution;
-import com.energyict.mdc.commands.BasicCheckCommand;
-import com.energyict.mdc.commands.ClockCommand;
-import com.energyict.mdc.commands.ComCommand;
-import com.energyict.mdc.commands.ComCommandTypes;
-import com.energyict.mdc.commands.CommandRoot;
-import com.energyict.mdc.commands.LoadProfileCommand;
-import com.energyict.mdc.commands.LogBooksCommand;
-import com.energyict.mdc.commands.MessagesCommand;
-import com.energyict.mdc.commands.RegisterCommand;
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.meterdata.ComTaskExecutionCollectedData;
-import com.energyict.mdc.meterdata.ServerCollectedData;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.engine.impl.commands.collect.BasicCheckCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ClockCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
+import com.energyict.mdc.engine.impl.commands.collect.LogBooksCommand;
+import com.energyict.mdc.engine.impl.commands.collect.RegisterCommand;
+import com.energyict.mdc.engine.impl.commands.store.access.DaisyChainedLogOffCommand;
+import com.energyict.mdc.engine.impl.commands.store.access.LogOffCommand;
+import com.energyict.mdc.engine.impl.commands.store.common.AddPropertiesCommand;
+import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
+import com.energyict.mdc.engine.impl.commands.store.common.DeviceProtocolTerminateCommand;
+import com.energyict.mdc.engine.impl.commands.store.common.DeviceProtocolUpdateCacheCommand;
+import com.energyict.mdc.engine.impl.commands.store.deviceactions.ForceClockCommandImpl;
+import com.energyict.mdc.engine.impl.commands.store.deviceactions.ReadRegistersCommandImpl;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
+import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.meterdata.ComTaskExecutionCollectedData;
+import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionTimeOutException;
 import com.energyict.mdc.protocol.api.exceptions.DataParseException;
-import com.energyict.mdc.protocol.tasks.ServerMessagesTask;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ClockTaskType;
-import com.energyict.mdc.tasks.ComTaskExecution;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
+import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.RegistersTask;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
- * Tests for the {@link com.energyict.comserver.commands.core.CommandRootImpl} component
+ * Tests for the CommandRootImpl component
  *
  * @author gna
  * @since 10/05/12 - 16:48
@@ -89,7 +84,7 @@ public class CommandRootImplTest extends CommonCommandImplTests {
         when(basicCheckTask.verifySerialNumber()).thenReturn(true);
         when(basicCheckTask.getMaximumClockDifference()).thenReturn(MAX_CLOCK_DIFF);
 
-        ServerMessagesTask messagesTask = mock(ServerMessagesTask.class);
+        MessagesTask messagesTask = mock(MessagesTask.class);
 
         RegistersTask registersTask = mock(RegistersTask.class);
 
@@ -195,19 +190,19 @@ public class CommandRootImplTest extends CommonCommandImplTests {
         List<CollectedData> actualCollectedData = new ArrayList<>();
 
         // Asserts
-        Assertions.assertThat(collectedData).hasSize(1);   // Since all command are for the same ComTaskExecution
+        assertThat(collectedData).hasSize(1);   // Since all command are for the same ComTaskExecution
         CollectedData data = collectedData.get(0);
-        Assertions.assertThat(data).isInstanceOf(ComTaskExecutionCollectedData.class);
+        assertThat(data).isInstanceOf(ComTaskExecutionCollectedData.class);
         ComTaskExecutionCollectedData comTaskExecutionCollectedData = (ComTaskExecutionCollectedData) data;
         actualCollectedData.addAll(comTaskExecutionCollectedData.getElements());
-        Assertions.assertThat(actualCollectedData).containsOnly(loadProfileCollectedData, clockCollectedData, messagesCollectedData, registerCollectedData, logBooksCollectedData);
+        assertThat(actualCollectedData).containsOnly(loadProfileCollectedData, clockCollectedData, messagesCollectedData, registerCollectedData, logBooksCollectedData);
     }
 
     @Test
     public void comServerRuntimeExceptionWithDeviceProtocolTerminateAndUpdateCacheTest() {
         CommandRoot commandRoot = createCommandRoot();
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
-        final JobExecution.ExecutionContext executionContext = commandRoot.getExecutionContext();
+        final ExecutionContext executionContext = commandRoot.getExecutionContext();
 
         DeviceProtocolTerminateCommand deviceProtocolTerminateCommand = mock(DeviceProtocolTerminateCommand.class);
         when(deviceProtocolTerminateCommand.getCommandType()).thenReturn(ComCommandTypes.DEVICE_PROTOCOL_TERMINATE);
@@ -233,7 +228,7 @@ public class CommandRootImplTest extends CommonCommandImplTests {
     public void communicationExceptionWithDeviceProtocolTerminateAndUpdateCacheTest() {
         CommandRoot commandRoot = createCommandRoot();
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
-        final JobExecution.ExecutionContext executionContext = commandRoot.getExecutionContext();
+        final ExecutionContext executionContext = commandRoot.getExecutionContext();
 
         DeviceProtocolTerminateCommand deviceProtocolTerminateCommand = mock(DeviceProtocolTerminateCommand.class);
         when(deviceProtocolTerminateCommand.getCommandType()).thenReturn(ComCommandTypes.DEVICE_PROTOCOL_TERMINATE);
@@ -259,7 +254,7 @@ public class CommandRootImplTest extends CommonCommandImplTests {
     public void normalCommandCantBeExecutedAfterExceptionTest() {
         CommandRoot commandRoot = createCommandRoot();
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
-        final JobExecution.ExecutionContext executionContext = commandRoot.getExecutionContext();
+        final ExecutionContext executionContext = commandRoot.getExecutionContext();
 
         AddPropertiesCommand addPropertiesCommand = mock(AddPropertiesCommand.class);
         when(addPropertiesCommand.getCommandType()).thenReturn(ComCommandTypes.ADD_PROPERTIES_COMMAND);
@@ -284,7 +279,7 @@ public class CommandRootImplTest extends CommonCommandImplTests {
     public void logOffAndDaisyChainedLogOffCantBeCalledAfterCommunicationExceptionsTest() {
         CommandRoot commandRoot = createCommandRoot();
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
-        final JobExecution.ExecutionContext executionContext = commandRoot.getExecutionContext();
+        final ExecutionContext executionContext = commandRoot.getExecutionContext();
 
         AddPropertiesCommand addPropertiesCommand = mock(AddPropertiesCommand.class);
         when(addPropertiesCommand.getCommandType()).thenReturn(ComCommandTypes.ADD_PROPERTIES_COMMAND);
@@ -308,7 +303,7 @@ public class CommandRootImplTest extends CommonCommandImplTests {
     public void logOffAndDaisyChainedLogOffMustBeCalledAfterANonCommunicationExceptionsTest() {
         CommandRoot commandRoot = createCommandRoot();
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
-        final JobExecution.ExecutionContext executionContext = commandRoot.getExecutionContext();
+        final ExecutionContext executionContext = commandRoot.getExecutionContext();
 
         AddPropertiesCommand addPropertiesCommand = mock(AddPropertiesCommand.class);
         when(addPropertiesCommand.getCommandType()).thenReturn(ComCommandTypes.ADD_PROPERTIES_COMMAND);
@@ -339,7 +334,7 @@ public class CommandRootImplTest extends CommonCommandImplTests {
     public void executeComCommandWhenNoComTaskExecutionWasProvidedToTheRootTest() {
         CommandRootImpl commandRoot = (CommandRootImpl) createCommandRoot();
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
-        final JobExecution.ExecutionContext executionContext = commandRoot.getExecutionContext();
+        final ExecutionContext executionContext = commandRoot.getExecutionContext();
         ComCommand comCommand = mock(ComCommand.class);
         commandRoot.performTheComCommandIfAllowed(deviceProtocol, executionContext, comCommand);
 
@@ -350,7 +345,7 @@ public class CommandRootImplTest extends CommonCommandImplTests {
     public void performTheComCommandIfNOTAllowedTest() {
         CommandRootImpl commandRoot = (CommandRootImpl) createCommandRoot();
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
-        final JobExecution.ExecutionContext executionContext = commandRoot.getExecutionContext();
+        final ExecutionContext executionContext = commandRoot.getExecutionContext();
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         ComCommand comCommand = mock(ComCommand.class);
         commandRoot.addCommand(comCommand, comTaskExecution);
@@ -359,7 +354,7 @@ public class CommandRootImplTest extends CommonCommandImplTests {
         when(preparedComTaskExecution.getDeviceProtocol()).thenReturn(deviceProtocol);
         commandRoot.executeFor(preparedComTaskExecution, executionContext);
 
-        verify(comCommand, never()).execute(any(DeviceProtocol.class), any(JobExecution.ExecutionContext.class));
+        verify(comCommand, never()).execute(any(DeviceProtocol.class), any(ExecutionContext.class));
     }
 
 
@@ -367,7 +362,7 @@ public class CommandRootImplTest extends CommonCommandImplTests {
     public void performTheComCommandIfAllowedTest() {
         CommandRootImpl commandRoot = (CommandRootImpl) createCommandRoot();
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
-        final JobExecution.ExecutionContext executionContext = commandRoot.getExecutionContext();
+        final ExecutionContext executionContext = commandRoot.getExecutionContext();
         ComCommand comCommand = mock(ComCommand.class);
         ComTaskExecution comTaskExecution = executionContext.getComTaskExecution();
         commandRoot.addCommand(comCommand, comTaskExecution);
@@ -377,7 +372,7 @@ public class CommandRootImplTest extends CommonCommandImplTests {
         when(preparedComTaskExecution.getDeviceProtocol()).thenReturn(deviceProtocol);
         commandRoot.executeFor(preparedComTaskExecution, executionContext);
 
-        verify(comCommand, times(1)).execute(any(DeviceProtocol.class), any(JobExecution.ExecutionContext.class));
+        verify(comCommand, times(1)).execute(any(DeviceProtocol.class), any(ExecutionContext.class));
     }
 
 

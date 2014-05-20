@@ -1,27 +1,22 @@
 package com.energyict.mdc.engine.impl.core.aspects.statistics;
 
-import com.energyict.comserver.commands.DeviceCommandExecutionToken;
-import com.energyict.comserver.commands.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.comserver.core.ComTaskExecutionJob;
-import com.energyict.comserver.core.ConfigurableReadComChannel;
+import com.energyict.mdc.engine.impl.core.ComTaskExecutionJob;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.ScheduledJobImpl;
-import com.energyict.comserver.core.SystemOutComChannel;
+import com.energyict.mdc.engine.impl.core.SystemOutComChannel;
+import com.energyict.mdc.issues.IssueService;
 import org.fest.assertions.api.Assertions;
 
-import com.energyict.mdc.ManagerFactory;
-import com.energyict.mdc.ServerManager;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
-import com.energyict.mdc.journal.ServerComSessionFactory;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
-import com.energyict.mdc.shadow.journal.ComSessionShadow;
-import com.energyict.mdc.shadow.journal.ComStatisticsShadow;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import org.junit.Before;
@@ -45,24 +40,22 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class InboundCommunicationStatisticsMonitorTest {
 
-    private static final int COM_PORT_POOL_ID = 1;
+    private static final long COM_PORT_POOL_ID = 1;
     @Mock
     private OutboundComPortPool comPortPool;
-    @Mock
-    private ServerManager manager;
-    @Mock
-    private ServerComSessionFactory comSessionFactory;
     @Mock
     private DeviceCommandExecutor deviceCommandExecutor;
     @Mock
     private DeviceCommandExecutionToken token;
+    @Mock
+    private IssueService issueService;
 
     @Before
     public void initializeMocksAndFactories () {
         when(this.comPortPool.getId()).thenReturn(COM_PORT_POOL_ID);
         when(this.comPortPool.getComPortType()).thenReturn(ComPortType.TCP);
-        when(this.manager.getComSessionFactory()).thenReturn(this.comSessionFactory);
-        ManagerFactory.setCurrent(this.manager);
+//        when(this.manager.getComSessionFactory()).thenReturn(this.comSessionFactory);
+//        ManagerFactory.setCurrent(this.manager);
     }
 
     @Test

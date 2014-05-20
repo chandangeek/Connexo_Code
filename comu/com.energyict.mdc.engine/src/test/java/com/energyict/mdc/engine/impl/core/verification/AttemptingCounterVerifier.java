@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.core.verification;
 
-import com.energyict.comserver.tools.Counter;
+
+import com.energyict.mdc.engine.impl.tools.Counter;
 
 import static junit.framework.Assert.fail;
 

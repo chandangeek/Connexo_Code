@@ -8,8 +8,6 @@ import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 
-import com.energyict.protocolimplv2.identifiers.PrimeRegisterForChannelIdentifier;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 

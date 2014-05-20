@@ -1,15 +1,16 @@
 package com.energyict.mdc.engine.impl.commands.store.common;
 
-import com.energyict.comserver.commands.AbstractComCommandExecuteTest;
-import com.energyict.comserver.commands.core.CommandRootImpl;
-import com.energyict.comserver.core.CommandFactory;
-import com.energyict.comserver.core.JobExecution;
-import com.energyict.mdc.commands.ComCommandTypes;
-import com.energyict.mdc.commands.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTest;
+import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
+import com.energyict.mdc.engine.impl.core.CommandFactory;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import org.junit.*;
+import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -25,7 +26,7 @@ public class DeviceProtocolTerminateCommandTest extends AbstractComCommandExecut
     @Test
     public void commandTypeTest(){
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, AbstractComCommandExecuteTest.newTestExecutionContext(), issueService);
+        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, AbstractComCommandExecuteTest.newTestExecutionContext(), serviceProvider);
         DeviceProtocolTerminateCommand deviceProtocolTerminateCommand = new DeviceProtocolTerminateCommand(commandRoot);
 
         assertEquals(ComCommandTypes.DEVICE_PROTOCOL_TERMINATE, deviceProtocolTerminateCommand.getCommandType());
@@ -35,8 +36,8 @@ public class DeviceProtocolTerminateCommandTest extends AbstractComCommandExecut
     public void validateTerminateCallTest(){
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        JobExecution.ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext();
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, issueService);
+        ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext();
+        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, serviceProvider);
         CommandFactory.createDeviceProtocolTerminate(commandRoot, null);
 
         // business method

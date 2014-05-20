@@ -1,30 +1,33 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
-import com.energyict.comserver.core.JobExecution;
-import com.energyict.mdc.commands.ComCommand;
-import com.energyict.mdc.commands.ComCommandTypes;
-import com.energyict.mdc.commands.CommandRoot;
+import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
+import com.energyict.mdc.engine.FakeServiceProvider;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
+import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.meterdata.ComTaskExecutionCollectedData;
+import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
-import com.energyict.mdc.meterdata.ComTaskExecutionCollectedData;
-import com.energyict.mdc.meterdata.ServerCollectedData;
+import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.ComTaskExecution;
-import com.energyict.mdc.tasks.OutboundConnectionTask;
-import java.util.Arrays;
-import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.fest.assertions.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link ComTaskExecutionComCommandImpl} component.
@@ -35,8 +38,8 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ComTaskExecutionComCommandImplTest {
 
-    private static final int COM_TASK_EXECUTION_ID = 97;
-    private static final int COM_PORT_POOL_ID = COM_TASK_EXECUTION_ID + 1;
+    private static final long COM_TASK_EXECUTION_ID = 97;
+    private static final long COM_PORT_POOL_ID = COM_TASK_EXECUTION_ID + 1;
 
     @Mock
     private ComTask comTask;
@@ -44,6 +47,10 @@ public class ComTaskExecutionComCommandImplTest {
     private ComTaskExecution comTaskExecution;
     @Mock
     private CommandRoot commandRoot;
+    private FakeServiceProvider serviceProvider = new FakeServiceProvider();
+    private CommandRoot.ServiceProvider commandRootServiceProvider = new CommandRootServiceProviderAdapter(serviceProvider);
+    @Mock
+    private TransactionService transactionService;
 
     @Before
     public void initializeMocks () {
@@ -58,7 +65,7 @@ public class ComTaskExecutionComCommandImplTest {
         OutboundComPortPool comPortPool = mock(OutboundComPortPool.class);
         when(comPortPool.getId()).thenReturn(COM_PORT_POOL_ID);
         when(connectionTask.getComPortPool()).thenReturn(comPortPool);
-        JobExecution.ExecutionContext executionContext = new JobExecution.ExecutionContext(mock(JobExecution.class), connectionTask, comPort, issueService);
+        ExecutionContext executionContext = new ExecutionContext(mock(JobExecution.class), connectionTask, comPort, commandRootServiceProvider);
         when(this.commandRoot.getExecutionContext()).thenReturn(executionContext);
     }
 
@@ -70,9 +77,9 @@ public class ComTaskExecutionComCommandImplTest {
         List<CollectedData> collectedDataList = command.getCollectedData();
 
         // Asserts
-        Assertions.assertThat(collectedDataList).hasSize(1);
+        assertThat(collectedDataList).hasSize(1);
         CollectedData collectedData = collectedDataList.get(0);
-        Assertions.assertThat(collectedData).isInstanceOf(ComTaskExecutionCollectedData.class);
+        assertThat(collectedData).isInstanceOf(ComTaskExecutionCollectedData.class);
     }
 
     @Test
@@ -92,9 +99,9 @@ public class ComTaskExecutionComCommandImplTest {
         List<CollectedData> collectedDataList = command.getCollectedData();
 
         // Asserts
-        Assertions.assertThat(collectedDataList).hasSize(1);
+        assertThat(collectedDataList).hasSize(1);
         CollectedData collectedData = collectedDataList.get(0);
-        Assertions.assertThat(collectedData).isInstanceOf(ComTaskExecutionCollectedData.class);
+        assertThat(collectedData).isInstanceOf(ComTaskExecutionCollectedData.class);
         verify(comCommand1).getCollectedData();
         verify(comCommand2).getCollectedData();
         verify(comCommand3).getCollectedData();
@@ -123,12 +130,12 @@ public class ComTaskExecutionComCommandImplTest {
         List<CollectedData> collectedDataList = command.getCollectedData();
 
         // Asserts
-        Assertions.assertThat(collectedDataList).hasSize(1);
+        assertThat(collectedDataList).hasSize(1);
         CollectedData collectedData = collectedDataList.get(0);
-        Assertions.assertThat(collectedData).isInstanceOf(ComTaskExecutionCollectedData.class);
+        assertThat(collectedData).isInstanceOf(ComTaskExecutionCollectedData.class);
         ComTaskExecutionCollectedData comTaskExecutionCollectedData = (ComTaskExecutionCollectedData) collectedData;
         List<ServerCollectedData> actualCollectedData = comTaskExecutionCollectedData.getElements();
-        Assertions.assertThat(actualCollectedData).containsOnly(collectedData1, collectedData2, collectedData3);
+        assertThat(actualCollectedData).containsOnly(collectedData1, collectedData2, collectedData3);
     }
 
     @Test
@@ -149,9 +156,9 @@ public class ComTaskExecutionComCommandImplTest {
         boolean contains3 = command.contains(comCommand3);
 
         // Asserts
-        Assertions.assertThat(contains1).isTrue();
-        Assertions.assertThat(contains2).isFalse();
-        Assertions.assertThat(contains3).isTrue();
+        assertThat(contains1).isTrue();
+        assertThat(contains2).isFalse();
+        assertThat(contains3).isTrue();
     }
 
 }

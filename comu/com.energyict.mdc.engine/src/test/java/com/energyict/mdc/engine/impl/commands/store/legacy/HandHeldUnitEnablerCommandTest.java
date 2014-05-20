@@ -10,6 +10,14 @@ import com.energyict.mdc.commands.CommandRoot;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.engine.exceptions.ComCommandException;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTest;
+import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
+import com.energyict.mdc.engine.impl.core.CommandFactory;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
+import com.energyict.mdc.engine.impl.core.inbound.ComChannelPlaceHolder;
 import com.energyict.mdc.protocol.ComChannelPlaceHolder;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ComPortType;
@@ -39,6 +47,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -56,8 +65,8 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class HandHeldUnitEnablerCommandTest extends AbstractComCommandExecuteTest {
 
-    @ClassRule
-    public static TestRule mockEnvironmentTranslactions = new MockEnvironmentTranslations();
+//    @ClassRule
+//    public static TestRule mockEnvironmentTranslactions = new MockEnvironmentTranslations();
 
     @Mock
     private ServerSerialPort serverSerialPort;
@@ -78,7 +87,7 @@ public class HandHeldUnitEnablerCommandTest extends AbstractComCommandExecuteTes
     @Test
     public void commandTypeTest() {
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, AbstractComCommandExecuteTest.newTestExecutionContext(), issueService);
+        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, AbstractComCommandExecuteTest.newTestExecutionContext(), commandRootServiceProvider);
         HandHeldUnitEnablerCommand handHeldUnitEnablerCommand = new HandHeldUnitEnablerCommand(commandRoot, this.comChannelPlaceHolder);
 
         assertEquals(ComCommandTypes.HAND_HELD_UNIT_ENABLER, handHeldUnitEnablerCommand.getCommandType());
@@ -88,9 +97,9 @@ public class HandHeldUnitEnablerCommandTest extends AbstractComCommandExecuteTes
     public void validateAdapterCallForMeterProtocolUsingOpticalConnection() throws ConnectionException {
         Logger logger = Logger.getLogger("MyTestLogger");
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        JobExecution.ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext(logger);
+        ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext(logger);
         when(executionContext.getConnectionTask().getConnectionType()).thenReturn(mock(OpticalConnectionType.class));
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, issueService);
+        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, commandRootServiceProvider);
         CommandFactory.createHandHeldUnitEnabler(commandRoot, null, this.comChannelPlaceHolder);
         MeterProtocolAdapter meterProtocolAdapter = mock(MeterProtocolAdapter.class);
 
@@ -105,9 +114,9 @@ public class HandHeldUnitEnablerCommandTest extends AbstractComCommandExecuteTes
     public void validateAdapterCallForMeterProtocolUsingNonOpticalConnection() throws ConnectionException {
         Logger logger = Logger.getLogger("MyTestLogger");
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        JobExecution.ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext(logger);
+        ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext(logger);
         when(executionContext.getConnectionTask().getConnectionType()).thenReturn(mock(NoPropertiesConnectionType.class));
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, issueService);
+        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, commandRootServiceProvider);
         CommandFactory.createHandHeldUnitEnabler(commandRoot, null, this.comChannelPlaceHolder);
         MeterProtocolAdapter meterProtocolAdapter = mock(MeterProtocolAdapter.class);
 
@@ -122,9 +131,9 @@ public class HandHeldUnitEnablerCommandTest extends AbstractComCommandExecuteTes
     public void validateAdapterCallForSmartMeterProtocolUsingOpticalConnection() throws ConnectionException {
         Logger logger = Logger.getLogger("MyTestLogger");
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        JobExecution.ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext(logger);
+        ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext(logger);
         when(executionContext.getConnectionTask().getConnectionType()).thenReturn(mock(OpticalConnectionType.class));
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, issueService);
+        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, commandRootServiceProvider);
         CommandFactory.createHandHeldUnitEnabler(commandRoot, null, this.comChannelPlaceHolder);
         SmartMeterProtocolAdapter smartMeterProtocolAdapter = mock(SmartMeterProtocolAdapter.class);
 
@@ -139,9 +148,9 @@ public class HandHeldUnitEnablerCommandTest extends AbstractComCommandExecuteTes
     public void validateAdapterCallForSmartMeterProtocolUsingNonOpticalConnection() throws ConnectionException {
         Logger logger = Logger.getLogger("MyTestLogger");
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        JobExecution.ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext(logger);
+        ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext(logger);
         when(executionContext.getConnectionTask().getConnectionType()).thenReturn(mock(NoPropertiesConnectionType.class));
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, issueService);
+        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, commandRootServiceProvider);
         CommandFactory.createHandHeldUnitEnabler(commandRoot, null, this.comChannelPlaceHolder);
         SmartMeterProtocolAdapter smartMeterProtocolAdapter = mock(SmartMeterProtocolAdapter.class);
 
@@ -156,8 +165,8 @@ public class HandHeldUnitEnablerCommandTest extends AbstractComCommandExecuteTes
     public void validateConnectionExceptionDuringHHUEnabledSignOn() throws ConnectionException {
         Logger logger = Logger.getLogger("MyTestLogger");
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        JobExecution.ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext(logger);
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, issueService);
+        ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext(logger);
+        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, commandRootServiceProvider);
         CommandFactory.createHandHeldUnitEnabler(commandRoot, null, this.comChannelPlaceHolder);
         MeterProtocolAdapter meterProtocolAdapter = mock(MeterProtocolAdapter.class);
         Mockito.doThrow(ConnectionException.class).when(meterProtocolAdapter).enableHHUSignOn(any(SerialCommunicationChannelAdapter.class));
@@ -177,8 +186,8 @@ public class HandHeldUnitEnablerCommandTest extends AbstractComCommandExecuteTes
     public void validateIllegalDeviceProtocolTest() {
         Logger logger = Logger.getLogger("MyTestLogger");
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        JobExecution.ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext(logger);
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, issueService);
+        ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext(logger);
+        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, commandRootServiceProvider);
         CommandFactory.createHandHeldUnitEnabler(commandRoot, null, this.comChannelPlaceHolder);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
 

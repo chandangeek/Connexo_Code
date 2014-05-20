@@ -1,8 +1,5 @@
 package com.energyict.mdc.engine.impl.events;
 
-import com.energyict.mdc.engine.impl.events.EventReceiver;
-import com.energyict.mdc.engine.impl.events.FilteringEventReceiver;
-import com.energyict.mdc.engine.impl.events.FilteringEventReceiverFactoryImpl;
 import org.junit.*;
 
 import static org.fest.assertions.api.Assertions.assertThat;

@@ -1,12 +1,12 @@
 package com.energyict.mdc.engine;
 
-import com.energyict.comserver.commands.core.CommandRootImpl;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.collect.ReadRegistersCommand;
+import com.energyict.mdc.engine.impl.commands.collect.SetClockCommand;
+import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
-import com.energyict.mdc.commands.ComCommandTypes;
-import com.energyict.mdc.commands.CommandRoot;
-import com.energyict.mdc.commands.ReadRegistersCommand;
-import com.energyict.mdc.commands.SetClockCommand;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
@@ -34,9 +34,9 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class GenericDeviceProtocolTest {
 
-    private static final int COMPORT_POOL_ID = 1;
-    private static final int COMPORT_ID = COMPORT_POOL_ID + 1;
-    private static final int CONNECTION_TASK_ID = COMPORT_ID + 1;
+    private static final long COMPORT_POOL_ID = 1;
+    private static final long COMPORT_ID = COMPORT_POOL_ID + 1;
+    private static final long CONNECTION_TASK_ID = COMPORT_ID + 1;
 
     @Mock
     OfflineDevice offlineDevice;
@@ -46,6 +46,8 @@ public class GenericDeviceProtocolTest {
 
     @Mock
     SetClockCommand setClockCommand;
+
+    private FakeServiceProvider serviceProvider;
 
     @Before
     public void initMock() {
@@ -58,7 +60,8 @@ public class GenericDeviceProtocolTest {
         MockGenericDeviceProtocol protocol = new MockGenericDeviceProtocol();
         protocol.init(offlineDevice, null);
 
-        CommandRootImpl root = new CommandRootImpl(offlineDevice, newTestExecutionContext(), issueService);
+        serviceProvider = new FakeServiceProvider();
+        CommandRootImpl root = new CommandRootImpl(offlineDevice, newTestExecutionContext(), this.serviceProvider);
         root.addCommand(readRegistersCommand, null);
         root.addCommand(setClockCommand, null);
 
@@ -89,7 +92,8 @@ public class GenericDeviceProtocolTest {
                 new ExecutionContext(
                         mock(JobExecution.class),
                         connectionTask,
-                        comPort, issueService);
+                        comPort,
+                        mock(CommandRoot.ServiceProvider.class));
         executionContext.setLogger(logger);
         return executionContext;
     }

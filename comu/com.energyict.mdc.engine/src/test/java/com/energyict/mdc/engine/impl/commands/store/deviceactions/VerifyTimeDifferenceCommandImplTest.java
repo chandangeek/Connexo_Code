@@ -1,21 +1,21 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
-import com.energyict.comserver.logging.LogLevel;
-import com.energyict.comserver.time.Clocks;
-import com.energyict.comserver.time.FrozenClock;
-import com.energyict.mdc.commands.BasicCheckCommand;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.ProgrammableClock;
 import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.engine.impl.commands.collect.BasicCheckCommand;
+import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTest;
+import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
+import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
 import com.energyict.mdc.tasks.BasicCheckTask;
-import com.energyict.test.MockEnvironmentTranslations;
-import java.util.Calendar;
-import org.junit.ClassRule;
+import org.joda.time.DateTime;
 import org.junit.Test;
-import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.Date;
 
 import static junit.framework.Assert.assertEquals;
 import static org.fest.assertions.api.Assertions.fail;
@@ -31,8 +31,8 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class VerifyTimeDifferenceCommandImplTest extends CommonCommandImplTests {
 
-    @ClassRule
-    public static TestRule mockEnvironmentTranslactions = new MockEnvironmentTranslations();
+//    @ClassRule
+//    public static TestRule mockEnvironmentTranslactions = new MockEnvironmentTranslations();
 
     @Test
     public void testToJournalMessageDescription () {
@@ -46,11 +46,11 @@ public class VerifyTimeDifferenceCommandImplTest extends CommonCommandImplTests 
 
     @Test(expected = DeviceConfigurationException.class)
     public void timeDifferenceShouldFailAfterMaxClockDiffTest() {
-        FrozenClock meterTime = FrozenClock.frozenOn(2013, Calendar.SEPTEMBER, 18, 16, 0, 0, 0);
-        FrozenClock systemTime = FrozenClock.frozenOn(2013, Calendar.SEPTEMBER, 18, 15, 0, 0, 0);
-        Clocks.setAppServerClock(systemTime);
+        Date meterTime = new DateTime(2013, 9, 18, 16, 0, 0, 0).toDate();
+        Clock systemTime = new ProgrammableClock().frozenAt(new DateTime(2013, 9, 18, 15, 0, 0, 0).toDate());
+        //Clocks.setAppServerClock(systemTime);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
-        when(deviceProtocol.getTime()).thenReturn(meterTime.now());
+        when(deviceProtocol.getTime()).thenReturn(meterTime);
         BasicCheckCommand basicCheckCommand = mock(BasicCheckCommand.class);
         BasicCheckTask basicCheckTask = mock(BasicCheckTask.class);
         when(basicCheckCommand.getTimeDifference()).thenReturn(new TimeDuration(1, TimeDuration.HOURS));
@@ -60,7 +60,7 @@ public class VerifyTimeDifferenceCommandImplTest extends CommonCommandImplTests 
             verifyTimeDifferenceCommand.execute(deviceProtocol, AbstractComCommandExecuteTest.newTestExecutionContext());
         } catch (DeviceConfigurationException e) {
             if(!e.getMessageId().equals("CSC-CONF-134")){
-                Assertions.fail("Should have gotten exception indicating that the timeDifference is to large, but was " + e.getMessage());
+                fail("Should have gotten exception indicating that the timeDifference is to large, but was " + e.getMessage());
             } else {
                 throw e;
             }

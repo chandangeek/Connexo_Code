@@ -6,6 +6,14 @@ import com.energyict.mdc.commands.ComCommandTypes;
 import com.energyict.mdc.commands.CommandRoot;
 import com.energyict.mdc.commands.LogBooksCommand;
 import com.energyict.mdc.commands.ReadLogBooksCommand;
+import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.collect.LogBooksCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ReadLogBooksCommand;
+import com.energyict.mdc.engine.impl.logging.LogLevel;
+import com.energyict.mdc.engine.impl.meterdata.identifiers.LogBookIdentifierByIdImpl;
 import com.energyict.mdc.meterdata.identifiers.LogBookIdentifierByIdImpl;
 import com.energyict.mdc.protocol.tasks.LogBooksTask;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -32,7 +40,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.fest.api.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
@@ -48,13 +57,13 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class LogBooksCommandImplTest {
 
-    private static final int LOGBOOK_ID_1 = 1;
-    private static final int LOGBOOK_ID_2 = 2;
-    private static final int LOGBOOK_ID_3 = 3;
+    private static final long LOGBOOK_ID_1 = 1;
+    private static final long LOGBOOK_ID_2 = 2;
+    private static final long LOGBOOK_ID_3 = 3;
 
-    private static final int LOGBOOK_TYPE_1 = 10;
-    private static final int LOGBOOK_TYPE_2 = 20;
-    private static final int LOGBOOK_TYPE_3 = 30;
+    private static final long LOGBOOK_TYPE_1 = 10;
+    private static final long LOGBOOK_TYPE_2 = 20;
+    private static final long LOGBOOK_TYPE_3 = 30;
 
     private static final Date LAST_LOGBOOK_1 = new Date(1354320000L * 1000L); // 01 Dec 2012 00:00:00 GMT
     private static final Date LAST_LOGBOOK_2 = new Date(1351728000L * 1000L); // 01 Nov 2012 00:00:00 GMT
@@ -66,8 +75,8 @@ public class LogBooksCommandImplTest {
 
     private static String SERIAL_NUMBER = "SerialNumber";
 
-    @ClassRule
-    public static TestRule mockEnvironmentTranslactions = new MockEnvironmentTranslations();
+//    @ClassRule
+//    public static TestRule mockEnvironmentTranslactions = new MockEnvironmentTranslations();
 
     @Mock
     private OfflineLogBook offlineLogBook_A;
@@ -92,6 +101,8 @@ public class LogBooksCommandImplTest {
 
     @Mock
     private ComTaskExecution comTaskExecution;
+    @Mock
+    private DeviceDataService deviceDataService;
 
     @Before
     public void setUp() throws Exception {
@@ -178,17 +189,17 @@ public class LogBooksCommandImplTest {
         LogBooksCommandImpl logBooksCommand = new LogBooksCommandImpl(logBooksTask, device, commandRoot, comTaskExecution);
         List<LogBookReader> logBookReaders = logBooksCommand.getLogBookReaders();
 
-        LogBookReader expectedLogBookReader_1 = new LogBookReader(DEVICE_OBISCODE_LOGBOOK_1, LAST_LOGBOOK_1, new LogBookIdentifierByIdImpl(LOGBOOK_ID_1), SERIAL_NUMBER);
-        LogBookReader expectedLogBookReader_2 = new LogBookReader(DEVICE_OBISCODE_LOGBOOK_2, LAST_LOGBOOK_2, new LogBookIdentifierByIdImpl(LOGBOOK_ID_2), SERIAL_NUMBER);
-        LogBookReader expectedLogBookReader_3 = new LogBookReader(DEVICE_OBISCODE_LOGBOOK_3, LAST_LOGBOOK_3, new LogBookIdentifierByIdImpl(LOGBOOK_ID_3), SERIAL_NUMBER);
+        LogBookReader expectedLogBookReader_1 = new LogBookReader(DEVICE_OBISCODE_LOGBOOK_1, LAST_LOGBOOK_1, new LogBookIdentifierByIdImpl(LOGBOOK_ID_1, deviceDataService), SERIAL_NUMBER);
+        LogBookReader expectedLogBookReader_2 = new LogBookReader(DEVICE_OBISCODE_LOGBOOK_2, LAST_LOGBOOK_2, new LogBookIdentifierByIdImpl(LOGBOOK_ID_2, deviceDataService), SERIAL_NUMBER);
+        LogBookReader expectedLogBookReader_3 = new LogBookReader(DEVICE_OBISCODE_LOGBOOK_3, LAST_LOGBOOK_3, new LogBookIdentifierByIdImpl(LOGBOOK_ID_3, deviceDataService), SERIAL_NUMBER);
 
         // asserts
         assertEquals(ComCommandTypes.LOGBOOKS_COMMAND, logBooksCommand.getCommandType());
         assertNotNull(logBooksCommand.getLogBooksTask());
         assertEquals(logBooksForDevice.size(), logBookReaders.size());
-        Assertions.assertThat(logBookReaders.get(0)).isEqualsToByComparingFields(expectedLogBookReader_1);
-        Assertions.assertThat(logBookReaders.get(1)).isEqualsToByComparingFields(expectedLogBookReader_2);
-        Assertions.assertThat(logBookReaders.get(2)).isEqualsToByComparingFields(expectedLogBookReader_3);
+        assertThat(logBookReaders.get(0)).isEqualsToByComparingFields(expectedLogBookReader_1);
+        assertThat(logBookReaders.get(1)).isEqualsToByComparingFields(expectedLogBookReader_2);
+        assertThat(logBookReaders.get(2)).isEqualsToByComparingFields(expectedLogBookReader_3);
 
         assertEquals("LogBooksCommandImpl {logBookObisCodes: 1.1.1.1.1.1, 2.2.2.2.2.2, 3.3.3.3.3.3}", logBooksCommand.toJournalMessageDescription(LogLevel.ERROR));
     }
@@ -211,15 +222,15 @@ public class LogBooksCommandImplTest {
         LogBooksCommand logBooksCommand = new LogBooksCommandImpl(logBooksTask, device, commandRoot, comTaskExecution);
         List<LogBookReader> logBookReaders = ((LogBooksCommandImpl) logBooksCommand).getLogBookReaders();
 
-        LogBookReader expectedLogBookReader_1 = new LogBookReader(DEVICE_OBISCODE_LOGBOOK_1, LAST_LOGBOOK_1, new LogBookIdentifierByIdImpl(LOGBOOK_ID_1), SERIAL_NUMBER);
-        LogBookReader expectedLogBookReader_3 = new LogBookReader(DEVICE_OBISCODE_LOGBOOK_3, LAST_LOGBOOK_3, new LogBookIdentifierByIdImpl(LOGBOOK_ID_3), SERIAL_NUMBER);
+        LogBookReader expectedLogBookReader_1 = new LogBookReader(DEVICE_OBISCODE_LOGBOOK_1, LAST_LOGBOOK_1, new LogBookIdentifierByIdImpl(LOGBOOK_ID_1, deviceDataService), SERIAL_NUMBER);
+        LogBookReader expectedLogBookReader_3 = new LogBookReader(DEVICE_OBISCODE_LOGBOOK_3, LAST_LOGBOOK_3, new LogBookIdentifierByIdImpl(LOGBOOK_ID_3, deviceDataService), SERIAL_NUMBER);
 
         // asserts
         Assert.assertEquals(ComCommandTypes.LOGBOOKS_COMMAND, logBooksCommand.getCommandType());
         assertNotNull(logBooksCommand.getLogBooksTask());
         Assert.assertEquals(logBooksTask.getLogBookTypes().size(), logBookReaders.size());
-        Assertions.assertThat(logBookReaders.get(0)).isEqualsToByComparingFields(expectedLogBookReader_1);
-        Assertions.assertThat(logBookReaders.get(1)).isEqualsToByComparingFields(expectedLogBookReader_3);
+        assertThat(logBookReaders.get(0)).isEqualsToByComparingFields(expectedLogBookReader_1);
+        assertThat(logBookReaders.get(1)).isEqualsToByComparingFields(expectedLogBookReader_3);
     }
 
 }

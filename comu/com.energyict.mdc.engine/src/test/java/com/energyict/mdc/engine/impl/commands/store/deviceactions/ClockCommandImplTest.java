@@ -1,51 +1,37 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
-import com.energyict.comserver.exceptions.CodingException;
-import com.energyict.comserver.logging.LogLevel;
-import com.energyict.comserver.time.Clocks;
-import com.energyict.comserver.time.FrozenClock;
-import com.energyict.mdc.commands.ClockCommand;
-import com.energyict.mdc.commands.ForceClockCommand;
-import com.energyict.mdc.commands.SetClockCommand;
-import com.energyict.mdc.commands.SynchronizeClockCommand;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.ProgrammableClock;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.impl.commands.collect.ClockCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ForceClockCommand;
+import com.energyict.mdc.engine.impl.commands.collect.SetClockCommand;
+import com.energyict.mdc.engine.impl.commands.collect.SynchronizeClockCommand;
+import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
+import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ClockTaskType;
-import com.energyict.mdc.tasks.ComTaskExecution;
-import com.energyict.mdc.protocol.tasks.ClockTask;
-import com.energyict.mdc.protocol.tasks.ClockTaskType;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.test.MockEnvironmentTranslations;
-import java.sql.SQLException;
-import java.util.Calendar;
-import java.util.Date;
-import org.junit.After;
+import org.joda.time.DateTime;
 import org.junit.Assert;
-import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.fest.assertions.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import java.util.Date;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
- * Tests for the {@link com.energyict.comserver.commands.deviceactions.ClockCommandImpl} component
+ * Tests for the ClockCommandImpl component
  *
  * @author gna
  * @since 9/05/12 - 10:11
@@ -57,8 +43,8 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
     private static final int MAXIMUM_CLOCK_DIFFERENCE = 10;
     private static final int MAXIMUM_CLOCK_SHIFT = 8;
 
-    @ClassRule
-    public static TestRule mockEnvironmentTranslactions = new MockEnvironmentTranslations();
+//    @ClassRule
+//    public static TestRule mockEnvironmentTranslactions = new MockEnvironmentTranslations();
 
     @Mock
     private DeviceProtocol deviceProtocol;
@@ -71,10 +57,6 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
      */
     private Date validationDate = new Date();
 
-    @After
-    public void resetTimeFactory () throws SQLException {
-        Clocks.resetAll();
-    }
 
     /**
      * Get a mocked {@link ClockTask} without a {@link ClockTaskType}
@@ -121,9 +103,9 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
 
     @Test
     public void clockCommandSetClockTest() {
-        FrozenClock frozenClock = FrozenClock.frozenOn(2012, Calendar.MAY, 1, 10, 52, 13, 111);
+        Clock frozenClock = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate());
         final long timeDifferenceInMillis = 3000L;
-        Clocks.setAppServerClock(frozenClock);
+        serviceProvider.setClock(frozenClock);
         validationDate = frozenClock.now();
         ClockTask clockTask = getSetClockTask();
         long deviceTime = frozenClock.now().getTime() - timeDifferenceInMillis;
@@ -143,8 +125,8 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
 
     @Test
     public void setClockCommandAboveMaxTest() {
-        FrozenClock frozenClock = FrozenClock.frozenOn(2012, Calendar.MAY, 1, 10, 52, 13, 111);
-        Clocks.setAppServerClock(frozenClock);
+        Clock frozenClock = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate());
+        serviceProvider.setClock(frozenClock);
         validationDate = frozenClock.now();
         ClockTask clockTask = getSetClockTask();
         long deviceTime = frozenClock.now().getTime() - ((long) MAXIMUM_CLOCK_DIFFERENCE * 1000 + 1000);
@@ -153,7 +135,7 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         clockCommand.execute(deviceProtocol, newTestExecutionContext());
 
         // asserts
-        assertNotNull(clockCommand.getIssues());
+        assertThat(clockCommand.getIssues()).isNotNull();
         Assert.assertEquals("We expect 1 issue", 1, clockCommand.getIssues().size());
         Assert.assertEquals("We expect 1 warning", 1, clockCommand.getWarnings().size());
         Assert.assertEquals("We expect no problems", 0, clockCommand.getProblems().size());
@@ -163,8 +145,8 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
 
     @Test
     public void setClockCommandBelowMinTest() {
-        FrozenClock frozenClock = FrozenClock.frozenOn(2012, Calendar.MAY, 1, 10, 52, 13, 111);
-        Clocks.setAppServerClock(frozenClock);
+        Clock frozenClock = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate());
+        serviceProvider.setClock(frozenClock);
         validationDate = frozenClock.now();
         ClockTask clockTask = getSetClockTask();
         long deviceTime = frozenClock.now().getTime() - ((long) MINIMUM_CLOCK_DIFFERENCE * 1000 - 1000);
@@ -173,17 +155,17 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         clockCommand.execute(deviceProtocol, newTestExecutionContext());
 
         // asserts
-        assertNotNull(clockCommand.getIssues());
-        Assertions.assertThat(clockCommand.getIssues()).isEmpty();
-        Assertions.assertThat(clockCommand.getProblems()).isEmpty();
-        Assertions.assertThat(clockCommand.getWarnings()).isEmpty();
+        assertThat(clockCommand.getIssues()).isNotNull();
+        assertThat(clockCommand.getIssues()).isEmpty();
+        assertThat(clockCommand.getProblems()).isEmpty();
+        assertThat(clockCommand.getWarnings()).isEmpty();
         verify(deviceProtocol, never()).setTime(any(Date.class));
     }
 
     @Test
     public void setClockCommandWithinBoundaryWithNegativeTimeDiffTest() {
-        FrozenClock frozenClock = FrozenClock.frozenOn(2012, Calendar.MAY, 1, 10, 52, 13, 111);
-        Clocks.setAppServerClock(frozenClock);
+        Clock frozenClock = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate());
+        serviceProvider.setClock(frozenClock);
         validationDate = frozenClock.now();
         ClockTask clockTask = getSetClockTask();
         long deviceTime = frozenClock.now().getTime() + 5000L;
@@ -192,7 +174,7 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         clockCommand.execute(deviceProtocol, newTestExecutionContext());
 
         // asserts
-        assertNotNull(clockCommand.getIssues());
+        assertThat(clockCommand.getIssues()).isNotNull();
         Assert.assertEquals("We expect 0 issues", 0, clockCommand.getIssues().size());
         Assert.assertEquals("We expect 0 problems", 0, clockCommand.getProblems().size());
         Assert.assertEquals("We expect 0 warnings", 0, clockCommand.getWarnings().size());
@@ -210,8 +192,8 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
 
     @Test
     public void setClockCommandAboveMaxWithNegativeDiffTest() {
-        FrozenClock frozenClock = FrozenClock.frozenOn(2012, Calendar.MAY, 1, 10, 52, 13, 111);
-        Clocks.setAppServerClock(frozenClock);
+        Clock frozenClock = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate());
+        serviceProvider.setClock(frozenClock);
         validationDate = frozenClock.now();
         ClockTask clockTask = getSetClockTask();
         long deviceTime = frozenClock.now().getTime() + (long) MAXIMUM_CLOCK_DIFFERENCE * 1000 + 1000;
@@ -220,7 +202,7 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         clockCommand.execute(deviceProtocol, newTestExecutionContext());
 
         // asserts
-        assertNotNull(clockCommand.getIssues());
+        assertThat(clockCommand.getIssues()).isNotNull();
         Assert.assertEquals("We expect 1 issue", 1, clockCommand.getIssues().size());
         Assert.assertEquals("We expect 1 warning", 1, clockCommand.getWarnings().size());
         Assert.assertEquals("We expect no problems", 0, clockCommand.getProblems().size());
@@ -230,8 +212,8 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
 
     @Test
     public void setClockCommandBelowMinWithNegativeDiffTest() {
-        FrozenClock frozenClock = FrozenClock.frozenOn(2012, Calendar.MAY, 1, 10, 52, 13, 111);
-        Clocks.setAppServerClock(frozenClock);
+        Clock frozenClock = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate());
+        serviceProvider.setClock(frozenClock);
         validationDate = frozenClock.now();
         ClockTask clockTask = getSetClockTask();
         long deviceTime = frozenClock.now().getTime() +((long) MINIMUM_CLOCK_DIFFERENCE * 1000 - 1000);
@@ -240,17 +222,17 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         clockCommand.execute(deviceProtocol, newTestExecutionContext());
 
         // asserts
-        assertNotNull(clockCommand.getIssues());
-        Assertions.assertThat(clockCommand.getIssues()).isEmpty();
-        Assertions.assertThat(clockCommand.getProblems()).isEmpty();
-        Assertions.assertThat(clockCommand.getWarnings()).isEmpty();
+        assertThat(clockCommand.getIssues()).isNotNull();
+        assertThat(clockCommand.getIssues()).isEmpty();
+        assertThat(clockCommand.getProblems()).isEmpty();
+        assertThat(clockCommand.getWarnings()).isEmpty();
         verify(deviceProtocol, never()).setTime(any(Date.class));
     }
 
     @Test
     public void clockCommandForceClockTest() {
-        FrozenClock frozenClock = FrozenClock.frozenOn(2012, Calendar.MAY, 1, 10, 52, 13, 111);
-        Clocks.setAppServerClock(frozenClock);
+        Clock frozenClock = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate());
+        serviceProvider.setClock(frozenClock);
         validationDate = frozenClock.now();
         ClockTask clockTask = getForceClockTask();
         ClockCommand clockCommand = new ClockCommandImpl(clockTask, createCommandRoot(), comTaskExecution);
@@ -269,13 +251,12 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
     @Test
     public void clockCommandSynchronizeClockTest() {
         final long timeDifferenceInMillis = 3000L;
-        FrozenClock systemTime = FrozenClock.frozenOn(2012, Calendar.MAY, 1, 10, 52, 13, 111);
-        FrozenClock meterTime = FrozenClock.frozenOn(2012, Calendar.MAY, 1, 10, 52, 10, 111); // 3 seconds behind the system time
-        Clocks.setAppServerClock(systemTime);
+        DateTime now = new DateTime(2012, 5, 1, 10, 52, 13, 111);
+        Clock systemTime = new ProgrammableClock().frozenAt(now.toDate());
+        serviceProvider.setClock(systemTime);
         validationDate = systemTime.now(); // set the validationDate to the meterTime + the clockDifference
         ClockTask clockTask = getSynchronizeClockTask();
-        long deviceTime = systemTime.now().getTime() - timeDifferenceInMillis;
-        when(deviceProtocol.getTime()).thenReturn(new Date(deviceTime)); // 3 seconds time difference
+        when(deviceProtocol.getTime()).thenReturn(now.minus(timeDifferenceInMillis).toDate()); // 3 seconds time difference
         ClockCommand clockCommand = new ClockCommandImpl(clockTask, createCommandRoot(), comTaskExecution);
         clockCommand.execute(deviceProtocol, newTestExecutionContext());
 
@@ -292,9 +273,9 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
 
     @Test
     public void clockCommandSynchronizeBelowMinTest() {
-        FrozenClock systemTime = FrozenClock.frozenOn(2012, Calendar.MAY, 1, 10, 52, 13, 111);
-        FrozenClock meterTime = FrozenClock.frozenOn(2012, Calendar.MAY, 1, 10, 52, 12, 111);   // 1 second behind the system time
-        Clocks.setAppServerClock(systemTime);
+        Clock systemTime = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate());
+        Clock meterTime = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 12, 111).toDate());   // 1 second behind the system time
+        serviceProvider.setClock(systemTime);
         ClockTask clockTask = getSynchronizeClockTask();
         ClockCommand clockCommand = new ClockCommandImpl(clockTask, createCommandRoot(), comTaskExecution);
         long deviceTime = systemTime.now().getTime() - ((long) MINIMUM_CLOCK_DIFFERENCE * 1000 - 1000);
@@ -302,7 +283,7 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         clockCommand.execute(deviceProtocol, newTestExecutionContext());
 
         // asserts
-        assertNotNull(clockCommand.getIssues());
+        assertThat(clockCommand.getIssues()).isNotNull();
         Assert.assertEquals("We expect 1 issue", 1, clockCommand.getIssues().size());
         Assert.assertEquals("We expect 1 warning", 1, clockCommand.getWarnings().size());
         Assert.assertEquals("We expect no problems", 0, clockCommand.getProblems().size());
@@ -313,10 +294,10 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
     @Test
     public void clockCommandSynchronizeClockWithNegativeDiffTest() {
         final long timeDifferenceInMillis = -3000L;
-        FrozenClock systemTime = FrozenClock.frozenOn(2012, Calendar.MAY, 1, 10, 52, 13, 111);
-        FrozenClock meterTime = FrozenClock.frozenOn(2012, Calendar.MAY, 1, 10, 52, 16, 111); // 3 seconds before the system time
-        FrozenClock timeToSet = FrozenClock.frozenOn(2012, Calendar.MAY, 1, 10, 52, 13, 111); // we add the clockShift to the timeToSet
-        Clocks.setAppServerClock(systemTime );
+        Clock systemTime = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate());
+        Clock meterTime = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 16, 111).toDate()); // 3 seconds before the system time
+        Clock timeToSet = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate()); // we add the clockShift to the timeToSet
+        serviceProvider.setClock(systemTime );
         validationDate = timeToSet.now(); // set the validationDate to the meterTime + the clockDifference
         ClockTask clockTask = getSynchronizeClockTask();
         ClockCommand clockCommand = new ClockCommandImpl(clockTask, createCommandRoot(), comTaskExecution);
@@ -329,7 +310,7 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         assertTrue(((ClockCommandImpl) clockCommand).getClockCommand() instanceof SynchronizeClockCommand);
         // verify that getTime is called only once
         verify(deviceProtocol).getTime();
-        // time difference is between boundaries, should set the frozenClock time
+        // time difference is between boundaries, should set the Clock time
         verify(deviceProtocol).setTime(Matchers.<Date>argThat(new TimingArgumentMatcher()));
         // verify the timedifference
         Assert.assertEquals(new TimeDuration((int) timeDifferenceInMillis, TimeDuration.MILLISECONDS), clockCommand.getTimeDifference());
@@ -338,10 +319,10 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
     @Test
     public void clockCommandSynchronizeLargerThenMaxWithNegativeDiffTest() {
         final long timeDifferenceInMillis = -(MAXIMUM_CLOCK_SHIFT * 1000 + 1000);
-        FrozenClock systemTime = FrozenClock.frozenOn(2012, Calendar.MAY, 1, 10, 52, 13, 111);
-        FrozenClock meterTime = FrozenClock.frozenOn(2012, Calendar.MAY, 1, 10, 52, 22, 111); // 9 seconds before the system time
-        FrozenClock timeToSet = FrozenClock.frozenOn(2012, Calendar.MAY, 1, 10, 52, 14, 111); // we add the maximum clockShift to the meterTime
-        Clocks.setAppServerClock(systemTime);
+        Clock systemTime = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate());
+        Clock meterTime = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 22, 111).toDate()); // 9 seconds before the system time
+        Clock timeToSet = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 14, 111).toDate()); // we add the maximum clockShift to the meterTime
+        serviceProvider.setClock(systemTime);
         validationDate = timeToSet.now(); // set the validationDate to the meterTime + the clockDifference
         ClockTask clockTask = getSynchronizeClockTask();
         ClockCommand clockCommand = new ClockCommandImpl(clockTask, createCommandRoot(), comTaskExecution);
@@ -354,7 +335,7 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         assertTrue(((ClockCommandImpl) clockCommand).getClockCommand() instanceof SynchronizeClockCommand);
         // verify that getTime is called only once
         verify(deviceProtocol).getTime();
-        // time difference is between boundaries, should set the frozenClock time
+        // time difference is between boundaries, should set the Clock time
         verify(deviceProtocol).setTime(Matchers.<Date>argThat(new TimingArgumentMatcher()));
         // verify the timedifference
         Assert.assertEquals(new TimeDuration((int) timeDifferenceInMillis, TimeDuration.MILLISECONDS), clockCommand.getTimeDifference());
@@ -363,8 +344,8 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
     @Test
     public void clockCommandSynchronizeBelowMinWithNegativeDifferenceTest() {
         final long timeDifferenceInMillis = -(MINIMUM_CLOCK_DIFFERENCE * 1000 - 1000);
-        FrozenClock systemTime = FrozenClock.frozenOn(2012, Calendar.MAY, 1, 10, 52, 13, 111);
-        Clocks.setAppServerClock(systemTime);
+        Clock systemTime = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate());
+        serviceProvider.setClock(systemTime);
         ClockTask clockTask = getSynchronizeClockTask();
         ClockCommand clockCommand = new ClockCommandImpl(clockTask, createCommandRoot(), comTaskExecution);
         long deviceTime = systemTime.now().getTime() - timeDifferenceInMillis;
@@ -372,7 +353,7 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         clockCommand.execute(deviceProtocol, newTestExecutionContext());
 
         // asserts
-        assertNotNull(clockCommand.getIssues());
+        assertThat(clockCommand.getIssues()).isNotNull();
         Assert.assertEquals("We expect 1 issue", 1, clockCommand.getIssues().size());
         Assert.assertEquals("We expect 1 warning", 1, clockCommand.getWarnings().size());
         Assert.assertEquals("We expect no problems", 0, clockCommand.getProblems().size());
@@ -389,7 +370,7 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         String description = clockCommand.toJournalMessageDescription(LogLevel.ERROR);
 
         // Asserts
-        Assertions.assertThat(description).isEqualTo("ClockCommandImpl {clockTaskType: SYNCHRONIZECLOCK}");
+        assertThat(description).isEqualTo("ClockCommandImpl {clockTaskType: SYNCHRONIZECLOCK}");
     }
 
     @Test
@@ -401,7 +382,7 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         String description = clockCommand.toJournalMessageDescription(LogLevel.INFO);
 
         // Asserts
-        Assertions.assertThat(description).isEqualTo("ClockCommandImpl {executionState: NOT_EXECUTED; completionCode: Ok; clockTaskType: SYNCHRONIZECLOCK}");
+        assertThat(description).isEqualTo("ClockCommandImpl {executionState: NOT_EXECUTED; completionCode: Ok; clockTaskType: SYNCHRONIZECLOCK}");
     }
 
     @Test
@@ -413,7 +394,7 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         String description = clockCommand.toJournalMessageDescription(LogLevel.TRACE);
 
         // Asserts
-        Assertions.assertThat(description).isEqualTo("ClockCommandImpl {executionState: NOT_EXECUTED; completionCode: Ok; nrOfWarnings: 0; nrOfProblems: 0; clockTaskType: SYNCHRONIZECLOCK; maximumClockShift: 8 seconds; getTimeDifference: }");
+        assertThat(description).isEqualTo("ClockCommandImpl {executionState: NOT_EXECUTED; completionCode: Ok; nrOfWarnings: 0; nrOfProblems: 0; clockTaskType: SYNCHRONIZECLOCK; maximumClockShift: 8 seconds; getTimeDifference: }");
     }
 
     /**
