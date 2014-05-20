@@ -1,5 +1,12 @@
 package com.energyict.mdc.engine.impl.commands.store.legacy;
 
+import com.energyict.mdc.engine.exceptions.ComCommandException;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTest;
+import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
+import com.energyict.mdc.engine.impl.core.CommandFactory;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolAdapter;
 import com.energyict.comserver.commands.AbstractComCommandExecuteTest;
@@ -18,6 +25,7 @@ import org.junit.rules.*;
 
 import java.util.logging.Logger;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -31,13 +39,13 @@ import static org.mockito.Mockito.verify;
  */
 public class InitializeLoggerCommandTest extends AbstractComCommandExecuteTest {
 
-    @ClassRule
-    public static TestRule mockEnvironmentTranslactions = new MockEnvironmentTranslations();
+//    @ClassRule
+//    public static TestRule mockEnvironmentTranslactions = new MockEnvironmentTranslations();
 
     @Test
     public void commandTypeTest() {
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, AbstractComCommandExecuteTest.newTestExecutionContext(), issueService);
+        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, AbstractComCommandExecuteTest.newTestExecutionContext(), commandRootServiceProvider);
         InitializeLoggerCommand initializeLoggerCommand = new InitializeLoggerCommand(commandRoot);
 
         assertEquals(ComCommandTypes.INIT_LOGGER_COMMAND, initializeLoggerCommand.getCommandType());
@@ -47,8 +55,8 @@ public class InitializeLoggerCommandTest extends AbstractComCommandExecuteTest {
     public void validateAdapterCallForMeterProtocol () {
         Logger logger = Logger.getLogger("MyTestLogger");
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        JobExecution.ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext(logger);
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, issueService);
+        ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext(logger);
+        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, commandRootServiceProvider);
         CommandFactory.createLegacyInitLoggerCommand(commandRoot, null);
         MeterProtocolAdapter meterProtocolAdapter = mock(MeterProtocolAdapter.class);
 
@@ -63,8 +71,8 @@ public class InitializeLoggerCommandTest extends AbstractComCommandExecuteTest {
     public void validateAdapterCallForSmartMeterProtocol () {
         Logger logger = Logger.getLogger("MyTestLogger");
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        JobExecution.ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext(logger);
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, issueService);
+        ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext(logger);
+        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, commandRootServiceProvider);
         CommandFactory.createLegacyInitLoggerCommand(commandRoot, null);
         SmartMeterProtocolAdapter smartMeterProtocolAdapter = mock(SmartMeterProtocolAdapter.class);
 
@@ -79,8 +87,8 @@ public class InitializeLoggerCommandTest extends AbstractComCommandExecuteTest {
     public void validateIllegalDeviceProtocolTest() {
         Logger logger = Logger.getLogger("MyTestLogger");
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        JobExecution.ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext(logger);
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, issueService);
+        ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext(logger);
+        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, commandRootServiceProvider);
         CommandFactory.createLegacyInitLoggerCommand(commandRoot, null);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
 

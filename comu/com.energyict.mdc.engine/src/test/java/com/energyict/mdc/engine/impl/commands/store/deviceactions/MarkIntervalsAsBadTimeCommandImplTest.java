@@ -1,43 +1,39 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
-import com.energyict.comserver.logging.LogLevel;
-import com.energyict.mdc.commands.CommandRoot;
-import com.energyict.mdc.commands.LoadProfileCommand;
-import com.energyict.mdc.commands.MarkIntervalsAsBadTimeCommand;
-import com.energyict.mdc.commands.TimeDifferenceCommand;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.interval.IntervalStateBits;
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.meterdata.DeviceLoadProfile;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.tasks.LoadProfilesTask;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
+import com.energyict.mdc.engine.impl.commands.collect.MarkIntervalsAsBadTimeCommand;
+import com.energyict.mdc.engine.impl.commands.collect.TimeDifferenceCommand;
+import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTest;
+import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
+import com.energyict.mdc.engine.impl.logging.LogLevel;
+import com.energyict.mdc.engine.impl.meterdata.DeviceLoadProfile;
+import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.tasks.ComTaskExecution;
 import com.energyict.mdc.tasks.LoadProfilesTask;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.fest.assertions.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
- * Tests for the {@link com.energyict.comserver.commands.deviceactions.MarkIntervalsAsBadTimeCommandImpl} component
+ * Tests for the MarkIntervalsAsBadTimeCommandImpl component
  *
  * @author gna
  * @since 31/05/12 - 10:12
@@ -72,7 +68,7 @@ public class MarkIntervalsAsBadTimeCommandImplTest extends CommonCommandImplTest
         MarkIntervalsAsBadTimeCommand markIntervalsAsBadTimeCommand = commandRoot.getMarkIntervalsAsBadTimeCommand(loadProfileCommand, comTaskExecution);
         loadProfileCommand.addCollectedDataItem(createDeviceCollectedLoadProfile());
         markIntervalsAsBadTimeCommand.execute(deviceProtocol, AbstractComCommandExecuteTest.newTestExecutionContext());
-        Assertions.assertThat(markIntervalsAsBadTimeCommand.toJournalMessageDescription(LogLevel.ERROR)).startsWith("MarkIntervalsAsBadTimeCommandImpl {minimumClockDifference: 1 minutes");
+        assertThat(markIntervalsAsBadTimeCommand.toJournalMessageDescription(LogLevel.ERROR)).startsWith("MarkIntervalsAsBadTimeCommandImpl {minimumClockDifference: 1 minutes");
 
         // asserts
         assertNotNull(loadProfileCommand.getCollectedData());

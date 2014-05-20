@@ -1,29 +1,22 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.comserver.commands.AbstractComCommandExecuteTest;
-import com.energyict.comserver.commands.core.CommandRootImpl;
-import com.energyict.comserver.core.JobExecution;
-import com.energyict.comserver.logging.LogLevel;
-import com.energyict.mdc.commands.ComCommandTypes;
-import com.energyict.mdc.commands.CommandRoot;
-import com.energyict.mdc.commands.LogBooksCommand;
-import com.energyict.mdc.commands.ReadLogBooksCommand;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.BaseLogBook;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.collect.LogBooksCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ReadLogBooksCommand;
+import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTest;
+import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
+import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.LogBookReader;
-import com.energyict.mdc.protocol.api.device.LogBook;
+import com.energyict.mdc.protocol.api.device.BaseLogBook;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.tasks.LogBooksTask;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.tasks.ComTaskExecution;
 import com.energyict.mdc.tasks.LogBooksTask;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,13 +24,17 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests for the {@link com.energyict.comserver.commands.deviceactions.ReadLogBooksCommandImpl} component
+ * Tests for the ReadLogBooksCommandImpl component
  *
  * @author sva
  * @since 12/12/12 - 13:48
@@ -61,8 +58,8 @@ public class ReadLogBooksCommandImplTest extends AbstractComCommandExecuteTest {
     public void testExecuteCommand() throws Exception {
         OfflineDevice device = mock(OfflineDevice.class);
         LogBooksTask logBooksTask = mock(LogBooksTask.class);
-        JobExecution.ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext();
-        CommandRoot commandRoot = new CommandRootImpl(device, executionContext, issueService);
+        ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext();
+        CommandRoot commandRoot = new CommandRootImpl(device, executionContext, commandRootServiceProvider);
         LogBooksCommand logBooksCommand = commandRoot.getLogBooksCommand(logBooksTask, commandRoot, comTaskExecution);
         ReadLogBooksCommand readLogBooksCommand = commandRoot.getReadLogBooksCommand(logBooksCommand, comTaskExecution);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
@@ -95,22 +92,22 @@ public class ReadLogBooksCommandImplTest extends AbstractComCommandExecuteTest {
         LogBookIdentifier logBookIdentifier1 = mock(LogBookIdentifier.class);
         BaseLogBook logBook1 = mock(BaseLogBook.class);
         when((logBookIdentifier1).getLogBook()).thenReturn(logBook1);
-        when(logBook1.getId()).thenReturn(10);
+        when(logBook1.getId()).thenReturn(10L);
         LogBookIdentifier logBookIdentifier2 = mock(LogBookIdentifier.class);
         BaseLogBook logBook2 = mock(BaseLogBook.class);
         when((logBookIdentifier2).getLogBook()).thenReturn(logBook2);
-        when(logBook2.getId()).thenReturn(20);
+        when(logBook2.getId()).thenReturn(20L);
         LogBookIdentifier logBookIdentifier3 = mock(LogBookIdentifier.class);
         BaseLogBook logBook3 = mock(BaseLogBook.class);
         when((logBookIdentifier3).getLogBook()).thenReturn(logBook3);
-        when(logBook3.getId()).thenReturn(30);
+        when(logBook3.getId()).thenReturn(30L);
 
         LogBookReader logBookReader1 = new LogBookReader(logBookObisCode1, lastLogBookDate1, logBookIdentifier1, SERIAL_NUMBER);
         LogBookReader logBookReader2 = new LogBookReader(logBookObisCode2, lastLogBookDate2, logBookIdentifier2, SERIAL_NUMBER);
         LogBookReader logBookReader3 = new LogBookReader(logBookObisCode3, lastLogBookDate3, logBookIdentifier3, SERIAL_NUMBER);
 
         OfflineDevice device = mock(OfflineDevice.class);
-        CommandRoot commandRoot = new CommandRootImpl(device, AbstractComCommandExecuteTest.newTestExecutionContext(), issueService);
+        CommandRoot commandRoot = new CommandRootImpl(device, AbstractComCommandExecuteTest.newTestExecutionContext(), commandRootServiceProvider);
         ReadLogBooksCommand readLogBooksCommand = commandRoot.getReadLogBooksCommand(mock(LogBooksCommand.class), comTaskExecution);
         readLogBooksCommand.addLogBooks(Arrays.asList(logBookReader1, logBookReader2, logBookReader3, logBookReader1, logBookReader2));
 

@@ -32,7 +32,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests for the {@link com.energyict.comserver.commands.deviceactions.ReadRegistersCommandImpl} component
+ * Tests for the ReadRegistersCommandImpl component
  *
  * @author gna
  * @since 18/06/12 - 13:56
