@@ -1,0 +1,135 @@
+package com.energyict.mdc.masterdata.rest.impl;
+
+import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.common.TranslatableApplicationException;
+import com.energyict.mdc.common.rest.PagedInfoList;
+import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfo;
+import com.energyict.mdc.masterdata.rest.LocalizedTimeDuration;
+import com.energyict.mdc.masterdata.rest.RegisterMappingInfo;
+import com.google.common.base.Optional;
+
+import javax.inject.Inject;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.util.*;
+
+@Path("/loadprofiles")
+public class LoadProfileResource {
+
+    private final MasterDataService masterDataService;
+    private final DeviceConfigurationService deviceConfigurationService;
+    private final Thesaurus thesaurus;
+
+    @Inject
+    public LoadProfileResource(MasterDataService masterDataService, DeviceConfigurationService deviceConfigurationService, Thesaurus thesaurus) {
+        this.masterDataService = masterDataService;
+        this.deviceConfigurationService = deviceConfigurationService;
+        this.thesaurus = thesaurus;
+    }
+
+    @GET
+    @Path("/intervals")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getIntervals(@BeanParam QueryParameters queryParameters){
+        List<LocalizedTimeDuration.TimeDurationInfo> infos = new ArrayList<>(LocalizedTimeDuration.intervals.size());
+        for (Map.Entry<Integer, LocalizedTimeDuration> timeDurationEntry : LocalizedTimeDuration.intervals.entrySet()) {
+            LocalizedTimeDuration.TimeDurationInfo info = new LocalizedTimeDuration.TimeDurationInfo();
+            info.id = timeDurationEntry.getKey();
+            info.name = timeDurationEntry.getValue().toString(thesaurus);
+            infos.add(info);
+        }
+        return Response.ok(PagedInfoList.asJson("data", infos, queryParameters)).build();
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllProfileTypes(@BeanParam QueryParameters queryParameters) {
+        List<LoadProfileType> allProfileTypes = masterDataService.findAllLoadProfileTypes();
+        // Sorting
+        Collections.sort(allProfileTypes, new Comparator<LoadProfileType>() {
+            @Override
+            public int compare(LoadProfileType o1, LoadProfileType o2) {
+                return o1.getName().compareToIgnoreCase(o2.getName());
+            }
+        });
+        return Response.ok(PagedInfoList.asJson("data", LoadProfileTypeInfo.from(allProfileTypes), queryParameters)).build();
+    }
+
+    @GET
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getLoadProfileType(@PathParam("id") long loadProfileId) {
+        LoadProfileType loadProfileType = findLoadProfileByIdOrThrowException(loadProfileId);
+        return Response.ok(LoadProfileTypeInfo.from(loadProfileType, isLoadProfileTypeAlreadyInUse(loadProfileType))).build();
+    }
+
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response addNewLoadProfileType(LoadProfileTypeInfo request) {
+        LoadProfileType loadProfileType = masterDataService.newLoadProfileType(request.name, request.obisCode, request.timeDuration);
+        addRegisterMappingsToLoadProfileType(loadProfileType, request);
+        loadProfileType.save();
+        return Response.ok(LoadProfileTypeInfo.from(loadProfileType, false)).build();
+    }
+
+    @PUT
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response editLoadProfileType(@PathParam("id") long loadProfileId, LoadProfileTypeInfo request) {
+        LoadProfileType loadProfileType = findLoadProfileByIdOrThrowException(loadProfileId);
+        loadProfileType.setName(request.name);
+        boolean isInUse = isLoadProfileTypeAlreadyInUse(loadProfileType);
+        if (!isInUse){
+            loadProfileType.setInterval(request.timeDuration);
+            loadProfileType.setObisCode(request.obisCode);
+            loadProfileType.getRegisterMappings().clear();
+            addRegisterMappingsToLoadProfileType(loadProfileType, request);
+        }
+        loadProfileType.save();
+        return Response.ok(LoadProfileTypeInfo.from(loadProfileType, isInUse)).build();
+    }
+
+
+    @DELETE
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteProfileType(@PathParam("id") long loadProfileId) {
+        findLoadProfileByIdOrThrowException(loadProfileId).delete();
+        return Response.ok().build();
+    }
+
+
+    private LoadProfileType findLoadProfileByIdOrThrowException(long loadProfileId) {
+        Optional<LoadProfileType> loadProfileTypeRef = masterDataService.findLoadProfileType(loadProfileId);
+        if (!loadProfileTypeRef.isPresent()) {
+            throw new TranslatableApplicationException(thesaurus, MessageSeeds.NO_LOAD_PROFILE_TYPE_FOUND, loadProfileId);
+        }
+
+        return loadProfileTypeRef.get();
+    }
+
+
+    private void addRegisterMappingsToLoadProfileType(LoadProfileType loadProfileType, LoadProfileTypeInfo request) {
+        if (request.registerMappings != null) {
+            for (RegisterMappingInfo registerMapping : request.registerMappings) {
+                Optional<RegisterMapping> registerMappingRef = masterDataService.findRegisterMapping(registerMapping.id);
+                if (registerMappingRef.isPresent()) {
+                    loadProfileType.addRegisterMapping(registerMappingRef.get());
+                }
+            }
+        }
+    }
+
+    private boolean isLoadProfileTypeAlreadyInUse(LoadProfileType loadProfileType){
+        return !deviceConfigurationService.findDeviceConfigurationsUsingLoadProfileType(loadProfileType).isEmpty()
+                || !deviceConfigurationService.findDeviceTypesUsingLoadProfileType(loadProfileType).isEmpty();
+    }
+}

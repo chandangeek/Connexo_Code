@@ -12,7 +12,9 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.TransactionWrapper;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.protocolimpl.modbus.core.Device;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -29,6 +31,7 @@ public class MasterDataApplication extends Application {
     public static final String COMPONENT_NAME = "MDR";
 
     private volatile MasterDataService masterDataService;
+    private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile TransactionService transactionService;
     private volatile NlsService nlsService;
     private volatile JsonService jsonService;
@@ -37,7 +40,9 @@ public class MasterDataApplication extends Application {
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
-                MasterDataResource.class,
+                LogBookResource.class,
+                LoadProfileResource.class,
+                PhenomenonResource.class,
                 TransactionWrapper.class,
                 ExceptionLogger.class,
                 ConstraintViolationExceptionMapper.class,
@@ -61,6 +66,11 @@ public class MasterDataApplication extends Application {
     }
 
     @Reference
+    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
+        this.deviceConfigurationService = deviceConfigurationService;
+    }
+
+    @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
     }
@@ -81,6 +91,7 @@ public class MasterDataApplication extends Application {
         @Override
         protected void configure() {
             bind(masterDataService).to(MasterDataService.class);
+            bind(deviceConfigurationService).to(DeviceConfigurationService.class);
             bind(transactionService).to(TransactionService.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(nlsService).to(NlsService.class);
