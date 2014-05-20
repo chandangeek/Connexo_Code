@@ -39,7 +39,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests for the {@link com.energyict.comserver.commands.deviceactions.BasicCheckCommandImpl} component
+ * Tests for the BasicCheckCommandImpl component
  *
  * @author gna
  * @since 11/06/12 - 12:12
@@ -47,18 +47,13 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class BasicCheckCommandImplTest extends CommonCommandImplTests {
 
-    @ClassRule
-    public static TestRule mockEnvironmentTranslactions = new MockEnvironmentTranslations();
+//    @ClassRule
+//    public static TestRule mockEnvironmentTranslactions = new MockEnvironmentTranslations();
 
     @Mock
     private DeviceProtocol deviceProtocol;
     @Mock
     private ComTaskExecution comTaskExecution;
-
-    @After
-    public void resetTimeFactory() throws SQLException {
-        Clocks.resetAll();
-    }
 
     private BasicCheckTask createCheckTimeDifference() {
         BasicCheckTask basicCheckTask = mock(BasicCheckTask.class);

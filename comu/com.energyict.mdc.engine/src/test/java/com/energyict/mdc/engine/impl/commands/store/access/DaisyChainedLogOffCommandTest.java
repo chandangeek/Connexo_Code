@@ -1,16 +1,17 @@
 package com.energyict.mdc.engine.impl.commands.store.access;
 
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTest;
+import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
+import com.energyict.mdc.engine.impl.core.CommandFactory;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolAdapter;
-import com.energyict.comserver.commands.AbstractComCommandExecuteTest;
-import com.energyict.comserver.commands.core.CommandRootImpl;
-import com.energyict.comserver.core.CommandFactory;
-import com.energyict.comserver.core.JobExecution;
-import com.energyict.mdc.commands.ComCommandTypes;
-import com.energyict.mdc.commands.CommandRoot;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import org.junit.*;
+import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -26,7 +27,7 @@ public class DaisyChainedLogOffCommandTest extends AbstractComCommandExecuteTest
     @Test
     public void testCommandType(){
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, AbstractComCommandExecuteTest.newTestExecutionContext(), issueService);
+        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, AbstractComCommandExecuteTest.newTestExecutionContext(), serviceProvider);
         DaisyChainedLogOffCommand daisyChainedLogOffCommand = new DaisyChainedLogOffCommand(commandRoot);
 
         assertEquals(ComCommandTypes.DAISY_CHAINED_LOGOFF, daisyChainedLogOffCommand.getCommandType());
@@ -34,9 +35,9 @@ public class DaisyChainedLogOffCommandTest extends AbstractComCommandExecuteTest
 
     @Test
     public void validateAdapterCallForMeterProtocol () {
-        JobExecution.ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext();
+        ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext();
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, issueService);
+        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, serviceProvider);
         CommandFactory.createDaisyChainedLogOffCommand(commandRoot, null);
         MeterProtocolAdapter meterProtocolAdapter = mock(MeterProtocolAdapter.class);
 
@@ -50,9 +51,9 @@ public class DaisyChainedLogOffCommandTest extends AbstractComCommandExecuteTest
 
     @Test
     public void validateAdapterCallForSmartMeterProtocol () {
-        JobExecution.ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext();
+        ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext();
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, issueService);
+        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, serviceProvider);
         CommandFactory.createDaisyChainedLogOffCommand(commandRoot, null);
         SmartMeterProtocolAdapter smartMeterProtocolAdapter = mock(SmartMeterProtocolAdapter.class);
 

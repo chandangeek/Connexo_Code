@@ -52,7 +52,7 @@ import static org.mockito.Mockito.*;
 
 
 /**
- * Tests for the {@link com.energyict.mdc.device.data.impl.offline.OfflineDeviceImpl}
+ * Tests for the {@link com.energyict.mdc.device.data.impl.offline.fflineDeviceImpl
  *
  * @author gna
  * @since 17/04/12 - 9:47

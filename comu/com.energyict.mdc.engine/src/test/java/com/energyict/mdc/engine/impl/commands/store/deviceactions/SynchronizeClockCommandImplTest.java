@@ -2,38 +2,31 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.ProgrammableClock;
+import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.collect.ClockCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.TimeDifferenceCommand;
 import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTest;
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
-import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.tasks.ClockTask;
+import org.joda.time.DateTime;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import java.text.MessageFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-import org.joda.time.DateTime;
-import org.junit.Assert;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static junit.framework.Assert.assertEquals;
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Copyrights EnergyICT
@@ -44,8 +37,8 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
 
-    @ClassRule
-    public static TestRule mockEnvironmentTranslactions = new MockEnvironmentTranslations();
+//    @ClassRule
+//    public static TestRule mockEnvironmentTranslactions = new MockEnvironmentTranslations();
 
     @Test
     public void getCorrectCommandTypeTest() {
