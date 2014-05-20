@@ -4,16 +4,9 @@ Ext.define('Sam.controller.history.Administration', {
     rootToken: 'administration',
     previousPath: '',
     currentPath: null,
-    requires: [
-        'Sam.controller.Administration'
-    ],
 
     init: function () {
         var me = this;
-
-        crossroads.addRoute('sysadministration', function () {
-            me.getController('Sam.controller.Administration').showOverview();
-        });
 
         crossroads.addRoute('administration/licensing/licenses', function () {
             me.getController('Sam.controller.licensing.Licenses').showOverview();
