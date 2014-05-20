@@ -1,4 +1,4 @@
-package com.energyict.genericprotocolimpl.elster.AM100R.Apollo.profile;
+package com.energyict.protocolimpl.dlms.common;
 
 import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
@@ -8,7 +8,7 @@ import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
  * Date: 8-dec-2010
  * Time: 9:34:57
  */
-public class ApolloProfileIntervalStatusBits implements ProfileIntervalStatusBits {
+public class DlmsProfileIntervalStatusBits implements ProfileIntervalStatusBits {
 
     /**
      * This bit is set to indicate that a power failure has occurred

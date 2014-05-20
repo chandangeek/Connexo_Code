@@ -1,11 +1,11 @@
-package com.energyict.genericprotocolimpl.elster.AM100R.Apollo.eventhandling;
+package com.energyict.protocolimpl.dlms.prime.events;
 
 import com.energyict.protocol.MeterEvent;
 
 import java.util.*;
 
 /**
- * Straightforward summary fo the available ApolloEvents.
+ * Straightforward summary fo the available events.
  * (actually this list comes from the <i>Companion Standard for Communication interfaces [Iberdrola AMM T5 meters]</i>
  * <p/>
  * <br/>
@@ -13,7 +13,7 @@ import java.util.*;
  * Date: 3-dec-2010<br/>
  * Time: 9:07:58<br/>
  */
-public enum ApolloEvents {
+public enum PrimeEvents {
 
     /**
      * ************************************ Group 1 Events **************************************
@@ -202,15 +202,15 @@ public enum ApolloEvents {
      * The event description
      */
     private final String eventDescription;
-    private static List<ApolloEvents> instances;
+    private static List<PrimeEvents> instances;
 
     /**
-     * Constructs a static list of ApolloEvents, easily to search in
-     * @return the list of available ApolloEvents
+     * Constructs a static list of PrimeEvents, easily to search in
+     * @return the list of available PrimeEvents
      */
-    private static List<ApolloEvents> getInstances() {
+    private static List<PrimeEvents> getInstances() {
         if (instances == null) {
-            instances = new ArrayList<ApolloEvents>();
+            instances = new ArrayList<PrimeEvents>();
         }
         return instances;
     }
@@ -224,7 +224,7 @@ public enum ApolloEvents {
      * @param description      the groupDescription of the group according to the documentation
      * @param eventDescription the description of the event according to the documentation
      */
-    private ApolloEvents(int eventId, int eiserverCode, int group, String description, String eventDescription) {
+    private PrimeEvents(int eventId, int eiserverCode, int group, String description, String eventDescription) {
         this.eventId = eventId;
         this.eiserverCode = eiserverCode;
         this.group = group;
@@ -234,16 +234,16 @@ public enum ApolloEvents {
     }
 
     /**
-     * Find an {@link com.energyict.genericprotocolimpl.elster.AM100R.Apollo.eventhandling.ApolloEvents} in the enumeration based on the given parameters
+     * Find an {@link PrimeEvents} in the enumeration based on the given parameters
      *
      * @param protocolEventId the eventCode returned from the device
      * @param eventGroup      the group of which the protocolEventId belongs to
      * @return the requested ApolloEvent
      */
-    public static ApolloEvents find(int protocolEventId, int eventGroup) {
+    public static PrimeEvents find(int protocolEventId, int eventGroup) {
         Iterator it = getInstances().iterator();
         while (it.hasNext()) {
-            ApolloEvents ae = (ApolloEvents) it.next();
+            PrimeEvents ae = (PrimeEvents) it.next();
             if (ae.getGroup() == eventGroup && ae.getProtocolEventId() == protocolEventId) {
                 return ae;
             }
