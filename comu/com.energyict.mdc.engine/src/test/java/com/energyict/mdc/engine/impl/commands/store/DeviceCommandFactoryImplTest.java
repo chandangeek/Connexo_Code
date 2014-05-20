@@ -1,16 +1,21 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.energyict.mdc.engine.impl.meterdata.DeviceCommandFactory;
+import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.meterdata.DeviceCommandFactory;
-import com.energyict.mdc.meterdata.ServerCollectedData;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.tasks.history.ComTaskExecutionSessionBuilder;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Answers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import java.util.ArrayList;
 import java.util.Arrays;
-import org.junit.Test;
 
-import static org.fest.assertions.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link DeviceCommandFactoryImpl} component.
@@ -18,17 +23,23 @@ import static org.mockito.Mockito.when;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-08-23 (09:02)
  */
+@RunWith(MockitoJUnitRunner.class)
 public class DeviceCommandFactoryImplTest {
+
+    @Mock
+    private IssueService issueService;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private ComTaskExecutionSessionBuilder builder;
 
     @Test
     public void testForEmptyList () {
         DeviceCommandFactory factory = new DeviceCommandFactoryImpl();
 
         // Business method
-        CompositeDeviceCommand compositeDeviceCommand = factory.newCompositeForAll(new ArrayList<ServerCollectedData>(0), ComServer.LogLevel.INFO, issueService);
+        CompositeDeviceCommand compositeDeviceCommand = factory.newCompositeForAll(new ArrayList<ServerCollectedData>(0), ComServer.LogLevel.INFO, issueService, builder);
 
         // Asserts
-        Assertions.assertThat(compositeDeviceCommand).isNotNull();
+        assertThat(compositeDeviceCommand).isNotNull();
         assertThat(compositeDeviceCommand.getChildren()).isEmpty();
     }
 
@@ -38,10 +49,10 @@ public class DeviceCommandFactoryImplTest {
         ServerCollectedData collectedData = mockCollectedData();
 
         // Business method
-        CompositeDeviceCommand compositeDeviceCommand = factory.newCompositeForAll(Arrays.asList(collectedData), com.energyict.mdc.engine.model.ComServer.LogLevel.INFO, issueService);
+        CompositeDeviceCommand compositeDeviceCommand = factory.newCompositeForAll(Arrays.asList(collectedData), ComServer.LogLevel.INFO, issueService, builder);
 
         // Asserts
-        Assertions.assertThat(compositeDeviceCommand).isNotNull();
+        assertThat(compositeDeviceCommand).isNotNull();
         assertThat(compositeDeviceCommand.getChildren()).hasSize(1);
         verify(collectedData).toDeviceCommand(issueService);
     }
@@ -60,10 +71,10 @@ public class DeviceCommandFactoryImplTest {
         when(collectedData3.toDeviceCommand(issueService)).thenReturn(deviceCommand3);
 
         // Business method
-        CompositeDeviceCommand compositeDeviceCommand = factory.newCompositeForAll(Arrays.asList(collectedData1, collectedData2, collectedData3), com.energyict.mdc.engine.model.ComServer.LogLevel.INFO, issueService);
+        CompositeDeviceCommand compositeDeviceCommand = factory.newCompositeForAll(Arrays.asList(collectedData1, collectedData2, collectedData3), ComServer.LogLevel.INFO, issueService, builder);
 
         // Asserts
-        Assertions.assertThat(compositeDeviceCommand).isNotNull();
+        assertThat(compositeDeviceCommand).isNotNull();
         assertThat(compositeDeviceCommand.getChildren()).containsOnly(deviceCommand1, deviceCommand2, deviceCommand3);
     }
 
