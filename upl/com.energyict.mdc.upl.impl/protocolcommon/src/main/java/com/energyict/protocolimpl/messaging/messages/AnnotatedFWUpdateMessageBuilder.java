@@ -2,10 +2,9 @@ package com.energyict.protocolimpl.messaging.messages;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NestedIOException;
-import com.energyict.mdw.shadow.OldDeviceMessageShadow;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.messaging.FirmwareUpdateMessageBuilder;
 import com.energyict.messaging.MessageBuilder;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -28,15 +27,6 @@ public class AnnotatedFWUpdateMessageBuilder extends FirmwareUpdateMessageBuilde
     public static final String ATTR_USER_FILE_ID = "userFileID";
     public static final String ATTR_USER_FILE_CONTENT = "userFileContent";
     public static final String ATTR_URL = "url";
-
-    @Override
-    public OldDeviceMessageShadow build() throws BusinessException {
-        final OldDeviceMessageShadow shadow = new OldDeviceMessageShadow();
-        shadow.setTrackingId(getTrackingId());
-        shadow.setReleaseDate(getReleaseDate());
-        shadow.setContents(getCustomMessageContent());
-        return shadow;
-    }
 
     /**
      * Create an XML string that matches the format of an {@link FirmwareUpdateMessage}

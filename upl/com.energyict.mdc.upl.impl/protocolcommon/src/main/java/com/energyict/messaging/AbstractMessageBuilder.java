@@ -1,7 +1,6 @@
 package com.energyict.messaging;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.mdw.shadow.OldDeviceMessageShadow;
 import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -65,22 +64,9 @@ public abstract class AbstractMessageBuilder implements MessageBuilder {
     protected abstract String getMessageContent() throws BusinessException;
 
     /**
-     * Build the OldDeviceMessage containing the message content, a release date and a tracking id.
-     *
-     * @return the DeviceMessageShadow object containing the message content, a release date and a tracking id.
-     */
-    public OldDeviceMessageShadow build() throws BusinessException {
-        OldDeviceMessageShadow shadow = new OldDeviceMessageShadow();
-        shadow.setTrackingId(trackingId);
-        shadow.setReleaseDate(releaseDate);
-        shadow.setContents(getMessageContent());
-        return shadow;
-    }
-
-    /**
      * Adds a child tag to the given {@link StringBuffer}.
      *
-     * @param builder The string builder to whose contents the child tag needs to be added.
+     * @param buf The string builder to whose contents the child tag needs to be added.
      * @param tagName The name of the child tag to add.
      * @param value   The contents (value) of the tag.
      */
@@ -177,7 +163,7 @@ public abstract class AbstractMessageBuilder implements MessageBuilder {
     /**
      * Returns a fully initialized MessageBuilder starting from the given xml String
      *
-     * @param XML string to initialize the messagebuilder
+     * @param xmlString string to initialize the messagebuilder
      * @throws ParserConfigurationException,SAXException,
      *          IOException if the given string is wrong xml
      *          or is not the correct message

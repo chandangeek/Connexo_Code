@@ -1,7 +1,5 @@
 package com.energyict.messaging;
 
-import com.energyict.cbo.BusinessException;
-import com.energyict.mdw.shadow.OldDeviceMessageShadow;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
@@ -13,14 +11,6 @@ import java.io.IOException;
  * @return The {@link MessageBuilder} capable of generating and parsing messages.
  */
 public interface MessageBuilder {
-
-    /**
-     * Build an rtu message shadow based on this builders configuration
-     *
-     * @return a DeviceMessageShadow object
-     * @throws BusinessException
-     */
-    OldDeviceMessageShadow build() throws BusinessException;
 
     /**
      * Return a readable description of the message being built
