@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
 import com.energyict.mdc.commands.ComCommandTypes;
 import com.energyict.mdc.commands.CommandRoot;
@@ -49,8 +50,8 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
     private static final int ProfileIntervalInSeconds = 900;
     private static final boolean FailIfConfigurationMisMatch = true;
 
-    @ClassRule
-    public static TestRule mockEnvironmentTranslactions = new MockEnvironmentTranslations();
+//    @ClassRule
+//    public static TestRule mockEnvironmentTranslactions = new MockEnvironmentTranslations();
 
     @Test
     public void getCorrectCommandTypeTest() {
