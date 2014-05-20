@@ -5,7 +5,7 @@ import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.CompositeComCommand;
 import com.energyict.mdc.engine.impl.core.CommandCreator;
-import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
@@ -33,7 +33,7 @@ public aspect ComCommandLogging extends AbstractComCommandLogging {
         return LoggerFactory.getLoggerFor(ComCommandLogger.class, logger);
     }
 
-    protected ComCommandLogger getActualLogger (Logger logger, JobExecution.ExecutionContext executionContext) {
+    protected ComCommandLogger getActualLogger (Logger logger, ExecutionContext executionContext) {
         logger.addHandler(new ComCommandMessageJournalist(ServiceProvider.instance.get().clock(), executionContext.getCurrentTaskExecutionBuilder()));
         return LoggerFactory.getLoggerFor(ComCommandLogger.class, logger);
     }
@@ -49,7 +49,7 @@ public aspect ComCommandLogging extends AbstractComCommandLogging {
      * @param executionContext The ExecutionContext that will provide access to the ComCommandLogger
      * @param commands the created commands
      */
-    private void logCommands (JobExecution.ExecutionContext executionContext, Map<ComCommandTypes, ComCommand> commands) {
+    private void logCommands (ExecutionContext executionContext, Map<ComCommandTypes, ComCommand> commands) {
         for (ComCommand command : commands.values()) {
             if (command instanceof CompositeComCommand) {
                 this.logCommands(executionContext, ((CompositeComCommand) command).getCommands());
@@ -61,99 +61,99 @@ public aspect ComCommandLogging extends AbstractComCommandLogging {
     }
 
     @Override
-    protected void logStartOfBasicCheckCommand (JobExecution.ExecutionContext executionContext) {
+    protected void logStartOfBasicCheckCommand (ExecutionContext executionContext) {
         this.getCommandLogger(executionContext).startedBasicCheckCommand();
     }
 
     @Override
-    protected void logStartOfVerifySerialNumberCommand (JobExecution.ExecutionContext executionContext) {
+    protected void logStartOfVerifySerialNumberCommand (ExecutionContext executionContext) {
         this.getCommandLogger(executionContext).startedToVerifySerialNumber();
     }
 
     @Override
-    protected void logSerialNumberMisMatch (JobExecution.ExecutionContext executionContext, String meterSerialNumber, String configuredSerialNumber) {
+    protected void logSerialNumberMisMatch (ExecutionContext executionContext, String meterSerialNumber, String configuredSerialNumber) {
         this.getCommandLogger(executionContext).serialNumberMisMatch(meterSerialNumber, configuredSerialNumber);
     }
 
     @Override
-    protected void logStartOfClockCommand (JobExecution.ExecutionContext executionContext) {
+    protected void logStartOfClockCommand (ExecutionContext executionContext) {
         this.getCommandLogger(executionContext).startedClockCommand();
     }
 
     @Override
-    protected void logStartOfSetTime (JobExecution.ExecutionContext executionContext, Date timeToSet) {
+    protected void logStartOfSetTime (ExecutionContext executionContext, Date timeToSet) {
         if (timeToSet != null) {
             this.getCommandLogger(executionContext).startedSetClock(timeToSet.toString());
         }
     }
 
     @Override
-    protected void logTimeDifferenceAboveMaximum (JobExecution.ExecutionContext executionContext, long timeDifference) {
+    protected void logTimeDifferenceAboveMaximum (ExecutionContext executionContext, long timeDifference) {
         this.getCommandLogger(executionContext).timeDifferenceAboveMaximum(timeDifference);
     }
 
     @Override
-    protected void logTimeDifferenceBelowMinimum (JobExecution.ExecutionContext executionContext, long timeDifference) {
+    protected void logTimeDifferenceBelowMinimum (ExecutionContext executionContext, long timeDifference) {
         this.getCommandLogger(executionContext).timeDifferenceBelowMinimum(timeDifference);
     }
 
     @Override
-    protected void logStartOfSynchronizeClockCommand (JobExecution.ExecutionContext executionContext) {
+    protected void logStartOfSynchronizeClockCommand (ExecutionContext executionContext) {
         this.getCommandLogger(executionContext).startedSynchronizeClockCommand();
     }
 
     @Override
-    protected void logSynchronizeClockWithTimeShift (JobExecution.ExecutionContext executionContext, long timeShift) {
+    protected void logSynchronizeClockWithTimeShift (ExecutionContext executionContext, long timeShift) {
         this.getCommandLogger(executionContext).synchronizeClockWithTimeShift(timeShift);
     }
 
     @Override
-    protected void logStartOfTimeDifferenceCommand (JobExecution.ExecutionContext executionContext) {
+    protected void logStartOfTimeDifferenceCommand (ExecutionContext executionContext) {
         this.getCommandLogger(executionContext).startedTimeDifferenceCommand();
     }
 
     @Override
-    protected void logStartOfVerifyTimeDifferenceCommand (JobExecution.ExecutionContext executionContext) {
+    protected void logStartOfVerifyTimeDifferenceCommand (ExecutionContext executionContext) {
         this.getCommandLogger(executionContext).startedVerifyTimeDifferenceCommand();
     }
 
     @Override
-    protected void logTimeDifferenceExceeded (JobExecution.ExecutionContext executionContext, long actualTimeDifference, long maximumTimeDifference) {
+    protected void logTimeDifferenceExceeded (ExecutionContext executionContext, long actualTimeDifference, long maximumTimeDifference) {
         this.getCommandLogger(executionContext).timeDifferenceExceeded(actualTimeDifference, maximumTimeDifference);
     }
 
     @Override
-    protected void logStartOfForceClockCommand (JobExecution.ExecutionContext executionContext) {
+    protected void logStartOfForceClockCommand (ExecutionContext executionContext) {
         this.getCommandLogger(executionContext).startedForceClockCommand();
     }
 
     @Override
-    protected void logStartOfLoadProfileCommand (JobExecution.ExecutionContext executionContext) {
+    protected void logStartOfLoadProfileCommand (ExecutionContext executionContext) {
         this.getCommandLogger(executionContext).startedLoadProfileCommand();
     }
 
     @Override
-    protected void logStartOfMarkIntervalsAsBadTimeCommand (JobExecution.ExecutionContext executionContext) {
+    protected void logStartOfMarkIntervalsAsBadTimeCommand (ExecutionContext executionContext) {
         this.getCommandLogger(executionContext).startedMarkIntervalsAsBadTimeCommand();
     }
 
     @Override
-    protected void logStartOfCreateMeterEventsFromStatusBits (JobExecution.ExecutionContext executionContext) {
+    protected void logStartOfCreateMeterEventsFromStatusBits (ExecutionContext executionContext) {
         this.getCommandLogger(executionContext).startedCreateMeterEventsFromStatusBits();
     }
 
     @Override
-    protected void logStartOfReadLoadProfileCommand (JobExecution.ExecutionContext executionContext) {
+    protected void logStartOfReadLoadProfileCommand (ExecutionContext executionContext) {
         this.getCommandLogger(executionContext).startedReadLoadProfileCommand();
     }
 
     @Override
-    protected void logStartOfVerifyLoadProfileCommand (JobExecution.ExecutionContext executionContext) {
+    protected void logStartOfVerifyLoadProfileCommand (ExecutionContext executionContext) {
         this.getCommandLogger(executionContext).startedToVerifyLoadProfile();
     }
 
     @Override
-    protected void logReadLoadProfileConfigurationsFromDevice (JobExecution.ExecutionContext executionContext, List<CollectedLoadProfileConfiguration> loadProfileConfigurations) {
+    protected void logReadLoadProfileConfigurationsFromDevice (ExecutionContext executionContext, List<CollectedLoadProfileConfiguration> loadProfileConfigurations) {
         StringBuilder loadProfileConfigs = createReadableLoadProfileConfigs(loadProfileConfigurations);
         this.getCommandLogger(executionContext).fetchedLoadProfileConfigurationsFromDevice(loadProfileConfigs.toString());
     }
