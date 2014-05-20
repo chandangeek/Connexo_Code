@@ -38,18 +38,18 @@ public class OfflineRegisterImpl implements OfflineRegister {
     /**
      * The Id of the rtuRegister
      */
-    private int registerId;
+    private long registerId;
 
     /**
      * The ID of the {@link RegisterGroup} where this registers belongs to.
      */
-    private int registerGroupId;
+    private long registerGroupId;
 
     /**
      * The serialNumber of the Device owning this Register
      */
     private String meterSerialNumber;
-    private int deviceId;
+    private long deviceId;
 
     public OfflineRegisterImpl(final Register register) {
         this.register = register;
@@ -77,7 +77,7 @@ public class OfflineRegisterImpl implements OfflineRegister {
      * @return the ID of the {@link com.energyict.mdc.protocol.api.device.BaseRegister}
      */
     @Override
-    public int getRegisterId() {
+    public long getRegisterId() {
         return this.registerId;
     }
 
@@ -103,7 +103,7 @@ public class OfflineRegisterImpl implements OfflineRegister {
      * @return the ID of the {@link RegisterGroup}
      */
     @Override
-    public int getRegisterGroupId() {
+    public long getRegisterGroupId() {
         return this.registerGroupId;
     }
 
@@ -128,7 +128,7 @@ public class OfflineRegisterImpl implements OfflineRegister {
     }
 
     @Override
-    public int getDeviceId() {
+    public long getDeviceId() {
         return this.deviceId;
     }
 
