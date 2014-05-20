@@ -1,5 +1,7 @@
 package com.energyict.protocols.mdc.services.impl;
 
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
@@ -22,8 +24,10 @@ public class ProtocolsModule extends AbstractModule {
 
     @Override
     protected void configure() {
+        requireBinding(OrmService.class);
         requireBinding(IssueService.class);
         requireBinding(Clock.class);
+        requireBinding(NlsService.class);
 
         bind(ConnectionTypeService.class).to(ConnectionTypeServiceImpl.class).in(Scopes.SINGLETON);
         bind(DeviceProtocolMessageService.class).to(DeviceProtocolMessageServiceImpl.class).in(Scopes.SINGLETON);
