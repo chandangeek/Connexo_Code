@@ -5,6 +5,8 @@ import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.util.json.JsonService;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Map;
 
 public class BpmCreatedMessageHandler implements MessageHandler{
@@ -25,7 +27,12 @@ public class BpmCreatedMessageHandler implements MessageHandler{
         String result = "";
         if (params != null && params.size() > 0) {
             for (Map.Entry<String, Object> entry : params.entrySet()) {
-                result += "map_" + entry.getKey() + "=" + entry.getValue().toString()+"&";
+                String paramValue = "&";
+                try {
+                    paramValue = URLEncoder.encode(entry.getValue().toString(), "UTF-8") +"&";
+                } catch (UnsupportedEncodingException e) {
+                }
+                result += "map_" + entry.getKey() + "=" + paramValue;
             }
             result = "?" + result.substring(0, result.length()-1);
         }
