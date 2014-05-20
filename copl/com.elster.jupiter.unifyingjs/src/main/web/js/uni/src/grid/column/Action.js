@@ -6,7 +6,6 @@ Ext.define('Uni.grid.column.Action', {
     alias: 'widget.uni-actioncolumn',
 
     header: 'Actions',
-    xtype: 'actioncolumn',
     width: 100,
     align: 'left',
     iconCls: 'x-uni-action-icon',
