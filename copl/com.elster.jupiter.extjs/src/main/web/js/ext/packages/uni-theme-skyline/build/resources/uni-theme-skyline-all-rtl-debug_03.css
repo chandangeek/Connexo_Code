@@ -11390,13 +11390,24 @@ a.x-datepicker-date:hover {
   height: 15px;
 }
 
+/* line 3, ../../sass/src/panel/Table.scss */
+.x-grid {
+  padding-bottom: 16px;
+}
 /* line 4, ../../sass/src/panel/Table.scss */
 .x-grid .x-toolbar {
   border: none;
 }
+/* line 7, ../../sass/src/panel/Table.scss */
+.x-grid .x-docked-bottom {
+  margin-bottom: -16px;
+}
 
-/* line 9, ../../sass/src/panel/Table.scss */
+/* line 13, ../../sass/src/panel/Table.scss */
 .x-grid-body {
+  border-color: #d2d2d2 !important;
+  border-width: 1px !important;
+  border-style: solid !important;
   border-top-width: 0 !important;
   -webkit-border-radius: 0 0 10px 10px;
   -moz-border-radius: 0 0 10px 10px;
@@ -11404,16 +11415,25 @@ a.x-datepicker-date:hover {
   -o-border-radius: 0 0 10px 10px;
   border-radius: 0 0 10px 10px;
 }
-/* line 16, ../../sass/src/panel/Table.scss */
+/* line 20, ../../sass/src/panel/Table.scss */
+.x-grid-body .x-grid-view {
+  margin: -1px !important;
+  margin-top: 0 !important;
+}
+/* line 26, ../../sass/src/panel/Table.scss */
+.x-grid-body.x-noborder-rbl {
+  margin-bottom: 16px;
+}
+/* line 34, ../../sass/src/panel/Table.scss */
 .x-grid-body .x-grid-row a {
   color: #686868;
   text-decoration: none;
 }
-/* line 23, ../../sass/src/panel/Table.scss */
+/* line 41, ../../sass/src/panel/Table.scss */
 .x-grid-body .x-grid-row a:hover {
   text-decoration: underline;
 }
-/* line 29, ../../sass/src/panel/Table.scss */
+/* line 47, ../../sass/src/panel/Table.scss */
 .x-grid-body .x-grid-row-selected a, .x-grid-body .x-grid-row-over a {
   color: white;
 }
