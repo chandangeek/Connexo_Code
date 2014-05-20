@@ -1,7 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging;
 
 import com.energyict.cbo.ApplicationException;
-import com.energyict.genericprotocolimpl.common.tou.*;
+import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging.tou.*;
 import com.energyict.protocol.ProtocolUtils;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
@@ -18,7 +18,7 @@ import java.util.*;
  * Time: 8:46
  */
 
-public class IskraActivityCalendarReader implements com.energyict.genericprotocolimpl.common.tou.ActivityCalendarReader {
+public class IskraActivityCalendarReader implements com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging.tou.ActivityCalendarReader {
 
 	private ActivityCalendar activityCalendar;
 	private TimeZone deviceTimeZone;

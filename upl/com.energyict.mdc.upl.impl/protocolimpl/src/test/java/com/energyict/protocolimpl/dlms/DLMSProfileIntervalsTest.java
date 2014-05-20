@@ -1,9 +1,8 @@
 package com.energyict.protocolimpl.dlms;
 
 import com.energyict.dlms.DLMSUtils;
-import com.energyict.genericprotocolimpl.elster.AM100R.Apollo.profile.ApolloProfileIntervalStatusBits;
+import com.energyict.protocolimpl.dlms.common.DlmsProfileIntervalStatusBits;
 import com.energyict.protocol.IntervalValue;
-import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -29,7 +28,7 @@ public class DLMSProfileIntervalsTest {
 
     @Test
     public void testParseIntervals() throws Exception {
-        DLMSProfileIntervals profileIntervals = new DLMSProfileIntervals(DLMSUtils.hexStringToByteArray(responseIntervals1), new ApolloProfileIntervalStatusBits());
+        DLMSProfileIntervals profileIntervals = new DLMSProfileIntervals(DLMSUtils.hexStringToByteArray(responseIntervals1), new DlmsProfileIntervalStatusBits());
 
         // there should be 2 intervals in the profile
         assertEquals(2, profileIntervals.parseIntervals(1).size());
@@ -45,7 +44,7 @@ public class DLMSProfileIntervalsTest {
     public void testParseIntervalsWithNullTimeValues() {
         try {
             // need to test with a clock of null
-            DLMSProfileIntervals profileIntervals = new DLMSProfileIntervals(DLMSUtils.hexStringToByteArray(responseIntervals2), new ApolloProfileIntervalStatusBits());
+            DLMSProfileIntervals profileIntervals = new DLMSProfileIntervals(DLMSUtils.hexStringToByteArray(responseIntervals2), new DlmsProfileIntervalStatusBits());
 
             /*
             There should be 3 intervals in the profile.
@@ -57,7 +56,7 @@ public class DLMSProfileIntervalsTest {
 
 
             // need to test with an OctetString with length zero
-            profileIntervals = new DLMSProfileIntervals(DLMSUtils.hexStringToByteArray(responseIntervals3), new ApolloProfileIntervalStatusBits());
+            profileIntervals = new DLMSProfileIntervals(DLMSUtils.hexStringToByteArray(responseIntervals3), new DlmsProfileIntervalStatusBits());
 
             /*
             There should be 3 intervals in the profile.
@@ -77,7 +76,7 @@ public class DLMSProfileIntervalsTest {
     public void testParseIntervalWithMultipleStatuses() {
         try {
             DLMSProfileIntervals profileIntervals = new DLMSProfileIntervals(DLMSUtils.hexStringToByteArray(responseIntervals4),
-                    Integer.valueOf("0001", 2), Integer.valueOf("010101010", 2), -1, new ApolloProfileIntervalStatusBits());
+                    Integer.valueOf("0001", 2), Integer.valueOf("010101010", 2), -1, new DlmsProfileIntervalStatusBits());
             assertEquals(3, profileIntervals.parseIntervals(3600).size());
             assertEquals(new Date(Long.valueOf("1283943600000")), profileIntervals.parseIntervals(3600).get(0).getEndTime());
             assertEquals(new Date(Long.valueOf("1283950800000")), profileIntervals.parseIntervals(3600).get(2).getEndTime());
@@ -100,7 +99,7 @@ public class DLMSProfileIntervalsTest {
     public void isIndexTest() {
         try {
             // clockIndex is equal to bit 0, statusIndex is equal to bit 1
-            DLMSProfileIntervals profileIntervals = new DLMSProfileIntervals(DLMSUtils.hexStringToByteArray(responseIntervals1), new ApolloProfileIntervalStatusBits());
+            DLMSProfileIntervals profileIntervals = new DLMSProfileIntervals(DLMSUtils.hexStringToByteArray(responseIntervals1), new DlmsProfileIntervalStatusBits());
 
             assertTrue(profileIntervals.isClockIndex(0));
             assertFalse(profileIntervals.isClockIndex(1));
@@ -121,7 +120,7 @@ public class DLMSProfileIntervalsTest {
             assertTrue(profileIntervals.isChannelIndex(100));
 
             // clockIndex is equal to bit 1, statusIndex is now equal to bit 2
-            profileIntervals = new DLMSProfileIntervals(DLMSUtils.hexStringToByteArray(responseIntervals1), Integer.valueOf("0010", 2), Integer.valueOf("0100", 2), -1, new ApolloProfileIntervalStatusBits());
+            profileIntervals = new DLMSProfileIntervals(DLMSUtils.hexStringToByteArray(responseIntervals1), Integer.valueOf("0010", 2), Integer.valueOf("0100", 2), -1, new DlmsProfileIntervalStatusBits());
 
             assertTrue(profileIntervals.isClockIndex(1));
             assertFalse(profileIntervals.isClockIndex(0));
@@ -138,7 +137,7 @@ public class DLMSProfileIntervalsTest {
 
             // clockIndex is equal to bit 0, statusIndex is equal to bit 1, channelIndexes are equal to bit 3, 4, 7, 8, 10
             profileIntervals = new DLMSProfileIntervals(DLMSUtils.hexStringToByteArray(responseIntervals1), Integer.valueOf("0001", 2),
-                    Integer.valueOf("0010", 2), Integer.valueOf("10110011000", 2), new ApolloProfileIntervalStatusBits());
+                    Integer.valueOf("0010", 2), Integer.valueOf("10110011000", 2), new DlmsProfileIntervalStatusBits());
 
             assertTrue(profileIntervals.isClockIndex(0));
             assertFalse(profileIntervals.isClockIndex(1));
@@ -160,7 +159,7 @@ public class DLMSProfileIntervalsTest {
 
             // multiple statusIndexes and channelIndexes
             profileIntervals = new DLMSProfileIntervals(DLMSUtils.hexStringToByteArray(responseIntervals1), Integer.valueOf("0001", 2),
-                    Integer.valueOf("010101010", 2), Integer.valueOf("101010100", 2), new ApolloProfileIntervalStatusBits());
+                    Integer.valueOf("010101010", 2), Integer.valueOf("101010100", 2), new DlmsProfileIntervalStatusBits());
 
             assertTrue(profileIntervals.isClockIndex(0));
             assertFalse(profileIntervals.isClockIndex(1));

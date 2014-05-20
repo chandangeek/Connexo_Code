@@ -7,7 +7,6 @@ import com.energyict.dlms.ParseUtils;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
-import com.energyict.genericprotocolimpl.elster.AM100R.Apollo.profile.ApolloProfileIntervalStatusBits;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
@@ -267,7 +266,7 @@ public class DLMSProfileHelper {
         getSession().getLogger().info("Reading interval buffer from device for profile [" + getObisCode() + "].");
         byte[] bufferData = getProfileGeneric().getBufferData(from, to);
         setClockAndStatusPosition();
-        DLMSProfileIntervals intervals = new DLMSProfileIntervals(bufferData, clockMask, statusMask, -1, new ApolloProfileIntervalStatusBits());
+        DLMSProfileIntervals intervals = new DLMSProfileIntervals(bufferData, clockMask, statusMask, -1, new DlmsProfileIntervalStatusBits());
         try {
             return intervals.parseIntervals(getProfileInterval(), getSession().getTimeZone());
         } catch (ClassCastException e) {

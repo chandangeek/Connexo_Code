@@ -1,13 +1,11 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.messages;
 
-import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
+import com.energyict.protocolimpl.generic.MessageParser;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocolimpl.messages.RtuMessageCategoryConstants;
-import com.energyict.protocolimpl.messages.RtuMessageConstant;
-import com.energyict.protocolimpl.messages.RtuMessageKeyIdConstants;
+import com.energyict.protocolimpl.messages.*;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40MessageExecutor;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40Messaging;
 
@@ -23,9 +21,9 @@ public class XemexMessaging extends Dsmr40Messaging {
 
     private final Dsmr40MessageExecutor messageExecutor;
 
-    public XemexMessaging(final GenericMessageExecutor messageExecutor) {
-        super(messageExecutor);
-        this.messageExecutor = (Dsmr40MessageExecutor) messageExecutor;
+    public XemexMessaging(final MessageParser messageParser) {
+        super(messageParser);
+        this.messageExecutor = (Dsmr40MessageExecutor) messageParser;
     }
 
     @Override

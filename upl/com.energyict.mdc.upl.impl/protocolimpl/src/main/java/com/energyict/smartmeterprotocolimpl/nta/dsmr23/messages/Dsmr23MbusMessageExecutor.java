@@ -7,14 +7,15 @@ import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
-import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
-import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
-import com.energyict.genericprotocolimpl.nta.messagehandling.NTAMessageHandler;
-import com.energyict.mdw.core.*;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocolimpl.generic.MessageParser;
+import com.energyict.protocolimpl.generic.messages.MessageHandler;
+import com.energyict.smartmeterprotocolimpl.eict.NTAMessageHandler;
+import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
@@ -32,7 +33,7 @@ import java.util.logging.Level;
  * Date: 18-jul-2011
  * Time: 8:38:27
  */
-public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
+public class Dsmr23MbusMessageExecutor extends MessageParser {
 
     private final AbstractSmartNtaProtocol protocol;
     private final DlmsSession dlmsSession;
@@ -391,11 +392,6 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
 
     protected DlmsSession getDlmsSession() {
         return dlmsSession;
-    }
-
-    @Override
-    public void doMessage(final OldDeviceMessage rtuMessage) throws BusinessException, SQLException {
-        //nothing to do
     }
 
     @Override

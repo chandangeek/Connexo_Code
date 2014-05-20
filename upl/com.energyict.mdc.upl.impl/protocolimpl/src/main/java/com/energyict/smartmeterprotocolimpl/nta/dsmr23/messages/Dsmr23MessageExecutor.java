@@ -8,20 +8,19 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.Register;
-import com.energyict.genericprotocolimpl.common.*;
-import com.energyict.genericprotocolimpl.common.ParseUtils;
-import com.energyict.genericprotocolimpl.common.messages.ActivityCalendarMessage;
-import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
-import com.energyict.genericprotocolimpl.nta.messagehandling.NTAMessageHandler;
-import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.CSVParser;
-import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.TestObject;
+import com.energyict.protocolimpl.generic.*;
+import com.energyict.protocolimpl.generic.ParseUtils;
+import com.energyict.protocolimpl.generic.messages.ActivityCalendarMessage;
+import com.energyict.protocolimpl.generic.messages.MessageHandler;
+import com.energyict.protocolimpl.generic.csvhandling.CSVParser;
+import com.energyict.protocolimpl.generic.csvhandling.TestObject;
+import com.energyict.smartmeterprotocolimpl.eict.NTAMessageHandler;
 import com.energyict.mdw.core.*;
-import com.energyict.mdw.shadow.OldDeviceMessageShadow;
 import com.energyict.mdw.shadow.UserFileShadow;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
 import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
@@ -38,12 +37,10 @@ import java.util.logging.Level;
  * Date: 15-jul-2011
  * Time: 13:42:50
  */
-public class Dsmr23MessageExecutor extends GenericMessageExecutor {
+public class Dsmr23MessageExecutor extends MessageParser {
 
     protected final DlmsSession dlmsSession;
     protected final AbstractSmartNtaProtocol protocol;
-
-    private final StoreObject storeObject = new StoreObject();
 
     private static final byte[] defaultMonitoredAttribute = new byte[]{1, 0, 90, 7, 0, (byte) 255};    // Total current, instantaneous value
 
@@ -613,17 +610,18 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
                                     }
                                     break;
                                     case 3: { // MESSAGE
-                                        OldDeviceMessageShadow rms = new OldDeviceMessageShadow();
-                                        rms.setContents(csvParser.getTestObject(i).getData());
-                                        rms.setRtuId(getRtuFromDatabaseBySerialNumber().getId());
-                                        OldDeviceMessage rm = mw().getRtuMessageFactory().create(rms);
-                                        doMessage(rm);
-                                        if (rm.getState().getId() == rm.getState().CONFIRMED.getId()) {
-                                            to.setResult("OK");
-                                        } else {
-                                            to.setResult("MESSAGE failed, current state " + rm.getState().getId());
-                                        }
-                                        hasWritten = true;
+                                        // do nothing, no longer supported
+                                        //OldDeviceMessageShadow rms = new OldDeviceMessageShadow();
+                                        //rms.setContents(csvParser.getTestObject(i).getData());
+                                        //rms.setRtuId(getRtuFromDatabaseBySerialNumber().getId());
+                                        //OldDeviceMessage rm = mw().getRtuMessageFactory().create(rms);
+                                        //doMessage(rm);
+                                        //if (rm.getState().getId() == rm.getState().CONFIRMED.getId()) {
+                                        //    to.setResult("OK");
+                                        //} else {
+                                        //    to.setResult("MESSAGE failed, current state " + rm.getState().getId());
+                                        //}
+                                        //hasWritten = true;
                                     }
                                     break;
                                     case 4: { // WAIT
@@ -1151,11 +1149,6 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
 
     protected void log(final Level level, final String msg) {
         this.dlmsSession.getLogger().log(level, msg);
-    }
-
-    @Override
-    public void doMessage(final OldDeviceMessage rtuMessage) throws BusinessException, SQLException {
-        //nothing to do
     }
 
     @Override

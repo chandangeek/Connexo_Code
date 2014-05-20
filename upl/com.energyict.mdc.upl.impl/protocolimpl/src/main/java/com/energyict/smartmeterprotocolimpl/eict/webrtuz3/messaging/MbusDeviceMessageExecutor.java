@@ -5,9 +5,8 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
-import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
-import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
-import com.energyict.mdw.core.OldDeviceMessage;
+import com.energyict.protocolimpl.generic.MessageParser;
+import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
@@ -16,7 +15,6 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.SlaveMeter;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -26,7 +24,7 @@ import java.util.logging.Logger;
  * Date: 29-aug-2011
  * Time: 15:44:38
  */
-public class MbusDeviceMessageExecutor extends GenericMessageExecutor {
+public class MbusDeviceMessageExecutor extends MessageParser {
 
     public static final ObisCode MBUS_CLIENT_OBIS = ObisCode.fromString("0.0.24.1.0.255");
     public static final ObisCode MBUS_DISCONNECT_CONTROL_OBIS = ObisCode.fromString("0.0.24.4.0.255");
@@ -37,11 +35,6 @@ public class MbusDeviceMessageExecutor extends GenericMessageExecutor {
 
     public MbusDeviceMessageExecutor(final SlaveMeter mbusMeter) {
         this.mbusMeter = mbusMeter;
-    }
-
-    @Override
-    public void doMessage(final OldDeviceMessage rtuMessage) throws BusinessException, SQLException, IOException {
-        //nothing to do
     }
 
     @Override

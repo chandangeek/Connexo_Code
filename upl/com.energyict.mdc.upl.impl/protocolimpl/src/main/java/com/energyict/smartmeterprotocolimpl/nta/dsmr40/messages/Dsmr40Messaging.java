@@ -1,6 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages;
 
-import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
+import com.energyict.protocolimpl.generic.MessageParser;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.messaging.MessageCategorySpec;
@@ -22,9 +22,9 @@ public class Dsmr40Messaging extends Dsmr23Messaging {
     private ArrayList<MessageEntry> securityMessages;
     private Map<String, MessageResult> securityResults = null;
 
-    public Dsmr40Messaging(final GenericMessageExecutor messageExecutor) {
-        super(messageExecutor);
-        this.messageExecutor = (Dsmr40MessageExecutor) messageExecutor;
+    public Dsmr40Messaging(final MessageParser messageParser) {
+        super(messageParser);
+        this.messageExecutor = (Dsmr40MessageExecutor) messageParser;
     }
 
     public List<MessageEntry> getSecurityMessages() {

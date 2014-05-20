@@ -4,9 +4,9 @@ import com.energyict.cbo.*;
 import com.energyict.dialer.core.Link;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
-import com.energyict.genericprotocolimpl.common.ParseUtils;
-import com.energyict.genericprotocolimpl.common.tou.ActivityCalendarReader;
-import com.energyict.genericprotocolimpl.common.tou.CosemActivityCalendarBuilder;
+import com.energyict.protocolimpl.generic.ParseUtils;
+import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging.tou.ActivityCalendarReader;
+import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging.tou.CosemActivityCalendarBuilder;
 import com.energyict.mdw.core.*;
 import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
@@ -571,8 +571,8 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
         ActivityCalendar activityCalendar =
                 protocol.getCosemObjectFactory().getActivityCalendar(ObisCode.fromString("0.0.13.0.0.255"));
 
-        com.energyict.genericprotocolimpl.common.tou.ActivityCalendar calendarData =
-                new com.energyict.genericprotocolimpl.common.tou.ActivityCalendar();
+        com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging.tou.ActivityCalendar calendarData =
+                new com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging.tou.ActivityCalendar();
         ActivityCalendarReader reader = new IskraActivityCalendarReader(calendarData, protocol.getTimeZone(), getRtuFromDatabaseBySerialNumber().getTimeZone());
         calendarData.setReader(reader);
         calendarData.read(new ByteArrayInputStream(userFile.loadFileInByteArray()));
@@ -934,10 +934,10 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
             byte[] data = protocol.getCosemObjectFactory().getData(oc).getRawValueAttr();
             byte[] parseStr = new byte[data.length - 2];
             System.arraycopy(data, 2, parseStr, 0, parseStr.length);
-            if (com.energyict.genericprotocolimpl.common.ParseUtils.checkIfAllAreChars(parseStr)) {
+            if (ParseUtils.checkIfAllAreChars(parseStr)) {
                 str = new String(parseStr);
             } else {
-                str = com.energyict.genericprotocolimpl.common.ParseUtils.decimalByteToString(parseStr);
+                str = ParseUtils.decimalByteToString(parseStr);
             }
             return str;
         } catch (IOException e) {

@@ -7,15 +7,14 @@ import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributeobjects.RegisterZigbeeDeviceData;
 import com.energyict.dlms.cosem.attributeobjects.ZigBeeIEEEAddress;
-import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
-import com.energyict.genericprotocolimpl.common.ParseUtils;
-import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
-import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
-import com.energyict.genericprotocolimpl.nta.messagehandling.NTAMessageHandler;
-import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.CSVParser;
-import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.TestObject;
+import com.energyict.protocolimpl.generic.MessageParser;
+import com.energyict.protocolimpl.generic.ParseUtils;
+import com.energyict.protocolimpl.generic.messages.GenericMessaging;
+import com.energyict.protocolimpl.generic.messages.MessageHandler;
+import com.energyict.protocolimpl.generic.csvhandling.CSVParser;
+import com.energyict.protocolimpl.generic.csvhandling.TestObject;
+import com.energyict.smartmeterprotocolimpl.eict.NTAMessageHandler;
 import com.energyict.mdw.core.*;
-import com.energyict.mdw.shadow.OldDeviceMessageShadow;
 import com.energyict.mdw.shadow.UserFileShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
@@ -43,7 +42,7 @@ import static com.energyict.protocolimpl.utils.ProtocolTools.getBytesFromHexStri
  * Date: 20-jul-2011
  * Time: 17:15:18
  */
-public class UkHubMessageExecutor extends GenericMessageExecutor {
+public class UkHubMessageExecutor extends MessageParser {
 
     public static ObisCode KEYS_LOCK_DOWN_SWITCH_OBIS = ObisCode.fromString("0.128.0.0.1.255");
     public static ObisCode GPRS_MODEM_PING_SETUP_OBIS = ObisCode.fromString("0.0.93.44.17.255");
@@ -712,11 +711,6 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
     }
 
     @Override
-    public void doMessage(final OldDeviceMessage rtuMessage) throws BusinessException, SQLException {
-        // nothing to do
-    }
-
-    @Override
     protected TimeZone getTimeZone() {
         return getDlmsSession().getTimeZone();
     }
@@ -798,17 +792,18 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
                                     }
                                     break;
                                     case 3: { // MESSAGE
-                                        OldDeviceMessageShadow rms = new OldDeviceMessageShadow();
-                                        rms.setContents(csvParser.getTestObject(i).getData());
-                                        rms.setRtuId(getRtuFromDatabaseBySerialNumberAndClientMac().getId());
-                                        OldDeviceMessage rm = mw().getRtuMessageFactory().create(rms);
-                                        doMessage(rm);
-                                        if (rm.getState().getId() == rm.getState().CONFIRMED.getId()) {
-                                            to.setResult("OK");
-                                        } else {
-                                            to.setResult("MESSAGE failed, current state " + rm.getState().getId());
-                                        }
-                                        hasWritten = true;
+                                        //Do nothing, no longer supported
+                                        //OldDeviceMessageShadow rms = new OldDeviceMessageShadow();
+                                        //rms.setContents(csvParser.getTestObject(i).getData());
+                                        //rms.setRtuId(getRtuFromDatabaseBySerialNumberAndClientMac().getId());
+                                        //OldDeviceMessage rm = mw().getRtuMessageFactory().create(rms);
+                                        //doMessage(rm);
+                                        //if (rm.getState().getId() == rm.getState().CONFIRMED.getId()) {
+                                        //    to.setResult("OK");
+                                        //} else {
+                                        //    to.setResult("MESSAGE failed, current state " + rm.getState().getId());
+                                        //}
+                                        //hasWritten = true;
                                     }
                                     break;
                                     case 4: { // WAIT

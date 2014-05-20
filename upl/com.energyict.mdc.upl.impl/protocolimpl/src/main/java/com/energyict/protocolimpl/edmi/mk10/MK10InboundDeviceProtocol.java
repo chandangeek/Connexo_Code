@@ -4,7 +4,7 @@ import com.energyict.cpo.Environment;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cpo.TypedProperties;
-import com.energyict.genericprotocolimpl.edmi.mk10.packets.PushPacket;
+import com.energyict.protocolimpl.edmi.mk10.packets.PushPacket;
 import com.energyict.mdc.meterdata.CollectedData;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.BinaryInboundDeviceProtocol;

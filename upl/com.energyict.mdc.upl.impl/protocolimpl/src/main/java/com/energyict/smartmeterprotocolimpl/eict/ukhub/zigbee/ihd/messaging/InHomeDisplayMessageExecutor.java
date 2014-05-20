@@ -5,10 +5,10 @@ import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.SingleActionSchedule;
-import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
-import com.energyict.genericprotocolimpl.common.ParseUtils;
-import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
-import com.energyict.genericprotocolimpl.nta.messagehandling.NTAMessageHandler;
+import com.energyict.protocolimpl.generic.MessageParser;
+import com.energyict.protocolimpl.generic.ParseUtils;
+import com.energyict.protocolimpl.generic.messages.MessageHandler;
+import com.energyict.smartmeterprotocolimpl.eict.NTAMessageHandler;
 import com.energyict.mdw.core.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
@@ -19,7 +19,6 @@ import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd.InHomeDisplay;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -30,7 +29,7 @@ import java.util.logging.Logger;
 /**
  * Provides functionality to process messages for the InHomeDisplay
  */
-public class InHomeDisplayMessageExecutor extends GenericMessageExecutor {
+public class InHomeDisplayMessageExecutor extends MessageParser {
 
     public static ObisCode IMAGE_TRANSFER_OBIS = ObisCode.fromString("0.2.44.0.0.255");
     public static ObisCode IMAGE_ACTIVATION_SCHEDULER = ObisCode.fromString("0.0.15.0.2.255");
@@ -132,11 +131,6 @@ public class InHomeDisplayMessageExecutor extends GenericMessageExecutor {
 
     private Logger getLogger() {
         return ((InHomeDisplay) protocol).getDlmsSession().getLogger();
-    }
-
-    @Override
-    public void doMessage(OldDeviceMessage rtuMessage) throws BusinessException, SQLException, IOException {
-        // nothing to do
     }
 
     @Override

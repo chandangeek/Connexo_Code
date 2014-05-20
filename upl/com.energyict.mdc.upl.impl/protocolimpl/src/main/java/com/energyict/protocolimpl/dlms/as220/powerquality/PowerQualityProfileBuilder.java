@@ -4,7 +4,7 @@ import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.CapturedObject;
-import com.energyict.genericprotocolimpl.common.StatusCodeProfile;
+import com.energyict.protocolimpl.generic.StatusCodeProfile;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.ParseUtils;

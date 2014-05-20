@@ -3,62 +3,18 @@ package com.energyict.smartmeterprotocolimpl.eict.webrtuz3.messaging;
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.AxdrType;
-import com.energyict.dlms.axrdencoding.BitString;
-import com.energyict.dlms.axrdencoding.BooleanObject;
-import com.energyict.dlms.axrdencoding.Integer16;
-import com.energyict.dlms.axrdencoding.Integer32;
-import com.energyict.dlms.axrdencoding.Integer64;
-import com.energyict.dlms.axrdencoding.Integer8;
-import com.energyict.dlms.axrdencoding.NullData;
+import com.energyict.dlms.*;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.axrdencoding.Unsigned8;
-import com.energyict.dlms.axrdencoding.VisibleString;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.ActivityCalendar;
-import com.energyict.dlms.cosem.AssociationLN;
-import com.energyict.dlms.cosem.AssociationSN;
-import com.energyict.dlms.cosem.AutoConnect;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.Disconnector;
-import com.energyict.dlms.cosem.ExtendedRegister;
-import com.energyict.dlms.cosem.GenericInvoke;
-import com.energyict.dlms.cosem.GenericRead;
-import com.energyict.dlms.cosem.GenericWrite;
-import com.energyict.dlms.cosem.ImageTransfer;
-import com.energyict.dlms.cosem.Limiter;
-import com.energyict.dlms.cosem.PPPSetup;
-import com.energyict.dlms.cosem.Register;
-import com.energyict.dlms.cosem.ScriptTable;
-import com.energyict.dlms.cosem.SecuritySetup;
-import com.energyict.dlms.cosem.SingleActionSchedule;
-import com.energyict.dlms.cosem.SpecialDaysTable;
-import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
-import com.energyict.genericprotocolimpl.common.ParseUtils;
-import com.energyict.genericprotocolimpl.common.messages.ActivityCalendarMessage;
-import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
-import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.CSVParser;
-import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.TestObject;
-import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.CodeCalendar;
-import com.energyict.mdw.core.OldDeviceMessage;
-import com.energyict.mdw.core.Lookup;
-import com.energyict.mdw.core.LookupEntry;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.UserFile;
-import com.energyict.mdw.shadow.OldDeviceMessageShadow;
+import com.energyict.dlms.cosem.*;
+import com.energyict.protocolimpl.generic.MessageParser;
+import com.energyict.protocolimpl.generic.ParseUtils;
+import com.energyict.protocolimpl.generic.messages.ActivityCalendarMessage;
+import com.energyict.protocolimpl.generic.messages.MessageHandler;
+import com.energyict.protocolimpl.generic.csvhandling.CSVParser;
+import com.energyict.protocolimpl.generic.csvhandling.TestObject;
+import com.energyict.mdw.core.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
@@ -69,11 +25,7 @@ import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.WebRTUZ3;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -82,7 +34,7 @@ import java.util.logging.Logger;
  * Date: 29-aug-2011
  * Time: 14:12:14
  */
-public class WebRTUZ3MessageExecutor extends GenericMessageExecutor {
+public class WebRTUZ3MessageExecutor extends MessageParser {
 
     private static final ObisCode RF_FIRMWARE_OBISCODE = ObisCode.fromString("0.0.44.0.128.255");
     private static final byte[] defaultMonitoredAttribute = new byte[]{1, 0, 90, 7, 0, (byte) 255};    // Total current, instantaneous value
@@ -90,11 +42,6 @@ public class WebRTUZ3MessageExecutor extends GenericMessageExecutor {
 
     public WebRTUZ3MessageExecutor(final WebRTUZ3 protocol) {
         this.protocol = protocol;
-    }
-
-    @Override
-    public void doMessage(final OldDeviceMessage rtuMessage) throws BusinessException, SQLException, IOException {
-        // nothing to do
     }
 
     @Override
@@ -688,17 +635,18 @@ public class WebRTUZ3MessageExecutor extends GenericMessageExecutor {
                                                 }
                                                 break;
                                                 case 3: { // MESSAGE
-                                                    OldDeviceMessageShadow rms = new OldDeviceMessageShadow();
-                                                    rms.setContents(csvParser.getTestObject(i).getData());
-                                                    rms.setRtuId(getRtuFromDatabaseBySerialNumber().getId());
-                                                    OldDeviceMessage rm = mw().getRtuMessageFactory().create(rms);
-                                                    doMessage(rm);
-                                                    if (rm.getState().getId() == rm.getState().CONFIRMED.getId()) {
-                                                        to.setResult("OK");
-                                                    } else {
-                                                        to.setResult("MESSAGE failed, current state " + rm.getState().getId());
-                                                    }
-                                                    hasWritten = true;
+                                                    //Do nothing, no longer supported
+                                                    //OldDeviceMessageShadow rms = new OldDeviceMessageShadow();
+                                                    //rms.setContents(csvParser.getTestObject(i).getData());
+                                                    //rms.setRtuId(getRtuFromDatabaseBySerialNumber().getId());
+                                                    //OldDeviceMessage rm = mw().getRtuMessageFactory().create(rms);
+                                                    //doMessage(rm);
+                                                    //if (rm.getState().getId() == rm.getState().CONFIRMED.getId()) {
+                                                    //    to.setResult("OK");
+                                                    //} else {
+                                                    //    to.setResult("MESSAGE failed, current state " + rm.getState().getId());
+                                                    //}
+                                                    //hasWritten = true;
                                                 }
                                                 break;
                                                 case 4: { // WAIT

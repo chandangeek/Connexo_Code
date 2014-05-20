@@ -1,6 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging;
 
-import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
+import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.protocol.*;

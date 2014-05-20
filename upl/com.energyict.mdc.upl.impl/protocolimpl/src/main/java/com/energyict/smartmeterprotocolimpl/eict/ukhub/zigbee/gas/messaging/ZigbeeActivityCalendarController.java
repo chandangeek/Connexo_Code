@@ -4,7 +4,7 @@ import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributeobjects.*;
-import com.energyict.genericprotocolimpl.common.ParseUtils;
+import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.dlms.as220.emeter.AS220Messaging;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXml;

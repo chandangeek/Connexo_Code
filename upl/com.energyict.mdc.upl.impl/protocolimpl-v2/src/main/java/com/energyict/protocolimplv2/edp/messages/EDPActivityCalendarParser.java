@@ -2,7 +2,7 @@ package com.energyict.protocolimplv2.edp.messages;
 
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.attributeobjects.SeasonProfiles;
-import com.energyict.genericprotocolimpl.common.messages.ActivityCalendarMessage;
+import com.energyict.protocolimpl.generic.messages.ActivityCalendarMessage;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.CodeDayType;
 import com.energyict.protocolimpl.utils.ProtocolTools;

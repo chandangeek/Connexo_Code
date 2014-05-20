@@ -4,7 +4,6 @@ import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.genericprotocolimpl.webrtuz3.eventhandling.EventsLog;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProtocolUtils;

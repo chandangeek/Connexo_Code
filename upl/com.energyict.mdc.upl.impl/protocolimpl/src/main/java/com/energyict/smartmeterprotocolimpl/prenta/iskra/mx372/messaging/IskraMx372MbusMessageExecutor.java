@@ -1,11 +1,9 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging;
 
-import com.energyict.cbo.BusinessException;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Unsigned8;
-import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
-import com.energyict.genericprotocolimpl.common.ParseUtils;
-import com.energyict.mdw.core.OldDeviceMessage;
+import com.energyict.protocolimpl.generic.MessageParser;
+import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.obis.ObisCode;
@@ -16,7 +14,6 @@ import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.IskraMx372;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.TimeZone;
 
 /**
@@ -25,7 +22,7 @@ import java.util.TimeZone;
  * Date: 24/01/12
  * Time: 16:38
  */
-public class IskraMx372MbusMessageExecutor extends GenericMessageExecutor {
+public class IskraMx372MbusMessageExecutor extends MessageParser {
 
     IskraMx372 iskraMx372;
 
@@ -34,11 +31,6 @@ public class IskraMx372MbusMessageExecutor extends GenericMessageExecutor {
 
     public IskraMx372MbusMessageExecutor(IskraMx372 iskraMx372Protocol) {
         this.iskraMx372 = iskraMx372Protocol;
-    }
-
-    @Override
-    public void doMessage(OldDeviceMessage rtuMessage) throws BusinessException, SQLException, IOException {
-        // Nothing to do.
     }
 
     @Override

@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.dlms.g3;
 
 import com.energyict.dlms.DLMSReference;
-import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
+import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;

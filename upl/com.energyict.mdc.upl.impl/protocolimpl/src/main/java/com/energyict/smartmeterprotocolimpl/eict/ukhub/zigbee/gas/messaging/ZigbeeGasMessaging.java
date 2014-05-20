@@ -1,6 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.messaging;
 
-import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
+import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.messaging.TimeOfUseMessageBuilder;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;

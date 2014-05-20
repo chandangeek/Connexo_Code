@@ -7,7 +7,7 @@ import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributes.AssociationLNAttributes;
 import com.energyict.dlms.cosem.attributes.DataAttributes;
-import com.energyict.genericprotocolimpl.common.EncryptionStatus;
+import com.energyict.protocolimpl.generic.EncryptionStatus;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterValue;

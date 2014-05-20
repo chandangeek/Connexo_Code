@@ -5,9 +5,8 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
-import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
-import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
-import com.energyict.mdw.core.OldDeviceMessage;
+import com.energyict.protocolimpl.generic.MessageParser;
+import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
@@ -16,7 +15,6 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.SlaveMeter;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -26,7 +24,7 @@ import java.util.logging.Logger;
  * Date: 29-aug-2011
  * Time: 15:44:50
  */
-public class EMeterMessageExecutor extends GenericMessageExecutor {
+public class EMeterMessageExecutor extends MessageParser {
 
     public static final ObisCode DISCONNECTOR_OBIS = ObisCode.fromString("0.0.96.3.10.255");
     public static final ObisCode DISCONNECTOR_SCRIPT_TABLE_OBIS = ObisCode.fromString("0.0.10.0.106.255");
@@ -36,11 +34,6 @@ public class EMeterMessageExecutor extends GenericMessageExecutor {
 
     public EMeterMessageExecutor(final SlaveMeter emeter) {
         this.emeter = emeter;
-    }
-
-    @Override
-    public void doMessage(final OldDeviceMessage rtuMessage) throws BusinessException, SQLException, IOException {
-        // nothing to do
     }
 
     @Override

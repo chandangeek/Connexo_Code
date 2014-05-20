@@ -44,7 +44,7 @@
 
 -keepnames class com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController
 
--keepnames class com.energyict.genericprotocolimpl.common.*
+-keepnames class com.energyict.protocolimpl.generic.*
 
 -keepnames class com.energyict.protocolimpl.meteridentification.*
 
@@ -71,7 +71,7 @@
 }
 
 # For usage in the cryptoserver project
--keepnames class com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider
+-keepnames class com.energyict.protocolimpl.dlms.common.NTASecurityProvider
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40SecurityProvider
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr23.Dsmr23Properties
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties
@@ -84,7 +84,7 @@
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MessageExecutor
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40MessageExecutor
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.DSMR40RespondingFrameCounterHandler
--keep public class com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider {
+-keep public class com.energyict.protocolimpl.dlms.common.NTASecurityProvider {
 	public *;
 	protected *;
 }
@@ -96,7 +96,7 @@
 	public *;
 	protected *;
 }
--keep public class com.energyict.genericprotocolimpl.common.messages.ActivityCalendarMessage {
+-keep public class com.energyict.protocolimpl.generic.messages.ActivityCalendarMessage {
 	public *;
 	protected *;
 }
@@ -108,7 +108,7 @@
 	public *;
 	protected *;
 }
--keep public class com.energyict.genericprotocolimpl.common.messages.MessageHandler {
+-keep public class com.energyict.protocolimpl.generic.messages.MessageHandler {
 	public *;
 	protected *;
 }
@@ -404,16 +404,12 @@
 
 -keepnames class com.energyict.protocolimpl.iec1107.a1440.A1440
 
--keep public class com.energyict.genericprotocolimpl.webrtu.common.*{
-	*;
-}
-
 -keep public class com.energyict.smartmeterprotocolimpl.eict.ukhub.* {
 	*;
 }
 
 
--keep public class com.energyict.genericprotocolimpl.common.messages.MessageHandler
+-keep public class com.energyict.protocolimpl.generic.messages.MessageHandler
 
 -keep public class com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging.* {
 	*;
@@ -517,10 +513,6 @@
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra.MbusDevice
 
 -keepnames class com.energyict.protocolimpl.base.RtuDiscoveredEvent
-
--keep public class com.energyict.genericprotocolimpl.common.DLMSProtocol{
-    public *;
-}
 
 -keepnames class com.energyict.protocolimpl.dlms.JanzC280.JanzC280
 

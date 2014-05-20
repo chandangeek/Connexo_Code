@@ -2,8 +2,8 @@
 package com.energyict.protocolimpl.edmi.mk10;
 
 import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.genericprotocolimpl.edmi.mk10.streamfilters.MK10PushInputStream;
-import com.energyict.genericprotocolimpl.edmi.mk10.streamfilters.MK10PushOutputStream;
+import com.energyict.protocolimpl.edmi.mk10.streamfilters.MK10PushInputStream;
+import com.energyict.protocolimpl.edmi.mk10.streamfilters.MK10PushOutputStream;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;

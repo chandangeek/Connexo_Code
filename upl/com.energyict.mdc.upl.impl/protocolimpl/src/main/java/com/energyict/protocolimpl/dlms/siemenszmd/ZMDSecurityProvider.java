@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.dlms.siemenszmd;
 
 import com.energyict.dlms.DLMSUtils;
-import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
+import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
 import com.energyict.protocol.UnsupportedException;
 
 import java.io.IOException;

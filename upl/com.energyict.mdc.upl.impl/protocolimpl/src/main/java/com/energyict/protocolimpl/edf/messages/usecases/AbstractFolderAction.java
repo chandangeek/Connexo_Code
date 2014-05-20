@@ -3,9 +3,7 @@ package com.energyict.protocolimpl.edf.messages.usecases;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cpo.*;
 import com.energyict.mdw.core.*;
-import com.energyict.mdw.shadow.OldDeviceMessageShadow;
 import com.energyict.protocolimpl.edf.messages.MessageContent;
-import com.energyict.protocolimpl.edf.messages.MessageReadRegister;
 
 import java.sql.SQLException;
 import java.util.*;
@@ -17,13 +15,15 @@ public abstract class AbstractFolderAction implements FolderAction {
     void addMessage(Device rtu, String obis, int ordinal)
             throws Exception {
 
-        OldDeviceMessageShadow shadow = new OldDeviceMessageShadow(rtu.getId());
-        shadow.setReleaseDate(new Date());
+        //TODO: no longer supported, this should be ported to the new message framework
 
-        MessageReadRegister mrr = new MessageReadRegister(obis);
-        mrr.setOrdinal(ordinal);
-
-        shadow.setContents(mrr.xmlEncode());
+        //OldDeviceMessageShadow shadow = new OldDeviceMessageShadow(rtu.getId());
+        //shadow.setReleaseDate(new Date());
+        //
+        //MessageReadRegister mrr = new MessageReadRegister(obis);
+        //mrr.setOrdinal(ordinal);
+        //
+        //shadow.setContents(mrr.xmlEncode());
 
 //        rtu.createOldMessage(shadow);
 
@@ -32,10 +32,11 @@ public abstract class AbstractFolderAction implements FolderAction {
     void createMessage(Device rtu, MessageContent content)
             throws Exception {
 
-        OldDeviceMessageShadow shadow = new OldDeviceMessageShadow(rtu.getId());
-        shadow.setReleaseDate(new Date());
-
-        shadow.setContents(content.xmlEncode());
+        //TODO: no longer supported, this should be ported to the new message framework
+        //OldDeviceMessageShadow shadow = new OldDeviceMessageShadow(rtu.getId());
+        //shadow.setReleaseDate(new Date());
+        //
+        //shadow.setContents(content.xmlEncode());
 //        rtu.createOldMessage(shadow);
 
     }

@@ -1,48 +1,25 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.messaging;
 
-import com.energyict.cbo.ApplicationException;
-import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.NestedIOException;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.DlmsSession;
-import com.energyict.dlms.ParseUtils;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.BitString;
+import com.energyict.cbo.*;
+import com.energyict.dlms.*;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.util.DateTime;
-import com.energyict.dlms.cosem.ActivePassive;
-import com.energyict.dlms.cosem.ChangeOfSupplierManagement;
-import com.energyict.dlms.cosem.ChangeOfTenantManagement;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.Disconnector;
-import com.energyict.dlms.cosem.GenericInvoke;
-import com.energyict.dlms.cosem.GenericRead;
-import com.energyict.dlms.cosem.GenericWrite;
-import com.energyict.dlms.cosem.ImageTransfer;
-import com.energyict.dlms.cosem.SingleActionSchedule;
+import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.xmlparsing.GenericDataToWrite;
 import com.energyict.dlms.xmlparsing.XmlToDlms;
-import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
-import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
-import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
-import com.energyict.genericprotocolimpl.nta.messagehandling.NTAMessageHandler;
-import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.CSVParser;
-import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.TestObject;
-import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.MeteringWarehouseFactory;
-import com.energyict.mdw.core.OldDeviceMessage;
-import com.energyict.mdw.core.UserFile;
-import com.energyict.mdw.shadow.OldDeviceMessageShadow;
+import com.energyict.protocolimpl.generic.MessageParser;
+import com.energyict.protocolimpl.generic.messages.GenericMessaging;
+import com.energyict.protocolimpl.generic.messages.MessageHandler;
+import com.energyict.protocolimpl.generic.csvhandling.CSVParser;
+import com.energyict.protocolimpl.generic.csvhandling.TestObject;
+import com.energyict.smartmeterprotocolimpl.eict.NTAMessageHandler;
+import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.UserFileShadow;
+import com.energyict.messaging.TimeOfUseMessageBuilder;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
-import com.energyict.messaging.TimeOfUseMessageBuilder;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
@@ -58,10 +35,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -69,7 +43,7 @@ import java.util.logging.Level;
  * Date: 10-aug-2011
  * Time: 15:02:34
  */
-public class ZigbeeMessageExecutor extends GenericMessageExecutor {
+public class ZigbeeMessageExecutor extends MessageParser {
 
     private static final ObisCode ChangeOfSupplierNameObisCode = ObisCode.fromString("7.0.1.64.0.255");
     private static final ObisCode ChangeOfSupplierIdObisCode = ObisCode.fromString("7.0.1.64.1.255");
@@ -526,7 +500,7 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
             resume = true;
         }
 
-        if (!com.energyict.genericprotocolimpl.common.ParseUtils.isInteger(userFileID)) {
+        if (!com.energyict.protocolimpl.generic.ParseUtils.isInteger(userFileID)) {
             String str = "Not a valid entry for the userFile.";
             throw new IOException(str);
         }
@@ -698,11 +672,6 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
     }
 
     @Override
-    public void doMessage(final OldDeviceMessage rtuMessage) throws BusinessException, SQLException, IOException {
-        // nothing to do
-    }
-
-    @Override
     protected TimeZone getTimeZone() {
         return this.protocol.getTimeZone();
     }
@@ -713,7 +682,7 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
         String userFileId = messageHandler.getTestUserFileId();
         Date currentTime;
         if (!userFileId.equalsIgnoreCase("")) {
-            if (com.energyict.genericprotocolimpl.common.ParseUtils.isInteger(userFileId)) {
+            if (com.energyict.protocolimpl.generic.ParseUtils.isInteger(userFileId)) {
                 UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileId));
                 if (uf != null) {
                     byte[] data = uf.loadFileInByteArray();
@@ -730,13 +699,13 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
                                 switch (to.getType()) {
                                     case 0: { // GET
                                         GenericRead gr = getCosemObjectFactory().getGenericRead(to.getObisCode(), DLMSUtils.attrLN2SN(to.getAttribute()), to.getClassId());
-                                        to.setResult("0x" + com.energyict.genericprotocolimpl.common.ParseUtils.decimalByteToString(gr.getResponseData()));
+                                        to.setResult("0x" + com.energyict.protocolimpl.generic.ParseUtils.decimalByteToString(gr.getResponseData()));
                                         hasWritten = true;
                                     }
                                     break;
                                     case 1: { // SET
                                         GenericWrite gw = getCosemObjectFactory().getGenericWrite(to.getObisCode(), to.getAttribute(), to.getClassId());
-                                        gw.write(com.energyict.genericprotocolimpl.common.ParseUtils.hexStringToByteArray(to.getData()));
+                                        gw.write(com.energyict.protocolimpl.generic.ParseUtils.hexStringToByteArray(to.getData()));
                                         to.setResult("OK");
                                         hasWritten = true;
                                     }
@@ -746,24 +715,26 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
                                         if (to.getData().equalsIgnoreCase("")) {
                                             gi.invoke();
                                         } else {
-                                            gi.invoke(com.energyict.genericprotocolimpl.common.ParseUtils.hexStringToByteArray(to.getData()));
+                                            gi.invoke(com.energyict.protocolimpl.generic.ParseUtils.hexStringToByteArray(to.getData()));
                                         }
                                         to.setResult("OK");
                                         hasWritten = true;
                                     }
                                     break;
                                     case 3: { // MESSAGE
-                                        OldDeviceMessageShadow rms = new OldDeviceMessageShadow();
-                                        rms.setContents(csvParser.getTestObject(i).getData());
-                                        rms.setRtuId(getRtuFromDatabaseBySerialNumberAndClientMac().getId());
-                                        OldDeviceMessage rm = mw().getRtuMessageFactory().create(rms);
-                                        doMessage(rm);
-                                        if (rm.getState().getId() == rm.getState().CONFIRMED.getId()) {
-                                            to.setResult("OK");
-                                        } else {
-                                            to.setResult("MESSAGE failed, current state " + rm.getState().getId());
-                                        }
-                                        hasWritten = true;
+                                        //Do nothing, no longer supported
+
+                                        //OldDeviceMessageShadow rms = new OldDeviceMessageShadow();
+                                        //rms.setContents(csvParser.getTestObject(i).getData());
+                                        //rms.setRtuId(getRtuFromDatabaseBySerialNumberAndClientMac().getId());
+                                        //OldDeviceMessage rm = mw().getRtuMessageFactory().create(rms);
+                                        //doMessage(rm);
+                                        //if (rm.getState().getId() == rm.getState().CONFIRMED.getId()) {
+                                        //    to.setResult("OK");
+                                        //} else {
+                                        //    to.setResult("MESSAGE failed, current state " + rm.getState().getId());
+                                        //}
+                                        //hasWritten = true;
                                     }
                                     break;
                                     case 4: { // WAIT

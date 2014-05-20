@@ -18,7 +18,7 @@ import org.junit.Test;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
-import com.energyict.genericprotocolimpl.common.ParseUtils;
+import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.modbus.core.connection.ModbusTestConnection;
