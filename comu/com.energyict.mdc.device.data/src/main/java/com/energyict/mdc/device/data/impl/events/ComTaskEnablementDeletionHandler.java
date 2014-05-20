@@ -10,6 +10,8 @@ import com.energyict.mdc.device.data.impl.ServerDeviceDataService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
+
 /**
  * Handles delete events that are being sent when a {@link ComTaskEnablement}
  * is about to be deleted and will veto the delete when it is in use by at least one device.
@@ -25,10 +27,11 @@ public class ComTaskEnablementDeletionHandler extends EventHandler<LocalEvent> {
     private volatile ServerDeviceDataService deviceDataService;
     private volatile Thesaurus thesaurus;
 
-    protected ComTaskEnablementDeletionHandler() {
+    public ComTaskEnablementDeletionHandler() {
         super(LocalEvent.class);
     }
 
+    @Inject
     ComTaskEnablementDeletionHandler (ServerDeviceDataService deviceDataService, Thesaurus thesaurus) {
         this();
         this.deviceDataService = deviceDataService;
