@@ -3,6 +3,7 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
@@ -26,7 +27,6 @@ public class DeviceProtocolTopologyAdapter implements DeviceTopologySupport {
 
     private final IssueService issueService;
     private DeviceIdentifier deviceIdentifier;
-    private CollectedDataFactory collectedDataFactory;
 
     public DeviceProtocolTopologyAdapter(IssueService issueService) {
         super();
@@ -64,16 +64,7 @@ public class DeviceProtocolTopologyAdapter implements DeviceTopologySupport {
     }
 
     private CollectedDataFactory getCollectedDataFactory() {
-        if (this.collectedDataFactory == null) {
-            List<CollectedDataFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(CollectedDataFactory.class);
-            if (factories.isEmpty()) {
-                throw CommunicationException.missingModuleException(CollectedDataFactory.class);
-            }
-            else {
-                this.collectedDataFactory = factories.get(0);
-            }
-        }
-        return this.collectedDataFactory;
+        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
     }
 
 }

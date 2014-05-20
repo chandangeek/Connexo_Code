@@ -5,6 +5,7 @@ import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
@@ -70,7 +71,6 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
     private boolean messagesAreSupported = true;
 
     private Map<MessageEntry, OfflineDeviceMessage> messageEntries = new HashMap<>();
-    private CollectedDataFactory collectedDataFactory;
 
     protected AbstractDeviceMessageConverterAdapter(DataModel dataModel, ProtocolPluggableService protocolPluggableService, IssueService issueService) {
         super();
@@ -157,16 +157,7 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
     }
 
     private CollectedDataFactory getCollectedDataFactory() {
-        if (this.collectedDataFactory == null) {
-            List<CollectedDataFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(CollectedDataFactory.class);
-            if (factories.isEmpty()) {
-                throw CommunicationException.missingModuleException(CollectedDataFactory.class);
-            }
-            else {
-                this.collectedDataFactory = factories.get(0);
-            }
-        }
-        return this.collectedDataFactory;
+        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
     }
 
     private CollectedMessage delegatePendingMessageToProtocol(MessageEntry messageEntry, OfflineDeviceMessage offlineDeviceMessage) {
