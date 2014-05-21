@@ -96,9 +96,10 @@ public class LegacySmartMeterProtocolCommandCreatorTest {
         OfflineDevice device = mock(OfflineDevice.class);
         CommandRoot root = spy(new CommandRootImpl(device, this.newTestExecutionContext(), commandRootServiceProvider));
 
-        SerialComChannel comChannel = mock(SerialComChannel.class);
+        SerialComChannel serialComChannel = mock(SerialComChannel.class);
         ServerSerialPort serverSerialPort = mock(ServerSerialPort.class);
-        when(comChannel.getSerialPort()).thenReturn(serverSerialPort);
+        when(serialComChannel.getSerialPort()).thenReturn(serverSerialPort);
+        ComPortRelatedComChannel comChannel = mock(ComPortRelatedComChannel.class);
         ComTask comTask = mock(ComTask.class);
         ComTaskExecution scheduledComTask = mock(ComTaskExecution.class);
         when(scheduledComTask.getComTask()).thenReturn(comTask);

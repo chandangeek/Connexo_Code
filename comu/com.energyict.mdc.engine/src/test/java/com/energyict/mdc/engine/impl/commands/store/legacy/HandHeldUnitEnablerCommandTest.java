@@ -1,12 +1,5 @@
 package com.energyict.mdc.engine.impl.commands.store.legacy;
 
-import com.energyict.comserver.commands.AbstractComCommandExecuteTest;
-import com.energyict.comserver.commands.core.CommandRootImpl;
-import com.energyict.comserver.core.CommandFactory;
-import com.energyict.comserver.core.JobExecution;
-import com.energyict.comserver.exceptions.ComCommandException;
-import com.energyict.mdc.commands.ComCommandTypes;
-import com.energyict.mdc.commands.CommandRoot;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
@@ -18,7 +11,7 @@ import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.engine.impl.core.CommandFactory;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.inbound.ComChannelPlaceHolder;
-import com.energyict.mdc.protocol.ComChannelPlaceHolder;
+import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannel;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -30,15 +23,9 @@ import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolAdapter;
+
 import com.energyict.protocols.mdc.channels.serial.SerialComChannel;
 import com.energyict.protocols.mdc.channels.serial.ServerSerialPort;
-import com.energyict.test.MockEnvironmentTranslations;
-import org.junit.*;
-import org.junit.rules.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.InputStream;
 import java.util.Collections;
@@ -47,9 +34,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -65,13 +57,12 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class HandHeldUnitEnablerCommandTest extends AbstractComCommandExecuteTest {
 
-//    @ClassRule
-//    public static TestRule mockEnvironmentTranslactions = new MockEnvironmentTranslations();
-
     @Mock
     private ServerSerialPort serverSerialPort;
     @Mock
     private SerialComChannel serialComChannel;
+    @Mock
+    private ComPortRelatedComChannel comChannel;
     @Mock
     private InputStream inputStream;
 
@@ -81,7 +72,7 @@ public class HandHeldUnitEnablerCommandTest extends AbstractComCommandExecuteTes
     public void initMocks() {
         when(serialComChannel.getSerialPort()).thenReturn(serverSerialPort);
         when(serverSerialPort.getInputStream()).thenReturn(inputStream);
-        this.comChannelPlaceHolder = ComChannelPlaceHolder.forKnownComChannel(this.serialComChannel);
+        this.comChannelPlaceHolder = ComChannelPlaceHolder.forKnownComChannel(this.comChannel);
     }
 
     @Test

@@ -1,11 +1,8 @@
 package com.energyict.mdc.engine.impl.core.verification;
 
-import com.energyict.comserver.tools.Counter;
-
 /**
  * Provides an implementation for the {@link CounterVerifier} interface
- * that verifies that the {@link Counter}'s value exactly
- * matches an expected value.
+ * that verifies that the Counter's value exactly matches an expected value.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-07-19 (13:46)

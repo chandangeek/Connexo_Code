@@ -33,7 +33,7 @@ public class DeviceProtocolUpdateCacheCommand extends SimpleComCommand {
     @Override
     public void doExecute (DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         UpdatedDeviceCache updatedDeviceCache = new UpdatedDeviceCache(new DeviceIdentifierById(device.getId(), getDeviceDataService()));
-        updatedDeviceCache.setDeviceCache(deviceProtocol.getDeviceCache());
+        updatedDeviceCache.setCollectedDeviceCache(deviceProtocol.getDeviceCache());
         addCollectedDataItem(updatedDeviceCache);
     }
 

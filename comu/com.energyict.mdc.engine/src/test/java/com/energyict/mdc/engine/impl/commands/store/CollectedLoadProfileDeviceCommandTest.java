@@ -1,7 +1,5 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.ProgrammableClock;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.data.DeviceDataService;
@@ -11,15 +9,19 @@ import com.energyict.mdc.engine.impl.protocol.inbound.DeviceIdentifierById;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
+
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.ProgrammableClock;
 import org.joda.time.DateTime;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,9 +37,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class CollectedLoadProfileDeviceCommandTest {
 
     private static final long DEVICE_ID = 1;
-    private static final long CHANNEL1_ID = DEVICE_ID + 1;
-    private static final long CHANNEL2_ID = CHANNEL1_ID + 1;
-    private static final long CHANNEL_INFO_ID = CHANNEL2_ID + 1;
+    private static final int CHANNEL1_ID = 97;
+    private static final int CHANNEL2_ID = CHANNEL1_ID + 1;
+    private static final int CHANNEL_INFO_ID = CHANNEL1_ID + 1;
     private static final String OBIS_CODE = "1.33.1.8.0.255";
 
     @Mock

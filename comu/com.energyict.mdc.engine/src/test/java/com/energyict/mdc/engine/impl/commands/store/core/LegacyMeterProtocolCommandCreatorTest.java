@@ -1,15 +1,5 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
-import com.energyict.comserver.commands.access.LogOffCommand;
-import com.energyict.comserver.commands.access.LogOnCommand;
-import com.energyict.comserver.commands.common.AddPropertiesCommand;
-import com.energyict.comserver.commands.common.DeviceProtocolInitializeCommand;
-import com.energyict.comserver.commands.common.DeviceProtocolSetCacheCommand;
-import com.energyict.comserver.commands.common.DeviceProtocolTerminateCommand;
-import com.energyict.comserver.commands.common.DeviceProtocolUpdateCacheCommand;
-import com.energyict.comserver.commands.legacy.HandHeldUnitEnablerCommand;
-import com.energyict.comserver.commands.legacy.InitializeLoggerCommand;
-import com.energyict.comserver.core.JobExecution;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -36,7 +26,6 @@ import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.ConnectionTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.protocols.mdc.channels.serial.SerialComChannel;
 import com.energyict.protocols.mdc.channels.serial.ServerSerialPort;
@@ -106,9 +95,10 @@ public class LegacyMeterProtocolCommandCreatorTest {
         OfflineDevice device = mock(OfflineDevice.class);
         CommandRoot root = spy(new CommandRootImpl(device, this.newTestExecutionContext(), commandRootServiceProvider));
 
-        SerialComChannel comChannel = mock(SerialComChannel.class);
         ServerSerialPort serverSerialPort = mock(ServerSerialPort.class);
-        when(comChannel.getSerialPort()).thenReturn(serverSerialPort);
+        SerialComChannel serialComChannel = mock(SerialComChannel.class);
+        when(serialComChannel.getSerialPort()).thenReturn(serverSerialPort);
+        ComPortRelatedComChannel comChannel = mock(ComPortRelatedComChannel.class);
         ComTask comTask = mock(ComTask.class);
         ComTaskExecution scheduledComTask = mock(ComTaskExecution.class);
         when(scheduledComTask.getComTask()).thenReturn(comTask);

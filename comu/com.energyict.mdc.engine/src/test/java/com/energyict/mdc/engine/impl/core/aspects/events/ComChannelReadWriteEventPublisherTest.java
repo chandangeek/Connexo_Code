@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.core.aspects.events;
 import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.impl.core.ConfigurableReadComChannel;
 import com.energyict.mdc.engine.impl.core.SystemOutComChannel;
+import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.events.io.ReadEvent;
 import com.energyict.mdc.engine.impl.events.io.WriteEvent;
@@ -243,10 +244,11 @@ public class ComChannelReadWriteEventPublisherTest {
     }
 
     private ComPortRelatedComChannel newComChannelForReading () {
-        ConfigurableReadComChannel comChannel = new ConfigurableReadComChannel();
-        comChannel.whenRead(singleByte);
-        comChannel.whenReadFromBuffer(FIRST_SERIES_OF_BYTES);
-        comChannel.whenReadFromBufferWithOffset(SECOND_SERIES_OF_BYTES, SECOND_SERIES_OF_BYTES_OFFSET, SECOND_SERIES_OF_BYTES_LENGTH);
+        ConfigurableReadComChannel configurableComChannel = new ConfigurableReadComChannel();
+        configurableComChannel.whenRead(singleByte);
+        configurableComChannel.whenReadFromBuffer(FIRST_SERIES_OF_BYTES);
+        configurableComChannel.whenReadFromBufferWithOffset(SECOND_SERIES_OF_BYTES, SECOND_SERIES_OF_BYTES_OFFSET, SECOND_SERIES_OF_BYTES_LENGTH);
+        ComPortRelatedComChannelImpl comChannel = new ComPortRelatedComChannelImpl(configurableComChannel);
         comChannel.setComPort(this.comPort);
         return comChannel;
     }
@@ -268,7 +270,8 @@ public class ComChannelReadWriteEventPublisherTest {
     }
 
     private ComPortRelatedComChannel newComChannelForWriting () {
-        SystemOutComChannel comChannel = new SystemOutComChannel();
+        SystemOutComChannel systemOutComChannel = new SystemOutComChannel();
+        ComPortRelatedComChannelImpl comChannel = new ComPortRelatedComChannelImpl(systemOutComChannel);
         comChannel.setComPort(this.comPort);
         return comChannel;
     }

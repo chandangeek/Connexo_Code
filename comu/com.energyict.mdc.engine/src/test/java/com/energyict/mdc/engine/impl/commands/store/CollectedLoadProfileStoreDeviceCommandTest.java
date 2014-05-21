@@ -1,5 +1,17 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
+import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
+import com.energyict.mdc.protocol.api.device.data.IntervalValue;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
+
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
@@ -7,25 +19,8 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.engine.exceptions.RuntimeBusinessException;
-import com.energyict.mdc.engine.exceptions.RuntimeSQLException;
-import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
-import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
-import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.protocol.api.device.data.IntervalValue;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.google.common.base.Optional;
 import org.joda.time.DateTime;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -34,10 +29,15 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Fail.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the store functionality of the {@link CollectedLoadProfileDeviceCommand}
@@ -51,10 +51,6 @@ public class CollectedLoadProfileStoreDeviceCommandTest extends AbstractCollecte
 
     private final int intervalValueOne = 123;
     private final int intervalValueTwo = 6516516;
-    private final String channelObisCodeOne = "1.0.1.8.0.255";
-    private final String channelObisCodeTwo = "1.0.2.8.0.255";
-    private final String deltaChannelObisCodeOne = "1.0.1.6.0.255";
-    private final String deltaChannelObisCodeTwo = "1.0.2.6.0.255";
     private final Unit kiloWattHours = Unit.get("kWh");
 
     private Date verificationTimeStamp = new DateTime(2015, 0, 0, 0, 0, 0, 0).toDate();
@@ -261,103 +257,53 @@ public class CollectedLoadProfileStoreDeviceCommandTest extends AbstractCollecte
 
     @Test
     public void updateLastReadingTest() throws SQLException, BusinessException {
-        int deviceId = 45456;
-        BaseLoadProfile mockedLoadProfile = createMockedLoadProfile();
-        CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(deviceId, mockedLoadProfile);
+        long deviceId = 45456;
+        LoadProfile mockedLoadProfile = createMockedLoadProfile();
+        Device device = mock(Device.class);
+        when(device.getId()).thenReturn(deviceId);
+        LoadProfile.LoadProfileUpdater loadProfileUpdater = mock(LoadProfile.LoadProfileUpdater.class);
+        when(device.getLoadProfileUpdaterFor(mockedLoadProfile)).thenReturn(loadProfileUpdater);
+        CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(device, mockedLoadProfile);
 
         final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile);
         final ComServerDAOImpl comServerDAO = mockComServerDAOButCallRealMethodForMeterReadingStoring();
 
+        // Business method
+        collectedLoadProfileDeviceCommand.execute(comServerDAO);
 
-        executeInTransaction(new VoidTransaction() {
-            @Override
-            protected void doPerform() {
-                collectedLoadProfileDeviceCommand.execute(comServerDAO);
-            }
-        });
-
-//        Clocks.setAppServerClock(verificationTimeStamp);
-//        Clocks.setDatabaseServerClock(verificationTimeStamp);
-
-        verify(mockedLoadProfile).updateLastReadingIfLater(intervalEndTime4);
+        // Asserts
+        verify(device).getLoadProfileUpdaterFor(mockedLoadProfile);
+        verify(loadProfileUpdater).setLastReadingIfLater(intervalEndTime4);
+        verify(loadProfileUpdater).update();
     }
 
-    @Test(expected = RuntimeSQLException.class)
-    public void throwSqlExceptionWhenUpdatingLastReadingTest() throws SQLException, BusinessException {
-        int deviceId = 45456;
-        BaseLoadProfile mockedLoadProfile = createMockedLoadProfile();
-        SQLException myCustomSqlException = new SQLException("Exception for testing purposes");
-        doThrow(myCustomSqlException).when(mockedLoadProfile).updateLastReadingIfLater(any(Date.class));
-        CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(deviceId, mockedLoadProfile);
-
-        final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile);
-        final ComServerDAOImpl comServerDAO = mockComServerDAOButCallRealMethodForMeterReadingStoring();
-
-        try {
-            executeInTransaction(new VoidTransaction() {
-                @Override
-                protected void doPerform() {
-                    collectedLoadProfileDeviceCommand.execute(comServerDAO);
-                }
-            });
-        } catch (RuntimeSQLException e) {
-            if (!e.getCause().equals(myCustomSqlException)) {
-                fail("Should have gotten my SqlException, but something else went wrong : " + e.getCause().getMessage());
-            } else {
-                throw e;
-            }
-        }
-    }
-
-    @Test(expected = RuntimeBusinessException.class)
-    public void throwBusinessExceptionWhenUpdatingLastReadingTest() throws SQLException, BusinessException {
-        int deviceId = 45456;
-        BaseLoadProfile mockedLoadProfile = createMockedLoadProfile();
-        BusinessException myCustomBusinessException = new BusinessException("Exception for testing purposes", "Exception pattern");
-        Mockito.doThrow(myCustomBusinessException).when(mockedLoadProfile).updateLastReadingIfLater(any(Date.class));
-        CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(deviceId, mockedLoadProfile);
-
-        final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile);
-        final ComServerDAOImpl comServerDAO = mockComServerDAOButCallRealMethodForMeterReadingStoring();
-
-        try {
-            executeInTransaction(new VoidTransaction() {
-                @Override
-                protected void doPerform() {
-                    collectedLoadProfileDeviceCommand.execute(comServerDAO);
-                }
-            });
-        } catch (RuntimeBusinessException e) {
-            if (!e.getCause().equals(myCustomBusinessException)) {
-                fail("Should have gotten my BusinessException, but something else went wrong : " + e.getCause().getMessage());
-            } else {
-                throw e;
-            }
-        }
-    }
-
-    private CollectedLoadProfile createCollectedLoadProfileWithDeltaData(int deviceId, BaseLoadProfile loadProfile) {
+    private CollectedLoadProfile createCollectedLoadProfileWithDeltaData(int deviceId, LoadProfile loadProfile) {
         return enhanceCollectedLoadProfile(deviceId, loadProfile, createMockLoadProfileWithTwoDeltaChannels());
     }
 
-    private CollectedLoadProfile createCollectedLoadProfile(int deviceId, BaseLoadProfile loadProfile) {
+    private CollectedLoadProfile createCollectedLoadProfile(long deviceId, LoadProfile loadProfile) {
         return enhanceCollectedLoadProfile(deviceId, loadProfile, createMockLoadProfileWithTwoChannels());
     }
 
-    private CollectedLoadProfile enhanceCollectedLoadProfile(int deviceId, BaseLoadProfile loadProfile, CollectedLoadProfile collectedLoadProfile) {
-//        mockServiceLocator();
-        mockDevice(deviceId);
-//        Clocks.setAppServerClock(currentTimeStamp);
-//        Clocks.setDatabaseServerClock(currentTimeStamp);
-//        when(loadProfile.getDevice()).thenReturn(device);
+    private CollectedLoadProfile enhanceCollectedLoadProfile(long deviceId, LoadProfile loadProfile, CollectedLoadProfile collectedLoadProfile) {
+        Device device = mockDevice(deviceId);
+        return enhanceCollectedLoadProfile(device, loadProfile, collectedLoadProfile);
+    }
+
+    private CollectedLoadProfile createCollectedLoadProfile(Device device, LoadProfile loadProfile) {
+        return enhanceCollectedLoadProfile(device, loadProfile, createMockLoadProfileWithTwoChannels());
+    }
+
+    private CollectedLoadProfile enhanceCollectedLoadProfile(Device device, LoadProfile loadProfile, CollectedLoadProfile collectedLoadProfile) {
+        when(loadProfile.getDevice()).thenReturn(device);
         LoadProfileIdentifier loadProfileIdentifier = mock(LoadProfileIdentifier.class);
         when(loadProfileIdentifier.findLoadProfile()).thenReturn(loadProfile);
         when(collectedLoadProfile.getLoadProfileIdentifier()).thenReturn(loadProfileIdentifier);
         return collectedLoadProfile;
     }
 
-    private BaseLoadProfile createMockedLoadProfile() {
-        BaseLoadProfile loadProfile = mock(BaseLoadProfile.class);
+    private LoadProfile createMockedLoadProfile() {
+        LoadProfile loadProfile = mock(LoadProfile.class);
         when(loadProfile.getInterval()).thenReturn(new TimeDuration(15, TimeDuration.MINUTES));
         return loadProfile;
     }
@@ -401,14 +347,18 @@ public class CollectedLoadProfileStoreDeviceCommandTest extends AbstractCollecte
 
     private List<ChannelInfo> createMockedDeltaChannelInfos() {
         List<ChannelInfo> channelInfos = new ArrayList<>();
+        String deltaChannelObisCodeOne = "1.0.1.6.0.255";
         channelInfos.add(new ChannelInfo(1, deltaChannelObisCodeOne, kiloWattHours));
+        String deltaChannelObisCodeTwo = "1.0.2.6.0.255";
         channelInfos.add(new ChannelInfo(2, deltaChannelObisCodeTwo, kiloWattHours));
         return channelInfos;
     }
 
     private List<ChannelInfo> createMockedChannelInfos() {
         List<ChannelInfo> channelInfos = new ArrayList<>();
+        String channelObisCodeOne = "1.0.1.8.0.255";
         channelInfos.add(new ChannelInfo(1, channelObisCodeOne, kiloWattHours));
+        String channelObisCodeTwo = "1.0.2.8.0.255";
         channelInfos.add(new ChannelInfo(2, channelObisCodeTwo, kiloWattHours));
         return channelInfos;
     }

@@ -1,10 +1,12 @@
 package com.energyict.mdc.engine;
 
+import com.elster.jupiter.util.time.ProgrammableClock;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.ReadRegistersCommand;
 import com.energyict.mdc.engine.impl.commands.collect.SetClockCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
+import com.energyict.mdc.engine.impl.commands.store.core.CommandRootServiceProviderAdapter;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.model.ComPort;
@@ -13,9 +15,11 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.tasks.history.TaskHistoryService;
 import org.fest.assertions.data.MapEntry;
 import org.junit.*;
 import org.junit.runner.*;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -48,6 +52,8 @@ public class GenericDeviceProtocolTest {
     SetClockCommand setClockCommand;
 
     private FakeServiceProvider serviceProvider;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private TaskHistoryService taskHistoryService;
 
     @Before
     public void initMock() {
@@ -61,7 +67,9 @@ public class GenericDeviceProtocolTest {
         protocol.init(offlineDevice, null);
 
         serviceProvider = new FakeServiceProvider();
-        CommandRootImpl root = new CommandRootImpl(offlineDevice, newTestExecutionContext(), this.serviceProvider);
+        serviceProvider.setClock(new ProgrammableClock());
+        serviceProvider.setTaskHistoryService(taskHistoryService);
+        CommandRootImpl root = new CommandRootImpl(offlineDevice, newTestExecutionContext(new CommandRootServiceProviderAdapter(serviceProvider)), this.serviceProvider);
         root.addCommand(readRegistersCommand, null);
         root.addCommand(setClockCommand, null);
 
@@ -73,15 +81,15 @@ public class GenericDeviceProtocolTest {
         assertThat(root.getCommands()).contains(MapEntry.entry(readRegistersCommand.getCommandType(), readRegistersCommand));
     }
 
-    private ExecutionContext newTestExecutionContext () {
-        return newTestExecutionContext(Logger.getAnonymousLogger());
+    private ExecutionContext newTestExecutionContext(CommandRoot.ServiceProvider commandServiceProvider) {
+        return newTestExecutionContext(Logger.getAnonymousLogger(), commandServiceProvider);
     }
 
-    private ExecutionContext newTestExecutionContext (Logger logger) {
+    private ExecutionContext newTestExecutionContext(Logger logger, CommandRoot.ServiceProvider commandServiceProvider) {
         ComServer comServer = mock(OnlineComServer.class);
         when(comServer.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.INFO);
         ComPortPool comPortPool = mock(ComPortPool.class);
-        when(comPortPool.getId()).thenReturn((long)COMPORT_POOL_ID);
+        when(comPortPool.getId()).thenReturn(COMPORT_POOL_ID);
         ComPort comPort = mock(ComPort.class);
         when(comPort.getId()).thenReturn(COMPORT_ID);
         when(comPort.getComServer()).thenReturn(comServer);
@@ -93,7 +101,7 @@ public class GenericDeviceProtocolTest {
                         mock(JobExecution.class),
                         connectionTask,
                         comPort,
-                        mock(CommandRoot.ServiceProvider.class));
+                        commandServiceProvider);
         executionContext.setLogger(logger);
         return executionContext;
     }

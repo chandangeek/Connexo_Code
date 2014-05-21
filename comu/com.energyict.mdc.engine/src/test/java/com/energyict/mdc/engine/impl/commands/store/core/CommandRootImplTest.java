@@ -44,7 +44,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.*;
 
 /**
@@ -92,28 +91,28 @@ public class CommandRootImplTest extends CommonCommandImplTests {
 
         LoadProfileCommand loadProfileCommand = commandRoot.getLoadProfileCommand(loadProfilesTask, commandRoot, comTaskExecution);
         ClockCommand clockCommand = commandRoot.getClockCommand(clockTask, commandRoot, comTaskExecution);
-        MessagesCommand messagesCommand = commandRoot.getMessagesCommand(messagesTask, commandRoot, comTaskExecution);
+        //MessagesCommand messagesCommand = commandRoot.getMessagesCommand(messagesTask, commandRoot, comTaskExecution);
         RegisterCommand registerCommand = commandRoot.getRegisterCommand(registersTask, commandRoot, comTaskExecution);
         LogBooksCommand logBooksCommand = commandRoot.getLogBooksCommand(logBooksTask, commandRoot, comTaskExecution);
         BasicCheckCommand basicCheckCommand = commandRoot.getBasicCheckCommand(basicCheckTask, commandRoot, comTaskExecution);
 
         // Asserts
-        assertNotNull(loadProfileCommand);
-        assertNotNull(commandRoot.getTimeDifferenceCommand(commandRoot, comTaskExecution));
-        assertNotNull(commandRoot.getCreateMeterEventsFromStatusFlagsCommand(loadProfileCommand, comTaskExecution));
-        assertNotNull(commandRoot.getMarkIntervalsAsBadTimeCommand(loadProfileCommand, comTaskExecution));
-        assertNotNull(commandRoot.getVerifyLoadProfileCommand(loadProfileCommand, comTaskExecution));
-        assertNotNull(commandRoot.getReadLoadProfileDataCommand(loadProfileCommand, comTaskExecution));
-        assertNotNull(clockCommand);
-        assertNotNull(commandRoot.getForceClockCommand(clockCommand, comTaskExecution));
-        assertNotNull(commandRoot.getSetClockCommand(clockCommand, comTaskExecution));
-        assertNotNull(commandRoot.getSynchronizeClockCommand(clockCommand, comTaskExecution));
-        assertNotNull(registerCommand);
-        assertNotNull(messagesCommand);
-        assertNotNull(basicCheckCommand);
-        assertNotNull(logBooksCommand);
-        assertNotNull(commandRoot.getVerifySerialNumberCommand(basicCheckCommand, comTaskExecution));
-        assertNotNull(commandRoot.getStatusInformationCommand(commandRoot, comTaskExecution));
+        assertThat(loadProfileCommand).isNotNull();
+        assertThat(commandRoot.getTimeDifferenceCommand(commandRoot, comTaskExecution)).isNotNull();
+        assertThat(commandRoot.getCreateMeterEventsFromStatusFlagsCommand(loadProfileCommand, comTaskExecution)).isNotNull();
+        assertThat(commandRoot.getMarkIntervalsAsBadTimeCommand(loadProfileCommand, comTaskExecution)).isNotNull();
+        assertThat(commandRoot.getVerifyLoadProfileCommand(loadProfileCommand, comTaskExecution)).isNotNull();
+        assertThat(commandRoot.getReadLoadProfileDataCommand(loadProfileCommand, comTaskExecution)).isNotNull();
+        assertThat(clockCommand).isNotNull();
+        assertThat(commandRoot.getForceClockCommand(clockCommand, comTaskExecution)).isNotNull();
+        assertThat(commandRoot.getSetClockCommand(clockCommand, comTaskExecution)).isNotNull();
+        assertThat(commandRoot.getSynchronizeClockCommand(clockCommand, comTaskExecution)).isNotNull();
+        assertThat(registerCommand).isNotNull();
+        //assertThat(messagesCommand).isNotNull();
+        assertThat(basicCheckCommand).isNotNull();
+        assertThat(logBooksCommand).isNotNull();
+        assertThat(commandRoot.getVerifySerialNumberCommand(basicCheckCommand, comTaskExecution)).isNotNull();
+        assertThat(commandRoot.getStatusInformationCommand(commandRoot, comTaskExecution)).isNotNull();
     }
 
     @Test
@@ -128,9 +127,9 @@ public class CommandRootImplTest extends CommonCommandImplTests {
         when(clockCommand.getCommandType()).thenReturn(ComCommandTypes.CLOCK_COMMAND);
         commandRoot.addCommand(clockCommand, comTaskExecution);
 
-        MessagesCommand messagesCommand = mock(MessagesCommand.class);
-        when(messagesCommand.getCommandType()).thenReturn(ComCommandTypes.MESSAGES_COMMAND);
-        commandRoot.addCommand(messagesCommand, comTaskExecution);
+        //MessagesCommand messagesCommand = mock(MessagesCommand.class);
+        //when(messagesCommand.getCommandType()).thenReturn(ComCommandTypes.MESSAGES_COMMAND);
+        //commandRoot.addCommand(messagesCommand, comTaskExecution);
 
         RegisterCommand registerCommand = mock(RegisterCommand.class);
         when(registerCommand.getCommandType()).thenReturn(ComCommandTypes.REGISTERS_COMMAND);
@@ -146,7 +145,7 @@ public class CommandRootImplTest extends CommonCommandImplTests {
         // Asserts
         verify(loadProfileCommand).getCollectedData();
         verify(clockCommand).getCollectedData();
-        verify(messagesCommand).getCollectedData();
+        //verify(messagesCommand).getCollectedData();
         verify(registerCommand).getCollectedData();
         verify(logBooksCommand).getCollectedData();
     }
@@ -167,11 +166,11 @@ public class CommandRootImplTest extends CommonCommandImplTests {
         ServerCollectedData clockCollectedData = mock(ServerCollectedData.class);
         when(clockCommand.getCollectedData()).thenReturn(Arrays.<CollectedData>asList(clockCollectedData));
 
-        MessagesCommand messagesCommand = mock(MessagesCommand.class);
-        when(messagesCommand.getCommandType()).thenReturn(ComCommandTypes.MESSAGES_COMMAND);
-        commandRoot.addCommand(messagesCommand, comTaskExecution);
-        ServerCollectedData messagesCollectedData = mock(ServerCollectedData.class);
-        when(messagesCommand.getCollectedData()).thenReturn(Arrays.<CollectedData>asList(messagesCollectedData));
+//        MessagesCommand messagesCommand = mock(MessagesCommand.class);
+//        when(messagesCommand.getCommandType()).thenReturn(ComCommandTypes.MESSAGES_COMMAND);
+//        commandRoot.addCommand(messagesCommand, comTaskExecution);
+//        ServerCollectedData messagesCollectedData = mock(ServerCollectedData.class);
+//        when(messagesCommand.getCollectedData()).thenReturn(Arrays.<CollectedData>asList(messagesCollectedData));
 
         RegisterCommand registerCommand = mock(RegisterCommand.class);
         when(registerCommand.getCommandType()).thenReturn(ComCommandTypes.REGISTERS_COMMAND);
@@ -195,7 +194,8 @@ public class CommandRootImplTest extends CommonCommandImplTests {
         assertThat(data).isInstanceOf(ComTaskExecutionCollectedData.class);
         ComTaskExecutionCollectedData comTaskExecutionCollectedData = (ComTaskExecutionCollectedData) data;
         actualCollectedData.addAll(comTaskExecutionCollectedData.getElements());
-        assertThat(actualCollectedData).containsOnly(loadProfileCollectedData, clockCollectedData, messagesCollectedData, registerCollectedData, logBooksCollectedData);
+        //assertThat(actualCollectedData).containsOnly(loadProfileCollectedData, clockCollectedData, messagesCollectedData, registerCollectedData, logBooksCollectedData);
+        assertThat(actualCollectedData).containsOnly(loadProfileCollectedData, clockCollectedData, registerCollectedData, logBooksCollectedData);
     }
 
     @Test
