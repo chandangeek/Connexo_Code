@@ -50,7 +50,7 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl {
         MeterReadingImpl meterReading = new MeterReadingImpl();
         meterReading.addAllIntervalBlocks(localLoadProfile.intervalBlocks);
         comServerDAO.storeMeterReadings(new DeviceIdentifierById(loadProfile.getDevice().getId(), getDeviceDataService()), meterReading);
-        LoadProfile.LoadProfileUpdater loadProfileUpdater = ((Device) loadProfile.getDevice()).getLoadProfileUpdaterFor(loadProfile);
+        LoadProfile.LoadProfileUpdater loadProfileUpdater = loadProfile.getDevice().getLoadProfileUpdaterFor(loadProfile);
         loadProfileUpdater.setLastReadingIfLater(localLoadProfile.lastReading);
         loadProfileUpdater.update();
     }

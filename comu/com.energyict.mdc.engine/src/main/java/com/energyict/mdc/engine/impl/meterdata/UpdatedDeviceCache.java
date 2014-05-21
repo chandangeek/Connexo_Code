@@ -55,9 +55,9 @@ public class UpdatedDeviceCache extends CollectedDeviceData implements Collected
     /**
      * Sets the {@link DeviceProtocolCache}
      *
-     * @param deviceProtocolCache the cache to set
+     * @param deviceProtocolCache The DeviceProtocolCache
      */
-    public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
+    public void setCollectedDeviceCache(DeviceProtocolCache deviceProtocolCache) {
         this.updatedDeviceProtocolCache = deviceProtocolCache;
     }
 
@@ -65,4 +65,5 @@ public class UpdatedDeviceCache extends CollectedDeviceData implements Collected
     public DeviceCommand toDeviceCommand(IssueService issueService) {
         return new CollectedDeviceCacheCommand(this);
     }
+
 }

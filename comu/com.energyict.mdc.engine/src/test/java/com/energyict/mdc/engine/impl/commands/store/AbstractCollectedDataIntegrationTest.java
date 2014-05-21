@@ -1,7 +1,14 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.energyict.mdc.common.impl.MdcCommonModule;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.impl.DeviceImpl;
+import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
+import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
+import com.energyict.mdc.protocol.api.device.DeviceFactory;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.bootstrap.h2.impl.InMemoryPersistence;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
@@ -19,34 +26,18 @@ import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
-import com.elster.jupiter.util.time.impl.ServiceLocator;
-import com.energyict.comserver.core.impl.online.ComServerDAOImpl;
-import com.energyict.comserver.time.Clocks;
-import com.energyict.mdc.InMemoryPersistence;
-import com.energyict.mdc.common.impl.MdcCommonModule;
-import com.energyict.mdc.device.data.impl.DeviceImpl;
-import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
-import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
-import com.energyict.mdc.protocol.api.device.DeviceFactory;
-import com.energyict.mdc.services.impl.Bus;
-import com.energyict.mdc.services.impl.ServiceLocator;
-import com.energyict.mdw.core.DeviceFactory;
-import com.energyict.mdw.core.DeviceFactoryProvider;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
-import java.io.IOException;
 import java.security.Principal;
-import java.sql.SQLException;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doCallRealMethod;
@@ -62,15 +53,13 @@ import static org.mockito.Mockito.when;
 public abstract class AbstractCollectedDataIntegrationTest {
 
     private static Injector injector;
+    private static InMemoryBootstrapModule bootstrapModule;
 
-//    @Mock
-//    private DeviceFactoryProvider deviceFactoryProvider;
     @Mock
     private DeviceFactory deviceFactory;
 
     @BeforeClass
-    public static void setupEnvironment() throws IOException, SQLException {
-        InMemoryPersistence.initializeDatabase(CollectedLoadProfileStoreDeviceCommandTest.class);
+    public static void setupEnvironment() {
         BundleContext bundleContext = mock(BundleContext.class);
         Principal principal = mock(Principal.class);
         when(principal.getName()).thenReturn("InMemoryPersistence");
@@ -107,8 +96,8 @@ public abstract class AbstractCollectedDataIntegrationTest {
     }
 
     @AfterClass
-    public static void tearDownEnvironment() throws SQLException {
-        InMemoryPersistence.cleanUpDataBase();
+    public static void tearDownEnvironment() {
+        bootstrapModule.deactivate();
     }
 
     protected static Injector getInjector(){
@@ -121,17 +110,16 @@ public abstract class AbstractCollectedDataIntegrationTest {
 
     protected ComServerDAOImpl mockComServerDAOButCallRealMethodForMeterReadingStoring() {
         final ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
-        doCallRealMethod().when(comServerDAO).storeMeterReadings(any(CanFindDevice.class), any(MeterReading.class));
+        doCallRealMethod().when(comServerDAO).storeMeterReadings(any(DeviceIdentifier.class), any(MeterReading.class));
         return comServerDAO;
     }
 
-    protected void mockDevice(long deviceId) {
+    protected Device mockDevice(long deviceId) {
         DeviceImpl device = mock(DeviceImpl.class);
         when(device.getId()).thenReturn(deviceId);
         doCallRealMethod().when(device).store(any(MeterReading.class));
         when(deviceFactory.findById(deviceId)).thenReturn(device);
-//        when(deviceFactoryProvider.getDeviceFactory()).thenReturn(deviceFactory);
-//        DeviceFactoryProvider.instance.set(deviceFactoryProvider);
+        return device;
     }
 
     private static class MockModule extends AbstractModule {

@@ -2,20 +2,18 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.comserver.core.ComServerDAO;
-import com.energyict.mdc.InMemoryPersistence;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.model.ComServer;
+
+import java.sql.SQLException;
+
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.io.IOException;
-import java.sql.SQLException;
-
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -28,16 +26,6 @@ import static org.mockito.Mockito.verify;
 */
 @RunWith(MockitoJUnitRunner.class)
 public class ComSessionRootDeviceCommandTest {
-
-    @BeforeClass
-    public static void setupEnvironment () throws IOException, SQLException {
-        InMemoryPersistence.initializeDatabase(ComSessionRootDeviceCommandTest.class);
-    }
-
-    @AfterClass
-    public static void tearDownEnvironment () throws SQLException {
-        InMemoryPersistence.cleanUpDataBase();
-    }
 
     @Test
     public void testNoChildrenAfterConstruction () {
@@ -268,7 +256,7 @@ public class ComSessionRootDeviceCommandTest {
             command.execute(comServerDAO);
         }
         catch (ApplicationException e) {
-            Assertions.assertThat(e.getMessage()).isEqualTo(errorMessage);
+            assertThat(e.getMessage()).isEqualTo(errorMessage);
             throw e;
         }
 
@@ -302,8 +290,8 @@ public class ComSessionRootDeviceCommandTest {
         String stringRepresentation = command.toString();
 
         // Asserts
-        Assertions.assertThat(stringRepresentation).isNotNull();
-        Assertions.assertThat(stringRepresentation).isEmpty();
+        assertThat(stringRepresentation).isNotNull();
+        assertThat(stringRepresentation).isEmpty();
     }
 
     @Test
@@ -315,8 +303,8 @@ public class ComSessionRootDeviceCommandTest {
         String stringRepresentation = command.toString();
 
         // Asserts
-        Assertions.assertThat(stringRepresentation).isNotNull();
-        Assertions.assertThat(stringRepresentation).contains("testToStringForOneWellKnownSubCommand");
+        assertThat(stringRepresentation).isNotNull();
+        assertThat(stringRepresentation).contains("testToStringForOneWellKnownSubCommand");
     }
 
     @Test
@@ -330,8 +318,8 @@ public class ComSessionRootDeviceCommandTest {
         String stringRepresentation = command.toString();
 
         // Asserts
-        Assertions.assertThat(stringRepresentation).isNotNull();
-        Assertions.assertThat(stringRepresentation).contains("First\nSecond\nThird");
+        assertThat(stringRepresentation).isNotNull();
+        assertThat(stringRepresentation).contains("First\nSecond\nThird");
     }
 
     private DeviceCommand mockDeviceCommand () {

@@ -7,9 +7,6 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.UserEnvironment;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.RegisterGroup;
-import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -19,6 +16,9 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
+import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.masterdata.RegisterGroup;
+import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
@@ -29,30 +29,30 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecPrimaryKe
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.TimeZone;
 
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static junit.framework.Assert.assertNotNull;
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyList;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 
 /**
- * Tests for the {@link com.energyict.mdc.device.data.impl.offline.fflineDeviceImpl
+ * Tests the {@link OfflineDeviceImpl} component.
  *
  * @author gna
  * @since 17/04/12 - 9:47
@@ -212,15 +212,12 @@ public class OfflineDeviceImplTest {
         Device slaveFromSlave1 = createMockDevice(789, "slaveFromSlave1");
         when(slaveFromSlave1.getDeviceType()).thenReturn(slaveRtuType);
         OfflineDevice offlineSlaveFromSlave1 = new OfflineDeviceImpl(slaveFromSlave1, DeviceOffline.needsEverything);
-        when(slaveFromSlave1.goOffline(any(OfflineDeviceContext.class))).thenReturn(offlineSlaveFromSlave1);
         when(slave1.getPhysicalConnectedDevices()).thenReturn(Arrays.<BaseDevice<Channel, LoadProfile, Register>>asList(slaveFromSlave1));
         OfflineDevice offlineSlave1 = new OfflineDeviceImpl(slave1, DeviceOffline.needsEverything);
-        when(slave1.goOffline(any(OfflineDeviceContext.class))).thenReturn(offlineSlave1);
 
         Device slave2 = createMockDevice(456, "slave2");
         when(slave2.getDeviceType()).thenReturn(slaveRtuType);
         OfflineDevice offlineSlave2 = new OfflineDeviceImpl(slave2, DeviceOffline.needsEverything);
-        when(slave2.goOffline(any(OfflineDeviceContext.class))).thenReturn(offlineSlave2);
         when(rtu.getPhysicalConnectedDevices()).thenReturn(Arrays.<BaseDevice<Channel, LoadProfile, Register>>asList(slave1, slave2));
 
         OfflineDeviceImpl offlineRtu = new OfflineDeviceImpl(rtu, DeviceOffline.needsEverything);
@@ -245,15 +242,12 @@ public class OfflineDeviceImplTest {
         Device slaveFromSlave1 = createMockDevice(789, "slaveFromSlave1");
         when(slaveFromSlave1.getDeviceType()).thenReturn(slaveRtuType);
         OfflineDevice offlineSlaveFromSlave1 = new OfflineDeviceImpl(slaveFromSlave1, DeviceOffline.needsEverything);
-        when(slaveFromSlave1.goOffline(any(OfflineDeviceContext.class))).thenReturn(offlineSlaveFromSlave1);
         OfflineDevice offlineSlave1 = new OfflineDeviceImpl(slave1, DeviceOffline.needsEverything);
-        when(slave1.goOffline(any(OfflineDeviceContext.class))).thenReturn(offlineSlave1);
         when(slave1.getPhysicalConnectedDevices()).thenReturn(Arrays.<BaseDevice<Channel, LoadProfile, Register>>asList(slaveFromSlave1));
 
         Device slave2 = createMockDevice(456, "slave2");
         when(slave2.getDeviceType()).thenReturn(slaveRtuType);
         OfflineDevice offlineSlave2 = new OfflineDeviceImpl(slave2, DeviceOffline.needsEverything);
-        when(slave2.goOffline(any(OfflineDeviceContext.class))).thenReturn(offlineSlave2);
         when(device.getPhysicalConnectedDevices()).thenReturn(Arrays.<BaseDevice<Channel, LoadProfile, Register>>asList(slave1, slave2));
 
         ObisCode obisCode1 = ObisCode.fromString("1.0.99.1.0.255");
@@ -312,13 +306,11 @@ public class OfflineDeviceImplTest {
         when(slaveWithNeedProxy.getDeviceType()).thenReturn(slaveRtuType);
         Register registerSlave1 = createMockedRegister();
         when(slaveWithNeedProxy.getRegisters()).thenReturn(Arrays.asList(registerSlave1));
-        when(slaveWithNeedProxy.goOffline(any(OfflineDeviceContext.class))).thenReturn(mockOfflineDevice);
         Device slaveWithoutNeedProxy = createMockDevice(133, "65465415");
         DeviceType notASlaveRtuType = mock(DeviceType.class);
         Register registerSlave2 = createMockedRegister();
         when(slaveWithoutNeedProxy.getDeviceType()).thenReturn(notASlaveRtuType);
         when(slaveWithoutNeedProxy.getRegisters()).thenReturn(Arrays.asList(registerSlave2));
-        when(slaveWithoutNeedProxy.goOffline(any(OfflineDeviceContext.class))).thenReturn(mockOfflineDevice);
         when(device.getPhysicalConnectedDevices()).thenReturn(Arrays.<BaseDevice<Channel, LoadProfile, Register>>asList(slaveWithNeedProxy, slaveWithoutNeedProxy));
 
         OfflineDeviceImpl offlineRtu = new OfflineDeviceImpl(device, DeviceOffline.needsEverything);
@@ -330,7 +322,7 @@ public class OfflineDeviceImplTest {
 
     @Test
     public void getRegistersForRegisterGroup() {
-        final int rtuRegisterGroupId = 135143654;
+        final long rtuRegisterGroupId = 135143654;
         RegisterGroup rtuRegisterGroup = mock(RegisterGroup.class);
         Device device = createMockDevice();
         RegisterMapping registerMapping = mock(RegisterMapping.class);
@@ -434,7 +426,6 @@ public class OfflineDeviceImplTest {
         OfflineDevice offlineSlaveDevice = mock(OfflineDevice.class);
         when(slaveWithoutCapability.getDeviceType()).thenReturn(deviceTypeSlave);
         when(master.getPhysicalConnectedDevices()).thenReturn(Arrays.<BaseDevice<Channel, LoadProfile, Register>>asList(slaveWithoutCapability));
-        when(slaveWithoutCapability.goOffline(any(OfflineDeviceContext.class))).thenReturn(offlineSlaveDevice);
 
         // business method
         OfflineDevice offlineDevice = new OfflineDeviceImpl(master, new DeviceOfflineFlags(DeviceOfflineFlags.SLAVE_DEVICES_FLAG));
@@ -453,7 +444,6 @@ public class OfflineDeviceImplTest {
         DeviceType deviceTypeSlave = mock(DeviceType.class);
         when(deviceTypeSlave.isLogicalSlave()).thenReturn(true);
         Device slaveWithCapability = createMockDevice();
-        when(slaveWithCapability.goOffline(any(OfflineDeviceContext.class))).thenReturn(offlineSlaveDevice);
         when(slaveWithCapability.getDeviceType()).thenReturn(deviceTypeSlave);
         when(master.getPhysicalConnectedDevices()).thenReturn(Arrays.<BaseDevice<Channel, LoadProfile, Register>>asList(slaveWithCapability));
 
