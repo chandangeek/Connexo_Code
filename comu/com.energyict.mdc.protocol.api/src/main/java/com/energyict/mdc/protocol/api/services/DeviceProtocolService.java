@@ -12,6 +12,8 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
  */
 public interface DeviceProtocolService {
 
+    public static String COMPONENT_NAME = "PR1"; // Stands for PRotocol bundle 1 (as more protocol bundles can follow)
+
     /**
      * Loads the class with the specified javaClassName.
      *
