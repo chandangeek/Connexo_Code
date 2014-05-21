@@ -55,8 +55,8 @@ public class ProfileDataReverser extends ProfileData {
 
     private void reverseChannelInfos() {
         List flippedChannelInfos = new ArrayList();
-        long[] ids = new long[getChannelInfos().size()];
-        long[] channelIds = new long[getChannelInfos().size()];
+        int[] ids = new int[getChannelInfos().size()];
+        int[] channelIds = new int[getChannelInfos().size()];
         for (int i = getChannelInfos().size()-1; i>=0 ; i--) {
            ChannelInfo channelInfo = (ChannelInfo)getChannelInfos().get(i);
            ids[i] = channelInfo.getId();
