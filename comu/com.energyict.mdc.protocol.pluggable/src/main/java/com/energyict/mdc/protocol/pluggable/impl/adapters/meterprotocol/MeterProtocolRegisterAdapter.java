@@ -86,7 +86,7 @@ public class MeterProtocolRegisterAdapter implements DeviceRegisterSupport {
 
 
     private RegisterIdentifier getRegisterIdentifier(OfflineRegister offlineRegister){
-        return new RegisterDataIdentifier(offlineRegister.getAmrRegisterObisCode(), offlineRegister.getObisCode(), new DeviceIdentifierById(offlineRegister.getDeviceId()));
+        return new RegisterDataIdentifier(offlineRegister.getAmrRegisterObisCode(), offlineRegister.getObisCode(), new DeviceIdentifierById((int) offlineRegister.getDeviceId()));
     }
 
     private CollectedDataFactory getCollectedDataFactory() {

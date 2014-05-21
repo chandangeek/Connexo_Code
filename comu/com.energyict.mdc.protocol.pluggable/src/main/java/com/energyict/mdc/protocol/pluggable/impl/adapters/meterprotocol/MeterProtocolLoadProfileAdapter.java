@@ -222,7 +222,7 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
     private List<ChannelInfo> convertToProperChannelInfos(ProfileData profileData) {
         List<ChannelInfo> channelInfos = new ArrayList<>();
         for (ChannelInfo ci : profileData.getChannelInfos()) {
-            channelInfos.add(new ChannelInfo(ci.getId(), ci.getChannelId(), new ObisCode(GENERIC_CHANNEL_OBISCODE, ci.getChannelId()+1).toString(), ci.getUnit()));
+            channelInfos.add(new ChannelInfo(ci.getId(), ci.getChannelId(), new ObisCode(GENERIC_CHANNEL_OBISCODE, (int) (ci.getChannelId()+1)).toString(), ci.getUnit()));
         }
         return channelInfos;
     }
