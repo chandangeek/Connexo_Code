@@ -1,18 +1,86 @@
-//.#{$prefix}message-box {
-//  .#{$prefix}header {
-////    .#{$prefix}header-icon {
-////      width: 32px;
-////      height: 32px;
-////      font-size: 32px;
-////      line-height: 32px;
-////      margin: 8px;
-////    }
-////    .#{$prefix}box-tool {
-////      top: 0;
-////    }
-////    window-body
-//  }
-////  .#{$prefix}box-item {
-////    padding: 0;
-////  }
-//}
+.#{$prefix}message-box {
+  .#{$prefix}window-body {
+    .#{$prefix}header {
+      .#{$prefix}header-text {
+        font-weight: $window-header-font-weight;
+        line-height: 32px;
+      }
+    }
+  }
+}
+
+$include-ie: false;
+// default
+@include extjs-window-ui(
+  $ui: 'notification',
+
+  $ui-padding: 16px,
+  $ui-border-color: $color-white,
+  $ui-border-width: 1px,
+
+  $ui-header-color: $color-grey,
+  $ui-header-background-color: transparent,
+  $ui-header-padding: 16px 16px -16px 16px,
+  $ui-header-text-padding: 8px,
+
+  $ui-body-background-color: transparent,
+  $ui-body-color: $color-grey,
+
+  $ui-background-color: transparentize($color-grey-5, 0.5)
+);
+
+// error
+@include extjs-window-ui(
+    $ui: 'notification-error',
+
+    $ui-padding: 16px 24px,
+    $ui-border-color: $color-red,
+    $ui-border-width: 1px,
+    $ui-border-radius: 8px,
+
+    $ui-header-color: $color-red,
+    $ui-header-background-color: transparent,
+    $ui-header-padding: 6px 6px -6px,
+    $ui-body-background-color: transparent,
+    $ui-body-color: $color-grey,
+
+    $ui-background-color: transparentize(mix($color-red, $color-white, 25%), 0.5)
+);
+
+.#{$prefix}window-notification-error {
+  .#{$prefix}window-body {
+    .#{$prefix}header {
+      .#{$prefix}header-text {
+        color: $color-red
+      }
+    }
+  }
+}
+
+// error
+@include extjs-window-ui(
+  $ui: 'notification-success',
+
+  $ui-padding: 16px 24px,
+  $ui-border-color: $color-green,
+  $ui-border-width: 1px,
+  $ui-border-radius: 8px,
+
+  $ui-header-color: $color-green,
+  $ui-header-background-color: transparent,
+  $ui-header-padding: 6px 6px -6px,
+  $ui-body-background-color: transparent,
+  $ui-body-color: $color-grey,
+
+  $ui-background-color: transparentize(mix($color-green, $color-white, 25%), 0.5)
+);
+
+.#{$prefix}window-notification-success {
+  .#{$prefix}window-body {
+    .#{$prefix}header {
+      .#{$prefix}header-text {
+        color: $color-green
+      }
+    }
+  }
+}

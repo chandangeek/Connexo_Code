@@ -46,6 +46,7 @@ Ext.ClassManager.addNameAlternateMappings({
   "Skyline.panel.Header": [],
   "Skyline.panel.Panel": [],
   "Skyline.panel.StepPanel": [],
+  "Skyline.ux.window.Notification": [],
   "Skyline.view.Table": [],
   "Skyline.window.MessageBox": []
 });
@@ -94,6 +95,7 @@ Ext.ClassManager.addNameAliasMappings({
   "Skyline.panel.StepPanel": [
     "widget.step-panel"
   ],
+  "Skyline.ux.window.Notification": [],
   "Skyline.view.Table": [],
   "Skyline.window.MessageBox": []
 });
@@ -122,3 +124,4 @@ Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/menu/Menu.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/menu/Separator.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/panel/Tool.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/tab/Tab.js");
+Ext.Loader.loadScript("../../overrides/ux/window/Notification.js");

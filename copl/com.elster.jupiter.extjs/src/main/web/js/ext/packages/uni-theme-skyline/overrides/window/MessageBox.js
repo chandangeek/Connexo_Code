@@ -1,40 +1,59 @@
 Ext.define('Skyline.window.MessageBox', {
     override: 'Ext.window.MessageBox',
+    shadow: false,
 
-    iconHeight: 0,
-    iconWidth: 0,
-
+    reconfigure: function(cfg) {
+        if (cfg.ui) {
+            this.ui = cfg.ui;
+        }
+        this.callParent(arguments);
+    },
     initComponent: function () {
+        var me = this,
+            title = me.title;
+
+        me.title = null;
         this.callParent(arguments);
         this.topContainer.padding = 0;
+
+        me.titleComponent = new Ext.panel.Header({
+            title: title
+        });
+        me.promptContainer.insert(0, me.titleComponent);
     },
 
     /**
-     * Set the icon for the panel's header. See {@link Ext.panel.Header#icon}. It will fire the
-     * {@link #iconchange} event after completion.
-     * @param {String} iconCls The new icon path
+     * Set a title for the panel's header. See {@link Ext.panel.Header#title}.
+     * @param {String} newTitle
      */
-    setIcon: function(iconCls) {
+    setTitle: function(newTitle) {
         var me = this,
-            oldIcon = me.iconCls,
-            header = me.header,
-            placeholder = me.placeholder;
+            header = me.titleComponent;
 
-        me.iconCls = iconCls;
+        if (header) {
+            var oldTitle = header.title;
+        }
+
         if (header) {
             if (header.isHeader) {
-                header.setIconCls(iconCls);
+                header.setTitle(newTitle);
             } else {
-                header.iconCls = iconCls;
+                header.title = newTitle;
             }
-        } else {
+        }
+        else if (me.rendered) {
             me.updateHeader();
         }
 
-        if (placeholder && placeholder.setIconCls) {
-            placeholder.setIconCls(iconCls);
-        }
-
-        me.fireEvent('iconclschange', me, iconCls, oldIcon);
+        me.fireEvent('titlechange', me, newTitle, oldTitle);
     }
+}, function() {
+    /**
+     * @class Ext.MessageBox
+     * @alternateClassName Ext.Msg
+     * @extends Ext.window.MessageBox
+     * @singleton
+     * Singleton instance of {@link Ext.window.MessageBox}.
+     */
+    Ext.MessageBox = Ext.Msg = new this();
 });

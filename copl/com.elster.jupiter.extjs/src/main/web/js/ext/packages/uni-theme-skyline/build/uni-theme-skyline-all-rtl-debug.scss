@@ -522,6 +522,7 @@ $include-skyline-panel-filtertoolbar: true;
 $include-skyline-panel-header: true;
 $include-skyline-panel-panel: true;
 $include-skyline-panel-steppanel: true;
+$include-skyline-ux-window-notification: true;
 $include-skyline-view-table: true;
 $include-skyline-window-messagebox: true;
 /* including package ext-theme-base */
@@ -535,6 +536,7 @@ $include-skyline-window-messagebox: true;
 /* including package uni-theme-skyline */
 @import '../sass/var/Component';
 @import '../sass/var/container/Container';
+@import '../sass/var/LoadMask';
 @import '../sass/var/button/Button';
 @import '../sass/var/toolbar/Toolbar';
 @import '../sass/var/panel/Header';

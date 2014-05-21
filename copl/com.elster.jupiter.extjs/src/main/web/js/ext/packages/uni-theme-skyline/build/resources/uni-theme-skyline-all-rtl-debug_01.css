@@ -6065,7 +6065,7 @@ a.x-tab {
 .x-mask {
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=70);
   opacity: 0.7;
-  background: white;
+  background: #686868;
   cursor: default;
 }
 
@@ -14116,7 +14116,7 @@ a.x-tab {
   -ms-border-radius: 4px;
   -o-border-radius: 4px;
   border-radius: 4px;
-  padding: 4px 24px 24px 64px;
+  padding: 16px 32px 24px 32px;
   border-width: 0;
   border-style: solid;
   background-color: white;
@@ -14141,7 +14141,7 @@ a.x-tab {
 
 /* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-default-frameInfo {
-  font-family: dh-4-4-4-4-0-0-0-0-4-24-24-64;
+  font-family: dh-4-4-4-4-0-0-0-0-16-32-24-32;
 }
 
 /* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -14231,7 +14231,7 @@ a.x-tab {
 
 /* line 430, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-default-mc {
-  padding: 0px 20px 20px 60px;
+  padding: 12px 28px 20px 28px;
 }
 
 /* line 439, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -14255,7 +14255,7 @@ a.x-tab {
   border-color: #86b9cf;
   border-width: 0;
   border-style: none;
-  background: white;
+  background: transparent;
   color: black;
   font-size: 13px;
   font-weight: normal;
@@ -14334,7 +14334,7 @@ a.x-tab {
   -moz-border-radius-bottomleft: 0;
   -webkit-border-bottom-left-radius: 0;
   border-bottom-left-radius: 0;
-  padding: 24px 24px 0 24px;
+  padding: 6px 6px 2px 6px;
   border-width: 0 0 0 0;
   border-style: solid;
   background-color: white;
@@ -14359,7 +14359,7 @@ a.x-tab {
 
 /* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-top-frameInfo {
-  font-family: dh-4-4-0-0-0-0-0-0-24-24-0-24;
+  font-family: dh-4-4-0-0-0-0-0-0-6-6-2-6;
 }
 
 /* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -14449,7 +14449,7 @@ a.x-tab {
 
 /* line 430, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-top-mc {
-  padding: 20px 20px 0 20px;
+  padding: 2px 2px 2px 2px;
 }
 
 /* line 439, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -14482,7 +14482,7 @@ a.x-tab {
   -moz-border-radius-bottomleft: 0;
   -webkit-border-bottom-left-radius: 0;
   border-bottom-left-radius: 0;
-  padding: 24px 24px 24px 0;
+  padding: 6px 6px 6px 2px;
   border-width: 0 0 0 0;
   border-style: solid;
   background-color: white;
@@ -14507,7 +14507,7 @@ a.x-tab {
 
 /* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-right-frameInfo {
-  font-family: dh-0-4-4-0-0-0-0-0-24-24-24-0;
+  font-family: dh-0-4-4-0-0-0-0-0-6-6-6-2;
 }
 
 /* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -14602,7 +14602,7 @@ a.x-tab {
 
 /* line 430, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-right-mc {
-  padding: 20px 20px 20px 0;
+  padding: 2px 2px 2px 2px;
 }
 
 /* line 439, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -14635,7 +14635,7 @@ a.x-tab {
   -moz-border-radius-bottomleft: 4px;
   -webkit-border-bottom-left-radius: 4px;
   border-bottom-left-radius: 4px;
-  padding: 0 24px 24px 24px;
+  padding: 2px 6px 6px 6px;
   border-width: 0 0 0 0;
   border-style: solid;
   background-color: white;
@@ -14660,7 +14660,7 @@ a.x-tab {
 
 /* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-bottom-frameInfo {
-  font-family: dh-0-0-4-4-0-0-0-0-0-24-24-24;
+  font-family: dh-0-0-4-4-0-0-0-0-2-6-6-6;
 }
 
 /* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -14750,7 +14750,7 @@ a.x-tab {
 
 /* line 430, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-bottom-mc {
-  padding: 0 20px 20px 20px;
+  padding: 2px 2px 2px 2px;
 }
 
 /* line 439, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -14783,7 +14783,7 @@ a.x-tab {
   -moz-border-radius-bottomleft: 4px;
   -webkit-border-bottom-left-radius: 4px;
   border-bottom-left-radius: 4px;
-  padding: 24px 0 24px 24px;
+  padding: 6px 2px 6px 6px;
   border-width: 0 0 0 0;
   border-style: solid;
   background-color: white;
@@ -14808,7 +14808,7 @@ a.x-tab {
 
 /* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-left-frameInfo {
-  font-family: dh-4-0-0-4-0-0-0-0-24-0-24-24;
+  font-family: dh-4-0-0-4-0-0-0-0-6-2-6-6;
 }
 
 /* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -14903,7 +14903,7 @@ a.x-tab {
 
 /* line 430, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-left-mc {
-  padding: 20px 0 20px 20px;
+  padding: 2px 2px 2px 2px;
 }
 
 /* line 439, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -14929,7 +14929,7 @@ a.x-tab {
   -ms-border-radius: 4px;
   -o-border-radius: 4px;
   border-radius: 4px;
-  padding: 24px 24px 4px 24px;
+  padding: 6px 6px 6px 6px;
   border-width: 0;
   border-style: solid;
   background-color: white;
@@ -14954,7 +14954,7 @@ a.x-tab {
 
 /* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-top-frameInfo {
-  font-family: dh-4-4-4-4-0-0-0-0-24-24-4-24;
+  font-family: dh-4-4-4-4-0-0-0-0-6-6-6-6;
 }
 
 /* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -15044,7 +15044,7 @@ a.x-tab {
 
 /* line 430, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-top-mc {
-  padding: 20px 20px 0px 20px;
+  padding: 2px 2px 2px 2px;
 }
 
 /* line 439, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -15070,7 +15070,7 @@ a.x-tab {
   -ms-border-radius: 4px;
   -o-border-radius: 4px;
   border-radius: 4px;
-  padding: 24px 24px 24px 4px;
+  padding: 6px 6px 6px 6px;
   border-width: 0;
   border-style: solid;
   background-color: white;
@@ -15095,7 +15095,7 @@ a.x-tab {
 
 /* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-right-frameInfo {
-  font-family: dh-4-4-4-4-0-0-0-0-24-24-24-4;
+  font-family: dh-4-4-4-4-0-0-0-0-6-6-6-6;
 }
 
 /* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -15190,7 +15190,7 @@ a.x-tab {
 
 /* line 430, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-right-mc {
-  padding: 20px 20px 20px 0px;
+  padding: 2px 2px 2px 2px;
 }
 
 /* line 439, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -15216,7 +15216,7 @@ a.x-tab {
   -ms-border-radius: 4px;
   -o-border-radius: 4px;
   border-radius: 4px;
-  padding: 4px 24px 24px 24px;
+  padding: 6px 6px 6px 6px;
   border-width: 0;
   border-style: solid;
   background-color: white;
@@ -15241,7 +15241,7 @@ a.x-tab {
 
 /* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-bottom-frameInfo {
-  font-family: dh-4-4-4-4-0-0-0-0-4-24-24-24;
+  font-family: dh-4-4-4-4-0-0-0-0-6-6-6-6;
 }
 
 /* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -15331,7 +15331,7 @@ a.x-tab {
 
 /* line 430, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-bottom-mc {
-  padding: 0px 20px 20px 20px;
+  padding: 2px 2px 2px 2px;
 }
 
 /* line 439, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -15357,7 +15357,7 @@ a.x-tab {
   -ms-border-radius: 4px;
   -o-border-radius: 4px;
   border-radius: 4px;
-  padding: 24px 4px 24px 24px;
+  padding: 6px 6px 6px 6px;
   border-width: 0;
   border-style: solid;
   background-color: white;
@@ -15382,7 +15382,7 @@ a.x-tab {
 
 /* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-left-frameInfo {
-  font-family: dh-4-4-4-4-0-0-0-0-24-4-24-24;
+  font-family: dh-4-4-4-4-0-0-0-0-6-6-6-6;
 }
 
 /* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -15477,7 +15477,7 @@ a.x-tab {
 
 /* line 430, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-left-mc {
-  padding: 20px 0px 20px 20px;
+  padding: 2px 2px 2px 2px;
 }
 
 /* line 439, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -15498,18 +15498,18 @@ a.x-tab {
 /* */
 /* line 373, ../../../ext-theme-neutral/sass/src/window/Window.scss */
 .x-window-header-default .x-window-header-icon {
-  width: 32px;
-  height: 32px;
+  width: 16px;
+  height: 16px;
   color: black;
-  font-size: 32px;
-  line-height: 32px;
+  font-size: 16px;
+  line-height: 16px;
   background-position: center center;
 }
 /* line 382, ../../../ext-theme-neutral/sass/src/window/Window.scss */
 .x-window-header-default .x-window-header-glyph {
   color: black;
-  font-size: 32px;
-  line-height: 32px;
+  font-size: 16px;
+  line-height: 16px;
   opacity: 0.5;
 }
 /* line 399, ../../../ext-theme-neutral/sass/src/window/Window.scss */
@@ -15856,7 +15856,7 @@ textarea.x-form-empty-field {
 
 /* line 1, ../../../ext-theme-neutral/sass/src/window/MessageBox.scss */
 .x-message-box .x-window-body {
-  background-color: white;
+  background-color: transparent;
   border-width: 0;
 }
 
