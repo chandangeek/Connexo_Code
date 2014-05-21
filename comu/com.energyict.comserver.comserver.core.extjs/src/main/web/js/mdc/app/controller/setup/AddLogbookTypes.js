@@ -34,9 +34,6 @@ Ext.define('Mdc.controller.setup.AddLogbookTypes', {
             addView = Ext.ComponentQuery.query('add-logbook-types')[0],
             grid = addView.down('grid'),
             url = '/api/dtc/devicetypes/' + addView.deviceTypeId + '/logbooktypes',
-            header = {
-                style: 'msgHeaderStyle'
-            },
             preloader = Ext.create('Ext.LoadMask', {
                 msg: "Loading...",
                 target: addView
@@ -54,7 +51,6 @@ Ext.define('Mdc.controller.setup.AddLogbookTypes', {
             jsonData: jsonIds,
             success: function () {
                 window.location.href = '#/administration/devicetypes/' + addView.deviceTypeId + '/logbooktypes';
-                header.text = '';
 
                 Ext.create('widget.uxNotification', {
                     html: 'Successfully added',
@@ -70,10 +66,7 @@ Ext.define('Mdc.controller.setup.AddLogbookTypes', {
                         msg: result.message,
                         icon: Ext.MessageBox.WARNING,
                         buttons: Ext.MessageBox.CANCEL,
-                        ui: 'notification-error',
-                        config: {
-                            me: this
-                        }
+                        ui: 'notification-error'
                     });
                 }
                 else {
@@ -82,10 +75,7 @@ Ext.define('Mdc.controller.setup.AddLogbookTypes', {
                         msg: 'The logbook type could not be added because of an error in the database.',
                         icon: Ext.MessageBox.WARNING,
                         buttons: Ext.MessageBox.CANCEL,
-                        ui: 'notification-error',
-                        config: {
-                            me: this
-                        }
+                        ui: 'notification-error'
                     });
                 }
             },

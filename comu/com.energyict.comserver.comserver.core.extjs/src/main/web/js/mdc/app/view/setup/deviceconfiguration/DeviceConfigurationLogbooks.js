@@ -8,15 +8,12 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationLogbooks', {
     ],
     content: [
         {
+            xtype: 'panel',
+            title: 'Logbook configuration',
+            ui: 'large',
             items: [
                 {
-                    xtype: 'panel',
-                    ui: 'large',
-                    itemId: 'deviceConfigurationLogbookTitle'
-                },
-                {
                     xtype: 'toolbar',
-                    border: 0,
                     aling: 'left',
                     items: [
                         {
@@ -60,13 +57,8 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationLogbooks', {
                                 flex: 5
                             },
                             {
-                                xtype: 'actioncolumn',
-                                iconCls: 'uni-actioncolumn-gear',
-                                columnWidth: 32,
-                                fixed: true,
-                                header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-                                sortable: false,
-                                hideable: false
+                                xtype: 'uni-actioncolumn',
+                                items: 'Mdc.view.setup.deviceconfiguration.ActionMenu'
                             }
                         ]
                     }
@@ -100,7 +92,6 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationLogbooks', {
                 },
                 {
                     xtype: 'panel',
-                    height: 140,
                     title: 'Details',
                     name: 'details',
                     frame: true,

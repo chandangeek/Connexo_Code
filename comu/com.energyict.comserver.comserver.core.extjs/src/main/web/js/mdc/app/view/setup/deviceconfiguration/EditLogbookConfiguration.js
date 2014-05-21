@@ -6,18 +6,15 @@ Ext.define('Mdc.view.setup.deviceconfiguration.EditLogbookConfiguration', {
     deviceTypeId: null,
     content: [
         {
+            xtype: 'panel',
+            ui: 'large',
+            title: 'Edit logbook configuration',
             items: [
-                {
-                    xtype: 'panel',
-                    ui: 'large',
-                    itemId: 'editLogbookConfigurationTitle'
-                },
                 {
                     xtype: 'form',
                     width: '50%',
                     defaults: {
                         labelWidth: 160,
-                        labelAlign: 'right',
                         validateOnChange: false,
                         validateOnBlur: false,
                         anchor: '100%'
@@ -40,12 +37,14 @@ Ext.define('Mdc.view.setup.deviceconfiguration.EditLogbookConfiguration', {
                         {
                             xtype: 'displayfield',
                             allowBlank: false,
+                            required: true,
                             fieldLabel: 'Logbook OBIS code',
                             name: 'obisCode'
                         },
                         {
                             xtype: 'textfield',
                             allowBlank: false,
+                            required: true,
                             fieldLabel: 'Overruled OBIS code',
                             name: 'overruledObisCode',
                             maskRe: /[\d.]+/,
@@ -53,34 +52,23 @@ Ext.define('Mdc.view.setup.deviceconfiguration.EditLogbookConfiguration', {
                             msgTarget: 'under'
                         }
                     ],
-                    dockedItems: [
+                    buttons: [
                         {
-                            xtype: 'toolbar',
-                            dock: 'bottom',
-                            border: false,
-                            defaults: {
-                                xtype: 'button'
-                            },
-                            items: [
-                                '->',
-                                {
-                                    text: Uni.I18n.translate('general.save', 'MDC', 'Save'),
-                                    action: 'save',
-                                    ui: 'action'
-                                },
-                                {
-                                    text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
-                                    action: 'cancel',
-                                    ui: 'link',
-                                    listeners: {
-                                        click: {
-                                            fn: function () {
-                                                window.location.href = '#/administration/devicetypes/' + this.up('edit-logbook-configuration').deviceTypeId + '/deviceconfigurations/' + this.up('edit-logbook-configuration').deviceConfigurationId + '/logbookconfigurations';
-                                            }
-                                        }
+                            text: Uni.I18n.translate('general.save', 'MDC', 'Save'),
+                            action: 'save',
+                            ui: 'action'
+                        },
+                        {
+                            text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                            action: 'cancel',
+                            ui: 'link',
+                            listeners: {
+                                click: {
+                                    fn: function () {
+                                        window.location.href = '#/administration/devicetypes/' + this.up('edit-logbook-configuration').deviceTypeId + '/deviceconfigurations/' + this.up('edit-logbook-configuration').deviceConfigurationId + '/logbookconfigurations';
                                     }
                                 }
-                            ]
+                            }
                         }
                     ]
                 }

@@ -45,9 +45,6 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         {ref: 'breadCrumbs', selector: 'breadcrumbTrail'},
         {ref: 'gatewayMessage', selector: '#gatewayMessage'},
         {ref: 'addressableMessage', selector: '#addressableMessage'},
-        {ref: 'deviceConfigurationLogbookTitle', selector: '#deviceConfigurationLogbookTitle'},
-        {ref: 'addLogbookConfigurationTitle', selector: '#addLogbookConfigurationTitle'},
-        {ref: 'editLogbookConfigurationTitle', selector: '#editLogbookConfigurationTitle'},
         {ref: 'editLogbookConfiguration', selector: 'edit-logbook-configuration'}
     ],
 
@@ -88,7 +85,6 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             '#createEditButton[action=editDeviceConfiguration]': {
                 click: this.editDeviceConfiguration
             }
-
         });
     },
 
@@ -211,9 +207,6 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             }
         });
     },
-
-
-
 
     deleteDeviceConfiguration: function(deviceConfigurationToDelete){
         var me = this;
@@ -476,7 +469,6 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                             deviceConfigModel.load(deviceConfigurationId, {
                                 success: function (deviceConfiguration) {
                                     me.logbookBreadCrumb(deviceType.get('name'), deviceTypeId, deviceConfiguration.get('name'), deviceConfigurationId);
-                                    me.getDeviceConfigurationLogbookTitle().setTitle('<b>' + deviceConfiguration.get('name') + '</b>' + ' > ' + 'Logbook configuration');
                                     widget.setLoading(false);
                                 }
                             });
@@ -555,7 +547,6 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                             deviceConfigModel.load(deviceConfigurationId, {
                                 success: function (deviceConfiguration) {
                                     me.addLogbookBreadCrumb(deviceType.get('name'), deviceTypeId, deviceConfiguration.get('name'), deviceConfigurationId);
-                                    me.getAddLogbookConfigurationTitle().setTitle('<b>' + deviceConfiguration.get('name') + '</b>' + ' > ' + 'Add logbook configuration');
                                     widget.setLoading(false);
                                 }
                             });
@@ -640,7 +631,6 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                             deviceConfigModel.load(deviceConfigurationId, {
                                 success: function (deviceConfiguration) {
                                     me.editLogbookBreadCrumb(deviceType.get('name'), deviceTypeId, deviceConfiguration.get('name'), deviceConfigurationId);
-                                    me.getEditLogbookConfigurationTitle().setTitle('<b>' + deviceConfiguration.get('name') + '</b>' + ' > ' + 'Edit logbook configuration');
                                     widget.setLoading(false);
                                 }
                             });
