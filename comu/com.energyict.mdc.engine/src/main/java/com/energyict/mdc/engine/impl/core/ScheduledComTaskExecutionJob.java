@@ -78,9 +78,7 @@ public class ScheduledComTaskExecutionJob extends ScheduledJobImpl {
     public void execute() {
         boolean connectionOk = false;
         try {
-            this.createExecutionContext();
-            JobExecution.PreparedComTaskExecution preparedComTaskExecution = this.prepareOne(this.comTaskExecution);
-            Environment.DEFAULT.get().closeConnection();
+            PreparedComTaskExecution preparedComTaskExecution = prepare();
             if (this.establishConnectionFor()) {
                 connectionOk = true;
                 performPreparedComTaskExecution(preparedComTaskExecution);
@@ -94,5 +92,12 @@ public class ScheduledComTaskExecutionJob extends ScheduledJobImpl {
             }
             this.closeConnection();
         }
+    }
+
+    private PreparedComTaskExecution prepare() {
+        this.createExecutionContext();
+        PreparedComTaskExecution preparedComTaskExecution = this.prepareOne(this.comTaskExecution);
+        getExecutionContext().setCommandRoot(preparedComTaskExecution.getCommandRoot());
+        return preparedComTaskExecution;
     }
 }

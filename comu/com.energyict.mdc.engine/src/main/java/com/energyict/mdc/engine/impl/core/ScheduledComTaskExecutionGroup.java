@@ -92,9 +92,7 @@ public class ScheduledComTaskExecutionGroup extends ScheduledJobImpl {
     public void execute() {
         boolean connectionOk = false;
         try {
-            this.createExecutionContext();
-            List<PreparedComTaskExecution> preparedComTaskExecutions = this.prepareAll(this.comTaskExecutions);
-            // TODO should we make sure not to hold on to an open connection?
+            List<PreparedComTaskExecution> preparedComTaskExecutions = prepare();
             if (this.establishConnectionFor()) {
                 connectionOk = true;
                 for (PreparedComTaskExecution preparedComTaskExecution : preparedComTaskExecutions) {
@@ -110,6 +108,13 @@ public class ScheduledComTaskExecutionGroup extends ScheduledJobImpl {
             }
             this.closeConnection();
         }
+    }
+
+    private List<PreparedComTaskExecution> prepare() {
+        this.createExecutionContext();
+        List<PreparedComTaskExecution> preparedComTaskExecutions = this.prepareAll(this.comTaskExecutions);
+        getExecutionContext().setCommandRoot(preparedComTaskExecutions.get(0).getCommandRoot());
+        return preparedComTaskExecutions;
     }
 
 }
