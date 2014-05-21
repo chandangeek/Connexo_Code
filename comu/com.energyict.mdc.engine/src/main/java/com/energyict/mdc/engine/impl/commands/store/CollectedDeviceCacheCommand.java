@@ -36,10 +36,11 @@ public class CollectedDeviceCacheCommand extends DeviceCommandImpl {
             DeviceCache deviceCache = getEngineService().findDeviceCacheByDeviceId(device);
             if(deviceCache != null){
                 deviceCache.setCacheObject(collectedDeviceCache);
+                deviceCache.update();
             } else {
                 deviceCache = getEngineService().newDeviceCache(device, collectedDeviceCache);
+                deviceCache.save();
             }
-            deviceCache.save();
         }
     }
 

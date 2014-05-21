@@ -71,7 +71,7 @@ public class ComTaskExecutionComCommandImplTest {
 
     @Test
     public void testGetCollectedDataWhenNone () {
-        ComTaskExecutionComCommandImpl command = new ComTaskExecutionComCommandImpl(this.commandRoot, transactionService, this.comTaskExecution);
+        ComTaskExecutionComCommandImpl command = new ComTaskExecutionComCommandImpl(this.commandRoot, this.comTaskExecution);
 
         // Business method
         List<CollectedData> collectedDataList = command.getCollectedData();
@@ -90,7 +90,7 @@ public class ComTaskExecutionComCommandImplTest {
         when(comCommand2.getCommandType()).thenReturn(ComCommandTypes.CLOCK_COMMAND);
         ComCommand comCommand3 = mock(ComCommand.class);
         when(comCommand3.getCommandType()).thenReturn(ComCommandTypes.READ_LOGBOOKS_COMMAND);
-        ComTaskExecutionComCommandImpl command = new ComTaskExecutionComCommandImpl(this.commandRoot, transactionService, this.comTaskExecution);
+        ComTaskExecutionComCommandImpl command = new ComTaskExecutionComCommandImpl(this.commandRoot, this.comTaskExecution);
         command.addCommand(comCommand1, this.comTaskExecution);
         command.addCommand(comCommand2, this.comTaskExecution);
         command.addCommand(comCommand3, this.comTaskExecution);
@@ -121,7 +121,7 @@ public class ComTaskExecutionComCommandImplTest {
         when(comCommand3.getCommandType()).thenReturn(ComCommandTypes.READ_LOGBOOKS_COMMAND);
         ServerCollectedData collectedData3 = mock(ServerCollectedData.class);
         when(comCommand3.getCollectedData()).thenReturn(Arrays.<CollectedData>asList(collectedData3));
-        ComTaskExecutionComCommandImpl command = new ComTaskExecutionComCommandImpl(this.commandRoot, transactionService, this.comTaskExecution);
+        ComTaskExecutionComCommandImpl command = new ComTaskExecutionComCommandImpl(this.commandRoot, this.comTaskExecution);
         command.addCommand(comCommand1, this.comTaskExecution);
         command.addCommand(comCommand2, this.comTaskExecution);
         command.addCommand(comCommand3, this.comTaskExecution);
@@ -146,7 +146,7 @@ public class ComTaskExecutionComCommandImplTest {
         when(comCommand2.getCommandType()).thenReturn(ComCommandTypes.CLOCK_COMMAND);
         ComCommand comCommand3 = mock(ComCommand.class);
         when(comCommand3.getCommandType()).thenReturn(ComCommandTypes.READ_LOGBOOKS_COMMAND);
-        ComTaskExecutionComCommandImpl command = new ComTaskExecutionComCommandImpl(this.commandRoot, transactionService, this.comTaskExecution);
+        ComTaskExecutionComCommandImpl command = new ComTaskExecutionComCommandImpl(this.commandRoot, this.comTaskExecution);
         command.addCommand(comCommand1, this.comTaskExecution);
         command.addCommand(comCommand3, this.comTaskExecution);
 

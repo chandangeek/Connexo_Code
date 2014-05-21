@@ -87,7 +87,7 @@ public class EngineServiceImpl implements EngineService, InstallService {
 
     @Override
     public DeviceCache findDeviceCacheByDeviceId(Device device) {
-        return dataModel.mapper(DeviceCache.class).getUnique("RTUID", device).orNull();
+        return dataModel.mapper(DeviceCache.class).getUnique("device", device).orNull();
     }
 
     @Override

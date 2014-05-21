@@ -74,8 +74,9 @@ public final class ComTaskExecutionOrganizer {
             DeviceOrganizedComTaskExecution deviceOrganizedComTaskExecution = new DeviceOrganizedComTaskExecution(key.getDevice());
             DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = getDeviceProtocolSecurityPropertySet(key.getSecurityPropertySet(), key.getDevice());
             for (ListIterator<ComTaskExecution> iterator = deviceListEntry.getValue().listIterator(); iterator.hasNext(); ) {
+                ComTaskExecution comTaskExecution = iterator.next();
                 ComTaskExecutionConnectionSteps flags = determineFlags(previous, key, iterator.hasNext() ? key : next);
-                deviceOrganizedComTaskExecution.addComTaskWithConnectionSteps(iterator.next(), flags, deviceProtocolSecurityPropertySet);
+                deviceOrganizedComTaskExecution.addComTaskWithConnectionSteps(comTaskExecution, flags, deviceProtocolSecurityPropertySet);
                 previous = key;
             }
             result.add(deviceOrganizedComTaskExecution);
