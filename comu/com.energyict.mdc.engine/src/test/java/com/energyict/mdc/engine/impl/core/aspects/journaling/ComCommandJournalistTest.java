@@ -1,7 +1,12 @@
 package com.energyict.mdc.engine.impl.core.aspects.journaling;
 
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.ProgrammableClock;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.comserver.time.Clocks;
+import com.energyict.mdc.tasks.history.ComTaskExecutionSessionBuilder;
+import com.energyict.mdc.tasks.history.CompletionCode;
 import org.fest.assertions.api.Assertions;
 
 import com.energyict.mdc.commands.ComCommand;
@@ -12,6 +17,8 @@ import com.energyict.mdc.device.data.journal.CompletionCode;
 import com.energyict.mdc.shadow.journal.ComCommandJournalEntryShadow;
 import com.energyict.mdc.shadow.journal.ComTaskExecutionSessionShadow;
 import org.junit.*;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,15 +34,16 @@ import static org.mockito.Mockito.when;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-01-15 (17:17)
  */
+@RunWith(MockitoJUnitRunner.class)
 public class ComCommandJournalistTest {
 
-    private ComTaskExecutionSessionShadow comTaskExecutionSessionShadow;
+    private ComTaskExecutionSessionBuilder comTaskExecutionSessionBuilder;
     private ComCommandJournalist journalist;
+    private Clock clock = new ProgrammableClock();
 
     @Before
     public void initializeJournalist () {
-        this.comTaskExecutionSessionShadow = new ComTaskExecutionSessionShadow();
-        this.journalist = new ComCommandJournalist(this.comTaskExecutionSessionShadow, clock);
+        this.journalist = new ComCommandJournalist(this.comTaskExecutionSessionBuilder, clock);
     }
 
     @Test
@@ -50,8 +58,10 @@ public class ComCommandJournalistTest {
         // Business method
         this.journalist.executionCompleted(comCommand, LogLevel.ERROR);
 
+
+
         // Asserts
-        Assertions.assertThat(this.comTaskExecutionSessionShadow.getJournalEntryShadows()).isEmpty();
+        Assertions.assertThat(this.comTaskExecutionSessionBuilder.getJournalEntryShadows()).isEmpty();
     }
 
     @Test
@@ -67,9 +77,9 @@ public class ComCommandJournalistTest {
         this.journalist.executionCompleted(comCommand, LogLevel.INFO);
 
         // Asserts
-        Assertions.assertThat(this.comTaskExecutionSessionShadow.getJournalEntryShadows()).hasSize(1);
-        Assertions.assertThat(this.comTaskExecutionSessionShadow.getJournalEntryShadows().get(0)).isInstanceOf(ComCommandJournalEntryShadow.class);
-        ComCommandJournalEntryShadow journalEntryShadow = (ComCommandJournalEntryShadow) this.comTaskExecutionSessionShadow.getJournalEntryShadows().get(0);
+        Assertions.assertThat(this.comTaskExecutionSessionBuilder.getJournalEntryShadows()).hasSize(1);
+        Assertions.assertThat(this.comTaskExecutionSessionBuilder.getJournalEntryShadows().get(0)).isInstanceOf(ComCommandJournalEntryShadow.class);
+        ComCommandJournalEntryShadow journalEntryShadow = (ComCommandJournalEntryShadow) this.comTaskExecutionSessionBuilder.getJournalEntryShadows().get(0);
         Assertions.assertThat(journalEntryShadow.getCompletionCode()).isEqualTo(expectedCompletionCode);
         Assertions.assertThat(journalEntryShadow.getCommandDescription()).isEqualTo(expectedCommandDescription);
         Assertions.assertThat(journalEntryShadow.getErrorDescription()).isNull();
@@ -88,9 +98,9 @@ public class ComCommandJournalistTest {
         this.journalist.executionCompleted(comCommand, LogLevel.DEBUG);
 
         // Asserts
-        Assertions.assertThat(this.comTaskExecutionSessionShadow.getJournalEntryShadows()).hasSize(1);
-        Assertions.assertThat(this.comTaskExecutionSessionShadow.getJournalEntryShadows().get(0)).isInstanceOf(ComCommandJournalEntryShadow.class);
-        ComCommandJournalEntryShadow journalEntryShadow = (ComCommandJournalEntryShadow) this.comTaskExecutionSessionShadow.getJournalEntryShadows().get(0);
+        Assertions.assertThat(this.comTaskExecutionSessionBuilder.getJournalEntryShadows()).hasSize(1);
+        Assertions.assertThat(this.comTaskExecutionSessionBuilder.getJournalEntryShadows().get(0)).isInstanceOf(ComCommandJournalEntryShadow.class);
+        ComCommandJournalEntryShadow journalEntryShadow = (ComCommandJournalEntryShadow) this.comTaskExecutionSessionBuilder.getJournalEntryShadows().get(0);
         Assertions.assertThat(journalEntryShadow.getCompletionCode()).isEqualTo(expectedCompletionCode);
         Assertions.assertThat(journalEntryShadow.getCommandDescription()).isEqualTo(expectedCommandDescription);
         Assertions.assertThat(journalEntryShadow.getErrorDescription()).isNull();
@@ -104,17 +114,17 @@ public class ComCommandJournalistTest {
         CompletionCode expectedCompletionCode = CompletionCode.ConfigurationWarning;
         when(comCommand.getCompletionCode()).thenReturn(expectedCompletionCode);
         when(comCommand.toString()).thenReturn(expectedCommandDescription);
-        when(comCommand.getIssues()).thenReturn(new ArrayList<Issue>(0));
-        when(comCommand.getProblems()).thenReturn(new ArrayList<Problem>(0));
-        when(comCommand.getWarnings()).thenReturn(new ArrayList<Warning>(0));
+        when(comCommand.getIssues()).thenReturn(new ArrayList<Issue<?>>(0));
+        when(comCommand.getProblems()).thenReturn(new ArrayList<Problem<?>>(0));
+        when(comCommand.getWarnings()).thenReturn(new ArrayList<Warning<?>>(0));
 
         // Business method
         this.journalist.executionCompleted(comCommand, LogLevel.ERROR);
 
         // Asserts
-        Assertions.assertThat(this.comTaskExecutionSessionShadow.getJournalEntryShadows()).hasSize(1);
-        Assertions.assertThat(this.comTaskExecutionSessionShadow.getJournalEntryShadows().get(0)).isInstanceOf(ComCommandJournalEntryShadow.class);
-        ComCommandJournalEntryShadow journalEntryShadow = (ComCommandJournalEntryShadow) this.comTaskExecutionSessionShadow.getJournalEntryShadows().get(0);
+        Assertions.assertThat(this.comTaskExecutionSessionBuilder.getJournalEntryShadows()).hasSize(1);
+        Assertions.assertThat(this.comTaskExecutionSessionBuilder.getJournalEntryShadows().get(0)).isInstanceOf(ComCommandJournalEntryShadow.class);
+        ComCommandJournalEntryShadow journalEntryShadow = (ComCommandJournalEntryShadow) this.comTaskExecutionSessionBuilder.getJournalEntryShadows().get(0);
         Assertions.assertThat(journalEntryShadow.getErrorDescription()).isNull();
     }
 
@@ -128,17 +138,17 @@ public class ComCommandJournalistTest {
         when(comCommand.toString()).thenReturn(expectedCommandDescription);
         Warning warning1 = this.mockWarning("First warning");
         Warning warning2 = this.mockWarning("Second warning");
-        when(comCommand.getIssues()).thenReturn(Arrays.<Issue>asList(warning1, warning2));
-        when(comCommand.getWarnings()).thenReturn(Arrays.asList(warning1, warning2));
-        when(comCommand.getProblems()).thenReturn(new ArrayList<Problem>(0));
+        when(comCommand.getIssues()).thenReturn(Arrays.<Issue<?>>asList(warning1, warning2));
+        when(comCommand.getWarnings()).thenReturn(Arrays.<Warning<?>>asList(warning1, warning2));
+        when(comCommand.getProblems()).thenReturn(new ArrayList<Problem<?>>(0));
 
         // Business method
         this.journalist.executionCompleted(comCommand, LogLevel.ERROR);
 
         // Asserts
-        Assertions.assertThat(this.comTaskExecutionSessionShadow.getJournalEntryShadows()).hasSize(1);
-        Assertions.assertThat(this.comTaskExecutionSessionShadow.getJournalEntryShadows().get(0)).isInstanceOf(ComCommandJournalEntryShadow.class);
-        ComCommandJournalEntryShadow journalEntryShadow = (ComCommandJournalEntryShadow) this.comTaskExecutionSessionShadow.getJournalEntryShadows().get(0);
+        Assertions.assertThat(this.comTaskExecutionSessionBuilder.getJournalEntryShadows()).hasSize(1);
+        Assertions.assertThat(this.comTaskExecutionSessionBuilder.getJournalEntryShadows().get(0)).isInstanceOf(ComCommandJournalEntryShadow.class);
+        ComCommandJournalEntryShadow journalEntryShadow = (ComCommandJournalEntryShadow) this.comTaskExecutionSessionBuilder.getJournalEntryShadows().get(0);
         Assertions.assertThat(journalEntryShadow.getCompletionCode()).isEqualTo(expectedCompletionCode);
         Assertions.assertThat(journalEntryShadow.getErrorDescription()).startsWith("Execution completed with 2 warning(s) and 0 problem(s)");
         Assertions.assertThat(journalEntryShadow.getErrorDescription()).contains("01. First warning");
@@ -155,17 +165,17 @@ public class ComCommandJournalistTest {
         when(comCommand.toString()).thenReturn(expectedCommandDescription);
         Problem problem1 = this.mockProblem("First problem");
         Problem problem2 = this.mockProblem("Second problem");
-        when(comCommand.getIssues()).thenReturn(Arrays.<Issue>asList(problem1, problem2));
-        when(comCommand.getWarnings()).thenReturn(new ArrayList<Warning>(0));
-        when(comCommand.getProblems()).thenReturn(Arrays.asList(problem1, problem2));
+        when(comCommand.getIssues()).thenReturn(Arrays.<Issue<?>>asList(problem1, problem2));
+        when(comCommand.getWarnings()).thenReturn(new ArrayList<Warning<?>>(0));
+        when(comCommand.getProblems()).thenReturn(Arrays.<Problem<?>>asList(problem1, problem2));
 
         // Business method
         this.journalist.executionCompleted(comCommand, LogLevel.ERROR);
 
         // Asserts
-        Assertions.assertThat(this.comTaskExecutionSessionShadow.getJournalEntryShadows()).hasSize(1);
-        Assertions.assertThat(this.comTaskExecutionSessionShadow.getJournalEntryShadows().get(0)).isInstanceOf(ComCommandJournalEntryShadow.class);
-        ComCommandJournalEntryShadow journalEntryShadow = (ComCommandJournalEntryShadow) this.comTaskExecutionSessionShadow.getJournalEntryShadows().get(0);
+        Assertions.assertThat(this.comTaskExecutionSessionBuilder.getJournalEntryShadows()).hasSize(1);
+        Assertions.assertThat(this.comTaskExecutionSessionBuilder.getJournalEntryShadows().get(0)).isInstanceOf(ComCommandJournalEntryShadow.class);
+        ComCommandJournalEntryShadow journalEntryShadow = (ComCommandJournalEntryShadow) this.comTaskExecutionSessionBuilder.getJournalEntryShadows().get(0);
         Assertions.assertThat(journalEntryShadow.getCompletionCode()).isEqualTo(expectedCompletionCode);
         Assertions.assertThat(journalEntryShadow.getErrorDescription()).isNotNull();
         Assertions.assertThat(journalEntryShadow.getErrorDescription()).startsWith("Execution completed with 0 warning(s) and 2 problem(s)");
@@ -183,17 +193,17 @@ public class ComCommandJournalistTest {
         when(comCommand.toString()).thenReturn(expectedCommandDescription);
         Problem problem = this.mockProblem("Problem");
         Warning warning = this.mockWarning("Warning");
-        when(comCommand.getIssues()).thenReturn(Arrays.asList(problem, warning));
-        when(comCommand.getWarnings()).thenReturn(Arrays.asList(warning));
-        when(comCommand.getProblems()).thenReturn(Arrays.asList(problem));
+        when(comCommand.getIssues()).thenReturn(Arrays.<Issue<?>>asList(problem, warning));
+        when(comCommand.getWarnings()).thenReturn(Arrays.<Warning<?>>asList(warning));
+        when(comCommand.getProblems()).thenReturn(Arrays.<Problem<?>>asList(problem));
 
         // Business method
         this.journalist.executionCompleted(comCommand, LogLevel.ERROR);
 
         // Asserts
-        Assertions.assertThat(this.comTaskExecutionSessionShadow.getJournalEntryShadows()).hasSize(1);
-        Assertions.assertThat(this.comTaskExecutionSessionShadow.getJournalEntryShadows().get(0)).isInstanceOf(ComCommandJournalEntryShadow.class);
-        ComCommandJournalEntryShadow journalEntryShadow = (ComCommandJournalEntryShadow) this.comTaskExecutionSessionShadow.getJournalEntryShadows().get(0);
+        Assertions.assertThat(this.comTaskExecutionSessionBuilder.getJournalEntryShadows()).hasSize(1);
+        Assertions.assertThat(this.comTaskExecutionSessionBuilder.getJournalEntryShadows().get(0)).isInstanceOf(ComCommandJournalEntryShadow.class);
+        ComCommandJournalEntryShadow journalEntryShadow = (ComCommandJournalEntryShadow) this.comTaskExecutionSessionBuilder.getJournalEntryShadows().get(0);
         Assertions.assertThat(journalEntryShadow.getCompletionCode()).isEqualTo(expectedCompletionCode);
         Assertions.assertThat(journalEntryShadow.getErrorDescription()).startsWith("Execution completed with 1 warning(s) and 1 problem(s)");
         Assertions.assertThat(journalEntryShadow.getErrorDescription()).contains("01. Problem");
@@ -205,7 +215,7 @@ public class ComCommandJournalistTest {
         when(warning.isWarning()).thenReturn(true);
         when(warning.isProblem()).thenReturn(false);
         when(warning.getDescription()).thenReturn(description);
-        when(warning.getTimestamp()).thenReturn(Clocks.getAppServerClock().now());
+        when(warning.getTimestamp()).thenReturn(clock.now());
         return warning;
     }
 
@@ -214,7 +224,7 @@ public class ComCommandJournalistTest {
         when(problem.isWarning()).thenReturn(false);
         when(problem.isProblem()).thenReturn(true);
         when(problem.getDescription()).thenReturn(description);
-        when(problem.getTimestamp()).thenReturn(Clocks.getAppServerClock().now());
+        when(problem.getTimestamp()).thenReturn(clock.now());
         return problem;
     }
 
