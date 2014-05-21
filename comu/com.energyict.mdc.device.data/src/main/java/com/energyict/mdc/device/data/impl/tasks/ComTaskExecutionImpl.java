@@ -115,10 +115,14 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
      */
     private long nextExecutionSpecId;
     private boolean myNextExecutionSpec;
-    private NextExecutionSpecHolder nextExecutionSpecHolder = new NoNextExecutionSpecHolder();
+    private NextExecutionSpecHolder nextExecutionSpecHolder = null;
 
     @Override
     public void postLoad() {
+//        loadNextExecutionSpec();
+    }
+
+    private void loadNextExecutionSpecHolder() {
         if (this.nextExecutionSpecId > 0) {
             if (myNextExecutionSpec) {
                 this.nextExecutionSpecHolder = new MyNextExecutionSpecHolder(this.nextExecutionSpecId);
@@ -189,7 +193,14 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     @Override
     public boolean isScheduled() {
-        return this.nextExecutionSpecHolder.getNextExecutionSpec() != null;
+        return getNextExecutionSpecHolder().getNextExecutionSpec() != null;
+    }
+
+    private NextExecutionSpecHolder getNextExecutionSpecHolder() {
+        if (this.nextExecutionSpecHolder == null) {
+            loadNextExecutionSpecHolder();
+        }
+        return this.nextExecutionSpecHolder;
     }
 
     @Override
@@ -372,7 +383,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     @Override
     public NextExecutionSpecs getNextExecutionSpecs() {
-        return this.nextExecutionSpecHolder.getNextExecutionSpec();
+        return getNextExecutionSpecHolder().getNextExecutionSpec();
     }
 
     private void createMyNextExecutionSpecs(TemporalExpression temporalExpression) {
@@ -380,15 +391,15 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     private void createOrUpdateMyNextExecutionSpecs(TemporalExpression temporalExpression) {
-        if (this.nextExecutionSpecHolder.myNextExecutionSpec()) {
-            this.nextExecutionSpecHolder.updateTemporalExpression(temporalExpression);
+        if (getNextExecutionSpecHolder().myNextExecutionSpec()) {
+            getNextExecutionSpecHolder().updateTemporalExpression(temporalExpression);
         } else {
             this.nextExecutionSpecHolder = new MyNextExecutionSpecHolder(temporalExpression);
         }
     }
 
     private void removeNextExecutionSpec() {
-        this.nextExecutionSpecHolder.delete();
+        getNextExecutionSpecHolder().delete();
         this.nextExecutionSpecHolder = new NoNextExecutionSpecHolder();
         this.updateNextExecutionTimestamp();
     }
@@ -789,7 +800,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
      * We don't do our own persistence, our device will take care of that
      */
     public void prepareForSaving() {
-        this.nextExecutionSpecHolder.save();
+        getNextExecutionSpecHolder().save();
         this.modificationDate = this.now();
         validateNotObsolete();
     }
@@ -798,7 +809,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
      * Need to delete the nextExecutionSpec as it is not Referenced by the ComTaskExecution
      */
     public void delete() {
-        this.nextExecutionSpecHolder.delete();
+        getNextExecutionSpecHolder().delete();
         this.deleteComTaskSessions();
         super.delete();
     }
