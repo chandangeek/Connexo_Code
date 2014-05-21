@@ -24,15 +24,24 @@ public class DeviceConfigurationResource {
     private final Provider<RegisterConfigurationResource> registerConfigurationResourceProvider;
     private final Provider<ConnectionMethodResource> connectionMethodResourceProvider;
     private final Provider<ProtocolDialectResource> protocolDialectResourceProvider;
+    private final Provider<LoadProfileConfigurationResource> loadProfileConfigurationResourceProvider;
     private final Thesaurus thesaurus;
 
     @Inject
-    public DeviceConfigurationResource(ResourceHelper resourceHelper, DeviceConfigurationService deviceConfigurationService, Provider<RegisterConfigurationResource> registerConfigurationResourceProvider, Provider<ConnectionMethodResource> connectionMethodResourceProvider, Provider<ProtocolDialectResource> protocolDialectResourceProvider, Thesaurus thesaurus) {
+    public DeviceConfigurationResource(
+            ResourceHelper resourceHelper,
+            DeviceConfigurationService deviceConfigurationService,
+            Provider<RegisterConfigurationResource> registerConfigurationResourceProvider,
+            Provider<ConnectionMethodResource> connectionMethodResourceProvider,
+            Provider<ProtocolDialectResource> protocolDialectResourceProvider,
+            Provider<LoadProfileConfigurationResource> loadProfileConfigurationResourceProvider,
+            Thesaurus thesaurus) {
         this.resourceHelper = resourceHelper;
         this.deviceConfigurationService = deviceConfigurationService;
         this.registerConfigurationResourceProvider = registerConfigurationResourceProvider;
         this.connectionMethodResourceProvider = connectionMethodResourceProvider;
         this.protocolDialectResourceProvider = protocolDialectResourceProvider;
+        this.loadProfileConfigurationResourceProvider = loadProfileConfigurationResourceProvider;
         this.thesaurus = thesaurus;
     }
 
@@ -216,8 +225,12 @@ public class DeviceConfigurationResource {
     }
 
     @Path("/{deviceConfigurationId}/protocoldialects")
-       public ProtocolDialectResource getProtocolDialectsResource() {
-           return protocolDialectResourceProvider.get();
-       }
+    public ProtocolDialectResource getProtocolDialectsResource() {
+        return protocolDialectResourceProvider.get();
+    }
 
+    @Path("/{deviceConfigurationId}/loadprofileconfigurations")
+    public LoadProfileConfigurationResource getLoadProfileConfigurationResource() {
+        return loadProfileConfigurationResourceProvider.get();
+    }
 }

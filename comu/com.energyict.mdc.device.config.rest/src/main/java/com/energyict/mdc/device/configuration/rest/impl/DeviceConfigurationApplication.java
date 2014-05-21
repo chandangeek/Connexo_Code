@@ -58,7 +58,9 @@ public class DeviceConfigurationApplication extends Application {
                 ProtocolDialectResource.class,
                 ConnectionMethodResource.class,
                 RegisterTypeResource.class,
-                RegisterGroupResource.class
+                RegisterGroupResource.class,
+                LoadProfileTypeResource.class,
+                LoadProfileConfigurationResource.class
         );
     }
 

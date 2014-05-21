@@ -13,7 +13,6 @@ import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterMapping;
-import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfo;
 import com.energyict.mdc.masterdata.rest.RegisterMappingInfo;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -33,16 +32,25 @@ public class DeviceTypeResource {
     private final MasterDataService masterDataService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final Provider<DeviceConfigurationResource> deviceConfigurationResourceProvider;
+    private final Provider<LoadProfileTypeResource> loadProfileTypeResourceProvider;
     private final ProtocolPluggableService protocolPluggableService;
     private final Thesaurus thesaurus;
 
     @Inject
-    public DeviceTypeResource(ResourceHelper resourceHelper, MasterDataService masterDataService, DeviceConfigurationService deviceConfigurationService, Provider<DeviceConfigurationResource> deviceConfigurationResourceProvider, ProtocolPluggableService protocolPluggableService, Thesaurus thesaurus) {
+    public DeviceTypeResource(
+            ResourceHelper resourceHelper,
+            MasterDataService masterDataService,
+            DeviceConfigurationService deviceConfigurationService,
+            ProtocolPluggableService protocolPluggableService,
+            Provider<DeviceConfigurationResource> deviceConfigurationResourceProvider,
+            Provider<LoadProfileTypeResource> loadProfileTypeResourceProvider,
+            Thesaurus thesaurus) {
         this.resourceHelper = resourceHelper;
         this.masterDataService = masterDataService;
         this.deviceConfigurationService = deviceConfigurationService;
-        this.deviceConfigurationResourceProvider = deviceConfigurationResourceProvider;
         this.protocolPluggableService = protocolPluggableService;
+        this.loadProfileTypeResourceProvider = loadProfileTypeResourceProvider;
+        this.deviceConfigurationResourceProvider = deviceConfigurationResourceProvider;
         this.thesaurus = thesaurus;
     }
 
@@ -101,12 +109,10 @@ public class DeviceTypeResource {
         return DeviceTypeInfo.from(deviceType, deviceType.getRegisterMappings());
     }
 
-    @GET
+
     @Path("/{id}/loadprofiletypes")
-    @Produces(MediaType.APPLICATION_JSON)
-    public List<LoadProfileTypeInfo> getLoadProfilesForDeviceType(@PathParam("id") long id) {
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
-        return LoadProfileTypeInfo.from(deviceType.getLoadProfileTypes());
+    public LoadProfileTypeResource getLoadProfileTypesResource() {
+        return loadProfileTypeResourceProvider.get();
     }
 
     @GET
