@@ -87,7 +87,7 @@ public class SmartMeterProtocolRegisterAdapter implements DeviceRegisterSupport 
     private List<Register> convertOfflineRegistersToRegister(final List<OfflineRegister> offlineRegisters) {
         List<Register> registers = new ArrayList<>(offlineRegisters.size());
         for (OfflineRegister offlineRegister : offlineRegisters) {
-            registers.add(new Register(offlineRegister.getRegisterId(), offlineRegister.getObisCode(), offlineRegister.getSerialNumber()));
+            registers.add(new Register((int) offlineRegister.getRegisterId(), offlineRegister.getObisCode(), offlineRegister.getSerialNumber()));
         }
         return registers;
     }
