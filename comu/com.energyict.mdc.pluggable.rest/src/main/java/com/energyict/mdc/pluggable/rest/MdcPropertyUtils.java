@@ -31,20 +31,20 @@ import javax.ws.rs.core.UriInfo;
 public class MdcPropertyUtils {
 
     public static void convertPropertySpecsToPropertyInfos(final UriInfo uriInfo, List<PropertySpec> propertySpecs, TypedProperties properties, List<PropertyInfo> propertyInfoList) {
-        for (PropertySpec propertySpec : propertySpecs) {
+        for (PropertySpec<?> propertySpec : propertySpecs) {
             PropertyInfo propertyInfo = createPropertyInfo(uriInfo, properties, propertySpec);
             propertyInfoList.add(propertyInfo);
         }
     }
 
-    private static PropertyInfo createPropertyInfo(UriInfo uriInfo, TypedProperties properties, PropertySpec propertySpec) {
-        PropertyValueInfo propertyValueInfo = getThePropertyValueInfo(properties, propertySpec);
+    private static PropertyInfo createPropertyInfo(UriInfo uriInfo, TypedProperties properties, PropertySpec<?> propertySpec) {
+        PropertyValueInfo<?> propertyValueInfo = getThePropertyValueInfo(properties, propertySpec);
         SimplePropertyType simplePropertyType = getSimplePropertyType(propertySpec);
         PropertyTypeInfo propertyTypeInfo = getPropertyTypeInfo(uriInfo, propertySpec, simplePropertyType);
         return new PropertyInfo(propertySpec.getName(), propertyValueInfo, propertyTypeInfo, false);
     }
 
-    private static PropertyValueInfo<Object> getThePropertyValueInfo(TypedProperties properties, PropertySpec propertySpec) {
+    private static PropertyValueInfo<Object> getThePropertyValueInfo(TypedProperties properties, PropertySpec<?> propertySpec) {
         Object propertyValue = getPropertyValue(properties, propertySpec);
         Object inheritedProperty = getInheritedProperty(properties, propertySpec);
         Object defaultValue = getDefaultValue(propertySpec);
@@ -54,7 +54,7 @@ public class MdcPropertyUtils {
         return new PropertyValueInfo<>(propertyValue, inheritedProperty, defaultValue);
     }
 
-    private static SimplePropertyType getSimplePropertyType(PropertySpec propertySpec) {
+    private static SimplePropertyType getSimplePropertyType(PropertySpec<?> propertySpec) {
         SimplePropertyType simplePropertyType = SimplePropertyType.getTypeFrom(propertySpec.getValueFactory());
         if (simplePropertyType.equals(SimplePropertyType.UNKNOWN)) {
             return MdcPropertyReferenceInfoFactory.getReferencedSimplePropertyType(propertySpec, simplePropertyType);
@@ -63,11 +63,11 @@ public class MdcPropertyUtils {
         }
     }
 
-    private static PropertyTypeInfo getPropertyTypeInfo(UriInfo uriInfo, PropertySpec propertySpec, SimplePropertyType simplePropertyType) {
+    private static PropertyTypeInfo getPropertyTypeInfo(UriInfo uriInfo, PropertySpec<?> propertySpec, SimplePropertyType simplePropertyType) {
         return new PropertyTypeInfo(simplePropertyType, getPropertyValidationRule(propertySpec), getPredefinedPropertyValueInfo(propertySpec), getReferenceUri(uriInfo, propertySpec, simplePropertyType));
     }
 
-    private static URI getReferenceUri(final UriInfo uriInfo, PropertySpec propertySpec, SimplePropertyType simplePropertyType) {
+    private static URI getReferenceUri(final UriInfo uriInfo, PropertySpec<?> propertySpec, SimplePropertyType simplePropertyType) {
         if (simplePropertyType.isReference()) {
             return MdcPropertyReferenceInfoFactory.getReferenceUriFor(uriInfo, propertySpec.getValueFactory().getValueType());
         } else {
@@ -75,7 +75,7 @@ public class MdcPropertyUtils {
         }
     }
 
-    private static PropertyValidationRule getPropertyValidationRule(PropertySpec propertySpec) {
+    private static PropertyValidationRule getPropertyValidationRule(PropertySpec<?> propertySpec) {
         if (BoundedBigDecimalPropertySpec.class.isAssignableFrom(propertySpec.getClass())) {
             BoundedBigDecimalPropertySpec boundedBigDecimalPropertySpec = (BoundedBigDecimalPropertySpec) propertySpec;
             return createBoundedBigDecimalValidationRules(boundedBigDecimalPropertySpec);
@@ -92,12 +92,12 @@ public class MdcPropertyUtils {
         return bigDecimalNumberValidationRules;
     }
 
-    private static Object getPropertyValue(TypedProperties properties, PropertySpec propertySpec) {
+    private static Object getPropertyValue(TypedProperties properties, PropertySpec<?> propertySpec) {
         return MdcPropertyReferenceInfoFactory.asInfoObject(properties.getProperty(propertySpec.getName()));
     }
 
-    private static PredefinedPropertyValuesInfo getPredefinedPropertyValueInfo(PropertySpec propertySpec) {
-        PropertySpecPossibleValues possibleValues = propertySpec.getPossibleValues();
+    private static PredefinedPropertyValuesInfo<?> getPredefinedPropertyValueInfo(PropertySpec<?> propertySpec) {
+        PropertySpecPossibleValues<?> possibleValues = propertySpec.getPossibleValues();
         if (possibleValues == null) {
             return null;
         } else {
@@ -119,20 +119,20 @@ public class MdcPropertyUtils {
         }
     }
 
-    private static Object getDefaultValue(PropertySpec propertySpec) {
-        PropertySpecPossibleValues possibleValues = propertySpec.getPossibleValues();
+    private static <T> Object getDefaultValue(PropertySpec<T> propertySpec) {
+        PropertySpecPossibleValues<T> possibleValues = propertySpec.getPossibleValues();
         if (possibleValues == null) {
             return null;
         }
         return MdcPropertyReferenceInfoFactory.asInfoObject(possibleValues.getDefault());
     }
 
-    public static Object findPropertyValue(PropertySpec propertySpec, Collection<PropertyInfo> propertyInfos) {
+    public static Object findPropertyValue(PropertySpec<?> propertySpec, Collection<PropertyInfo> propertyInfos) {
         return findPropertyValue(propertySpec, propertyInfos.toArray(new PropertyInfo[propertyInfos.size()]));
     }
 
     //find propertyValue in info
-    public static Object findPropertyValue(PropertySpec propertySpec, PropertyInfo[] propertyInfos) {
+    public static Object findPropertyValue(PropertySpec<?> propertySpec, PropertyInfo[] propertyInfos) {
         try {
             for (PropertyInfo propertyInfo : propertyInfos) {
                 if (propertyInfo.key.equals(propertySpec.getName())) {
@@ -149,7 +149,7 @@ public class MdcPropertyUtils {
         }
     }
 
-    private static Object convertPropertyInfoValueToPropertyValue(PropertySpec propertySpec, Object value) {
+    private static Object convertPropertyInfoValueToPropertyValue(PropertySpec<?> propertySpec, Object value) {
         //SimplePropertyType simplePropertyType = getSimplePropertyType(propertySpec);
         if (propertySpec.getValueFactory().getValueType() == Password.class){
             return new Password(value.toString());
@@ -164,13 +164,17 @@ public class MdcPropertyUtils {
         } else if (propertySpec.getValueFactory().getValueType() == UserFile.class) {
             return new UserFileImpl((Integer) ((LinkedHashMap<String, Object>) value).get("userFileReferenceId"));
         } else if (propertySpec.getValueFactory().getValueType() == Boolean.class) {
-            return new UserFileImpl((Integer) ((LinkedHashMap<String, Object>) value).get("userFileReferenceId"));
+            if (Boolean.class.isAssignableFrom(value.getClass())) {
+                return value;
+            } else {
+                throw new FieldValidationException("Not a boolean", propertySpec.getName());
+            }
         }
         return propertySpec.getValueFactory().fromStringValue(value.toString());
     }
 
 
-    private static Object getInheritedProperty(TypedProperties properties, PropertySpec propertySpec) {
+    private static Object getInheritedProperty(TypedProperties properties, PropertySpec<?> propertySpec) {
         TypedProperties inheritedProperties = properties.getInheritedProperties();
         if (inheritedProperties == null) {
             return null;
