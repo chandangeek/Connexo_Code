@@ -252,7 +252,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
 //                this.down('#rescheduleRetryDelay').setVisible(false);
 //                this.down('#isDefault').setVisible(false);
         }
-        this.down('#cancelLink').autoEl.href = this.returnLink;
+        this.down('#cancelLink').href = this.returnLink;
 
     }
 

@@ -22,7 +22,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
             this.down('#createEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
             this.down('#createEditButton').action = 'createDeviceType';
         }
-        this.down('#cancelLink').autoEl.href = returnLink;
+        this.down('#cancelLink').href = returnLink;
     },
 
     initComponent: function () {
@@ -141,7 +141,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
             this.down('#createEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
             this.down('#createEditButton').action = 'createDeviceType';
         }
-        this.down('#cancelLink').autoEl.href = this.returnLink;
+        this.down('#cancelLink').href = this.returnLink;
     }
 
 });
