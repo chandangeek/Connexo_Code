@@ -21,20 +21,18 @@ import com.energyict.mdc.dynamic.ValueFactory;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.google.inject.Inject;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import javax.validation.constraints.NotNull;
-
-import static com.elster.jupiter.util.conditions.Operator.EQUAL;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author sva
  * @since 5/03/13 - 16:12
  */
-@ProtocolDialectConfigurationPropertiesCannotDuplicate(groups = {Save.Create.class})
 //@ProtocolDialectConfigurationHasAllRequiredProperties(groups = {Save.Create.class, Save.Update.class})
 class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<ProtocolDialectConfigurationProperties> implements ProtocolDialectConfigurationProperties {
 
@@ -63,25 +61,6 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
     @Override
     public void update() {
         save();
-    }
-
-    static class PrimaryKeyValidator implements ConstraintValidator<ProtocolDialectConfigurationPropertiesCannotDuplicate, ProtocolDialectConfigurationPropertiesImpl> {
-
-        @Override
-        public void initialize(ProtocolDialectConfigurationPropertiesCannotDuplicate constraintAnnotation) {
-            // nothing for now
-        }
-
-        @Override
-        public boolean isValid(ProtocolDialectConfigurationPropertiesImpl value, ConstraintValidatorContext context) {
-            return value.dataModel.mapper(ProtocolDialectConfigurationProperties.class)
-                    .select(
-                            EQUAL.compare("deviceCommunicationConfiguration", value.getDeviceCommunicationConfiguration())
-                                    .and(EQUAL.compare("protocolDialectName", value.protocolDialectName)))
-                    .isEmpty();
-        }
-
-
     }
 
     static class PropertyValueValidator implements ConstraintValidator<ProtocolDialectConfigurationHasCorrectPropertyValues, ProtocolDialectConfigurationPropertiesImpl> {
