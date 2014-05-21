@@ -1,10 +1,7 @@
 package com.energyict.mdc.pluggable;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
-
-import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
@@ -30,7 +27,7 @@ public interface PluggableClass {
      */
     public String getName();
 
-    public void setName(String name) throws BusinessException;
+    public void setName(String name);
 
     /**
      * Returns the type of Pluggable that is implemented by the java class.

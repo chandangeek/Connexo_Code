@@ -6,7 +6,6 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.time.Clock;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.pluggable.PluggableClass;
@@ -159,7 +158,7 @@ public class PluggableClassImpl implements PluggableClass {
     }
 
     @Override
-    public void setName(String name) throws BusinessException {
+    public void setName(String name)  {
         this.validateName(name);
         if (!name.equals(this.getName())) {
             this.validateUniqueName(name, this.pluggableType.toActualType());
