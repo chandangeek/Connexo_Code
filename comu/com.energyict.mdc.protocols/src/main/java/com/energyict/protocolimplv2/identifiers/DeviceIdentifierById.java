@@ -24,9 +24,9 @@ import java.util.List;
  */
 public class DeviceIdentifierById implements DeviceIdentifier {
 
-    private int id; // TODO : change to long?
+    private long id;
 
-    public DeviceIdentifierById(int id) {
+    public DeviceIdentifierById(long id) {
         super();
         this.id = id;
     }
@@ -48,7 +48,7 @@ public class DeviceIdentifierById implements DeviceIdentifier {
         }
     }
 
-    private BaseDevice findDevice (int deviceId) {
+    private BaseDevice findDevice (long deviceId) {
         List<DeviceFactory> deviceFactories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceFactory.class);
         return deviceFactories.get(0).findById(deviceId);
     }
@@ -60,6 +60,6 @@ public class DeviceIdentifierById implements DeviceIdentifier {
 
     @Override
     public String getIdentifier() {
-        return Integer.toString(id);
+        return Long.toString(id);
     }
 }
