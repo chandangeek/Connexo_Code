@@ -9455,10 +9455,10 @@ a.x-tab {
   background: transparent;
   border: 0;
   margin: 0;
-  padding: 6px 0 6px 6px; }
+  padding: 8px 0 8px 0; }
   /* line 139, ../../../ext-theme-neutral/sass/src/toolbar/Toolbar.scss */
   .x-toolbar-footer .x-toolbar-item {
-    margin: 0 6px 0 0; }
+    margin: 0 0 0 0; }
 
 /* line 144, ../../../ext-theme-neutral/sass/src/toolbar/Toolbar.scss */
 .x-toolbar-spacer {
@@ -43764,12 +43764,7 @@ div.x-form-spinner-down {
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   font-weight: bold;
   padding-right: 14px;
-  text-align: right;
-  margin-left: 4px; }
-
-/* line 13, ../../sass/src/form/Label.scss */
-.x-form-item-body {
-  margin-right: 4px; }
+  text-align: right; }
 
 /* line 17, ../../sass/src/form/Label.scss */
 .uni-form-item-label-required {

@@ -4,8 +4,8 @@ $toolbar-background-gradient: 'none' !default;
 $toolbar-horizontal-spacing: 0px !default;
 $toolbar-vertical-spacing: 8px !default;
 
-//$toolbar-footer-horizontal-spacing: 8px !default;
-//$toolbar-footer-vertical-spacing: 8px !default;
+$toolbar-footer-horizontal-spacing: 0 !default;
+$toolbar-footer-vertical-spacing: $toolbar-vertical-spacing !default;
 $toolbar-footer-background-color: transparent !default;
 $toolbar-footer-border-width: 0 !default;
 $toolbar-footer-margin: 0 !default;
