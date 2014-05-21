@@ -90,7 +90,7 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
                 context.disableDefaultConstraintViolation();
                 context
                     .buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.DEVICE_PROTOCOL_DIALECT_REQUIRED_PROPERTY_MISSING_KEY + "}")
-                    .addPropertyNode("properties").addConstraintViolation();
+                    .addPropertyNode("properties").addPropertyNode(propertySpec.getName()).addConstraintViolation();
                 this.valid = false;
             }
         }
