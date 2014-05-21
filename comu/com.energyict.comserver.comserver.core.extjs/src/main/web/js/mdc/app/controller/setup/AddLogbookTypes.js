@@ -4,7 +4,9 @@ Ext.define('Mdc.controller.setup.AddLogbookTypes', {
     stores: [
         'Mdc.store.LogbookTypes'
     ],
-
+    requires: [
+        'Ext.window.MessageBox'
+    ],
     views: [
         'setup.devicetype.AddLogbookTypes'
     ],
@@ -27,34 +29,6 @@ Ext.define('Mdc.controller.setup.AddLogbookTypes', {
                 (grid.view.getSelectionModel().getSelection().length > 1 ? ' logbooks' : ' logbook') + ' selected') : 'No logbooks selected');
     },
 
-    showDatabaseError: function (msges) {
-        var self = this,
-            addView = Ext.ComponentQuery.query('add-logbook-types')[0];
-        self.getApplication().fireEvent('isushowmsg', {
-            type: 'error',
-            msgBody: msges,
-            y: 10,
-            closeBtn: true,
-            btns: [
-                {
-                    text: 'Cancel',
-                    cls: 'isu-btn-link',
-                    hnd: function () {
-                        window.location = '#/administration/devicetypes/' + addView.deviceTypeId + '/logbooktypes';
-                    }
-                }
-            ],
-            listeners: {
-                close: {
-                    fn: function () {
-                        addView.enable();
-                    }
-                }
-            }
-        });
-        addView.disable();
-    },
-
     addLogbookType: function (btn) {
         var self = this,
             addView = Ext.ComponentQuery.query('add-logbook-types')[0],
@@ -63,8 +37,6 @@ Ext.define('Mdc.controller.setup.AddLogbookTypes', {
             header = {
                 style: 'msgHeaderStyle'
             },
-            bodyItem = {},
-            msges = [],
             preloader = Ext.create('Ext.LoadMask', {
                 msg: "Loading...",
                 target: addView
@@ -85,52 +57,36 @@ Ext.define('Mdc.controller.setup.AddLogbookTypes', {
                 header.text = '';
 
                 Ext.create('widget.uxNotification', {
-                    title: 'Successfully added',
-                    stickOnClick: false,
-                    manager: 'demo1',
-                    iconCls: 'ux-notification-icon-information',
-                    html: 'Entering from the component\'s bl corner. stickOnClick set to false.'
+                    html: 'Successfully added',
+                    ui: 'notification-success'
                 }).show();
             },
             failure: function (response) {
                 var result = Ext.decode(response.responseText);
+
                 if (result !== null) {
-                    header.text = result.message;
-                    msges.push(header);
-                    bodyItem.style = 'msgItemStyle';
-                    bodyItem.text = result.error;
-                    msges.push(bodyItem);
-                    self.getApplication().fireEvent('isushowmsg', {
-                        type: 'error',
-                        msgBody: msges,
-                        y: 10,
-                        closeBtn: true,
-                        btns: [
-                            {
-                                text: 'Cancel',
-                                cls: 'isu-btn-link',
-                                hnd: function () {
-                                    window.location = '#/administration/devicetypes/' + addView.deviceTypeId + '/logbooktypes/add';
-                                }
-                            }
-                        ],
-                        listeners: {
-                            close: {
-                                fn: function () {
-                                    addView.enable();
-                                }
-                            }
+                    Ext.Msg.show({
+                        title: result.error,
+                        msg: result.message,
+                        icon: Ext.MessageBox.WARNING,
+                        buttons: Ext.MessageBox.CANCEL,
+                        ui: 'notification-error',
+                        config: {
+                            me: this
                         }
                     });
-                    addView.disable();
                 }
                 else {
-                    header.text = 'Error during adding';
-                    msges.push(header);
-                    bodyItem.style = 'msgItemStyle';
-                    bodyItem.text = 'The logbook type could not be added because of an error in the database.';
-                    msges.push(bodyItem);
-                    self.showDatabaseError(msges);
+                    Ext.Msg.show({
+                        title: 'Error during adding',
+                        msg: 'The logbook type could not be added because of an error in the database.',
+                        icon: Ext.MessageBox.WARNING,
+                        buttons: Ext.MessageBox.CANCEL,
+                        ui: 'notification-error',
+                        config: {
+                            me: this
+                        }
+                    });
                 }
             },
             callback: function () {
