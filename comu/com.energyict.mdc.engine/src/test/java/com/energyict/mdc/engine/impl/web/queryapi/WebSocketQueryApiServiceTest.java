@@ -5,8 +5,10 @@ import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.impl.EnvironmentImpl;
 import com.energyict.mdc.common.impl.MdcCommonModule;
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.RemoteComServerQueryJSonPropertyNames;
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.core.remote.QueryMethod;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
@@ -37,7 +39,6 @@ import com.elster.jupiter.util.UtilModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.fest.assertions.api.Assertions;
 import org.joda.time.DateTimeConstants;
 import org.json.JSONException;
 import org.json.JSONStringer;
@@ -56,7 +57,9 @@ import org.junit.rules.*;
 import org.junit.runner.*;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link WebSocketQueryApiService} component.
@@ -71,6 +74,9 @@ public class WebSocketQueryApiServiceTest {
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private static DataModel dataModel;
     private static EngineModelService engineModelService;
+    private static DeviceDataService deviceDataService;
+    private static TransactionService transactionService;
+    private static ServiceProvider serviceProvider;
 
     @Rule
     public TestRule transactionalRule = new TransactionalRule(getTransactionService());
@@ -81,6 +87,7 @@ public class WebSocketQueryApiServiceTest {
 
     @BeforeClass
     public static void staticSetUp() {
+        initializeMocks();
         BundleContext bundleContext = mock(BundleContext.class);
         injector = Guice.createInjector(
                 new MockModule(bundleContext),
@@ -99,15 +106,25 @@ public class WebSocketQueryApiServiceTest {
             injector.getInstance(EnvironmentImpl.class); // fake call to make sure component is initialized
             injector.getInstance(NlsService.class); // fake call to make sure component is initialized
             injector.getInstance(ProtocolPluggableService.class); // fake call to make sure component is initialized
+            transactionService = injector.getInstance(TransactionService.class);
             EngineModelServiceImpl engineModelServiceImpl = (EngineModelServiceImpl) injector.getInstance(EngineModelService.class);
             dataModel = engineModelServiceImpl.getDataModel();
             engineModelService = engineModelServiceImpl;
             ctx.commit();
         }
+        when(serviceProvider.engineModelService()).thenReturn(engineModelService);
+        when(serviceProvider.transactionService()).thenReturn(transactionService);
+    }
+
+    private static void initializeMocks() {
+        deviceDataService = mock(DeviceDataService.class);
+        serviceProvider = mock(ServiceProvider.class);
+        when(serviceProvider.deviceDataService()).thenReturn(deviceDataService);
+        ServiceProvider.instance.set(serviceProvider);
     }
 
     @AfterClass
-    public static void staticTearDown() throws SQLException {
+    public static void staticTearDown() {
         inMemoryBootstrapModule.deactivate();
     }
 
@@ -128,9 +145,9 @@ public class WebSocketQueryApiServiceTest {
 
         // Asserts
         String receivedMessage = connection.getReceivedMessage();
-        Assertions.assertThat(receivedMessage).isNotNull();
-        Assertions.assertThat(receivedMessage).contains(queryId);
-        Assertions.assertThat(receivedMessage).contains(comServer.getName());
+        assertThat(receivedMessage).isNotNull();
+        assertThat(receivedMessage).contains(queryId);
+        assertThat(receivedMessage).contains(comServer.getName());
     }
 
     /**
@@ -152,9 +169,9 @@ public class WebSocketQueryApiServiceTest {
 
         // Asserts
         String receivedMessage = connection.getReceivedMessage();
-        Assertions.assertThat(receivedMessage).isNotNull();
-        Assertions.assertThat(receivedMessage).contains(queryId);
-        Assertions.assertThat(receivedMessage).contains(comServer.getName());
+        assertThat(receivedMessage).isNotNull();
+        assertThat(receivedMessage).contains(queryId);
+        assertThat(receivedMessage).contains(comServer.getName());
     }
 
     /**
@@ -178,9 +195,9 @@ public class WebSocketQueryApiServiceTest {
 
         // Asserts
         String receivedMessage = connection.getReceivedMessage();
-        Assertions.assertThat(receivedMessage).isNotNull();
-        Assertions.assertThat(receivedMessage).contains(queryId);
-        Assertions.assertThat(receivedMessage).contains(comServer.getName());
+        assertThat(receivedMessage).isNotNull();
+        assertThat(receivedMessage).contains(queryId);
+        assertThat(receivedMessage).contains(comServer.getName());
     }
 
     /**
@@ -200,9 +217,9 @@ public class WebSocketQueryApiServiceTest {
 
         // Asserts
         String receivedMessage = connection.getReceivedMessage();
-        Assertions.assertThat(receivedMessage).isNotNull();
-        Assertions.assertThat(receivedMessage).contains(queryId);
-        Assertions.assertThat(receivedMessage).doesNotContain(comServer.getName());
+        assertThat(receivedMessage).isNotNull();
+        assertThat(receivedMessage).contains(queryId);
+        assertThat(receivedMessage).doesNotContain(comServer.getName());
     }
 
     /**
@@ -228,9 +245,9 @@ public class WebSocketQueryApiServiceTest {
 
         // Asserts
         String receivedMessage = connection.getReceivedMessage();
-        Assertions.assertThat(receivedMessage).isNotNull();
-        Assertions.assertThat(receivedMessage).contains(queryId);
-        Assertions.assertThat(receivedMessage).doesNotContain(comPort.getName());
+        assertThat(receivedMessage).isNotNull();
+        assertThat(receivedMessage).contains(queryId);
+        assertThat(receivedMessage).doesNotContain(comPort.getName());
     }
 
     /**
@@ -261,9 +278,9 @@ public class WebSocketQueryApiServiceTest {
 
         // Asserts
         String receivedMessage = connection.getReceivedMessage();
-        Assertions.assertThat(receivedMessage).isNotNull();
-        Assertions.assertThat(receivedMessage).contains(queryId);
-        Assertions.assertThat(receivedMessage).contains(comPort.getName());
+        assertThat(receivedMessage).isNotNull();
+        assertThat(receivedMessage).contains(queryId);
+        assertThat(receivedMessage).contains(comPort.getName());
     }
 
     private void updateComPortModificationDate (ComPort comPort, Date modificationDate) throws SQLException {
@@ -272,10 +289,13 @@ public class WebSocketQueryApiServiceTest {
         sqlBuilder.bindDate(modificationDate);
         sqlBuilder.append(" where id = ?");
         sqlBuilder.bindLong(comPort.getId());
-        try (Connection connection = dataModel.getConnection(true)) {
-            try (PreparedStatement statement = sqlBuilder.getStatement(connection)) {
-                statement.executeUpdate();
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
+            try (Connection connection = dataModel.getConnection(true)) {
+                try (PreparedStatement statement = sqlBuilder.getStatement(connection)) {
+                    statement.executeUpdate();
+                }
             }
+            ctx.commit();
         }
     }
 
@@ -306,24 +326,38 @@ public class WebSocketQueryApiServiceTest {
         return queryWriter.toString();
     }
 
-    private OnlineComServer createComServerForThisMachine () throws SQLException, BusinessException {
+    private OnlineComServer createComServerForThisMachine () {
         return this.createOnlineComServer(HostName.getCurrent());
     }
 
     private OnlineComServer createOnlineComServer (String hostName) {
-        OnlineComServer onlineComServer = engineModelService.newOnlineComServerInstance();
-        onlineComServer.setName(hostName);
-        onlineComServer.setActive(true);
-        onlineComServer.setActive(true);
-        onlineComServer.setServerLogLevel(ComServer.LogLevel.ERROR);
-        onlineComServer.setCommunicationLogLevel(ComServer.LogLevel.ERROR);
-        onlineComServer.setChangesInterPollDelay(new TimeDuration(5, TimeDuration.HOURS));
-        onlineComServer.setSchedulingInterPollDelay(new TimeDuration(1, TimeDuration.MINUTES));
-        onlineComServer.save();
-        return onlineComServer;
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
+            OnlineComServer onlineComServer = engineModelService.newOnlineComServerInstance();
+            onlineComServer.setName(hostName);
+            onlineComServer.setActive(true);
+            onlineComServer.setActive(true);
+            onlineComServer.setServerLogLevel(ComServer.LogLevel.ERROR);
+            onlineComServer.setCommunicationLogLevel(ComServer.LogLevel.ERROR);
+            onlineComServer.setChangesInterPollDelay(new TimeDuration(5, TimeDuration.HOURS));
+            onlineComServer.setSchedulingInterPollDelay(new TimeDuration(1, TimeDuration.MINUTES));
+            onlineComServer.setStoreTaskQueueSize(ComServer.MINIMUM_STORE_TASK_QUEUE_SIZE);
+            onlineComServer.setNumberOfStoreTaskThreads(ComServer.MINIMUM_NUMBER_OF_STORE_TASK_THREADS);
+            onlineComServer.setStoreTaskThreadPriority(ComServer.MINIMUM_STORE_TASK_THREAD_PRIORITY);
+            onlineComServer.save();
+            ctx.commit();
+            return onlineComServer;
+        }
     }
 
     private RemoteComServer createRemoteComServer (String hostName, OnlineComServer onlineComServer) {
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
+            RemoteComServer remoteComServer = this.doCreateRemoteComServer(hostName, onlineComServer);
+            ctx.commit();
+            return remoteComServer;
+        }
+    }
+
+    private RemoteComServer doCreateRemoteComServer(String hostName, OnlineComServer onlineComServer) {
         RemoteComServer remoteComServer = engineModelService.newRemoteComServerInstance();
         remoteComServer.setName(hostName);
         remoteComServer.setOnlineComServer(onlineComServer);
@@ -337,12 +371,15 @@ public class WebSocketQueryApiServiceTest {
     }
 
     private RemoteComServer createRemoteComServerWithOneOutboundComPort (String hostName, OnlineComServer onlineComServer) {
-        RemoteComServer remoteComServer = this.createRemoteComServer(hostName, onlineComServer);
-        OutboundComPort.OutboundComPortBuilder portBuilder = remoteComServer.newOutboundComPort("TCP", 1);
-        portBuilder.comPortType(ComPortType.TCP);
-        portBuilder.active(true);
-        portBuilder.add();
-        return remoteComServer;
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
+            RemoteComServer remoteComServer = this.doCreateRemoteComServer(hostName, onlineComServer);
+            OutboundComPort.OutboundComPortBuilder portBuilder = remoteComServer.newOutboundComPort("TCP", 1);
+            portBuilder.comPortType(ComPortType.TCP);
+            portBuilder.active(true);
+            portBuilder.add();
+            ctx.commit();
+            return remoteComServer;
+        }
     }
 
     private class TestConnection implements org.eclipse.jetty.websocket.WebSocket.Connection {
@@ -429,6 +466,7 @@ public class WebSocketQueryApiServiceTest {
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
+            bind(DeviceDataService.class).toInstance(deviceDataService);
         }
     }
 
