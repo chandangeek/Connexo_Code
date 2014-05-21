@@ -117,7 +117,7 @@ public class DeviceCommunicationProtocolsResource {
             LicensedProtocol licensedProtocol = licensedProtocolService.findLicensedProtocolFor(deviceProtocolPluggableClass);
             return new DeviceCommunicationProtocolInfo(uriInfo, deviceProtocolPluggableClass, licensedProtocol, true);
         } catch (FieldValidationException fieldValidationException) {
-            throw new LocalizedFieldValidationException(thesaurus, MessageSeeds.INVALID_VALUE, fieldValidationException.getFieldName());
+            throw new LocalizedFieldValidationException(thesaurus, MessageSeeds.INVALID_VALUE, "properties."+fieldValidationException.getFieldName());
         }
     }
 
@@ -134,7 +134,7 @@ public class DeviceCommunicationProtocolsResource {
             LicensedProtocol licensedProtocol = licensedProtocolService.findLicensedProtocolFor(deviceProtocolPluggableClass);
             return new DeviceCommunicationProtocolInfo(uriInfo, protocolPluggableService.findDeviceProtocolPluggableClass(id), licensedProtocol, true);
         } catch (FieldValidationException fieldValidationException) {
-            throw new LocalizedFieldValidationException(thesaurus, MessageSeeds.INVALID_VALUE, fieldValidationException.getFieldName());
+            throw new LocalizedFieldValidationException(thesaurus, MessageSeeds.INVALID_VALUE, "properties."+fieldValidationException.getFieldName());
         }
     }
 
