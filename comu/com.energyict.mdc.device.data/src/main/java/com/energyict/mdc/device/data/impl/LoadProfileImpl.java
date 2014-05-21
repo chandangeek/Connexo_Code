@@ -98,7 +98,7 @@ public class LoadProfileImpl implements LoadProfile {
     }
 
     @Override
-    public BaseDevice getDevice() {
+    public Device getDevice() {
         return this.device.get();
     }
 
@@ -198,7 +198,7 @@ public class LoadProfileImpl implements LoadProfile {
         }
 
         @Override
-        public BaseDevice getDevice() {
+        public Device getDevice() {
             return this.loadProfile.getDevice();
         }
 
