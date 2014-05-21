@@ -3,17 +3,17 @@ package com.energyict.mdc.engine.impl.commands.offline;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-import org.junit.Test;
+import com.energyict.mdc.masterdata.LoadProfileType;
 
 import java.util.Arrays;
 import java.util.Date;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import org.junit.*;
+
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -33,7 +33,7 @@ public class OfflineLoadProfileImplTest {
     private static final String MASTER_SERIAL_NUMBER = "Master_SerialNumber";
 
     private static LoadProfile getNewMockedLoadProfile(final long id, final ObisCode obisCode) {
-        BaseDevice rtu = mock(BaseDevice.class);
+        Device rtu = mock(Device.class);
         when(rtu.getSerialNumber()).thenReturn(MASTER_SERIAL_NUMBER);
         when(rtu.getId()).thenReturn(RTU_ID);
         LoadProfileSpec loadProfileSpec = mock(LoadProfileSpec.class);
