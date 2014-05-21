@@ -67,6 +67,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
+import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.engine.model.InboundComPortPool;
@@ -923,6 +924,42 @@ public class DeviceImpl implements Device, PersistenceAware {
     @Override
     public List<ConnectionTask<?, ?>> getConnectionTasks() {
         return new ArrayList<ConnectionTask<?,?>>(connectionTasks);
+    }
+
+    @Override
+    public List<ScheduledConnectionTask> getScheduledConnectionTasks() {
+        List<ConnectionTask<?, ?>> allConnectionTasks = this.getConnectionTasks();
+        List<ScheduledConnectionTask> outboundConnectionTasks = new ArrayList<>(allConnectionTasks.size());   // Worst case: all connection tasks are scheduled
+        for (ConnectionTask<?, ?> connectionTask : allConnectionTasks) {
+            if (connectionTask instanceof ScheduledConnectionTask) {
+                outboundConnectionTasks.add((ScheduledConnectionTask) connectionTask);
+            }
+        }
+        return outboundConnectionTasks;
+    }
+
+    @Override
+    public List<ConnectionInitiationTask> getConnectionInitiationTasks() {
+        List<ConnectionTask<?, ?>> allConnectionTasks = this.getConnectionTasks();
+        List<ConnectionInitiationTask> initiationTasks = new ArrayList<>(allConnectionTasks.size());   // Worst case: all connection tasks are initiators
+        for (ConnectionTask<?, ?> connectionTask : allConnectionTasks) {
+            if (connectionTask instanceof ConnectionInitiationTask) {
+                initiationTasks.add((ConnectionInitiationTask) connectionTask);
+            }
+        }
+        return initiationTasks;
+    }
+
+    @Override
+    public List<InboundConnectionTask> getInboundConnectionTasks() {
+        List<ConnectionTask<?, ?>> allConnectionTasks = this.getConnectionTasks();
+        List<InboundConnectionTask> inboundConnectionTasks = new ArrayList<>(allConnectionTasks.size());   // Worst case: all connection tasks are inbound
+        for (ConnectionTask<?, ?> connectionTask : allConnectionTasks) {
+            if (connectionTask instanceof InboundConnectionTask) {
+                inboundConnectionTasks.add((InboundConnectionTask) connectionTask);
+            }
+        }
+        return inboundConnectionTasks;
     }
 
     @Override

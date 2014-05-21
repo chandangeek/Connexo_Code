@@ -219,6 +219,9 @@ public class DeviceTestsForCommunication extends PersistenceIntegrationTest {
         List<ConnectionTask<?, ?>> connectionTasks = reloadedDevice.getConnectionTasks();
 
         assertThat(connectionTasks).isEmpty();
+        assertThat(reloadedDevice.getInboundConnectionTasks()).isEmpty();
+        assertThat(reloadedDevice.getScheduledConnectionTasks()).isEmpty();
+        assertThat(reloadedDevice.getConnectionInitiationTasks()).isEmpty();
     }
 
     @Test
@@ -234,6 +237,10 @@ public class DeviceTestsForCommunication extends PersistenceIntegrationTest {
         assertThat(connectionTasks).hasSize(1);
         assertThat(connectionTasks.get(0).getPartialConnectionTask().getId()).isEqualTo(partialScheduledConnectionTask.getId());
         assertThat(connectionTasks.get(0).getId()).isEqualTo(scheduledConnectionTask.getId());
+
+        assertThat(reloadedDevice.getInboundConnectionTasks()).isEmpty();
+        assertThat(reloadedDevice.getScheduledConnectionTasks()).hasSize(1);
+        assertThat(reloadedDevice.getConnectionInitiationTasks()).isEmpty();
     }
 
     @Test
@@ -250,6 +257,10 @@ public class DeviceTestsForCommunication extends PersistenceIntegrationTest {
         assertThat(connectionTasks).hasSize(1);
         assertThat(connectionTasks.get(0).getPartialConnectionTask().getId()).isEqualTo(partialScheduledConnectionTask.getId());
         assertThat(connectionTasks.get(0).getId()).isEqualTo(scheduledConnectionTask.getId());
+
+        assertThat(reloadedDevice.getInboundConnectionTasks()).isEmpty();
+        assertThat(reloadedDevice.getScheduledConnectionTasks()).hasSize(1);
+        assertThat(reloadedDevice.getConnectionInitiationTasks()).isEmpty();
     }
 
     @Test
@@ -265,6 +276,10 @@ public class DeviceTestsForCommunication extends PersistenceIntegrationTest {
         assertThat(connectionTasks).hasSize(1);
         assertThat(connectionTasks.get(0).getPartialConnectionTask().getId()).isEqualTo(partialInboundConnectionTask.getId());
         assertThat(connectionTasks.get(0).getId()).isEqualTo(inboundConnectionTask.getId());
+
+        assertThat(reloadedDevice.getInboundConnectionTasks()).hasSize(1);
+        assertThat(reloadedDevice.getScheduledConnectionTasks()).isEmpty();
+        assertThat(reloadedDevice.getConnectionInitiationTasks()).isEmpty();
     }
 
     @Test
@@ -281,6 +296,10 @@ public class DeviceTestsForCommunication extends PersistenceIntegrationTest {
         assertThat(connectionTasks).hasSize(1);
         assertThat(connectionTasks.get(0).getPartialConnectionTask().getId()).isEqualTo(partialInboundConnectionTask.getId());
         assertThat(connectionTasks.get(0).getId()).isEqualTo(inboundConnectionTask.getId());
+
+        assertThat(reloadedDevice.getInboundConnectionTasks()).hasSize(1);
+        assertThat(reloadedDevice.getScheduledConnectionTasks()).isEmpty();
+        assertThat(reloadedDevice.getConnectionInitiationTasks()).isEmpty();
     }
 
     @Test
@@ -296,6 +315,10 @@ public class DeviceTestsForCommunication extends PersistenceIntegrationTest {
         assertThat(connectionTasks).hasSize(1);
         assertThat(connectionTasks.get(0).getPartialConnectionTask().getId()).isEqualTo(partialConnectionInitiationTask.getId());
         assertThat(connectionTasks.get(0).getId()).isEqualTo(connectionInitiationTask.getId());
+
+        assertThat(reloadedDevice.getInboundConnectionTasks()).isEmpty();
+        assertThat(reloadedDevice.getScheduledConnectionTasks()).isEmpty();
+        assertThat(reloadedDevice.getConnectionInitiationTasks()).hasSize(1);
     }
 
     @Test
@@ -312,6 +335,10 @@ public class DeviceTestsForCommunication extends PersistenceIntegrationTest {
         assertThat(connectionTasks).hasSize(1);
         assertThat(connectionTasks.get(0).getPartialConnectionTask().getId()).isEqualTo(partialConnectionInitiationTask.getId());
         assertThat(connectionTasks.get(0).getId()).isEqualTo(connectionInitiationTask.getId());
+
+        assertThat(reloadedDevice.getInboundConnectionTasks()).isEmpty();
+        assertThat(reloadedDevice.getScheduledConnectionTasks()).isEmpty();
+        assertThat(reloadedDevice.getConnectionInitiationTasks()).hasSize(1);
     }
 
     @Test
@@ -347,6 +374,10 @@ public class DeviceTestsForCommunication extends PersistenceIntegrationTest {
                 return tripleMatch == 0b0111;
             }
         });
+
+        assertThat(reloadedDevice.getInboundConnectionTasks()).hasSize(1);
+        assertThat(reloadedDevice.getScheduledConnectionTasks()).hasSize(1);
+        assertThat(reloadedDevice.getConnectionInitiationTasks()).hasSize(1);
     }
 
     @Test
@@ -381,6 +412,9 @@ public class DeviceTestsForCommunication extends PersistenceIntegrationTest {
         Device deviceWithoutConnectionTasks = getReloadedDevice(reloadedDevice);
 
         assertThat(deviceWithoutConnectionTasks.getConnectionTasks()).isEmpty();
+        assertThat(reloadedDevice.getInboundConnectionTasks()).isEmpty();
+        assertThat(reloadedDevice.getScheduledConnectionTasks()).isEmpty();
+        assertThat(reloadedDevice.getConnectionInitiationTasks()).isEmpty();
     }
 
     @Test(expected = CannotDeleteConnectionTaskWhichIsNotFromThisDevice.class)
@@ -497,6 +531,10 @@ public class DeviceTestsForCommunication extends PersistenceIntegrationTest {
                 return bothMatch == 0b0011;
             }
         });
+
+        assertThat(reloadedDevice.getInboundConnectionTasks()).isEmpty();
+        assertThat(reloadedDevice.getScheduledConnectionTasks()).hasSize(1);
+        assertThat(reloadedDevice.getConnectionInitiationTasks()).isEmpty();
     }
 
     @Test
@@ -511,6 +549,10 @@ public class DeviceTestsForCommunication extends PersistenceIntegrationTest {
 
         Device reloadedDevice = getReloadedDevice(device);
         assertThat(reloadedDevice.getConnectionTasks().get(0).getComPortPool().getId()).isEqualTo(otherInboundComPortPool.getId());
+
+        assertThat(reloadedDevice.getInboundConnectionTasks()).hasSize(1);
+        assertThat(reloadedDevice.getScheduledConnectionTasks()).isEmpty();
+        assertThat(reloadedDevice.getConnectionInitiationTasks()).isEmpty();
     }
 
     @Ignore // TODO enable again once JP-1123 is completely finished
@@ -543,6 +585,10 @@ public class DeviceTestsForCommunication extends PersistenceIntegrationTest {
                 return bothMatch == 0b0011;
             }
         });
+
+        assertThat(reloadedDevice.getInboundConnectionTasks()).hasSize(1);
+        assertThat(reloadedDevice.getScheduledConnectionTasks()).isEmpty();
+        assertThat(reloadedDevice.getConnectionInitiationTasks()).isEmpty();
     }
 
     @Test

@@ -18,6 +18,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
+import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
@@ -233,6 +234,12 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
 
     List<ConnectionTask<?, ?>> getConnectionTasks();
+
+    List<ConnectionInitiationTask> getConnectionInitiationTasks();
+
+    List<ScheduledConnectionTask> getScheduledConnectionTasks();
+
+    List<InboundConnectionTask> getInboundConnectionTasks();
 
     void removeConnectionTask(ConnectionTask<?, ?> connectionTask);
 
