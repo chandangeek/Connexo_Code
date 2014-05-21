@@ -1,57 +1,57 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.energyict.comserver.time.Clocks;
-import com.energyict.comserver.time.FrozenClock;
-import com.energyict.mdc.meterdata.DeviceLogBook;
-import com.energyict.mdc.meterdata.identifiers.LogBookIdentifierByIdImpl;
+import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.engine.impl.meterdata.DeviceLogBook;
+import com.energyict.mdc.engine.impl.meterdata.identifiers.LogBookIdentifierByIdImpl;
+import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
-import com.energyict.mdc.engine.model.ComServer;
-import org.junit.*;
+import org.joda.time.DateTime;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author sva
  * @since 30/09/13 - 9:51
  */
+@RunWith(MockitoJUnitRunner.class)
 public class CollectedLogBookDeviceCommandTest {
 
     private final int LOGBOOK_ID = 1;
     private static final int UNKNOWN = 0;
-
-    @After
-    public void resetTimeFactory() throws SQLException {
-        Clocks.resetAll();
-    }
+    
+    @Mock
+    private DeviceDataService deviceDataService;
 
     @Test
     public void testToJournalMessageDescriptionWhenLogBookHasNoMeterEvents() throws Exception {
-        final LogBookIdentifier logBookIdentifier = new LogBookIdentifierByIdImpl(LOGBOOK_ID);
+        final LogBookIdentifier logBookIdentifier = new LogBookIdentifierByIdImpl(LOGBOOK_ID, deviceDataService);
         final DeviceLogBook deviceLogBook = new DeviceLogBook(logBookIdentifier);
-        CollectedLogBookDeviceCommand command = new CollectedLogBookDeviceCommand(deviceLogBook, issueService, clock, deviceDataService);
+        CollectedLogBookDeviceCommand command = new CollectedLogBookDeviceCommand(deviceLogBook);
 
         // Business method
         final String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
 
         // Asserts
-        Assertions.assertThat(journalMessage).isEqualTo(CollectedLogBookDeviceCommand.class.getSimpleName() + " {logbook: 1; nr of events: 0}");
+        assertThat(journalMessage).isEqualTo(CollectedLogBookDeviceCommand.class.getSimpleName() + " {logbook: 1; nr of events: 0}");
     }
 
     @Test
     public void testToJournalMessageDescriptionWhenLogBookHasMeterEvents() throws Exception {
-        final LogBookIdentifier logBookIdentifier = new LogBookIdentifierByIdImpl(LOGBOOK_ID);
+        final LogBookIdentifier logBookIdentifier = new LogBookIdentifierByIdImpl(LOGBOOK_ID, deviceDataService);
         final DeviceLogBook deviceLogBook = new DeviceLogBook(logBookIdentifier);
         List<MeterProtocolEvent> meterEvents = new ArrayList<>(2);
         meterEvents.add(
-                        new MeterProtocolEvent(FrozenClock.frozenOn(2013, Calendar.SEPTEMBER, 30, 9, 1, 0, 0).now(),
+                        new MeterProtocolEvent(new DateTime(2013, 9, 30, 9, 1, 0, 0).toDate(),
                                 MeterEvent.POWERDOWN,
                                 UNKNOWN,
                                 EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.POWERDOWN),
@@ -59,7 +59,7 @@ public class CollectedLogBookDeviceCommandTest {
                                 UNKNOWN,
                                 UNKNOWN));
         meterEvents.add(
-                        new MeterProtocolEvent(FrozenClock.frozenOn(2013, Calendar.SEPTEMBER, 30, 9, 4, 0, 0).now(),
+                        new MeterProtocolEvent(new DateTime(2013, 9, 30, 9, 4, 0, 0).toDate(),
                                 MeterEvent.POWERUP,
                                 UNKNOWN,
                                 EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.POWERUP),
@@ -67,12 +67,12 @@ public class CollectedLogBookDeviceCommandTest {
                                 UNKNOWN,
                                 UNKNOWN));
         deviceLogBook.setMeterEvents(meterEvents);
-        CollectedLogBookDeviceCommand command = new CollectedLogBookDeviceCommand(deviceLogBook, issueService, clock, deviceDataService);
+        CollectedLogBookDeviceCommand command = new CollectedLogBookDeviceCommand(deviceLogBook);
 
         // Business method
         final String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
 
         // Asserts
-        Assertions.assertThat(journalMessage).isEqualTo(CollectedLogBookDeviceCommand.class.getSimpleName() + " {logbook: 1; nr of events: 2}");
+        assertThat(journalMessage).isEqualTo(CollectedLogBookDeviceCommand.class.getSimpleName() + " {logbook: 1; nr of events: 2}");
     }
 }

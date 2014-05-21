@@ -8,8 +8,7 @@ import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.core.ComTaskExecutionJob;
-import com.energyict.mdc.engine.impl.core.ExecutionContext;
+import com.energyict.mdc.engine.impl.core.ConfigurableReadComChannel;
 import com.energyict.mdc.engine.impl.core.ScheduledComTaskExecutionJob;
 import com.energyict.mdc.engine.impl.core.ScheduledJobImpl;
 import com.energyict.mdc.engine.impl.core.SystemOutComChannel;
@@ -24,7 +23,6 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.tasks.history.TaskHistoryService;
-import org.fest.assertions.api.Assertions;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.Before;
@@ -37,7 +35,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.sql.SQLException;
 import java.util.Date;
 
-import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -122,11 +119,11 @@ public class InboundCommunicationStatisticsMonitorTest {
         when(comServer.getServerLogLevel()).thenReturn(ComServer.LogLevel.INFO);
         when(comServer.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.INFO);
         when(comPort.getComServer()).thenReturn(comServer);
-        ScheduledJobImpl scheduledJob = new ComTaskExecutionJob(comPort, mock(ComServerDAO.class), this.deviceCommandExecutor, comTask, issueService);
+        ScheduledJobImpl scheduledJob = new ScheduledComTaskExecutionJob(comPort, mock(ComServerDAO.class), this.deviceCommandExecutor, comTask, serviceProvider);
         int numberOfBytesRead = 0;
         byte[] readBuffer = new byte[replyBytes.length];
         try {
-            if (scheduledJob.establishConnectionFor(comPort)) {
+            if (scheduledJob.getExecutionContext().connect()) {
                 scheduledJob.getExecutionContext().getComChannel().write(helloWorldBytes);
                 numberOfBytesRead = scheduledJob.getExecutionContext().getComChannel().read(readBuffer);
             }
@@ -136,16 +133,10 @@ public class InboundCommunicationStatisticsMonitorTest {
         }
 
         // Asserts
-        ExecutionContext executionContext = scheduledJob.getExecutionContext();
-        assertThat(executionContext).isNotNull();
-        ComSessionShadow comSessionShadow = executionContext.getComSessionBuilder();
-        assertThat(comSessionShadow).isNotNull();
-        ComStatisticsShadow sessionStatistics = comSessionShadow.getComStatistics();
-        assertThat(sessionStatistics).isNotNull();
-        Assertions.assertThat(sessionStatistics.getNrOfBytesSent()).isEqualTo(helloWorldBytes.length);
-        Assertions.assertThat(sessionStatistics.getNrOfPacketsSent()).isEqualTo(1);
-        Assertions.assertThat(sessionStatistics.getNrOfBytesRead()).isEqualTo(numberOfBytesRead);
-        Assertions.assertThat(sessionStatistics.getNrOfPacketsRead()).isEqualTo(1);
+        verify(comSessionBuilder).addSentBytes(helloWorldBytes.length);
+        verify(comSessionBuilder).addSentPackets(1);
+        verify(comSessionBuilder).addReceivedBytes(numberOfBytesRead);
+        verify(comSessionBuilder).addReceivedPackets(1);
     }
 
     @Test
@@ -164,13 +155,13 @@ public class InboundCommunicationStatisticsMonitorTest {
         when(comServer.getServerLogLevel()).thenReturn(ComServer.LogLevel.INFO);
         when(comServer.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.INFO);
         when(comPort.getComServer()).thenReturn(comServer);
-        ScheduledJobImpl scheduledJob = new ComTaskExecutionJob(comPort, mock(ComServerDAO.class), this.deviceCommandExecutor, comTask, issueService);
+        ScheduledJobImpl scheduledJob = new ScheduledComTaskExecutionJob(comPort, mock(ComServerDAO.class), this.deviceCommandExecutor, comTask, serviceProvider);
         int numberOfBytesRead = 0;
         byte[] readBuffer = new byte[replyBytes.length];
         int numberOfReadWriteCycles = 5;
         try {
             for (int i = 0; i < numberOfReadWriteCycles; i++) {
-                if (scheduledJob.establishConnectionFor(comPort)) {
+                if (scheduledJob.getExecutionContext().connect()) {
                     scheduledJob.getExecutionContext().getComChannel().write(helloWorldBytes);
                     numberOfBytesRead = numberOfBytesRead + scheduledJob.getExecutionContext().getComChannel().read(readBuffer);
                 }
@@ -181,16 +172,10 @@ public class InboundCommunicationStatisticsMonitorTest {
         }
 
         // Asserts
-        ExecutionContext executionContext = scheduledJob.getExecutionContext();
-        assertThat(executionContext).isNotNull();
-        ComSessionShadow comSessionShadow = executionContext.getComSessionBuilder();
-        assertThat(comSessionShadow).isNotNull();
-        ComStatisticsShadow sessionStatistics = comSessionShadow.getComStatistics();
-        assertThat(sessionStatistics).isNotNull();
-        Assertions.assertThat(sessionStatistics.getNrOfBytesSent()).isEqualTo(helloWorldBytes.length * numberOfReadWriteCycles);
-        Assertions.assertThat(sessionStatistics.getNrOfPacketsSent()).isEqualTo(numberOfReadWriteCycles);
-        Assertions.assertThat(sessionStatistics.getNrOfBytesRead()).isEqualTo(numberOfBytesRead);
-        Assertions.assertThat(sessionStatistics.getNrOfPacketsRead()).isEqualTo(numberOfReadWriteCycles);
+        verify(comSessionBuilder).addSentBytes(helloWorldBytes.length * numberOfReadWriteCycles);
+        verify(comSessionBuilder).addSentPackets(numberOfReadWriteCycles);
+        verify(comSessionBuilder).addReceivedBytes(numberOfBytesRead);
+        verify(comSessionBuilder).addReceivedPackets(numberOfReadWriteCycles);
     }
 
     private static class IsGreaterThan extends BaseMatcher<Integer> {
