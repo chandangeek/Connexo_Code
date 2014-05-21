@@ -2,7 +2,6 @@ package com.energyict.mdc.protocol.pluggable.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.pluggable.Pluggable;
@@ -66,7 +65,7 @@ public abstract class PluggableClassWrapper<T extends Pluggable> {
         return this.getPluggableClass().getName();
     }
 
-    public void setName(String name) throws BusinessException {
+    public void setName(String name) {
         this.getPluggableClass().setName(name);
     }
 
