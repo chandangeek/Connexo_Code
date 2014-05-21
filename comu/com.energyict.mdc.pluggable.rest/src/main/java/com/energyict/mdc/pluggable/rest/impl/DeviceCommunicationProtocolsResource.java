@@ -2,6 +2,7 @@ package com.energyict.mdc.pluggable.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.common.rest.FieldValidationException;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -115,10 +116,8 @@ public class DeviceCommunicationProtocolsResource {
             deviceProtocolPluggableClass.save();
             LicensedProtocol licensedProtocol = licensedProtocolService.findLicensedProtocolFor(deviceProtocolPluggableClass);
             return new DeviceCommunicationProtocolInfo(uriInfo, deviceProtocolPluggableClass, licensedProtocol, true);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+        } catch (FieldValidationException fieldValidationException) {
+            throw new LocalizedFieldValidationException(thesaurus, MessageSeeds.INVALID_VALUE, fieldValidationException.getFieldName());
         }
     }
 
