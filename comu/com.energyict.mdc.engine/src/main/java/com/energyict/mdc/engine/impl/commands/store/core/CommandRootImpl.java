@@ -150,7 +150,7 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
     public ComTaskExecutionComCommand getComTaskRoot (ComTaskExecution comTaskExecution) {
         ComTaskExecutionComCommand comTaskExecutionComCommand = this.comCommandsPerComTaskExecution.get(comTaskExecution);
         if (comTaskExecutionComCommand == null) {
-            comTaskExecutionComCommand = new ComTaskExecutionComCommandImpl(this, serviceProvider.transactionService(), comTaskExecution);
+            comTaskExecutionComCommand = new ComTaskExecutionComCommandImpl(this, comTaskExecution);
             this.comCommandsPerComTaskExecution.put(comTaskExecution, comTaskExecutionComCommand);
         }
         return comTaskExecutionComCommand;

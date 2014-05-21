@@ -32,7 +32,7 @@ public class  DeviceCacheImpl implements DeviceCache {
     private final Thesaurus thesaurus;
     private final DataModel dataModel;
     private final Clock clock;
-    private Serializable simpleCache;
+    private byte[] simpleCache;
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DEVICE_IS_REQUIRED_FOR_CACHE + "}")
     private Reference<Device> device = ValueReference.absent();
     private Date modificationDate;
@@ -46,7 +46,7 @@ public class  DeviceCacheImpl implements DeviceCache {
 
     public DeviceCacheImpl initialize(Device device, Serializable simpleCacheObject) {
         this.device.set(device);
-        this.simpleCache = simpleCacheObject;
+        this.simpleCache = serialize(simpleCacheObject);
         return this;
     }
 
@@ -75,15 +75,12 @@ public class  DeviceCacheImpl implements DeviceCache {
 
     @Override
     public Serializable getSimpleCacheObject() {
-//        return deSerialize(this.simpleCache);
-        return this.simpleCache;
+        return deSerialize(this.simpleCache);
     }
 
     @Override
     public void setCacheObject(Serializable cacheObject) {
-//        this.simpleCache = serialize(cacheObject);
-        this.simpleCache = cacheObject;
-
+        this.simpleCache = serialize(cacheObject);
     }
 
     public Serializable deSerialize(byte[] bytes) {

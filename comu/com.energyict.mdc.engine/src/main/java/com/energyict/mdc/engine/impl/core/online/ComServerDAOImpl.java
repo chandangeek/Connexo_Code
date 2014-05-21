@@ -416,12 +416,8 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public ComSession createComSession(final ComSessionBuilder builder, final ComSession.SuccessIndicator successIndicator) {
-        return this.executeTransaction(new Transaction<ComSession>() {
-            @Override
-            public ComSession perform() {
-                return builder.endSession(serviceProvider.clock().now(), successIndicator).create();
-            }
-        });
+        /* We should already be in a transaction so don't wrap it again */
+        return builder.endSession(serviceProvider.clock().now(), successIndicator).create();
     }
 
     // TODO still required?
