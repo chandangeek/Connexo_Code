@@ -12,6 +12,9 @@ import com.energyict.mdc.engine.impl.core.SingleThreadedComPortListener;
 import com.energyict.mdc.engine.impl.core.factories.ComPortListenerFactoryImpl;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
+import com.energyict.mdc.issues.IssueService;
+
 import org.junit.*;
 import org.mockito.Mock;
 
@@ -30,6 +33,11 @@ public class ComPortListenerFactoryImplTest {
 
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
 
+    @Before
+    public void setUpServiceProvider () {
+        this.serviceProvider.setIssueService(mock(IssueService.class));
+    }
+
     @Test
     public void testWithActivePort () {
         ComPortListenerFactoryImpl factory = new ComPortListenerFactoryImpl(this.comServerDAO(), this.deviceCommandExecutor());
@@ -45,7 +53,7 @@ public class ComPortListenerFactoryImplTest {
     @Test
     public void testWithActivePortWithZeroSimultaneousConnections () {
         ComPortListenerFactoryImpl factory = new ComPortListenerFactoryImpl(this.comServerDAO(), this.deviceCommandExecutor());
-        assertNull("Was expecting the factory to return null for active port with 0 simultaneous connections", factory.newFor(this.activeComPortWithZeroSimultaneousConnections(), issueService));
+        assertNull("Was expecting the factory to return null for active port with 0 simultaneous connections", factory.newFor(this.activeComPortWithZeroSimultaneousConnections(), this.serviceProvider));
     }
 
     @Test
@@ -84,7 +92,7 @@ public class ComPortListenerFactoryImplTest {
         ComServer comServer = mock(ComServer.class);
         when(comServer.getSchedulingInterPollDelay()).thenReturn(TimeDuration.minutes(1));
         when(comServer.getChangesInterPollDelay()).thenReturn(TimeDuration.minutes(1));
-        InboundComPort comPort = mock(InboundComPort.class, withSettings().extraInterfaces(ServerComChannelBasedInboundComPort.class));
+        InboundComPort comPort = mock(InboundComPort.class);
         when(comPort.getComServer()).thenReturn(comServer);
         when(comPort.isActive()).thenReturn(true);
         when(comPort.getNumberOfSimultaneousConnections()).thenReturn(1);
@@ -92,13 +100,13 @@ public class ComPortListenerFactoryImplTest {
     }
 
     private InboundComPort inactiveComPort () {
-        InboundComPort comPort = mock(InboundComPort.class, withSettings().extraInterfaces(ServerComChannelBasedInboundComPort.class));
+        InboundComPort comPort = mock(InboundComPort.class);
         when(comPort.isActive()).thenReturn(false);
         return comPort;
     }
 
     private InboundComPort activeComPortWithZeroSimultaneousConnections () {
-        InboundComPort comPort = mock(InboundComPort.class, withSettings().extraInterfaces(ServerComChannelBasedInboundComPort.class));
+        InboundComPort comPort = mock(InboundComPort.class);
         when(comPort.isActive()).thenReturn(true);
         when(comPort.getNumberOfSimultaneousConnections()).thenReturn(0);
         return comPort;
@@ -108,7 +116,7 @@ public class ComPortListenerFactoryImplTest {
         ComServer comServer = mock(ComServer.class);
         when(comServer.getSchedulingInterPollDelay()).thenReturn(TimeDuration.minutes(1));
         when(comServer.getChangesInterPollDelay()).thenReturn(TimeDuration.minutes(1));
-        InboundComPort comPort = mock(InboundComPort.class, withSettings().extraInterfaces(ServerComChannelBasedInboundComPort.class, ServerServletBasedInboundComPort.class));
+        InboundComPort comPort = mock(InboundComPort.class, withSettings().extraInterfaces(ServletBasedInboundComPort.class));
         when(comPort.getComServer()).thenReturn(comServer);
         when(comServer.getChangesInterPollDelay()).thenReturn(new TimeDuration(1));
         when(comPort.isActive()).thenReturn(true);
@@ -120,7 +128,7 @@ public class ComPortListenerFactoryImplTest {
         ComServer comServer = mock(ComServer.class);
         when(comServer.getSchedulingInterPollDelay()).thenReturn(TimeDuration.minutes(1));
         when(comServer.getChangesInterPollDelay()).thenReturn(TimeDuration.minutes(1));
-        InboundComPort comPort = mock(InboundComPort.class, withSettings().extraInterfaces(ServerComChannelBasedInboundComPort.class));
+        InboundComPort comPort = mock(InboundComPort.class);
         when(comPort.getComServer()).thenReturn(comServer);
         when(comPort.isActive()).thenReturn(true);
         when(comPort.isServletBased()).thenReturn(false);
@@ -132,7 +140,7 @@ public class ComPortListenerFactoryImplTest {
         ComServer comServer = mock(ComServer.class);
         when(comServer.getSchedulingInterPollDelay()).thenReturn(TimeDuration.minutes(1));
         when(comServer.getChangesInterPollDelay()).thenReturn(TimeDuration.minutes(1));
-        InboundComPort comPort = mock(InboundComPort.class, withSettings().extraInterfaces(ServerComChannelBasedInboundComPort.class));
+        InboundComPort comPort = mock(InboundComPort.class);
         when(comPort.getComServer()).thenReturn(comServer);
         when(comPort.isActive()).thenReturn(true);
         when(comPort.isServletBased()).thenReturn(false);
