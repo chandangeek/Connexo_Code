@@ -18,10 +18,11 @@ import com.energyict.mdc.device.config.exceptions.CannotDeleteLoadProfileSpecLin
 import com.energyict.mdc.device.config.exceptions.LoadProfileTypeIsNotConfiguredOnDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.masterdata.LoadProfileType;
-import java.util.ArrayList;
-import java.util.List;
+
 import javax.inject.Inject;
 import javax.inject.Provider;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -85,9 +86,18 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
 
     private void validateDeviceTypeContainsLoadProfileType() {
         DeviceType deviceType = getDeviceConfiguration().getDeviceType();
-        if (!deviceType.getLoadProfileTypes().contains(getLoadProfileType())) {
+        if (!hasLoadProfileType(deviceType, getLoadProfileType())) {
             throw new LoadProfileTypeIsNotConfiguredOnDeviceTypeException(this.thesaurus, getLoadProfileType());
         }
+    }
+
+    private boolean hasLoadProfileType(DeviceType deviceType, LoadProfileType loadProfileType) {
+        for (LoadProfileType candidate : deviceType.getLoadProfileTypes()) {
+            if (candidate.getId() == loadProfileType.getId()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     void validateUpdate () {
