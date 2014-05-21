@@ -1,44 +1,50 @@
 package com.energyict.mdc.engine.impl.core.aspects.statistics;
 
-import com.energyict.comserver.commands.DeviceCommandExecutor;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.ProgrammableClock;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.engine.FakeServiceProvider;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.commands.store.core.CommandRootServiceProviderAdapter;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.comserver.core.ConfigurableReadComChannel;
+import com.energyict.mdc.engine.impl.core.ConfigurableReadComChannel;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
-import com.energyict.comserver.core.SystemOutComChannel;
-
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
+import com.energyict.mdc.engine.impl.core.SystemOutComChannel;
 import com.energyict.mdc.engine.impl.core.aspects.logging.ComChannelReadWriteLogger;
+import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannel;
+import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
-import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannel;
-import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannelImpl;
-import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.shadow.journal.ComSessionJournalEntryShadow;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdw.core.MeteringWarehouse;
-import org.fest.assertions.api.Assertions;
-
-import org.junit.*;
-import org.junit.runner.*;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.ConnectionException;
+import com.energyict.mdc.tasks.history.ComSessionBuilder;
+import com.energyict.mdc.tasks.history.TaskHistoryService;
+import com.energyict.protocols.mdc.services.impl.HexServiceImpl;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
-import static org.fest.assertions.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the pointcuts and advice defined in {@link ComChannelReadWriteLogger}.
- * Uses a {@link SystemOutComChannel} to read and write from.
+ * Uses a SystemOutComChannel to read and write from.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-03-14 (11:45)
@@ -58,12 +64,19 @@ public class ComChannelReadWriteLoggerTest {
     private static final int SECOND_SERIES_OF_BYTES_LENGTH = SECOND_SERIES_OF_BYTES.length - SECOND_SERIES_OF_BYTES_OFFSET;
     private static final int COMPORT_POOL_ID = 1;
 
+    private final FakeServiceProvider serviceProvider = new FakeServiceProvider();
+
     @Mock
     private EventPublisherImpl eventPublisher;
     @Mock
     private ComPort comPort;
     @Mock
     private IssueService issueService;
+    @Mock
+    private TaskHistoryService taskHistoryService;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private ComSessionBuilder comSessionBuilder;
+    private Clock clock = new ProgrammableClock().frozenAt(new Date(514851820000L)); // what happened in GMT+3 ?
 
     private String expectedMessageRead;
     private String expectedMessageWritten;
@@ -71,6 +84,9 @@ public class ComChannelReadWriteLoggerTest {
 
     @Before
     public void initializeMocksAndFactories () throws IOException {
+        serviceProvider.setClock(clock);
+        serviceProvider.setTaskHistoryService(taskHistoryService);
+        when(taskHistoryService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Date.class))).thenReturn(comSessionBuilder);
         this.initializeEventPublisher();
         this.initializeExpectedMessage();
     }
@@ -84,7 +100,7 @@ public class ComChannelReadWriteLoggerTest {
         os.write(singleByte);
         os.write(FIRST_SERIES_OF_BYTES);
         os.write(SECOND_SERIES_OF_BYTES, SECOND_SERIES_OF_BYTES_OFFSET, SECOND_SERIES_OF_BYTES_LENGTH);
-        String hexMessage = MeteringWarehouse.getCurrent().getHexService().toHexString(os.toByteArray());
+        String hexMessage = new HexServiceImpl().toHexString(os.toByteArray());
         this.expectedMessageRead = "RX " + hexMessage;
         this.expectedMessageWritten = "TX " + hexMessage;
     }
@@ -318,15 +334,11 @@ public class ComChannelReadWriteLoggerTest {
     }
 
     private void assertComSessionJournalMessage (String expectedMessage) {
-        List<ComSessionJournalEntryShadow> journalEntryShadows = this.jobExecution.getExecutionContext().getComSessionBuilder().getJournalEntryShadows();
-        assertThat(journalEntryShadows).hasSize(1);
-        ComSessionJournalEntryShadow messageJournalEntryShadow = journalEntryShadows.get(0);
-        Assertions.assertThat(messageJournalEntryShadow.getMessage()).isEqualTo(expectedMessage);
+        verify(comSessionBuilder).addJournalEntry(clock.now(), expectedMessage, null);
     }
 
     private void assertNoComSessionJournalMessage () {
-        List<ComSessionJournalEntryShadow> journalEntryShadows = this.jobExecution.getExecutionContext().getComSessionBuilder().getJournalEntryShadows();
-        assertThat(journalEntryShadows).isEmpty();
+        verify(comSessionBuilder, never()).addJournalEntry(any(Date.class), anyString(), any(Throwable.class));
     }
 
     private void readFrom (ComPortRelatedComChannel comChannel) {
@@ -365,7 +377,7 @@ public class ComChannelReadWriteLoggerTest {
         comChannel.whenReadFromBufferWithOffset(SECOND_SERIES_OF_BYTES, SECOND_SERIES_OF_BYTES_OFFSET, SECOND_SERIES_OF_BYTES_LENGTH);
         ComPortRelatedComChannel comPortRelatedComChannel = new ComPortRelatedComChannelImpl(comChannel);
         comPortRelatedComChannel.setComPort(this.comPort);
-        this.jobExecution = new MockJobExecution(comPort, comPortRelatedComChannel);
+        this.jobExecution = new MockJobExecution(comPort, comPortRelatedComChannel, serviceProvider);
         this.jobExecution.getExecutionContext().connect();   // Should initialize the ComChannelReadWriteLogger
         return comPortRelatedComChannel;
     }
@@ -397,7 +409,7 @@ public class ComChannelReadWriteLoggerTest {
         when(comServer.getCommunicationLogLevel()).thenReturn(comServerLogLevel);
         ComPort comPort = mock(ComPort.class);
         when(comPort.getComServer()).thenReturn(comServer);
-        this.jobExecution = new MockJobExecution(comPort, comChannel);
+        this.jobExecution = new MockJobExecution(comPort, comChannel, serviceProvider);
         this.jobExecution.getExecutionContext().connect();   // Should initialize the ComChannelReadWriteLogger
         comChannel.setComPort(this.comPort);
         return comChannel;
@@ -406,14 +418,14 @@ public class ComChannelReadWriteLoggerTest {
     private class MockJobExecution extends JobExecution {
         private ComPortRelatedComChannel comChannel;
 
-        private MockJobExecution (ComPort comPort, ComPortRelatedComChannel comChannel) {
-            super(comPort, mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), issueService);
+        private MockJobExecution (ComPort comPort, ComPortRelatedComChannel comChannel, ServiceProvider serviceProvider) {
+            super(comPort, mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), serviceProvider);
             this.comChannel = comChannel;
             ConnectionTask connectionTask = mock(ConnectionTask.class);
             ComPortPool comPortPool = mock(ComPortPool.class);
             when(comPortPool.getId()).thenReturn((long)COMPORT_POOL_ID);
             when(connectionTask.getComPortPool()).thenReturn(comPortPool);
-            this.setExecutionContext(new ExecutionContext(this, connectionTask, comPort, issueService));
+            this.setExecutionContext(new ExecutionContext(this, connectionTask, comPort, new CommandRootServiceProviderAdapter(serviceProvider)));
         }
 
         @Override
