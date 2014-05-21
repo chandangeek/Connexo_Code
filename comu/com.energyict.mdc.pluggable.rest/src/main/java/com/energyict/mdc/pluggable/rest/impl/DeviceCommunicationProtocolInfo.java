@@ -6,7 +6,6 @@ import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.pluggable.rest.PropertyInfo;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.core.UriInfo;
@@ -56,7 +55,7 @@ public class DeviceCommunicationProtocolInfo {
         return propertyInfoList;
     }
 
-    public void copyProperties(DeviceProtocolPluggableClass deviceProtocolPluggableClass) throws ParseException {
+    public void copyProperties(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
         List<PropertySpec> propertySpecs = deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpecs();
         for (PropertySpec propertySpec : propertySpecs) {
             Object value = MdcPropertyUtils.findPropertyValue(propertySpec, this.properties);

@@ -6,6 +6,7 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.BoundedBigDecimalPropertySpec;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecPossibleValues;
+import com.energyict.mdc.pluggable.rest.impl.FieldValidationException;
 import com.energyict.mdc.pluggable.rest.impl.properties.MdcPropertyReferenceInfoFactory;
 import com.energyict.mdc.pluggable.rest.impl.properties.PredefinedPropertyValuesInfo;
 import com.energyict.mdc.pluggable.rest.impl.properties.PropertySelectionMode;
@@ -132,16 +133,20 @@ public class MdcPropertyUtils {
 
     //find propertyValue in info
     public static Object findPropertyValue(PropertySpec propertySpec, PropertyInfo[] propertyInfos) {
-        for (PropertyInfo propertyInfo : propertyInfos) {
-            if (propertyInfo.key.equals(propertySpec.getName())) {
-                if (propertyInfo.getPropertyValueInfo() != null && propertyInfo.getPropertyValueInfo().getValue()!= null) {
-                    return convertPropertyInfoValueToPropertyValue(propertySpec, propertyInfo.getPropertyValueInfo().getValue());
-                } else {
-                    return null;
+        try {
+            for (PropertyInfo propertyInfo : propertyInfos) {
+                if (propertyInfo.key.equals(propertySpec.getName())) {
+                    if (propertyInfo.getPropertyValueInfo() != null && propertyInfo.getPropertyValueInfo().getValue()!= null) {
+                        return convertPropertyInfoValueToPropertyValue(propertySpec, propertyInfo.getPropertyValueInfo().getValue());
+                    } else {
+                        return null;
+                    }
                 }
             }
+            return null;
+        } catch (Exception e) {
+            throw new FieldValidationException(e.getLocalizedMessage(), propertySpec.getName());
         }
-        return null;
     }
 
     private static Object convertPropertyInfoValueToPropertyValue(PropertySpec propertySpec, Object value) {
@@ -157,6 +162,8 @@ public class MdcPropertyUtils {
         } else if (propertySpec.getValueFactory().getValueType() == String.class) {
             return value;
         } else if (propertySpec.getValueFactory().getValueType() == UserFile.class) {
+            return new UserFileImpl((Integer) ((LinkedHashMap<String, Object>) value).get("userFileReferenceId"));
+        } else if (propertySpec.getValueFactory().getValueType() == Boolean.class) {
             return new UserFileImpl((Integer) ((LinkedHashMap<String, Object>) value).get("userFileReferenceId"));
         }
         return propertySpec.getValueFactory().fromStringValue(value.toString());

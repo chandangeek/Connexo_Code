@@ -1,5 +1,7 @@
 package com.energyict.mdc.pluggable.rest.impl;
 
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -38,12 +40,14 @@ public class DeviceCommunicationProtocolsResource {
     private final PropertySpecService propertySpecService;
     private final ProtocolPluggableService protocolPluggableService;
     private final LicensedProtocolService licensedProtocolService;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public DeviceCommunicationProtocolsResource(PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, LicensedProtocolService licensedProtocolService) {
+    public DeviceCommunicationProtocolsResource(PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, LicensedProtocolService licensedProtocolService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
         this.protocolPluggableService = protocolPluggableService;
         this.licensedProtocolService = licensedProtocolService;
+        this.thesaurus = thesaurus;
     }
 
     @GET
@@ -130,11 +134,10 @@ public class DeviceCommunicationProtocolsResource {
             deviceProtocolPluggableClass.save();
             LicensedProtocol licensedProtocol = licensedProtocolService.findLicensedProtocolFor(deviceProtocolPluggableClass);
             return new DeviceCommunicationProtocolInfo(uriInfo, protocolPluggableService.findDeviceProtocolPluggableClass(id), licensedProtocol, true);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+        } catch (FieldValidationException fieldValidationException) {
+            throw new LocalizedFieldValidationException(thesaurus, MessageSeeds.INVALID_VALUE, fieldValidationException.getFieldName());
         }
     }
+
 
 }
