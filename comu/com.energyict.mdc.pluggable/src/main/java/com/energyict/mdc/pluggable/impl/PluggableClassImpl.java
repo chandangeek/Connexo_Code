@@ -7,6 +7,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.common.rest.FieldValidationException;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassType;
@@ -208,6 +209,9 @@ public class PluggableClassImpl implements PluggableClass {
                     propertySpec.getValueFactory().toStringValue(value));
             this.properties.add(pluggableClassProperty);
         } else {
+            if (!propertySpec.getValueFactory().getValueType().isAssignableFrom(value.getClass())) {
+                throw new FieldValidationException("Incorrect type", propertySpec.getName());
+            }
             property.value = propertySpec.getValueFactory().toStringValue(value);
             property.save();
         }
