@@ -84,7 +84,7 @@ public class MockTCPInboundComPort extends MockComPort implements TCPBasedInboun
     /**
      * Indicate that this InboundComPort is UDP-based
      *
-     * @return true if this port is an instance of {@link com.energyict.mdc.ports.UDPBasedInboundComPort}, false otherwise
+     * @return true if this port is an instance of {@link com.energyict.mdc.engine.model.UDPBasedInboundComPort}, false otherwise
      */
     @Override
     public boolean isUDPBased() {

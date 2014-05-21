@@ -562,24 +562,20 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public List<SecurityProperty> getDeviceProtocolSecurityProperties(DeviceIdentifier deviceIdentifier, InboundComPort comPort) {
-        //TODO complete once SecurityProperties are properly ported !!
-//        try {
-//            CommunicationDevice device = (CommunicationDevice) deviceIdentifier.findDevice();
-//            InboundConnectionTask connectionTask = this.getInboundConnectionTask(comPort, device);
-//            if (connectionTask == null) {
-//                return null;
-//            } else {
-//                SecurityPropertySet securityPropertySet = this.getSecurityPropertySet(device, connectionTask);
-//                if (securityPropertySet == null) {
-//                    return null;
-//                } else {
-//                    return device.getProtocolSecurityProperties(securityPropertySet);
-//                }
-//            }
-//        } finally {
-//            this.closeConnection();
-//        }
-        return Collections.emptyList();
+        Device device = (Device) deviceIdentifier.findDevice();
+        InboundConnectionTask connectionTask = this.getInboundConnectionTask(comPort, device);
+        if (connectionTask == null) {
+            return null;
+        }
+        else {
+            SecurityPropertySet securityPropertySet = this.getSecurityPropertySet(device, connectionTask);
+            if (securityPropertySet == null) {
+                return null;
+            }
+            else {
+                return device.getSecurityProperties(securityPropertySet);
+            }
+        }
     }
 
     /**
@@ -632,9 +628,9 @@ public class ComServerDAOImpl implements ComServerDAO {
         }
     }
 
-    private ConnectionTask<?, ?> getInboundConnectionTask(InboundComPort comPort, Device device) {
+    private InboundConnectionTask getInboundConnectionTask(InboundComPort comPort, Device device) {
         InboundComPortPool comPortPool = comPort.getComPortPool();
-        for (ConnectionTask<?, ?> inboundConnectionTask : device.getConnectionTasks()) {
+        for (InboundConnectionTask inboundConnectionTask : device.getInboundConnectionTasks()) {
             if (comPortPool.equals(inboundConnectionTask.getComPortPool())) {
                 return inboundConnectionTask;
             }

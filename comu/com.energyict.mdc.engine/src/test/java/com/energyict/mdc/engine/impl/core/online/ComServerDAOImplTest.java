@@ -1,38 +1,33 @@
 package com.energyict.mdc.engine.impl.core.online;
 
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.exceptions.DataAccessException;
 import com.energyict.mdc.common.BusinessEvent;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.Transaction;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.ServerComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
+import com.energyict.mdc.engine.FakeServiceProvider;
+import com.energyict.mdc.engine.exceptions.DataAccessException;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OutboundCapableComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
+
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -54,9 +49,6 @@ public class ComServerDAOImplTest {
     private static final String IP_ADDRESS = "192.168.2.100";
     private static final String IP_ADDRESS_PROPERTY_NAME = "ipAddress";
 
-    @ClassRule
-    public static TestRule mockEnvironmentTranslactions = new MockEnvironmentTranslations();
-
     @Mock
     private OutboundCapableComServer comServer;
     @Mock
@@ -72,7 +64,9 @@ public class ComServerDAOImplTest {
     @Mock
     private BusinessEvent businessEvent;
     @Mock
-    private ServiceProvider serviceProvider;
+    private EngineModelService engineModelService;
+
+    private FakeServiceProvider serviceProvider;
 
     private ComServerDAO comServerDAO = new ComServerDAOImpl(serviceProvider);
 
@@ -80,22 +74,16 @@ public class ComServerDAOImplTest {
     }
 
     @Before
-    public void initializeMocksAndFactories () throws SQLException, BusinessException {
-//        when(this.manager.getComServerFactory()).thenReturn(this.comServerFactory);
-//        when(this.manager.getComPortFactory()).thenReturn(this.comPortFactory);
-//        when(this.manager.getComTaskExecutionFactory()).thenReturn(this.comTaskExecutionFactory);
-//        when(this.manager.getConnectionTaskFactory()).thenReturn(this.connectionTaskFactory);
-//        when(this.manager.getMdwInterface()).thenReturn(this.mdwInterface);
-//        ManagerFactory.setCurrent(this.manager);
-        this.mockMdwInterfaceTransactionExecutor();
+    public void setupServiceProvider () {
+        this.serviceProvider = new FakeServiceProvider();
+        this.serviceProvider.setEngineModelService(this.engineModelService);
+    }
 
+    @Before
+    public void initializeMocks () throws SQLException, BusinessException {
         when(this.comServer.getId()).thenReturn(Long.valueOf(COMSERVER_ID));
-//        when(this.comServerFactory.find(COMSERVER_ID)).thenReturn(this.comServer);
-//        when(this.comServerFactory.findBySystemName()).thenReturn(this.comServer);
         when(this.comPort.getId()).thenReturn(Long.valueOf(COMPORT_ID));
-//        when(this.comPortFactory.find(COMPORT_ID)).thenReturn(this.comPort);
         when(this.scheduledComTask.getId()).thenReturn(SCHEDULED_COMTASK_ID);
-//        when(this.comTaskExecutionFactory.find((int) SCHEDULED_COMTASK_ID)).thenReturn(this.scheduledComTask);
     }
 
 
@@ -103,7 +91,7 @@ public class ComServerDAOImplTest {
     public void testGetThisComServer () {
         // Business method and asserts
         assertThat(this.comServerDAO.getThisComServer()).isNotNull();
-        verify(this.comServerFactory).findBySystemName();
+        verify(this.engineModelService).findComServerBySystemName();
     }
 
     @Test
@@ -372,21 +360,6 @@ public class ComServerDAOImplTest {
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
         return calendar.getTime();
-    }
-
-    private void mockMdwInterfaceTransactionExecutor () throws BusinessException, SQLException {
-        this.mockMdwInterfaceTransactionExecutor(this.mdwInterface);
-    }
-
-    private void mockMdwInterfaceTransactionExecutor (MdwInterface mdwInterface) throws BusinessException, SQLException {
-        when(mdwInterface.execute(any(Transaction.class))).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer (InvocationOnMock invocation) throws Throwable {
-                Transaction transaction = (Transaction) invocation.getArguments()[0];
-                transaction.doExecute();
-                return null;
-            }
-        });
     }
 
 }
