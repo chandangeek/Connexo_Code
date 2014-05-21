@@ -21,7 +21,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
         }
     },
     store: 'AvailableRegisterTypes',
-    padding: '10 10 10 10',
+    //padding: '10 10 10 10',
     selModel: {
             checkOnly: true
         },
@@ -100,8 +100,16 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
                         flex: 1
                     },
                     {
-                        xtype: 'component',
-                        html:'<a href = "#/administration/registertypes" target = "_blank">' + Uni.I18n.translate('registerMappings.manageRegisterTypes', 'MDC', 'Manage register types') + '</a>'
+                        xtype: 'button',
+                        text: Uni.I18n.translate('registerMappings.manageRegisterTypes', 'MDC', 'Manage register types'),
+                        ui: 'link',
+                        listeners: {
+                            click: {
+                                fn: function () {
+                                    window.location.href = '#/administration/registertypes';
+                                }
+                            }
+                        }
                     }
                 ]
             }

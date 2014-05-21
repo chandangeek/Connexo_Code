@@ -7,12 +7,10 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
     ],
     content: [
         {
+            xtype: 'panel',
+            ui: 'large',
+            itemId: 'deviceTypeLogbookPanel',
             items: [
-                {
-                    xtype: 'panel',
-                    ui: 'large',
-                    itemId: 'deviceTypeLogbookTitle'
-                },
                 {
                     xtype: 'toolbar',
                     border: 0,
@@ -41,7 +39,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
                     xtype: 'grid',
                     height: 395,
                     store: 'LogbookTypes',
-                    forceFit: true,
+
                     columns: {
                         defaults: {
                             sortable: false,

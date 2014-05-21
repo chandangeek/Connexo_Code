@@ -12,6 +12,10 @@ Ext.define('Mdc.view.setup.searchitems.SortMenu', {
         {
             text: Uni.I18n.translate('searchItems.serialNumber', 'MDC', 'Serial number'),
             value: 'serialNumber'
+        },
+        {
+            text: Uni.I18n.translate('searchItems.type', 'MDC', 'Type'),
+            value: 'deviceConfiguration.deviceType.name'
         }
     ]
 });

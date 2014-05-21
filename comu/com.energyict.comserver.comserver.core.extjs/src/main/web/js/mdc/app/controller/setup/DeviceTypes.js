@@ -42,8 +42,8 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         {ref: 'deviceTypeDetailForm', selector: '#deviceTypeDetailForm'},
         {ref: 'editDeviceTypeNameField', selector: '#editDeviceTypeNameField'},
         {ref: 'breadCrumbs', selector: 'breadcrumbTrail'},
-        {ref: 'deviceTypeLogbookTitle', selector: '#deviceTypeLogbookTitle'},
-        {ref: 'addLogbookTitle', selector: '#addLogbookTitle'}
+        {ref: 'deviceTypeLogbookPanel', selector: '#deviceTypeLogbookPanel'},
+        {ref: 'addLogbookPanel', selector: '#addLogbookPanel'}
     ],
 
     init: function () {
@@ -409,7 +409,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                     model.load(deviceTypeId, {
                         success: function (deviceType) {
                             me.logbookBreadCrumb(deviceType.get('name'), deviceTypeId);
-                            me.getDeviceTypeLogbookTitle().setTitle('<b>' + deviceType.get('name') + '</b>' + ' > ' + 'Logbook types');
+                            me.getDeviceTypeLogbookPanel().setTitle('<b>' + deviceType.get('name') + '</b>' + ' > ' + 'Logbook types');
                             widget.setLoading(false);
                         }
                     });
@@ -470,7 +470,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                     model.load(deviceTypeId, {
                         success: function (deviceType) {
                             me.addLogbookBreadCrumb(deviceType.get('name'), deviceTypeId);
-                            me.getAddLogbookTitle().setTitle('<b>' + deviceType.get('name') + '</b>' + ' > ' + 'Add logbook type');
+                            me.getAddLogbookPanel().setTitle('<b>' + deviceType.get('name') + '</b>' + ' > ' + 'Add logbook type');
                             widget.setLoading(false);
                         }
                     });
