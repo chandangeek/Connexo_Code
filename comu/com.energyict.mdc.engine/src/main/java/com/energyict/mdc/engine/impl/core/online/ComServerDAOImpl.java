@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
+import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.TimeDuration;
@@ -157,9 +158,10 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public List<ComJob> findExecutableOutboundComTasks(OutboundComPort comPort) {
-        List<ComTaskExecution> comTaskExecutions = getDeviceDataService().getPlannedComTaskExecutionsFor(comPort);
-        ComJobFactory comJobFactoryFor = getComJobFactoryFor(comPort);
-        return comJobFactoryFor.consume(comTaskExecutions);
+        try (Fetcher<ComTaskExecution> comTaskExecutions = getDeviceDataService().getPlannedComTaskExecutionsFor(comPort)) {
+            ComJobFactory comJobFactoryFor = getComJobFactoryFor(comPort);
+            return comJobFactoryFor.consume(comTaskExecutions.iterator());
+        }
     }
 
     @Override
