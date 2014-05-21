@@ -22,9 +22,9 @@ public class PrimeRegisterForChannelIdentifier implements RegisterIdentifier {
     private DeviceIdentifier deviceIdentifier;
     private final ObisCode registerObisCode;
     private final ObisCode deviceRegisterObisCode;
-    private int channelIndex;
+    private long channelIndex;
 
-    public PrimeRegisterForChannelIdentifier(DeviceIdentifier deviceIdentifier, ObisCode registerObisCode, ObisCode deviceRegisterObisCode, int channelIndex) {
+    public PrimeRegisterForChannelIdentifier(DeviceIdentifier deviceIdentifier, ObisCode registerObisCode, ObisCode deviceRegisterObisCode, long channelIndex) {
         super();
         this.deviceIdentifier = deviceIdentifier;
         this.registerObisCode = registerObisCode;

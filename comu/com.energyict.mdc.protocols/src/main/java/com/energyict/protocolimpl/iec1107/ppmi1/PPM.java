@@ -506,8 +506,8 @@ public class PPM extends AbstractPPM {
             logger.log(Level.INFO, "REGISTERCONFIG[0] " + channelId);
             return null;
         } else {
-            logger.log(Level.INFO, "REGISTERCONFIG[0] " + channelId + " " + rFactory.getRegister(REGISTERCONFIG[ci.getChannelId() - 1]));
-            return (Quantity) rFactory.getRegister(REGISTERCONFIG[ci.getChannelId() - 1]);
+            logger.log(Level.INFO, "REGISTERCONFIG[0] " + channelId + " " + rFactory.getRegister(REGISTERCONFIG[((int) (ci.getChannelId() - 1))]));
+            return (Quantity) rFactory.getRegister(REGISTERCONFIG[((int) (ci.getChannelId() - 1))]);
         }
     }
 

@@ -524,8 +524,8 @@ public class PPM extends PluggableMeterProtocol implements HHUEnabler, SerialNum
             this.logger.log(Level.INFO, "REGISTERCONFIG[0] " + channelId);
             return null;
         } else {
-            this.logger.log(Level.INFO, "REGISTERCONFIG[0] " + channelId + " " + this.rFactory.getRegister(this.REGISTERCONFIG[ci.getChannelId() - 1]));
-            return (Quantity) this.rFactory.getRegister(this.REGISTERCONFIG[ci.getChannelId() - 1]);
+            this.logger.log(Level.INFO, "REGISTERCONFIG[0] " + channelId + " " + this.rFactory.getRegister(this.REGISTERCONFIG[((int) (ci.getChannelId() - 1))]));
+            return (Quantity) this.rFactory.getRegister(this.REGISTERCONFIG[((int) (ci.getChannelId() - 1))]);
         }
     }
 
