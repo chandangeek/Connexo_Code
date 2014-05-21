@@ -19,6 +19,9 @@ import javax.validation.ConstraintViolationException;
 import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Serves as the root of class hierarchy that will provide
@@ -28,6 +31,7 @@ import javax.validation.constraints.Null;
  * @since 2012-04-02 (12:48)
  */
 @UniqueName(groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.MDC_DUPLICATE_COM_PORT+"}")
+@XmlRootElement
 public abstract class ComPortImpl implements ComPort {
 
     protected static final String MODEM_DISCRIMINATOR = "1";
@@ -97,6 +101,15 @@ public abstract class ComPortImpl implements ComPort {
         }
     }
 
+    @XmlElement(name = "type")
+    public String getXmlType () {
+        return this.getClass().getSimpleName();
+    }
+
+    public void setXmlType (String ignore) {
+        // For xml unmarshalling purposes only
+    }
+
     public String getType() {
         return ComPort.class.getName();
     }
@@ -105,16 +118,20 @@ public abstract class ComPortImpl implements ComPort {
         return modificationDate;
     }
 
+    @Override
+    @XmlAttribute
     public String getName() {
         return this.name;
     }
 
     @Override
+    @XmlAttribute
     public boolean isActive() {
         return active;
     }
 
     @Override
+    @XmlElement
     public String getDescription() {
         return description;
     }
@@ -135,11 +152,13 @@ public abstract class ComPortImpl implements ComPort {
     }
 
     @Override
+    @XmlElement
     public Date getObsoleteDate() {
         return obsoleteDate;
     }
 
     @Override
+    @XmlElement
     public ComPortType getComPortType() {
         return type;
     }

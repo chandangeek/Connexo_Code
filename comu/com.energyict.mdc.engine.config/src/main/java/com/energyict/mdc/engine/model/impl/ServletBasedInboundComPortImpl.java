@@ -11,6 +11,7 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlElement;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.engine.model.ServletBasedInboundComPort} interface.
@@ -41,6 +42,7 @@ public class ServletBasedInboundComPortImpl extends IPBasedInboundComPortImpl im
     }
 
     @Override
+    @XmlElement
     public boolean isHttps() {
         return https;
     }
@@ -56,11 +58,13 @@ public class ServletBasedInboundComPortImpl extends IPBasedInboundComPortImpl im
     }
 
     @Override
+    @XmlElement
     public void setKeyStoreSpecsFilePath(String keyStoreSpecsFilePath) {
         this.keyStoreSpecsFilePath = keyStoreSpecsFilePath!=null?keyStoreSpecsFilePath.trim():null;
     }
 
     @Override
+    @XmlElement
     public String getKeyStoreSpecsPassword() {
         return https?keyStoreSpecsPassword:null;
     }
@@ -91,6 +95,7 @@ public class ServletBasedInboundComPortImpl extends IPBasedInboundComPortImpl im
     }
 
     @Override
+    @XmlElement
     public String getContextPath() {
         return contextPath;
     }

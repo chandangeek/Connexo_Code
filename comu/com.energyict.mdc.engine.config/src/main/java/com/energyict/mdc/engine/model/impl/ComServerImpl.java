@@ -28,6 +28,8 @@ import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Pattern;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -338,27 +340,41 @@ public abstract class ComServerImpl implements ComServer {
         return false;
     }
 
+    @XmlElement(name = "type")
+    public String getXmlType () {
+        return this.getClass().getSimpleName();
+    }
+
+    public void setXmlType (String ignore) {
+        // For xml unmarshalling purposes only
+    }
+
     @Override
+    @XmlAttribute
     public String getName () {
         return this.name;
     }
 
     @Override
+    @XmlAttribute
     public boolean isActive () {
         return active;
     }
 
     @Override
+    @XmlAttribute
     public LogLevel getServerLogLevel () {
         return serverLogLevel;
     }
 
     @Override
+    @XmlAttribute
     public LogLevel getCommunicationLogLevel () {
         return communicationLogLevel;
     }
 
     @Override
+    @XmlElement
     public TimeDuration getChangesInterPollDelay () {
         if (this.changesInterPollDelay!=null) {
             return new TimeDuration(this.changesInterPollDelay.getCount(), this.changesInterPollDelay.getTimeUnitCode());
@@ -367,6 +383,7 @@ public abstract class ComServerImpl implements ComServer {
     }
 
     @Override
+    @XmlElement
     public TimeDuration getSchedulingInterPollDelay () {
         if (this.schedulingInterPollDelay!=null) {
             return new TimeDuration(this.schedulingInterPollDelay.getCount(), this.schedulingInterPollDelay.getTimeUnitCode());
@@ -375,11 +392,13 @@ public abstract class ComServerImpl implements ComServer {
     }
 
     @Override
+    @XmlElement
     public boolean isObsolete () {
         return this.obsoleteDate!=null;
     }
 
     @Override
+    @XmlElement
     public Date getObsoleteDate () {
         return this.obsoleteDate;
     }

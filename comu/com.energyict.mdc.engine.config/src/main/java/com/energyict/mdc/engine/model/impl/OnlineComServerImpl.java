@@ -18,6 +18,8 @@ import com.google.inject.Provider;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
+import javax.xml.bind.annotation.XmlElement;
+
 import org.hibernate.validator.constraints.Range;
 import org.hibernate.validator.constraints.URL;
 
@@ -97,6 +99,7 @@ public class OnlineComServerImpl extends ComServerImpl implements OnlineComServe
     }
 
     @Override
+    @XmlElement
     public String getQueryApiPostUri () {
         if (this.usesDefaultQueryAPIPostUri) {
             return this.defaultQueryApiPostUri();
@@ -115,6 +118,7 @@ public class OnlineComServerImpl extends ComServerImpl implements OnlineComServe
     }
 
     @Override
+    @XmlElement
     public String getEventRegistrationUri () {
         if (this.usesDefaultEventRegistrationUri) {
             return this.defaultEventRegistrationUri();
@@ -153,16 +157,19 @@ public class OnlineComServerImpl extends ComServerImpl implements OnlineComServe
     }
 
     @Override
+    @XmlElement
     public int getStoreTaskQueueSize () {
         return storeTaskQueueSize;
     }
 
     @Override
+    @XmlElement
     public int getNumberOfStoreTaskThreads () {
         return numberOfStoreTaskThreads;
     }
 
     @Override
+    @XmlElement
     public int getStoreTaskThreadPriority () {
         return storeTaskThreadPriority;
     }

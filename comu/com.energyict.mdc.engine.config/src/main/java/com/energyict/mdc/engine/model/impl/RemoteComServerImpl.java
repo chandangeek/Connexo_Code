@@ -16,6 +16,8 @@ import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
 import com.google.inject.Provider;
 import javax.inject.Inject;
+import javax.xml.bind.annotation.XmlElement;
+
 import org.hibernate.validator.constraints.URL;
 
 /**
@@ -75,16 +77,19 @@ public class RemoteComServerImpl extends ComServerImpl implements RemoteComServe
     }
 
     @Override
+    @XmlElement
     public String getQueryAPIUsername () {
         return queryAPIUsername;
     }
 
     @Override
+    @XmlElement
     public String getQueryAPIPassword () {
         return queryAPIPassword;
     }
 
     @Override
+    @XmlElement
     public String getEventRegistrationUri () {
         if (this.usesDefaultEventRegistrationUri) {
             return this.defaultEventRegistrationUri();

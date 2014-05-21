@@ -9,6 +9,7 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import javax.inject.Inject;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import javax.xml.bind.annotation.XmlElement;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.engine.model.UDPBasedInboundComPort} interface.
@@ -39,6 +40,7 @@ public class UDPBasedInboundComPortImpl extends IPBasedInboundComPortImpl implem
     }
 
     @Override
+    @XmlElement
     public int getBufferSize () {
         return bufferSize;
     }
@@ -47,7 +49,7 @@ public class UDPBasedInboundComPortImpl extends IPBasedInboundComPortImpl implem
     public void setBufferSize(int bufferSize) {
         this.bufferSize = bufferSize;
     }
-    
+
     static class UDPBasedInboundComPortBuilderImpl
             extends IpBasedInboundComPortBuilderImpl<UDPBasedInboundComPort.UDPBasedInboundComPortBuilder, UDPBasedInboundComPort>
             implements UDPBasedInboundComPort.UDPBasedInboundComPortBuilder {
@@ -63,5 +65,5 @@ public class UDPBasedInboundComPortImpl extends IPBasedInboundComPortImpl implem
             return this;
         }
     }
-    
+
 }

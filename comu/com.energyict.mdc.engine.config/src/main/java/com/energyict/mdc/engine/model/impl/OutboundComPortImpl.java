@@ -12,6 +12,8 @@ import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
 import java.util.List;
 import javax.inject.Inject;
+import javax.xml.bind.annotation.XmlElement;
+
 import org.hibernate.validator.constraints.Range;
 
 /**
@@ -38,6 +40,7 @@ public class OutboundComPortImpl extends ComPortImpl implements OutboundComPort 
     }
 
     @Override
+    @XmlElement
     public int getNumberOfSimultaneousConnections () {
         return numberOfSimultaneousConnections;
     }

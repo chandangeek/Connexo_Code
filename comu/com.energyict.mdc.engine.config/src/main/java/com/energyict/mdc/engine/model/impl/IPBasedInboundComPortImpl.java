@@ -8,6 +8,7 @@ import com.energyict.mdc.engine.model.IPBasedInboundComPort;
 import com.energyict.mdc.engine.model.InboundComPort;
 import javax.validation.Payload;
 import javax.validation.constraints.Min;
+import javax.xml.bind.annotation.XmlElement;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.engine.model.IPBasedInboundComPort} interface.
@@ -28,6 +29,7 @@ public abstract class IPBasedInboundComPortImpl extends InboundComPortImpl imple
     }
 
     @Override
+    @XmlElement
     public int getPortNumber() {
         return portNumber;
     }
@@ -38,6 +40,7 @@ public abstract class IPBasedInboundComPortImpl extends InboundComPortImpl imple
     }
 
     @Override
+    @XmlElement
     public int getNumberOfSimultaneousConnections() {
         return numberOfSimultaneousConnections;
     }
