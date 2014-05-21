@@ -18,15 +18,13 @@ public class UndiscoveredEstablishConnectionEvent extends UndiscoveredConnection
 
     /**
      * For the externalization process only.
-     *
-     * @param serviceProvider The ServiceProvider
      */
-    public UndiscoveredEstablishConnectionEvent (ServiceProvider serviceProvider) {
-        super(serviceProvider);
+    public UndiscoveredEstablishConnectionEvent() {
+        super();
     }
 
-    public UndiscoveredEstablishConnectionEvent (InboundComPort comPort, ServiceProvider serviceProvider) {
-        super(comPort, serviceProvider);
+    public UndiscoveredEstablishConnectionEvent(InboundComPort comPort) {
+        super(comPort);
     }
 
     @Override

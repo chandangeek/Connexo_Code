@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.events.logging;
 
-import com.energyict.mdc.common.IdBusinessObject;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.events.ComPortPoolRelatedEvent;
 import com.energyict.mdc.engine.events.ComPortRelatedEvent;
@@ -33,15 +33,13 @@ public class ComPortOperationsLoggingEvent extends AbstractComServerEventImpl im
 
     /**
      * For the externalization process only.
-     *
-     * @param serviceProvider The ServiceProvider
      */
-    public ComPortOperationsLoggingEvent (ServiceProvider serviceProvider) {
-        super(serviceProvider);
+    public ComPortOperationsLoggingEvent() {
+        super();
     }
 
-    public ComPortOperationsLoggingEvent (ComPort comPort, LogLevel logLevel, String logMessage, ServiceProvider serviceProvider) {
-        super(serviceProvider);
+    public ComPortOperationsLoggingEvent(ComPort comPort, LogLevel logLevel, String logMessage) {
+        super();
         this.logLevel = logLevel;
         this.logMessage = logMessage;
         this.comPort = comPort;
@@ -92,15 +90,15 @@ public class ComPortOperationsLoggingEvent extends AbstractComServerEventImpl im
     public void writeExternal (ObjectOutput out) throws IOException {
         super.writeExternal(out);
         LoggingEventExternalizationAssistant.writeExternal(this, out);
-        out.writeLong(this.getComPort().getId());
+        out.writeLong(this.extractId(this.getComPort()));
     }
 
-    private int getBusinessObjectId (IdBusinessObject businessObject) {
-        if (businessObject == null) {
+    private long extractId(HasId hasId) {
+        if (hasId == null) {
             return 0;
         }
         else {
-            return businessObject.getId();
+            return hasId.getId();
         }
     }
 
@@ -110,11 +108,16 @@ public class ComPortOperationsLoggingEvent extends AbstractComServerEventImpl im
         LoggingEventExternalizationAssistant.LoggingEventPojo pojo = LoggingEventExternalizationAssistant.readExternal(in);
         this.logLevel = pojo.getLogLevel();
         this.logMessage = pojo.getLogMessage();
-        this.comPort = this.findComPort(in.readInt());
+        this.comPort = this.findComPort(in.readLong());
     }
 
-    private ComPort findComPort (int comPortId) {
-        return getEngineModelService().findComPort(comPortId);
+    private ComPort findComPort (long comPortId) {
+        if (comPortId != 0) {
+            return this.getEngineModelService().findComPort(comPortId);
+        }
+        else {
+            return null;
+        }
     }
 
     @Override
@@ -122,7 +125,7 @@ public class ComPortOperationsLoggingEvent extends AbstractComServerEventImpl im
         super.toString(writer);
         writer.
             key("com-port").
-            value(this.getComPort().getId()).
+            value(this.extractId(this.getComPort())).
             key("log-level").
             value(String.valueOf(this.getLogLevel())).
             key("message").

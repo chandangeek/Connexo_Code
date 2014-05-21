@@ -26,15 +26,13 @@ public abstract class CommunicationEventImpl extends AbstractConnectionEventImpl
 
     /**
      * For the externalization process only.
-     *
-     * @param serviceProvider The ServiceProvider
      */
-    protected CommunicationEventImpl (ServiceProvider serviceProvider) {
-        super(serviceProvider);
+    protected CommunicationEventImpl() {
+        super();
     }
 
-    protected CommunicationEventImpl (ComPort comPort, byte[] bytes, ServiceProvider serviceProvider) {
-        super(comPort, serviceProvider);
+    protected CommunicationEventImpl(ComPort comPort, byte[] bytes) {
+        super(comPort);
         this.bytes = bytes;
     }
 

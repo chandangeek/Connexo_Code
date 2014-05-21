@@ -27,7 +27,7 @@ public aspect OutboundConnectionEventPublisher {
 
     after (ComPort comPort, ScheduledJobImpl scheduledJob) returning (boolean succes) : establishConnectionFor(comPort, scheduledJob) {
         if (succes) {
-            this.publish(new EstablishConnectionEvent(comPort, scheduledJob.getConnectionTask(), EventPublisherImpl.getInstance().serviceProvider()));
+            this.publish(new EstablishConnectionEvent(comPort, scheduledJob.getConnectionTask()));
          }
     }
 
@@ -37,7 +37,7 @@ public aspect OutboundConnectionEventPublisher {
          && args(e, connectionTask);
 
     after (ExecutionContext context, ConnectionException e, ConnectionTask connectionTask) : connectionFailed(context, e, connectionTask) {
-        this.publish(new CannotEstablishConnectionEvent(context.getComPort(), connectionTask, e, EventPublisherImpl.getInstance().serviceProvider()));
+        this.publish(new CannotEstablishConnectionEvent(context.getComPort(), connectionTask, e));
     }
 
     private pointcut closeConnection (ExecutionContext executionContext):
@@ -49,7 +49,7 @@ public aspect OutboundConnectionEventPublisher {
          * even when the connection was never established.
          * So first test if there was a connection. */
         if (this.isConnected(executionContext)) {
-            this.publish(new CloseConnectionEvent(executionContext.getComPort(), executionContext.getConnectionTask(), EventPublisherImpl.getInstance().serviceProvider()));
+            this.publish(new CloseConnectionEvent(executionContext.getComPort(), executionContext.getConnectionTask()));
         }
     }
 

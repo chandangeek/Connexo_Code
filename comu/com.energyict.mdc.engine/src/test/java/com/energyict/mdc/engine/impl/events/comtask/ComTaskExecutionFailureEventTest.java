@@ -65,7 +65,7 @@ public class ComTaskExecutionFailureEventTest {
 
     @Test
     public void testCategory () {
-        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent(this.serviceProvider);
+        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent();
 
         // Business method
         Category category = event.getCategory();
@@ -93,7 +93,7 @@ public class ComTaskExecutionFailureEventTest {
 
     @Test
     public void testIsNotStart () {
-        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent(this.serviceProvider);
+        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent();
 
         // Business method & asserts
         assertThat(event.isStart()).isFalse();
@@ -114,7 +114,7 @@ public class ComTaskExecutionFailureEventTest {
 
     @Test
     public void testIsNotCompletion () {
-        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent(this.serviceProvider);
+        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent();
 
         // Business method & asserts
         assertThat(event.isCompletion()).isFalse();
@@ -122,7 +122,7 @@ public class ComTaskExecutionFailureEventTest {
 
     @Test
     public void testIsNotLoggingRelatedByDefault () {
-        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent(this.serviceProvider);
+        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent();
 
         // Business method & asserts
         assertThat(event.isLoggingRelated()).isFalse();
@@ -130,7 +130,7 @@ public class ComTaskExecutionFailureEventTest {
 
     @Test
     public void testIsNotComTaskRelatedByDefault () {
-        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent(this.serviceProvider);
+        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent();
 
         // Business method & asserts
         assertThat(event.isComTaskExecutionRelated()).isFalse();
@@ -138,7 +138,7 @@ public class ComTaskExecutionFailureEventTest {
 
     @Test
     public void testIsNotComPortRelatedByDefault () {
-        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent(this.serviceProvider);
+        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent();
 
         // Business method & asserts
         assertThat(event.isComPortRelated()).isFalse();
@@ -146,7 +146,7 @@ public class ComTaskExecutionFailureEventTest {
 
     @Test
     public void testIsNotComPortPoolRelatedByDefault () {
-        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent(this.serviceProvider);
+        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent();
 
         // Business method & asserts
         assertThat(event.isComPortPoolRelated()).isFalse();
@@ -154,7 +154,7 @@ public class ComTaskExecutionFailureEventTest {
 
     @Test
     public void testIsNotConnectionTaskRelatedByDefault () {
-        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent(this.serviceProvider);
+        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent();
 
         // Business method & asserts
         assertThat(event.isConnectionTaskRelated()).isFalse();
@@ -162,7 +162,7 @@ public class ComTaskExecutionFailureEventTest {
 
     @Test
     public void testIsNotDeviceRelatedByDefault () {
-        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent(this.serviceProvider);
+        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent();
 
         // Business method & asserts
         assertThat(event.isDeviceRelated()).isFalse();
@@ -246,7 +246,7 @@ public class ComTaskExecutionFailureEventTest {
 
     @Test
     public void testSerializationDoesNotFailForDefaultObject () throws IOException {
-        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent(this.serviceProvider);
+        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent();
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -259,7 +259,7 @@ public class ComTaskExecutionFailureEventTest {
 
     @Test
     public void testRestoreAfterSerializationForDefaultObject () throws IOException, ClassNotFoundException {
-        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent(this.serviceProvider);
+        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent();
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -327,7 +327,7 @@ public class ComTaskExecutionFailureEventTest {
 
     @Test
     public void testToStringDoesNotFailForDefaultObject () throws IOException {
-        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent(this.serviceProvider);
+        ComTaskExecutionFailureEvent event = new ComTaskExecutionFailureEvent();
 
         // Business method
         String eventString = event.toString();

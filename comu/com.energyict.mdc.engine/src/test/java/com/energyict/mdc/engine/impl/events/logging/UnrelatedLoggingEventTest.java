@@ -2,7 +2,7 @@ package com.energyict.mdc.engine.impl.events.logging;
 
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.events.Category;
-import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.model.EngineModelService;
 
@@ -41,18 +41,20 @@ public class UnrelatedLoggingEventTest {
     @Mock
     public EngineModelService engineModelService;
     @Mock
-    private AbstractComServerEventImpl.ServiceProvider serviceProvider;
+    private ServiceProvider serviceProvider;
 
     @Before
     public void setupServiceProvider () {
+        when(this.clock.now()).thenReturn(new DateTime(2014, 5, 2, 1, 40, 0).toDate()); // Set some default
         when(this.serviceProvider.clock()).thenReturn(this.clock);
         when(this.serviceProvider.engineModelService()).thenReturn(this.engineModelService);
         when(this.serviceProvider.deviceDataService()).thenReturn(this.deviceDataService);
+        ServiceProvider.instance.set(this.serviceProvider);
     }
 
     @Test
     public void testCategory () {
-        UnrelatedLoggingEvent event = new UnrelatedLoggingEvent(this.serviceProvider);
+        UnrelatedLoggingEvent event = new UnrelatedLoggingEvent();
 
         // Business method
         Category category = event.getCategory();
@@ -65,7 +67,7 @@ public class UnrelatedLoggingEventTest {
     public void testOccurrenceTimestampForDefaultConstructor () {
         Date now = new DateTime(2012, Calendar.NOVEMBER, 7, 17, 22, 01, 0).toDate();  // Random pick
         when(this.clock.now()).thenReturn(now);
-        UnrelatedLoggingEvent event = new UnrelatedLoggingEvent(this.serviceProvider);
+        UnrelatedLoggingEvent event = new UnrelatedLoggingEvent();
 
         // Business method
         Date timestamp = event.getOccurrenceTimestamp();
@@ -79,7 +81,7 @@ public class UnrelatedLoggingEventTest {
         Date now = new DateTime(2012, Calendar.NOVEMBER, 6, 17, 22, 01, 0).toDate();  // Random pick
         when(this.clock.now()).thenReturn(now);
 
-        UnrelatedLoggingEvent event = new UnrelatedLoggingEvent(LogLevel.INFO, "testOccurrenceTimestamp", this.serviceProvider);
+        UnrelatedLoggingEvent event = new UnrelatedLoggingEvent(LogLevel.INFO, "testOccurrenceTimestamp");
 
         // Business method
         Date timestamp = event.getOccurrenceTimestamp();
@@ -91,7 +93,7 @@ public class UnrelatedLoggingEventTest {
     @Test
     public void testIsLoggingRelated () {
         // Business method
-        UnrelatedLoggingEvent event = new UnrelatedLoggingEvent(LogLevel.DEBUG, "testLogLevel", this.serviceProvider);
+        UnrelatedLoggingEvent event = new UnrelatedLoggingEvent(LogLevel.DEBUG, "testLogLevel");
 
         // Asserts
         assertThat(event.isLoggingRelated()).isTrue();
@@ -100,7 +102,7 @@ public class UnrelatedLoggingEventTest {
     @Test
     public void testLogLevel () {
         LogLevel expectedLogLevel = LogLevel.DEBUG;
-        UnrelatedLoggingEvent event = new UnrelatedLoggingEvent(expectedLogLevel, "testLogLevel", this.serviceProvider);
+        UnrelatedLoggingEvent event = new UnrelatedLoggingEvent(expectedLogLevel, "testLogLevel");
 
         // Business method
         LogLevel logLevel = event.getLogLevel();
@@ -112,7 +114,7 @@ public class UnrelatedLoggingEventTest {
     @Test
     public void testLogMessage () {
         String expectedLogMessage = "testLogMessage";
-        UnrelatedLoggingEvent event = new UnrelatedLoggingEvent(LogLevel.DEBUG, expectedLogMessage, this.serviceProvider);
+        UnrelatedLoggingEvent event = new UnrelatedLoggingEvent(LogLevel.DEBUG, expectedLogMessage);
 
         // Business method
         String logMessage = event.getLogMessage();
@@ -123,7 +125,7 @@ public class UnrelatedLoggingEventTest {
 
     @Test
     public void testIsNotDeviceRelated () {
-        UnrelatedLoggingEvent event = new UnrelatedLoggingEvent(this.serviceProvider);
+        UnrelatedLoggingEvent event = new UnrelatedLoggingEvent();
 
         // Business method & asserts
         assertThat(event.isDeviceRelated()).isFalse();
@@ -132,7 +134,7 @@ public class UnrelatedLoggingEventTest {
 
     @Test
     public void testIsNotConnectionTaskRelated () {
-        UnrelatedLoggingEvent event = new UnrelatedLoggingEvent(this.serviceProvider);
+        UnrelatedLoggingEvent event = new UnrelatedLoggingEvent();
 
         // Business method & asserts
         assertThat(event.isConnectionTaskRelated()).isFalse();
@@ -141,7 +143,7 @@ public class UnrelatedLoggingEventTest {
 
     @Test
     public void testIsNotComPortRelated () {
-        UnrelatedLoggingEvent event = new UnrelatedLoggingEvent(this.serviceProvider);
+        UnrelatedLoggingEvent event = new UnrelatedLoggingEvent();
 
         // Business method & asserts
         assertThat(event.isComPortRelated()).isFalse();
@@ -150,7 +152,7 @@ public class UnrelatedLoggingEventTest {
 
     @Test
     public void testIsNotComPortPoolRelated () {
-        UnrelatedLoggingEvent event = new UnrelatedLoggingEvent(this.serviceProvider);
+        UnrelatedLoggingEvent event = new UnrelatedLoggingEvent();
 
         // Business method & asserts
         assertThat(event.isComPortPoolRelated()).isFalse();
@@ -159,7 +161,7 @@ public class UnrelatedLoggingEventTest {
 
     @Test
     public void testIsNotComTaskExecutionRelated () {
-        UnrelatedLoggingEvent event = new UnrelatedLoggingEvent(this.serviceProvider);
+        UnrelatedLoggingEvent event = new UnrelatedLoggingEvent();
 
         // Business method & asserts
         assertThat(event.isComTaskExecutionRelated()).isFalse();
@@ -168,7 +170,7 @@ public class UnrelatedLoggingEventTest {
 
     @Test
     public void testSerializationDoesNotFailForDefaultObject () throws IOException {
-        UnrelatedLoggingEvent event = new UnrelatedLoggingEvent(this.serviceProvider);
+        UnrelatedLoggingEvent event = new UnrelatedLoggingEvent();
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -181,7 +183,7 @@ public class UnrelatedLoggingEventTest {
 
     @Test
     public void testRestoreAfterSerializationForDefaultObject () throws IOException, ClassNotFoundException {
-        UnrelatedLoggingEvent event = new UnrelatedLoggingEvent(this.serviceProvider);
+        UnrelatedLoggingEvent event = new UnrelatedLoggingEvent();
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -198,7 +200,7 @@ public class UnrelatedLoggingEventTest {
 
     @Test
     public void testSerializationDoesNotFail () throws IOException {
-        UnrelatedLoggingEvent event = new UnrelatedLoggingEvent(LogLevel.INFO, "testSerializationDoesNotFail", this.serviceProvider);
+        UnrelatedLoggingEvent event = new UnrelatedLoggingEvent(LogLevel.INFO, "testSerializationDoesNotFail");
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -213,7 +215,7 @@ public class UnrelatedLoggingEventTest {
     public void testRestoreAfterSerialization () throws IOException, ClassNotFoundException {
         LogLevel expectedLogLevel = LogLevel.INFO;
         String expectedLogMessage = "testRestoreAfterSerialization";
-        UnrelatedLoggingEvent event = new UnrelatedLoggingEvent(expectedLogLevel, expectedLogMessage, this.serviceProvider);
+        UnrelatedLoggingEvent event = new UnrelatedLoggingEvent(expectedLogLevel, expectedLogMessage);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -231,7 +233,7 @@ public class UnrelatedLoggingEventTest {
 
     @Test
     public void testToStringDoesNotFailForDefaultObject () throws IOException {
-        UnrelatedLoggingEvent event = new UnrelatedLoggingEvent(this.serviceProvider);
+        UnrelatedLoggingEvent event = new UnrelatedLoggingEvent();
 
         // Business method
         String eventString = event.toString();
@@ -242,7 +244,7 @@ public class UnrelatedLoggingEventTest {
 
     @Test
     public void testToStringDoesNotFail () throws IOException, ClassNotFoundException {
-        UnrelatedLoggingEvent event = new UnrelatedLoggingEvent(LogLevel.INFO, "testSerializationDoesNotFail", this.serviceProvider);
+        UnrelatedLoggingEvent event = new UnrelatedLoggingEvent(LogLevel.INFO, "testSerializationDoesNotFail");
 
         // Business method
         String eventString = event.toString();

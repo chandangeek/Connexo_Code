@@ -38,16 +38,13 @@ public class CommunicationLoggingEvent extends AbstractComServerEventImpl implem
 
     /**
      * For the externalization process only.
-     *
-     * @param serviceProvider The ServiceProvider
-
      */
-    public CommunicationLoggingEvent (ServiceProvider serviceProvider) {
-        super(serviceProvider);
+    public CommunicationLoggingEvent() {
+        super();
     }
 
-    public CommunicationLoggingEvent (ConnectionTask connectionTask, ComPort comPort, LogLevel logLevel, String logMessage, ServiceProvider serviceProvider) {
-        super(serviceProvider);
+    public CommunicationLoggingEvent(ConnectionTask connectionTask, ComPort comPort, LogLevel logLevel, String logMessage) {
+        super();
         this.logLevel = logLevel;
         this.logMessage = logMessage;
         this.connectionTask = connectionTask;
@@ -119,16 +116,16 @@ public class CommunicationLoggingEvent extends AbstractComServerEventImpl implem
     public void writeExternal (ObjectOutput out) throws IOException {
         super.writeExternal(out);
         LoggingEventExternalizationAssistant.writeExternal(this, out);
-        out.writeLong(this.getComPort().getId());
-        out.writeInt(this.getBusinessObjectId(this.connectionTask));
+        out.writeLong(this.extractId(this.getComPort()));
+        out.writeLong(this.extractId(this.getConnectionTask()));
     }
 
-    private int getBusinessObjectId (HasId businessObject) {
-        if (businessObject == null) {
+    private long extractId(HasId hasId) {
+        if (hasId == null) {
             return 0;
         }
         else {
-            return (int) businessObject.getId();
+            return hasId.getId();
         }
     }
 
@@ -138,16 +135,26 @@ public class CommunicationLoggingEvent extends AbstractComServerEventImpl implem
         LoggingEventExternalizationAssistant.LoggingEventPojo pojo = LoggingEventExternalizationAssistant.readExternal(in);
         this.logLevel = pojo.getLogLevel();
         this.logMessage = pojo.getLogMessage();
-        this.comPort = this.findComPort(in.readInt());
-        this.connectionTask = this.findConnectionTask(in.readInt());
+        this.comPort = this.findComPort(in.readLong());
+        this.connectionTask = this.findConnectionTask(in.readLong());
     }
 
-    private ComPort findComPort (int comPortId) {
-        return getEngineModelService().findComPort(comPortId);
+    private ComPort findComPort (long comPortId) {
+        if (comPortId != 0) {
+            return this.getEngineModelService().findComPort(comPortId);
+        }
+        else {
+            return null;
+        }
     }
 
-    private ConnectionTask findConnectionTask (int connectionTaskId) {
-        return getDeviceDataService().findConnectionTask(connectionTaskId).orNull();
+    private ConnectionTask findConnectionTask (long connectionTaskId) {
+        if (connectionTaskId != 0) {
+            return this.getDeviceDataService().findConnectionTask(connectionTaskId).orNull();
+        }
+        else {
+            return null;
+        }
     }
 
     @Override
@@ -155,9 +162,9 @@ public class CommunicationLoggingEvent extends AbstractComServerEventImpl implem
         super.toString(writer);
         writer.
             key("com-port").
-            value(this.getComPort().getId()).
+            value(this.extractId(this.getComPort())).
             key("connection-task").
-            value(this.getBusinessObjectId(this.getConnectionTask())).
+            value(this.extractId(this.getConnectionTask())).
             key("log-level").
             value(String.valueOf(this.getLogLevel())).
             key("message").

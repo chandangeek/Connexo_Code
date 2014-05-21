@@ -64,7 +64,7 @@ public class ComTaskExecutionStartedEventTest {
 
     @Test
     public void testCategory () {
-        ComTaskExecutionStartedEvent event = new ComTaskExecutionStartedEvent(this.serviceProvider);
+        ComTaskExecutionStartedEvent event = new ComTaskExecutionStartedEvent();
 
         // Business method
         Category category = event.getCategory();
@@ -81,7 +81,7 @@ public class ComTaskExecutionStartedEventTest {
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         ComPort comPort = mock(ComPort.class);
         ConnectionTask connectionTask = mock(ConnectionTask.class);
-        ComTaskExecutionStartedEvent event = new ComTaskExecutionStartedEvent(comTaskExecution, now, comPort, connectionTask, this.serviceProvider);
+        ComTaskExecutionStartedEvent event = new ComTaskExecutionStartedEvent(comTaskExecution, now, comPort, connectionTask);
 
         // Business method
         Date timestamp = event.getOccurrenceTimestamp();
@@ -98,7 +98,7 @@ public class ComTaskExecutionStartedEventTest {
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         ComPort comPort = mock(ComPort.class);
         ConnectionTask connectionTask = mock(ConnectionTask.class);
-        ComTaskExecutionStartedEvent event = new ComTaskExecutionStartedEvent(comTaskExecution, now, comPort, connectionTask, this.serviceProvider);
+        ComTaskExecutionStartedEvent event = new ComTaskExecutionStartedEvent(comTaskExecution, now, comPort, connectionTask);
 
         // Business method
         Date timestamp = event.getExecutionStartedTimestamp();
@@ -127,7 +127,7 @@ public class ComTaskExecutionStartedEventTest {
 
     @Test
     public void testIsStart () {
-        ComTaskExecutionStartedEvent event = new ComTaskExecutionStartedEvent(this.serviceProvider);
+        ComTaskExecutionStartedEvent event = new ComTaskExecutionStartedEvent();
 
         // Business method & asserts
         assertThat(event.isStart()).isTrue();
@@ -135,7 +135,7 @@ public class ComTaskExecutionStartedEventTest {
 
     @Test
     public void testIsNotCompletion () {
-        ComTaskExecutionStartedEvent event = new ComTaskExecutionStartedEvent(this.serviceProvider);
+        ComTaskExecutionStartedEvent event = new ComTaskExecutionStartedEvent();
 
         // Business method & asserts
         assertThat(event.isCompletion()).isFalse();
@@ -143,7 +143,7 @@ public class ComTaskExecutionStartedEventTest {
 
     @Test
     public void testIsNotFailure () {
-        ComTaskExecutionStartedEvent event = new ComTaskExecutionStartedEvent(this.serviceProvider);
+        ComTaskExecutionStartedEvent event = new ComTaskExecutionStartedEvent();
 
         // Business method & asserts
         assertThat(event.isFailure()).isFalse();
@@ -152,7 +152,7 @@ public class ComTaskExecutionStartedEventTest {
 
     @Test
     public void testIsNotLoggingRelatedByDefault () {
-        ComTaskExecutionStartedEvent event = new ComTaskExecutionStartedEvent(this.serviceProvider);
+        ComTaskExecutionStartedEvent event = new ComTaskExecutionStartedEvent();
 
         // Business method & asserts
         assertThat(event.isLoggingRelated()).isFalse();
@@ -160,7 +160,7 @@ public class ComTaskExecutionStartedEventTest {
 
     @Test
     public void testIsNotComTaskRelatedByDefault () {
-        ComTaskExecutionStartedEvent event = new ComTaskExecutionStartedEvent(this.serviceProvider);
+        ComTaskExecutionStartedEvent event = new ComTaskExecutionStartedEvent();
 
         // Business method & asserts
         assertThat(event.isComTaskExecutionRelated()).isFalse();
@@ -168,7 +168,7 @@ public class ComTaskExecutionStartedEventTest {
 
     @Test
     public void testIsNotComPortRelatedByDefault () {
-        ComTaskExecutionStartedEvent event = new ComTaskExecutionStartedEvent(this.serviceProvider);
+        ComTaskExecutionStartedEvent event = new ComTaskExecutionStartedEvent();
 
         // Business method & asserts
         assertThat(event.isComPortRelated()).isFalse();
@@ -176,7 +176,7 @@ public class ComTaskExecutionStartedEventTest {
 
     @Test
     public void testIsNotComPortPoolRelatedByDefault () {
-        ComTaskExecutionStartedEvent event = new ComTaskExecutionStartedEvent(this.serviceProvider);
+        ComTaskExecutionStartedEvent event = new ComTaskExecutionStartedEvent();
 
         // Business method & asserts
         assertThat(event.isComPortPoolRelated()).isFalse();
@@ -184,7 +184,7 @@ public class ComTaskExecutionStartedEventTest {
 
     @Test
     public void testIsNotConnectionTaskRelatedByDefault () {
-        ComTaskExecutionStartedEvent event = new ComTaskExecutionStartedEvent(this.serviceProvider);
+        ComTaskExecutionStartedEvent event = new ComTaskExecutionStartedEvent();
 
         // Business method & asserts
         assertThat(event.isConnectionTaskRelated()).isFalse();
@@ -192,7 +192,7 @@ public class ComTaskExecutionStartedEventTest {
 
     @Test
     public void testIsNotDeviceRelatedByDefault () {
-        ComTaskExecutionStartedEvent event = new ComTaskExecutionStartedEvent(this.serviceProvider);
+        ComTaskExecutionStartedEvent event = new ComTaskExecutionStartedEvent();
 
         // Business method & asserts
         assertThat(event.isDeviceRelated()).isFalse();
@@ -276,7 +276,7 @@ public class ComTaskExecutionStartedEventTest {
 
     @Test
     public void testSerializationDoesNotFailForDefaultObject () throws IOException {
-        ComTaskExecutionStartedEvent event = new ComTaskExecutionStartedEvent(this.serviceProvider);
+        ComTaskExecutionStartedEvent event = new ComTaskExecutionStartedEvent();
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -289,7 +289,7 @@ public class ComTaskExecutionStartedEventTest {
 
     @Test
     public void testRestoreAfterSerializationForDefaultObject () throws IOException, ClassNotFoundException {
-        ComTaskExecutionStartedEvent event = new ComTaskExecutionStartedEvent(this.serviceProvider);
+        ComTaskExecutionStartedEvent event = new ComTaskExecutionStartedEvent();
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -356,7 +356,7 @@ public class ComTaskExecutionStartedEventTest {
 
     @Test
     public void testToStringDoesNotFailForDefaultObject () throws IOException {
-        ComTaskExecutionStartedEvent event = new ComTaskExecutionStartedEvent(this.serviceProvider);
+        ComTaskExecutionStartedEvent event = new ComTaskExecutionStartedEvent();
 
         // Business method
         String eventString = event.toString();

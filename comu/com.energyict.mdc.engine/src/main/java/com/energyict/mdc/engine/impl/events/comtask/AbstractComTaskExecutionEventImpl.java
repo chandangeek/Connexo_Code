@@ -34,15 +34,13 @@ public abstract class AbstractComTaskExecutionEventImpl extends AbstractComServe
 
     /**
      * For the externalization process only.
-     *
-     * @param serviceProvider The ServiceProvider
      */
-    protected AbstractComTaskExecutionEventImpl(ServiceProvider serviceProvider) {
-        super(serviceProvider);
+    protected AbstractComTaskExecutionEventImpl() {
+        super();
     }
 
-    protected AbstractComTaskExecutionEventImpl(ComTaskExecution comTaskExecution, ComPort comPort, ConnectionTask connectionTask, ServiceProvider serviceProvider) {
-        super(serviceProvider);
+    protected AbstractComTaskExecutionEventImpl(ComTaskExecution comTaskExecution, ComPort comPort, ConnectionTask connectionTask) {
+        super();
         this.comTaskExecution = comTaskExecution;
         this.comPort = comPort;
         this.connectionTask = connectionTask;
@@ -137,38 +135,53 @@ public abstract class AbstractComTaskExecutionEventImpl extends AbstractComServe
     @Override
     public void writeExternal (ObjectOutput out) throws IOException {
         super.writeExternal(out);
-        out.writeInt(this.getBusinessObjectId(this.comTaskExecution));
-        out.writeLong(this.comPort.getId());
-        out.writeInt((int) this.connectionTask.getId());
+        out.writeLong(this.extractId(this.getComTaskExecution()));
+        out.writeLong(this.extractId(this.getComPort()));
+        out.writeLong(this.extractId(this.getConnectionTask()));
     }
 
-    private int getBusinessObjectId (HasId businessObject) {
-        if (businessObject == null) {
+    private long extractId(HasId hasId) {
+        if (hasId == null) {
             return 0;
         }
         else {
-            return (int) businessObject.getId();
+            return hasId.getId();
         }
     }
 
     @Override
     public void readExternal (ObjectInput in) throws IOException, ClassNotFoundException {
         super.readExternal(in);
-        this.comTaskExecution = this.findComTaskExecution(in.readInt());
-        this.comPort = this.findComPort(in.readInt());
-        this.connectionTask = this.findConnectionTask(in.readInt());
+        this.comTaskExecution = this.findComTaskExecution(in.readLong());
+        this.comPort = this.findComPort(in.readLong());
+        this.connectionTask = this.findConnectionTask(in.readLong());
     }
 
-    private ComTaskExecution findComTaskExecution (int comTaskExecutionId) {
-        return getDeviceDataService().findComTaskExecution(comTaskExecutionId);
+    private ComTaskExecution findComTaskExecution (long comTaskExecutionId) {
+        if (comTaskExecutionId != 0) {
+            return this.getDeviceDataService().findComTaskExecution(comTaskExecutionId);
+        }
+        else {
+            return null;
+        }
     }
 
-    private ComPort findComPort (int comPortId) {
-        return getEngineModelService().findComPort(comPortId);
+    private ComPort findComPort (long comPortId) {
+        if (comPortId != 0) {
+            return this.getEngineModelService().findComPort(comPortId);
+        }
+        else {
+            return null;
+        }
     }
 
-    private ConnectionTask findConnectionTask (int connectionTaskId) {
-        return getDeviceDataService().findConnectionTask(connectionTaskId).orNull();
+    private ConnectionTask findConnectionTask (long connectionTaskId) {
+        if (connectionTaskId != 0) {
+            return this.getDeviceDataService().findConnectionTask(connectionTaskId).orNull();
+        }
+        else {
+            return null;
+        }
     }
 
     @Override
@@ -176,11 +189,11 @@ public abstract class AbstractComTaskExecutionEventImpl extends AbstractComServe
         super.toString(writer);
         writer.
             key("com-task-execution").
-            value(this.getBusinessObjectId(this.getComTaskExecution())).
+            value(this.extractId(this.getComTaskExecution())).
             key("com-port").
-            value(this.getComPort().getId()).
+            value(this.extractId(this.getComPort())).
             key("connection-task").
-            value(this.getConnectionTask().getId());
+            value(this.extractId(this.getConnectionTask()));
     }
 
 }

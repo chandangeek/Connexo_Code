@@ -41,8 +41,8 @@ public aspect OutboundComTaskEventPublisher {
                 new ComTaskExecutionCompletionEvent(
                         comTaskExecution,
                         job.getExecutionContext().getComPort(),
-                        job.getExecutionContext().getConnectionTask(),
-                        EventPublisherImpl.getInstance().serviceProvider()));
+                        job.getExecutionContext().getConnectionTask()
+                ));
     }
 
     private pointcut taskFailure (JobExecution job, ComTaskExecution comTaskExecution, Throwable cause):
@@ -71,8 +71,8 @@ public aspect OutboundComTaskEventPublisher {
                     new ComTaskExecutionFailureEvent(
                             preparedComTaskExecution.getComTaskExecution(),
                             job.getExecutionContext().getComPort(),
-                            job.getExecutionContext().getConnectionTask(),
-                            EventPublisherImpl.getInstance().serviceProvider()));
+                            job.getExecutionContext().getConnectionTask()
+                    ));
         }
     }
 

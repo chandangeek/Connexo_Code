@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.events.connection;
 
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.events.Category;
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPort;
@@ -19,7 +20,9 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -31,6 +34,7 @@ import static org.mockito.Mockito.when;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-07 (14:04)
  */
+@RunWith(MockitoJUnitRunner.class)
 public class UndiscoveredCloseConnectionEventTest {
 
     private static final long DEVICE_ID = 1;
@@ -43,18 +47,20 @@ public class UndiscoveredCloseConnectionEventTest {
     @Mock
     public EngineModelService engineModelService;
     @Mock
-    private AbstractComServerEventImpl.ServiceProvider serviceProvider;
+    private ServiceProvider serviceProvider;
 
     @Before
     public void setupServiceProvider () {
+        when(this.clock.now()).thenReturn(new DateTime(1969, 5, 2, 1, 40, 0).toDate()); // Set some default
         when(this.serviceProvider.clock()).thenReturn(this.clock);
         when(this.serviceProvider.engineModelService()).thenReturn(this.engineModelService);
         when(this.serviceProvider.deviceDataService()).thenReturn(this.deviceDataService);
+        ServiceProvider.instance.set(this.serviceProvider);
     }
 
     @Test
     public void testCategory () {
-        UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent(this.serviceProvider);
+        UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent();
 
         // Business method
         Category category = event.getCategory();
@@ -69,7 +75,7 @@ public class UndiscoveredCloseConnectionEventTest {
         when(this.clock.now()).thenReturn(now);
 
         InboundComPort comPort = mock(InboundComPort.class);
-        UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent(comPort, this.serviceProvider);
+        UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent(comPort);
 
         // Business method
         Date timestamp = event.getOccurrenceTimestamp();
@@ -80,7 +86,7 @@ public class UndiscoveredCloseConnectionEventTest {
 
     @Test
     public void testIsNotEstablishing () {
-        UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent(this.serviceProvider);
+        UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent();
 
         // Business method & asserts
         assertThat(event.isEstablishing()).isFalse();
@@ -88,7 +94,7 @@ public class UndiscoveredCloseConnectionEventTest {
 
     @Test
     public void testIsNotFailure () {
-        UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent(this.serviceProvider);
+        UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent();
 
         // Business method & asserts
         assertThat(event.isFailure()).isFalse();
@@ -97,7 +103,7 @@ public class UndiscoveredCloseConnectionEventTest {
 
     @Test
     public void testIsClosed () {
-        UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent(this.serviceProvider);
+        UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent();
 
         // Business method & asserts
         assertThat(event.isClosed()).isTrue();
@@ -105,7 +111,7 @@ public class UndiscoveredCloseConnectionEventTest {
 
     @Test
     public void testIsNotLoggingRelatedByDefault () {
-        UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent(this.serviceProvider);
+        UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent();
 
         // Business method & asserts
         assertThat(event.isLoggingRelated()).isFalse();
@@ -113,7 +119,7 @@ public class UndiscoveredCloseConnectionEventTest {
 
     @Test
     public void testIsNotComTaskRelatedByDefault () {
-        UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent(this.serviceProvider);
+        UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent();
 
         // Business method & asserts
         assertThat(event.isComTaskExecutionRelated()).isFalse();
@@ -121,7 +127,7 @@ public class UndiscoveredCloseConnectionEventTest {
 
     @Test
     public void testIsNotComPortRelatedByDefault () {
-        UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent(this.serviceProvider);
+        UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent();
 
         // Business method & asserts
         assertThat(event.isComPortRelated()).isFalse();
@@ -129,7 +135,7 @@ public class UndiscoveredCloseConnectionEventTest {
 
     @Test
     public void testIsNotComPortPoolRelatedByDefault () {
-        UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent(this.serviceProvider);
+        UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent();
 
         // Business method & asserts
         assertThat(event.isComPortPoolRelated()).isFalse();
@@ -137,7 +143,7 @@ public class UndiscoveredCloseConnectionEventTest {
 
     @Test
     public void testIsNotConnectionTaskRelatedByDefault () {
-        UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent(this.serviceProvider);
+        UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent();
 
         // Business method & asserts
         assertThat(event.isConnectionTaskRelated()).isFalse();
@@ -145,7 +151,7 @@ public class UndiscoveredCloseConnectionEventTest {
 
     @Test
     public void testIsNotDeviceRelatedByDefault () {
-        UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent(this.serviceProvider);
+        UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent();
 
         // Business method & asserts
         assertThat(event.isDeviceRelated()).isFalse();
@@ -154,7 +160,7 @@ public class UndiscoveredCloseConnectionEventTest {
     @Test
     public void testIsComPortRelated () {
         InboundComPort comPort = mock(InboundComPort.class);
-        UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent(comPort, this.serviceProvider);
+        UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent(comPort);
 
         // Business method & asserts
         assertThat(event.isComPortRelated()).isTrue();
@@ -167,7 +173,7 @@ public class UndiscoveredCloseConnectionEventTest {
         InboundComPort comPort = mock(InboundComPort.class);
         when(comPort.isInbound()).thenReturn(true);
         when(comPort.getComPortPool()).thenReturn(comPortPool);
-        UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent(comPort, this.serviceProvider);
+        UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent(comPort);
 
         // Business method & asserts
         assertThat(event.isComPortPoolRelated()).isTrue();
@@ -177,7 +183,7 @@ public class UndiscoveredCloseConnectionEventTest {
     @Test
     public void testIsNotComTaskExecutionRelated () {
         InboundComPort comPort = mock(InboundComPort.class);
-        UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent(comPort, this.serviceProvider);
+        UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent(comPort);
 
         // Business method & asserts
         assertThat(event.isComTaskExecutionRelated()).isFalse();
@@ -186,7 +192,7 @@ public class UndiscoveredCloseConnectionEventTest {
     @Test
     public void testIsNotConnectionTaskRelated () {
         InboundComPort comPort = mock(InboundComPort.class);
-        UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent(comPort, this.serviceProvider);
+        UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent(comPort);
 
         // Business method & asserts
         assertThat(event.isConnectionTaskRelated()).isFalse();
@@ -196,7 +202,7 @@ public class UndiscoveredCloseConnectionEventTest {
     @Test
     public void testIsNotDeviceRelated () {
         InboundComPort comPort = mock(InboundComPort.class);
-        UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent(comPort, this.serviceProvider);
+        UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent(comPort);
 
         // Business method & asserts
         assertThat(event.isDeviceRelated()).isFalse();
@@ -205,7 +211,7 @@ public class UndiscoveredCloseConnectionEventTest {
 
     @Test
     public void testSerializationDoesNotFailForDefaultObject () throws IOException {
-        UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent(this.serviceProvider);
+        UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent();
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -218,7 +224,7 @@ public class UndiscoveredCloseConnectionEventTest {
 
     @Test
     public void testRestoreAfterSerializationForDefaultObject () throws IOException, ClassNotFoundException {
-        UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent(this.serviceProvider);
+        UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent();
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -237,7 +243,7 @@ public class UndiscoveredCloseConnectionEventTest {
     public void testSerializationDoesNotFail () throws IOException {
         InboundComPort comPort = mock(InboundComPort.class);
         when(comPort.getId()).thenReturn(COMPORT_ID);
-        UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent(comPort, this.serviceProvider);
+        UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent(comPort);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -252,7 +258,8 @@ public class UndiscoveredCloseConnectionEventTest {
     public void testRestoreAfterSerialization () throws IOException, ClassNotFoundException {
         InboundComPort comPort = mock(InboundComPort.class);
         when(comPort.getId()).thenReturn(COMPORT_ID);
-        UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent(comPort, this.serviceProvider);
+        when(this.engineModelService.findComPort(COMPORT_ID)).thenReturn(comPort);
+        UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent(comPort);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -269,7 +276,7 @@ public class UndiscoveredCloseConnectionEventTest {
 
     @Test
     public void testToStringDoesNotFailForDefaultObject () throws IOException {
-        UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent(this.serviceProvider);
+        UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent();
 
         // Business method
         String eventString = event.toString();
@@ -282,7 +289,7 @@ public class UndiscoveredCloseConnectionEventTest {
     public void testToStringDoesNotFail () throws IOException {
         InboundComPort comPort = mock(InboundComPort.class);
         when(comPort.getId()).thenReturn(COMPORT_ID);
-        UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent(comPort, this.serviceProvider);
+        UndiscoveredCloseConnectionEvent event = new UndiscoveredCloseConnectionEvent(comPort);
 
         // Business method
         String eventString = event.toString();

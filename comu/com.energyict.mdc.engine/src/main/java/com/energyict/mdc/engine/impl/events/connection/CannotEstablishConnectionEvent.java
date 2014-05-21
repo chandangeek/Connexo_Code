@@ -26,15 +26,13 @@ public class CannotEstablishConnectionEvent extends AbstractConnectionEventImpl 
 
     /**
      * For the externalization process only.
-     *
-     * @param serviceProvider The ServiceProvider
      */
-    public CannotEstablishConnectionEvent (ServiceProvider serviceProvider) {
-        super(serviceProvider);
+    public CannotEstablishConnectionEvent() {
+        super();
     }
 
-    public CannotEstablishConnectionEvent (ComPort comPort, ConnectionTask connectionTask, ConnectionException cause, ServiceProvider serviceProvider) {
-        super(connectionTask, comPort, serviceProvider);
+    public CannotEstablishConnectionEvent(ComPort comPort, ConnectionTask connectionTask, ConnectionException cause) {
+        super(connectionTask, comPort);
         this.copyFailureMessageFromException(cause);
     }
 
