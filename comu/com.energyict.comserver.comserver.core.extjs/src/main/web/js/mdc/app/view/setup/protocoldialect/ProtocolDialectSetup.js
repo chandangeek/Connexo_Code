@@ -56,7 +56,7 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectSetup', {
                 itemId: 'stepsMenu',
                 deviceTypeId: this.deviceTypeId,
                 deviceConfigurationId: this.deviceConfigId,
-                toggle: 5
+                toggle: 6
             }
         ];
         this.callParent(arguments);
