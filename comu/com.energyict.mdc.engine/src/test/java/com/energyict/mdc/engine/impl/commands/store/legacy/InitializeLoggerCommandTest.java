@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.legacy;
 
+import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.engine.exceptions.ComCommandException;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
@@ -7,25 +8,16 @@ import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTes
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.engine.impl.core.CommandFactory;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
-import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolAdapter;
-import com.energyict.comserver.commands.AbstractComCommandExecuteTest;
-import com.energyict.comserver.commands.core.CommandRootImpl;
-import com.energyict.comserver.core.CommandFactory;
-import com.energyict.comserver.core.JobExecution;
-import com.energyict.comserver.exceptions.ComCommandException;
-import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.commands.ComCommandTypes;
-import com.energyict.mdc.commands.CommandRoot;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.test.MockEnvironmentTranslations;
-import org.junit.*;
-import org.junit.rules.*;
+import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolAdapter;
 
 import java.util.logging.Logger;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.*;
+
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -38,9 +30,6 @@ import static org.mockito.Mockito.verify;
  * Time: 15:57
  */
 public class InitializeLoggerCommandTest extends AbstractComCommandExecuteTest {
-
-//    @ClassRule
-//    public static TestRule mockEnvironmentTranslactions = new MockEnvironmentTranslations();
 
     @Test
     public void commandTypeTest() {

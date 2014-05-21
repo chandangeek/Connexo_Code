@@ -1,12 +1,13 @@
 package com.energyict.mdc.engine.impl.logging;
 
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.comserver.exceptions.CodingException;
-import com.energyict.comserver.time.Clocks;
-import com.energyict.comserver.time.FrozenClock;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.UserEnvironment;
+import com.energyict.mdc.engine.exceptions.CodingException;
+
 import org.apache.log4j.PropertyConfigurator;
+import org.joda.time.DateTime;
+
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.ArgumentCaptor;
@@ -150,11 +151,6 @@ public class LoggerFactoryTest {
         Environment.DEFAULT.set(null);
     }
 
-    @After
-    public void resetTimeFactory () throws SQLException {
-        Clocks.resetAll();
-    }
-
     @Test
     public void testLogLevelCopiedFromUnderlyingLogger () {
         Level expectedLevel = getLevel(Logger.getLogger(NoI18N.class.getName()));
@@ -271,15 +267,15 @@ public class LoggerFactoryTest {
         LoggerFactory.LoggerHolder loggerHolder = (LoggerFactory.LoggerHolder) withI18N;
         LogHandler logHandler = new LogHandler();
         loggerHolder.getLogger().addHandler(logHandler);
-        Clocks.setAppServerClock(FrozenClock.frozenOn(2012, Calendar.MAY, 2, 1, 42, 0, 0));
+        Date now = new DateTime(2012, Calendar.MAY, 2, 1, 42, 0, 0).toDate();
 
         // Target method
-        withI18N.helloWorld("Rudi", Clocks.getAppServerClock().now());
+        withI18N.helloWorld("Rudi", now);
 
         // Asserts
         assertEquals("The number of log records does not match", 1, logHandler.getLogRecords().size());
         assertFalse("Translation did not work!", logHandler.getLogRecords().get(0).getMessage().contains(I18N_HELLO_WORLD));
-        String expectedMessage = MessageFormat.format(UserEnvironment.getDefault().getTranslation(I18N_HELLO_WORLD), "Rudi", Clocks.getAppServerClock().now());
+        String expectedMessage = MessageFormat.format(UserEnvironment.getDefault().getTranslation(I18N_HELLO_WORLD), "Rudi", now);
         String actualMessage = logHandler.getLogRecords().get(0).getMessage();
         assertEquals("Parameter replacement did not work", expectedMessage, actualMessage);
     }
@@ -335,7 +331,7 @@ public class LoggerFactoryTest {
 
         ArgumentCaptor<LogRecord> logRecordArgumentCaptor = ArgumentCaptor.forClass(LogRecord.class);
         verify(logger).log(logRecordArgumentCaptor.capture());
-        Assertions.assertThat(logRecordArgumentCaptor.getValue().getLevel()).isEqualTo(Level.SEVERE);
+        assertThat(logRecordArgumentCaptor.getValue().getLevel()).isEqualTo(Level.SEVERE);
     }
 
     @Test
@@ -363,7 +359,7 @@ public class LoggerFactoryTest {
     }
 
     private class LogHandler extends Handler {
-        private List<LogRecord> logRecords = new ArrayList<LogRecord>();
+        private List<LogRecord> logRecords = new ArrayList<>();
 
         @Override
         public void publish (LogRecord record) {
