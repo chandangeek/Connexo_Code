@@ -40,7 +40,7 @@ Ext.define('Mdc.controller.setup.AddLogbookTypes', {
                     text: 'Cancel',
                     cls: 'isu-btn-link',
                     hnd: function () {
-                        window.location = '#setup/devicetypes/' + addView.deviceTypeId + '/logbooktypes';
+                        window.location = '#/administration/devicetypes/' + addView.deviceTypeId + '/logbooktypes';
                     }
                 }
             ],
@@ -81,14 +81,16 @@ Ext.define('Mdc.controller.setup.AddLogbookTypes', {
             method: 'POST',
             jsonData: jsonIds,
             success: function () {
-                window.location.href = '#setup/devicetypes/' + addView.deviceTypeId + '/logbooktypes';
-                header.text = 'Successfully added';
-                self.getApplication().fireEvent('isushowmsg', {
-                    type: 'notify',
-                    msgBody: [header],
-                    y: 10,
-                    showTime: 5000
-                });
+                window.location.href = '#/administration/devicetypes/' + addView.deviceTypeId + '/logbooktypes';
+                header.text = '';
+
+                Ext.create('widget.uxNotification', {
+                    title: 'Successfully added',
+                    stickOnClick: false,
+                    manager: 'demo1',
+                    iconCls: 'ux-notification-icon-information',
+                    html: 'Entering from the component\'s bl corner. stickOnClick set to false.'
+                }).show();
             },
             failure: function (response) {
                 var result = Ext.decode(response.responseText);
@@ -108,7 +110,7 @@ Ext.define('Mdc.controller.setup.AddLogbookTypes', {
                                 text: 'Cancel',
                                 cls: 'isu-btn-link',
                                 hnd: function () {
-                                    window.location = '#setup/devicetypes/' + addView.deviceTypeId + '/logbooktypes/add';
+                                    window.location = '#/administration/devicetypes/' + addView.deviceTypeId + '/logbooktypes/add';
                                 }
                             }
                         ],

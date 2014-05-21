@@ -205,7 +205,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                                                 xtype: 'button',
                                                 ui: 'link',
                                                 itemId: 'cancelLink',
-                                                href: '#/setup/devicetypes/'
+                                                href: '#/administration/devicetypes/'
                                             }
                                         ]
                                     }

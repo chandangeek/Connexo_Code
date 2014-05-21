@@ -43,7 +43,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsGrid', {
                 sortable: false,
                 hideable: false,
                 renderer: function (value, b, record) {
-                    return '<a href="#/setup/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + record.get('id') + '">' + value + '</a>';
+                    return '<a href="#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + record.get('id') + '">' + value + '</a>';
                 },
                 fixed: true,
                 flex: 0.4
@@ -62,17 +62,14 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsGrid', {
 
             {
                 xtype: 'actioncolumn',
-                align: 'left',
-                //tdCls: 'view',
-                //iconCls: 'uni-centered-icon',
+                iconCls: 'uni-actioncolumn-gear',
+                columnWidth: 32,
+                fixed: true,
                 header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                 sortable: false,
                 hideable: false,
-                fixed: true,
-                flex: 0.1,
                 items: [
                     {
-                        icon: '../mdc/resources/images/masterActions.png',
                         handler: function (grid, rowIndex, colIndex, item, e, record, row) {
                             grid.getSelectionModel().select(rowIndex);
                             var menu = Ext.widget('menu', {

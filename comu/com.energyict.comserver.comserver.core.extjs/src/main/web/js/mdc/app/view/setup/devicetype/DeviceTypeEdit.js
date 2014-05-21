@@ -38,8 +38,8 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                     {
                         xtype: 'component',
                         html: '',
-                        itemId: 'deviceTypeEditCreateTitle',
-                        margins: '10 10 10 10'
+                        itemId: 'deviceTypeEditCreateTitle'
+                        //margins: '10 10 10 10'
                     },
                     {
                         xtype: 'container',
@@ -55,7 +55,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                                         xtype: 'form',
                                         border: false,
                                         itemId: 'deviceTypeEditForm',
-                                        padding: '10 10 0 10',
+                                        //padding: '10 10 0 10',
                                         layout: {
                                             type: 'vbox',
                                             align: 'stretch'
@@ -117,7 +117,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                                                         xtype: 'button',
                                                         ui: 'link',
                                                         itemId: 'cancelLink',
-                                                        href: '#/setup/devicetypes/'
+                                                        href: '#/administration/devicetypes/'
                                                     }
                                                 ]
                                             }

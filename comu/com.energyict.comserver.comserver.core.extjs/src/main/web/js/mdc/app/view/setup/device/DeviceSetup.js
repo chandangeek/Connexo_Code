@@ -2,6 +2,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.deviceSetup',
     deviceTypeId: null,
+    mRID: null,
     itemId: 'deviceSetup',
 
     requires: [
@@ -68,6 +69,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
             {
                 xtype: 'deviceOpenIssuesPanel',
                 deviceId: this.deviceId,
+                mRID: this.mRID,
                 columnWidth: 0.50
             }
         );
@@ -82,7 +84,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                 cls: 'x-form-display-field',
                 autoEl: {
                     tag: 'a',
-                    href: '#/setup/devices/' + id,
+                    href: '#/administration/devices/' + id,
                     html: mRID
                 }
             });

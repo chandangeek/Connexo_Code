@@ -196,9 +196,12 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                         ]
                     },
                     {
+                        xtype: 'component',
+                        html: '<h4>' + Uni.I18n.translate('connectionmethod.connectionDetails', 'MDC', 'Connection details') + '</h4>'
+                    },
+                    {
                         xtype: 'propertyEdit',
-                        width: '100%',
-                        propertiesTitle: Uni.I18n.translate('connectionmethod.connectionDetails', 'MDC', 'Connection details')
+                        width: '100%'
                     },
                     {
                         xtype: 'form',
@@ -236,7 +239,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                         itemId: 'cancelLink',
                                         autoEl: {
                                             tag: 'a',
-                                            href: '#setup/devicetypes/',
+                                            href: '#/administration/devicetypes/',
                                             html: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel')
                                         }
                                     }

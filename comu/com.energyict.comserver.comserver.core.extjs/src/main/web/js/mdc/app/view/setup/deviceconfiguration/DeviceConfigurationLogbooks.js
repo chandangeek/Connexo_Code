@@ -31,7 +31,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationLogbooks', {
                             listeners: {
                                 click: {
                                     fn: function () {
-                                        window.location.href = '#setup/devicetypes/' + this.up('device-configuration-logbooks').deviceTypeId + '/deviceconfigurations/' + this.up('device-configuration-logbooks').deviceConfigurationId + '/logbookconfigurations/add';
+                                        window.location.href = '#/administration/devicetypes/' + this.up('device-configuration-logbooks').deviceTypeId + '/deviceconfigurations/' + this.up('device-configuration-logbooks').deviceConfigurationId + '/logbookconfigurations/add';
                                     }
                                 }
                             }
@@ -60,10 +60,13 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationLogbooks', {
                                 flex: 5
                             },
                             {
-                                header: 'Actions',
                                 xtype: 'actioncolumn',
-                                iconCls: 'x-uni-action-icon',
-                                flex: 1
+                                iconCls: 'uni-actioncolumn-gear',
+                                columnWidth: 32,
+                                fixed: true,
+                                header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                                sortable: false,
+                                hideable: false
                             }
                         ]
                     }
@@ -88,7 +91,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationLogbooks', {
                             listeners: {
                                 click: {
                                     fn: function () {
-                                        window.location.href = '#setup/devicetypes/' + this.up('device-configuration-logbooks').deviceTypeId + '/deviceconfigurations/' + this.up('device-configuration-logbooks').deviceConfigurationId + '/logbookconfigurations/add';
+                                        window.location.href = '#/administration/devicetypes/' + this.up('device-configuration-logbooks').deviceTypeId + '/deviceconfigurations/' + this.up('device-configuration-logbooks').deviceConfigurationId + '/logbookconfigurations/add';
                                     }
                                 }
                             }

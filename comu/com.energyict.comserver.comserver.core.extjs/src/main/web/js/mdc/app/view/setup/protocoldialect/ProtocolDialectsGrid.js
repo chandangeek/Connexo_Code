@@ -14,6 +14,27 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectsGrid', {
         mode: 'SINGLE'
     },
     store: 'ProtocolDialectsOfDeviceConfiguration',
+    listeners: {
+        'render': function (component) {
+            // Get sure that the store is not loading and that it
+            // has at least a record on it
+            if (this.store.isLoading() || this.store.getCount() == 0) {
+                // If it is still pending attach a listener to load
+                // event for a single time to handle the selection
+                // after the store has been loaded
+                this.store.on('load', function () {
+                    this.getView().getSelectionModel().select(0);
+                    this.getView().focusRow(0);
+                }, this, {
+                    single: true
+                });
+            } else {
+                this.getView().getSelectionModel().select(0);
+                this.getView().focusRow(0);
+            }
+
+        }
+    },
     padding: '10 10 10 10',
     initComponent: function () {
         var me = this;
@@ -26,29 +47,16 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectsGrid', {
                 fixed: true,
                 flex: 0.6
             },
-            /*{
-                header: Uni.I18n.translate('protocolDialect.availableForUse', 'MDC', 'Available for use'),
-                dataIndex: 'availableForUse',
-                sortable: false,
-                hideable: false,
-                renderer: function (value, b, record) {
-                    return value === true ? Uni.I18n.translate('general.yes', 'MDC', 'Yes') : Uni.I18n.translate('general.no', 'MDC', 'No');
-                },
-                fixed: true,
-                flex: 0.2
-            },*/
             {
                 xtype: 'actioncolumn',
-                tdCls: 'view',
-                iconCls: 'uni-centered-icon',
+                iconCls: 'uni-actioncolumn-gear',
+                columnWidth: 32,
+                fixed: true,
                 header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                 sortable: false,
                 hideable: false,
-                fixed: true,
-                flex: 0.1,
                 items: [
                     {
-                        icon: '../mdc/resources/images/masterActions.png',
                         handler: function (grid, rowIndex, colIndex, item, e, record, row) {
                             grid.getSelectionModel().select(rowIndex);
                             var menu = Ext.widget('menu', {

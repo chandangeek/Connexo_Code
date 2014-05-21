@@ -10,8 +10,6 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupSetup', {
         'Uni.view.container.EmptyGridContainer'
     ],
 
-    hidden: true,
-
     content: [
         {
             xtype: 'container',
@@ -19,12 +17,10 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupSetup', {
                 type: 'vbox',
                 align: 'stretch'
             },
-            padding: '0 10 0 10',
             items: [
                 {
                     xtype: 'component',
                     html: '<h1>' + Uni.I18n.translate('registerGroup.registerGroups', 'MDC', 'Register groups') + '</h1>',
-                    //margins: '10 10 10 10',
                     itemId: 'registerGroupTitle'
                 },
                 {

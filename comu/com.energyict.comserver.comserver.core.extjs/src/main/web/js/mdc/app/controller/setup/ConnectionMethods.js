@@ -10,7 +10,6 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
     ],
 
     views: [
-        'setup.Browse',
         'setup.connectionmethod.ConnectionMethodSetup',
         'setup.connectionmethod.ConnectionMethodsGrid',
         'setup.connectionmethod.ConnectionMethodPreview',
@@ -119,15 +118,15 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
 
 
     addOutboundConnectionMethodHistory: function(){
-        location.href = '#setup/devicetypes/'+this.deviceTypeId+'/deviceconfigurations/'+ this.deviceConfigurationId + '/connectionmethods/addoutbound';
+        location.href = '#/administration/devicetypes/'+this.deviceTypeId+'/deviceconfigurations/'+ this.deviceConfigurationId + '/connectionmethods/addoutbound';
     },
 
     addInboundConnectionMethodHistory: function(){
-        location.href = '#setup/devicetypes/'+this.deviceTypeId+'/deviceconfigurations/'+ this.deviceConfigurationId + '/connectionmethods/addinbound';
+        location.href = '#/administration/devicetypes/'+this.deviceTypeId+'/deviceconfigurations/'+ this.deviceConfigurationId + '/connectionmethods/addinbound';
     },
 
     editConnectionMethodHistory: function(record){
-        location.href = '#setup/devicetypes/'+this.deviceTypeId+'/deviceconfigurations/'+ this.deviceConfigurationId + '/connectionmethods/'+ record.get('id')+'/edit';
+        location.href = '#/administration/devicetypes/'+this.deviceTypeId+'/deviceconfigurations/'+ this.deviceConfigurationId + '/connectionmethods/'+ record.get('id')+'/edit';
     },
 
     editConnectionMethodHistoryFromPreview: function(){
@@ -143,7 +142,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         this.deviceConfigurationId=deviceConfigId;
         var widget = Ext.widget('connectionMethodEdit', {
             edit: false,
-            returnLink: '#setup/devicetypes/'+this.deviceTypeId+'/deviceconfigurations/'+this.deviceConfigurationId+'/connectionmethods',
+            returnLink: '#/administration/devicetypes/'+this.deviceTypeId+'/deviceconfigurations/'+this.deviceConfigurationId+'/connectionmethods',
             connectionTypes: connectionTypesStore,
             comPortPools: comPortPoolStore,
             connectionStrategies: connectionStrategiesStore,
@@ -240,7 +239,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
             record.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigurationId});
             record.save({
                 success: function (record) {
-                    location.href = '#setup/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/connectionmethods';
+                    location.href = '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/connectionmethods';
                 },
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText);
@@ -275,7 +274,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
             connectionMethodToDelete.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigurationId});
             connectionMethodToDelete.destroy({
                 callback: function () {
-                    location.href = '#setup/devicetypes/'+me.deviceTypeId+'/deviceconfigurations/'+me.deviceConfigurationId+'/connectionmethods';
+                    location.href = '#/administration/devicetypes/'+me.deviceTypeId+'/deviceconfigurations/'+me.deviceConfigurationId+'/connectionmethods';
                 }
             });
 
@@ -409,7 +408,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         });
         var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
             text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#setup'
+            href: '#/administration'
         });
 
         breadcrumbParent.setChild(breadcrumbDeviceTypes).setChild(breadcrumbDevicetype).setChild(breadcrumbDeviceConfigs).setChild(breadcrumbDeviceConfig).setChild(breadcrumbRegisterConfigurations);
@@ -460,7 +459,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         });
         var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
             text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#setup'
+            href: '#/administration'
         });
 
         breadcrumbParent.setChild(breadcrumbDeviceTypes).setChild(breadcrumbDevicetype).setChild(breadcrumbDeviceConfigs).setChild(breadcrumbDeviceConfig).setChild(breadcrumbRegisterConfigurations).setChild(breadcrumbCreate);

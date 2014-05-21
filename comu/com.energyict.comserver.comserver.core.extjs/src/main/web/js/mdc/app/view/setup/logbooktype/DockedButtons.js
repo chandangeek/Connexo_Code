@@ -1,6 +1,6 @@
 Ext.define('Mdc.view.setup.logbooktype.DockedButtons', {
     extend: 'Ext.toolbar.Toolbar',
-    border: 0,
+//    border: 0,
     alias: 'widget.logbook-docked-buttons',
     aling: 'left',
 
@@ -15,7 +15,7 @@ Ext.define('Mdc.view.setup.logbooktype.DockedButtons', {
             text: 'Create logbook type',
             action: 'createlogbookaction',
             hrefTarget: '',
-            href: '#/setup/logbooktypes/create'
+            href: '#/administration/logbooktypes/create'
         }
     ]
 

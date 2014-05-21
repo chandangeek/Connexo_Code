@@ -10,47 +10,47 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                 text: Uni.I18n.translate('devicemenu.overview', 'MDC', 'Overview'),
                 pressed: false,
                 itemId: 'deviceOverviewLink',
-                href: '#setup/devices/' + this.deviceId,
+                href: '#/administration/devices/' + this.deviceId,
                 hrefTarget: '_self'
             },
             {
                 text: Uni.I18n.translate('devicemenu.registerTypes', 'MDC', 'Registers'),
                 pressed: false,
                 itemId: 'registersLink',
-                href: '#setup/devices/' + this.deviceId + '/registers',
+                href: '#/administration/devices/' + this.deviceId + '/registers',
                 hrefTarget: '_self'
             }, {
                 text: Uni.I18n.translate('devicemenu.loadProfiles', 'MDC', 'Load profiles'),
                 pressed: false,
                 itemId: 'loadProfilesLink',
-                href: '#setup/devices/' + this.deviceId + '/loadprofiles',
+                href: '#/administration/devices/' + this.deviceId + '/loadprofiles',
                 hrefTarget: '_self'
             }, {
                 text: Uni.I18n.translate('devicemenu.logbooks', 'MDC', 'Logbooks'),
                 pressed: false,
                 itemId: 'logbooksLink',
-                href: '#setup/devices/' + this.deviceId + '/logbooks',
+                href: '#/administration/devices/' + this.deviceId + '/logbooks',
                 hrefTarget: '_self'
             },
             {
                 text: Uni.I18n.translate('devicemenu.connectionMethods', 'MDC', 'Connection methods'),
                 pressed: false,
                 itemId: 'connectionMethodsLink',
-                href: '#setup/devices/' + this.deviceId + '/connectionmethods',
+                href: '#/administration/devices/' + this.deviceId + '/connectionmethods',
                 hrefTarget: '_self'
             },
             {
                 text: Uni.I18n.translate('devicemenu.protocols', 'MDC', 'Protocols'),
                 pressed: false,
                 itemId: 'protocolLink',
-                href: '#setup/devices/' + this.deviceId + '/protocols',
+                href: '#/administration/devices/' + this.deviceId + '/protocols',
                 hrefTarget: '_self'
             },
             {
                 text: Uni.I18n.translate('devicemenu.communication', 'MDC', 'Communication'),
                 pressed: false,
                 itemId: 'communicationLink',
-                href: '#setup/devices/' + this.deviceId + '/communication',
+                href: '#/administration/devices/' + this.deviceId + '/communication',
                 hrefTarget: '_self'
             }
         );

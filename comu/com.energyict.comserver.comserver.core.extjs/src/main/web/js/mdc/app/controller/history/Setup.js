@@ -1,190 +1,198 @@
 Ext.define('Mdc.controller.history.Setup', {
     extend: 'Uni.controller.history.Converter',
 
-    rootToken: 'setup',
+    rootToken: 'administration',
     previousPath: '',
     currentPath: null,
 
     init: function () {
         var me = this;
-        crossroads.addRoute('setup', function () {
-            me.getApplication().getController('Mdc.controller.setup.SetupOverview').showOverview();
-        });
 
         //Logbook type routes
-        crossroads.addRoute('setup/logbooktypes',function(){
+        crossroads.addRoute('/administration/logbooktypes', function () {
             me.getApplication().getController('Mdc.controller.setup.SetupOverview').showLogbookTypes();
         });
-        crossroads.addRoute('setup/logbooktypes/create',function(){
+        crossroads.addRoute('/administration/logbooktypes/create', function () {
             me.getApplication().getController('Mdc.controller.setup.LogForm').showOverview();
         });
-        crossroads.addRoute('setup/logbooktypes/edit/{id}',function(id){
+        crossroads.addRoute('/administration/logbooktypes/edit/{id}', function (id) {
             me.getApplication().getController('Mdc.controller.setup.LogForm').showOverview(id);
         });
 
         //Device type routes
-        crossroads.addRoute('setup/devicetypes', function () {
+        crossroads.addRoute('/administration/devicetypes', function () {
             me.getApplication().getController('Mdc.controller.setup.SetupOverview').showDeviceTypes();
         });
-        crossroads.addRoute('setup/devicetypes/create', function () {
+        crossroads.addRoute('/administration/devicetypes/create', function () {
             me.getApplication().getController('Mdc.controller.setup.DeviceTypes').showDeviceTypeCreateView(null);
         });
-        crossroads.addRoute('setup/devicetypes/{id}', function (id) {
+        crossroads.addRoute('/administration/devicetypes/{id}', function (id) {
             me.getApplication().getController('Mdc.controller.setup.DeviceTypes').showDeviceTypeDetailsView(id);
         });
-        crossroads.addRoute('setup/devicetypes/{id}/edit', function (id) {
+        crossroads.addRoute('/administration/devicetypes/{id}/edit', function (id) {
             me.getApplication().getController('Mdc.controller.setup.DeviceTypes').showDeviceTypeEditView(id);
         });
-        crossroads.addRoute('setup/devicetypes/{id}/logbooktypes',function(id){
+        crossroads.addRoute('/administration/devicetypes/{id}/logbooktypes', function (id) {
             me.getApplication().getController('Mdc.controller.setup.DeviceTypes').showDeviceTypeLogbookTypesView(id);
         });
-        crossroads.addRoute('setup/devicetypes/{id}/logbooktypes/add',function(id){
+        crossroads.addRoute('/administration/devicetypes/{id}/logbooktypes/add', function (id) {
             me.getApplication().getController('Mdc.controller.setup.DeviceTypes').showAddLogbookTypesView(id);
         });
 
         //Device configuration routes
-        crossroads.addRoute('setup/devicetypes/{id}/deviceconfigurations', function (id) {
+        crossroads.addRoute('/administration/devicetypes/{id}/deviceconfigurations', function (id) {
             me.getApplication().getController('Mdc.controller.setup.DeviceConfigurations').showDeviceConfigurations(id);
         });
-        crossroads.addRoute('setup/devicetypes/{deviceTypeId}/deviceconfigurations/create', function (deviceTypeId) {
+        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/create', function (deviceTypeId) {
             me.getApplication().getController('Mdc.controller.setup.DeviceConfigurations').showDeviceConfigurationCreateView(deviceTypeId);
         });
-        crossroads.addRoute('setup/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}', function (deviceTypeId, deviceConfigurationId) {
+        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}', function (deviceTypeId, deviceConfigurationId) {
             me.getApplication().getController('Mdc.controller.setup.DeviceConfigurations').showDeviceConfigurationDetailsView(deviceTypeId, deviceConfigurationId);
         });
-        crossroads.addRoute('setup/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/edit', function (deviceTypeId, deviceConfigurationId) {
+        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/edit', function (deviceTypeId, deviceConfigurationId) {
             me.getApplication().getController('Mdc.controller.setup.DeviceConfigurations').showDeviceConfigurationEditView(deviceTypeId, deviceConfigurationId);
         });
-        crossroads.addRoute('setup/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/logbookconfigurations',function(deviceTypeId, deviceConfigurationId){
+        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/logbookconfigurations', function (deviceTypeId, deviceConfigurationId) {
             me.getApplication().getController('Mdc.controller.setup.DeviceConfigurations').showDeviceConfigurationLogbooksView(deviceTypeId, deviceConfigurationId);
         });
-        crossroads.addRoute('setup/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/logbookconfigurations/add',function(deviceTypeId, deviceConfigurationId){
+        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/logbookconfigurations/add', function (deviceTypeId, deviceConfigurationId) {
             me.getApplication().getController('Mdc.controller.setup.DeviceConfigurations').showAddDeviceConfigurationLogbooksView(deviceTypeId, deviceConfigurationId);
         });
-        crossroads.addRoute('setup/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/logbookconfigurations/{logbookConfigurationId}/edit',function(deviceTypeId, deviceConfigurationId, logbookConfigurationId){
+        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/logbookconfigurations/{logbookConfigurationId}/edit', function (deviceTypeId, deviceConfigurationId, logbookConfigurationId) {
             me.getApplication().getController('Mdc.controller.setup.DeviceConfigurations').showEditDeviceConfigurationLogbooksView(deviceTypeId, deviceConfigurationId, logbookConfigurationId);
         });
 
         //Comserver routes
-        crossroads.addRoute('setup/comservers', function () {
+        crossroads.addRoute('/administration/comservers', function () {
             me.getApplication().getController('Mdc.controller.setup.SetupOverview').showComServers();
         });
-        crossroads.addRoute('setup/comservers/create', function () {
+        crossroads.addRoute('/administration/comservers/create', function () {
             me.getApplication().getController('Mdc.controller.setup.ComServers').showEditView();
         });
-        crossroads.addRoute('setup/comservers/{id}/edit', function (id) {
+        crossroads.addRoute('/administration/comservers/{id}/edit', function (id) {
             me.getApplication().getController('Mdc.controller.setup.ComServers').showEditView(id);
         });
 
         //Communication protocol tokens
-        crossroads.addRoute('setup/devicecommunicationprotocols', function () {
+        crossroads.addRoute('/administration/devicecommunicationprotocols', function () {
             me.getApplication().getController('Mdc.controller.setup.SetupOverview').showDeviceCommunicationProtocols();
         });
-        crossroads.addRoute('setup/devicecommunicationprotocols/{id}/edit', function (id) {
+        crossroads.addRoute('/administration/devicecommunicationprotocols/{id}/edit', function (id) {
             me.getApplication().getController('Mdc.controller.setup.DeviceCommunicationProtocols').showDeviceCommunicationProtocolEditView(id);
         });
 
         //Licensed protocol routes
-        crossroads.addRoute('setup/licensedprotocols', function () {
+        crossroads.addRoute('/administration/licensedprotocols', function () {
             me.getApplication().getController('Mdc.controller.setup.SetupOverview').showLicensedProtocols();
         });
 
 
         //Comportpool routes
-        crossroads.addRoute('/setup/comportpools', function () {
+        crossroads.addRoute('/administration/comportpools', function () {
             me.getApplication().getController('Mdc.controller.setup.SetupOverview').showComPortPools();
         });
-        crossroads.addRoute('setup/comportpools/create', function () {
+        crossroads.addRoute('/administration/comportpools/create', function () {
             me.getApplication().getController('Mdc.controller.setup.ComPortPools').showEditView();
         });
-        crossroads.addRoute('setup/comportpools/{id}', function (id) {
+        crossroads.addRoute('/administration/comportpools/{id}', function (id) {
             me.getApplication().getController('Mdc.controller.setup.ComPortPools').showEditView(id);
         });
 
 
         //RegisterType routes
-        crossroads.addRoute('setup/registertypes', function () {
+        crossroads.addRoute('/administration/registertypes', function () {
             me.getApplication().getController('Mdc.controller.setup.RegisterTypes').showRegisterTypes();
         });
-        crossroads.addRoute('setup/registertypes/create', function () {
+        crossroads.addRoute('/administration/registertypes/create', function () {
             me.getApplication().getController('Mdc.controller.setup.RegisterTypes').showRegisterTypeCreateView(null);
         });
-        crossroads.addRoute('setup/registertypes/{id}', function (id) {
+        crossroads.addRoute('/administration/registertypes/{id}', function (id) {
             me.getApplication().getController('Mdc.controller.setup.RegisterTypes').showRegisterTypeDetailsView(id);
         });
-        crossroads.addRoute('setup/registertypes/{id}/edit', function (id) {
+        crossroads.addRoute('/administration/registertypes/{id}/edit', function (id) {
             me.getApplication().getController('Mdc.controller.setup.RegisterTypes').showRegisterTypeEditView(id);
         });
 
         //RegisterGroup routes
-        crossroads.addRoute('setup/registergroups', function () {
+        crossroads.addRoute('/administration/registergroups', function () {
             me.getApplication().getController('Mdc.controller.setup.RegisterGroups').showRegisterGroups();
         });
-        crossroads.addRoute('setup/registergroups/create', function () {
+        crossroads.addRoute('/administration/registergroups/create', function () {
             me.getApplication().getController('Mdc.controller.setup.RegisterGroups').showRegisterGroupCreateView(null);
         });
-        crossroads.addRoute('setup/registergroups/{id}/edit', function (id) {
+        crossroads.addRoute('/administration/registergroups/{id}/edit', function (id) {
             me.getApplication().getController('Mdc.controller.setup.RegisterGroups').showRegisterGroupEditView(id);
         });
 
 
         //RegisterMapping routes
-        crossroads.addRoute('setup/devicetypes/{id}/registertypes', function (id) {
+        crossroads.addRoute('/administration/devicetypes/{id}/registertypes', function (id) {
             me.getApplication().getController('Mdc.controller.setup.RegisterMappings').showRegisterMappings(id);
         });
-        crossroads.addRoute('setup/devicetypes/{deviceTypeId}/registertypes/add', function (deviceTypeId) {
+        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/registertypes/add', function (deviceTypeId) {
             me.getApplication().getController('Mdc.controller.setup.RegisterMappings').addRegisterMappings(deviceTypeId);
         });
 
         //Register configuration routes
-        crossroads.addRoute('setup/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/registerconfigurations', function (deviceTypeId, deviceConfigurationId) {
+        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/registerconfigurations', function (deviceTypeId, deviceConfigurationId) {
             me.getApplication().getController('Mdc.controller.setup.RegisterConfigs').showRegisterConfigs(deviceTypeId, deviceConfigurationId);
         });
-        crossroads.addRoute('setup/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/registerconfigurations/create', function (deviceTypeId, deviceConfigurationId) {
+        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/registerconfigurations/create', function (deviceTypeId, deviceConfigurationId) {
             me.getApplication().getController('Mdc.controller.setup.RegisterConfigs').showRegisterConfigurationCreateView(deviceTypeId, deviceConfigurationId);
         });
-        crossroads.addRoute('setup/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/registerconfigurations/{registerConfigurationId}/edit', function (deviceTypeId, deviceConfigurationId, registerConfigurationId) {
+        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/registerconfigurations/{registerConfigurationId}/edit', function (deviceTypeId, deviceConfigurationId, registerConfigurationId) {
             me.getApplication().getController('Mdc.controller.setup.RegisterConfigs').showRegisterConfigurationEditView(deviceTypeId, deviceConfigurationId, registerConfigurationId);
         });
 
+        //Security settings routes
+        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/securitysettings',function(deviceTypeId,deviceConfigurationId){
+            me.getApplication().getController('Mdc.controller.setup.SecuritySettings').showSecuritySettings(deviceTypeId, deviceConfigurationId);
+        });
+        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/securitysettings/create',function(deviceTypeId, deviceConfigurationId){
+            me.getApplication().getController('Mdc.controller.setup.SecuritySettings').showSecuritySettingsCreateView(deviceTypeId, deviceConfigurationId);
+        });
+        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/securitysettings/{securitySettingId}/edit',function(deviceTypeId,deviceConfigurationId,securitySettingId){
+            me.getApplication().getController('Mdc.controller.setup.SecuritySettings').showSecuritySettingsEditView(deviceTypeId,deviceConfigurationId,securitySettingId);
+        });
+
         //connection methods routes
-        crossroads.addRoute('setup/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/connectionmethods', function (deviceTypeId, deviceConfigurationId) {
+        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/connectionmethods', function (deviceTypeId, deviceConfigurationId) {
             me.getApplication().getController('Mdc.controller.setup.ConnectionMethods').showConnectionMethods(deviceTypeId, deviceConfigurationId);
         });
-        crossroads.addRoute('setup/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/connectionmethods/addoutbound', function (deviceTypeId, deviceConfigurationId) {
+        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/connectionmethods/addoutbound', function (deviceTypeId, deviceConfigurationId) {
             me.getApplication().getController('Mdc.controller.setup.ConnectionMethods').showAddConnectionMethodView(deviceTypeId, deviceConfigurationId, 'Outbound');
         });
-        crossroads.addRoute('setup/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/connectionmethods/addinbound', function (deviceTypeId, deviceConfigurationId) {
+        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/connectionmethods/addinbound', function (deviceTypeId, deviceConfigurationId) {
             me.getApplication().getController('Mdc.controller.setup.ConnectionMethods').showAddConnectionMethodView(deviceTypeId, deviceConfigurationId, 'Inbound');
         });
-        crossroads.addRoute('setup/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/connectionmethods/{connectionMethodId}/edit', function (deviceTypeId, deviceConfigurationId, connectionMethodId) {
+        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/connectionmethods/{connectionMethodId}/edit', function (deviceTypeId, deviceConfigurationId, connectionMethodId) {
             me.getApplication().getController('Mdc.controller.setup.ConnectionMethods').showConnectionMethodEditView(deviceTypeId, deviceConfigurationId, connectionMethodId);
         });
 
         //protocol dialects routes
-        crossroads.addRoute('setup/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/protocols', function (deviceTypeId, deviceConfigurationId) {
+        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/protocols', function (deviceTypeId, deviceConfigurationId) {
             me.getApplication().getController('Mdc.controller.setup.ProtocolDialects').showProtocolDialectsView(deviceTypeId, deviceConfigurationId);
         });
-        crossroads.addRoute('setup/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/protocols/{protocolDialectId}/edit', function (deviceTypeId, deviceConfigurationId, protocolDialectId) {
+        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/protocols/{protocolDialectId}/edit', function (deviceTypeId, deviceConfigurationId, protocolDialectId) {
             me.getApplication().getController('Mdc.controller.setup.ProtocolDialects').showProtocolDialectsEditView(deviceTypeId, deviceConfigurationId, protocolDialectId);
         });
 
         //Device routes
-        crossroads.addRoute('setup/devices/{id}', function (id) {
+        crossroads.addRoute('/administration/devices/{id}', function (id) {
             me.getApplication().getController('Mdc.controller.setup.Devices').showDeviceDetailsView(id);
         });
 
         //master schedule routes
-        crossroads.addRoute('setup/communicationschedules',function(){
+        crossroads.addRoute('/administration/communicationschedules', function () {
             me.getApplication().getController('Mdc.controller.setup.CommunicationSchedules').showCommunicationSchedules();
         });
 
-        crossroads.addRoute('setup/communicationschedules/create',function(){
+        crossroads.addRoute('/administration/communicationschedules/create', function () {
             me.getApplication().getController('Mdc.controller.setup.CommunicationSchedules').showCommunicationSchedulesEditView();
         });
 
         //search devices
-        crossroads.addRoute('setup/searchitems',function(){
+        crossroads.addRoute('/administration/searchitems', function () {
             me.getApplication().getController('Mdc.controller.setup.SearchItems').showSearchItems();
         });
 

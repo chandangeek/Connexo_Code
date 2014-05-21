@@ -6,7 +6,8 @@ Ext.define('Mdc.view.setup.searchitems.ContentFilter', {
         'Mdc.model.ItemSort'
     ],
     alias: "widget.search-content-filter",
-    id: 'search-content-filter-id',
+    //id: 'search-content-filter-id',
+    itemId: 'searchContentFilter',
     border: true,
     header: false,
     collapsible: false,
@@ -18,8 +19,9 @@ Ext.define('Mdc.view.setup.searchitems.ContentFilter', {
 
     items: [
         {
-            title: 'Filters',
+            title: Uni.I18n.translate('searchItems.filter.criteria', 'MDC', 'Criteria'),
             xtype: 'filter-toolbar',
+            itemId: 'filteritemid',
             name: 'filter',
             emptyText: 'None'
         },
@@ -28,7 +30,7 @@ Ext.define('Mdc.view.setup.searchitems.ContentFilter', {
 // Sort
         {
             xtype: 'filter-toolbar',
-            title: 'Sort',
+            title: Uni.I18n.translate('searchItems.filter.sort', 'MDC', 'Sort'),
             name: 'sortitemspanel',
             itemId: 'sortitemid',
             emptyText: 'None',
@@ -44,32 +46,5 @@ Ext.define('Mdc.view.setup.searchitems.ContentFilter', {
                 }
             ]
         }
-    ],
-
-    addSortButtons: function () {
-        debugger;
-        var self = this.down('#sortitemid'),
-            container = self.getContainer(),
-            data = new Mdc.model.ItemSort().getData(),
-            menuItem,
-            cls;
-
-        container.removeAll();
-        Ext.Object.each(data, function (key, value) {
-            if (key != 'id' && value) {
-                menuItem = self.down('items-sort-menu [action=' + key + ']');
-                cls = value == Isu.model.IssueSort.ASC
-                    ? 'x-btn-sort-item-asc'
-                    : 'x-btn-sort-item-desc';
-
-                container.add({
-                    xtype: 'sort-item-btn',
-                    text: menuItem.text,
-                    sortName: key,
-                    sortDirection: value,
-                    iconCls: cls
-                });
-            }
-        });
-    }
+    ]
 });

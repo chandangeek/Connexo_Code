@@ -91,7 +91,7 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
                     text: 'Cancel',
                     cls: 'isu-btn-link',
                     hnd: function () {
-                        window.location = '#setup/devicetypes/' + logbooksView.deviceTypeId + '/logbooktypes';
+                        window.location = '#/administration/devicetypes/' + logbooksView.deviceTypeId + '/logbooktypes';
                     }
                 }
             ],
@@ -186,7 +186,7 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
                                                     text: 'Cancel',
                                                     cls: 'isu-btn-link',
                                                     hnd: function () {
-                                                        window.location = '#setup/devicetypes/' + logbooksView.deviceTypeId + '/logbooktypes';
+                                                        window.location = '#/administration/devicetypes/' + logbooksView.deviceTypeId + '/logbooktypes';
                                                     }
                                                 }
                                             ],
@@ -227,7 +227,7 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
         confirmMessage.show({
             title: 'Remove logbook type ' + record.data.name + ' ?',
             msg: '<p>The logbook type will no longer be available on this device type.</p>',
-            icon: Ext.MessageBox.QUESTION,
+            icon: Ext.MessageBox.WARNING,
             cls: 'isu-delete-message'
         });
     }

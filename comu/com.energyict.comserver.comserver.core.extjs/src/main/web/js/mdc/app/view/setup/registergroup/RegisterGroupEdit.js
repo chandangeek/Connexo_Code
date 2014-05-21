@@ -113,6 +113,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                             enableColumnMove: false,
                                             enableColumnResize: false,
                                             sortableColumns: false,
+                                            // TODO: uncomment this to activate infinite scrolling when JP-2844 is fixed
                                             /*store: new Ext.data.Store({
                                              model: 'Mdc.model.RegisterType',
                                              buffered: true,
@@ -241,7 +242,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                                 itemId: 'cancelLink',
                                                 autoEl: {
                                                     tag: 'a',
-                                                    href: '#setup/registergroups/',
+                                                    href: '#/administration/registergroups/',
                                                     html: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel')
                                                 }
                                             }

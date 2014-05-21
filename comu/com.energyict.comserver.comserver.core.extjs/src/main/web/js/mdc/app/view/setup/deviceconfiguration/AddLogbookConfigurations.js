@@ -30,7 +30,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.AddLogbookConfigurations', {
                             listeners: {
                                 click: {
                                     fn: function () {
-                                        window.location.href = '#/lbtadministration/logbook';
+                                        window.location.href = '#/administration/logbook';
                                     }
                                 }
                             }
@@ -98,7 +98,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.AddLogbookConfigurations', {
                             listeners: {
                                 click: {
                                     fn: function () {
-                                        window.location.href = '#setup/devicetypes/' + this.up('add-logbook-configurations').deviceTypeId + '/deviceconfigurations/' + this.up('add-logbook-configurations').deviceConfigurationId + '/logbookconfigurations';
+                                        window.location.href = '#/administration/devicetypes/' + this.up('add-logbook-configurations').deviceTypeId + '/deviceconfigurations/' + this.up('add-logbook-configurations').deviceConfigurationId + '/logbookconfigurations';
                                     }
                                 }
                             }

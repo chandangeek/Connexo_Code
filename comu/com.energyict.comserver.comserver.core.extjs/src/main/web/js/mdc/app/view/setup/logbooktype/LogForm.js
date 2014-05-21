@@ -7,89 +7,72 @@ Ext.define('Mdc.view.setup.logbooktype.LogForm', {
     ],
     alias: 'widget.form-logbook',
 
-    side: [
-        {
-            xtype: 'navigationSubMenu',
-            itemId: 'sideMenu'
-        }
-    ],
+//    side: [
+//        {
+//            xtype: 'navigationSubMenu',
+//            itemId: 'sideMenu'
+//        }
+//    ],
 
     content: [
         {
-            cls: 'content-wrapper',
+            xtype: 'form',
+            ui: 'large',
+            width: '50%',
+            defaults: {
+//                labelWidth: 150,
+//                labelAlign: 'right',
+//                margin: '0 0 20 0',
+                validateOnChange: false,
+                validateOnBlur: false
+//                anchor: '100%'
+            },
             items: [
                 {
-                    name: 'header',
-                    margin: '0 0 10 0'
+                    name: 'errors',
+                    layout: 'hbox',
+                    margin: '0 0 20 100',
+                    hidden: true,
+                    defaults: {
+                        xtype: 'container',
+                        cls: 'isu-error-panel'
+                    }
                 },
                 {
-                    xtype: 'form',
-                    width: '50%',
-                    defaults: {
-                        labelWidth: 150,
-                        labelAlign: 'right',
-                        margin: '0 0 20 0',
-                        validateOnChange: false,
-                        validateOnBlur: false,
-                        anchor: '100%'
-                    },
-                    items: [
-                        {
-                            name: 'errors',
-                            layout: 'hbox',
-                            margin: '0 0 20 100',
-                            hidden: true,
-                            defaults: {
-                                xtype: 'container',
-                                cls: 'isu-error-panel'
-                            }
-                        },
-                        {
-                            xtype: 'textfield',
-                            name: 'name',
-                            labelSeparator: ' *',
-                            regex: /[a-zA-Z0-9]+/,
-                            allowBlank: false,
-                            fieldLabel: 'Name',
-                            msgTarget: 'under'
-                        },
-                        {
-                            xtype: 'textfield',
-                            labelSeparator: ' *',
-                            allowBlank: false,
-                            fieldLabel: 'OBIS code',
-                            name: 'obis',
-                            maskRe: /[\d.]+/,
-                            vtype: 'obisCode',
-                            msgTarget: 'under'
-                        }
-                    ],
-                    dockedItems: [
-                        {
-                            xtype: 'toolbar',
-                            dock: 'bottom',
-                            border: false,
-                            margin: '0 0 0 100',
-                            defaults: {
-                                xtype: 'button'
-                            },
-                            items: [
-                                {
-                                    name: 'logAction',
-                                    ui: 'action',
-                                    margin: 10
-                                },
-                                {
-                                    text: 'Cancel',
-                                    name: 'cancel',
-                                    margin: 10,
-                                    hrefTarget: '',
-                                    href: '#/setup/logbooktypes',
-                                    cls: 'isu-btn-link'
-                                }
-                            ]
-                        }
-                    ]
+                    xtype: 'textfield',
+                    name: 'name',
+                    required: true,
+//                    labelSeparator: ' *',
+                    regex: /[a-zA-Z0-9]+/,
+                    allowBlank: false,
+                    fieldLabel: 'Name',
+                    msgTarget: 'under'
+                },
+                {
+                    xtype: 'textfield',
+                    required: true,
+//                    labelSeparator: ' *',
+                    allowBlank: false,
+                    fieldLabel: 'OBIS code',
+                    name: 'obis',
+                    maskRe: /[\d.]+/,
+                    vtype: 'obisCode',
+                    msgTarget: 'under'
+                }
+            ],
+            buttons: [
+                {
+                    name: 'logAction',
+                    ui: 'action',
+                    margin: 10
+                },
+                {
+                    text: 'Cancel',
+                    name: 'cancel',
+                    margin: 10,
+                    hrefTarget: '',
+                    href: '#/administration/logbooktypes',
+                    ui: 'link'
                 }
             ]
         }

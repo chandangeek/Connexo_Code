@@ -101,16 +101,14 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
         var registerGroups = this.getRegisterGroupGrid().getSelectionModel().getSelection();
         if (registerGroups.length == 1) {
             var me=this;
-            var registerTypesOfRegisterGroup = Ext.data.StoreManager.lookup('AvailableRegisterTypesForRegisterGroup');
 
-            registerTypesOfRegisterGroup.getProxy().setExtraParam('registerGroup', registerGroups[0].get('id'));
-            registerTypesOfRegisterGroup.load({
+            this.getRegisterTypeGrid().store.getProxy().setExtraParam('registerGroup', registerGroups[0].get('id'));
+            this.getRegisterTypeGrid().store.load({
                 callback: function (store) {
-                    me.getRegisterTypeGrid().store.loadData(this.data.items);
-                    if(this.data.items.length > 0){
+                    if(this.totalCount > 0){
                         me.getRegisterTypeEmptyGrid().getLayout().setActiveItem('gridContainer');
                         me.getRegisterGroupPreviewTitle().update('<b>' + Uni.I18n.translate('registerGroup.previewGroup', 'MDC', 'Register types of') + ' ' + registerGroups[0].get('name') + '</b><br>' +
-                            Ext.String.format(Uni.I18n.translate('registerGroup.previewCount', 'MDC', '{0} register types'), this.data.items.length));
+                            Ext.String.format(Uni.I18n.translate('registerGroup.previewCount', 'MDC', '{0} register types'), this.totalCount));
                         me.getRegisterTypeGrid().getSelectionModel().doSelect(0);
                     }
                     else{
@@ -132,31 +130,33 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
     },
 
     createRegisterGroupHistory: function () {
-        location.href = '#setup/registergroups/create';
+        location.href = '#/administration/registergroups/create';
     },
 
     editRegisterGroupHistory: function (item) {
-        location.href = '#setup/registergroups/' + item.get('id') + '/edit';
+        location.href = '#/administration/registergroups/' + item.get('id') + '/edit';
     },
 
     editRegisterGroupHistoryFromPreview: function () {
-        location.href = '#setup/registergroups/' + this.getRegisterGroupGrid().getSelectionModel().getSelection()[0].get('id') + '/edit';
+        location.href = '#/administration/registergroups/' + this.getRegisterGroupGrid().getSelectionModel().getSelection()[0].get('id') + '/edit';
     },
 
     createRegisterTypeHistory: function () {
-        location.href = '#setup/registertypes/create';
+        location.href = '#/administration/registertypes/create';
     },
 
     showRegisterGroupEditView: function (registerGroupId) {
         var widget = Ext.widget('registerGroupEdit', {
             edit: true
         });
-        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
-        widget.setLoading(true);
+
         var me = this;
+
+        // TODO: change this to activate infinite scrolling when JP-2844 is fixed
         Ext.ModelManager.getModel('Mdc.model.RegisterGroup').load(registerGroupId, {
             success: function (registerGroup) {
                 me.getStore('Mdc.store.RegisterTypes').load({
+                    limit: 500,
                     callback: function (registerTypes) {
                         me.editBreadCrumb(registerGroup.get('name'));
                         widget.down('form').loadRecord(registerGroup);
@@ -179,6 +179,9 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
                 });
             }
         });
+
+        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
+        widget.setLoading(true);
     },
 
     showRegisterGroupCreateView: function () {
@@ -188,8 +191,10 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
 
         var me = this;
 
+        // TODO: change this to activate infinite scrolling when JP-2844 is fixed
         //widget.down('#editRegisterGroupGridField').store.on('load', function () {
         me.getStore('Mdc.store.RegisterTypes').load({
+            limit: 500,
             callback: function (registerTypes) {
                 me.createBreadCrumb();
                 var registerGroup = Ext.create(Ext.ModelManager.getModel('Mdc.model.RegisterGroup'));
@@ -274,7 +279,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
 
         var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
             text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#setup'
+            href: '#/administration'
         });
         breadcrumbParent.setChild(breadcrumbChild);
         breadcrumbs.setBreadcrumbItem(breadcrumbParent);
@@ -283,7 +288,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
     createBreadCrumb: function () {
         var breadcrumb1 = Ext.create('Uni.model.BreadcrumbItem', {
             text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#setup'
+            href: '#/administration'
         });
         var breadcrumb2 = Ext.create('Uni.model.BreadcrumbItem', {
             text: Uni.I18n.translate('registerGroup.registerGroups', 'MDC', 'Register groups'),
@@ -300,7 +305,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
     editBreadCrumb: function (registerGroupName) {
         var breadcrumb1 = Ext.create('Uni.model.BreadcrumbItem', {
             text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#setup'
+            href: '#/administration'
         });
         var breadcrumb2 = Ext.create('Uni.model.BreadcrumbItem', {
             text: Uni.I18n.translate('registerGroup.registerGroups', 'MDC', 'Register groups'),

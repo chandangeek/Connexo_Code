@@ -10,33 +10,33 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeMenu', {
                 text: Uni.I18n.translate('devicetypemenu.overview', 'MDC', 'Overview'),
                 pressed: false,
                 itemId: 'deviceTypeOverviewLink',
-                href: '#setup/devicetypes/' + this.deviceTypeId,
+                href: '#/administration/devicetypes/' + this.deviceTypeId,
                 hrefTarget: '_self'
             },
             {
                 text: Uni.I18n.translate('devicetypemenu.registerTypes', 'MDC', 'Register types'),
                 pressed: false,
                 itemId: 'registerConfigsLink',
-                href: '#setup/devicetypes/' + this.deviceTypeId + '/registertypes',
+                href: '#/administration/devicetypes/' + this.deviceTypeId + '/registertypes',
                 hrefTarget: '_self'
             }, {
                 text: Uni.I18n.translate('devicetypemenu.loadProfiles', 'MDC', 'Load profiles'),
                 pressed: false,
                 itemId: 'loadProfilesLink',
-                href: '#setup/devicetypes/' + this.deviceTypeId + '/loadprofiles',
+                href: '#/administration/devicetypes/' + this.deviceTypeId + '/loadprofiles',
                 hrefTarget: '_self'
             }, {
                 text: 'Logbook types',
                 pressed: false,
                 itemId: 'logbooksLink',
-                href: '#setup/devicetypes/' + this.deviceTypeId + '/logbooktypes',
+                href: '#/administration/devicetypes/' + this.deviceTypeId + '/logbooktypes',
                 hrefTarget: '_self'
             },
             {
                 text: Uni.I18n.translate('devicetypemenu.configurations', 'MDC', 'Configurations'),
                 pressed: false,
                 itemId: 'configurationsLink',
-                href: '#setup/devicetypes/' + this.deviceTypeId + '/deviceconfigurations',
+                href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations',
                 hrefTarget: '_self'
             }
         );

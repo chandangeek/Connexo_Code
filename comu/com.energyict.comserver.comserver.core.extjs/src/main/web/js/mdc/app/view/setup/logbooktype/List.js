@@ -3,12 +3,11 @@ Ext.define('Mdc.view.setup.logbooktype.List', {
     requires: [
         'Ext.form.field.ComboBox',
         'Ext.grid.column.Template',
-        'Ext.grid.column.Action'
+        'Uni.grid.column.Action',
+        'Mdc.view.setup.logbooktype.ActionMenu'
     ],
     alias: 'widget.logbook-list',
     store: 'Mdc.store.Logbook',
-    height: 395,
-    forceFit: true,
     columns: {
         defaults: {
             sortable: false,
@@ -18,7 +17,7 @@ Ext.define('Mdc.view.setup.logbooktype.List', {
             {
                 header: 'Name',
                 xtype: 'templatecolumn',
-                tpl: '<a href="#/setup/logbooktypes/{id}"><tpl if="name">{name}</tpl></a>',
+                tpl: '<a href="#/administration/logbooktypes/{id}"><tpl if="name">{name}</tpl></a>',
                 flex: 5
             },
             {
@@ -28,10 +27,8 @@ Ext.define('Mdc.view.setup.logbooktype.List', {
                 flex: 5
             },
             {
-                header: 'Actions',
-                xtype: 'actioncolumn',
-                iconCls: 'isu-action-icon', //todo: remove isu classes
-                flex: 1
+                xtype: 'uni-actioncolumn',
+                items: 'Mdc.view.setup.logbooktype.ActionMenu'
             }
         ]
     }

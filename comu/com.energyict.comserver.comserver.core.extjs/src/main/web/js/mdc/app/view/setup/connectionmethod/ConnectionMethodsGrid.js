@@ -41,7 +41,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodsGrid', {
                 sortable: false,
                 hideable: false,
 //                renderer: function(value,b,record){
-//                    return '<a href="#/setup/devicetypes/' + record.get('id') + '">' + value + '</a>';;
+//                    return '<a href="#/administration/devicetypes/' + record.get('id') + '">' + value + '</a>';;
 //                },
                 fixed: true,
                 flex: 0.3
@@ -64,16 +64,14 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodsGrid', {
             },
             {
                 xtype: 'actioncolumn',
-                tdCls: 'view',
-                iconCls: 'uni-centered-icon',
-                header: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
+                iconCls: 'uni-actioncolumn-gear',
+                columnWidth: 32,
+                fixed: true,
+                header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                 sortable: false,
                 hideable: false,
-                fixed: true,
-                flex: 0.1,
                 items: [
                     {
-                        icon: '../mdc/resources/images/masterActions.png',
                         handler: function (grid, rowIndex, colIndex, item, e, record, row) {
                             grid.getSelectionModel().select(rowIndex);
                             var menu = Ext.widget('menu', {

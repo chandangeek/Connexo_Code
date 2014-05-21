@@ -18,14 +18,14 @@ Ext.define('Mdc.view.setup.searchitems.ContentLayout', {
                 xtype: 'panel',
                 itemId: 'infoPanel',
                 layout: {
-                    type: 'vbox',
-                    align: 'middle',
+                    type: 'hbox',
+                    align: 'center',
                     pack: 'center'
                 },
                 items: [
                     {
-                        xtype: 'component',
-                        html: '<H5>' + Uni.I18n.translate('searchItems.selectText', 'MDC', 'Enter one or more search criteria on the left and click \'Search\'.') + '</H5>'
+                        xtype: 'label',
+                        html: '<H3>' + Uni.I18n.translate('searchItems.selectText', 'MDC', 'Enter one or more search criteria on the left and click \'Search\'.') + '</H3>'
                     }
                 ]
             },
@@ -43,12 +43,19 @@ Ext.define('Mdc.view.setup.searchitems.ContentLayout', {
                 itemId: 'loadingPanel',
                 layout: {
                     type: 'vbox',
-                    align: 'stretch'
+                    align: 'center',
+                    pack: 'center'
                 },
                 items: [
                     {
-                        xtype: 'component',
-                        html: '<H5>' + Uni.I18n.translate('searchItems.selectText', 'MDC', 'Searching ...') + '</H5>'
+                        xtype: 'label',
+                        html: '<H3>' + Uni.I18n.translate('searchItems.selectText', 'MDC', 'Searching ...') + '</H3>'
+                    },
+                    {
+                        xtype: 'button',
+                        ui: 'link',
+                        itemId: 'cancelSearching',
+                        text: Uni.I18n.translate('searchItems.cancelSearch', 'MDC', 'Cancel')
                     }
                 ]
             }

@@ -7,12 +7,10 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
     ],
     content: [
         {
+            xtype: 'panel',
+            ui: 'large',
+            itemId: 'deviceTypeLogbookPanel',
             items: [
-                {
-                    xtype: 'panel',
-                    ui: 'large',
-                    itemId: 'deviceTypeLogbookTitle'
-                },
                 {
                     xtype: 'toolbar',
                     border: 0,
@@ -30,7 +28,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
                             listeners: {
                                 click: {
                                     fn: function () {
-                                        window.location.href = '#setup/devicetypes/' + this.up('device-type-logbooks').deviceTypeId + '/logbooktypes/add';
+                                        window.location.href = '#/administration/devicetypes/' + this.up('device-type-logbooks').deviceTypeId + '/logbooktypes/add';
                                     }
                                 }
                             }
@@ -41,7 +39,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
                     xtype: 'grid',
                     height: 395,
                     store: 'LogbookTypes',
-                    forceFit: true,
+
                     columns: {
                         defaults: {
                             sortable: false,
@@ -59,10 +57,13 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
                                 flex: 5
                             },
                             {
-                                header: 'Actions',
                                 xtype: 'actioncolumn',
-                                iconCls: 'x-uni-action-icon',
-                                flex: 1
+                                iconCls: 'uni-actioncolumn-gear',
+                                columnWidth: 32,
+                                fixed: true,
+                                header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                                sortable: false,
+                                hideable: false
                             }
                         ]
                     }
@@ -87,7 +88,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
                             listeners: {
                                 click: {
                                     fn: function () {
-                                        window.location.href = '#setup/devicetypes/' + this.up('device-type-logbooks').deviceTypeId + '/logbooktypes/add';
+                                        window.location.href = '#/administration/devicetypes/' + this.up('device-type-logbooks').deviceTypeId + '/logbooktypes/add';
                                     }
                                 }
                             }

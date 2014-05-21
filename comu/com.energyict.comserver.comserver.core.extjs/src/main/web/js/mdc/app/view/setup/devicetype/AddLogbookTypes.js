@@ -3,15 +3,12 @@ Ext.define('Mdc.view.setup.devicetype.AddLogbookTypes', {
     alias: 'widget.add-logbook-types',
     deviceTypeId: null,
 
-
     content: [
         {
+            xtype: 'panel',
+            ui: 'large',
+            itemId: 'addLogbookPanel',
             items: [
-                {
-                    xtype: 'panel',
-                    ui: 'large',
-                    itemId: 'addLogbookTitle'
-                },
                 {
                     xtype: 'toolbar',
                     border: 0,
@@ -30,7 +27,7 @@ Ext.define('Mdc.view.setup.devicetype.AddLogbookTypes', {
                             listeners: {
                                 click: {
                                     fn: function () {
-                                        window.location.href = '#/lbtadministration/logbook';
+                                        window.location.href = '#/administration/logbook';
                                     }
                                 }
                             }
@@ -47,7 +44,7 @@ Ext.define('Mdc.view.setup.devicetype.AddLogbookTypes', {
                         enableKeyNav: false,
                         showHeaderCheckbox: false
                     },
-                    forceFit: true,
+//                    forceFit: true,
                     columns: {
                         defaults: {
                             sortable: false,
@@ -65,7 +62,26 @@ Ext.define('Mdc.view.setup.devicetype.AddLogbookTypes', {
                                 flex: 5
                             }
                         ]
-                    }
+                    },
+                    buttons: [
+                        {
+                            text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
+                            action: 'add',
+                            ui: 'action'
+                        },
+                        {
+                            text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                            action: 'cancel',
+                            ui: 'link',
+                            listeners: {
+                                click: {
+                                    fn: function () {
+                                        window.location.href = '#/administration/devicetypes/' + this.up('add-logbook-types').deviceTypeId + '/logbooktypes';
+                                    }
+                                }
+                            }
+                        }
+                    ]
                 },
                 {
                     xtype: 'panel',
@@ -79,38 +95,8 @@ Ext.define('Mdc.view.setup.devicetype.AddLogbookTypes', {
           &nbsp;&nbsp; - No logbook type have been defined yet.<br>"
                         }
                     ]
-                },
-                {
-                    layout: 'hbox',
-                    defaults: {
-                        xtype: 'button'
-                    },
-                    items: [
-                        {
-                            text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
-                            action: 'add',
-                            ui: 'action'
-                        },
-                        {
-                            text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
-                            action: 'cancel',
-                            ui: 'link',
-                            listeners: {
-                                click: {
-                                    fn: function () {
-                                        window.location.href = '#setup/devicetypes/' + this.up('add-logbook-types').deviceTypeId + '/logbooktypes';
-                                    }
-                                }
-                            }
-                        }
-                    ]
                 }
-
             ]
         }
-    ],
-
-    initComponent: function () {
-        this.callParent(arguments);
-    }
+    ]
 });

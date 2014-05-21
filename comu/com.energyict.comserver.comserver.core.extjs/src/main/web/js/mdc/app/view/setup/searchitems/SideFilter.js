@@ -7,7 +7,8 @@ Ext.define('Mdc.view.setup.searchitems.SideFilter', {
     ui: 'filter',
 
     requires: [
-        'Uni.component.filter.view.Filter'
+        'Uni.component.filter.view.Filter',
+        'Mdc.store.DeviceTypes'
     ],
     items: [
         {
@@ -30,6 +31,26 @@ Ext.define('Mdc.view.setup.searchitems.SideFilter', {
                         itemId: 'sn',
                         fieldLabel: Uni.I18n.translate('searchItems.serialNumber', 'MDC', 'Serial number'),
                         labelAlign: 'top'
+                    },
+                    {
+                        xtype: 'combobox',
+                        name: 'type',
+                        itemId: 'type',
+                        store: 'DeviceTypes',
+                        fieldLabel: Uni.I18n.translate('searchItems.type', 'MDC', 'Type'),
+                        displayField: 'name',
+                        valueField: 'id',
+                        forceSelection: false,
+                        editable: false,
+                        emptyText: ' ',
+                        labelAlign: 'top',
+                        allowBlank:true,
+                        listeners: {
+                            select: function (comp) {
+                                if (comp.getValue() == "-1")
+                                    comp.setValue(null);
+                            }
+                        }
                     }
                 ]
             }
