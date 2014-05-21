@@ -18,10 +18,11 @@ import com.energyict.mdc.device.config.exceptions.CannotDeleteLoadProfileSpecLin
 import com.energyict.mdc.device.config.exceptions.LoadProfileTypeIsNotConfiguredOnDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.masterdata.LoadProfileType;
-import java.util.ArrayList;
-import java.util.List;
+
 import javax.inject.Inject;
 import javax.inject.Provider;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
