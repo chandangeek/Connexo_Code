@@ -1,12 +1,8 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.comserver.exceptions.CodingException;
-import com.energyict.comserver.logging.LogLevel;
-import com.energyict.mdc.commands.ComCommandTypes;
-import com.energyict.mdc.commands.CommandRoot;
-import com.energyict.mdc.commands.LogBooksCommand;
-import com.energyict.mdc.commands.ReadLogBooksCommand;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
@@ -14,36 +10,24 @@ import com.energyict.mdc.engine.impl.commands.collect.LogBooksCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ReadLogBooksCommand;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.identifiers.LogBookIdentifierByIdImpl;
-import com.energyict.mdc.meterdata.identifiers.LogBookIdentifierByIdImpl;
-import com.energyict.mdc.protocol.tasks.LogBooksTask;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLogBookSpec;
-import com.energyict.mdc.tasks.ComTaskExecution;
 import com.energyict.mdc.tasks.LogBooksTask;
-import com.energyict.test.MockEnvironmentTranslations;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.fest.api.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -86,13 +70,6 @@ public class LogBooksCommandImplTest {
     private OfflineLogBook offlineLogBook_C;
 
     @Mock
-    private OfflineLogBookSpec offlineLogBookSpec_A;
-    @Mock
-    private OfflineLogBookSpec offlineLogBookSpec_B;
-    @Mock
-    private OfflineLogBookSpec offlineLogBookSpec_C;
-
-    @Mock
     private LogBookType logBookType_A;
     @Mock
     private LogBookType logBookType_B;
@@ -106,26 +83,17 @@ public class LogBooksCommandImplTest {
 
     @Before
     public void setUp() throws Exception {
-        when(offlineLogBookSpec_A.getLogBookTypeId()).thenReturn(LOGBOOK_TYPE_1);
-        when(offlineLogBookSpec_A.getDeviceObisCode()).thenReturn(DEVICE_OBISCODE_LOGBOOK_1);
         when(offlineLogBook_A.getLogBookId()).thenReturn(LOGBOOK_ID_1);
         when(offlineLogBook_A.getLastLogBook()).thenReturn(LAST_LOGBOOK_1);
         when(offlineLogBook_A.getMasterSerialNumber()).thenReturn(SERIAL_NUMBER);
-        when(offlineLogBook_A.getOfflineLogBookSpec()).thenReturn(offlineLogBookSpec_A);
 
-        when(offlineLogBookSpec_B.getLogBookTypeId()).thenReturn(LOGBOOK_TYPE_2);
-        when(offlineLogBookSpec_B.getDeviceObisCode()).thenReturn(DEVICE_OBISCODE_LOGBOOK_2);
         when(offlineLogBook_B.getLogBookId()).thenReturn(LOGBOOK_ID_2);
         when(offlineLogBook_B.getLastLogBook()).thenReturn(LAST_LOGBOOK_2);
         when(offlineLogBook_B.getMasterSerialNumber()).thenReturn(SERIAL_NUMBER);
-        when(offlineLogBook_B.getOfflineLogBookSpec()).thenReturn(offlineLogBookSpec_B);
 
-        when(offlineLogBookSpec_C.getLogBookTypeId()).thenReturn(LOGBOOK_TYPE_3);
-        when(offlineLogBookSpec_C.getDeviceObisCode()).thenReturn(DEVICE_OBISCODE_LOGBOOK_3);
         when(offlineLogBook_C.getLogBookId()).thenReturn(LOGBOOK_ID_3);
         when(offlineLogBook_C.getLastLogBook()).thenReturn(LAST_LOGBOOK_3);
         when(offlineLogBook_C.getMasterSerialNumber()).thenReturn(SERIAL_NUMBER);
-        when(offlineLogBook_C.getOfflineLogBookSpec()).thenReturn(offlineLogBookSpec_C);
 
         when(logBookType_A.getId()).thenReturn(LOGBOOK_TYPE_1);
         when(logBookType_B.getId()).thenReturn(LOGBOOK_TYPE_2);
