@@ -12,8 +12,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
-import static com.elster.jupiter.issue.rest.request.RequestHelper.ID;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.LIKE;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.*;
 import static com.elster.jupiter.issue.rest.response.ResponseHelper.ok;
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -21,22 +20,25 @@ import static com.elster.jupiter.util.conditions.Where.where;
 public class MeterResource extends BaseResource {
     /**
      * <b>API link</b>: none<br />
-     * <b>Pagination</b>: false<br />
-     * <b>Mandatory parameters</b>: none<br />
+     * <b>Pagination</b>: true<br />
+     * <b>Mandatory parameters</b>:
+     *      '{@value com.elster.jupiter.issue.rest.request.RequestHelper#START}',
+     *      '{@value com.elster.jupiter.issue.rest.request.RequestHelper#LIMIT}',
      * <b>Optional parameters</b>: '{@value com.elster.jupiter.issue.rest.request.RequestHelper#LIKE}'<br />
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getMeters(@BeanParam StandardParametersBean params) {
+        validateMandatory(params, START, LIMIT);
         // We shouldn't return anything if the 'like' parameter is absent or it is an empty string.
         String searchText = params.getFirst(LIKE);
         if (searchText != null && !searchText.isEmpty()){
             String dbSearchText = "%" + searchText + "%";
-            Condition condition = where("serialNumber").likeIgnoreCase(dbSearchText);
+            Condition condition = where("mRID").likeIgnoreCase(dbSearchText);
 
             Query<Meter> meterQuery = getMeteringService().getMeterQuery();
-            List<Meter> listMeters = meterQuery.select(condition, Order.ascending("serialNumber"));
-            return ok(listMeters, MeterShortInfo.class).build();
+            List<Meter> listMeters = meterQuery.select(condition, params.getFrom(), params.getTo(), Order.ascending("mRID"));
+            return ok(listMeters, MeterShortInfo.class, params.getStart(), params.getLimit()).build();
         }
         return ok("").build();
     }

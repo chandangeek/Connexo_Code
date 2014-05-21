@@ -16,7 +16,7 @@ public class DeviceInfo {
         if (endDevice != null) {
             this.id = endDevice.getId();
             this.name = endDevice.getName();
-            this.serialNumber = endDevice.getSerialNumber();
+            this.serialNumber = endDevice.getMRID();
             this.version = endDevice.getVersion();
             fetchDetails(endDevice);
         }

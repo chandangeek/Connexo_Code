@@ -7,9 +7,10 @@ public class MeterShortInfo {
     private String name;
 
     public MeterShortInfo(Meter meter) {
-        this.id = meter.getId();
-        String displayedString = meter.getName() + " " + meter.getSerialNumber();
-        this.name = displayedString;
+        if (meter != null) {
+            this.id = meter.getId();
+            this.name = meter.getMRID();
+        }
     }
 
     public String getName() {
