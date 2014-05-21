@@ -1,19 +1,9 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.IsPresent;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
 import com.energyict.mdc.device.data.ComTaskExecutionDependant;
@@ -50,16 +40,29 @@ import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
+
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.elster.jupiter.util.time.Clock;
+import org.hibernate.validator.constraints.Range;
+
+import javax.inject.Inject;
+import javax.inject.Provider;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import javax.inject.Inject;
-import javax.inject.Provider;
-import org.hibernate.validator.constraints.Range;
+
+import static com.elster.jupiter.util.Checks.is;
 
 /**
  * Implementation of a ComTaskExecution
- *
+ * <p/>
  * Copyrights EnergyICT
  * Date: 11/04/14
  * Time: 15:09
@@ -71,7 +74,6 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     private final Clock clock;
     private final DeviceDataService deviceDataService;
-    private final DeviceConfigurationService deviceConfigurationService;
     private final SchedulingService schedulingService;
 
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DEVICE_IS_REQUIRED + "}")
@@ -83,6 +85,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     private Reference<ComSchedule> comScheduleReference = ValueReference.absent();
 
+    private long connectionTaskId;  // Required for performance of ComTaskExecution query to avoid loading the ConnectionTask to only get the id
     private Reference<ConnectionTask<?, ?>> connectionTask = ValueReference.absent();
 
     private Reference<ComPort> comPort = ValueReference.absent();
@@ -128,7 +131,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     private void setComSchedule(ComSchedule comSchedule) {
-        if (comSchedule==null) {
+        if (comSchedule == null) {
             this.comScheduleReference.setNull();
         }
         this.comScheduleReference.set(comSchedule);
@@ -161,11 +164,10 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     @Inject
-    public ComTaskExecutionImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, DeviceDataService deviceDataService, DeviceConfigurationService deviceConfigurationService, SchedulingService schedulingService) {
+    public ComTaskExecutionImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, DeviceDataService deviceDataService, SchedulingService schedulingService) {
         super(ComTaskExecution.class, dataModel, eventService, thesaurus);
         this.clock = clock;
         this.deviceDataService = deviceDataService;
-        this.deviceConfigurationService = deviceConfigurationService;
         this.schedulingService = schedulingService;
     }
 
@@ -275,7 +277,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     private void setUseDefaultConnectionTask(boolean useDefaultConnectionTask) {
         this.useDefaultConnectionTask = useDefaultConnectionTask;
         if (this.useDefaultConnectionTask) {
-            this.connectionTask.set(this.deviceDataService.findDefaultConnectionTaskForDevice(getDevice()));
+            this.setConnectionTask(this.deviceDataService.findDefaultConnectionTaskForDevice(getDevice()));
         }
     }
 
@@ -301,7 +303,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         if (updatedVersionOfMyself != null) {
             this.comPort.set(updatedVersionOfMyself.getExecutingComPort());
             this.obsoleteDate = updatedVersionOfMyself.getObsoleteDate();
-            this.connectionTask.set(updatedVersionOfMyself.getConnectionTask());
+            this.setConnectionTask(updatedVersionOfMyself.getConnectionTask());
         }
     }
 
@@ -313,7 +315,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         }
 
         if (this.useDefaultConnectionTask) {
-            ConnectionTask<?,?> defaultConnectionTaskForDevice = this.deviceDataService.findDefaultConnectionTaskForDevice(getDevice());
+            ConnectionTask<?, ?> defaultConnectionTaskForDevice = this.deviceDataService.findDefaultConnectionTaskForDevice(getDevice());
             if (defaultConnectionTaskForDevice != null && defaultConnectionTaskForDevice.getExecutingComServer() != null) {
                 throw new ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException(this.getThesaurus(), this, this.deviceDataService.findDefaultConnectionTaskForDevice(getDevice()).getExecutingComServer());
             }
@@ -339,6 +341,23 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     private void setConnectionTask(ConnectionTask<?, ?> connectionTask) {
         this.connectionTask.set(connectionTask);
+        if (connectionTask != null) {
+            this.connectionTaskId = connectionTask.getId();
+        }
+        else {
+            this.connectionTaskId = 0;
+        }
+    }
+
+    @Override
+    public boolean usesSameConnectionTaskAs (ComTaskExecution anotherTask) {
+        if (anotherTask instanceof ComTaskExecutionImpl) {
+            ComTaskExecutionImpl comTaskExecution = (ComTaskExecutionImpl) anotherTask;
+            return this.connectionTaskId == comTaskExecution.connectionTaskId;
+        }
+        else {
+            return this.connectionTaskId == anotherTask.getConnectionTask().getId();
+        }
     }
 
     @Override
@@ -671,7 +690,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
      *
      * @param connectionTask the connectionTask to set or <code>null</code> to clear the connectionTask
      */
-    protected void assignConnectionTask(ConnectionTask<?,?> connectionTask) {
+    protected void assignConnectionTask(ConnectionTask<?, ?> connectionTask) {
         this.setConnectionTask(connectionTask);
         if (!this.connectionTask.isPresent()) {
             this.setUseDefaultConnectionTask(true);
@@ -757,7 +776,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         return isConfiguredToCollectDataOfClass(TopologyTask.class);
     }
 
-    private <T extends ProtocolTask> boolean isConfiguredToCollectDataOfClass (Class<T> protocolTaskClass) {
+    private <T extends ProtocolTask> boolean isConfiguredToCollectDataOfClass(Class<T> protocolTaskClass) {
         for (ProtocolTask protocolTask : getComTask().getProtocolTasks()) {
             if (protocolTaskClass.isAssignableFrom(protocolTask.getClass())) {
                 return true;
@@ -803,18 +822,23 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     private class MasterNextExecutionSpecHolder implements NextExecutionSpecHolder {
 
-        private final NextExecutionSpecs masterScheduleNextExecutionSpec;
+        private final long masterScheduleNextExecutionSpecId;
+        private NextExecutionSpecs masterScheduleNextExecutionSpec;
 
         private MasterNextExecutionSpecHolder(NextExecutionSpecs masterScheduleNextExecutionSpec) {
             this.masterScheduleNextExecutionSpec = masterScheduleNextExecutionSpec;
+            this.masterScheduleNextExecutionSpecId = (masterScheduleNextExecutionSpec != null ? masterScheduleNextExecutionSpec.getId() : 0);
         }
 
-        public MasterNextExecutionSpecHolder(long nextExecutionSpecId) {
-            masterScheduleNextExecutionSpec = ComTaskExecutionImpl.this.schedulingService.findNextExecutionSpecs(nextExecutionSpecId);
+        private MasterNextExecutionSpecHolder(long nextExecutionSpecId) {
+            this.masterScheduleNextExecutionSpecId = nextExecutionSpecId;
         }
 
         @Override
         public NextExecutionSpecs getNextExecutionSpec() {
+            if (masterScheduleNextExecutionSpec == null && masterScheduleNextExecutionSpecId != 0) {
+                masterScheduleNextExecutionSpec = ComTaskExecutionImpl.this.schedulingService.findNextExecutionSpecs(masterScheduleNextExecutionSpecId);
+            }
             return masterScheduleNextExecutionSpec;
         }
 
@@ -847,7 +871,6 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
         private MyNextExecutionSpecHolder(long id) {
             this.nextExecutionSpecId = id;
-            this.nextExecutionSpecs = ComTaskExecutionImpl.this.schedulingService.findNextExecutionSpecs(this.nextExecutionSpecId);
         }
 
         private MyNextExecutionSpecHolder(TemporalExpression temporalExpression) {
@@ -856,12 +879,15 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
         @Override
         public NextExecutionSpecs getNextExecutionSpec() {
+            if (this.nextExecutionSpecs == null && this.nextExecutionSpecId != 0) {
+                this.nextExecutionSpecs = ComTaskExecutionImpl.this.schedulingService.findNextExecutionSpecs(this.nextExecutionSpecId);
+            }
             return this.nextExecutionSpecs;
         }
 
         @Override
         public void updateTemporalExpression(TemporalExpression temporalExpression) {
-            this.nextExecutionSpecs.setTemporalExpression(temporalExpression);
+            getNextExecutionSpec().setTemporalExpression(temporalExpression);
         }
 
         @Override
@@ -873,7 +899,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
         @Override
         public void delete() {
-            this.nextExecutionSpecs.delete();
+            getNextExecutionSpec().delete();
         }
 
         @Override
@@ -912,7 +938,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         }
     }
 
-    public static abstract class ComTaskExecutionBuilder implements ComTaskExecution.ComTaskExecutionBuilder {
+    public abstract static class ComTaskExecutionBuilder implements ComTaskExecution.ComTaskExecutionBuilder {
 
         private final ComTaskExecutionImpl comTaskExecution;
 
@@ -978,7 +1004,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         }
     }
 
-    public static abstract class ComTaskExecutionUpdater implements ComTaskExecution.ComTaskExecutionUpdater {
+    public abstract static class ComTaskExecutionUpdater implements ComTaskExecution.ComTaskExecutionUpdater {
 
         private final ComTaskExecutionImpl comTaskExecution;
 

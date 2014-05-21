@@ -48,8 +48,7 @@ import static com.energyict.mdc.protocol.pluggable.ConnectionTypePropertyRelatio
 public class ConnectionMethodImpl extends IdPluggableClassUsageImpl<ConnectionMethod, ConnectionType, ConnectionTaskProperty>
         implements
             ConnectionMethod,
-            ConnectionTaskPropertyProvider,
-            PersistenceAware {
+            ConnectionTaskPropertyProvider {
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.CONNECTION_METHOD_PLUGGABLE_CLASS_REQUIRED_KEY + "}")
     private ConnectionTypePluggableClass pluggableClass;
@@ -74,12 +73,8 @@ public class ConnectionMethodImpl extends IdPluggableClassUsageImpl<ConnectionMe
     }
 
     @Override
-    public void postLoad() {
-        this.loadPluggableClass();
-    }
-
-    @Override
     public void save () {
+        this.getPluggableClass();   // Force load for the @NotNull annotation
         super.save();
     }
 

@@ -7,13 +7,11 @@ import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.elster.jupiter.util.conditions.Condition;
+import com.energyict.mdc.common.services.Finder;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.data.impl.InfoType;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.device.data.tasks.*;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPort;
@@ -23,6 +21,8 @@ import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
+
+import com.elster.jupiter.util.sql.Fetcher;
 import com.google.common.base.Optional;
 
 import java.util.Collection;
@@ -304,6 +304,13 @@ public interface DeviceDataService {
     public List<Device> findAllDevices();
 
     /**
+     * Finds all the devices in the system with the specific condition
+     *
+     * @return a list of all devices with the specific condition in the system
+     */
+    public Finder<Device> findAllDevices(Condition condition);
+
+    /**
      * Finds all the devices which use the given TimeZone
      *
      * @param timeZone the timeZone
@@ -429,7 +436,8 @@ public interface DeviceDataService {
      */
     public boolean isLinkedToDevices(ComSchedule comSchedule);
 
-    List<ComTaskExecution> getPlannedComTaskExecutionsFor(ComPort comPort);
+    Fetcher<ComTaskExecution> getPlannedComTaskExecutionsFor(ComPort comPort);
+    
     List<ComTaskExecution> getPlannedComTaskExecutionsFor(InboundComPort comPort, Device device);
 
     boolean areComTasksStillPending(Collection<Long> comTaskExecutionIds);

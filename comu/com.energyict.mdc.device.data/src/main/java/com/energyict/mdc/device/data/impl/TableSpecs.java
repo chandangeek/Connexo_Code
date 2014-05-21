@@ -30,6 +30,7 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONGNULLZERO;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBERINUTCSECONDS2DATE;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 
@@ -249,7 +250,7 @@ public enum TableSpecs {
             Table<ComTaskExecution> table = dataModel.addTable(name(), ComTaskExecution.class);
             table.map(ComTaskExecutionImpl.class);
             Column id = table.addAutoIdColumn();
-            Column deviceId = table.column("RTU").number().notNull().add();
+            Column device = table.column("RTU").number().notNull().add();
             Column comtask = table.column("COMTASK").number().notNull().add();
             Column comSchedule = table.column("COMSCHEDULE").number().add();
             table.column("NEXTEXECUTIONSPECS").number().conversion(NUMBER2LONG).map(ComTaskExecutionFields.NEXTEXECUTIONSPEC.fieldName()).add();
@@ -257,7 +258,7 @@ public enum TableSpecs {
             table.column("LASTEXECUTIONTIMESTAMP").number().conversion(NUMBERINUTCSECONDS2DATE).map(ComTaskExecutionFields.LASTEXECUTIONTIMESTAMP.fieldName()).add();
             table.column("NEXTEXECUTIONTIMESTAMP").number().conversion(NUMBERINUTCSECONDS2DATE).map(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).add();
             Column comport = table.column("COMPORT").number().add();
-            table.column("MOD_DATE").type("DATE").map(ComTaskExecutionFields.MODIFICATIONDATE.fieldName()).add();
+            table.column("MOD_DATE").type("DATE").conversion(DATE2DATE).map(ComTaskExecutionFields.MODIFICATIONDATE.fieldName()).add();
             table.column("OBSOLETE_DATE").type("DATE").conversion(DATE2DATE).map(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).add();
             table.column("PRIORITY").number().conversion(NUMBER2INT).map(ComTaskExecutionFields.PRIORITY.fieldName()).add();
             table.column("USEDEFAULTCONNECTIONTASK").number().conversion(NUMBER2BOOLEAN).map(ComTaskExecutionFields.USEDEFAULTCONNECTIONTASK.fieldName()).add();
@@ -267,7 +268,7 @@ public enum TableSpecs {
             table.column("EXECUTIONSTART").number().conversion(NUMBERINUTCSECONDS2DATE).map(ComTaskExecutionFields.EXECUTIONSTART.fieldName()).add();
             table.column("LASTSUCCESSFULCOMPLETION").number().conversion(NUMBERINUTCSECONDS2DATE).map(ComTaskExecutionFields.LASTSUCCESSFULCOMPLETIONTIMESTAMP.fieldName()).add();
             table.column("LASTEXECUTIONFAILED").number().conversion(NUMBER2BOOLEAN).map(ComTaskExecutionFields.LASTEXECUTIONFAILED.fieldName()).add();
-            Column connectionTask = table.column("CONNECTIONTASK").number().add();
+            Column connectionTask = table.column("CONNECTIONTASK").number().conversion(NUMBER2LONGNULLZERO).map("connectionTaskId").add();
             Column protocolDialectConfigurationProperties = table.column("PROTOCOLDIALECTCONFIGPROPS").number().notNull().add();
             table.column("IGNORENEXTEXECSPECS").number().conversion(NUMBER2BOOLEAN).notNull().map(ComTaskExecutionFields.IGNORENEXTEXECUTIONSPECSFORINBOUND.fieldName()).add();
             table.foreignKey("FK_MDCCOMTASKEXEC_COMPORT").on(comport).references(EngineModelService.COMPONENT_NAME, "MDCCOMPORT").map(ComTaskExecutionFields.COMPORT.fieldName()).add();
@@ -275,7 +276,7 @@ public enum TableSpecs {
             table.foreignKey("FK_MDCCOMTASKEXEC_COMSCHEDULE").on(comSchedule).references(SchedulingService.COMPONENT_NAME, "MDCCOMSCHEDULE").map(ComTaskExecutionFields.COM_SCHEDULE_REFERENCE.fieldName()).add();
             table.foreignKey("FK_MDCCOMTASKEXEC_CONNECTTASK").on(connectionTask).references(MDCCONNECTIONTASK.name()).map(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).add();
             table.foreignKey("FK_MDCCOMTASKEXEC_DIALECT").on(protocolDialectConfigurationProperties).references(DeviceConfigurationService.COMPONENTNAME, "MDCDIALECTCONFIGPROPERTIES").map(ComTaskExecutionFields.PROTOCOLDIALECTCONFIGURATIONPROPERTIES.fieldName()).add();
-            table.foreignKey("FK_MDCCOMTASKEXEC_RTU").on(deviceId).references(EISRTU.name()).map(ComTaskExecutionFields.DEVICE.fieldName()).add();
+            table.foreignKey("FK_MDCCOMTASKEXEC_RTU").on(device).references(EISRTU.name()).map(ComTaskExecutionFields.DEVICE.fieldName()).add();
             table.primaryKey("PK_MDCCOMTASKEXEC").on(id).add();
         }
     }
