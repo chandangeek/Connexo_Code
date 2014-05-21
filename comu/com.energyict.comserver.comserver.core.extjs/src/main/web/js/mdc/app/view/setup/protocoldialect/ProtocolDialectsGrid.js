@@ -88,6 +88,9 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectsGrid', {
                 xtype: 'pagingtoolbartop',
                 store: this.store,
                 dock: 'top',
+                displayMsg: Uni.I18n.translate('protocolDialects.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} protocol dialects'),
+                displayMoreMsg: Uni.I18n.translate('protocolDialects.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} protocol dialects'),
+                emptyMsg: Uni.I18n.translate('protocolDialects.pagingtoolbartop.emptyMsg', 'MDC', 'There are no protocol dialects to display'),
                 items: [
                     {
                         xtype: 'component',
@@ -102,7 +105,8 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectsGrid', {
                     {deviceType: this.deviceTypeId},
                     {deviceConfig: this.deviceConfigId}
                 ],
-                dock: 'bottom'
+                dock: 'bottom',
+                itemsPerPageMsg: Uni.I18n.translate('protocolDialects.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Protocol dialects per page')
             }
         ];
 
