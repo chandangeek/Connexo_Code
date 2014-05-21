@@ -63,15 +63,16 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
 
     @SuppressWarnings("unchecked")
     private void validatePropertyValue(String propertyName, Object propertyValue, List<PropertySpec> propertySpecs, ConstraintValidatorContext context) {
+        PropertySpec propertySpec=null;
         try {
-            PropertySpec propertySpec = getPropertySpec(propertySpecs, propertyName);
+            propertySpec = getPropertySpec(propertySpecs, propertyName);
             propertySpec.validateValue(propertyValue);
         }
         catch (InvalidValueException e) {
             context.disableDefaultConstraintViolation();
             context
                 .buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE_KEY + "}")
-                .addPropertyNode("properties").addConstraintViolation();
+                .addPropertyNode("properties").addPropertyNode(propertySpec.getName()).addConstraintViolation();
             this.valid = false;
         }
     }
