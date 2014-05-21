@@ -2,17 +2,28 @@ package com.energyict.mdc.engine.impl.core.mocks;
 
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.engine.model.impl.OnlineComServerImpl;
 import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.protocol.api.ComPortType;
-import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
+import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
 import com.energyict.mdc.engine.model.OnlineComServer;
-import com.energyict.mdc.shadow.servers.OnlineComServerShadow;
+import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
+import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
+import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
+import com.energyict.mdc.engine.model.impl.OnlineComServerImpl;
+import com.energyict.mdc.engine.model.impl.OutboundComPortImpl;
+import com.energyict.mdc.protocol.api.ComPortType;
+
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.google.inject.Provider;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import static org.mockito.Mockito.mock;
 
 /**
 * Provides a mock implementation for the {@link OnlineComServer} interface.
@@ -20,7 +31,7 @@ import java.util.List;
 * @author Rudi Vankeirsbilck (rudi)
 * @since 2012-04-03 (12:04)
 */
-public class MockOnlineComServer extends OnlineComServerImpl implements Cloneable, OnlineComServer, ServerComServer {
+public class MockOnlineComServer extends OnlineComServerImpl implements Cloneable, OnlineComServer {
 
     private static final int COMPORT_ID_START = 97;
     private static int NEXT_COMPORT_ID = COMPORT_ID_START;
@@ -36,9 +47,30 @@ public class MockOnlineComServer extends OnlineComServerImpl implements Cloneabl
     private boolean dirty;
     private String name;
 
-    public MockOnlineComServer (String name) {
-        super(null,null,null, null, null, null, null); // TODO use true Mocks
+    public MockOnlineComServer(
+            String name,
+            DataModel dataModel,
+            EngineModelService engineModelService,
+            Provider<OutboundComPortImpl> outboundComPortProvider,
+            Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider,
+            Provider<ModemBasedInboundComPort> modemBasedInboundComPortProvider,
+            Provider<TCPBasedInboundComPort> tcpBasedInboundComPortProvider,
+            Provider<UDPBasedInboundComPort> udpBasedInboundComPortProvider,
+            Thesaurus thesaurus) {
+        super(dataModel, engineModelService, outboundComPortProvider, servletBasedInboundComPortProvider, modemBasedInboundComPortProvider, tcpBasedInboundComPortProvider, udpBasedInboundComPortProvider, thesaurus);
         this.name = name;
+    }
+
+    public MockOnlineComServer (String name) {
+        this(name,
+                mock(DataModel.class),
+                mock(EngineModelService.class),
+                (Provider<OutboundComPortImpl>) mock(Provider.class),
+                (Provider<ServletBasedInboundComPort>) mock(Provider.class),
+                (Provider<ModemBasedInboundComPort>) mock(Provider.class),
+                (Provider<TCPBasedInboundComPort>) mock(Provider.class),
+                (Provider<UDPBasedInboundComPort>) mock(Provider.class),
+                mock(Thesaurus.class));
     }
 
     public String getName() {
@@ -128,17 +160,17 @@ public class MockOnlineComServer extends OnlineComServerImpl implements Cloneabl
 
     @Override
     public int getStoreTaskQueueSize () {
-        return OnlineComServerShadow.DEFAULT_STORE_TASK_QUEUE_SIZE;
+        return ComServer.MINIMUM_STORE_TASK_QUEUE_SIZE;
     }
 
     @Override
     public int getNumberOfStoreTaskThreads () {
-        return OnlineComServerShadow.DEFAULT_NUMBER_OF_STORE_TASK_THREADS;
+        return ComServer.MINIMUM_NUMBER_OF_STORE_TASK_THREADS;
     }
 
     @Override
     public int getStoreTaskThreadPriority () {
-        return OnlineComServerShadow.DEFAULT_STORE_TASK_THREAD_PRIORITY;
+        return ComServer.MINIMUM_STORE_TASK_THREAD_PRIORITY;
     }
 
     @Override
