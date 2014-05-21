@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -18,5 +19,5 @@ public interface ComJobFactory {
      *
      * @param comTaskExecutions the fetched ComTaskExecutions
      */
-    public List<ComJob> consume(List<ComTaskExecution> comTaskExecutions);
+    public List<ComJob> consume(Iterator<ComTaskExecution> comTaskExecutions);
 }
