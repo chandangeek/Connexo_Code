@@ -39,6 +39,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
@@ -334,7 +335,7 @@ public class PartialOutboundConnectiontaskCrudIT {
         }
 
         ComWindow newComWindow = new ComWindow(7200, 10800);
-        PartialScheduledConnectionTaskImpl task;
+        PartialScheduledConnectionTask task;
         try (TransactionContext context = transactionService.getContext()) {
             task = deviceConfiguration.getPartialOutboundConnectionTasks().get(0);
             task.setDefault(false);
@@ -394,7 +395,7 @@ public class PartialOutboundConnectiontaskCrudIT {
 
         deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(deviceConfiguration.getId());
 
-        PartialScheduledConnectionTaskImpl task;
+        PartialScheduledConnectionTask task;
         try (TransactionContext context = transactionService.getContext()) {
             task = deviceConfiguration.getPartialOutboundConnectionTasks().get(0);
             NextExecutionSpecsImpl instance = (NextExecutionSpecsImpl) schedulingService.newNextExecutionSpecs(null);
@@ -465,7 +466,7 @@ public class PartialOutboundConnectiontaskCrudIT {
 
         deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(deviceConfiguration.getId());
 
-        PartialScheduledConnectionTaskImpl task;
+        PartialScheduledConnectionTask task;
         try (TransactionContext context = transactionService.getContext()) {
             task = deviceConfiguration.getPartialOutboundConnectionTasks().get(0);
             NextExecutionSpecsImpl instance = (NextExecutionSpecsImpl) schedulingService.newNextExecutionSpecs(null);
@@ -509,7 +510,7 @@ public class PartialOutboundConnectiontaskCrudIT {
             context.commit();
         }
 
-        PartialScheduledConnectionTaskImpl partialOutboundConnectionTask;
+        PartialScheduledConnectionTask partialOutboundConnectionTask;
         try (TransactionContext context = transactionService.getContext()) {
             partialOutboundConnectionTask = deviceConfiguration.getPartialOutboundConnectionTasks().get(0);
             deviceConfiguration.remove(partialOutboundConnectionTask);
