@@ -1,8 +1,10 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.ProgrammableClock;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
@@ -14,9 +16,6 @@ import com.energyict.mdc.engine.impl.commands.collect.ReadLegacyLoadProfileLogBo
 import com.energyict.mdc.engine.impl.commands.collect.TimeDifferenceCommand;
 import com.energyict.mdc.engine.impl.commands.collect.VerifyLoadProfilesCommand;
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.engine.impl.meterdata.identifiers.LogBookIdentifierByIdImpl;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
@@ -29,36 +28,31 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfileChannel;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.ProgrammableClock;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.fest.api.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests for the {@link com.energyict.comserver.commands.deviceactions.LegacyLoadProfileLogBooksCommandImpl} component  <br>
- * This is basically a combination of all tests written for {@link com.energyict.comserver.commands.deviceactions.LoadProfileCommandImpl} and
- * {@link com.energyict.comserver.commands.deviceactions.LogBooksCommandImpl}.
+ * Tests for the {@link LegacyLoadProfileLogBooksCommandImpl} component  <br>
+ * This is basically a combination of all tests written for {@link LoadProfileCommandImpl} and
+ * {@link LogBooksCommandImpl}.
  *
  * @author sva
  * @since 19/12/12 - 14:49
@@ -93,13 +87,6 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
     private OfflineLogBook offlineLogBook_C;
 
     @Mock
-    private OfflineLogBookSpec offlineLogBookSpec_A;
-    @Mock
-    private OfflineLogBookSpec offlineLogBookSpec_B;
-    @Mock
-    private OfflineLogBookSpec offlineLogBookSpec_C;
-
-    @Mock
     private LogBookType logBookType_A;
     @Mock
     private LogBookType logBookType_B;
@@ -115,7 +102,7 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
     private static final String FIXED_DEVICE_SERIAL_NUMBER = "FIXED_DEVICE_SERIAL_NUMBER";
     private static final long LOAD_PROFILE_TYPE_ID = 651;
     private static final Unit FIXED_CHANNEL_UNIT = Unit.get("kWh");
-    
+
     @Mock
     private DeviceDataService deviceDataService;
 
@@ -132,26 +119,17 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
 
     @Before
     public void setUp() throws Exception {
-        when(offlineLogBookSpec_A.getLogBookTypeId()).thenReturn(LOGBOOK_TYPE_1);
-        when(offlineLogBookSpec_A.getDeviceObisCode()).thenReturn(DEVICE_OBISCODE_LOGBOOK_1);
         when(offlineLogBook_A.getLogBookId()).thenReturn(LOGBOOK_ID_1);
         when(offlineLogBook_A.getLastLogBook()).thenReturn(LAST_LOGBOOK_1);
         when(offlineLogBook_A.getMasterSerialNumber()).thenReturn(FIXED_DEVICE_SERIAL_NUMBER);
-        when(offlineLogBook_A.getOfflineLogBookSpec()).thenReturn(offlineLogBookSpec_A);
 
-        when(offlineLogBookSpec_B.getLogBookTypeId()).thenReturn(LOGBOOK_TYPE_2);
-        when(offlineLogBookSpec_B.getDeviceObisCode()).thenReturn(DEVICE_OBISCODE_LOGBOOK_2);
         when(offlineLogBook_B.getLogBookId()).thenReturn(LOGBOOK_ID_2);
         when(offlineLogBook_B.getLastLogBook()).thenReturn(LAST_LOGBOOK_2);
         when(offlineLogBook_B.getMasterSerialNumber()).thenReturn(FIXED_DEVICE_SERIAL_NUMBER);
-        when(offlineLogBook_B.getOfflineLogBookSpec()).thenReturn(offlineLogBookSpec_B);
 
-        when(offlineLogBookSpec_C.getLogBookTypeId()).thenReturn(LOGBOOK_TYPE_3);
-        when(offlineLogBookSpec_C.getDeviceObisCode()).thenReturn(DEVICE_OBISCODE_LOGBOOK_3);
         when(offlineLogBook_C.getLogBookId()).thenReturn(LOGBOOK_ID_3);
         when(offlineLogBook_C.getLastLogBook()).thenReturn(LAST_LOGBOOK_3);
         when(offlineLogBook_C.getMasterSerialNumber()).thenReturn(FIXED_DEVICE_SERIAL_NUMBER);
-        when(offlineLogBook_C.getOfflineLogBookSpec()).thenReturn(offlineLogBookSpec_C);
 
         when(logBookType_A.getId()).thenReturn(LOGBOOK_TYPE_1);
         when(logBookType_B.getId()).thenReturn(LOGBOOK_TYPE_2);
