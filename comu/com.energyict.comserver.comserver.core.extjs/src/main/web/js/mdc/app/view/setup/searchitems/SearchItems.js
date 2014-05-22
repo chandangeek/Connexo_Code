@@ -37,6 +37,7 @@ Ext.define('Mdc.view.setup.searchitems.SearchItems', {
 
         this.down('#contentLayout').getLayout().setActiveItem(0);
 
+        //todo: this is potential issue.
         Ext.getStore('DeviceTypes').on('load', function(store) {
             store.insert(0, Ext.create('Mdc.model.DeviceType', {
                 id: -1,
