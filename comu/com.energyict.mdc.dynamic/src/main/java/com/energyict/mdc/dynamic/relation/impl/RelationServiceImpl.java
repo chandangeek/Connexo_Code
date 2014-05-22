@@ -42,10 +42,11 @@ public class RelationServiceImpl implements RelationService, ServiceLocator, Ins
     }
 
     @Inject
-    public RelationServiceImpl(OrmService ormService, NlsService nlsService) {
+    public RelationServiceImpl(OrmService ormService, NlsService nlsService, PropertySpecService propertySpecService) {
         this();
         this.setOrmService(ormService);
         this.setNlsService(nlsService);
+        this.setPropertySpecService(propertySpecService);
         this.activate();
         if (!this.dataModel.isInstalled()) {
             this.install(true);
