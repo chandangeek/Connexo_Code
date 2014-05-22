@@ -1,6 +1,8 @@
 package com.energyict.mdc.engine.impl.meterdata.identifiers;
 
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
@@ -20,25 +22,23 @@ public class RegisterDataIdentifier implements RegisterIdentifier {
 
     private final ObisCode registerObisCode;
     private final ObisCode deviceRegisterObisCode;
-    private final DeviceIdentifier deviceIdentifier;
+    private final DeviceIdentifier<Device> deviceIdentifier;
 
-    private BaseRegister register;
+    private Register register;
 
-    public RegisterDataIdentifier(ObisCode registerObisCode, ObisCode deviceRegisterObisCode, DeviceIdentifier deviceIdentifier) {
+    public RegisterDataIdentifier(ObisCode registerObisCode, ObisCode deviceRegisterObisCode, DeviceIdentifier<Device> deviceIdentifier) {
         this.registerObisCode = registerObisCode;
         this.deviceRegisterObisCode = deviceRegisterObisCode;
         this.deviceIdentifier = deviceIdentifier;
     }
 
     @Override
-    public BaseRegister findRegister() {
+    public Register findRegister() {
         if (this.register == null) {
-            DeviceIdentifier deviceFinder = deviceIdentifier;
-
-            final List<BaseRegister> registers = deviceFinder.findDevice().getRegisters();
-            for (BaseRegister register : registers) {
-                // first need to check the DeviceObisCde
-                if (register.getDeviceObisCode() != null && register.getDeviceObisCode().equals(registerObisCode)) {
+            List<Register> registers = this.deviceIdentifier.findDevice().getRegisters();
+            for (Register register : registers) {
+                // first need to check the DeviceObisCode
+                if (register.getDeviceObisCode() != null && register.getDeviceObisCode().equals(deviceRegisterObisCode)) {
                     this.register = register;
                     break;
                 }
@@ -65,4 +65,5 @@ public class RegisterDataIdentifier implements RegisterIdentifier {
     public String toString() {
         return this.registerObisCode.toString();
     }
+
 }
