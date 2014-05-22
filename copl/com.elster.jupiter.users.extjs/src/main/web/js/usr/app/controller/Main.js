@@ -50,7 +50,7 @@ Ext.define('Usr.controller.Main', {
 
         var menuItem = Ext.create('Uni.model.MenuItem', {
             text: 'User management',
-            glyph: 'users',
+            glyph: 'settings',
             portal: 'usermanagement'
         });
 
