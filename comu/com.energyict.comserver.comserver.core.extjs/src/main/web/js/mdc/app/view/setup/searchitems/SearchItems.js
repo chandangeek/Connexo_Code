@@ -13,14 +13,17 @@ Ext.define('Mdc.view.setup.searchitems.SearchItems', {
 
     content: [
         {
+            xtype: 'panel',
             title: Uni.I18n.translate('searchItems.filter.title', 'MDC', 'Search'),
-            ui: 'medium'
-        },
-        {
-            xtype: 'search-content-filter'
-        },
-        {
-            xtype: 'contentLayout'
+            ui: 'large',
+            items: [
+                {
+                    xtype: 'search-content-filter'
+                },
+                {
+                    xtype: 'contentLayout'
+                }
+            ]
         }
     ],
     side: [
@@ -34,6 +37,7 @@ Ext.define('Mdc.view.setup.searchitems.SearchItems', {
 
         this.down('#contentLayout').getLayout().setActiveItem(0);
 
+        //todo: this is potential issue.
         Ext.getStore('DeviceTypes').on('load', function(store) {
             store.insert(0, Ext.create('Mdc.model.DeviceType', {
                 id: -1,
