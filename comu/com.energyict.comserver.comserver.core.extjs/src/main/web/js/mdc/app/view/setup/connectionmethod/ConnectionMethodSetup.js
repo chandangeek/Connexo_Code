@@ -9,37 +9,25 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodSetup', {
         'Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu',
         'Uni.view.container.EmptyGridContainer'
     ],
+
     content: [
         {
-            xtype: 'container',
-            itemId: 'stepsContainer',
-            layout: {
-                type: 'vbox',
-                align: 'stretch'
-            },
+            ui: 'large',
+            xtype: 'panel',
+            title: Uni.I18n.translate('connectionMethod.connectionMethods', 'MDC', 'Connection methods'),
             items: [
-                {
-                    xtype: 'component',
-                    html: '<h1>' + Uni.I18n.translate('connectionMethod.connectionMethods', 'MDC', 'Connection methods') + '</h1>',
-                    margins: '10 10 10 10',
-                    itemId: 'connectionMethodTitle'
-                },
                 {
                     xtype: 'container',
                     items: [],
                     itemId: 'connectionMethodsGridContainer'
                 },
                 {
-                    xtype: 'component',
-                    height: 25
-                },
-                {
                     xtype: 'container',
                     items: [],
                     itemId: 'connectionMethodPreviewContainer'
-
                 }
-            ]}
+            ]
+        }
     ],
 
     side: [
