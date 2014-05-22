@@ -1,13 +1,5 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.energyict.mdc.common.impl.MdcCommonModule;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.impl.DeviceImpl;
-import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
-import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
-import com.energyict.mdc.protocol.api.device.DeviceFactory;
-import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
-
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -26,23 +18,28 @@ import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
+import com.energyict.mdc.common.impl.MdcCommonModule;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.impl.DeviceImpl;
+import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
+import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
+import com.energyict.mdc.protocol.api.device.DeviceFactory;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.security.Principal;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doCallRealMethod;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Copyrights EnergyICT
@@ -63,7 +60,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
         BundleContext bundleContext = mock(BundleContext.class);
         Principal principal = mock(Principal.class);
         when(principal.getName()).thenReturn("InMemoryPersistence");
-        InMemoryBootstrapModule bootstrapModule = new InMemoryBootstrapModule();
+        bootstrapModule = new InMemoryBootstrapModule();
         EventAdmin eventAdmin = mock(EventAdmin.class);
         injector = Guice.createInjector(
                 new MockModule(bundleContext, eventAdmin),

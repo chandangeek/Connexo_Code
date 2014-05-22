@@ -31,24 +31,22 @@ import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.TimeZone;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static junit.framework.Assert.assertNotNull;
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyList;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 
 /**
@@ -256,11 +254,11 @@ public class OfflineDeviceImplTest {
         ObisCode obisCode4 = ObisCode.fromString("1.0.99.4.0.255");
         ObisCode obisCodex = ObisCode.fromString("1.x.24.1.0.255");
 
-        LoadProfile loadProfile1 = getNewMockedLoadProfile(obisCode1);
-        LoadProfile loadProfile2 = getNewMockedLoadProfile(obisCode2);
-        LoadProfile loadProfile3 = getNewMockedLoadProfile(obisCode3);
-        LoadProfile loadProfile4 = getNewMockedLoadProfile(obisCode4);
-        LoadProfile loadProfilex = getNewMockedLoadProfile(obisCodex);
+        LoadProfile loadProfile1 = getNewMockedLoadProfile(obisCode1, device);
+        LoadProfile loadProfile2 = getNewMockedLoadProfile(obisCode2, device);
+        LoadProfile loadProfile3 = getNewMockedLoadProfile(obisCode3, device);
+        LoadProfile loadProfile4 = getNewMockedLoadProfile(obisCode4, device);
+        LoadProfile loadProfilex = getNewMockedLoadProfile(obisCodex, device);
 
         when(device.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1, loadProfile2));
         when(slave1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1, loadProfile3, loadProfilex));
@@ -279,8 +277,8 @@ public class OfflineDeviceImplTest {
     @Test
     public void getAllRegistersTest() {
         Device device = createMockDevice();
-        Register register1 = createMockedRegister();
-        Register register2 = createMockedRegister();
+        Register register1 = createMockedRegister(createMockedRegisterSpec(), device);
+        Register register2 = createMockedRegister(createMockedRegisterSpec(), device);
         when(device.getRegisters()).thenReturn(Arrays.asList(register1, register2));
 
         OfflineDeviceImpl offlineRtu = new OfflineDeviceImpl(device, DeviceOffline.needsEverything);
@@ -296,19 +294,19 @@ public class OfflineDeviceImplTest {
         OfflineDevice mockOfflineDevice = mock(OfflineDevice.class);
 
         Device device = createMockDevice();
-        Register register1 = createMockedRegister();
-        Register register2 = createMockedRegister();
+        Register register1 = createMockedRegister(createMockedRegisterSpec(), device);
+        Register register2 = createMockedRegister(createMockedRegisterSpec(), device);
         when(device.getRegisters()).thenReturn(Arrays.asList(register1, register2));
 
         DeviceType slaveRtuType = mock(DeviceType.class);
         when(slaveRtuType.isLogicalSlave()).thenReturn(true);
         Device slaveWithNeedProxy = createMockDevice(132, "654654");
         when(slaveWithNeedProxy.getDeviceType()).thenReturn(slaveRtuType);
-        Register registerSlave1 = createMockedRegister();
+        Register registerSlave1 = createMockedRegister(createMockedRegisterSpec(), device);
         when(slaveWithNeedProxy.getRegisters()).thenReturn(Arrays.asList(registerSlave1));
         Device slaveWithoutNeedProxy = createMockDevice(133, "65465415");
         DeviceType notASlaveRtuType = mock(DeviceType.class);
-        Register registerSlave2 = createMockedRegister();
+        Register registerSlave2 = createMockedRegister(createMockedRegisterSpec(), device);
         when(slaveWithoutNeedProxy.getDeviceType()).thenReturn(notASlaveRtuType);
         when(slaveWithoutNeedProxy.getRegisters()).thenReturn(Arrays.asList(registerSlave2));
         when(device.getPhysicalConnectedDevices()).thenReturn(Arrays.<BaseDevice<Channel, LoadProfile, Register>>asList(slaveWithNeedProxy, slaveWithoutNeedProxy));
@@ -328,11 +326,11 @@ public class OfflineDeviceImplTest {
         RegisterMapping registerMapping = mock(RegisterMapping.class);
         when(registerMapping.getRegisterGroup()).thenReturn(rtuRegisterGroup);
         RegisterSpec registerSpec = createMockedRegisterSpec(registerMapping);
-        Register register1 = createMockedRegister(registerSpec);
+        Register register1 = createMockedRegister(registerSpec, device);
         when(register1.getRegisterSpec().getRegisterMapping().getRegisterGroup()).thenReturn(rtuRegisterGroup);
         OfflineRegister offlineRegister1 = mock(OfflineRegister.class);
         when(offlineRegister1.getRegisterGroupId()).thenReturn(rtuRegisterGroupId);
-        Register register2 = createMockedRegister();
+        Register register2 = createMockedRegister(registerSpec, device);
         when(device.getRegisters()).thenReturn(Arrays.asList(register1, register2));
         OfflineRegister offlineRegister2 = mock(OfflineRegister.class);
 
@@ -345,7 +343,7 @@ public class OfflineDeviceImplTest {
     }
 
     private RegisterSpec createMockedRegisterSpec() {
-        return mock(RegisterSpec.class);
+        return mock(RegisterSpec.class, RETURNS_DEEP_STUBS);
     }
 
     private RegisterSpec createMockedRegisterSpec(RegisterMapping registerMapping) {
@@ -354,13 +352,10 @@ public class OfflineDeviceImplTest {
         return registerSpec;
     }
 
-    private Register createMockedRegister() {
-        return mock(Register.class);
-    }
-
-    private Register createMockedRegister(RegisterSpec registerSpec) {
+    private Register createMockedRegister(RegisterSpec registerSpec, Device device) {
         Register register = mock(Register.class);
         when(register.getRegisterSpec()).thenReturn(registerSpec);
+        when(register.getDevice()).thenReturn(device);
         return register;
     }
 
@@ -425,6 +420,7 @@ public class OfflineDeviceImplTest {
         DeviceType deviceTypeSlave = mock(DeviceType.class);
         OfflineDevice offlineSlaveDevice = mock(OfflineDevice.class);
         when(slaveWithoutCapability.getDeviceType()).thenReturn(deviceTypeSlave);
+        when(slaveWithoutCapability.getDeviceProtocolProperties()).thenReturn(TypedProperties.empty());
         when(master.getPhysicalConnectedDevices()).thenReturn(Arrays.<BaseDevice<Channel, LoadProfile, Register>>asList(slaveWithoutCapability));
 
         // business method
@@ -465,7 +461,7 @@ public class OfflineDeviceImplTest {
         assertThat(property).isEqualTo(deviceTimeZone);
     }
 
-    private static LoadProfile getNewMockedLoadProfile(final ObisCode obisCode) {
+    private static LoadProfile getNewMockedLoadProfile(final ObisCode obisCode, Device device) {
         LoadProfileType loadProfileType = mock(LoadProfileType.class);
         when(loadProfileType.getObisCode()).thenReturn(obisCode);
         LoadProfileSpec loadProfileSpec = mock(LoadProfileSpec.class);
@@ -473,6 +469,7 @@ public class OfflineDeviceImplTest {
         LoadProfile loadProfile = mock(LoadProfile.class);
         when(loadProfile.getLoadProfileSpec()).thenReturn(loadProfileSpec);
         when(loadProfile.getLoadProfileTypeObisCode()).thenReturn(obisCode);
+        when(loadProfile.getDevice()).thenReturn(device);
         return loadProfile;
     }
 
