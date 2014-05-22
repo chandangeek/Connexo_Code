@@ -26,6 +26,11 @@
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
+            <artifactId>mdc.tasks.rest</artifactId>
+            <version>${jupiter.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
             <artifactId>mdc.scheduling</artifactId>
             <version>${jupiter.version}</version>
             <scope>provided</scope>

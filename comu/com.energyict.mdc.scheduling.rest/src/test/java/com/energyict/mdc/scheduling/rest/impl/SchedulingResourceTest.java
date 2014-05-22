@@ -20,6 +20,7 @@ import com.energyict.mdc.scheduling.model.SchedulingStatus;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
+import com.energyict.mdc.tasks.rest.ComTaskInfo;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;

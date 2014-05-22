@@ -5,6 +5,7 @@ import com.energyict.mdc.scheduling.model.SchedulingStatus;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import java.util.Date;
 import java.util.List;
+import com.energyict.mdc.tasks.rest.ComTaskInfo;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 public class ComScheduleInfo {
