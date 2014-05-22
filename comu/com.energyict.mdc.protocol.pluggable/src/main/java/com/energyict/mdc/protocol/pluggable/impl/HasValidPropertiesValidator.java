@@ -69,10 +69,9 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
             propertySpec.validateValue(propertyValue);
         }
         catch (InvalidValueException e) {
-            context.disableDefaultConstraintViolation();
             context
                 .buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE_KEY + "}")
-                .addPropertyNode("properties").addPropertyNode(propertySpec.getName()).addConstraintViolation();
+                .addPropertyNode("properties").addPropertyNode(propertySpec.getName()).addConstraintViolation().disableDefaultConstraintViolation();
             this.valid = false;
         }
     }
