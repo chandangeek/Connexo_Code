@@ -13,14 +13,17 @@ Ext.define('Mdc.view.setup.searchitems.SearchItems', {
 
     content: [
         {
+            xtype: 'panel',
             title: Uni.I18n.translate('searchItems.filter.title', 'MDC', 'Search'),
-            ui: 'medium'
-        },
-        {
-            xtype: 'search-content-filter'
-        },
-        {
-            xtype: 'contentLayout'
+            ui: 'large',
+            items: [
+                {
+                    xtype: 'search-content-filter'
+                },
+                {
+                    xtype: 'contentLayout'
+                }
+            ]
         }
     ],
     side: [
