@@ -3,9 +3,11 @@ package com.energyict.mdc.engine.impl.core.online;
 import com.energyict.mdc.common.BusinessEvent;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.ServerComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.FakeServiceProvider;
+import com.energyict.mdc.engine.FakeTransactionService;
 import com.energyict.mdc.engine.exceptions.DataAccessException;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.model.ComPort;
@@ -15,6 +17,8 @@ import com.energyict.mdc.engine.model.OutboundCapableComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+
+import com.elster.jupiter.transaction.TransactionService;
 
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -28,13 +32,14 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyList;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl} component.
+ * Tests the {@link ComServerDAOImpl} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-05-07 (10:02)
@@ -42,8 +47,8 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ComServerDAOImplTest {
 
-    private static final int COMSERVER_ID = 1;
-    private static final int COMPORT_ID = 2;
+    private static final long COMSERVER_ID = 1;
+    private static final long COMPORT_ID = 2;
     private static final long SCHEDULED_COMTASK_ID = 3;
     private static final int YEAR = 2012;
     private static final String IP_ADDRESS = "192.168.2.100";
@@ -65,8 +70,11 @@ public class ComServerDAOImplTest {
     private BusinessEvent businessEvent;
     @Mock
     private EngineModelService engineModelService;
+    @Mock
+    private DeviceDataService deviceDataService;
 
-    private FakeServiceProvider serviceProvider;
+    private final FakeServiceProvider serviceProvider = new FakeServiceProvider();
+    private TransactionService transactionService;
 
     private ComServerDAO comServerDAO = new ComServerDAOImpl(serviceProvider);
 
@@ -75,8 +83,17 @@ public class ComServerDAOImplTest {
 
     @Before
     public void setupServiceProvider () {
-        this.serviceProvider = new FakeServiceProvider();
+        this.transactionService = new FakeTransactionService();
+        this.serviceProvider.setTransactionService(this.transactionService);
         this.serviceProvider.setEngineModelService(this.engineModelService);
+        this.serviceProvider.setDeviceDataService(this.deviceDataService);
+        when(this.engineModelService.findComServerBySystemName()).thenReturn(this.comServer);
+        when(this.engineModelService.findComServer(COMSERVER_ID)).thenReturn(this.comServer);
+        when(this.engineModelService.findComPort(COMPORT_ID)).thenReturn(this.comPort);
+        when(this.deviceDataService.findComTaskExecution(SCHEDULED_COMTASK_ID)).thenReturn(this.scheduledComTask);
+        when(this.comServer.getId()).thenReturn(COMSERVER_ID);
+        when(this.comPort.getId()).thenReturn(COMPORT_ID);
+        when(this.scheduledComTask.getId()).thenReturn(SCHEDULED_COMTASK_ID);
     }
 
     @Before
@@ -100,7 +117,7 @@ public class ComServerDAOImplTest {
         when(this.comServer.getModificationDate()).thenReturn(modificationDate);
         OutboundCapableComServer reloaded = mock(OutboundCapableComServer.class);
         when(reloaded.getModificationDate()).thenReturn(modificationDate);
-//        when(this.comServerFactory.find((int) this.comServer.getId())).thenReturn(reloaded);
+        when(this.engineModelService.findComServer(COMSERVER_ID)).thenReturn(reloaded);
 
         // Business method and asserts
         ComServer refreshed = this.comServerDAO.refreshComServer(this.comServer);
@@ -115,7 +132,7 @@ public class ComServerDAOImplTest {
         Date february1st2012 = this.newDate(YEAR, Calendar.FEBRUARY, 1);
         when(this.comServer.getModificationDate()).thenReturn(january1st2012);
         when(changed.getModificationDate()).thenReturn(february1st2012);
-//        when(this.comServerFactory.find(COMSERVER_ID)).thenReturn(changed);
+        when(this.engineModelService.findComServer(COMSERVER_ID)).thenReturn(changed);
 
         // Business method and asserts
         assertThat(this.comServerDAO.refreshComServer(this.comServer)).isSameAs(changed);
@@ -125,7 +142,7 @@ public class ComServerDAOImplTest {
     public void testRefreshComServerThatWasMadeObsolete () {
         ComServer obsolete = mock(ComServer.class);
         when(obsolete.isObsolete()).thenReturn(true);
-//        when(this.comServerFactory.find(COMSERVER_ID)).thenReturn(obsolete);
+        when(this.engineModelService.findComServer(COMSERVER_ID)).thenReturn(obsolete);
 
         // Business method and asserts
         assertThat(this.comServerDAO.refreshComServer(this.comServer)).isNull();
@@ -133,7 +150,7 @@ public class ComServerDAOImplTest {
 
     @Test
     public void testRefreshComServerThatWasDeleted () {
-//        when(this.comServerFactory.find(COMSERVER_ID)).thenReturn(null);
+        when(this.engineModelService.findComServer(COMSERVER_ID)).thenReturn(null);
 
         // Business method and asserts
         assertThat(this.comServerDAO.refreshComServer(this.comServer)).isNull();
@@ -144,7 +161,7 @@ public class ComServerDAOImplTest {
         Date modificationDate = new Date();
         OutboundComPort reloaded = mock(OutboundComPort.class);
         when(reloaded.getModificationDate()).thenReturn(modificationDate);
-//        when(this.comPortFactory.find((int) this.comPort.getId())).thenReturn(reloaded);
+        when(this.engineModelService.findComPort(COMPORT_ID)).thenReturn(reloaded);
         when(this.comPort.getModificationDate()).thenReturn(modificationDate);
 
         // Business method and asserts
@@ -160,7 +177,7 @@ public class ComServerDAOImplTest {
         Date february1st2012 = this.newDate(YEAR, Calendar.FEBRUARY, 1);
         when(this.comPort.getModificationDate()).thenReturn(january1st2012);
         when(changed.getModificationDate()).thenReturn(february1st2012);
-//        when(this.comPortFactory.find(COMPORT_ID)).thenReturn(changed);
+        when(this.engineModelService.findComPort(COMPORT_ID)).thenReturn(changed);
 
         // Business method and asserts
         assertThat(this.comServerDAO.refreshComPort(this.comPort)).isSameAs(changed);
@@ -170,7 +187,7 @@ public class ComServerDAOImplTest {
     public void testRefreshComPortThatWasMadeObsolete () {
         ComPort obsolete = mock(ComPort.class);
         when(obsolete.isObsolete()).thenReturn(true);
-//        when(this.comPortFactory.find(COMPORT_ID)).thenReturn(obsolete);
+        when(this.engineModelService.findComPort(COMPORT_ID)).thenReturn(obsolete);
 
         // Business method and asserts
         assertThat(this.comServerDAO.refreshComPort(this.comPort)).isNull();
@@ -178,7 +195,7 @@ public class ComServerDAOImplTest {
 
     @Test
     public void testRefreshComPortThatWasDeleted () {
-//        when(this.comPortFactory.find(COMPORT_ID)).thenReturn(null);
+        when(this.engineModelService.findComPort(COMPORT_ID)).thenReturn(null);
 
         // Business method and asserts
         assertThat(this.comServerDAO.refreshComPort(this.comPort)).isNull();
@@ -193,16 +210,6 @@ public class ComServerDAOImplTest {
         verify(this.scheduledComTask).executionStarted(this.comPort);
     }
 
-    @Test(expected = DataAccessException.class)
-    public void testExecutionStartedWithSQLException () throws SQLException {
-        doThrow(SQLException.class).when(this.scheduledComTask).executionStarted(this.comPort);
-
-        // Business method
-        this.comServerDAO.executionStarted(this.scheduledComTask, this.comPort);
-
-        // Expected DataAccessException that wraps the SQLException
-    }
-
     @Test
     public void testComTaskExecutionCompleted () throws SQLException, BusinessException {
         // Business method
@@ -214,35 +221,13 @@ public class ComServerDAOImplTest {
 
     @Test
     public void testConnectionTaskExecutionCompleted () throws SQLException, BusinessException {
-        ConnectionTask connectionTask = mock(ConnectionTask.class);
+        ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
 
         // Business method
         this.comServerDAO.executionCompleted(connectionTask);
 
         // Asserts
         verify(connectionTask).executionCompleted();
-    }
-
-    @Test(expected = DataAccessException.class)
-    public void testComTaskExecutionCompletedWithSQLException () throws SQLException, BusinessException {
-        doThrow(SQLException.class).when(this.scheduledComTask).executionCompleted();
-
-        // Business method
-        this.comServerDAO.executionCompleted(this.scheduledComTask);
-
-        // Expected DataAccessException that wraps the SQLException
-    }
-
-    @Test(expected = DataAccessException.class)
-    public void testConnectionTaskExecutionCompletedWithSQLException () throws SQLException, BusinessException {
-        ConnectionTask connectionTask = mock(ConnectionTask.class);
-
-        doThrow(SQLException.class).when(connectionTask).executionCompleted();
-
-        // Business method
-        this.comServerDAO.executionCompleted(connectionTask);
-
-        // Expected DataAccessException that wraps the SQLException
     }
 
     @Test
@@ -254,24 +239,13 @@ public class ComServerDAOImplTest {
         verify(this.scheduledComTask).executionFailed();
     }
 
-    @Test(expected = DataAccessException.class)
-    public void testExecutionFailedWithSQLException () throws SQLException, BusinessException {
-        doThrow(SQLException.class).when(this.scheduledComTask).executionFailed();
-
-        // Business method
-        this.comServerDAO.executionFailed(this.scheduledComTask);
-
-        // Expected DataAccessException that wraps the SQLException
-    }
-
-    @Test
     public void testReleaseInterruptedComTasks () throws SQLException, BusinessException {
         // Business method
         this.comServerDAO.releaseInterruptedTasks(this.comServer);
 
         // Asserts
-//        verify(this.connectionTaskFactory).releaseInterruptedConnectionTasks(this.comServer);
-//        verify(this.comTaskExecutionFactory).releaseInterruptedComTasks(this.comServer);
+        verify(this.deviceDataService).releaseInterruptedConnectionTasks(this.comServer);
+        verify(this.deviceDataService).releaseInterruptedComTasks(this.comServer);
     }
 
     @Test
@@ -280,8 +254,8 @@ public class ComServerDAOImplTest {
         this.comServerDAO.releaseTimedOutTasks(this.comServer);
 
         // Asserts
-//        verify(this.connectionTaskFactory).releaseTimedOutConnectionTasks(this.comServer);
-//        verify(this.comTaskExecutionFactory).releaseTimedOutComTasks(this.comServer);
+        verify(this.deviceDataService).releaseTimedOutConnectionTasks(this.comServer);
+        verify(this.deviceDataService).releaseTimedOutComTasks(this.comServer);
     }
 
     @Test
@@ -311,14 +285,14 @@ public class ComServerDAOImplTest {
     @Test
     public void testIsStillPendingDelegatesToComTaskExecutionFactory () {
         int id = 97;
-//        when(this.comTaskExecutionFactory.isStillPending(id)).thenReturn(true);
+        when(this.deviceDataService.areComTasksStillPending(anyList())).thenReturn(true);
 
         // Business method
         boolean stillPending = this.comServerDAO.isStillPending(id);
 
         // Asserts
         assertThat(stillPending).isTrue();
-//        verify(this.comTaskExecutionFactory).isStillPending(id);
+        verify(this.deviceDataService).areComTasksStillPending(anyList());
     }
 
     @Test
@@ -327,20 +301,20 @@ public class ComServerDAOImplTest {
         long id2 = 101;
         long id3 = 103;
         List<Long> comTaskExecutionIds = Arrays.asList(id1, id2, id3);
-//        when(this.comTaskExecutionFactory.areStillPending(comTaskExecutionIds)).thenReturn(true);
+        when(this.deviceDataService.areComTasksStillPending(comTaskExecutionIds)).thenReturn(true);
 
         // Business method
         boolean stillPending = this.comServerDAO.areStillPending(comTaskExecutionIds);
 
         // Asserts
         assertThat(stillPending).isTrue();
-//        verify(this.comTaskExecutionFactory).areStillPending(comTaskExecutionIds);
+        verify(this.deviceDataService).areComTasksStillPending(comTaskExecutionIds);
     }
 
     @Test
     public void testUpdateIpAddress () throws SQLException, BusinessException {
         TypedProperties properties = mock(TypedProperties.class);
-        ConnectionTask connectionTask = mock(ConnectionTask.class);
+        ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
         when(connectionTask.getTypedProperties()).thenReturn(properties);
 
         // Business method

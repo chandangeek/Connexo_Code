@@ -605,7 +605,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     private List<ComTaskEnablement> enabledComTasks(ServerDeviceCommunicationConfiguration communicationConfiguration) {
-        return Collections.emptyList(); // TODO
+        return communicationConfiguration.getComTaskEnablements();
     }
 
     /**

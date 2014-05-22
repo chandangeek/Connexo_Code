@@ -7,12 +7,15 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.ServerDeviceCommunicationConfiguration;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
+import com.energyict.mdc.engine.FakeServiceProvider;
+import com.energyict.mdc.engine.FakeTransactionService;
 import com.energyict.mdc.engine.exceptions.DataAccessException;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDAO;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
@@ -21,6 +24,8 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.tasks.ComTask;
+
+import com.elster.jupiter.transaction.TransactionService;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -39,7 +44,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the methods of the {@link com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl}
+ * Tests the methods of the {@link ComServerDAOImpl}
  * that relate to the {@link InboundDAO} interface.
  *
  * @author Rudi Vankeirsbilck (rudi)
@@ -53,9 +58,18 @@ public class ComServerDAOImplInboundTest {
     @Mock
     private DeviceIdentifier deviceIdentifier;
     @Mock
-    private ServiceProvider serviceProvider;
+    private DeviceDataService deviceDataService;
 
+    private FakeServiceProvider serviceProvider = new FakeServiceProvider();
+    private TransactionService transactionService;
     private ComServerDAO comServerDAO = new ComServerDAOImpl(serviceProvider);
+
+    @Before
+    public void setupServiceProvider () {
+        this.transactionService = new FakeTransactionService();
+        this.serviceProvider.setTransactionService(this.transactionService);
+        this.serviceProvider.setDeviceDataService(this.deviceDataService);
+    }
 
     @Before
     public void initializeMocksAndFactories () throws SQLException, BusinessException {
@@ -65,6 +79,7 @@ public class ComServerDAOImplInboundTest {
     /**
      * Tests the situation where the Device does not exist.
      */
+    @Ignore // Enable when messages are being implemented
     @Test(expected = DataAccessException.class)
     public void testConfirmSentMessagesAndGetPendingForNonExistingDevice () {
         doThrow(NotFoundException.class).when(this.deviceIdentifier).findDevice();
@@ -75,6 +90,7 @@ public class ComServerDAOImplInboundTest {
      * Tests the situation where the Device does not have any
      * sent or pending messages.
      */
+    @Ignore // Enable when messages are being implemented
     @Test
     public void testConfirmSentMessagesAndGetPendingWithNoMessages () {
         // Business method
@@ -161,7 +177,7 @@ public class ComServerDAOImplInboundTest {
         ComTask comTask = mock(ComTask.class);
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(comTaskExecution.getComTask()).thenReturn(comTask);
-        DeviceCommunicationConfiguration deviceCommunicationConfiguration = mock(DeviceCommunicationConfiguration.class);
+        ServerDeviceCommunicationConfiguration deviceCommunicationConfiguration = mock(ServerDeviceCommunicationConfiguration.class);
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
         when(comTaskEnablement.getComTask()).thenReturn(comTask);
@@ -174,13 +190,15 @@ public class ComServerDAOImplInboundTest {
         Device device = mock(Device.class);
         when(device.getInboundConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(device.getSecurityProperties(securityPropertySet)).thenReturn(expectedSecurityProperties);
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.findDevice()).thenReturn(device);
         InboundComPort comPort = mock(InboundComPort.class);
         when(comPort.getComPortPool()).thenReturn(comPortPool);
+        when(this.deviceDataService.findComTaskExecutionsByConnectionTask(connectionTask)).thenReturn(Arrays.asList(comTaskExecution));
 
         // Business method
-        this.comServerDAO.getDeviceProtocolSecurityProperties(deviceIdentifier, comPort);
+        List<SecurityProperty> actualSecurityProperties = this.comServerDAO.getDeviceProtocolSecurityProperties(deviceIdentifier, comPort);
 
         // Asserts
         verify(device).getSecurityProperties(securityPropertySet);
