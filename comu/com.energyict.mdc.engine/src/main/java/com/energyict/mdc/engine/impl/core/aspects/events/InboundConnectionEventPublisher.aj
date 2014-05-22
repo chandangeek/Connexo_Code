@@ -32,7 +32,7 @@ public privileged aspect InboundConnectionEventPublisher extends AbstractCommuni
          && args(inboundDeviceProtocol, context);
 
     before (InboundCommunicationHandler handler, InboundDeviceProtocol inboundDeviceProtocol, InboundDiscoveryContext context) : handle(handler, inboundDeviceProtocol, context) {
-        this.publish(new UndiscoveredEstablishConnectionEvent(handler.getComPort(), EventPublisherImpl.getInstance().serviceProvider()));
+        this.publish(new UndiscoveredEstablishConnectionEvent(handler.getComPort()));
     }
 
     private pointcut startDeviceSessionInContext (InboundCommunicationHandler handler):
@@ -40,7 +40,7 @@ public privileged aspect InboundConnectionEventPublisher extends AbstractCommuni
         && target(handler);
 
     before (InboundCommunicationHandler handler): startDeviceSessionInContext(handler) {
-        this.publish(new EstablishConnectionEvent(handler.getComPort(), handler.getConnectionTask(), EventPublisherImpl.getInstance().serviceProvider()));
+        this.publish(new EstablishConnectionEvent(handler.getComPort(), handler.getConnectionTask()));
     }
 
     private pointcut processCollectedData (InboundCommunicationHandler handler, InboundDeviceProtocol inboundDeviceProtocol, DeviceCommandExecutionToken token, OfflineDevice offlineDevice):
@@ -50,13 +50,13 @@ public privileged aspect InboundConnectionEventPublisher extends AbstractCommuni
 
     before (InboundCommunicationHandler handler, InboundDeviceProtocol inboundDeviceProtocol, DeviceCommandExecutionToken token, OfflineDevice offlineDevice): processCollectedData(handler, inboundDeviceProtocol, token, offlineDevice) {
         for (ComTaskExecution comTaskExecution : handler.getDeviceComTaskExecutions()) {
-            this.publish(new ComTaskExecutionStartedEvent(comTaskExecution, handler.getComPort(), handler.getConnectionTask(), EventPublisherImpl.getInstance().serviceProvider()));
+            this.publish(new ComTaskExecutionStartedEvent(comTaskExecution, handler.getComPort(), handler.getConnectionTask()));
         }
     }
 
     after (InboundCommunicationHandler handler, InboundDeviceProtocol inboundDeviceProtocol, DeviceCommandExecutionToken token, OfflineDevice offlineDevice): processCollectedData(handler, inboundDeviceProtocol, token, offlineDevice) {
         for (ComTaskExecution comTaskExecution : handler.getDeviceComTaskExecutions()) {
-            this.publish(new ComTaskExecutionCompletionEvent(comTaskExecution, handler.getComPort(), handler.getConnectionTask(), EventPublisherImpl.getInstance().serviceProvider()));
+            this.publish(new ComTaskExecutionCompletionEvent(comTaskExecution, handler.getComPort(), handler.getConnectionTask()));
         }
     }
 
@@ -66,10 +66,10 @@ public privileged aspect InboundConnectionEventPublisher extends AbstractCommuni
 
     after (InboundCommunicationHandler handler): closeContext(handler) {
         if (handler.getConnectionTask() != null) {
-            this.publish(new CloseConnectionEvent(handler.getComPort(), handler.getConnectionTask(), EventPublisherImpl.getInstance().serviceProvider()));
+            this.publish(new CloseConnectionEvent(handler.getComPort(), handler.getConnectionTask()));
         }
         else {
-            this.publish(new UndiscoveredCloseConnectionEvent(handler.getComPort(), EventPublisherImpl.getInstance().serviceProvider()));
+            this.publish(new UndiscoveredCloseConnectionEvent(handler.getComPort()));
         }
     }
 

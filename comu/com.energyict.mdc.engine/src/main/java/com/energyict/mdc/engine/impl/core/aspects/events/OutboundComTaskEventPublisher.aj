@@ -27,8 +27,8 @@ public aspect OutboundComTaskEventPublisher {
                 new ComTaskExecutionStartedEvent(
                         comTaskExecution,
                         job.getExecutionContext().getComPort(),
-                        job.getExecutionContext().getConnectionTask(),
-                        EventPublisherImpl.getInstance().serviceProvider()));
+                        job.getExecutionContext().getConnectionTask()
+                ));
     }
 
     private pointcut completeTask (JobExecution job, ComTaskExecution comTaskExecution):
@@ -41,8 +41,8 @@ public aspect OutboundComTaskEventPublisher {
                 new ComTaskExecutionCompletionEvent(
                         comTaskExecution,
                         job.getExecutionContext().getComPort(),
-                        job.getExecutionContext().getConnectionTask(),
-                        EventPublisherImpl.getInstance().serviceProvider()));
+                        job.getExecutionContext().getConnectionTask()
+                ));
     }
 
     private pointcut taskFailure (JobExecution job, ComTaskExecution comTaskExecution, Throwable cause):
@@ -56,8 +56,8 @@ public aspect OutboundComTaskEventPublisher {
                         comTaskExecution,
                         job.getExecutionContext().getComPort(),
                         job.getExecutionContext().getConnectionTask(),
-                        cause,
-                        EventPublisherImpl.getInstance().serviceProvider()));
+                        cause
+                ));
     }
 
     private pointcut executeTask (JobExecution job, JobExecution.PreparedComTaskExecution comTaskExecution):
@@ -71,8 +71,8 @@ public aspect OutboundComTaskEventPublisher {
                     new ComTaskExecutionFailureEvent(
                             preparedComTaskExecution.getComTaskExecution(),
                             job.getExecutionContext().getComPort(),
-                            job.getExecutionContext().getConnectionTask(),
-                            EventPublisherImpl.getInstance().serviceProvider()));
+                            job.getExecutionContext().getConnectionTask()
+                    ));
         }
     }
 
@@ -82,8 +82,8 @@ public aspect OutboundComTaskEventPublisher {
                         preparedComTaskExecution.getComTaskExecution(),
                         job.getExecutionContext().getComPort(),
                         job.getExecutionContext().getConnectionTask(),
-                        cause,
-                        EventPublisherImpl.getInstance().serviceProvider()));
+                        cause
+                ));
     }
 
     private void publish (ComServerEvent event) {

@@ -25,7 +25,7 @@ public class ComPortLogHandler extends EventPublishingLogHandler {
 
     @Override
     protected ComServerEvent toEvent (AbstractComServerEventImpl.ServiceProvider serviceProvider, LogLevel level, String logMessage) {
-        return new ComPortOperationsLoggingEvent(this.comPort, level, logMessage, serviceProvider);
+        return new ComPortOperationsLoggingEvent(this.comPort, level, logMessage);
     }
 
 }

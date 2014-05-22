@@ -1,14 +1,16 @@
 package com.energyict.mdc.engine.impl.events.io;
 
 import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.events.Category;
-import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 
 import com.elster.jupiter.util.time.Clock;
+import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 
 import java.io.ByteArrayInputStream;
@@ -25,6 +27,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -46,24 +49,26 @@ public class ReadEventTest {
     @Mock
     public EngineModelService engineModelService;
     @Mock
-    private AbstractComServerEventImpl.ServiceProvider serviceProvider;
+    private ServiceProvider serviceProvider;
 
     @Before
     public void setupServiceProvider () {
+        when(this.clock.now()).thenReturn(new DateTime(2014, 5, 2, 1, 40, 0).toDate()); // Set some default
         when(this.serviceProvider.clock()).thenReturn(this.clock);
         when(this.serviceProvider.engineModelService()).thenReturn(this.engineModelService);
         when(this.serviceProvider.deviceDataService()).thenReturn(this.deviceDataService);
+        ServiceProvider.instance.set(this.serviceProvider);
     }
 
     @Test
     public void testIsRead () {
-        ReadEvent event = new ReadEvent(this.serviceProvider);
+        ReadEvent event = new ReadEvent();
         assertThat(event.isRead()).isTrue();
     }
 
     @Test
     public void testIsNotWrite () {
-        ReadEvent event = new ReadEvent(this.serviceProvider);
+        ReadEvent event = new ReadEvent();
         assertThat(event.isWrite()).isFalse();
     }
 
@@ -75,7 +80,7 @@ public class ReadEventTest {
         ComPort comPort = mock(ComPort.class);
 
         // Business method
-        ReadEvent event = new ReadEvent(comPort, bytes, this.serviceProvider);
+        ReadEvent event = new ReadEvent(comPort, bytes);
 
         // Asserts
         assertThat(event.getOccurrenceTimestamp()).isEqualTo(occurrenceTimestamp);
@@ -84,31 +89,31 @@ public class ReadEventTest {
 
     @Test
     public void testGetCategory () {
-        ReadEvent event = new ReadEvent(this.serviceProvider);
+        ReadEvent event = new ReadEvent();
         assertThat(event.getCategory()).isEqualTo(Category.CONNECTION);
     }
 
     @Test
     public void testIsNotEstablishing () {
-        ReadEvent event = new ReadEvent(this.serviceProvider);
+        ReadEvent event = new ReadEvent();
         assertThat(event.isEstablishing()).isFalse();
     }
 
     @Test
     public void testIsNotFailure () {
-        ReadEvent event = new ReadEvent(this.serviceProvider);
+        ReadEvent event = new ReadEvent();
         assertThat(event.isFailure()).isFalse();
     }
 
     @Test
     public void testIsNotClosed () {
-        ReadEvent event = new ReadEvent(this.serviceProvider);
+        ReadEvent event = new ReadEvent();
         assertThat(event.isClosed()).isFalse();
     }
 
     @Test
     public void testIsNotLoggingRelatedByDefault () {
-        ReadEvent event = new ReadEvent(this.serviceProvider);
+        ReadEvent event = new ReadEvent();
 
         // Business method & asserts
         assertThat(event.isLoggingRelated()).isFalse();
@@ -116,7 +121,7 @@ public class ReadEventTest {
 
     @Test
     public void testIsNotComPortRelatedByDefault () {
-        ReadEvent event = new ReadEvent(this.serviceProvider);
+        ReadEvent event = new ReadEvent();
         assertThat(event.isComPortRelated()).isFalse();
         assertThat(event.getComPort()).isNull();
     }
@@ -125,27 +130,27 @@ public class ReadEventTest {
     public void testIsComPortRelated () {
         ComPort comPort = mock(ComPort.class);
         when(comPort.isInbound()).thenReturn(false);
-        ReadEvent event = new ReadEvent(comPort, "testIsComPortRelated".getBytes(), this.serviceProvider);
+        ReadEvent event = new ReadEvent(comPort, "testIsComPortRelated".getBytes());
         assertThat(event.isComPortRelated()).isTrue();
         assertThat(event.getComPort()).isEqualTo(comPort);
     }
 
     @Test
     public void testIsNotConnectionTaskRelated () {
-        ReadEvent event = new ReadEvent(this.serviceProvider);
+        ReadEvent event = new ReadEvent();
         assertThat(event.isConnectionTaskRelated()).isFalse();
         assertThat(event.getConnectionTask()).isNull();
     }
 
     @Test
     public void testIsNotDeviceRelated () {
-        ReadEvent event = new ReadEvent(this.serviceProvider);
+        ReadEvent event = new ReadEvent();
         assertThat(event.isDeviceRelated()).isFalse();
     }
 
     @Test
     public void testIsNotComPortPoolRelatedByDefault () {
-        ReadEvent event = new ReadEvent(this.serviceProvider);
+        ReadEvent event = new ReadEvent();
         assertThat(event.isComPortPoolRelated()).isFalse();
     }
 
@@ -153,7 +158,7 @@ public class ReadEventTest {
     public void testIsComPortPoolRelatedForOutboundComPort () {
         ComPort comPort = mock(ComPort.class);
         when(comPort.isInbound()).thenReturn(false);
-        ReadEvent event = new ReadEvent(comPort, "testIsComPortPoolRelatedForOutboundComPort".getBytes(), this.serviceProvider);
+        ReadEvent event = new ReadEvent(comPort, "testIsComPortPoolRelatedForOutboundComPort".getBytes());
         assertThat(event.isComPortPoolRelated()).isFalse();
     }
 
@@ -164,20 +169,20 @@ public class ReadEventTest {
         InboundComPortPool comPortPool = mock(InboundComPortPool.class);
         when(comPort.getComPortPool()).thenReturn(comPortPool);
 
-        ReadEvent event = new ReadEvent(comPort, "testIsComPortPoolRelatedForInboundComPort".getBytes(), this.serviceProvider);
+        ReadEvent event = new ReadEvent(comPort, "testIsComPortPoolRelatedForInboundComPort".getBytes());
         assertThat(event.isComPortPoolRelated()).isTrue();
         assertThat(event.getComPortPool()).isEqualTo(comPortPool);
     }
 
     @Test
     public void testIsNotComTaskExecutionRelated () {
-        ReadEvent event = new ReadEvent(this.serviceProvider);
+        ReadEvent event = new ReadEvent();
         assertThat(event.isComTaskExecutionRelated()).isFalse();
     }
 
     @Test
     public void testSerializationDoesNotFailForDefaultObject () throws IOException {
-        ReadEvent event = new ReadEvent(this.serviceProvider);
+        ReadEvent event = new ReadEvent();
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -190,7 +195,7 @@ public class ReadEventTest {
 
     @Test
     public void testRestoreAfterSerializationForDefaultObject () throws IOException, ClassNotFoundException {
-        ReadEvent event = new ReadEvent(this.serviceProvider);
+        ReadEvent event = new ReadEvent();
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -213,7 +218,7 @@ public class ReadEventTest {
         byte[] bytes = "testSerializationDoesNotFail".getBytes();
         ComPort comPort = mock(ComPort.class);
         when(comPort.getId()).thenReturn(COMPORT_ID);
-        ReadEvent event = new ReadEvent(comPort, bytes, this.serviceProvider);
+        ReadEvent event = new ReadEvent(comPort, bytes);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -231,7 +236,9 @@ public class ReadEventTest {
         byte[] bytes = "testRestoreAfterSerialization".getBytes();
         ComPort comPort = mock(ComPort.class);
         when(comPort.getId()).thenReturn(COMPORT_ID);
-        ReadEvent event = new ReadEvent(comPort, bytes, this.serviceProvider);
+        ReadEvent event = new ReadEvent(comPort, bytes);
+        when(this.deviceDataService.findConnectionTask(anyInt())).thenReturn(Optional.<ConnectionTask>absent());
+        when(this.engineModelService.findComPort(COMPORT_ID)).thenReturn(comPort);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -248,7 +255,7 @@ public class ReadEventTest {
 
     @Test
     public void testToStringDoesNotFailForDefaultObject () throws IOException {
-        ReadEvent event = new ReadEvent(this.serviceProvider);
+        ReadEvent event = new ReadEvent();
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -266,7 +273,7 @@ public class ReadEventTest {
         byte[] bytes = "testToStringDoesNotFail".getBytes();
         ComPort comPort = mock(ComPort.class);
         when(comPort.getId()).thenReturn(COMPORT_ID);
-        ReadEvent event = new ReadEvent(comPort, bytes, this.serviceProvider);
+        ReadEvent event = new ReadEvent(comPort, bytes);
 
         // Business method
         String eventString = event.toString();

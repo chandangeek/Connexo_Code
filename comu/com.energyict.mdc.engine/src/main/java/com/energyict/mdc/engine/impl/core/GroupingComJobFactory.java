@@ -87,7 +87,7 @@ public abstract class GroupingComJobFactory implements ComJobFactory {
     }
 
     /**
-     * Tests if the {@link ConnectionTask} supports simultaneous connections.
+     * Tests if the {@link com.energyict.mdc.device.data.tasks.ConnectionTask} supports simultaneous connections.
      *
      * @param connectionTask The ConnectionTask
      * @return A flag that indicates if the ComTaskExecution can be run in isolation

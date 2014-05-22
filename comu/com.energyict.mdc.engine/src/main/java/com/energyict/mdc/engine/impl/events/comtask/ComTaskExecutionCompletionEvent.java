@@ -19,15 +19,13 @@ public class ComTaskExecutionCompletionEvent extends AbstractComTaskExecutionEve
 
     /**
      * For the externalization process only.
-     *
-     * @param serviceProvider The ServiceProvider
      */
-    public ComTaskExecutionCompletionEvent (ServiceProvider serviceProvider) {
-        super(serviceProvider);
+    public ComTaskExecutionCompletionEvent() {
+        super();
     }
 
-    public ComTaskExecutionCompletionEvent (ComTaskExecution comTask, ComPort comPort, ConnectionTask connectionTask, ServiceProvider serviceProvider) {
-        super(comTask, comPort, connectionTask, serviceProvider);
+    public ComTaskExecutionCompletionEvent(ComTaskExecution comTask, ComPort comPort, ConnectionTask connectionTask) {
+        super(comTask, comPort, connectionTask);
     }
 
     @Override

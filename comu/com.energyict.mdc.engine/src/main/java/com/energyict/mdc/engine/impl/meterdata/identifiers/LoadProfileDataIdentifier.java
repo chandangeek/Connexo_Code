@@ -23,22 +23,29 @@ import java.util.List;
 public class LoadProfileDataIdentifier implements LoadProfileIdentifier {
 
     private final ObisCode loadProfileObisCode;
-    private final DeviceIdentifier deviceIdentifier;
+    private final DeviceIdentifier<Device> deviceIdentifier;
 
-    private BaseLoadProfile loadProfile;
+    private LoadProfile loadProfile;
 
-    public LoadProfileDataIdentifier(ObisCode loadProfileObisCode, DeviceIdentifier deviceIdentifier) {
+    public LoadProfileDataIdentifier(ObisCode loadProfileObisCode, DeviceIdentifier<Device> deviceIdentifier) {
         super();
         this.loadProfileObisCode = loadProfileObisCode;
         this.deviceIdentifier = deviceIdentifier;
     }
 
     @Override
-    public BaseLoadProfile findLoadProfile () {
+    public LoadProfile findLoadProfile () {
         if (loadProfile == null) {
-            Device device = (Device) deviceIdentifier.findDevice();
-            final List<LoadProfile> loadProfiles = device.getLoadProfiles();
-            for (BaseLoadProfile profile : loadProfiles) {
+            this.findAndValidateLoadProfileExists();
+        }
+        return loadProfile;
+    }
+
+    private void findAndValidateLoadProfileExists () {
+        Device device = deviceIdentifier.findDevice();
+        if (device != null) {
+            List<LoadProfile> loadProfiles = device.getLoadProfiles();
+            for (LoadProfile profile : loadProfiles) {
                 if (profile.getDeviceObisCode().equals(this.loadProfileObisCode)) {
                     this.loadProfile = profile;
                     break;
@@ -48,7 +55,6 @@ public class LoadProfileDataIdentifier implements LoadProfileIdentifier {
         if (this.loadProfile == null) {
             throw new NotFoundException("LoadProfile with ObisCode " + loadProfileObisCode + " for Device with " + deviceIdentifier.toString() + " not found");
         }
-        return loadProfile;
     }
 
     @Override

@@ -169,11 +169,11 @@ public aspect ComChannelReadWriteEventPublisher {
     }
 
     private void logBytesWritten (ComPortRelatedComChannel comChannel, ByteArrayOutputStream bytes) {
-        this.publish(new WriteEvent(comChannel.getComPort(), bytes.toByteArray(), EventPublisherImpl.getInstance().serviceProvider()));
+        this.publish(new WriteEvent(comChannel.getComPort(), bytes.toByteArray()));
     }
 
     private void logBytesRead (ComPortRelatedComChannel comChannel, ByteArrayOutputStream bytes) {
-        this.publish(new ReadEvent(comChannel.getComPort(), bytes.toByteArray(), EventPublisherImpl.getInstance().serviceProvider()));
+        this.publish(new ReadEvent(comChannel.getComPort(), bytes.toByteArray()));
     }
 
     private void publish (ComServerEvent event) {

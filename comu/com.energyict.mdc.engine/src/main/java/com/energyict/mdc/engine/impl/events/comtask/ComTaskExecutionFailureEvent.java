@@ -26,20 +26,18 @@ public class ComTaskExecutionFailureEvent extends AbstractComTaskExecutionEventI
 
     /**
      * For the externalization process only.
-     *
-     * @param serviceProvider The ServiceProvider
      */
-    public ComTaskExecutionFailureEvent (ServiceProvider serviceProvider) {
-        super(serviceProvider);
+    public ComTaskExecutionFailureEvent() {
+        super();
     }
 
-    public ComTaskExecutionFailureEvent (ComTaskExecution comTask, ComPort comPort, ConnectionTask connectionTask, ServiceProvider serviceProvider) {
-        super(comTask, comPort, connectionTask, serviceProvider);
+    public ComTaskExecutionFailureEvent(ComTaskExecution comTask, ComPort comPort, ConnectionTask connectionTask) {
+        super(comTask, comPort, connectionTask);
         this.failureMessage = "Failure due to problems reported during execution";
     }
 
-    public ComTaskExecutionFailureEvent (ComTaskExecution comTask, ComPort comPort, ConnectionTask connectionTask, Throwable cause, ServiceProvider serviceProvider) {
-        super(comTask, comPort, connectionTask, serviceProvider);
+    public ComTaskExecutionFailureEvent(ComTaskExecution comTask, ComPort comPort, ConnectionTask connectionTask, Throwable cause) {
+        super(comTask, comPort, connectionTask);
         this.copyFailureMessageFromException(cause);
     }
 

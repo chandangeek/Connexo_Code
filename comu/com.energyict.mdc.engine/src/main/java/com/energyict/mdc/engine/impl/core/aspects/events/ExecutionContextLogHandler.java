@@ -31,7 +31,7 @@ public class ExecutionContextLogHandler extends EventPublishingLogHandler {
     protected ComServerEvent toEvent (AbstractComServerEventImpl.ServiceProvider serviceProvider, LogLevel level, String logMessage) {
         ConnectionTask connectionTask = this.executionContext.getConnectionTask();
         ComPort comPort = this.executionContext.getComPort();
-        return new CommunicationLoggingEvent(connectionTask, comPort, level, logMessage, serviceProvider);
+        return new CommunicationLoggingEvent(connectionTask, comPort, level, logMessage);
     }
 
 }

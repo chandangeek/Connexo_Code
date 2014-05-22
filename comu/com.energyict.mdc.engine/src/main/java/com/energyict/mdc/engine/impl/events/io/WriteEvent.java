@@ -13,15 +13,13 @@ public class WriteEvent extends CommunicationEventImpl {
 
     /**
      * For the externalization process only.
-     *
-     * @param serviceProvider The ServiceProvider
      */
-    public WriteEvent (ServiceProvider serviceProvider) {
-        super(serviceProvider);
+    public WriteEvent() {
+        super();
     }
 
-    public WriteEvent (ComPort comPort, byte[] bytes, ServiceProvider serviceProvider) {
-        super(comPort, bytes, serviceProvider);
+    public WriteEvent(ComPort comPort, byte[] bytes) {
+        super(comPort, bytes);
     }
 
     @Override

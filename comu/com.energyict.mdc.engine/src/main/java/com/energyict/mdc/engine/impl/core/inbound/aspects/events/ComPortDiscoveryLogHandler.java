@@ -32,6 +32,6 @@ public class ComPortDiscoveryLogHandler extends EventPublishingLogHandler {
     protected ComServerEvent toEvent(AbstractComServerEventImpl.ServiceProvider serviceProvider, LogLevel level, String logMessage) {
         InboundComPort comPort = this.inboundCommunicationHandler.getComPort();
         InboundConnectionTask connectionTask = this.inboundCommunicationHandler.getConnectionTask();
-        return new CommunicationLoggingEvent(connectionTask, comPort, level, logMessage, serviceProvider);
+        return new CommunicationLoggingEvent(connectionTask, comPort, level, logMessage);
     }
 }

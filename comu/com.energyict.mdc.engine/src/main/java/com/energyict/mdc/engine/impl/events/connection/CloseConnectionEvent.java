@@ -17,15 +17,13 @@ public class CloseConnectionEvent extends AbstractConnectionEventImpl {
 
     /**
      * For the externalization process only.
-     *
-     * @param serviceProvider The ServiceProvider
      */
-    public CloseConnectionEvent (ServiceProvider serviceProvider) {
-        super(serviceProvider);
+    public CloseConnectionEvent() {
+        super();
     }
 
-    public CloseConnectionEvent (ComPort comPort, ConnectionTask connectionTask, ServiceProvider serviceProvider) {
-        super(connectionTask, comPort, serviceProvider);
+    public CloseConnectionEvent(ComPort comPort, ConnectionTask connectionTask) {
+        super(connectionTask, comPort);
     }
 
     @Override

@@ -1,11 +1,12 @@
 package com.energyict.mdc.engine.impl.events.connection;
 
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.events.Category;
-import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPort;
@@ -13,6 +14,7 @@ import com.energyict.mdc.protocol.api.ConnectionException;
 
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.ProgrammableClock;
+import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 
 import java.io.ByteArrayInputStream;
@@ -24,6 +26,9 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -35,6 +40,7 @@ import static org.mockito.Mockito.when;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-06 (14:59)
  */
+@RunWith(MockitoJUnitRunner.class)
 public class CannotEstablishConnectionEventTest {
 
     private static final long DEVICE_ID = 1;
@@ -42,12 +48,27 @@ public class CannotEstablishConnectionEventTest {
     private static final long CONNECTION_TASK_ID = COMPORT_ID + 1;
     private static final String ERROR_MESSAGE = "For testing purposes only";
 
-    private final FakeServiceProvider serviceProvider = new FakeServiceProvider();
-    private AbstractComServerEventImpl.ServiceProvider eventSserviceProvider = new AbstractComServerEventImpl.ServiceProviderAdapter(serviceProvider);
+    @Mock
+    public Clock clock;
+    @Mock
+    public DeviceDataService deviceDataService;
+    @Mock
+    public EngineModelService engineModelService;
+    @Mock
+    private ServiceProvider serviceProvider;
+
+    @Before
+    public void setupServiceProvider () {
+        when(this.clock.now()).thenReturn(new DateTime(1969, 5, 2, 1, 40, 0).toDate()); // Set some default
+        when(this.serviceProvider.clock()).thenReturn(this.clock);
+        when(this.serviceProvider.engineModelService()).thenReturn(this.engineModelService);
+        when(this.serviceProvider.deviceDataService()).thenReturn(this.deviceDataService);
+        ServiceProvider.instance.set(this.serviceProvider);
+    }
 
     @Test
     public void testCategory () {
-        CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent(eventSserviceProvider);
+        CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent();
 
         // Business method
         Category category = event.getCategory();
@@ -60,6 +81,7 @@ public class CannotEstablishConnectionEventTest {
     public void testOccurrenceTimestamp () {
         Clock frozenClock = new ProgrammableClock().frozenAt(new DateTime(2012, Calendar.NOVEMBER, 6, 13, 45, 17, 0).toDate());  // Random pick
         Date now = frozenClock.now();
+        when(this.clock.now()).thenReturn(now);
 
         ComPort comPort = mock(ComPort.class);
         ConnectionTask connectionTask = mock(ConnectionTask.class);
@@ -74,7 +96,7 @@ public class CannotEstablishConnectionEventTest {
 
     @Test
     public void testIsFailureByDefault () {
-        CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent(eventSserviceProvider);
+        CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent();
 
         // Business method & asserts
         assertThat(event.isFailure()).isTrue();
@@ -93,7 +115,7 @@ public class CannotEstablishConnectionEventTest {
 
     @Test
     public void testIsNotEstablishing () {
-        CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent(eventSserviceProvider);
+        CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent();
 
         // Business method & asserts
         assertThat(event.isEstablishing()).isFalse();
@@ -101,7 +123,7 @@ public class CannotEstablishConnectionEventTest {
 
     @Test
     public void testIsNotClosed () {
-        CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent(eventSserviceProvider);
+        CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent();
 
         // Business method & asserts
         assertThat(event.isClosed()).isFalse();
@@ -109,7 +131,7 @@ public class CannotEstablishConnectionEventTest {
 
     @Test
     public void testIsNotLoggingRelatedByDefault () {
-        CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent(eventSserviceProvider);
+        CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent();
 
         // Business method & asserts
         assertThat(event.isLoggingRelated()).isFalse();
@@ -117,7 +139,7 @@ public class CannotEstablishConnectionEventTest {
 
     @Test
     public void testIsNotComTaskRelatedByDefault () {
-        CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent(eventSserviceProvider);
+        CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent();
 
         // Business method & asserts
         assertThat(event.isComTaskExecutionRelated()).isFalse();
@@ -125,7 +147,7 @@ public class CannotEstablishConnectionEventTest {
 
     @Test
     public void testIsNotComPortRelatedByDefault () {
-        CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent(eventSserviceProvider);
+        CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent();
 
         // Business method & asserts
         assertThat(event.isComPortRelated()).isFalse();
@@ -133,7 +155,7 @@ public class CannotEstablishConnectionEventTest {
 
     @Test
     public void testIsNotComPortPoolRelatedByDefault () {
-        CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent(eventSserviceProvider);
+        CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent();
 
         // Business method & asserts
         assertThat(event.isComPortPoolRelated()).isFalse();
@@ -141,7 +163,7 @@ public class CannotEstablishConnectionEventTest {
 
     @Test
     public void testIsNotConnectionTaskRelatedByDefault () {
-        CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent(eventSserviceProvider);
+        CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent();
 
         // Business method & asserts
         assertThat(event.isConnectionTaskRelated()).isFalse();
@@ -149,7 +171,7 @@ public class CannotEstablishConnectionEventTest {
 
     @Test
     public void testIsNotDeviceRelatedByDefault () {
-        CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent(eventSserviceProvider);
+        CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent();
 
         // Business method & asserts
         assertThat(event.isDeviceRelated()).isFalse();
@@ -226,7 +248,7 @@ public class CannotEstablishConnectionEventTest {
 
     @Test
     public void testSerializationDoesNotFailForDefaultObject () throws IOException {
-        CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent(eventSserviceProvider);
+        CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent();
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -245,7 +267,7 @@ public class CannotEstablishConnectionEventTest {
 //        when(manager.getComPortFactory()).thenReturn(comPortFactory);
 //        when(manager.getConnectionTaskFactory()).thenReturn(connectionTaskFactory);
 //        ManagerFactory.setCurrent(manager);
-        CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent(eventSserviceProvider);
+        CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent();
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -289,14 +311,8 @@ public class CannotEstablishConnectionEventTest {
         ConnectionTask connectionTask = mock(ConnectionTask.class);
         when(connectionTask.getId()).thenReturn(CONNECTION_TASK_ID);
         when(connectionTask.getDevice()).thenReturn(device);
-//        ComPortFactory comPortFactory = mock(ComPortFactory.class);
-//        when(comPortFactory.find(COMPORT_ID)).thenReturn(comPort);
-//        ServerConnectionTaskFactory connectionTaskFactory = mock(ServerConnectionTaskFactory.class);
-//        when(connectionTaskFactory.find(CONNECTION_TASK_ID)).thenReturn(connectionTask);
-//        ServerManager manager = mock(ServerManager.class);
-//        when(manager.getComPortFactory()).thenReturn(comPortFactory);
-//        when(manager.getConnectionTaskFactory()).thenReturn(connectionTaskFactory);
-//        ManagerFactory.setCurrent(manager);
+        when(this.deviceDataService.findConnectionTask(CONNECTION_TASK_ID)).thenReturn(Optional.of(connectionTask));
+        when(this.engineModelService.findComPort(COMPORT_ID)).thenReturn(comPort);
         CannotEstablishConnectionEvent event = this.newEvent(comPort, connectionTask);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -316,7 +332,7 @@ public class CannotEstablishConnectionEventTest {
 
     @Test
     public void testToStringDoesNotFailForDefaultObject () throws IOException {
-        CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent(eventSserviceProvider);
+        CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent();
 
         // Business method
         String eventString = event.toString();
@@ -345,7 +361,7 @@ public class CannotEstablishConnectionEventTest {
     }
 
     private CannotEstablishConnectionEvent newEvent (ComPort comPort, ConnectionTask connectionTask) {
-        return new CannotEstablishConnectionEvent(comPort, connectionTask, new ConnectionException(ERROR_MESSAGE, new Exception()), eventSserviceProvider);
+        return new CannotEstablishConnectionEvent(comPort, connectionTask, new ConnectionException(ERROR_MESSAGE, new Exception()));
     }
 
 }

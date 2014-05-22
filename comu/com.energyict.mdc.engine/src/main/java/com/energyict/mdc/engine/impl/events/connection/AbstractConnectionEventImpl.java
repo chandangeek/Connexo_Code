@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.events.connection;
 
-import com.energyict.mdc.common.IdBusinessObject;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.events.ComPortPoolRelatedEvent;
@@ -33,21 +33,19 @@ public abstract class AbstractConnectionEventImpl extends AbstractComServerEvent
 
     /**
      * For the externalization process only.
-     *
-     * @param serviceProvider The ServiceProvider
      */
-    protected AbstractConnectionEventImpl (ServiceProvider serviceProvider) {
-        super(serviceProvider);
+    protected AbstractConnectionEventImpl() {
+        super();
     }
 
-    protected AbstractConnectionEventImpl (ConnectionTask connectionTask, ComPort comPort, ServiceProvider serviceProvider) {
-        super(serviceProvider);
+    protected AbstractConnectionEventImpl(ConnectionTask connectionTask, ComPort comPort) {
+        super();
         this.connectionTask = connectionTask;
         this.comPort = comPort;
     }
 
-    protected AbstractConnectionEventImpl (ComPort comPort, ServiceProvider serviceProvider) {
-        this(serviceProvider);
+    protected AbstractConnectionEventImpl(ComPort comPort) {
+        this();
         this.comPort = comPort;
     }
 
@@ -120,27 +118,27 @@ public abstract class AbstractConnectionEventImpl extends AbstractComServerEvent
     @Override
     public void writeExternal (ObjectOutput out) throws IOException {
         super.writeExternal(out);
-        out.writeLong(this.comPort.getId());
-        out.writeInt((int) this.connectionTask.getId());
+        out.writeLong(this.extractId(this.getComPort()));
+        out.writeLong(this.extractId(this.getConnectionTask()));
     }
 
-    private int getBusinessObjectId (IdBusinessObject businessObject) {
-        if (businessObject == null) {
+    private long extractId(HasId hasId) {
+        if (hasId == null) {
             return NULL_INDICATOR;
         }
         else {
-            return businessObject.getId();
+            return hasId.getId();
         }
     }
 
     @Override
     public void readExternal (ObjectInput in) throws IOException, ClassNotFoundException {
         super.readExternal(in);
-        this.comPort = this.findComPort(in.readInt());
-        this.connectionTask = this.findConnectionTask(in.readInt());
+        this.comPort = this.findComPort(in.readLong());
+        this.connectionTask = this.findConnectionTask(in.readLong());
     }
 
-    private ComPort findComPort (int comPortId) {
+    private ComPort findComPort (long comPortId) {
         if (NULL_INDICATOR == comPortId) {
             return null;
         }
@@ -149,7 +147,7 @@ public abstract class AbstractConnectionEventImpl extends AbstractComServerEvent
         }
     }
 
-    private ConnectionTask findConnectionTask (int connectionTaskId) {
+    private ConnectionTask findConnectionTask (long connectionTaskId) {
         if (NULL_INDICATOR == connectionTaskId) {
             return null;
         }
@@ -163,9 +161,9 @@ public abstract class AbstractConnectionEventImpl extends AbstractComServerEvent
         super.toString(writer);
         writer.
             key("com-port").
-            value(this.getComPort().getId()).
+            value(this.extractId(this.getComPort())).
             key("connection-task").
-            value(this.getConnectionTask().getId());
+            value(this.extractId(this.getConnectionTask()));
     }
 
 }

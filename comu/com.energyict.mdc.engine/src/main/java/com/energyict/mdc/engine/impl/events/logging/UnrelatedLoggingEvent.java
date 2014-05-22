@@ -26,15 +26,13 @@ public class UnrelatedLoggingEvent extends AbstractComServerEventImpl implements
 
     /**
      * For the externalization process only.
-     *
-     * @param serviceProvider The ServiceProvider
      */
-    public UnrelatedLoggingEvent (ServiceProvider serviceProvider) {
-        super(serviceProvider);
+    public UnrelatedLoggingEvent() {
+        super();
     }
 
-    public UnrelatedLoggingEvent (LogLevel logLevel, String logMessage, ServiceProvider serviceProvider) {
-        super(serviceProvider);
+    public UnrelatedLoggingEvent(LogLevel logLevel, String logMessage) {
+        super();
         this.logLevel = logLevel;
         this.logMessage = logMessage;
     }

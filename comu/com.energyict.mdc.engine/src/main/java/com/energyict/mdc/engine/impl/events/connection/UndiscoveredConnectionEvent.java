@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.events.connection;
 
-import com.energyict.mdc.common.IdBusinessObject;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.events.ComPortPoolRelatedEvent;
@@ -33,14 +33,13 @@ public abstract class UndiscoveredConnectionEvent extends AbstractComServerEvent
     /**
      * For the externalization process only.
      *
-     * @param serviceProvider The ServiceProvider
      */
-    protected UndiscoveredConnectionEvent (ServiceProvider serviceProvider) {
-        super(serviceProvider);
+    protected UndiscoveredConnectionEvent() {
+        super();
     }
 
-    public UndiscoveredConnectionEvent (InboundComPort comPort, ServiceProvider serviceProvider) {
-        this(serviceProvider);
+    public UndiscoveredConnectionEvent(InboundComPort comPort) {
+        this();
         this.comPort = comPort;
     }
 
@@ -92,26 +91,31 @@ public abstract class UndiscoveredConnectionEvent extends AbstractComServerEvent
     @Override
     public void writeExternal (ObjectOutput out) throws IOException {
         super.writeExternal(out);
-        out.writeLong(this.comPort.getId());
+        out.writeLong(this.extractId(this.getComPort()));
     }
 
-    private int getBusinessObjectId (IdBusinessObject businessObject) {
-        if (businessObject == null) {
+    private long extractId(HasId hasId) {
+        if (hasId == null) {
             return 0;
         }
         else {
-            return businessObject.getId();
+            return hasId.getId();
         }
     }
 
     @Override
     public void readExternal (ObjectInput in) throws IOException, ClassNotFoundException {
         super.readExternal(in);
-        this.comPort = this.findComPort(in.readInt());
+        this.comPort = this.findComPort(in.readLong());
     }
 
-    private InboundComPort findComPort (int comPortId) {
-        return (InboundComPort) getEngineModelService().findComPort(comPortId);
+    private InboundComPort findComPort (long comPortId) {
+        if (comPortId != 0) {
+            return (InboundComPort) getEngineModelService().findComPort(comPortId);
+        }
+        else {
+            return null;
+        }
     }
 
     @Override
@@ -119,7 +123,7 @@ public abstract class UndiscoveredConnectionEvent extends AbstractComServerEvent
         super.toString(writer);
         writer.
             key("com-port").
-                value(this.getComPort().getId());
+            value(this.extractId(this.getComPort()));
     }
 
 }

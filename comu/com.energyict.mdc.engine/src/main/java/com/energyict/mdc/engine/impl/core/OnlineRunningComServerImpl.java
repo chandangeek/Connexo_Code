@@ -43,23 +43,8 @@ public class OnlineRunningComServerImpl extends RunningComServerImpl {
     @Override
     protected void continueStartupAfterDAOStart () {
         this.startQueryApiListenerIfNecessary();
-//        this.startSystemTopicHandler();
         super.continueStartupAfterDAOStart();
     }
-
-//    private void startSystemTopicHandler() {
-//        Thread thread = getThreadFactory().newThread(this.systemTopicHandler);
-//        thread.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-//            @Override
-//            public void uncaughtException(Thread t, Throwable e) {
-//                Logger.getLogger(OnlineRunningComServerImpl.class.getName()).log(Level.SEVERE, "Uncaught exception", e);
-//                if (e instanceof SystemTopicHandlerException) {
-//                    System.exit(-10);
-//                }
-//            }
-//        });
-//        thread.start();
-//    }
 
     private void startQueryApiListenerIfNecessary () {
         List<RemoteComServer> remoteComServers = getServiceProvider().engineModelService().findRemoteComServersForOnlineComServer(this.comServer);

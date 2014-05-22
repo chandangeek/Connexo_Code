@@ -361,12 +361,12 @@ public class BinaryBasedEventFilterIntegrationTest {
         }
 
         private void sendMockedConnectionEstablishedEvent () {
-            EstablishConnectionEvent connectionEvent = new EstablishConnectionEvent(comPort, connectionTask, eventServiceProvider);
+            EstablishConnectionEvent connectionEvent = new EstablishConnectionEvent(comPort, connectionTask);
             this.publish(connectionEvent);
         }
 
         private void sendMockedConnectionClosedEvent () {
-            CloseConnectionEvent connectionEvent = new CloseConnectionEvent(comPort, connectionTask, eventServiceProvider);
+            CloseConnectionEvent connectionEvent = new CloseConnectionEvent(comPort, connectionTask);
             this.publish(connectionEvent);
         }
 

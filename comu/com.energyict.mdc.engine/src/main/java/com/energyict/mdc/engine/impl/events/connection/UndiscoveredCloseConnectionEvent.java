@@ -18,15 +18,13 @@ public class UndiscoveredCloseConnectionEvent extends UndiscoveredConnectionEven
 
     /**
      * For the externalization process only.
-     *
-     * @param serviceProvider The ServiceProvider
      */
-    public UndiscoveredCloseConnectionEvent (ServiceProvider serviceProvider) {
-        super(serviceProvider);
+    public UndiscoveredCloseConnectionEvent() {
+        super();
     }
 
-    public UndiscoveredCloseConnectionEvent (InboundComPort comPort, ServiceProvider serviceProvider) {
-        super(comPort, serviceProvider);
+    public UndiscoveredCloseConnectionEvent(InboundComPort comPort) {
+        super(comPort);
     }
 
     @Override

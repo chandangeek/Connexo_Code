@@ -17,15 +17,13 @@ public class EstablishConnectionEvent extends AbstractConnectionEventImpl {
 
     /**
      * For the externalization process only.
-     *
-     * @param serviceProvider The ServiceProvider
      */
-    public EstablishConnectionEvent (ServiceProvider serviceProvider) {
-        super(serviceProvider);
+    public EstablishConnectionEvent() {
+        super();
     }
 
-    public EstablishConnectionEvent (ComPort comPort, ConnectionTask connectionTask, ServiceProvider serviceProvider) {
-        super(connectionTask, comPort, serviceProvider);
+    public EstablishConnectionEvent(ComPort comPort, ConnectionTask connectionTask) {
+        super(connectionTask, comPort);
     }
 
     @Override

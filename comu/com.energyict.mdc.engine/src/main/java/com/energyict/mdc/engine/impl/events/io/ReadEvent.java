@@ -14,12 +14,12 @@ public class ReadEvent extends CommunicationEventImpl {
     /**
      * For the externalization process only.
      */
-    public ReadEvent (ServiceProvider serviceProvider) {
-        super(serviceProvider);
+    public ReadEvent() {
+        super();
     }
 
-    public ReadEvent (ComPort comPort, byte[] bytes, ServiceProvider serviceProvider) {
-        super(comPort, bytes, serviceProvider);
+    public ReadEvent(ComPort comPort, byte[] bytes) {
+        super(comPort, bytes);
     }
 
     @Override

@@ -1,9 +1,10 @@
 package com.energyict.mdc.engine.impl.events;
 
-import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.model.EngineModelService;
+
+import com.elster.jupiter.util.time.Clock;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.json.JSONException;
@@ -25,8 +26,6 @@ import java.util.Date;
 public abstract class AbstractComServerEventImpl implements ComServerEvent {
 
     private static final DateTimeFormatter OCCURRENCE_TIMESTAMP_FORMAT;
-
-    private final ServiceProvider serviceProvider;
 
     static {
         OCCURRENCE_TIMESTAMP_FORMAT = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss:SSS (Z)").withZoneUTC();
@@ -70,25 +69,26 @@ public abstract class AbstractComServerEventImpl implements ComServerEvent {
 
     /**
      * For the externalization process only.
-     *
-     * @param serviceProvider The ServiceProvider
      */
-    protected AbstractComServerEventImpl(ServiceProvider serviceProvider) {
+    protected AbstractComServerEventImpl() {
         super();
-        this.serviceProvider = serviceProvider;
-        this.occurrenceTimestamp = serviceProvider.clock().now();
+        this.occurrenceTimestamp = this.getServiceProvider().clock().now();
+    }
+
+    private ServiceProvider getServiceProvider () {
+        return new ServiceProviderAdapter(com.energyict.mdc.engine.impl.core.ServiceProvider.instance.get());
     }
 
     protected Clock getClock() {
-        return this.serviceProvider.clock();
+        return this.getServiceProvider().clock();
     }
 
     protected DeviceDataService getDeviceDataService() {
-        return this.serviceProvider.deviceDataService();
+        return this.getServiceProvider().deviceDataService();
     }
 
     protected EngineModelService getEngineModelService() {
-        return this.serviceProvider.engineModelService();
+        return this.getServiceProvider().engineModelService();
     }
 
     @Override

@@ -2,9 +2,9 @@ package com.energyict.mdc.engine.impl.meterdata.identifiers;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.masterdata.RegisterMapping;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 
@@ -18,11 +18,10 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link RegisterDataIdentifier} component
+ * Tests the {@link RegisterDataIdentifier} component.
  * <p/>
  * Copyrights EnergyICT
  * Date: 16/10/12
@@ -35,17 +34,17 @@ public class RegisterDataIdentifierTest {
     private static ObisCode registerDeviceObisCode = ObisCode.fromString("1.0.1.9.0.255");
 
     @Mock
-    private BaseDevice device;
+    private Device device;
 
-    private DeviceIdentifier getMockedDeviceIdentifier() {
-        DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
+    private DeviceIdentifier<Device> getMockedDeviceIdentifier() {
+        DeviceIdentifier<Device> deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.findDevice()).thenReturn(this.device);
         return deviceIdentifier;
     }
 
     @Test
     public void testGetObisCode () {
-        DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
+        DeviceIdentifier<Device> deviceIdentifier = mock(DeviceIdentifier.class);
         RegisterDataIdentifier identifier = new RegisterDataIdentifier(registerObisCode, registerObisCode, deviceIdentifier);
 
         // Business method
@@ -57,27 +56,14 @@ public class RegisterDataIdentifierTest {
 
     @Test
     public void testGetDeviceRegisterObisCode () {
-        DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
-        RegisterDataIdentifier identifier = new RegisterDataIdentifier(registerObisCode, registerObisCode, deviceIdentifier);
+        DeviceIdentifier<Device> deviceIdentifier = mock(DeviceIdentifier.class);
+        RegisterDataIdentifier identifier = new RegisterDataIdentifier(registerObisCode, registerDeviceObisCode, deviceIdentifier);
 
         // Business method
         ObisCode obisCode = identifier.getDeviceRegisterObisCode();
 
         // Asserts
         assertThat(registerDeviceObisCode).isEqualTo(obisCode);
-    }
-
-    @Test
-    public void testToStringPrintsDeviceIdentifier() {
-        DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
-        ObisCode deviceRegisterObisCode = mock(ObisCode.class);
-        RegisterDataIdentifier identifier = new RegisterDataIdentifier(registerObisCode, deviceRegisterObisCode, deviceIdentifier);
-
-        // Business method
-        identifier.toString();
-
-        // Asserts
-        verify(deviceRegisterObisCode).toString();
     }
 
     @Test
@@ -137,7 +123,7 @@ public class RegisterDataIdentifierTest {
         when(device.getRegisters()).thenReturn(Arrays.asList(register));
 
         // Business method
-        BaseRegister foundRegister = new RegisterDataIdentifier(overruledObisCode, registerObisCode, getMockedDeviceIdentifier()).findRegister();
+        Register foundRegister = new RegisterDataIdentifier(registerObisCode, overruledObisCode, getMockedDeviceIdentifier()).findRegister();
 
         // asserts
         assertThat(foundRegister).isNotNull();
@@ -152,20 +138,20 @@ public class RegisterDataIdentifierTest {
         RegisterSpec spec = mock(RegisterSpec.class);
         when(spec.getDeviceObisCode()).thenReturn(overruledObisCode);
         Register register = mock(Register.class);
-        when(register.getRegisterMappingObisCode()).thenReturn(registerObisCode);
+        when(register.getDeviceObisCode()).thenReturn(registerObisCode);
         when(register.getRegisterSpec()).thenReturn(spec);
 
         RegisterMapping mapping2 = mock(RegisterMapping.class);
         when(mapping2.getObisCode()).thenReturn(registerObisCode);
         RegisterSpec spec2 = mock(RegisterSpec.class);
         Register register2 = mock(Register.class);
-        when(register2.getRegisterMappingObisCode()).thenReturn(registerObisCode);
+        when(register2.getDeviceObisCode()).thenReturn(registerObisCode);
         when(register2.getRegisterSpec()).thenReturn(spec2);
 
         when(device.getRegisters()).thenReturn(Arrays.asList(register, register2));
 
         // Business method
-        BaseRegister foundRegister = new RegisterDataIdentifier(overruledObisCode, registerObisCode, getMockedDeviceIdentifier()).findRegister();
+        Register foundRegister = new RegisterDataIdentifier(overruledObisCode, registerObisCode, getMockedDeviceIdentifier()).findRegister();
 
         // asserts
         assertThat(foundRegister).isNotNull();
