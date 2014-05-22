@@ -2,6 +2,7 @@
 -dsannotations: *
 Private-Package: com.elster.jupiter.osgi.goodies,\
 	com.elster.jupiter.schema.oracle,\
-	com.elster.jupiter.schema.oracle.impl
+	com.elster.jupiter.schema.oracle.impl,\
+	com.elster.jupiter.oracle.stats
 Include-Resource: src/main/web
 
