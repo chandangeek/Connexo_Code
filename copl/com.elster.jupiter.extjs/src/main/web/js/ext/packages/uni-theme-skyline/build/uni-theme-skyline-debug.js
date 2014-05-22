@@ -577,6 +577,28 @@ Ext.define('Skyline.form.Label', {
     cls: 'x-form-item-label'
 });
 
+Ext.define('Skyline.form.Panel', {
+    override: 'Ext.form.Panel',
+    buttonAlign: 'left',
+
+    initComponent: function() {
+        var me = this;
+        var width = 100;
+
+        if (me.defaults && me.defaults.labelWidth) {
+            width = me.defaults.labelWidth;
+        }
+        if (me.buttons) {
+            me.buttons.splice(0, 0, {
+                xtype: 'tbspacer',
+                width: width
+            })
+        }
+
+        me.callParent(arguments);
+    }
+});
+
 /*
 This file is part of Ext JS 4.2
 
