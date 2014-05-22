@@ -63,14 +63,30 @@ public class EngineServiceImpl implements EngineService, InstallService {
     }
 
     @Inject
-    public EngineServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService) {
+    public EngineServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, TransactionService transactionService, Clock clock, HexService hexService,
+                             EngineModelService engineModelService, ThreadPrincipalService threadPrincipalService, TaskHistoryService taskHistoryService, IssueService issueService,
+                             DeviceDataService deviceDataService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, DeviceConfigurationService deviceConfigurationService,
+                             ProtocolPluggableService protocolPluggableService) {
         super();
         this.setOrmService(ormService);
         this.setEventService(eventService);
         this.setNlsService(nlsService);
+        setTransactionService(transactionService);
+        setClock(clock);
+        setHexService(hexService);
+        setEngineModelService(engineModelService);
+        setThreadPrincipalService(threadPrincipalService);
+        setTaskHistoryService(taskHistoryService);
+        setIssueService(issueService);
+        setDeviceDataService(deviceDataService);
+        setMdcReadingTypeUtilService(mdcReadingTypeUtilService);
+        setUserService(userService);
+        setDeviceConfigurationService(deviceConfigurationService);
+        setProtocolPluggableService(protocolPluggableService);
         if (!this.dataModel.isInstalled()) {
             this.install(true);
         }
+        activate();
     }
 
     @Activate
