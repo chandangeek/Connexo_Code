@@ -8,6 +8,7 @@ import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.protocols.mdc.services.SocketService;
@@ -36,6 +37,7 @@ public class ProtocolsModule extends AbstractModule {
         bind(InboundDeviceProtocolService.class).to(InboundDeviceProtocolServiceImpl.class).in(Scopes.SINGLETON);
         bind(LicensedProtocolService.class).to(LicensedProtocolServiceImpl.class).in(Scopes.SINGLETON);
         bind(SocketService.class).to(SocketServiceImpl.class).in(Scopes.SINGLETON);
+        bind(HexService.class).to(HexServiceImpl.class).in(Scopes.SINGLETON);
     }
 
 }
