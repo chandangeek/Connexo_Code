@@ -8,30 +8,22 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsSetup', {
         'Mdc.view.setup.devicetype.DeviceTypeMenu'
     ],
 
+
     content: [
         {
-            xtype: 'container',
-            layout: {
-                type: 'vbox',
-                align: 'stretch'
-            },
+            ui: 'large',
+            xtype: 'panel',
+            title: Uni.I18n.translate('deviceconfiguration.deviceConfigurations', 'MDC', 'Device configurations'),
             items: [
-                {
-                    xtype: 'component',
-                    html: '<h1>' + Uni.I18n.translate('deviceconfiguration.deviceConfigurations', 'MDC', 'Device configurations') + '</h1>',
-                },
                 {
                     xtype: 'container',
                     itemId: 'DeviceConfigurationsGridContainer'
                 },
                 {
-                    xtype: 'component',
-                    height: 25
-                },
-                {
                     xtype: 'deviceConfigurationPreview'
                 }
-            ]}
+            ]
+        }
     ],
 
 

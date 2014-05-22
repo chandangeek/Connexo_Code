@@ -1,7 +1,6 @@
 Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
     extend: 'Ext.panel.Panel',
-    border: true,
-    margins: '0 10 10 10',
+    frame: true,
     alias: 'widget.connectionMethodPreview',
     itemId: 'connectionMethodPreview',
     requires: [
@@ -16,11 +15,33 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
         align: 'stretch'
     },
 
+    title: 'Details',
+
+    tools: [
+        {
+            xtype: 'button',
+            icon: '../mdc/resources/images/actionsDetail.png',
+            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+            menu: [
+                {
+                    text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                    itemId: 'editConnectionMethod',
+                    action: 'editConnectionMethod'
+                },
+                {
+                    text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
+                    itemId: 'deleteConnectionMethod',
+                    action: 'deleteConnectionMethod'
+                }
+            ]
+        }
+
+    ],
+
     items: [
         {
             xtype: 'panel',
             border: false,
-            padding: '0 10 0 10',
             tbar: [
                 {
                     xtype: 'component',
@@ -40,37 +61,10 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
             xtype: 'form',
             border: false,
             itemId: 'connectionMethodPreviewForm',
-            padding: '0 10 0 10',
             layout: {
                 type: 'vbox',
                 align: 'stretch'
             },
-            tbar: [
-                {
-                    xtype: 'component',
-                    html: '<h4>Connection method</h4>',
-                    itemId: 'connectionMethodPreviewTitle'
-                },
-                '->',
-                {
-                    icon: 'resources/images/actionsDetail.png',
-                    text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
-                    menu: {
-                        items: [
-                            {
-                                text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                                itemId: 'editConnectionMethod',
-                                action: 'editConnectionMethod'
-                            },
-                            {
-                                text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
-                                itemId: 'deleteConnectionMethod',
-                                action: 'deleteConnectionMethod'
-                            }
-                        ]
-                    }
-                }
-            ],
             items: [
                 {
                     xtype: 'container',
@@ -78,7 +72,6 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
                         type: 'column'
 //                        align: 'stretch'
                     },
-                    padding: '10 0 0 0',
                     items: [
                         {
                             xtype: 'container',

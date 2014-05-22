@@ -27,8 +27,7 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
                     itemId: 'deviceCommunicationProtocolGridContainer'
                 },
                 {
-                    xtype: 'deviceCommunicationProtocolPreview',
-                    margin: '32 0 0 0'
+                    xtype: 'deviceCommunicationProtocolPreview'
                 }
             ]}
     ],
