@@ -7,7 +7,7 @@ Ext.define('Uni.grid.column.Action', {
 
     header: 'Actions',
     width: 100,
-    align: 'left',
+    align: 'right',
     iconCls: 'x-uni-action-icon',
 
     menu: {
