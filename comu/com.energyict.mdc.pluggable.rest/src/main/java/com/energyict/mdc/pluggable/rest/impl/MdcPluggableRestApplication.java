@@ -5,6 +5,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
+import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.rest.AutoCloseDatabaseConnection;
@@ -47,7 +48,8 @@ public class MdcPluggableRestApplication extends Application {
                 UserFileReferenceResource.class,
                 LoadProfileTypeResource.class,
                 CodeTableResource.class,
-                LocalizedFieldValidationExceptionMapper.class);
+                LocalizedFieldValidationExceptionMapper.class,
+                JsonMappingExceptionMapper.class);
     }
 
     @Override
