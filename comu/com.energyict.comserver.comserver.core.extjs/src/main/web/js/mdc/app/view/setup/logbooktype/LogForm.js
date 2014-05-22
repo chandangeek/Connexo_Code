@@ -63,13 +63,11 @@ Ext.define('Mdc.view.setup.logbooktype.LogForm', {
             buttons: [
                 {
                     name: 'logAction',
-                    ui: 'action',
-                    margin: 10
+                    ui: 'action'
                 },
                 {
                     text: 'Cancel',
                     name: 'cancel',
-                    margin: 10,
                     hrefTarget: '',
                     href: '#/administration/logbooktypes',
                     ui: 'link'
