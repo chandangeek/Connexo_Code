@@ -51,7 +51,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                         xtype: 'form',
                         border: false,
                         itemId: 'communicationScheduleEditForm',
-                        width: 645,
+                        width: 900,
 //                                padding: '10 10 0 10',
                         layout: {
                             type: 'vbox',
@@ -78,6 +78,15 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                 enforceMaxLength: true
                             },
                             {
+                                xtype: 'textfield',
+                                name: 'mRID',
+                                msgTarget: 'under',
+                                fieldLabel: Uni.I18n.translate('communicationschedule.MRID', 'MDC', 'MRID'),
+                                itemId: 'editConnectionMethodMRIDField',
+                                maxLength: 80,
+                                enforceMaxLength: true
+                            },
+                            {
                                 xtype: 'fieldcontainer',
                                 fieldLabel: Uni.I18n.translate('communicationschedule.communicationTasks', 'MDC', 'Communication tasks'),
                                 require: true,
@@ -88,16 +97,25 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                 width: '100%',
                                 items: [
                                     {
-                                        xtype: 'component',
-                                        html: 'test'
-                                    },
-                                    {
-                                        xtype: 'component',
-                                        html: 'test2'
-                                    },
-                                    {
-                                        xtype: 'component',
-                                        html: 'test3'
+                                        xtype: 'grid',
+                                        itemId: 'comTasksOnForm',
+                                        hideHeaders: true,
+                                        disableSelection: true,
+                                        trackMouseOver: false,
+                                        border: false,
+                                        frame: false,
+                                        viewConfig: {
+                                            stripeRows: false
+                                        },
+                                        columns: [
+                                            {
+                                                dataIndex: 'name',
+                                                sortable: false,
+                                                hideable: false,
+                                                fixed: true,
+                                                flex: 0.4
+                                            }
+                                        ]
                                     },
                                     {
                                         xtype: 'button',
@@ -139,7 +157,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                             {
                                 xtype: 'dateTimeField',
                                 name: 'startDate',
-                                itemId: 'dateTimeField',
+                                itemId: 'startDate',
                                 required: true,
                                 fieldLabel: Uni.I18n.translate('communicationschedule.startOn', 'MDC', 'Start on'),
                                 hourCfg: {
@@ -154,35 +172,35 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                             }
                         ]
                     },
-                    {
-                        xtype: 'menuseparator',
-                        width: '50%',
-                        margin: '20 0 20 80'
-                    },
-                    {
-                        xtype: 'form',
-                        border: false,
-                        itemId: 'communicationSchedulePreviewForm',
-                        layout: {
-                            type: 'vbox',
-                            align: 'stretch'
-                        },
-                        width: '100%',
-                        defaults: {
-                            labelWidth: 250
-                        },
-                        items: [
-                            {
-                                xtype: 'displayfield',
-                                fieldLabel: Uni.I18n.translate('communicationschedule.summary', 'MDC', 'Summary')
-                            },
-                            {
-                                xtype: 'fieldcontainer',
-                                layout: 'hbox',
-                                fieldLabel: Uni.I18n.translate('communicationschedule.preview', 'MDC', 'Preview')
-                            }
-                        ]
-                    },
+//                    {
+//                        xtype: 'menuseparator',
+//                        width: '50%',
+//                        margin: '20 0 20 80'
+//                    },
+//                    {
+//                        xtype: 'form',
+//                        border: false,
+//                        itemId: 'communicationSchedulePreviewForm',
+//                        layout: {
+//                            type: 'vbox',
+//                            align: 'stretch'
+//                        },
+//                        width: '100%',
+//                        defaults: {
+//                            labelWidth: 250
+//                        },
+//                        items: [
+//                            {
+//                                xtype: 'displayfield',
+//                                fieldLabel: Uni.I18n.translate('communicationschedule.summary', 'MDC', 'Summary')
+//                            },
+//                            {
+//                                xtype: 'fieldcontainer',
+//                                layout: 'hbox',
+//                                fieldLabel: Uni.I18n.translate('communicationschedule.preview', 'MDC', 'Preview')
+//                            }
+//                        ]
+//                    },
                     {
                         xtype: 'form',
                         border: false,
@@ -242,15 +260,9 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
         if (this.isEdit()) {
             this.down('#createEditButton').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
             this.down('#createEditButton').action = 'editCommunicationSchedule';
-//                this.down('#connectionStrategyComboBox').setVisible(false);
-//                this.down('#rescheduleRetryDelay').setVisible(false);
-//                this.down('#isDefault').setVisible(false);
         } else {
             this.down('#createEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
             this.down('#createEditButton').action = 'createCommunicationSchedule';
-//                this.down('#connectionStrategyComboBox').setVisible(false);
-//                this.down('#rescheduleRetryDelay').setVisible(false);
-//                this.down('#isDefault').setVisible(false);
         }
         this.down('#cancelLink').autoEl.href = this.returnLink;
 

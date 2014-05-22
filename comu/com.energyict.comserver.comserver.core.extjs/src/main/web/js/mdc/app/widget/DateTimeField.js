@@ -7,6 +7,7 @@ Ext.define('Mdc.widget.DateTimeField', {
     layout: 'hbox',
     msgTarget: 'under',
     submitFormat: 'c',
+    flex: 1,
     dateCfg: null,
     hourCfg:null,
     minuteCfg:null,
@@ -49,6 +50,7 @@ Ext.define('Mdc.widget.DateTimeField', {
                 itemId: 'separator',
                 value: Uni.I18n.translate('datetimefield.at', 'UNI', 'at'),
                 submitValue: false,
+                msgTarget: 'none',
                 margin: '0 5 0 10'
             }),
             Ext.apply({
@@ -67,6 +69,7 @@ Ext.define('Mdc.widget.DateTimeField', {
                 xtype: 'displayfield',
                 value: ':',
                 submitValue: false,
+                msgTarget: 'none',
                 margin: '0 5 0 0'
             }),
             Ext.apply({
@@ -96,41 +99,13 @@ Ext.define('Mdc.widget.DateTimeField', {
 
     },
 
-    setValue: function (date) {
-//        this.hideOffsetGui();
-//        var me = this;
-//        if (schedule) {
-//            me.valueField.setValue(schedule.temporalExpression.every.count);
-//            me.unitField.setValue(schedule.temporalExpression.every.timeUnit);
-//
-//            var offSet = schedule.temporalExpression.offset;
-//            switch(schedule.temporalExpression.every.timeUnit){
-//                case 'minutes':
-//                    this.secondField.setValue(offSet.count);
-//                    break;
-//                case 'hours':
-//                    this.minuteField.setValue(Math.floor(offSet.count/60));
-//                    this.secondField.setValue(offSet.count%60);
-//                    break;
-//                case 'days':
-//                    this.hourField.setValue(Math.floor(offSet.count/3600));
-//                    this.minuteField.setValue(Math.floor((offSet.count%3600)/60));
-//                    this.secondField.setValue((offSet.count%3600)%60);
-//                    break;
-//                case 'weeks':
-//                    break;
-//                case 'months':
-//                    if(schedule.temporalExpression.lastDay === true){
-//                        this.dayIndexField.setValue(Uni.I18n.translate('schedulefield.last', 'UNI', 'last'));
-//                    } else {
-//                        this.dayIndexField.setValue(Math.floor(offSet.count/86400));
-//                        this.hourField.setValue(Math.floor((offSet.count%86400)/3600));
-//                        this.minuteField.setValue(Math.floor(((offSet.count%86400)%3600)/60));
-//                        this.secondField.setValue(((offSet.count%86400)%3600)%60);
-//                    }
-//                    break;
-//            }
-//        }
+    setValue: function (value) {
+        if(value !== undefined){
+            var date = new Date(value);
+            this.dateField.setValue(date);
+            this.hourField.setValue(date.getHours());
+            this.minuteField.setValue(date.getMinutes());
+        }
     },
 
     getSubmitData: function () {
@@ -146,8 +121,9 @@ Ext.define('Mdc.widget.DateTimeField', {
 
     markInvalid: function(fields){
         this.eachItem(function(field){
-            field.markInvalid(fields);
+            field.markInvalid('');
         });
+        this.items.items[0].markInvalid(fields);
     },
 
     eachItem: function(fn, scope) {
