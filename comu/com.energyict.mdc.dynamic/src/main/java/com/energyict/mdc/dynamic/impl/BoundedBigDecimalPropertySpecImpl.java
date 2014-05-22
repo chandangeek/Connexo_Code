@@ -1,8 +1,8 @@
 package com.energyict.mdc.dynamic.impl;
 
+import com.energyict.mdc.common.InvalidValueException;
 import com.energyict.mdc.dynamic.BigDecimalFactory;
 import com.energyict.mdc.dynamic.BoundedBigDecimalPropertySpec;
-
 import java.math.BigDecimal;
 
 /**
@@ -37,4 +37,15 @@ public class BoundedBigDecimalPropertySpecImpl extends BasicPropertySpec<BigDeci
         return upperLimit;
     }
 
+    @Override
+    public boolean validateValue(BigDecimal value) throws InvalidValueException {
+        boolean valid = super.validateValue(value);
+        if (lowerLimit!=null && value!=null && value.compareTo(lowerLimit)<0) {
+            throw new InvalidValueException("XisTooLow", "The value is too small", this.getName(), lowerLimit, upperLimit);
+        }
+        if (upperLimit!=null && value!=null && value.compareTo(upperLimit)>0) {
+            throw new InvalidValueException("XisTooHigh", "The value is too high", this.getName(), lowerLimit, upperLimit);
+        }
+        return valid;
+    }
 }
