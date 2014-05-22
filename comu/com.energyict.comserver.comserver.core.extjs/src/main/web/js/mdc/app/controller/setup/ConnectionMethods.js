@@ -233,7 +233,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         if (record) {
             record.set(values);
             if(values.connectionStrategy==='asSoonAsPossible'){
-                record.set('nextExecutionSpecs',null);
+                record.set('temporalExpression',null);
             }
             record.propertiesStore = this.getPropertiesController().updateProperties();
             record.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigurationId});
@@ -367,7 +367,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
             connectionMethod.set('isDefault',true);
         }
         if(connectionMethod.get('connectionStrategy')==='asSoonAsPossible' || connectionMethod.get('direction')==='Inbound'){
-            connectionMethod.set('nextExecutionSpecs',null);
+            connectionMethod.set('temporalExpression',null);
         }
         this.getPropertiesController().updatePropertiesWithoutView(connectionMethod);
         connectionMethod.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigurationId});

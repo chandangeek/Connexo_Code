@@ -52,7 +52,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                         xtype: 'form',
                         border: false,
                         itemId: 'connectionMethodEditForm',
-                        width: 645,
+                        width: 900,
 //                                padding: '10 10 0 10',
                         layout: {
                             type: 'vbox',
@@ -124,7 +124,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                             },
                             {
                                 xtype: 'scheduleField',
-                                name: 'nextExecutionSpecs',
+                                name: 'temporalExpression',
                                 itemId: 'scheduleField',
                                 hidden: true,
                                 fieldLabel: 'Schedule',

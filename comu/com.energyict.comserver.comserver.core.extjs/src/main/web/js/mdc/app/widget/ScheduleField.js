@@ -64,6 +64,7 @@ Ext.define('Mdc.widget.ScheduleField', {
                 itemId: 'valueField',
                 submitValue: false,
                 width: 70,
+                minValue: 0,
                 margin: '0 5 0 0'
             }, me.valueCfg),
             Ext.apply({
@@ -154,10 +155,6 @@ Ext.define('Mdc.widget.ScheduleField', {
             Ext.apply({
                 xtype: 'numberfield',
                 itemId: 'hourField',
-                valueToRaw: function (value)
-                {
-                    return (value < 10 ? '0' : '') + value;
-                },
                 maxValue: 24,
                 minValue: 0,
                 submitValue: false,
@@ -167,10 +164,6 @@ Ext.define('Mdc.widget.ScheduleField', {
             Ext.apply({
                 xtype: 'numberfield',
                 itemId: 'minuteField',
-                valueToRaw: function (value)
-                {
-                    return (value < 10 ? '0' : '') + value;
-                },
                 maxValue: 60,
                 minValue: 0,
                 submitValue: false,
@@ -188,10 +181,6 @@ Ext.define('Mdc.widget.ScheduleField', {
             Ext.apply({
                 xtype: 'numberfield',
                 itemId: 'secondField',
-                valueToRaw: function (value)
-                {
-                    return (value < 10 ? '0' : '') + value;
-                },
                 maxValue: 60,
                 minValue: 0,
                 submitValue: false,

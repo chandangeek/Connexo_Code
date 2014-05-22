@@ -21,7 +21,7 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectSetup', {
             items: [
                 {
                     xtype: 'component',
-                    html: '<h1>' + Uni.I18n.translate('protocoldialect.prtocolDialects', 'MDC', 'Protocol dialects') + '</h1>',
+                    html: '<h1>' + Uni.I18n.translate('protocoldialect.protocolDialects', 'MDC', 'Protocol dialects') + '</h1>',
                     margins: '10 10 10 10',
                     itemId: 'protocolDialectTitle'
                 },
@@ -56,7 +56,7 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectSetup', {
                 itemId: 'stepsMenu',
                 deviceTypeId: this.deviceTypeId,
                 deviceConfigurationId: this.deviceConfigId,
-                toggle: 5
+                toggle: 6
             }
         ];
         this.callParent(arguments);
