@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.util.time.ProgrammableClock;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
@@ -14,6 +15,7 @@ import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
+import com.energyict.mdc.tasks.history.TaskHistoryService;
 import com.google.common.base.Optional;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -22,6 +24,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.logging.Logger;
 
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -52,6 +55,8 @@ public abstract class AbstractComCommandExecuteTest {
     @Before
     public void setUpManager() throws Exception {
         serviceProvider.setDeviceConfigurationService(deviceConfigurationService);
+        serviceProvider.setClock(new ProgrammableClock());
+        serviceProvider.setTaskHistoryService(mock(TaskHistoryService.class, RETURNS_DEEP_STUBS));
         when(this.protocolDialectConfigurationProperties.getId()).thenReturn(PROTOCOL_DIALECT_CONFIG_PROPS_ID);
         when(deviceConfigurationService.getProtocolDialectConfigurationProperties(PROTOCOL_DIALECT_CONFIG_PROPS_ID)).thenReturn(Optional.of(protocolDialectConfigurationProperties));
     }

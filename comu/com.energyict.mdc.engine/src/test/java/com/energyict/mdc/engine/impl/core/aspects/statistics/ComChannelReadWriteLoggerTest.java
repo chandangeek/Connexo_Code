@@ -13,7 +13,6 @@ import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.core.SystemOutComChannel;
-import com.energyict.mdc.engine.impl.core.aspects.logging.ComChannelReadWriteLogger;
 import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
@@ -43,7 +42,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 /**
- * Tests the pointcuts and advice defined in {@link ComChannelReadWriteLogger}.
+ * Tests the pointcuts and advice defined in ComChannelReadWriteLogger.
  * Uses a SystemOutComChannel to read and write from.
  *
  * @author Rudi Vankeirsbilck (rudi)

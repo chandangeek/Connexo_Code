@@ -7,15 +7,14 @@ import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.masterdata.LoadProfileType;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Date;
 
-import org.junit.*;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests for the {@link OfflineLoadProfileImpl} component
@@ -52,10 +51,10 @@ public class OfflineLoadProfileImplTest {
 
     private LoadProfile getMockedLoadProfileWithTwoChannels(long loadProfileId, ObisCode loadProfileObisCode){
         LoadProfile newMockedLoadProfile = getNewMockedLoadProfile(loadProfileId, loadProfileObisCode);
-        Channel channel1 = mock(Channel.class);
-        Channel channel2 = mock(Channel.class);
-        Channel channel3 = mock(Channel.class);
-        Channel channel4 = mock(Channel.class);
+        Channel channel1 = mock(Channel.class, RETURNS_DEEP_STUBS);
+        Channel channel2 = mock(Channel.class, RETURNS_DEEP_STUBS);
+        Channel channel3 = mock(Channel.class, RETURNS_DEEP_STUBS);
+        Channel channel4 = mock(Channel.class, RETURNS_DEEP_STUBS);
         when(newMockedLoadProfile.getChannels()).thenReturn(Arrays.asList(channel1, channel2));
         when(newMockedLoadProfile.getAllChannels()).thenReturn(Arrays.asList(channel1, channel2, channel3, channel4));
         return newMockedLoadProfile;

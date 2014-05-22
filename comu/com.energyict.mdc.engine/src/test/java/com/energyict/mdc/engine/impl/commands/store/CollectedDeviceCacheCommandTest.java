@@ -11,21 +11,19 @@ import com.energyict.mdc.engine.impl.protocol.inbound.DeviceIdentifierById;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Answers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.Serializable;
 import java.sql.SQLException;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests for the {@link CollectedDeviceCacheCommand} component
@@ -45,7 +43,7 @@ public class CollectedDeviceCacheCommandTest {
     private DeviceCommand.ExecutionLogger executionLogger;
     @Mock
     private DeviceDataService deviceDataService;
-    @Mock
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private EngineService engineService;
     @Mock
     private ServiceProvider serviceProvider;
