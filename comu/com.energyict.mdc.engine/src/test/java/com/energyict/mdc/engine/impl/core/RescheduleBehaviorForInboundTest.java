@@ -30,9 +30,9 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class RescheduleBehaviorForInboundTest {
 
-    private static final int COMPORT_POOL_ID = 1;
-    private static final int COMPORT_ID = COMPORT_POOL_ID + 1;
-    private static final int CONNECTION_TASK_ID = COMPORT_ID + 1;
+    private static final long COMPORT_POOL_ID = 1;
+    private static final long COMPORT_ID = COMPORT_POOL_ID + 1;
+    private static final long CONNECTION_TASK_ID = COMPORT_ID + 1;
     private static final int MAX_NUMBER_OF_TRIES = 3;
 
     @Mock
