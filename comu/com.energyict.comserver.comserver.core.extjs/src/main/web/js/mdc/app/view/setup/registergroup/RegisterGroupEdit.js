@@ -149,7 +149,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                                     header: Uni.I18n.translate('registerMappings.readingType', 'MDC', 'Reading type'),
                                                     items: [
                                                         {
-                                                            icon: '../mdc/resources/images/information.png',
+                                                            icon: '../ext/packages/uni-theme-skyline/build/resources/images/shared/icon-info-small.png',
                                                             iconCls: 'uni-info-icon',
                                                             tooltip: Uni.I18n.translate('readingType.tooltip', 'MDC', 'Reading type info'),
                                                             handler: function (grid, rowIndex, colIndex, item, e) {

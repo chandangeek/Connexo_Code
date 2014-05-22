@@ -104,7 +104,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeDetail', {
                                             },
                                             {
                                                 xtype: 'button',
-                                                icon: '../mdc/resources/images/information.png',
+                                                icon: '../ext/packages/uni-theme-skyline/build/resources/images/shared/icon-info-small.png',
                                                 tooltip: 'Reading type info',
                                                 cls: 'uni-btn-transparent',
                                                 handler: function (item, test) {
