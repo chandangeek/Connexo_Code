@@ -3,6 +3,7 @@ package com.energyict.mdc.tasks.rest.impl;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
+import com.energyict.mdc.tasks.rest.ComTaskInfo;
 import com.google.common.base.Optional;
 
 import javax.ws.rs.BeanParam;

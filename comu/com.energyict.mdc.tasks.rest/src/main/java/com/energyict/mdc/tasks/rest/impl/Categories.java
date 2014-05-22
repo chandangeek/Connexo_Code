@@ -15,6 +15,7 @@ import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.TopologyTask;
+import com.energyict.mdc.tasks.rest.ComTaskInfo;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;

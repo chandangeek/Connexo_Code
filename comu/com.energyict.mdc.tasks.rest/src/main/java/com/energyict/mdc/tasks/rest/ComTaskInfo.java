@@ -1,7 +1,8 @@
-package com.energyict.mdc.tasks.rest.impl;
+package com.energyict.mdc.tasks.rest;
 
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
+import com.energyict.mdc.tasks.rest.impl.Categories;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -30,10 +31,10 @@ public class ComTaskInfo {
     public static final String MIN_CLOCK_DIFFERENCE = "minimumclockdifference";
     public static final String MAX_CLOCK_DIFFERENCE = "maximumclockdifference";
     public static final String MAX_CLOCK_SHIFT = "maximumclockshift";
-    private Long id;
-    private String name;
-    private boolean inUse;
-    private List<Map<String, Object>> commands;
+    public Long id;
+    public String name;
+    public boolean inUse;
+    public List<Map<String, Object>> commands;
 
     public ComTaskInfo() {
     }
