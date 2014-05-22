@@ -22,16 +22,13 @@ public class OnlineRunningComServerImpl extends RunningComServerImpl {
 
     private OnlineComServer comServer;
     private EmbeddedWebServer remoteQueryApi;
-    //TODO for @rudi -> we probably need another mechanism to listen for cache-clear-messages
-//    private SystemTopicHandler systemTopicHandler;
 
     public OnlineRunningComServerImpl(OnlineComServer comServer, ServiceProvider serviceProvider) {
         this(comServer, new ComServerDAOImpl(serviceProvider), serviceProvider);
     }
 
-
     private OnlineRunningComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ServiceProvider serviceProvider) {
-        super(comServer, comServerDAO, null, null, new PooledThreadFactory(), new CleanupDuringStartupImpl(comServer, comServerDAO), serviceProvider);
+        super(comServer, comServerDAO, null, null, new ComServerThreadFactory(comServer), new CleanupDuringStartupImpl(comServer, comServerDAO), serviceProvider);
         this.comServer = comServer;
     }
 

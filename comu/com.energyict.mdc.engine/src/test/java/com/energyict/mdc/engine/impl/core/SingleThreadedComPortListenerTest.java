@@ -89,12 +89,15 @@ public class SingleThreadedComPortListenerTest {
 
     @Test(timeout = 5000)
     public void testSimulatedVoidComChannelWithNoHandOver() throws BusinessException, InterruptedException {
+        ThreadFactory threadFactory = mock(ThreadFactory.class);
+        Thread mockedThread = this.mockedThread();
+        when(threadFactory.newThread(any(Runnable.class))).thenReturn(mockedThread);
         CountDownLatch startLatch = new CountDownLatch(1);
         CountDownLatch progressLatch = new CountDownLatch(1);
         InboundComPortConnector connector = spy(new LatchDrivenTimeOutInboundComPortConnector(startLatch, progressLatch));
 
         SingleThreadedComPortListener singleThreadedComPortListener =
-                spy(new SingleThreadedComPortListener(this.mockComPort("simTimeout", connector), mock(ComServerDAO.class), this.deviceCommandExecutor, this.serviceProvider));
+                spy(new SingleThreadedComPortListener(this.mockComPort("simTimeout", connector), mock(ComServerDAO.class), threadFactory, this.deviceCommandExecutor, this.serviceProvider));
         // business method
         singleThreadedComPortListener.start();
         startLatch.await(); // wait until the accept has occurred
@@ -106,6 +109,9 @@ public class SingleThreadedComPortListenerTest {
 
     @Test(timeout = 5000)
     public void testAcceptedInboundCall() throws InterruptedException, BusinessException {
+        ThreadFactory threadFactory = mock(ThreadFactory.class);
+        Thread mockedThread = this.mockedThread();
+        when(threadFactory.newThread(any(Runnable.class))).thenReturn(mockedThread);
         CountDownLatch startLatch = new CountDownLatch(1);
         CountDownLatch progressLatch = new CountDownLatch(1);
         CountDownLatch protocolLatch = new CountDownLatch(1);
@@ -115,6 +121,7 @@ public class SingleThreadedComPortListenerTest {
                 spy(new LatchDrivenSingleThreadedComPortListener(
                         this.mockComPort("accept", connector),
                         mock(ComServerDAO.class),
+                        threadFactory,
                         this.deviceCommandExecutor,
                         this.serviceProvider));
         singleThreadedComPortListener.setCounter(protocolLatch);
@@ -199,8 +206,8 @@ public class SingleThreadedComPortListenerTest {
 
         private CountDownLatch counter;
 
-        private LatchDrivenSingleThreadedComPortListener (InboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
-            super(comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
+        private LatchDrivenSingleThreadedComPortListener (InboundComPort comPort, ComServerDAO comServerDAO, ThreadFactory threadFactory, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
+            super(comPort, comServerDAO, threadFactory, deviceCommandExecutor, serviceProvider);
         }
 
         private void setCounter(CountDownLatch countDownLatch){

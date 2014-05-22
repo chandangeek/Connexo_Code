@@ -7,9 +7,9 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Monitors the exeuction of {@link com.energyict.mdc.tasks.ComTaskExecution}
+ * Monitors the exeuction of {@link com.energyict.mdc.device.data.tasks.ComTaskExecution}
  * and will abort executions that run longer than the task execution timeout
- * that is specified on the {@link com.energyict.mdc.ports.OutboundComPortPool}
+ * that is specified on the {@link com.energyict.mdc.engine.model.OutboundComPortPool}
  * of the OutboundComPort it is running on.
  *
  * @author Rudi Vankeirsbilck (rudi)

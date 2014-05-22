@@ -29,7 +29,7 @@ public abstract class MockComPort implements ComPort, Cloneable {
         this.comServer = comServer;
     }
 
-    protected MockComPort (ComServer comServer, int id, String name) {
+    protected MockComPort (ComServer comServer, long id, String name) {
         this.setId(id);
         this.setName(name);
         this.comServer = comServer;
@@ -94,6 +94,10 @@ public abstract class MockComPort implements ComPort, Cloneable {
         return dirty;
     }
 
+    public boolean isDirty(){
+        return dirty.get();
+    }
+
     public void setDirty(boolean dirty) {
         this.dirty.set(dirty);
     }
@@ -104,10 +108,6 @@ public abstract class MockComPort implements ComPort, Cloneable {
 
     protected void becomeClean () {
         this.setDirty(false);
-    }
-
-    public boolean isDirty(){
-        return dirty.get();
     }
 
     @Override
@@ -159,4 +159,28 @@ public abstract class MockComPort implements ComPort, Cloneable {
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        MockComPort that = (MockComPort) o;
+
+        if (id != that.id) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) (id ^ (id >>> 32));
+    }
+
 }

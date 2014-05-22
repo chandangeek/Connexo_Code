@@ -581,6 +581,8 @@ public class SingleThreadedScheduledComPortTest {
 
     @Test
     public void testPreventNoResourcesAcquiredExceptionWhenSchedulingJustOutsideComWindow() throws ConnectionException, InterruptedException {
+        ComServer comServer = mock(ComServer.class);
+        when(comServer.getName()).thenReturn("RealTimeDevComExec");
         Date now = new DateTime(2013, Calendar.AUGUST, 22, 9, 1, 0, 0).toDate();    // It's now 09:01 am
         when(this.clock.now()).thenReturn(now);
         ComWindow comWindow = new ComWindow(DateTimeConstants.SECONDS_PER_HOUR * 4, DateTimeConstants.SECONDS_PER_DAY * 9); // Window is from 4 am to 9 am
@@ -597,7 +599,7 @@ public class SingleThreadedScheduledComPortTest {
         CountDownLatch stopLatch = new CountDownLatch(1);
         CountDownLatch devComExecStartedLatch = new CountDownLatch(1);
         when(comServerDAO.findExecutableOutboundComTasks(comPort)).thenReturn(jobs);
-        DeviceCommandExecutor deviceCommandExecutor = spy(new RealTimeWorkingLatchDrivenDeviceCommandExecutor("RealTimeDevComExec", 10, 1, 1, ComServer.LogLevel.TRACE, comServerDAO, devComExecStartedLatch, stopLatch));
+        DeviceCommandExecutor deviceCommandExecutor = spy(new RealTimeWorkingLatchDrivenDeviceCommandExecutor(comServer, 10, 1, 1, ComServer.LogLevel.TRACE, comServerDAO, devComExecStartedLatch, stopLatch));
         deviceCommandExecutor.start();
         SpySingleThreadedScheduledComPort scheduledComPort = new SpySingleThreadedScheduledComPort(comPort, comServerDAO, deviceCommandExecutor, this.serviceProvider);
 
@@ -850,8 +852,8 @@ public class SingleThreadedScheduledComPortTest {
         private CountDownLatch startedLatch;
         private CountDownLatch executeLatch;
 
-        private RealTimeWorkingLatchDrivenDeviceCommandExecutor(String name, int queueCapacity, int numberOfThreads, int threadPriority, ComServer.LogLevel logLevel, ComServerDAO comServerDAO,  CountDownLatch startedLatch, CountDownLatch executeLatch) {
-            super(name, queueCapacity, numberOfThreads, threadPriority, logLevel, comServerDAO, threadPrincipalService, userService);
+        private RealTimeWorkingLatchDrivenDeviceCommandExecutor(ComServer comServer, int queueCapacity, int numberOfThreads, int threadPriority, ComServer.LogLevel logLevel, ComServerDAO comServerDAO,  CountDownLatch startedLatch, CountDownLatch executeLatch) {
+            super(comServer, queueCapacity, numberOfThreads, threadPriority, logLevel, comServerDAO, threadPrincipalService, userService);
             this.startedLatch = startedLatch;
             this.executeLatch = executeLatch;
         }

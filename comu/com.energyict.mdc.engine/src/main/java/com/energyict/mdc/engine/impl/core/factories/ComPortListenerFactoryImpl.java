@@ -9,6 +9,8 @@ import com.energyict.mdc.engine.impl.core.ServletInboundComPortListener;
 import com.energyict.mdc.engine.impl.core.SingleThreadedComPortListener;
 import com.energyict.mdc.engine.model.InboundComPort;
 
+import java.util.concurrent.ThreadFactory;
+
 /**
  * Provides an implementation for the {@link ComPortListenerFactory}.
  *
@@ -19,11 +21,13 @@ public class ComPortListenerFactoryImpl implements ComPortListenerFactory {
 
     private final ComServerDAO comServerDAO;
     private final DeviceCommandExecutor deviceCommandExecutor;
+    private final ThreadFactory threadFactory;
 
-    public ComPortListenerFactoryImpl(ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor) {
+    public ComPortListenerFactoryImpl(ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ThreadFactory threadFactory) {
         super();
         this.comServerDAO = comServerDAO;
         this.deviceCommandExecutor = deviceCommandExecutor;
+        this.threadFactory = threadFactory;
     }
 
     @Override
@@ -35,10 +39,10 @@ public class ComPortListenerFactoryImpl implements ComPortListenerFactory {
                         return null;
                     }
                     case 1: {
-                        return new SingleThreadedComPortListener(comPort, this.comServerDAO, this.deviceCommandExecutor, serviceProvider);
+                        return new SingleThreadedComPortListener(comPort, this.comServerDAO, this.threadFactory, this.deviceCommandExecutor, serviceProvider);
                     }
                     default: {
-                        return new MultiThreadedComPortListener(comPort, this.comServerDAO, this.deviceCommandExecutor, serviceProvider);
+                        return new MultiThreadedComPortListener(comPort, this.comServerDAO, this.deviceCommandExecutor, this.threadFactory, serviceProvider);
                     }
                 }
             } else {

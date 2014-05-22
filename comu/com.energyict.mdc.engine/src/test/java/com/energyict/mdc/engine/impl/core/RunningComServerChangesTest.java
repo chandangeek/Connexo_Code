@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.impl.core.factories.ComPortListenerFactory;
 import com.energyict.mdc.engine.impl.core.factories.ScheduledComPortFactory;
@@ -9,18 +10,30 @@ import com.energyict.mdc.engine.impl.core.mocks.MockComServerDAO;
 import com.energyict.mdc.engine.impl.core.mocks.MockOnlineComServer;
 import com.energyict.mdc.engine.impl.core.mocks.MockOutboundComPort;
 import com.energyict.mdc.engine.impl.core.mocks.MockTCPInboundComPort;
+import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
+import com.energyict.mdc.engine.impl.web.DefaultEmbeddedWebServerFactory;
+import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
+import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
+import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 
-import org.joda.time.DateTimeConstants;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.impl.DefaultClock;
 
 import java.sql.SQLException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -34,11 +47,53 @@ import static org.mockito.Mockito.when;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-10 (13:43)
  */
+@RunWith(MockitoJUnitRunner.class)
 public class RunningComServerChangesTest {
 
     private static final int HALF_A_SECOND = 500;
 
+    @Mock
+    private EmbeddedWebServerFactory embeddedWebServerFactory;
+    @Mock
+    private EngineModelService engineModelService;
+    @Mock
+    private DeviceDataService deviceDataService;
+
+    private Clock clock = new DefaultClock();
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
+
+    @Before
+    public void setupServiceProvider () {
+        this.serviceProvider.setClock(this.clock);
+        this.serviceProvider.setEngineModelService(this.engineModelService);
+        this.serviceProvider.setDeviceDataService(this.deviceDataService);
+        ServiceProvider.instance.set(this.serviceProvider);
+    }
+
+    @After
+    public void resetServiceProvider () {
+        ServiceProvider.instance.set(null);
+    }
+
+    @Before
+    public void initializeEmbeddedWebServerFactory() {
+        EmbeddedWebServerFactory.DEFAULT.set(this.embeddedWebServerFactory);
+    }
+
+    @After
+    public void resetEmbeddedWebServerFactory() {
+        EmbeddedWebServerFactory.DEFAULT.set(new DefaultEmbeddedWebServerFactory());
+    }
+
+    @Before
+    public void initializeEventPublisher() {
+        EventPublisherImpl.setInstance(new EventPublisherImpl(this.clock, this.engineModelService, this.deviceDataService));
+    }
+
+    @After
+    public void resetEventPublisher() {
+        EventPublisherImpl.setInstance(null);
+    }
 
     @Test
     public void testAddOutboundComPort () throws InterruptedException, BusinessException, SQLException {
@@ -48,17 +103,19 @@ public class RunningComServerChangesTest {
         ScheduledComPortFactory scheduledComPortFactory = mock(ScheduledComPortFactory.class);
         ScheduledComPort scheduledComPort = mock(ScheduledComPort.class);
         when(scheduledComPort.getStatus()).thenReturn(ServerProcessStatus.STARTED);
-        when(scheduledComPortFactory.newFor(any(OutboundComPort.class), serviceProvider)).thenReturn(scheduledComPort);
+        when(scheduledComPortFactory.newFor(any(OutboundComPort.class), eq(this.serviceProvider))).thenReturn(scheduledComPort);
         ComPortListenerFactory comPortListenerFactory = mock(ComPortListenerFactory.class);
+        EmbeddedWebServer eventWebServer = mock(EmbeddedWebServer.class);
+        when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer)).thenReturn(eventWebServer);
 
-        RunningComServerImpl runningComServer = new RunningComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, new PooledThreadFactory(), new CleanupDuringStartupImpl(comServer, comServerDAO), serviceProvider);
+        NotifyingRunningComServerImpl runningComServer = new NotifyingRunningComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, new CleanupDuringStartupImpl(comServer, comServerDAO), serviceProvider);
         runningComServer.start();
 
         // Add an active outbound ComPort with 1 simultaneous connection
         OutboundComPort newOutboundComPort = comServerDAO.createOutbound(0, true, 1);
         when(scheduledComPort.getComPort()).thenReturn(newOutboundComPort);
 
-        this.waitForComServerToPickupChanges();
+        this.waitForComServerToPickupChanges(runningComServer);
         when(scheduledComPort.getStatus()).thenReturn(ServerProcessStatus.SHUTDOWN);
         runningComServer.shutdownImmediate();
 
@@ -72,16 +129,18 @@ public class RunningComServerChangesTest {
         comServerDAO.addEmptyComServer();
         OnlineComServer comServer = (OnlineComServer) comServerDAO.getThisComServer();
         ScheduledComPortFactory scheduledComPortFactory = mock(ScheduledComPortFactory.class);
-        when(scheduledComPortFactory.newFor(any(OutboundComPort.class), serviceProvider)).thenReturn(null);  // The ScheduledComPortFactory returns null when a ComPort should be ignored
+        when(scheduledComPortFactory.newFor(any(OutboundComPort.class), eq(this.serviceProvider))).thenReturn(null);  // The ScheduledComPortFactory returns null when a ComPort should be ignored
         ComPortListenerFactory comPortListenerFactory = mock(ComPortListenerFactory.class);
+        EmbeddedWebServer eventWebServer = mock(EmbeddedWebServer.class);
+        when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer)).thenReturn(eventWebServer);
 
-        RunningComServerImpl runningComServer = new RunningComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, new PooledThreadFactory(), new CleanupDuringStartupImpl(comServer, comServerDAO), serviceProvider);
+        NotifyingRunningComServerImpl runningComServer = new NotifyingRunningComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, new CleanupDuringStartupImpl(comServer, comServerDAO), serviceProvider);
         runningComServer.start();
 
         // Add an active outbound ComPort with zero simultaneous connection
         OutboundComPort newOutboundComPort = comServerDAO.createOutbound(0, true, 0);
 
-        this.waitForComServerToPickupChanges();
+        this.waitForComServerToPickupChanges(runningComServer);
         runningComServer.shutdownImmediate();
 
         assertTrue("Was expecting the ComServer to have requested at least once for changes.", comServerDAO.getAndResetComServerRefreshCount() > 0);
@@ -105,14 +164,16 @@ public class RunningComServerChangesTest {
         when(scheduledComPortFactory.newFor(firstComPort, serviceProvider)).thenReturn(firstScheduledComPort);
         when(scheduledComPortFactory.newFor(secondComPort, serviceProvider)).thenReturn(secondScheduledComPort);
         ComPortListenerFactory comPortListenerFactory = mock(ComPortListenerFactory.class);
+        EmbeddedWebServer eventWebServer = mock(EmbeddedWebServer.class);
+        when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer)).thenReturn(eventWebServer);
 
-        RunningComServerImpl runningComServer = new RunningComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, new PooledThreadFactory(), new CleanupDuringStartupImpl(comServer, comServerDAO), serviceProvider);
+        NotifyingRunningComServerImpl runningComServer = new NotifyingRunningComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, new CleanupDuringStartupImpl(comServer, comServerDAO), serviceProvider);
         runningComServer.start();
 
         // Deactivate first ComPort
         comServerDAO.deactivateOutbound(0, 1);
 
-        this.waitForComServerToPickupChanges();
+        this.waitForComServerToPickupChanges(runningComServer);
 
         assertTrue("Was expecting the ComServer to have requested at least once for changes.", comServerDAO.getAndResetComServerRefreshCount() > 0);
         verify(firstScheduledComPort, times(1)).shutdown();
@@ -140,14 +201,16 @@ public class RunningComServerChangesTest {
         when(scheduledComPortFactory.newFor(firstComPort, serviceProvider)).thenReturn(firstScheduledComPort);
         when(scheduledComPortFactory.newFor(secondComPort, serviceProvider)).thenReturn(secondScheduledComPort);
         ComPortListenerFactory comPortListenerFactory = mock(ComPortListenerFactory.class);
+        EmbeddedWebServer eventWebServer = mock(EmbeddedWebServer.class);
+        when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer)).thenReturn(eventWebServer);
 
-        RunningComServerImpl runningComServer = new RunningComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, new PooledThreadFactory(), new CleanupDuringStartupImpl(comServer, comServerDAO), serviceProvider);
+        NotifyingRunningComServerImpl runningComServer = new NotifyingRunningComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, new CleanupDuringStartupImpl(comServer, comServerDAO), serviceProvider);
         runningComServer.start();
 
         // Delete first ComPort
         comServerDAO.deleteOutbound(0, 1);
 
-        this.waitForComServerToPickupChanges();
+        this.waitForComServerToPickupChanges(runningComServer);
 
         assertTrue("Was expecting the ComServer to have requested at least once for changes.", comServerDAO.getAndResetComServerRefreshCount() > 0);
         verify(firstScheduledComPort, times(1)).shutdown();
@@ -178,15 +241,17 @@ public class RunningComServerChangesTest {
         when(scheduledComPortFactory.newFor(firstComPort, serviceProvider)).thenReturn(firstScheduledComPort);
         when(scheduledComPortFactory.newFor(secondComPort, serviceProvider)).thenReturn(secondScheduledComPort);
         ComPortListenerFactory comPortListenerFactory = mock(ComPortListenerFactory.class);
+        EmbeddedWebServer eventWebServer = mock(EmbeddedWebServer.class);
+        when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer)).thenReturn(eventWebServer);
 
-        RunningComServerImpl runningComServer = new RunningComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, new PooledThreadFactory(), new CleanupDuringStartupImpl(comServer, comServerDAO), serviceProvider);
+        NotifyingRunningComServerImpl runningComServer = new NotifyingRunningComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, new CleanupDuringStartupImpl(comServer, comServerDAO), serviceProvider);
         runningComServer.start();
 
         // Change the number of simultaneous connection of the first ComPort
         MockOutboundComPort changedComPort = comServerDAO.setNumberOfSimultaneousOutboundConnections(0, 1, 3);
         when(scheduledComPortFactory.newFor(changedComPort, serviceProvider)).thenReturn(firstScheduledComPortAfterChanges);
 
-        this.waitForComServerToPickupChanges();
+        this.waitForComServerToPickupChanges(runningComServer);
 
         assertTrue("Was expecting the ComServer to have requested at least once for changes.", comServerDAO.getAndResetComServerRefreshCount() > 0);
         verify(firstScheduledComPort, times(1)).shutdown();
@@ -208,16 +273,18 @@ public class RunningComServerChangesTest {
         ComPortListenerFactory comPortListenerFactory = mock(ComPortListenerFactory.class);
         ComPortListener comPortListener = mock(ComPortListener.class);
         when(comPortListener.getStatus()).thenReturn(ServerProcessStatus.STARTED);
-        when(comPortListenerFactory.newFor(any(InboundComPort.class), serviceProvider)).thenReturn(comPortListener);
+        when(comPortListenerFactory.newFor(any(InboundComPort.class), eq(this.serviceProvider))).thenReturn(comPortListener);
+        EmbeddedWebServer eventWebServer = mock(EmbeddedWebServer.class);
+        when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer)).thenReturn(eventWebServer);
 
-        RunningComServerImpl runningComServer = new RunningComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, new PooledThreadFactory(), new CleanupDuringStartupImpl(comServer, comServerDAO), serviceProvider);
+        NotifyingRunningComServerImpl runningComServer = new NotifyingRunningComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, new CleanupDuringStartupImpl(comServer, comServerDAO), serviceProvider);
         runningComServer.start();
 
         // Add an active inbound ComPort with 1 simultaneous connection
         InboundComPort newInboundComPort = comServerDAO.createInbound(0, true, 1);
         when(comPortListener.getComPort()).thenReturn(newInboundComPort);
 
-        this.waitForComServerToPickupChanges();
+        this.waitForComServerToPickupChanges(runningComServer);
         when(comPortListener.getStatus()).thenReturn(ServerProcessStatus.SHUTDOWN);
         runningComServer.shutdownImmediate();
 
@@ -232,15 +299,17 @@ public class RunningComServerChangesTest {
         OnlineComServer comServer = (OnlineComServer) comServerDAO.getThisComServer();
         ScheduledComPortFactory scheduledComPortFactory = mock(ScheduledComPortFactory.class);
         ComPortListenerFactory comPortListenerFactory = mock(ComPortListenerFactory.class);
-        when(comPortListenerFactory.newFor(any(InboundComPort.class), serviceProvider)).thenReturn(null);    // The ComPortListenerFactory returns null when the ComPort should be ignored
+        when(comPortListenerFactory.newFor(any(InboundComPort.class), eq(this.serviceProvider))).thenReturn(null);    // The ComPortListenerFactory returns null when the ComPort should be ignored
+        EmbeddedWebServer eventWebServer = mock(EmbeddedWebServer.class);
+        when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer)).thenReturn(eventWebServer);
 
-        RunningComServerImpl runningComServer = new RunningComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, new PooledThreadFactory(), new CleanupDuringStartupImpl(comServer, comServerDAO), serviceProvider);
+        NotifyingRunningComServerImpl runningComServer = new NotifyingRunningComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, new CleanupDuringStartupImpl(comServer, comServerDAO), serviceProvider);
         runningComServer.start();
 
         // Add an active inbound ComPort with zero simultaneous connection
         InboundComPort newInboundComPort = comServerDAO.createInbound(0, true, 0);
 
-        this.waitForComServerToPickupChanges();
+        this.waitForComServerToPickupChanges(runningComServer);
         runningComServer.shutdownImmediate();
 
         assertTrue("Was expecting the ComServer to have requested at least once for changes.", comServerDAO.getAndResetComServerRefreshCount() > 0);
@@ -264,14 +333,16 @@ public class RunningComServerChangesTest {
         when(secondComPortListener.getComPort()).thenReturn(secondComPort);
         when(comPortListenerFactory.newFor(firstComPort, serviceProvider)).thenReturn(firstComPortListener);
         when(comPortListenerFactory.newFor(secondComPort, serviceProvider)).thenReturn(secondComPortListener);
+        EmbeddedWebServer eventWebServer = mock(EmbeddedWebServer.class);
+        when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer)).thenReturn(eventWebServer);
 
-        RunningComServerImpl runningComServer = new RunningComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, new PooledThreadFactory(), new CleanupDuringStartupImpl(comServer, comServerDAO), serviceProvider);
+        NotifyingRunningComServerImpl runningComServer = new NotifyingRunningComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, new CleanupDuringStartupImpl(comServer, comServerDAO), serviceProvider);
         runningComServer.start();
 
         // Deactivate first ComPort
         comServerDAO.deactivateInbound(0, 1);
 
-        this.waitForComServerToPickupChanges();
+        this.waitForComServerToPickupChanges(runningComServer);
 
         assertTrue("Was expecting the ComServer to have requested at least once for changes.", comServerDAO.getAndResetComServerRefreshCount() > 0);
         verify(firstComPortListener, times(1)).shutdown();
@@ -299,14 +370,16 @@ public class RunningComServerChangesTest {
         when(secondComPortListener.getComPort()).thenReturn(secondComPort);
         when(comPortListenerFactory.newFor(firstComPort, serviceProvider)).thenReturn(firstComPortListener);
         when(comPortListenerFactory.newFor(secondComPort, serviceProvider)).thenReturn(secondComPortListener);
+        EmbeddedWebServer eventWebServer = mock(EmbeddedWebServer.class);
+        when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer)).thenReturn(eventWebServer);
 
-        RunningComServerImpl runningComServer = new RunningComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, new PooledThreadFactory(), new CleanupDuringStartupImpl(comServer, comServerDAO), serviceProvider);
+        NotifyingRunningComServerImpl runningComServer = new NotifyingRunningComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, new CleanupDuringStartupImpl(comServer, comServerDAO), serviceProvider);
         runningComServer.start();
 
         // Delete first ComPort
         comServerDAO.deleteInbound(0, 1);
 
-        this.waitForComServerToPickupChanges();
+        this.waitForComServerToPickupChanges(runningComServer);
 
         assertTrue("Was expecting the ComServer to have requested at least once for changes.", comServerDAO.getAndResetComServerRefreshCount() > 0);
         verify(firstComPortListener, times(1)).shutdown();
@@ -337,15 +410,17 @@ public class RunningComServerChangesTest {
         when(secondComPortListener.getComPort()).thenReturn(secondComPort);
         when(comPortListenerFactory.newFor(firstComPort, serviceProvider)).thenReturn(firstComPortListener);
         when(comPortListenerFactory.newFor(secondComPort, serviceProvider)).thenReturn(secondComPortListener);
+        EmbeddedWebServer eventWebServer = mock(EmbeddedWebServer.class);
+        when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer)).thenReturn(eventWebServer);
 
-        RunningComServerImpl runningComServer = new RunningComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, new PooledThreadFactory(), new CleanupDuringStartupImpl(comServer, comServerDAO), serviceProvider);
+        NotifyingRunningComServerImpl runningComServer = new NotifyingRunningComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, new CleanupDuringStartupImpl(comServer, comServerDAO), serviceProvider);
         runningComServer.start();
 
         // Deactivate first ComPort
         MockTCPInboundComPort changedComPort = comServerDAO.setNumberOfSimultaneousInboundConnections(0, 1, 3);
         when(comPortListenerFactory.newFor(changedComPort, serviceProvider)).thenReturn(firstComPortListenerAfterChanges);
 
-        this.waitForComServerToPickupChanges();
+        this.waitForComServerToPickupChanges(runningComServer);
 
         assertTrue("Was expecting the ComServer to have requested at least once for changes.", comServerDAO.getAndResetComServerRefreshCount() > 0);
         verify(firstComPortListener, times(1)).shutdown();
@@ -378,15 +453,17 @@ public class RunningComServerChangesTest {
         when(scheduledComPortFactory.newFor(firstComPort, serviceProvider)).thenReturn(firstScheduledComPort);
         when(scheduledComPortFactory.newFor(secondComPort, serviceProvider)).thenReturn(secondScheduledComPort);
         ComPortListenerFactory comPortListenerFactory = mock(ComPortListenerFactory.class);
+        EmbeddedWebServer eventWebServer = mock(EmbeddedWebServer.class);
+        when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer)).thenReturn(eventWebServer);
 
-        RunningComServerImpl runningComServer = new RunningComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, new PooledThreadFactory(), new CleanupDuringStartupImpl(comServer, comServerDAO), serviceProvider);
+        NotifyingRunningComServerImpl runningComServer = new NotifyingRunningComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, new CleanupDuringStartupImpl(comServer, comServerDAO), serviceProvider);
         runningComServer.start();
 
         // Change the scheduling interpoll delay
         TimeDuration newSchedulingInterPollDelay = new TimeDuration(5, TimeDuration.MINUTES);
         comServerDAO.setSchedulingInterPollDelay(0, newSchedulingInterPollDelay);
 
-        this.waitForComServerToPickupChanges();
+        this.waitForComServerToPickupChanges(runningComServer);
         runningComServer.shutdownImmediate();
 
         assertTrue("Was expecting the ComServer to have requested at least once for changes.", comServerDAO.getAndResetComServerRefreshCount() > 0);
@@ -396,8 +473,26 @@ public class RunningComServerChangesTest {
         verify(secondScheduledComPort, never()).changesInterpollDelayChanged(any(TimeDuration.class));
     }
 
-    private void waitForComServerToPickupChanges () throws InterruptedException {
-        Thread.sleep(MockComServerDAO.CHANGES_DELAY_SECONDS * DateTimeConstants.MILLIS_PER_SECOND + HALF_A_SECOND);   // Wait half a second longer than ComServer
+    private void waitForComServerToPickupChanges(NotifyingRunningComServerImpl runningComServer) throws InterruptedException {
+        runningComServer.waitForApplyChanges();
     }
 
+    private class NotifyingRunningComServerImpl extends RunningComServerImpl {
+        private CountDownLatch applyChangesLatch = new CountDownLatch(1);
+
+        protected NotifyingRunningComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, CleanupDuringStartup cleanupDuringStartup, ServiceProvider serviceProvider) {
+            super(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, cleanupDuringStartup, serviceProvider);
+        }
+
+        @Override
+        protected void notifyChangesApplied() {
+            super.notifyChangesApplied();
+            this.applyChangesLatch.countDown();
+        }
+
+        private void waitForApplyChanges () throws InterruptedException {
+            this.applyChangesLatch.await(10, TimeUnit.SECONDS);
+        }
+
+    }
 }

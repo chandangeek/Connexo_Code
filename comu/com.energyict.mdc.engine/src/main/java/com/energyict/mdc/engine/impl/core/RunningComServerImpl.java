@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.engine.impl.core.devices.DeviceCommandExecutorImpl;
 import com.energyict.mdc.engine.impl.core.factories.ComPortListenerFactory;
 import com.energyict.mdc.engine.impl.core.factories.ComPortListenerFactoryImpl;
@@ -7,7 +8,6 @@ import com.energyict.mdc.engine.impl.core.factories.ScheduledComPortFactory;
 import com.energyict.mdc.engine.impl.core.factories.ScheduledComPortFactoryImpl;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
-import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundCapable;
 import com.energyict.mdc.engine.model.InboundComPort;
@@ -16,6 +16,7 @@ import com.energyict.mdc.engine.model.OutboundCapable;
 import com.energyict.mdc.engine.model.OutboundCapableComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.RemoteComServer;
+
 import org.joda.time.DateTimeConstants;
 
 import java.sql.SQLException;
@@ -68,8 +69,8 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
     private CleanupDuringStartup cleanupDuringStartup;
     private TimeOutMonitor timeOutMonitor;
 
-    protected RunningComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ServiceProvider serviceProvider) {
-        this(comServer, comServerDAO, null, null, new PooledThreadFactory(), new CleanupDuringStartupImpl(comServer, comServerDAO), serviceProvider);
+    protected RunningComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, CleanupDuringStartup cleanupDuringStartup, ServiceProvider serviceProvider) {
+        this(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, new ComServerThreadFactory(comServer), cleanupDuringStartup, serviceProvider);
     }
 
     protected RunningComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, CleanupDuringStartup cleanupDuringStartup, ServiceProvider serviceProvider) {
@@ -174,7 +175,7 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
     }
 
     private void initializeDeviceCommandExecutor (int queueSize, int numberOfThreads, int threadPriority) {
-        this.deviceCommandExecutor = new DeviceCommandExecutorImpl("Device command executor for " + this.getComServer().getName(), queueSize, numberOfThreads, threadPriority, this.getComServer().getServerLogLevel(), this.threadFactory, this.comServerDAO, this.serviceProvider.threadPrincipalService(), this.serviceProvider.userService());
+        this.deviceCommandExecutor = new DeviceCommandExecutorImpl(this.getComServer(), queueSize, numberOfThreads, threadPriority, this.getComServer().getServerLogLevel(), this.threadFactory, this.comServerDAO, this.serviceProvider.threadPrincipalService(), this.serviceProvider.userService());
     }
 
     /**
@@ -424,6 +425,7 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
                     this.applyChanges((InboundCapable) newVersion);
                     this.applyChanges((OutboundCapable) newVersion);
                     this.applyDelayChanges(newVersion);
+                    this.notifyChangesApplied();
                     this.comServer = newVersion;
                 }
             }
@@ -464,6 +466,10 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         this.shutdownAndRemoveOldInboundComPorts(newVersion);
         this.restartChangedInboundComPorts(newVersion);
         this.addAndStartNewInboundComPorts(newVersion);
+    }
+
+    protected void notifyChangesApplied() {
+        // Notify interested parties that changes have been applied
     }
 
     private void applyChanges (OutboundCapable newVersion) {
@@ -704,7 +710,7 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
 
     private ComPortListenerFactory getComPortListenerFactory() {
         if (this.comPortListenerFactory == null) {
-            this.comPortListenerFactory = new ComPortListenerFactoryImpl(comServerDAO, this.deviceCommandExecutor);
+            this.comPortListenerFactory = new ComPortListenerFactoryImpl(this.comServerDAO, this.deviceCommandExecutor, this.threadFactory);
         }
         return this.comPortListenerFactory;
     }

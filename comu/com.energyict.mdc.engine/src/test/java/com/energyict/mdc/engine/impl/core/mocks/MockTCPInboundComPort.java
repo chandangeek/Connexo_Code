@@ -23,7 +23,7 @@ public class MockTCPInboundComPort extends MockComPort implements TCPBasedInboun
         super(comServer, name);
     }
 
-    protected MockTCPInboundComPort (ComServer comServer, int id, String name) {
+    protected MockTCPInboundComPort (ComServer comServer, long id, String name) {
         super(comServer, id, name);
     }
 

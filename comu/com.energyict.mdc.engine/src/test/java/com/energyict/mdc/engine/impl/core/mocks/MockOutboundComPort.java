@@ -24,7 +24,7 @@ public class MockOutboundComPort extends MockComPort implements OutboundComPort 
         super(comServer, name);
     }
 
-    public MockOutboundComPort (ComServer comServer, int id, String name) {
+    public MockOutboundComPort (ComServer comServer, long id, String name) {
         super(comServer, id, name);
     }
 

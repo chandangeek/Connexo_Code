@@ -31,8 +31,8 @@ public class SingleThreadedComPortListener extends ComChannelBasedComPortListene
         this.serviceProvider = serviceProvider;
     }
 
-    public SingleThreadedComPortListener(InboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
-        this(comPort, comServerDAO, new PooledThreadFactory(), deviceCommandExecutor, new InboundComPortExecutorFactoryImpl(), serviceProvider);
+    public SingleThreadedComPortListener(InboundComPort comPort, ComServerDAO comServerDAO, ThreadFactory threadFactory, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
+        this(comPort, comServerDAO, threadFactory, deviceCommandExecutor, new InboundComPortExecutorFactoryImpl(), serviceProvider);
     }
 
     @Override

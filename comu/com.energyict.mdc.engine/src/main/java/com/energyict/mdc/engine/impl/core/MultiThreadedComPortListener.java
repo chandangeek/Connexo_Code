@@ -33,7 +33,11 @@ public class MultiThreadedComPortListener extends ComChannelBasedComPortListener
     private InboundComPortExecutorFactory inboundComPortExecutorFactory;
 
     public MultiThreadedComPortListener(InboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
-        this(comPort, comServerDAO, deviceCommandExecutor, new PooledThreadFactory(), new InboundComPortExecutorFactoryImpl(), serviceProvider);
+        this(comPort, comServerDAO, deviceCommandExecutor, new ComServerThreadFactory(comPort.getComServer()), new InboundComPortExecutorFactoryImpl(), serviceProvider);
+    }
+
+    public MultiThreadedComPortListener(InboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ThreadFactory threadFactory, ServiceProvider serviceProvider) {
+        this(comPort, comServerDAO, deviceCommandExecutor, threadFactory, new InboundComPortExecutorFactoryImpl(), serviceProvider);
     }
 
     protected MultiThreadedComPortListener(InboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ThreadFactory threadFactory, InboundComPortExecutorFactory inboundComPortExecutorFactory, ServiceProvider serviceProvider) {

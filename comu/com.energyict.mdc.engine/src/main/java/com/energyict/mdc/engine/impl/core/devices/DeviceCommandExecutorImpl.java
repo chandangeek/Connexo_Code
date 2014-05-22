@@ -1,8 +1,5 @@
 package com.energyict.mdc.engine.impl.core.devices;
 
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
@@ -10,9 +7,13 @@ import com.energyict.mdc.engine.impl.commands.store.FreeUnusedTokenDeviceCommand
 import com.energyict.mdc.engine.impl.commands.store.NoResourcesAcquiredException;
 import com.energyict.mdc.engine.impl.concurrent.ResizeableSemaphore;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.core.PooledThreadFactory;
+import com.energyict.mdc.engine.impl.core.ComServerThreadFactory;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.model.ComServer;
+
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
 import com.google.common.base.Optional;
 import org.eclipse.jetty.util.ConcurrentHashSet;
 
@@ -50,18 +51,18 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
     private ComServerDAO comServerDAO;
     private String name;
 
-    public DeviceCommandExecutorImpl(String name, int queueCapacity, int numberOfThreads, int threadPriority, ComServer.LogLevel logLevel, ComServerDAO comServerDAO, ThreadPrincipalService threadPrincipalService, UserService userService) {
-        this(name, queueCapacity, numberOfThreads, threadPriority, logLevel, new PooledThreadFactory(), comServerDAO, threadPrincipalService, userService);
+    public DeviceCommandExecutorImpl(ComServer comServer, int queueCapacity, int numberOfThreads, int threadPriority, ComServer.LogLevel logLevel, ComServerDAO comServerDAO, ThreadPrincipalService threadPrincipalService, UserService userService) {
+        this(comServer, queueCapacity, numberOfThreads, threadPriority, logLevel, new ComServerThreadFactory(comServer), comServerDAO, threadPrincipalService, userService);
     }
 
-    public DeviceCommandExecutorImpl(String name, int queueCapacity, int numberOfThreads, int threadPriority, ComServer.LogLevel logLevel, ThreadFactory threadFactory, ComServerDAO comServerDAO, ThreadPrincipalService threadPrincipalService, UserService userService) {
+    public DeviceCommandExecutorImpl(ComServer comServer, int queueCapacity, int numberOfThreads, int threadPriority, ComServer.LogLevel logLevel, ThreadFactory threadFactory, ComServerDAO comServerDAO, ThreadPrincipalService threadPrincipalService, UserService userService) {
         super();
         this.workQueue = new WorkQueue(queueCapacity);
         this.threadFactory = new PriorityConfigurableThreadFactory(threadFactory, threadPriority, name);
         this.numberOfThreads = numberOfThreads;
         this.logLevel = logLevel;
         this.comServerDAO = comServerDAO;
-        this.name = name;
+        this.name = "Device command executor for " + comServer.getName();
         this.threadPrincipalService = threadPrincipalService;
         this.userService = userService;
     }

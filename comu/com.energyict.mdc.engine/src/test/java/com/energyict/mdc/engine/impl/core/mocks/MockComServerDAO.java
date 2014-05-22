@@ -161,7 +161,7 @@ public class MockComServerDAO implements ComServerDAO {
                 this.comServerClones.set(serverIndex, clone);
             }
             catch (CloneNotSupportedException e) {
-                // Silly compiler, MockOnlineComServer implement Cloneable
+                // Silly compiler, MockOnlineComServer implements Cloneable
             }
         }
         return clone;
