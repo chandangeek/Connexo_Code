@@ -643,7 +643,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
      */
     private TimeDuration getRescheduleRetryDelay() {
         TimeDuration comTaskDefinedRescheduleDelay = this.comTaskRescheduleDelay();
-        if (comTaskDefinedRescheduleDelay == null) {
+        if (comTaskDefinedRescheduleDelay == null || comTaskDefinedRescheduleDelay.getSeconds() <= 0) {
             return this.defaultRescheduleDelay();
         } else {
             return comTaskDefinedRescheduleDelay;
