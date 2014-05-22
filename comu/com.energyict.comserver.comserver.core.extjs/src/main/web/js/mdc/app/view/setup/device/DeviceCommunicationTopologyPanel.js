@@ -4,69 +4,58 @@ Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
     overflowY: 'auto',
     itemId: 'devicecommicationtopologypanel',
     deviceId: null,
-    margin: '0 10 10 10',
+    ui: 'tile',
+    title: Uni.I18n.translate('deviceCommunicationTopology.communicationTopologyTitle', 'MDC', 'Communication topology'),
 
-    initComponent: function () {
-        var me = this;
-        this.items = [
-            {
-                xtype: 'component',
-                html: '<h4>' + Uni.I18n.translate('deviceCommunicationTopology.communicationTopologyTitle', 'MDC', 'Communication topology') + '</h4>',
-                itemId: 'communicationTopologyTitle'
+    items: [
+        {
+            xtype: 'form',
+            itemId: 'deviceCommunicationTopologyForm',
+            layout: {
+                type: 'vbox',
+                align: 'stretch'
             },
-            {
-                xtype: 'form',
-                itemId: 'deviceCommunicationTopologyForm',
-                padding: '10 10 0 10',
-                layout: {
-                    type: 'vbox',
-                    align: 'stretch'
-                },
-                defaults: {
-                    labelWidth: 200
-                },
-                items: [
-                    {
-                        xtype: 'fieldcontainer',
-                        fieldLabel: Uni.I18n.translate('deviceCommunicationTopology.master', 'MDC', 'Master'),
-                        layout: {
-                            type: 'vbox'
-                        },
-                        margin: '0 0 10 0',
-                        items: [
-                            {
-                                xtype: 'component',
-                                cls: 'x-form-display-field',
-                                autoEl: {
-                                    tag: 'a',
-                                    href: '#',
-                                    html: ''
-                                },
-                                itemId: 'deviceCommunicationtopologyMasterLink'
-                            }
-
-                        ]
+            defaults: {
+                labelWidth: 150
+            },
+            items: [
+                {
+                    xtype: 'fieldcontainer',
+                    fieldLabel: Uni.I18n.translate('deviceCommunicationTopology.master', 'MDC', 'Master'),
+                    layout: {
+                        type: 'vbox'
                     },
-                    {
-                        xtype: 'fieldcontainer',
-                        fieldLabel: Uni.I18n.translate('deviceCommunicationTopology.slave', 'MDC', 'Slave(s)'),
-                        layout: {
-                            type: 'vbox'
-                        },
-                        margin: '0 0 10 0',
-                        itemId: 'slaveDevicesContainer',
-                        items: [
-                            {
+                    items: [
+                        {
+                            xtype: 'component',
+                            cls: 'x-form-display-field',
+                            autoEl: {
+                                tag: 'a',
+                                href: '#',
+                                html: ''
+                            },
+                            itemId: 'deviceCommunicationtopologyMasterLink'
+                        }
 
-                            }
-                        ]
-                    }
+                    ]
+                },
+                {
+                    xtype: 'fieldcontainer',
+                    fieldLabel: Uni.I18n.translate('deviceCommunicationTopology.slave', 'MDC', 'Slave(s)'),
+                    layout: {
+                        type: 'vbox'
+                    },
+                    itemId: 'slaveDevicesContainer',
+                    items: [
+                        {
 
-                ]
-            }
-        ];
-        this.callParent();
-    }
+                        }
+                    ]
+                }
+
+            ]
+        }
+    ]
 })
 ;
 
