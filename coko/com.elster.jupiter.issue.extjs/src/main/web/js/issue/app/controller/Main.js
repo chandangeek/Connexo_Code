@@ -152,9 +152,9 @@ Ext.define('Isu.controller.Main', {
 
         Uni.store.PortalItems.add(
             datacollection,
-            dataexchange,
-            dataoperation,
-            datavalidation,
+//            dataexchange,
+//            dataoperation,
+//            datavalidation,
             issuemanagement
         );
     },
