@@ -50,7 +50,13 @@ public interface EngineModelService {
      */
     public List<RemoteComServer> findAllRemoteComServers ();
 
-    List<RemoteComServer> findRemoteComServersForOnlineComServer(OnlineComServer onlineComServer);
+    /**
+     * Finds all {@link RemoteComServer}s that rely on the {@link} OnlineComServer}.
+     *
+     * @param onlineComServer The OnlineComServer
+     * @return a List of {@link} RemoteComServer remoteComServers}
+     */
+    public List<RemoteComServer> findRemoteComServersForOnlineComServer(OnlineComServer onlineComServer);
 
     /**
      * Returns the number of offline servers
@@ -64,14 +70,6 @@ public interface EngineModelService {
      * @return a List of all {@link com.energyict.mdc.engine.model.OfflineComServer offlineComServers}
      */
     public List<OfflineComServer> findAllOfflineComServers ();
-
-    /**
-     * Finds all {@link RemoteComServer}s that rely on the {@link} OnlineComServer}.
-     *
-     * @param onlineComServer The OnlineComServer
-     * @return a List of {@link} RemoteComServer remoteComServers}
-     */
-    public List<RemoteComServer> findRemoteComServersWithOnlineComServer (OnlineComServer onlineComServer);
 
     public OnlineComServer newOnlineComServerInstance();
     public OfflineComServer newOfflineComServerInstance();

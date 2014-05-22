@@ -82,7 +82,7 @@ public class OnlineComServerImpl extends ComServerImpl implements OnlineComServe
     }
 
     private void validateOnlineComServerNotReferenced() {
-        if (!engineModelService.findRemoteComServersWithOnlineComServer(this).isEmpty()) {
+        if (!engineModelService.findRemoteComServersForOnlineComServer(this).isEmpty()) {
             throw new TranslatableApplicationException(thesaurus, MessageSeeds.ONLINE_COMSERVER_STILL_REFERENCED);
         }
     }
