@@ -34,7 +34,7 @@ public class CreateNoLogBooksForDeviceEventTest {
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
 
         // Asserts
-        assertThat(journalMessage).isEqualTo(CreateNoLogBooksForDeviceEvent.class.getSimpleName() + " {deviceIdentifier: id 1}");
+        assertThat(journalMessage).isEqualTo(CreateNoLogBooksForDeviceEvent.class.getSimpleName() + " {deviceIdentifier: id 97}");
     }
 
 }

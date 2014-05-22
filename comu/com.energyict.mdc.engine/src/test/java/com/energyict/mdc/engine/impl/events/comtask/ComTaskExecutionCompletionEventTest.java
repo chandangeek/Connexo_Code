@@ -5,6 +5,7 @@ import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.events.Category;
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.EngineModelService;
@@ -13,6 +14,7 @@ import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPort;
 
 import com.elster.jupiter.util.time.Clock;
+import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 
 import java.io.ByteArrayInputStream;
@@ -53,13 +55,15 @@ public class ComTaskExecutionCompletionEventTest {
     @Mock
     public EngineModelService engineModelService;
     @Mock
-    private AbstractComServerEventImpl.ServiceProvider serviceProvider;
+    private ServiceProvider serviceProvider;
 
     @Before
     public void setupServiceProvider () {
+        when(this.clock.now()).thenReturn(new DateTime(1969, 5, 2, 1, 40, 0).toDate()); // Set some default
         when(this.serviceProvider.clock()).thenReturn(this.clock);
         when(this.serviceProvider.engineModelService()).thenReturn(this.engineModelService);
         when(this.serviceProvider.deviceDataService()).thenReturn(this.deviceDataService);
+        ServiceProvider.instance.set(this.serviceProvider);
     }
 
     @Test
@@ -303,6 +307,9 @@ public class ComTaskExecutionCompletionEventTest {
         ConnectionTask connectionTask = mock(ConnectionTask.class);
         when(connectionTask.getId()).thenReturn(CONNECTION_TASK_ID);
         when(connectionTask.getDevice()).thenReturn(device);
+        when(this.deviceDataService.findComTaskExecution(COM_TASK_EXECUTION_ID)).thenReturn(comTaskExecution);
+        when(this.deviceDataService.findConnectionTask(CONNECTION_TASK_ID)).thenReturn(Optional.of(connectionTask));
+        when(this.engineModelService.findComPort(COMPORT_ID)).thenReturn(comPort);
         ComTaskExecutionCompletionEvent event = new ComTaskExecutionCompletionEvent(comTaskExecution, comPort, connectionTask);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();

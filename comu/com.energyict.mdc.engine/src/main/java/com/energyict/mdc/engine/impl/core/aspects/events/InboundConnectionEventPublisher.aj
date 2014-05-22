@@ -50,7 +50,7 @@ public privileged aspect InboundConnectionEventPublisher extends AbstractCommuni
 
     before (InboundCommunicationHandler handler, InboundDeviceProtocol inboundDeviceProtocol, DeviceCommandExecutionToken token, OfflineDevice offlineDevice): processCollectedData(handler, inboundDeviceProtocol, token, offlineDevice) {
         for (ComTaskExecution comTaskExecution : handler.getDeviceComTaskExecutions()) {
-            this.publish(new ComTaskExecutionStartedEvent(comTaskExecution, handler.getComPort(), handler.getConnectionTask(), EventPublisherImpl.getInstance().serviceProvider()));
+            this.publish(new ComTaskExecutionStartedEvent(comTaskExecution, handler.getComPort(), handler.getConnectionTask()));
         }
     }
 

@@ -36,7 +36,7 @@ public class ComTaskExecutionFailureEvent extends AbstractComTaskExecutionEventI
         this.failureMessage = "Failure due to problems reported during execution";
     }
 
-    public ComTaskExecutionFailureEvent (ComTaskExecution comTask, ComPort comPort, ConnectionTask connectionTask, Throwable cause, ServiceProvider serviceProvider) {
+    public ComTaskExecutionFailureEvent(ComTaskExecution comTask, ComPort comPort, ConnectionTask connectionTask, Throwable cause) {
         super(comTask, comPort, connectionTask);
         this.copyFailureMessageFromException(cause);
     }

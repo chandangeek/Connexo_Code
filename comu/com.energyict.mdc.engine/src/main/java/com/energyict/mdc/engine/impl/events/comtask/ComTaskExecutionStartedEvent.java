@@ -27,7 +27,7 @@ public class ComTaskExecutionStartedEvent extends AbstractComTaskExecutionEventI
         super();
     }
 
-    public ComTaskExecutionStartedEvent (ComTaskExecution comTaskExecution, ComPort comPort, ConnectionTask connectionTask, ServiceProvider serviceProvider) {
+    public ComTaskExecutionStartedEvent(ComTaskExecution comTaskExecution, ComPort comPort, ConnectionTask connectionTask) {
         this(comTaskExecution, comTaskExecution.getExecutionStartedTimestamp(), comPort, connectionTask);
     }
 
