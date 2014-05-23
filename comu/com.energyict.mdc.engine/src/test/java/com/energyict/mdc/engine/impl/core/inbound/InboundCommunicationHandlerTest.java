@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.ProgrammableClock;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
@@ -17,6 +19,8 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
+import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.meterdata.DefaultDeviceRegister;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
@@ -37,10 +41,14 @@ import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.history.ComSession;
 import com.energyict.mdc.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.tasks.history.TaskHistoryService;
-
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.ProgrammableClock;
 import org.joda.time.DateTime;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -50,23 +58,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link InboundCommunicationHandler} component.
@@ -107,11 +104,16 @@ public class InboundCommunicationHandlerTest {
     @Mock
     private ComSessionBuilder comSessionBuilder;
 
-    private FakeServiceProvider serviceProvider;
+    private FakeServiceProvider serviceProvider = new FakeServiceProvider();
     private InboundCommunicationHandler handler;
+    private Clock clock = new ProgrammableClock();
 
     @Before
     public void setup () {
+        EventPublisherImpl.setInstance(mock(EventPublisherImpl.class));
+        ServiceProvider.instance.set(serviceProvider);
+        serviceProvider.setClock(clock);
+        serviceProvider.setTaskHistoryService(taskHistoryService);
         when(taskHistoryService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Date.class))).thenReturn(comSessionBuilder);
         this.serviceProvider = new FakeServiceProvider();
         this.serviceProvider.setTaskHistoryService(this.taskHistoryService);
@@ -126,6 +128,12 @@ public class InboundCommunicationHandlerTest {
 
         when(this.deviceConfiguration.getDeviceType()).thenReturn(this.deviceType);
         when(this.deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(this.comTaskEnablement));
+    }
+
+    @After
+    public void tearDown() {
+        EventPublisherImpl.setInstance(null);
+        ServiceProvider.instance.set(null);
     }
 
     @Test
@@ -619,6 +627,7 @@ public class InboundCommunicationHandlerTest {
         Cryptographer cryptographer = mock(Cryptographer.class);
         when(cryptographer.wasUsed()).thenReturn(true);
         context.setCryptographer(cryptographer);
+        // TODO need initialization of ComSessionBuilder on context
     }
 
 }
