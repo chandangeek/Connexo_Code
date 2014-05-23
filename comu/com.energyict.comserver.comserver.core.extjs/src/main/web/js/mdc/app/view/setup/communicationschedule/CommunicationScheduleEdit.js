@@ -135,10 +135,21 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                         ]
                                     },
                                     {
-                                        xtype: 'button',
-                                        itemId: 'addCommunicationTaskButton',
-                                        action: 'addCommunicationTask',
-                                        text: Uni.I18n.translate('communicationschedule.addCommunicationTask', 'MDC', 'Add communication task')
+                                        xtype: 'container',
+                                        layout: {
+                                            type:'vbox',
+                                            align: 'center'
+                                        },
+                                        items: [
+
+                                            {
+                                                xtype: 'button',
+                                                itemId: 'addCommunicationTaskButton',
+                                                action: 'addCommunicationTask',
+                                                text: Uni.I18n.translate('communicationschedule.addCommunicationTask', 'MDC', 'Add communication task')
+                                            }
+                                        ]
+
                                     }
                                 ]
                             },

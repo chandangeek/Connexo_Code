@@ -119,7 +119,6 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
         var me= this;
         if (communicationSchedules.length == 1) {
             this.getCommunicationSchedulePreviewForm().loadRecord(communicationSchedules[0]);
-            debugger;
             me.getCommunicationSchedulePreviewForm().down('#comTaskPreviewContainer').removeAll();
             if(communicationSchedules[0].comTaskUsages().data.items.length===0){
                 me.getCommunicationSchedulePreviewForm().down('#comTaskPreviewContainer').add({
@@ -167,7 +166,6 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
     addCommunicationTask: function(){
         var me=this;
         var store = Ext.data.StoreManager.lookup('CommunicationTasks');
-        debugger;
         if(this.record.get('id')===null){
             store.setProxy({
                 type: 'rest',
@@ -266,7 +264,6 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
     },
 
     createBreadCrumb: function (id) {
-        debugger;
         var breadcrumbChild2 = Ext.create('Uni.model.BreadcrumbItem', {
             text: id===undefined?Uni.I18n.translate('communicationschedule.add', 'MDC', 'Add communication schedule'):Uni.I18n.translate('communicationschedule.edit', 'MDC', 'Edit communication schedule'),
             href: 'create'
