@@ -14,7 +14,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodSetup', {
         {
             ui: 'large',
             xtype: 'panel',
-
+            itemId: 'connectionMethodSetupPanel',
             title: Uni.I18n.translate('connectionMethod.connectionMethods', 'MDC', 'Connection methods'),
             items: [
                 {
@@ -41,12 +41,19 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodSetup', {
 
     initComponent: function () {
         this.side = [
+
             {
-                xtype: 'deviceConfigurationMenu',
-                itemId: 'stepsMenu',
-                deviceTypeId: this.deviceTypeId,
-                deviceConfigurationId: this.deviceConfigId,
-                toggle: 4
+                xtype: 'panel',
+                ui: 'medium',
+                items: [
+                    {
+                        xtype: 'deviceConfigurationMenu',
+                        itemId: 'stepsMenu',
+                        deviceTypeId: this.deviceTypeId,
+                        deviceConfigurationId: this.deviceConfigId,
+                        toggle: 4
+                    }
+                ]
             }
         ];
         this.callParent(arguments);
