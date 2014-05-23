@@ -35,10 +35,18 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigSetup', {
     ],
 
     side: [
+
         {
-            xtype: 'navigationSubMenu',
-            itemId: 'stepsMenu'
-        }/*,
+            xtype: 'panel',
+            ui: 'medium',
+            items: [
+                {
+                    xtype: 'navigationSubMenu',
+                    itemId: 'stepsMenu'
+                }
+            ]
+        }
+        /*,
          {
          xtype: 'registerConfigFilter',
          name: 'filter'
