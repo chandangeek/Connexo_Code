@@ -2,6 +2,7 @@ package com.elster.jupiter.messaging.oracle.impl;
 
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.security.thread.RunAs;
@@ -24,7 +25,10 @@ import java.util.logging.Logger;
 /**
  * MSG console commands
  */
-@Component(name = "com.elster.jupiter.messaging.commands", service = ConsoleCommandsImpl.class, property = { "name=" + MessageService.COMPONENTNAME + "2" , "osgi.command.scope=jupiter" , "osgi.command.function=aqcreatetable", "osgi.command.function=aqdroptable", "osgi.command.function=drain", "osgi.command.function=subscribe" } )
+@Component(name = "com.elster.jupiter.messaging.commands", service = ConsoleCommandsImpl.class,
+        property = {"name=" + MessageService.COMPONENTNAME + "2", "osgi.command.scope=jupiter",
+                "osgi.command.function=aqcreatetable", "osgi.command.function=aqdroptable",
+                "osgi.command.function=drain", "osgi.command.function=subscribe", "osgi.command.function=createQueue"})
 public class ConsoleCommandsImpl {
 
     private static final Logger LOGGER = Logger.getLogger(ConsoleCommandsImpl.class.getName());
@@ -70,6 +74,31 @@ public class ConsoleCommandsImpl {
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
+    }
+
+    public void createQueue(final String queueName, final int retryDelay) {
+        transactionService.execute(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                new RunAs(threadPrincipalService, new Principal() {
+                    @Override
+                    public String getName() {
+                        return "Command line";
+                    }
+                }, new Runnable() {
+                    @Override
+                    public void run() {
+                        Optional<QueueTableSpec> defaultQueueTableSpec = dataModel.mapper(QueueTableSpec.class).getOptional("MSG_RAWQUEUETABLE");
+                        if (defaultQueueTableSpec.isPresent()) {
+                            DestinationSpec destinationSpec = defaultQueueTableSpec.get().createDestinationSpec(queueName, retryDelay);
+                            destinationSpec.activate();
+                        } else {
+                            System.err.println("RAWQUEUETABLE not present! Please create first");
+                        }
+                    }
+                }).run();
+            }
+        });
     }
 
     public void subscribe(final String subscriberName, final String destinationName) {
