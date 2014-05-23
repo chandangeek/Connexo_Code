@@ -3,7 +3,9 @@ package com.energyict.mdc.tasks.rest.impl;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.tasks.rest.ComTaskInfo;
+import com.energyict.mdc.tasks.rest.impl.infos.ActionInfo;
+import com.energyict.mdc.tasks.rest.impl.infos.CategoryInfo;
+import com.energyict.mdc.tasks.rest.impl.infos.ComTaskInfo;
 import com.google.common.base.Optional;
 
 import javax.ws.rs.BeanParam;
@@ -40,9 +42,7 @@ public class ComTaskResource extends BaseResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getComTask(@PathParam("id") long id) {
-        return Response.status(Response.Status.OK).entity(
-                ComTaskInfo.from(getTaskService().findComTask(id), true)
-        ).build();
+        return Response.status(Response.Status.OK).entity(ComTaskInfo.from(getTaskService().findComTask(id), true)).build();
     }
 
     @POST
@@ -80,12 +80,12 @@ public class ComTaskResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON)
     public PagedInfoList getActions(@Context UriInfo uriInfo, @BeanParam QueryParameters queryParameters) {
         Optional<String> categoryParameter = Optional.fromNullable(uriInfo.getQueryParameters().getFirst("category"));
-        if (!categoryParameter.isPresent()) {
-            throw new WebApplicationException("No \"category\" query property is present",
-                    Response.status(Response.Status.BAD_REQUEST).entity("No \"category\" query property is present").build());
+        if (categoryParameter.isPresent()) {
+            List<ActionInfo> actionInfos = ActionInfo.from(ListPager.of(
+                    Categories.valueOf(categoryParameter.get().toUpperCase()).getActions()).from(queryParameters).find());
+            return PagedInfoList.asJson("data", actionInfos, queryParameters);
         }
-        List<ActionInfo> actionInfos = ActionInfo.from(ListPager.of(
-                Arrays.asList(Categories.valueOf(categoryParameter.get().toUpperCase()).getActions())).from(queryParameters).find());
-        return PagedInfoList.asJson("data", actionInfos, queryParameters);
+        throw new WebApplicationException("No \"category\" query property is present",
+                Response.status(Response.Status.BAD_REQUEST).entity("No \"category\" query property is present").build());
     }
 }

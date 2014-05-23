@@ -1,5 +1,6 @@
-package com.energyict.mdc.tasks.rest.impl;
+package com.energyict.mdc.tasks.rest.impl.infos;
 
+import com.energyict.mdc.tasks.rest.impl.Categories;
 import com.energyict.mdc.tasks.rest.util.RestHelper;
 
 import java.util.ArrayList;
@@ -12,7 +13,7 @@ public class CategoryInfo {
     public static CategoryInfo from(Categories category) {
         CategoryInfo categoryInfo = new CategoryInfo();
         categoryInfo.setId(category.getId());
-        categoryInfo.setName(RestHelper.capitalize(category.getId()));
+        categoryInfo.setName(RestHelper.titleize(category.getId()));
         return categoryInfo;
     }
 

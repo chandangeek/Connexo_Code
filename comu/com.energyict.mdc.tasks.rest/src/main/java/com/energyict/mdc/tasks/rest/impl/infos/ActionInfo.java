@@ -1,4 +1,4 @@
-package com.energyict.mdc.tasks.rest.impl;
+package com.energyict.mdc.tasks.rest.impl.infos;
 
 import com.energyict.mdc.tasks.rest.util.RestHelper;
 
@@ -12,7 +12,7 @@ public class ActionInfo {
     public static ActionInfo from(String action) {
         ActionInfo actionInfo = new ActionInfo();
         actionInfo.setId(action);
-        actionInfo.setName(RestHelper.capitalize(action));
+        actionInfo.setName(RestHelper.titleize(action));
         return actionInfo;
     }
 

@@ -1,23 +1,21 @@
 package com.energyict.mdc.tasks.rest.impl;
 
-import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.tasks.TaskService;
 
 import javax.inject.Inject;
 
 public abstract class BaseResource {
-    private TransactionService transactionService;
-    private MasterDataService masterDataService;
     private TaskService taskService;
+    private MasterDataService masterDataService;
 
-    protected TransactionService getTransactionService() {
-        return transactionService;
+    public TaskService getTaskService() {
+        return taskService;
     }
 
     @Inject
-    public void setTransactionService(TransactionService transactionService) {
-        this.transactionService = transactionService;
+    public void setTaskService(TaskService taskService) {
+        this.taskService = taskService;
     }
 
     public MasterDataService getMasterDataService() {
@@ -27,14 +25,5 @@ public abstract class BaseResource {
     @Inject
     public void setMasterDataService(MasterDataService masterDataService) {
         this.masterDataService = masterDataService;
-    }
-
-    protected TaskService getTaskService() {
-        return taskService;
-    }
-
-    @Inject
-    public void setTaskService(TaskService taskService) {
-        this.taskService = taskService;
     }
 }
