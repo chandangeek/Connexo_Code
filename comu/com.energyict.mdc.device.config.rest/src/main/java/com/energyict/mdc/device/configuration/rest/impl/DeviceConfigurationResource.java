@@ -25,6 +25,8 @@ public class DeviceConfigurationResource {
     private final Provider<ConnectionMethodResource> connectionMethodResourceProvider;
     private final Provider<ProtocolDialectResource> protocolDialectResourceProvider;
     private final Provider<LoadProfileConfigurationResource> loadProfileConfigurationResourceProvider;
+    private final Provider<LoadProfileConfigurationResource> loadProfileConfigurationResourceProvider;
+    private final Provider<SecurityPropertySetResource> securityPropertySetResourceProvider;
     private final Thesaurus thesaurus;
 
     @Inject
@@ -35,6 +37,7 @@ public class DeviceConfigurationResource {
             Provider<ConnectionMethodResource> connectionMethodResourceProvider,
             Provider<ProtocolDialectResource> protocolDialectResourceProvider,
             Provider<LoadProfileConfigurationResource> loadProfileConfigurationResourceProvider,
+            Provider<SecurityPropertySetResource> securityPropertySetResourceProvider,
             Thesaurus thesaurus) {
         this.resourceHelper = resourceHelper;
         this.deviceConfigurationService = deviceConfigurationService;
@@ -42,6 +45,7 @@ public class DeviceConfigurationResource {
         this.connectionMethodResourceProvider = connectionMethodResourceProvider;
         this.protocolDialectResourceProvider = protocolDialectResourceProvider;
         this.loadProfileConfigurationResourceProvider = loadProfileConfigurationResourceProvider;
+        this.securityPropertySetResourceProvider = securityPropertySetResourceProvider;
         this.thesaurus = thesaurus;
     }
 
@@ -232,5 +236,10 @@ public class DeviceConfigurationResource {
     @Path("/{deviceConfigurationId}/loadprofileconfigurations")
     public LoadProfileConfigurationResource getLoadProfileConfigurationResource() {
         return loadProfileConfigurationResourceProvider.get();
+    }
+    
+    @Path("/{deviceConfigurationId}/securityproperties")
+    public SecurityPropertySetResource getSecurityPropertySetResource() {
+        return securityPropertySetResourceProvider.get();
     }
 }
