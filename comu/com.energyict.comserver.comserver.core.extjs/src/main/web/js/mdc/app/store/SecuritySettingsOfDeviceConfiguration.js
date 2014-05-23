@@ -5,7 +5,7 @@ Ext.define('Mdc.store.SecuritySettingsOfDeviceConfiguration', {
     ],
 
     model: 'Mdc.model.SecuritySetting',
-
+    storeId: 'SecuritySettingsOfDeviceConfiguration',
     proxy: {
         type: 'rest',
         url: '/api/dtc/devicetypes/{deviceType}/deviceconfigurations/{deviceConfig}/securityproperties',

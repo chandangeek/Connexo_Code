@@ -53,6 +53,13 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
                 itemId: 'protocolLink',
                 href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId+ '/protocols',
                 hrefTarget: '_self'
+            },
+            {
+                text: 'Communication tasks',
+                pressed: false,
+                itemId: 'communicationTasksLink',
+                href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId+ '/comtaskenablements',
+                hrefTarget: '_self'
             }
         );
         this.toggleMenuItem(this.toggle);
