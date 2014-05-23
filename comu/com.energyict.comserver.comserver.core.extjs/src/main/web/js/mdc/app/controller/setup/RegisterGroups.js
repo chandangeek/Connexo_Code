@@ -253,7 +253,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
                     slideInAnimation: 'linear',
                     slideBackAnimation: 'linear'
                 }).show();*/
-                location.href = form.down('#cancelLink').autoEl.href
+                location.href = '#/administration/registergroups/';
             },
             failure: function(record,operation){
                 var json = Ext.decode(operation.response.responseText);
