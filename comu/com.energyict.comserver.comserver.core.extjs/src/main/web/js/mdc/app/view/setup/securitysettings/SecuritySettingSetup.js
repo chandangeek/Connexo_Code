@@ -6,15 +6,18 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSetup', {
     deviceConfigId: null,
     content: [
         {
-            xtype: 'panel',
-            ui: 'large',
-            title: 'Security settings',
+            xtype: 'container',
+            cls: 'content-container',
             itemId: 'stepsContainer',
             layout: {
                 type: 'vbox',
                 align: 'stretch'
             },
             items: [
+                {
+                    xtype: 'component',
+                    html: '<h1>Security settings</h1>'
+                },
 //                {
 //                    xtype: 'securitySettingFiltering'
 //                },
@@ -33,6 +36,10 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSetup', {
                     xtype: 'securitySettingGrid'
                 },
                 {
+                    xtype: 'component',
+                    height: 25
+                },
+                {
                     xtype: 'securitySettingPreview'
                 }
             ]}
@@ -41,17 +48,11 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSetup', {
     initComponent: function () {
         this.side = [
             {
-                xtype: 'panel',
-                ui: 'medium',
-                items: [
-                    {
-                        xtype: 'deviceConfigurationMenu',
-                        itemId: 'stepsMenu',
-                        deviceTypeId: this.deviceTypeId,
-                        deviceConfigurationId: this.deviceConfigId,
-                        toggle: 5
-                    }
-                ]
+                xtype: 'deviceConfigurationMenu',
+                itemId: 'stepsMenu',
+                deviceTypeId: this.deviceTypeId,
+                deviceConfigurationId: this.deviceConfigId,
+                toggle: 5
             }
         ];
         this.callParent(arguments);

@@ -14,15 +14,18 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingForm', {
 
     content: [
         {
-            xtype: 'panel',
-            ui: 'large',
-            itemId: 'SecuritySettingPanel',
             items: [
+                {
+                    xtype: 'container',
+                    itemId: 'SecuritySettingHeader'
+                },
                 {
                     xtype: 'form',
                     width: '50%',
                     defaults: {
                         labelWidth: 150,
+                        labelAlign: 'right',
+                        margin: '0 0 20 0',
                         validateOnChange: false,
                         validateOnBlur: false,
                         anchor: '100%'
@@ -40,7 +43,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingForm', {
                         {
                             xtype: 'textfield',
                             name: 'name',
-                            required: true,
+                            labelSeparator: ' *',
                             regex: /[a-zA-Z0-9]+/,
                             allowBlank: false,
                             fieldLabel: 'Name',
@@ -69,14 +72,22 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingForm', {
                             queryMode: 'local'
                         }
                     ],
-                    buttons: [
+                    dockedItems: [
                         {
-                            xtype: 'container',
-                            itemId: 'SecurityAction'
-                        },
-                        {
-                            xtype: 'container',
-                            itemId: 'SecuritySettingCancel'
+                            xtype: 'toolbar',
+                            dock: 'bottom',
+                            border: false,
+                            margin: '0 0 0 100',
+                            items: [
+                                {
+                                    xtype: 'container',
+                                    itemId: 'SecurityAction'
+                                },
+                                {
+                                    xtype: 'container',
+                                    itemId: 'SecuritySettingCancel'
+                                }
+                            ]
                         }
                     ]
                 }
@@ -91,16 +102,21 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingForm', {
                 xtype: 'button',
                 text: 'Cancel',
                 name: 'cancel',
+                margin: 10,
                 hrefTarget: '',
                 href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/securitysettings',
-                ui: 'link'
+                cls: 'isu-btn-link'
             }
         );
-        this.down('#SecuritySettingPanel').setTitle(this.securityHeader);
+        this.down('#SecuritySettingHeader').add(
+            {
+                xtype: 'container',
+                html: '<h2>' + this.securityHeader + '</h2>'
+            }
+        );
         this.down('#SecurityAction').add(
             {
                 xtype: 'button',
-                ui: 'action',
                 name: 'securityaction',
                 text: this.actionButtonName
             }

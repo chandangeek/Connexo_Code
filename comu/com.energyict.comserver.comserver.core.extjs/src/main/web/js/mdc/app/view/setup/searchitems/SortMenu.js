@@ -16,6 +16,10 @@ Ext.define('Mdc.view.setup.searchitems.SortMenu', {
         {
             text: Uni.I18n.translate('searchItems.type', 'MDC', 'Type'),
             value: 'deviceConfiguration.deviceType.name'
+        },
+        {
+            text: Uni.I18n.translate('searchItems.configuration', 'MDC', 'Configuration'),
+            value: 'deviceConfiguration.name'
         }
     ]
 });

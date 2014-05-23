@@ -10,35 +10,43 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingGrid', {
     viewConfig: {
         style: { overflow: 'auto', overflowX: 'hidden' }
     },
-    columns: {
-        defaults: {
-            sortable: false,
-            hideable: false,
-            fixed: true,
-            flex: 1
-        },
-        items: [
+    initComponent: function () {
+        var me = this;
+        this.columns = [
             {
                 header: 'Name',
-                dataIndex: 'name'
+                dataIndex: 'name',
+                sortable: false,
+                hideable: false,
+                fixed: true,
+                flex: 3
             },
             {
                 header: 'Authentication level',
                 dataIndex: 'authenticationLevel',
                 renderer: function (value) {
                     return value.name;
-                }
+                },
+                sortable: false,
+                hideable: false,
+                fixed: true,
+                flex: 3
             },
             {
                 header: 'Encryption level',
                 dataIndex: 'encryptionLevel',
                 renderer: function (value) {
                     return value.name;
-                }
+                },
+                sortable: false,
+                hideable: false,
+                fixed: true,
+                flex: 3
             },
             {
                 xtype: 'uni-actioncolumn',
                 items: [
+
                     {
                         text: 'Edit',
                         action: 'editsecuritysetting'
@@ -50,7 +58,8 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingGrid', {
 
                 ]
             }
-        ]
+        ];
+        this.callParent();
     }
 });
 

@@ -83,14 +83,13 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
         var grid = this.getSecurityGridPanel(),
             lastSelected = grid.getView().getSelectionModel().getLastSelected(),
             overview = Ext.ComponentQuery.query('securitySettingSetup')[0],
-            confirmationMessage = Ext.widget('securitySettingFloatingPanel');
+            confirmationMessage = Ext.widget('securitySettingFloatingPanel', {
+                width: overview.getWidth() / 3,
+                title: "Remove " + lastSelected.getData().name + "?",
+                html: "<br>This security setting configuration will no longer be available<br><br>"
+            });
         overview.disable();
-        confirmationMessage.show({
-            width: overview.getWidth() / 3,
-            title: "Remove " + lastSelected.getData().name + "?",
-            msg: "This security setting configuration will no longer be available",
-            icon: Ext.MessageBox.WARNING
-        });
+        confirmationMessage.show();
     },
 
 
@@ -118,19 +117,24 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
             method: 'DELETE',
             waitMsg: 'Removing...',
             success: function () {
-                Ext.create('widget.uxNotification', {
-                    html: 'Security setting was removed successfully',
-                    ui: 'notification-success'
-                }).show();
+                successMessage = Ext.widget('securitySettingFloatingPanel', {
+                    title: "Success",
+                    html: "<br>Security setting was removed successfully <br><br>",
+                    autoCloseDelay: 2000
+                });
+                successMessage.getDockedItems()[0].hide();
+                successMessage.show();
                 me.store.load();
             },
             failure: function (result, request) {
                 var data = result.responseText;
-                Ext.create('widget.uxNotification', {
-                    html: data,
-                    title: 'Error during removing of security setting',
-                    ui: 'notification-success'
-                }).show();
+                var errorMessage = Ext.widget('securitySettingFloatingPanel', {
+                    width: grid.getWidth() / 2,
+                    title: "Error during removing of security setting",
+                    html: "<br>" + data + "<br><br>"
+                });
+                errorMessage.down('button[name=delete]').hide();
+                errorMessage.show();
             }
         });
     },
@@ -438,23 +442,47 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
 
     handleSuccessRequest: function (headerText, header) {
         window.location.href = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/securitysettings';
-
-        Ext.create('widget.uxNotification', {
-            html: headerText,
-            ui: 'notification-success'
-        }).show();
+        header.text = headerText;
+        this.getApplication().fireEvent('isushowmsg', {
+            type: 'notify',
+            msgBody: [header],
+            y: 10,
+            showTime: 5000
+        });
     },
 
     handleFailureRequest: function (response, headerText, header, msges, nameField, formButton) {
         var result = Ext.JSON.decode(response.responseText);
-
-        Ext.Msg.show({
-            title: result.error,
-            msg: result.message,
-            icon: Ext.MessageBox.WARNING,
-            buttons: Ext.MessageBox.CANCEL,
-            ui: 'notification-error'
+        header.text = headerText;
+        msges.push(header);
+        var bodyItem = {};
+        bodyItem.style = 'msgItemStyle';
+        bodyItem.text = result.errors[0].id + ': ' + result.errors[0].msg;
+        nameField.markInvalid(result.errors[0].id + ': ' + result.errors[0].msg);
+        msges.push(bodyItem);
+        this.getApplication().fireEvent('isushowmsg', {
+            type: 'error',
+            msgBody: msges,
+            y: 10,
+            closeBtn: true,
+            btns: [
+                {
+                    text: 'Cancel',
+                    cls: 'isu-btn-link',
+                    hnd: function () {
+                        window.location = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/securitysettings';
+                    }
+                }
+            ],
+            listeners: {
+                close: {
+                    fn: function () {
+                        formButton.enable();
+                    }
+                }
+            }
         });
+        formButton.disable();
     }
 
 });

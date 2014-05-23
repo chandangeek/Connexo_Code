@@ -30,8 +30,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeSetup', {
                 {
                     xtype: 'registerTypePreview'
                 }
-            ]
-        }
+            ]}
     ],
 
     /*   side: [

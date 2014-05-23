@@ -78,7 +78,6 @@ Ext.define('Mdc.controller.setup.SearchItems', {
     },
 
     searchAllItems: function() {
-
         var searchItems = this.getSearchItems(),
             criteriaContainer = searchItems.down('container[name=filter]').getContainer(),
             store = this.getStore('Mdc.store.Devices');
@@ -104,6 +103,13 @@ Ext.define('Mdc.controller.setup.SearchItems', {
         } else {
             delete store.getProxy().extraParams.deviceTypeName;
         }
+        if(searchItems.down('#configuration').getValue() != null) {
+            var button = searchItems.down('button[name=configurationBtn]');
+            button = this.createCriteriaButton(button, criteriaContainer, 'configurationBtn', Uni.I18n.translate('searchItems.configuration', 'MDC', 'Configuration')+': '+searchItems.down('#configuration').getRawValue());
+            store.getProxy().setExtraParam('deviceConfigurationName', searchItems.down('#configuration').getRawValue());
+        } else {
+            delete store.getProxy().extraParams.deviceConfigurationName;
+        }
 
         this.applySort();
 
@@ -115,11 +121,21 @@ Ext.define('Mdc.controller.setup.SearchItems', {
 //            this.removeListener('beforeload', setLastOperation);
 //        }, this, { single: true });
 
-        searchItems.down('#searchResults').store.on('load', function showResults() {
-            searchItems.down('#contentLayout').getLayout().setActiveItem(1);
-            this.removeListener('load', showResults);
-        });
-        searchItems.down('#contentLayout').getLayout().setActiveItem(2);
+        if (this.isFilterEmpty(searchItems)) {
+            searchItems.down('#searchResults').store.on('load', function showResults() {
+                searchItems.down('#contentLayout').getLayout().setActiveItem(1);
+                this.removeListener('load', showResults);
+            });
+            searchItems.down('#contentLayout').getLayout().setActiveItem(2);
+        } else {
+            searchItems.down('#contentLayout').getLayout().setActiveItem(0);
+        }
+    },
+
+    isFilterEmpty: function (srcItems) {
+        var criteriaContainer = srcItems.down('container[name=filter]').getContainer(),
+            sortContainer = srcItems.down('container[name=sortitemspanel]').getContainer();
+        return criteriaContainer.items.length > 0 || sortContainer.items.length > 0;
     },
 
     chooseSort: function (menu, item) {
@@ -139,18 +155,17 @@ Ext.define('Mdc.controller.setup.SearchItems', {
                 var button = sortContainer.down('button[name=sortbytypebtn]');
                 this.createSortButton(button, sortContainer, 'sortbytypebtn', item.value, item.text);
                 break;
+            case 'deviceConfiguration.name':
+                var button = sortContainer.down('button[name=sortbyconfigurationbtn]');
+                this.createSortButton(button, sortContainer, 'sortbyconfigurationbtn', item.value, item.text);
+                break;
         }
         this.searchAllItems();
     },
 
     clearCriteria: function (btn) {
-        var searchItems = this.getSearchItems(),
-            criteriaContainer = searchItems.down('container[name=filter]').getContainer(),
-            me = this;
-        criteriaContainer.items.each(function (btns) {
-            me.filterCloseclick(btns);
-            btns.destroy();
-        });
+        this.clearAllCriteria();
+        this.searchAllItems();
     },
 
     clearSort: function (btn) {
@@ -191,12 +206,18 @@ Ext.define('Mdc.controller.setup.SearchItems', {
         this.searchAllItems();
     },
 
-    clearAllItems: function(btn) {
+    clearAllCriteria: function() {
         var searchItems = this.getSearchItems();
         searchItems.down('#mrid').setValue("");
         searchItems.down('#sn').setValue("");
         searchItems.down('#type').setValue(null);
+        searchItems.down('#configuration').setValue(null);
         this.clearFilterContent(searchItems.down('container[name=filter]').getContainer());
+    },
+
+    clearAllItems: function(btn) {
+        var searchItems = this.getSearchItems();
+        this.clearAllCriteria();
         this.clearFilterContent(searchItems.down('container[name=sortitemspanel]').getContainer());
         this.searchAllItems();
      },
@@ -236,9 +257,12 @@ Ext.define('Mdc.controller.setup.SearchItems', {
             case 'serialNumberBtn':
                 searchItems.down('#sn').setValue("");
                 break;
-        case 'typeBtn':
-            searchItems.down('#type').setValue(null);
-            break;
+            case 'typeBtn':
+                searchItems.down('#type').setValue(null);
+                break;
+            case 'configurationBtn':
+                searchItems.down('#configuration').setValue(null);
+                break;
         }
         this.searchAllItems();
     },

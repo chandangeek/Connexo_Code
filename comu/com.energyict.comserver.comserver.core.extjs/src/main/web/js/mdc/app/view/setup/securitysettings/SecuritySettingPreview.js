@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.securitysettings.SecuritySettingPreview', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.securitySettingPreview',
-//    height: 310,
+    height: 310,
     frame: true,
     tools: [
         {
