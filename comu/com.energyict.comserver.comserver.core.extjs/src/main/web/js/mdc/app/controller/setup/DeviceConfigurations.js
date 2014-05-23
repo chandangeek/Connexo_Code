@@ -120,7 +120,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             this.getDeviceConfigurationPreviewForm().loadRecord(deviceConfigurations[0]);
             this.getDeviceConfigurationPreview().getLayout().setActiveItem(1);
             //this.getDeviceConfigurationDetailsLink().update('<a href="#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + deviceConfigurationId + '">' + Uni.I18n.translate('general.viewDetails', 'MDC', 'View details') + '</a>');
-            this.getDeviceConfigurationPreview().getHeader().setTitle(deviceConfigurations[0].get('name'));
+            this.getDeviceConfigurationPreview().setTitle(deviceConfigurations[0].get('name'));
             //this.getDeviceConfigurationPreviewTitle().update('<h1>' + deviceConfigurations[0].get('name') + '</h1>');
         } else {
             this.getDeviceConfigurationPreview().getLayout().setActiveItem(0);

@@ -2,7 +2,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
     extend: 'Ext.app.Controller',
 
     views: [
-        'setup.Browse',
+        //'setup.Browse',
         'setup.securitysettings.SecuritySettingSetup',
         'setup.securitysettings.SecuritySettingGrid',
         'setup.securitysettings.SecuritySettingPreview',
