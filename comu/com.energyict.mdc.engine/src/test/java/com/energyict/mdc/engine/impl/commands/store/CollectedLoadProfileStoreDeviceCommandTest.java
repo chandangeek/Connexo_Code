@@ -4,15 +4,25 @@ import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.engine.DeviceCreator;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
+import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
@@ -21,6 +31,7 @@ import com.energyict.mdc.protocol.api.device.data.IntervalValue;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.google.common.base.Optional;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,18 +58,25 @@ import static org.mockito.Mockito.*;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class CollectedLoadProfileStoreDeviceCommandTest extends AbstractCollectedDataIntegrationTest {
+
+    private static final String DEVICE_NAME = "DeviceName";
+
     private final int intervalValueOne = 123;
     private final int intervalValueTwo = 6516516;
     private final Unit kiloWattHours = Unit.get("kWh");
 
-    private Date verificationTimeStamp = new DateTime(2015, 1, 1, 0, 0, 0, 0).toDate();
-    private Date currentTimeStamp = new DateTime(2014, 1, 13, 10, 0, 0, 0).toDate();
+    private Date verificationTimeStamp = new DateTime(2015, 1, 1, 0, 0, 0, 0, DateTimeZone.UTC).toDate();
+    private Date currentTimeStamp = new DateTime(2014, 1, 13, 10, 0, 0, 0, DateTimeZone.UTC).toDate();
 
-    private Date fromClock = new DateTime(2013, 1, 1, 0, 0, 0, 0).toDate();
-    private Date intervalEndTime1 = new DateTime(2014, 1, 1, 0, 0, 0, 0).toDate();
-    private Date intervalEndTime2 = new DateTime(2014, 1, 1, 0, 15, 0, 0).toDate();
-    private Date intervalEndTime3 = new DateTime(2014, 1, 1, 0, 30, 0, 0).toDate();
-    private Date intervalEndTime4 = new DateTime(2014, 1, 1, 0, 45, 0, 0).toDate();
+    private Date fromClock = new DateTime(2013, 1, 1, 0, 0, 0, 0, DateTimeZone.UTC).toDate();
+    private Date intervalEndTime1 = new DateTime(2014, 1, 1, 0, 0, 0, 0, DateTimeZone.UTC).toDate();
+    private Date intervalEndTime2 = new DateTime(2014, 1, 1, 0, 15, 0, 0, DateTimeZone.UTC).toDate();
+    private Date intervalEndTime3 = new DateTime(2014, 1, 1, 0, 30, 0, 0, DateTimeZone.UTC).toDate();
+    private Date intervalEndTime4 = new DateTime(2014, 1, 1, 0, 45, 0, 0, DateTimeZone.UTC).toDate();
+
+    private DeviceCreator deviceCreator;
+
+    private LoadProfileType loadProfileType;
 
     @Mock
     private MdcReadingTypeUtilService readingTypeService;
@@ -72,29 +90,57 @@ public class CollectedLoadProfileStoreDeviceCommandTest extends AbstractCollecte
 
     @Before
     public void setUp() {
-//        ServiceProvider.instance.set(serviceProvider);
-//        serviceProvider.setClock(new ProgrammableClock().frozenAt(verificationTimeStamp));
-//        serviceProvider.setMdcReadingTypeUtilService(readingTypeService);
+        this.deviceCreator = new DeviceCreator(
+                getInjector().getInstance(DeviceConfigurationService.class),
+                getInjector().getInstance(DeviceDataService.class),
+                getInjector().getInstance(TransactionService.class));
+        this.loadProfileType = createLoadProfileType();
+        initializeEnvironment();
+    }
+
+    private static void initializeEnvironment() {
+        Environment mockedEnvironment = mock(Environment.class);
+        ApplicationContext applicationContext = mock(ApplicationContext.class);
+        when(mockedEnvironment.getApplicationContext()).thenReturn(applicationContext);
+        Environment.DEFAULT.set(mockedEnvironment);
+    }
+
+
+    private LoadProfileType createLoadProfileType() {
+        return this.executeInTransaction(new Transaction<LoadProfileType>() {
+            @Override
+            public LoadProfileType perform() {
+                LoadProfileType loadProfileType = getInjector().getInstance(MasterDataService.class).newLoadProfileType("MyLoadProfileType", ObisCode.fromString("1.0.99.1.0.255"), TimeDuration.minutes(15));
+                loadProfileType.save();
+                return loadProfileType;
+            }
+        });
+    }
+
+    @After
+    public void cleanup(){
+        this.deviceCreator.destroy();
+        this.executeInTransaction(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                loadProfileType.delete();
+            }
+        });
     }
 
     @Test
     public void successfulDoubleStoreTestWithSameData() {
-        int deviceId = 9854651;
-        CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(deviceId, createMockedLoadProfile());
+        Device device = this.deviceCreator.name(DEVICE_NAME).mRDI(DEVICE_NAME).loadProfileTypes(this.loadProfileType).create();
+        long deviceId = device.getId();
+
+        CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(device.getLoadProfiles().get(0));
 
         final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile);
         final ComServerDAOImpl comServerDAO = mockComServerDAOButCallRealMethodForMeterReadingStoring();
 
         collectedLoadProfileDeviceCommand.execute(comServerDAO);
-        executeInTransaction(new VoidTransaction() {
-            @Override
-            protected void doPerform() {
-                collectedLoadProfileDeviceCommand.execute(comServerDAO);
-            }
-        });
-
-//        Clocks.setAppServerClock(verificationTimeStamp);
-//        Clocks.setDatabaseServerClock(verificationTimeStamp);
+        freezeClock(verificationTimeStamp);
+        collectedLoadProfileDeviceCommand.execute(comServerDAO);
 
         List<Channel> channels = getChannels(deviceId);
 
@@ -123,22 +169,15 @@ public class CollectedLoadProfileStoreDeviceCommandTest extends AbstractCollecte
 
     @Test
     public void successfulStoreTest() throws SQLException, BusinessException {
-        int deviceId = 651;
-        CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(deviceId, createMockedLoadProfile());
+        Device device = this.deviceCreator.name(DEVICE_NAME).mRDI(DEVICE_NAME).loadProfileTypes(this.loadProfileType).create();
+        long deviceId = device.getId();
+        CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(device.getLoadProfiles().get(0));
 
         final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile);
         final ComServerDAOImpl comServerDAO = mockComServerDAOButCallRealMethodForMeterReadingStoring();
 
-
-        executeInTransaction(new VoidTransaction() {
-            @Override
-            protected void doPerform() {
-                collectedLoadProfileDeviceCommand.execute(comServerDAO);
-            }
-        });
-
-//        Clocks.setAppServerClock(verificationTimeStamp);
-//        Clocks.setDatabaseServerClock(verificationTimeStamp);
+        freezeClock(verificationTimeStamp);
+        collectedLoadProfileDeviceCommand.execute(comServerDAO);
 
         List<Channel> channels = getChannels(deviceId);
 
@@ -167,22 +206,16 @@ public class CollectedLoadProfileStoreDeviceCommandTest extends AbstractCollecte
 
     @Test
     public void successfulStoreWithDeltaDataTest() {
-        int deviceId = 99875;
-        CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfileWithDeltaData(deviceId, createMockedLoadProfile());
+        Device device = this.deviceCreator.name(DEVICE_NAME).mRDI(DEVICE_NAME).loadProfileTypes(this.loadProfileType).create();
+        long deviceId = device.getId();
+        CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfileWithDeltaData(device.getLoadProfiles().get(0));
 
         final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile);
         final ComServerDAOImpl comServerDAO = mockComServerDAOButCallRealMethodForMeterReadingStoring();
 
+        freezeClock(verificationTimeStamp);
 
-        executeInTransaction(new VoidTransaction() {
-            @Override
-            protected void doPerform() {
-                collectedLoadProfileDeviceCommand.execute(comServerDAO);
-            }
-        });
-
-//        Clocks.setAppServerClock(verificationTimeStamp);
-//        Clocks.setDatabaseServerClock(verificationTimeStamp);
+        collectedLoadProfileDeviceCommand.execute(comServerDAO);
 
         List<Channel> channels = getChannels(deviceId);
 
@@ -204,18 +237,14 @@ public class CollectedLoadProfileStoreDeviceCommandTest extends AbstractCollecte
 
     @Test
     public void successfulStoreWithUpdatedDataTest() {
-        int deviceId = 4451;
-        CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(deviceId, createMockedLoadProfile());
+        Device device = this.deviceCreator.name(DEVICE_NAME).mRDI(DEVICE_NAME).loadProfileTypes(this.loadProfileType).create();
+        long deviceId = device.getId();
+        CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(device.getLoadProfiles().get(0));
 
         final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile);
         final ComServerDAOImpl comServerDAO = mockComServerDAOButCallRealMethodForMeterReadingStoring();
 
-        executeInTransaction(new VoidTransaction() {
-            @Override
-            protected void doPerform() {
-                collectedLoadProfileDeviceCommand.execute(comServerDAO);
-            }
-        });
+        collectedLoadProfileDeviceCommand.execute(comServerDAO);
 
         List<IntervalData> updatedCollectedIntervalData = new ArrayList<>();
 
@@ -227,15 +256,9 @@ public class CollectedLoadProfileStoreDeviceCommandTest extends AbstractCollecte
         updatedCollectedIntervalData.add(new IntervalData(intervalEndTime3, 0, 0, 0, updatedIntervalList));
         when(collectedLoadProfile.getCollectedIntervalData()).thenReturn(updatedCollectedIntervalData);
 
-        executeInTransaction(new VoidTransaction() {
-            @Override
-            protected void doPerform() {
-                collectedLoadProfileDeviceCommand.execute(comServerDAO);
-            }
-        });
+        freezeClock(verificationTimeStamp);
 
-//        Clocks.setAppServerClock(verificationTimeStamp);
-//        Clocks.setDatabaseServerClock(verificationTimeStamp);
+        collectedLoadProfileDeviceCommand.execute(comServerDAO);
 
         List<Channel> channels = getChannels(deviceId);
 
@@ -269,13 +292,9 @@ public class CollectedLoadProfileStoreDeviceCommandTest extends AbstractCollecte
 
     @Test
     public void updateLastReadingTest() throws SQLException, BusinessException {
-        long deviceId = 45456;
-        LoadProfile mockedLoadProfile = createMockedLoadProfile();
-        Device device = mock(Device.class);
-        when(device.getId()).thenReturn(deviceId);
-        LoadProfile.LoadProfileUpdater loadProfileUpdater = mock(LoadProfile.LoadProfileUpdater.class);
-        when(device.getLoadProfileUpdaterFor(mockedLoadProfile)).thenReturn(loadProfileUpdater);
-        CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(device, mockedLoadProfile);
+        Device device = this.deviceCreator.name(DEVICE_NAME).mRDI(DEVICE_NAME).loadProfileTypes(this.loadProfileType).create();
+        LoadProfile loadProfile = device.getLoadProfiles().get(0);
+        CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(loadProfile);
 
         final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile);
         final ComServerDAOImpl comServerDAO = mockComServerDAOButCallRealMethodForMeterReadingStoring();
@@ -284,21 +303,15 @@ public class CollectedLoadProfileStoreDeviceCommandTest extends AbstractCollecte
         collectedLoadProfileDeviceCommand.execute(comServerDAO);
 
         // Asserts
-        verify(device).getLoadProfileUpdaterFor(mockedLoadProfile);
-        verify(loadProfileUpdater).setLastReadingIfLater(intervalEndTime4);
-        verify(loadProfileUpdater).update();
+        assertThat(device.getLoadProfiles().get(0).getLastReading()).isEqualTo(intervalEndTime4);
     }
 
-    private CollectedLoadProfile createCollectedLoadProfile(long deviceId, LoadProfile loadProfile) {
-        return enhanceCollectedLoadProfile(deviceId, loadProfile, createMockLoadProfileWithTwoChannels());
+    private CollectedLoadProfile createCollectedLoadProfile(LoadProfile loadProfile) {
+        return enhanceCollectedLoadProfile(loadProfile, createMockLoadProfileWithTwoChannels());
     }
 
-    private CollectedLoadProfile createCollectedLoadProfile(Device device, LoadProfile loadProfile) {
-        return enhanceCollectedLoadProfile(device, loadProfile, createMockLoadProfileWithTwoChannels());
-    }
-
-    private CollectedLoadProfile createCollectedLoadProfileWithDeltaData(int deviceId, LoadProfile loadProfile) {
-        return enhanceCollectedLoadProfile(deviceId, loadProfile, createMockLoadProfileWithTwoDeltaChannels());
+    private CollectedLoadProfile createCollectedLoadProfileWithDeltaData(LoadProfile loadProfile) {
+        return enhanceCollectedLoadProfile(loadProfile, createMockLoadProfileWithTwoDeltaChannels());
     }
 
     private CollectedLoadProfile createMockLoadProfileWithTwoChannels() {
@@ -346,27 +359,15 @@ public class CollectedLoadProfileStoreDeviceCommandTest extends AbstractCollecte
         return intervalDatas;
     }
 
-    private LoadProfile createMockedLoadProfile() {
-        LoadProfile loadProfile = mock(LoadProfile.class, RETURNS_DEEP_STUBS);
-        when(loadProfile.getInterval()).thenReturn(new TimeDuration(15, TimeDuration.MINUTES));
-        return loadProfile;
-    }
-
-    private CollectedLoadProfile enhanceCollectedLoadProfile(long deviceId, LoadProfile loadProfile, CollectedLoadProfile collectedLoadProfile) {
-        Device device = mockDevice(deviceId);
-        return enhanceCollectedLoadProfile(device, loadProfile, collectedLoadProfile);
-    }
-
-    private CollectedLoadProfile enhanceCollectedLoadProfile(Device device, LoadProfile loadProfile, CollectedLoadProfile collectedLoadProfile) {
-        when(loadProfile.getDevice()).thenReturn(device);
+    private CollectedLoadProfile enhanceCollectedLoadProfile(LoadProfile loadProfile, CollectedLoadProfile collectedLoadProfile) {
         LoadProfileIdentifier loadProfileIdentifier = mock(LoadProfileIdentifier.class);
         when(loadProfileIdentifier.findLoadProfile()).thenReturn(loadProfile);
         when(collectedLoadProfile.getLoadProfileIdentifier()).thenReturn(loadProfileIdentifier);
         return collectedLoadProfile;
     }
 
-    private List<Channel> getChannels(int deviceId) {
-        Optional<AmrSystem> amrSystem = meteringService.findAmrSystem(1);
+    private List<Channel> getChannels(long deviceId) {
+        Optional<AmrSystem> amrSystem = getMeteringService().findAmrSystem(1);
         for (MeterActivation meterActivation : amrSystem.get().findMeter(String.valueOf(deviceId)).get().getMeterActivations()) {
             if (meterActivation.isCurrent()) {
                 return meterActivation.getChannels();
