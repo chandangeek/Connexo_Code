@@ -58,6 +58,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
+import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
@@ -293,6 +294,11 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     @Override
     public Optional<ConnectionTask> findConnectionTask(long id) {
         return this.getDataModel().mapper(ConnectionTask.class).getUnique("id", id);
+    }
+
+    @Override
+    public Optional<OutboundConnectionTask> findOutboundConnectionTask(long id) {
+        return this.getDataModel().mapper(OutboundConnectionTask.class).getUnique("id", id);
     }
 
     @Override

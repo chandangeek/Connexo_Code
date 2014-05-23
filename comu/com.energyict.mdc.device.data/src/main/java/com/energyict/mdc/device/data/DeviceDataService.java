@@ -84,6 +84,8 @@ public interface DeviceDataService {
 
     public Optional<ConnectionTask> findConnectionTask (long id);
 
+    public Optional<OutboundConnectionTask> findOutboundConnectionTask (long id);
+
     public Optional<InboundConnectionTask> findInboundConnectionTask (long id);
 
     public Optional<ScheduledConnectionTask> findScheduledConnectionTask (long id);
@@ -437,7 +439,7 @@ public interface DeviceDataService {
     public boolean isLinkedToDevices(ComSchedule comSchedule);
 
     Fetcher<ComTaskExecution> getPlannedComTaskExecutionsFor(ComPort comPort);
-    
+
     List<ComTaskExecution> getPlannedComTaskExecutionsFor(InboundComPort comPort, Device device);
 
     boolean areComTasksStillPending(Collection<Long> comTaskExecutionIds);
