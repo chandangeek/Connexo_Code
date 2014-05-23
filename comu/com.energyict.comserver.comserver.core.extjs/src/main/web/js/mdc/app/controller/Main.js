@@ -72,7 +72,8 @@ Ext.define('Mdc.controller.Main', {
             text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
             href: me.getApplication().getController('Mdc.controller.history.Setup').tokenizeShowOverview(),
             portal: 'administration',
-            glyph: 'settings'
+            glyph: 'settings',
+            index: 10
         });
         Uni.store.MenuItems.add(menuItem);
 
