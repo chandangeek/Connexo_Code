@@ -17,6 +17,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
 
     initComponent: function () {
         var me = this;
+
         this.items = [
             {
                 xtype: 'form',
@@ -26,35 +27,6 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
                     type: 'vbox',
                     align: 'stretch'
                 },
-                tbar: [
-                    {
-                        xtype: 'component',
-                        itemId: 'registerTypePreviewTitle'
-                    },
-                    '->',
-                    {
-                        xtype: 'button',
-                        itemId: 'actionsButton',
-                        // TODO Replace this icon below with an 'actions' ui.
-                        icon: '../mdc/resources/images/actionsDetail.png',
-                        text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-                        menu: {
-                            items: [
-                                {
-                                    text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                                    itemId: 'editRegisterType',
-                                    action: 'editRegisterType'
-                                },
-                                {
-                                    text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
-                                    itemId: 'deleteRegisterType',
-                                    action: 'deleteRegisterType'
-
-                                }
-                            ]
-                        }
-                    }
-                ],
                 items: [
                     {
                         xtype: 'container',
@@ -145,10 +117,34 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
                 ]
             }
         ];
-        this.callParent(arguments);
 
-        if (!this.withActions) {
-            this.down('#actionsButton').hide();
+        if (this.withActions) {
+            this.tools = [
+                {
+                    xtype: 'button',
+                    itemId: 'actionsButton',
+                    // TODO Replace this icon below with an 'actions' ui.
+                    icon: '../mdc/resources/images/actionsDetail.png',
+                    text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                    menu: {
+                        items: [
+                            {
+                                text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                                itemId: 'editRegisterType',
+                                action: 'editRegisterType'
+                            },
+                            {
+                                text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
+                                itemId: 'deleteRegisterType',
+                                action: 'deleteRegisterType'
+
+                            }
+                        ]
+                    }
+                }
+            ];
         }
+
+        this.callParent(arguments);
     }
 });

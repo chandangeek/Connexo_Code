@@ -66,7 +66,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupPreview', {
                                 {
                                     xtype: 'image',
                                     margin: '0 10 0 0',
-                                    src: "../mdc/resources/images/information.png",
+                                    src: '../ext/packages/uni-theme-skyline/build/resources/images/shared/icon-info-small.png',
                                     height: 20,
                                     width: 20
                                 },
@@ -98,10 +98,8 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupPreview', {
                     }
                 ]
             }
-        ]
+        ];
+
         this.callParent(arguments);
-
     }
-})
-;
-
+});
