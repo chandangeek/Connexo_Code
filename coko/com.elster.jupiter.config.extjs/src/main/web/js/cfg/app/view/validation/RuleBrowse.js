@@ -10,6 +10,27 @@ Ext.define('Cfg.view.validation.RuleBrowse', {
 
     ruleSetId: null,
 
+    /*content: [
+        {
+            ui: 'large',
+            xtype: 'panel',
+            itemId: 'ruleBrowsePanel',
+            title: Uni.I18n.translate('validation.rules', 'CFG', 'Rules'),
+            items: [
+                {
+                    xtype: 'container',
+                    layout: 'fit',
+                    items: [],
+                    itemId: 'validationruleListContainer'
+                },
+                {
+                    xtype: 'rulePreview',
+                    margin: '32 0 0 0'
+                }
+            ]
+        }
+    ],     */
+
     items: [
         {
             xtype: 'container',
@@ -30,11 +51,8 @@ Ext.define('Cfg.view.validation.RuleBrowse', {
                     itemId: 'validationruleListContainer'
                 },
                 {
-                    xtype: 'component',
-                    height : 50
-                },
-                {
-                    xtype: 'rulePreview'
+                    xtype: 'rulePreview',
+                    margin: '32 0 0 0'
                 }
             ]
         }
