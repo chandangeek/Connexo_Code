@@ -88,8 +88,8 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                 model.load(deviceConfigurationId, {
                     success: function (deviceConfig) {
                         var deviceTypeName = deviceType.get('name');
+                        widget.down('#connectionMethodSetupPanel').setTitle(Uni.I18n.translate('connectionmethod.connectionmethods', 'MDC', 'Connection methods'));
                         var deviceConfigName = deviceConfig.get('name');
-                        widget.down('#connectionMethodTitle').html = '<h1>' + deviceConfigName + ' > ' + Uni.I18n.translate('connectionmethod.connectionmethods', 'MDC', 'Connection methods') + '</h1>';
                         me.getApplication().getController('Mdc.controller.Main').showContent(widget);
                         me.overviewBreadCrumbs(deviceTypeId, deviceConfigurationId, deviceTypeName, deviceConfigName);
                     }
@@ -104,7 +104,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
             this.getConnectionMethodPreviewForm().loadRecord(connectionMethod[0]);
             var connectionMethodName = connectionMethod[0].get('name');
             this.getConnectionMethodPreview().getLayout().setActiveItem(1);
-            this.getConnectionMethodPreviewTitle().update('<h4>' + connectionMethodName + '</h4>');
+            this.getConnectionMethodPreview().setTitle(connectionMethodName);
             this.getConnectionMethodPreviewForm().loadRecord(connectionMethod[0]);
             this.getPropertiesViewController().showProperties(connectionMethod[0], this.getConnectionMethodPreview());
         } else {
@@ -167,7 +167,6 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                                                  var deviceTypeName = deviceType.get('name');
                                                  var deviceConfigName = deviceConfig.get('name');
                                                  var title = direction==='Outbound'?Uni.I18n.translate('connectionmethod.addOutboundConnectionMethod', 'MDC', 'Add outbound connection method'):Uni.I18n.translate('connectionmethod.addInboundConnectionMethod', 'MDC', 'Add inbound connection method');
-                                                 title = deviceConfigName + ' > ' + title;
                                                  widget.down('#connectionMethodEditAddTitle').update('<h1>' + title  + '</h1>');
                                                  me.createBreadCrumbs(deviceTypeId, deviceConfigId, deviceTypeName, deviceConfigName, direction, 'add');
                                                  widget.setLoading(false);

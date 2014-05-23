@@ -64,7 +64,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulePreview', 
 
                             },
                             {
-                                text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
+                                text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
                                 itemId: 'deleteCommunicationSchedule',
                                 action: 'deleteCommunicationSchedule'
 
@@ -102,8 +102,25 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulePreview', 
                                 },
                                 {
                                     xtype: 'displayfield',
+                                    name: 'mRID',
+                                    fieldLabel: Uni.I18n.translate('communicationschedule.MRID', 'MDC', 'MRID')
+
+                                },
+                                {
+                                    xtype: 'fieldcontainer',
                                     name: 'communicationTasks',
-                                    fieldLabel: Uni.I18n.translate('communicationschedule.communicationTasks', 'MDC', 'Communication tasks')
+                                    fieldLabel: Uni.I18n.translate('communicationschedule.communicationTasks', 'MDC', 'Communication tasks'),
+                                    items: [
+                                        {
+                                            xtype: 'container',
+                                            itemId: 'comTaskPreviewContainer',
+                                            layout: {
+                                                type: 'vbox'
+                                            },
+                                            items: [
+                                            ]
+                                        }
+                                    ]
                                 },
                                 {
                                     xtype: 'displayfield',

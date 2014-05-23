@@ -7,13 +7,6 @@ Ext.define('Mdc.view.setup.logbooktype.LogForm', {
     ],
     alias: 'widget.form-logbook',
 
-//    side: [
-//        {
-//            xtype: 'navigationSubMenu',
-//            itemId: 'sideMenu'
-//        }
-//    ],
-
     content: [
         {
             itemId: 'form',
@@ -21,12 +14,8 @@ Ext.define('Mdc.view.setup.logbooktype.LogForm', {
             ui: 'large',
             width: '50%',
             defaults: {
-//                labelWidth: 150,
-//                labelAlign: 'right',
-//                margin: '0 0 20 0',
                 validateOnChange: false,
                 validateOnBlur: false
-//                anchor: '100%'
             },
             items: [
                 {
@@ -45,7 +34,6 @@ Ext.define('Mdc.view.setup.logbooktype.LogForm', {
                     xtype: 'textfield',
                     name: 'name',
                     required: true,
-//                    labelSeparator: ' *',
                     regex: /[a-zA-Z0-9]+/,
                     allowBlank: false,
                     fieldLabel: 'Name',
@@ -55,7 +43,6 @@ Ext.define('Mdc.view.setup.logbooktype.LogForm', {
                     itemId: 'obis',
                     xtype: 'textfield',
                     required: true,
-//                    labelSeparator: ' *',
                     allowBlank: false,
                     fieldLabel: 'OBIS code',
                     name: 'obis',
@@ -68,14 +55,12 @@ Ext.define('Mdc.view.setup.logbooktype.LogForm', {
                 {
                     itemId: 'logAction',
                     name: 'logAction',
-                    ui: 'action',
-                    margin: 10
+                    ui: 'action'
                 },
                 {
                     itemId: 'Cancel',
                     text: 'Cancel',
                     name: 'cancel',
-                    margin: 10,
                     hrefTarget: '',
                     href: '#/administration/logbooktypes',
                     ui: 'link'

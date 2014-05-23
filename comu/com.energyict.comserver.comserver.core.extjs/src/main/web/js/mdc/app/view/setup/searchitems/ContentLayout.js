@@ -18,7 +18,7 @@ Ext.define('Mdc.view.setup.searchitems.ContentLayout', {
                 xtype: 'panel',
                 itemId: 'infoPanel',
                 layout: {
-                    type: 'hbox',
+                    type: 'vbox',
                     align: 'center',
                     pack: 'center'
                 },
@@ -61,6 +61,6 @@ Ext.define('Mdc.view.setup.searchitems.ContentLayout', {
             }
         ]
 
-    this.callParent(arguments);
-  }
+        this.callParent(arguments);
+    }
 });

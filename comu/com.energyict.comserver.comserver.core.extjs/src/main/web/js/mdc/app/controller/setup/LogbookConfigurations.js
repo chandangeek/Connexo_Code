@@ -8,8 +8,7 @@ Ext.define('Mdc.controller.setup.LogbookConfigurations', {
     views: [
         'setup.deviceconfiguration.DeviceConfigurationLogbooks',
         'setup.deviceconfiguration.EditLogbookConfiguration',
-        'setup.deviceconfiguration.ActionMenu',
-        'Isu.view.ext.button.GridAction'
+        'setup.deviceconfiguration.ActionMenu'
     ],
 
     refs: [
@@ -24,11 +23,10 @@ Ext.define('Mdc.controller.setup.LogbookConfigurations', {
             'device-configuration-logbooks grid': {
                 itemclick: this.loadGridItemDetail
             },
-            'device-configuration-logbooks grid actioncolumn': {
-                click: this.showItemAction
+            'device-configuration-logbooks grid uni-actioncolumn': {
+                menuclick: this.chooseAction
             },
             'device-logbook-action-menu': {
-                beforehide: this.hideItemAction,
                 click: this.chooseAction
             }
 
@@ -72,60 +70,6 @@ Ext.define('Mdc.controller.setup.LogbookConfigurations', {
         }
     },
 
-    showItemAction: function (grid, cell, rowIndex, colIndex, e, record) {
-        var cellEl = Ext.get(cell);
-        this.hideItemAction();
-        this.gridActionIcon = cellEl.first();
-        this.gridActionIcon.hide();
-        this.gridActionIcon.setHeight(0);
-        this.gridActionBtn = Ext.create('widget.grid-action', {
-            renderTo: cell,
-            menu: {
-                xtype: 'device-logbook-action-menu',
-                logbookId: record.data.id
-            }
-        });
-        this.gridActionBtn.showMenu();
-    },
-
-    hideItemAction: function () {
-        if (this.gridActionBtn) {
-            this.gridActionBtn.destroy();
-        }
-        if (this.gridActionIcon) {
-            this.gridActionIcon.show();
-            this.gridActionIcon.setHeight(22);
-        }
-    },
-
-    showDatabaseError: function(msges) {
-        var self = this,
-            logbooksView = self.getDeviceConfigurationLogbooks();
-        self.getApplication().fireEvent('isushowmsg', {
-            type: 'error',
-            msgBody: msges,
-            y: 10,
-            closeBtn: true,
-            btns: [
-                {
-                    text: 'Cancel',
-                    cls: 'isu-btn-link',
-                    hnd: function () {
-                        window.location = '#/administration/devicetypes/' + logbooksView.deviceTypeId + '/deviceconfigurations/' + logbooksView.deviceConfigurationId + '/logbookconfigurations';
-                    }
-                }
-            ],
-            listeners: {
-                close: {
-                    fn: function () {
-                        logbooksView.enable();
-                    }
-                }
-            }
-        });
-        logbooksView.disable();
-    },
-
     deleteLogbookType: function () {
         var self = this,
             logbooksView = self.getDeviceConfigurationLogbooks(),
@@ -155,13 +99,12 @@ Ext.define('Mdc.controller.setup.LogbookConfigurations', {
                                 success: function () {
                                     confirmMessage.close();
                                     itemPanel.hide();
-                                    header.text = 'Successfully deleted';
-                                    self.getApplication().fireEvent('isushowmsg', {
-                                        type: 'notify',
-                                        msgBody: [header],
-                                        y: 10,
-                                        showTime: 5000
-                                    });
+
+                                    Ext.create('widget.uxNotification', {
+                                        html: 'Successfully deleted',
+                                        ui: 'notification-success'
+                                    }).show();
+
                                     self.store.load({
                                             callback: function () {
                                                 var numberOfLogbooksContainer = Ext.ComponentQuery.query('device-configuration-logbooks toolbar container[name=LogBookCount]')[0],
@@ -189,44 +132,25 @@ Ext.define('Mdc.controller.setup.LogbookConfigurations', {
                                 },
                                 failure: function (response) {
                                     confirmMessage.close();
-                                    var result = Ext.decode(response.responseText, true);
+                                    var result = Ext.decode(response.responseText);
+
                                     if (result !== null) {
-                                        header.text = result.message;
-                                        msges.push(header);
-                                        bodyItem.style = 'msgItemStyle';
-                                        bodyItem.text = result.error;
-                                        msges.push(bodyItem);
-                                        self.getApplication().fireEvent('isushowmsg', {
-                                            type: 'error',
-                                            msgBody: msges,
-                                            y: 10,
-                                            closeBtn: true,
-                                            btns: [
-                                                {
-                                                    text: 'Cancel',
-                                                    cls: 'isu-btn-link',
-                                                    hnd: function () {
-                                                        window.location = '#/administration/devicetypes/' + logbooksView.deviceTypeId + '/deviceconfigurations/' + logbooksView.deviceConfigurationId + '/logbookconfigurations';
-                                                    }
-                                                }
-                                            ],
-                                            listeners: {
-                                                close: {
-                                                    fn: function () {
-                                                        logbooksView.enable();
-                                                    }
-                                                }
-                                            }
+                                        Ext.Msg.show({
+                                            title: result.error,
+                                            msg: result.message,
+                                            icon: Ext.MessageBox.WARNING,
+                                            buttons: Ext.MessageBox.CANCEL,
+                                            ui: 'notification-error'
                                         });
-                                        logbooksView.disable();
                                     }
                                     else {
-                                        header.text = 'Error during deleting';
-                                        msges.push(header);
-                                        bodyItem.style = 'msgItemStyle';
-                                        bodyItem.text = 'The logbook configuration could not be deleted because of an error in the database.';
-                                        msges.push(bodyItem);
-                                        self.showDatabaseError(msges);
+                                        Ext.Msg.show({
+                                            title: 'Error during deleting',
+                                            msg: 'The logbook configuration could not be deleted because of an error in the database.',
+                                            icon: Ext.MessageBox.WARNING,
+                                            buttons: Ext.MessageBox.CANCEL,
+                                            ui: 'notification-error'
+                                        });
                                     }
                                 },
                                 callback: function () {
@@ -237,7 +161,7 @@ Ext.define('Mdc.controller.setup.LogbookConfigurations', {
                     },
                     {
                         text: 'Cancel',
-                        cls: 'isu-btn-link',
+                        ui: 'link',
                         handler: function () {
                             confirmMessage.close();
                         }

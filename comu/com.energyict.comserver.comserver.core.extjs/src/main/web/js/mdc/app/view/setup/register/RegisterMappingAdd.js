@@ -71,7 +71,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAdd', {
                 deviceTypeId: this.deviceTypeId
             }
         );
-        this.down('#cancelLink').autoEl.href = '#/administration/devicetypes/' + this.deviceTypeId + '/registertypes';
+        this.down('#cancelLink').href = '#/administration/devicetypes/' + this.deviceTypeId + '/registertypes';
     }
 });
 

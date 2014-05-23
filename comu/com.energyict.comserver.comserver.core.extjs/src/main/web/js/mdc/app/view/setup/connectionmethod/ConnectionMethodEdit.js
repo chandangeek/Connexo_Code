@@ -23,7 +23,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
             this.down('#addEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
             this.down('#addEditButton').action = 'addConnectionMethod';
         }
-        this.down('#cancelLink').autoEl.href = returnLink;
+        this.down('#cancelLink').href = returnLink;
     },
 
     initComponent: function () {
@@ -280,7 +280,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
 //                this.down('#isDefault').setVisible(false);
             }
         }
-        this.down('#cancelLink').autoEl.href = this.returnLink;
+        this.down('#cancelLink').href = this.returnLink;
 
     }
 

@@ -45,9 +45,6 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         {ref: 'breadCrumbs', selector: 'breadcrumbTrail'},
         {ref: 'gatewayMessage', selector: '#gatewayMessage'},
         {ref: 'addressableMessage', selector: '#addressableMessage'},
-        {ref: 'deviceConfigurationLogbookTitle', selector: '#deviceConfigurationLogbookTitle'},
-        {ref: 'addLogbookConfigurationTitle', selector: '#addLogbookConfigurationTitle'},
-        {ref: 'editLogbookConfigurationTitle', selector: '#editLogbookConfigurationTitle'},
         {ref: 'editLogbookConfiguration', selector: 'edit-logbook-configuration'}
     ],
 
@@ -88,7 +85,6 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             '#createEditButton[action=editDeviceConfiguration]': {
                 click: this.editDeviceConfiguration
             }
-
         });
     },
 
@@ -124,7 +120,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             this.getDeviceConfigurationPreviewForm().loadRecord(deviceConfigurations[0]);
             this.getDeviceConfigurationPreview().getLayout().setActiveItem(1);
             //this.getDeviceConfigurationDetailsLink().update('<a href="#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + deviceConfigurationId + '">' + Uni.I18n.translate('general.viewDetails', 'MDC', 'View details') + '</a>');
-            this.getDeviceConfigurationPreview().getHeader().setTitle(deviceConfigurations[0].get('name'));
+            this.getDeviceConfigurationPreview().setTitle(deviceConfigurations[0].get('name'));
             //this.getDeviceConfigurationPreviewTitle().update('<h1>' + deviceConfigurations[0].get('name') + '</h1>');
         } else {
             this.getDeviceConfigurationPreview().getLayout().setActiveItem(0);
@@ -211,9 +207,6 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             }
         });
     },
-
-
-
 
     deleteDeviceConfiguration: function(deviceConfigurationToDelete){
         var me = this;
@@ -476,7 +469,6 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                             deviceConfigModel.load(deviceConfigurationId, {
                                 success: function (deviceConfiguration) {
                                     me.logbookBreadCrumb(deviceType.get('name'), deviceTypeId, deviceConfiguration.get('name'), deviceConfigurationId);
-                                    me.getDeviceConfigurationLogbookTitle().setTitle('<b>' + deviceConfiguration.get('name') + '</b>' + ' > ' + 'Logbook configuration');
                                     widget.setLoading(false);
                                 }
                             });
@@ -555,7 +547,6 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                             deviceConfigModel.load(deviceConfigurationId, {
                                 success: function (deviceConfiguration) {
                                     me.addLogbookBreadCrumb(deviceType.get('name'), deviceTypeId, deviceConfiguration.get('name'), deviceConfigurationId);
-                                    me.getAddLogbookConfigurationTitle().setTitle('<b>' + deviceConfiguration.get('name') + '</b>' + ' > ' + 'Add logbook configuration');
                                     widget.setLoading(false);
                                 }
                             });
@@ -640,7 +631,6 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                             deviceConfigModel.load(deviceConfigurationId, {
                                 success: function (deviceConfiguration) {
                                     me.editLogbookBreadCrumb(deviceType.get('name'), deviceTypeId, deviceConfiguration.get('name'), deviceConfigurationId);
-                                    me.getEditLogbookConfigurationTitle().setTitle('<b>' + deviceConfiguration.get('name') + '</b>' + ' > ' + 'Edit logbook configuration');
                                     widget.setLoading(false);
                                 }
                             });

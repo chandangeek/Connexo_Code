@@ -23,12 +23,8 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
             'device-type-logbooks grid': {
                 itemclick: this.loadGridItemDetail
             },
-            'device-type-logbooks grid actioncolumn': {
-                click: this.showItemAction
-            },
-            'device-type-logbook-action-menu': {
-                beforehide: this.hideItemAction,
-                click: this.deleteLogbookType
+            'device-type-logbooks grid uni-actioncolumn': {
+                remove: this.deleteLogbookType
             }
         });
         this.store = this.getStore('Mdc.store.LogbookTypes');
@@ -50,32 +46,6 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
         itemPanel.setTitle(record.get('name'));
         itemPanel.show();
         preloader.destroy();
-    },
-
-    showItemAction: function (grid, cell, rowIndex, colIndex, e, record) {
-        var cellEl = Ext.get(cell);
-        this.hideItemAction();
-        this.gridActionIcon = cellEl.first();
-        this.gridActionIcon.hide();
-        this.gridActionIcon.setHeight(0);
-        this.gridActionBtn = Ext.create('widget.grid-action', {
-            renderTo: cell,
-            menu: {
-                xtype: 'device-type-logbook-action-menu',
-                logbookId: record.data.id
-            }
-        });
-        this.gridActionBtn.showMenu();
-    },
-
-    hideItemAction: function () {
-        if (this.gridActionBtn) {
-            this.gridActionBtn.destroy();
-        }
-        if (this.gridActionIcon) {
-            this.gridActionIcon.show();
-            this.gridActionIcon.setHeight(22);
-        }
     },
 
     showDatabaseError: function(msges) {
@@ -135,13 +105,12 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
                                 success: function () {
                                     confirmMessage.close();
                                     itemPanel.hide();
-                                    header.text = 'Successfully removed';
-                                    self.getApplication().fireEvent('isushowmsg', {
-                                        type: 'notify',
-                                        msgBody: [header],
-                                        y: 10,
-                                        showTime: 5000
-                                    });
+
+                                    Ext.create('widget.uxNotification', {
+                                        html: 'Successfully removed',
+                                        ui: 'notification-success'
+                                    }).show();
+
                                     self.store.load({
                                             callback: function () {
                                                 var numberOfLogbooksContainer = Ext.ComponentQuery.query('device-type-logbooks toolbar container[name=LogBookCount]')[0],
@@ -217,7 +186,7 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
                     },
                     {
                         text: 'Cancel',
-                        cls: 'isu-btn-link',
+                        ui: 'link',
                         handler: function () {
                             confirmMessage.close();
                         }

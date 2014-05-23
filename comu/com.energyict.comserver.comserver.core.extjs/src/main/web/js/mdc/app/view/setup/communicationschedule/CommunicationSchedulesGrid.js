@@ -95,7 +95,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulesGrid', {
                                     },
                                     {
                                         xtype: 'menuitem',
-                                        text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
+                                        text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
                                         listeners: {
                                             click: {
                                                 element: 'el',
@@ -129,7 +129,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulesGrid', {
                         flex: 1
                     },
                     {
-                        text: Uni.I18n.translate('communicationschedule.createCommunicationSchedule', 'MDC', 'Create communication schedule'),
+                        text: Uni.I18n.translate('communicationschedule.addCommunicationSchedule', 'MDC', 'Add communication schedule'),
                         itemId: 'createCommunicationSchedule',
                         xtype: 'button',
                         action: 'createCommunicationSchedule'

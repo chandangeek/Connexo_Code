@@ -4,7 +4,8 @@ Ext.define('Mdc.view.setup.communicationschedule.AddCommunicationTaskWindow', {
     itemId: 'addCommunicationTaskWindow',
     requires: [
         'Uni.view.toolbar.PagingTop',
-        'Uni.view.toolbar.PagingBottom'
+        'Uni.view.toolbar.PagingBottom',
+        'CommunicationTasks'
     ],
     closable: true,
     width: 700,
@@ -25,14 +26,62 @@ Ext.define('Mdc.view.setup.communicationschedule.AddCommunicationTaskWindow', {
     items: [
         {
             xtype: 'gridpanel',
+            itemId: 'communicationTaskGrid',
+            store: 'CommunicationTasks',
+            selType: 'checkboxmodel',
             columns: [
                 {
                     header: Uni.I18n.translate('communicationtask.name', 'MDC', 'Name'),
-                    dataIndex: 'schedulingStatus',
+                    dataIndex: 'name',
                     sortable: false,
                     hideable: false,
                     fixed: true,
-                    flex: 0.1
+                    flex: 0.9
+                }
+            ]
+        },
+        {
+            xtype: 'form',
+            border: false,
+            itemId: 'addCommunicationTaskButtonForm',
+            layout: {
+                type: 'vbox',
+                align: 'stretch'
+            },
+            width: '100%',
+            defaults: {
+                labelWidth: 250
+            },
+            items: [
+                {
+                    xtype: 'fieldcontainer',
+                    fieldLabel: '&nbsp',
+                    //width: 430,
+                    layout: {
+                        type: 'hbox',
+                        align: 'stretch'
+                    },
+                    width: '100%',
+                    items: [
+                        {
+                            xtype: 'component',
+                            flex: 1
+                        },
+                        {
+                            text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
+                            xtype: 'button',
+                            action: 'addAction',
+                            itemId: 'addButton'
+                        },
+                        {
+                            xtype: 'button',
+                            itemId: 'cancelLink',
+                            text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                            handler: function(button){
+                                button.up('.window').close();
+                            }
+                        }
+                    ]
                 }
             ]
         }
@@ -40,7 +89,8 @@ Ext.define('Mdc.view.setup.communicationschedule.AddCommunicationTaskWindow', {
 
 
     initComponent: function () {
-        var me = this;
+        me = this;
+//        this.down('#comTaskGrid').
         me.callParent(arguments);
 //        me.mon(Ext.getBody(), 'click', function(el, e){
 //            me.close(me.closeAction);

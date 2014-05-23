@@ -28,15 +28,20 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
             },
             {
                 xtype: 'actioncolumn',
+                flex: 2,
+                fixed: true,
+                sortable: false,
+                hideable: false,
                 renderer: function (value, metaData, record) {
                     return '<div class="x-grid-cell-inner" style="float:left; font-size: 13px; line-height: 1em;">'
                         + record.getReadingType().get('mrid') + '&nbsp' + '&nbsp'
-                        + '</div>'
+                        + '</div>';
                 },
                 header: Uni.I18n.translate('registerMappings.readingType', 'MDC', 'Reading type'),
                 items: [
                     {
-                        icon: '../mdc/resources/images/information.png',
+                        // TODO Fix quick fix.
+                        icon: '../ext/packages/uni-theme-skyline/build/resources/images/shared/icon-info-small.png',
                         iconCls: 'uni-info-icon',
                         tooltip: Uni.I18n.translate('readingType.tooltip', 'MDC', 'Reading type info'),
                         handler: function (grid, rowIndex, colIndex, item, e) {
@@ -44,13 +49,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
                             this.fireEvent('showReadingTypeInfo', record);
                         }
                     }
-                ],
-                width: 300,
-                tdCls: 'view',
-                sortable: false,
-                hideable: false,
-                flex: 1
-
+                ]
             },
             {
                 header: Uni.I18n.translate('registerType.obisCode', 'MDC', 'OBIS code'),

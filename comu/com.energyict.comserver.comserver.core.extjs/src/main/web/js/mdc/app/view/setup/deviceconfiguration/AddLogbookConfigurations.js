@@ -6,12 +6,10 @@ Ext.define('Mdc.view.setup.deviceconfiguration.AddLogbookConfigurations', {
 
     content: [
         {
+            xtype: 'panel',
+            ui: 'large',
+            title: 'Add logbook configuration',
             items: [
-                {
-                    xtype: 'panel',
-                    ui: 'large',
-                    itemId: 'addLogbookConfigurationTitle'
-                },
                 {
                     xtype: 'toolbar',
                     border: 0,
@@ -108,9 +106,5 @@ Ext.define('Mdc.view.setup.deviceconfiguration.AddLogbookConfigurations', {
             ]
         }
     ],
-
-    initComponent: function () {
-        this.callParent(arguments);
-    }
 });
 
