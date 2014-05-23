@@ -53,12 +53,11 @@ Ext.define('Isu.controller.Main', {
     },
 
     initMenu: function () {
-        var me = this;
-
         var workspaceItem = Ext.create('Uni.model.MenuItem', {
             text: 'Workspace',
             glyph: 'workspace',
-            portal: 'workspace'
+            portal: 'workspace',
+            index: 30
         });
 
         Uni.store.MenuItems.add(workspaceItem);
@@ -66,7 +65,8 @@ Ext.define('Isu.controller.Main', {
         var administrationItem = Ext.create('Uni.model.MenuItem', {
             text: 'Administration',
             glyph: 'settings',
-            portal: 'administration'
+            portal: 'administration',
+            index: 10
         });
 
         Uni.store.MenuItems.add(administrationItem);
@@ -87,52 +87,52 @@ Ext.define('Isu.controller.Main', {
             ]
         });
 
-        var dataexchange = Ext.create('Uni.model.PortalItem', {
-            title: 'Data exchange',
-            portal: 'workspace',
-            route: 'dataexchange',
-            items: [
-                {
-                    text: 'Overview',
-                    href: '#/workspace/dataexchange'
-                },
-                {
-                    text: 'Issues',
-                    href: '#/workspace/dataexchange/issues'
-                }
-            ]
-        });
-        var dataoperation = Ext.create('Uni.model.PortalItem', {
-            title: 'Data operation',
-            portal: 'workspace',
-            route: 'dataoperation',
-            items: [
-                {
-                    text: 'Overview',
-                    href: '#/workspace/dataoperation'
-                },
-                {
-                    text: 'Issues',
-                    href: '#/workspace/dataoperation/issues'
-                }
-            ]
-        });
-
-        var datavalidation = Ext.create('Uni.model.PortalItem', {
-            title: 'Data validation',
-            portal: 'workspace',
-            route: 'datavalidation',
-            items: [
-                {
-                    text: 'Overview',
-                    href: '#/workspace/datavalidation'
-                },
-                {
-                    text: 'Issues',
-                    href: '#/workspace/datavalidation/issues'
-                }
-            ]
-        });
+//        var dataexchange = Ext.create('Uni.model.PortalItem', {
+//            title: 'Data exchange',
+//            portal: 'workspace',
+//            route: 'dataexchange',
+//            items: [
+//                {
+//                    text: 'Overview',
+//                    href: '#/workspace/dataexchange'
+//                },
+//                {
+//                    text: 'Issues',
+//                    href: '#/workspace/dataexchange/issues'
+//                }
+//            ]
+//        });
+//        var dataoperation = Ext.create('Uni.model.PortalItem', {
+//            title: 'Data operation',
+//            portal: 'workspace',
+//            route: 'dataoperation',
+//            items: [
+//                {
+//                    text: 'Overview',
+//                    href: '#/workspace/dataoperation'
+//                },
+//                {
+//                    text: 'Issues',
+//                    href: '#/workspace/dataoperation/issues'
+//                }
+//            ]
+//        });
+//
+//        var datavalidation = Ext.create('Uni.model.PortalItem', {
+//            title: 'Data validation',
+//            portal: 'workspace',
+//            route: 'datavalidation',
+//            items: [
+//                {
+//                    text: 'Overview',
+//                    href: '#/workspace/datavalidation'
+//                },
+//                {
+//                    text: 'Issues',
+//                    href: '#/workspace/datavalidation/issues'
+//                }
+//            ]
+//        });
 
         var issuemanagement = Ext.create('Uni.model.PortalItem', {
             title: 'Issue management',
@@ -152,9 +152,9 @@ Ext.define('Isu.controller.Main', {
 
         Uni.store.PortalItems.add(
             datacollection,
-            dataexchange,
-            dataoperation,
-            datavalidation,
+//            dataexchange,
+//            dataoperation,
+//            datavalidation,
             issuemanagement
         );
     },

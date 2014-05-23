@@ -75,7 +75,7 @@ Ext.define('Isu.util.IsuGrid', {
      */
     loadGridItemDetail: function (grid, record) {
         var itemPanel = this.getItemPanel(),
-            form = itemPanel.down('issue-form'),
+            form = itemPanel.down('form'),
             preloader = Ext.create('Ext.LoadMask', {
                 msg: "Loading...",
                 target: itemPanel
@@ -89,9 +89,6 @@ Ext.define('Isu.util.IsuGrid', {
         this.gridItemModel.load(record.data.id, {
             success: function (record) {
                 form.loadRecord(record);
-                itemPanel.setTitle(record.get('title'))
-            },
-            callback: function() {
                 preloader.destroy();
             }
         });
