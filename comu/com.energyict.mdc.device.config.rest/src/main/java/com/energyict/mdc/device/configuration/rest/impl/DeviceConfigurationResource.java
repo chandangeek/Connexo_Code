@@ -13,8 +13,10 @@ import com.energyict.mdc.masterdata.LogBookType;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import java.util.*;
 
 public class DeviceConfigurationResource {
@@ -26,18 +28,19 @@ public class DeviceConfigurationResource {
     private final Provider<ProtocolDialectResource> protocolDialectResourceProvider;
     private final Provider<LoadProfileConfigurationResource> loadProfileConfigurationResourceProvider;
     private final Provider<SecurityPropertySetResource> securityPropertySetResourceProvider;
+    private final Provider<ComTaskEnablementResource> comTaskEnablementResourceProvider;
     private final Thesaurus thesaurus;
 
     @Inject
-    public DeviceConfigurationResource(
-            ResourceHelper resourceHelper,
-            DeviceConfigurationService deviceConfigurationService,
-            Provider<RegisterConfigurationResource> registerConfigurationResourceProvider,
-            Provider<ConnectionMethodResource> connectionMethodResourceProvider,
-            Provider<ProtocolDialectResource> protocolDialectResourceProvider,
-            Provider<LoadProfileConfigurationResource> loadProfileConfigurationResourceProvider,
-            Provider<SecurityPropertySetResource> securityPropertySetResourceProvider,
-            Thesaurus thesaurus) {
+    public DeviceConfigurationResource(ResourceHelper resourceHelper,
+                                       DeviceConfigurationService deviceConfigurationService,
+                                       Provider<RegisterConfigurationResource> registerConfigurationResourceProvider,
+                                       Provider<ConnectionMethodResource> connectionMethodResourceProvider,
+                                       Provider<ProtocolDialectResource> protocolDialectResourceProvider,
+                                       Provider<LoadProfileConfigurationResource> loadProfileConfigurationResourceProvider,
+                                       Provider<SecurityPropertySetResource> securityPropertySetResourceProvider,
+                                       Provider<ComTaskEnablementResource> comTaskEnablementResourceProvider,
+                                       Thesaurus thesaurus) {
         this.resourceHelper = resourceHelper;
         this.deviceConfigurationService = deviceConfigurationService;
         this.registerConfigurationResourceProvider = registerConfigurationResourceProvider;
@@ -45,6 +48,7 @@ public class DeviceConfigurationResource {
         this.protocolDialectResourceProvider = protocolDialectResourceProvider;
         this.loadProfileConfigurationResourceProvider = loadProfileConfigurationResourceProvider;
         this.securityPropertySetResourceProvider = securityPropertySetResourceProvider;
+        this.comTaskEnablementResourceProvider = comTaskEnablementResourceProvider;
         this.thesaurus = thesaurus;
     }
 
@@ -240,5 +244,17 @@ public class DeviceConfigurationResource {
     @Path("/{deviceConfigurationId}/securityproperties")
     public SecurityPropertySetResource getSecurityPropertySetResource() {
         return securityPropertySetResourceProvider.get();
+    }
+
+    @Path("/{deviceConfigurationId}/comtaskenablements")
+    public ComTaskEnablementResource getComTaskEnablementResource() {
+        return comTaskEnablementResourceProvider.get();
+    }
+
+    @GET
+    @Path("/{deviceConfigurationId}/comtasks")
+    @Produces(MediaType.APPLICATION_JSON)
+    public PagedInfoList getComTasks(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @BeanParam QueryParameters queryParameters, @Context UriInfo uriInfo) {
+        return comTaskEnablementResourceProvider.get().getComTasks(deviceTypeId, deviceConfigurationId, queryParameters, uriInfo);
     }
 }

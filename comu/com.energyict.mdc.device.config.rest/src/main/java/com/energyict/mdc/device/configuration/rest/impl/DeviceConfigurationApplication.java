@@ -14,6 +14,7 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.tasks.TaskService;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -36,6 +37,7 @@ public class DeviceConfigurationApplication extends Application {
     private volatile MeteringService meteringService;
     private volatile EngineModelService engineModelService;
     private volatile MdcReadingTypeUtilService mdcReadingTypeUtilService;
+    private volatile TaskService taskService;
     private volatile NlsService nlsService;
     private volatile JsonService jsonService;
     private volatile Thesaurus thesaurus;
@@ -60,6 +62,7 @@ public class DeviceConfigurationApplication extends Application {
                 RegisterTypeResource.class,
                 RegisterGroupResource.class,
                 SecurityPropertySetResource.class,
+                ComTaskEnablementResource.class,
                 LoadProfileTypeResource.class,
                 LoadProfileConfigurationResource.class
         );
@@ -104,6 +107,11 @@ public class DeviceConfigurationApplication extends Application {
     }
 
     @Reference
+    public void setTaskService(TaskService taskService) {
+        this.taskService = taskService;
+    }
+
+    @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
@@ -129,6 +137,7 @@ public class DeviceConfigurationApplication extends Application {
             bind(transactionService).to(TransactionService.class);
             bind(meteringService).to(MeteringService.class);
             bind(mdcReadingTypeUtilService).to(MdcReadingTypeUtilService.class);
+            bind(taskService).to(TaskService.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(nlsService).to(NlsService.class);
