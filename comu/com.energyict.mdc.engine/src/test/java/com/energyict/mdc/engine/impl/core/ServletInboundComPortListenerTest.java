@@ -10,15 +10,14 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundCapableComServer;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
-import com.energyict.mdc.issues.IssueService;
-
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -76,7 +75,7 @@ public class ServletInboundComPortListenerTest {
                 findOrCreateFor(
                     any(ServletBasedInboundComPort.class),
                     any(ComServerDAO.class),
-                    any(DeviceCommandExecutor.class), this.serviceProvider)).
+                    any(DeviceCommandExecutor.class), eq(serviceProvider))).
         thenReturn(mockedJetty);
         servletInboundComPortListener.applyChanges(newComPort, inboundComPort);
     }

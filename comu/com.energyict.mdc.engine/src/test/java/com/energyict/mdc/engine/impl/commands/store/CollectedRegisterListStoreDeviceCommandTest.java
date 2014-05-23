@@ -62,7 +62,7 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
     public void successfulStoreOfSingleRegisterTest() {
         int deviceId = 5465;
 //        mockServiceLocator();
-        mockDevice(deviceId);
+//        mockDevice(deviceId);
 
         DeviceIdentifier deviceIdentifier = new DeviceIdentifierById(deviceId, deviceDataService);
         RegisterIdentifier registerIdentifier = new RegisterDataIdentifier(ObisCode.fromString(registerObisCode1), ObisCode.fromString(registerObisCode1), deviceIdentifier);

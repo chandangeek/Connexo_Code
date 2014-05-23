@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.readings.IntervalBlock;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
+import com.elster.jupiter.transaction.VoidTransaction;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
 import com.energyict.mdc.device.data.LoadProfile;
@@ -42,13 +43,18 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl {
         storeReadingsAndUpdateLastReading(comServerDAO, loadProfile, localLoadProfile);
     }
 
-    private void storeReadingsAndUpdateLastReading(ComServerDAO comServerDAO, LoadProfile loadProfile, LocalLoadProfile localLoadProfile) {
+    private void storeReadingsAndUpdateLastReading(ComServerDAO comServerDAO, final LoadProfile loadProfile, final LocalLoadProfile localLoadProfile) {
         MeterReadingImpl meterReading = new MeterReadingImpl();
         meterReading.addAllIntervalBlocks(localLoadProfile.intervalBlocks);
         comServerDAO.storeMeterReadings(new DeviceIdentifierById(loadProfile.getDevice().getId(), getDeviceDataService()), meterReading);
-        LoadProfile.LoadProfileUpdater loadProfileUpdater = loadProfile.getDevice().getLoadProfileUpdaterFor(loadProfile);
-        loadProfileUpdater.setLastReadingIfLater(localLoadProfile.lastReading);
-        loadProfileUpdater.update();
+        comServerDAO.executeTransaction(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                LoadProfile.LoadProfileUpdater loadProfileUpdater = loadProfile.getDevice().getLoadProfileUpdaterFor(loadProfile);
+                loadProfileUpdater.setLastReadingIfLater(localLoadProfile.lastReading);
+                loadProfileUpdater.update();
+            }
+        });
     }
 
     private LocalLoadProfile filterFutureDatesAndCalculateLastReading(LoadProfile loadProfile) {
