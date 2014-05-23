@@ -8,13 +8,13 @@ import com.elster.jupiter.pubsub.EventHandler;
 import com.elster.jupiter.pubsub.Subscriber;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 @Component(name="com.energyict.mdc.device.data.comschedule.delete.eventhandler", service = Subscriber.class, immediate = true)
-public class ComScheduleDeletionEventHandler extends EventHandler<LocalEvent> {
+@Deprecated // The ScheduledComTaskExecution will be deleted through a CASCADE in the ComSchedule.
+public class ComScheduleDeletionEventHandler extends EventHandler<LocalEvent> { // TODO delete me
 
     private static final String TOPIC = com.energyict.mdc.scheduling.events.EventType.COMSCHEDULES_BEFORE_DELETE.topic();
 
@@ -33,9 +33,9 @@ public class ComScheduleDeletionEventHandler extends EventHandler<LocalEvent> {
     }
 
     private void handleDeleteComSchedule(ComSchedule comSchedule) {
-        for (ComTaskExecution comTaskExecution : this.deviceDataService.findComTaskExecutionsByComSchedule(comSchedule)) {
-            comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution).comSchedule(null).removeNextExecutionSpec().update();
-        }
+//        for (ComTaskExecution comTaskExecution : this.deviceDataService.findComTaskExecutionsByComSchedule(comSchedule)) {
+//            comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution).comSchedule(null).removeNextExecutionSpec().update();
+//        }
     }
 
     @Reference

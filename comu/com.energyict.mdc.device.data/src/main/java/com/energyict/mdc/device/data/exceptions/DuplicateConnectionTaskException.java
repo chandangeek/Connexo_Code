@@ -3,8 +3,8 @@ package com.energyict.mdc.device.data.exceptions;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 
 /**
  * Models the exceptional situation that occurs when
@@ -17,7 +17,7 @@ import com.energyict.mdc.device.data.Device;
  */
 public class DuplicateConnectionTaskException extends LocalizedException {
 
-    public DuplicateConnectionTaskException(Thesaurus thesaurus, Device device, PartialConnectionTask partialConnectionTask, ConnectionTask existingConnectionTask) {
+    public DuplicateConnectionTaskException(Thesaurus thesaurus, Device device, PartialConnectionTask partialConnectionTask, ConnectionTask<?,?> existingConnectionTask) {
         super(thesaurus, MessageSeeds.DUPLICATE_CONNECTION_TASK, partialConnectionTask.getName(), existingConnectionTask.getName(), device.getId());
         this.set("device", device);
         this.set("partialConnectionTask", partialConnectionTask);

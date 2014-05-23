@@ -13,7 +13,6 @@ import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
 import com.energyict.mdc.device.data.ComTaskExecutionDependant;
@@ -41,6 +40,7 @@ import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.TemporalExpression;
+import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.google.common.collect.ImmutableMap;
 import java.util.Calendar;
@@ -64,14 +64,13 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     protected static final String SCHEDULED_COM_TASK_EXECUTION = "0";
     protected static final String AD_HOC_COM_TASK_EXECUTION = "1";
 
-    static final Map<String, Class<? extends ComTaskExecution>> IMPLEMENTERS =
+    public static final Map<String, Class<? extends ComTaskExecution>> IMPLEMENTERS =
             ImmutableMap.<String, Class<? extends ComTaskExecution>>of(
                     SCHEDULED_COM_TASK_EXECUTION, ScheduledComTaskExecutionImpl.class,
                     AD_HOC_COM_TASK_EXECUTION, AdHocComTaskExecutionImpl.class);
 
     private final Clock clock;
     private final DeviceDataService deviceDataService;
-    private final DeviceConfigurationService deviceConfigurationService;
     private final SchedulingService schedulingService;
 
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DEVICE_IS_REQUIRED + "}")
@@ -150,11 +149,10 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     }
 
     @Inject
-    public ComTaskExecutionImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, DeviceDataService deviceDataService, DeviceConfigurationService deviceConfigurationService, SchedulingService schedulingService) {
+    public ComTaskExecutionImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, DeviceDataService deviceDataService, SchedulingService schedulingService) {
         super(ComTaskExecution.class, dataModel, eventService, thesaurus);
         this.clock = clock;
         this.deviceDataService = deviceDataService;
-        this.deviceConfigurationService = deviceConfigurationService;
         this.schedulingService = schedulingService;
     }
 
@@ -679,6 +677,22 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     protected void validateDelete() {
         // nothing to validate
     }
+
+    /**
+     * Return true if and only of this ComTaskExecution is directly linked to the mentioned ComSchedule
+     */
+    abstract boolean usesComSchedule(ComSchedule comSchedule);
+    /**
+     * Return true if and only of this ComTaskExecution is directly linked to the mentioned ComTask
+     */
+    abstract boolean usesComTask(ComTask comTask);
+
+    /**
+     * Return true if this comTaskExecution and the parameter denote the same job, that is:
+     * - ScheduledComTaskExecs with the same schedule
+     * - AdHocComTasks with the same comTask
+     */
+    public abstract boolean performsIdenticalTask(ComTaskExecutionImpl comTaskExecution);
 
     /**
      * We don't do our own persistence, our device will take care of that

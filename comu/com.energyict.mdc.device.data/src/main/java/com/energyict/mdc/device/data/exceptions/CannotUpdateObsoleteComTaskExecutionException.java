@@ -15,8 +15,8 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 public class CannotUpdateObsoleteComTaskExecutionException extends LocalizedException {
 
     public CannotUpdateObsoleteComTaskExecutionException(Thesaurus thesaurus, ComTaskExecution comTaskExecution) {
-        super(thesaurus, MessageSeeds.COM_TASK_IS_OBSOLETE_AND_CAN_NOT_BE_UPDATED, comTaskExecution.getComTask().getName(), comTaskExecution.getDevice().getName());
-        this.set("comTaskExecution", comTaskExecution.getComTask().getName());
+        super(thesaurus, MessageSeeds.COM_TASK_IS_OBSOLETE_AND_CAN_NOT_BE_UPDATED, comTaskExecution.getId(), comTaskExecution.getDevice().getName());
+        this.set("comTaskExecution", comTaskExecution.getId());
         this.set("device", comTaskExecution.getDevice());
     }
 

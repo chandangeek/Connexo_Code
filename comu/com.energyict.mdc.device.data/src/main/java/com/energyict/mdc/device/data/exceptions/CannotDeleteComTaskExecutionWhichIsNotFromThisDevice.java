@@ -16,8 +16,8 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 public class CannotDeleteComTaskExecutionWhichIsNotFromThisDevice extends LocalizedException {
 
     public CannotDeleteComTaskExecutionWhichIsNotFromThisDevice(Thesaurus thesaurus, ComTaskExecution comTaskExecution, Device device) {
-        super(thesaurus, MessageSeeds.COM_TASK_EXECUTION_CANNOT_DELETE_IF_NOT_FROM_DEVICE, comTaskExecution.getComTask().getName(), device.getName());
-        this.set("comTask", comTaskExecution.getComTask().getName());
+        super(thesaurus, MessageSeeds.COM_TASK_EXECUTION_CANNOT_DELETE_IF_NOT_FROM_DEVICE, comTaskExecution.getId(), device.getName());
+        this.set("comTask", comTaskExecution.getId());
         this.set("device", device.getName());
     }
 }

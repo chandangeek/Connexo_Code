@@ -16,8 +16,10 @@ import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.ProtocolTask;
+import java.util.ArrayList;
+import java.util.List;
 import javax.inject.Inject;
-import javax.inject.Provider;
 
 public class ScheduledComTaskExecutionImpl extends ComTaskExecutionImpl implements ScheduledComTaskExecution {
 
@@ -25,7 +27,7 @@ public class ScheduledComTaskExecutionImpl extends ComTaskExecutionImpl implemen
 
     @Inject
     public ScheduledComTaskExecutionImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, DeviceDataService deviceDataService, DeviceConfigurationService deviceConfigurationService, SchedulingService schedulingService) {
-        super(dataModel, eventService, thesaurus, clock, deviceDataService, deviceConfigurationService, schedulingService);
+        super(dataModel, eventService, thesaurus, clock, deviceDataService, schedulingService);
     }
 
     @Override
@@ -102,17 +104,27 @@ public class ScheduledComTaskExecutionImpl extends ComTaskExecutionImpl implemen
         return minimalNrOfRetries;
     }
 
+    @Override
+    boolean usesComSchedule(ComSchedule comSchedule) {
+        return comSchedule != null && this.comScheduleReference.get().getId() == comSchedule.getId();
+    }
+
+    @Override
+    boolean usesComTask(ComTask comTask) {
+        return false;
+    }
+
     interface ScheduledComTaskExecutionBuilder extends ComTaskExecutionBuilder<ScheduledComTaskExecutionBuilder, ScheduledComTaskExecutionImpl> {
         public ScheduledComTaskExecutionBuilder comSchedule(ComSchedule comSchedule);
     }
 
 
-    class ScheduledComTaskExecutionBuilderImpl
+    public static class ScheduledComTaskExecutionBuilderImpl
             extends AbstractComTaskExecutionBuilder<ScheduledComTaskExecutionBuilder, ScheduledComTaskExecutionImpl>
             implements ScheduledComTaskExecutionBuilder {
 
-        protected ScheduledComTaskExecutionBuilderImpl(Provider<ScheduledComTaskExecutionImpl> comTaskExecutionProvider, Device device, ComTaskEnablement comTaskEnablement) {
-            super(comTaskExecutionProvider.get(), device, comTaskEnablement, ScheduledComTaskExecutionBuilder.class);
+        protected ScheduledComTaskExecutionBuilderImpl(ScheduledComTaskExecutionImpl comTaskExecution, Device device, ComTaskEnablement comTaskEnablement) {
+            super(comTaskExecution, device, comTaskEnablement, ScheduledComTaskExecutionBuilder.class);
         }
 
         public ScheduledComTaskExecutionBuilder comSchedule(ComSchedule comSchedule) {
@@ -124,6 +136,20 @@ public class ScheduledComTaskExecutionImpl extends ComTaskExecutionImpl implemen
     @Override
     public ScheduledComTaskExecutionUpdater getUpdater() {
         return new ScheduledComTaskExecutionUpdaterImpl(this);
+    }
+
+    @Override
+    public List<ProtocolTask> getProtocolTasks() {
+        List<ProtocolTask> protocolTasks = new ArrayList<>();
+        for (ComTask comTask : getComSchedule().getComTasks()) {
+            protocolTasks.addAll(comTask.getProtocolTasks());
+        }
+        return protocolTasks;
+    }
+
+    @Override
+    public boolean performsIdenticalTask(ComTaskExecutionImpl comTaskExecution) {
+        return comTaskExecution != null && comTaskExecution.usesComSchedule(this.getComSchedule());
     }
 
     interface ScheduledComTaskExecutionUpdater extends ComTaskExecutionUpdater<ScheduledComTaskExecutionUpdater, ScheduledComTaskExecutionImpl> {

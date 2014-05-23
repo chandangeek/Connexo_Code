@@ -4,7 +4,6 @@ import com.energyict.mdc.device.data.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
@@ -24,10 +23,11 @@ public class UniqueComTaskExecutionPerDeviceValidator implements ConstraintValid
     }
 
     @Override
-    public boolean isValid(ComTaskExecutionImpl comTaskExecution, ConstraintValidatorContext context) {
+    public boolean isValid(ComTaskExecutionImpl comTaskExecutionToBevalidated, ConstraintValidatorContext context) {
         int count = 0;
-        for (ComTaskExecution taskExecution : comTaskExecution.getDevice().getComTaskExecutions()) {
-            if(taskExecution.getComTask().getId() == comTaskExecution.getComTask().getId()){
+        for (ComTaskExecution siblingComTaskExecution : comTaskExecutionToBevalidated.getDevice().getComTaskExecutions()) {
+            ComTaskExecutionImpl serverComTaskExecution = (ComTaskExecutionImpl) siblingComTaskExecution;
+            if(serverComTaskExecution.performsIdenticalTask(comTaskExecutionToBevalidated)){
                 count++;
             }
             if(count > 1){

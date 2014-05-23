@@ -14,10 +14,6 @@ import com.elster.jupiter.util.exception.MessageSeed;
  */
 public class DuplicateNameException extends LocalizedException {
 
-    public static DuplicateNameException connectionMethodAlreadyExists (Thesaurus thesaurus, String name) {
-        return new DuplicateNameException(thesaurus, MessageSeeds.CONNECTION_METHOD_ALREADY_EXISTS, name);
-    }
-
     protected DuplicateNameException(Thesaurus thesaurus, MessageSeed messageSeed, Object... args) {
         super(thesaurus, messageSeed, args);
     }

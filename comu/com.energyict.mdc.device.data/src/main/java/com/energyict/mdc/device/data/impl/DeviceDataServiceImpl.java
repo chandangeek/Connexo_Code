@@ -48,6 +48,7 @@ import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskStatus;
 import com.energyict.mdc.device.data.impl.tasks.TimedOutTasksSqlBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
@@ -336,7 +337,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, InstallSe
     public void setOrUpdateDefaultConnectionTaskOnComTaskInDeviceTopology(Device device, ConnectionTask defaultConnectionTask) {
         List<ComTaskExecution> comTaskExecutions = this.findComTaskExecutionsWithDefaultConnectionTaskForCompleteTopologyButNotLinkedYet(device, defaultConnectionTask);
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
-            ComTaskExecution.ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution);
+            ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?,?>, ? extends ComTaskExecution> comTaskExecutionUpdater = comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution);
             comTaskExecutionUpdater.setUseDefaultConnectionTask(defaultConnectionTask);
             comTaskExecutionUpdater.update();
         }

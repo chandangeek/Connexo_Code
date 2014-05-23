@@ -8,7 +8,9 @@ import com.energyict.mdc.device.data.journal.ComTaskExecutionSession;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
+import com.energyict.mdc.tasks.ProtocolTask;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Models the execution of a ComTask in the context of a connection with a device
@@ -295,5 +297,5 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
 
     ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?,?>, ? extends ComTaskExecution> getUpdater();
 
-
+    public List<ProtocolTask> getProtocolTasks();
 }

@@ -16,7 +16,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
  */
 public class CannotDeleteConnectionTaskWhichIsNotFromThisDevice extends LocalizedException {
 
-    public CannotDeleteConnectionTaskWhichIsNotFromThisDevice(Thesaurus thesaurus, ConnectionTask connectionTask, Device device) {
+    public CannotDeleteConnectionTaskWhichIsNotFromThisDevice(Thesaurus thesaurus, ConnectionTask<?,?> connectionTask, Device device) {
         super(thesaurus, MessageSeeds.CONNECTION_TASK_CANNOT_DELETE_IF_NOT_FROM_DEVICE, connectionTask.getName(), device.getName());
         this.set("connectionTaskName", connectionTask.getName());
         this.set("device", device.getName());

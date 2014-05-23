@@ -17,6 +17,7 @@ import com.energyict.mdc.device.data.tasks.AdHocComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ComTask;
@@ -27,8 +28,9 @@ import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
+import java.util.Collections;
+import java.util.List;
 import javax.inject.Inject;
-import javax.inject.Provider;
 
 public class AdHocComTaskExecutionImpl extends ComTaskExecutionImpl implements AdHocComTaskExecution {
 
@@ -37,7 +39,7 @@ public class AdHocComTaskExecutionImpl extends ComTaskExecutionImpl implements A
 
     @Inject
     public AdHocComTaskExecutionImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, DeviceDataService deviceDataService, DeviceConfigurationService deviceConfigurationService, SchedulingService schedulingService) {
-        super(dataModel, eventService, thesaurus, clock, deviceDataService, deviceConfigurationService, schedulingService);
+        super(dataModel, eventService, thesaurus, clock, deviceDataService, schedulingService);
     }
 
     @Override
@@ -121,14 +123,29 @@ public class AdHocComTaskExecutionImpl extends ComTaskExecutionImpl implements A
         return new AdHocComTaskExecutionUpdaterImpl(this);
     }
 
+    @Override
+    boolean usesComSchedule(ComSchedule comSchedule) {
+        return false;
+    }
+
+    @Override
+    boolean usesComTask(ComTask comTask) {
+        return comTask != null && comTask.getId() == this.getComTask().getId();
+    }
+
+    @Override
+    public boolean performsIdenticalTask(ComTaskExecutionImpl comTaskExecution) {
+        return comTaskExecution != null && comTaskExecution.usesComTask(this.getComTask());
+    }
+
     interface AdHocComTaskExecutionBuilder extends ComTaskExecutionBuilder<AdHocComTaskExecutionBuilder, AdHocComTaskExecutionImpl> {
 
     }
 
-    class AdHocComTaskExecutionBuilderImpl extends AbstractComTaskExecutionBuilder<AdHocComTaskExecutionBuilder, AdHocComTaskExecutionImpl> {
+    public static class AdHocComTaskExecutionBuilderImpl extends AbstractComTaskExecutionBuilder<AdHocComTaskExecutionBuilder, AdHocComTaskExecutionImpl> {
 
-        protected AdHocComTaskExecutionBuilderImpl(Provider<AdHocComTaskExecutionImpl> provider, Device device, ComTaskEnablement comTaskEnablement) {
-            super(provider.get(), device, comTaskEnablement, AdHocComTaskExecutionBuilder.class);
+        protected AdHocComTaskExecutionBuilderImpl(AdHocComTaskExecutionImpl adHocComTaskExecution, Device device, ComTaskEnablement comTaskEnablement) {
+            super(adHocComTaskExecution, device, comTaskEnablement, AdHocComTaskExecutionBuilder.class);
         }
     }
 
@@ -146,6 +163,8 @@ public class AdHocComTaskExecutionImpl extends ComTaskExecutionImpl implements A
 
     }
 
-
-
+    @Override
+    public List<ProtocolTask> getProtocolTasks() {
+        return Collections.unmodifiableList(this.getComTask().getProtocolTasks());
+    }
 }

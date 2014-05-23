@@ -13,6 +13,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.data.impl.DeviceImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
@@ -242,9 +243,9 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      */
     public List<ComTaskExecution> getComTaskExecutions();
 
-    ComTaskExecutionBuilder getComTaskExecutionBuilder(ComTaskEnablement comTaskEnablement);
+    public ComTaskExecutionBuilder<? extends ComTaskExecutionBuilder<?,?>, ? extends ComTaskExecution> getComTaskExecutionBuilder(ComTaskEnablement comTaskEnablement);
 
-    ComTaskExecutionUpdater getComTaskExecutionUpdater(ComTaskExecution comTaskExecution);
+    public ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?,?>, ? extends ComTaskExecution> getComTaskExecutionUpdater(ComTaskExecution comTaskExecution);
 
     void removeComTaskExecution(ComTaskExecution comTaskExecution);
 
@@ -258,6 +259,10 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      * @return The number of EndDeviceEvents
      */
     public int countNumberOfEndDeviceEvents(List<EndDeviceEventType> eventTypes, Interval interval);
+
+    public DeviceImpl.ScheduledComTaskExecutionBuilderForDevice newScheduledComTaskExecution(ComTaskEnablement comTaskEnablement);
+
+    public DeviceImpl.AdHocComTaskExecutionBuilderForDevice newAdHocComTaskExecution(ComTaskEnablement comTaskEnablement);
 
     /**
      * Builder that support basic value setters for a ScheduledConnectionTask

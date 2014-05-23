@@ -58,10 +58,12 @@ import com.energyict.mdc.device.data.exceptions.StillGatewayException;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueMrid;
 import com.energyict.mdc.device.data.impl.offline.DeviceOffline;
 import com.energyict.mdc.device.data.impl.offline.OfflineDeviceImpl;
+import com.energyict.mdc.device.data.impl.tasks.AdHocComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.ScheduledComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
@@ -159,6 +161,8 @@ public class DeviceImpl implements Device, PersistenceAware {
     private final Provider<InboundConnectionTaskImpl> inboundConnectionTaskProvider;
     private final Provider<ConnectionInitiationTaskImpl> connectionInitiationTaskProvider;
     private final Provider<ComTaskExecutionImpl> comTaskExecutionProvider;
+    private final Provider<AdHocComTaskExecutionImpl> adHocComTaskExecutionProvider;
+    private final Provider<ScheduledComTaskExecutionImpl> scheduledComTaskExecutionProvider;
 
     @Inject
     public DeviceImpl(DataModel dataModel,
@@ -170,7 +174,9 @@ public class DeviceImpl implements Device, PersistenceAware {
                       Provider<ScheduledConnectionTaskImpl> scheduledConnectionTaskProvider,
                       Provider<InboundConnectionTaskImpl> inboundConnectionTaskProvider,
                       Provider<ConnectionInitiationTaskImpl> connectionInitiationTaskProvider,
-                      Provider<ComTaskExecutionImpl> comTaskExecutionProvider) {
+                      Provider<ComTaskExecutionImpl> comTaskExecutionProvider,
+                      Provider<AdHocComTaskExecutionImpl> adHocComTaskExecutionProvider,
+                      Provider<ScheduledComTaskExecutionImpl> scheduledComTaskExecutionProvider) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.thesaurus = thesaurus;
@@ -181,6 +187,8 @@ public class DeviceImpl implements Device, PersistenceAware {
         this.inboundConnectionTaskProvider = inboundConnectionTaskProvider;
         this.connectionInitiationTaskProvider = connectionInitiationTaskProvider;
         this.comTaskExecutionProvider = comTaskExecutionProvider;
+        this.adHocComTaskExecutionProvider = adHocComTaskExecutionProvider;
+        this.scheduledComTaskExecutionProvider = scheduledComTaskExecutionProvider;
     }
 
     @Override
@@ -485,7 +493,7 @@ public class DeviceImpl implements Device, PersistenceAware {
 
     private void updateComTasksToUseNonExistingDefaultConnectionTask(List<ComTaskExecution> comTasksForDefaultConnectionTask) {
         for (ComTaskExecution comTaskExecution : comTasksForDefaultConnectionTask) {
-            ComTaskExecutionUpdater comTaskExecutionUpdater = getComTaskExecutionUpdater(comTaskExecution);
+            ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?,?>, ? extends ComTaskExecution> comTaskExecutionUpdater = getComTaskExecutionUpdater(comTaskExecution);
             comTaskExecutionUpdater.setConnectionTask(null);
             comTaskExecutionUpdater.setUseDefaultConnectionTaskFlag(true);
             comTaskExecutionUpdater.update();
@@ -495,7 +503,7 @@ public class DeviceImpl implements Device, PersistenceAware {
     private void updateComTasksToUseNewDefaultConnectionTask(List<ComTaskExecution> comTasksForDefaultConnectionTask){
         ConnectionTask<?,?> defaultConnectionTaskForGateway = getDefaultConnectionTask();
         for (ComTaskExecution comTaskExecution : comTasksForDefaultConnectionTask) {
-            ComTaskExecutionUpdater comTaskExecutionUpdater = getComTaskExecutionUpdater(comTaskExecution);
+            ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?,?>, ? extends ComTaskExecution> comTaskExecutionUpdater = getComTaskExecutionUpdater(comTaskExecution);
             comTaskExecutionUpdater.setUseDefaultConnectionTask(defaultConnectionTaskForGateway);
             comTaskExecutionUpdater.update();
         }
@@ -953,7 +961,17 @@ public class DeviceImpl implements Device, PersistenceAware {
     }
 
     @Override
-    public ComTaskExecutionUpdater getComTaskExecutionUpdater(ComTaskExecution comTaskExecution) {
+    public ScheduledComTaskExecutionBuilderForDevice newScheduledComTaskExecution(ComTaskEnablement comTaskEnablement) {
+        return new ScheduledComTaskExecutionBuilderForDevice(scheduledComTaskExecutionProvider, this, comTaskEnablement);
+    }
+
+    @Override
+    public AdHocComTaskExecutionBuilderForDevice newAdHocComTaskExecution(ComTaskEnablement comTaskEnablement) {
+        return new AdHocComTaskExecutionBuilderForDevice(adHocComTaskExecutionProvider, this, comTaskEnablement);
+    }
+
+    @Override
+    public ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?,?>, ? extends ComTaskExecution> getComTaskExecutionUpdater(ComTaskExecution comTaskExecution) {
         return comTaskExecution.getUpdater();
     }
 
@@ -984,6 +1002,36 @@ public class DeviceImpl implements Device, PersistenceAware {
         @Override
         public ComTaskExecutionImpl add() {
             ComTaskExecutionImpl comTaskExecution = super.add();
+            DeviceImpl.this.comTaskExecutions.add(comTaskExecution);
+            return comTaskExecution;
+        }
+    }
+
+    public class ScheduledComTaskExecutionBuilderForDevice
+            extends ScheduledComTaskExecutionImpl.ScheduledComTaskExecutionBuilderImpl {
+
+        private ScheduledComTaskExecutionBuilderForDevice(Provider<ScheduledComTaskExecutionImpl> comTaskExecutionProvider, Device device, ComTaskEnablement comTaskEnablement) {
+            super(comTaskExecutionProvider.get(), device, comTaskEnablement);
+        }
+
+        @Override
+        public ScheduledComTaskExecutionImpl add() {
+            ScheduledComTaskExecutionImpl comTaskExecution = super.add();
+            DeviceImpl.this.comTaskExecutions.add(comTaskExecution);
+            return comTaskExecution;
+        }
+    }
+
+    public class AdHocComTaskExecutionBuilderForDevice
+            extends AdHocComTaskExecutionImpl.AdHocComTaskExecutionBuilderImpl {
+
+        private AdHocComTaskExecutionBuilderForDevice(Provider<AdHocComTaskExecutionImpl> comTaskExecutionProvider, Device device, ComTaskEnablement comTaskEnablement) {
+            super(comTaskExecutionProvider.get(), device, comTaskEnablement);
+        }
+
+        @Override
+        public AdHocComTaskExecutionImpl add() {
+            AdHocComTaskExecutionImpl comTaskExecution = super.add();
             DeviceImpl.this.comTaskExecutions.add(comTaskExecution);
             return comTaskExecution;
         }

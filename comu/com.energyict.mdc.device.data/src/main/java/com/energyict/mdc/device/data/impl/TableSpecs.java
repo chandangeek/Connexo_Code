@@ -262,7 +262,7 @@ public enum TableSpecs {
         @Override
         public void addTo(DataModel dataModel) {
             Table<ComTaskExecution> table = dataModel.addTable(name(), ComTaskExecution.class);
-            table.map(ComTaskExecutionImpl.class);
+            table.map(ComTaskExecutionImpl.IMPLEMENTERS);
             Column id = table.addAutoIdColumn();
             Column deviceId = table.column("RTU").number().notNull().add();
             Column comtask = table.column("COMTASK").number().notNull().add();

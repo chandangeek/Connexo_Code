@@ -15,7 +15,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
  */
 public class CannotDeleteUsedDefaultConnectionTaskException extends LocalizedException {
 
-    public CannotDeleteUsedDefaultConnectionTaskException(Thesaurus thesaurus, ConnectionTask connectionTask) {
+    public CannotDeleteUsedDefaultConnectionTaskException(Thesaurus thesaurus, ConnectionTask<?,?> connectionTask) {
         super(thesaurus, MessageSeeds.DEFAULT_CONNECTION_TASK_IS_INUSE_AND_CANNOT_DELETE, connectionTask.getName(), connectionTask.getDevice().getId());
         this.set("connectionTaskName", connectionTask.getName());
         this.set("deviceId", connectionTask.getDevice().getId());

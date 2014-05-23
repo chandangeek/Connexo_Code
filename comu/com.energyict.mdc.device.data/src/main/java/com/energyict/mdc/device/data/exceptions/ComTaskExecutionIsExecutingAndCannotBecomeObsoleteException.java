@@ -16,8 +16,8 @@ import com.energyict.mdc.engine.model.ComServer;
 public class ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException extends LocalizedException {
 
     public ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException(Thesaurus thesaurus, ComTaskExecution comTaskExecution, ComServer comServer) {
-        super(thesaurus, MessageSeeds.COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE, comTaskExecution.getComTask().getName(), comTaskExecution.getDevice().getName(), comServer.getName());
-        this.set("comTask", comTaskExecution.getComTask().getName());
+        super(thesaurus, MessageSeeds.COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE, comTaskExecution.getId(), comTaskExecution.getDevice().getName(), comServer.getName());
+        this.set("comTask", comTaskExecution.getId());
         this.set("device", comTaskExecution.getDevice());
         this.set("comServerName", comServer.getName());
     }

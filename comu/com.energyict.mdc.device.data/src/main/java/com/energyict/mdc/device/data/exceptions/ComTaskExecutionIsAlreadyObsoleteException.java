@@ -15,8 +15,8 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 public class ComTaskExecutionIsAlreadyObsoleteException extends LocalizedException {
 
     public ComTaskExecutionIsAlreadyObsoleteException(Thesaurus thesaurus, ComTaskExecution comTaskExecution) {
-        super(thesaurus, MessageSeeds.COM_TASK_EXECUTION_IS_ALREADY_OBSOLETE, comTaskExecution.getComTask().getName(), comTaskExecution.getDevice().getName(), comTaskExecution.getObsoleteDate());
-        this.set("comTaskExecution", comTaskExecution.getComTask().getName());
+        super(thesaurus, MessageSeeds.COM_TASK_EXECUTION_IS_ALREADY_OBSOLETE, comTaskExecution.getId(), comTaskExecution.getDevice().getName(), comTaskExecution.getObsoleteDate());
+        this.set("comTaskExecution", comTaskExecution.getId());
         this.set("device", comTaskExecution.getDevice());
         this.set("obsoleteDate", comTaskExecution.getObsoleteDate());
     }
