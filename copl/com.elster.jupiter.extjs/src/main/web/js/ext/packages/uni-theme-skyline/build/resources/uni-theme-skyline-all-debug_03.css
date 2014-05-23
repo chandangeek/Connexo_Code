@@ -1,3 +1,8 @@
+.x-btn-step-active-small-focus .x-frame-ml,
+.x-btn-step-active-small-focus .x-frame-mr {
+  background-image: url(images/btn/btn-step-active-small-focus-sides.gif);
+}
+/* line 595, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-step-active-small-focus .x-frame-mc {
   background-color: #67ac4a;
   background-image: url(images/btn/btn-step-active-small-focus-fbg.gif);

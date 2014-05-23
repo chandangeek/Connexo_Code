@@ -3,11 +3,12 @@ Ext.define('Skyline.window.MessageBox', {
     shadow: false,
 
     reconfigure: function(cfg) {
-        if (cfg.ui) {
+        if (((typeof cfg) != "undefined") && cfg.ui) {
             this.ui = cfg.ui;
         }
         this.callParent(arguments);
     },
+
     initComponent: function () {
         var me = this,
             title = me.title;

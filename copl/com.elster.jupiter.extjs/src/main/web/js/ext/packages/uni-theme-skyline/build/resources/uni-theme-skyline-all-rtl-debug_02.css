@@ -4221,6 +4221,15 @@ h6 {
 
 /*</if slicer>*/
 /* */
+/* line 1, ../../sass/src/button/LinkButton.scss */
+a, a.x-btn {
+  color: #686868;
+}
+/* line 4, ../../sass/src/button/LinkButton.scss */
+a:hover, a.x-btn:hover {
+  color: #71adc7;
+}
+
 /* line 255, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-link-small {
   border-color: #6194ab;
@@ -4743,7 +4752,7 @@ h6 {
 
 /*</if slicer>*/
 /* */
-/* line 3, ../../sass/src/button/LinkButton.scss */
+/* line 11, ../../sass/src/button/LinkButton.scss */
 .x-btn-link-small .x-btn-inner {
   text-decoration: underline;
 }
@@ -5270,7 +5279,7 @@ h6 {
 
 /*</if slicer>*/
 /* */
-/* line 3, ../../sass/src/button/LinkButton.scss */
+/* line 11, ../../sass/src/button/LinkButton.scss */
 .x-btn-link-medium .x-btn-inner {
   text-decoration: underline;
 }
@@ -5797,7 +5806,7 @@ h6 {
 
 /*</if slicer>*/
 /* */
-/* line 3, ../../sass/src/button/LinkButton.scss */
+/* line 11, ../../sass/src/button/LinkButton.scss */
 .x-btn-link-large .x-btn-inner {
   text-decoration: underline;
 }
@@ -6330,7 +6339,7 @@ h6 {
 
 /*</if slicer>*/
 /* */
-/* line 3, ../../sass/src/button/LinkButton.scss */
+/* line 11, ../../sass/src/button/LinkButton.scss */
 .x-btn-link-toolbar-small .x-btn-inner {
   text-decoration: underline;
 }
@@ -6863,7 +6872,7 @@ h6 {
 
 /*</if slicer>*/
 /* */
-/* line 3, ../../sass/src/button/LinkButton.scss */
+/* line 11, ../../sass/src/button/LinkButton.scss */
 .x-btn-link-toolbar-medium .x-btn-inner {
   text-decoration: underline;
 }
@@ -7396,7 +7405,7 @@ h6 {
 
 /*</if slicer>*/
 /* */
-/* line 3, ../../sass/src/button/LinkButton.scss */
+/* line 11, ../../sass/src/button/LinkButton.scss */
 .x-btn-link-toolbar-large .x-btn-inner {
   text-decoration: underline;
 }
