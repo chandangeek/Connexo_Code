@@ -19,7 +19,7 @@ Ext.define('Isu.view.workspace.issues.Overview', {
         xtype: 'panel',
         ui: 'medium',
         title: "Navigation",
-        subtitle: 'subtitle',
+//        subtitle: 'subtitle',
         layout: {
             type: 'vbox',
             align: 'stretch'
@@ -40,11 +40,6 @@ Ext.define('Isu.view.workspace.issues.Overview', {
                     {
                         text: 'Issues',
                         cls: 'current'
-                    },
-                    {
-                        text: 'sub',
-                        href: '#/workspace/datacollection/issues/sub',
-                        hrefTarget: '_self'
                     }
                 ]
             },
