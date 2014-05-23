@@ -1,3 +1,4 @@
+@import url(http://fonts.googleapis.com/css?family=Lato|Marvel);
 /* including package ext-theme-base */
 /**
  * Creates a background gradient.
@@ -63,7 +64,6 @@
 /* including package ext-theme-neutral */
 /* including package ext-theme-neptune */
 /* including package uni-theme-skyline */
-@import url(http://fonts.googleapis.com/css?family=Lato|Marvel);
 /* including package uni-theme-skyline */
 /**
  * @class Ext.button.Button
@@ -43775,6 +43775,16 @@ div.x-form-spinner-down {
 /* line 81, ../../sass/src/window/MessageBox.scss */
 .x-window-notification-success .x-window-body .x-header .x-header-text {
   color: #74af74; }
+
+/* line 1, ../../sass/src/form/field/Checkbox.scss */
+.x-form-cb-label {
+  color: #686868;
+  font-family: "Lato", helvetica, arial, verdana, sans-serif; }
+
+/* line 6, ../../sass/src/form/field/Checkbox.scss */
+.x-form-checkbox {
+  height: 15px !important;
+  width: 15px !important; }
 
 /* line 3, ../../sass/src/form/Label.scss */
 .x-form-item-label {
