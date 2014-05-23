@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.engine.impl.commands.store.CollectedDeviceCacheCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.issues.IssueService;
@@ -20,7 +21,7 @@ public class UpdatedDeviceCache extends CollectedDeviceData implements Collected
     /**
      * Unique identification object of who needs to update his cache
      */
-    private final DeviceIdentifier deviceIdentifier;
+    private final DeviceIdentifier<Device> deviceIdentifier;
 
     /**
      * The DeviceProtocolCache that the protocol used/updated during communication
@@ -32,7 +33,7 @@ public class UpdatedDeviceCache extends CollectedDeviceData implements Collected
      *
      * @param deviceIdentifier unique identification of the device which need s to update his cache
      */
-    public UpdatedDeviceCache(DeviceIdentifier deviceIdentifier) {
+    public UpdatedDeviceCache(DeviceIdentifier<Device> deviceIdentifier) {
         super();
         this.deviceIdentifier = deviceIdentifier;
     }
@@ -48,7 +49,7 @@ public class UpdatedDeviceCache extends CollectedDeviceData implements Collected
     }
 
     @Override
-    public DeviceIdentifier getDeviceIdentifier() {
+    public DeviceIdentifier<Device> getDeviceIdentifier() {
         return this.deviceIdentifier;
     }
 

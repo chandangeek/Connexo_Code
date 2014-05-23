@@ -3,6 +3,8 @@ package com.energyict.mdc.engine;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 
+import com.google.common.base.Optional;
+
 import java.io.Serializable;
 
 /**
@@ -18,6 +20,8 @@ public interface EngineService {
 
     public DeviceCache newDeviceCache(Device device, Serializable simpleCacheObject);
 
-    public DeviceCache findDeviceCacheByDeviceId(Device device);
+    public Optional<DeviceCache> findDeviceCacheByDeviceId(long deviceId);
+
+    public Optional<DeviceCache> findDeviceCacheByDevice(Device device);
 
 }

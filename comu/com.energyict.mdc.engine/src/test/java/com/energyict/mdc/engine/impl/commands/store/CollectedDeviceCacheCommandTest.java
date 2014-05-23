@@ -67,7 +67,7 @@ public class CollectedDeviceCacheCommandTest {
         deviceCacheCommand.execute(comServerDAO);
 
         // Asserts
-        verify(this.engineService, times(0)).findDeviceCacheByDeviceId(any(Device.class));
+        verify(this.engineService, times(0)).findDeviceCacheByDevice(any(Device.class));
     }
 
     @Test
@@ -81,12 +81,12 @@ public class CollectedDeviceCacheCommandTest {
         CollectedDeviceCacheCommand deviceCacheCommand = new CollectedDeviceCacheCommand(updatedDeviceCache);
         deviceCacheCommand.logExecutionWith(this.executionLogger);
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
-        when(this.engineService.findDeviceCacheByDeviceId(this.device)).thenReturn(null);
+        when(this.engineService.findDeviceCacheByDevice(this.device)).thenReturn(null);
         // Business method
         deviceCacheCommand.execute(comServerDAO);
 
         // Asserts
-        verify(this.engineService).findDeviceCacheByDeviceId(this.device);
+        verify(this.engineService).findDeviceCacheByDevice(this.device);
         verify(this.engineService).newDeviceCache(this.device, protocolCache);
     }
 

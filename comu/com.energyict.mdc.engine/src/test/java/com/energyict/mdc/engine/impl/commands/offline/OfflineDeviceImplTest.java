@@ -31,22 +31,25 @@ import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.TimeZone;
 
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static junit.framework.Assert.assertNotNull;
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyList;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 
 /**
@@ -78,13 +81,12 @@ public class OfflineDeviceImplTest {
     private static final TimeZone deviceProtocolPluggableClassTimeZone = TimeZone.getTimeZone("GMT");
     private static final TimeZone deviceTimeZone = TimeZone.getTimeZone("GMT+05");
 
-    private static final String DEVICE_PROTOCOL_JAVA_CLASS = "com.energyict.mdc.protocol.mocks.MockDeviceProtocol";
-    private static final String DEVICE_PROTOCOL_PLUGGABLE_CLASS_NAME = "DeviceProtocolPluggableClassName";
-
     @Mock
     private DeviceDataService deviceDataService;
     @Mock
     private DeviceMessageFactory deviceMessageFactory;
+    @Mock
+    private OfflineDeviceImpl.ServiceProvider offlineDeviceServiceProvider;
 
     private TypedProperties getDeviceProtocolProperties() {
         TypedProperties properties = TypedProperties.empty();
@@ -176,7 +178,7 @@ public class OfflineDeviceImplTest {
     @Test
     public void goOfflineTest() {
         Device device = createMockDevice();
-        OfflineDeviceImpl offlineRtu = new OfflineDeviceImpl(device, DeviceOffline.needsEverything);
+        OfflineDeviceImpl offlineRtu = new OfflineDeviceImpl(device, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
         assertEquals("The SerialNumber should match", meterSerialNumber, offlineRtu.getSerialNumber());
         assertEquals("The ID should match", DEVICE_ID, offlineRtu.getId());
         assertNotNull("The DeviceProtocol PluggableClass should not be null", offlineRtu.getDeviceProtocolPluggableClass());
@@ -185,7 +187,7 @@ public class OfflineDeviceImplTest {
 
     @Test
     public void propertiesTest() {
-        OfflineDeviceImpl offlineRtu = new OfflineDeviceImpl(createMockDevice(), DeviceOffline.needsEverything);
+        OfflineDeviceImpl offlineRtu = new OfflineDeviceImpl(createMockDevice(), DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
         offlineRtu.addProperties(getDeviceProperties(), getDeviceProtocolProperties());
         assertEquals("Size should be equal to seven", getTotalSizeOfProperties(), offlineRtu.getAllProperties().localSize());
         assertEquals(cp_propValue1, offlineRtu.getAllProperties().getProperty(cp_prop1));
@@ -209,16 +211,16 @@ public class OfflineDeviceImplTest {
         when(slave1.getDeviceType()).thenReturn(slaveRtuType);
         Device slaveFromSlave1 = createMockDevice(789, "slaveFromSlave1");
         when(slaveFromSlave1.getDeviceType()).thenReturn(slaveRtuType);
-        OfflineDevice offlineSlaveFromSlave1 = new OfflineDeviceImpl(slaveFromSlave1, DeviceOffline.needsEverything);
+        OfflineDevice offlineSlaveFromSlave1 = new OfflineDeviceImpl(slaveFromSlave1, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
         when(slave1.getPhysicalConnectedDevices()).thenReturn(Arrays.<BaseDevice<Channel, LoadProfile, Register>>asList(slaveFromSlave1));
-        OfflineDevice offlineSlave1 = new OfflineDeviceImpl(slave1, DeviceOffline.needsEverything);
+        OfflineDevice offlineSlave1 = new OfflineDeviceImpl(slave1, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
 
         Device slave2 = createMockDevice(456, "slave2");
         when(slave2.getDeviceType()).thenReturn(slaveRtuType);
-        OfflineDevice offlineSlave2 = new OfflineDeviceImpl(slave2, DeviceOffline.needsEverything);
+        OfflineDevice offlineSlave2 = new OfflineDeviceImpl(slave2, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
         when(rtu.getPhysicalConnectedDevices()).thenReturn(Arrays.<BaseDevice<Channel, LoadProfile, Register>>asList(slave1, slave2));
 
-        OfflineDeviceImpl offlineRtu = new OfflineDeviceImpl(rtu, DeviceOffline.needsEverything);
+        OfflineDeviceImpl offlineRtu = new OfflineDeviceImpl(rtu, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
 
         //asserts
         assertNotNull(offlineRtu.getAllSlaveDevices());
@@ -239,13 +241,13 @@ public class OfflineDeviceImplTest {
         when(slave1.getDeviceType()).thenReturn(slaveRtuType);
         Device slaveFromSlave1 = createMockDevice(789, "slaveFromSlave1");
         when(slaveFromSlave1.getDeviceType()).thenReturn(slaveRtuType);
-        OfflineDevice offlineSlaveFromSlave1 = new OfflineDeviceImpl(slaveFromSlave1, DeviceOffline.needsEverything);
-        OfflineDevice offlineSlave1 = new OfflineDeviceImpl(slave1, DeviceOffline.needsEverything);
+        OfflineDevice offlineSlaveFromSlave1 = new OfflineDeviceImpl(slaveFromSlave1, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
+        OfflineDevice offlineSlave1 = new OfflineDeviceImpl(slave1, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
         when(slave1.getPhysicalConnectedDevices()).thenReturn(Arrays.<BaseDevice<Channel, LoadProfile, Register>>asList(slaveFromSlave1));
 
         Device slave2 = createMockDevice(456, "slave2");
         when(slave2.getDeviceType()).thenReturn(slaveRtuType);
-        OfflineDevice offlineSlave2 = new OfflineDeviceImpl(slave2, DeviceOffline.needsEverything);
+        OfflineDevice offlineSlave2 = new OfflineDeviceImpl(slave2, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
         when(device.getPhysicalConnectedDevices()).thenReturn(Arrays.<BaseDevice<Channel, LoadProfile, Register>>asList(slave1, slave2));
 
         ObisCode obisCode1 = ObisCode.fromString("1.0.99.1.0.255");
@@ -265,7 +267,7 @@ public class OfflineDeviceImplTest {
         when(slave2.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile4, loadProfile2));
         when(slaveFromSlave1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1, loadProfilex));
 
-        OfflineDeviceImpl offlineDevice = new OfflineDeviceImpl(device, DeviceOffline.needsEverything);
+        OfflineDeviceImpl offlineDevice = new OfflineDeviceImpl(device, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
 
         // Asserts
         assertNotNull(offlineDevice.getMasterOfflineLoadProfiles());
@@ -281,7 +283,7 @@ public class OfflineDeviceImplTest {
         Register register2 = createMockedRegister(createMockedRegisterSpec(), device);
         when(device.getRegisters()).thenReturn(Arrays.asList(register1, register2));
 
-        OfflineDeviceImpl offlineRtu = new OfflineDeviceImpl(device, DeviceOffline.needsEverything);
+        OfflineDeviceImpl offlineRtu = new OfflineDeviceImpl(device, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
 
         // asserts
         assertNotNull(offlineRtu.getAllRegisters());
@@ -311,7 +313,7 @@ public class OfflineDeviceImplTest {
         when(slaveWithoutNeedProxy.getRegisters()).thenReturn(Arrays.asList(registerSlave2));
         when(device.getPhysicalConnectedDevices()).thenReturn(Arrays.<BaseDevice<Channel, LoadProfile, Register>>asList(slaveWithNeedProxy, slaveWithoutNeedProxy));
 
-        OfflineDeviceImpl offlineRtu = new OfflineDeviceImpl(device, DeviceOffline.needsEverything);
+        OfflineDeviceImpl offlineRtu = new OfflineDeviceImpl(device, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
 
         // asserts
         assertNotNull(offlineRtu.getAllRegisters());
@@ -334,12 +336,12 @@ public class OfflineDeviceImplTest {
         when(device.getRegisters()).thenReturn(Arrays.asList(register1, register2));
         OfflineRegister offlineRegister2 = mock(OfflineRegister.class);
 
-        OfflineDeviceImpl offlineRtu = spy(new OfflineDeviceImpl(device, DeviceOffline.needsEverything));
+        OfflineDeviceImpl offlineRtu = spy(new OfflineDeviceImpl(device, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider));
         when(offlineRtu.getAllRegisters()).thenReturn(Arrays.asList(offlineRegister1, offlineRegister2));
 
         // asserts
-        assertNotNull(offlineRtu.getRegistersForRegisterGroup(Arrays.asList(((int)rtuRegisterGroup.getId()))));
-        assertEquals("Should have gotten 1 registers", 1, offlineRtu.getRegistersForRegisterGroup(Arrays.asList((int)rtuRegisterGroup.getId())).size());
+        assertNotNull(offlineRtu.getRegistersForRegisterGroup(Arrays.asList((rtuRegisterGroup.getId()))));
+        assertEquals("Should have gotten 1 registers", 1, offlineRtu.getRegistersForRegisterGroup(Arrays.asList(rtuRegisterGroup.getId())).size());
     }
 
     private RegisterSpec createMockedRegisterSpec() {
@@ -368,14 +370,14 @@ public class OfflineDeviceImplTest {
         DeviceMessageSpec mockedDeviceMessageSpec2 = DeviceMessageTestSpec.TEST_SPEC_WITHOUT_SPECS;
         when(deviceMessage2.getSpecification()).thenReturn(mockedDeviceMessageSpec2);
         when(deviceMessage2.getDevice()).thenReturn(device);
-        OfflineDevice offlineDevice = new OfflineDeviceImpl(device, DeviceOffline.needsEverything);
+        OfflineDevice offlineDevice = new OfflineDeviceImpl(device, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
 
         assertNotNull(offlineDevice.getAllPendingDeviceMessages());
         assertEquals("Size of the pending list should be zero", 0, offlineDevice.getAllPendingDeviceMessages().size());
 
         when(deviceMessageFactory.findByDeviceAndState(device, DeviceMessageStatus.PENDING)).thenReturn(Arrays.asList(deviceMessage2));
 
-        offlineDevice = new OfflineDeviceImpl(device, DeviceOffline.needsEverything);
+        offlineDevice = new OfflineDeviceImpl(device, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
         assertNotNull(offlineDevice.getAllPendingDeviceMessages());
         assertEquals("Size of the pending list should be one", 1, offlineDevice.getAllPendingDeviceMessages().size());
         assertEquals("Size of the sent list should be 0", 0, offlineDevice.getAllSentDeviceMessages().size());
@@ -389,14 +391,14 @@ public class OfflineDeviceImplTest {
         DeviceMessageSpec mockedDeviceMessageSpec2 = DeviceMessageTestSpec.TEST_SPEC_WITH_SIMPLE_SPECS;
         when(deviceMessage2.getSpecification()).thenReturn(mockedDeviceMessageSpec2);
         when(deviceMessage2.getDevice()).thenReturn(device);
-        OfflineDevice offlineDevice = new OfflineDeviceImpl(device, DeviceOffline.needsEverything);
+        OfflineDevice offlineDevice = new OfflineDeviceImpl(device, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
 
         assertNotNull(offlineDevice.getAllSentDeviceMessages());
         assertEquals("Size of the sent list should be zero", 0, offlineDevice.getAllSentDeviceMessages().size());
 
         when(deviceMessageFactory.findByDeviceAndState(device, DeviceMessageStatus.SENT)).thenReturn(Arrays.asList(deviceMessage2));
 
-        offlineDevice = new OfflineDeviceImpl(device, DeviceOffline.needsEverything);
+        offlineDevice = new OfflineDeviceImpl(device, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
         assertNotNull(offlineDevice.getAllSentDeviceMessages());
         assertEquals("Size of the sent list should be one", 1, offlineDevice.getAllSentDeviceMessages().size());
         assertEquals("Size of the pending list should be 0", 0, offlineDevice.getAllPendingDeviceMessages().size());
@@ -407,7 +409,7 @@ public class OfflineDeviceImplTest {
         Device
                 device = createMockDevice();
         when(device.getDeviceProtocolPluggableClass()).thenReturn(null);
-        OfflineDevice offlineDevice = new OfflineDeviceImpl(device, DeviceOffline.needsEverything);
+        OfflineDevice offlineDevice = new OfflineDeviceImpl(device, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
 
         //asserts
         assertThat(offlineDevice.getDeviceProtocolPluggableClass()).isNull();
@@ -424,7 +426,7 @@ public class OfflineDeviceImplTest {
         when(master.getPhysicalConnectedDevices()).thenReturn(Arrays.<BaseDevice<Channel, LoadProfile, Register>>asList(slaveWithoutCapability));
 
         // business method
-        OfflineDevice offlineDevice = new OfflineDeviceImpl(master, new DeviceOfflineFlags(DeviceOfflineFlags.SLAVE_DEVICES_FLAG));
+        OfflineDevice offlineDevice = new OfflineDeviceImpl(master, new DeviceOfflineFlags(DeviceOfflineFlags.SLAVE_DEVICES_FLAG), this.offlineDeviceServiceProvider);
 
         // assert
         assertThat(offlineDevice.getAllSlaveDevices()).isNotNull();
@@ -444,7 +446,7 @@ public class OfflineDeviceImplTest {
         when(master.getPhysicalConnectedDevices()).thenReturn(Arrays.<BaseDevice<Channel, LoadProfile, Register>>asList(slaveWithCapability));
 
         // business method
-        OfflineDevice offlineDevice = new OfflineDeviceImpl(master, new DeviceOfflineFlags(DeviceOfflineFlags.SLAVE_DEVICES_FLAG));
+        OfflineDevice offlineDevice = new OfflineDeviceImpl(master, new DeviceOfflineFlags(DeviceOfflineFlags.SLAVE_DEVICES_FLAG), this.offlineDeviceServiceProvider);
 
         // assert
         assertThat(offlineDevice.getAllSlaveDevices()).isNotEmpty();
@@ -453,9 +455,8 @@ public class OfflineDeviceImplTest {
 
     @Test
     public void propertyOfDeviceOverrulesPropertiesOfDeviceProtocolTest() {
-        Device
-                device = createMockDevice();
-        OfflineDevice offlineDevice = new OfflineDeviceImpl(device, new DeviceOfflineFlags());
+        Device device = createMockDevice();
+        OfflineDevice offlineDevice = new OfflineDeviceImpl(device, new DeviceOfflineFlags(), this.offlineDeviceServiceProvider);
 
         Object property = offlineDevice.getAllProperties().getProperty(DEVICE_TIMEZONE_PROPERTY);
         assertThat(property).isEqualTo(deviceTimeZone);

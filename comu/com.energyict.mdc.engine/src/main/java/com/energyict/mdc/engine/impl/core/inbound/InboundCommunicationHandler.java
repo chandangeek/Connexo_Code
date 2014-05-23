@@ -2,9 +2,11 @@ package com.energyict.mdc.engine.impl.core.inbound;
 
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.EventType;
+import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceImpl;
 import com.energyict.mdc.engine.impl.commands.store.ComSessionRootDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.CompositeDeviceCommand;
@@ -30,10 +32,11 @@ import com.energyict.mdc.protocol.api.exceptions.DuplicateException;
 import com.energyict.mdc.protocol.api.inbound.FindMultipleDevices;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.tasks.history.ComSession;
 import com.energyict.mdc.tasks.history.ComSessionBuilder;
+
+import com.google.common.base.Optional;
 
 import java.util.List;
 
@@ -71,6 +74,15 @@ public class InboundCommunicationHandler {
         this.comServerDAO = comServerDAO;
         this.deviceCommandExecutor = deviceCommandExecutor;
         this.serviceProvider = serviceProvider;
+    }
+
+    private class OfflineDeviceServiceProvider implements OfflineDeviceImpl.ServiceProvider {
+
+        @Override
+        public Optional<DeviceCache> findProtocolCacheByDeviceId(long deviceId) {
+            return serviceProvider.engineService().findDeviceCacheByDeviceId(deviceId);
+        }
+
     }
 
     /**
@@ -116,7 +128,7 @@ public class InboundCommunicationHandler {
             FindMultipleDevices<?> multipleDevicesFinder = (FindMultipleDevices<?>) inboundDeviceProtocol.getDeviceIdentifier();
             List<? extends BaseDevice<? extends BaseChannel, ? extends BaseLoadProfile<? extends BaseChannel>, ? extends BaseRegister>> allDevices = multipleDevicesFinder.getAllDevices();
             for (BaseDevice<?,?,?> device : allDevices) {
-                if (deviceIsReadyForInboundCommunicationOnThisPort(new OfflineDeviceImpl((Device) device, new DeviceOfflineFlags()))) {
+                if (deviceIsReadyForInboundCommunicationOnThisPort(new OfflineDeviceImpl((Device) device, new DeviceOfflineFlags(), new OfflineDeviceServiceProvider()))) {
                     List<DeviceCommandExecutionToken> tokens = this.deviceCommandExecutor.tryAcquireTokens(1);
                     if (!tokens.isEmpty() && this.connectionTask != null) {
                         CompositeDeviceCommand storeCommand = new ComSessionRootDeviceCommand();

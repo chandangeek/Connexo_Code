@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
@@ -44,7 +43,7 @@ public class RegisterCommandImpl extends CompositeComCommandImpl implements Regi
      */
     private List<CollectedData> collectedDataList = new ArrayList<>();
 
-    public RegisterCommandImpl(final RegistersTask registersTask, final OfflineDevice device, final CommandRoot commandRoot, ComTaskExecution comTaskExecution) {
+    public RegisterCommandImpl(RegistersTask registersTask, OfflineDevice device, CommandRoot commandRoot, ComTaskExecution comTaskExecution) {
         super(commandRoot);
         if (registersTask == null) {
             throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "registersTask");
@@ -65,14 +64,14 @@ public class RegisterCommandImpl extends CompositeComCommandImpl implements Regi
         }
         ReadRegistersCommand readRegistersCommand = getCommandRoot().getReadRegistersCommand(this, comTaskExecution);
         readRegistersCommand.addRegisters(registers);
-        deviceRegisterList = new DeviceRegisterList(new DeviceIdentifierById(device.getId(), getCommandRoot().getServiceProvider().getDeviceDataService()));
+        deviceRegisterList = new DeviceRegisterList(new DeviceIdentifierById(device.getId(), getCommandRoot().getServiceProvider().deviceDataService()));
     }
 
-    private List<Integer> getRegisterGroupIds () {
+    private List<Long> getRegisterGroupIds () {
         List<RegisterGroup> registerGroups = this.registersTask.getRegisterGroups();
-        List<Integer> registerGroupIds = new ArrayList<>(registerGroups.size());
+        List<Long> registerGroupIds = new ArrayList<>(registerGroups.size());
         for (RegisterGroup registerGroup : registerGroups) {
-            registerGroupIds.add((int) registerGroup.getId());
+            registerGroupIds.add(registerGroup.getId());
         }
         return registerGroupIds;
     }

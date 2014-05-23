@@ -260,15 +260,15 @@ public interface CommandRoot extends CompositeComCommand {
 
     interface ServiceProvider {
 
-        public IssueService getIssueService();
+        public IssueService issueService();
 
-        public Clock getClock();
+        public Clock clock();
 
-        public DeviceDataService getDeviceDataService();
+        public DeviceDataService deviceDataService();
 
-        public MdcReadingTypeUtilService getMdcReadingTypeUtilService();
+        public MdcReadingTypeUtilService mdcReadingTypeUtilService();
 
-        public TaskHistoryService getTaskHistoryService();
+        public TaskHistoryService taskHistoryService();
 
         public TransactionService transactionService();
     }

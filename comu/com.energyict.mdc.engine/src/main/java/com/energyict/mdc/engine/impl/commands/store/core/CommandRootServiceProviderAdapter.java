@@ -21,27 +21,27 @@ public class CommandRootServiceProviderAdapter implements CommandRoot.ServicePro
     }
 
     @Override
-    public IssueService getIssueService() {
+    public IssueService issueService() {
         return delegate.issueService();
     }
 
     @Override
-    public Clock getClock() {
+    public Clock clock() {
         return delegate.clock();
     }
 
     @Override
-    public DeviceDataService getDeviceDataService() {
+    public DeviceDataService deviceDataService() {
         return delegate.deviceDataService();
     }
 
     @Override
-    public MdcReadingTypeUtilService getMdcReadingTypeUtilService() {
+    public MdcReadingTypeUtilService mdcReadingTypeUtilService() {
         return delegate.mdcReadingTypeUtilService();
     }
 
     @Override
-    public TaskHistoryService getTaskHistoryService() {
+    public TaskHistoryService taskHistoryService() {
         return delegate.taskHistoryService();
     }
 
