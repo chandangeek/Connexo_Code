@@ -15,7 +15,10 @@ Ext.define('Isu.view.administration.communicationtasks.Edit', {
                     fieldLabel: 'Name',
                     labelWidth: 200,
                     labelSeparator: ' *',
-                    allowBlank: false
+                    allowBlank: false,
+                    margin: '0 0 10 -100',
+                    labelPad: 100,
+                    width: 600
                 },
                 {
                     layout: 'column',
@@ -24,15 +27,46 @@ Ext.define('Isu.view.administration.communicationtasks.Edit', {
                             xtype: 'label',
                             html: 'Commands*',
                             width: 200,
-                            cls: 'x-form-item-label uni-form-item-bold x-form-item-label-right'
+                            margin: '10 0 0 -100'
                         },
                         {
                             xtype: 'container',
+                            layout: {
+                                type: 'vbox'
+                            },
                             name: 'commandnames'
                         },
                         {
                             xtype: 'container',
+                            margin: '0 0 0 100',
                             name: 'commandfields'
+                        }
+                    ]
+                },
+                {
+                    xtype: 'toolbar',
+                    margin: '0 0 0 190',
+                    items: [
+                        {
+                            xtype: 'button',
+                            name: 'action',
+                            ui: 'action',
+                            formBind: true,
+                            itemId: 'createEditTask',
+                            disabled: true
+                        },
+                        {
+                            xtype: 'button',
+                            text: 'Cancel',
+                            action: 'cancel',
+                            ui: 'link',
+                            listeners: {
+                                click: {
+                                    fn: function () {
+                                        window.location.href = '#/issue-administration/communicationtasks';
+                                    }
+                                }
+                            }
                         }
                     ]
                 }

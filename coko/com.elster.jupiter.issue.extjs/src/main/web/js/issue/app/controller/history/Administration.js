@@ -33,7 +33,7 @@ Ext.define('Isu.controller.history.Administration', {
         crossroads.addRoute('issue-administration/communicationtasks/create',function(){
             me.getController('Isu.controller.CommunicationTasksEdit').showOverview();
         });
-        crossroads.addRoute('issue-administration/communicationtasks/{id}/edit',function(id){
+        crossroads.addRoute('issue-administration/communicationtasks/{id}',function(id){
             me.getController('Isu.controller.CommunicationTasksEdit').showOverview(id);
         });
 

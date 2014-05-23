@@ -13,14 +13,20 @@ Ext.define('Isu.view.administration.communicationtasks.parameters.clock.Set', {
             items: [
                 {
                     xtype: 'textfield',
+                    itemId: 'setMinNum',
                     name: 'minimumclockdifference',
                     fieldLabel: 'Minimum clock difference',
                     labelWidth: 200,
-                    width: 240,
-                    margin: '0 20 0 0'
+                    width: 250,
+                    maskRe: /[0-9]+/,
+                    margin: '0 10 0 0',
+                    value: 5,
+                    labelPad: 18
                 },
                 {
-                    xtype: 'communication-tasks-parameters-timecombo'
+                    xtype: 'communication-tasks-parameters-timecombo',
+                    itemId: 'setMinTime',
+                    value: 'seconds'
                 }
             ]
         },
@@ -30,14 +36,20 @@ Ext.define('Isu.view.administration.communicationtasks.parameters.clock.Set', {
             items: [
                 {
                     xtype: 'textfield',
+                    itemId: 'setMaxNum',
                     name: 'maximumclockdifference',
                     fieldLabel: 'Maximum clock difference',
                     labelWidth: 200,
-                    width: 240,
-                    margin: '0 20 0 0'
+                    width: 250,
+                    maskRe: /[0-9]+/,
+                    margin: '0 10 0 0',
+                    value: 1,
+                    labelPad: 18
                 },
                 {
-                    xtype: 'communication-tasks-parameters-timecombo'
+                    xtype: 'communication-tasks-parameters-timecombo',
+                    itemId: 'setMaxTime',
+                    value: 'hours'
                 }
             ]
         }

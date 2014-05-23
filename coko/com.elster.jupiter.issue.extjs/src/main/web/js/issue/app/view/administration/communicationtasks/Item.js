@@ -7,25 +7,20 @@ Ext.define('Isu.view.administration.communicationtasks.Item', {
     ],
     alias: 'widget.communication-tasks-item',
     height: 310,
+    hidden: false,
     title: 'Details',
     frame: true,
     tools: [
         {
-            xtype: 'item-action',
+            xtype: 'button',
+            text: 'Actions',
+            iconCls: 'x-uni-action-iconA',
             menu: {
-                xtype: 'communication-tasks-action-menu',
-                issueId: this.record ? this.record.getId() : null
+                xtype: 'communication-tasks-action-menu'
             }
         }
     ],
     items: {
         xtype: 'communication-tasks-form'
-        // todo: animate button
-//        buttons: [{
-//            text: 'View details',
-//            action: 'view'
-//        }]
-    },
-    // todo: set empty text
-    emptyText: '<h3>No task selected</h3><p>Select a task to view its detail.</p>'
+    }
 });

@@ -10,7 +10,7 @@ Ext.define('Isu.view.administration.communicationtasks.ActionMenu', {
             action: 'edit'
         },
         {
-            text: 'Delete',
+            text: 'Remove',
             action: 'delete'
         }
     ]

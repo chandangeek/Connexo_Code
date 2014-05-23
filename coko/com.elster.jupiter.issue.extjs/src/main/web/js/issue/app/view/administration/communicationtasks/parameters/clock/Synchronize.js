@@ -13,14 +13,20 @@ Ext.define('Isu.view.administration.communicationtasks.parameters.clock.Synchron
             items: [
                 {
                     xtype: 'textfield',
+                    itemId: 'syncMinNum',
                     name: 'minimumclockdifference',
                     fieldLabel: 'Minimum clock difference',
                     labelWidth: 200,
-                    width: 240,
-                    margin: '0 20 0 0'
+                    width: 250,
+                    maskRe: /[0-9]+/,
+                    margin: '0 10 0 0',
+                    value: 5,
+                    labelPad: 18
                 },
                 {
-                    xtype: 'communication-tasks-parameters-timecombo'
+                    xtype: 'communication-tasks-parameters-timecombo',
+                    itemId: 'syncMinTime',
+                    value: 'seconds'
                 }
             ]
         },
@@ -31,14 +37,20 @@ Ext.define('Isu.view.administration.communicationtasks.parameters.clock.Synchron
             items: [
                 {
                     xtype: 'textfield',
+                    itemId: 'syncMaxNum',
                     name: 'maximumclockdifference',
                     fieldLabel: 'Maximum clock difference',
                     labelWidth: 200,
-                    width: 240,
-                    margin: '0 20 0 0'
+                    width: 250,
+                    maskRe: /[0-9]+/,
+                    margin: '0 10 0 0',
+                    value: 1,
+                    labelPad: 18
                 },
                 {
-                    xtype: 'communication-tasks-parameters-timecombo'
+                    xtype: 'communication-tasks-parameters-timecombo',
+                    itemId: 'syncMaxTime',
+                    value: 'hours'
                 }
             ]
         },
@@ -48,26 +60,22 @@ Ext.define('Isu.view.administration.communicationtasks.parameters.clock.Synchron
             items: [
                 {
                     xtype: 'textfield',
+                    itemId: 'syncMaxNumShift',
                     name: 'maximumclockshift',
                     fieldLabel: 'Maximum clock shift',
                     labelWidth: 200,
-                    width: 240,
-                    margin: '0 20 0 0'
+                    width: 250,
+                    maskRe: /[0-9]+/,
+                    margin: '0 10 0 0',
+                    value: 1,
+                    labelPad: 18
                 },
                 {
-                    xtype: 'communication-tasks-parameters-timecombo'
+                    xtype: 'communication-tasks-parameters-timecombo',
+                    itemId: 'syncMaxTimeShift',
+                    value: 'minutes'
                 }
             ]
         }
-    ],
-
-    loadParams: function (params) {
-
-    },
-
-    getParams: function () {
-        var params;
-
-        return params;
-    }
+    ]
 });

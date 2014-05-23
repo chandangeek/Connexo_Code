@@ -13,8 +13,7 @@ Ext.define('Isu.model.CommunicationTasksCategories', {
 
     proxy: {
         type: 'rest',
-//        url: '/api/cts/comtasks/categories',
-        url: '/apps/issue/cat.json',
+        url: '/api/cts/comtasks/categories',
         reader: {
             type: 'json',
             root: 'data'

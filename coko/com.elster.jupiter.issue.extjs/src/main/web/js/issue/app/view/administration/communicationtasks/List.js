@@ -3,7 +3,6 @@ Ext.define('Isu.view.administration.communicationtasks.List', {
     alias: 'widget.communication-tasks-list',
     store: 'Isu.store.CommunicationTasks',
     enableColumnHide: false,
-    emptyText: '<h3>No task found</h3><p>No communication tasks have been defined yet.</p>',
     height: 395,
     columns: {
         defaults: {
@@ -47,8 +46,10 @@ Ext.define('Isu.view.administration.communicationtasks.List', {
                 },
                 {
                     xtype: 'button',
-                    text: 'Create communication tasks',
-                    action: 'createcommunicationtasks'
+                    text: 'Create communication task',
+                    action: 'createcommunicationtasks',
+                    hrefTarget: '',
+                    href: '#/issue-administration/communicationtasks/create'
                 }
             ]
         },

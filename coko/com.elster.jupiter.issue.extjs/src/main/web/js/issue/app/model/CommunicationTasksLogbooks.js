@@ -1,4 +1,4 @@
-Ext.define('Isu.model.CommunicationTasks', {
+Ext.define('Isu.model.CommunicationTasksLogbooks', {
     extend: 'Ext.data.Model',
     fields: [
         {
@@ -10,14 +10,14 @@ Ext.define('Isu.model.CommunicationTasks', {
             type: 'string'
         },
         {
-            name: 'commands',
-            type: 'auto'
+            name: 'obis',
+            type: 'string'
         }
     ],
 
     proxy: {
         type: 'rest',
-        url: '/api/cts/comtasks',
+        url: '/api/mds/logbooktypes',
         reader: {
             type: 'json',
             root: 'data'

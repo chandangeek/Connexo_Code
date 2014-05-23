@@ -13,11 +13,13 @@ Ext.define('Isu.view.administration.communicationtasks.Form', {
         {
             xtype: 'displayfield',
             fieldLabel: 'Name',
+            itemId: 'tasksName',
             name: 'name'
         },
         {
             xtype: 'displayfield',
             fieldLabel: 'Commands',
+            itemId: 'tasksCommands',
             name: 'commandsString'
         }
     ]

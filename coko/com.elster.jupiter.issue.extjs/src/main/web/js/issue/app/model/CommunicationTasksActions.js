@@ -13,8 +13,7 @@ Ext.define('Isu.model.CommunicationTasksActions', {
 
     proxy: {
         type: 'rest',
-//        url: '/api/cts/comtasks/actions',
-        url: '/apps/issue/act.json',
+        url: '/api/cts/comtasks/actions',
         reader: {
             type: 'json',
             root: 'data'

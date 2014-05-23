@@ -13,10 +13,12 @@ Ext.define('Isu.view.administration.communicationtasks.Command', {
             xtype: 'communication-tasks-categorycombo'
         }
     ],
+    margin: '5 0 10 100',
     bbar: [
         {
             xtype: 'button',
             text: 'Add',
+            ui: 'action',
             action: 'addCommand',
             disabled: true,
             hidden: true
@@ -24,12 +26,14 @@ Ext.define('Isu.view.administration.communicationtasks.Command', {
         {
             xtype: 'button',
             text: 'Save',
+            ui: 'action',
             action: 'saveCommand',
             hidden: true
         },
         {
             xtype: 'button',
             text: 'Remove',
+            ui: 'delete',
             action: 'removeCommand',
             hidden: true
         },
@@ -40,15 +44,5 @@ Ext.define('Isu.view.administration.communicationtasks.Command', {
             action: 'cancelEditCommand',
             hidden: true
         }
-    ],
-
-    loadCommand: function (command) {
-
-    },
-
-    getCommand: function () {
-        var command;
-
-        return command;
-    }
+    ]
 });

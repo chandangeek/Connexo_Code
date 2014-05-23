@@ -4,7 +4,7 @@ Ext.define('Isu.view.administration.communicationtasks.ActionCombo', {
     name: 'action',
     fieldLabel: 'Action',
     labelWidth: 200,
-    labelSeparator: ' *',
+    labelSeparator: '*',
     store: 'Isu.store.CommunicationTasksActions',
     queryMode: 'local',
     displayField: 'name',

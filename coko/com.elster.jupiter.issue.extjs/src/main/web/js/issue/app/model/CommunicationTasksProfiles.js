@@ -1,4 +1,4 @@
-Ext.define('Isu.model.CommunicationTasks', {
+Ext.define('Isu.model.CommunicationTasksProfiles', {
     extend: 'Ext.data.Model',
     fields: [
         {
@@ -10,17 +10,26 @@ Ext.define('Isu.model.CommunicationTasks', {
             type: 'string'
         },
         {
-            name: 'commands',
+            name: 'obisCode',
+            type: 'string'
+        },
+        {
+            name: 'timeDuration',
+            type: 'auto'
+        },
+        {
+            name: 'measurementTypes',
             type: 'auto'
         }
     ],
 
     proxy: {
         type: 'rest',
-        url: '/api/cts/comtasks',
+        url: '/api/mds/loadprofiles',
         reader: {
             type: 'json',
             root: 'data'
         }
     }
 });
+
