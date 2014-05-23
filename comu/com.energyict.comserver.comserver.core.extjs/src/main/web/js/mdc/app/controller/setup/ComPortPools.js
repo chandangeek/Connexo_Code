@@ -153,7 +153,7 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
 
         //if (recordArray.length > 0) {
         //  recordArray[0].destroy({
-        record.destory({
+        record.destroy({
             callback: function () {
                 // callbackCount--;
                 // if(callbackCount==0){

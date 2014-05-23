@@ -13,6 +13,7 @@ Ext.define('Mdc.widget.TimeInfoField', {
     layout: 'hbox',
     msgTarget: 'side',
     submitFormat: 'c',
+    flex: 1,
 
     valueCfg: null,
     unitCfg: null,
@@ -94,8 +95,9 @@ Ext.define('Mdc.widget.TimeInfoField', {
 
     markInvalid: function(fields){
         this.eachItem(function(field){
-            field.markInvalid(fields);
+            field.markInvalid('');
         });
+        this.items.items[0].markInvalid(fields);
     },
 
     eachItem: function(fn, scope) {
