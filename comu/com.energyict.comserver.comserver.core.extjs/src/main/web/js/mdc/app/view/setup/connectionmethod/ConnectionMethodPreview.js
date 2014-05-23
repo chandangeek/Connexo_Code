@@ -99,7 +99,11 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
                                 {
                                     xtype: 'displayfield',
                                     name: 'allowSimultaneousConnections',
-                                    fieldLabel: Uni.I18n.translate('connectionmethod.simultaneousConnectionsAllowed', 'MDC', 'Simultaneous connections allowed')
+                                    fieldLabel: Uni.I18n.translate('connectionmethod.simultaneousConnectionsAllowed', 'MDC', 'Simultaneous connections allowed'),
+                                    renderer: function(value){
+                                        return value? Uni.I18n.translate('general.yes', 'MDC', 'Yes'):Uni.I18n.translate('general.no', 'MDC', 'No');
+
+                                    }
                                 }
                             ]
                         },
@@ -122,7 +126,10 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
                                 {
                                     xtype: 'displayfield',
                                     name: 'isDefault',
-                                    fieldLabel: Uni.I18n.translate('connectionmethod.setAsDefault', 'MDC', 'Set as default')
+                                    fieldLabel: Uni.I18n.translate('connectionmethod.default', 'MDC', 'Default'),
+                                    renderer: function(value){
+                                        return value? Uni.I18n.translate('general.yes', 'MDC', 'Yes'):Uni.I18n.translate('general.no', 'MDC', 'No');
+                                    }
                                 },
                                 {
                                     xtype: 'displayfield',

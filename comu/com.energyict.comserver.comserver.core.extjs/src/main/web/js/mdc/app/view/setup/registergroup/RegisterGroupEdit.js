@@ -49,21 +49,13 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                         itemId: 'registerGroupEditCreateTitle',
                         margins: '10 10 10 10'
                     },
-                    //{
-                    //    xtype: 'component',
-                    //    html: '',
-                    //    margins: '10 10 10 10',
-                    //    itemId: 'registerGroupEditCreateInformation'
-                    //},
                     {
                         xtype: 'container',
-                        //columnWidth: 0.5,
                         items: [
                             {
                                 xtype: 'form',
                                 border: false,
                                 itemId: 'registerGroupEditForm',
-                                //padding: '10 10 0 10',
                                 layout: {
                                     type: 'vbox',
                                     align: 'stretch'
@@ -157,7 +149,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                                     header: Uni.I18n.translate('registerMappings.readingType', 'MDC', 'Reading type'),
                                                     items: [
                                                         {
-                                                            icon: '../mdc/resources/images/information.png',
+                                                            icon: '../ext/packages/uni-theme-skyline/build/resources/images/shared/icon-info-small.png',
                                                             iconCls: 'uni-info-icon',
                                                             tooltip: Uni.I18n.translate('readingType.tooltip', 'MDC', 'Reading type info'),
                                                             handler: function (grid, rowIndex, colIndex, item, e) {
@@ -232,19 +224,15 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                             {
                                                 text: Uni.I18n.translate('general.create', 'MDC', 'Create'),
                                                 xtype: 'button',
+                                                ui: 'action',
                                                 action: 'createAction',
                                                 itemId: 'createEditButton'
-                                                //  formBind: true
                                             },
                                             {
-                                                xtype: 'component',
-                                                padding: '3 0 0 10',
-                                                itemId: 'cancelLink',
-                                                autoEl: {
-                                                    tag: 'a',
-                                                    href: '#/administration/registergroups/',
-                                                    html: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel')
-                                                }
+                                                xtype: 'button',
+                                                ui: 'link',
+                                                text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                                                itemId: 'cancelLink'
                                             }
                                         ]
                                     }
