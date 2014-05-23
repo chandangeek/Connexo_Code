@@ -29,7 +29,6 @@ Ext.define('Uni.Loader', {
         'Uni.override.ButtonOverride',
         'Uni.override.CheckboxOverride',
         'Uni.override.FieldBaseOverride',
-        'Uni.override.LabelableOverride',
         'Uni.override.FieldContainerOverride',
         'Uni.override.NumberFieldOverride',
         'Uni.override.JsonWriterOverride',
