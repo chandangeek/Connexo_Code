@@ -61,7 +61,9 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
                                             {
                                                 xtype: 'displayfield',
                                                 name: 'mrid',
-                                                itemId: 'preview_mrid'
+                                                itemId: 'preview_mrid',
+                                                // TODO In a perfect world, with indefinite deadlines, this should be moved into a separate style or component.
+                                                margin: '0 0 0 12'
                                             },
                                             {
                                                 xtype: 'component',
