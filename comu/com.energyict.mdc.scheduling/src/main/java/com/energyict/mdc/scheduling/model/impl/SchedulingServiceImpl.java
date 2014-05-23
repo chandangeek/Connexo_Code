@@ -142,7 +142,7 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService 
                         if (!SchedulingStatus.PAUSED.equals(o1.getSchedulingStatus()) && SchedulingStatus.PAUSED.equals(o2.getSchedulingStatus())) {
                             return -1;
                         }
-                        return o1.getNextTimestamp(calendar).compareTo(o2.getNextTimestamp(calendar));
+                        return o1.getPlannedDate().compareTo(o2.getPlannedDate());
                     }
                 });
     }
