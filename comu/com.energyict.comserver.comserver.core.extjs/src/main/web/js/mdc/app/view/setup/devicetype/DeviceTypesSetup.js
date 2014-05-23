@@ -9,22 +9,12 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesSetup', {
 
     content: [
         {
-            xtype: 'container',
-            layout: {
-                type: 'vbox',
-                align: 'stretch'
-            },
+            ui: 'large',
+            xtype: 'panel',
+            title: Uni.I18n.translate('devicetype.deviceTypes', 'MDC', 'Device types'),
             items: [
                 {
-                    xtype: 'component',
-                    html: '<h1>' + Uni.I18n.translate('devicetype.deviceTypes', 'MDC', 'Device types') + '</h1>'
-                },
-                {
                     xtype: 'deviceTypesGrid'
-                },
-                {
-                    xtype: 'component',
-                    height: 25
                 },
                 {
                     xtype: 'deviceTypePreview'
@@ -32,6 +22,8 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesSetup', {
             ]
         }
     ],
+
+
 
     initComponent: function () {
         this.callParent(arguments);

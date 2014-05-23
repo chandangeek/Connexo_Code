@@ -18,7 +18,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
             this.down('#createEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
             this.down('#createEditButton').action = 'createDeviceConfiguration';
         }
-        this.down('#cancelLink').autoEl.href = returnLink;
+        this.down('#cancelLink').href = returnLink;
     },
 
     initComponent: function () {

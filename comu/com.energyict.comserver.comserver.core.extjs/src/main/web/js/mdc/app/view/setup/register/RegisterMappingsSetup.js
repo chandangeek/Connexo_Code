@@ -13,34 +13,23 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsSetup', {
     ],
 
     content: [
-        {
-            xtype: 'container',
-            itemId: 'stepsContainer',
-            layout: {
-                type: 'vbox',
-                align: 'stretch'
-            },
-            items: [
-                {
-                    xtype: 'component',
-                    html: '<h1>' + Uni.I18n.translate('registerMapping.registerTypes', 'MDC', 'Register types') + '</h1>',
-                    itemId: 'registerTypeTitle'
-                },
-                {
-                    xtype: 'container',
-                    items: [],
-                    itemId: 'registerMappingGridContainer'
-                },
-                {
-                    xtype: 'component',
-                    height: 25
-                },
-                {
-                    xtype: 'container',
-                    items: [],
-                    itemId: 'registerMappingPreviewContainer'
-                }
-            ]}
+            {
+                ui: 'large',
+                xtype: 'panel',
+                title: Uni.I18n.translate('registerMapping.registerTypes', 'MDC', 'Register types'),
+                items: [
+                    {
+                        xtype: 'container',
+                        items: [],
+                        itemId: 'registerMappingGridContainer'
+                    },
+                    {
+                        xtype: 'container',
+                        items: [],
+                        itemId: 'registerMappingPreviewContainer'
+                    }
+                ]
+            }
     ],
 
     side: [

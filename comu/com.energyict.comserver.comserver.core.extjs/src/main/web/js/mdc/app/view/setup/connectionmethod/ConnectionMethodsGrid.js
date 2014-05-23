@@ -14,7 +14,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodsGrid', {
 //        'Mdc.controller.setup.DeviceTypes'
 //    ],
     store: 'ConnectionMethodsOfDeviceConfiguration',
-    padding: '10 10 10 10',
+    //padding: '10 10 10 10',
     initComponent: function () {
         var me = this;
         this.columns = [

@@ -15,26 +15,14 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigSetup', {
 
     content: [
         {
-            xtype: 'container',
-            itemId: 'stepsContainer',
-            layout: {
-                type: 'vbox',
-                align: 'stretch'
-            },
+            ui: 'large',
+            xtype: 'panel',
+            title: Uni.I18n.translate('registerConfig.registerConfigs', 'MDC', 'Register configurations'),
             items: [
-                {
-                    xtype: 'component',
-                    html: '<h1>' + Uni.I18n.translate('registerConfig.registerConfigs', 'MDC', 'Register configurations') + '</h1>',
-                    itemId: 'registerConfigTitle'
-                },
                 {
                     xtype: 'container',
                     items: [],
                     itemId: 'registerConfigGridContainer'
-                },
-                {
-                    xtype: 'component',
-                    height: 25
                 },
                 {
                     xtype: 'container',
@@ -42,7 +30,8 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigSetup', {
                     itemId: 'registerConfigPreviewContainer'
 
                 }
-            ]}
+            ]
+        }
     ],
 
     side: [

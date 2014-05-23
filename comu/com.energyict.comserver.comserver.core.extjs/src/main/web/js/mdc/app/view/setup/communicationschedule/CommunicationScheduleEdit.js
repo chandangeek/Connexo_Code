@@ -281,7 +281,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
             this.down('#createEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
             this.down('#createEditButton').action = 'createCommunicationSchedule';
         }
-        this.down('#cancelLink').autoEl.href = this.returnLink;
+        this.down('#cancelLink').href = this.returnLink;
 
     }
 
