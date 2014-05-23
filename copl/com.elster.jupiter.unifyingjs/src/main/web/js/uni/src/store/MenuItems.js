@@ -16,5 +16,12 @@ Ext.define('Uni.store.MenuItems', {
             type: 'json',
             root: 'items'
         }
-    }
+    },
+
+    sorters: [
+        {
+            property: 'index',
+            direction: 'DESC'
+        }
+    ]
 });
