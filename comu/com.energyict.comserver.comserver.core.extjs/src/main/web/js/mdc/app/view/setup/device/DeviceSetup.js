@@ -31,7 +31,8 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                     },
                     width: '100%',
                     defaults: {
-                        margin: '0 16 16 0'
+                        margin: '0 16 16 0',
+                        columnWidth: 0.5
                     }
                 }
             ]
@@ -41,33 +42,34 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
     initComponent: function () {
         this.side = [
             {
-                xtype: 'deviceMenu',
-                itemId: 'stepsMenu',
-                deviceId: this.deviceId,
-                toggle: 0
+                xtype: 'panel',
+                ui: 'medium',
+                items: [{
+                    xtype: 'deviceMenu',
+                    itemId: 'stepsMenu',
+                    deviceId: this.deviceId,
+                    toggle: 0
+                }]
             }
         ];
         this.callParent(arguments);
         this.down('#DeviceContainer').add(
             {
                 xtype: 'deviceGeneralInformationPanel',
-                deviceId: this.deviceId,
-                columnWidth: 0.50
+                deviceId: this.deviceId
             }
         );
         this.down('#DeviceContainer').add(
             {
                 xtype: 'deviceCommunicationTopologyPanel',
-                deviceId: this.deviceId,
-                columnWidth: 0.50
+                deviceId: this.deviceId
             }
         );
         this.down('#DeviceContainer').add(
             {
                 xtype: 'deviceOpenIssuesPanel',
                 deviceId: this.deviceId,
-                mRID: this.mRID,
-                columnWidth: 0.50
+                mRID: this.mRID
             }
         );
     },

@@ -179,7 +179,6 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
             this.down('#createEditButton').action = 'createDeviceConfiguration';
         }
         this.down('#cancelLink').href = this.returnLink;
-
     }
 
 });
