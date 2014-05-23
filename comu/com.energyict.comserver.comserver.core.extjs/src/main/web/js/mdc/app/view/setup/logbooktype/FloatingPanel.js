@@ -12,6 +12,7 @@ Ext.define('Mdc.view.setup.logbooktype.FloatingPanel', {
 
     dockedItems: [
         {
+            itemId: 'toolbar',
             xtype: 'toolbar',
             dock: 'bottom',
             ui: 'footer',
@@ -20,24 +21,28 @@ Ext.define('Mdc.view.setup.logbooktype.FloatingPanel', {
             },
             items: [
                 {
+                    itemId: 'close',
                     xtype: 'button',
                     action: 'cancel',
                     name: 'close',
                     text: 'Close'
                 },
                 {
+                    itemId: 'retry',
                     xtype: 'button',
                     action: 'delete',
                     name: 'retry',
                     text: 'Retry'
                 },
                 {
+                    itemId: 'delete',
                     xtype: 'button',
                     action: 'delete',
                     name: 'delete',
                     text: 'Delete'
                 },
                 {
+                    itemId: 'cancel',
                     xtype: 'button',
                     action: 'cancel',
                     name: 'cancel',

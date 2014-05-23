@@ -15,6 +15,7 @@ Ext.define('Mdc.view.setup.logbooktype.LogbookTypesOverview', {
         },
         items: [
             {
+                itemId: 'sideMenu',
                 xtype: 'menu',
                 ui: 'side-menu',
                 layout: {
@@ -25,6 +26,7 @@ Ext.define('Mdc.view.setup.logbooktype.LogbookTypesOverview', {
                 plain: true,
                 items: [
                     {
+                        itemId: 'loogbooktypes',
                         text: 'Logbook types',
                         cls: 'current'
                     }
