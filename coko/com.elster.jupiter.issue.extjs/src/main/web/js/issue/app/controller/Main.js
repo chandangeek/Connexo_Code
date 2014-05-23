@@ -53,12 +53,11 @@ Ext.define('Isu.controller.Main', {
     },
 
     initMenu: function () {
-        var me = this;
-
         var workspaceItem = Ext.create('Uni.model.MenuItem', {
             text: 'Workspace',
             glyph: 'workspace',
-            portal: 'workspace'
+            portal: 'workspace',
+            index: 30
         });
 
         Uni.store.MenuItems.add(workspaceItem);
@@ -66,7 +65,8 @@ Ext.define('Isu.controller.Main', {
         var administrationItem = Ext.create('Uni.model.MenuItem', {
             text: 'Administration',
             glyph: 'settings',
-            portal: 'administration'
+            portal: 'administration',
+            index: 10
         });
 
         Uni.store.MenuItems.add(administrationItem);
