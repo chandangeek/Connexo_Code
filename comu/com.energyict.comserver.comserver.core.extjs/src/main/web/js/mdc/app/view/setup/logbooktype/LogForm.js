@@ -7,25 +7,14 @@ Ext.define('Mdc.view.setup.logbooktype.LogForm', {
     ],
     alias: 'widget.form-logbook',
 
-//    side: [
-//        {
-//            xtype: 'navigationSubMenu',
-//            itemId: 'sideMenu'
-//        }
-//    ],
-
     content: [
         {
             xtype: 'form',
             ui: 'large',
             width: '50%',
             defaults: {
-//                labelWidth: 150,
-//                labelAlign: 'right',
-//                margin: '0 0 20 0',
                 validateOnChange: false,
                 validateOnBlur: false
-//                anchor: '100%'
             },
             items: [
                 {
@@ -42,7 +31,6 @@ Ext.define('Mdc.view.setup.logbooktype.LogForm', {
                     xtype: 'textfield',
                     name: 'name',
                     required: true,
-//                    labelSeparator: ' *',
                     regex: /[a-zA-Z0-9]+/,
                     allowBlank: false,
                     fieldLabel: 'Name',
@@ -51,7 +39,6 @@ Ext.define('Mdc.view.setup.logbooktype.LogForm', {
                 {
                     xtype: 'textfield',
                     required: true,
-//                    labelSeparator: ' *',
                     allowBlank: false,
                     fieldLabel: 'OBIS code',
                     name: 'obis',
