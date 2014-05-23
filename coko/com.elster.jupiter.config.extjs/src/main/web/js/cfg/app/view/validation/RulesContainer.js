@@ -15,8 +15,14 @@ Ext.define('Cfg.view.validation.RulesContainer', {
     //layout:'border',
     side: [
         {
-            xtype: 'navigationSubMenu',
-            itemId: 'stepsMenu'
+            xtype: 'panel',
+            ui: 'medium',
+            items: [
+                {
+                    xtype: 'navigationSubMenu',
+                    itemId: 'stepsMenu'
+                }
+            ]
         }
     ],
 
