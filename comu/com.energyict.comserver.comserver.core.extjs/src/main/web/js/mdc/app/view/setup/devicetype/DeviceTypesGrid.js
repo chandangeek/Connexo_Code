@@ -21,8 +21,10 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
                 // event for a single time to handle the selection
                 // after the store has been loaded
                 this.store.on('load', function () {
-                    this.getView().getSelectionModel().select(0);
-                    this.getView().focusRow(0);
+                    if (this.getView() != undefined) {
+                        this.getView().getSelectionModel().select(0);
+                        this.getView().focusRow(0);
+                }
                 }, this, {
                     single: true
                 });
@@ -32,7 +34,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
             }
 
         }
-    },  */
+    }, */
 
     initComponent: function () {
         var me = this;
