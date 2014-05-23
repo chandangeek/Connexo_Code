@@ -10,6 +10,14 @@ package com.energyict.mdc.protocol.api.exceptions;
  */
 public class ComServerExecutionException extends RuntimeException{
 
+    public ComServerExecutionException() {
+        super();
+    }
+
+    public ComServerExecutionException(Throwable cause) {
+        super(cause);
+    }
+
     public ComServerExecutionException(String s) {
         super(s);
     }

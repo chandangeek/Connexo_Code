@@ -1,6 +1,7 @@
 package com.energyict.mdc.protocol.api.exceptions;
 
 import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.exceptions.ExceptionCode;
 
 import java.text.MessageFormat;
@@ -29,7 +30,7 @@ public abstract class ComServerRuntimeException extends ComServerExecutionExcept
      *        that is associated with the ExceptionCode
      */
     public ComServerRuntimeException (ExceptionCode code, Object... messageArguments) {
-        super(defaultFormattedMessage(code, messageArguments));
+        super();
         this.exceptionCode = code;
         this.messageId = code.toMessageResourceKey();
         this.messageArguments = messageArguments;
@@ -63,7 +64,7 @@ public abstract class ComServerRuntimeException extends ComServerExecutionExcept
      *                         that is associated with the ExceptionCode
      */
     public ComServerRuntimeException (Throwable cause, ExceptionCode code, Object... messageArguments) {
-        super(defaultFormattedMessage(code, messageArguments), cause);
+        super(cause);
         this.messageId = code.toMessageResourceKey();
         this.messageArguments = messageArguments;
         assert numberOfParametersMatch(code.getExpectedNumberOfMessageArguments(), messageArguments) : "Wrong number of arguments for exception message";
@@ -73,13 +74,54 @@ public abstract class ComServerRuntimeException extends ComServerExecutionExcept
         return defaultFormattedMessage(this.messageId, this.messageArguments);
     }
 
-    private static String defaultFormattedMessage (ExceptionCode code, Object[] messageArguments) {
-        return defaultFormattedMessage(code.toMessageResourceKey(), messageArguments);
+    private static String defaultFormattedMessage (String messageId, Object[] messageArguments) {
+        String errorMsg = getTranslator().getErrorMsg(messageId);
+        return MessageFormat.format(errorMsg.replaceAll("'", "''"), messageArguments);
     }
 
-    private static String defaultFormattedMessage (String messageId, Object[] messageArguments) {
-        String errorMsg = Environment.DEFAULT.get().getErrorMsg(messageId);
-        return MessageFormat.format(errorMsg.replaceAll("'", "''"), messageArguments);
+    private static Translator getTranslator() {
+        Environment environment = Environment.DEFAULT.get();
+        if (environment != null) {
+            return environment;
+        }
+        else {
+            return new Translator() {
+                @Override
+                public String getTranslation(String key) {
+                    return key;
+                }
+
+                @Override
+                public String getTranslation(String key, boolean flagError) {
+                    return key;
+                }
+
+                @Override
+                public String getErrorMsg(String key) {
+                    return key;
+                }
+
+                @Override
+                public String getCustomTranslation(String key) {
+                    return key;
+                }
+
+                @Override
+                public String getErrorCode(String messageId) {
+                    return messageId;
+                }
+
+                @Override
+                public String getTranslation(String key, String defaultValue) {
+                    return key + defaultValue;
+                }
+
+                @Override
+                public boolean hasTranslation(String key) {
+                    return false;
+                }
+            };
+        }
     }
 
     /**
@@ -106,4 +148,5 @@ public abstract class ComServerRuntimeException extends ComServerExecutionExcept
     public Object[] getMessageArguments() {
         return messageArguments;
     }
+
 }

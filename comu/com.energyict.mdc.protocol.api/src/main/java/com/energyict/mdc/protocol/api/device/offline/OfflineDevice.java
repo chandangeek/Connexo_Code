@@ -90,7 +90,7 @@ public interface OfflineDevice extends Offline {
      * @param registerGroupIds the list ID of RegisterGroup
      * @return a list of {@link OfflineRegister}s filtered according to the given RegisterGroup
      */
-    public List<OfflineRegister> getRegistersForRegisterGroup(List<Integer> registerGroupIds);
+    public List<OfflineRegister> getRegistersForRegisterGroup(List<Long> registerGroupIds);
 
     /**
      * Get the list of all {@link DeviceMessageStatus#PENDING pending} {@link OfflineDeviceMessage}s.
