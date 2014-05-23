@@ -15,18 +15,21 @@ Ext.define('Mdc.view.setup.logbooktype.List', {
         },
         items: [
             {
+                itemId: 'nameColumn',
                 header: 'Name',
                 xtype: 'templatecolumn',
                 tpl: '<a href="#/administration/logbooktypes/{id}"><tpl if="name">{name}</tpl></a>',
                 flex: 5
             },
             {
+                itemID: 'OBIScolumn',
                 header: 'OBIS code',
                 xtype: 'templatecolumn',
                 tpl: '<tpl if="obis">{obis}</tpl>',
                 flex: 5
             },
             {
+                itemId: 'action',
                 xtype: 'uni-actioncolumn',
                 items: 'Mdc.view.setup.logbooktype.ActionMenu'
             }

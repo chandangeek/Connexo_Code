@@ -4,6 +4,7 @@ Ext.define('Mdc.view.setup.logbooktype.EmptyListMessage', {
     hidden: true,
     items: [
         {
+            itemId: 'noLogbookTypes',
             xtype: 'panel',
             html: "<h3>No logbook types found</h3><br>\
           There are no logbook types. This could be because:<br>\
@@ -12,6 +13,7 @@ Ext.define('Mdc.view.setup.logbooktype.EmptyListMessage', {
           Possible steps:<br><br>"
         },
         {
+            itemId: 'createlogbook',
             xtype: 'button',
             text: 'Create logbook type',
             action: 'createlogbookaction',

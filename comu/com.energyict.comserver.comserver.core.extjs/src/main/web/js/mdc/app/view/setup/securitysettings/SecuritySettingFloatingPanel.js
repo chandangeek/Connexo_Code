@@ -1,37 +1,23 @@
 Ext.define('Mdc.view.setup.securitysettings.SecuritySettingFloatingPanel', {
-    extend: 'Ext.ux.window.Notification',
+    extend: 'Ext.window.MessageBox',
     alias: 'widget.securitySettingFloatingPanel',
     position: 'tc',
     manager: '#contentPanel',
-    slideInDuration: 200,
-    slideBackDuration: 200,
-    autoCloseDelay: 100000,
-    hideDuration: 0,
-    slideInAnimation: 'linear',
-    slideBackAnimation: 'linear',
 
-    dockedItems: [
+    buttons: [
         {
-            xtype: 'toolbar',
-            dock: 'bottom',
-            ui: 'footer',
-            layout: {
-                type: 'hbox'
-            },
-            items: [
-                {
-                    xtype: 'button',
-                    action: 'delete',
-                    name: 'delete',
-                    text: 'Remove'
-                },
-                {
-                    xtype: 'button',
-                    action: 'cancel',
-                    name: 'cancel',
-                    text: 'Cancel'
-                }
-            ]
+            xtype: 'button',
+            action: 'delete',
+            name: 'delete',
+            text: 'Remove',
+            ui: 'delete'
+        },
+        {
+            xtype: 'button',
+            action: 'cancel',
+            name: 'cancel',
+            ui: 'link',
+            text: 'Cancel'
         }
     ]
 });

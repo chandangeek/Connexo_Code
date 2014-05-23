@@ -6,18 +6,15 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSetup', {
     deviceConfigId: null,
     content: [
         {
-            xtype: 'container',
-            cls: 'content-container',
+            xtype: 'panel',
+            ui: 'large',
+            title: 'Security settings',
             itemId: 'stepsContainer',
             layout: {
                 type: 'vbox',
                 align: 'stretch'
             },
             items: [
-                {
-                    xtype: 'component',
-                    html: '<h1>Security settings</h1>'
-                },
 //                {
 //                    xtype: 'securitySettingFiltering'
 //                },
@@ -34,10 +31,6 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSetup', {
                 },
                 {
                     xtype: 'securitySettingGrid'
-                },
-                {
-                    xtype: 'component',
-                    height: 25
                 },
                 {
                     xtype: 'securitySettingPreview'

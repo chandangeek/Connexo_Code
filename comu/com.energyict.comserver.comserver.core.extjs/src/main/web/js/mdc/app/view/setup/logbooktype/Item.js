@@ -5,6 +5,7 @@ Ext.define('Mdc.view.setup.logbooktype.Item', {
 
     tools: [
         {
+            itemId: 'actions',
             xtype: 'button',
             text: 'Actions',
             iconCls: 'x-uni-action-iconA',
@@ -16,6 +17,7 @@ Ext.define('Mdc.view.setup.logbooktype.Item', {
 
     items: [
         {
+            itemId: 'loogbookDetails',
             xtype: 'form',
             name: 'logbookDetails',
             layout: 'column',
@@ -28,6 +30,7 @@ Ext.define('Mdc.view.setup.logbooktype.Item', {
                 {
                     items: [
                         {
+                            itemId: 'name',
                             xtype: 'displayfield',
                             fieldLabel: 'Name',
                             name: 'name'
@@ -37,6 +40,7 @@ Ext.define('Mdc.view.setup.logbooktype.Item', {
                 {
                     items: [
                         {
+                            itemId: 'obis',
                             xtype: 'displayfield',
                             fieldLabel: 'OBIS code',
                             name: 'obis'
