@@ -41,7 +41,8 @@ Ext.define('Skyline.panel.FilterToolbar', {
             xtype: 'header',
             dock: 'left'
         },
-        {
+        {	
+        	itemId : 'Reset',
             xtype: 'button',
             text: 'Clear all',
             action: 'clear',
