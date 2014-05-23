@@ -53,6 +53,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
                                         columnWidth: 0.5,
                                         fieldLabel: Uni.I18n.translate('registerType.readingType', 'MDC', 'Reading type'),
                                         labelWidth: 150,
+                                        labelAlign: 'right',
                                         layout: {
                                             type: 'hbox',
                                             align: 'stretch'
