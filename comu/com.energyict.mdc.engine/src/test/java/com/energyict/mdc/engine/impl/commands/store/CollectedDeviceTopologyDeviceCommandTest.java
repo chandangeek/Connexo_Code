@@ -161,7 +161,7 @@ public class CollectedDeviceTopologyDeviceCommandTest {
 
         // Asserts
         verify(comServerDAO, times(0)).updateGateway(any(DeviceIdentifier.class), any(DeviceIdentifier.class));
-        ArgumentCaptor<BusinessEvent> argumentCaptor = ArgumentCaptor.forClass(BusinessEvent.class);
+        ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
         verify(comServerDAO, times(2)).signalEvent(anyString(), argumentCaptor.capture());
         assertThat(argumentCaptor.getAllValues().get(0)).isInstanceOf(UnknownSlaveDeviceEvent.class);
         assertThat(argumentCaptor.getAllValues().get(1)).isInstanceOf(DeviceTopologyChangedEvent.class);
