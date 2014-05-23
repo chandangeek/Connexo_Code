@@ -32,6 +32,11 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
                     text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
                     itemId: 'deleteConnectionMethod',
                     action: 'deleteConnectionMethod'
+                },
+                {
+                    text: 'default',
+                    itemId: 'toggleDefault',
+                    action: 'toggleDefault'
                 }
             ]
         }

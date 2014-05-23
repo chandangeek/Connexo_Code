@@ -47,6 +47,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     ],
 
     init: function () {
+        this.getDeviceTypesStore().on('load', this.onDeviceTypesStoreLoad, this);
         this.control({
             '#devicetypegrid': {
                 selectionchange: this.previewDeviceType
@@ -83,6 +84,12 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 change: this.proposeDeviceTypeName
             }
         });
+    },
+
+    onDeviceTypesStoreLoad: function () {
+        if (this.getDeviceTypesStore().getCount() > 0) {
+            this.getDeviceTypeGrid().getSelectionModel().select(0);
+        }
     },
 
     showEditView: function (id) {

@@ -44,19 +44,31 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectSetup', {
 
     side: [
         {
-            xtype: 'navigationSubMenu',
-            itemId: 'stepsMenu'
+            xtype: 'panel',
+            ui: 'medium',
+            items: [
+                {
+                    xtype: 'navigationSubMenu',
+                    itemId: 'stepsMenu'
+                }
+            ]
         }
     ],
 
     initComponent: function () {
         this.side = [
             {
-                xtype: 'deviceConfigurationMenu',
-                itemId: 'stepsMenu',
-                deviceTypeId: this.deviceTypeId,
-                deviceConfigurationId: this.deviceConfigId,
-                toggle: 6
+                xtype: 'panel',
+                ui: 'medium',
+                items: [
+                    {
+                        xtype: 'deviceConfigurationMenu',
+                        itemId: 'stepsMenu',
+                        deviceTypeId: this.deviceTypeId,
+                        deviceConfigurationId: this.deviceConfigId,
+                        toggle: 6
+                    }
+                ]
             }
         ];
         this.callParent(arguments);

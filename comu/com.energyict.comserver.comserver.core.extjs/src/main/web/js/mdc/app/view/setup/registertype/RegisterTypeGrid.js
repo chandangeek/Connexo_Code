@@ -127,7 +127,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
                             flex: 1
                         },
                         {
-                            text: Uni.I18n.translate('registerType.createRegisterType', 'MDC', 'Create register type'),
+                            text: Uni.I18n.translate('registerType.addRegisterType', 'MDC', 'Add register type'),
                             itemId: 'createRegisterType',
                             xtype: 'button',
                             action: 'createRegisterType'

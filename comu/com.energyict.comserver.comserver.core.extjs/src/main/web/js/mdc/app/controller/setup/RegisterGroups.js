@@ -32,8 +32,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
         {ref: 'breadCrumbs', selector: 'breadcrumbTrail'},
         {ref: 'registerGroupPreviewDetails', selector: '#registerGroupPreviewDetails'},
         {ref: 'registerTypePreviewForm', selector: '#registerTypePreviewForm'},
-        {ref: 'registerTypePreview', selector: '#registerTypePreview'},
-        {ref: 'registerTypePreviewTitle', selector: '#registerTypePreviewTitle'},
+        {ref: 'registerTypePreview', selector: '#registerGroupSetup #registerTypePreview'},
         {ref: 'readingTypeDetailsForm', selector: '#readingTypeDetailsForm'},
         {ref: 'registerGroupGridContainer', selector: '#registerGroupGridContainer'},
         {ref: 'registerGroupEmptyGrid', selector: '#registerGroupEmptyGrid'},
@@ -125,7 +124,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
         var registerTypes = this.getRegisterTypeGrid().getSelectionModel().getSelection();
         if (registerTypes.length == 1) {
             this.getRegisterTypePreviewForm().loadRecord(registerTypes[0]);
-            this.getRegisterTypePreviewTitle().update('<b>' + registerTypes[0].get('name') + '</b>');
+            this.getRegisterTypePreview().setTitle(registerTypes[0].get('name'));
         }
     },
 

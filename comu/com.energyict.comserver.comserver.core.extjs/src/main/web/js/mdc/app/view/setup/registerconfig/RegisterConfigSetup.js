@@ -56,11 +56,17 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigSetup', {
     initComponent: function () {
         this.side = [
             {
-                xtype: 'deviceConfigurationMenu',
-                itemId: 'stepsMenu',
-                deviceTypeId: this.deviceTypeId,
-                deviceConfigurationId: this.deviceConfigId,
-                toggle: 1
+                xtype: 'panel',
+                ui: 'medium',
+                items: [
+                    {
+                        xtype: 'deviceConfigurationMenu',
+                        itemId: 'stepsMenu',
+                        deviceTypeId: this.deviceTypeId,
+                        deviceConfigurationId: this.deviceConfigId,
+                        toggle: 1
+                    }
+                ]
             }
         ];
         this.callParent(arguments);

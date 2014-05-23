@@ -92,15 +92,12 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                                             },
                                             items: [
                                                 {
-                                                    xtype: 'component',
+                                                    xtype: 'button',
                                                     name: 'deviceTypeName',
-                                                    cls: 'x-form-display-field',
-                                                    autoEl: {
-                                                        tag: 'a',
-                                                        href: '#',
-                                                        html: Uni.I18n.translate('devicetype.deviceType', 'MDC', 'Device type')
-                                                    },
-                                                    itemId: 'deviceConfigurationDetailDeviceTypeLink'
+                                                    text: Uni.I18n.translate('devicetype.deviceType', 'MDC', 'Device type'),
+                                                    ui: 'link',
+                                                    itemId: 'deviceConfigurationDetailDeviceTypeLink',
+                                                    href: '#'
                                                 }
                                             ]
                                         },
@@ -172,40 +169,30 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                                             },
                                             items: [
                                                 {
-                                                    xtype: 'component',
+                                                    xtype: 'button',
                                                     name: 'registerCount',
-                                                    cls: 'x-form-display-field',
-                                                    autoEl: {
-                                                        tag: 'a',
-                                                        href: '#',
-                                                        html: Uni.I18n.translate('deviceconfig.registerconfigs', 'MDC', 'register configurations')
-                                                    },
-                                                    itemId: 'deviceConfigurationDetailRegistersLink'
+                                                    text: Uni.I18n.translate('deviceconfig.registerconfigs', 'MDC', 'register configurations'),
+                                                    ui: 'link',
+                                                    itemId: 'deviceConfigurationDetailRegistersLink',
+                                                    href: '#'
                                                 },
 
-
                                                 {
-                                                    xtype: 'component',
+                                                    xtype: 'button',
                                                     name: 'loadProfileCount',
-                                                    cls: 'x-form-display-field',
-                                                    autoEl: {
-                                                        tag: 'a',
-                                                        href: '#',
-                                                        html: Uni.I18n.translate('deviceconfiguration.loadprofiles', 'MDC', 'loadprofiles')
-                                                    },
-                                                    itemId: 'deviceConfigurationDetailLoadProfilesLink'
-
+                                                    text: Uni.I18n.translate('deviceconfiguration.loadprofiles', 'MDC', 'loadprofiles'),
+                                                    ui: 'link',
+                                                    itemId: 'deviceConfigurationDetailLoadProfilesLink',
+                                                    href: '#'
                                                 },
+
                                                 {
-                                                    xtype: 'component',
+                                                    xtype: 'button',
                                                     name: 'logBookCount',
-                                                    cls: 'x-form-display-field',
-                                                    autoEl: {
-                                                        tag: 'a',
-                                                        href: '#',
-                                                        html: Uni.I18n.translate('deviceconfiguration.logbooks', 'MDC', 'logbooks')
-                                                    },
-                                                    itemId: 'deviceConfigurationDetailLogBooksLink'
+                                                    text: Uni.I18n.translate('deviceconfiguration.logbooks', 'MDC', 'logbooks'),
+                                                    ui: 'link',
+                                                    itemId: 'deviceConfigurationDetailLogBooksLink',
+                                                    href: '#'
                                                 }
                                             ]
                                         }

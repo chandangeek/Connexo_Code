@@ -196,8 +196,23 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                         ]
                     },
                     {
-                        xtype: 'component',
-                        html: '<h4>' + Uni.I18n.translate('connectionmethod.connectionDetails', 'MDC', 'Connection details') + '</h4>'
+                        xtype: 'form',
+                        border: false,
+                        layout: {
+                            type: 'vbox',
+                            align: 'stretch'
+                        },
+                        width: '100%',
+                        defaults: {
+                            labelWidth: 250
+                        },
+                        items: [
+                            {
+                                xtype: 'displayfield',
+                                fieldLabel: '<h3>' + Uni.I18n.translate('connectionmethod.connectionDetails', 'MDC', 'Connection details') + '</h3>',
+                                text: ''
+                            }
+                        ]
                     },
                     {
                         xtype: 'propertyEdit',

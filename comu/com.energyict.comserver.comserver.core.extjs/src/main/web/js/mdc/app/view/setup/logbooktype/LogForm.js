@@ -9,6 +9,7 @@ Ext.define('Mdc.view.setup.logbooktype.LogForm', {
 
     content: [
         {
+            itemId: 'form',
             xtype: 'form',
             ui: 'large',
             width: '50%',
@@ -18,6 +19,7 @@ Ext.define('Mdc.view.setup.logbooktype.LogForm', {
             },
             items: [
                 {
+                    itemId: 'errors',
                     name: 'errors',
                     layout: 'hbox',
                     margin: '0 0 20 100',
@@ -28,6 +30,7 @@ Ext.define('Mdc.view.setup.logbooktype.LogForm', {
                     }
                 },
                 {
+                    itemId: 'name',
                     xtype: 'textfield',
                     name: 'name',
                     required: true,
@@ -37,6 +40,7 @@ Ext.define('Mdc.view.setup.logbooktype.LogForm', {
                     msgTarget: 'under'
                 },
                 {
+                    itemId: 'obis',
                     xtype: 'textfield',
                     required: true,
                     allowBlank: false,
@@ -49,10 +53,12 @@ Ext.define('Mdc.view.setup.logbooktype.LogForm', {
             ],
             buttons: [
                 {
+                    itemId: 'logAction',
                     name: 'logAction',
                     ui: 'action'
                 },
                 {
+                    itemId: 'Cancel',
                     text: 'Cancel',
                     name: 'cancel',
                     hrefTarget: '',

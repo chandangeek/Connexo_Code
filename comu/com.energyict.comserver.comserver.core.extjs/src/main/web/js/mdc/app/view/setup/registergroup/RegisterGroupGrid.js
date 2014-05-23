@@ -74,7 +74,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupGrid', {
                         flex: 1
                     },
                     {
-                        text: Uni.I18n.translate('registerGroup.create', 'MDC', 'Create register group'),
+                        text: Uni.I18n.translate('registerGroup.add', 'MDC', 'Add register group'),
                         itemId: 'createRegisterGroup',
                         xtype: 'button',
                         action: 'createRegisterGroup'
