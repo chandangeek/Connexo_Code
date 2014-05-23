@@ -29,7 +29,6 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
                 tbar: [
                     {
                         xtype: 'component',
-                        html: '<b>' + Uni.I18n.translate('registerType.previewTitle', 'MDC', 'Selected register preview') + '</b>',
                         itemId: 'registerTypePreviewTitle'
                     },
                     '->',
