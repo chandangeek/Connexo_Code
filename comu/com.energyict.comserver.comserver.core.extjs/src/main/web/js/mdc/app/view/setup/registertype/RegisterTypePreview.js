@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
     extend: 'Ext.panel.Panel',
     border: true,
-    padding: '20 0 0 0',
+    frame: true,
     alias: 'widget.registerTypePreview',
     itemId: 'registerTypePreview',
     requires: [
@@ -34,8 +34,10 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
                     },
                     '->',
                     {
+                        xtype: 'button',
                         itemId: 'actionsButton',
-                        icon: '../mdc/resources/images/gear-16x16.png',
+                        // TODO Replace this icon below with an 'actions' ui.
+                        icon: '../mdc/resources/images/actionsDetail.png',
                         text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                         menu: {
                             items: [
@@ -73,14 +75,12 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
                                         xtype: 'displayfield',
                                         name: 'name',
                                         fieldLabel: Uni.I18n.translate('registerType.name', 'MDC', 'Name'),
-                                        labelAlign: 'right',
                                         labelWidth: 150
                                     },
                                     {
                                         xtype: 'fieldcontainer',
                                         columnWidth: 0.5,
                                         fieldLabel: Uni.I18n.translate('registerType.readingType', 'MDC', 'Reading type'),
-                                        labelAlign: 'right',
                                         labelWidth: 150,
                                         layout: {
                                             type: 'hbox',
@@ -115,7 +115,6 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
                                         xtype: 'displayfield',
                                         name: 'obisCode',
                                         fieldLabel: Uni.I18n.translate('registerType.obisCode', 'MDC', 'OBIS code'),
-                                        labelAlign: 'right',
                                         labelWidth: 150
                                     }
                                 ]
@@ -132,37 +131,25 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
                                         xtype: 'displayfield',
                                         name: 'unit',
                                         fieldLabel: Uni.I18n.translate('registerType.measurementUnit', 'MDC', 'Unit of measure'),
-                                        labelAlign: 'right',
                                         labelWidth: 150
                                     },
                                     {
                                         xtype: 'displayfield',
                                         name: 'timeOfUse',
                                         fieldLabel: Uni.I18n.translate('registerType.timeOfUse', 'MDC', 'Time of use'),
-                                        labelAlign: 'right',
                                         labelWidth: 150
                                     }
-                                    /*{
-                                     xtype: 'displayfield',
-                                     name: 'dataCollectionGroup',
-                                     fieldLabel: Uni.I18n.translate('registerType.dataCollectionGroup', 'MDC', 'Data collection group'),
-                                     labelAlign: 'right',
-                                     labelWidth: 150
-                                     }*/
-
                                 ]
                             }
                         ]
                     }
                 ]
             }
-        ]
+        ];
         this.callParent(arguments);
 
         if (!this.withActions) {
             this.down('#actionsButton').hide();
         }
     }
-})
-;
-
+});
