@@ -3,10 +3,13 @@ Ext.define('Isu.view.workspace.issues.IssueGroup', {
     requires: [
         'Isu.view.workspace.issues.GroupGrid'
     ],
+    itemId: 'IssueGroup',
     alias: 'widget.issue-group',
     hidden: true,
     items: [
-        {xtype: 'issue-group-grid'},
+        {
+            itemId: 'issue-group-grid',
+            xtype: 'issue-group-grid'},
         {
             alias: 'widget.issue-group-info'
         }

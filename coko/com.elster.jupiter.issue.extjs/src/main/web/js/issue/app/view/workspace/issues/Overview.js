@@ -9,9 +9,13 @@ Ext.define('Isu.view.workspace.issues.Overview', {
         'Isu.view.workspace.issues.SideFilter'
     ],
 
-    content: { xtype: 'issues-browse'},
+    content: {
+        itemId: 'issues-browse',
+        xtype: 'issues-browse'
+    },
 
     side: {
+        itemId: 'navigation',
         xtype: 'panel',
         ui: 'medium',
         title: "Navigation",
@@ -22,6 +26,7 @@ Ext.define('Isu.view.workspace.issues.Overview', {
         },
         items: [
             {
+                itemId: 'overview',
                 xtype: 'menu',
                 title: 'Overview',
                 ui: 'side-menu',
@@ -43,7 +48,7 @@ Ext.define('Isu.view.workspace.issues.Overview', {
                     }
                 ]
             },
-            {
+            {   itemId: 'issues-side-filter',
                 xtype: 'issues-side-filter'
             }
         ]

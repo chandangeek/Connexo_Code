@@ -13,12 +13,13 @@ Ext.define('Isu.view.workspace.issues.Assign', {
             xtype: 'issues-assign-form'
         },
         buttons: [
-            {
+            {   itemId: 'Assign',
                 text: 'Assign',
                 name: 'assign',
                 formBind: false
             },
             {
+                itemId: 'Cancel',
                 text: 'Cancel',
                 name: 'cancel',
                 ui: 'link',

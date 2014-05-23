@@ -1,6 +1,7 @@
 Ext.define('Isu.view.workspace.issues.bulk.Browse', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.bulk-browse',
+    itemId: 'bulk-browse',
     componentCls: 'isu-bulk-browse',
     requires: [
         'Uni.view.navigation.SubMenu',
@@ -9,6 +10,7 @@ Ext.define('Isu.view.workspace.issues.bulk.Browse', {
     ],
 
     side: {
+        itemId: 'Bulkpanel',
         xtype: 'panel',
         ui: 'medium',
         layout: {
@@ -17,6 +19,7 @@ Ext.define('Isu.view.workspace.issues.bulk.Browse', {
         },
         items: [
             {
+                itemId: 'bulkNavigation',
                 xtype: 'bulk-navigation'
             }
         ]

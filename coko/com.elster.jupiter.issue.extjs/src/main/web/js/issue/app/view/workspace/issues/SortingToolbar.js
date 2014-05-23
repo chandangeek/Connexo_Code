@@ -5,11 +5,13 @@ Ext.define('Isu.view.workspace.issues.SortingToolbar', {
         'Isu.view.workspace.issues.SortMenu'
     ],
     alias: 'widget.sorting-toolbar',
+    itemId: 'sorting-toolbar',
     title: 'Sort',
     name: 'sortitemspanel',
     emptyText: 'None',
     tools: [
         {
+            itemId: 'addSort',
             xtype: 'button',
             action: 'addSort',
             text: 'Add sort',
@@ -34,6 +36,7 @@ Ext.define('Isu.view.workspace.issues.SortingToolbar', {
                     : 'x-btn-sort-item-desc';
 
                 container.add({
+                    itemId: 'sortingBy',
                     xtype: 'sort-item-btn',
                     text: menuItem.text,
                     sortName: key,

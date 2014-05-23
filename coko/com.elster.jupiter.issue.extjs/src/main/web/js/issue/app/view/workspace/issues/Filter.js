@@ -14,9 +14,11 @@ Ext.define('Isu.view.workspace.issues.Filter', {
     },
     items: [
         { xtype: 'filtering-toolbar' },
-        { xtype: 'menuseparator' },
+        {   itemId: 'menuseparator',
+            xtype: 'menuseparator' },
         { xtype: 'grouping-toolbar' },
-        { xtype: 'menuseparator' },
+        {   itemId: 'menuseparator',
+            xtype: 'menuseparator' },
         { xtype: 'sorting-toolbar'},
         { xtype: 'issue-group' }
     ]

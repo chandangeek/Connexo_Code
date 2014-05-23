@@ -1,6 +1,7 @@
 Ext.define('Isu.view.workspace.issues.bulk.BulkWizard', {
     extend: 'Isu.view.workspace.issues.bulk.Wizard',
     alias: 'widget.bulk-wizard',
+    itemId: 'bulk-wizard',
     titlePrefix: 'Bulk action',
     includeSubTitle: true,
 
@@ -22,6 +23,7 @@ Ext.define('Isu.view.workspace.issues.bulk.BulkWizard', {
 
     items: [
         {
+            itemId: 'bulk-step1',
             xtype: 'bulk-step1',
             cls: 'bulk-step',
             buttonsConfig: {
@@ -37,6 +39,7 @@ Ext.define('Isu.view.workspace.issues.bulk.BulkWizard', {
             }
         },
         {
+            itemId: 'bulk-step2',
             xtype: 'bulk-step2',
             cls: 'bulk-step',
             buttonsConfig: {
@@ -52,6 +55,7 @@ Ext.define('Isu.view.workspace.issues.bulk.BulkWizard', {
             }
         },
         {
+            itemId: 'bulk-step3',
             xtype: 'bulk-step3',
             cls: 'bulk-step',
             buttonsConfig: {
@@ -67,6 +71,7 @@ Ext.define('Isu.view.workspace.issues.bulk.BulkWizard', {
             }
         },
         {
+            itemId: 'bulk-step4',
             xtype: 'bulk-step4',
             cls: 'bulk-step',
             buttonsConfig: {
@@ -82,6 +87,7 @@ Ext.define('Isu.view.workspace.issues.bulk.BulkWizard', {
             }
         },
         {
+            itemId: 'bulk-step5',
             xtype: 'bulk-step5',
             cls: 'bulk-step',
             buttonsConfig: {

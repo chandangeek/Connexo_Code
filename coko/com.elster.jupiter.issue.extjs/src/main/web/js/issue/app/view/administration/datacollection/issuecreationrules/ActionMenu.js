@@ -6,10 +6,12 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.ActionMenu
     shadow: false,
     items: [
         {
+            itemId: 'edit',
             text: 'Edit',
             action: 'edit'
         },
         {
+            itemId: 'delete',
             text: 'Delete',
             action: 'delete'
         }

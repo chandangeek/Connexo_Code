@@ -6,6 +6,7 @@ Ext.define('Isu.view.workspace.issues.comment.List', {
         'Isu.view.workspace.issues.comment.AddForm'
     ],
 
+    itemId: 'Comment',
     alias: 'widget.issue-comments',
     title: 'Comments',
     emptyText: 'There are no comments yet on this issue',
@@ -13,6 +14,7 @@ Ext.define('Isu.view.workspace.issues.comment.List', {
 
     items: [
         {
+            itemId: 'dataview',
             xtype: 'dataview',
             title: 'User Images',
             emptyText: 'No comments to display',
@@ -32,13 +34,14 @@ Ext.define('Isu.view.workspace.issues.comment.List', {
             header: 'Name',
             dataIndex: 'name'
         },
-        {
+        {   itemId: 'comment-add-form',
             xtype: 'comment-add-form',
             hidden: true
         }
     ],
 
     buttons: [{
+        itemId: 'Add',
         text: 'Add comment',
         action: 'add'
     }]

@@ -13,10 +13,11 @@ Ext.define('Isu.view.administration.datacollection.issueassignmentrules.List', {
             border: false,
             hidden: true,
             items: [
-                {
+                {   itemId: 'empty-text_html',
                     html: '<h3>No rules found</h3>'
                 },
                 {
+                    itemId: 'noCreatedRules',
                     xtype: 'label',
                     text: 'There are no rules have been created yet'
                 }
@@ -33,18 +34,21 @@ Ext.define('Isu.view.administration.datacollection.issueassignmentrules.List', {
                 },
                 items: [
                     {
+                        itemId: 'Description',
                         header: 'Description',
                         dataIndex: 'description',
                         tdCls: 'isu-grid-description',
                         flex: 1
                     },
                     {
+                        itemId: 'assignTo',
                         header: 'Assign to',
                         xtype: 'templatecolumn',
                         tpl: '<tpl if="assignee.type"><span class="isu-icon-{assignee.type} isu-assignee-type-icon"></span></tpl> {assignee.name}',
                         flex: 1
                     },
                     {
+                        itemId: 'action',
                         xtype: 'uni-actioncolumn',
                         items: 'Isu.view.administration.datacollection.issueassignmentrules.ActionMenu'
                     }
@@ -52,6 +56,7 @@ Ext.define('Isu.view.administration.datacollection.issueassignmentrules.List', {
             },
             dockedItems: [
                 {
+                    itemId: 'toolbarTop',
                     xtype: 'toolbar',
                     dock: 'top'
                 }
