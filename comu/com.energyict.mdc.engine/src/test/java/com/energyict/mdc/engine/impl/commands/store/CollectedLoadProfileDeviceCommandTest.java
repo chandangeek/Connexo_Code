@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
+import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.ProgrammableClock;
 import com.energyict.mdc.common.ObisCode;
@@ -15,6 +17,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -38,6 +41,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class CollectedLoadProfileDeviceCommandTest {
 
+    @Rule
+    public TimeZoneNeutral weAreInAntarctica = Using.timeZoneOfMcMurdo();
+
     private static final long DEVICE_ID = 1;
     private static final int CHANNEL1_ID = 2;
     private static final int CHANNEL2_ID = CHANNEL1_ID + 1;
@@ -48,7 +54,6 @@ public class CollectedLoadProfileDeviceCommandTest {
     @Before
     public void setUp() {
         toReset = TimeZone.getDefault();
-        TimeZone.setDefault(TimeZone.getTimeZone("Pacific/Enderbury"));
     }
 
     @After
@@ -87,7 +92,7 @@ public class CollectedLoadProfileDeviceCommandTest {
 
         // Asserts
         assertThat(journalMessage).isEqualTo(CollectedLoadProfileDeviceCommand.class.getSimpleName()
-                + " {load profile: 1.33.1.8.0.255; interval data period: Interval{start=Thu Dec 13 01:53:05 PHOT 2012, end=Thu Dec 13 01:53:05 PHOT 2012}; channels: 2}");
+                + " {load profile: 1.33.1.8.0.255; interval data period: Interval{start=Thu Dec 13 01:53:05 NZDT 2012, end=Thu Dec 13 01:53:05 NZDT 2012}; channels: 2}");
     }
 
     @Test
@@ -114,7 +119,7 @@ public class CollectedLoadProfileDeviceCommandTest {
 
         // Asserts
         assertThat(journalMessage).isEqualTo(CollectedLoadProfileDeviceCommand.class.getSimpleName()
-                + " {load profile: 1.33.1.8.0.255; interval data period: Interval{start=Thu Dec 13 01:45:00 PHOT 2012, end=Thu Dec 13 02:30:00 PHOT 2012}; channels: 2}");
+                + " {load profile: 1.33.1.8.0.255; interval data period: Interval{start=Thu Dec 13 01:45:00 NZDT 2012, end=Thu Dec 13 02:30:00 NZDT 2012}; channels: 2}");
     }
 
     @Test
@@ -146,6 +151,6 @@ public class CollectedLoadProfileDeviceCommandTest {
 
         // Asserts
         assertThat(journalMessage).isEqualTo(CollectedLoadProfileDeviceCommand.class.getSimpleName() +
-                " {load profile: 1.33.1.8.0.255; interval data period: Interval{start=Thu Dec 13 01:45:00 PHOT 2012, end=Thu Dec 13 02:00:00 PHOT 2012}; channels: 2, 3}");
+                " {load profile: 1.33.1.8.0.255; interval data period: Interval{start=Thu Dec 13 01:45:00 NZDT 2012, end=Thu Dec 13 02:00:00 NZDT 2012}; channels: 2, 3}");
     }
 }

@@ -10,12 +10,14 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.store.core.ComTaskExecutionComCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootServiceProviderAdapter;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.tasks.history.CompletionCode;
@@ -67,6 +69,7 @@ public class RescheduleBehaviorForAsapTest {
     private ComServerDAO comServerDAO;
     @Mock
     private ScheduledComTaskExecutionGroup scheduledComTaskExecutionGroup;
+    @Mock
     private ScheduledConnectionTask connectionTask;
     @Mock
     private Device device;
@@ -74,6 +77,8 @@ public class RescheduleBehaviorForAsapTest {
     private ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties;
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
     private final CommandRoot.ServiceProvider commandRootServiceProvider = new CommandRootServiceProviderAdapter(serviceProvider);
+    @Mock
+    private IssueService issueService;
     @Mock
     private TaskHistoryService taskHistoryService;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
@@ -90,6 +95,7 @@ public class RescheduleBehaviorForAsapTest {
         when(device.getId()).thenReturn(DEVICE_ID);
         when(connectionTask.getDevice()).thenReturn(device);
         serviceProvider.setTaskHistoryService(taskHistoryService);
+        serviceProvider.setIssueService(this.issueService);
         serviceProvider.setClock(clock);
         when(taskHistoryService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Date.class))).thenReturn(comSessionBuilder);
     }
@@ -154,7 +160,9 @@ public class RescheduleBehaviorForAsapTest {
                 comServerDAO, Collections.<ComTaskExecution>emptyList(),
                 Collections.<ComTaskExecution>emptyList(), Arrays.<ComTaskExecution>asList(notExecutedComTaskExecution),
                 connectionTask, executionContext);
-
+        CommandRoot commandRoot = mock(CommandRoot.class);
+        when(commandRoot.getComTaskRoot(notExecutedComTaskExecution)).thenReturn(mock(ComTaskExecutionComCommand.class));
+        executionContext.setCommandRoot(commandRoot);
         ComTaskExecutionSessionBuilder comTaskExecutionSessionBuilder = mock(ComTaskExecutionSessionBuilder.class);
         when(this.comSessionBuilder.addComTaskExecutionSession(eq(notExecutedComTaskExecution), eq(device), any(Date.class))).thenReturn(comTaskExecutionSessionBuilder);
         rescheduleBehavior.performRescheduling(RescheduleBehavior.RescheduleReason.CONNECTION_SETUP);
@@ -174,12 +182,16 @@ public class RescheduleBehaviorForAsapTest {
         ComTaskExecution successfulComTaskExecution2 = getMockedComTaskExecution();
         ComTaskExecution successfulComTaskExecution3 = getMockedComTaskExecution();
 
+        ExecutionContext executionContext = newTestExecutionContext();
+        CommandRoot commandRoot = mock(CommandRoot.class);
+        when(commandRoot.getComTaskRoot(notExecutedComTaskExecution)).thenReturn(mock(ComTaskExecutionComCommand.class));
+        executionContext.setCommandRoot(commandRoot);
         RescheduleBehaviorForAsap rescheduleBehavior = new RescheduleBehaviorForAsap(
                 comServerDAO,
                 Arrays.<ComTaskExecution>asList(successfulComTaskExecution1, successfulComTaskExecution2, successfulComTaskExecution3),
                 Arrays.<ComTaskExecution>asList(failedComTaskExecution),
                 Arrays.<ComTaskExecution>asList(notExecutedComTaskExecution),
-                connectionTask, newTestExecutionContext());
+                connectionTask, executionContext);
 
         rescheduleBehavior.performRescheduling(RescheduleBehavior.RescheduleReason.CONNECTION_BROKEN);
 

@@ -2,7 +2,7 @@ package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.tasks.ComTask;
 
 import java.util.Arrays;
@@ -30,9 +30,9 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class RescheduleBehaviorForMinimizeConnectionsTest {
 
-    private static final int COMPORT_POOL_ID = 1;
-    private static final int COMPORT_ID = COMPORT_POOL_ID + 1;
-    private static final int CONNECTION_TASK_ID = COMPORT_ID + 1;
+    private static final long COMPORT_POOL_ID = 1;
+    private static final long COMPORT_ID = COMPORT_POOL_ID + 1;
+    private static final long CONNECTION_TASK_ID = COMPORT_ID + 1;
     private static final int MAX_NUMBER_OF_TRIES = 3;
 
     @Mock
@@ -40,7 +40,7 @@ public class RescheduleBehaviorForMinimizeConnectionsTest {
     @Mock
     private ScheduledComTaskExecutionGroup scheduledComTaskExecutionGroup;
     @Mock
-    private OutboundConnectionTask connectionTask;
+    private ScheduledConnectionTask connectionTask;
     @Mock
     private ComTask comTask;
 

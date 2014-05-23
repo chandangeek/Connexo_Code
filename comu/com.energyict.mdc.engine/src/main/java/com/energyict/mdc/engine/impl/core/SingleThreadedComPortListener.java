@@ -23,16 +23,41 @@ public class SingleThreadedComPortListener extends ComChannelBasedComPortListene
     private final ServiceProvider serviceProvider;
     private InboundComPortExecutorFactory inboundComPortExecutorFactory;
 
-    public SingleThreadedComPortListener(InboundComPort comPort, ComServerDAO comServerDAO,
-                                         ThreadFactory threadFactory, DeviceCommandExecutor deviceCommandExecutor,
-                                         InboundComPortExecutorFactory inboundComPortExecutorFactory, ServiceProvider serviceProvider) {
-        super(comPort, comServerDAO, threadFactory, deviceCommandExecutor);
-        this.inboundComPortExecutorFactory = inboundComPortExecutorFactory;
-        this.serviceProvider = serviceProvider;
-    }
-
     public SingleThreadedComPortListener(InboundComPort comPort, ComServerDAO comServerDAO, ThreadFactory threadFactory, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
         this(comPort, comServerDAO, threadFactory, deviceCommandExecutor, new InboundComPortExecutorFactoryImpl(), serviceProvider);
+    }
+
+    public SingleThreadedComPortListener(
+                        InboundComPort comPort,
+                        ComServerDAO comServerDAO,
+                        ThreadFactory threadFactory,
+                        DeviceCommandExecutor deviceCommandExecutor,
+                        InboundComPortExecutorFactory inboundComPortExecutorFactory,
+                        ServiceProvider serviceProvider) {
+        this(comPort,
+                comServerDAO,
+                threadFactory,
+                deviceCommandExecutor,
+                inboundComPortExecutorFactory,
+                new InboundComPortConnectorFactoryImpl(serviceProvider.serialComponentService(), serviceProvider.socketService()),
+                serviceProvider);
+    }
+
+    public SingleThreadedComPortListener(
+                        InboundComPort comPort,
+                        ComServerDAO comServerDAO,
+                        ThreadFactory threadFactory,
+                        DeviceCommandExecutor deviceCommandExecutor,
+                        InboundComPortExecutorFactory inboundComPortExecutorFactory,
+                        InboundComPortConnectorFactory inboundComPortConnectorFactory,
+                        ServiceProvider serviceProvider) {
+        super(comPort,
+                comServerDAO,
+                inboundComPortConnectorFactory,
+                threadFactory,
+                deviceCommandExecutor);
+        this.inboundComPortExecutorFactory = inboundComPortExecutorFactory;
+        this.serviceProvider = serviceProvider;
     }
 
     @Override

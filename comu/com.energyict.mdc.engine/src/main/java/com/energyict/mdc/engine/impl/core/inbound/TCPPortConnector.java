@@ -29,7 +29,7 @@ public class TCPPortConnector implements InboundComPortConnector {
     public TCPPortConnector(TCPBasedInboundComPort comPort, SocketService socketService) {
         this.socketService = socketService;
         try {
-            this.serverSocket = this.getSocketService().newTCPSocket(comPort.getPortNumber());
+            this.serverSocket = socketService.newTCPSocket(comPort.getPortNumber());
         }
         catch (IOException e) {
             throw new InboundCommunicationException(e);

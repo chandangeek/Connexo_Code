@@ -5,6 +5,9 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.Clock;
+import com.energyict.protocols.mdc.channels.serial.SerialComponentService;
+import com.energyict.protocols.mdc.services.SocketService;
+
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
@@ -36,6 +39,8 @@ public class FakeServiceProvider implements ServiceProvider {
     private TaskHistoryService taskHistoryService;
     private DeviceConfigurationService deviceConfigurationService;
     private ProtocolPluggableService protocolPluggableService;
+    private SocketService socketService;
+    private SerialComponentService serialComponentService;
 
     @Override
     public EventService eventService() {
@@ -162,4 +167,23 @@ public class FakeServiceProvider implements ServiceProvider {
     public void setProtocolPluggableService(ProtocolPluggableService protocolPluggableService) {
         this.protocolPluggableService = protocolPluggableService;
     }
+
+    @Override
+    public SocketService socketService() {
+        return socketService;
+    }
+
+    public void setSocketService(SocketService socketService) {
+        this.socketService = socketService;
+    }
+
+    @Override
+    public SerialComponentService serialComponentService() {
+        return serialComponentService;
+    }
+
+    public void setSerialComponentService(SerialComponentService serialComponentService) {
+        this.serialComponentService = serialComponentService;
+    }
+
 }
