@@ -76,6 +76,10 @@ public class DeviceResource {
         if (deviceType != null) {
             conditionDevice = conditionDevice.and(where("deviceConfiguration.deviceType.name").isEqualTo(deviceType));
         }
+        String deviceConfiguration = params.getFirst("deviceConfigurationName");
+        if (deviceConfiguration != null) {
+            conditionDevice = conditionDevice.and(where("deviceConfiguration.name").isEqualTo(deviceConfiguration));
+        }
         return conditionDevice;
     }
 
