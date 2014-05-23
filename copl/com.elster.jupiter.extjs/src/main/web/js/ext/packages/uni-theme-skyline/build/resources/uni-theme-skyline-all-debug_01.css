@@ -16437,7 +16437,7 @@ a.x-color-picker-item:hover {
 
 /* line 1, ../../../ext-theme-neutral/sass/src/grid/column/Action.scss */
 .x-grid-cell-inner-action-col {
-  padding: 6px 4px 6px 4px;
+  padding: 6px 16px 6px 16px;
 }
 
 /* line 12, ../../../ext-theme-neutral/sass/src/grid/column/Action.scss */
@@ -16616,7 +16616,7 @@ a.x-color-picker-item:hover {
 }
 /* line 75, ../../../ext-theme-neutral/sass/src/grid/plugin/Editing.scss */
 .x-grid-editor .x-form-action-col-field {
-  padding: 6px 4px 6px 4px;
+  padding: 6px 16px 6px 16px;
 }
 
 /* line 3, ../../../ext-theme-neutral/sass/src/grid/plugin/CellEditing.scss */
@@ -16640,7 +16640,7 @@ a.x-color-picker-item:hover {
 }
 /* line 16, ../../../ext-theme-neutral/sass/src/grid/plugin/RowEditing.scss */
 .x-grid-row-editor .x-form-action-col-field {
-  padding: 6px 1px 5px 2px;
+  padding: 6px 13px 5px 14px;
 }
 /* line 27, ../../../ext-theme-neutral/sass/src/grid/plugin/RowEditing.scss */
 .x-grid-row-editor .x-form-text {

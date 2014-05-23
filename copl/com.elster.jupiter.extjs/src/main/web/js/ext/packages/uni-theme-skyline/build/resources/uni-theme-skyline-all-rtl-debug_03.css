@@ -10989,6 +10989,19 @@
   margin-left: 24px;
 }
 
+/* line 1, ../../sass/src/panel/Detail.scss */
+.license-details-toolbar {
+  font-weight: bold;
+}
+
+/* line 8, ../../sass/src/panel/Detail.scss */
+.license-list-empty,
+.license-details-toolbar,
+.isu-item-data-table,
+.license-title {
+  color: #686868;
+}
+
 /* line 1, ../../sass/src/tip/Tip.scss */
 .x-tip {
   border-color: #70bb51;
@@ -15665,7 +15678,7 @@ a.x-datepicker-date:hover {
 
 /* line 3, ../../sass/src/panel/Table.scss */
 .x-grid {
-  padding-bottom: 16px;
+  padding-bottom: 32px;
 }
 /* line 4, ../../sass/src/panel/Table.scss */
 .x-grid .x-toolbar {
@@ -15692,10 +15705,6 @@ a.x-datepicker-date:hover {
 .x-grid-body .x-grid-view {
   margin: -1px !important;
   margin-top: 0 !important;
-}
-/* line 26, ../../sass/src/panel/Table.scss */
-.x-grid-body.x-noborder-rbl {
-  margin-bottom: 16px;
 }
 /* line 34, ../../sass/src/panel/Table.scss */
 .x-grid-body .x-grid-row a {
