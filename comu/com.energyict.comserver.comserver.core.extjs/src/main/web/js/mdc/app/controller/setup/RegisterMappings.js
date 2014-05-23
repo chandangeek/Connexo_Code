@@ -79,7 +79,7 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
             var registerMappingsName = this.getRegisterMappingPreviewForm().form.findField('name').getSubmitValue();
             this.getRegisterMappingPreview().getLayout().setActiveItem(1);
             //this.getRegisterMappingPreviewTitle().update('<h4>' + registerMappingsName + '</h4>');
-            this.getRegisterMappingPreview().getHeader().setTitle(registerMappingsName);
+            this.getRegisterMappingPreview().setTitle(registerMappingsName);
             this.getPreviewMrId().setValue(registerMappings[0].getReadingType().get('mrid'));
             this.getRegisterMappingPreviewForm().loadRecord(registerMappings[0]);
         } else {

@@ -8,8 +8,7 @@ Ext.define('Mdc.controller.setup.LogbookConfigurations', {
     views: [
         'setup.deviceconfiguration.DeviceConfigurationLogbooks',
         'setup.deviceconfiguration.EditLogbookConfiguration',
-        'setup.deviceconfiguration.ActionMenu',
-        'Isu.view.ext.button.GridAction'
+        'setup.deviceconfiguration.ActionMenu'
     ],
 
     refs: [

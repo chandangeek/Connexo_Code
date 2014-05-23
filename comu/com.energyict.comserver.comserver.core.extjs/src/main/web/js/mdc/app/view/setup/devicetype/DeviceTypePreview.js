@@ -115,40 +115,30 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                                 },
                                 items: [
                                     {
-                                        xtype: 'component',
+                                        xtype: 'button',
                                         name: 'registerCount',
-                                        cls: 'x-form-display-field',
-                                        autoEl: {
-                                            tag: 'a',
-                                            href: '#',
-                                            html: Uni.I18n.translate('devicetype.registers', 'MDC', 'Register types')
-                                        },
-                                        itemId: 'deviceTypeRegistersLink'
+                                        text: Uni.I18n.translate('devicetype.registers', 'MDC', 'Register types'),
+                                        ui: 'link',
+                                        itemId: 'deviceTypeRegistersLink',
+                                        href: '#'
                                     },
 
-
                                     {
-                                        xtype: 'component',
+                                        xtype: 'button',
                                         name: 'loadProfileCount',
-                                        cls: 'x-form-display-field',
-                                        autoEl: {
-                                            tag: 'a',
-                                            href: '#',
-                                            html: Uni.I18n.translate('devicetype.loadprofiles', 'MDC', 'loadprofile types')
-                                        },
-                                        itemId: 'deviceTypeLoadProfilesLink'
-
+                                        text: Uni.I18n.translate('devicetype.loadprofiles', 'MDC', 'loadprofile types'),
+                                        ui: 'link',
+                                        itemId: 'deviceTypeLoadProfilesLink',
+                                        href: '#'
                                     },
+
                                     {
-                                        xtype: 'component',
+                                        xtype: 'button',
                                         name: 'logBookCount',
-                                        cls: 'x-form-display-field',
-                                        autoEl: {
-                                            tag: 'a',
-                                            href: '#',
-                                            html: Uni.I18n.translate('devicetype.logbooks', 'MDC', 'logbooks')
-                                        },
-                                        itemId: 'deviceTypeLogBooksLink'
+                                        text: Uni.I18n.translate('devicetype.logbooks', 'MDC', 'logbooks'),
+                                        ui: 'link',
+                                        itemId: 'deviceTypeLogBooksLink',
+                                        href: '#'
                                     }
                                 ]
                             },
@@ -163,15 +153,12 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                                 },
                                 items: [
                                     {
-                                        xtype: 'component',
+                                        xtype: 'button',
                                         name: 'deviceConfigurationCount',
-                                        cls: 'x-form-display-field a',
-                                        autoEl: {
-                                            tag: 'a',
-                                            href: '#',
-                                            html: Uni.I18n.translate('devicetype.deviceconfigurations', 'MDC', 'device configurations')
-                                        },
-                                        itemId: 'deviceConfigurationsLink'
+                                        text: Uni.I18n.translate('devicetype.deviceconfigurations', 'MDC', 'device configurations'),
+                                         ui: 'link',
+                                        itemId: 'deviceConfigurationsLink',
+                                        href: '#'
                                     }
                                 ]
                             }

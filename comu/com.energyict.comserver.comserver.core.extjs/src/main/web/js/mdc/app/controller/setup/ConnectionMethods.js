@@ -104,7 +104,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
             this.getConnectionMethodPreviewForm().loadRecord(connectionMethod[0]);
             var connectionMethodName = connectionMethod[0].get('name');
             this.getConnectionMethodPreview().getLayout().setActiveItem(1);
-            this.getConnectionMethodPreview().getHeader().setTitle(connectionMethodName);
+            this.getConnectionMethodPreview().setTitle(connectionMethodName);
             this.getConnectionMethodPreviewForm().loadRecord(connectionMethod[0]);
             this.getPropertiesViewController().showProperties(connectionMethod[0], this.getConnectionMethodPreview());
         } else {

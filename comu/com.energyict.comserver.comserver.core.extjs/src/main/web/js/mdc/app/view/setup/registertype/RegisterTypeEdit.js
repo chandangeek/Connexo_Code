@@ -181,7 +181,6 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                     {
                                         xtype: 'fieldcontainer',
                                         fieldLabel: '&nbsp',
-                                        //width: 430,
                                         layout: {
                                             type: 'hbox',
                                             align: 'stretch'
@@ -190,19 +189,15 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                             {
                                                 text: Uni.I18n.translate('general.create', 'MDC', 'Create'),
                                                 xtype: 'button',
+                                                ui: 'action',
                                                 action: 'createAction',
                                                 itemId: 'createEditButton'
-                                                //  formBind: true
                                             },
                                             {
-                                                xtype: 'component',
-                                                padding: '3 0 0 10',
-                                                itemId: 'cancelLink',
-                                                autoEl: {
-                                                    tag: 'a',
-                                                    href: '#/administration/registertypes/',
-                                                    html: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel')
-                                                }
+                                                xtype: 'button',
+                                                ui: 'link',
+                                                text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                                                itemId: 'cancelLink'
                                             }
                                         ]
                                     }
