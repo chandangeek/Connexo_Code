@@ -47,8 +47,8 @@ Ext.define('Cfg.view.validation.RuleSetList', {
                     return '<a href="#administration/validation/overview/' + record.getId() + '">' + value + '</a>'
                 }
             },
-            { header: Uni.I18n.translate('validation.numberOfRules', 'CFG', 'Number of rules'), dataIndex: 'numberOfRules', flex: 0.3, align: 'center', sortable: false, fixed: true  },
-            { header:Uni.I18n.translate('validation.numberOfInActiveRules', 'CFG', 'Number of inactive rules'), dataIndex: 'numberOfInactiveRules', flex: 0.3, align: 'center', sortable: false, fixed: true },
+            { header: Uni.I18n.translate('validation.numberOfRules', 'CFG', 'Number of rules'), dataIndex: 'numberOfRules', flex: 0.3, align: 'right', sortable: false, fixed: true  },
+            { header:Uni.I18n.translate('validation.numberOfInActiveRules', 'CFG', 'Number of inactive rules'), dataIndex: 'numberOfInactiveRules', flex: 0.3, align: 'right', sortable: false, fixed: true },
             {
                 xtype: 'actioncolumn',
                 iconCls: 'uni-actioncolumn-gear',
@@ -111,7 +111,7 @@ Ext.define('Cfg.view.validation.RuleSetList', {
                         flex: 1
                     },
                     {
-                        text: Uni.I18n.translate('validation.createRuleSet', 'CFG', 'Create rule set'),
+                        text: Uni.I18n.translate('validation.createRuleSet', 'CFG', 'Add rule set'),
                         itemId: 'newRuleset',
                         xtype: 'button',
                         href: '#administration/validation/createset',
