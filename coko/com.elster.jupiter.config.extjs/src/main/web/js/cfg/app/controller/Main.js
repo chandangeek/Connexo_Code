@@ -26,7 +26,8 @@ Ext.define('Cfg.controller.Main', {
             text: Uni.I18n.translate('general.administration', 'CFG', 'Administration'),
             href: me.getApplication().getController('Cfg.controller.history.Validation').tokenizeShowOverview(),
             portal: 'administration',
-            glyph: 'settings'
+            glyph: 'settings',
+            index: 3
         });
 
         Uni.store.MenuItems.add(menuItem);
