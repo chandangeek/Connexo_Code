@@ -4,7 +4,6 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
-import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.security.thread.RunAs;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
@@ -15,6 +14,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 
 import java.io.PrintStream;
 import java.security.Principal;
@@ -36,7 +36,7 @@ public class ConsoleCommandsImpl {
     private PrintStream output = System.out;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile TransactionService transactionService;
-    private volatile DataModel dataModel;
+    private volatile MessageService messageService;
 
     @Activate
 	public void activate(BundleContext context) {
@@ -45,11 +45,26 @@ public class ConsoleCommandsImpl {
 	@Deactivate
 	public void deactivate() {
 	}
-	
+
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
+    }
+
+    @Reference
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
+
+    @Reference
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
+    }
+
     public void aqcreatetable(String in) {
         output.println("About to create Queue table " + in);
         try {
-            QueueTableSpecImpl.from(dataModel, in, "RAW", false).activate();
+            messageService.createQueueTableSpec(in, "RAW", false);
         } catch (RuntimeException ex) {
             LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
         }
@@ -57,14 +72,17 @@ public class ConsoleCommandsImpl {
 
     public void aqdroptable(String in) {
         try {
-            QueueTableSpecImpl.from(dataModel, in, "RAW", false).deactivate();
+            Optional<QueueTableSpec> queueTableSpec = messageService.getQueueTableSpec(in);
+            if (queueTableSpec.isPresent()) {
+                queueTableSpec.get().deactivate();
+            }
         } catch (RuntimeException ex) {
             ex.printStackTrace();
         }
     }
 
     public void drain(String subscriberName, String destinationName) {
-        Optional<SubscriberSpec> spec = dataModel.mapper(SubscriberSpec.class).getOptional(destinationName, subscriberName);
+        Optional<SubscriberSpec> spec = messageService.getSubscriberSpec(destinationName, subscriberName);
         try {
             AQMessage message = ((SubscriberSpecImpl) spec.get()).receiveNow();
             while (message != null) {
@@ -77,28 +95,33 @@ public class ConsoleCommandsImpl {
     }
 
     public void createQueue(final String queueName, final int retryDelay) {
-        transactionService.execute(new VoidTransaction() {
-            @Override
-            protected void doPerform() {
-                new RunAs(threadPrincipalService, new Principal() {
-                    @Override
-                    public String getName() {
-                        return "Command line";
-                    }
-                }, new Runnable() {
-                    @Override
-                    public void run() {
-                        Optional<QueueTableSpec> defaultQueueTableSpec = dataModel.mapper(QueueTableSpec.class).getOptional("MSG_RAWQUEUETABLE");
-                        if (defaultQueueTableSpec.isPresent()) {
-                            DestinationSpec destinationSpec = defaultQueueTableSpec.get().createDestinationSpec(queueName, retryDelay);
-                            destinationSpec.activate();
-                        } else {
-                            System.err.println("RAWQUEUETABLE not present! Please create first");
+        try {
+            transactionService.execute(new VoidTransaction() {
+                @Override
+                protected void doPerform() {
+                    new RunAs(threadPrincipalService, new Principal() {
+                        @Override
+                        public String getName() {
+                            return "Command line";
                         }
-                    }
-                }).run();
-            }
-        });
+                    }, new Runnable() {
+                        @Override
+                        public void run() {
+
+                            Optional<QueueTableSpec> defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE");
+                            if (defaultQueueTableSpec.isPresent()) {
+                                DestinationSpec destinationSpec = defaultQueueTableSpec.get().createDestinationSpec(queueName, retryDelay);
+                                destinationSpec.activate();
+                            } else {
+                                System.err.println("RAWQUEUETABLE not present! Please create first");
+                            }
+                        }
+                    }).run();
+                }
+            });
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     public void subscribe(final String subscriberName, final String destinationName) {
@@ -113,7 +136,7 @@ public class ConsoleCommandsImpl {
                 }, new Runnable() {
                     @Override
                     public void run() {
-                        Optional<DestinationSpec> destination = dataModel.mapper(DestinationSpec.class).getOptional(destinationName);
+                        Optional<DestinationSpec> destination = messageService.getDestinationSpec(destinationName);
                         if (!destination.isPresent()) {
                             System.err.println("No such destination " + destinationName);
                         }
