@@ -1,4 +1,4 @@
-$item-margin: 4px;
+//$item-margin: 4px;
 
 .#{$prefix}form-item-label {
     font-size: 13px;
@@ -6,12 +6,12 @@ $item-margin: 4px;
     font-weight: bold;
     padding-right: 14px;
     text-align: right;
-    margin-left: $item-margin;
+//    margin-left: $item-margin;
  //   margin-right: 15px !important;
 }
 
 .#{$prefix}form-item-body {
-    margin-right: $item-margin;
+//    margin-right: $item-margin;
 }
 
 .uni-form-item-label-required {

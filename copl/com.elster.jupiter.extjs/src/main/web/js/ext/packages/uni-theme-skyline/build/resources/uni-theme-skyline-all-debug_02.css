@@ -1,3 +1,19 @@
+.x-btn-delete-small-menu-active .x-frame-mc,
+.x-btn-delete-small-pressed .x-frame-mc {
+  background-color: #d34d3b;
+  background-image: url(images/btn/btn-delete-small-pressed-fbg.gif);
+}
+
+/* line 655, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-delete-small-disabled .x-frame-tl,
+.x-btn-delete-small-disabled .x-frame-bl,
+.x-btn-delete-small-disabled .x-frame-tr,
+.x-btn-delete-small-disabled .x-frame-br,
+.x-btn-delete-small-disabled .x-frame-tc,
+.x-btn-delete-small-disabled .x-frame-bc {
+  background-image: url(images/btn/btn-delete-small-disabled-corners.gif);
+}
+/* line 659, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-delete-small-disabled .x-frame-ml,
 .x-btn-delete-small-disabled .x-frame-mr {
   background-image: url(images/btn/btn-delete-small-disabled-sides.gif);
@@ -2414,6 +2430,15 @@
 
 /*</if slicer>*/
 /* */
+/* line 1, ../../sass/src/button/LinkButton.scss */
+a, a.x-btn {
+  color: #686868;
+}
+/* line 4, ../../sass/src/button/LinkButton.scss */
+a:hover, a.x-btn:hover {
+  color: #71adc7;
+}
+
 /* line 255, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-link-small {
   border-color: #6194ab;
@@ -2894,7 +2919,7 @@
 
 /*</if slicer>*/
 /* */
-/* line 3, ../../sass/src/button/LinkButton.scss */
+/* line 11, ../../sass/src/button/LinkButton.scss */
 .x-btn-link-small .x-btn-inner {
   text-decoration: underline;
 }
@@ -3379,7 +3404,7 @@
 
 /*</if slicer>*/
 /* */
-/* line 3, ../../sass/src/button/LinkButton.scss */
+/* line 11, ../../sass/src/button/LinkButton.scss */
 .x-btn-link-medium .x-btn-inner {
   text-decoration: underline;
 }
@@ -3864,7 +3889,7 @@
 
 /*</if slicer>*/
 /* */
-/* line 3, ../../sass/src/button/LinkButton.scss */
+/* line 11, ../../sass/src/button/LinkButton.scss */
 .x-btn-link-large .x-btn-inner {
   text-decoration: underline;
 }
@@ -4355,7 +4380,7 @@
 
 /*</if slicer>*/
 /* */
-/* line 3, ../../sass/src/button/LinkButton.scss */
+/* line 11, ../../sass/src/button/LinkButton.scss */
 .x-btn-link-toolbar-small .x-btn-inner {
   text-decoration: underline;
 }
@@ -4846,7 +4871,7 @@
 
 /*</if slicer>*/
 /* */
-/* line 3, ../../sass/src/button/LinkButton.scss */
+/* line 11, ../../sass/src/button/LinkButton.scss */
 .x-btn-link-toolbar-medium .x-btn-inner {
   text-decoration: underline;
 }
@@ -5337,7 +5362,7 @@
 
 /*</if slicer>*/
 /* */
-/* line 3, ../../sass/src/button/LinkButton.scss */
+/* line 11, ../../sass/src/button/LinkButton.scss */
 .x-btn-link-toolbar-large .x-btn-inner {
   text-decoration: underline;
 }
@@ -14725,24 +14750,4 @@
 .x-btn-step-active-small-focus .x-frame-tc,
 .x-btn-step-active-small-focus .x-frame-bc {
   background-image: url(images/btn/btn-step-active-small-focus-corners.gif);
-}
-/* line 592, ../../../ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-step-active-small-focus .x-frame-ml,
-.x-btn-step-active-small-focus .x-frame-mr {
-  background-image: url(images/btn/btn-step-active-small-focus-sides.gif);
-}
-/* line 595, ../../../ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-step-active-small-focus .x-frame-mc {
-  background-color: #67ac4a;
-  background-image: url(images/btn/btn-step-active-small-focus-fbg.gif);
-}
-
-/* line 610, ../../../ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-step-active-small-over .x-frame-tl,
-.x-btn-step-active-small-over .x-frame-bl,
-.x-btn-step-active-small-over .x-frame-tr,
-.x-btn-step-active-small-over .x-frame-br,
-.x-btn-step-active-small-over .x-frame-tc,
-.x-btn-step-active-small-over .x-frame-bc {
-  background-image: url(images/btn/btn-step-active-small-over-corners.gif);
 }

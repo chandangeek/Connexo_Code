@@ -4,14 +4,33 @@
   .#{$prefix}toolbar {
     border: none;
   }
+  .#{$prefix}docked-bottom {
+    margin-bottom: - $panel-padding;
+  }
+  padding-bottom: 2 * $panel-padding;
 }
 
 .#{$prefix}grid-body {
-  border-top-width: 0;
-  border-top-style: none;
+  border-color: $grid-body-border-color !important;
+  border-width: $grid-body-border-width !important;
+  border-style: $grid-body-border-style !important;
+  border-top-width: 0 !important;
+
+  // this removes horisontal scrollbar, which appears probably because of ext-neptune border management override
+  .#{$prefix}grid-view {
+    margin: -$grid-body-border-width !important;
+    margin-top: 0 !important;
+  }
+
+//  // this is add margin at the grid bottom when no bottom toolbar is applied
+//  &.#{$prefix}noborder-rbl {
+//      margin-bottom: 16px;
+//  }
+
   @include border-radius(0 0 $grid-header-border-radius $grid-header-border-radius);
 
   .#{$prefix}grid-row {
+
     a {
       color: $button-link-color;
       text-decoration: none;
@@ -29,11 +48,11 @@
       color: $grid-row-cell-selected-color;
     }
   }
-  @include scrollbar(
-          $scrollbar-size,
-          $scrollbar-margin,
-          $scrollbar-background-color,
-          $scrollbar-thumb-background-color,
-          $scrollbar-arrow-size
-  );
+//  @include scrollbar(
+//          $scrollbar-size,
+//          $scrollbar-margin,
+//          $scrollbar-background-color,
+//          $scrollbar-thumb-background-color,
+//          $scrollbar-arrow-size
+//  );
 }

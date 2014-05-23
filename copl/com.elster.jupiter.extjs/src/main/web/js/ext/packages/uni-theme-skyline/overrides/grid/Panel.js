@@ -1,6 +1,8 @@
 Ext.define('Skyline.grid.Panel', {
     override: 'Ext.grid.Panel',
-    border: true,
+//    border: false,
+//    frame: true,
+    bodyBorder: true,
     enableColumnHide: false,
     enableColumnMove: false,
     enableColumnResize: false

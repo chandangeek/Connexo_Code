@@ -37,6 +37,7 @@ Ext.ClassManager.addNameAlternateMappings({
   "Skyline.button.TagButton": [],
   "Skyline.form.Label": [],
   "Skyline.form.Labelable": [],
+  "Skyline.form.Panel": [],
   "Skyline.form.field.Base": [],
   "Skyline.form.field.Text": [],
   "Skyline.grid.Panel": [],
@@ -46,7 +47,9 @@ Ext.ClassManager.addNameAlternateMappings({
   "Skyline.panel.Header": [],
   "Skyline.panel.Panel": [],
   "Skyline.panel.StepPanel": [],
-  "Skyline.view.Table": []
+  "Skyline.ux.window.Notification": [],
+  "Skyline.view.Table": [],
+  "Skyline.window.MessageBox": []
 });
 Ext.ClassManager.addNameAliasMappings({
   "ExtThemeNeptune.Component": [],
@@ -76,6 +79,7 @@ Ext.ClassManager.addNameAliasMappings({
   ],
   "Skyline.form.Label": [],
   "Skyline.form.Labelable": [],
+  "Skyline.form.Panel": [],
   "Skyline.form.field.Base": [],
   "Skyline.form.field.Text": [],
   "Skyline.grid.Panel": [],
@@ -93,7 +97,9 @@ Ext.ClassManager.addNameAliasMappings({
   "Skyline.panel.StepPanel": [
     "widget.step-panel"
   ],
-  "Skyline.view.Table": []
+  "Skyline.ux.window.Notification": [],
+  "Skyline.view.Table": [],
+  "Skyline.window.MessageBox": []
 });
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/Component.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/panel/Panel.js");
@@ -103,9 +109,11 @@ Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/toolbar/Toolbar.js")
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/layout/component/Dock.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/container/ButtonGroup.js");
 Ext.Loader.loadScript("../../overrides/form/Labelable.js");
+Ext.Loader.loadScript("../../overrides/window/MessageBox.js");
 Ext.Loader.loadScript("../../overrides/form/field/Text.js");
 Ext.Loader.loadScript("../../overrides/form/field/Base.js");
 Ext.Loader.loadScript("../../overrides/form/Label.js");
+Ext.Loader.loadScript("../../overrides/form/Panel.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/toolbar/Paging.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/picker/Month.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/form/field/HtmlEditor.js");
@@ -119,3 +127,4 @@ Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/menu/Menu.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/menu/Separator.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/panel/Tool.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/tab/Tab.js");
+Ext.Loader.loadScript("../../overrides/ux/window/Notification.js");

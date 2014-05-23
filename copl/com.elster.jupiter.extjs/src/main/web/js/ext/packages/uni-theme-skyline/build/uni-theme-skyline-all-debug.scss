@@ -1,4 +1,4 @@
-$image-search-path: '/home/lvz/Documents/Workspace/Jupiter/com.elster.jupiter.extjs/src/main/web/js/ext/packages/uni-theme-skyline/build/resources' !default;
+$image-search-path: '/srv/elster/src/com.elster.jupiter.extjs/src/main/web/js/ext/packages/uni-theme-skyline/build/resources' !default;
 $theme-name:  'uni-theme-skyline' !default;
 $include-ext-abstractcomponent: true;
 $include-ext-abstractmanager: true;
@@ -513,6 +513,7 @@ $include-skyline-button-stepbutton: true;
 $include-skyline-button-tagbutton: true;
 $include-skyline-form-label: true;
 $include-skyline-form-labelable: true;
+$include-skyline-form-panel: true;
 $include-skyline-form-field-base: true;
 $include-skyline-form-field-text: true;
 $include-skyline-grid-panel: true;
@@ -522,7 +523,9 @@ $include-skyline-panel-filtertoolbar: true;
 $include-skyline-panel-header: true;
 $include-skyline-panel-panel: true;
 $include-skyline-panel-steppanel: true;
+$include-skyline-ux-window-notification: true;
 $include-skyline-view-table: true;
+$include-skyline-window-messagebox: true;
 /* including package ext-theme-base */
 @import '../../ext-theme-base/sass/etc/all';
 /* including package ext-theme-neutral */
@@ -534,11 +537,13 @@ $include-skyline-view-table: true;
 /* including package uni-theme-skyline */
 @import '../sass/var/Component';
 @import '../sass/var/container/Container';
+@import '../sass/var/LoadMask';
 @import '../sass/var/button/Button';
 @import '../sass/var/toolbar/Toolbar';
 @import '../sass/var/panel/Header';
 @import '../sass/var/panel/Panel';
 @import '../sass/var/tip/Tip';
+@import '../sass/var/window/Window';
 @import '../sass/var/form/Labelable';
 @import '../sass/var/form/field/Base';
 @import '../sass/var/picker/Date';
@@ -790,6 +795,8 @@ $relative-image-path-for-uis: $uni-theme-skyline-resource-path;
 @import '../sass/src/panel/Panel';
 @import '../sass/src/tip/Tip';
 @import '../sass/src/form/field/Base';
+@import '../sass/src/window/MessageBox';
+@import '../sass/src/form/field/Checkbox';
 @import '../sass/src/form/Label';
 @import '../sass/src/form/field/Trigger';
 @import '../sass/src/toolbar/Paging';

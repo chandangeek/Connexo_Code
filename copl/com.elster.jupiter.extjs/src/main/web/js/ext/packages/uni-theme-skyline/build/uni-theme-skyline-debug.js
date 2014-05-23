@@ -487,12 +487,104 @@ Ext.define('ExtThemeNeptune.container.ButtonGroup', {
 
 Ext.define('Skyline.form.Labelable', {
     override: 'Ext.form.Labelable',
-    labelAlign: 'right',
     labelPad: 15,
     msgTarget: 'under',
-    blankText: 'This is a required field'
+    blankText: 'This is a required field',
+
+    /**
+     * Required property, set when a field is required.
+     */
+    required: false,
+
+    /**
+     * Changes the default value ':'.
+     */
+    labelSeparator: '',
+
+    /**
+     * Changes the default value 'left'.
+     */
+    labelAlign: 'right',
+
+    /**
+     * @inheritDoc Ext.form.Labelable#getLabelCls
+     *
+     * Adds an extra required class when needed
+     *
+     * @returns {string}
+     */
+    getLabelCls: function () {
+        var labelCls = this.labelCls;
+
+        if (this.required) {
+            labelCls += ' ' + 'uni-form-item-label-required';
+        }
+
+        return labelCls;
+    }
 });
 
+
+Ext.define('Skyline.window.MessageBox', {
+    override: 'Ext.window.MessageBox',
+    shadow: false,
+
+    reconfigure: function(cfg) {
+        if (((typeof cfg) != "undefined") && cfg.ui) {
+            this.ui = cfg.ui;
+        }
+        this.callParent(arguments);
+    },
+
+    initComponent: function () {
+        var me = this,
+            title = me.title;
+
+        me.title = null;
+        this.callParent(arguments);
+        this.topContainer.padding = 0;
+
+        me.titleComponent = new Ext.panel.Header({
+            title: title
+        });
+        me.promptContainer.insert(0, me.titleComponent);
+    },
+
+    /**
+     * Set a title for the panel's header. See {@link Ext.panel.Header#title}.
+     * @param {String} newTitle
+     */
+    setTitle: function(newTitle) {
+        var me = this,
+            header = me.titleComponent;
+
+        if (header) {
+            var oldTitle = header.title;
+        }
+
+        if (header) {
+            if (header.isHeader) {
+                header.setTitle(newTitle);
+            } else {
+                header.title = newTitle;
+            }
+        }
+        else if (me.rendered) {
+            me.updateHeader();
+        }
+
+        me.fireEvent('titlechange', me, newTitle, oldTitle);
+    }
+}, function() {
+    /**
+     * @class Ext.MessageBox
+     * @alternateClassName Ext.Msg
+     * @extends Ext.window.MessageBox
+     * @singleton
+     * Singleton instance of {@link Ext.window.MessageBox}.
+     */
+    Ext.MessageBox = Ext.Msg = new this();
+});
 
 Ext.define('Skyline.form.field.Text', {
     override: "Ext.form.field.Text",
@@ -515,6 +607,34 @@ Ext.define('Skyline.form.field.Base', {
 Ext.define('Skyline.form.Label', {
     override: 'Ext.form.Label',
     cls: 'x-form-item-label'
+});
+
+Ext.define('Skyline.form.Panel', {
+    override: 'Ext.form.Panel',
+    buttonAlign: 'left',
+
+    initComponent: function() {
+        var me = this;
+        var width = 100;
+
+        if (me.defaults && me.defaults.labelWidth) {
+            width = me.defaults.labelWidth;
+        }
+        // the case when label align is defined and not left. Than don't move the buttons.
+        if (me.defaults
+         && me.defaults.labelAlign
+         && me.defaults.labelAlign != 'left') {
+            width = 0;
+        }
+        if (me.buttons) {
+            me.buttons.splice(0, 0, {
+                xtype: 'tbspacer',
+                width: width
+            })
+        }
+
+        me.callParent(arguments);
+    }
 });
 
 /*
@@ -597,14 +717,17 @@ Ext.define('ExtThemeNeptune.form.field.HtmlEditor', {
 
 Ext.define('Skyline.grid.Panel', {
     override: 'Ext.grid.Panel',
-    border: true,
+//    border: false,
+//    frame: true,
+    bodyBorder: true,
     enableColumnHide: false,
     enableColumnMove: false,
     enableColumnResize: false
 });
 
 Ext.define('Skyline.view.Table', {
-    override: 'Ext.view.Table'
+    override: 'Ext.view.Table',
+    bodyBorder: true
 //    ,
 //    scroll: true,
 //    scrollbarTpl: '<div class="scrollbar"><div class="up"><span class="arrow-up"></span></div><div class="down"><span class="arrow-down"></span></div><div class="track"><div class="thumb"></div></div></div>',
@@ -1166,5 +1289,14 @@ Ext.define('Skyline.panel.StepPanel', {
         me.doStepLayout();
         me.callParent(arguments)
     }
+});
+
+Ext.define('Skyline.ux.window.Notification', {
+    override: 'Ext.ux.window.Notification',
+    title: false,
+    position: 't',
+    stickOnClick: false,
+    closable: false,
+    ui: 'notification'
 });
 
