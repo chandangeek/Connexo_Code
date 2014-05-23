@@ -2,28 +2,26 @@ Ext.define('Mdc.view.setup.searchitems.SearchItems', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.searchItems',
     itemId: 'searchItems',
-    //id: 'search-items-id',
     cls: 'filter-form',
     requires: [
         'Mdc.view.setup.searchitems.SideFilter',
         'Mdc.view.setup.searchitems.ContentFilter',
         'Mdc.view.setup.searchitems.ContentLayout',
-        'Mdc.model.DeviceType'
+        'Mdc.model.DeviceType',
+        'Mdc.model.DeviceConfiguration'
     ],
 
     content: [
         {
-            xtype: 'panel',
             title: Uni.I18n.translate('searchItems.filter.title', 'MDC', 'Search'),
-            ui: 'large',
-            items: [
-                {
-                    xtype: 'search-content-filter'
-                },
-                {
-                    xtype: 'contentLayout'
-                }
-            ]
+            ui: 'medium'
+        },
+        {
+            xtype: 'search-content-filter'
+        },
+        {
+            xtype: 'contentLayout',
+            flex:1
         }
     ],
     side: [
@@ -37,12 +35,12 @@ Ext.define('Mdc.view.setup.searchitems.SearchItems', {
 
         this.down('#contentLayout').getLayout().setActiveItem(0);
 
-        //todo: this is potential issue.
-        Ext.getStore('DeviceTypes').on('load', function(store) {
+        Ext.getStore('DeviceTypes').on('load', function loadDeviceTypes(store) {
             store.insert(0, Ext.create('Mdc.model.DeviceType', {
                 id: -1,
                 name: '&nbsp;'
             }));
+            this.removeListener('load', loadDeviceTypes);
         });
     }
 });
