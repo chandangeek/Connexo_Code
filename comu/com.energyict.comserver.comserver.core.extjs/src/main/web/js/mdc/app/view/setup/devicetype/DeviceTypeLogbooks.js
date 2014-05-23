@@ -147,10 +147,16 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
     initComponent: function () {
         this.side = [
             {
-                xtype: 'deviceTypeMenu',
-                itemId: 'stepsMenu',
-                deviceTypeId: this.deviceTypeId,
-                toggle: 3
+                xtype: 'panel',
+                ui: 'medium',
+                items: [
+                    {
+                        xtype: 'deviceTypeMenu',
+                        itemId: 'stepsMenu',
+                        deviceTypeId: this.deviceTypeId,
+                        toggle: 3
+                    }
+                ]
             }
         ];
         this.callParent(arguments);

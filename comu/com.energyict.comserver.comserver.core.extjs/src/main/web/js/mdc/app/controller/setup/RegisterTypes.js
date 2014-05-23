@@ -27,9 +27,8 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         {ref: 'registerTypeSetup', selector: '#registerTypeSetup'},
         {ref: 'registerTypeGrid', selector: '#registertypegrid'},
         {ref: 'registerTypePreviewForm', selector: '#registerTypePreviewForm'},
-        {ref: 'registerTypePreview', selector: '#registerTypePreview'},
+        {ref: 'registerTypePreview', selector: '#registerTypeSetup #registerTypePreview'},
         {ref: 'registerTypeDetailsLink', selector: '#registerTypeDetailsLink'},
-        {ref: 'registerTypePreviewTitle', selector: '#registerTypePreviewTitle'},
         {ref: 'registerTypeEditView', selector: '#registerTypeEdit'},
         {ref: 'registerTypeEditForm', selector: '#registerTypeEditForm'},
         {ref: 'registerTypeDetailForm', selector: '#registerTypeDetailForm'},
@@ -90,7 +89,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
     },
 
     onRegisterTypesStoreLoad: function () {
-        if(this.getRegisterTypesStore().data.items.length > 0){
+        if (this.getRegisterTypesStore().data.items.length > 0) {
             this.getRegisterTypeSetup().show();
             this.getRegisterTypeGrid().getSelectionModel().doSelect(0);
         }
@@ -132,7 +131,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         var registerTypes = this.getRegisterTypeGrid().getSelectionModel().getSelection();
         if (registerTypes.length == 1) {
             this.getRegisterTypePreviewForm().loadRecord(registerTypes[0]);
-            this.getRegisterTypePreviewTitle().update('<b>' + registerTypes[0].get('name') + '</b>');
+            this.getRegisterTypePreview().setTitle(registerTypes[0].get('name'));
             this.getPreviewMrId().setValue(registerTypes[0].getReadingType().get('mrid'));
         }
     },
@@ -146,7 +145,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                 me.detailBreadCrumb(registerType.get('name'), registerMapping);
                 widget.down('form').loadRecord(registerType);
                 me.getDetailMrId().setValue(registerType.getReadingType().get('mrid'));
-                me.getRegisterTypePreviewTitle().update('<b>' + registerType.get('name') + ' ' + Uni.I18n.translate('general.overview', 'MDC', 'Overview') + '</b>');
+                me.getRegisterTypePreview().setTitle(registerType.get('name') + ' ' + Uni.I18n.translate('general.overview', 'MDC', 'Overview'));
             }
         });
         this.getApplication().getController('Mdc.controller.Main').showContent(widget);
