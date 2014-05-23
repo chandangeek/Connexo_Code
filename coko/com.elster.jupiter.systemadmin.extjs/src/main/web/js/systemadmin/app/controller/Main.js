@@ -44,7 +44,8 @@ Ext.define('Sam.controller.Main', {
             text: Uni.I18n.translate('general.administration', 'SAM', 'Administration'),
             href: me.getController('Sam.controller.history.Administration').tokenizeShowOverview(),
             portal: 'administration',
-            glyph: 'settings'
+            glyph: 'settings',
+            index: 10
         });
         Uni.store.MenuItems.add(menuItem);
 
