@@ -113,7 +113,24 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                                 sortable: false,
                                                 hideable: false,
                                                 fixed: true,
-                                                flex: 0.4
+                                                flex: 0.9
+                                            },
+                                            {
+                                                xtype: 'actioncolumn',
+                                                iconCls: 'uni-actioncolumn-gear',
+                                                columnWidth: 32,
+                                                fixed: true,
+//                                                header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                                                sortable: false,
+                                                hideable: false,
+                                                items: [
+                                                    {
+                                                        tooltip: 'Edit',
+                                                        handler: function(grid, rowIndex, colIndex, item, e, record, row) {
+                                                            this.fireEvent('deleteComTask', record);
+                                                        }
+                                                    }
+                                                ]
                                             }
                                         ]
                                     },

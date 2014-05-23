@@ -39,6 +39,9 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
                 editItem: this.editCommunicationScheduleHistory,
                 deleteItem: this.deleteCommunicationSchedule
             },
+            '#comTasksOnForm actioncolumn': {
+                deleteComTask: this.deleteComTask
+            },
             '#communicationSchedulesGrid': {
                 selectionchange: this.previewCommunicationSchedule
             },
@@ -54,6 +57,9 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
             '#communicationSchedulePreview menuitem[action=deleteCommunicationSchedule]': {
                 click: this.deleteCommunicationScheduleFromPreview
             },
+            '#communicationSchedulePreview menuitem[action=editCommunicationSchedule]': {
+                click: this.editCommunicationScheduleHistory
+            },
             '#addCommunicationTaskButtonForm button[action=addAction]': {
                 click: this.addCommunicationTasksToSchedule
             }
@@ -65,8 +71,8 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
 
     showCommunicationSchedules: function(){
         var widget = Ext.widget('communicationSchedulesSetup');
-        this.overviewBreadCrumb();
         this.getApplication().getController('Mdc.controller.Main').showContent(widget);
+        this.overviewBreadCrumb();
     },
 
     createCommunicationScheduleHistory: function(){
@@ -74,11 +80,11 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
     },
 
     editCommunicationScheduleHistory: function(record){
-        location.href = '#/administration/communicationschedules/'+ record.get('id') +'/edit';
+
+        location.href = '#/administration/communicationschedules/'+ this.getCommunicationSchedulesGrid().getSelectionModel().getSelection()[0].get('id') +'/edit';
     },
 
     showCommunicationSchedulesEditView: function(id){
-        console.log('edit');
         var me = this;
         var widget = Ext.widget('communicationScheduleEdit', {
             edit: id !== undefined,
@@ -87,7 +93,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
         this.getApplication().getController('Mdc.controller.Main').showContent(widget);
         if(id === undefined){
             this.record = Ext.create(Mdc.model.CommunicationSchedule);
-            widget.down('#communicationScheduleEditCreateTitle').update('<h1>' + Uni.I18n.translate('communicationschedule.createCommunicationSchedule', 'MDC', 'Create communication schedule')  + '</h1>');
+            widget.down('#communicationScheduleEditCreateTitle').update('<h1>' + Uni.I18n.translate('communicationschedule.addCommunicationSchedule', 'MDC', 'Add communication schedule')  + '</h1>');
             this.createBreadCrumb();
         } else {
             Ext.ModelManager.getModel('Mdc.model.CommunicationSchedule').load(id, {
@@ -110,8 +116,23 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
 
     previewCommunicationSchedule: function(){
         var communicationSchedules = this.getCommunicationSchedulesGrid().getSelectionModel().getSelection();
+        var me= this;
         if (communicationSchedules.length == 1) {
             this.getCommunicationSchedulePreviewForm().loadRecord(communicationSchedules[0]);
+            debugger;
+            me.getCommunicationSchedulePreviewForm().down('#comTaskPreviewContainer').removeAll();
+            if(communicationSchedules[0].comTaskUsages().data.items.length===0){
+                me.getCommunicationSchedulePreviewForm().down('#comTaskPreviewContainer').add({
+                    xtype: 'displayfield'
+                });
+            } else {
+                Ext.each(communicationSchedules[0].comTaskUsages().data.items,function(comTaskUsage){
+                    me.getCommunicationSchedulePreviewForm().down('#comTaskPreviewContainer').add({
+                        xtype: 'displayfield',
+                        value: '<a>'+comTaskUsage.get('name')+'</a>'
+                    })
+                });
+            }
             this.getCommunicationSchedulePreview().getLayout().setActiveItem(1);
         } else {
             this.getCommunicationSchedulePreview().getLayout().setActiveItem(0);
@@ -144,8 +165,33 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
     },
 
     addCommunicationTask: function(){
-        var me=this,
-            store = Ext.data.StoreManager.lookup('CommunicationTasks');
+        var me=this;
+        var store = Ext.data.StoreManager.lookup('CommunicationTasks');
+        debugger;
+        if(this.record.get('id')===null){
+            store.setProxy({
+                type: 'rest',
+                    url: '../../api/cts/comtasks',
+                    reader: {
+                    type: 'json',
+                    root: 'data'
+                }
+            });
+        } else {
+            store.setProxy({
+                type: 'rest',
+                url: '../../api/scr/schedules/{id}/comTasks',
+                reader: {
+                    type: 'json',
+                    root: 'data'
+                }
+            });
+            store.getProxy().setExtraParam('id',this.record.get('id'));
+            store.getProxy().setExtraParam('filter',Ext.encode([{
+                property:'available',
+                value:true
+            }]));
+        }
         store.load({
             callback: function(records){
                 var widget = Ext.widget('addCommunicationTaskWindow');
@@ -154,6 +200,11 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
 
             }
         });
+    },
+
+    deleteComTask: function(comTask){
+        this.record.comTaskUsages().remove(comTask);
+        console.log('delete comtask');
     },
 
     deleteCommunicationSchedule: function(communicationSchedule){
@@ -217,7 +268,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
     createBreadCrumb: function (id) {
         debugger;
         var breadcrumbChild2 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: id===undefined?Uni.I18n.translate('communicationschedule.create', 'MDC', 'Create communication schedule'):Uni.I18n.translate('communicationschedule.edit', 'MDC', 'Edit communication schedule'),
+            text: id===undefined?Uni.I18n.translate('communicationschedule.add', 'MDC', 'Add communication schedule'):Uni.I18n.translate('communicationschedule.edit', 'MDC', 'Edit communication schedule'),
             href: 'create'
         });
         var breadcrumbChild = Ext.create('Uni.model.BreadcrumbItem', {
