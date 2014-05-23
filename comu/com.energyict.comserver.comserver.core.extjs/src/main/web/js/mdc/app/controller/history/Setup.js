@@ -191,6 +191,10 @@ Ext.define('Mdc.controller.history.Setup', {
             me.getApplication().getController('Mdc.controller.setup.CommunicationSchedules').showCommunicationSchedulesEditView();
         });
 
+        crossroads.addRoute('/administration/communicationschedules/{id}/edit',function(id){
+            me.getApplication().getController('Mdc.controller.setup.CommunicationSchedules').showCommunicationSchedulesEditView(id);
+        });
+
         //search devices
         crossroads.addRoute('/administration/searchitems', function () {
             me.getApplication().getController('Mdc.controller.setup.SearchItems').showSearchItems();

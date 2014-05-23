@@ -14,40 +14,41 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
 
     content: [
         {
-            xtype: 'container',
+            xtype: 'panel',
+            ui: 'large',
+            itemId: 'deviceSetupPanel',
+            title: Uni.I18n.translate('devicesetup.deviceConfigurations', 'MDC', 'deviceName'),
             layout: {
                 type: 'vbox',
                 align: 'stretch'
             },
             items: [
                 {
-                    xtype: 'component',
-                    html: '<h1>' + Uni.I18n.translate('devicesetup.deviceConfigurations', 'MDC', 'deviceName') + '</h1>',
-                    itemId: 'deviceSetupTitle',
-                    margins: '10 10 0 10'
-                },
-                {
-                    xtype: 'component',
-                    height: 25
-                },
-                {
                     xtype: 'container',
                     itemId: 'DeviceContainer',
                     layout: {
                         type: 'column'
                     },
-                    width: '100%'
+                    width: '100%',
+                    defaults: {
+                        margin: '0 16 16 0'
+                    }
                 }
-            ]}
+            ]
+        }
     ],
 
     initComponent: function () {
         this.side = [
             {
-                xtype: 'deviceMenu',
-                itemId: 'stepsMenu',
-                deviceId: this.deviceId,
-                toggle: 0
+                xtype: 'panel',
+                ui: 'medium',
+                items: [{
+                    xtype: 'deviceMenu',
+                    itemId: 'stepsMenu',
+                    deviceId: this.deviceId,
+                    toggle: 0
+                }]
             }
         ];
         this.callParent(arguments);

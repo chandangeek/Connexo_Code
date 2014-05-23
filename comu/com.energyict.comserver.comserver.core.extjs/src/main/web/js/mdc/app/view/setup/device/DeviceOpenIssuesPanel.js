@@ -5,43 +5,34 @@ Ext.define('Mdc.view.setup.device.DeviceOpenIssuesPanel', {
     itemId: 'deviceopenissuespanel',
     deviceId: null,
     mRID: null,
-    margin: '0 10 10 10',
-    initComponent: function () {
-        var me = this;
-        this.items = [
-            {
-                xtype: 'component',
-                html: '<h4>' + Uni.I18n.translate('deviceOpenIssues.openIssuesTitle', 'MDC', 'Open issues') + '</h4>',
-                itemId: 'openIssuesTitle'
+    ui: 'tile',
+    title: Uni.I18n.translate('deviceOpenIssues.openIssuesTitle', 'MDC', 'Open issues'),
+    items: [
+        {
+            xtype: 'form',
+            itemId: 'deviceOpenIssuesForm',
+            layout: {
+                type: 'vbox',
+                align: 'stretch'
             },
-            {
-                xtype: 'form',
-                itemId: 'deviceOpenIssuesForm',
-                padding: '10 10 0 10',
-                layout: {
-                    type: 'vbox',
-                    align: 'stretch'
-                },
-                defaults: {
-                    labelWidth: 200
-                },
-                items: [
-                    {
-                        xtype: 'component',
-                        cls: 'x-form-display-field',
-                        autoEl: {
-                            tag: 'a',
-                            href: '#/workspace/datacollection/issues?issueType=datacollection&group=none&status=1&meter=' + this.mRID,
-                            html: 'data collection issues'
-                        },
-                        itemId: 'dataCollectionIssuesLink'
-                    }
+            defaults: {
+                labelWidth: 150
+            },
+            items: [
+                {
+                    xtype: 'component',
+                    cls: 'x-form-display-field',
+                    autoEl: {
+                        tag: 'a',
+                        href: '#/workspace/datacollection/issues?issueType=datacollection&group=none&status=1&meter=' + this.mRID,
+                        html: 'data collection issues'
+                    },
+                    itemId: 'dataCollectionIssuesLink'
+                }
 
-                ]
-            }
-        ];
-        this.callParent();
-    }
+            ]
+        }
+    ]
 })
 ;
 

@@ -23,7 +23,7 @@ Ext.define('Mdc.controller.setup.Devices', {
         {ref: 'deviceCommunicationTopologyForm', selector: '#deviceCommunicationTopologyForm'},
         {ref: 'deviceCommunicationtopologyMasterLink', selector: '#deviceCommunicationtopologyMasterLink'},
         {ref: 'deviceOpenIssuesForm', selector: '#deviceOpenIssuesForm'},
-        {ref: 'deviceSetupTitle', selector: '#deviceSetupTitle'},
+        {ref: 'deviceSetupPanel', selector: '#deviceSetupPanel'},
         {ref: 'deviceGeneralInformationDeviceTypeLink', selector: '#deviceGeneralInformationDeviceTypeLink'},
         {ref: 'deviceGeneralInformationDeviceConfigurationLink', selector: '#deviceGeneralInformationDeviceConfigurationLink'},
         {ref: 'dataCollectionIssuesLink', selector: '#dataCollectionIssuesLink'}
@@ -36,7 +36,7 @@ Ext.define('Mdc.controller.setup.Devices', {
             success: function (device) {
                 var widget = Ext.widget('deviceSetup', {deviceId: id, mRID: device.get('mRID')});
                 me.getApplication().getController('Mdc.controller.Main').showContent(widget);
-                me.getDeviceSetupTitle().update('<h1>' + device.get('mRID') + '</h1>');
+                me.getDeviceSetupPanel().setTitle(device.get('mRID'));
                 me.getDeviceGeneralInformationDeviceTypeLink().getEl().set({href: '#/administration/devicetypes/' + device.get('deviceTypeId')});
                 me.getDeviceGeneralInformationDeviceTypeLink().getEl().setHTML(device.get('deviceTypeName'));
                 me.getDeviceGeneralInformationDeviceConfigurationLink().getEl().set({href: '#/administration/devicetypes/' + device.get('deviceTypeId') + '/deviceconfigurations/' + device.get('deviceConfigurationId')});

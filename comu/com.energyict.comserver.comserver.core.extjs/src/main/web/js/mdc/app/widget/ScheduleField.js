@@ -10,9 +10,12 @@ Ext.define('Mdc.widget.ScheduleField', {
         field: 'Ext.form.field.Field'
     },
     alias: 'widget.scheduleField',
-    layout: 'hbox',
+    layout: {
+        type: 'hbox'
+    },
     msgTarget: 'under',
     submitFormat: 'c',
+    flex: 1,
 
     valueCfg: null,
     unitCfg: null,
@@ -99,6 +102,7 @@ Ext.define('Mdc.widget.ScheduleField', {
                 itemId: 'offSetSeparator',
                 submitValue: false,
                 hidden: true,
+                msgTarget: 'none',
                 margin: '0 5 0 0'
             }),
             Ext.apply({
@@ -150,6 +154,7 @@ Ext.define('Mdc.widget.ScheduleField', {
                 itemId: 'dayFieldSeparator',
                 submitValue: false,
                 hidden: true,
+                msgTarget: 'none',
                 margin: '0 5 0 0'
             }),
             Ext.apply({
@@ -176,6 +181,7 @@ Ext.define('Mdc.widget.ScheduleField', {
                 submitValue: false,
                 hidden: true,
                 value: 'minute(s)',
+                msgTarget: 'none',
                 margin: '0 5 0 0'
             }),
             Ext.apply({
@@ -192,6 +198,7 @@ Ext.define('Mdc.widget.ScheduleField', {
                 submitValue: false,
                 hidden: true,
                 value: 'second(s)',
+                msgTarget: 'none',
                 margin: '0 5 0 0'
             })
 
@@ -356,8 +363,9 @@ Ext.define('Mdc.widget.ScheduleField', {
 
     markInvalid: function(fields){
         this.eachItem(function(field){
-            field.markInvalid(fields);
+            field.markInvalid('');
         });
+        this.items.items[0].markInvalid(fields);
     },
 
     eachItem: function(fn, scope) {
