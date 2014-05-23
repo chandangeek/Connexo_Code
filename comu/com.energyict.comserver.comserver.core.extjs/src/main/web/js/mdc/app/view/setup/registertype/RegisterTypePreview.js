@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
     extend: 'Ext.panel.Panel',
     border: true,
-    padding: '20 0 0 0',
+    frame: true,
     alias: 'widget.registerTypePreview',
     itemId: 'registerTypePreview',
     requires: [
@@ -17,6 +17,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
 
     initComponent: function () {
         var me = this;
+
         this.items = [
             {
                 xtype: 'form',
@@ -26,34 +27,6 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
                     type: 'vbox',
                     align: 'stretch'
                 },
-                tbar: [
-                    {
-                        xtype: 'component',
-                        html: '<b>' + Uni.I18n.translate('registerType.previewTitle', 'MDC', 'Selected register preview') + '</b>',
-                        itemId: 'registerTypePreviewTitle'
-                    },
-                    '->',
-                    {
-                        itemId: 'actionsButton',
-                        icon: '../mdc/resources/images/gear-16x16.png',
-                        text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-                        menu: {
-                            items: [
-                                {
-                                    text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                                    itemId: 'editRegisterType',
-                                    action: 'editRegisterType'
-                                },
-                                {
-                                    text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
-                                    itemId: 'deleteRegisterType',
-                                    action: 'deleteRegisterType'
-
-                                }
-                            ]
-                        }
-                    }
-                ],
                 items: [
                     {
                         xtype: 'container',
@@ -73,14 +46,12 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
                                         xtype: 'displayfield',
                                         name: 'name',
                                         fieldLabel: Uni.I18n.translate('registerType.name', 'MDC', 'Name'),
-                                        labelAlign: 'right',
                                         labelWidth: 150
                                     },
                                     {
                                         xtype: 'fieldcontainer',
                                         columnWidth: 0.5,
                                         fieldLabel: Uni.I18n.translate('registerType.readingType', 'MDC', 'Reading type'),
-                                        labelAlign: 'right',
                                         labelWidth: 150,
                                         layout: {
                                             type: 'hbox',
@@ -90,7 +61,9 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
                                             {
                                                 xtype: 'displayfield',
                                                 name: 'mrid',
-                                                itemId: 'preview_mrid'
+                                                itemId: 'preview_mrid',
+                                                // TODO In a perfect world, with indefinite deadlines, this should be moved into a separate style or component.
+                                                margin: '0 0 0 12'
                                             },
                                             {
                                                 xtype: 'component',
@@ -115,7 +88,6 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
                                         xtype: 'displayfield',
                                         name: 'obisCode',
                                         fieldLabel: Uni.I18n.translate('registerType.obisCode', 'MDC', 'OBIS code'),
-                                        labelAlign: 'right',
                                         labelWidth: 150
                                     }
                                 ]
@@ -132,37 +104,49 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
                                         xtype: 'displayfield',
                                         name: 'unit',
                                         fieldLabel: Uni.I18n.translate('registerType.measurementUnit', 'MDC', 'Unit of measure'),
-                                        labelAlign: 'right',
                                         labelWidth: 150
                                     },
                                     {
                                         xtype: 'displayfield',
                                         name: 'timeOfUse',
                                         fieldLabel: Uni.I18n.translate('registerType.timeOfUse', 'MDC', 'Time of use'),
-                                        labelAlign: 'right',
                                         labelWidth: 150
                                     }
-                                    /*{
-                                     xtype: 'displayfield',
-                                     name: 'dataCollectionGroup',
-                                     fieldLabel: Uni.I18n.translate('registerType.dataCollectionGroup', 'MDC', 'Data collection group'),
-                                     labelAlign: 'right',
-                                     labelWidth: 150
-                                     }*/
-
                                 ]
                             }
                         ]
                     }
                 ]
             }
-        ]
-        this.callParent(arguments);
+        ];
 
-        if (!this.withActions) {
-            this.down('#actionsButton').hide();
+        if (this.withActions) {
+            this.tools = [
+                {
+                    xtype: 'button',
+                    itemId: 'actionsButton',
+                    // TODO Replace this icon below with an 'actions' ui.
+                    icon: '../mdc/resources/images/actionsDetail.png',
+                    text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                    menu: {
+                        items: [
+                            {
+                                text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                                itemId: 'editRegisterType',
+                                action: 'editRegisterType'
+                            },
+                            {
+                                text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
+                                itemId: 'deleteRegisterType',
+                                action: 'deleteRegisterType'
+
+                            }
+                        ]
+                    }
+                }
+            ];
         }
-    }
-})
-;
 
+        this.callParent(arguments);
+    }
+});

@@ -31,13 +31,10 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeDetail', {
                         html: '<b>' + Uni.I18n.translate('general.overview', 'MDC', 'Overview') + '</b>',
                         itemId: 'registerTypePreviewTitle'
                     },
-                    {
-                        xtype: 'component',
-                        flex: 1
-                    },
                     '->',
                     {
-                        icon: '../mdc/resources/images/gear-16x16.png',
+                        // TODO Replace this icon below with an 'actions' ui.
+                        icon: '../mdc/resources/images/actionsDetail.png',
                         text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                         menu: {
                             items: [
