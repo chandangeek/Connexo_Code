@@ -1,3 +1,11 @@
+a, a.#{$prefix}btn {
+  color: $button-link-color;
+  text-decoration: underline;
+  &:hover {
+    color: $button-link-color-over
+  }
+}
+
 @mixin uni-button-link($postfix: null) {
   .#{$prefix}btn-link-#{$postfix} {
     .#{$prefix}btn-inner {
