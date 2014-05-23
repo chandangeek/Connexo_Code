@@ -2,13 +2,14 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.UpdatedDeviceCache;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+
+import com.google.common.base.Optional;
 
 /**
  * Provides functionality to update the cache of a Device in the database
@@ -27,25 +28,27 @@ public class CollectedDeviceCacheCommand extends DeviceCommandImpl {
     }
 
     @Override
-    public void doExecute (ComServerDAO comServerDAO) {
+    public void doExecute(ComServerDAO comServerDAO) {
         // we will only perform the update when the cache actually changed
         DeviceProtocolCache collectedDeviceCache = this.deviceCache.getCollectedDeviceCache();
         if (collectedDeviceCache != null && collectedDeviceCache.contentChanged()) {
             DeviceIdentifier<Device> deviceIdentifier = this.deviceCache.getDeviceIdentifier();
             Device device = deviceIdentifier.findDevice();
-            DeviceCache deviceCache = getEngineService().findDeviceCacheByDeviceId(device);
-            if(deviceCache != null){
-                deviceCache.setCacheObject(collectedDeviceCache);
-                deviceCache.update();
-            } else {
-                deviceCache = getEngineService().newDeviceCache(device, collectedDeviceCache);
-                deviceCache.save();
+            Optional<DeviceCache> deviceCache = getEngineService().findDeviceCacheByDevice(device);
+            if (deviceCache.isPresent()) {
+                DeviceCache actualDeviceCache = deviceCache.get();
+                actualDeviceCache.setCacheObject(collectedDeviceCache);
+                actualDeviceCache.update();
+            }
+            else {
+                DeviceCache actualDeviceCache = getEngineService().newDeviceCache(device, collectedDeviceCache);
+                actualDeviceCache.save();
             }
         }
     }
 
     @Override
-    public ComServer.LogLevel getJournalingLogLevel () {
+    public ComServer.LogLevel getJournalingLogLevel() {
         return ComServer.LogLevel.INFO;
     }
 

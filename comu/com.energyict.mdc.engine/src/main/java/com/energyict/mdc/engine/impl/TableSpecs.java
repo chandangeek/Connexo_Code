@@ -20,11 +20,11 @@ public enum TableSpecs {
         public void addTo(DataModel dataModel) {
             Table<DeviceCache> table = dataModel.addTable(name(), DeviceCache.class);
             table.map(DeviceCacheImpl.class);
-            Column deviceId = table.column("RTUID").number().notNull().add();
+            Column device = table.column("RTUID").number().notNull().map("deviceId").add();
             table.column("CONTENT").type("BLOB(4000)").conversion(ColumnConversion.BLOB2BYTE).map("simpleCache").add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
-            table.primaryKey("PK_EISDEVICECACHE").on(deviceId).add();
-            table.foreignKey("FK_EISDEVICECACHE_RTU").on(deviceId).references(DeviceDataService.COMPONENTNAME, "EISRTU").map("device").add();
+            table.primaryKey("PK_EISDEVICECACHE").on(device).add();
+            table.foreignKey("FK_EISDEVICECACHE_RTU").on(device).references(DeviceDataService.COMPONENTNAME, "EISRTU").map("device").add();
         }
     },
     ;

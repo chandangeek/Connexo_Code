@@ -33,7 +33,7 @@ public class TimeDifferenceCommandImpl extends SimpleComCommand implements TimeD
 
     @Override
     public void doExecute(final DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
-        Clock clock = getCommandRoot().getServiceProvider().getClock();
+        Clock clock = getCommandRoot().getServiceProvider().clock();
         RoundTripTimer roundTripTimer = new RoundTripTimer(clock);
         roundTripTimer.start();
         Date meterTime = deviceProtocol.getTime();

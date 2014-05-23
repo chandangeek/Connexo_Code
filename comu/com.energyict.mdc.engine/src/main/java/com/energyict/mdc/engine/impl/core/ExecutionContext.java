@@ -78,7 +78,7 @@ public final class ExecutionContext {
         this.comPort = comPort;
         this.connectionTask = connectionTask;
         this.serviceProvider = serviceProvider;
-        sessionBuilder = this.serviceProvider.getTaskHistoryService().buildComSession(this.connectionTask, this.connectionTask.getComPortPool(), this.comPort, now());
+        sessionBuilder = this.serviceProvider.taskHistoryService().buildComSession(this.connectionTask, this.connectionTask.getComPortPool(), this.comPort, now());
         if (logConnectionProperties && this.isLogLevelEnabled(ComServer.LogLevel.DEBUG)) {
             this.addConnectionPropertiesAsJournalEntries(this.connectionTask);
         }
@@ -206,7 +206,7 @@ public final class ExecutionContext {
     }
 
     public void initializeJournalist() {
-        this.journalist = new ComCommandJournalist(this.getCurrentTaskExecutionBuilder(), serviceProvider.getClock());
+        this.journalist = new ComCommandJournalist(this.getCurrentTaskExecutionBuilder(), serviceProvider.clock());
     }
 
     public void markComTaskExecutionForConnectionSetupError(String reason) {
@@ -261,7 +261,7 @@ public final class ExecutionContext {
     }
 
     private void addProtocolDialectPropertiesAsJournalEntries(ComTaskExecution comTaskExecution) {
-        TypedProperties protocolDialectTypedProperties = JobExecution.getProtocolDialectTypedProperties(comTaskExecution, serviceProvider.getDeviceDataService());
+        TypedProperties protocolDialectTypedProperties = JobExecution.getProtocolDialectTypedProperties(comTaskExecution, serviceProvider.deviceDataService());
         if (!protocolDialectTypedProperties.propertyNames().isEmpty()) {
             currentTaskExecutionBuilder.addComTaskExecutionMessageJournalEntry(now(), "", asString(protocolDialectTypedProperties));
         }
@@ -314,13 +314,13 @@ public final class ExecutionContext {
                     add(new CreateOutboundComSession(
                             this.comPort.getComServer().getCommunicationLogLevel(),
                             (ScheduledConnectionTask) this.connectionTask,
-                            comSessionBuilder, successIndicator, serviceProvider.getClock()));
+                            comSessionBuilder, successIndicator, serviceProvider.clock()));
         } else {
             this.getStoreCommand().
                     add(new CreateInboundComSession(
                             (InboundComPort) getComPort(),
                             (InboundConnectionTask) this.connectionTask,
-                            comSessionBuilder, successIndicator, serviceProvider.getClock()));
+                            comSessionBuilder, successIndicator, serviceProvider.clock()));
         }
     }
 
@@ -360,7 +360,7 @@ public final class ExecutionContext {
     }
 
     private Date now() {
-        return serviceProvider.getClock().now();
+        return serviceProvider.clock().now();
     }
 
     private void setComChannel(ComPortRelatedComChannel comChannel) {
@@ -374,6 +374,6 @@ public final class ExecutionContext {
         for (CollectedData data : collectedData) {
             serverCollectedData.add((ServerCollectedData) data);
         }
-        return new DeviceCommandFactoryImpl().newForAll(serverCollectedData, this.serviceProvider.getIssueService());
+        return new DeviceCommandFactoryImpl().newForAll(serverCollectedData, this.serviceProvider.issueService());
     }
 }

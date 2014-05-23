@@ -4,11 +4,11 @@ import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceCacheFactory;
 import com.energyict.mdc.device.data.DeviceMessageFactory;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -26,6 +26,9 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 
+import com.google.common.base.Optional;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -106,9 +109,15 @@ public class OfflineDeviceImpl implements OfflineDevice {
      */
     private DeviceProtocolCache deviceProtocolCache;
 
-    public OfflineDeviceImpl(final Device device, OfflineDeviceContext offlineDeviceContext) {
+    public interface ServiceProvider {
+
+        public Optional<DeviceCache> findProtocolCacheByDeviceId(long deviceId);
+
+    }
+
+    public OfflineDeviceImpl(Device device, OfflineDeviceContext offlineDeviceContext, ServiceProvider serviceProvider) {
         this.device = device;
-        goOffline(offlineDeviceContext);
+        goOffline(offlineDeviceContext, serviceProvider);
     }
 
     /**
@@ -116,7 +125,7 @@ public class OfflineDeviceImpl implements OfflineDevice {
      * from the database into memory so that normal business operations can continue.<br>
      * Note that this may cause recursive calls to other objects that can go offline.
      */
-    private void goOffline(OfflineDeviceContext context) {
+    private void goOffline(OfflineDeviceContext context, ServiceProvider serviceProvider) {
         setId((int) this.device.getId());
         setSerialNumber(this.device.getSerialNumber());
         this.allProperties = TypedProperties.empty();
@@ -134,7 +143,7 @@ public class OfflineDeviceImpl implements OfflineDevice {
             for (BaseDevice downstreamDevice : downstreamDevices) {
                 downStreamEndDevices.add((Device) downstreamDevice);
             }
-            setSlaveDevices(convertToOfflineRtus(downStreamEndDevices));
+            setSlaveDevices(convertToOfflineRtus(downStreamEndDevices, serviceProvider));
         }
         if (context.needsMasterLoadProfiles()) {
             setMasterLoadProfiles(convertToOfflineLoadProfiles(this.device.getLoadProfiles()));
@@ -154,18 +163,23 @@ public class OfflineDeviceImpl implements OfflineDevice {
         if (context.needsSentMessages()) {
             setAllSentMessages(createSentMessagesList());
         }
-        setDeviceCache();
+        setDeviceCache(serviceProvider);
     }
 
     /**
      * We get the cache from the DataBase. The object will only be set if it is an instance of {@link DeviceProtocolCache}.
      * Otherwise an nullObject will be provided to the {@link DeviceProtocol} so it can
      * be refetched from the Device.
+     *
+     * @param serviceProvider The ServiceProvider
      */
-    private void setDeviceCache() {
-        List<DeviceCacheFactory> modulesImplementing = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceCacheFactory.class);
-        if(!modulesImplementing.isEmpty()) {
-            this.deviceProtocolCache = modulesImplementing.get(0).findProtocolCacheByDeviceId(getId());
+    private void setDeviceCache(ServiceProvider serviceProvider) {
+        Optional<DeviceCache> deviceProtocolCache = serviceProvider.findProtocolCacheByDeviceId(getId());
+        if (deviceProtocolCache.isPresent()) {
+            Serializable cacheObject = deviceProtocolCache.get().getSimpleCacheObject();
+            if (cacheObject instanceof DeviceProtocolCache) {
+                this.deviceProtocolCache = (DeviceProtocolCache) cacheObject;
+            }
         }
     }
 
@@ -194,20 +208,20 @@ public class OfflineDeviceImpl implements OfflineDevice {
      * @return a List of <CODE>LoadProfiles</CODE>
      */
     private List<BaseLoadProfile<Channel>> getAllLoadProfilesIncludingDownStreams(Device rtu) {
-        ArrayList<BaseLoadProfile<Channel>> allLoadProfiles = new ArrayList<BaseLoadProfile<Channel>>(rtu.getLoadProfiles());
+        List<BaseLoadProfile<Channel>> allLoadProfiles = new ArrayList<BaseLoadProfile<Channel>>(rtu.getLoadProfiles());
         for (BaseDevice slave : rtu.getPhysicalConnectedDevices()) {
             if (checkTheNeedToGoOffline((Device) slave)) {
                 for (BaseLoadProfile<Channel> lp : getAllLoadProfilesIncludingDownStreams((Device) slave)) {
                     if (lp.getLoadProfileTypeObisCode().anyChannel()) {
                         allLoadProfiles.add(lp);
                     } else {
-                        boolean exists = false;
+                        boolean doesNotExist = true;
                         for (BaseLoadProfile<Channel> lpListItem : allLoadProfiles) {
                             if (lp.getLoadProfileTypeObisCode().equals(lpListItem.getLoadProfileTypeObisCode())) {
-                                exists = true;
+                                doesNotExist = false;
                             }
                         }
-                        if (!exists) {
+                        if (doesNotExist) {
                             allLoadProfiles.add(lp);
                         }
                     }
@@ -218,17 +232,17 @@ public class OfflineDeviceImpl implements OfflineDevice {
     }
 
     /**
-     * Converts the given {@link com.energyict.mdc.protocol.api.device.BaseDevice rtus} to {@link OfflineDevice offlineRtus} if they have the option
+     * Converts the given {@link Device}s to {@link OfflineDevice}s if they have the option
      * {@link com.energyict.mdc.device.config.DeviceType#isLogicalSlave()} checked.
      *
-     *
-     * @param downstreamRtus the rtus to go offline
-     * @return a list of {@link OfflineDevice offlineRtus}
+     * @param downstreamRtus The rtus to go offline
+     * @param serviceProvider The ServiceProvider
+     * @return a list of OfflineDevice
      */
-    private List<OfflineDevice> convertToOfflineRtus(final List<Device> downstreamRtus) {
+    private List<OfflineDevice> convertToOfflineRtus(List<Device> downstreamRtus, ServiceProvider serviceProvider) {
         List<OfflineDevice> offlineSlaves = new ArrayList<>(downstreamRtus.size());
         for (Device downstreamRtu : downstreamRtus) {
-            OfflineDevice offlineDevice = new OfflineDeviceImpl(downstreamRtu, new DeviceOfflineFlags());
+            OfflineDevice offlineDevice = new OfflineDeviceImpl(downstreamRtu, new DeviceOfflineFlags(), serviceProvider);
             offlineSlaves.add(offlineDevice);
             offlineSlaves.addAll(offlineDevice.getAllSlaveDevices());
         }
@@ -309,7 +323,7 @@ public class OfflineDeviceImpl implements OfflineDevice {
     }
 
     @Override
-    public List<OfflineRegister> getRegistersForRegisterGroup(final List<Integer> deviceRegisterGroupIds) {
+    public List<OfflineRegister> getRegistersForRegisterGroup(final List<Long> deviceRegisterGroupIds) {
         List<OfflineRegister> filteredRegisters = new ArrayList<>();
         for (OfflineRegister register : getAllRegisters()) {
             if (deviceRegisterGroupIds.contains(register.getRegisterGroupId())) {
@@ -417,4 +431,5 @@ public class OfflineDeviceImpl implements OfflineDevice {
     private void setDeviceProtocolPluggableClass(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
         this.deviceProtocolPluggableClass = deviceProtocolPluggableClass;
     }
+
 }

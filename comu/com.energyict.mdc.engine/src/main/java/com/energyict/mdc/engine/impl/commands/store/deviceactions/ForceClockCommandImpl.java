@@ -24,7 +24,7 @@ public class ForceClockCommandImpl extends SimpleComCommand implements ForceCloc
     }
 
     public void doExecute (final DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
-        Date now = getCommandRoot().getServiceProvider().getClock().now();
+        Date now = getCommandRoot().getServiceProvider().clock().now();
         deviceProtocol.setTime(now);
         this.timeSet = now;
     }

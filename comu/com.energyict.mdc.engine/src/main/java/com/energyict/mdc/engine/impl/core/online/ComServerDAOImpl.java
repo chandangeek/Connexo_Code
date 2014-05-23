@@ -1,11 +1,5 @@
 package com.energyict.mdc.engine.impl.core.online;
 
-import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.VoidTransaction;
-import com.elster.jupiter.util.sql.Fetcher;
-import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
@@ -20,6 +14,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.offline.DeviceOffline;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceImpl;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineRegisterImpl;
@@ -52,10 +47,17 @@ import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.tasks.history.ComSession;
 import com.energyict.mdc.tasks.history.ComSessionBuilder;
 
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.VoidTransaction;
+import com.elster.jupiter.util.sql.Fetcher;
+import com.elster.jupiter.util.time.Clock;
+import com.google.common.base.Optional;
+
 import java.text.DateFormat;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 //import com.energyict.mdc.engine.model.ComServer;
@@ -123,6 +125,15 @@ public class ComServerDAOImpl implements ComServerDAO {
         return getEngineModelService().findComServer(systemName);
     }
 
+    private class OfflineDeviceServiceProvider implements OfflineDeviceImpl.ServiceProvider {
+
+        @Override
+        public Optional<DeviceCache> findProtocolCacheByDeviceId(long deviceId) {
+            return serviceProvider.engineService().findDeviceCacheByDeviceId(deviceId);
+        }
+
+    }
+
     @Override
     public ComServer refreshComServer(ComServer comServer) {
         ComServer reloaded = getEngineModelService().findComServer(comServer.getId());
@@ -183,9 +194,8 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public OfflineDevice findDevice(DeviceIdentifier<?> identifier) {
         BaseDevice<? extends BaseChannel, ? extends BaseLoadProfile<? extends BaseChannel>, ? extends BaseRegister> device = identifier.findDevice();
-//            BaseDevice<BaseChannel, BaseLoadProfile<BaseChannel>, BaseRegister> device = device1;
         if (device != null) {
-            return new OfflineDeviceImpl((Device) device, DeviceOffline.needsEverything);
+            return new OfflineDeviceImpl((Device) device, DeviceOffline.needsEverything, new OfflineDeviceServiceProvider());
         } else {
             return null;
         }

@@ -28,6 +28,7 @@ import com.energyict.mdc.tasks.history.TaskHistoryService;
 
 import com.energyict.protocols.mdc.channels.serial.SerialComponentService;
 import com.energyict.protocols.mdc.services.SocketService;
+import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -111,8 +112,13 @@ public class EngineServiceImpl implements EngineService, InstallService {
     }
 
     @Override
-    public DeviceCache findDeviceCacheByDeviceId(Device device) {
-        return dataModel.mapper(DeviceCache.class).getUnique("device", device).orNull();
+    public Optional<DeviceCache> findDeviceCacheByDeviceId(long deviceId) {
+        return dataModel.mapper(DeviceCache.class).getUnique("deviceId", deviceId);
+    }
+
+    @Override
+    public Optional<DeviceCache> findDeviceCacheByDevice(Device device) {
+        return dataModel.mapper(DeviceCache.class).getUnique("device", device);
     }
 
     @Override

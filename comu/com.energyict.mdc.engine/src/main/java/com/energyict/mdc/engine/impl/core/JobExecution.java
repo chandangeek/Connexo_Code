@@ -1,8 +1,5 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.VoidTransaction;
-import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
@@ -16,6 +13,7 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.GenericDeviceProtocol;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.OfflineDeviceForComTaskGroup;
+import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceImpl;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
@@ -38,11 +36,14 @@ import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ProtocolTask;
-
-import com.elster.jupiter.transaction.Transaction;
 import com.energyict.mdc.tasks.history.ComSession;
 import com.energyict.mdc.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.tasks.history.TaskHistoryService;
+
+import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.time.Clock;
+import com.google.common.base.Optional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -438,27 +439,27 @@ public abstract class JobExecution implements ScheduledJob {
 
     private class ComCommandServiceProvider implements CommandRoot.ServiceProvider {
         @Override
-        public Clock getClock() {
+        public Clock clock() {
             return JobExecution.this.serviceProvider.clock();
         }
 
         @Override
-        public DeviceDataService getDeviceDataService() {
+        public DeviceDataService deviceDataService() {
             return JobExecution.this.serviceProvider.deviceDataService();
         }
 
         @Override
-        public IssueService getIssueService() {
+        public IssueService issueService() {
             return JobExecution.this.serviceProvider.issueService();
         }
 
         @Override
-        public MdcReadingTypeUtilService getMdcReadingTypeUtilService() {
+        public MdcReadingTypeUtilService mdcReadingTypeUtilService() {
             return JobExecution.this.serviceProvider.mdcReadingTypeUtilService();
         }
 
         @Override
-        public TaskHistoryService getTaskHistoryService() {
+        public TaskHistoryService taskHistoryService() {
             return JobExecution.this.serviceProvider.taskHistoryService();
         }
 
@@ -514,8 +515,17 @@ public abstract class JobExecution implements ScheduledJob {
 
         private void takeDeviceOffline() {
             final OfflineDeviceForComTaskGroup offlineDeviceForComTaskGroup = new OfflineDeviceForComTaskGroup(deviceOrganizedComTaskExecution.getComTaskExecutions());
-            offlineDevice = new OfflineDeviceImpl((Device) deviceOrganizedComTaskExecution.getDevice(), offlineDeviceForComTaskGroup);
+            offlineDevice = new OfflineDeviceImpl((Device) deviceOrganizedComTaskExecution.getDevice(), offlineDeviceForComTaskGroup, new OfflineDeviceServiceProvider());
         }
+    }
+
+    private class OfflineDeviceServiceProvider implements OfflineDeviceImpl.ServiceProvider {
+
+        @Override
+        public Optional<DeviceCache> findProtocolCacheByDeviceId(long deviceId) {
+            return serviceProvider.engineService().findDeviceCacheByDeviceId(deviceId);
+        }
+
     }
 
     private class PrepareAllTransaction implements Transaction<List<PreparedComTaskExecution>> {
