@@ -223,11 +223,17 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
     initComponent: function () {
         this.side = [
             {
-                xtype: 'deviceConfigurationMenu',
-                itemId: 'stepsMenu',
-                deviceTypeId: this.deviceTypeId,
-                deviceConfigurationId: this.deviceConfigurationId,
-                toggle: 0
+                xtype: 'panel',
+                ui: 'medium',
+                items: [
+                    {
+                        xtype: 'deviceConfigurationMenu',
+                        itemId: 'stepsMenu',
+                        deviceTypeId: this.deviceTypeId,
+                        deviceConfigurationId: this.deviceConfigurationId,
+                        toggle: 0
+                    }
+                ]
             }
         ];
         this.callParent(arguments);

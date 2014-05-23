@@ -12,7 +12,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
 //        'Mdc.controller.setup.DeviceTypes'
 //    ],
     store: 'DeviceTypes',
-    listeners: {
+    /*listeners: {
         'render': function (component) {
             // Get sure that the store is not loading and that it
             // has at least a record on it
@@ -32,7 +32,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
             }
 
         }
-    },
+    },  */
 
     initComponent: function () {
         var me = this;

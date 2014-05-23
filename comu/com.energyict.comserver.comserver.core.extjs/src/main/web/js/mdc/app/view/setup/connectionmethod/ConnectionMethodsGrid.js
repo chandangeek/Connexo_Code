@@ -128,6 +128,9 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodsGrid', {
                 xtype: 'pagingtoolbartop',
                 store: this.store,
                 dock: 'top',
+                displayMsg: Uni.I18n.translate('connectionmethod.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} connection methods'),
+                displayMoreMsg: Uni.I18n.translate('connectionmethod.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} connection methods'),
+                emptyMsg: Uni.I18n.translate('connectionmethod.pagingtoolbartop.emptyMsg', 'MDC', 'There are no connection methods to display'),
                 items: [
                     {
                         xtype: 'component',
@@ -154,6 +157,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodsGrid', {
                     {deviceType: this.deviceTypeId},
                     {deviceConfig: this.deviceConfigId}
                 ],
+                itemsPerPageMsg: Uni.I18n.translate('connectionmethod.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Connection methods per page'),
                 dock: 'bottom'
             }
         ];
