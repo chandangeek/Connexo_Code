@@ -41,6 +41,9 @@ import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.history.impl.TaskHistoryModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
+
+import com.energyict.protocols.mdc.channels.serial.SerialComponentService;
+import com.energyict.protocols.mdc.services.SocketService;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -72,6 +75,8 @@ public abstract class AbstractCollectedDataIntegrationTest {
     private static InMemoryBootstrapModule bootstrapModule;
     static MeteringService meteringService;
     private static DeviceDataService deviceDataService;
+    private static SocketService socketService;
+    private static SerialComponentService serialComponentService;
 
     @Mock
     private DeviceFactory deviceFactory;
@@ -85,7 +90,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
         bootstrapModule = new InMemoryBootstrapModule();
         EventAdmin eventAdmin = mock(EventAdmin.class);
         injector = Guice.createInjector(
-                new MockModule(bundleContext, eventAdmin, deviceDataService),
+                new MockModule(bundleContext, eventAdmin, deviceDataService, socketService, serialComponentService),
                 bootstrapModule,
                 new ThreadSecurityModule(principal),
                 new PubSubModule(),
@@ -160,7 +165,6 @@ public abstract class AbstractCollectedDataIntegrationTest {
         DeviceImpl device = mock(DeviceImpl.class, RETURNS_DEEP_STUBS);
         when(device.getId()).thenReturn(deviceId);
         doCallRealMethod().when(device).store(any(MeterReading.class));
-//        when(deviceFactory.findById(deviceId)).thenReturn(device);
         when(deviceDataService.findDeviceById(deviceId)).thenReturn(device);
         return device;
     }
@@ -170,12 +174,16 @@ public abstract class AbstractCollectedDataIntegrationTest {
         private final BundleContext bundleContext;
         private final EventAdmin eventAdmin;
         private final DeviceDataService deviceDataService;
+        private final SocketService socketService;
+        private final SerialComponentService serialComponentService;
 
-        private MockModule(BundleContext bundleContext, EventAdmin eventAdmin, DeviceDataService deviceDataService) {
+        private MockModule(BundleContext bundleContext, EventAdmin eventAdmin, DeviceDataService deviceDataService, SocketService socketService, SerialComponentService serialComponentService) {
             super();
             this.bundleContext = bundleContext;
             this.eventAdmin = eventAdmin;
             this.deviceDataService = deviceDataService;
+            this.socketService = socketService;
+            this.serialComponentService = serialComponentService;
         }
 
         @Override
@@ -183,6 +191,8 @@ public abstract class AbstractCollectedDataIntegrationTest {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(DeviceDataService.class).toInstance(deviceDataService);
+            bind(SocketService.class).toInstance(socketService);
+            bind(SerialComponentService.class).toInstance(serialComponentService);
         }
 
     }

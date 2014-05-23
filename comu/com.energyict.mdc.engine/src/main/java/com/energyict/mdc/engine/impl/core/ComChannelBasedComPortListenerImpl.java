@@ -9,9 +9,8 @@ import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannel;
 import java.util.concurrent.ThreadFactory;
 
 /**
- * Models ComPortListener functionality specifically for a
- * {@link ComChannel ComChannel}
- * based {@link com.energyict.mdc.engine.model.ComPort ComPort}
+ * Models ComPortListener functionality specifically for a {@link ComChannel}
+ * based {@link com.energyict.mdc.engine.model.ComPort ComPort}.
  * <p/>
  * Copyrights EnergyICT
  * Date: 12/11/12
@@ -19,19 +18,14 @@ import java.util.concurrent.ThreadFactory;
  */
 public abstract class ComChannelBasedComPortListenerImpl extends ComPortListenerImpl {
 
-    private InboundComPortConnector inboundComPortConnector;
+    private final InboundComPortConnector inboundComPortConnector;
 
-    protected ComChannelBasedComPortListenerImpl(InboundComPort comPort, ComServerDAO comServerDAO, ThreadFactory threadFactory, DeviceCommandExecutor deviceCommandExecutor) {
+    protected ComChannelBasedComPortListenerImpl(InboundComPort comPort, ComServerDAO comServerDAO, InboundComPortConnectorFactory inboundComPortConnectorFactory, ThreadFactory threadFactory, DeviceCommandExecutor deviceCommandExecutor) {
         super(comPort, comServerDAO, threadFactory, deviceCommandExecutor);
-        throw new RuntimeException("Build a factory to produce comport related comChannel");
-        //this.inboundComPortConnector = getServerComChannelBasedInboundComPort().getInboundComPortConnector();
+        this.inboundComPortConnector = inboundComPortConnectorFactory.connectorFor(comPort);
     }
 
     protected InboundComPortConnector getInboundComPortConnector() {
-        if(this.inboundComPortConnector == null){
-            throw new RuntimeException("Build a factory to produce comport related comChannel");
-            //this.inboundComPortConnector = getServerComChannelBasedInboundComPort().getInboundComPortConnector();
-        }
         return this.inboundComPortConnector;
     }
 

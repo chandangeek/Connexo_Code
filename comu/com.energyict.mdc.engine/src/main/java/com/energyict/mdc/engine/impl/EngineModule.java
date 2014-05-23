@@ -16,6 +16,9 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.history.TaskHistoryService;
+
+import com.energyict.protocols.mdc.channels.serial.SerialComponentService;
+import com.energyict.protocols.mdc.services.SocketService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 
@@ -43,6 +46,8 @@ public class EngineModule extends AbstractModule {
         requireBinding(UserService.class);
         requireBinding(DeviceConfigurationService.class);
         requireBinding(ProtocolPluggableService.class);
+        requireBinding(SocketService.class);
+        requireBinding(SerialComponentService.class);
 
         bind(EngineService.class).to(EngineServiceImpl.class).in(Scopes.SINGLETON);
     }

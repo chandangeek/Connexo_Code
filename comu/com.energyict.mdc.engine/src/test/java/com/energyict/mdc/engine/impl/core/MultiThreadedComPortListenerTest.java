@@ -9,16 +9,21 @@ import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactor
 import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.impl.core.inbound.InboundComPortConnector;
+import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundCapableComServer;
 import com.energyict.mdc.engine.model.InboundComPort;
+import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.ComChannel;
-import com.energyict.mdc.protocol.api.inbound.BinaryInboundDeviceProtocol;
 
+import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.energyict.protocols.mdc.channels.VoidComChannel;
+import com.energyict.protocols.mdc.services.SocketService;
 
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -30,6 +35,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -55,6 +62,10 @@ public class MultiThreadedComPortListenerTest {
     private DeviceCommandExecutor deviceCommandExecutor;
     @Mock
     private IssueService issueService;
+    @Mock
+    private SocketService socketService;
+    @Mock
+    private EventPublisherImpl eventPublisher;
 
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
 
@@ -63,8 +74,23 @@ public class MultiThreadedComPortListenerTest {
     }
 
     @Before
-    public void setupServiceProvider () {
+    public void setupServiceProvider () throws IOException {
         this.serviceProvider.setIssueService(this.issueService);
+        this.serviceProvider.setSocketService(this.socketService);
+        this.serviceProvider.setClock(new DefaultClock());
+        ServiceProvider.instance.set(this.serviceProvider);
+        when(this.socketService.newTCPSocket(anyInt())).thenReturn(mock(ServerSocket.class));
+        when(this.socketService.newSocketComChannel(any(Socket.class))).thenReturn(new SystemOutComChannel());
+    }
+
+    @Before
+    public void setupEventPublisher () {
+        EventPublisherImpl.setInstance(this.eventPublisher);
+    }
+
+    @After
+    public void resetEventPublisher () {
+        EventPublisherImpl.setInstance(null);
     }
 
     @Test(timeout = 5000)
@@ -104,20 +130,36 @@ public class MultiThreadedComPortListenerTest {
     }
 
     @Test(timeout = 5000)
-    public void testAcceptedInboundCall() throws Exception {
-        ComServer comServer = mock(ComServer.class);
+    public void testAcceptedInboundCall() throws InterruptedException {
+        InboundCapableComServer comServer = mock(InboundCapableComServer.class);
         when(comServer.getName()).thenReturn("testAcceptedInboundCall");
         ThreadFactory threadFactory = new ComServerThreadFactory(comServer);
         final InboundComPortConnector connector = mock(InboundComPortConnector.class);
         final ComPortRelatedComChannel comChannel = mock(ComPortRelatedComChannel.class);
         when(connector.accept()).thenReturn(comChannel);
-        final InboundComPort inboundComPort = this.mockComPort("accept", connector);
+        final InboundComPort inboundComPort = this.mockComPort("accept", comServer);
+        InboundComPortConnectorFactory inboundComPortConnectorFactory = mock(InboundComPortConnectorFactory.class);
+        when(inboundComPortConnectorFactory.connectorFor(inboundComPort)).thenReturn(connector);
         final ComServerDAO comServerDAO = mock(ComServerDAO.class);
         InboundComPortExecutorFactory inboundComPortExecutorFactory = mock(InboundComPortExecutorFactory.class);
         CountDownLatch startLatch = new CountDownLatch(NUMBER_OF_SIMULTANEOUS_CONNECTIONS + 1);
         CountDownLatch stopLatch = new CountDownLatch(NUMBER_OF_SIMULTANEOUS_CONNECTIONS);
-        when(inboundComPortExecutorFactory.create(any(InboundComPort.class), any(ComServerDAO.class), any(DeviceCommandExecutor.class), this.serviceProvider)).thenReturn(new LatchDrivenInboundComPortExecutor(startLatch, stopLatch));
-        MultiThreadedComPortListener multiThreadedComPortListener = spy(new MultiThreadedComPortListener(inboundComPort, comServerDAO, this.deviceCommandExecutor, threadFactory, inboundComPortExecutorFactory, this.serviceProvider));
+        when(inboundComPortExecutorFactory.
+                create(
+                    any(InboundComPort.class),
+                    any(ComServerDAO.class),
+                    any(DeviceCommandExecutor.class),
+                    eq(this.serviceProvider))).
+                thenReturn(new LatchDrivenInboundComPortExecutor(startLatch, stopLatch));
+        MultiThreadedComPortListener multiThreadedComPortListener =
+                spy(new MultiThreadedComPortListener(
+                        inboundComPort,
+                        comServerDAO,
+                        this.deviceCommandExecutor,
+                        threadFactory,
+                        inboundComPortExecutorFactory,
+                        inboundComPortConnectorFactory,
+                        this.serviceProvider));
         // business method
         multiThreadedComPortListener.start();
 
@@ -128,25 +170,41 @@ public class MultiThreadedComPortListenerTest {
 
         //Asserts
         verify(connector, times(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)).accept();
-        verify(inboundComPortExecutorFactory, times(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)).create(any(InboundComPort.class), any(ComServerDAO.class), any(DeviceCommandExecutor.class), this.serviceProvider); // accept should have been called twice (one time it should have returned a VoidComChannel
+        verify(inboundComPortExecutorFactory, times(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)).create(any(InboundComPort.class), any(ComServerDAO.class), any(DeviceCommandExecutor.class), eq(this.serviceProvider)); // accept should have been called twice (one time it should have returned a VoidComChannel
 
         multiThreadedComPortListener.shutdown();
     }
 
     @Test(timeout = 5000)
     public void testOverLoad() throws BusinessException, InterruptedException {
-        ComServer comServer = mock(ComServer.class);
+        InboundCapableComServer comServer = mock(InboundCapableComServer.class);
         when(comServer.getName()).thenReturn("testOverload");
         ThreadFactory threadFactory = new ComServerThreadFactory(comServer);
         CountDownLatch connectorStartLatch = new CountDownLatch(NUMBER_OF_SIMULTANEOUS_CONNECTIONS);
         final InboundComPortConnector connector = new LatchDrivenInboundComPortConnector(connectorStartLatch);
-        final InboundComPort inboundComPort = this.mockComPort("OverLoad", connector);
+        final TCPBasedInboundComPort inboundComPort = this.mockComPort("OverLoad", comServer);
+        InboundComPortConnectorFactory inboundComPortConnectorFactory = mock(InboundComPortConnectorFactory.class);
+        when(inboundComPortConnectorFactory.connectorFor(inboundComPort)).thenReturn(connector);
         final ComServerDAO comServerDAO = mock(ComServerDAO.class);
         InboundComPortExecutorFactory inboundComPortExecutorFactory = mock(InboundComPortExecutorFactory.class);
         CountDownLatch startLatch = new CountDownLatch(NUMBER_OF_SIMULTANEOUS_CONNECTIONS + 1);
         CountDownLatch stopLatch = new CountDownLatch(NUMBER_OF_SIMULTANEOUS_CONNECTIONS);
-        when(inboundComPortExecutorFactory.create(any(InboundComPort.class), any(ComServerDAO.class), any(DeviceCommandExecutor.class), this.serviceProvider)).thenReturn(new LatchDrivenInboundComPortExecutor(startLatch, stopLatch));
-        MultiThreadedComPortListener multiThreadedComPortListener = spy(new MultiThreadedComPortListener(inboundComPort, comServerDAO, this.deviceCommandExecutor, threadFactory, inboundComPortExecutorFactory, this.serviceProvider));
+        when(inboundComPortExecutorFactory.
+                create(
+                        any(InboundComPort.class),
+                        any(ComServerDAO.class),
+                        any(DeviceCommandExecutor.class),
+                        eq(this.serviceProvider))).
+                thenReturn(new LatchDrivenInboundComPortExecutor(startLatch, stopLatch));
+        MultiThreadedComPortListener multiThreadedComPortListener =
+                spy(new MultiThreadedComPortListener(
+                        inboundComPort,
+                        comServerDAO,
+                        this.deviceCommandExecutor,
+                        threadFactory,
+                        inboundComPortExecutorFactory,
+                        inboundComPortConnectorFactory,
+                        this.serviceProvider));
         // business method
         multiThreadedComPortListener.start();
 
@@ -166,32 +224,47 @@ public class MultiThreadedComPortListenerTest {
 
     @Test(timeout = 5000)
     public void testWorkComplete() throws InterruptedException, BusinessException {
-        ComServer comServer = mock(ComServer.class);
+        InboundCapableComServer comServer = mock(InboundCapableComServer.class);
         when(comServer.getName()).thenReturn("testWorkComplete");
         ThreadFactory threadFactory = new ComServerThreadFactory(comServer);
         CountDownLatch connectorStartLatch = new CountDownLatch(NUMBER_OF_SIMULTANEOUS_CONNECTIONS);
         final InboundComPortConnector connector = new LatchDrivenInboundComPortConnector(connectorStartLatch);
-        final InboundComPort inboundComPort = this.mockComPort("WorkComplete", connector);
+        final InboundComPort inboundComPort = this.mockComPort("WorkComplete", comServer);
+        InboundComPortConnectorFactory inboundComPortConnectorFactory = mock(InboundComPortConnectorFactory.class);
+        when(inboundComPortConnectorFactory.connectorFor(inboundComPort)).thenReturn(connector);
         final ComServerDAO comServerDAO = mock(ComServerDAO.class);
 
         InboundComPortExecutorFactory inboundComPortExecutorFactory = mock(InboundComPortExecutorFactory.class);
         CountDownLatch startLatch = new CountDownLatch(NUMBER_OF_SIMULTANEOUS_CONNECTIONS + 1);
         CountDownLatch stopLatch = new CountDownLatch(NUMBER_OF_SIMULTANEOUS_CONNECTIONS);
-        when(inboundComPortExecutorFactory.create(any(InboundComPort.class), any(ComServerDAO.class), any(DeviceCommandExecutor.class), this.serviceProvider)).thenReturn(new LatchDrivenInboundComPortExecutor(startLatch, stopLatch));
+        when(inboundComPortExecutorFactory.
+                create(
+                    any(InboundComPort.class),
+                    any(ComServerDAO.class),
+                    any(DeviceCommandExecutor.class),
+                    eq(this.serviceProvider))).
+                thenReturn(new LatchDrivenInboundComPortExecutor(startLatch, stopLatch));
 
-        LatchDrivenMultiThreadedComPortListener multiThreadedComPortListener = spy(new LatchDrivenMultiThreadedComPortListener(inboundComPort, comServerDAO, threadFactory, this.deviceCommandExecutor, this.serviceProvider, inboundComPortExecutorFactory));
+        LatchDrivenMultiThreadedComPortListener multiThreadedComPortListener =
+                spy(new LatchDrivenMultiThreadedComPortListener(
+                        inboundComPort,
+                        comServerDAO,
+                        this.deviceCommandExecutor,
+                        threadFactory,
+                        inboundComPortExecutorFactory,
+                        inboundComPortConnectorFactory,
+                        this.serviceProvider));
         CountDownLatch completeCounter = new CountDownLatch(NUMBER_OF_SIMULTANEOUS_CONNECTIONS);
         multiThreadedComPortListener.setCounter(completeCounter);
-        // business method
+
+        // Business method
         multiThreadedComPortListener.start();
 
         connectorStartLatch.await();    // wait until all three connections are accepted
-
         startLatch.countDown();
 
         // Now wait until the commands complete
         stopLatch.await();
-
         completeCounter.await();
 
         //Asserts
@@ -202,11 +275,13 @@ public class MultiThreadedComPortListenerTest {
 
     @Test(timeout = 5000)
     public void testWorkFailed() throws BusinessException, InterruptedException {
-        ComServer comServer = mock(ComServer.class);
+        InboundCapableComServer comServer = mock(InboundCapableComServer.class);
         when(comServer.getName()).thenReturn("testWorkFailed");
         ThreadFactory threadFactory = new ComServerThreadFactory(comServer);
         final InboundComPortConnector connector = new FixedNumberOfAcceptsComPortConnector(NUMBER_OF_SIMULTANEOUS_CONNECTIONS);
-        final InboundComPort inboundComPort = this.mockComPort("workfailed", connector);
+        final InboundComPort inboundComPort = this.mockComPort("workfailed", comServer);
+        InboundComPortConnectorFactory inboundComPortConnectorFactory = mock(InboundComPortConnectorFactory.class);
+        when(inboundComPortConnectorFactory.connectorFor(inboundComPort)).thenReturn(connector);
         final ComServerDAO comServerDAO = mock(ComServerDAO.class);
         CountDownLatch startLatch = new CountDownLatch(NUMBER_OF_SIMULTANEOUS_CONNECTIONS + 1 -1);  // minus one because we mock one
         CountDownLatch stopLatch = new CountDownLatch(NUMBER_OF_SIMULTANEOUS_CONNECTIONS - 1);      // minus one because we mock one
@@ -215,13 +290,22 @@ public class MultiThreadedComPortListenerTest {
         InboundComPortExecutor inboundComPortExecutor2 = mock(InboundComPortExecutor.class);
         doThrow(new RuntimeException("Just for testing purposes")).when(inboundComPortExecutor2).execute(any(ComChannel.class));
         InboundComPortExecutor inboundComPortExecutor3 = new LatchDrivenInboundComPortExecutor(startLatch, stopLatch);
-        when(inboundComPortExecutorFactory.create(any(InboundComPort.class),
-                any(ComServerDAO.class), any(DeviceCommandExecutor.class), this.serviceProvider)).
+        when(inboundComPortExecutorFactory.
+                create(
+                        any(InboundComPort.class),
+                        any(ComServerDAO.class),
+                        any(DeviceCommandExecutor.class),
+                        eq(this.serviceProvider))).
                 thenReturn(inboundComPortExecutor1, inboundComPortExecutor2, inboundComPortExecutor3);
         LatchDrivenMultiThreadedComPortListener multiThreadedComPortListener =
                 spy(new LatchDrivenMultiThreadedComPortListener(
-                        inboundComPort, comServerDAO, threadFactory,
-                        this.deviceCommandExecutor, this.serviceProvider, inboundComPortExecutorFactory));
+                        inboundComPort,
+                        comServerDAO,
+                        this.deviceCommandExecutor,
+                        threadFactory,
+                        inboundComPortExecutorFactory,
+                        inboundComPortConnectorFactory,
+                        this.serviceProvider));
         CountDownLatch completeCounter = new CountDownLatch(NUMBER_OF_SIMULTANEOUS_CONNECTIONS);
         multiThreadedComPortListener.setCounter(completeCounter);
         // business method
@@ -241,8 +325,7 @@ public class MultiThreadedComPortListenerTest {
 
     @Test
     public void testApplyChangesForNewComPort() throws BusinessException {
-        final InboundComPortConnector connector = new FixedNumberOfAcceptsComPortConnector(0);
-        final InboundComPort inboundComPort = this.mockComPort("applyChanges", connector);
+        final InboundComPort inboundComPort = this.mockComPort("applyChanges");
         final ComServerDAO comServerDAO = mock(ComServerDAO.class);
 
         MultiThreadedComPortListener multiThreadedComPortListener = new MultiThreadedComPortListener(inboundComPort, comServerDAO, deviceCommandExecutor, this.serviceProvider);
@@ -252,7 +335,7 @@ public class MultiThreadedComPortListenerTest {
         assertThat(((ThreadPoolExecutor)multiThreadedComPortListener.getExecutorService()).getCorePoolSize()).isEqualTo(NUMBER_OF_SIMULTANEOUS_CONNECTIONS);
 
         int addedCapacity = 10;
-        InboundComPort newComPort = this.mockComPort("newerComPort", connector);
+        InboundComPort newComPort = this.mockComPort("newerComPort");
         when(newComPort.getNumberOfSimultaneousConnections()).thenReturn(NUMBER_OF_SIMULTANEOUS_CONNECTIONS + addedCapacity);
 
         multiThreadedComPortListener.applyChangesForNewComPort(newComPort);
@@ -263,15 +346,14 @@ public class MultiThreadedComPortListenerTest {
 
     @Test
     public void testNewComPortIsReturned() throws BusinessException {
-        final InboundComPortConnector connector = new FixedNumberOfAcceptsComPortConnector(0);
-        final InboundComPort inboundComPort = this.mockComPort("applyChanges", connector);
+        final InboundComPort inboundComPort = this.mockComPort("applyChanges");
         final ComServerDAO comServerDAO = mock(ComServerDAO.class);
 
         MultiThreadedComPortListener multiThreadedComPortListener = new MultiThreadedComPortListener(inboundComPort, comServerDAO, deviceCommandExecutor, this.serviceProvider);
         multiThreadedComPortListener.start();
 
         int addedCapacity = 10;
-        InboundComPort newComPort = this.mockComPort("newerComPort", connector);
+        InboundComPort newComPort = this.mockComPort("newerComPort");
         when(newComPort.getNumberOfSimultaneousConnections()).thenReturn(NUMBER_OF_SIMULTANEOUS_CONNECTIONS + addedCapacity);
 
         InboundComPort finalComPort = multiThreadedComPortListener.applyChanges(newComPort, inboundComPort);
@@ -279,24 +361,18 @@ public class MultiThreadedComPortListenerTest {
         assertThat(finalComPort).isEqualTo(newComPort);
     }
 
-    private InboundComPort mockComPort(String name) throws BusinessException {
-        return this.mockComPort(name, mock(InboundComPortConnector.class));
+    private TCPBasedInboundComPort mockComPort(String name) {
+        return this.mockComPort(name, mock(InboundCapableComServer.class));
     }
 
-    private InboundComPort mockComPort(String name, InboundComPortConnector connector) throws BusinessException {
-        InboundCapableComServer comServer = mock(InboundCapableComServer.class);
+    private TCPBasedInboundComPort mockComPort(String name, InboundCapableComServer comServer) {
         when(comServer.getServerLogLevel()).thenReturn(ComServer.LogLevel.INFO);
         when(comServer.getChangesInterPollDelay()).thenReturn(INTER_POLL_DELAY);
-        PluggableClass discoveryProtocol = mock(PluggableClass.class);
-        InboundComPort comPort = mock(InboundComPort.class);
+        TCPBasedInboundComPort comPort = mock(TCPBasedInboundComPort.class);
         when(comPort.getName()).thenReturn("MultiThreadedComPortListener#" + name);
         when(comPort.getNumberOfSimultaneousConnections()).thenReturn(NUMBER_OF_SIMULTANEOUS_CONNECTIONS);
         when(comPort.getComServer()).thenReturn(comServer);
         return comPort;
-    }
-
-    private BinaryInboundDeviceProtocol getMockedBinaryInboundDeviceProtocol() {
-        return mock(BinaryInboundDeviceProtocol.class);
     }
 
     private class LatchDrivenInboundComPortExecutor implements InboundComPortExecutor {
@@ -376,8 +452,8 @@ public class MultiThreadedComPortListenerTest {
 
         private CountDownLatch counter;
 
-        protected LatchDrivenMultiThreadedComPortListener(InboundComPort comPort, ComServerDAO comServerDAO, ThreadFactory threadFactory, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider, InboundComPortExecutorFactory inboundComPortExecutorFactory) {
-            super(comPort, comServerDAO, deviceCommandExecutor, threadFactory, inboundComPortExecutorFactory, serviceProvider);
+        protected LatchDrivenMultiThreadedComPortListener(InboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ThreadFactory threadFactory, InboundComPortExecutorFactory inboundComPortExecutorFactory, InboundComPortConnectorFactory inboundComPortConnectorFactory, ServiceProvider serviceProvider) {
+            super(comPort, comServerDAO, deviceCommandExecutor, threadFactory, inboundComPortExecutorFactory, inboundComPortConnectorFactory, serviceProvider);
         }
 
         public void setCounter(CountDownLatch counter) {

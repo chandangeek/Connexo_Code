@@ -25,6 +25,9 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.history.TaskHistoryService;
+
+import com.energyict.protocols.mdc.channels.serial.SerialComponentService;
+import com.energyict.protocols.mdc.services.SocketService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -58,6 +61,8 @@ public class EngineServiceImpl implements EngineService, InstallService {
     private volatile UserService userService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile ProtocolPluggableService protocolPluggableService;
+    private volatile SocketService socketService;
+    private volatile SerialComponentService serialComponentService;
 
     public EngineServiceImpl() {
     }
@@ -66,7 +71,9 @@ public class EngineServiceImpl implements EngineService, InstallService {
     public EngineServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, TransactionService transactionService, Clock clock, HexService hexService,
                              EngineModelService engineModelService, ThreadPrincipalService threadPrincipalService, TaskHistoryService taskHistoryService, IssueService issueService,
                              DeviceDataService deviceDataService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, DeviceConfigurationService deviceConfigurationService,
-                             ProtocolPluggableService protocolPluggableService) {
+                             ProtocolPluggableService protocolPluggableService,
+                             SocketService socketService,
+                             SerialComponentService serialComponentService) {
         super();
         this.setOrmService(ormService);
         this.setEventService(eventService);
@@ -83,6 +90,8 @@ public class EngineServiceImpl implements EngineService, InstallService {
         setUserService(userService);
         setDeviceConfigurationService(deviceConfigurationService);
         setProtocolPluggableService(protocolPluggableService);
+        setSocketService(socketService);
+        setSerialComponentService(serialComponentService);
         if (!this.dataModel.isInstalled()) {
             this.install(true);
         }
@@ -195,6 +204,16 @@ public class EngineServiceImpl implements EngineService, InstallService {
         this.protocolPluggableService = protocolPluggableService;
     }
 
+    @Reference
+    public void setSocketService(SocketService socketService) {
+        this.socketService = socketService;
+    }
+
+    @Reference
+    public void setSerialComponentService(SerialComponentService serialComponentService) {
+        this.serialComponentService = serialComponentService;
+    }
+
     DataModel getDataModel() {
         return dataModel;
     }
@@ -288,5 +307,17 @@ public class EngineServiceImpl implements EngineService, InstallService {
         public ProtocolPluggableService protocolPluggableService() {
             return protocolPluggableService;
         }
+
+        @Override
+        public SocketService socketService() {
+            return socketService;
+        }
+
+        @Override
+        public SerialComponentService serialComponentService() {
+            return serialComponentService;
+        }
+
     }
+
 }
