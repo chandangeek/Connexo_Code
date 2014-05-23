@@ -25,7 +25,6 @@ public class DeviceConfigurationResource {
     private final Provider<ConnectionMethodResource> connectionMethodResourceProvider;
     private final Provider<ProtocolDialectResource> protocolDialectResourceProvider;
     private final Provider<LoadProfileConfigurationResource> loadProfileConfigurationResourceProvider;
-    private final Provider<LoadProfileConfigurationResource> loadProfileConfigurationResourceProvider;
     private final Provider<SecurityPropertySetResource> securityPropertySetResourceProvider;
     private final Thesaurus thesaurus;
 
