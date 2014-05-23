@@ -23342,8 +23342,7 @@ h6 {
 /* */
 /* line 1, ../../sass/src/button/LinkButton.scss */
 a, a.x-btn {
-  color: #686868;
-  text-decoration: underline; }
+  color: #686868; }
   /* line 4, ../../sass/src/button/LinkButton.scss */
   a:hover, a.x-btn:hover {
     color: #71adc7; }
