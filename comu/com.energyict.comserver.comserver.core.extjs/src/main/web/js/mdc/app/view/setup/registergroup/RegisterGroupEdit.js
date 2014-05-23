@@ -214,7 +214,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                     },
                                     {
                                         xtype: 'fieldcontainer',
-                                        fieldLabel: '&nbsp',
+                                        fieldLabel: '&nbsp;',
                                         itemId: 'btnsContainer',
                                         layout: {
                                             type: 'hbox',
@@ -222,7 +222,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                         },
                                         items: [
                                             {
-                                                text: Uni.I18n.translate('general.create', 'MDC', 'Create'),
+                                                text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
                                                 xtype: 'button',
                                                 ui: 'action',
                                                 action: 'createAction',
@@ -232,6 +232,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                                 xtype: 'button',
                                                 ui: 'link',
                                                 text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                                                href: '#/administration/registergroups/',
                                                 itemId: 'cancelLink'
                                             }
                                         ]
@@ -252,7 +253,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
             this.down('#createEditButton').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
             this.down('#createEditButton').action = 'saveRegisterGroup';
         } else {
-            this.down('#createEditButton').setText(Uni.I18n.translate('general.create', 'MDC', 'Create'));
+            this.down('#createEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
             this.down('#createEditButton').action = 'createRegisterGroup';
         }
     }
