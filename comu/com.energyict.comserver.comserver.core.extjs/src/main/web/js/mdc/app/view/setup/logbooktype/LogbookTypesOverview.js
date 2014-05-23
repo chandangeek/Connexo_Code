@@ -5,6 +5,37 @@ Ext.define('Mdc.view.setup.logbooktype.LogbookTypesOverview', {
     ],
     alias: 'widget.logbook-overview',
 
+
+    side: {
+        xtype: 'panel',
+        ui: 'medium',
+        title: "Navigation",
+        layout: {
+            type: 'vbox',
+            align: 'stretch'
+        },
+        items: [
+            {
+                itemId: 'sideMenu',
+                xtype: 'menu',
+                ui: 'side-menu',
+                layout: {
+                    type: 'vbox',
+                    align: 'stretch'
+                },
+                floating: false,
+                plain: true,
+                items: [
+                    {
+                        itemId: 'loogbooktypes',
+                        text: 'Logbook types',
+                        cls: 'current'
+                    }
+                ]
+            }
+        ]
+    },
+
 //    side: {
 //        xtype: 'panel',
 //        ui: 'medium',
@@ -32,6 +63,7 @@ Ext.define('Mdc.view.setup.logbooktype.LogbookTypesOverview', {
 //            }
 //        ]
 //    },
+
 
     content: [
         {

@@ -7,28 +7,19 @@ Ext.define('Mdc.view.setup.logbooktype.LogForm', {
     ],
     alias: 'widget.form-logbook',
 
-//    side: [
-//        {
-//            xtype: 'navigationSubMenu',
-//            itemId: 'sideMenu'
-//        }
-//    ],
-
     content: [
         {
+            itemId: 'form',
             xtype: 'form',
             ui: 'large',
             width: '50%',
             defaults: {
-//                labelWidth: 150,
-//                labelAlign: 'right',
-//                margin: '0 0 20 0',
                 validateOnChange: false,
                 validateOnBlur: false
-//                anchor: '100%'
             },
             items: [
                 {
+                    itemId: 'errors',
                     name: 'errors',
                     layout: 'hbox',
                     margin: '0 0 20 100',
@@ -39,19 +30,19 @@ Ext.define('Mdc.view.setup.logbooktype.LogForm', {
                     }
                 },
                 {
+                    itemId: 'name',
                     xtype: 'textfield',
                     name: 'name',
                     required: true,
-//                    labelSeparator: ' *',
                     regex: /[a-zA-Z0-9]+/,
                     allowBlank: false,
                     fieldLabel: 'Name',
                     msgTarget: 'under'
                 },
                 {
+                    itemId: 'obis',
                     xtype: 'textfield',
                     required: true,
-//                    labelSeparator: ' *',
                     allowBlank: false,
                     fieldLabel: 'OBIS code',
                     name: 'obis',
@@ -62,10 +53,12 @@ Ext.define('Mdc.view.setup.logbooktype.LogForm', {
             ],
             buttons: [
                 {
+                    itemId: 'logAction',
                     name: 'logAction',
                     ui: 'action'
                 },
                 {
+                    itemId: 'Cancel',
                     text: 'Cancel',
                     name: 'cancel',
                     hrefTarget: '',
