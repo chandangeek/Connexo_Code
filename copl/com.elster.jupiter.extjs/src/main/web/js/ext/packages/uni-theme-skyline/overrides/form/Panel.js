@@ -9,6 +9,12 @@ Ext.define('Skyline.form.Panel', {
         if (me.defaults && me.defaults.labelWidth) {
             width = me.defaults.labelWidth;
         }
+        // the case when label align is defined and not left. Than don't move the buttons.
+        if (me.defaults
+         && me.defaults.labelAlign
+         && me.defaults.labelAlign != 'left') {
+            width = 0;
+        }
         if (me.buttons) {
             me.buttons.splice(0, 0, {
                 xtype: 'tbspacer',
