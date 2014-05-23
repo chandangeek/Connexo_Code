@@ -11894,6 +11894,18 @@ div.x-form-spinner-down {
   color: #74af74;
 }
 
+/* line 1, ../../sass/src/form/field/Checkbox.scss */
+.x-form-cb-label {
+  color: #686868;
+  font-family: "Lato", helvetica, arial, verdana, sans-serif;
+}
+
+/* line 6, ../../sass/src/form/field/Checkbox.scss */
+.x-form-checkbox {
+  height: 15px !important;
+  width: 15px !important;
+}
+
 /* line 3, ../../sass/src/form/Label.scss */
 .x-form-item-label {
   font-size: 13px;
