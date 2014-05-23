@@ -91,29 +91,6 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
             msg: "This security setting configuration will no longer be available",
             icon: Ext.MessageBox.WARNING
         });
-
-        Ext.Msg({
-//            buttons: [
-//                {
-//                    xtype: 'button',
-//                    text: 'Delete',
-//                    action: 'delete',
-//                    name: 'delete',
-//                    ui: 'delete'
-//                },
-//                {
-//                    xtype: 'button',
-//                    text: 'Cancel',
-//                    action: 'cancel',
-//                    name: 'delete',
-//                    ui: 'link'
-//                }
-//            ]
-        }).show({
-            title: 'Remove "Config"?',
-            msg: 'This security setting configuration will no longer be available',
-            icon: Ext.MessageBox.WARNING
-        })
     },
 
 
