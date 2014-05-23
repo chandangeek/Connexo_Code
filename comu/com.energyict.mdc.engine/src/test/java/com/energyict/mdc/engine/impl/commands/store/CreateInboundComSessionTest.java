@@ -42,6 +42,8 @@ public class CreateInboundComSessionTest {
     private ComServer comServer;
     @Mock
     private InboundComPort comPort;
+    @Mock
+    private ComServerDAO comServerDao;
 
     @Before
     public void initializeMocks () {
@@ -130,7 +132,9 @@ public class CreateInboundComSessionTest {
         when(comSession.getSuccessIndicator()).thenReturn(ComSession.SuccessIndicator.Success);
         when(comSession.getComPort()).thenReturn(comPort);
         when(comSession.getConnectionTask()).thenReturn(connectionTask);
+        when(comServerDao.createComSession(comSessionBuilder, ComSession.SuccessIndicator.Success)).thenReturn(comSession);
         CreateInboundComSession command = new CreateInboundComSession(comPort, connectionTask, comSessionBuilder, ComSession.SuccessIndicator.Success, clock);
+        command.execute(comServerDao);
 
         // Business method
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.DEBUG);
