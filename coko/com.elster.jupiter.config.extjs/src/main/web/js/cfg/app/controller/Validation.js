@@ -523,7 +523,7 @@ Ext.define('Cfg.controller.Validation', {
             var ruleSetName = this.getRuleSetForm().form.findField('name').getSubmitValue();
             this.getRuleSetPreview().getLayout().setActiveItem(1);
             //this.getRulesetPreviewTitle().update('<h4>' + ruleSetName + '</h4>');
-            this.getRuleSetPreview().getHeader().setTitle(ruleSetName);
+            this.getRuleSetPreview().setTitle(ruleSetName);
         } else {
             this.getRuleSetPreview().getLayout().setActiveItem(0);
         }
@@ -536,7 +536,7 @@ Ext.define('Cfg.controller.Validation', {
             this.getRuleForm().loadRecord(selectedRule);
             this.getRulePreview().getLayout().setActiveItem(1);
             //this.getRulePreviewTitle().update('<h4>' + selectedRule.get("name") + '</h4>');
-            this.getRulePreview().getHeader().setTitle(selectedRule.get("name"));
+            this.getRulePreview().setTitle(selectedRule.get("name"));
             this.addProperties(selectedRule);
             this.addReadingTypes(selectedRule);
             this.getRulePreview().show();
