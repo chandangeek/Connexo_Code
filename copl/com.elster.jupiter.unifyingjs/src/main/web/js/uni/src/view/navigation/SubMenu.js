@@ -14,72 +14,27 @@
  *
  *     @example
  *       side: [
- *        {
+ *          {
  *            xtype: 'navigationSubMenu',
  *            itemId: 'myMenu'
- *        }
+ *          }
  *        ],
- *        ...
- *        initComponent: function () {
- *               ...
- *               this.initMenu();
- *               ...
- *           },
- *
- *        initMenu: function () {
- *               var me = this;
- *               var menu = this.getMenuCmp();
- *
- *               var button1 = menu.add({
- *                   text: '...',
- *                   pressed: true,
- *                   href: '...',
- *                   ...
- *               });
- *
- *               var button2 = menu.add({
- *                   text: '...',
- *                   href: '...',
- *                   ...
- *               });
- *               ...
- *
- *               getMenuCmp: function () {
- *                   return this.down('#myMenu');
- *               }
- *
- *
  */
 Ext.define('Uni.view.navigation.SubMenu', {
-    extend: 'Ext.container.Container',
+    extend: 'Ext.menu.Menu',
     alias: 'widget.navigationSubMenu',
-
-    baseCls: Uni.About.baseCssPrefix + 'submenu',
-
-    layout: {
-        type: 'vbox',
-        align: 'stretch'
-    },
+    floating: false,
+    ui: 'side-menu',
+    plain: true,
 
     defaults: {
-        xtype: 'button',
-        enableToggle: true,
-        allowDepress: false,
-        hrefTarget: '_self',
-        tooltipType: 'title',
-        scale: 'large'
+        xtype: 'menuitem',
+        hrefTarget: '_self'
     },
 
-    /**
-     * @cfg {Object/Ext.Component}
-     *
-     * Configuration of the menu items, buttons can be added here.
-     */
-    items: [
-    ],
+    selectedCls: 'current',
 
     initComponent: function () {
-        this.defaults.toggleGroup = 'submenu-' + this.getId();
         var me = this;
         Ext.util.History.addListener('change', function (token) {
             me.checkNavigation(token);
@@ -88,17 +43,29 @@ Ext.define('Uni.view.navigation.SubMenu', {
     },
 
     toggleMenuItem: function (index) {
-        this.items.items[index].toggle(true);
+        var cls = this.selectedCls;
+        var item = this.items.getAt(index);
+        if (item.hasCls(cls)) {
+            item.removeCls(cls);
+        } else {
+            item.addCls(cls);
+        }
+    },
+
+    cleanSelection: function() {
+        var cls = this.selectedCls;
+        this.items.each(function(item) {
+            item.removeCls(cls)
+        });
     },
 
     checkNavigation: function (token) {
-        for (var i = 0; i < this.items.items.length; i++) {
-            var item = this.items.items[i];
-            if ((item.getHref() != null) && (Ext.String.endsWith(item.getHref(), token))) {
-                this.toggleMenuItem(i);
-                break;
+        var me = this;
+        me.items.each(function(item, index) {
+            if ((item.href != null) && (Ext.String.endsWith(item.href, token))) {
+                me.cleanSelection();
+                me.toggleMenuItem(index);
             }
-        }
+        });
     }
-
 });
