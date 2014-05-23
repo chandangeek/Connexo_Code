@@ -18,6 +18,7 @@ Ext.define('Sam.view.licensing.Upload', {
             cls: 'content-wrapper',
             items: [
                 {
+                    itemId: 'pageTitle',
                     html: '<h1>Upload licenses</h1>',
                     cls: 'license-overview-title'
                 },
@@ -26,6 +27,7 @@ Ext.define('Sam.view.licensing.Upload', {
                     layout: 'hbox',
                     items: [
                         {
+                            itemId: 'uploadfileField',
                             xtype: 'filefield',
                             name: 'uploadField',
                             fieldLabel: 'License file',
@@ -37,6 +39,7 @@ Ext.define('Sam.view.licensing.Upload', {
                     ],
                     dockedItems: [
                         {
+                            itemId: 'toolbarBot',
                             xtype: 'toolbar',
                             dock: 'bottom',
                             border: false,
@@ -46,11 +49,13 @@ Ext.define('Sam.view.licensing.Upload', {
                             },
                             items: [
                                 {
+                                    itemId: 'upload',
                                     text: 'Upload',
                                     name: 'upload',
                                     disabled: true
                                 },
                                 {
+                                    itemId: 'Cancel',
                                     text: 'Cancel',
                                     ui: 'link',
                                     hrefTarget: '',

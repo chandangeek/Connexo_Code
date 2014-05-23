@@ -19,14 +19,17 @@ Ext.define('Sam.view.licensing.Overview', {
             cls: 'content-wrapper',
             items: [
                 {
+                    itemId: 'pageTitle',
                     title: 'Licenses',
                     ui: 'large'
                 },
                 {
+                    itemId: 'licenses-list',
                     xtype: 'licensing-list',
                     cls: 'license-overview-list'
                 },
                 {
+                    itemId: 'licenses-details',
                     xtype: 'licensing-details'
                 }
             ]
@@ -42,6 +45,7 @@ Ext.define('Sam.view.licensing.Overview', {
         var menu = this.getSideMenuCmp();
 
         menu.add({
+            itemId: 'navEl',
             text: 'Licenses',
             pressed: true,
             href: '#/sysadministration/licensing/licenses',

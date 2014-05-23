@@ -7,6 +7,7 @@ Ext.define('Sam.view.licensing.List', {
     border: false,
     items: [
         {
+            itemId: 'noLicenseFound',
             name: 'empty-text',
             cls: 'license-list-empty',
             border: false,
@@ -22,12 +23,14 @@ Ext.define('Sam.view.licensing.List', {
                             xtype: 'container',
                             items: [
                                 {
+                                    itemID: 'noLicenses',
                                     xtype: 'label',
                                     text: '0 licenses'
                                 }
                             ]
                         },
                         {
+                            itemId: 'uploadLicense',
                             xtype: 'button',
                             text: 'Upload licenses',
                             action: 'uploadlicenses',
@@ -39,6 +42,7 @@ Ext.define('Sam.view.licensing.List', {
             ]
         },
         {
+            itemId: 'LicensingGrid',
             xtype: 'grid',
             store: 'Sam.store.Licensing',
             height: 285,
@@ -49,16 +53,19 @@ Ext.define('Sam.view.licensing.List', {
                 },
                 items: [
                     {
+                        itemId: 'License',
                         header: 'License',
                         dataIndex: 'applicationname',
                         flex: 5
                     },
                     {
+                        itemId: 'Status',
                         header: 'Status',
                         dataIndex: 'status',
                         flex: 2
                     },
                     {
+                        itemId: 'expirationDate',
                         header: 'Expiration date',
                         xtype: 'datecolumn',
                         format: 'd-m-Y',
@@ -70,6 +77,7 @@ Ext.define('Sam.view.licensing.List', {
             },
             dockedItems: [
                 {
+                    itemId: 'toolbarTop',
                     xtype: 'toolbar',
                     dock: 'top',
                     items: [
@@ -78,11 +86,12 @@ Ext.define('Sam.view.licensing.List', {
                             name: 'gridcontainer'
                         },
                         {
+                            itemId: 'uploadButton',
                             xtype: 'button',
                             text: 'Upload licenses',
                             action: 'uploadlicenses',
                             hrefTarget: '',
-                            href: '#/sysadministration/licensing/upload'
+                            href: '#/administration/licensing/upload'
                         }
                     ]
                 }
