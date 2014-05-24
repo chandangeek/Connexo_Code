@@ -29,7 +29,7 @@ Ext.define('Mdc.view.setup.property.LoadProfileType', {
                         xtype: 'templatecolumn',
                         tpl: '<table width="100%" border = "0" style="color:dimgrey;font-size:x-small;line-height:110%">' +
                             '<caption style="color:black;font-size:small;line-height:200%;font-weight:bold;text-align:left;caption-side: left">' +
-                            '{loadProfileTypeId} - {name}' +
+                            '{id} - {name}' +
                             '</caption>' +
                             '</table>',
                         flex:1

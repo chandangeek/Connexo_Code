@@ -49,6 +49,9 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
                 showReadingTypeInfo: this.showReadingType,
                 removeItem: this.removeRegisterMapping
             },
+            '#loadProfileTypeAddMeasurementTypesGrid actioncolumn': {
+                showReadingTypeInfo: this.showReadingType
+            },
             '#addButton[action=addRegisterMappingAction]': {
                 click: this.addRegisterMappingsToDeviceType
             },

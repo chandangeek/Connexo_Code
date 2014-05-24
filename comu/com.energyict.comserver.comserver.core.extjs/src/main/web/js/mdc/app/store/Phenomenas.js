@@ -1,14 +1,14 @@
-Ext.define('Mdc.store.LoadProfileTypes', {
+Ext.define('Mdc.store.Phenomenas', {
     extend: 'Ext.data.Store',
     requires: [
-        'Mdc.model.LoadProfileType'
+        'Mdc.model.UnitOfMeasure'
     ],
-    model: 'Mdc.model.LoadProfileType',
-    storeId: 'LoadProfileTypes',
+
+    model: 'Mdc.model.UnitOfMeasure',
     autoLoad: false,
     proxy: {
         type: 'rest',
-        url: '/api/mds/loadprofiles',
+        url: '/api/mds/phenomena',
         reader: {
             type: 'json',
             root: 'data'

@@ -37,21 +37,21 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
                 text: Uni.I18n.translate('deviceconfigurationmenu.connectionMethods', 'MDC', 'Connection methods'),
                 pressed: false,
                 itemId: 'connectionMethodsLink',
-                href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId+ '/connectionmethods',
+                href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/connectionmethods',
                 hrefTarget: '_self'
             },
             {
                 text: 'Security settings',
                 pressed: false,
                 itemId: 'securitySettingsLink',
-                href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId+ '/securitysettings',
+                href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/securitysettings',
                 hrefTarget: '_self'
             },
             {
                 text: Uni.I18n.translate('deviceconfigurationmenu.protocols', 'MDC', 'Protocols'),
                 pressed: false,
                 itemId: 'protocolLink',
-                href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId+ '/protocols',
+                href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/protocols',
                 hrefTarget: '_self'
             },
             {
@@ -61,6 +61,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
                 href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId+ '/comtaskenablements',
                 hrefTarget: '_self'
             }
+
         );
         this.toggleMenuItem(this.toggle);
     }
