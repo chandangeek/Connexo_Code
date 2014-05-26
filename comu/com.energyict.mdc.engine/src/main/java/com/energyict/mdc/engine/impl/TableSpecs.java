@@ -20,7 +20,7 @@ public enum TableSpecs {
         public void addTo(DataModel dataModel) {
             Table<DeviceCache> table = dataModel.addTable(name(), DeviceCache.class);
             table.map(DeviceCacheImpl.class);
-            Column device = table.column("RTUID").number().notNull().map("deviceId").add();
+            Column device = table.column("RTUID").number().notNull().add();
             table.column("CONTENT").type("BLOB(4000)").conversion(ColumnConversion.BLOB2BYTE).map("simpleCache").add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
             table.primaryKey("PK_EISDEVICECACHE").on(device).add();

@@ -23,8 +23,6 @@ import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.json.impl.JsonServiceImpl;
 import com.elster.jupiter.util.time.Clock;
-import com.energyict.mdc.common.ApplicationContext;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.DeviceDataService;
@@ -45,12 +43,13 @@ import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.history.impl.TaskHistoryModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
+import com.energyict.protocols.mdc.channels.serial.SerialComponentService;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -90,8 +89,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
 
     @BeforeClass
     public static void setupEnvironment() {
-        when(clock.now()).thenReturn(new Date());
-        when(clock.getTimeZone()).thenReturn(utcTimeZone);
+        initializeClock();
         BundleContext bundleContext = mock(BundleContext.class);
         Principal principal = mock(Principal.class);
         when(principal.getName()).thenReturn("InMemoryPersistence");
@@ -149,8 +147,9 @@ public abstract class AbstractCollectedDataIntegrationTest {
         ServiceProvider.instance.set(null);
     }
 
-    @After
+    @Before
     public void resetClock () {
+        clock = mock(Clock.class);
         initializeClock();
     }
 
@@ -243,8 +242,10 @@ public abstract class AbstractCollectedDataIntegrationTest {
 
         @Override
         protected void configure() {
+            SerialComponentService serialComponentService = mock(SerialComponentService.class);
             bind(JsonService.class).toInstance(new JsonServiceImpl());
             bind(BeanService.class).toInstance(new BeanServiceImpl());
+            bind(SerialComponentService.class).toInstance(serialComponentService);
             bind(Clock.class).toInstance(clock);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
