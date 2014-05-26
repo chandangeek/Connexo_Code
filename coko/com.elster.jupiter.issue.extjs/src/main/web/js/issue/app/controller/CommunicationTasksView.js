@@ -59,14 +59,14 @@ Ext.define('Isu.controller.CommunicationTasksView', {
             'communication-tasks-view communication-tasks-list gridview': {
                 itemclick: this.showTaskDetails,
                 refresh: this.onCommunicationTasksGridRefresh
-            },
-            'communication-tasks-view communication-tasks-list actioncolumn': {
-                click: this.showItemAction
-            },
-            'communication-tasks-action-menu': {
-                beforehide: this.hideItemAction,
-                click: this.chooseCommunicationTasksAction
             }
+//            'communication-tasks-view communication-tasks-list actioncolumn': {
+//                click: this.showItemAction
+//            },
+//            'communication-tasks-action-menu': {
+//                beforehide: this.hideItemAction,
+//                click: this.chooseCommunicationTasksAction
+//            }
         });
 
         this.actionMenuXtype = 'communication-tasks-action-menu';
