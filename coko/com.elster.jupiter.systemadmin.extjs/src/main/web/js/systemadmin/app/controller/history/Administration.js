@@ -2,8 +2,6 @@ Ext.define('Sam.controller.history.Administration', {
     extend: 'Uni.controller.history.Converter',
 
     rootToken: 'administration',
-    previousPath: '',
-    currentPath: null,
 
     init: function () {
         var me = this;
@@ -16,19 +14,5 @@ Ext.define('Sam.controller.history.Administration', {
         });
 
         this.callParent(arguments);
-    },
-
-    doConversion: function (tokens, token) {
-        //now has tokens and token (which is you complete path)
-
-        var queryStringIndex = token.indexOf('?');
-        if (queryStringIndex > 0) {
-            token = token.substring(0, queryStringIndex);
-        }
-        if (this.currentPath !== null) {
-            this.previousPath = this.currentPath;
-        }
-        this.currentPath = token;
-        crossroads.parse(token);
     }
 });
