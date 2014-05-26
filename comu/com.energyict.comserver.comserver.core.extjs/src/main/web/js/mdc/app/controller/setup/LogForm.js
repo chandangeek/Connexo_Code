@@ -55,7 +55,6 @@ Ext.define('Mdc.controller.setup.LogForm', {
 
         if (id) {
             this.crumbId = this.logId = id;
-            console.log(777);
             self.getModel('Mdc.model.Logbook').load(id, {
                 success: function (record) {
                     form.loadRecord(record);
