@@ -1,11 +1,12 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
-import com.energyict.mdc.engine.model.InboundComPort;
+import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
-import com.energyict.mdc.protocol.api.ComChannel;
-import com.energyict.mdc.protocol.api.inbound.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
+import com.energyict.mdc.engine.model.InboundComPort;
+import com.energyict.mdc.protocol.api.inbound.BinaryInboundDeviceProtocol;
+
 import java.util.logging.Logger;
 
 /**
@@ -29,7 +30,7 @@ public class InboundComPortExecutorImpl implements InboundComPortExecutor {
     }
 
     @Override
-    public void execute(ComChannel comChannel) {
+    public void execute(ComPortRelatedComChannel comChannel) {
         final InboundCommunicationHandler inboundCommunicationHandler = new InboundCommunicationHandler(getServerInboundComPort(), this.comServerDAO, this.deviceCommandExecutor, serviceProvider);
         BinaryInboundDeviceProtocol inboundDeviceProtocol = this.newInboundDeviceProtocol();
         InboundDiscoveryContextImpl context = this.newInboundDiscoveryContext(comChannel);
@@ -42,7 +43,7 @@ public class InboundComPortExecutorImpl implements InboundComPortExecutor {
         return this.comPort;
     }
 
-    private InboundDiscoveryContextImpl newInboundDiscoveryContext (ComChannel comChannel) {
+    private InboundDiscoveryContextImpl newInboundDiscoveryContext (ComPortRelatedComChannel comChannel) {
         InboundDiscoveryContextImpl context = new InboundDiscoveryContextImpl(comPort, comChannel, serviceProvider.taskHistoryService());
         // Todo: needs revision as soon as we get more experience with inbound protocols that need encryption
         context.setLogger(Logger.getAnonymousLogger());

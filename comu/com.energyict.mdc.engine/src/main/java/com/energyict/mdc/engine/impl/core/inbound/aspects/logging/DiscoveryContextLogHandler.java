@@ -30,7 +30,7 @@ public class DiscoveryContextLogHandler extends Handler {
 
     @Override
     public void publish(LogRecord record) {
-        this.context.getComSessionBuilder().addJournalEntry(clock.now(), extractInfo(record), record.getThrown());
+        this.context.addJournalEntry(clock.now(), extractInfo(record), record.getThrown());
     }
 
     private String extractInfo (LogRecord record) {

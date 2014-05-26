@@ -47,12 +47,12 @@ public privileged aspect InboundCommunicationStatisticsMonitor extends AbstractC
      * replace the request and response when necessary with monitoring
      * wrapper objects of the request and response.
      */
-    private pointcut handle (InboundCommunicationHandler handler, InboundDeviceProtocol inboundDeviceProtocol, InboundDiscoveryContext context):
-            execution(void handle (InboundDeviceProtocol, InboundDiscoveryContext))
+    private pointcut handle (InboundCommunicationHandler handler, InboundDeviceProtocol inboundDeviceProtocol, InboundDiscoveryContextImpl context):
+            execution(void handle (InboundDeviceProtocol, InboundDiscoveryContextImpl))
          && target(handler)
          && args(inboundDeviceProtocol, context);
 
-    before (InboundCommunicationHandler handler, InboundDeviceProtocol inboundDeviceProtocol, InboundDiscoveryContext context) : handle(handler, inboundDeviceProtocol, context) {
+    before (InboundCommunicationHandler handler, InboundDeviceProtocol inboundDeviceProtocol, InboundDiscoveryContextImpl context) : handle(handler, inboundDeviceProtocol, context) {
         if (this.inWebContext(context)) {
             HttpServletRequest request = context.getServletRequest();
             HttpServletResponse response = context.getServletResponse();

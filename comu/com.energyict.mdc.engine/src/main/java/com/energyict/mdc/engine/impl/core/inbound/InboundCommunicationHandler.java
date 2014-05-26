@@ -159,11 +159,10 @@ public class InboundCommunicationHandler {
 
     private void handleUnknownDevice(InboundDeviceProtocol inboundDeviceProtocol) {
         List<InboundDeviceProtocolPluggableClass> classes = serviceProvider.protocolPluggableService().findInboundDeviceProtocolPluggableClassByClassName(inboundDeviceProtocol.getClass().getName());
-        UnknownInboundDeviceEvent event = null;
         if (!classes.isEmpty()) {
-            event = new UnknownInboundDeviceEvent(this.comPort, inboundDeviceProtocol.getDeviceIdentifier(), classes.get(0));
+            UnknownInboundDeviceEvent event = new UnknownInboundDeviceEvent(this.comPort, inboundDeviceProtocol.getDeviceIdentifier(), classes.get(0));
+            this.comServerDAO.signalEvent(EventType.UNKNOWN_INBOUND_DEVICE.topic(), event);
         }
-        this.comServerDAO.signalEvent(EventType.UNKNOWN_INBOUND_DEVICE.topic(), event);
         // Todo: do something for the DoS attacks?
         this.provideResponse(inboundDeviceProtocol, InboundDeviceProtocol.DiscoverResponseType.DEVICE_NOT_FOUND);
     }
@@ -174,6 +173,7 @@ public class InboundCommunicationHandler {
             this.provideResponse(inboundDeviceProtocol, InboundDeviceProtocol.DiscoverResponseType.ENCRYPTION_REQUIRED);
         } else {
             if (this.deviceIsReadyForInboundCommunicationOnThisPort(device)) {
+                this.startDeviceSessionInContext();
                 this.handleDeviceReadyForInboundCommunicationOnThisPort(inboundDeviceProtocol, discoverResultType, device);
             } else {
                 this.provideResponse(inboundDeviceProtocol, InboundDeviceProtocol.DiscoverResponseType.DEVICE_DOES_NOT_EXPECT_INBOUND);
@@ -187,7 +187,6 @@ public class InboundCommunicationHandler {
             this.provideResponse(inboundDeviceProtocol, InboundDeviceProtocol.DiscoverResponseType.SERVER_BUSY);
         } else {
             DeviceCommandExecutionToken singleToken = tokens.get(0);
-            this.startDeviceSessionInContext();
             this.provideResponse(inboundDeviceProtocol, InboundDeviceProtocol.DiscoverResponseType.SUCCESS);
             if (InboundDeviceProtocol.DiscoverResultType.IDENTIFIER.equals(discoverResultType)) {
                 this.handOverToDeviceProtocol(singleToken);

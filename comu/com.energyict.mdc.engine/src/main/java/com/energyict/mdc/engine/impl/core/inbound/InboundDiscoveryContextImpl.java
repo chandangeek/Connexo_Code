@@ -5,7 +5,6 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.InboundComPort;
-import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.crypto.Cryptographer;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
@@ -17,6 +16,7 @@ import com.energyict.mdc.tasks.history.TaskHistoryService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
@@ -35,12 +35,13 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
     private Cryptographer cryptographer;
     private InboundDAO inboundDAO;
     private ComSessionBuilder sessionBuilder;
+    private JournalEntryBacklog journalEntryBacklog = new JournalEntryBacklog();
     private final InboundComPort comPort;
-    private ComChannel comChannel;
+    private ComPortRelatedComChannel comChannel;
     private HttpServletRequest servletRequest;
     private HttpServletResponse servletResponse;
 
-    public InboundDiscoveryContextImpl(InboundComPort comPort, ComChannel comChannel, TaskHistoryService taskHistoryService) {
+    public InboundDiscoveryContextImpl(InboundComPort comPort, ComPortRelatedComChannel comChannel, TaskHistoryService taskHistoryService) {
         super();
         this.comPort = comPort;
         this.comChannel = comChannel;
@@ -89,6 +90,7 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
 
     public ComSessionBuilder buildComSession(ConnectionTask<?, ?> connectionTask, ComPortPool comPortPool, ComPort comPort, Date startTime) {
         sessionBuilder = taskHistoryService.buildComSession(connectionTask, comPortPool, comPort, startTime);
+        this.journalEntryBacklog.createWith(sessionBuilder);
         return sessionBuilder;
     }
 
@@ -97,7 +99,7 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
     }
 
     @Override
-    public ComChannel getComChannel() {
+    public ComPortRelatedComChannel getComChannel() {
         return comChannel;
     }
 
@@ -139,6 +141,47 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
     @Override
     public TypedProperties getDeviceProtocolProperties(DeviceIdentifier deviceIdentifier) {
         return this.getInboundDAO().getDeviceProtocolProperties(deviceIdentifier);
+    }
+
+    public void addJournalEntry(Date timestamp, String description, Throwable t) {
+        if (this.sessionBuilder != null) {
+            this.sessionBuilder.addJournalEntry(timestamp, description, t);
+        }
+        else {
+            this.journalEntryBacklog.addJournalEntry(timestamp, description, t);
+        }
+    }
+
+    private class JournalEntryBacklog {
+        private List<JournalEntryBacklogEntry> entries = new ArrayList<>();
+
+        private void addJournalEntry(Date timestamp, String description, Throwable t) {
+            this.entries.add(new JournalEntryBacklogEntry(timestamp, description, t));
+        }
+
+        private void createWith (ComSessionBuilder builder) {
+            for (JournalEntryBacklogEntry entry : this.entries) {
+                entry.createWith(builder);
+            }
+        }
+    }
+
+    private class JournalEntryBacklogEntry {
+        private Date timestamp;
+        private String description;
+        private Throwable thrown;
+
+        private JournalEntryBacklogEntry(Date timestamp, String description, Throwable thrown) {
+            super();
+            this.timestamp = timestamp;
+            this.description = description;
+            this.thrown = thrown;
+        }
+
+        private void createWith (ComSessionBuilder builder) {
+            builder.addJournalEntry(this.timestamp, this.description, this.thrown);
+        }
+
     }
 
 }

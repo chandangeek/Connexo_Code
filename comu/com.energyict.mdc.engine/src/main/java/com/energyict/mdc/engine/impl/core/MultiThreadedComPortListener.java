@@ -5,8 +5,9 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.concurrent.ResizeableSemaphore;
 import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactory;
 import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactoryImpl;
+import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.model.InboundComPort;
-import com.energyict.mdc.protocol.api.ComChannel;
+
 import com.energyict.protocols.mdc.channels.VoidComChannel;
 
 import java.util.concurrent.ExecutorService;
@@ -103,7 +104,7 @@ public class MultiThreadedComPortListener extends ComChannelBasedComPortListener
     protected void doRun() {
 
         if (prepareExecution()) {
-            ComChannel comChannel = listen();
+            ComPortRelatedComChannel comChannel = listen();
             if (!(comChannel instanceof VoidComChannel)) {
                 this.executorService.execute(new Worker(this.inboundComPortExecutorFactory.create(getComPort(), getComServerDAO(), getDeviceCommandExecutor(), serviceProvider), comChannel));
             }
@@ -155,10 +156,10 @@ public class MultiThreadedComPortListener extends ComChannelBasedComPortListener
      */
     private final class Worker implements Runnable {
 
-        private final ComChannel comChannel;
+        private final ComPortRelatedComChannel comChannel;
         private InboundComPortExecutor inboundComPortExecutor;
 
-        private Worker(InboundComPortExecutor inboundComPortExecutor, ComChannel comChannel) {
+        private Worker(InboundComPortExecutor inboundComPortExecutor, ComPortRelatedComChannel comChannel) {
             super();
             this.inboundComPortExecutor = inboundComPortExecutor;
             this.comChannel = comChannel;

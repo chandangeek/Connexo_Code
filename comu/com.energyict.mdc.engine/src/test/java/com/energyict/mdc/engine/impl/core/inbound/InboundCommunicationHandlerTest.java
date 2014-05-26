@@ -1,7 +1,5 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.ProgrammableClock;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
@@ -12,7 +10,9 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.FakeServiceProvider;
+import com.energyict.mdc.engine.FakeTransactionService;
 import com.energyict.mdc.engine.impl.commands.store.CompositeDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.CreateInboundComSession;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
@@ -37,33 +37,44 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
+import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.history.ComSession;
 import com.energyict.mdc.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.tasks.history.TaskHistoryService;
+
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.ProgrammableClock;
 import org.joda.time.DateTime;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link InboundCommunicationHandler} component.
@@ -102,8 +113,11 @@ public class InboundCommunicationHandlerTest {
     @Mock
     private TaskHistoryService taskHistoryService;
     @Mock
+    private ProtocolPluggableService protocolPluggableService;
+    @Mock
     private ComSessionBuilder comSessionBuilder;
 
+    private FakeTransactionService transactionService = new FakeTransactionService();
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
     private InboundCommunicationHandler handler;
     private Clock clock = new ProgrammableClock();
@@ -114,9 +128,15 @@ public class InboundCommunicationHandlerTest {
         ServiceProvider.instance.set(serviceProvider);
         serviceProvider.setClock(clock);
         serviceProvider.setTaskHistoryService(taskHistoryService);
-        when(taskHistoryService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Date.class))).thenReturn(comSessionBuilder);
-        this.serviceProvider = new FakeServiceProvider();
-        this.serviceProvider.setTaskHistoryService(this.taskHistoryService);
+        when(taskHistoryService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Date.class))).
+            thenReturn(this.comSessionBuilder);
+        when(this.comSessionBuilder.addSentBytes(anyLong())).thenReturn(this.comSessionBuilder);
+        when(this.comSessionBuilder.addReceivedBytes(anyLong())).thenReturn(this.comSessionBuilder);
+        when(this.comSessionBuilder.addSentPackets(anyLong())).thenReturn(this.comSessionBuilder);
+        when(this.comSessionBuilder.addReceivedPackets(anyLong())).thenReturn(this.comSessionBuilder);
+        this.serviceProvider.setProtocolPluggableService(this.protocolPluggableService);
+        this.serviceProvider.setTransactionService(this.transactionService);
+        when(this.protocolPluggableService.findInboundDeviceProtocolPluggableClassByClassName(anyString())).thenReturn(Collections.<InboundDeviceProtocolPluggableClass>emptyList());
         when(this.comServer.getId()).thenReturn(Long.valueOf(COMSERVER_ID));
         when(this.comServer.getServerLogLevel()).thenReturn(ComServer.LogLevel.INFO);
         when(this.comServer.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.INFO);
@@ -295,6 +315,10 @@ public class InboundCommunicationHandlerTest {
         OfflineDevice device = mock(OfflineDevice.class);
         when(this.comServerDAO.findDevice(any(DeviceIdentifier.class))).thenReturn(device);
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
+        ConnectionTask connectionTask = mock(InboundConnectionTask.class);
+        when(connectionTask.getComPortPool()).thenReturn(this.comPortPool);
+        when(connectionTask.getId()).thenReturn(CONNECTION_TASK_ID);
+        when(comTaskExecution.getConnectionTask()).thenReturn(connectionTask);
         when(this.comServerDAO.findExecutableInboundComTasks(device, this.comPort)).thenReturn(Arrays.asList(comTaskExecution));
         when(this.deviceCommandExecutor.tryAcquireTokens(1)).thenReturn(new ArrayList<DeviceCommandExecutionToken>(0));
 
@@ -590,7 +614,7 @@ public class InboundCommunicationHandlerTest {
         when(this.comServerDAO.findExecutableInboundComTasks(device, this.comPort)).thenReturn(Arrays.asList(comTaskExecution));
         DeviceCommandExecutionToken token = mock(DeviceCommandExecutionToken.class);
         when(this.deviceCommandExecutor.tryAcquireTokens(1)).thenReturn(Arrays.asList(token));
-        when(this.taskHistoryService.buildComSession(connectionTask, eq(this.comPortPool), eq(this.comPort), any(Date.class))).thenReturn(this.comSessionBuilder);
+        when(this.taskHistoryService.buildComSession(eq(connectionTask), eq(this.comPortPool), eq(this.comPort), any(Date.class))).thenReturn(this.comSessionBuilder);
 
         // Business method
         this.handler.handle(inboundDeviceProtocol, context);
@@ -611,7 +635,7 @@ public class InboundCommunicationHandlerTest {
     }
 
     private InboundDiscoveryContextImpl newBinaryInboundDiscoveryContext () {
-        InboundDiscoveryContextImpl context = new InboundDiscoveryContextImpl(comPort, mock(ComChannel.class), taskHistoryService);
+        InboundDiscoveryContextImpl context = new InboundDiscoveryContextImpl(comPort, new ComPortRelatedComChannelImpl(mock(ComChannel.class)), taskHistoryService);
         this.initializeInboundDiscoveryContext(context);
         return context;
     }
