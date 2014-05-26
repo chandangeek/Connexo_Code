@@ -10,7 +10,6 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 
 import com.google.common.base.Optional;
 
@@ -542,6 +541,7 @@ public class RequestParserTest {
     public void testNonExistingConnectionTask () throws RequestParseException {
         this.mockConnectionTasks();
         RequestParser parser = new RequestParser(serviceProvider);
+        when(this.deviceDataService.findConnectionTask(NON_EXISTING_CONNECTION_TASK_ID)).thenReturn(Optional.<ConnectionTask>absent());
 
         //Business method
         parser.parse("Register request for connectionTask: " + NON_EXISTING_CONNECTION_TASK_ID);
@@ -808,9 +808,10 @@ public class RequestParserTest {
     private void mockDevices () {
         Device device1 = mock(Device.class);
         when(device1.getId()).thenReturn(DEVICE1_ID);
-        BaseDevice device2 = mock(BaseDevice.class);
+        Device device2 = mock(Device.class);
         when(device2.getId()).thenReturn(DEVICE2_ID);
         when(this.deviceDataService.findDeviceById(DEVICE1_ID)).thenReturn(device1);
+        when(this.deviceDataService.findDeviceById(DEVICE2_ID)).thenReturn(device2);
     }
 
     private void mockConnectionTasks () {

@@ -30,8 +30,8 @@ public class ComPortPoolRequest extends IdBusinessObjectRequest {
 
     public ComPortPoolRequest (EngineModelService engineModelService, Set<Long> comPortPoolIds) {
         super(comPortPoolIds);
-        this.validateComPortPoolIds();
         this.engineModelService = engineModelService;
+        this.validateComPortPoolIds();
     }
 
     private void validateComPortPoolIds () {
