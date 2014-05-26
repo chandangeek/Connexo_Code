@@ -45,7 +45,6 @@ Ext.define('Usr.controller.UserGroups', {
         location.href = '#users/' + groupId + '/edit';
     },
 
-//    backUrl: this.getApplication().getController('Usr.controller.history.User').tokenizeShowOverview(),
     backUrl: null,
 
     back: function() {
@@ -61,7 +60,7 @@ Ext.define('Usr.controller.UserGroups', {
         var widget = Ext.widget('userEdit');
         var panel = widget.getCenterContainer().items.getAt(0);
 
-        this.backUrl = this.getApplication().getController('Usr.controller.history.User').tokenizePreviousTokens();
+        this.backUrl = '#/groups';
         widget.hide();
         widget.setLoading(true);
 

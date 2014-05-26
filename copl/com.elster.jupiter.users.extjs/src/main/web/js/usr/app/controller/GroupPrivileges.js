@@ -38,12 +38,12 @@ Ext.define('Usr.controller.GroupPrivileges', {
 
     backUrl: null,
 
-    back: function() {
+    back: function () {
         location.href = this.backUrl;
     },
 
-    showEditOverviewWithHistory: function(groupId) {
-        location.href = '#roles/' + groupId + '/edit';
+    showEditOverviewWithHistory: function (groupId) {
+        location.href = '#/roles/' + groupId + '/edit';
     },
 
     /**
@@ -56,7 +56,7 @@ Ext.define('Usr.controller.GroupPrivileges', {
         var widget = Ext.widget('groupEdit');
         var panel = widget.getCenterContainer().items.getAt(0);
 
-        this.backUrl = this.getApplication().getController('Usr.controller.history.Group').tokenizePreviousTokens();
+        this.backUrl = '#/roles/' + groupId;
 
         widget.hide();
         widget.setLoading(true);
@@ -85,7 +85,7 @@ Ext.define('Usr.controller.GroupPrivileges', {
         });
     },
 
-    showCreateOverviewWithHistory: function(groupId) {
+    showCreateOverviewWithHistory: function (groupId) {
         location.href = '#roles/create';
     },
 
@@ -96,7 +96,7 @@ Ext.define('Usr.controller.GroupPrivileges', {
         var panel = widget.getCenterContainer().items.getAt(0);
         var title = Uni.I18n.translate('group.create', 'USM', 'Create role');
 
-        this.backUrl = this.getApplication().getController('Usr.controller.history.Group').tokenizePreviousTokens();
+        this.backUrl = '#/roles';
 
         widget.setLoading(true);
         panel.setTitle(title);
@@ -139,7 +139,7 @@ Ext.define('Usr.controller.GroupPrivileges', {
             success: function (record) {
                 me.back();
             },
-            failure: function(record,operation){
+            failure: function (record, operation) {
                 var json = Ext.decode(operation.response.responseText);
                 if (json && json.errors) {
                     form.markInvalid(json.errors);
