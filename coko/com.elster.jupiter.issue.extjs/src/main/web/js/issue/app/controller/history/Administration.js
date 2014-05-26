@@ -2,8 +2,6 @@ Ext.define('Isu.controller.history.Administration', {
     extend: 'Uni.controller.history.Converter',
 
     rootToken: 'administration',
-    previousPath: '',
-    currentPath: null,
 
     init: function () {
         var me = this;
@@ -20,13 +18,13 @@ Ext.define('Isu.controller.history.Administration', {
         crossroads.addRoute('administration/issuecreationrules/{id}/edit', function (id) {
             me.getController('Isu.controller.IssueCreationRulesEdit').showOverview(id, 'edit');
         });
-        crossroads.addRoute('issue-administration/communicationtasks',function(){
+        crossroads.addRoute('issue-administration/communicationtasks', function () {
             me.getController('Isu.controller.CommunicationTasksView').showOverview();
         });
-        crossroads.addRoute('issue-administration/communicationtasks/create',function(){
+        crossroads.addRoute('issue-administration/communicationtasks/create', function () {
             me.getController('Isu.controller.CommunicationTasksEdit').showOverview();
         });
-        crossroads.addRoute('issue-administration/communicationtasks/{id}',function(id){
+        crossroads.addRoute('issue-administration/communicationtasks/{id}', function (id) {
             me.getController('Isu.controller.CommunicationTasksEdit').showOverview(id);
         });
 
