@@ -19,7 +19,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.engine.DeviceCreator;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -130,7 +129,7 @@ public class CollectedLoadProfileStoreDeviceCommandTest extends AbstractCollecte
 
     @Test
     public void successfulDoubleStoreTestWithSameData() {
-        Device device = this.deviceCreator.name(DEVICE_NAME).mRDI(DEVICE_NAME).loadProfileTypes(this.loadProfileType).create();
+        Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("successfulDoubleStoreTestWithSameData").loadProfileTypes(this.loadProfileType).create();
         long deviceId = device.getId();
 
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(device.getLoadProfiles().get(0));
@@ -138,8 +137,8 @@ public class CollectedLoadProfileStoreDeviceCommandTest extends AbstractCollecte
         final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile);
         final ComServerDAOImpl comServerDAO = mockComServerDAOButCallRealMethodForMeterReadingStoring();
 
-        collectedLoadProfileDeviceCommand.execute(comServerDAO);
         freezeClock(verificationTimeStamp);
+        collectedLoadProfileDeviceCommand.execute(comServerDAO);
         collectedLoadProfileDeviceCommand.execute(comServerDAO);
 
         List<Channel> channels = getChannels(deviceId);
@@ -169,7 +168,7 @@ public class CollectedLoadProfileStoreDeviceCommandTest extends AbstractCollecte
 
     @Test
     public void successfulStoreTest() throws SQLException, BusinessException {
-        Device device = this.deviceCreator.name(DEVICE_NAME).mRDI(DEVICE_NAME).loadProfileTypes(this.loadProfileType).create();
+        Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("successfulStoreTest").loadProfileTypes(this.loadProfileType).create();
         long deviceId = device.getId();
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(device.getLoadProfiles().get(0));
 
@@ -206,7 +205,7 @@ public class CollectedLoadProfileStoreDeviceCommandTest extends AbstractCollecte
 
     @Test
     public void successfulStoreWithDeltaDataTest() {
-        Device device = this.deviceCreator.name(DEVICE_NAME).mRDI(DEVICE_NAME).loadProfileTypes(this.loadProfileType).create();
+        Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("successfulStoreWithDeltaDataTest").loadProfileTypes(this.loadProfileType).create();
         long deviceId = device.getId();
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfileWithDeltaData(device.getLoadProfiles().get(0));
 
@@ -237,12 +236,14 @@ public class CollectedLoadProfileStoreDeviceCommandTest extends AbstractCollecte
 
     @Test
     public void successfulStoreWithUpdatedDataTest() {
-        Device device = this.deviceCreator.name(DEVICE_NAME).mRDI(DEVICE_NAME).loadProfileTypes(this.loadProfileType).create();
+        Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("successfulStoreWithUpdatedDataTest").loadProfileTypes(this.loadProfileType).create();
         long deviceId = device.getId();
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(device.getLoadProfiles().get(0));
 
         final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile);
         final ComServerDAOImpl comServerDAO = mockComServerDAOButCallRealMethodForMeterReadingStoring();
+
+        freezeClock(verificationTimeStamp);
 
         collectedLoadProfileDeviceCommand.execute(comServerDAO);
 
@@ -255,8 +256,6 @@ public class CollectedLoadProfileStoreDeviceCommandTest extends AbstractCollecte
         updatedIntervalList.add(new IntervalValue(updatedIntervalChannelTwo, 0, 0));
         updatedCollectedIntervalData.add(new IntervalData(intervalEndTime3, 0, 0, 0, updatedIntervalList));
         when(collectedLoadProfile.getCollectedIntervalData()).thenReturn(updatedCollectedIntervalData);
-
-        freezeClock(verificationTimeStamp);
 
         collectedLoadProfileDeviceCommand.execute(comServerDAO);
 
@@ -285,14 +284,9 @@ public class CollectedLoadProfileStoreDeviceCommandTest extends AbstractCollecte
         assertThat(intervalReadingsChannel2.get(3).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueTwo + 3));
     }
 
-    @After
-    public void tearDown() {
-        ServiceProvider.instance.set(null);
-    }
-
     @Test
     public void updateLastReadingTest() throws SQLException, BusinessException {
-        Device device = this.deviceCreator.name(DEVICE_NAME).mRDI(DEVICE_NAME).loadProfileTypes(this.loadProfileType).create();
+        Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("updateLastReadingTest").loadProfileTypes(this.loadProfileType).create();
         LoadProfile loadProfile = device.getLoadProfiles().get(0);
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(loadProfile);
 
