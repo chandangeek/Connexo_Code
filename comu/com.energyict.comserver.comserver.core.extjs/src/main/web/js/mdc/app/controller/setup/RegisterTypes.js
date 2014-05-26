@@ -89,9 +89,14 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
     },
 
     onRegisterTypesStoreLoad: function () {
-        if (this.getRegisterTypesStore().data.items.length > 0) {
-            this.getRegisterTypeSetup().show();
-            this.getRegisterTypeGrid().getSelectionModel().doSelect(0);
+        if (this.getRegisterTypesStore().data.items.length > 0){
+            var setupWidget = this.getRegisterTypeSetup(),
+                gridWidget = this.getRegisterTypeGrid();
+            if (!Ext.isEmpty(setupWidget) && !Ext.isEmpty(gridWidget) ){
+                setupWidget.show();
+                gridWidget.getSelectionModel().doSelect(0);
+            }
+
         }
     },
 

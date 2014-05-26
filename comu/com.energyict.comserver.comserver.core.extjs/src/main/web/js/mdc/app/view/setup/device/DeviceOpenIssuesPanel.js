@@ -20,16 +20,15 @@ Ext.define('Mdc.view.setup.device.DeviceOpenIssuesPanel', {
             },
             items: [
                 {
-                    xtype: 'component',
-                    cls: 'x-form-display-field',
-                    autoEl: {
-                        tag: 'a',
-                        href: '#/workspace/datacollection/issues?issueType=datacollection&group=none&status=1&meter=' + this.mRID,
-                        html: 'data collection issues'
-                    },
-                    itemId: 'dataCollectionIssuesLink'
+                    name: 'issues',
+                    xtype: 'displayfield',
+                    itemId: 'dataCollectionIssuesLink',
+                    fieldLabel: Uni.I18n.translate('deviceOpenIssues.dataCollectionIssues', 'MDC', 'data collection issue(s)'),
+                    href: '#/workspace/datacollection/issues?issueType=datacollection&group=none&status=1&meter=' + this.mRID,
+                    renderer: function(value, field) {
+                        return '<a href="' + field.href +'" >' + value + '</a>';
+                    }
                 }
-
             ]
         }
     ]

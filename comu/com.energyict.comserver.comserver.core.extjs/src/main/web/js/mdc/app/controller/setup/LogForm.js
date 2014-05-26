@@ -51,7 +51,7 @@ Ext.define('Mdc.controller.setup.LogForm', {
         var btn = form.down('button[name=logAction]');
         var title;
 
-        this.getApplication().fireEvent('changecontentevent', widget);
+        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
 
         if (id) {
             this.crumbId = this.logId = id;
@@ -99,111 +99,40 @@ Ext.define('Mdc.controller.setup.LogForm', {
         breadcrumbs.setBreadcrumbItem(breadcrumbParent);
     },
 
-    showNameNotUniqueError: function(result, msges, formErrorsPanel) {
-        var self = this,
-            formPanel = self.getFormPanel(),
-            nameField = formPanel.down('form').down('[name=name]'),
-            formButton = formPanel.down('form').down('button'),
-            formCancelButton = formPanel.down('form').down('button[name=cancel]');
-        Ext.Array.each(result.errors, function (item) {
-            var bodyItem = {};
-            bodyItem.style = 'msgItemStyle';
-            bodyItem.text = item.msg;
-            nameField.markInvalid(item.msg);
-            msges.push(bodyItem);
-        });
-        if (!nameField.errorEl) {
-            self.getApplication().fireEvent('isushowmsg', {
-                type: 'error',
-                msgBody: msges,
-                y: 10,
-                closeBtn: true,
-                btns: [
-                    {
-                        text: 'Cancel',
-                        cls: 'isu-btn-link',
-                        hnd: function () {
-                            window.location = '#/administration/logbooktypes';
-                        }
-                    }
-                ],
-                listeners: {
-                    close: {
-                        fn: function () {
-                            formButton.enable();
-                            formCancelButton.enable();
-                        }
-                    }
-                }
-            });
-            formButton.disable();
-            formCancelButton.disable();
-        } else {
-            self.showErrorsPanel(formErrorsPanel);
-        }
-    },
-
-    showDatabaseError: function(msges) {
-        var self = this,
-            formPanel = self.getFormPanel();
-        self.getApplication().fireEvent('isushowmsg', {
-            type: 'error',
-            msgBody: msges,
-            y: 10,
-            closeBtn: true,
-            btns: [
-                {
-                    text: 'Cancel',
-                    cls: 'isu-btn-link',
-                    hnd: function () {
-                        window.location = '#/administration/logbooktypes';
-                    }
-                }
-            ],
-            listeners: {
-                close: {
-                    fn: function () {
-                        formPanel.enable();
-                    }
-                }
-            }
-        });
-        formPanel.disable();
-    },
-
     createRequest: function(form, formErrorsPanel, preloader) {
         var self = this,
-            header = {
-                style: 'msgHeaderStyle'
-            },
-            msges = [],
             jsonValues = Ext.JSON.encode(form.getValues());
+
         Ext.Ajax.request({
             url: '/api/mds/logbooktypes',
             method: 'POST',
             jsonData: jsonValues,
             success: function () {
                 window.location.href = '#/administration/logbooktypes';
-                header.text = 'Successfully created';
-                self.getApplication().fireEvent('isushowmsg', {
-                    type: 'notify',
-                    msgBody: [header],
-                    y: 10,
-                    showTime: 5000
-                });
+
+                Ext.create('widget.uxNotification', {
+                    html: 'Successfully created',
+                    ui: 'notification-success'
+                }).show();
             },
             failure: function (response) {
-                header.text = 'Error during creation.';
-                msges.push(header);
                 var result = Ext.decode(response.responseText, true);
                 if (result !== null) {
-                    self.showNameNotUniqueError(result, msges, formErrorsPanel);
+                    Ext.widget('messagebox').show({
+                        ui: 'notification-error',
+                        title: result.error,
+                        msg: result.message,
+                        icon: Ext.MessageBox.ERROR,
+                        buttons: Ext.MessageBox.CANCEL
+                    });
                 } else {
-                    var bodyItem = {};
-                    bodyItem.style = 'msgItemStyle';
-                    bodyItem.text = 'The logbook type could not be created because of an error in the database.';
-                    msges.push(bodyItem);
-                    self.showDatabaseError(msges);
+                    Ext.widget('messagebox').show({
+                        ui: 'notification-error',
+                        title: 'Error during creation.',
+                        msg: 'The logbook type could not be created because of an error in the database.',
+                        icon: Ext.MessageBox.ERROR,
+                        buttons: Ext.MessageBox.CANCEL
+                    });
                 }
             },
             callback: function () {
@@ -214,11 +143,8 @@ Ext.define('Mdc.controller.setup.LogForm', {
 
     editRequest: function(formPanel, form, formErrorsPanel, preloader) {
         var self = this,
-            header = {
-                style: 'msgHeaderStyle'
-            },
-            msges = [],
             jsonValues = Ext.JSON.encode(form.getValues());
+
         Ext.Ajax.request({
             url: '/api/mds/logbooktypes/' + self.logId,
             method: 'PUT',
@@ -226,26 +152,30 @@ Ext.define('Mdc.controller.setup.LogForm', {
             waitMsg: 'Loading...',
             success: function () {
                 window.location.href = '#/administration/logbooktypes';
-                header.text = 'Successfully edited';
-                self.getApplication().fireEvent('isushowmsg', {
-                    type: 'notify',
-                    msgBody: [header],
-                    y: 10,
-                    showTime: 5000
-                });
+
+                Ext.create('widget.uxNotification', {
+                    html: 'Successfully edited',
+                    ui: 'notification-success'
+                }).show();
             },
             failure: function (response) {
-                header.text = 'Error during edit';
-                msges.push(header);
                 var result = Ext.decode(response.responseText, true);
                 if (result !== null) {
-                    self.showNameNotUniqueError(result, msges, formErrorsPanel);
+                    Ext.widget('messagebox').show({
+                        ui: 'notification-error',
+                        title: result.error,
+                        msg: result.message,
+                        icon: Ext.MessageBox.ERROR,
+                        buttons: Ext.MessageBox.CANCEL
+                    });
                 } else {
-                    var bodyItem = {};
-                    bodyItem.style = 'msgItemStyle';
-                    bodyItem.text = 'The logbook type could not be edited because of an error in the database.';
-                    msges.push(bodyItem);
-                    self.showDatabaseError(msges);
+                    Ext.widget('messagebox').show({
+                        ui: 'notification-error',
+                        title: 'Error during edit.',
+                        msg: 'The logbook type could not be created because of an error in the database.',
+                        icon: Ext.MessageBox.ERROR,
+                        buttons: Ext.MessageBox.CANCEL
+                    });
                 }
             },
             callback: function () {

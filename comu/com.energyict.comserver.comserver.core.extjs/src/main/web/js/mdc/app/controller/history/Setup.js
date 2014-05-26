@@ -38,6 +38,43 @@ Ext.define('Mdc.controller.history.Setup', {
         crossroads.addRoute('/administration/devicetypes/{id}/logbooktypes/add', function (id) {
             me.getApplication().getController('Mdc.controller.setup.DeviceTypes').showAddLogbookTypesView(id);
         });
+        crossroads.addRoute('/administration/devicetypes/{id}/loadprofiles', function (id) {
+            me.getApplication().getController('Mdc.controller.setup.LoadProfileTypesOnDeviceType').showDeviceTypeLoadProfileTypesView(id);
+        });
+        crossroads.addRoute('/administration/devicetypes/{id}/loadprofiles/add', function (id) {
+            me.getApplication().getController('Mdc.controller.setup.LoadProfileTypesOnDeviceType').showDeviceTypeLoadProfileTypesAddView(id);
+        });
+
+        //Load profile types routes
+        crossroads.addRoute('/administration/loadprofiletypes', function () {
+            me.getApplication().getController('Mdc.controller.setup.LoadProfileTypes').showLoadProfileTypes();
+        });
+        crossroads.addRoute('/administration/loadprofiletypes/create', function () {
+            me.getApplication().getController('Mdc.controller.setup.LoadProfileTypes').showLoadProfileTypesCreateView();
+        });
+        crossroads.addRoute('/administration/loadprofiletypes/create/addmeasurementtypes', function () {
+            me.getApplication().getController('Mdc.controller.setup.LoadProfileTypes').showMeasurementTypesAddView();
+        });
+        crossroads.addRoute('/administration/loadprofiletypes/{id}/edit/addmeasurementtypes', function () {
+            me.getApplication().getController('Mdc.controller.setup.LoadProfileTypes').showMeasurementTypesAddView();
+        });
+        crossroads.addRoute('/administration/loadprofiletypes/{id}/edit', function (id) {
+            me.getApplication().getController('Mdc.controller.setup.LoadProfileTypes').showLoadProfileTypesEditView(id);
+        });
+
+        //Load profile configurations routes
+        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/loadprofiles', function (deviceTypeId, deviceConfigurationId) {
+            me.getApplication().getController('Mdc.controller.setup.LoadProfileConfigurations').showDeviceConfigurationLoadProfilesView(deviceTypeId, deviceConfigurationId);
+        });
+        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/loadprofiles/add', function (deviceTypeId, deviceConfigurationId) {
+            me.getApplication().getController('Mdc.controller.setup.LoadProfileConfigurations').showDeviceConfigurationLoadProfilesAddView(deviceTypeId, deviceConfigurationId);
+        });
+        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/loadprofiles/{loadProfileConfigurationId}', function (deviceTypeId, deviceConfigurationId, loadProfileConfigurationId) {
+            me.getApplication().getController('Mdc.controller.setup.LoadProfileConfigurationDetails').showDeviceConfigurationLoadProfilesConfigurationDetailsView(deviceTypeId, deviceConfigurationId, loadProfileConfigurationId);
+        });
+        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/loadprofiles/{loadProfileConfigurationId}/addChannel', function (deviceTypeId, deviceConfigurationId, loadProfileConfigurationId) {
+            me.getApplication().getController('Mdc.controller.setup.LoadProfileConfigurationDetails').showDeviceConfigurationLoadProfilesConfigurationChannelsAddView(deviceTypeId, deviceConfigurationId, loadProfileConfigurationId);
+        });
 
         //Device configuration routes
         crossroads.addRoute('/administration/devicetypes/{id}/deviceconfigurations', function (id) {

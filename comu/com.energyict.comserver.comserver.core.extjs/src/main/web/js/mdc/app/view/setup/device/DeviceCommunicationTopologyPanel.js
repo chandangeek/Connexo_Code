@@ -20,6 +20,7 @@ Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
             },
             items: [
                 {
+                    labelAlign: 'right',
                     xtype: 'fieldcontainer',
                     fieldLabel: Uni.I18n.translate('deviceCommunicationTopology.master', 'MDC', 'Master'),
                     layout: {
@@ -40,6 +41,7 @@ Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
                     ]
                 },
                 {
+                    labelAlign: 'right',
                     xtype: 'fieldcontainer',
                     fieldLabel: Uni.I18n.translate('deviceCommunicationTopology.slave', 'MDC', 'Slave(s)'),
                     layout: {

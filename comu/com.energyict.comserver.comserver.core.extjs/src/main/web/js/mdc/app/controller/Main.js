@@ -23,9 +23,14 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.AddLogbookConfigurations',
         'Mdc.controller.setup.EditLogbookConfiguration',
         'Mdc.controller.setup.LogbookTypesOverview',
+        'Mdc.controller.setup.SearchItems',
         'Mdc.controller.setup.SecuritySettings',
-        'Mdc.controller.setup.CommunicationTasks',
-        'Mdc.controller.setup.LogForm'
+        'Mdc.controller.setup.LogForm',
+        'Mdc.controller.setup.LoadProfileTypes',
+        'Mdc.controller.setup.LoadProfileTypesOnDeviceType',
+        'Mdc.controller.setup.LoadProfileConfigurations',
+        'Mdc.controller.setup.LoadProfileConfigurationDetails',
+        'Mdc.controller.setup.CommunicationTasks'
     ],
 
     controllers: [
@@ -49,8 +54,13 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.EditLogbookConfiguration',
         'Mdc.controller.setup.LogbookTypesOverview',
         'Mdc.controller.setup.SecuritySettings',
-        'Mdc.controller.setup.CommunicationTasks',
-        'Mdc.controller.setup.LogForm'
+        'Mdc.controller.setup.LogForm',
+        'Mdc.controller.setup.SearchItems',
+        'Mdc.controller.setup.LoadProfileTypes',
+        'Mdc.controller.setup.LoadProfileTypesOnDeviceType',
+        'Mdc.controller.setup.LoadProfileConfigurations',
+        'Mdc.controller.setup.LoadProfileConfigurationDetails',
+        'Mdc.controller.setup.CommunicationTasks'
     ],
 
     config: {
@@ -108,6 +118,11 @@ Ext.define('Mdc.controller.Main', {
                     text: Uni.I18n.translate('general.logbookTypes', 'MDC', 'Logbook types'),
                     href: '#/administration/logbooktypes',
                     route: 'logbooktypes'
+                },
+                {
+                    text: Uni.I18n.translate('general.loadProfileTypes', 'MDC', 'Load profile types'),
+                    href: '#/administration/loadprofiletypes',
+                    route: 'loadprofiletypes'
                 }
             ]
         });

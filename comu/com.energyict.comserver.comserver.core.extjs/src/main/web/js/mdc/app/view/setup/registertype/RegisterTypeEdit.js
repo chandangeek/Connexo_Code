@@ -48,7 +48,6 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                     {
                         xtype: 'component',
                         html: '',
-                        margins: '10 10 10 10',
                         itemId: 'registerTypeEditCreateInformation'
                     },
                     {
@@ -59,7 +58,6 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                 xtype: 'form',
                                 border: false,
                                 itemId: 'registerTypeEditForm',
-                                padding: '10 10 0 10',
                                 layout: {
                                     type: 'vbox'
                                 },
@@ -163,7 +161,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                     },
                                     {
                                         xtype: 'fieldcontainer',
-                                        fieldLabel: '&nbsp',
+                                        fieldLabel: '&nbsp;',
 
                                         layout: {
                                             type: 'hbox',
@@ -177,17 +175,16 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                             }
                                         ]
                                     },
-
                                     {
                                         xtype: 'fieldcontainer',
-                                        fieldLabel: '&nbsp',
+                                        fieldLabel: '&nbsp;',
                                         layout: {
                                             type: 'hbox',
                                             align: 'stretch'
                                         },
                                         items: [
                                             {
-                                                text: Uni.I18n.translate('general.create', 'MDC', 'Create'),
+                                                text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
                                                 xtype: 'button',
                                                 ui: 'action',
                                                 action: 'createAction',
@@ -217,7 +214,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
             this.down('#createEditButton').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
             this.down('#createEditButton').action = 'editRegisterType';
         } else {
-            this.down('#createEditButton').setText(Uni.I18n.translate('general.create', 'MDC', 'Create'));
+            this.down('#createEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
             this.down('#createEditButton').action = 'createRegisterType';
         }
     }

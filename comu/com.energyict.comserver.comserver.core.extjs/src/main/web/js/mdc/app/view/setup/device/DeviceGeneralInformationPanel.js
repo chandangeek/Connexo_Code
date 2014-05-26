@@ -28,6 +28,7 @@ Ext.define('Mdc.view.setup.device.DeviceGeneralInformationPanel', {
                     fieldLabel: Uni.I18n.translate('deviceGeneralInformation.serialNumber', 'MDC', 'Serial number')
                 },
                 {
+                    labelAlign: 'right',
                     xtype: 'fieldcontainer',
                     fieldLabel: Uni.I18n.translate('deviceGeneralInformation.deviceType', 'MDC', 'Device type'),
                     layout: {
@@ -48,6 +49,7 @@ Ext.define('Mdc.view.setup.device.DeviceGeneralInformationPanel', {
                     ]
                 },
                 {
+                    labelAlign: 'right',
                     xtype: 'fieldcontainer',
                     fieldLabel: Uni.I18n.translate('deviceGeneralInformation.deviceConfiguration', 'MDC', 'Device configuration'),
                     layout: {

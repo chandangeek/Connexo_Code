@@ -15,7 +15,7 @@ Ext.define('Mdc.view.setup.logbooktype.EmptyListMessage', {
         {
             itemId: 'createlogbook',
             xtype: 'button',
-            text: 'Create logbook type',
+            text: 'Add logbook type',
             action: 'createlogbookaction',
             hrefTarget: '',
             href: '#/administration/logbooktypes/create'

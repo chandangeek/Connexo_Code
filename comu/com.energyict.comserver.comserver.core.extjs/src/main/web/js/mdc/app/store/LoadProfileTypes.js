@@ -5,13 +5,13 @@ Ext.define('Mdc.store.LoadProfileTypes', {
     ],
     model: 'Mdc.model.LoadProfileType',
     storeId: 'LoadProfileTypes',
-    autoLoad: true,
+    autoLoad: false,
     proxy: {
         type: 'rest',
-        url: '../../api/plr/loadprofiletypes',
+        url: '/api/mds/loadprofiles',
         reader: {
             type: 'json',
-            root: 'LoadProfileType'
+            root: 'data'
         }
     }
 });
