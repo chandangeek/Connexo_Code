@@ -3,11 +3,13 @@ Ext.define('Cfg.controller.history.EventType', {
 
     rootToken: 'eventtypes',
 
-    doConversion: function (tokens) {
-        this.showOverview();
-    },
+    init: function () {
+        var me = this;
 
-    showOverview: function () {
-        this.getApplication().getEventTypeController().showOverview();
+        crossroads.addRoute('eventtypes/', function () {
+            me.getApplication().getEventTypeController().showOverview();
+        });
+
+        this.callParent(arguments);
     }
 });
