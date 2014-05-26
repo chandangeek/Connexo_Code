@@ -15,7 +15,6 @@ import com.energyict.mdc.engine.model.InboundCapableComServer;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.ComChannel;
 
 import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.energyict.protocols.mdc.channels.VoidComChannel;
@@ -288,7 +287,7 @@ public class MultiThreadedComPortListenerTest {
         InboundComPortExecutorFactory inboundComPortExecutorFactory = mock(InboundComPortExecutorFactory.class);
         InboundComPortExecutor inboundComPortExecutor1 = new LatchDrivenInboundComPortExecutor(startLatch, stopLatch);
         InboundComPortExecutor inboundComPortExecutor2 = mock(InboundComPortExecutor.class);
-        doThrow(new RuntimeException("Just for testing purposes")).when(inboundComPortExecutor2).execute(any(ComChannel.class));
+        doThrow(new RuntimeException("Just for testing purposes")).when(inboundComPortExecutor2).execute(any(ComPortRelatedComChannel.class));
         InboundComPortExecutor inboundComPortExecutor3 = new LatchDrivenInboundComPortExecutor(startLatch, stopLatch);
         when(inboundComPortExecutorFactory.
                 create(
@@ -387,7 +386,7 @@ public class MultiThreadedComPortListenerTest {
         }
 
         @Override
-        public void execute(ComChannel comChannel) {
+        public void execute(ComPortRelatedComChannel comChannel) {
             this.startLatch.countDown();
             try {
                 this.startLatch.await();

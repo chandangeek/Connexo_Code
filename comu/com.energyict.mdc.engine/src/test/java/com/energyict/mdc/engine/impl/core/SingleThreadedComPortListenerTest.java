@@ -14,7 +14,6 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundCapableComServer;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.ComChannel;
 
 import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.energyict.protocols.mdc.channels.VoidComChannel;
@@ -172,7 +171,7 @@ public class SingleThreadedComPortListenerTest {
 
         //Asserts
         verify(connector, atLeast(1)).accept(); // accept should have been called twice (one time it should have returned a VoidComChannel
-        verify(singleThreadedComPortListener, never()).handleInboundDeviceProtocol(any(ComChannel.class));
+        verify(singleThreadedComPortListener, never()).handleInboundDeviceProtocol(any(ComPortRelatedComChannel.class));
     }
 
     @Test(timeout = 5000)
@@ -290,7 +289,7 @@ public class SingleThreadedComPortListenerTest {
         }
 
         @Override
-        protected void handleInboundDeviceProtocol(ComChannel comChannel) {
+        protected void handleInboundDeviceProtocol(ComPortRelatedComChannel comChannel) {
             this.counter.countDown(); // don't do any handover to actual protocol :o) (otherwise you need to much mocking)
         }
     }

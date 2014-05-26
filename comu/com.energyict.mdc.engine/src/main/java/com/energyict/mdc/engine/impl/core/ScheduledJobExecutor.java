@@ -27,12 +27,12 @@ public abstract class ScheduledJobExecutor {
     // The minimum log level that needs to be set before the stacktrace of a error is logged to System.err
     private static final ComServer.LogLevel REQUIRED_DEBUG_LEVEL = ComServer.LogLevel.DEBUG;
 
-    private TransactionService transactionExecutor;
-    private ComServer.LogLevel logLevel;
-    private DeviceCommandExecutor deviceCommandExecutor;
+    private final TransactionService transactionService;
+    private final ComServer.LogLevel logLevel;
+    private final DeviceCommandExecutor deviceCommandExecutor;
 
-    public ScheduledJobExecutor(TransactionService transactionExecutor, ComServer.LogLevel logLevel, DeviceCommandExecutor deviceCommandExecutor) {
-        this.transactionExecutor = transactionExecutor;
+    public ScheduledJobExecutor(TransactionService transactionService, ComServer.LogLevel logLevel, DeviceCommandExecutor deviceCommandExecutor) {
+        this.transactionService = transactionService;
         this.logLevel = logLevel;
         this.deviceCommandExecutor = deviceCommandExecutor;
     }
@@ -80,7 +80,7 @@ public abstract class ScheduledJobExecutor {
          *    until the lock is released, i.e. until the job's execution completed.
          *    Slow connections such as mod-bus with lots of slave can take up to 20mins to complete. */
         ValidationTransaction validationTransaction = new ValidationTransaction(job);
-        switch (this.transactionExecutor.execute(validationTransaction)) {
+        switch (this.transactionService.execute(validationTransaction)) {
             case ATTEMPT_LOCK_SUCCESS: {
                 try {
                     job.execute();
@@ -92,7 +92,7 @@ public abstract class ScheduledJobExecutor {
                     logIfDebuggingIsEnabled(t);
                     job.reschedule(t, RescheduleBehavior.RescheduleReason.CONNECTION_BROKEN);
                 } finally {
-                    transactionExecutor.execute(new VoidTransaction() {
+                    transactionService.execute(new VoidTransaction() {
                         @Override
                         public void doPerform() {
                             job.unlock();

@@ -29,7 +29,7 @@ public abstract class ComChannelBasedComPortListenerImpl extends ComPortListener
         return this.inboundComPortConnector;
     }
 
-    protected ComChannel listen() {
+    protected ComPortRelatedComChannel listen() {
         ComPortRelatedComChannel comChannel = getInboundComPortConnector().accept();
         comChannel.setComPort(this.getComPort());
         return comChannel;

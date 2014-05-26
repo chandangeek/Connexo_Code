@@ -1,9 +1,9 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.protocol.api.ComChannel;
+import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannel;
 
 /**
- * Performs the execution of an inbound call
+ * Performs the execution of an inbound call.
  * <p/>
  * Copyrights EnergyICT
  * Date: 22/10/12
@@ -12,10 +12,10 @@ import com.energyict.mdc.protocol.api.ComChannel;
 public interface InboundComPortExecutor {
 
     /**
-     * Handles the inbound call
+     * Handles the inbound call.
      *
      * @param comChannel the ComChannel the inbound call has set up
      */
-    public void execute(ComChannel comChannel);
+    public void execute(ComPortRelatedComChannel comChannel);
 
 }

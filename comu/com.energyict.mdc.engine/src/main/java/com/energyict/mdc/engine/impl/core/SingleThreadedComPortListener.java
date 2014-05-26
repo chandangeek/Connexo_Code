@@ -3,8 +3,9 @@ package com.energyict.mdc.engine.impl.core;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactory;
 import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactoryImpl;
+import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.model.InboundComPort;
-import com.energyict.mdc.protocol.api.ComChannel;
+
 import com.energyict.protocols.mdc.channels.VoidComChannel;
 
 import java.util.concurrent.ThreadFactory;
@@ -62,7 +63,7 @@ public class SingleThreadedComPortListener extends ComChannelBasedComPortListene
 
     @Override
     protected void doRun() {
-        ComChannel comChannel = listen();
+        ComPortRelatedComChannel comChannel = listen();
         if (!(comChannel instanceof VoidComChannel)) {
             handleInboundDeviceProtocol(comChannel);
         }
@@ -82,7 +83,7 @@ public class SingleThreadedComPortListener extends ComChannelBasedComPortListene
      *
      * @param comChannel the CommunicationChannel which can be used to transfer bits and bytes over to the Device
      */
-    protected void handleInboundDeviceProtocol(ComChannel comChannel) {
+    protected void handleInboundDeviceProtocol(ComPortRelatedComChannel comChannel) {
         this.inboundComPortExecutorFactory.create(getServerInboundComPort(), getComServerDAO(), getDeviceCommandExecutor(), serviceProvider).execute(comChannel);
     }
 }
