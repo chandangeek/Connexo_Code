@@ -60,16 +60,12 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
             store: {
                 '#LoadProfileTypesOnDeviceType': {
                     load: this.checkLoadProfileTypesOnDeviceTypesCount
-                },
-                '#LoadProfileTypes': {
-                    load: this.checkAndMarkLoadProfileTypes
                 }
             }
         });
 
         this.intervalStore = this.getStore('Intervals');
         this.store = this.getStore('LoadProfileTypesOnDeviceType');
-        this.loadProfilesStore = this.getStore('LoadProfileTypes');
     },
 
     unCheckAllLoadProfileTypes: function () {
@@ -96,14 +92,13 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
         Ext.each(selectedArray, function (loadprofileType) {
             idsArray.push(loadprofileType.getData().id);
         });
-        jsonData = Ext.JSON.encode({content: idsArray});
+        jsonData = Ext.JSON.encode(idsArray);
         Ext.Ajax.request({
             url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/loadprofiletypes',
             method: 'POST',
             jsonData: jsonData,
             success: function () {
                 me.handleSuccessRequest('Load profile types were successfully added to device type');
-                Ext.History.back();
             },
             failure: function (response) {
                 me.handleFailureRequest(response, 'Error during adding load profile types to device type');
@@ -117,7 +112,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
 
 
     handleSuccessRequest: function (headerText) {
-        window.location.href = '#/administration/loadprofiletypes';
+        window.location.href = '#/administration/devicetypes/' +  this.deviceTypeId + '/loadprofiles';
         Ext.create('widget.uxNotification', {
             html: headerText,
             ui: 'notification-success'
@@ -130,6 +125,9 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
         Ext.each(result.errors, function(error) {
             errormsgs += error.msg + '<br>'
         });
+        if (errormsgs == '') {
+            errormsgs = result.message;
+        }
         Ext.widget('messagebox', {
             buttons: [
                 {
@@ -271,6 +269,15 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
                 grid.fireEvent('itemclick', gridView, selectionModel.getLastSelected());
             }
         }
+        var grid = this.getAddLoadProfileTypesGrid(),
+            view = this.getAddLoadProfileTypesSetup(),
+            uncheckMeasurement = this.getUncheckLoadProfileButton();
+        if (!Ext.isEmpty(grid) && !Ext.isEmpty(view)) {
+            var selectionModel = grid.getView().getSelectionModel();
+            selectionModel.selectAll();
+            grid.disable();
+            uncheckMeasurement.disable();
+        }
     },
 
 
@@ -300,12 +307,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
             success: function (deviceType) {
                 me.deviceTypeName = deviceType.get('name');
                 me.getApplication().getController('Mdc.controller.Main').showContent(widget);
-//                me.store.load({ params: {sort: 'name' }});
-//                me.store.each(function (value) {
-//                    loadProfileTypesAlreadyAdded.push(value);
-//                });
-                me.loadProfilesStore.load({ params: {sort: 'name' }});
-//                me.loadProfilesStore.remove(loadProfileTypesAlreadyAdded);
+                me.store.load({ params: { available: true }});
                 me.overviewBreadCrumbs(deviceTypeId, me.deviceTypeName, 'Add load profile types');
             }
         });
