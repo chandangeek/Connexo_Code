@@ -8,20 +8,30 @@ Ext.define('Uni.controller.history.Converter', {
         'Uni.controller.history.EventBus'
     ],
 
-    rootToken: null, // Implemented by extending classes.
+//    rootToken: null, // Implemented by extending classes.
+//
+//    init: function () {
+//        var me = this,
+//            eventBus = me.getController('Uni.controller.history.EventBus');
+//
+////        eventBus.addTokenObserver(function (tokens,token) {
+////            me.doConversion(tokens,token);
+////        }, me.rootToken);
+//    },
 
-    init: function () {
-        var me = this,
-            eventBus = me.getController('Uni.controller.history.EventBus');
-
-        eventBus.addTokenObserver(function (tokens,token) {
-            me.doConversion(tokens,token);
-        }, me.rootToken);
-    },
-
-    doConversion: function (tokens,token) {
-        // Implemented by extending classes.
-    },
+//    doConversion: function (tokens, token) {
+//        //now has tokens and token (which is you complete path)
+//
+//        var queryStringIndex = token.indexOf('?');
+//        if (queryStringIndex > 0) {
+//            token = token.substring(0, queryStringIndex);
+//        }
+//        if (this.currentPath !== null) {
+//            this.previousPath = this.currentPath;
+//        }
+//        this.currentPath = token;
+//        crossroads.parse(token);
+//    },
 
     tokenize: function (tokens, includeHash) {
         includeHash = includeHash !== undefined ? includeHash : true;

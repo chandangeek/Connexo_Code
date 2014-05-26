@@ -29,9 +29,9 @@ Ext.define('Uni.controller.Navigation', {
         var me = this,
             eventBus = this.getController('Uni.controller.history.EventBus');
 
-        eventBus.addTokenObserver(function (tokens, delimiter) {
-            me.selectMenuItemByTokens(tokens, delimiter);
-        }, undefined);
+//        eventBus.addTokenObserver(function (tokens, delimiter) {
+//            me.selectMenuItemByTokens(tokens, delimiter);
+//        }, undefined);
 
         this.initMenuItems();
 //        this.initAppItems();

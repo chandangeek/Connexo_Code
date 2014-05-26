@@ -45,27 +45,27 @@ Ext.define('Uni.controller.history.EventBus', {
         if (tokens.length === 0) {
             tokens = this.tokenize(this.getDefaultToken());
         }
-
-        this.notifyRootObservers(tokens);
-        this.notifyObserversIfNecessary(tokens, token);
+        crossroads.parse(token);
+//        this.notifyRootObservers(tokens);
+//        this.notifyObserversIfNecessary(tokens, token);
     },
-
-    /**
-     * Adds an observer for a specific token change.
-     * @param callback  Function to call when the token changed.
-     * @param token     What token to be active for, if no token is given the callback is called
-     *                  for every history change.
-     */
-    addTokenObserver: function (callback, token) {
-        if (typeof token === 'undefined') {
-            this.getRootObservers().push(callback);
-        } else {
-            if (!Ext.isDefined(this.getObservers()[token])) {
-                this.getObservers()[token] = [];
-            }
-            this.getObservers()[token].push(callback);
-        }
-    },
+//
+//    /**
+//     * Adds an observer for a specific token change.
+//     * @param callback  Function to call when the token changed.
+//     * @param token     What token to be active for, if no token is given the callback is called
+//     *                  for every history change.
+//     */
+//    addTokenObserver: function (callback, token) {
+//        if (typeof token === 'undefined') {
+//            this.getRootObservers().push(callback);
+//        } else {
+//            if (!Ext.isDefined(this.getObservers()[token])) {
+//                this.getObservers()[token] = [];
+//            }
+//            this.getObservers()[token].push(callback);
+//        }
+//    },
 
     tokenize: function (token) {
         var tokens = [];
@@ -86,26 +86,26 @@ Ext.define('Uni.controller.history.EventBus', {
         }
 
         return tokens;
-    },
-
-    notifyRootObservers: function (tokens) {
-        for (var i = 0; i < this.getRootObservers().length; i++) {
-            var callback = this.getRootObservers()[i];
-            callback(tokens, Uni.controller.history.Settings.tokenDelimiter);
-        }
-    },
-
-    notifyObserversIfNecessary: function (tokens, token) {
-        var errorController = this.getController('Uni.controller.Error'),
-            callbacks = this.getObservers()[tokens[0]];
-
-        Ext.each(callbacks, function (callback) {
-            if (typeof callback !== 'undefined' && callback != null) {
-                callback(tokens, token, Uni.controller.history.Settings.tokenDelimiter);
-            } else {
-                // TODO Design the basic error controller.
-//            errorController.showHttp404();
-            }
-        });
     }
+
+//    notifyRootObservers: function (tokens) {
+//        for (var i = 0; i < this.getRootObservers().length; i++) {
+//            var callback = this.getRootObservers()[i];
+//            callback(tokens, Uni.controller.history.Settings.tokenDelimiter);
+//        }
+//    },
+//
+//    notifyObserversIfNecessary: function (tokens, token) {
+//        var errorController = this.getController('Uni.controller.Error'),
+//            callbacks = this.getObservers()[tokens[0]];
+//
+//        Ext.each(callbacks, function (callback) {
+//            if (typeof callback !== 'undefined' && callback != null) {
+//                callback(tokens, token, Uni.controller.history.Settings.tokenDelimiter);
+//            } else {
+//                // TODO Design the basic error controller.
+////            errorController.showHttp404();
+//            }
+//        });
+//    }
 });

@@ -91,20 +91,16 @@ Ext.define('Uni.controller.Portal', {
 
     refreshPortals: function () {
         var me = this,
-            store = Uni.store.MenuItems,
-            eventBus = me.getController('Uni.controller.history.EventBus');
+            store = Uni.store.MenuItems;
 
         store.each(function (item) {
-            var href = item.get('href'),
-                portal = item.get('portal'),
-                title = item.get('text');
+                var portal = item.get('portal'),
+                    title = item.get('text');
 
             if (!Ext.isEmpty(portal)) {
-                eventBus.addTokenObserver(function (tokens, token) {
-                    if (tokens.length === 1) {
-                        me.showPortalOverview(portal, title);
-                    }
-                }, portal);
+                crossroads.addRoute('/'+ portal, function () {
+                    me.showPortalOverview(portal, title);
+                });
             }
         });
     },
