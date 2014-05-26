@@ -259,11 +259,16 @@ Ext.define('Mdc.controller.setup.SearchItems', {
                 break;
             case 'typeBtn':
                 searchItems.down('#type').setValue(null);
+                searchItems.down('#configuration').setValue(null);
+                if (searchItems.down('button[name=configurationBtn]') != null) {
+                    searchItems.down('button[name=configurationBtn]').destroy();
+                }
                 break;
             case 'configurationBtn':
                 searchItems.down('#configuration').setValue(null);
                 break;
         }
+        btn.destroy();
         this.searchAllItems();
     },
 
