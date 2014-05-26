@@ -13,6 +13,8 @@ Ext.define('Isu.controller.Main', {
 
     controllers: [
         'Isu.controller.history.Workspace',
+        'Isu.controller.Workspace',
+        'Isu.controller.DataCollection',
         'Isu.controller.Issues',
         'Isu.controller.AssignIssues',
         'Isu.controller.CloseIssues',
@@ -23,7 +25,9 @@ Ext.define('Isu.controller.Main', {
         'Isu.controller.history.Workspace',
         'Isu.controller.IssueDetail',
         'Isu.controller.history.Administration',
-        'Isu.controller.AdministrationDataCollection'
+        'Isu.controller.Administration',
+        'Isu.controller.AdministrationDataCollection',
+        'Isu.controller.CommunicationTasksView'
     ],
 
     stores: [
@@ -165,6 +169,14 @@ Ext.define('Isu.controller.Main', {
 
         this.setNavigationController(navigationController);
         this.setConfigurationController(configurationController);
+    },
+
+    initDefaultHistoryToken: function () {
+        var workspaceController = this.getController('Isu.controller.history.Workspace'),
+            eventBus = this.getController('Uni.controller.history.EventBus'),
+            defaultToken = workspaceController.tokenizeShowOverview();
+
+        eventBus.setDefaultToken(defaultToken);
     },
 
     showContent: function (widget) {
