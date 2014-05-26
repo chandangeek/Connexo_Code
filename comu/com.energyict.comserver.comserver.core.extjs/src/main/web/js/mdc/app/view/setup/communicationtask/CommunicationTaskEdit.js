@@ -50,6 +50,7 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskEdit', {
             me.down('#partialConnectionTaskComboBox').setValue(record.get('partialConnectionTask').id);
         }
         if(!Ext.isEmpty(record.get('protocolDialectConfigurationProperties'))) {
+            me.down('#protocolDialectConfigurationPropertiesComboBox').setValue(record.get('protocolDialectConfigurationProperties').id);
             me.down('#protocolDialectConfigurationPropertiesDisplayField').setValue(record.get('protocolDialectConfigurationProperties').name);
         }
         if(!Ext.isEmpty(record.get('priority'))) {

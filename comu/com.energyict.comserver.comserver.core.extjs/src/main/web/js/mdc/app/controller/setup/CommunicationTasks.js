@@ -4,7 +4,8 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
     deviceConfigurationId: null,
 
     requires: [
-        'Uni.model.BreadcrumbItem'
+        'Uni.model.BreadcrumbItem',
+        'Ext.ux.window.Notification'
     ],
 
     views: [
@@ -64,6 +65,17 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                 }
             }
         });
+
+        me.addEvents('shownotification');
+
+        me.on('shownotification', me.showNotification);
+    },
+
+    showNotification: function(text, notificationType) {
+        Ext.create('uxNotification', {
+            html: text,
+            ui: notificationType
+        }).show();
     },
 
     loadCommunicationTasksStore: function() {
@@ -105,6 +117,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
 
             if (communicationTasksCount < 1) {
                 grid.hide();
+                emptyMessage.removeAll(true);
                 emptyMessage.add(
                     {
                         xtype: 'communicationTaskEmptyList',
@@ -174,14 +187,39 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                                 securityPropertySetsStore.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigurationId});
                                 securityPropertySetsStore.load({
                                     callback: function(){
-                                        var deviceTypeName = deviceType.get('name');
-                                        var deviceConfigName = deviceConfig.get('name');
-                                        var title = Uni.I18n.translate('communicationtasks.add', 'MDC', 'Add communication task');
-                                        widget.down('#communicationTaskEditAddTitle').update('<h1>' + title  + '</h1>');
-                                        me.loadConnectionMethodsStore(deviceTypeId, deviceConfigurationId);
-                                        me.loadProtocolDialectsStore(deviceTypeId, deviceConfigurationId);
-                                        me.overviewBreadCrumbs(deviceTypeId, deviceConfigurationId, deviceTypeName, deviceConfigName, Uni.I18n.translate('communicationtasks.add', 'MDC', 'Add communication task'));
-                                        widget.setLoading(false);
+                                        connectionMethodsStore.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigurationId});
+                                        connectionMethodsStore.load({
+                                            callback: function() {
+                                                connectionMethodsStore.add(Ext.create('Mdc.model.ConnectionMethod', {
+                                                    id: -1,
+                                                    name: Uni.I18n.translate('communicationtasks.form.selectPartialConnectionTask', 'MDC', 'Use the default connection method')
+                                                }));
+                                                protocolDialectsStore.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigurationId});
+                                                protocolDialectsStore.load({
+                                                    callback: function() {
+                                                        protocolDialectsStore.add(Ext.create('Mdc.model.ProtocolDialect', {
+                                                            id: -1,
+                                                            name: Uni.I18n.translate('communicationtasks.form.selectProtocolDialectConfigurationProperties', 'MDC', 'Use the default protocol dialect')
+                                                        }));
+                                                        var communicationTask = Ext.create('Mdc.model.CommunicationTaskConfig', {
+                                                            partialConnectionTask: {
+                                                                id: -1
+                                                            },
+                                                            protocolDialectConfigurationProperties: {
+                                                                id: -1
+                                                            }
+                                                        })
+                                                        var deviceTypeName = deviceType.get('name');
+                                                        var deviceConfigName = deviceConfig.get('name');
+                                                        var title = Uni.I18n.translate('communicationtasks.add', 'MDC', 'Add communication task');
+                                                        widget.down('#communicationTaskEditAddTitle').update('<h1>' + title  + '</h1>');
+                                                        widget.setValues(communicationTask);
+                                                        me.overviewBreadCrumbs(deviceTypeId, deviceConfigurationId, deviceTypeName, deviceConfigName, Uni.I18n.translate('communicationtasks.add', 'MDC', 'Add communication task'));
+                                                        widget.setLoading(false);
+                                                    }
+                                                });
+                                            }
+                                        });
                                     }
                                 });
                             }
@@ -231,15 +269,23 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                                 securityPropertySetsStore.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigurationId});
                                 securityPropertySetsStore.load({
                                     callback: function(){
-                                        me.loadConnectionMethodsStore(deviceTypeId, deviceConfigurationId);
-                                        var deviceTypeName = deviceType.get('name');
-                                        var deviceConfigName = deviceConfig.get('name');
-                                        widget.down('form').loadRecord(communicationTask);
-                                        var title = Uni.I18n.translate('communicationtasks.edit', 'MDC', 'Edit communication task');
-                                        widget.down('#communicationTaskEditAddTitle').update('<h1>' + title  + '</h1>');
-                                        widget.setValues(communicationTask);
-                                        me.overviewBreadCrumbs(deviceTypeId, deviceConfigurationId, deviceTypeName, deviceConfigName, Uni.I18n.translate('communicationtasks.edit', 'MDC', 'Edit communication task'));
-                                        widget.setLoading(false);
+                                        connectionMethodsStore.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigurationId});
+                                        connectionMethodsStore.load({
+                                            callback: function() {
+                                                connectionMethodsStore.add(Ext.create('Mdc.model.ConnectionMethod', {
+                                                    id: -1,
+                                                    name: Uni.I18n.translate('communicationtasks.form.selectPartialConnectionTask', 'MDC', 'Use the default connection method')
+                                                }));
+                                                var deviceTypeName = deviceType.get('name');
+                                                var deviceConfigName = deviceConfig.get('name');
+                                                widget.down('form').loadRecord(communicationTask);
+                                                var title = Uni.I18n.translate('communicationtasks.edit', 'MDC', 'Edit communication task');
+                                                widget.down('#communicationTaskEditAddTitle').update('<h1>' + title  + '</h1>');
+                                                widget.setValues(communicationTask);
+                                                me.overviewBreadCrumbs(deviceTypeId, deviceConfigurationId, deviceTypeName, deviceConfigName, Uni.I18n.translate('communicationtasks.edit', 'MDC', 'Edit communication task'));
+                                                widget.setLoading(false);
+                                            }
+                                        });
                                     }
                                 });
                             }
@@ -347,6 +393,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                 },
                 callback: function() {
                     me.clearPreLoader();
+                    me.fireEvent('shownotification', 'HOHO', 'notification-success');
                 }
             });
         }
@@ -366,22 +413,6 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
             record.set("nextExecutionSpecs", values.nextExecutionSpecs);
         }
         record.set("ignoreNextExecutionSpecsForInbound", values.ignoreNextExecutionSpecsForInbound);
-    },
-
-    loadConnectionMethodsStore: function(deviceTypeId, deviceConfigurationId) {
-        var me = this,
-            connectionMethodsStore = me.getConnectionMethodsOfDeviceConfigurationStore();
-
-        connectionMethodsStore.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigurationId});
-        connectionMethodsStore.load();
-    },
-
-    loadProtocolDialectsStore: function(deviceTypeId, deviceConfigurationId) {
-        var me = this,
-            protocolDialectsStore = me.getProtocolDialectsOfDeviceConfigurationStore();
-
-        protocolDialectsStore.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigurationId});
-        protocolDialectsStore.load();
     },
 
     overviewBreadCrumbs: function (deviceTypeId, deviceConfigId, deviceTypeName, deviceConfigName, action) {
