@@ -80,7 +80,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         var formPanel = this.getChannelForm();
         btn.up('messagebox').hide();
         if (!Ext.isEmpty(formPanel)) {
-            var submitBtn = formPanel.down('button[name=loadprofileconfigurationaction]');
+            var submitBtn = formPanel.down('button[name=loadprofilechannelaction]');
             if (!Ext.isEmpty(submitBtn)) {
                 this.onSubmit(submitBtn);
             }
@@ -153,7 +153,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             errormsgs += error.msg + '<br>'
         });
         if (errormsgs == '') {
-            errormsgs = result.error;
+            errormsgs = result.message;
         }
         Ext.widget('messagebox', {
             buttons: [

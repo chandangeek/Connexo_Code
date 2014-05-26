@@ -141,7 +141,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
     },
 
     handleSuccessRequest: function (headerText) {
-        window.location.href = '#/administration/loadprofiletypes';
+        window.location.href = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/loadprofiles';
         Ext.create('widget.uxNotification', {
             html: headerText,
             ui: 'notification-success'
@@ -155,7 +155,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
             errormsgs += error.msg + '<br>'
         });
         if (errormsgs == '') {
-            errormsgs = result.error;
+            errormsgs = result.message;
         }
         Ext.widget('messagebox', {
             buttons: [
