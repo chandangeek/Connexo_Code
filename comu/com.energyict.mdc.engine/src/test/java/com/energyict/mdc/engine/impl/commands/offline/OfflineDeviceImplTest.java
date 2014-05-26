@@ -16,6 +16,7 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
+import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterMapping;
@@ -37,6 +38,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.TimeZone;
 
+import com.google.common.base.Optional;
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Mock;
@@ -46,6 +48,7 @@ import static junit.framework.Assert.assertNotNull;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -141,35 +144,8 @@ public class OfflineDeviceImplTest {
         when(mockedEnvironment.getApplicationContext()).thenReturn(applicationContext);
         when(applicationContext.getModulesImplementing(DeviceMessageFactory.class)).thenReturn(Arrays.asList(deviceMessageFactory));
         Environment.DEFAULT.set(mockedEnvironment);
+        when(this.offlineDeviceServiceProvider.findProtocolCacheByDeviceId(anyLong())).thenReturn(Optional.<DeviceCache>absent());
     }
-//
-//    @Before
-//    public void initializeMocksAndFactories() {
-//        deviceMessageFactory = mock(DeviceMessageFactory.class);
-//        deviceCacheFactory = mock(DeviceCacheFactory.class);
-//        mdcInterface = mock(MdcInterface.class);
-//        MdcInterfaceProvider.instance.set(new MdcInterfaceProvider() {
-//            @Override
-//            public MdcInterface getMdcInterface() {
-//                return mdcInterface;
-//            }
-//        });
-//        DeviceCacheFactoryProvider.instance.set(new DeviceCacheFactoryProvider() {
-//            @Override
-//            public DeviceCacheFactory getDeviceCacheFactory() {
-//                return deviceCacheFactory;
-//            }
-//        });
-//
-//        when(mdcInterface.getManager()).thenReturn(this.manager);
-//        when(this.manager.getDeviceMessageFactory()).thenReturn(deviceMessageFactory);
-//    }
-//
-//    @After
-//    public void tearDown() {
-//        MdcInterfaceProvider.instance.set(null);
-//        DeviceCacheFactoryProvider.instance.set(null);
-//    }
 
     private int getTotalSizeOfProperties() {
         return getDeviceProperties().size() + getDeviceProtocolProperties().size() + getDeviceProtocolPluggableClassProperties().size();
