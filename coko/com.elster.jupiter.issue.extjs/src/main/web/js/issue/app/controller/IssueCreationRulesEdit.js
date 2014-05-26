@@ -121,9 +121,10 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
             text: prefix + 'issue creation rule'
         });
         self.getPageTitle().title = prefix + 'issue creation rule',
-        self.getPageTitle().ui = 'large';
+        self.getPageTitle().setUI('large');
         ruleActionBtn.action = action;
         ruleActionBtn.setText(btnTxt);
+  //      ruleActionBtn.render();
     },
 
     modelToForm: function (record) {
@@ -345,7 +346,7 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                             y: 10,
                             showTime: 5000
                         });
-                        window.location.href = '#/issue-administration/issuecreationrules'
+                        window.location.href = '#/administration/issuecreationrules'
                     } else {
                         json = Ext.decode(operation.response.responseText);
                         if (json && json.errors) {
