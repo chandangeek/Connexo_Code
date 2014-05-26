@@ -4,8 +4,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
     deviceConfigurationId: null,
 
     requires: [
-        'Uni.model.BreadcrumbItem',
-        'Ext.ux.window.Notification'
+        'Uni.model.BreadcrumbItem'
     ],
 
     views: [
@@ -72,7 +71,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
     },
 
     showNotification: function(text, notificationType) {
-        Ext.create('uxNotification', {
+        Ext.create('widget.uxNotification', {
             html: text,
             ui: notificationType
         }).show();
@@ -313,20 +312,38 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
             grid = me.getCommunicationTaskGridPanel(),
             lastSelected = grid.getView().getSelectionModel().getLastSelected();
 
-        Ext.MessageBox.show({
-            msg: Uni.I18n.translate('communicationtasks.deleteCommunicationTask.message', 'MDC', 'On this device configuration it wont be possible anymore to execute this communication task'),
-            title: Uni.I18n.translate('communicationtasks.deleteCommunicationTask.title', 'MDC', 'Remove') + ' ' + lastSelected.get('comTask').name + '?',
-            config: {
-                communicationTaskToDelete: lastSelected,
-                me: me
-            },
-            buttons: Ext.MessageBox.YESNO,
-            fn: function(btn, text, opt) {
-                me.removeCommunicationTaskRecord(btn, text, opt);
-            },
-            icon: Ext.MessageBox.WARNING
+        var confirmMessage = Ext.widget('messagebox', {
+            buttons: [
+                {
+                    xtype: 'button',
+                    text: 'Remove',
+                    action: 'remove',
+                    name: 'remove',
+                    ui: 'delete',
+                    handler: function () {
+                        confirmMessage.close();
+                        me.removeCommunicationTaskRecord({
+                            communicationTaskToDelete: lastSelected,
+                            me: me
+                        });
+                    }
+                },
+                {
+                    xtype: 'button',
+                    text: 'Cancel',
+                    action: 'cancel',
+                    name: 'cancel',
+                    ui: 'link',
+                    handler: function () {
+                        confirmMessage.close();
+                    }
+                }
+            ]
+        }).show({
+                msg: Uni.I18n.translate('communicationtasks.deleteCommunicationTask.message', 'MDC', 'On this device configuration it wont be possible anymore to execute this communication task'),
+                title: Uni.I18n.translate('communicationtasks.deleteCommunicationTask.title', 'MDC', 'Remove') + ' ' + lastSelected.get('comTask').name + '?',
+                icon: Ext.MessageBox.WARNING
         });
-
     },
 
     updateCommunicationTask: function(mode) {
@@ -350,33 +367,36 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
     editCommunicationTaskRecord: function(values) {
         var me = this,
             record = me.getCommunicationTaskEditForm().getRecord();
-        me.updateRecord(record, values);
+        me.updateRecord(record, values, {
+            successMessage: Uni.I18n.translate('communicationtasks.updated', 'MDC', 'Communication task successfully updated')
+        });
     },
 
     addCommunicationTaskRecord: function(values) {
         var me = this,
             record = Ext.create(Mdc.model.CommunicationTaskConfig);
-        me.updateRecord(record, values);
+        me.updateRecord(record, values, {
+            successMessage: Uni.I18n.translate('communicationtasks.created', 'MDC', 'Communication task successfully created')
+        });
     },
 
-    removeCommunicationTaskRecord: function(btn, text, opt) {
-        var me = opt.config.me,
-            communicationTaskToDelete = opt.config.communicationTaskToDelete;
+    removeCommunicationTaskRecord: function(cfg) {
+        var me = cfg.me,
+            communicationTaskToDelete = cfg.communicationTaskToDelete;
 
-        if (btn === 'yes') {
             me.setPreLoader(me.getCommunicationTaskSetupPanel(), Uni.I18n.translate('communicationtasks.removing', 'MDC', 'Removing communication task'));
             communicationTaskToDelete.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigurationId});
             communicationTaskToDelete.destroy({
                 callback: function () {
                     me.clearPreLoader();
                     location.href = '#/administration/devicetypes/'+me.deviceTypeId+'/deviceconfigurations/'+me.deviceConfigurationId+'/comtaskenablements';
+                    me.fireEvent('shownotification', Uni.I18n.translate('communicationtasks.removed', 'MDC', 'Communication task successfully removed'), 'notification-success');
                     me.loadCommunicationTasksStore();
                 }
             });
-        }
     },
 
-    updateRecord: function(record, values) {
+    updateRecord: function(record, values, cfg) {
         var me = this;
         if (record) {
             me.setRecordValues(record, values);
@@ -384,6 +404,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
             record.save({
                 success: function (record) {
                     location.href = '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/comtaskenablements';
+                    me.fireEvent('shownotification', cfg.successMessage, 'notification-success');
                 },
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText);
@@ -393,7 +414,6 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                 },
                 callback: function() {
                     me.clearPreLoader();
-                    me.fireEvent('shownotification', 'HOHO', 'notification-success');
                 }
             });
         }
