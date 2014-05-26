@@ -251,18 +251,6 @@ Ext.define('Mdc.controller.history.Setup', {
         this.callParent(arguments);
     },
 
-    doConversion: function (tokens, token) {
-        var queryStringIndex = token.indexOf('?');
-        if (queryStringIndex > 0) {
-            token = token.substring(0, queryStringIndex);
-        }
-        if (this.currentPath !== null) {
-            this.previousPath = this.currentPath;
-        }
-        this.currentPath = token;
-        crossroads.parse(token);
-    },
-
     tokenizePreviousTokens: function () {
         return this.tokenizePath(this.previousPath);
     },
