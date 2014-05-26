@@ -8,6 +8,8 @@ Ext.define('Uni.controller.history.Converter', {
         'Uni.controller.history.EventBus'
     ],
 
+    rootToken: null, // Implemented by extending classes.
+    
     tokenize: function (tokens, includeHash) {
         includeHash = includeHash !== undefined ? includeHash : true;
 
