@@ -49,7 +49,7 @@ public class PersistenceTest {
     protected InboundDeviceProtocolPluggableClass inboundDeviceProtocolPluggableClass;
 
     @BeforeClass
-    public static void staticSetUp() throws SQLException {
+    public static void staticSetUp() {
         BundleContext bundleContext = mock(BundleContext.class);
         injector = Guice.createInjector(
                 new MockModule(bundleContext),
