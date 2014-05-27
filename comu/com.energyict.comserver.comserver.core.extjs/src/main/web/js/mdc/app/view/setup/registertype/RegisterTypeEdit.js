@@ -33,7 +33,6 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
         this.content = [
             {
                 xtype: 'container',
-                cls: 'content-container',
                 layout: {
                     type: 'vbox',
                     align: 'stretch'
@@ -61,13 +60,6 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                 layout: {
                                     type: 'vbox'
                                 },
-//                    tbar: [
-//                        {
-//                            xtype: 'component',
-//                            html: '<b>Overview</b>',
-//                            itemId: 'deviceTypePreviewTitle'
-//                        }
-//                    ],
                                 defaults: {
                                     labelWidth: 250
                                 },
