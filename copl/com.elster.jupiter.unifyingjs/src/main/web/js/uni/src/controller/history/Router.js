@@ -1,5 +1,9 @@
 /**
+ * The router component is responsible for gathering and handling route configuration
+ *
  * @class Uni.controller.history.Router
+ *
+ * todo: example
  */
 Ext.define('Uni.controller.history.Router', {
     extend: 'Ext.app.Controller',
@@ -21,6 +25,10 @@ Ext.define('Uni.controller.history.Router', {
         }
     ],
 
+    /**
+     * Add router configutarion
+     * @param config
+     */
     addConfig: function(config) {
         _.extend(this.config, config);
 
@@ -30,20 +38,39 @@ Ext.define('Uni.controller.history.Router', {
         });
     },
 
+    /**
+     * @private
+     * @param key string
+     * @param config Object
+     * @param prefix string|null
+     */
     initRoute: function(key, config, prefix) {
         var me = this;
         prefix = typeof prefix !== 'undefined' ? prefix : '';
         var route = prefix + '/' + config.route;
         var action = typeof config.action !== 'undefined' ? config.action : me.defaultAction;
 
+        // register route within controller
+        // todo: move route class to external entity.
         me.routes[key] = _.extend(config, {
             path: route,
+
+            /**
+             * Return title of the route
+             * @returns string
+             */
             getTitle: function() {
                 var me = this;
                 return _.isFunction(this.title)
                     ? this.title.apply(me, this)
                     : this.title;
             },
+
+            /**
+             * returns URL builded with provided parameters
+             * @param params
+             * @returns {string}
+             */
             buildUrl: function (params) {
                 params = typeof params !== 'undefined' ? params : this.params;
                 return this.crossroad ?
@@ -63,11 +90,16 @@ Ext.define('Uni.controller.history.Router', {
                     arguments
                 );
                 var controller = me.getController(config.controller);
+
+                // fire the controller action with this route params as arguments
                 controller[action].apply(controller, arguments);
+
+                // todo: move away!
                 me.renderBreadcrumbs();
             });
         }
 
+        // handle child items
         if (config.items) {
             _.each(config.items, function(item, itemKey){
                 var path = key + '/' + itemKey;
@@ -76,6 +108,11 @@ Ext.define('Uni.controller.history.Router', {
         }
     },
 
+    /**
+     * Bulds breadcrums data based on path
+     * @param path
+     * @returns {Array}
+     */
     buildBreadcrumbs: function(path) {
         var me = this;
         path = typeof path === 'undefined'
@@ -85,11 +122,7 @@ Ext.define('Uni.controller.history.Router', {
         var items = [];
         do {
             var route = me.getRoute(path.join('/'));
-            var item = {
-                title: route.getTitle(),
-                href: route.buildUrl()
-            };
-            items.push(item);
+            items.push(route);
             path.pop();
         } while (path.length);
 
@@ -105,10 +138,10 @@ Ext.define('Uni.controller.history.Router', {
         var child, breadcrumb;
 
         breadcrumbs.removeAll();
-        _.map(me.buildBreadcrumbs(), function(item) {
+        _.map(me.buildBreadcrumbs(), function(route) {
             breadcrumb = Ext.create('Uni.model.BreadcrumbItem', {
-                text: item.title,
-                href: item.href,
+                text: route.getTitle(),
+                href: route.buildUrl(),
                 relative: false
             });
             if (child) {
@@ -119,6 +152,11 @@ Ext.define('Uni.controller.history.Router', {
         breadcrumbs.setBreadcrumbItem(breadcrumb);
     },
 
+    /**
+     * return the route via alias
+     * @param path
+     * @returns {*}
+     */
     getRoute: function(path) {
         var me = this;
         return me.routes[path];
