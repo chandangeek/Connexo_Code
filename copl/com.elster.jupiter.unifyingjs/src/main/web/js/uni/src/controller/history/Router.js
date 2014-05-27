@@ -45,10 +45,10 @@ Ext.define('Uni.controller.history.Router', {
                     : this.title;
             },
             buildUrl: function (params) {
-                prefix = typeof params !== 'undefined' ? prefix : this.params;
-                var url = route.crossroad ?
-                    route.crossroad.interpolate(params) :
-                    route.path;
+                params = typeof params !== 'undefined' ? params : this.params;
+                return this.crossroad ?
+                    this.crossroad.interpolate(params) :
+                    this.path;
             }
         });
 
@@ -87,7 +87,7 @@ Ext.define('Uni.controller.history.Router', {
             var route = me.getRoute(path.join('/'));
             var item = {
                 title: route.getTitle(),
-                href: route.buildUrl()
+                href: '#' + route.buildUrl()
             };
             items.push(item);
             path.pop();
@@ -108,7 +108,7 @@ Ext.define('Uni.controller.history.Router', {
         _.map(me.buildBreadcrumbs(), function(item) {
             var breadcrumb = Ext.create('Uni.model.BreadcrumbItem', {
                 text: item.title,
-                href: item.href
+                href: child ? item.href.replace(child.href, '') : item.href
             });
             if (child) {
                 breadcrumb.setChild(child);
