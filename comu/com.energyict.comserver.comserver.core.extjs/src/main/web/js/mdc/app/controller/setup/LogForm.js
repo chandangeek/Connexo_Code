@@ -51,7 +51,7 @@ Ext.define('Mdc.controller.setup.LogForm', {
         var btn = form.down('button[name=logAction]');
         var title;
 
-        this.getApplication().fireEvent('changecontentevent', widget);
+        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
 
         if (id) {
             this.crumbId = this.logId = id;
@@ -154,7 +154,7 @@ Ext.define('Mdc.controller.setup.LogForm', {
                 window.location.href = '#/administration/logbooktypes';
 
                 Ext.create('widget.uxNotification', {
-                    html: 'Successfully created',
+                    html: 'Successfully edited',
                     ui: 'notification-success'
                 }).show();
             },
