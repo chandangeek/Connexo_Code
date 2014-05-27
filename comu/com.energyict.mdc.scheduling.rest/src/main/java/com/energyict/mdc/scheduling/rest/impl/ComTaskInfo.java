@@ -1,9 +1,12 @@
 package com.energyict.mdc.scheduling.rest.impl;
 
 import com.energyict.mdc.tasks.ComTask;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ComTaskInfo {
     public long id;
     public String name;
