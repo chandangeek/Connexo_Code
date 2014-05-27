@@ -28,12 +28,12 @@ import org.hibernate.validator.constraints.URL;
  */
 public class RemoteComServerImpl extends ComServerImpl implements RemoteComServer {
 
-    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}")
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
     private final Reference<OnlineComServer> onlineComServer = ValueReference.absent();
     private String queryAPIUsername;
     private String queryAPIPassword;
     private boolean usesDefaultEventRegistrationUri=true;
-    @URL(groups = {Save.Create.class, Save.Update.class}, message = "{"+Constants.MDC_INVALID_URL+"}")
+    @URL(groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.MDC_INVALID_URL+"}")
     private String eventRegistrationUri;
 
     public static RemoteComServer from(DataModel dataModel) {

@@ -21,7 +21,7 @@ import javax.validation.constraints.Size;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-26 (08:47)
  */
-@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{"+Constants.MDC_DUPLICATE_COM_PORT_POOL+"}")
+@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.MDC_DUPLICATE_COM_PORT_POOL+"}")
 public abstract class ComPortPoolImpl implements ComPortPool {
     protected static final String INBOUND_COMPORTPOOL_DISCRIMINATOR = "0";
     protected static final String OUTBOUND_COMPORTPOOL_DISCRIMINATOR = "1";
@@ -53,14 +53,14 @@ public abstract class ComPortPoolImpl implements ComPortPool {
     protected final Thesaurus thesaurus;
 
     private long id;
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}")
-    @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
+    @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
     private String name;
     private boolean active;
     private String description;
-    @Null(groups = { Save.Update.class }, message = "{"+Constants.MDC_COMPORTPOOL_NO_UPDATE_ALLOWED+"}")
+    @Null(groups = { Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_COMPORTPOOL_NO_UPDATE_ALLOWED+"}")
     private Date obsoleteDate;
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
     private ComPortType comPortType;
 
     @Inject

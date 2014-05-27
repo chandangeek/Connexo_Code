@@ -30,7 +30,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-02 (12:48)
  */
-@UniqueName(groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.MDC_DUPLICATE_COM_PORT+"}")
+@UniqueName(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_DUPLICATE_COM_PORT+"}")
 @XmlRootElement
 public abstract class ComPortImpl implements ComPort {
 
@@ -64,21 +64,17 @@ public abstract class ComPortImpl implements ComPort {
     }
 
     private long id=0;
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}")
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
     private String name;
     private Date modificationDate;
     private final Reference<ComServer> comServer = ValueReference.absent();
     private boolean active;
     private String description;
-    @Null(groups = { Save.Update.class }, message = "{"+Constants.MDC_COMPORT_NO_UPDATE_ALLOWED+"}")
+    @Null(groups = { Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_COMPORT_NO_UPDATE_ALLOWED+"}")
     private Date obsoleteDate;
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}")
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
     private ComPortType type;
 
-    /**
-     * Constructor for Kore persistence
-     * @param dataModel
-     */
     @Inject
     protected ComPortImpl(DataModel dataModel, Thesaurus thesaurus) {
         this.dataModel = dataModel;
@@ -180,6 +176,7 @@ public abstract class ComPortImpl implements ComPort {
         this.type = type;
     }
 
+    @XmlAttribute
     public long getId() {
         return id;
     }
@@ -200,7 +197,7 @@ public abstract class ComPortImpl implements ComPort {
         dataModel.update(this);
     }
 
-    final protected void validateMakeObsolete() {
+    protected final void validateMakeObsolete() {
         if (this.obsoleteDate!=null) {
             throw new TranslatableApplicationException(thesaurus,MessageSeeds.IS_ALREADY_OBSOLETE);
         }
@@ -212,7 +209,7 @@ public abstract class ComPortImpl implements ComPort {
         this.setDescription(source.getDescription());
     }
 
-    static protected class ComPortBuilderImpl<B extends ComPort.Builder<B, C>, C extends ComPort> implements ComPort.Builder<B, C> {
+    protected static class ComPortBuilderImpl<B extends ComPort.Builder<B, C>, C extends ComPort> implements ComPort.Builder<B, C> {
         C comPort;
         B self;
 

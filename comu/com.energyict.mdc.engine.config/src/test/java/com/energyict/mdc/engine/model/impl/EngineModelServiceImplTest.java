@@ -27,7 +27,7 @@ public class EngineModelServiceImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_DUPLICATE_COM_SERVER+"}")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_DUPLICATE_COM_SERVER+"}")
     public void testCanNotCreateComServerWithSameNameAsNonObsoleteComServer() throws Exception {
         createOnlineComServer("serverOne");
         createOnlineComServer("serverOne");

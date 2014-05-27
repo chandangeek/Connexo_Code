@@ -61,7 +61,7 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
 
     @Mock
     DataModel dataModel;
-    
+
 
     private TransactionContext context;
 
@@ -161,7 +161,7 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}", property = "comPortPool")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "comPortPool")
     public void testCreateWithoutComPortPool() throws BusinessException, SQLException {
         ModemBasedInboundComPort comPort = createOnlineComServer().newModemBasedInboundComport(COMPORT_NAME, RING_COUNT, MAXIMUM_NUMBER_OF_DIAL_ERRORS,
                 CONNECT_TIMEOUT, AT_COMMAND_TIMEOUT, getSerialPortConfiguration(COMPORT_NAME))
@@ -175,7 +175,7 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}", property = "name")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "name")
     public void testCreateWithoutName() throws BusinessException, SQLException {
         ModemBasedInboundComPort comPort = createOnlineComServer().newModemBasedInboundComport(null, RING_COUNT, MAXIMUM_NUMBER_OF_DIAL_ERRORS,
                 CONNECT_TIMEOUT, AT_COMMAND_TIMEOUT, getSerialPortConfiguration(COMPORT_NAME))
@@ -190,7 +190,7 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_DUPLICATE_COM_PORT+"}")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_DUPLICATE_COM_PORT+"}")
     public void testCreateWithExistingName() throws BusinessException, SQLException {
         OnlineComServer onlineComServer = createOnlineComServer();
         createSimpleComPort(onlineComServer);
@@ -225,7 +225,7 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_VALUE_TOO_SMALL+"}", property = "ringCount")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_VALUE_TOO_SMALL+"}", property = "ringCount")
     public void testCreateWithZeroRingCount() throws BusinessException, SQLException {
         ModemBasedInboundComPort comPort = createOnlineComServer().newModemBasedInboundComport(COMPORT_NAME, 0, MAXIMUM_NUMBER_OF_DIAL_ERRORS,
                 CONNECT_TIMEOUT, AT_COMMAND_TIMEOUT, getSerialPortConfiguration(COMPORT_NAME))
@@ -240,7 +240,7 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_VALUE_TOO_SMALL+"}", property = "maximumDialErrors")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_VALUE_TOO_SMALL+"}", property = "maximumDialErrors")
     public void testCreateWithZeroMaximumNumberOfDialErrors() throws BusinessException, SQLException {
         ModemBasedInboundComPort comPort = createOnlineComServer().newModemBasedInboundComport(COMPORT_NAME, RING_COUNT, 0,
                 CONNECT_TIMEOUT, AT_COMMAND_TIMEOUT, getSerialPortConfiguration(COMPORT_NAME))
@@ -255,7 +255,7 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}", property = "connectTimeout")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "connectTimeout")
     public void testCreateWithoutConnectTimeout() throws BusinessException, SQLException {
         ModemBasedInboundComPort comPort = createOnlineComServer().newModemBasedInboundComport(COMPORT_NAME, RING_COUNT, MAXIMUM_NUMBER_OF_DIAL_ERRORS,
                 null, AT_COMMAND_TIMEOUT, getSerialPortConfiguration(COMPORT_NAME))
@@ -270,7 +270,7 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
     public void testCreateWithoutAtCommandTimeout() throws BusinessException, SQLException {
         ModemBasedInboundComPort comPort = createOnlineComServer().newModemBasedInboundComport(COMPORT_NAME, RING_COUNT, MAXIMUM_NUMBER_OF_DIAL_ERRORS,
                 CONNECT_TIMEOUT, null, getSerialPortConfiguration(COMPORT_NAME))
@@ -285,7 +285,7 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}", property = "atCommandTry")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "atCommandTry")
     public void testCreateWithoutAtCommandTry() throws BusinessException, SQLException {
         ModemBasedInboundComPort comPort = createOnlineComServer().newModemBasedInboundComport(COMPORT_NAME, RING_COUNT, MAXIMUM_NUMBER_OF_DIAL_ERRORS,
                 CONNECT_TIMEOUT, AT_COMMAND_TIMEOUT, getSerialPortConfiguration(COMPORT_NAME))
@@ -300,7 +300,7 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}", property = "serialPortConfiguration")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "serialPortConfiguration")
     public void testCreateWithoutSerialPortConfiguration() throws BusinessException, SQLException {
         ModemBasedInboundComPort comPort = createOnlineComServer().newModemBasedInboundComport(COMPORT_NAME, RING_COUNT, MAXIMUM_NUMBER_OF_DIAL_ERRORS,
                 CONNECT_TIMEOUT, AT_COMMAND_TIMEOUT, null)
@@ -414,7 +414,7 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}", property = "name")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "name")
     public void updateWithNullName() throws BusinessException, SQLException {
         ModemBasedInboundComPortImpl comPort = (ModemBasedInboundComPortImpl) this.createSimpleComPort();
 
@@ -433,8 +433,8 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
                 PARITY,
                 FlOW_CONTROL);
     }
-    
-    private int onlineNameNumber=1; 
+
+    private int onlineNameNumber=1;
     private OnlineComServer createOnlineComServer() {
         OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance();
         String name = "Online-" + onlineNameNumber++;
@@ -450,8 +450,8 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
         onlineComServer.save();
         return onlineComServer;
     }
-    
-    private int comPortPoolId=1; 
+
+    private int comPortPoolId=1;
     private InboundComPortPool createComPortPool() {
         InboundComPortPool inboundComPortPool = getEngineModelService().newInboundComPortPool();
         inboundComPortPool.setComPortType(ComPortType.SERIAL);
@@ -481,5 +481,5 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
                 .add();
     }
 
-    
+
 }

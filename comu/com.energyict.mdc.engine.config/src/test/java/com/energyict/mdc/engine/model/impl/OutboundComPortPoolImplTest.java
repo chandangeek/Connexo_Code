@@ -98,7 +98,7 @@ public class OutboundComPortPoolImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}", property = "name")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "name")
     public void testCreateWithoutName() throws TranslatableApplicationException, SQLException {
         OutboundComPortPool outboundComPortPool = getEngineModelService().newOutboundComPortPool();
         outboundComPortPool.setDescription(DESCRIPTION);
@@ -111,7 +111,7 @@ public class OutboundComPortPoolImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}", property = "comPortType")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "comPortType")
     public void testCreateWithoutComPortType() throws TranslatableApplicationException, SQLException {
         OutboundComPortPool outboundComPortPool = getEngineModelService().newOutboundComPortPool();
         outboundComPortPool.setName(NAME_BASIS+outboundComPortPoolIndex++);
@@ -186,7 +186,7 @@ public class OutboundComPortPoolImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_DUPLICATE_COM_PORT_POOL+"}", property = "name")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_DUPLICATE_COM_PORT_POOL+"}", property = "name")
     public void testUpdateWithSameName() throws TranslatableApplicationException, SQLException {
         String name = NAME_BASIS + outboundComPortPoolIndex++;
         OutboundComPortPool outboundComPortPool = getEngineModelService().newOutboundComPortPool();
@@ -195,7 +195,7 @@ public class OutboundComPortPoolImplTest extends PersistenceTest {
         outboundComPortPool.setComPortType(COM_PORT_TYPE);
         outboundComPortPool.setTaskExecutionTimeout(EXECUTION_TIMEOUT);
         outboundComPortPool.save();
-        
+
         OutboundComPortPool duplicateComPortPool = getEngineModelService().newOutboundComPortPool();
         duplicateComPortPool.setName(name);
         duplicateComPortPool.setDescription(DESCRIPTION);
@@ -208,7 +208,7 @@ public class OutboundComPortPoolImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}", property = "name")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "name")
     public void testUpdateWithoutName() throws TranslatableApplicationException, SQLException {
         OutboundComPortPool comPortPool = newOutboundComPortPoolWithoutViolations();
         comPortPool.setName(null);
@@ -221,7 +221,7 @@ public class OutboundComPortPoolImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}", property = "comPortType")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "comPortType")
     public void testUpdateWithoutComPortType() throws TranslatableApplicationException, SQLException {
         OutboundComPortPool comPortPool = newOutboundComPortPoolWithoutViolations();
         comPortPool.setComPortType(null);
@@ -328,7 +328,7 @@ public class OutboundComPortPoolImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_COMPORTPOOL_NO_UPDATE_ALLOWED+"}", property = "obsoleteDate")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_COMPORTPOOL_NO_UPDATE_ALLOWED+"}", property = "obsoleteDate")
     public void testUpdateAfterMakeObsolete() throws TranslatableApplicationException, SQLException {
         OutboundComPortPool comPortPool = newOutboundComPortPoolWithoutViolations();
         comPortPool.makeObsolete();

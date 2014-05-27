@@ -19,8 +19,8 @@ import javax.xml.bind.annotation.XmlElement;
  */
 public class UDPBasedInboundComPortImpl extends IPBasedInboundComPortImpl implements UDPBasedInboundComPort {
 
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}")
-    @Min(value=1, groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.MDC_VALUE_TOO_SMALL+"}")
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
+    @Min(value=1, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_VALUE_TOO_SMALL+"}")
     private int bufferSize;
 
     @Inject

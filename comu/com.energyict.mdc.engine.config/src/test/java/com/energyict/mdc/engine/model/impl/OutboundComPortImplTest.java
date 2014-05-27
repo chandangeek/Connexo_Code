@@ -58,7 +58,7 @@ public class OutboundComPortImplTest extends PersistenceTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}", property = "name")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "name")
     @Transactional
     public void testCreateWithoutName() throws BusinessException, SQLException {
         createOnlineComServer().newOutboundComPort(null, NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
@@ -70,7 +70,7 @@ public class OutboundComPortImplTest extends PersistenceTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}", property = "type")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "type")
     @Transactional
     public void testCreateWithoutComPortType() throws BusinessException, SQLException {
         createOnlineComServer().newOutboundComPort(COMPORT_NAME, NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
@@ -82,7 +82,7 @@ public class OutboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_VALUE_NOT_IN_RANGE+"}", property = "numberOfSimultaneousConnections")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_VALUE_NOT_IN_RANGE+"}", property = "numberOfSimultaneousConnections")
     public void testCreateWithZeroSimultaneousConnections() throws BusinessException, SQLException {
         createOnlineComServer().newOutboundComPort(COMPORT_NAME, 0)
         .description(DESCRIPTION)
@@ -93,7 +93,7 @@ public class OutboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_VALUE_NOT_IN_RANGE+"}", property = "numberOfSimultaneousConnections")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_VALUE_NOT_IN_RANGE+"}", property = "numberOfSimultaneousConnections")
     public void testCreateWithTooManySimultaneousConnections() throws BusinessException, SQLException {
         createOnlineComServer().newOutboundComPort(COMPORT_NAME, OutboundComPort.MAXIMUM_NUMBER_OF_SIMULTANEOUS_CONNECTIONS + 1)
         .description(DESCRIPTION)
@@ -103,7 +103,7 @@ public class OutboundComPortImplTest extends PersistenceTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_DUPLICATE_COM_PORT+"}", property="name")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_DUPLICATE_COM_PORT+"}", property="name")
     @Transactional
     public void testCreateWithExistingName() throws BusinessException, SQLException {
         OnlineComServer onlineComServer = createOnlineComServer();
@@ -155,8 +155,8 @@ public class OutboundComPortImplTest extends PersistenceTest {
         assertThat(comPort.isActive()).isEqualTo(newActive);
         assertThat(comPort.getNumberOfSimultaneousConnections()).isEqualTo(newNumberOfSimultaneousConnections);
     }
-    
-    private int onlineNameNumber=1; 
+
+    private int onlineNameNumber=1;
     private OnlineComServer createOnlineComServer() {
         OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance();
         String name = "Online-" + onlineNameNumber++;
@@ -172,7 +172,7 @@ public class OutboundComPortImplTest extends PersistenceTest {
         onlineComServer.save();
         return onlineComServer;
     }
-    
+
     private OutboundComPort createSimpleComPort() throws SQLException {
         return createSimpleComPort(createOnlineComServer());
     }
@@ -186,6 +186,6 @@ public class OutboundComPortImplTest extends PersistenceTest {
     }
 
 
-    
+
 
 }

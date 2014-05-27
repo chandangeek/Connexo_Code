@@ -39,7 +39,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @since 2012-03-28 (10:20)
  */
 @XmlRootElement
-@UniqueName(groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.MDC_DUPLICATE_COM_SERVER+"}")
+@UniqueName(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_DUPLICATE_COM_SERVER+"}")
 public abstract class ComServerImpl implements ComServer {
 
     protected static final String ONLINE_COMSERVER_DISCRIMINATOR = "0";
@@ -75,23 +75,23 @@ public abstract class ComServerImpl implements ComServer {
     }
 
     private long id;
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}")
-    @Pattern(regexp="[a-zA-Z0-9\\.\\-]+", groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.MDC_INVALID_CHARS+"}")
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
+    @Pattern(regexp="[a-zA-Z0-9\\.\\-]+", groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_INVALID_CHARS+"}")
     private String name;
     private boolean active;
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}")
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
     private LogLevel serverLogLevel;
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}")
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
     private LogLevel communicationLogLevel;
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}")
-    @MinTimeDuration(value = 60 ,groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.MDC_VALUE_TOO_SMALL+"}")
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
+    @MinTimeDuration(value = 60 ,groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_VALUE_TOO_SMALL+"}")
     private TimeDuration changesInterPollDelay;
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}")
-    @MinTimeDuration(value = 60 ,groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.MDC_VALUE_TOO_SMALL+"}")
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
+    @MinTimeDuration(value = 60 ,groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_VALUE_TOO_SMALL+"}")
     private TimeDuration schedulingInterPollDelay;
     private Date modificationDate;
     private final List<ComPort>  comPorts = new ArrayList<>();
-    @Null(groups = { Save.Update.class }, message = "{"+Constants.MDC_COMSERVER_NO_UPDATE_ALLOWED+"}")
+    @Null(groups = { Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_COMSERVER_NO_UPDATE_ALLOWED+"}")
     private Date obsoleteDate;
 
     @Inject

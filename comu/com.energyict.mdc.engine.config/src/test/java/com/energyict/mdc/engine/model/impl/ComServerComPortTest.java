@@ -265,7 +265,7 @@ public class ComServerComPortTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_DUPLICATE_COM_PORT_PER_COM_SERVER+"}", property = "portNumber")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_DUPLICATE_COM_PORT_PER_COM_SERVER+"}", property = "portNumber")
     public void duplicateComPortsTest() throws SQLException, BusinessException {
         int duplicatePortNumber = 2222;
         OnlineComServer shadow = createOnlineComServer();
@@ -318,7 +318,7 @@ public class ComServerComPortTest extends PersistenceTest {
                 .bufferSize(1024)
                 .add();
     }
-    
+
     private int comPortPoolIndex=1;
     private InboundComPortPool newInboundComPortPool(ComPortType comPortType) {
         InboundComPortPool inboundComPortPool = getEngineModelService().newInboundComPortPool();
@@ -348,6 +348,6 @@ public class ComServerComPortTest extends PersistenceTest {
         onlineComServer.save();
         return onlineComServer;
     }
-    
+
 
 }

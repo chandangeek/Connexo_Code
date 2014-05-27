@@ -19,9 +19,9 @@ import javax.xml.bind.annotation.XmlElement;
 @UniquePortNumber(groups = {Save.Create.class, Save.Update.class})
 public abstract class IPBasedInboundComPortImpl extends InboundComPortImpl implements IPBasedInboundComPort, Payload {
 
-    @Min(value = 1, groups = {Save.Create.class, Save.Update.class}, message = "{"+ Constants.MDC_VALUE_TOO_SMALL+"}")
+    @Min(value = 1, groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.MDC_VALUE_TOO_SMALL+"}")
     private int portNumber;
-    @Min(value = 1, groups = {Save.Create.class, Save.Update.class}, message = "{"+ Constants.MDC_VALUE_TOO_SMALL+"}")
+    @Min(value = 1, groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.MDC_VALUE_TOO_SMALL+"}")
     private int numberOfSimultaneousConnections;
 
     protected IPBasedInboundComPortImpl(DataModel dataModel, Thesaurus thesaurus) {

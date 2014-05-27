@@ -36,9 +36,9 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.proxy.LazyLoader;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.osgi.service.component.annotations.Activate;
@@ -46,14 +46,10 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 
 import static com.energyict.mdc.engine.model.impl.ComPortImpl.OUTBOUND_DISCRIMINATOR;
 import static com.energyict.mdc.engine.model.impl.ComServerImpl.OFFLINE_COMSERVER_DISCRIMINATOR;
@@ -218,7 +214,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
      * @return a list of {@link OnlineComServer}
      */
     private List<OnlineComServer> convertComServerListToOnlineComServers(final List<ComServer> comServers) {
-        List<OnlineComServer> onlineComServers = new ArrayList<OnlineComServer>(comServers.size());
+        List<OnlineComServer> onlineComServers = new ArrayList<>(comServers.size());
         for (ComServer comServer : comServers) {
             onlineComServers.add((OnlineComServer) comServer);
         }
@@ -233,7 +229,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
      * @return a list of {@link OfflineComServer}
      */
     private List<OfflineComServer> convertComServerListToOfflineComServers(final List<ComServer> comServers) {
-        List<OfflineComServer> offlineComServers = new ArrayList<OfflineComServer>(comServers.size());
+        List<OfflineComServer> offlineComServers = new ArrayList<>(comServers.size());
         for (ComServer comServer : comServers) {
             offlineComServers.add((OfflineComServer) comServer);
         }
@@ -248,7 +244,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
      * @return a list of {@link RemoteComServer}
      */
     private List<RemoteComServer> convertComServerListToRemoteComServers(final List<ComServer> comServers) {
-        List<RemoteComServer> remoteComServers = new ArrayList<RemoteComServer>(comServers.size());
+        List<RemoteComServer> remoteComServers = new ArrayList<>(comServers.size());
         for (ComServer comServer : comServers) {
             remoteComServers.add((RemoteComServer) comServer);
         }
@@ -467,65 +463,23 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
     @Override
     public ComServer parseComServerQueryResult(JSONObject comServerJSon) {
         try {
-            Class<? extends ComServerImpl> comServerClass = this.getComServerClassFor(comServerJSon);
-            ObjectMapper mapper = ObjectMapperFactory.newMapper();
-            return mapper.readValue(new StringReader(comServerJSon.toString()), comServerClass);
+            String comServerName = (String) comServerJSon.get("name");
+            return new ComServerLazyLoader(comServerName).load();
         }
-        catch (IOException | JSONException e) {
+        catch (JSONException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private Class<? extends ComServerImpl> getComServerClassFor (JSONObject comServerJSon) throws JSONException {
-        String xmlType = comServerJSon.getString("type");
-        for (Class<? extends ComServerImpl> knownImplementationClass : this.knownComServerImplementationClasses()) {
-            if (knownImplementationClass.getSimpleName() == xmlType || xmlType != null && knownImplementationClass.getSimpleName().equals(xmlType)) {
-                return knownImplementationClass;
-            }
-        }
-        throw new RuntimeException("The ComServer returned by the remote query API is neither online, remote nor offline but was " + xmlType);
-    }
-
-    private Set<Class<? extends ComServerImpl>> knownComServerImplementationClasses () {
-        Set<Class<? extends ComServerImpl>> knownImplementationClasses = new HashSet<>();
-        knownImplementationClasses.add(OnlineComServerImpl.class);
-        knownImplementationClasses.add(RemoteComServerImpl.class);
-        knownImplementationClasses.add(OfflineComServerImpl.class);
-        return knownImplementationClasses;
     }
 
     @Override
     public ComPort parseComPortQueryResult(JSONObject comPortJSon) {
         try {
-            Class<? extends ComPortImpl> comPortClass = this.getComPortClassFor(comPortJSon);
-            ObjectMapper mapper = ObjectMapperFactory.newMapper();
-            return mapper.readValue(new StringReader(comPortJSon.toString()), comPortClass);
+            Long id = Long.parseLong((String) comPortJSon.get("id"));
+            return new ComPortLazyLoader(id).load();
         }
-        catch (IOException | JSONException e) {
+        catch (JSONException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private Class<? extends ComPortImpl> getComPortClassFor (JSONObject comPortJSon) throws JSONException {
-        String xmlType = comPortJSon.getString("type");
-        for (Class<? extends ComPortImpl> knownComPortImplementationClass : this.knownComPortImplementationClasses()) {
-            if (knownComPortImplementationClass.getSimpleName().equals(xmlType)
-                    || xmlType != null
-                    && knownComPortImplementationClass.getSimpleName().equals(xmlType)) {
-                return knownComPortImplementationClass;
-            }
-        }
-        throw new RuntimeException("The ComPort returned by the remote query API is neither outbound, servlet based, TCP based, UDP based or modem based but was " + xmlType);
-    }
-
-    private Set<Class<? extends ComPortImpl>> knownComPortImplementationClasses () {
-        Set<Class<? extends ComPortImpl>> knownClasses = new HashSet<>();
-        knownClasses.add(OutboundComPortImpl.class);
-        knownClasses.add(ServletBasedInboundComPortImpl.class);
-        knownClasses.add(TCPBasedInboundComPortImpl.class);
-        knownClasses.add(UDPBasedInboundComPortImpl.class);
-        knownClasses.add(ModemBasedInboundComPortImpl.class);
-        return knownClasses;
     }
 
     private <T> T unique(Collection<T> collection) {
@@ -535,5 +489,60 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
             throw new TranslatableApplicationException(thesaurus, MessageSeeds.NOT_UNIQUE);
         }
         return collection.iterator().next();
+    }
+
+    private class ComServerLazyLoader implements LazyLoader<ComServer> {
+
+        private final String comServerName;
+
+        private ComServerLazyLoader(String comServerName) {
+            super();
+            this.comServerName = comServerName;
+        }
+
+        @Override
+        public ComServer load() {
+            return findComServer(this.comServerName);
+        }
+
+        @Override
+        public ClassLoader getClassLoader() {
+            return EngineModelServiceImpl.class.getClassLoader();
+        }
+
+        @Override
+        public Class<ComServer> getImplementedInterface() {
+            return ComServer.class;
+        }
+    }
+
+    private class ComPortLazyLoader implements LazyLoader<ComPort> {
+        private final Long comPortId;
+
+        private ComPortLazyLoader(Long id) {
+            super();
+            this.comPortId = id;
+        }
+
+        @Override
+        public ComPort load() {
+            if (this.comPortId != null) {
+                return findComPort(comPortId);
+            }
+            else {
+                return null;
+            }
+        }
+
+        @Override
+        public Class<ComPort> getImplementedInterface() {
+            return ComPort.class;
+        }
+
+        @Override
+        public ClassLoader getClassLoader() {
+            return EngineModelServiceImpl.class.getClassLoader();
+        }
+
     }
 }

@@ -26,7 +26,7 @@ public class OutboundComPortImpl extends ComPortImpl implements OutboundComPort 
 
     private final EngineModelService engineModelService;
 
-    @Range(min = 1, max = MAXIMUM_NUMBER_OF_SIMULTANEOUS_CONNECTIONS, groups = {Save.Create.class, Save.Update.class}, message = "{"+Constants.MDC_VALUE_NOT_IN_RANGE+"}")
+    @Range(min = 1, max = MAXIMUM_NUMBER_OF_SIMULTANEOUS_CONNECTIONS, groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.MDC_VALUE_NOT_IN_RANGE+"}")
     private int numberOfSimultaneousConnections;
 
     @Inject

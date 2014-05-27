@@ -27,8 +27,8 @@ public class ServletBasedInboundComPortImpl extends IPBasedInboundComPortImpl im
     private String keyStoreSpecsPassword;
     private String trustStoreSpecsFilePath;
     private String trustStoreSpecsPassword;
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}")
-    @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
+    @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
     private String contextPath;
 
     @Inject

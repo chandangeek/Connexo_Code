@@ -20,7 +20,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Documented
 public @interface NotEmptyFilePathAndPasswords {
 
-    String message() default "{"+Constants.MDC_CAN_NOT_BE_EMPTY_IF_HTTPS+"}";
+    String message() default "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY_IF_HTTPS+"}";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 

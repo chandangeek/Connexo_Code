@@ -14,7 +14,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Constraint(validatedBy = { UniquePortNumberValidator.class })
 public @interface UniquePortNumber {
 
-	String message() default "{"+Constants.MDC_DUPLICATE_COM_PORT_PER_COM_SERVER+"}";
+	String message() default "{"+ MessageSeeds.Keys.MDC_DUPLICATE_COM_PORT_PER_COM_SERVER+"}";
 
 	Class<?>[] groups() default { };
 

@@ -21,13 +21,13 @@ import javax.validation.constraints.NotNull;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-26 (10:21)
  */
-@ComPortPoolTypeMatchesComPortType(groups = {Save.Create.class, Save.Create.class }, message = "{"+Constants.MDC_COM_PORT_TYPE_OF_COM_PORT_DOES_NOT_MATCH_WITH_COM_PORT_POOL+"}")
+@ComPortPoolTypeMatchesComPortType(groups = {Save.Create.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.MDC_COM_PORT_TYPE_OF_COM_PORT_DOES_NOT_MATCH_WITH_COM_PORT_POOL+"}")
 public class OutboundComPortPoolImpl extends ComPortPoolImpl implements OutboundComPortPool {
 
     public static final String FIELD_TASKEXECUTIONTOMEOUT = "taskExecutionTimeout";
 
     private final Provider<ComPortPoolMember> comPortPoolMemberProvider;
-    @NotNull(groups = { Save.Update.class, Save.Create.class }, message = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}")
+    @NotNull(groups = { Save.Update.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
     private TimeDuration taskExecutionTimeout;
     private final List<ComPortPoolMember> comPortPoolMembers = new ArrayList<>();
 

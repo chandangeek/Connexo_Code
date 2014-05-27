@@ -81,7 +81,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation( messageId = "{"+Constants.MDC_VALUE_TOO_SMALL+"}", property = "changesInterPollDelay")
+    @ExpectedConstraintViolation( messageId = "{"+ MessageSeeds.Keys.MDC_VALUE_TOO_SMALL+"}", property = "changesInterPollDelay")
     public void testTooSmallChangesInterPollDelay () throws BusinessException, SQLException {
         OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();
         offlineComServer.setName("testTooSmallChangesInterPollDelay");
@@ -96,7 +96,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation( messageId = "{"+Constants.MDC_VALUE_TOO_SMALL+"}", property = "schedulingInterPollDelay")
+    @ExpectedConstraintViolation( messageId = "{"+ MessageSeeds.Keys.MDC_VALUE_TOO_SMALL+"}", property = "schedulingInterPollDelay")
     public void testTooSmallSchedulingInterPollDelay () throws BusinessException, SQLException {
         OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();
         offlineComServer.setName("testTooSmallSchedulingInterPollDelay");
@@ -156,7 +156,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}", property = "name")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "name")
     public void testCreateWithoutName () throws BusinessException, SQLException {
         OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();
         offlineComServer.setActive(true);
@@ -170,7 +170,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}", property = "serverLogLevel")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "serverLogLevel")
     public void testCreateWithoutServerLogLevel () throws BusinessException, SQLException {
         OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();
         String name = "No-Server-LogLevel";
@@ -186,7 +186,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}", property = "communicationLogLevel")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "communicationLogLevel")
     public void testCreateWithoutCommunicationLogLevel () throws BusinessException, SQLException {
         OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();
         String name = "No-Communication-LogLevel";
@@ -202,7 +202,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}", property = "changesInterPollDelay")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "changesInterPollDelay")
     public void testCreateWithoutChangesInterPollDelay () throws BusinessException, SQLException {
         OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();
         String name = "No-Changes-InterpollDelay";
@@ -218,7 +218,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation( messageId = "{"+Constants.MDC_CAN_NOT_BE_EMPTY+"}", property = "schedulingInterPollDelay")
+    @ExpectedConstraintViolation( messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "schedulingInterPollDelay")
     public void testCreateWithoutSchedulingInterPollDelay () throws BusinessException, SQLException {
         OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();
         String name = "No-Scheduling-InterpollDelay";
@@ -234,7 +234,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_DUPLICATE_COM_SERVER+"}", property = "name")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_DUPLICATE_COM_SERVER+"}", property = "name")
     public void testCreateWithExistingName () throws BusinessException, SQLException {
         String serverName = "Candidate-for-duplicate";
         OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();
@@ -455,7 +455,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.MDC_COMSERVER_NO_UPDATE_ALLOWED+"}")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_COMSERVER_NO_UPDATE_ALLOWED+"}")
     public void testUpdateAfterMakeObsolete() throws BusinessException, SQLException {
         OfflineComServer comServer = getEngineModelService().newOfflineComServerInstance();
         String name = "testUpdateAfterMakeObsolete";
