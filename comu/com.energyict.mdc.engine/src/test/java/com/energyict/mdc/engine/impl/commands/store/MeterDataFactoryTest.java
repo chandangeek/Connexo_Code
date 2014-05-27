@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.commands.store;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceImpl;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
@@ -33,9 +34,6 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class MeterDataFactoryTest {
 
-    @Mock
-    private MdcReadingTypeUtilService readingTypeUtilService;
-
     @Test
     public void convertToIntervalBlocksTest() {
         TimeDuration interval = new TimeDuration(15, TimeDuration.MINUTES);
@@ -48,7 +46,7 @@ public class MeterDataFactoryTest {
         when(collectedLoadProfile.getChannelInfo()).thenReturn(Arrays.asList(channelInfo));
         when(collectedLoadProfile.getCollectedIntervalData()).thenReturn(Arrays.asList(intervalData));
 
-        List<IntervalBlock> intervalBlocks = MeterDataFactory.createIntervalBlocksFor(collectedLoadProfile, interval, this.readingTypeUtilService);
+        List<IntervalBlock> intervalBlocks = MeterDataFactory.createIntervalBlocksFor(collectedLoadProfile, interval, new MdcReadingTypeUtilServiceImpl());
 
         assertThat(intervalBlocks).isNotNull();
         assertThat(intervalBlocks).hasSize(1);
@@ -65,7 +63,7 @@ public class MeterDataFactoryTest {
         CollectedLoadProfile collectedLoadProfile = mock(CollectedLoadProfile.class);
         when(collectedLoadProfile.getChannelInfo()).thenReturn(Arrays.asList(channelInfo));
         try {
-            MeterDataFactory.createIntervalBlocksFor(collectedLoadProfile, interval, this.readingTypeUtilService);
+            MeterDataFactory.createIntervalBlocksFor(collectedLoadProfile, interval, new MdcReadingTypeUtilServiceImpl());
         } catch (DeviceConfigurationException e) {
             if (!e.getMessageId().equals("CSC-CONF-111")) {
                 fail("Should have gotten an exception indicating that the channelInfo object does not contain an obiscode, but was " + e.getMessage());
