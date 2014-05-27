@@ -11,7 +11,9 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                 {
                     xtype: 'panel',
                     name: 'pageTitle',
-                    margin: '0 0 40 0'
+                    margin: '0 0 40 32',
+                    ui: 'large',
+                    title: 'Create issue creation rule'
                 },
                 {
                     xtype: 'form',
@@ -103,7 +105,9 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                                 {
                                     xtype: 'label',
                                     text: 'Due date',
-                                    width: 140
+                                    width: 140,
+                                    itemId: 'dueDate'
+                
                                 },
                                 {
                                     xtype: 'container',
@@ -245,10 +249,10 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                     items: [
                         {
                             itemId: 'ruleAction',
-                            text: 'Create',
                             name: 'ruleAction',
                             ui: 'action',
-                            formBind: false
+                            formBind: false,
+                            text: 'Cerate'
                         },
                         {
                             itemId: 'cancel',
