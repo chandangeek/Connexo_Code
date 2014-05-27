@@ -6,7 +6,7 @@ Ext.define('Cfg.controller.history.Validation', {
     init: function () {
         var me = this;
 
-        crossroads.addRoute('administration/rules', function (id) {
+        crossroads.addRoute('administration/rules', function () {
             me.getApplication().getController('Cfg.controller.Validation').showRuleSets();
         });
         crossroads.addRoute('administration/rules/{id}', function (id) {
