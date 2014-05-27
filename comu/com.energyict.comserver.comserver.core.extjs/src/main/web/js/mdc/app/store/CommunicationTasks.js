@@ -13,7 +13,7 @@ Ext.define('Mdc.store.CommunicationTasks',{
     remoteSort: true,
     proxy: {
         type: 'rest',
-        url: '../../api/cts/comtasks',
+        url: '/api/cts/comtasks',
         reader: {
             type: 'json',
             root: 'data'

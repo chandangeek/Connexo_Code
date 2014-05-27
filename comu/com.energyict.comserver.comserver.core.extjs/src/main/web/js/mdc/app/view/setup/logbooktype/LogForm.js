@@ -55,7 +55,8 @@ Ext.define('Mdc.view.setup.logbooktype.LogForm', {
                 {
                     itemId: 'logAction',
                     name: 'logAction',
-                    ui: 'action'
+                    ui: 'action',
+                    margin: '0 0 0 10'
                 },
                 {
                     itemId: 'Cancel',
