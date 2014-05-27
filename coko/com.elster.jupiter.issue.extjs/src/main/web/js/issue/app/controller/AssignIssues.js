@@ -27,9 +27,9 @@ Ext.define('Isu.controller.AssignIssues', {
                 'issues-assign button[name=assign]': {
                     click: this.onSubmitForm
                 },
-                'issues-assign breadcrumbTrail': {
-                    afterrender: this.setBreadcrumb
-                }
+//                'issues-assign breadcrumbTrail': {
+//                    afterrender: this.setBreadcrumb
+//                }
             });
             this.getApplication().on('assignissue', this.onSubmitForm)
         },
@@ -48,27 +48,27 @@ Ext.define('Isu.controller.AssignIssues', {
             });
         },
 
-        setBreadcrumb: function (breadcrumbs) {
-            var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-                    text: 'Workspace',
-                    href: '#/workspace'
-                }),
-                breadcrumbChild1 = Ext.create('Uni.model.BreadcrumbItem', {
-                    text: 'Data collection',
-                    href: 'datacollection'
-                }),
-                breadcrumbChild2 = Ext.create('Uni.model.BreadcrumbItem', {
-                    text: 'Issues',
-                    href: 'issues'
-                }),
-                breadcrumbChild3 = Ext.create('Uni.model.BreadcrumbItem', {
-                    text: 'Assign Issue',
-                    href: 'assign'
-                });
-            breadcrumbParent.setChild(breadcrumbChild1).setChild(breadcrumbChild2).setChild(breadcrumbChild3);
-
-            breadcrumbs.setBreadcrumbItem(breadcrumbParent);
-        },
+//        setBreadcrumb: function (breadcrumbs) {
+//            var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
+//                    text: 'Workspace',
+//                    href: '#/workspace'
+//                }),
+//                breadcrumbChild1 = Ext.create('Uni.model.BreadcrumbItem', {
+//                    text: 'Data collection',
+//                    href: 'datacollection'
+//                }),
+//                breadcrumbChild2 = Ext.create('Uni.model.BreadcrumbItem', {
+//                    text: 'Issues',
+//                    href: 'issues'
+//                }),
+//                breadcrumbChild3 = Ext.create('Uni.model.BreadcrumbItem', {
+//                    text: 'Assign Issue',
+//                    href: 'assign'
+//                });
+//            breadcrumbParent.setChild(breadcrumbChild1).setChild(breadcrumbChild2).setChild(breadcrumbChild3);
+//
+//            breadcrumbs.setBreadcrumbItem(breadcrumbParent);
+//        },
 
 
         onSubmitForm: function () {

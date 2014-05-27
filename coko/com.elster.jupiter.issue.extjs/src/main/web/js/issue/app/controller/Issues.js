@@ -2,7 +2,6 @@ Ext.define('Isu.controller.Issues', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Uni.model.BreadcrumbItem',
         'Isu.model.ExtraParams'
     ],
 
@@ -78,9 +77,6 @@ Ext.define('Isu.controller.Issues', {
 
     init: function () {
         this.control({
-            'issues-overview breadcrumbTrail': {
-                afterrender: this.setBreadcrumb
-            },
             'issues-overview issues-list gridview': {
                 itemclick: this.loadGridItemDetail,
                 refresh: this.onIssuesGridRefresh
@@ -155,24 +151,6 @@ Ext.define('Isu.controller.Issues', {
             sort.addSortButtons(extraParamsModel.get('sort'));
             self.setFilterForm();
         });
-    },
-
-    setBreadcrumb: function (breadcrumbs) {
-        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-                text: 'Workspace',
-                href: '#/workspace'
-            }),
-            breadcrumbChild1 = Ext.create('Uni.model.BreadcrumbItem', {
-                text: 'Data collection',
-                href: 'datacollection'
-            }),
-            breadcrumbChild2 = Ext.create('Uni.model.BreadcrumbItem', {
-                text: 'Issues',
-                href: 'issues'
-            });
-        breadcrumbParent.setChild(breadcrumbChild1).setChild(breadcrumbChild2);
-
-        breadcrumbs.setBreadcrumbItem(breadcrumbParent);
     },
 
     setFilterForm: function () {

@@ -17,7 +17,7 @@ Ext.define('Isu.controller.history.Workspace', {
                     controller: 'Isu.controller.DataCollectionOverview',
                     items: {
                         issues: {
-                            title : 'View Issues',
+                            title : 'Issues',
                             route: 'issues',
                             controller: 'Isu.controller.Issues',
                             items: {

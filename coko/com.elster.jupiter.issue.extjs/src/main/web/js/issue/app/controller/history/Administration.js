@@ -3,31 +3,63 @@ Ext.define('Isu.controller.history.Administration', {
 
     rootToken: 'administration',
 
-    init: function () {
-        var me = this;
+    routeConfig: {
+        administration : {
+            title: 'Administration',
+            route: 'administration',
+            disabled: true,
+            items: {
+                issue: {
+                    title: 'Issue',
+                    route: 'issue',
+                    items: {
+                        assignmentrules: {
+                            title: 'Assignment Rules',
+                            route: 'assignmentrules',
+                            controller: 'Isu.controller.IssueAssignmentRules'
+                        },
+                        creationrules: {
+                            title: 'Creation Rules',
+                            route: 'creationrules',
+                            controller: 'Isu.controller.IssueCreationRules',
+                            items: {
+                                create: {
+                                    title: 'Create',
+                                    route: '/create',
+                                    controller: 'Isu.controller.IssueCreationRulesEdit'
+                                },
+                                edit: {
+                                    title: 'Edit',
+                                    route: '{id}/edit',
+                                    controller: 'Isu.controller.IssueCreationRulesEdit'
+                                }
+                            }
+                        }
+                    }
+                },
+                communicationtasks: {
+                    title: 'Communication Tasks',
+                    route: 'communicationtasks',
+                    controller: 'Isu.controller.CommunicationTasksView',
+                    items: {
+                        create: {
+                            title: 'Create',
+                            route: '/create',
+                            controller: 'Isu.controller.CommunicationTasksEdit'
+                        },
+                        edit: {
+                            title: 'Edit',
+                            route: '{id}',
+                            controller: 'Isu.controller.CommunicationTasksEdit'
+                        }
+                    }
+                }
+            }
+        }
+    },
 
-        crossroads.addRoute('administration/issueassignmentrules', function () {
-            me.getController('Isu.controller.IssueAssignmentRules').showOverview();
-        });
-        crossroads.addRoute('administration/issuecreationrules', function () {
-            me.getController('Isu.controller.IssueCreationRules').showOverview();
-        });
-        crossroads.addRoute('administration/issuecreationrules/create', function (id) {
-            me.getController('Isu.controller.IssueCreationRulesEdit').showOverview(id, 'create');
-        });
-        crossroads.addRoute('administration/issuecreationrules/{id}/edit', function (id) {
-            me.getController('Isu.controller.IssueCreationRulesEdit').showOverview(id, 'edit');
-        });
-        crossroads.addRoute('issue-administration/communicationtasks', function () {
-            me.getController('Isu.controller.CommunicationTasksView').showOverview();
-        });
-        crossroads.addRoute('issue-administration/communicationtasks/create', function () {
-            me.getController('Isu.controller.CommunicationTasksEdit').showOverview();
-        });
-        crossroads.addRoute('issue-administration/communicationtasks/{id}', function (id) {
-            me.getController('Isu.controller.CommunicationTasksEdit').showOverview(id);
-        });
-
-        this.callParent(arguments);
+    init :function() {
+        var router = this.getController('Uni.controller.history.Router');
+        router.addConfig(this.routeConfig);
     }
 });
