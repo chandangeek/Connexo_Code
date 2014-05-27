@@ -47,8 +47,8 @@ Ext.define('Uni.controller.history.Router', {
             buildUrl: function (params) {
                 params = typeof params !== 'undefined' ? params : this.params;
                 return this.crossroad ?
-                    this.crossroad.interpolate(params) :
-                    this.path;
+                    '#' + this.crossroad.interpolate(params) :
+                    '#' + this.path;
             }
         });
 
@@ -87,7 +87,7 @@ Ext.define('Uni.controller.history.Router', {
             var route = me.getRoute(path.join('/'));
             var item = {
                 title: route.getTitle(),
-                href: '#' + route.buildUrl()
+                href: route.buildUrl()
             };
             items.push(item);
             path.pop();
@@ -102,20 +102,21 @@ Ext.define('Uni.controller.history.Router', {
     renderBreadcrumbs: function() {
         var me = this;
         var breadcrumbs = this.getBreadcrumbs();
-        var child;
+        var child, breadcrumb;
 
         breadcrumbs.removeAll();
         _.map(me.buildBreadcrumbs(), function(item) {
-            var breadcrumb = Ext.create('Uni.model.BreadcrumbItem', {
+            breadcrumb = Ext.create('Uni.model.BreadcrumbItem', {
                 text: item.title,
-                href: child ? item.href.replace(child.href, '') : item.href
+                href: item.href,
+                relative: false
             });
             if (child) {
                 breadcrumb.setChild(child);
             }
-            breadcrumbs.setBreadcrumbItem(breadcrumb);
             child = breadcrumb;
         });
+        breadcrumbs.setBreadcrumbItem(breadcrumb);
     },
 
     getRoute: function(path) {
