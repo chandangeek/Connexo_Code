@@ -8,42 +8,13 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
         'Uni.view.toolbar.PagingBottom',
         'Mdc.store.DeviceTypes'
     ],
-//    controllers: [
-//        'Mdc.controller.setup.DeviceTypes'
-//    ],
     store: 'DeviceTypes',
-    /*listeners: {
-        'render': function (component) {
-            // Get sure that the store is not loading and that it
-            // has at least a record on it
-            if (this.store.isLoading() || this.store.getCount() == 0) {
-                // If it is still pending attach a listener to load
-                // event for a single time to handle the selection
-                // after the store has been loaded
-                this.store.on('load', function () {
-                    if (this.getView() != undefined) {
-                        this.getView().getSelectionModel().select(0);
-                        this.getView().focusRow(0);
-                }
-                }, this, {
-                    single: true
-                });
-            } else {
-                this.getView().getSelectionModel().select(0);
-                this.getView().focusRow(0);
-            }
-
-        }
-    }, */
-
     initComponent: function () {
         var me = this;
         this.columns = [
             {
                 header: Uni.I18n.translate('devicetype.name', 'MDC', 'Name'),
                 dataIndex: 'name',
-                sortable: false,
-                hideable: false,
                 renderer: function (value, b, record) {
                     return '<a href="#/administration/devicetypes/' + record.get('id') + '">' + value + '</a>';
                 },
@@ -53,8 +24,6 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
             {
                 header: Uni.I18n.translate('devicetype.communicationProtocol', 'MDC', 'Communication protocol'),
                 dataIndex: 'communicationProtocolName',
-                sortable: false,
-                hideable: false,
                 fixed: true,
                 flex: 0.4
             },
@@ -65,8 +34,6 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
                 columnWidth: 32,
                 fixed: true,
                 header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-                sortable: false,
-                hideable: false,
                 items: [
                     {
                         handler: function (grid, rowIndex, colIndex, item, e, record, row) {
