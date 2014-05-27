@@ -13,21 +13,13 @@ import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.RegistersTask;
-import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.TopologyTask;
-import com.energyict.mdc.tasks.rest.impl.infos.ComTaskInfo;
-import com.energyict.mdc.tasks.rest.impl.infos.ParameterInfo;
-import com.energyict.mdc.tasks.rest.impl.infos.ProtocolTaskInfo;
 import com.energyict.mdc.tasks.rest.util.RestHelper;
 
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public enum Categories {
 
@@ -56,10 +48,10 @@ public enum Categories {
             List<ParameterInfo> logBookTypesIdsValues = new ArrayList<>();
             for (LogBookType logBookType : logBooksTask.getLogBookTypes()) {
                 ParameterInfo logBookTypeIdValue = new ParameterInfo(ComTaskInfo.LOGBOOK_TYPE_ID);
-                logBookTypeIdValue.setValue(logBookType.getId());
+                logBookTypeIdValue.value = logBookType.getId();
                 logBookTypesIdsValues.add(logBookTypeIdValue);
             }
-            logBookTypesIds.setValue(logBookTypesIdsValues);
+            logBookTypesIds.value = logBookTypesIdsValues;
             protocolTaskParameters.add(logBookTypesIds);
 
             return protocolTaskParameters;
@@ -79,10 +71,10 @@ public enum Categories {
 
         private List<LogBookType> getLogBooksTypes(MasterDataService masterDataService, ProtocolTaskInfo protocolTaskInfo) {
             List<LogBookType> logBookTypes = new ArrayList<>();
-            for (ParameterInfo parameterInfo : protocolTaskInfo.getParameters()) {
-                List<ParameterInfo> parameterInfos = ParameterInfo.from((List<Map<String, Object>>) parameterInfo.getValue());
+            for (ParameterInfo parameterInfo : protocolTaskInfo.parameters) {
+                List<ParameterInfo> parameterInfos = ParameterInfo.from((List<Map<String, Object>>) parameterInfo.value);
                 for (ParameterInfo parameterInfoValue : parameterInfos) {
-                    Long logBookTypeId = ((Number) parameterInfoValue.getValue()).longValue();
+                    Long logBookTypeId = ((Number) parameterInfoValue.value).longValue();
                     if (masterDataService.findLogBookType(logBookTypeId).isPresent()) {
                         logBookTypes.add(masterDataService.findLogBookType(logBookTypeId).get());
                     }
@@ -117,10 +109,10 @@ public enum Categories {
             List<ParameterInfo> registersGroupsIdsValues = new ArrayList<>();
             for (RegisterGroup registerGroup : registersTask.getRegisterGroups()) {
                 ParameterInfo registerGroupIdValue = new ParameterInfo(ComTaskInfo.REGISTER_GROUP_ID);
-                registerGroupIdValue.setValue(registerGroup.getId());
+                registerGroupIdValue.value = registerGroup.getId();
                 registersGroupsIdsValues.add(registerGroupIdValue);
             }
-            registersGroupsIds.setValue(registersGroupsIdsValues);
+            registersGroupsIds.value = registersGroupsIdsValues;
             protocolTaskParameters.add(registersGroupsIds);
 
             return protocolTaskParameters;
@@ -140,10 +132,10 @@ public enum Categories {
 
         private List<RegisterGroup> getRegisterGroups(MasterDataService masterDataService, ProtocolTaskInfo protocolTaskInfo) {
             List<RegisterGroup> registerGroups = new ArrayList<>();
-            for (ParameterInfo parameterInfo : protocolTaskInfo.getParameters()) {
-                List<ParameterInfo> parameterInfos = ParameterInfo.from((List<Map<String, Object>>) parameterInfo.getValue());
+            for (ParameterInfo parameterInfo : protocolTaskInfo.parameters) {
+                List<ParameterInfo> parameterInfos = ParameterInfo.from((List<Map<String, Object>>) parameterInfo.value);
                 for (ParameterInfo parameterInfoValue : parameterInfos) {
-                    Long registerGroupId = ((Number) parameterInfoValue.getValue()).longValue();
+                    Long registerGroupId = ((Number) parameterInfoValue.value).longValue();
                     if (masterDataService.findRegisterGroup(registerGroupId).isPresent()) {
                         registerGroups.add(masterDataService.findRegisterGroup(registerGroupId).get());
                     }
@@ -177,7 +169,7 @@ public enum Categories {
 
         @Override
         public void createProtocolTask(MasterDataService masterDataService, ComTask comTask, ProtocolTaskInfo protocolTaskInfo) {
-            comTask.createTopologyTask(TopologyAction.valueOf(protocolTaskInfo.getAction().toUpperCase()));
+            comTask.createTopologyTask(TopologyAction.valueOf(protocolTaskInfo.action.toUpperCase()));
         }
 
         @Override
@@ -211,28 +203,28 @@ public enum Categories {
             List<ParameterInfo> loadProfileTypesIdsValues = new ArrayList<>();
             for (LoadProfileType loadProfileType : loadProfilesTask.getLoadProfileTypes()) {
                 ParameterInfo loadProfileTypeIdValue = new ParameterInfo(ComTaskInfo.LOAD_PROFILE_TYPE_ID);
-                loadProfileTypeIdValue.setValue(loadProfileType.getId());
+                loadProfileTypeIdValue.value = loadProfileType.getId();
                 loadProfileTypesIdsValues.add(loadProfileTypeIdValue);
             }
-            loadProfileTypesIds.setValue(loadProfileTypesIdsValues);
+            loadProfileTypesIds.value = loadProfileTypesIdsValues;
             protocolTaskParameters.add(loadProfileTypesIds);
 
             ParameterInfo failIfConfigurationMismatch = new ParameterInfo(ComTaskInfo.FAIL_IF_CONFIGURATION_MISMATCH);
-            failIfConfigurationMismatch.setValue(loadProfilesTask.failIfLoadProfileConfigurationMisMatch());
+            failIfConfigurationMismatch.value = loadProfilesTask.failIfLoadProfileConfigurationMisMatch();
             protocolTaskParameters.add(failIfConfigurationMismatch);
 
             ParameterInfo markIntervalsAsBadTime = new ParameterInfo(ComTaskInfo.MARK_INTERVALS_AS_BAD_TIME);
-            markIntervalsAsBadTime.setValue(loadProfilesTask.isMarkIntervalsAsBadTime());
+            markIntervalsAsBadTime.value = loadProfilesTask.isMarkIntervalsAsBadTime();
             protocolTaskParameters.add(markIntervalsAsBadTime);
 
             ParameterInfo createMeterEventsFromFlags = new ParameterInfo(ComTaskInfo.CREATE_METER_EVENTS_FROM_FLAGS);
-            createMeterEventsFromFlags.setValue(loadProfilesTask.createMeterEventsFromStatusFlags());
+            createMeterEventsFromFlags.value = loadProfilesTask.createMeterEventsFromStatusFlags();
             protocolTaskParameters.add(createMeterEventsFromFlags);
 
             ParameterInfo minClockDiffBeforeBadTime = new ParameterInfo(ComTaskInfo.MIN_CLOCK_DIFF_BEFORE_BAD_TIME);
             ParameterInfo minClockDiffBeforeBadTimeValue = new ParameterInfo(TimeDuration.getTimeUnitDescription(loadProfilesTask.getMinClockDiffBeforeBadTime().getTimeUnitCode()));
-            minClockDiffBeforeBadTimeValue.setValue(loadProfilesTask.getMinClockDiffBeforeBadTime().getCount());
-            minClockDiffBeforeBadTime.setValue(minClockDiffBeforeBadTimeValue);
+            minClockDiffBeforeBadTimeValue.value = loadProfilesTask.getMinClockDiffBeforeBadTime().getCount();
+            minClockDiffBeforeBadTime.value = minClockDiffBeforeBadTimeValue;
             protocolTaskParameters.add(minClockDiffBeforeBadTime);
 
             return protocolTaskParameters;
@@ -242,29 +234,30 @@ public enum Categories {
         public void createProtocolTask(MasterDataService masterDataService, ComTask comTask, ProtocolTaskInfo protocolTaskInfo) {
             LoadProfilesTask.LoadProfilesTaskBuilder loadProfilesTaskBuilder = comTask.createLoadProfilesTask();
             List<LoadProfileType> loadProfileTypes = new ArrayList<>();
-            for (ParameterInfo parameterInfo : protocolTaskInfo.getParameters()) {
-                switch (parameterInfo.getName()) {
+            for (ParameterInfo parameterInfo : protocolTaskInfo.parameters) {
+                switch (parameterInfo.name) {
                     case ComTaskInfo.LOAD_PROFILE_TYPE_IDS:
-                        List<ParameterInfo> parameterInfos = ParameterInfo.from((List<Map<String, Object>>) parameterInfo.getValue());
+                        List<ParameterInfo> parameterInfos = ParameterInfo.from((List<Map<String, Object>>) parameterInfo.value);
                         for (ParameterInfo parameterInfoValue : parameterInfos) {
-                            Long loadProfileTypeId = ((Number) parameterInfoValue.getValue()).longValue();
+                            Long loadProfileTypeId = ((Number) parameterInfoValue.value).longValue();
                             if (masterDataService.findLoadProfileType(loadProfileTypeId).isPresent()) {
                                 loadProfileTypes.add(masterDataService.findLoadProfileType(loadProfileTypeId).get());
                             }
                         }
                         break;
                     case ComTaskInfo.FAIL_IF_CONFIGURATION_MISMATCH:
-                        loadProfilesTaskBuilder.failIfConfigurationMisMatch((Boolean) parameterInfo.getValue());
+                        loadProfilesTaskBuilder.failIfConfigurationMisMatch((Boolean) parameterInfo.value);
                         break;
                     case ComTaskInfo.MARK_INTERVALS_AS_BAD_TIME:
-                        loadProfilesTaskBuilder.markIntervalsAsBadTime((Boolean) parameterInfo.getValue());
+                        loadProfilesTaskBuilder.markIntervalsAsBadTime((Boolean) parameterInfo.value);
                         break;
                     case ComTaskInfo.CREATE_METER_EVENTS_FROM_FLAGS:
-                        loadProfilesTaskBuilder.createMeterEventsFromFlags((Boolean) parameterInfo.getValue());
+                        loadProfilesTaskBuilder.createMeterEventsFromFlags((Boolean) parameterInfo.value);
                         break;
                     case ComTaskInfo.MIN_CLOCK_DIFF_BEFORE_BAD_TIME:
-                        ParameterInfo parameterInfoValue = ParameterInfo.from((Map<String, Object>) parameterInfo.getValue());
-                        TimeDuration timeDuration = RestHelper.getTimeDuration(parameterInfoValue.getName(), (Integer) parameterInfoValue.getValue());
+                        ParameterInfo parameterInfoValue = ParameterInfo.from((Map<String, Object>) parameterInfo.value);
+                        RestHelper restHelper = new RestHelper();
+                        TimeDuration timeDuration = restHelper.getTimeDuration(parameterInfoValue.name, (Integer) parameterInfoValue.value);
                         loadProfilesTaskBuilder.minClockDiffBeforeBadTime(timeDuration);
                 }
             }
@@ -275,12 +268,12 @@ public enum Categories {
         public void updateProtocolTask(MasterDataService masterDataService, ProtocolTask protocolTask, ProtocolTaskInfo protocolTaskInfo) {
             LoadProfilesTask loadProfilesTask = (LoadProfilesTask) protocolTask;
             List<LoadProfileType> loadProfileTypes = new ArrayList<>();
-            for (ParameterInfo parameterInfo : protocolTaskInfo.getParameters()) {
-                switch (parameterInfo.getName()) {
+            for (ParameterInfo parameterInfo : protocolTaskInfo.parameters) {
+                switch (parameterInfo.name) {
                     case ComTaskInfo.LOAD_PROFILE_TYPE_IDS:
-                        List<ParameterInfo> parameterInfos = ParameterInfo.from((List<Map<String, Object>>) parameterInfo.getValue());
+                        List<ParameterInfo> parameterInfos = ParameterInfo.from((List<Map<String, Object>>) parameterInfo.value);
                         for (ParameterInfo parameterInfoValue : parameterInfos) {
-                            Long loadProfileTypeId = ((Number) parameterInfoValue.getValue()).longValue();
+                            Long loadProfileTypeId = ((Number) parameterInfoValue.value).longValue();
                             if (masterDataService.findLoadProfileType(loadProfileTypeId).isPresent()) {
                                 loadProfileTypes.add(masterDataService.findLoadProfileType(loadProfileTypeId).get());
                             }
@@ -288,17 +281,18 @@ public enum Categories {
                         loadProfilesTask.setLoadProfileTypes(loadProfileTypes);
                         break;
                     case ComTaskInfo.FAIL_IF_CONFIGURATION_MISMATCH:
-                        loadProfilesTask.setFailIfConfigurationMisMatch((Boolean) parameterInfo.getValue());
+                        loadProfilesTask.setFailIfConfigurationMisMatch((Boolean) parameterInfo.value);
                         break;
                     case ComTaskInfo.MARK_INTERVALS_AS_BAD_TIME:
-                        loadProfilesTask.setMarkIntervalsAsBadTime((Boolean) parameterInfo.getValue());
+                        loadProfilesTask.setMarkIntervalsAsBadTime((Boolean) parameterInfo.value);
                         break;
                     case ComTaskInfo.CREATE_METER_EVENTS_FROM_FLAGS:
-                        loadProfilesTask.setCreateMeterEventsFromStatusFlags((Boolean) parameterInfo.getValue());
+                        loadProfilesTask.setCreateMeterEventsFromStatusFlags((Boolean) parameterInfo.value);
                         break;
                     case ComTaskInfo.MIN_CLOCK_DIFF_BEFORE_BAD_TIME:
-                        ParameterInfo parameterInfoValue = ParameterInfo.from((Map<String, Object>) parameterInfo.getValue());
-                        TimeDuration timeDuration = RestHelper.getTimeDuration(parameterInfoValue.getName(), (Integer) parameterInfoValue.getValue());
+                        ParameterInfo parameterInfoValue = ParameterInfo.from((Map<String, Object>) parameterInfo.value);
+                        RestHelper restHelper = new RestHelper();
+                        TimeDuration timeDuration = restHelper.getTimeDuration(parameterInfoValue.name, (Integer) parameterInfoValue.value);
                         loadProfilesTask.setMinClockDiffBeforeBadTime(timeDuration);
                 }
             }
@@ -331,21 +325,21 @@ public enum Categories {
             if (!this.getActionAsStr(clockTask.getClockTaskType().getType()).equals(ComTaskInfo.CLOCK_FORCE_TYPE)) {
                 ParameterInfo minClockDifference = new ParameterInfo(ComTaskInfo.MIN_CLOCK_DIFFERENCE);
                 ParameterInfo minClockDifferenceValue = new ParameterInfo(TimeDuration.getTimeUnitDescription(clockTask.getMinimumClockDifference().getTimeUnitCode()));
-                minClockDifferenceValue.setValue(clockTask.getMinimumClockDifference().getCount());
-                minClockDifference.setValue(minClockDifferenceValue);
+                minClockDifferenceValue.value = clockTask.getMinimumClockDifference().getCount();
+                minClockDifference.value = minClockDifferenceValue;
                 protocolTaskParameters.add(minClockDifference);
 
                 ParameterInfo maxClockDifference = new ParameterInfo(ComTaskInfo.MAX_CLOCK_DIFFERENCE);
                 ParameterInfo maxClockDifferenceValue = new ParameterInfo(TimeDuration.getTimeUnitDescription(clockTask.getMaximumClockDifference().getTimeUnitCode()));
-                maxClockDifferenceValue.setValue(clockTask.getMaximumClockDifference().getCount());
-                maxClockDifference.setValue(maxClockDifferenceValue);
+                maxClockDifferenceValue.value = clockTask.getMaximumClockDifference().getCount();
+                maxClockDifference.value = maxClockDifferenceValue;
                 protocolTaskParameters.add(maxClockDifference);
 
                 if (this.getActionAsStr(clockTask.getClockTaskType().getType()).equals(ComTaskInfo.CLOCK_SYNCHRONIZE_TYPE)) {
                     ParameterInfo maxClockShift = new ParameterInfo(ComTaskInfo.MAX_CLOCK_SHIFT);
                     ParameterInfo maxClockShiftValue = new ParameterInfo(TimeDuration.getTimeUnitDescription(clockTask.getMaximumClockShift().getTimeUnitCode()));
-                    maxClockShiftValue.setValue(clockTask.getMaximumClockShift().getCount());
-                    maxClockShift.setValue(maxClockShiftValue);
+                    maxClockShiftValue.value = clockTask.getMaximumClockShift().getCount();
+                    maxClockShift.value = maxClockShiftValue;
                     protocolTaskParameters.add(maxClockShift);
                 }
             }
@@ -355,12 +349,13 @@ public enum Categories {
 
         @Override
         public void createProtocolTask(MasterDataService masterDataService, ComTask comTask, ProtocolTaskInfo protocolTaskInfo) {
-            ClockTask.ClockTaskBuilder clockTaskBuilder = comTask.createClockTask(ClockTaskType.valueOf(protocolTaskInfo.getAction().toUpperCase() + "CLOCK"));
-            if (!protocolTaskInfo.getAction().equals(ComTaskInfo.CLOCK_FORCE_TYPE)) {
-                for (ParameterInfo parameterInfo : protocolTaskInfo.getParameters()) {
-                    ParameterInfo parameterInfoValue = ParameterInfo.from((Map<String, Object>) parameterInfo.getValue());
-                    TimeDuration timeDuration = RestHelper.getTimeDuration(parameterInfoValue.getName(), (Integer) parameterInfoValue.getValue());
-                    switch (parameterInfo.getName()) {
+            ClockTask.ClockTaskBuilder clockTaskBuilder = comTask.createClockTask(ClockTaskType.valueOf(protocolTaskInfo.action.toUpperCase() + "CLOCK"));
+            if (!protocolTaskInfo.action.equals(ComTaskInfo.CLOCK_FORCE_TYPE)) {
+                for (ParameterInfo parameterInfo : protocolTaskInfo.parameters) {
+                    ParameterInfo parameterInfoValue = ParameterInfo.from((Map<String, Object>) parameterInfo.value);
+                    RestHelper restHelper = new RestHelper();
+                    TimeDuration timeDuration = restHelper.getTimeDuration(parameterInfoValue.name, (Integer) parameterInfoValue.value);
+                    switch (parameterInfo.name) {
                         case ComTaskInfo.MIN_CLOCK_DIFFERENCE:
                             clockTaskBuilder.minimumClockDifference(timeDuration);
                             break;
@@ -368,7 +363,7 @@ public enum Categories {
                             clockTaskBuilder.maximumClockDifference(timeDuration);
                             break;
                         case ComTaskInfo.MAX_CLOCK_SHIFT:
-                            if (protocolTaskInfo.getAction().equals(ComTaskInfo.CLOCK_SYNCHRONIZE_TYPE)) {
+                            if (protocolTaskInfo.action.equals(ComTaskInfo.CLOCK_SYNCHRONIZE_TYPE)) {
                                 clockTaskBuilder.maximumClockShift(timeDuration);
                             }
                     }
@@ -380,11 +375,12 @@ public enum Categories {
         @Override
         public void updateProtocolTask(MasterDataService masterDataService, ProtocolTask protocolTask, ProtocolTaskInfo protocolTaskInfo) {
             ClockTask clockTask = (ClockTask) protocolTask;
-            if (!protocolTaskInfo.getAction().equals(ComTaskInfo.CLOCK_FORCE_TYPE)) {
-                for (ParameterInfo parameterInfo : protocolTaskInfo.getParameters()) {
-                    ParameterInfo parameterInfoValue = ParameterInfo.from((Map<String, Object>) parameterInfo.getValue());
-                    TimeDuration timeDuration = RestHelper.getTimeDuration(parameterInfoValue.getName(), (Integer) parameterInfoValue.getValue());
-                    switch (parameterInfo.getName()) {
+            if (!protocolTaskInfo.action.equals(ComTaskInfo.CLOCK_FORCE_TYPE)) {
+                for (ParameterInfo parameterInfo : protocolTaskInfo.parameters) {
+                    ParameterInfo parameterInfoValue = ParameterInfo.from((Map<String, Object>) parameterInfo.value);
+                    RestHelper restHelper = new RestHelper();
+                    TimeDuration timeDuration = restHelper.getTimeDuration(parameterInfoValue.name, (Integer) parameterInfoValue.value);
+                    switch (parameterInfo.name) {
                         case ComTaskInfo.MIN_CLOCK_DIFFERENCE:
                             clockTask.setMinimumClockDifference(timeDuration);
                             break;
@@ -392,7 +388,7 @@ public enum Categories {
                             clockTask.setMaximumClockDifference(timeDuration);
                             break;
                         case ComTaskInfo.MAX_CLOCK_SHIFT:
-                            if (protocolTaskInfo.getAction().equals(ComTaskInfo.CLOCK_SYNCHRONIZE_TYPE)) {
+                            if (protocolTaskInfo.action.equals(ComTaskInfo.CLOCK_SYNCHRONIZE_TYPE)) {
                                 clockTask.setMaximumClockShift(timeDuration);
                             }
                     }
@@ -406,56 +402,6 @@ public enum Categories {
 
     private Categories(final String id) {
         this.id = id;
-    }
-
-    public static Response createComTask(TaskService taskService, MasterDataService masterDataService, ComTaskInfo comTaskInfo) {
-        ComTask newComTask = taskService.newComTask(comTaskInfo.getName());
-        for (ProtocolTaskInfo protocolTaskInfo : comTaskInfo.getCommands()) {
-            Categories category = Categories.valueOf(protocolTaskInfo.getCategory().toUpperCase());
-            category.createProtocolTask(masterDataService, newComTask, protocolTaskInfo);
-        }
-        newComTask.save();
-        return Response.status(Response.Status.OK).build();
-    }
-
-    public static Response updateComTask(TaskService taskService, MasterDataService masterDataService, ComTaskInfo comTaskInfo, long id) {
-        ComTask editedComTask = taskService.findComTask(id);
-        if (editedComTask != null) {
-            editedComTask.setName(comTaskInfo.getName());
-            List<ProtocolTask> currentProtocolTasks = new ArrayList<>(editedComTask.getProtocolTasks());
-            Set<Long> protocolTasksIds = new HashSet<>();
-
-            for (ProtocolTaskInfo protocolTaskInfo : comTaskInfo.getCommands()) {
-                Categories category = Categories.valueOf(protocolTaskInfo.getCategory().toUpperCase());
-                if (protocolTaskInfo.getId() != null) {
-                    protocolTasksIds.add(protocolTaskInfo.getId());
-                    ProtocolTask protocolTask = taskService.findProtocolTask(protocolTaskInfo.getId());
-                    if (protocolTask != null) {
-                        category.updateProtocolTask(masterDataService, protocolTask, protocolTaskInfo);
-                    }
-                } else {
-                    category.createProtocolTask(masterDataService, editedComTask, protocolTaskInfo);
-                }
-            }
-
-            for (ProtocolTask protocolTask : currentProtocolTasks) {
-                if (!protocolTasksIds.contains(protocolTask.getId()))
-                    editedComTask.removeTask(protocolTask);
-            }
-
-            editedComTask.save();
-            return Response.status(Response.Status.OK).build();
-        }
-        throw new WebApplicationException(Response.Status.BAD_REQUEST);
-    }
-
-    public static Response deleteComTask(TaskService taskService, long id) {
-        ComTask comTask = taskService.findComTask(id);
-        if (comTask != null) {
-            comTask.delete();
-            return Response.status(Response.Status.OK).build();
-        }
-        throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
 
     public abstract Class<? extends ProtocolTask> getProtocolTaskClass();

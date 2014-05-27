@@ -3,13 +3,13 @@ package com.energyict.mdc.tasks.rest.util;
 import com.energyict.mdc.common.TimeDuration;
 
 public class RestHelper {
-    public static String titleize(String s) {
+    public String titleize(String s) {
         StringBuilder sb = new StringBuilder(s);
         sb.replace(0, 1, s.substring(0, 1).toUpperCase());
         return sb.toString();
     }
 
-    public static TimeDuration getTimeDuration(String units, int count) {
+    public TimeDuration getTimeDuration(String units, int count) {
         TimeDuration timeDuration = null;
         if (units.equals(TimeDuration.getTimeUnitDescription(TimeDuration.MILLISECONDS))) {
             timeDuration = TimeDuration.millis(count);

@@ -1,4 +1,4 @@
-package com.energyict.mdc.tasks.rest.impl.infos;
+package com.energyict.mdc.tasks.rest.impl;
 
 import com.energyict.mdc.tasks.ComTask;
 
@@ -23,60 +23,31 @@ public class ComTaskInfo {
             MAX_CLOCK_DIFFERENCE = "maximumclockdifference",
             MAX_CLOCK_SHIFT = "maximumclockshift";
 
-    private Long id;
-    private String name;
-    private boolean inUse;
-    private List<ProtocolTaskInfo> commands;
+    public Long id;
+    public String name;
+    public boolean inUse;
+    public List<ProtocolTaskInfo> commands;
 
-    public static ComTaskInfo from(ComTask comTask, boolean fullSpec) {
+    public static ComTaskInfo from(ComTask comTask) {
         ComTaskInfo comTaskInfo = new ComTaskInfo();
-        comTaskInfo.setId(comTask.getId());
-        comTaskInfo.setName(comTask.getName());
-        comTaskInfo.setInUse(false); //TODO: Real Implementation
-        if (fullSpec) {
-            comTaskInfo.setCommands(new ArrayList<ProtocolTaskInfo>());
-            comTaskInfo.getCommands().addAll(ProtocolTaskInfo.from(comTask.getProtocolTasks()));
-        }
+        comTaskInfo.id = comTask.getId();
+        comTaskInfo.name = comTask.getName();
+        comTaskInfo.inUse = false; //TODO: Real Implementation
         return comTaskInfo;
     }
 
     public static List<ComTaskInfo> from(List<ComTask> comTasks) {
         List<ComTaskInfo> comTaskInfos = new ArrayList<>(comTasks.size());
         for (ComTask comTask : comTasks) {
-            comTaskInfos.add(ComTaskInfo.from(comTask, false));
+            comTaskInfos.add(ComTaskInfo.from(comTask));
         }
         return comTaskInfos;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public boolean isInUse() {
-        return inUse;
-    }
-
-    public void setInUse(boolean inUse) {
-        this.inUse = inUse;
-    }
-
-    public List<ProtocolTaskInfo> getCommands() {
-        return commands;
-    }
-
-    public void setCommands(List<ProtocolTaskInfo> commands) {
-        this.commands = commands;
+    public static ComTaskInfo fullFrom(ComTask comTask) {
+        ComTaskInfo comTaskInfo = ComTaskInfo.from(comTask);
+        comTaskInfo.commands = new ArrayList<>();
+        comTaskInfo.commands.addAll(ProtocolTaskInfo.from(comTask.getProtocolTasks()));
+        return comTaskInfo;
     }
 }

@@ -3,11 +3,13 @@ package com.energyict.mdc.tasks.rest.impl;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.tasks.rest.impl.infos.ActionInfo;
-import com.energyict.mdc.tasks.rest.impl.infos.CategoryInfo;
-import com.energyict.mdc.tasks.rest.impl.infos.ComTaskInfo;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.ProtocolTask;
+import com.energyict.mdc.tasks.TaskService;
 import com.google.common.base.Optional;
 
+import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -22,19 +24,28 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Path("/comtasks")
-public class ComTaskResource extends BaseResource {
-    public ComTaskResource() {
+public class ComTaskResource {
+    private TaskService taskService;
+    private MasterDataService masterDataService;
+
+    @Inject
+    public ComTaskResource(TaskService taskService, MasterDataService masterDataService) {
+        this.taskService = taskService;
+        this.masterDataService = masterDataService;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public PagedInfoList getComTasks(@BeanParam QueryParameters queryParameters) {
         List<ComTaskInfo> comTaskInfos =
-                ComTaskInfo.from(ListPager.of(getTaskService().findAllComTasks(), new ComTaskComparator()).from(queryParameters).find());
+                ComTaskInfo.from(ListPager.of(taskService.findAllComTasks(), new ComTaskComparator()).from(queryParameters).find());
         return PagedInfoList.asJson("data", comTaskInfos, queryParameters);
     }
 
@@ -42,14 +53,20 @@ public class ComTaskResource extends BaseResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getComTask(@PathParam("id") long id) {
-        return Response.status(Response.Status.OK).entity(ComTaskInfo.from(getTaskService().findComTask(id), true)).build();
+        return Response.status(Response.Status.OK).entity(ComTaskInfo.fullFrom(taskService.findComTask(id))).build();
     }
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response addComTask(ComTaskInfo comTaskInfo) {
-        return Categories.createComTask(getTaskService(), getMasterDataService(), comTaskInfo);
+        ComTask newComTask = taskService.newComTask(comTaskInfo.name);
+        for (ProtocolTaskInfo protocolTaskInfo : comTaskInfo.commands) {
+            Categories category = Categories.valueOf(protocolTaskInfo.category.toUpperCase());
+            category.createProtocolTask(masterDataService, newComTask, protocolTaskInfo);
+        }
+        newComTask.save();
+        return Response.status(Response.Status.OK).build();
     }
 
     @PUT
@@ -57,14 +74,46 @@ public class ComTaskResource extends BaseResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response updateComTask(@PathParam("id") long id, ComTaskInfo comTaskInfo) {
-        return Categories.updateComTask(getTaskService(), getMasterDataService(), comTaskInfo, id);
+        ComTask editedComTask = taskService.findComTask(id);
+        if (editedComTask != null) {
+            editedComTask.setName(comTaskInfo.name);
+            List<ProtocolTask> currentProtocolTasks = new ArrayList<>(editedComTask.getProtocolTasks());
+            Set<Long> protocolTasksIds = new HashSet<>();
+
+            for (ProtocolTaskInfo protocolTaskInfo : comTaskInfo.commands) {
+                Categories category = Categories.valueOf(protocolTaskInfo.category.toUpperCase());
+                if (protocolTaskInfo.id != null) {
+                    protocolTasksIds.add(protocolTaskInfo.id);
+                    ProtocolTask protocolTask = taskService.findProtocolTask(protocolTaskInfo.id);
+                    if (protocolTask != null) {
+                        category.updateProtocolTask(masterDataService, protocolTask, protocolTaskInfo);
+                    }
+                } else {
+                    category.createProtocolTask(masterDataService, editedComTask, protocolTaskInfo);
+                }
+            }
+
+            for (ProtocolTask protocolTask : currentProtocolTasks) {
+                if (!protocolTasksIds.contains(protocolTask.getId()))
+                    editedComTask.removeTask(protocolTask);
+            }
+
+            editedComTask.save();
+            return Response.status(Response.Status.OK).build();
+        }
+        throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
 
     @DELETE
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteComTask(@PathParam("id") long id) {
-        return Categories.deleteComTask(getTaskService(), id);
+        ComTask comTask = taskService.findComTask(id);
+        if (comTask != null) {
+            comTask.delete();
+            return Response.status(Response.Status.OK).build();
+        }
+        throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
 
     @GET

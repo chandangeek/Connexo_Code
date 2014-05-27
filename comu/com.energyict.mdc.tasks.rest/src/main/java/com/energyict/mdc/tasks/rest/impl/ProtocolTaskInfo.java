@@ -1,24 +1,23 @@
-package com.energyict.mdc.tasks.rest.impl.infos;
+package com.energyict.mdc.tasks.rest.impl;
 
 import com.energyict.mdc.tasks.ProtocolTask;
-import com.energyict.mdc.tasks.rest.impl.Categories;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ProtocolTaskInfo {
-    private Long id;
-    private String category;
-    private String action;
-    private List<ParameterInfo> parameters;
+    public Long id;
+    public String category;
+    public String action;
+    public List<ParameterInfo> parameters;
 
     public static ProtocolTaskInfo from(ProtocolTask protocolTask) {
         ProtocolTaskInfo protocolTaskInfo = new ProtocolTaskInfo();
         Categories protocolTaskCategory = getProtocolTaskCategory(protocolTask);
-        protocolTaskInfo.setId(protocolTask.getId());
-        protocolTaskInfo.setCategory(getProtocolTaskCategoryAsStr(protocolTask));
-        protocolTaskInfo.setAction(protocolTaskCategory.getActionAsStr(protocolTaskCategory.getAction(protocolTask)));
-        protocolTaskInfo.setParameters(protocolTaskCategory.getProtocolTaskParameters(protocolTask));
+        protocolTaskInfo.id = protocolTask.getId();
+        protocolTaskInfo.category = getProtocolTaskCategoryAsStr(protocolTask);
+        protocolTaskInfo.action = protocolTaskCategory.getActionAsStr(protocolTaskCategory.getAction(protocolTask));
+        protocolTaskInfo.parameters = protocolTaskCategory.getProtocolTaskParameters(protocolTask);
         return protocolTaskInfo;
     }
 
@@ -28,38 +27,6 @@ public class ProtocolTaskInfo {
             protocolTaskInfos.add(ProtocolTaskInfo.from(protocolTask));
         }
         return protocolTaskInfos;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
-    public String getAction() {
-        return action;
-    }
-
-    public void setAction(String action) {
-        this.action = action;
-    }
-
-    public List<ParameterInfo> getParameters() {
-        return parameters;
-    }
-
-    public void setParameters(List<ParameterInfo> parameters) {
-        this.parameters = parameters;
     }
 
     public static String getProtocolTaskCategoryAsStr(ProtocolTask protocolTask) {
