@@ -25,22 +25,30 @@ public class ComTaskExecutionRootDeviceCommand extends CompositeDeviceCommandImp
     }
 
     @Override
-    public void execute (final ComServerDAO comServerDAO) {
-        executeAll(comServerDAO);
+    public void execute(final ComServerDAO comServerDAO) {
+        try {
+            executeAll(comServerDAO);
+        } catch (Throwable t) {
+            this.executionLogger.logUnexpected(t, this.comTaskExecution);
+        }
     }
 
     @Override
-    public void executeDuringShutdown (final ComServerDAO comServerDAO) {
-        executeAllDuringShutdown(comServerDAO);
+    public void executeDuringShutdown(final ComServerDAO comServerDAO) {
+        try {
+            executeAllDuringShutdown(comServerDAO);
+        } catch (Throwable t) {
+            this.executionLogger.logUnexpected(t, this.comTaskExecution);
+        }
     }
 
     @Override
-    public void logExecutionWith (ExecutionLogger logger) {
+    public void logExecutionWith(ExecutionLogger logger) {
         this.executionLogger = logger;
         broadCastExecutionLoggerIfAny();
     }
 
-    private void broadCastExecutionLoggerIfAny () {
+    private void broadCastExecutionLoggerIfAny() {
         if (this.executionLogger != null) {
             for (DeviceCommand deviceCommand : super.getChildren()) {
                 deviceCommand.logExecutionWith(this.executionLogger);

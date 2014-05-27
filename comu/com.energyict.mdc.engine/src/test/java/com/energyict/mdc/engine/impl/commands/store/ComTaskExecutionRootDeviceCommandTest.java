@@ -1,12 +1,15 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.tasks.ComTask;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,36 +40,31 @@ public class ComTaskExecutionRootDeviceCommandTest {
     private ComTask comTask;
     @Mock
     private ComTaskExecution comTaskExecution;
-    @Mock
-    private TransactionService transactionService;
+
+    private ComServerDAOImpl mockComServerDAOButPerformTransactions() {
+        final ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
+        doCallRealMethod().when(comServerDAO).storeMeterReadings(any(DeviceIdentifier.class), any(MeterReading.class));
+        when(comServerDAO.executeTransaction(any(Transaction.class))).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                return ((Transaction<?>) invocation.getArguments()[0]).perform();
+            }
+        });
+        return comServerDAO;
+    }
 
     @Before
     public void initializeMocks () throws SQLException, BusinessException {
         when(this.comTask.getName()).thenReturn(FailureLoggerImplTest.class.getSimpleName());
         when(this.comTaskExecution.getId()).thenReturn(COM_TASK_EXECUTION_ID);
         when(this.comTaskExecution.getComTask()).thenReturn(this.comTask);
-        when(transactionService.execute(any(Transaction.class))).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                return ((Transaction<?>) invocation.getArguments()[0]).perform();
-            }
-        });
-//        when(this.manager.getMdwInterface()).thenReturn(this.mdwInterface);
-//        when(this.mdwInterface.execute(any(Transaction.class))).thenAnswer(new Answer<Object>() {
-//            @Override
-//            public Object answer (InvocationOnMock invocation) throws Throwable {
-//                Transaction transaction = (Transaction) invocation.getArguments()[0];
-//                return transaction.doExecute();
-//            }
-//        });
-//        ManagerFactory.setCurrent(this.manager);
     }
 
     @Test
     public void testExecuteLogFailures () {
         DeviceCommand deviceCommand = this.mockDeviceCommand();
         String errorMessage = "ComTaskExecutionRootDeviceCommandTest#testExecuteLogFailures";
-        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        ComServerDAO comServerDAO = mockComServerDAOButPerformTransactions();
         ApplicationException toBeThrown = new ApplicationException(errorMessage);
         Mockito.doThrow(toBeThrown).when(deviceCommand).execute(comServerDAO);
         ComTaskExecutionRootDeviceCommand command = new ComTaskExecutionRootDeviceCommand(this.comTaskExecution, ComServer.LogLevel.INFO, Arrays.asList(deviceCommand));
