@@ -21,8 +21,6 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodsGrid', {
             {
                 header: Uni.I18n.translate('connectionmethod.default', 'MDC', 'Default'),
                 dataIndex: 'isDefault',
-                sortable: false,
-                hideable: false,
                 renderer: function (value, metadata) {
                     if (value === true) {
                         metadata.style = "padding: 6px 16px 6px 16px;";
@@ -32,44 +30,31 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodsGrid', {
                     }
                 },
                 align: 'center',
-                fixed: true,
                 flex: 0.1
             },
             {
                 header: Uni.I18n.translate('connectionmethod.name', 'MDC', 'Name'),
                 dataIndex: 'name',
-                sortable: false,
-                hideable: false,
 //                renderer: function(value,b,record){
 //                    return '<a href="#/administration/devicetypes/' + record.get('id') + '">' + value + '</a>';;
 //                },
-                fixed: true,
                 flex: 0.3
             },
             {
                 header: Uni.I18n.translate('connectionmethod.direction', 'MDC', 'Direction'),
                 dataIndex: 'direction',
-                sortable: false,
-                hideable: false,
-                fixed: true,
                 flex: 0.3
             },
             {
                 header: Uni.I18n.translate('connectionmethod.connectionType', 'MDC', 'Connection type'),
                 dataIndex: 'connectionType',
-                sortable: false,
-                hideable: false,
-                fixed: true,
                 flex: 0.3
             },
             {
                 xtype: 'actioncolumn',
                 iconCls: 'uni-actioncolumn-gear',
                 columnWidth: 32,
-                fixed: true,
                 header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-                sortable: false,
-                hideable: false,
                 items: [
                     {
                         handler: function (grid, rowIndex, colIndex, item, e, record, row) {

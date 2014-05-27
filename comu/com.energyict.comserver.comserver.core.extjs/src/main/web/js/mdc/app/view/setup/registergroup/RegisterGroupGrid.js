@@ -17,19 +17,13 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupGrid', {
             {
                 header: Uni.I18n.translate('registerGroup.name', 'MDC', 'Name'),
                 dataIndex: 'name',
-                sortable: false,
-                hideable: false,
-                fixed: true,
                 flex: 3
             },
             {
                 xtype: 'actioncolumn',
                 iconCls: 'uni-actioncolumn-gear',
                 columnWidth: 32,
-                fixed: true,
                 header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-                sortable: false,
-                hideable: false,
                 items: [
                     {
                         icon: '../mdc/resources/images/masterActions.png',

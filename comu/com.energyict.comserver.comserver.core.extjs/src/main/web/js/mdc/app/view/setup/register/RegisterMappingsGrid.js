@@ -20,10 +20,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
             {
                 header: Uni.I18n.translate('registerMappings.name', 'MDC', 'Name'),
                 dataIndex: 'name',
-                flex: 3,
-                sortable: false,
-                fixed: true,
-                hideable: false
+                flex: 3
             },
             {
                 xtype: 'actioncolumn',
@@ -46,25 +43,18 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                 ],
                 flex: 2,
                 tdCls: 'view',
-                sortable: false,
                 width: 300
             },
             {
                 header: Uni.I18n.translate('registerMappings.obisCode', 'MDC', 'OBIS code'),
                 dataIndex: 'obisCode',
-                sortable: false,
-                hideable: false,
-                fixed: true,
                 flex: 1
             },
             {
                 xtype: 'actioncolumn',
                 iconCls: 'uni-actioncolumn-gear',
                 columnWidth: 32,
-                fixed: true,
                 header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-                sortable: false,
-                hideable: false,
                 items: [
                     {
                         handler: function (grid, rowIndex, colIndex, item, e, record, row) {

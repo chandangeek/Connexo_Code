@@ -19,25 +19,16 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesGri
             {
                 header: 'Name',
                 dataIndex: 'name',
-                sortable: false,
-                hideable: false,
-                fixed: true,
                 flex: 3
             },
             {
                 header: 'OBIS code',
                 dataIndex: 'obisCode',
-                sortable: false,
-                hideable: false,
-                fixed: true,
                 flex: 2
             },
             {
                 header: Uni.I18n.translate('registerMappings.CIMreadingType', 'MDC', 'CIM Reading type'),
                 dataIndex: 'name',
-                sortable: false,
-                hideable: false,
-                fixed: true,
                 flex: 3,
                 renderer: function (value, metaData, record) {
                     var id = Ext.id();

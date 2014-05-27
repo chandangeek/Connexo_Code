@@ -21,10 +21,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigGrid', {
             {
                 header: Uni.I18n.translate('registerConfigs.name', 'MDC', 'Name'),
                 dataIndex: 'name',
-                flex: 3,
-                sortable: false,
-                fixed: true,
-                hideable: false
+                flex: 3
             },
             {
                 xtype: 'actioncolumn',
@@ -46,26 +43,18 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigGrid', {
                     }
                 ],
                 width: 300,
-                tdCls: 'view',
-                sortable: false,
-                hideable: false
+                tdCls: 'view'
             },
             {
                 header: Uni.I18n.translate('registerConfigs.obisCode', 'MDC', 'OBIS code'),
                 dataIndex: 'overruledObisCode',
-                sortable: false,
-                hideable: false,
-                fixed: true,
                 flex: 1
             },
             {
                 xtype: 'actioncolumn',
                 iconCls: 'uni-actioncolumn-gear',
                 columnWidth: 32,
-                fixed: true,
                 header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-                sortable: false,
-                hideable: false,
                 items: [
                     {
                         handler: function (grid, rowIndex, colIndex, item, e, record, row) {

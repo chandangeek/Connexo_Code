@@ -21,25 +21,16 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypesAddToDeviceTypeGrid',
             {
                 header: 'Name',
                 dataIndex: 'name',
-                sortable: false,
-                hideable: false,
-                fixed: true,
                 flex: 3
             },
             {
                 header: 'OBIS code',
                 dataIndex: 'obisCode',
-                sortable: false,
-                hideable: false,
-                fixed: true,
                 flex: 3
             },
             {
                 header: 'Interval',
                 dataIndex: 'timeDuration',
-                sortable: false,
-                hideable: false,
-                fixed: true,
                 renderer: function (value) {
                     var intervalRecord = this.intervalStore.findRecord('id', value.id);
                     return intervalRecord.getData().name;

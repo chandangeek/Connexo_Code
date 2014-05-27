@@ -18,13 +18,11 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
                 renderer: function (value, b, record) {
                     return '<a href="#/administration/devicetypes/' + record.get('id') + '">' + value + '</a>';
                 },
-                fixed: true,
                 flex: 0.4
             },
             {
                 header: Uni.I18n.translate('devicetype.communicationProtocol', 'MDC', 'Communication protocol'),
                 dataIndex: 'communicationProtocolName',
-                fixed: true,
                 flex: 0.4
             },
 
@@ -32,7 +30,6 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
                 xtype: 'actioncolumn',
                 iconCls: 'uni-actioncolumn-gear',
                 columnWidth: 32,
-                fixed: true,
                 header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                 items: [
                     {

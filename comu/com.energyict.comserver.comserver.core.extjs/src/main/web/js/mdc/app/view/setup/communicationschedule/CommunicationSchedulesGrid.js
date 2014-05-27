@@ -16,17 +16,11 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulesGrid', {
             {
                 header: Uni.I18n.translate('communicationschedule.status', 'MDC', 'Status'),
                 dataIndex: 'schedulingStatus',
-                sortable: false,
-                hideable: false,
-                fixed: true,
                 flex: 0.1
             },
             {
                 header: Uni.I18n.translate('communicationschedule.name', 'MDC', 'Name'),
                 dataIndex: 'name',
-                sortable: false,
-                hideable: false,
-                fixed: true,
                 flex: 0.4
             },
             {
@@ -47,16 +41,11 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulesGrid', {
                     }
                     return value.every.timeUnit;
                 },
-                sortable: false,
-                hideable: false,
-                fixed: true,
                 flex: 0.4
             },
             {
                 header: Uni.I18n.translate('communicationschedule.plannedDate', 'MDC', 'Planned date'),
                 dataIndex: 'plannedDate',
-                sortable: false,
-                hideable: false,
                 renderer: function (value) {
                     if (value !== null) {
                         return new Date(value).toLocaleString();
@@ -64,17 +53,13 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulesGrid', {
                         return '';
                     }
                 },
-                fixed: true,
                 flex: 0.4
             },
             {
                 xtype: 'actioncolumn',
                 iconCls: 'uni-actioncolumn-gear',
                 columnWidth: 32,
-                fixed: true,
                 header: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
-                sortable: false,
-                hideable: false,
                 items: [
                     {
                         handler: function (grid, rowIndex, colIndex, item, e, record, row) {
