@@ -8,7 +8,8 @@ Ext.define('Uni.controller.Navigation', {
         'Uni.controller.history.EventBus',
         'Uni.store.MenuItems',
         'Uni.store.AppItems',
-        'Uni.view.container.ContentContainer'
+        'Uni.view.container.ContentContainer',
+        'Uni.controller.history.Router'
     ],
 
     views: [
