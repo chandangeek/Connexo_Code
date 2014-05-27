@@ -84,14 +84,11 @@ Ext.define('Usr.controller.Main', {
     },
 
     showContent: function (widget) {
-        this.clearContentPanel();
+        this.getContentPanel().removeAll();
         this.getContentPanel().add(widget);
         this.getContentPanel().doComponentLayout();
     },
 
-    clearContentPanel: function () {
-        this.getContentPanel().removeAll(false);
-    },
     signout: function () {
         this.getApplication().getController('Usr.controller.Home').signout();
     }
