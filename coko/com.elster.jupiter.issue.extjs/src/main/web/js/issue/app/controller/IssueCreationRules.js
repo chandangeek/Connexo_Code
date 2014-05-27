@@ -85,13 +85,13 @@ Ext.define('Isu.controller.IssueCreationRules', {
                 this.deleteRule(menu.record);
                 break;
             case 'edit':
-                window.location.href = '#/issue-administration/issuecreationrules/' + id + '/edit';
+                window.location.href = '#/administration/issuecreationrules/' + id + '/edit';
                 break;
         }
     },
 
     createRule: function () {
-        window.location.href = '#/issue-administration/issuecreationrules/create';
+        window.location.href = '#/administration/issuecreationrules/create';
     },
 
     deleteRule: function (rule) {
@@ -101,7 +101,7 @@ Ext.define('Isu.controller.IssueCreationRules', {
                 buttons: [
                     {
                         text: 'Delete',
-                        ui: 'action',
+                        ui: 'delete',
                         handler: function () {
                             rule.destroy({
                                 params: {
