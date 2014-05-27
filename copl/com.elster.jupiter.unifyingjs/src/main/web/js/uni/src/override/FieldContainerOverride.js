@@ -15,7 +15,7 @@ Ext.define('Uni.override.FieldContainerOverride', {
     msgTarget: 'side',
 
     /**
-     * Changes the default label alignment
+     * Changes the default label alignment.
      */
     labelAlign: 'right'
 
