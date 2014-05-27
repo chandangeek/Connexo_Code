@@ -202,6 +202,15 @@ Ext.define('Mdc.controller.history.Setup', {
         crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/comtaskenablements/{comTaskEnablementId}/edit',function(deviceTypeId, deviceConfigurationId, comTaskEnablementId){
             me.getApplication().getController('Mdc.controller.setup.CommunicationTasks').showEditCommunicationTaskView(deviceTypeId, deviceConfigurationId, comTaskEnablementId);
         });
+        crossroads.addRoute('/administration/communicationtasks/',function(){
+            me.getApplication().getController('Mdc.controller.setup.CommunicationTasksView').showCommunicationTasksView();
+        });
+        crossroads.addRoute('/administration/communicationtasks/create',function(){
+            me.getApplication().getController('Mdc.controller.setup.CommunicationTasksCreateEdit').showCommunicationTasksCreateEdit();
+        });
+        crossroads.addRoute('/administration/communicationtasks/{id}',function(id){
+            me.getApplication().getController('Mdc.controller.setup.CommunicationTasksCreateEdit').showCommunicationTasksCreateEdit(id);
+        });
 
         //connection methods routes
         crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/connectionmethods', function (deviceTypeId, deviceConfigurationId) {

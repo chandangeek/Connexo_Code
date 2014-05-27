@@ -116,11 +116,6 @@ Ext.define('Mdc.controller.setup.SearchItems', {
         searchItems.down('#resultsPanel').removeAll();
         searchItems.down('#resultsPanel').add(Ext.create('Mdc.view.setup.searchitems.SearchResults', {store: store}));
 
-//        searchItems.down('#searchResults').store.on('beforeload', function setLastOperation(store, operation) {
-//            store.lastOperation = operation;
-//            this.removeListener('beforeload', setLastOperation);
-//        }, this, { single: true });
-
         if (this.isFilterEmpty(searchItems)) {
             searchItems.down('#searchResults').store.on('load', function showResults() {
                 searchItems.down('#contentLayout').getLayout().setActiveItem(1);
@@ -293,6 +288,12 @@ Ext.define('Mdc.controller.setup.SearchItems', {
     },
 
     cancelSearching: function(btn) {
-
+        var me = this;
+        Ext.Ajax.request({
+            url: '#/administration/searchitems',
+            success: function() {
+                me.clearAllItems();
+            }
+        });
     }
 });

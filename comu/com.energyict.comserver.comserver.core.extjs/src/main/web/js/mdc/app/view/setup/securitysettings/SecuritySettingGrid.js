@@ -12,9 +12,6 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingGrid', {
     },
     columns: {
         defaults: {
-            sortable: false,
-            hideable: false,
-            fixed: true,
             flex: 1
         },
         items: [

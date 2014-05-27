@@ -40,23 +40,17 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsGrid', {
             {
                 header: Uni.I18n.translate('deviceconfiguration.name', 'MDC', 'Name'),
                 dataIndex: 'name',
-                sortable: false,
-                hideable: false,
                 renderer: function (value, b, record) {
                     return '<a href="#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + record.get('id') + '">' + value + '</a>';
                 },
-                fixed: true,
                 flex: 0.4
             },
             {
                 header: Uni.I18n.translate('deviceconfiguration.status', 'MDC', 'Status'),
                 dataIndex: 'active',
-                sortable: false,
-                hideable: false,
                 renderer: function (value, b, record) {
                     return value === true ? Uni.I18n.translate('general.active', 'MDC', 'Active') : Uni.I18n.translate('general.inactive', 'MDC', 'Inactive');
                 },
-                fixed: true,
                 flex: 0.4
             },
 
@@ -64,10 +58,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsGrid', {
                 xtype: 'actioncolumn',
                 iconCls: 'uni-actioncolumn-gear',
                 columnWidth: 32,
-                fixed: true,
                 header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-                sortable: false,
-                hideable: false,
                 items: [
                     {
                         handler: function (grid, rowIndex, colIndex, item, e, record, row) {

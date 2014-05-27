@@ -21,17 +21,11 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
             {
                 header: Uni.I18n.translate('registerType.name', 'MDC', 'Name'),
                 dataIndex: 'name',
-                sortable: false,
-                hideable: false,
-                fixed: true,
                 flex: 3
             },
             {
                 xtype: 'actioncolumn',
                 flex: 2,
-                fixed: true,
-                sortable: false,
-                hideable: false,
                 renderer: function (value, metaData, record) {
                     return '<div class="x-grid-cell-inner" style="float:left; font-size: 13px; line-height: 1em;">'
                         + record.getReadingType().get('mrid') + '&nbsp' + '&nbsp'
@@ -54,9 +48,6 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
             {
                 header: Uni.I18n.translate('registerType.obisCode', 'MDC', 'OBIS code'),
                 dataIndex: 'obisCode',
-                sortable: false,
-                hideable: false,
-                fixed: true,
                 flex: 1
             }
         ];
@@ -66,10 +57,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
                     xtype: 'actioncolumn',
                     iconCls: 'uni-actioncolumn-gear',
                     columnWidth: 32,
-                    fixed: true,
                     header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-                    sortable: false,
-                    hideable: false,
                     items: [
                         {
                             handler: function (grid, rowIndex, colIndex, item, e, record, row) {
