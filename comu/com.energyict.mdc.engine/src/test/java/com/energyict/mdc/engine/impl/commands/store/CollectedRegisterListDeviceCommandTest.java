@@ -1,14 +1,18 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.metering.readings.Reading;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.meterdata.DeviceRegisterList;
 import com.energyict.mdc.engine.impl.protocol.inbound.DeviceIdentifierById;
 import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceImpl;
 import com.energyict.mdc.protocol.api.device.DeviceFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.MeterReadingData;
@@ -28,6 +32,9 @@ import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -59,6 +66,8 @@ public class CollectedRegisterListDeviceCommandTest {
     private DeviceCommand.ExecutionLogger executionLogger;
     @Mock
     private DeviceDataService deviceDataService;
+    @Mock
+    private ServiceProvider serviceProvider;
 
     @Before
     public void initializeMocksAndFactories() {
@@ -73,11 +82,12 @@ public class CollectedRegisterListDeviceCommandTest {
         when(this.collectedRegister.getToTime()).thenReturn(new Date(1358758800000L));    // 21 januari 2013 10:00:00
         when(this.collectedRegister.getReadTime()).thenReturn(new Date(1358758920000L));  // 21 januari 2013 10:02:00
         when(this.collectedRegister.getText()).thenReturn("CollectedRegister text");
-//        ManagerFactory.setCurrent(manager);
-//        when(this.manager.getMdwInterface()).thenReturn(mdwInterface);
-//        when(this.mdwInterface.getDeviceFactory()).thenReturn(this.deviceFactory);
-//        when(this.deviceFactory.find(DEVICE_ID)).thenReturn(device);
+        RegisterIdentifier registerIdentifier = mock(RegisterIdentifier.class);
+        when(registerIdentifier.getObisCode()).thenReturn(REGISTER_OBIS);
+        when(this.collectedRegister.getRegisterIdentifier()).thenReturn(registerIdentifier);
         when(this.device.getId()).thenReturn(DEVICE_ID);
+        ServiceProvider.instance.set(serviceProvider);
+        when(serviceProvider.mdcReadingTypeUtilService()).thenReturn(new MdcReadingTypeUtilServiceImpl());
     }
 
     @Test
@@ -89,21 +99,16 @@ public class CollectedRegisterListDeviceCommandTest {
         command.execute(comServerDAO);
 
         // asserts
-        ArgumentCaptor<MeterReadingData> argument = ArgumentCaptor.forClass(MeterReadingData.class);
-        //TODO use the storeMeterReadings instead
-//        verify(comServerDAO).storeMeterReadingData(eq(new DeviceIdentifierById(DEVICE_ID)), argument.capture());
-        MeterReadingData readingData = argument.getValue();
+        ArgumentCaptor<MeterReading> argument = ArgumentCaptor.forClass(MeterReading.class);
+        verify(comServerDAO).storeMeterReadings(eq(new DeviceIdentifierById(DEVICE_ID, deviceDataService)), argument.capture());
+        MeterReading readingData = argument.getValue();
 
-        Assert.assertEquals("Expecting only 1 registerValue", 1, readingData.getRegisterValues().size());
-        RegisterValue registerValue = readingData.getRegisterValues().get(0);
-        Assert.assertEquals(REGISTER_OBIS, registerValue.getObisCode());
-        Assert.assertEquals(collectedRegister.getCollectedQuantity(), registerValue.getQuantity());
-        Assert.assertEquals(collectedRegister.getEventTime(), registerValue.getEventTime());
-        Assert.assertEquals(collectedRegister.getFromTime(), registerValue.getFromTime());
-        Assert.assertEquals(collectedRegister.getToTime(), registerValue.getToTime());
-        Assert.assertEquals(collectedRegister.getReadTime(), registerValue.getReadTime());
-        Assert.assertEquals(REGISTER_ID, registerValue.getRtuRegisterId());
-        Assert.assertEquals(collectedRegister.getText(), registerValue.getText());
+        Assert.assertEquals("Expecting only 1 registerValue", 1, readingData.getReadings().size());
+        Reading registerValue = readingData.getReadings().get(0);
+        Assert.assertEquals(collectedRegister.getCollectedQuantity().getAmount(), registerValue.getValue());
+        Assert.assertEquals(collectedRegister.getEventTime(), registerValue.getTimeStamp());
+        Assert.assertEquals(collectedRegister.getFromTime(), registerValue.getTimePeriod().getStart());
+        Assert.assertEquals(collectedRegister.getToTime(), registerValue.getTimePeriod().getEnd());
     }
 
     @Test

@@ -28,7 +28,7 @@ public class CreateOutboundComSessionTest {
     private Clock clock = new ProgrammableClock();
 
     @Test
-    public void testConstructor () {
+    public void testConstructor() {
         ComSessionBuilder comSessionShadow = mock(ComSessionBuilder.class);
 
         // Business method
@@ -39,7 +39,7 @@ public class CreateOutboundComSessionTest {
     }
 
     @Test
-    public void testExecuteDelegatesToComServerDAO () {
+    public void testExecuteDelegatesToComServerDAO() {
         ComSessionBuilder comSessionBuilder = mock(ComSessionBuilder.class);
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
         CreateOutboundComSession command = new CreateOutboundComSession(ComServer.LogLevel.INFO, connectionTask, comSessionBuilder, ComSession.SuccessIndicator.Success, clock);
@@ -53,7 +53,7 @@ public class CreateOutboundComSessionTest {
     }
 
     @Test
-    public void testExecuteDuringShutdownDelegatesToComServerDAO () {
+    public void testExecuteDuringShutdownDelegatesToComServerDAO() {
         ComSessionBuilder comSessionBuilder = mock(ComSessionBuilder.class);
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
         CreateOutboundComSession command = new CreateOutboundComSession(ComServer.LogLevel.INFO, connectionTask, comSessionBuilder, ComSession.SuccessIndicator.Success, clock);
@@ -67,7 +67,7 @@ public class CreateOutboundComSessionTest {
     }
 
     @Test(expected = MockedComServerDAOFailure.class)
-    public void testExecuteWithFailureRethrowsFailure () {
+    public void testExecuteWithFailureRethrowsFailure() {
         ComSessionBuilder comSessionBuilder = mock(ComSessionBuilder.class);
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
         CreateOutboundComSession command = new CreateOutboundComSession(ComServer.LogLevel.INFO, connectionTask, comSessionBuilder, ComSession.SuccessIndicator.Success, clock);
@@ -81,7 +81,7 @@ public class CreateOutboundComSessionTest {
     }
 
     @Test(expected = MockedComServerDAOFailure.class)
-    public void testExecuteDuringShutdownWithFailureRethrowsFailure () {
+    public void testExecuteDuringShutdownWithFailureRethrowsFailure() {
         ComSessionBuilder comSessionBuilder = mock(ComSessionBuilder.class);
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
         CreateOutboundComSession command = new CreateOutboundComSession(ComServer.LogLevel.INFO, connectionTask, comSessionBuilder, ComSession.SuccessIndicator.Success, clock);
@@ -95,19 +95,20 @@ public class CreateOutboundComSessionTest {
     }
 
     @Test
-    public void testToString () {
+    public void testToString() {
+        ComSession.SuccessIndicator successIndicator = ComSession.SuccessIndicator.Success;
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
         when(connectionTask.getId()).thenReturn(CONNECTION_TASK_ID);
         ComSessionBuilder comSessionBuilder = mock(ComSessionBuilder.class);
-        ComSessionBuilder.EndedComSessionBuilder endedComSession = mock(ComSessionBuilder.EndedComSessionBuilder.class);
         ComSession comSession = mock(ComSession.class);
-        when(comSession.getSuccessIndicator()).thenReturn(ComSession.SuccessIndicator.Success);
+        when(comSession.getSuccessIndicator()).thenReturn(successIndicator);
         when(comSession.getConnectionTask()).thenReturn(connectionTask);
         ComPort comPort = mock(ComPort.class);
         when(comSession.getComPort()).thenReturn(comPort);
-        when(endedComSession.create()).thenReturn(comSession);
-        when(comSessionBuilder.endSession(any(Date.class), any(ComSession.SuccessIndicator.class))).thenReturn(endedComSession);
-        CreateOutboundComSession command = new CreateOutboundComSession(ComServer.LogLevel.INFO, connectionTask, comSessionBuilder, ComSession.SuccessIndicator.Success, clock);
+        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        when(comServerDAO.createComSession(comSessionBuilder, successIndicator)).thenReturn(comSession);
+        CreateOutboundComSession command = new CreateOutboundComSession(ComServer.LogLevel.INFO, connectionTask, comSessionBuilder, successIndicator, clock);
+        command.execute(comServerDAO);
 
         // Business method
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.DEBUG);
@@ -118,7 +119,8 @@ public class CreateOutboundComSessionTest {
     }
 
     private class MockedComServerDAOFailure extends RuntimeException {
-        private MockedComServerDAOFailure () {
+
+        private MockedComServerDAOFailure() {
             super();
         }
     }
