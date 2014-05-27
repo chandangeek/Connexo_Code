@@ -118,6 +118,24 @@ public class ComTaskEnablementResource {
         return Response.status(Response.Status.OK).build();
     }
 
+    @PUT
+    @Path("/{comTaskEnablementId}/activate")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response activateComTaskEnablement(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @PathParam("comTaskEnablementId") long comTaskEnablementId) {
+        this.setComTaskEnablementActive(deviceTypeId, deviceConfigurationId, comTaskEnablementId, true);
+        return Response.status(Response.Status.OK).build();
+    }
+
+    @PUT
+    @Path("/{comTaskEnablementId}/deactivate")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deactivateComTaskEnablement(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @PathParam("comTaskEnablementId") long comTaskEnablementId) {
+        this.setComTaskEnablementActive(deviceTypeId, deviceConfigurationId, comTaskEnablementId, false);
+        return Response.status(Response.Status.OK).build();
+    }
+
     @DELETE
     @Path("/{comTaskEnablementId}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -149,6 +167,22 @@ public class ComTaskEnablementResource {
         List<ComTaskEnablementInfo.ComTaskInfo> deviceConfigurationComTaskInfos = ComTaskEnablementInfo.ComTaskInfo.from(ListPager.of(deviceConfigurationComTasks, new ComTaskComparator()).find());
 
         return PagedInfoList.asJson("data", deviceConfigurationComTaskInfos, queryParameters);
+    }
+
+    private void setComTaskEnablementActive(long deviceTypeId, long deviceConfigurationId, long comTaskEnablementId, boolean setActive) {
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
+        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
+        ComTaskEnablement comTaskEnablement = findComTaskEnablementOrThrowException(deviceConfiguration, comTaskEnablementId);
+
+        if(setActive) {
+            if(comTaskEnablement.isSuspended()) {
+                comTaskEnablement.resume();
+            }
+        } else {
+            if(!comTaskEnablement.isSuspended()) {
+                comTaskEnablement.suspend();
+            }
+        }
     }
 
     private List<ComTask> filterComTasks(List<ComTask> deviceConfigurationComTasks) {
