@@ -25,8 +25,8 @@ Ext.define('Mdc.view.setup.communicationschedule.AddCommunicationTaskWindow', {
     title: Uni.I18n.translate('communicationschedule.addCommunicationTasks', 'MDC', 'Add communication tasks'),
     items: [
         {
-            xtype: 'gridpanel',
-            itemId: 'communicationTaskGrid',
+            xtype: 'grid',
+            itemId: 'communicationTaskGridFromSchedule',
             store: 'CommunicationTasks',
             selType: 'checkboxmodel',
             columns: [

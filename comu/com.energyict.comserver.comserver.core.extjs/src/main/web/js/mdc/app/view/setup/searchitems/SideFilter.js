@@ -28,19 +28,30 @@ Ext.define('Mdc.view.setup.searchitems.SideFilter', {
                     xtype: 'textfield',
                     name: 'mrid',
                     itemId: 'mrid',
-                    fieldLabel: Uni.I18n.translate('searchItems.mrid', 'MDC', 'MRID'),
+                    fieldLabel: Uni.I18n.translate('searchItems.mrid', 'MDC', 'MRID')
                 },
                 {
                     xtype: 'textfield',
                     name: 'sn',
                     itemId: 'sn',
-                    fieldLabel: Uni.I18n.translate('searchItems.serialNumber', 'MDC', 'Serial number'),
+                    fieldLabel: Uni.I18n.translate('searchItems.serialNumber', 'MDC', 'Serial number')
                 },
                 {
                     xtype: 'combobox',
                     name: 'type',
                     itemId: 'type',
-                    store: 'DeviceTypes',
+                    store: new Mdc.store.DeviceTypes(
+                        {
+                            storeId:'DeviceTypesCbSearch',
+                            listeners:{
+                                load:function(store){
+                                    store.insert(0, Ext.create('Mdc.model.DeviceType', {
+                                        id: -1,
+                                        name: '&nbsp;'
+                                    }));
+                                }
+                            }
+                        }),
                     fieldLabel: Uni.I18n.translate('searchItems.type', 'MDC', 'Type'),
                     displayField: 'name',
                     valueField: 'id',
@@ -65,6 +76,7 @@ Ext.define('Mdc.view.setup.searchitems.SideFilter', {
                                         id: -1,
                                         name: '&nbsp;'
                                     }));
+                                    store.sort('name', 'ASC');
                                     comboConfig.bindStore(store);
                                     if (store.getCount() == 1) {
                                         me.clearComboConfiguration(comboConfig);

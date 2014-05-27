@@ -25,7 +25,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
         {ref: 'communicationSchedulePreviewForm', selector: '#communicationSchedulePreviewForm'},
         {ref: 'communicationScheduleEditForm', selector: '#communicationScheduleEditForm'},
         {ref: 'breadCrumbs', selector: 'breadcrumbTrail'},
-        {ref: 'communicationTaskGrid', selector: '#communicationTaskGrid'}
+        {ref: 'communicationTaskGrid', selector: '#communicationTaskGridFromSchedule'}
     ],
 
     record: null,
@@ -194,7 +194,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
             callback: function(records){
                 var widget = Ext.widget('addCommunicationTaskWindow');
                 widget.show();
-                widget.down('#communicationTaskGrid').getSelectionModel().select(me.record.comTaskUsages().data.items);
+                widget.down('#communicationTaskGridFromSchedule').getSelectionModel().select(me.record.comTaskUsages().data.items);
 
             }
         });
