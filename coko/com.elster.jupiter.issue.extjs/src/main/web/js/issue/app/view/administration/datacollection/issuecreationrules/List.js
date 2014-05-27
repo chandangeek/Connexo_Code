@@ -15,9 +15,18 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.List', {
             name: 'empty-text',
             border: false,
             hidden: true,
-            html: '<h3>No rule found</h3>' +
-                '<p>No issue creation rules have been created yet.</p>' +
-                '<p>Possible steps:</p>',
+            html: '<h3>No rule found</h3>',
+
+            items: [
+                {
+                    xtype: 'label',
+                    text: 'No issue creation rules have been created yet.'
+                },
+                {
+                    xtype: 'label',
+                    text: 'Possible steps:'
+                }
+            ],
             bbar: {
                 padding: 0,
                 items: [
