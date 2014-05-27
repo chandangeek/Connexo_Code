@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.engine.impl.commands.collect.BasicCheckCommand;
@@ -15,7 +14,7 @@ import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
 import com.energyict.mdc.tasks.history.CompletionCode;
 
 /**
- * Proper implementation for a {@link VerifyTimeDifferenceCommand}
+ * Proper implementation for a {@link VerifyTimeDifferenceCommand}.
  *
  * @author sva
  * @since 18/04/13 - 10:01
@@ -52,7 +51,9 @@ public class VerifyTimeDifferenceCommandImpl extends SimpleComCommand implements
         if (Math.abs(this.timeDifference.getMilliSeconds()) > this.maximumClockDifference.getMilliSeconds()) {
             addIssue(getIssueService().newProblem(
                     getCommandType(),
-                    Environment.DEFAULT.get().getTranslation("CSC-CONF-134").replaceAll("'", "''"),
+// Todo: Move CommonExceptionReferences to MessageSeeds
+// Environment.DEFAULT.get().getTranslation("CSC-CONF-134").replaceAll("'", "''"),
+                    "Time difference exceeds the configured maximum\\: The time difference ({0}) is larger than the configured allowed maximum ({1})",
                     this.timeDifference,
                     this.maximumClockDifference),
                     CompletionCode.TimeError);

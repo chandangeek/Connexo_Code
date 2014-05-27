@@ -20,7 +20,7 @@ import java.util.List;
  */
 public class ComCommandJournalist {
 
-    private ComTaskExecutionSessionBuilder comTaskExecutionSessionBuilder;
+    private final ComTaskExecutionSessionBuilder comTaskExecutionSessionBuilder;
     private final Clock clock;
     public static final NumberFormat NUMBER_FORMAT = new DecimalFormat("00");
     public static final DateTimeFormatter DATE_FORMAT = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss:SSS");
@@ -66,20 +66,20 @@ public class ComCommandJournalist {
         return builder.toString();
     }
 
-    private void appendHeader(StringBuilder builder, ComCommand comCommand) {
-        builder.append("Execution completed with ").
-                append(comCommand.getWarnings().size()).
-                append(" warning(s) and ").
-                append(comCommand.getProblems().size()).
-                append(" problem(s)\n");
-    }
-
     private boolean hasIssues(ComCommand comCommand) {
         return numberOfIssues(comCommand) > 0;
     }
 
     private int numberOfIssues(ComCommand comCommand) {
         return comCommand.getProblems().size() + comCommand.getWarnings().size();
+    }
+
+    private void appendHeader(StringBuilder builder, ComCommand comCommand) {
+        builder.append("Execution completed with ").
+                append(comCommand.getWarnings().size()).
+                append(" warning(s) and ").
+                append(comCommand.getProblems().size()).
+                append(" problem(s)\n");
     }
 
     private void appendIssues(StringBuilder builder, String heading, List<? extends Issue<?>> issues) {

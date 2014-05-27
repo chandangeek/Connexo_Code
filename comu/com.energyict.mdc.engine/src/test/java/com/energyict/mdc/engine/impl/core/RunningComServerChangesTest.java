@@ -50,8 +50,6 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class RunningComServerChangesTest {
 
-    private static final int HALF_A_SECOND = 500;
-
     @Mock
     private EmbeddedWebServerFactory embeddedWebServerFactory;
     @Mock

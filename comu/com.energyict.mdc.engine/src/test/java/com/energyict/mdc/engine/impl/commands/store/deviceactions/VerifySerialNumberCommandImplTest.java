@@ -2,12 +2,17 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.issues.Issue;
+import com.energyict.mdc.issues.impl.IssueServiceImpl;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
-import org.junit.Test;
+
+import com.elster.jupiter.util.time.impl.DefaultClock;
+
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -19,7 +24,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests for the VerifySerialNumberCommandImpl component
+ * Tests for the {@link VerifySerialNumberCommandImpl} component.
  *
  * @author gna
  * @since 11/06/12 - 11:59
@@ -29,9 +34,6 @@ public class VerifySerialNumberCommandImplTest extends CommonCommandImplTests {
 
     private static final String CORRECT_METER_SERIAL_NUMBER = "CorrectMeterSerialNumber";
     private static final String INCORRECT_METER_SERIAL_NUMBER = "IncorrectMeterSerialNumber";
-
-//    @ClassRule
-//    public static TestRule mockEnvironmentTranslactions = new MockEnvironmentTranslations();
 
     @Test
     public void getCorrectCommandTypeTest() {

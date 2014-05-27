@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.legacy;
 
-import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.exceptions.ComCommandException;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
@@ -8,14 +8,22 @@ import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTes
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.engine.impl.core.CommandFactory;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
+import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolAdapter;
 
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.impl.DefaultClock;
+
 import java.util.logging.Logger;
 
 import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
@@ -23,13 +31,27 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 /**
- * Tests for the {@link InitializeLoggerCommand} component
+ * Tests for the {@link InitializeLoggerCommand} component.
  * <p/>
  * Copyrights EnergyICT
  * Date: 9/08/12
  * Time: 15:57
  */
+@RunWith(MockitoJUnitRunner.class)
 public class InitializeLoggerCommandTest extends AbstractComCommandExecuteTest {
+
+    @Mock
+    private EventPublisherImpl eventPublisher;
+
+    @Before
+    public void setupEventPublisher () {
+        EventPublisherImpl.setInstance(this.eventPublisher);
+    }
+
+    @After
+    public void resetEventPublisher () {
+        EventPublisherImpl.setInstance(null);
+    }
 
     @Test
     public void commandTypeTest() {
@@ -85,7 +107,7 @@ public class InitializeLoggerCommandTest extends AbstractComCommandExecuteTest {
             // business method
             commandRoot.execute(deviceProtocol, executionContext);
         } catch (ComCommandException e) {
-            if (!e.getMessage().equalsIgnoreCase(Environment.DEFAULT.get().getTranslation("CSE-DEV-501"))) {
+            if (!"CSE-DEV-501".equalsIgnoreCase(e.getMessageId())) {
                 throw e;
             }
         }

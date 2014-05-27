@@ -38,14 +38,15 @@ public class VerifySerialNumberCommandImpl extends SimpleComCommand implements V
      * @param executionContext The ExecutionContext
      */
     @Override
-    public void doExecute (final DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
-        if(!(MeterProtocolAdapter.class.isAssignableFrom(deviceProtocol.getClass()))){
+    public void doExecute(final DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
+        if (!(MeterProtocolAdapter.class.isAssignableFrom(deviceProtocol.getClass()))) {
             String meterSerialNumber = deviceProtocol.getSerialNumber();
             if (!meterSerialNumber.equals(offlineDevice.getSerialNumber())) {
                 addIssue(getIssueService().newProblem(getCommandType(), "CSC-CONF-112", meterSerialNumber, offlineDevice.getSerialNumber()), CompletionCode.ConfigurationError);
                 throw DeviceConfigurationException.serialNumberMisMatch(meterSerialNumber, offlineDevice.getSerialNumber());
             }
-        } else {
+        }
+        else {
             addIssue(getIssueService().newWarning(deviceProtocol, "notPossibleToVerifySerialNumber", deviceProtocol.getSerialNumber(), deviceProtocol.getClass().getSimpleName()));
         }
     }

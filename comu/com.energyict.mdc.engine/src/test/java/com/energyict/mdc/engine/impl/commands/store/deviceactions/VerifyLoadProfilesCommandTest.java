@@ -26,7 +26,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 /**
- * Tests for the VerifyLoadProfilesCommandImpl component
+ * Tests for the {@link VerifyLoadProfilesCommandImpl} component.
  *
  * @author gna
  * @since 22/05/12 - 14:46
@@ -41,16 +41,13 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
     private static final int ProfileIntervalInSeconds = 900;
     private static final boolean FailIfConfigurationMisMatch = true;
 
-//    @ClassRule
-//    public static TestRule mockEnvironmentTranslactions = new MockEnvironmentTranslations();
-
     @Test
     public void getCorrectCommandTypeTest() {
         LoadProfilesTask loadProfilesTask = createSimpleLoadProfilesTask();
         LoadProfileCommandImpl loadProfileCommand = mock(LoadProfileCommandImpl.class);
         when(loadProfileCommand.getLoadProfilesTask()).thenReturn(loadProfilesTask);
 
-        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(loadProfileCommand, mock(CommandRoot.class));
+        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(loadProfileCommand, mockCommandRoot());
         assertEquals(ComCommandTypes.VERIFY_LOAD_PROFILE_COMMAND, verifyLoadProfilesCommand.getCommandType());
     }
 
@@ -60,7 +57,7 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
         LoadProfileCommandImpl loadProfileCommand = mock(LoadProfileCommandImpl.class);
         when(loadProfileCommand.getLoadProfilesTask()).thenReturn(loadProfilesTask);
 
-        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(loadProfileCommand, mock(CommandRoot.class));
+        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(loadProfileCommand, mockCommandRoot());
         DeviceLoadProfileConfiguration loadProfileConfiguration = mock(DeviceLoadProfileConfiguration.class);
         when(loadProfileConfiguration.getNumberOfChannels()).thenReturn(2);
         List<ChannelInfo> listOfChannelInfos = createSimpleChannelInfoList();
@@ -81,7 +78,7 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
         LoadProfileCommandImpl loadProfileCommand = mock(LoadProfileCommandImpl.class);
         when(loadProfileCommand.getLoadProfilesTask()).thenReturn(loadProfilesTask);
 
-        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(loadProfileCommand, mock(CommandRoot.class));
+        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(loadProfileCommand, mockCommandRoot());
         DeviceLoadProfileConfiguration loadProfileConfiguration = mock(DeviceLoadProfileConfiguration.class);
         when(loadProfileConfiguration.getNumberOfChannels()).thenReturn(3);
         List<ChannelInfo> listOfChannelInfos = createSimpleChannelInfoList();
@@ -105,7 +102,7 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
         LoadProfileCommandImpl loadProfileCommand = mock(LoadProfileCommandImpl.class);
         when(loadProfileCommand.getLoadProfilesTask()).thenReturn(loadProfilesTask);
 
-        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(loadProfileCommand, mock(CommandRoot.class));
+        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(loadProfileCommand, mockCommandRoot());
         DeviceLoadProfileConfiguration loadProfileConfiguration = mock(DeviceLoadProfileConfiguration.class);
         when(loadProfileConfiguration.getNumberOfChannels()).thenReturn(3);
         List<ChannelInfo> listOfChannelInfos = createSimpleChannelInfoList();
@@ -126,7 +123,8 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
         LoadProfileCommandImpl loadProfileCommand = mock(LoadProfileCommandImpl.class);
         when(loadProfileCommand.getLoadProfilesTask()).thenReturn(loadProfilesTask);
         when(loadProfileCommand.getLoadProfileReaders()).thenReturn(Collections.<LoadProfileReader>emptyList());
-        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(loadProfileCommand, mock(CommandRoot.class));
+        CommandRoot commandRoot = mockCommandRoot();
+        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(loadProfileCommand, commandRoot);
 
         //asserts
         assertNull(verifyLoadProfilesCommand.getLoadProfileReaderForGivenLoadProfileConfiguration(null));
@@ -144,7 +142,8 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
 
         when(loadProfileCommand.getLoadProfilesTask()).thenReturn(loadProfilesTask);
         when(loadProfileCommand.getLoadProfileReaders()).thenReturn(Arrays.asList(loadProfileReader, loadProfileReader2));
-        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(loadProfileCommand, mock(CommandRoot.class));
+        CommandRoot commandRoot = this.mockCommandRoot();
+        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(loadProfileCommand, commandRoot);
 
         DeviceLoadProfileConfiguration loadProfileConfiguration = mock(DeviceLoadProfileConfiguration.class);
         when(loadProfileConfiguration.getObisCode()).thenReturn(LoadProfileObisCode);
@@ -163,7 +162,7 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
         when(loadProfileCommand.getLoadProfilesTask()).thenReturn(loadProfilesTask);
         when(loadProfileCommand.findLoadProfileIntervalForLoadProfileReader(Matchers.<LoadProfileReader>any())).thenReturn(ProfileIntervalInSeconds);
 
-        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(loadProfileCommand, mock(CommandRoot.class));
+        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(loadProfileCommand, this.mockCommandRoot());
 
         DeviceLoadProfileConfiguration loadProfileConfiguration = mock(DeviceLoadProfileConfiguration.class);
         when(loadProfileConfiguration.getObisCode()).thenReturn(LoadProfileObisCode);
@@ -188,7 +187,7 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
         when(loadProfileCommand.getLoadProfilesTask()).thenReturn(loadProfilesTask);
         when(loadProfileCommand.findLoadProfileIntervalForLoadProfileReader(Matchers.<LoadProfileReader>any())).thenReturn(1);
 
-        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(loadProfileCommand, mock(CommandRoot.class));
+        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(loadProfileCommand, this.mockCommandRoot());
 
         DeviceLoadProfileConfiguration loadProfileConfiguration = mock(DeviceLoadProfileConfiguration.class);
         when(loadProfileConfiguration.getObisCode()).thenReturn(LoadProfileObisCode);
@@ -224,7 +223,7 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
         LoadProfileCommandImpl loadProfileCommand = mock(LoadProfileCommandImpl.class);
         when(loadProfileCommand.getLoadProfilesTask()).thenReturn(loadProfilesTask);
 
-        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(loadProfileCommand, mock(CommandRoot.class));
+        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(loadProfileCommand, this.mockCommandRoot());
         verifyLoadProfilesCommand.verifyChannelConfiguration(loadProfileReader, loadProfileConfiguration);
 
         // should get a nice exception because the name of the ChannelInfo is not an ObisCode
@@ -245,7 +244,7 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
         LoadProfileCommandImpl loadProfileCommand = mock(LoadProfileCommandImpl.class);
         when(loadProfileCommand.getLoadProfilesTask()).thenReturn(loadProfilesTask);
 
-        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(loadProfileCommand, mock(CommandRoot.class));
+        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(loadProfileCommand, this.mockCommandRoot());
         verifyLoadProfilesCommand.verifyChannelConfiguration(loadProfileReader, loadProfileConfiguration);
 
         // asserts
@@ -274,7 +273,7 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
         LoadProfileCommandImpl loadProfileCommand = mock(LoadProfileCommandImpl.class);
         when(loadProfileCommand.getLoadProfilesTask()).thenReturn(loadProfilesTask);
 
-        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(loadProfileCommand, mock(CommandRoot.class));
+        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(loadProfileCommand, this.mockCommandRoot());
         verifyLoadProfilesCommand.verifyChannelConfiguration(loadProfileReader, loadProfileConfiguration);
 
         // asserts
@@ -303,7 +302,7 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
         LoadProfileCommandImpl loadProfileCommand = mock(LoadProfileCommandImpl.class);
         when(loadProfileCommand.getLoadProfilesTask()).thenReturn(loadProfilesTask);
 
-        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(loadProfileCommand, mock(CommandRoot.class));
+        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(loadProfileCommand, this.mockCommandRoot());
         verifyLoadProfilesCommand.verifyChannelConfiguration(loadProfileReader, loadProfileConfiguration);
 
         // asserts
@@ -332,7 +331,7 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
         when(loadProfileCommand.getLoadProfilesTask()).thenReturn(loadProfilesTask);
         when(loadProfileCommand.getLoadProfileReaders()).thenReturn(Arrays.asList(loadProfileReader));
 
-        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = spy(new VerifyLoadProfilesCommandImpl(loadProfileCommand, mock(CommandRoot.class)));
+        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = spy(new VerifyLoadProfilesCommandImpl(loadProfileCommand, this.mockCommandRoot()));
         verifyLoadProfilesCommand.execute(deviceProtocol, newTestExecutionContext());
 
         // asserts
@@ -360,7 +359,7 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
         when(loadProfileCommand.getLoadProfilesTask()).thenReturn(loadProfilesTask);
         when(loadProfileCommand.getLoadProfileReaders()).thenReturn(Arrays.asList(loadProfileReader));
 
-        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = spy(new VerifyLoadProfilesCommandImpl(loadProfileCommand, mock(CommandRoot.class)));
+        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = spy(new VerifyLoadProfilesCommandImpl(loadProfileCommand, this.mockCommandRoot()));
         verifyLoadProfilesCommand.execute(deviceProtocol, newTestExecutionContext());
 
         // asserts
@@ -371,6 +370,15 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
         verify(verifyLoadProfilesCommand, times(0)).verifyNumberOfChannels(Matchers.<LoadProfileReader>any(), Matchers.<DeviceLoadProfileConfiguration>any());
         verify(verifyLoadProfilesCommand, times(0)).verifyProfileInterval(Matchers.<LoadProfileReader>any(), Matchers.<DeviceLoadProfileConfiguration>any());
         verify(verifyLoadProfilesCommand, times(0)).verifyChannelConfiguration(Matchers.<LoadProfileReader>any(), Matchers.<DeviceLoadProfileConfiguration>any());
+    }
+
+    private CommandRoot mockCommandRoot() {
+        CommandRoot commandRoot = mock(CommandRoot.class);
+        CommandRoot.ServiceProvider commandRootServiceProvider = mock(CommandRoot.ServiceProvider.class);
+        when(commandRootServiceProvider.issueService()).thenReturn(serviceProvider.issueService());
+        when(commandRootServiceProvider.clock()).thenReturn(serviceProvider.clock());
+        when(commandRoot.getServiceProvider()).thenReturn(commandRootServiceProvider);
+        return commandRoot;
     }
 
     private List<ChannelInfo> createSimpleChannelInfoList() {

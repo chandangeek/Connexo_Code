@@ -11,13 +11,16 @@ import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootServiceProviderAdapter;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
+import com.energyict.mdc.issues.impl.IssueServiceImpl;
 import com.energyict.mdc.tasks.history.TaskHistoryService;
 import com.google.common.base.Optional;
-import org.junit.Before;
+
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -54,11 +57,24 @@ public abstract class AbstractComCommandExecuteTest {
 
     @Before
     public void setUpManager() throws Exception {
-        serviceProvider.setDeviceConfigurationService(deviceConfigurationService);
-        serviceProvider.setClock(new ProgrammableClock());
-        serviceProvider.setTaskHistoryService(mock(TaskHistoryService.class, RETURNS_DEEP_STUBS));
+        setupServiceProvider();
         when(this.protocolDialectConfigurationProperties.getId()).thenReturn(PROTOCOL_DIALECT_CONFIG_PROPS_ID);
         when(deviceConfigurationService.getProtocolDialectConfigurationProperties(PROTOCOL_DIALECT_CONFIG_PROPS_ID)).thenReturn(Optional.of(protocolDialectConfigurationProperties));
+    }
+
+    @Before
+    public void setupServiceProvider() {
+        serviceProvider.setDeviceConfigurationService(deviceConfigurationService);
+        ProgrammableClock clock = new ProgrammableClock();
+        serviceProvider.setClock(clock);
+        serviceProvider.setIssueService(new IssueServiceImpl(clock));
+        serviceProvider.setTaskHistoryService(mock(TaskHistoryService.class, RETURNS_DEEP_STUBS));
+        ServiceProvider.instance.set(serviceProvider);
+    }
+
+    @After
+    public void resetServiceProvider () {
+        ServiceProvider.instance.set(null);
     }
 
     protected static ExecutionContext newTestExecutionContext () {

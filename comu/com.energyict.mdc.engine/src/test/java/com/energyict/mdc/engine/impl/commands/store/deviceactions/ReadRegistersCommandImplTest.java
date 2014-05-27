@@ -14,6 +14,7 @@ import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTes
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.masterdata.RegisterGroup;
+import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
@@ -33,7 +34,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests for the ReadRegistersCommandImpl component
+ * Tests for the {@link ReadRegistersCommandImpl} component.
  *
  * @author gna
  * @since 18/06/12 - 13:56
@@ -112,6 +113,8 @@ public class ReadRegistersCommandImplTest extends AbstractComCommandExecuteTest 
         Register register = mock(Register.class);
         when(register.getRegisterSpec()).thenReturn(registerSpec);
         when(register.getDevice()).thenReturn(mockedDevice);
+        RegisterMapping registerMapping = mock(RegisterMapping.class);
+        when(registerSpec.getRegisterMapping()).thenReturn(registerMapping);
         return register;
     }
 

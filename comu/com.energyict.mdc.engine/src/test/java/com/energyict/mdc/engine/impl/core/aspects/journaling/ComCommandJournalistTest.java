@@ -6,7 +6,6 @@ import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.tasks.history.CompletionCode;
-import org.fest.assertions.api.Assertions;
 
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.Problem;
@@ -14,12 +13,14 @@ import com.energyict.mdc.issues.Warning;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
@@ -33,9 +34,11 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class ComCommandJournalistTest {
 
+    @Mock
     private ComTaskExecutionSessionBuilder comTaskExecutionSessionBuilder;
+
     private ComCommandJournalist journalist;
-    private Clock clock = new ProgrammableClock().frozenAt(new Date(-1613851200000L)); // GMT + 1 : what happened then?
+    private Clock clock = new ProgrammableClock().frozenAt(new Date(-1613851200000L)); // GMT + 1 : what happened then? I'll tell you: armistics of WOI, i.e. Nov 11th 1918
 
     @Before
     public void initializeJournalist () {
@@ -49,7 +52,7 @@ public class ComCommandJournalistTest {
         when(comCommand.getJournalingLogLevel()).thenReturn(LogLevel.DEBUG);
         CompletionCode expectedCompletionCode = CompletionCode.ConnectionError;
         when(comCommand.getCompletionCode()).thenReturn(expectedCompletionCode);
-        when(comCommand.toString()).thenReturn(expectedCommandDescription);
+        when(comCommand.toJournalMessageDescription(any(LogLevel.class))).thenReturn(expectedCommandDescription);
 
         // Business method
         this.journalist.executionCompleted(comCommand, LogLevel.ERROR);
@@ -74,7 +77,7 @@ public class ComCommandJournalistTest {
         this.journalist.executionCompleted(comCommand, LogLevel.INFO);
 
         // Asserts
-        verify(comTaskExecutionSessionBuilder).addComCommandJournalEntry(clock.now(), expectedCompletionCode, null, expectedCommandDescription);
+        verify(comTaskExecutionSessionBuilder).addComCommandJournalEntry(clock.now(), expectedCompletionCode, "", expectedCommandDescription);
     }
 
     @Test
@@ -90,7 +93,7 @@ public class ComCommandJournalistTest {
         this.journalist.executionCompleted(comCommand, LogLevel.DEBUG);
 
         // Asserts
-        verify(comTaskExecutionSessionBuilder).addComCommandJournalEntry(clock.now(), expectedCompletionCode, null, expectedCommandDescription);
+        verify(comTaskExecutionSessionBuilder).addComCommandJournalEntry(clock.now(), expectedCompletionCode, "", expectedCommandDescription);
     }
 
     @Test
@@ -100,7 +103,7 @@ public class ComCommandJournalistTest {
         when(comCommand.getJournalingLogLevel()).thenReturn(LogLevel.ERROR);
         CompletionCode expectedCompletionCode = CompletionCode.ConfigurationWarning;
         when(comCommand.getCompletionCode()).thenReturn(expectedCompletionCode);
-        when(comCommand.toString()).thenReturn(expectedCommandDescription);
+        when(comCommand.toJournalMessageDescription(any(LogLevel.class))).thenReturn(expectedCommandDescription);
         when(comCommand.getIssues()).thenReturn(new ArrayList<Issue<?>>(0));
         when(comCommand.getProblems()).thenReturn(new ArrayList<Problem<?>>(0));
         when(comCommand.getWarnings()).thenReturn(new ArrayList<Warning<?>>(0));
@@ -109,7 +112,7 @@ public class ComCommandJournalistTest {
         this.journalist.executionCompleted(comCommand, LogLevel.ERROR);
 
         // Asserts
-        verify(comTaskExecutionSessionBuilder).addComCommandJournalEntry(clock.now(), expectedCompletionCode, null, expectedCommandDescription);
+        verify(comTaskExecutionSessionBuilder).addComCommandJournalEntry(clock.now(), expectedCompletionCode, "", expectedCommandDescription);
     }
 
     @Test
@@ -119,11 +122,11 @@ public class ComCommandJournalistTest {
         when(comCommand.getJournalingLogLevel()).thenReturn(LogLevel.ERROR);
         CompletionCode expectedCompletionCode = CompletionCode.ConfigurationWarning;
         when(comCommand.getCompletionCode()).thenReturn(expectedCompletionCode);
-        when(comCommand.toString()).thenReturn(expectedCommandDescription);
+        when(comCommand.toJournalMessageDescription(any(LogLevel.class))).thenReturn(expectedCommandDescription);
         Warning<?> warning1 = this.mockWarning("First warning");
         Warning<?> warning2 = this.mockWarning("Second warning");
         when(comCommand.getIssues()).thenReturn(Arrays.<Issue<?>>asList(warning1, warning2));
-        when(comCommand.getWarnings()).thenReturn(Arrays.<Warning<?>>asList(warning1, warning2));
+        when(comCommand.getWarnings()).thenReturn(Arrays.asList(warning1, warning2));
         when(comCommand.getProblems()).thenReturn(new ArrayList<Problem<?>>(0));
 
         // Business method
@@ -133,9 +136,9 @@ public class ComCommandJournalistTest {
         ArgumentCaptor<String> stringCaptor = ArgumentCaptor.forClass(String.class);
         verify(comTaskExecutionSessionBuilder).addComCommandJournalEntry(eq(clock.now()), eq(expectedCompletionCode), stringCaptor.capture(), eq(expectedCommandDescription));
         String errorDescription = stringCaptor.getValue();
-        Assertions.assertThat(errorDescription).startsWith("Execution completed with 2 warning(s) and 0 problem(s)");
-        Assertions.assertThat(errorDescription).contains("01. First warning");
-        Assertions.assertThat(errorDescription).contains("02. Second warning");
+        assertThat(errorDescription).startsWith("Execution completed with 2 warning(s) and 0 problem(s)");
+        assertThat(errorDescription).contains("01. First warning");
+        assertThat(errorDescription).contains("02. Second warning");
     }
 
     @Test
@@ -145,12 +148,12 @@ public class ComCommandJournalistTest {
         when(comCommand.getJournalingLogLevel()).thenReturn(LogLevel.ERROR);
         CompletionCode expectedCompletionCode = CompletionCode.ConfigurationError;
         when(comCommand.getCompletionCode()).thenReturn(expectedCompletionCode);
-        when(comCommand.toString()).thenReturn(expectedCommandDescription);
+        when(comCommand.toJournalMessageDescription(any(LogLevel.class))).thenReturn(expectedCommandDescription);
         Problem<?> problem1 = this.mockProblem("First problem");
         Problem<?> problem2 = this.mockProblem("Second problem");
         when(comCommand.getIssues()).thenReturn(Arrays.<Issue<?>>asList(problem1, problem2));
         when(comCommand.getWarnings()).thenReturn(new ArrayList<Warning<?>>(0));
-        when(comCommand.getProblems()).thenReturn(Arrays.<Problem<?>>asList(problem1, problem2));
+        when(comCommand.getProblems()).thenReturn(Arrays.asList(problem1, problem2));
 
         // Business method
         this.journalist.executionCompleted(comCommand, LogLevel.ERROR);
@@ -159,9 +162,9 @@ public class ComCommandJournalistTest {
         ArgumentCaptor<String> stringCaptor = ArgumentCaptor.forClass(String.class);
         verify(comTaskExecutionSessionBuilder).addComCommandJournalEntry(eq(clock.now()), eq(expectedCompletionCode), stringCaptor.capture(), eq(expectedCommandDescription));
         String errorDescription = stringCaptor.getValue();
-        Assertions.assertThat(errorDescription).startsWith("Execution completed with 0 warning(s) and 2 problem(s)");
-        Assertions.assertThat(errorDescription).contains("01. First warning");
-        Assertions.assertThat(errorDescription).contains("02. Second warning");
+        assertThat(errorDescription).startsWith("Execution completed with 0 warning(s) and 2 problem(s)");
+        assertThat(errorDescription).contains("01. First problem");
+        assertThat(errorDescription).contains("02. Second problem");
     }
 
     @Test
@@ -171,10 +174,10 @@ public class ComCommandJournalistTest {
         when(comCommand.getJournalingLogLevel()).thenReturn(LogLevel.ERROR);
         CompletionCode expectedCompletionCode = CompletionCode.ConfigurationError;
         when(comCommand.getCompletionCode()).thenReturn(expectedCompletionCode);
-        when(comCommand.toString()).thenReturn(expectedCommandDescription);
+        when(comCommand.toJournalMessageDescription(any(LogLevel.class))).thenReturn(expectedCommandDescription);
         Problem<?> problem = this.mockProblem("Problem");
         Warning<?> warning = this.mockWarning("Warning");
-        when(comCommand.getIssues()).thenReturn(Arrays.<Issue<?>>asList(problem, warning));
+        when(comCommand.getIssues()).thenReturn(Arrays.asList(problem, warning));
         when(comCommand.getWarnings()).thenReturn(Arrays.<Warning<?>>asList(warning));
         when(comCommand.getProblems()).thenReturn(Arrays.<Problem<?>>asList(problem));
 
@@ -185,9 +188,9 @@ public class ComCommandJournalistTest {
         ArgumentCaptor<String> stringCaptor = ArgumentCaptor.forClass(String.class);
         verify(comTaskExecutionSessionBuilder).addComCommandJournalEntry(eq(clock.now()), eq(expectedCompletionCode), stringCaptor.capture(), eq(expectedCommandDescription));
         String errorDescription = stringCaptor.getValue();
-        Assertions.assertThat(errorDescription).startsWith("Execution completed with 1 warning(s) and 1 problem(s)");
-        Assertions.assertThat(errorDescription).contains("01. First warning");
-        Assertions.assertThat(errorDescription).contains("02. Second warning");
+        assertThat(errorDescription).startsWith("Execution completed with 1 warning(s) and 1 problem(s)");
+        assertThat(errorDescription).contains("01. Problem");
+        assertThat(errorDescription).contains("01. Warning");
     }
 
     private Warning<?> mockWarning (String description) {

@@ -1,20 +1,26 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.CompositeComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ReadRegistersCommand;
 import com.energyict.mdc.engine.impl.commands.collect.RegisterCommand;
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.meterdata.DefaultDeviceRegister;
+import com.energyict.mdc.issues.impl.IssueServiceImpl;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.RegistersTask;
-import org.junit.Assert;
-import org.junit.Test;
+
+import com.elster.jupiter.util.time.impl.DefaultClock;
+
+import org.junit.*;
 import org.mockito.Matchers;
 
 import java.util.ArrayList;
@@ -26,15 +32,27 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests for the RegisterCommandImpl component
+ * Tests for the {@link RegisterCommandImpl} component.
  *
  * @author gna
  * @since 14/06/12 - 14:20
  */
 public class RegisterCommandImplTest {
 
-//    @ClassRule
-//    public static TestRule mockEnvironmentTranslactions = new MockEnvironmentTranslations();
+    private FakeServiceProvider serviceProvider = new FakeServiceProvider();
+
+    @Before
+    public void setupServiceProvider () {
+        this.serviceProvider.setClock(new DefaultClock());
+        this.serviceProvider.setIssueService(new IssueServiceImpl());
+        this.serviceProvider.setDeviceDataService(mock(DeviceDataService.class));
+        ServiceProvider.instance.set(this.serviceProvider);
+    }
+
+    @After
+    public void resetServiceProvider () {
+        ServiceProvider.instance.set(null);
+    }
 
     @Test(expected = CodingException.class)
     public void commandRootNullTest() {
@@ -65,6 +83,10 @@ public class RegisterCommandImplTest {
         CommandRoot commandRoot = mock(CommandRoot.class);
         ReadRegistersCommand readRegistersCommand = mock(ReadRegistersCommand.class);
         when(commandRoot.getReadRegistersCommand(Matchers.<CompositeComCommand>any(), any(ComTaskExecution.class))).thenReturn(readRegistersCommand);
+        CommandRoot.ServiceProvider commandRootServiceProvider = mock(CommandRoot.ServiceProvider.class);
+        when(commandRootServiceProvider.issueService()).thenReturn(serviceProvider.issueService());
+        when(commandRootServiceProvider.clock()).thenReturn(serviceProvider.clock());
+        when(commandRoot.getServiceProvider()).thenReturn(commandRootServiceProvider);
         RegisterCommand registerCommand = new RegisterCommandImpl(mock(RegistersTask.class), device, commandRoot, null);
 
         // asserts
@@ -77,6 +99,10 @@ public class RegisterCommandImplTest {
         OfflineDevice device = mock(OfflineDevice.class);
         CommandRoot commandRoot = mock(CommandRoot.class);
         ReadRegistersCommand readRegistersCommand = mock(ReadRegistersCommand.class);
+        CommandRoot.ServiceProvider commandRootServiceProvider = mock(CommandRoot.ServiceProvider.class);
+        when(commandRootServiceProvider.issueService()).thenReturn(serviceProvider.issueService());
+        when(commandRootServiceProvider.clock()).thenReturn(serviceProvider.clock());
+        when(commandRoot.getServiceProvider()).thenReturn(commandRootServiceProvider);
         when(commandRoot.getReadRegistersCommand(Matchers.<CompositeComCommand>any(), any(ComTaskExecution.class))).thenReturn(readRegistersCommand);
         RegisterCommand registerCommand = new RegisterCommandImpl(mock(RegistersTask.class), device, commandRoot, null);
 

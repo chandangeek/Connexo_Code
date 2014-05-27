@@ -108,7 +108,9 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
                             addIssue(
                                     getIssueService().newProblem(
                                             loadProfileConfiguration.getObisCode(),
-                                            Environment.DEFAULT.get().getTranslation("unknownclocktasktype").replaceAll("'", "''"),
+// Todo: Move CommonExceptionReferences to MessageSeeds
+// Environment.DEFAULT.get().getTranslation("unknownclocktasktype").replaceAll("'", "''"),
+                                            "Clock action can not be performed due to an unknown type({0}) of the Clock action",
                                             loadProfileConfiguration.getObisCode()),
                                     CompletionCode.ConfigurationWarning);
                         }
@@ -147,7 +149,9 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
                         addIssue(
                                 getIssueService().newProblem(
                                         loadProfileConfigurationObisCode,
-                                        Environment.DEFAULT.get().getTranslation("loadprofileobiscodeXincorrectchannelunits").replaceAll("'", "''"),
+// Todo: Move CommonExceptionReferences to MessageSeeds
+// Environment.DEFAULT.get().getTranslation("loadprofileobiscodeXincorrectchannelunits").replaceAll("'", "''"),
+                                        "Channel unit mismatch: load profile in the meter with OBIS code '{0}' has a channel ({1}) with the unit '{2}', whilst the configured unit for that channel is '{3}'",
                                         loadProfileConfigurationObisCode,
                                         meterChannelInfo.getChannelObisCode(),
                                         meterChannelInfo.getUnit(),
@@ -185,7 +189,9 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
             addIssue(
                     getIssueService().newProblem(
                             loadProfileConfiguration.getObisCode(),
-                            Environment.DEFAULT.get().getTranslation("loadprofileobiscodeXincorrectinterval").replaceAll("'", "''"),
+// Todo: Move CommonExceptionReferences to MessageSeeds
+// Environment.DEFAULT.get().getTranslation("loadprofileobiscodeXincorrectinterval").replaceAll("'", "''"),
+                            "Load profile interval mismatch; load profile with OBIS code '{0}' has a {1} second(s) interval on the device, while {2} second(s) is configured in eiMaster",
                             loadProfileConfiguration.getObisCode(),
                             loadProfileConfiguration.getProfileInterval(),
                             loadProfileInterval),
@@ -206,7 +212,9 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
                 addIssue(
                         getIssueService().newProblem(
                                 loadProfileConfiguration.getObisCode(),
-                                Environment.DEFAULT.get().getTranslation("loadProfileObisCodeXIncorrectChannelNumbers").replaceAll("'", "''"),
+// Todo: Move CommonExceptionReferences to MessageSeeds
+// Environment.DEFAULT.get().getTranslation("loadProfileObisCodeXIncorrectChannelNumbers").replaceAll("'", "''"),
+                                "Number of channels mismatch; load profile with OBIS code '{0}' has {1} channel(s) on the device, while there are {2} channel(s) in eiMaster",
                                 loadProfileConfiguration.getObisCode(),
                                 loadProfileReader.getChannelInfos().size(),
                                 loadProfileConfiguration.getNumberOfChannels()),

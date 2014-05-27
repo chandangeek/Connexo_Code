@@ -69,7 +69,12 @@ public class OfflineRegisterImpl implements OfflineRegister {
         this.registerUnit = this.register.getRegisterSpec().getUnit();
 
         // We don't use the rtuRegister.getOverruledRegisterGroup as this can be overruled!
-        this.registerGroupId = this.register.getRegisterSpec().getRegisterMapping().getRegisterGroup() == null ? 0 : (int) this.register.getRegisterSpec().getRegisterMapping().getRegisterGroup().getId();
+        if (this.register.getRegisterSpec().getRegisterMapping().getRegisterGroup() == null) {
+            this.registerGroupId = 0;
+        }
+        else {
+            this.registerGroupId = (int) this.register.getRegisterSpec().getRegisterMapping().getRegisterGroup().getId();
+        }
         this.meterSerialNumber = this.register.getDevice().getSerialNumber();
     }
 
