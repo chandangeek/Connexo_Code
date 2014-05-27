@@ -12,6 +12,11 @@ Ext.define('Uni.override.FieldContainerOverride', {
     /**
      * Changes the default value 'qtip'.
      */
-    msgTarget: 'side'
+    msgTarget: 'side',
+
+    /**
+     * Changes the default label alignment
+     */
+    labelAlign: 'right'
 
 });
