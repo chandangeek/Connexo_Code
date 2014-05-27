@@ -1,22 +1,27 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.transaction.Transaction;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.model.ComServer;
 
 import java.sql.SQLException;
 
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 /**
 * Tests the {@link ComSessionRootDeviceCommand} component.
@@ -26,6 +31,18 @@ import static org.mockito.Mockito.verify;
 */
 @RunWith(MockitoJUnitRunner.class)
 public class ComSessionRootDeviceCommandTest {
+
+    private ComServerDAOImpl mockComServerDAOButPerformTransactions() {
+        final ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
+        doCallRealMethod().when(comServerDAO).storeMeterReadings(any(DeviceIdentifier.class), any(MeterReading.class));
+        when(comServerDAO.executeTransaction(any(Transaction.class))).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                return ((Transaction<?>) invocation.getArguments()[0]).perform();
+            }
+        });
+        return comServerDAO;
+    }
 
     @Test
     public void testNoChildrenAfterConstruction () {
@@ -129,7 +146,7 @@ public class ComSessionRootDeviceCommandTest {
         DeviceCommand deviceCommand2 = this.mockDeviceCommand();
         DeviceCommand deviceCommand3 = this.mockDeviceCommand();
         command.addAll(deviceCommand1, deviceCommand2, deviceCommand3);
-        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        ComServerDAO comServerDAO = mockComServerDAOButPerformTransactions();
 
         // Business method
         command.execute(comServerDAO);
@@ -149,7 +166,7 @@ public class ComSessionRootDeviceCommandTest {
         command.add(deviceCommand1);
         command.add(deviceCommand2);
         command.add(deviceCommand3);
-        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        ComServerDAO comServerDAO = mockComServerDAOButPerformTransactions();
 
         // Business method
         command.execute(comServerDAO);
@@ -168,7 +185,7 @@ public class ComSessionRootDeviceCommandTest {
         command.add(deviceCommand1);
         command.add(deviceCommand2);
         command.add(deviceCommand3);
-        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        ComServerDAO comServerDAO = mockComServerDAOButPerformTransactions();
 
         // Business method
         command.execute(comServerDAO);
@@ -186,7 +203,7 @@ public class ComSessionRootDeviceCommandTest {
         DeviceCommand deviceCommand2 = this.mockDeviceCommand();
         DeviceCommand deviceCommand3 = this.mockDeviceCommand();
         command.addAll(deviceCommand1, deviceCommand2, deviceCommand3);
-        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        ComServerDAO comServerDAO = mockComServerDAOButPerformTransactions();
 
         // Business method
         command.executeDuringShutdown(comServerDAO);
@@ -209,7 +226,7 @@ public class ComSessionRootDeviceCommandTest {
         command.add(deviceCommand1);
         command.add(deviceCommand2);
         command.add(deviceCommand3);
-        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        ComServerDAO comServerDAO = mockComServerDAOButPerformTransactions();
 
         // Business method
         command.executeDuringShutdown(comServerDAO);
@@ -228,7 +245,7 @@ public class ComSessionRootDeviceCommandTest {
         command.add(deviceCommand1);
         command.add(deviceCommand2);
         command.add(deviceCommand3);
-        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        ComServerDAO comServerDAO = mockComServerDAOButPerformTransactions();
 
         // Business method
         command.executeDuringShutdown(comServerDAO);
@@ -244,7 +261,7 @@ public class ComSessionRootDeviceCommandTest {
         CompositeDeviceCommand command = new ComSessionRootDeviceCommand();
         DeviceCommand deviceCommand1 = this.mockDeviceCommand();
         String errorMessage = "ComSessionRootDeviceCommandTest#testChildExecutionFailureIsPropagated";
-        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        ComServerDAO comServerDAO = mockComServerDAOButPerformTransactions();
         ApplicationException toBeThrown = new ApplicationException(errorMessage);
         Mockito.doThrow(toBeThrown).when(deviceCommand1).execute(comServerDAO);
         DeviceCommand deviceCommand2 = this.mockDeviceCommand();
@@ -265,7 +282,7 @@ public class ComSessionRootDeviceCommandTest {
 
     @Test(expected = ApplicationException.class)
     public void testExecutionFailsAsSoonAsPossible () throws BusinessException, SQLException {
-        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        ComServerDAO comServerDAO = mockComServerDAOButPerformTransactions();
         CompositeDeviceCommand command = new ComSessionRootDeviceCommand();
         DeviceCommand deviceCommand1 = this.mockDeviceCommand();
         Mockito.doThrow(ApplicationException.class).when(deviceCommand1).execute(comServerDAO);

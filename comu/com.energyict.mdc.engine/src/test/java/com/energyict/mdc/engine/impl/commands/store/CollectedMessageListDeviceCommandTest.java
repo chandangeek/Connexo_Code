@@ -29,6 +29,7 @@ import static org.mockito.Mockito.when;
  * Date: 25/03/13
  * Time: 9:37
  */
+@Ignore // TODO - JP-357 - Messages are not in scope yet
 @RunWith(MockitoJUnitRunner.class)
 public class CollectedMessageListDeviceCommandTest {
 
