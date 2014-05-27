@@ -126,7 +126,7 @@ public class OfflineDeviceImpl implements OfflineDevice {
      * Note that this may cause recursive calls to other objects that can go offline.
      */
     private void goOffline(OfflineDeviceContext context, ServiceProvider serviceProvider) {
-        setId((int) this.device.getId());
+        setId(this.device.getId());
         setSerialNumber(this.device.getSerialNumber());
         this.allProperties = TypedProperties.empty();
 
@@ -242,7 +242,7 @@ public class OfflineDeviceImpl implements OfflineDevice {
     private List<OfflineDevice> convertToOfflineRtus(List<Device> downstreamRtus, ServiceProvider serviceProvider) {
         List<OfflineDevice> offlineSlaves = new ArrayList<>(downstreamRtus.size());
         for (Device downstreamRtu : downstreamRtus) {
-            OfflineDevice offlineDevice = new OfflineDeviceImpl(downstreamRtu, new DeviceOfflineFlags(), serviceProvider);
+            OfflineDevice offlineDevice = new OfflineDeviceImpl(downstreamRtu, new DeviceOfflineFlags(DeviceOfflineFlags.SLAVE_DEVICES_FLAG), serviceProvider);
             offlineSlaves.add(offlineDevice);
             offlineSlaves.addAll(offlineDevice.getAllSlaveDevices());
         }
@@ -375,7 +375,7 @@ public class OfflineDeviceImpl implements OfflineDevice {
         return offlineDeviceMessages;
     }
 
-    private void setId(final int id) {
+    private void setId(final long id) {
         this.id = id;
     }
 
