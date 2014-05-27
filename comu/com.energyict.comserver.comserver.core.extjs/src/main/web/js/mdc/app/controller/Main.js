@@ -30,7 +30,9 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.LoadProfileTypesOnDeviceType',
         'Mdc.controller.setup.LoadProfileConfigurations',
         'Mdc.controller.setup.LoadProfileConfigurationDetails',
-        'Mdc.controller.setup.CommunicationTasks'
+        'Mdc.controller.setup.CommunicationTasks',
+        'Mdc.controller.setup.CommunicationTasksView',
+        'Mdc.controller.setup.CommunicationTasksCreateEdit'
     ],
 
     controllers: [
@@ -60,7 +62,9 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.LoadProfileTypesOnDeviceType',
         'Mdc.controller.setup.LoadProfileConfigurations',
         'Mdc.controller.setup.LoadProfileConfigurationDetails',
-        'Mdc.controller.setup.CommunicationTasks'
+        'Mdc.controller.setup.CommunicationTasks',
+        'Mdc.controller.setup.CommunicationTasksView',
+        'Mdc.controller.setup.CommunicationTasksCreateEdit'
     ],
 
     config: {
@@ -151,6 +155,11 @@ Ext.define('Mdc.controller.Main', {
                     text: Uni.I18n.translate('general.comSchedules', 'MDC', 'Communication schedules'),
                     href: '#/administration/communicationschedules',
                     route: 'communicationschedules'
+                },
+                {
+                    text: Uni.I18n.translate('registerConfig.communicationTasks', 'MDC', 'Communication tasks'),
+                    href: '#/administration/communicationtasks',
+                    route: 'communicationtasks'
                 }
             ]
         });
