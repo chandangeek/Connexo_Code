@@ -38,7 +38,7 @@ public class InboundComPortConnectorFactoryImpl implements InboundComPortConnect
             return new TCPPortConnector((TCPBasedInboundComPort) inboundComPort, this.socketService);
         }
         else if (inboundComPort instanceof UDPBasedInboundComPort) {
-            return new UDPPortConnector((UDPBasedInboundComPort) inboundComPort);
+            return new UDPPortConnector((UDPBasedInboundComPort) inboundComPort, socketService);
         }
         throw new RuntimeException("Unknown or unsupported inbound comport type: " + inboundComPort.getClass().getName());
     }

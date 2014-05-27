@@ -1,41 +1,47 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.engine.exceptions.ModemException;
 import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
-import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.channels.serial.BaudrateValue;
 import com.energyict.mdc.protocol.api.channels.serial.FlowControl;
 import com.energyict.mdc.protocol.api.channels.serial.NrOfDataBits;
 import com.energyict.mdc.protocol.api.channels.serial.NrOfStopBits;
 import com.energyict.mdc.protocol.api.channels.serial.Parities;
 import com.energyict.mdc.protocol.api.dialer.core.DialerException;
+import com.energyict.mdc.protocol.api.exceptions.ModemException;
+
 import com.energyict.protocols.mdc.channels.serial.SerialComChannel;
 import com.energyict.protocols.mdc.channels.serial.SerialComponentService;
+import com.energyict.protocols.mdc.channels.serial.SerialComponentServiceImpl;
 import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.protocols.mdc.channels.serial.ServerSerialPort;
 import com.energyict.protocols.mdc.channels.serial.modem.AtModemComponent;
 import org.joda.time.DateTimeConstants;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
+ * Tests the {@link SerialPortConnector} component.
+ *
  * @author sva
  * @since 21/11/12 (13:56)
  */
@@ -44,7 +50,7 @@ public class SerialPortConnectorTest {
 
     @Mock
     private ModemBasedInboundComPort comPort;
-    @Mock
+
     private SerialComponentService serialComponentService;
 
     @Before
@@ -63,13 +69,12 @@ public class SerialPortConnectorTest {
         when(comPort.getConnectTimeout()).thenReturn(new TimeDuration(3));
         when(comPort.getDelayAfterConnect()).thenReturn(new TimeDuration(1));
         when(comPort.getDelayBeforeSend()).thenReturn(new TimeDuration(0));
-        when(comPort.getModemInitStrings()).thenReturn(
-                new ArrayList<String>() {{
-                    add("ATM0");
-                }});
+        when(comPort.getModemInitStrings()).thenReturn(Arrays.asList("ATM0"));
         when(comPort.getAtCommandTry()).thenReturn(new BigDecimal(3));
         when(comPort.getAddressSelector()).thenReturn("");
         when(comPort.getPostDialCommands()).thenReturn("");
+
+        this.serialComponentService = new SerialComponentServiceImpl();
     }
 
     @Test
@@ -78,25 +83,23 @@ public class SerialPortConnectorTest {
         SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService));
         doReturn(serialComChannel).when(portConnector).getNewComChannel();
 
-        serialComChannel.setResponses(new ArrayList<String>() {{
-            add("OK");      // Answer at modem hang up command
-            add("OK");      // Answer at modem restore profile settings
-            add("OK");      // Answer at modem init string
-            add("RING");    // First ring
-            add("RING");    // 2th ring
-            add("RING");    // 3th ring
-            add("CONNECT"); // CONNECT
-        }});
+        serialComChannel.setResponses(Arrays.asList(
+            "OK",      // Answer at modem hang up command
+            "OK",      // Answer at modem restore profile settings
+            "OK",      // Answer at modem init string
+            "RING",    // First ring
+            "RING",    // 2th ring
+            "RING",    // 3th ring
+            "CONNECT")); // CONNECT
 
-        serialComChannel.setResponseTimings(new ArrayList<Integer>() {{
-            add(0);    // Answer at modem hang up command
-            add(0);    // Answer at modem restore profile settings
-            add(0);    // Answer at modem init string
-            add(0);    // First ring
-            add(0);    // 2th ring
-            add(0);    // 3th ring
-            add(0);    // CONNECT
-        }});
+        serialComChannel.setResponseTimings(Arrays.asList(
+            0,    // Answer at modem hang up command
+            0,    // Answer at modem restore profile settings
+            0,    // Answer at modem init string
+            0,    // First ring
+            0,    // 2th ring
+            0,    // 3th ring
+            0));    // CONNECT
         int expectedTime = calculateExpectedAcceptTime(comPort, serialComChannel.getResponseTimings());
         long timeBeforeConnect = System.currentTimeMillis();
 
@@ -113,30 +116,28 @@ public class SerialPortConnectorTest {
     }
 
     @Test
-    public void testProperAcceptWithAdditionalRubbish() throws ConnectionException, IOException, DialerException {
+    public void testProperAcceptWithAdditionalRubbish() throws IOException, DialerException {
         TestableSerialComChannel serialComChannel = getTestableComChannel();
         SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService));
         doReturn(serialComChannel).when(portConnector).getNewComChannel();
 
-        serialComChannel.setResponses(new ArrayList<String>() {{
-            add("-RUBBISH-OK-RUBBISH");      // Answer at modem hang up command
-            add("-RUBBISH-OK-RUBBISH-");      // Answer at modem restore profile settings
-            add("-RUBBISH-OK-RUBBISH-");      // Answer at modem init string
-            add("-RUBBISH-RING-RUBBISH-");    // First ring
-            add("-RUBBISH-RING-RUBBISH-");    // 2th ring
-            add("-RUBBISH-RING-RUBBISH-");    // 3th ring
-            add("-RUBBISH--RUBBISH--RUBBISH-CONNECT-RUBBISH-"); // CONNECT
-        }});
+        serialComChannel.setResponses(Arrays.asList(
+            "-RUBBISH-OK-RUBBISH",      // Answer at modem hang up command
+            "-RUBBISH-OK-RUBBISH-",      // Answer at modem restore profile settings
+            "-RUBBISH-OK-RUBBISH-",      // Answer at modem init string
+            "-RUBBISH-RING-RUBBISH-",    // First ring
+            "-RUBBISH-RING-RUBBISH-",    // 2th ring
+            "-RUBBISH-RING-RUBBISH-",    // 3th ring
+            "-RUBBISH--RUBBISH--RUBBISH-CONNECT-RUBBISH-")); // CONNECT
 
-        serialComChannel.setResponseTimings(new ArrayList<Integer>() {{
-            add(0);    // Answer at modem hang up command
-            add(0);    // Answer at modem restore profile settings
-            add(0);    // Answer at modem init string
-            add(0);    // First ring
-            add(0);    // 2th ring
-            add(0);    // 3th ring
-            add(0);    // CONNECT
-        }});
+        serialComChannel.setResponseTimings(Arrays.asList(
+            0,    // Answer at modem hang up command
+            0,    // Answer at modem restore profile settings
+            0,    // Answer at modem init string
+            0,    // First ring
+            0,    // 2th ring
+            0,    // 3th ring
+            0));  // CONNECT
         int expectedTime = calculateExpectedAcceptTime(comPort, serialComChannel.getResponseTimings());
         long timeBeforeConnect = System.currentTimeMillis();
 
@@ -154,31 +155,29 @@ public class SerialPortConnectorTest {
     }
 
     @Test
-    public void testProperAcceptWithDelayBeforeSend() throws ConnectionException, IOException, DialerException {
+    public void testProperAcceptWithDelayBeforeSend() throws IOException, DialerException {
         TestableSerialComChannel serialComChannel = getTestableComChannel();
         SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService));
         doReturn(serialComChannel).when(portConnector).getNewComChannel();
         when(comPort.getDelayBeforeSend()).thenReturn(new TimeDuration(500, TimeDuration.MILLISECONDS));
 
-        serialComChannel.setResponses(new ArrayList<String>() {{
-            add("OK");      // Answer at modem hang up command
-            add("OK");      // Answer at modem restore profile settings
-            add("OK");      // Answer at modem init string
-            add("RING");    // First ring
-            add("RING");    // 2th ring
-            add("RING");    // 3th ring
-            add("CONNECT"); // CONNECT
-        }});
+        serialComChannel.setResponses(Arrays.asList(
+            "OK",      // Answer at modem hang up command
+            "OK",      // Answer at modem restore profile settings
+            "OK",      // Answer at modem init string
+            "RING",    // First ring
+            "RING",    // 2th ring
+            "RING",    // 3th ring
+            "CONNECT")); // CONNECT
 
-        serialComChannel.setResponseTimings(new ArrayList<Integer>() {{
-            add(0);    // Answer at modem hang up command
-            add(0);    // Answer at modem restore profile settings
-            add(0);    // Answer at modem init string
-            add(0);    // First ring
-            add(0);    // 2th ring
-            add(0);    // 3th ring
-            add(0);    // CONNECT
-        }});
+        serialComChannel.setResponseTimings(Arrays.asList(
+            0,    // Answer at modem hang up command
+            0,    // Answer at modem restore profile settings
+            0,    // Answer at modem init string
+            0,    // First ring
+            0,    // 2th ring
+            0,    // 3th ring
+            0));  // CONNECT
         int expectedTime = calculateExpectedAcceptTime(comPort, serialComChannel.getResponseTimings());
         long timeBeforeConnect = System.currentTimeMillis();
 
@@ -195,37 +194,31 @@ public class SerialPortConnectorTest {
     }
 
     @Test
-    public void testProperAcceptMultipleInitStrings() throws ConnectionException, IOException, DialerException {
+    public void testProperAcceptMultipleInitStrings() throws IOException, DialerException {
         TestableSerialComChannel serialComChannel = getTestableComChannel();
         SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService));
         doReturn(serialComChannel).when(portConnector).getNewComChannel();
-        when(comPort.getModemInitStrings()).thenReturn(
-                new ArrayList<String>() {{
-                    add("FIRST INIT");
-                    add("2TH INIT");
-                }});
+        when(comPort.getModemInitStrings()).thenReturn(Arrays.asList("FIRST INIT", "2TH INIT"));
 
-        serialComChannel.setResponses(new ArrayList<String>() {{
-            add("OK");      // Answer at modem hang up command
-            add("OK");      // Answer at modem restore profile settings
-            add("OK");      // Answer at modem init string 1
-            add("OK");      // Answer at modem init string 2
-            add("RING");    // First ring
-            add("RING");    // 2th ring
-            add("RING");    // 3th ring
-            add("CONNECT"); // CONNECT
-        }});
+        serialComChannel.setResponses(Arrays.asList(
+            "OK",      // Answer at modem hang up command
+            "OK",      // Answer at modem restore profile settings
+            "OK",      // Answer at modem init string 1
+            "OK",      // Answer at modem init string 2
+            "RING",    // First ring
+            "RING",    // 2th ring
+            "RING",    // 3th ring
+            "CONNECT"));// CONNECT
 
-        serialComChannel.setResponseTimings(new ArrayList<Integer>() {{
-            add(0);    // Answer at modem hang up command
-            add(0);    // Answer at modem restore profile settings
-            add(0);    // Answer at modem init string 1
-            add(0);    // Answer at modem init string 2
-            add(0);    // First ring
-            add(0);    // 2th ring
-            add(0);    // 3th ring
-            add(0);    // CONNECT
-        }});
+        serialComChannel.setResponseTimings(Arrays.asList(
+            0,    // Answer at modem hang up command
+            0,    // Answer at modem restore profile settings
+            0,    // Answer at modem init string 1
+            0,    // Answer at modem init string 2
+            0,    // First ring
+            0,    // 2th ring
+            0,    // 3th ring
+            0));  // CONNECT
         int expectedTime = calculateExpectedAcceptTime(comPort, serialComChannel.getResponseTimings());
         long timeBeforeConnect = System.currentTimeMillis();
 
@@ -242,30 +235,28 @@ public class SerialPortConnectorTest {
     }
 
     @Test
-    public void testProperAcceptWithLongConnectDelay() throws ConnectionException, IOException, DialerException {
+    public void testProperAcceptWithLongConnectDelay() throws IOException, DialerException {
         TestableSerialComChannel serialComChannel = getTestableComChannel();
         SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService));
         doReturn(serialComChannel).when(portConnector).getNewComChannel();
 
-        serialComChannel.setResponses(new ArrayList<String>() {{
-            add("OK");      // Answer at modem hang up command
-            add("OK");      // Answer at modem restore profile settings
-            add("OK");      // Answer at modem init string
-            add("RING");    // First ring
-            add("RING");    // 2th ring
-            add("RING");    // 3th ring
-            add("CONNECT"); // CONNECT
-        }});
+        serialComChannel.setResponses(Arrays.asList(
+            "OK",      // Answer at modem hang up command
+            "OK",      // Answer at modem restore profile settings
+            "OK",      // Answer at modem init string
+            "RING",    // First ring
+            "RING",    // 2th ring
+            "RING",    // 3th ring
+            "CONNECT")); // CONNECT
 
-        serialComChannel.setResponseTimings(new ArrayList<Integer>() {{
-            add(0);    // Answer at modem hang up command
-            add(0);    // Answer at modem restore profile settings
-            add(0);    // Answer at modem init string
-            add(0);    // First ring
-            add(0);    // 2th ring
-            add(0);    // 3th ring
-            add(2);    // CONNECT after 2 seconds (which is greater than AtCommandTimeout, but below the ConnectTimeout)
-        }});
+        serialComChannel.setResponseTimings(Arrays.asList(
+            0,    // Answer at modem hang up command
+            0,    // Answer at modem restore profile settings
+            0,    // Answer at modem init string
+            0,    // First ring
+            0,    // 2th ring
+            0,    // 3th ring
+            2));  // CONNECT after 2 seconds (which is greater than AtCommandTimeout, but below the ConnectTimeout)
         int expectedRunTime = calculateExpectedAcceptTime(comPort, serialComChannel.getResponseTimings());
         long timeBeforeConnect = System.currentTimeMillis();
 
@@ -282,35 +273,33 @@ public class SerialPortConnectorTest {
     }
 
     @Test
-    public void testProperAcceptButTimeoutBetweenRings() throws ConnectionException, IOException, DialerException {
+    public void testProperAcceptButTimeoutBetweenRings() throws IOException, DialerException {
         TestableSerialComChannel serialComChannel = getTestableComChannel();
         SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService));
         doReturn(serialComChannel).when(portConnector).getNewComChannel();
 
-        serialComChannel.setResponses(new ArrayList<String>() {{
-            add("OK");      // Answer at modem hang up command
-            add("OK");      // Answer at modem restore profile settings
-            add("OK");      // Answer at modem init string
-            add("RING");    // First ring
-            add("RING");    // 2th ring
+        serialComChannel.setResponses(Arrays.asList(
+            "OK",      // Answer at modem hang up command
+            "OK",      // Answer at modem restore profile settings
+            "OK",      // Answer at modem init string
+            "RING",    // First ring
+            "RING",    // 2th ring
             // 3Th ring not received within time -> Timeout & discard of all previous rings received -> looking again for a sequence of 3 rings
-            add("RING");    // 1th ring of new sequence
-            add("RING");    // 2th ring
-            add("RING");    // 3th ring
-            add("CONNECT"); // CONNECT
-        }});
+            "RING",    // 1th ring of new sequence
+            "RING",    // 2th ring
+            "RING",    // 3th ring
+            "CONNECT")); // CONNECT
 
-        serialComChannel.setResponseTimings(new ArrayList<Integer>() {{
-            add(0);    // Answer at modem hang up command
-            add(0);    // Answer at modem restore profile settings
-            add(0);    // Answer at modem init string
-            add(0);    // First ring
-            add(0);    // 2th ring
-            add(3);    // 1th ring of new sequence
-            add(0);    // 2th ring
-            add(0);    // 3th ring
-            add(0);    // CONNECT
-        }});
+        serialComChannel.setResponseTimings(Arrays.asList(
+            0,    // Answer at modem hang up command
+            0,    // Answer at modem restore profile settings
+            0,    // Answer at modem init string
+            0,    // First ring
+            0,    // 2th ring
+            3,    // 1th ring of new sequence
+            0,    // 2th ring
+            0,    // 3th ring
+            0));  // CONNECT
         int expectedRunTime = calculateExpectedAcceptTime(comPort, serialComChannel.getResponseTimings());
         long timeBeforeConnect = System.currentTimeMillis();
 
@@ -327,32 +316,30 @@ public class SerialPortConnectorTest {
     }
 
     @Test(expected = ModemException.class)
-    public void testNoConnectDueToTimeout() throws ConnectionException, IOException, DialerException {
+    public void testNoConnectDueToTimeout() throws IOException, DialerException {
         TestableSerialComChannel serialComChannel = getTestableComChannel();
         SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService));
         doReturn(serialComChannel).when(portConnector).getNewComChannel();
 
-        serialComChannel.setResponses(new ArrayList<String>() {{
-            add("OK");      // Answer at modem hang up command
-            add("OK");      // Answer at modem restore profile settings
-            add("OK");      // Answer at modem init string
-            add("RING");    // First ring
-            add("RING");    // 2th ring
-            add("RING");    // 3th ring
-            add("RUBBISH -- RUBISH -- RUBISH");
-            add("CONNECT AFTER CONNECT_TIMEOUT"); // CONNECT
-        }});
+        serialComChannel.setResponses(Arrays.asList(
+            "OK",      // Answer at modem hang up command
+            "OK",      // Answer at modem restore profile settings
+            "OK",      // Answer at modem init string
+            "RING",    // First ring
+            "RING",    // 2th ring
+            "RING",    // 3th ring
+            "RUBBISH -- RUBISH -- RUBISH",
+            "CONNECT AFTER CONNECT_TIMEOUT")); // CONNECT
 
-        serialComChannel.setResponseTimings(new ArrayList<Integer>() {{
-            add(0);    // Answer at modem hang up command
-            add(0);    // Answer at modem restore profile settings
-            add(0);    // Answer at modem init string
-            add(0);    // First ring
-            add(0);    // 2th ring
-            add(0);    // 3th ring
-            add(0);    // Rubbish
-            add(4);    // CONNECT after 4 seconds (which is greater than AtCommandTimeout & ConnectTimeout)
-        }});
+        serialComChannel.setResponseTimings(Arrays.asList(
+                0,    // Answer at modem hang up command
+                0,    // Answer at modem restore profile settings
+                0,    // Answer at modem init string
+                0,    // First ring
+                0,    // 2th ring
+                0,    // 3th ring
+                0,    // Rubbish
+                4));    // CONNECT after 4 seconds (which is greater than AtCommandTimeout & ConnectTimeout)
         int expectedRunTime = 4;    // 1 second delay before modem hang up + 3 seconds before modem connect timeout should occur
         long timeBeforeConnect = System.currentTimeMillis();
 
@@ -371,18 +358,14 @@ public class SerialPortConnectorTest {
 
 
     @Test(expected = ModemException.class)
-    public void testTimeoutAtModemCommandWithRetries() throws ConnectionException, IOException, DialerException {
+    public void testTimeoutAtModemCommandWithRetries() throws IOException, DialerException {
         TestableSerialComChannel serialComChannel = getTestableComChannel();
         SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService));
         doReturn(serialComChannel).when(portConnector).getNewComChannel();
 
-        serialComChannel.setResponses(new ArrayList<String>() {{
-            add("RUBBISH - RUBBISH");      // Answer at modem hang up command (first try)
-        }});
+        serialComChannel.setResponses(Arrays.asList("RUBBISH - RUBBISH"));      // Answer at modem hang up command (first try)
 
-        serialComChannel.setResponseTimings(new ArrayList<Integer>() {{
-            add(0);    // Answer at modem hang up command
-        }});
+        serialComChannel.setResponseTimings(Arrays.asList(0));    // Answer at modem hang up command
         int expectedRunTime = 1 + (3*1);    // Delay before hang up + 3 tries to hang up
         long timeBeforeConnect = System.currentTimeMillis();
 
@@ -400,9 +383,8 @@ public class SerialPortConnectorTest {
     }
 
     //    @Test // this test can NOT run on Bamboo, only for local testing of you own ComPorts
-    public void hardwareModemTest() throws ConnectionException, IOException, DialerException {
-        List<String> initStrings = new ArrayList<>();
-        initStrings.add("ATM0");
+    public void hardwareModemTest() throws IOException, DialerException {
+        List<String> initStrings = Arrays.asList("ATM0");
 
         when(comPort.getRingCount()).thenReturn(3);
         when(comPort.getAtCommandTimeout()).thenReturn(new TimeDuration(5));
@@ -432,9 +414,10 @@ public class SerialPortConnectorTest {
 
     /**
      * Calculate the expected time in which the accept should be completed - taking into account all possible timings/delays.
-     * @param comPort
-     * @param responseTimings
-     * @return
+     *
+     * @param comPort The ModemBasedInboundComPort
+     * @param responseTimings The response timings
+     * @return The expected time
      */
     private int calculateExpectedAcceptTime(ModemBasedInboundComPort comPort, List<Integer> responseTimings) {
         long expectedTime = comPort.getAtCommandTimeout().getMilliSeconds();    // Delay before reinitialization of the modem
