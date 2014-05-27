@@ -363,7 +363,7 @@ public class SerialPortConnectorTest {
         SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService));
         doReturn(serialComChannel).when(portConnector).getNewComChannel();
 
-        serialComChannel.setResponses(Arrays.asList("RUBBISH - RUBBISH"));      // Answer at modem hang up command (first try)
+//        serialComChannel.setResponses(Arrays.asList("RUBBISH - RUBBISH", "RUBBISH - RUBBISH", "RUBBISH - RUBBISH"));      // Answer at modem hang up command (first try)
 
         serialComChannel.setResponseTimings(Arrays.asList(0));    // Answer at modem hang up command
         int expectedRunTime = 1 + (3*1);    // Delay before hang up + 3 tries to hang up
@@ -373,6 +373,7 @@ public class SerialPortConnectorTest {
         try {
             portConnector.accept();
         } catch (ModemException e) {
+            assertThat(e.getMessageId()).isEqualTo("PRA-COM-204");
             long timeAfterConnect = System.currentTimeMillis();
             long connectTime = timeAfterConnect - timeBeforeConnect;
             long secs = connectTime / DateTimeConstants.MILLIS_PER_SECOND;
