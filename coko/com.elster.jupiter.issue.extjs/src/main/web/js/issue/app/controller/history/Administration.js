@@ -2,8 +2,6 @@ Ext.define('Isu.controller.history.Administration', {
     extend: 'Uni.controller.history.Converter',
 
     rootToken: 'administration',
-    previousPath: '',
-    currentPath: null,
 
     init: function () {
         var me = this;
@@ -20,30 +18,16 @@ Ext.define('Isu.controller.history.Administration', {
         crossroads.addRoute('administration/issuecreationrules/{id}/edit', function (id) {
             me.getController('Isu.controller.IssueCreationRulesEdit').showOverview(id, 'edit');
         });
-        crossroads.addRoute('issue-administration/communicationtasks',function(){
+        crossroads.addRoute('issue-administration/communicationtasks', function () {
             me.getController('Isu.controller.CommunicationTasksView').showOverview();
         });
-        crossroads.addRoute('issue-administration/communicationtasks/create',function(){
+        crossroads.addRoute('issue-administration/communicationtasks/create', function () {
             me.getController('Isu.controller.CommunicationTasksEdit').showOverview();
         });
-        crossroads.addRoute('issue-administration/communicationtasks/{id}',function(id){
+        crossroads.addRoute('issue-administration/communicationtasks/{id}', function (id) {
             me.getController('Isu.controller.CommunicationTasksEdit').showOverview(id);
         });
 
         this.callParent(arguments);
-    },
-
-    doConversion: function (tokens, token) {
-        //now has tokens and token (which is you complete path)
-
-        var queryStringIndex = token.indexOf('?');
-        if (queryStringIndex > 0) {
-            token = token.substring(0, queryStringIndex);
-        }
-        if (this.currentPath !== null) {
-            this.previousPath = this.currentPath;
-        }
-        this.currentPath = token;
-        crossroads.parse(token);
     }
 });
