@@ -294,7 +294,7 @@ public class AtModemComponent {
                     return true;
                 }
             } catch (ModemException e) {
-                if (!e.getMessageId().equals("CSM-COM-205")) { // only timeout exceptions
+                if (!e.getMessageId().equals("PRA-COM-205")) { // only timeout exceptions
                     throw e;
                 }
             }
