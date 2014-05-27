@@ -38,7 +38,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         var me = this;
         me.control({
             '#communicationTaskGrid': {
-                itemclick: me.previewConnectionTask
+                itemclick: me.communicationTaskGridItemClick
             },
             '#communicationTaskSetup': {
                 afterrender: me.loadCommunicationTasksStore
@@ -54,6 +54,9 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
             },
             'menu menuitem[action=removecommunicationtask]': {
                 click: me.removeCommunicationTask
+            },
+            'menu menuitem[action=activatecommunicationtask]': {
+                click: me.activateCommunicationTask
             }
         });
 
@@ -70,8 +73,26 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         me.on('shownotification', me.showNotification);
     },
 
-    showNotification: function(text, notificationType) {
+    setupMenuItems: function(record) {
+        var me = this,
+            suspended = record.get('suspended');
+
+        if(!Ext.isEmpty(suspended)) {
+            var textKey = ((suspended == true) ? 'communicationtasks.activate' : 'communicationtasks.deactivate'),
+                text = ((suspended == true) ? 'Activate' : 'Deactivate'),
+                menuItems = Ext.ComponentQuery.query('menu menuitem[action=activatecommunicationtask]');
+
+            if(!Ext.isEmpty(menuItems)) {
+                Ext.Array.each(menuItems, function(item) {
+                    item.setText(Uni.I18n.translate(textKey, 'MDC', text));
+                });
+            }
+        }
+    },
+
+    showNotification: function(title, text, notificationType) {
         Ext.create('widget.uxNotification', {
+            title: title,
             html: text,
             ui: notificationType
         }).show();
@@ -87,10 +108,15 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         });
     },
 
-    previewConnectionTask: function (grid, record) {
+    communicationTaskGridItemClick: function(grid, record) {
+        var me = this;
+        me.previewConnectionTask(record);
+        me.setupMenuItems(record);
+    },
+
+    previewConnectionTask: function (record) {
         var me = this,
             form = me.getCommunicationTaskPreviewForm();
-
         me.setPreLoader(form, Uni.I18n.translate('communicationtasks.loading', 'MDC', 'Loading...'));
         me.getCommunicationTaskPreviewPanel().setTitle(record.getData().comTask.name);
         form.loadRecord(record);
@@ -126,6 +152,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                 );
                 me.getCommunicationTaskPreviewPanel().hide();
             } else {
+                selectionModel.deselectAll(false);
                 selectionModel.select(0);
                 grid.fireEvent('itemclick', gridView, selectionModel.getLastSelected());
             }
@@ -346,6 +373,34 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         });
     },
 
+    activateCommunicationTask: function() {
+        var me = this,
+            grid = me.getCommunicationTaskGridPanel(),
+            lastSelected = grid.getView().getSelectionModel().getLastSelected(),
+            suspended = lastSelected.get('suspended');
+
+        if(!Ext.isEmpty(suspended)) {
+            var action = ((suspended == true) ? 'activate' : 'deactivate');
+
+            Ext.Ajax.request({
+                url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/comtaskenablements/' + lastSelected.getData().id + '/' + action,
+                method: 'PUT',
+                success: function () {
+                    var messageKey = ((suspended == true) ? 'communicationtasks.activated' : 'communicationtasks.deactivated');
+                    var messageText = ((suspended == true) ? 'Communication task successfully activated' : 'Communication task successfully deactivated');
+                    me.fireEvent('shownotification', null, Uni.I18n.translate(messageKey, 'MDC', messageText), 'notification-success');
+                    me.loadCommunicationTasksStore();
+                },
+                failure: function (result, request) {
+                    var data = result.responseText;
+                    var titleKey = ((suspended == true) ? 'communicationtasks.activate.error' : 'communicationtasks.deactivate.error');
+                    var titleText = ((suspended == true) ? 'Error during communication task activation' : 'Error during communication task deactivation');
+                    me.fireEvent('shownotification', Uni.I18n.translate(titleKey, 'MDC', titleText), data, 'notification-error');
+                }
+            });
+        }
+    },
+
     updateCommunicationTask: function(mode) {
         var me = this,
             form = me.getCommunicationTaskEditForm(),
@@ -390,7 +445,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                 callback: function () {
                     me.clearPreLoader();
                     location.href = '#/administration/devicetypes/'+me.deviceTypeId+'/deviceconfigurations/'+me.deviceConfigurationId+'/comtaskenablements';
-                    me.fireEvent('shownotification', Uni.I18n.translate('communicationtasks.removed', 'MDC', 'Communication task successfully removed'), 'notification-success');
+                    me.fireEvent('shownotification', null, Uni.I18n.translate('communicationtasks.removed', 'MDC', 'Communication task successfully removed'), 'notification-success');
                     me.loadCommunicationTasksStore();
                 }
             });
@@ -404,10 +459,11 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
             record.save({
                 success: function (record) {
                     location.href = '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/comtaskenablements';
-                    me.fireEvent('shownotification', cfg.successMessage, 'notification-success');
+                    me.fireEvent('shownotification', null, cfg.successMessage, 'notification-success');
                 },
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText);
+                    console.log(json);
                     if (json && json.errors) {
                         me.getCommunicationTaskEditForm().getForm().markInvalid(json.errors);
                     }
