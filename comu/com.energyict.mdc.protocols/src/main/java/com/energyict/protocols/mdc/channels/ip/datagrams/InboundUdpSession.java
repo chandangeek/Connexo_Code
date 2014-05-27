@@ -4,6 +4,7 @@ import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.exceptions.InboundCommunicationException;
 import com.energyict.protocols.mdc.channels.ip.datagrams.AbstractUdpSession;
 import com.energyict.protocols.mdc.channels.ip.datagrams.DatagramComChannel;
+import com.energyict.protocols.mdc.services.SocketService;
 
 import java.io.IOException;
 import java.io.PipedOutputStream;
@@ -21,15 +22,16 @@ import java.net.SocketException;
 public class InboundUdpSession extends AbstractUdpSession {
 
     /**
-     * Default constructor for an InboundUdpSession
+     * Default constructor for an InboundUdpSession.
      *
      * @param bufferSize the bufferSize of the ByteArray that will be filled up by the DatagramPacket
      * @param portNumber the portNumber on which to listen on this machine for UDP packets
+     * @param socketService The SocketService
      */
-    public InboundUdpSession(int bufferSize, int portNumber) {
+    public InboundUdpSession(int bufferSize, int portNumber, SocketService socketService) {
         super(bufferSize);
         try {
-            setDatagramSocket(new DatagramSocket(portNumber));
+            setDatagramSocket(socketService.newUDPSocket(portNumber));
         } catch (SocketException e) {
             throw new InboundCommunicationException(e);
         }
