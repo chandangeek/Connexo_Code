@@ -261,7 +261,7 @@ Ext.define('Mdc.controller.history.Setup', {
     },
 
     tokenizePreviousTokens: function () {
-        return this.tokenizePath(this.previousPath);
+        return this.tokenizePath(this.getApplication().getController('Uni.controller.history.EventBus').previousPath);
     },
 
     tokenizeBrowse: function (item, id) {
