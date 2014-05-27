@@ -34,6 +34,11 @@ Ext.define('Uni.controller.history.EventBus', {
     },
 
     onHistoryChange: function (token) {
+        var queryStringIndex = token.indexOf('?');
+        if (queryStringIndex > 0) {
+            token = token.substring(0, queryStringIndex);
+        }
+
         crossroads.parse(token);
     }
 });
