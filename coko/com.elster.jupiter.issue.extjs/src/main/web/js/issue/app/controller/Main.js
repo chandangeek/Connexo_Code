@@ -71,6 +71,7 @@ Ext.define('Isu.controller.Main', {
 
         Uni.store.MenuItems.add(administrationItem);
 
+        var router = this.getController('Uni.controller.history.Router');
         var datacollection = Ext.create('Uni.model.PortalItem', {
             title: 'Data collection',
             portal: 'workspace',
@@ -78,11 +79,11 @@ Ext.define('Isu.controller.Main', {
             items: [
                 {
                     text: 'Overview',
-                    href: '#/workspace/datacollection'
+                    href: router.getRoute('workspace/datacollection').buildUrl()
                 },
                 {
                     text: 'Issues',
-                    href: '#/workspace/datacollection/issues'
+                    href: router.getRoute('workspace/datacollection/issues').buildUrl()
                 }
             ]
         });
@@ -141,11 +142,11 @@ Ext.define('Isu.controller.Main', {
             items: [
                 {
                     text: 'Issue assignment rules',
-                    href: '#/administration/issueassignmentrules'
+                    href: router.getRoute('administration/issue/assignmentrules').buildUrl()
                 },
                 {
                     text: 'Issue creation rules',
-                    href: '#/administration/issuecreationrules'
+                    href: router.getRoute('administration/issue/creationrules').buildUrl()
                 }
             ]
         });
@@ -168,15 +169,8 @@ Ext.define('Isu.controller.Main', {
     },
 
     showContent: function (widget) {
-        this.clearContentPanel();
+        this.getContentPanel().removeAll();
         this.getContentPanel().add(widget);
         this.getContentPanel().doComponentLayout();
-    },
-
-    clearContentPanel: function () {
-        var widget;
-        while (widget = this.getContentPanel().items.first()) {
-            this.getContentPanel().remove(widget, false);
-        }
     }
 });

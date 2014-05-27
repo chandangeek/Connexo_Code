@@ -2,7 +2,6 @@ Ext.define('Isu.controller.IssueCreationRules', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Uni.model.BreadcrumbItem'
     ],
 
     stores: [
@@ -32,9 +31,6 @@ Ext.define('Isu.controller.IssueCreationRules', {
 
     init: function () {
         this.control({
-            'issue-creation-rules-overview breadcrumbTrail': {
-                afterrender: this.setBreadcrumb
-            },
             'issue-creation-rules-overview issues-creation-rules-list gridview': {
                 itemclick: this.loadGridItemDetail,
                 refresh: this.onGridRefresh
@@ -53,21 +49,6 @@ Ext.define('Isu.controller.IssueCreationRules', {
     showOverview: function () {
         var widget = Ext.widget('issue-creation-rules-overview');
         this.getApplication().fireEvent('changecontentevent', widget);
-    },
-
-    setBreadcrumb: function (breadcrumbs) {
-        var me = this;
-        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-                text: 'Administration',
-                href: me.getController('Isu.controller.history.Administration').tokenizeShowOverview()
-            }),
-            breadcrumbChild1 = Ext.create('Uni.model.BreadcrumbItem', {
-                text: 'Issue creation rules',
-                href: 'issuecreationrules'
-            });
-        breadcrumbParent.setChild(breadcrumbChild1);
-
-        breadcrumbs.setBreadcrumbItem(breadcrumbParent);
     },
 
     onGridRefresh: function (grid) {

@@ -23,19 +23,7 @@ Ext.define('Isu.view.workspace.issues.Item', {
     ],
     items: {
         itemId: 'issue-form',
-        xtype: 'issue-form',
-        // todo: animate button
-        buttons: [{
-            text: 'View details',
-            ui: 'link',
-            action: 'view'
-            //listeners: {
-            //    click: function() {
-            //        console.log(Ext.ComponentQuery.query('#action-menu')[0]);
-            //        window.location.href = "#/workspace/datacollection/issues/" + Ext.ComponentQuery.query('#item-action')[0].issueId
-            //    }
-            //}
-        }]
+        xtype: 'issue-form'
     },
     // todo: set empty text
     emptyText: '<h3>No issue selected</h3><p>Select an issue to view its detail.</p>'

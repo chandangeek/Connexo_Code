@@ -2,7 +2,6 @@ Ext.define('Isu.controller.CloseIssues', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Uni.model.BreadcrumbItem'
     ],
 
     views: [
@@ -22,9 +21,6 @@ Ext.define('Isu.controller.CloseIssues', {
             },
             'message-window': {
                 remove: this.enableButtons
-            },
-            'issues-close breadcrumbTrail': {
-                afterrender: this.setBreadcrumb
             }
         });
         this.getApplication().on('closeissue', this.submitIssueClosing)
@@ -52,28 +48,6 @@ Ext.define('Isu.controller.CloseIssues', {
             button.enable();
         });
 
-    },
-
-    setBreadcrumb: function (breadcrumbs) {
-        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-                text: 'Workspace',
-                href: '#/workspace'
-            }),
-            breadcrumbChild1 = Ext.create('Uni.model.BreadcrumbItem', {
-                text: 'Data collection',
-                href: 'datacollection'
-            }),
-            breadcrumbChild2 = Ext.create('Uni.model.BreadcrumbItem', {
-                text: 'Issues',
-                href: 'issues'
-            }),
-            breadcrumbChild3 = Ext.create('Uni.model.BreadcrumbItem', {
-                text: 'Close Issue',
-                href: 'close'
-            });
-        breadcrumbParent.setChild(breadcrumbChild1).setChild(breadcrumbChild2).setChild(breadcrumbChild3);
-
-        breadcrumbs.setBreadcrumbItem(breadcrumbParent);
     },
 
     issueClosingFormBeforeRenderEvent: function (form) {
