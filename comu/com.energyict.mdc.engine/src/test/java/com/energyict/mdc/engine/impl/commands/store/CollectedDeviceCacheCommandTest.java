@@ -4,6 +4,7 @@ import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.EngineService;
+import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.meterdata.UpdatedDeviceCache;
@@ -11,6 +12,7 @@ import com.energyict.mdc.engine.impl.protocol.inbound.DeviceIdentifierById;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+import com.google.common.base.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -81,13 +83,15 @@ public class CollectedDeviceCacheCommandTest {
         CollectedDeviceCacheCommand deviceCacheCommand = new CollectedDeviceCacheCommand(updatedDeviceCache);
         deviceCacheCommand.logExecutionWith(this.executionLogger);
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
-        when(this.engineService.findDeviceCacheByDevice(this.device)).thenReturn(null);
+
+        DeviceCache existingCache = mock(DeviceCache.class);
+        when(this.engineService.findDeviceCacheByDevice(this.device)).thenReturn(Optional.of(existingCache));
         // Business method
         deviceCacheCommand.execute(comServerDAO);
 
         // Asserts
-        verify(this.engineService).findDeviceCacheByDevice(this.device);
-        verify(this.engineService).newDeviceCache(this.device, protocolCache);
+        verify(existingCache).setCacheObject(protocolCache);
+        verify(existingCache).update();
     }
 
     @Test

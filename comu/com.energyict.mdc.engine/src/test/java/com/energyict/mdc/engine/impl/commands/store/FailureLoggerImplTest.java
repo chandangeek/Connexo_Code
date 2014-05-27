@@ -1,8 +1,12 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.history.ComSession;
 import com.energyict.mdc.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.tasks.history.CompletionCode;
@@ -45,10 +49,11 @@ public class FailureLoggerImplTest {
 
     @Test(expected = CodingException.class)
     public void testLogUnexpectedWithMissingComTaskSession () {
-        ComSessionBuilder shadow = mock(ComSessionBuilder.class);
+        ComSessionBuilder comSessionBuilder = mock(ComSessionBuilder.class);
         ExecutionLoggerImpl failureLogger = mock(ExecutionLoggerImpl.class);
         doCallRealMethod().when(failureLogger).logUnexpected(any(Throwable.class), eq(this.comTaskExecution));
-        when(failureLogger.getComSessionBuilder()).thenReturn(shadow);
+        when(failureLogger.getComSessionBuilder()).thenReturn(comSessionBuilder);
+        when(comSessionBuilder.findFor(comTaskExecution)).thenReturn(Optional.<ComTaskExecutionSessionBuilder>absent());
 
         // Business method
         failureLogger.logUnexpected(new Exception("For testing purposes only"), this.comTaskExecution);
@@ -61,15 +66,17 @@ public class FailureLoggerImplTest {
         ComSessionBuilder comSessionBuilder = mock(ComSessionBuilder.class);
         ComTaskExecutionSessionBuilder taskExecutionSessionBuilder = mock(ComTaskExecutionSessionBuilder.class);
         when(comSessionBuilder.findFor(comTaskExecution)).thenReturn(Optional.of(taskExecutionSessionBuilder));
-        ExecutionLoggerImpl failureLogger = mock(ExecutionLoggerImpl.class);
-        doCallRealMethod().when(failureLogger).logUnexpected(any(Throwable.class), eq(this.comTaskExecution));
-        when(failureLogger.getComSessionBuilder()).thenReturn(comSessionBuilder);
+        ScheduledConnectionTask scheduledConnectionTask = mock(ScheduledConnectionTask.class);
+
+        ComSession.SuccessIndicator successIndicator = ComSession.SuccessIndicator.Success;
+        Clock clock = mock(Clock.class);
+        when(clock.now()).thenReturn(new Date());
+        ExecutionLoggerImpl failureLogger = new CreateOutboundComSession(ComServer.LogLevel.DEBUG, scheduledConnectionTask, comSessionBuilder, successIndicator, clock);
 
         // Business method
         failureLogger.logUnexpected(new Exception("For testing purposes only"), this.comTaskExecution);
 
         // Asserts
-        verify(failureLogger).getComSessionBuilder();
         verify(taskExecutionSessionBuilder).addComCommandJournalEntry(any(Date.class), eq(CompletionCode.UnexpectedError), anyString(), anyString());
     }
 
