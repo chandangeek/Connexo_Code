@@ -1,9 +1,11 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLogBook;
 import com.energyict.mdc.engine.impl.meterdata.identifiers.LogBookIdentifierByIdImpl;
 import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeFactory;
 import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
@@ -18,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author sva
@@ -47,6 +50,7 @@ public class CollectedLogBookDeviceCommandTest {
 
     @Test
     public void testToJournalMessageDescriptionWhenLogBookHasMeterEvents() throws Exception {
+        initializeEndDeviceEventTypeFactory();
         final LogBookIdentifier logBookIdentifier = new LogBookIdentifierByIdImpl(LOGBOOK_ID, deviceDataService);
         final DeviceLogBook deviceLogBook = new DeviceLogBook(logBookIdentifier);
         List<MeterProtocolEvent> meterEvents = new ArrayList<>(2);
@@ -74,5 +78,13 @@ public class CollectedLogBookDeviceCommandTest {
 
         // Asserts
         assertThat(journalMessage).isEqualTo(CollectedLogBookDeviceCommand.class.getSimpleName() + " {logbook: 1; nr of events: 2}");
+    }
+
+    private void initializeEndDeviceEventTypeFactory() {
+        MeteringService meteringService = mock(MeteringService.class);
+        EndDeviceEventTypeFactory endDeviceEventTypeFactory = new EndDeviceEventTypeFactory();
+        endDeviceEventTypeFactory.setMeteringService(meteringService);
+        endDeviceEventTypeFactory.activate();
+        // the getEventType will return null, if a specific result is required, then add it ot the meteringService MOCK
     }
 }
