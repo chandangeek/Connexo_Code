@@ -9,7 +9,9 @@ Ext.define('Uni.controller.history.EventBus', {
     ],
 
     config: {
-        defaultToken: ''
+        defaultToken: '',
+        previousPath: null,
+        currentPath: null
     },
 
     onLaunch: function () {
@@ -38,6 +40,11 @@ Ext.define('Uni.controller.history.EventBus', {
         if (queryStringIndex > 0) {
             token = token.substring(0, queryStringIndex);
         }
+
+        if (this.getCurrentPath() !== null) {
+            this.setPreviousPath(this.getCurrentPath());
+        }
+        this.setCurrentPath(token);
 
         crossroads.parse(token);
     }
