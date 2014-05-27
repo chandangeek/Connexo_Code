@@ -5,5 +5,10 @@ Ext.define('Skyline.grid.Panel', {
     bodyBorder: true,
     enableColumnHide: false,
     enableColumnMove: false,
-    enableColumnResize: false
+    enableColumnResize: false,
+    sortableColumns: false,
+    collapsible: false,
+    selModel: {
+        mode: 'SINGLE'
+    }
 });
