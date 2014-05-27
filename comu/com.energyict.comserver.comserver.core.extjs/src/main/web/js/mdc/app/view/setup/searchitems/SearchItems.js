@@ -36,14 +36,6 @@ Ext.define('Mdc.view.setup.searchitems.SearchItems', {
         this.callParent(arguments);
 
         this.down('#contentLayout').getLayout().setActiveItem(0);
-        
-        //todo: this is potential issue.
-        Ext.getStore('DeviceTypes').on('load', function loadDeviceTypes(store) {
-            store.insert(0, Ext.create('Mdc.model.DeviceType', {
-                id: -1,
-                name: '&nbsp;'
-            }));
-            this.removeListener('load', loadDeviceTypes);
-        });
+
     }
 });
