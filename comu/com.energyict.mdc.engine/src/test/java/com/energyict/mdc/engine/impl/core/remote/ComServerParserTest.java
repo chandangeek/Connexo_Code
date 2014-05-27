@@ -12,6 +12,8 @@ import com.energyict.mdc.engine.model.impl.EngineModelServiceImpl;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.NlsService;
@@ -33,6 +35,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import org.junit.*;
+import org.junit.rules.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -49,15 +52,22 @@ public class ComServerParserTest {
     private static final String ONLINE_COMSERVER_AS_QUERY_RESULT = "{\"query-id\":\"testGetThisComServer\",\"single-value\":{\"name\":\"online.comserver.energyict.com\",\"type\":\"OnlineComServerImpl\",\"active\":true,\"serverLogLevel\":\"ERROR\",\"communicationLogLevel\":\"DEBUG\",\"changesInterPollDelay\":{\"seconds\":18000},\"schedulingInterPollDelay\":{\"seconds\":60},\"eventRegistrationUri\":\"ws://online.comserver.energyict.com/events/registration\",\"storeTaskQueueSize\":50,\"numberOfStoreTaskThreads\":1,\"storeTaskThreadPriority\":5}}";
     private static final String REMOTE_COMSERVER_AS_QUERY_RESULT = "{\"query-id\":\"testGetThisComServer\",\"single-value\":{\"name\":\"remote.comserver.energyict.com\",\"active\":true,\"serverLogLevel\":\"DEBUG\",\"communicationLogLevel\":\"ERROR\",\"changesInterPollDelay\":{\"seconds\":1800},\"schedulingInterPollDelay\":{\"seconds\":600},\"eventRegistrationUri\":\"ws://remote.comserver.energyict.com/events/registration\",\"type\":\"RemoteComServerImpl\"}}";
 
-    private Injector injector;
-    private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
+    private static final String QUERY_API_USER_NAME = "johndoe";
+    private static final String QUERY_API_PASSWORD = "doe";
 
-    @Before
-    public void initializeDatabase () {
+    @Rule
+    public TestRule transactionalRule = new TransactionalRule(getTransactionService());
+
+    private static Injector injector;
+    private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
+    private static EngineModelService engineModelService;
+
+    @BeforeClass
+    public static void initializeDatabase () {
         BundleContext bundleContext = mock(BundleContext.class);
-        this.injector = Guice.createInjector(
+        injector = Guice.createInjector(
                 new MockModule(bundleContext),
-                this.inMemoryBootstrapModule,
+                inMemoryBootstrapModule,
                 new OrmModule(),
                 new UtilModule(),
                 new NlsModule(),
@@ -68,37 +78,42 @@ public class ComServerParserTest {
                 new EventsModule(),
                 new TransactionModule(false),
                 new EngineModelModule());
-        try (TransactionContext ctx = this.injector.getInstance(TransactionService.class).getContext() ) {
-            this.injector.getInstance(EnvironmentImpl.class); // fake call to make sure component is initialized
-            this.injector.getInstance(NlsService.class); // fake call to make sure component is initialized
-            this.injector.getInstance(ProtocolPluggableService.class); // fake call to make sure component is initialized
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
+            injector.getInstance(EnvironmentImpl.class);
+            injector.getInstance(NlsService.class);
+            injector.getInstance(ProtocolPluggableService.class);
+            engineModelService = injector.getInstance(EngineModelService.class);
             ctx.commit();
         }
+    }
+
+    public static TransactionService getTransactionService() {
+        return injector.getInstance(TransactionService.class);
     }
 
     @Test
     public void testDelegateToEngineModelService () throws JSONException {
-        // Business method
         EngineModelService engineModelService = mock(EngineModelService.class);
         JSONObject jsonObject = new JSONObject(ONLINE_COMSERVER_AS_QUERY_RESULT);
-        new ComServerParser(engineModelService).parse(jsonObject);
+        JSONObject comserverJsonObject = (JSONObject) jsonObject.get("single-value");
+        ComServerParser comServerParser = new ComServerParser(engineModelService);
+
+        // Business method
+        comServerParser.parse(jsonObject);
 
         // Asserts
-        verify(engineModelService).parseComServerQueryResult(jsonObject);
+        verify(engineModelService).parseComServerQueryResult(comserverJsonObject);
     }
 
     @Test
+    @Transactional
     public void testOnline () throws JSONException {
+        this.createTestOnlineComServer(engineModelService);
+        ComServerParser comServerParser = new ComServerParser(engineModelService);
+        JSONObject jsonObject = new JSONObject(ONLINE_COMSERVER_AS_QUERY_RESULT);
+
         // Business method
-        OrmService ormService = this.injector.getInstance(OrmService.class);
-        NlsService nlsService = this.injector.getInstance(NlsService.class);
-        ProtocolPluggableService protocolPluggableService = this.injector.getInstance(ProtocolPluggableService.class);
-        EngineModelServiceImpl engineModelService;
-        try (TransactionContext ctx = this.injector.getInstance(TransactionService.class).getContext() ) {
-            engineModelService = new EngineModelServiceImpl(ormService, nlsService, protocolPluggableService);
-            ctx.commit();
-        }
-        ComServer comServer = new ComServerParser(engineModelService).parse(new JSONObject(ONLINE_COMSERVER_AS_QUERY_RESULT));
+        ComServer comServer = comServerParser.parse(jsonObject);
 
         // Asserts
         assertThat(comServer).isInstanceOf(OnlineComServer.class);
@@ -109,26 +124,22 @@ public class ComServerParserTest {
         assertThat(onlineComServer.getCommunicationLogLevel()).isEqualTo(ComServer.LogLevel.DEBUG);
         assertThat(onlineComServer.getChangesInterPollDelay()).isEqualTo(TimeDuration.seconds(18000));
         assertThat(onlineComServer.getSchedulingInterPollDelay()).isEqualTo(TimeDuration.seconds(60));
-        assertThat(onlineComServer.getEventRegistrationUri()).isEqualTo("ws://online.comserver.energyict.com/events/registration");
-        assertThat(onlineComServer.getQueryApiPostUri()).isNull();
+        assertThat(onlineComServer.getEventRegistrationUri()).isEqualTo("ws://online.comserver.energyict.com:" + ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER + "/events/registration");
+        assertThat(onlineComServer.getQueryApiPostUri()).isEqualTo("http://online.comserver.energyict.com:" + ComServer.DEFAULT_QUERY_API_PORT_NUMBER + "/remote/queries");
         assertThat(onlineComServer.getStoreTaskQueueSize()).isEqualTo(50);
         assertThat(onlineComServer.getNumberOfStoreTaskThreads()).isEqualTo(1);
         assertThat(onlineComServer.getStoreTaskThreadPriority()).isEqualTo(5);
     }
 
     @Test
+    @Transactional
     public void testRemote () throws JSONException {
-        OrmService ormService = this.injector.getInstance(OrmService.class);
-        NlsService nlsService = this.injector.getInstance(NlsService.class);
-        ProtocolPluggableService protocolPluggableService = this.injector.getInstance(ProtocolPluggableService.class);
-        EngineModelServiceImpl engineModelService;
-        try (TransactionContext ctx = this.injector.getInstance(TransactionService.class).getContext() ) {
-            engineModelService = new EngineModelServiceImpl(ormService, nlsService, protocolPluggableService);
-            ctx.commit();
-        }
+        this.createTestRemoteComServer(engineModelService);
+        ComServerParser comServerParser = new ComServerParser(engineModelService);
+        JSONObject jsonObject = new JSONObject(REMOTE_COMSERVER_AS_QUERY_RESULT);
 
         // Business method
-        ComServer comServer = new ComServerParser(engineModelService).parse(new JSONObject(REMOTE_COMSERVER_AS_QUERY_RESULT));
+        ComServer comServer = comServerParser.parse(jsonObject);
 
         // Asserts
         assertThat(comServer).isInstanceOf(RemoteComServer.class);
@@ -139,10 +150,43 @@ public class ComServerParserTest {
         assertThat(remoteComServer.getCommunicationLogLevel()).isEqualTo(ComServer.LogLevel.ERROR);
         assertThat(remoteComServer.getChangesInterPollDelay()).isEqualTo(TimeDuration.seconds(1800));
         assertThat(remoteComServer.getSchedulingInterPollDelay()).isEqualTo(TimeDuration.seconds(600));
-        assertThat(remoteComServer.getEventRegistrationUri()).isEqualTo("ws://remote.comserver.energyict.com/events/registration");
+        assertThat(remoteComServer.getEventRegistrationUri()).isEqualTo("ws://remote.comserver.energyict.com:" + ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER + "/events/registration");
     }
 
-    private class MockModule extends AbstractModule {
+    private OnlineComServer createTestOnlineComServer(EngineModelService engineModelService) {
+        OnlineComServer onlineComServer = engineModelService.newOnlineComServerInstance();
+        String name = "online.comserver.energyict.com";
+        onlineComServer.setName(name);
+        onlineComServer.setActive(true);
+        onlineComServer.setServerLogLevel(ComServer.LogLevel.ERROR);
+        onlineComServer.setCommunicationLogLevel(ComServer.LogLevel.DEBUG);
+        onlineComServer.setChangesInterPollDelay(TimeDuration.seconds(18000));
+        onlineComServer.setSchedulingInterPollDelay(TimeDuration.seconds(60));
+        onlineComServer.setStoreTaskQueueSize(50);
+        onlineComServer.setStoreTaskThreadPriority(Thread.NORM_PRIORITY);
+        onlineComServer.setNumberOfStoreTaskThreads(1);
+        onlineComServer.save();
+        return onlineComServer;
+    }
+
+    private RemoteComServer createTestRemoteComServer (EngineModelService engineModelService) {
+        OnlineComServer onlineComServer = this.createTestOnlineComServer(engineModelService);
+        RemoteComServer remoteComServer = engineModelService.newRemoteComServerInstance();
+        String name = "remote.comserver.energyict.com";
+        remoteComServer.setName(name);
+        remoteComServer.setActive(true);
+        remoteComServer.setServerLogLevel(ComServer.LogLevel.DEBUG);
+        remoteComServer.setCommunicationLogLevel(ComServer.LogLevel.ERROR);
+        remoteComServer.setChangesInterPollDelay(TimeDuration.seconds(1800));
+        remoteComServer.setSchedulingInterPollDelay(TimeDuration.seconds(600));
+        remoteComServer.setOnlineComServer(onlineComServer);
+        remoteComServer.setQueryAPIUsername(QUERY_API_USER_NAME);
+        remoteComServer.setQueryAPIPassword(QUERY_API_PASSWORD);
+        remoteComServer.save();
+        return remoteComServer;
+    }
+
+    private static class MockModule extends AbstractModule {
         private BundleContext bundleContext;
         private EventAdmin eventAdmin;
         private ProtocolPluggableService protocolPluggableService;
