@@ -163,6 +163,7 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
             for (JournalEntryBacklogEntry entry : this.entries) {
                 entry.createWith(builder);
             }
+            this.entries = new ArrayList<>();
         }
     }
 

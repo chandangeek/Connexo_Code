@@ -70,7 +70,11 @@ public class InboundJobExecutionGroup extends JobExecution {
         The InboundJobExecutor already has a token from the InboundCommunicationHandler. We are sure nobody else
         will pick up this task, as it is the ComPort which received the trigger to start.
          */
-        new InboundScheduledJobExecutor(getServiceProvider().transactionService(), this.getComPort().getComServer().getCommunicationLogLevel(), getDeviceCommandExecutor()).execute(this);
+        InboundScheduledJobExecutor jobExecutor =
+            new InboundScheduledJobExecutor(
+                getServiceProvider().transactionService(),
+                this.getComPort().getComServer().getCommunicationLogLevel(), getDeviceCommandExecutor());
+        jobExecutor.execute(this);
     }
 
     @Override

@@ -1,9 +1,11 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
@@ -11,8 +13,10 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.FakeTransactionService;
+import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.store.CompositeDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.CreateInboundComSession;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
@@ -42,10 +46,12 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.history.ComSession;
 import com.energyict.mdc.tasks.history.ComSessionBuilder;
+import com.energyict.mdc.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.tasks.history.TaskHistoryService;
 
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.ProgrammableClock;
+import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 
 import javax.servlet.http.HttpServletRequest;
@@ -57,6 +63,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.assertj.core.api.Condition;
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.ArgumentCaptor;
@@ -116,6 +123,12 @@ public class InboundCommunicationHandlerTest {
     private ProtocolPluggableService protocolPluggableService;
     @Mock
     private ComSessionBuilder comSessionBuilder;
+    @Mock
+    private ComTaskExecutionSessionBuilder comTaskExecutionSessionBuilder;
+    @Mock
+    private DeviceConfigurationService deviceConfigurationService;
+    @Mock
+    private EngineService engineService;
 
     private FakeTransactionService transactionService = new FakeTransactionService();
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
@@ -134,7 +147,14 @@ public class InboundCommunicationHandlerTest {
         when(this.comSessionBuilder.addReceivedBytes(anyLong())).thenReturn(this.comSessionBuilder);
         when(this.comSessionBuilder.addSentPackets(anyLong())).thenReturn(this.comSessionBuilder);
         when(this.comSessionBuilder.addReceivedPackets(anyLong())).thenReturn(this.comSessionBuilder);
+        this.comTaskExecutionSessionBuilder = mock(ComTaskExecutionSessionBuilder.class);
+        when(this.comSessionBuilder.addComTaskExecutionSession(any(ComTaskExecution.class), any(Device.class), any(Date.class))).thenReturn(comTaskExecutionSessionBuilder);
         this.serviceProvider.setProtocolPluggableService(this.protocolPluggableService);
+        this.serviceProvider.setDeviceConfigurationService(this.deviceConfigurationService);
+        // The following prohibits the execution of every ComTask on all devices
+        when(this.deviceConfigurationService.findComTaskEnablement(any(ComTask.class), any(DeviceConfiguration.class))).thenReturn(Optional.<ComTaskEnablement>absent());
+        this.serviceProvider.setEngineService(this.engineService);
+        when(this.engineService.findDeviceCacheByDeviceId(anyLong())).thenReturn(Optional.<DeviceCache>absent());
         this.serviceProvider.setTransactionService(this.transactionService);
         when(this.protocolPluggableService.findInboundDeviceProtocolPluggableClassByClassName(anyString())).thenReturn(Collections.<InboundDeviceProtocolPluggableClass>emptyList());
         when(this.comServer.getId()).thenReturn(Long.valueOf(COMSERVER_ID));
@@ -359,25 +379,6 @@ public class InboundCommunicationHandlerTest {
     }
 
     private void testComSessionShadowWhenServerIsBusy (InboundDiscoveryContextImpl context) {
-        Date connectionEstablishedEventOccurrenceClock = new DateTime(2012, 10, 25, 13, 0, 0, 0).toDate();
-        Date sessionStartClock = new DateTime(2012, 10, 25, 13, 0, 0, 0).toDate();  // 1 milli second later
-        Date discoveryStartedLogMessageClock = new DateTime(2012, 10, 25, 13, 0, 1, 0).toDate();   // 1 sec later
-        Date discoveryResultLogMessageClock = new DateTime(2012, 10, 25, 13, 0, 2, 0).toDate();    // another sec later
-        Date serverBusyLogMessageClock = new DateTime(2012, 10, 25, 13, 0, 3, 0).toDate();         // another sec later
-        Date sessionStopClock = new DateTime(2012, 10, 25, 13, 0, 5, 0).toDate();   // 5 secs later
-        Date connectionClosedEventOccurrenceClock = new DateTime(2012, 10, 25, 13, 0, 5, 1).toDate();   // 5001 milli seconds later
-        Clock clock =
-                new ProgrammableClock().ticksAt(
-                        connectionEstablishedEventOccurrenceClock,
-                        sessionStartClock,
-                        discoveryStartedLogMessageClock, // Once to actually log the message
-                        discoveryStartedLogMessageClock, // Once to send the message in a LoggingEvent
-                        discoveryResultLogMessageClock,  // Once to actually log the message
-                        discoveryResultLogMessageClock,  // Once to send the message in a LoggingEvent
-                        serverBusyLogMessageClock,       // Once to actually log the message
-                        serverBusyLogMessageClock,       // Once to send the message in a LoggingEvent
-                        sessionStopClock,
-                        connectionClosedEventOccurrenceClock);
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
         when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
         OfflineDevice device = mock(OfflineDevice.class);
@@ -391,7 +392,7 @@ public class InboundCommunicationHandlerTest {
         this.handler.handle(inboundDeviceProtocol, context);
 
         // Asserts
-        verify(this.comSessionBuilder).endSession(sessionStopClock, ComSession.SuccessIndicator.Broken);
+        verify(this.comSessionBuilder).endSession(any(Date.class), eq(ComSession.SuccessIndicator.Broken));
         verify(this.comSessionBuilder, never()).addComTaskExecutionSession(any(ComTaskExecution.class), any(Device.class), any(Date.class));
     }
 
@@ -456,33 +457,6 @@ public class InboundCommunicationHandlerTest {
     }
 
     private void testComSessionShadowForSuccessFulCommunication (InboundDiscoveryContextImpl context) {
-        Date undiscoveredConnectionEstablishedEventOccurrenceClock = new DateTime(2012, 10, 25, 13, 0, 0, 0).toDate();
-        Date sessionStartClock = new DateTime(2012, 10, 25, 13, 0, 0, 1).toDate();  // 1 milli second later
-        Date discoveryStartedLogMessageClock = new DateTime(2012, 10, 25, 13, 0, 1, 0).toDate();   // 1 sec later
-        Date discoveryResultLogMessageClock = new DateTime(2012, 10, 25, 13, 0, 2, 0).toDate();    // another sec later
-        Date connectionEstablishedEventOccurrenceClock = new DateTime(2012, 10, 25, 13, 0, 2, 1).toDate();   // 1 milli second later
-        Date deviceFoundLogMessageClock = new DateTime(2012, 10, 25, 13, 0, 2, 1).toDate();   // 1 milli second later
-        Date comTaskExecutionStartClock = new DateTime(2012, 10, 25, 13, 0, 2, 1).toDate();   // another milli second later
-        Date comTaskExecutionCompleteClock = new DateTime(2012, 10, 25, 13, 0, 2, 2).toDate();   // another milli second later
-        Date sessionStopClock = new DateTime(2012, 10, 25, 13, 0, 5, 0).toDate();   // 5 secs later
-        Date connectionClosedEventOccurrenceClock = new DateTime(2012, 10, 25, 13, 0, 5, 1).toDate();   // 5001 milli seconds later
-        Clock clock =
-                new ProgrammableClock().ticksAt(
-                        undiscoveredConnectionEstablishedEventOccurrenceClock,
-                        sessionStartClock,
-                        discoveryStartedLogMessageClock, // Once to actually log the message
-                        discoveryStartedLogMessageClock, // Once to send the message in a LoggingEvent
-                        discoveryResultLogMessageClock,  // Once to actually log the message
-                        discoveryResultLogMessageClock,  // Once to send the message in a LoggingEvent
-                        connectionEstablishedEventOccurrenceClock,
-                        deviceFoundLogMessageClock, // Once to actually log the message
-                        deviceFoundLogMessageClock, // Once to send the message in a LoggingEvent
-                        comTaskExecutionStartClock, // processing collected data
-                        comTaskExecutionStartClock, // init comsessionshadow
-                        comTaskExecutionCompleteClock, // completed comsTask
-                        comTaskExecutionCompleteClock, // after processing collected data
-                        sessionStopClock,
-                        connectionClosedEventOccurrenceClock);
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
         when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
         DefaultDeviceRegister collectedRegister = new DefaultDeviceRegister(mock(RegisterIdentifier.class));
@@ -511,7 +485,7 @@ public class InboundCommunicationHandlerTest {
         this.handler.handle(inboundDeviceProtocol, context);
 
         // Asserts
-        verify(this.comSessionBuilder).endSession(sessionStopClock, ComSession.SuccessIndicator.Success);
+        verify(this.comSessionBuilder).endSession(any(Date.class), eq(ComSession.SuccessIndicator.Success));
         verify(this.comSessionBuilder, never()).addComTaskExecutionSession(any(ComTaskExecution.class), any(Device.class), any(Date.class));
     }
 
@@ -536,6 +510,8 @@ public class InboundCommunicationHandlerTest {
         when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
         Device device = getMockedDevice();
         when(this.comServerDAO.findDevice(any(DeviceIdentifier.class))).thenReturn(offlineDevice);
+        when(device.getDeviceProtocolProperties()).thenReturn(TypedProperties.empty());
+        when(device.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
         ComTask comTask = mock(ComTask.class);
 // Todo (JP-2013): wait for ComTaskConfiguration interface to be committed
 //        when(comTask.isConfiguredToCollectRegisterData()).thenReturn(false);
@@ -575,7 +551,7 @@ public class InboundCommunicationHandlerTest {
         assertThat(deviceCommand).isInstanceOf(CompositeDeviceCommand.class);
         CompositeDeviceCommand compositeDeviceCommand = (CompositeDeviceCommand) deviceCommand;
         assertThat(compositeDeviceCommand.getChildren()).hasSize(2);
-        assertThat(compositeDeviceCommand.getChildren()).haveAtLeast(1, new org.assertj.core.api.Condition<DeviceCommand>() {
+        assertThat(compositeDeviceCommand.getChildren()).haveAtLeast(1, new Condition<DeviceCommand>() {
             @Override
             public boolean matches(DeviceCommand deviceCommand) {
                 return deviceCommand instanceof CreateInboundComSession;
