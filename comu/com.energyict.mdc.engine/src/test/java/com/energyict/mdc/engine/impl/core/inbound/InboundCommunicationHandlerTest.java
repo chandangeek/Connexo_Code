@@ -156,11 +156,15 @@ public class InboundCommunicationHandlerTest {
         ServiceProvider.instance.set(null);
     }
 
+    // Todo (JP-3084)
+    @Ignore
     @Test
     public void testBinaryCommunicationWithDeviceThatDoesNotExist () {
         this.testCommunicationWithDeviceThatDoesNotExist(this.newBinaryInboundDiscoveryContext());
     }
 
+    // Todo (JP-3084)
+    @Ignore
     @Test
     public void testServletCommunicationWithDeviceThatDoesNotExist () {
         this.testCommunicationWithDeviceThatDoesNotExist(this.newServletInboundDiscoveryContext());
@@ -181,11 +185,15 @@ public class InboundCommunicationHandlerTest {
         verify(inboundDeviceProtocol).provideResponse(InboundDeviceProtocol.DiscoverResponseType.DEVICE_NOT_FOUND);
     }
 
+    // Todo (JP-3084)
+    @Ignore
     @Test
     public void testComSessionShadowForBinaryCommunicationWithDeviceThatDoesNotExist () {
         this.testComSessionShadowForCommunicationWithDeviceThatDoesNotExist(this.newBinaryInboundDiscoveryContext());
     }
 
+    // Todo (JP-3084)
+    @Ignore
     @Test
     public void testComSessionShadowForServletCommunicationWithDeviceThatDoesNotExist () {
         this.testComSessionShadowForCommunicationWithDeviceThatDoesNotExist(this.newServletInboundDiscoveryContext());
@@ -226,11 +234,15 @@ public class InboundCommunicationHandlerTest {
         verify(comSessionBuilder, times(3)).addJournalEntry(any(Date.class), anyString(), any(Throwable.class));   // Expect three journal entries (discovery start, discovery result, device not found)
     }
 
+    // Todo (JP-3084)
+    @Ignore
     @Test
     public void testBinaryCommunicationWithDeviceThatIsNotReadyForCommunication () {
         this.testCommunicationWithDeviceThatIsNotReadyForCommunication(this.newBinaryInboundDiscoveryContext());
     }
 
+    // Todo (JP-3084)
+    @Ignore
     @Test
     public void testServletCommunicationWithDeviceThatIsNotReadyForCommunication () {
         this.testCommunicationWithDeviceThatIsNotReadyForCommunication(this.newServletInboundDiscoveryContext());
@@ -253,11 +265,15 @@ public class InboundCommunicationHandlerTest {
 
     }
 
+    // Todo (JP-3084)
+    @Ignore
     @Test
     public void testComSessionShadowForBinaryCommunicationWithDeviceThatIsNotReadyForCommunication () {
         this.testComSessionShadowForCommunicationWithDeviceThatIsNotReadyForCommunication(this.newBinaryInboundDiscoveryContext());
     }
 
+    // Todo (JP-3084)
+    @Ignore
     @Test
     public void testComSessionShadowForServletCommunicationWithDeviceThatIsNotReadyForCommunication () {
         this.testComSessionShadowForCommunicationWithDeviceThatIsNotReadyForCommunication(this.newServletInboundDiscoveryContext());
