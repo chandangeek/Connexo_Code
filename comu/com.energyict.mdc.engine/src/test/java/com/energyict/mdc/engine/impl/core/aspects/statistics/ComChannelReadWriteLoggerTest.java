@@ -1,7 +1,5 @@
 package com.energyict.mdc.engine.impl.core.aspects.statistics;
 
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.ProgrammableClock;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.FakeServiceProvider;
@@ -19,17 +17,14 @@ import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.issues.impl.IssueServiceImpl;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.tasks.history.TaskHistoryService;
+
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.ProgrammableClock;
 import com.energyict.protocols.mdc.services.impl.HexServiceImpl;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Answers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -37,9 +32,18 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Answers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the pointcuts and advice defined in ComChannelReadWriteLogger.
@@ -63,19 +67,17 @@ public class ComChannelReadWriteLoggerTest {
     private static final int SECOND_SERIES_OF_BYTES_LENGTH = SECOND_SERIES_OF_BYTES.length - SECOND_SERIES_OF_BYTES_OFFSET;
     private static final int COMPORT_POOL_ID = 1;
 
-    private final FakeServiceProvider serviceProvider = new FakeServiceProvider();
-
     @Mock
     private EventPublisherImpl eventPublisher;
     @Mock
     private ComPort comPort;
     @Mock
-    private IssueService issueService;
-    @Mock
     private TaskHistoryService taskHistoryService;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private ComSessionBuilder comSessionBuilder;
+
     private Clock clock = new ProgrammableClock().frozenAt(new Date(514851820000L)); // what happened in GMT+3 ?
+    private final FakeServiceProvider serviceProvider = new FakeServiceProvider();
 
     private String expectedMessageRead;
     private String expectedMessageWritten;
@@ -83,15 +85,32 @@ public class ComChannelReadWriteLoggerTest {
 
     @Before
     public void initializeMocksAndFactories () throws IOException {
-        serviceProvider.setClock(clock);
-        serviceProvider.setTaskHistoryService(taskHistoryService);
-        when(taskHistoryService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Date.class))).thenReturn(comSessionBuilder);
-        this.initializeEventPublisher();
         this.initializeExpectedMessage();
     }
 
-    private void initializeEventPublisher () {
+    @Before
+    public void setupServiceProvider() {
+        serviceProvider.setClock(clock);
+        serviceProvider.setIssueService(new IssueServiceImpl(this.clock));
+        serviceProvider.setHexService(new HexServiceImpl());
+        serviceProvider.setTaskHistoryService(taskHistoryService);
+        when(taskHistoryService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Date.class))).thenReturn(comSessionBuilder);
+        ServiceProvider.instance.set(this.serviceProvider);
+    }
+
+    @After
+    public void resetServiceProvider () {
+        ServiceProvider.instance.set(null);
+    }
+
+    @Before
+    public void initializeEventPublisher () {
         EventPublisherImpl.setInstance(this.eventPublisher);
+    }
+
+    @After
+    public void resetEventPublisher () {
+        EventPublisherImpl.setInstance(null);
     }
 
     private void initializeExpectedMessage () throws IOException {
