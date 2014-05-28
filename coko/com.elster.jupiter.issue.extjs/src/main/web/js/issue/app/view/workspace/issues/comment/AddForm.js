@@ -9,16 +9,26 @@ Ext.define('Isu.view.workspace.issues.comment.AddForm', {
         label: 'comment',
         name: 'comment'
     },
-    buttons: [
-        {   itemId: 'add',
-            text: 'Add',
-            action: 'send',
-            disabled: true
+
+    bbar: {
+        layout: {
+            type: 'hbox',
+            align: 'left'
         },
-        {
-            itemId: 'cancel',
-            text: 'Cancel',
-            action: 'cancel'
-        }
-    ]
+        items: [
+            {
+                itemId: '#add',
+                text: 'Add',
+                ui: 'action',
+                action: 'send',
+                disabled: true
+            },
+            {
+                itemId: '#cancel',
+                text: 'Cancel',
+                action: 'cancel',
+                ui: 'link'
+            }
+        ]
+    }
 });

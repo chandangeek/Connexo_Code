@@ -158,7 +158,7 @@ Ext.define('Isu.view.workspace.issues.AssignForm', {
                             items: {
                                 itemId: 'Comment',
                                 xtype: 'label',
-                                text: 'Assign to *'
+                                text: 'Comment'
                             }
                         },
                         {
