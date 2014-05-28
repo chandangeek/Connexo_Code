@@ -214,14 +214,14 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 success: function (results) {
                     var deviceType = results[0][0];
                     me.editBreadCrumb(deviceType.get('name'), deviceTypeId)
-                    widget.down('form').loadRecord(deviceType);
-                    widget.down('#deviceTypeEditCreateTitle').update('<h1>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + deviceType.get('name') + '"</h1>');
+                    me.getDeviceTypeEditForm().loadRecord(deviceType);
+                    me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + deviceType.get('name') + '"');
                     widget.setLoading(false);
                 },
                 failure: function () {
                     me.editBreadCrumb(deviceType.get('name'), deviceTypeId)
-                    widget.down('form').loadRecord(deviceType);
-                    widget.down('#deviceTypeEditCreateTitle').update('<h1>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + deviceType.get('name') + '"</h1>');
+                    me.getDeviceTypeEditForm().loadRecord(deviceType);
+                    me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + deviceType.get('name') + '"');
                     widget.setLoading(false);
                 }
             }
@@ -256,7 +256,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         widget.setLoading(true);
         protocolStore.load({
             callback: function (store) {
-                widget.down('#deviceTypeEditCreateTitle').update('<h1>' + Uni.I18n.translate('general.create', 'MDC', 'Create') + ' ' + 'device type' + '</h1>');
+                me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.create', 'MDC', 'Create') + ' ' + 'device type' );
                 me.createBreadCrumb();
                 widget.setLoading(false);
             }

@@ -99,7 +99,6 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             this.getRegisterConfigPreviewForm().loadRecord(registerConfigs[0]);
             var registerConfigsName = this.getRegisterConfigPreviewForm().form.findField('name').getSubmitValue();
             this.getRegisterConfigPreview().getLayout().setActiveItem(1);
-            //this.getRegisterConfigPreviewTitle().update('<h4>' + registerConfigsName + '</h4>');
             this.getDeviceTypePreview().setTitle(registerConfigsName);
             this.getPreviewMrId().setValue(registerConfigs[0].getReadingType().get('mrid'));
             this.getRegisterConfigPreviewForm().loadRecord(registerConfigs[0]);
@@ -123,7 +122,6 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                     success: function (deviceConfig) {
                         var deviceTypeName = deviceType.get('name');
                         var deviceConfigName = deviceConfig.get('name');
-                        //widget.down('#registerConfigTitle').html = '<h1>' + deviceConfigName + ' > ' + Uni.I18n.translate('registerConfig.registerConfigurations', 'MDC', 'Register configurations') + '</h1>';
                         me.getApplication().getController('Mdc.controller.Main').showContent(widget);
                         me.overviewBreadCrumbs(deviceTypeId, deviceConfigId, deviceTypeName, deviceConfigName);
                     }
@@ -163,7 +161,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                                     returnLink: '#/administration/devicetypes/' + deviceTypeId + '/deviceconfigurations/' + deviceConfigId + '/registerconfigurations'
                                 });
                                 me.getApplication().getController('Mdc.controller.Main').showContent(widget);
-                                widget.down('#registerConfigEditCreateTitle').update('<h1>' + Uni.I18n.translate('registerConfigs.createRegisterConfig', 'MDC', 'Create register configuration') + '</h1>');
+                                me.getRegisterConfigEditForm().setTitle(Uni.I18n.translate('registerConfigs.createRegisterConfig', 'MDC', 'Create register configuration'));
                                 widget.down('#editNumberOfDigitsField').setValue(8);
                                 widget.down('#editNumberOfFractionDigitsField').setValue(0);
                                 widget.down('#editMultiplierField').setValue(1);
@@ -421,7 +419,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                                     success: function (deviceConfiguration) {
                                         me.editBreadCrumb(deviceTypeId, deviceConfigurationId, registerConfigurationId, deviceType.get('name'), deviceConfiguration.get('name'), registerConfiguration.get('name'));
                                         widget.down('form').loadRecord(registerConfiguration);
-                                        widget.down('#registerConfigEditCreateTitle').update('<h1>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + registerConfiguration.get('name') + '"</h1>');
+                                        me.getRegisterConfigEditForm().setTitle(Uni.I18n.translate('registerConfigs.editRegisterConfig', 'MDC', 'Edit register configuration'));
                                         widget.down('#registerTypeComboBox').setValue(registerConfiguration.get('registerMapping'));
                                         widget.setLoading(false);
                                     }

@@ -6,10 +6,6 @@ Ext.define('Mdc.store.CommunicationTasks',{
     model: 'Mdc.model.CommunicationTask',
     storeId: 'CommunicationTasks',
     pageSize: 10,
-    sorters: [{
-        property: 'name',
-        direction: 'ASC'
-    }],
     remoteSort: true,
     proxy: {
         type: 'rest',

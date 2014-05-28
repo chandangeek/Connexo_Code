@@ -19,6 +19,10 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskPreview', {
                         action: 'editcommunicationtask'
                     },
                     {
+                        text: Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
+                        action: 'activatecommunicationtask'
+                    },
+                    {
                         text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
                         action: 'removecommunicationtask'
                     }
