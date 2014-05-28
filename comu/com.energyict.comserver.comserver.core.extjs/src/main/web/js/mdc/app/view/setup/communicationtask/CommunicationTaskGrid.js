@@ -21,8 +21,6 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskGrid', {
                     }
                     return Uni.I18n.translate('general.yes', 'MDC', 'Yes');
                 },
-                sortable: false,
-                hideable: false,
                 fixed: true,
                 flex: 3
             },
@@ -32,8 +30,6 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskGrid', {
                 renderer: function (value) {
                     return value.name;
                 },
-                sortable: false,
-                hideable: false,
                 fixed: true,
                 flex: 3
             },
@@ -43,8 +39,6 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskGrid', {
                 renderer: function (value) {
                     return value.name;
                 },
-                sortable: false,
-                hideable: false,
                 fixed: true,
                 flex: 3
             },
