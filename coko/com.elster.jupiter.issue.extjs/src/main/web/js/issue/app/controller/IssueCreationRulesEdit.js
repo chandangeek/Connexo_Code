@@ -2,7 +2,6 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Uni.model.BreadcrumbItem'
     ],
 
     stores: [
@@ -32,10 +31,6 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
         {
             ref: 'templateDetails',
             selector: 'issues-creation-rules-edit form [name=templateDetails]'
-        },
-        {
-            ref: 'breadcrumbs',
-            selectior: 'issues-creation-rules-edit breadcrumbTrail'
         }
     ],
 
@@ -45,9 +40,6 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
 
     init: function () {
         this.control({
-            'issues-creation-rules-edit breadcrumbTrail': {
-                afterrender: this.setBreadcrumb
-            },
             'issues-creation-rules-edit form [name=issueType]': {
                 change: this.setRuleTemplateCombobox
             },
@@ -73,20 +65,6 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
         var widget = Ext.widget('issues-creation-rules-edit');
         this.setPage(id, action);
         this.getApplication().fireEvent('changecontentevent', widget);
-    },
-
-    setBreadcrumb: function (breadcrumbs) {
-        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-                text: 'Administration',
-                href: '#/issue-administration'
-            }),
-            breadcrumbChild1 = Ext.create('Uni.model.BreadcrumbItem', {
-                text: 'Issue creation rules',
-                href: 'issuecreationrules'
-            });
-        breadcrumbParent.setChild(breadcrumbChild1).setChild(this.lastBreadcrumbChild);
-
-        breadcrumbs.setBreadcrumbItem(breadcrumbParent);
     },
 
     setPage: function (id, action) {
@@ -117,9 +95,6 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                 break;
         }
 
-        this.lastBreadcrumbChild = Ext.create('Uni.model.BreadcrumbItem', {
-            text: prefix + 'issue creation rule'
-        });
         self.getPageTitle().title = prefix + 'issue creation rule',
         self.getPageTitle().setUI('large');
         ruleActionBtn.action = action;

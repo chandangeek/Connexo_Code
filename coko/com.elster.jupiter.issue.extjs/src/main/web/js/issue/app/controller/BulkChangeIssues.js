@@ -2,7 +2,6 @@ Ext.define('Isu.controller.BulkChangeIssues', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Uni.model.BreadcrumbItem'
     ],
 
     stores: [
@@ -40,9 +39,6 @@ Ext.define('Isu.controller.BulkChangeIssues', {
 
     init: function () {
         this.control({
-            'bulk-browse breadcrumbTrail': {
-                afterrender: this.setBreadcrumb
-            },
             'bulk-browse bulk-wizard': {
                 wizardnext: this.onWizardNextEvent,
                 wizardprev: this.onWizardPrevEvent,
@@ -113,28 +109,6 @@ Ext.define('Isu.controller.BulkChangeIssues', {
         });
         record.set('issues', leftIssues);
         record.commit();
-    },
-
-    setBreadcrumb: function (breadcrumbs) {
-        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-                text: 'Workspace',
-                href: '#/workspace'
-            }),
-            breadcrumbChild1 = Ext.create('Uni.model.BreadcrumbItem', {
-                text: 'Data collection',
-                href: 'datacollection'
-            }),
-            breadcrumbChild2 = Ext.create('Uni.model.BreadcrumbItem', {
-                text: 'Issues',
-                href: 'issues'
-            }),
-            breadcrumbChild3 = Ext.create('Uni.model.BreadcrumbItem', {
-                text: 'Bulk action',
-                href: 'bulkaction'
-            });
-        breadcrumbParent.setChild(breadcrumbChild1).setChild(breadcrumbChild2).setChild(breadcrumbChild3);
-
-        breadcrumbs.setBreadcrumbItem(breadcrumbParent);
     },
 
     onIssuesListAfterRender: function (grid) {

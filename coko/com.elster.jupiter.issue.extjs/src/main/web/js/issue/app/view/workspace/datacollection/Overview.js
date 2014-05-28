@@ -20,33 +20,5 @@ Ext.define('Isu.view.workspace.datacollection.Overview', {
             title: 'Data collection',
             flex: 1
         }
-    ],
-
-    initComponent: function () {
-        this.callParent(this);
-        this.initMenu();
-    },
-
-    initMenu: function () {
-        var me = this,
-            menu = this.getSideMenuCmp();
-
-        menu.add({
-            text: 'Overview',
-            pressed: true,
-            href: '#/workspace/datacollection/overview',
-            hrefTarget: '_self'
-        });
-
-        menu.add({
-            text: 'Issues',
-            href: '#/workspace/datacollection/issues',
-            hrefTarget: '_self'
-        });
-
-    },
-
-    getSideMenuCmp: function () {
-        return this.down('#sideMenu');
-    }
+    ]
 });

@@ -105,9 +105,9 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                                 {
                                     xtype: 'label',
                                     text: 'Due date',
-                                    width: 140,
-                                    itemId: 'dueDate'
-                
+                                    itemId: 'dueDate',
+                                    cls: 'x-form-item-label x-form-item-label-right',
+                                    width: 140
                                 },
                                 {
                                     xtype: 'container',
@@ -225,13 +225,13 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                             itemId: 'actionToolbar',
                             xtype: 'toolbar',
                             border: false,
-                            padding: '0 0 0 4',
                             items: [
                                 {
                                     itemId: 'addAction',
                                     text: 'Add action',
                                     disabled: true,
-                                    ui: 'action'
+                                    ui: 'action',
+                                    margin: '0 5 0 -5'
                                 }
                             ]
                         }
@@ -251,16 +251,13 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                             itemId: 'ruleAction',
                             name: 'ruleAction',
                             ui: 'action',
-                            formBind: false,
-                            text: 'Cerate'
+                            formBind: false
                         },
                         {
                             itemId: 'cancel',
                             text: 'Cancel',
                             ui: 'link',
                             name: 'cancel',
-                            cls: 'isu-btn-link',
-                            hrefTarget: '',
                             href: '#/administration/issuecreationrules'
                         }
                     ]

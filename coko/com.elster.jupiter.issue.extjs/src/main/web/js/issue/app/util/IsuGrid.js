@@ -89,6 +89,7 @@ Ext.define('Isu.util.IsuGrid', {
         this.gridItemModel.load(record.data.id, {
             success: function (record) {
                 form.loadRecord(record);
+                form.up('panel').down('item-action').menu.record = record;
                 preloader.destroy();
             }
         });

@@ -2,10 +2,57 @@ Ext.define('Isu.controller.history.Workspace', {
     extend: 'Uni.controller.history.Converter',
 
     rootToken: 'workspace',
+    previousPath: '',
     currentPath: null,
 
-    init: function () {
-        var me = this;
+    routeConfig: {
+        workspace : {
+            title: 'Workspace',
+            route: 'workspace',
+            disabled: true,
+            items: {
+                datacollection: {
+                    title: 'Data collection',
+                    route: 'datacollection',
+                    controller: 'Isu.controller.DataCollectionOverview',
+                    items: {
+                        issues: {
+                            title : 'Issues',
+                            route: 'issues',
+                            controller: 'Isu.controller.Issues',
+                            items: {
+                                view: {
+                                    title: 'issue details',
+                                    route: '{id}',
+                                    controller: 'Isu.controller.IssueDetail'
+                                },
+                                edit: {
+                                    title: 'Issue Edit',
+                                    route: '{id}/addcomment',
+                                    controller: 'Isu.controller.IssueDetail'
+                                },
+                                assign: {
+                                    title: 'Issue Assign',
+                                    route: '{id}/assign',
+                                    controller: 'Isu.controller.AssignIssues'
+                                },
+                                close: {
+                                    title: 'Issue Close',
+                                    route: '{id}/close',
+                                    controller: 'Isu.controller.CloseIssues'
+                                }
+                            }
+                        },
+                        bulk: {
+                            title : 'Bulk Changes',
+                            route: 'bulkaction',
+                            controller: 'Isu.controller.BulkChangeIssues'
+                        }
+                    }
+                }
+            }
+        }
+    },
 
         crossroads.addRoute('workspace/datacollection', function () {
             me.getController('Isu.controller.DataCollectionOverview').showOverview();
@@ -30,9 +77,6 @@ Ext.define('Isu.controller.history.Workspace', {
         });
         crossroads.addRoute('workspace/datacollection/issues/{id}/close', function (id) {
             me.getController('Isu.controller.CloseIssues').showOverview(id);
-        });
-        crossroads.addRoute('workspace/datacollection/notify',function(){
-            me.getController('Isu.controller.Notify').showOverview();
         });
 
         this.callParent(arguments);
