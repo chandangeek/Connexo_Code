@@ -1,6 +1,8 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -22,6 +24,7 @@ import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.impl.MdcCommonModule;
@@ -38,7 +41,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.codetables.Code;
-import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
@@ -46,6 +48,7 @@ import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.LicenseServer;
+import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.UnknownPluggableClassPropertiesException;
@@ -56,6 +59,7 @@ import com.energyict.mdc.protocol.pluggable.mocks.MockDeviceProtocolWithTestProp
 import com.energyict.mdc.protocol.pluggable.mocks.MockMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.mocks.MockSmartMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.mocks.NotADeviceProtocol;
+import com.energyict.protocolimplv2.sdksample.SDKDeviceProtocolTestWithMandatoryProperty;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -64,6 +68,7 @@ import com.google.inject.Provider;
 import org.joda.time.DateMidnight;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -104,11 +109,15 @@ public class DeviceProtocolPluggableClassImplTest {
 
     private static final int CODE_ID = 97;
     private static final String CODE_NAME = "Code for DeviceProtocolPluggableClassImplTest";
+    private static final String SDK_DEVICE_PROTOCOL_TEST_WITH_MANDATORY_PROPERTY = "com.energyict.protocolimplv2.sdksample.SDKDeviceProtocolTestWithMandatoryProperty";
 
     private TransactionService transactionService;
     private ProtocolPluggableService protocolPluggableService;
     private DeviceProtocolService deviceProtocolService = mock(DeviceProtocolService.class);
     private PropertySpecServiceImpl propertySpecService;
+
+    @Rule
+    public ExpectedConstraintViolationRule rule = new ExpectedConstraintViolationRule();
 
     private DataModel dataModel;
 //    private IdBusinessObjectFactory codeFactory = mock(IdBusinessObjectFactory.class);
@@ -202,6 +211,7 @@ public class DeviceProtocolPluggableClassImplTest {
         when(deviceProtocolService.loadProtocolClass(MOCK_METER_PROTOCOL)).thenReturn(MockMeterProtocol.class);
         when(deviceProtocolService.loadProtocolClass(MOCK_SMART_METER_PROTOCOL)).thenReturn(MockSmartMeterProtocol.class);
         when(deviceProtocolService.loadProtocolClass(MOCK_NOT_A_DEVICE_PROTOCOL)).thenReturn(NotADeviceProtocol.class);
+        when(deviceProtocolService.loadProtocolClass(SDK_DEVICE_PROTOCOL_TEST_WITH_MANDATORY_PROPERTY)).thenReturn(SDKDeviceProtocolTestWithMandatoryProperty.class);
     }
 
     @Before
@@ -424,7 +434,24 @@ public class DeviceProtocolPluggableClassImplTest {
         assertThat(deviceProtocol).isInstanceOf(SmartMeterProtocolAdapter.class);
     }
 
-    @Test(expected = ProtocolCreationException.class)
+    @Test
+    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Constants.PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE_KEY+"}")
+    public void newInstanceSmartMeterProtocolIllegalPropertyTest() throws BusinessException, SQLException {
+        transactionService.execute(new Transaction<DeviceProtocolPluggableClass>() {
+            @Override
+            public DeviceProtocolPluggableClass perform() {
+                DeviceProtocolPluggableClass deviceProtocolPluggableClass = protocolPluggableService.newDeviceProtocolPluggableClass("SDKDeviceProtocolTestWithMandatoryProperty", SDK_DEVICE_PROTOCOL_TEST_WITH_MANDATORY_PROPERTY);
+                PropertySpec<?> deviceTimeZone = deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpec("SDKObisCodeProperty");
+                deviceProtocolPluggableClass.setProperty(deviceTimeZone, new ObisCode(1,1,1,1,1,1));
+                deviceProtocolPluggableClass.save();
+                return deviceProtocolPluggableClass;
+            }
+
+        });
+    }
+
+    @Test
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.PLUGGABLE_CLASS_NEW_INSTANCE_FAILURE + "}")
     public void newInstanceNotADeviceProtocolTest() throws BusinessException, SQLException {
         DeviceProtocolPluggableClass deviceProtocolPluggableClass =
                 transactionService.execute(new Transaction<DeviceProtocolPluggableClass>() {

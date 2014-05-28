@@ -42,7 +42,6 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceProtocolT
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.PropertiesAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
 import com.energyict.protocolimplv2.identifiers.SerialNumberDeviceIdentifier;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -257,9 +256,9 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
     }
 
     @Override
-    public PropertySpec getPropertySpec(String name) {
-        for (PropertySpec propertySpec : this.getPropertySpecs()) {
-            if (name.equals(propertySpec)) {
+    public PropertySpec<?> getPropertySpec(String name) {
+        for (PropertySpec<?> propertySpec : this.getPropertySpecs()) {
+            if (name.equals(propertySpec.getName())) {
                 return propertySpec;
             }
         }

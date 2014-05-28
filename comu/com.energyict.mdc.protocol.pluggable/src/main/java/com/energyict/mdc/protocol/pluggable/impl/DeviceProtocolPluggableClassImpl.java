@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -25,9 +26,8 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupport
 import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.MeterProtocolAdapterImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.relations.SecurityPropertySetRelationTypeSupport;
-
-import javax.inject.Inject;
 import java.util.List;
+import javax.inject.Inject;
 
 /**
  * Defines a PluggableClass based on a {@link DeviceProtocol}.
@@ -41,6 +41,7 @@ import java.util.List;
  * Date: 3/07/12
  * Time: 9:00
  */
+@HasValidProperties(groups = { Save.Update.class, Save.Create.class })
 public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrapper<DeviceProtocol> implements DeviceProtocolPluggableClass {
 
     private PropertySpecService propertySpecService;
@@ -82,7 +83,7 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
 
     @Override
     protected DeviceProtocol newInstance(PluggableClass pluggableClass) {
-        Class protocolClass = this.protocolPluggableService.loadProtocolClass(pluggableClass.getJavaClassName());
+        Class<?> protocolClass = this.protocolPluggableService.loadProtocolClass(pluggableClass.getJavaClassName());
         DeviceProtocol deviceProtocol;
         try {
             if (DeviceProtocol.class.isAssignableFrom(protocolClass)) {
@@ -137,6 +138,7 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
 
     @Override
     public void save() {
+        Save.action(this.getId()).validate(dataModel, this);
         super.save();
         this.createRelationTypes();
     }

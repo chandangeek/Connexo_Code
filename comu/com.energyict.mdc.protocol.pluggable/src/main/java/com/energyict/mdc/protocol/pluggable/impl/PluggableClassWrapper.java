@@ -2,7 +2,6 @@ package com.energyict.mdc.protocol.pluggable.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.pluggable.Pluggable;
@@ -11,8 +10,6 @@ import com.energyict.mdc.pluggable.PluggableClassType;
 import com.energyict.mdc.protocol.api.services.UnableToCreateConnectionType;
 import com.energyict.mdc.protocol.pluggable.PluggableClassCreationException;
 import com.energyict.mdc.protocol.pluggable.UnknownPluggableClassPropertiesException;
-
-import javax.inject.Inject;
 import java.net.URL;
 import java.util.Date;
 import java.util.HashSet;
@@ -21,6 +18,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.inject.Inject;
 
 /**
  * Wraps a {@link PluggableClass} while adding behavior that is
@@ -67,7 +65,7 @@ public abstract class PluggableClassWrapper<T extends Pluggable> {
         return this.getPluggableClass().getName();
     }
 
-    public void setName(String name) throws BusinessException {
+    public void setName(String name) {
         this.getPluggableClass().setName(name);
     }
 
