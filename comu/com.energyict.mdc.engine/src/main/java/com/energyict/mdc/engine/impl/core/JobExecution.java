@@ -328,7 +328,7 @@ public abstract class JobExecution implements ScheduledJob {
         comTaskPreparationContext.getCommandCreator().
                 createCommands(
                         comTaskPreparationContext.getRoot(),
-                        this.getProtocolDialectTypedProperties(comTaskExecution, serviceProvider.deviceDataService()),
+                        this.getProtocolDialectTypedProperties(comTaskExecution),
                         this.preparationContext.getComChannelPlaceHolder(),
                         comTaskPreparationContext.getOfflineDevice(),
                         protocolTasks,
@@ -337,9 +337,9 @@ public abstract class JobExecution implements ScheduledJob {
         return new PreparedComTaskExecution(comTaskExecution, comTaskPreparationContext.getRoot(), comTaskPreparationContext.getDeviceProtocol());
     }
 
-    static TypedProperties getProtocolDialectTypedProperties(ComTaskExecution comTaskExecution, DeviceDataService deviceDataService) {
+    static TypedProperties getProtocolDialectTypedProperties(ComTaskExecution comTaskExecution) {
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = comTaskExecution.getProtocolDialectConfigurationProperties();
-        Device device = deviceDataService.findDeviceById(comTaskExecution.getDevice().getId());
+        Device device = comTaskExecution.getDevice();
         ProtocolDialectProperties protocolDialectPropertiesWithName = device.getProtocolDialectProperties(protocolDialectConfigurationProperties.getDeviceProtocolDialectName());
         if (protocolDialectPropertiesWithName == null) {
             return TypedProperties.inheritingFrom(protocolDialectConfigurationProperties.getTypedProperties());

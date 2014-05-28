@@ -261,7 +261,7 @@ public final class ExecutionContext {
     }
 
     private void addProtocolDialectPropertiesAsJournalEntries(ComTaskExecution comTaskExecution) {
-        TypedProperties protocolDialectTypedProperties = JobExecution.getProtocolDialectTypedProperties(comTaskExecution, serviceProvider.deviceDataService());
+        TypedProperties protocolDialectTypedProperties = JobExecution.getProtocolDialectTypedProperties(comTaskExecution);
         if (!protocolDialectTypedProperties.propertyNames().isEmpty()) {
             currentTaskExecutionBuilder.addComTaskExecutionMessageJournalEntry(now(), "", asString(protocolDialectTypedProperties));
         }
