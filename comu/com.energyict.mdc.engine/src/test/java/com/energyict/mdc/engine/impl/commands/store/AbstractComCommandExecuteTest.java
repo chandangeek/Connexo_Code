@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.util.time.ProgrammableClock;
+import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
@@ -12,6 +13,7 @@ import com.energyict.mdc.engine.impl.commands.store.core.CommandRootServiceProvi
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
+import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
@@ -55,6 +57,18 @@ public abstract class AbstractComCommandExecuteTest {
     @Mock
     private DeviceConfigurationService deviceConfigurationService;
 
+    @Mock
+    private EventPublisherImpl eventPublisher;
+
+    @Before
+    public void setupEventPublisher () {
+        EventPublisherImpl.setInstance(this.eventPublisher);
+    }
+
+    @After
+    public void resetEventPublisher () {
+        EventPublisherImpl.setInstance(null);
+    }
     @Before
     public void setUpManager() throws Exception {
         setupServiceProvider();
@@ -74,6 +88,7 @@ public abstract class AbstractComCommandExecuteTest {
 
     @After
     public void resetServiceProvider () {
+        serviceProvider.setClock(new DefaultClock());
         ServiceProvider.instance.set(null);
     }
 

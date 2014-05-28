@@ -33,6 +33,11 @@ public class ComPortRelatedComChannelImpl  implements ComPortRelatedComChannel {
     }
 
     @Override
+    public ComChannel getDelegatingComChannel() {
+        return comChannel;
+    }
+
+    @Override
     public boolean startReading() {
         return comChannel.startReading();
     }

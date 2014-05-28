@@ -408,7 +408,7 @@ public abstract class JobExecution implements ScheduledJob {
         }
 
         public void setComChannel(ComPortRelatedComChannel comChannel) {
-            this.comChannelPlaceHolder.setComChannel(comChannel);
+            this.comChannelPlaceHolder.setComPortRelatedComChannel(comChannel);
         }
     }
 

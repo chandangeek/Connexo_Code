@@ -19,7 +19,7 @@ public class ComChannelPlaceHolderTest {
         ComChannelPlaceHolder comChannelPlaceHolder = ComChannelPlaceHolder.empty();
 
         // Asserts
-        assertThat(comChannelPlaceHolder.getComChannel()).isNull();
+        assertThat(comChannelPlaceHolder.getComPortRelatedComChannel()).isNull();
     }
 
     @Test
@@ -30,7 +30,7 @@ public class ComChannelPlaceHolderTest {
         ComChannelPlaceHolder comChannelPlaceHolder = ComChannelPlaceHolder.forKnownComChannel(comChannel);
 
         // Asserts
-        assertThat(comChannelPlaceHolder.getComChannel()).isEqualTo(comChannel);
+        assertThat(comChannelPlaceHolder.getComPortRelatedComChannel()).isEqualTo(comChannel);
     }
 
     @Test
@@ -39,10 +39,10 @@ public class ComChannelPlaceHolderTest {
         ComPortRelatedComChannel comChannel = mock(ComPortRelatedComChannel.class);
 
         // Business method
-        comChannelPlaceHolder.setComChannel(comChannel);
+        comChannelPlaceHolder.setComPortRelatedComChannel(comChannel);
 
         // Asserts
-        assertThat(comChannelPlaceHolder.getComChannel()).isEqualTo(comChannel);
+        assertThat(comChannelPlaceHolder.getComPortRelatedComChannel()).isEqualTo(comChannel);
     }
 
 }

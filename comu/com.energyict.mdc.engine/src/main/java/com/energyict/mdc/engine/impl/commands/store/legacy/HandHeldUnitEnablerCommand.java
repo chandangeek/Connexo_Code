@@ -12,6 +12,8 @@ import com.energyict.mdc.protocol.api.DeviceProtocolAdapter;
 import com.energyict.mdc.protocol.api.OpticalDriver;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
+import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolAdapter;
 import com.energyict.protocols.mdc.channels.serial.SerialComChannel;
 
 /**
@@ -32,11 +34,11 @@ public class HandHeldUnitEnablerCommand extends SimpleComCommand {
 
     @Override
     public void doExecute (DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
-        if (this.comChannelPlaceHolder.getComChannel() instanceof SerialComChannel) {
-            SerialComChannel comChannel = (SerialComChannel) this.comChannelPlaceHolder.getComChannel();
+        if (this.comChannelPlaceHolder.getComPortRelatedComChannel().getDelegatingComChannel() instanceof SerialComChannel) {
+            SerialComChannel comChannel = (SerialComChannel) this.comChannelPlaceHolder.getComPortRelatedComChannel().getDelegatingComChannel();
             SerialCommunicationChannelAdapter serialCommunicationChannel = new SerialCommunicationChannelAdapter(comChannel);
             try {
-                if (deviceProtocol.getClass().getName().endsWith("MeterProtocolAdapter")) {
+                if (deviceProtocol instanceof MeterProtocolAdapter || deviceProtocol instanceof SmartMeterProtocolAdapter) {
                     if (executionContext.getConnectionTask().getConnectionType() instanceof OpticalDriver) {
                         ((DeviceProtocolAdapter) deviceProtocol).enableHHUSignOn(serialCommunicationChannel);
                     }

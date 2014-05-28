@@ -46,7 +46,7 @@ public class DeviceProtocolInitializeCommandTest extends AbstractComCommandExecu
         ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext();
         CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, serviceProvider);
         ComChannelPlaceHolder comChannelPlaceHolder = getMockedComChannel();
-        ComChannel mockedComChannel = comChannelPlaceHolder.getComChannel();
+        ComChannel mockedComChannel = comChannelPlaceHolder.getComPortRelatedComChannel();
         CommandFactory.createDeviceProtocolInitialization(commandRoot, null, offlineDevice, comChannelPlaceHolder);
 
         // business call

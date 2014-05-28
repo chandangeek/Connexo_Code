@@ -29,7 +29,7 @@ public class DeviceProtocolInitializeCommand extends SimpleComCommand {
 
     @Override
     public void doExecute (DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
-        deviceProtocol.init(device, comChannelPlaceHolder.getComChannel());
+        deviceProtocol.init(device, comChannelPlaceHolder.getComPortRelatedComChannel());
     }
 
     @Override

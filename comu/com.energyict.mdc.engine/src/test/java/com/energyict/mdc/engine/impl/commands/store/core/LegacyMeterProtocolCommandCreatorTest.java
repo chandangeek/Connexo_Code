@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -27,14 +28,18 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
+import com.energyict.mdc.tasks.history.TaskHistoryService;
 import com.energyict.protocols.mdc.channels.serial.SerialComChannel;
 import com.energyict.protocols.mdc.channels.serial.ServerSerialPort;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.logging.Logger;
 
 import static org.mockito.Matchers.any;
@@ -58,6 +63,21 @@ public class LegacyMeterProtocolCommandCreatorTest {
 
     private ComTaskExecutionConnectionSteps createSingleDeviceComTaskExecutionSteps() {
         return new ComTaskExecutionConnectionSteps(ComTaskExecutionConnectionSteps.SIGNON, ComTaskExecutionConnectionSteps.SIGNOFF);
+    }
+
+    @Before
+    public void initBefore() {
+        Clock clock = mock(Clock.class);
+        when(clock.now()).thenReturn(new Date());
+        serviceProvider.setClock(clock);
+        TaskHistoryService taskHistoryService = mock(TaskHistoryService.class);
+        serviceProvider.setTaskHistoryService(taskHistoryService);
+    }
+
+    @After
+    public void initAfter() {
+        serviceProvider.setClock(null);
+        serviceProvider.setTaskHistoryService(null);
     }
 
     @Test

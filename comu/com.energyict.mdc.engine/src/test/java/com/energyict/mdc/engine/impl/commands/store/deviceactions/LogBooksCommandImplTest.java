@@ -26,8 +26,9 @@ import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
+import static org.fest.assertions.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -86,14 +87,20 @@ public class LogBooksCommandImplTest {
         when(offlineLogBook_A.getLogBookId()).thenReturn(LOGBOOK_ID_1);
         when(offlineLogBook_A.getLastLogBook()).thenReturn(LAST_LOGBOOK_1);
         when(offlineLogBook_A.getMasterSerialNumber()).thenReturn(SERIAL_NUMBER);
+        when(offlineLogBook_A.getLogBookTypeId()).thenReturn(LOGBOOK_TYPE_1);
+        when(offlineLogBook_A.getObisCode()).thenReturn(DEVICE_OBISCODE_LOGBOOK_1);
 
         when(offlineLogBook_B.getLogBookId()).thenReturn(LOGBOOK_ID_2);
         when(offlineLogBook_B.getLastLogBook()).thenReturn(LAST_LOGBOOK_2);
         when(offlineLogBook_B.getMasterSerialNumber()).thenReturn(SERIAL_NUMBER);
+        when(offlineLogBook_B.getLogBookTypeId()).thenReturn(LOGBOOK_TYPE_2);
+        when(offlineLogBook_B.getObisCode()).thenReturn(DEVICE_OBISCODE_LOGBOOK_2);
 
         when(offlineLogBook_C.getLogBookId()).thenReturn(LOGBOOK_ID_3);
         when(offlineLogBook_C.getLastLogBook()).thenReturn(LAST_LOGBOOK_3);
         when(offlineLogBook_C.getMasterSerialNumber()).thenReturn(SERIAL_NUMBER);
+        when(offlineLogBook_C.getLogBookTypeId()).thenReturn(LOGBOOK_TYPE_3);
+        when(offlineLogBook_C.getObisCode()).thenReturn(DEVICE_OBISCODE_LOGBOOK_3);
 
         when(logBookType_A.getId()).thenReturn(LOGBOOK_TYPE_1);
         when(logBookType_B.getId()).thenReturn(LOGBOOK_TYPE_2);
@@ -136,7 +143,7 @@ public class LogBooksCommandImplTest {
         LogBooksCommand logBooksCommand = new LogBooksCommandImpl(logBooksTask, device, commandRoot, comTaskExecution);
 
         // asserts
-        Assert.assertEquals(ComCommandTypes.LOGBOOKS_COMMAND, logBooksCommand.getCommandType());
+        assertEquals(ComCommandTypes.LOGBOOKS_COMMAND, logBooksCommand.getCommandType());
         assertNotNull(logBooksCommand.getLogBooksTask());
     }
 
@@ -151,6 +158,8 @@ public class LogBooksCommandImplTest {
         when(device.getAllOfflineLogBooks()).thenReturn(logBooksForDevice);
 
         CommandRoot commandRoot = mock(CommandRoot.class);
+        CommandRoot.ServiceProvider serviceProvider = mock(CommandRoot.ServiceProvider.class);
+        when(commandRoot.getServiceProvider()).thenReturn(serviceProvider);
         ReadLogBooksCommand readLogBooksCommand = mock(ReadLogBooksCommand.class);
         when(commandRoot.getReadLogBooksCommand(any(LogBooksCommand.class), any(ComTaskExecution.class))).thenReturn(readLogBooksCommand);
 
@@ -186,6 +195,8 @@ public class LogBooksCommandImplTest {
         CommandRoot commandRoot = mock(CommandRoot.class);
         ReadLogBooksCommand readLogBooksCommand = mock(ReadLogBooksCommand.class);
         when(commandRoot.getReadLogBooksCommand(any(LogBooksCommand.class), any(ComTaskExecution.class))).thenReturn(readLogBooksCommand);
+        CommandRoot.ServiceProvider serviceProvider = mock(CommandRoot.ServiceProvider.class);
+        when(commandRoot.getServiceProvider()).thenReturn(serviceProvider);
 
         LogBooksCommand logBooksCommand = new LogBooksCommandImpl(logBooksTask, device, commandRoot, comTaskExecution);
         List<LogBookReader> logBookReaders = ((LogBooksCommandImpl) logBooksCommand).getLogBookReaders();
@@ -194,9 +205,9 @@ public class LogBooksCommandImplTest {
         LogBookReader expectedLogBookReader_3 = new LogBookReader(DEVICE_OBISCODE_LOGBOOK_3, LAST_LOGBOOK_3, new LogBookIdentifierByIdImpl(LOGBOOK_ID_3, deviceDataService), SERIAL_NUMBER);
 
         // asserts
-        Assert.assertEquals(ComCommandTypes.LOGBOOKS_COMMAND, logBooksCommand.getCommandType());
+        assertEquals(ComCommandTypes.LOGBOOKS_COMMAND, logBooksCommand.getCommandType());
         assertNotNull(logBooksCommand.getLogBooksTask());
-        Assert.assertEquals(logBooksTask.getLogBookTypes().size(), logBookReaders.size());
+        assertEquals(logBooksTask.getLogBookTypes().size(), logBookReaders.size());
         assertThat(logBookReaders.get(0)).isEqualsToByComparingFields(expectedLogBookReader_1);
         assertThat(logBookReaders.get(1)).isEqualsToByComparingFields(expectedLogBookReader_3);
     }
