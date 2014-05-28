@@ -427,10 +427,8 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
                 parametersContainer.down('#radioFail').setValue({
                     fail: command.parameters[1].value.toString()
                 });
-                if (!parametersContainer.down('#disCont').isDisabled()) {
-                    parametersContainer.down('#disContTime').setValue(command.parameters[4].value.name);
-                    parametersContainer.down('#disContNum').setValue(command.parameters[4].value.value);
-                }
+                parametersContainer.down('#disContTime').setValue(command.parameters[4].value.name);
+                parametersContainer.down('#disContNum').setValue(command.parameters[4].value.value);
                 break;
             case 'clock':
                 switch (command.action) {
@@ -636,9 +634,19 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
                     self.fillLogbooks(protocol, parametersContainer);
                     break;
                 case 'communication-tasks-registerscombo':
+                    if (parametersContainer.value.length < 1) {
+                        parametersContainer.markInvalid('This is a required field');
+                        button.disable();
+                        couldAdd = false;
+                    }
                     self.fillRegisters(protocol, parametersContainer);
                     break;
                 case 'communication-tasks-profilescombo':
+                    if (parametersContainer.down('#checkProfileTypes').value.length < 1) {
+                        parametersContainer.down('#checkProfileTypes').markInvalid('This is a required field');
+                        button.disable();
+                        couldAdd = false;
+                    }
                     self.fillProfiles(protocol, parametersContainer);
                     break;
                 case 'communication-tasks-parameters-clock-set':
@@ -714,6 +722,12 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
             profiles.value.push(profile);
         });
         protocol.parameters.push(profiles);
+        fail.name = "failifconfigurationmismatch";
+        if (parametersContainer.down('#radioFail').getValue().fail === 'true') {
+            failBoolean = true;
+        }
+        fail.value = failBoolean;
+        protocol.parameters.push(fail);
         intervals.name = "markintervalsasbadtime";
         if (parametersContainer.down('#radioIntervals').getValue().intervals === 'true') {
             intervalsBoolean = true;
@@ -726,21 +740,13 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
         }
         events.value = eventsBoolean;
         protocol.parameters.push(events);
-        fail.name = "failifconfigurationmismatch";
-        if (parametersContainer.down('#radioFail').getValue().fail === 'true') {
-            failBoolean = true;
-        }
-        fail.value = failBoolean;
-        protocol.parameters.push(fail);
-        if (!parametersContainer.down('#disCont').isDisabled()) {
-            var minTime = {},
-                minTimeValue = {};
-            minTime.name = "minclockdiffbeforebadtime";
-            minTimeValue.name = parametersContainer.down('#disContTime').value;
-            minTimeValue.value = parseInt(parametersContainer.down('#disContNum').getValue());
-            minTime.value = minTimeValue;
-            protocol.parameters.push(minTime);
-        }
+        var minTime = {},
+            minTimeValue = {};
+        minTime.name = "minclockdiffbeforebadtime";
+        minTimeValue.name = parametersContainer.down('#disContTime').value;
+        minTimeValue.value = parseInt(parametersContainer.down('#disContNum').getValue());
+        minTime.value = minTimeValue;
+        protocol.parameters.push(minTime);
         self.commands.push(protocol);
     },
 

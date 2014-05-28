@@ -25,10 +25,13 @@ Ext.define('Mdc.view.setup.device.DeviceOpenIssuesPanel', {
                     name: 'issues',
                     xtype: 'displayfield',
                     itemId: 'dataCollectionIssuesLink',
-                    fieldLabel: Uni.I18n.translate('deviceOpenIssues.dataCollectionIssues', 'MDC', 'data collection issue(s)'),
-                    href: '#/workspace/datacollection/issues?issueType=datacollection&group=none&status=1&meter=' + this.mRID,
+                    fieldLabel: Uni.I18n.translate('deviceOpenIssues.dataCollectionIssuesTitle', 'MDC', 'Data collection issues'),
                     renderer: function(value, field) {
-                        return '<a href="' + field.href +'" >' + value + '</a>';
+                        if (value !== 0) {
+                        return '<a href="#/workspace/datacollection/issues?issueType=datacollection&group=none&status=1&meter=' + me.mRID + '" >' + Uni.I18n.translatePlural('deviceOpenIssues.dataCollectionIssues',value, 'MDC', 'issues') + '</a>';
+                        } else {
+                            return Uni.I18n.translatePlural('deviceOpenIssues.dataCollectionIssues',0, 'MDC', 'issues');
+                        }
                     }
                 }
             ]
