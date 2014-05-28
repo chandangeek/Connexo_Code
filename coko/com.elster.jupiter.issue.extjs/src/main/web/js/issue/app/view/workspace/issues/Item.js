@@ -25,19 +25,22 @@ Ext.define('Isu.view.workspace.issues.Item', {
         itemId: 'issue-form',
         xtype: 'issue-form',
         // todo: animate button
-        buttons: [
-            {
+        bbar: {
+            layout: {
+                type: 'vbox',
+                align: 'right'
+            },
+            items: {
                 text: 'View details',
                 ui: 'link',
-                action: 'view'
-                //listeners: {
-                //    click: function() {
-                //        console.log(Ext.ComponentQuery.query('#action-menu')[0]);
-                //        window.location.href = "#/workspace/datacollection/issues/" + Ext.ComponentQuery.query('#item-action')[0].issueId
-                //    }
-                //}
+                action: 'view',
+                listeners: {
+                    click: function () {
+                        window.location.href = "#/workspace/datacollection/issues/" + Ext.ComponentQuery.query('#issue-form')[0].getRecord().get('id')
+                    }
+                }
             }
-        ]
+        }
     },
     // todo: set empty text
     emptyText: '<h3>No issue selected</h3><p>Select an issue to view its detail.</p>'
