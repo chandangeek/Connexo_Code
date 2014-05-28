@@ -50,7 +50,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
             items: [
                 {
                     xtype: 'textfield',
-                    name: key,
+                    name: 'properties.' + key,
                     fieldLabel: key,
                     itemId: key,
                     value: text,
@@ -80,7 +80,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
             items: [
                 {
                     xtype: 'textfield',
-                    name: key,
+                    name: 'properties.' + key,
                     fieldLabel: key,
                     itemId: key,
                     value: text,
@@ -112,7 +112,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
             items: [
                 {
                     xtype: 'textfield',
-                    name: key,
+                    name: 'properties.' + key,
                     fieldLabel: key,
                     itemId: key,
                     value: text,
@@ -126,7 +126,6 @@ Ext.define('Mdc.view.setup.property.Edit', {
                 {
                     xtype: 'defaultButton',
                     key: key,
-
                     default: defaultValue
                 }
             ]
@@ -145,7 +144,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
             items: [
                 {
                     xtype: 'textareafield',
-                    name: key,
+                    name: 'properties.' + key,
                     fieldLabel: key,
                     itemId: key,
                     value: text,
@@ -179,7 +178,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
             items: [
                 {
                     xtype: 'numberfield',
-                    name: key,
+                    name: 'properties.' + key,
                     fieldLabel: key,
                     itemId: key,
                     value: value,
@@ -218,18 +217,19 @@ Ext.define('Mdc.view.setup.property.Edit', {
             items: [
                 {
                     xtype: 'checkbox',
-                    name: key,
+                    name: 'properties.' + key,
                     fieldLabel: key,
                     itemId: key,
                     checked: value,
                     margin: '0 5 5 0',
                     cls: 'check',
-                    required: required
-                },
+                    required: required,
+                    msgTarget: 'under'
+                }
+                ,
                 {
                     xtype: 'defaultButton',
                     key: key,
-
                     default: defaultValue
                 }
             ]
@@ -249,7 +249,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
             items: [
                 {
                     xtype: 'radiogroup',
-                    itemId: 'rg' + key,
+                    itemId: key,
+                    name: 'properties.' + key,
                     allowBlank: false,
                     required: required,
                     vertical: true,
@@ -260,7 +261,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
                             name: 'rb',
                             itemId: 'rb_1_' + key,
                             checked: value1,
-                            inputValue: 1,
+                            inputValue: true,
                             margin: '0 10 5 0'
                         },
                         {
@@ -268,7 +269,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
                             name: 'rb',
                             itemId: 'rb_2_' + key,
                             checked: value2,
-                            inputValue: 0,
+                            inputValue: false,
                             margin: '0 10 5 0'
                         },
                         {
@@ -284,7 +285,6 @@ Ext.define('Mdc.view.setup.property.Edit', {
                 {
                     xtype: 'defaultButton',
                     key: key,
-
                     default: defaultValue
                 }
             ]
@@ -304,7 +304,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
             items: [
                 {
                     xtype: 'datefield',
-                    name: key,
+                    name: 'properties.' + key,
                     fieldLabel: key,
                     itemId: 'date' + key,
                     value: value,
@@ -335,7 +335,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
             items: [
                 {
                     xtype: 'timefield',
-                    name: key,
+                    name: 'properties.' + key,
                     fieldLabel: key,
                     itemId: 'time' + key,
                     value: value,
@@ -365,7 +365,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
             items: [
                 {
                     xtype: 'datefield',
-                    name: key,
+                    name: 'properties.' + key,
                     fieldLabel: key,
                     itemId: 'date' + key,
                     value: dateValue,
@@ -376,7 +376,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
                 },
                 {
                     xtype: 'timefield',
-                    name: key,
+                    name: 'properties.' + key,
                     fieldLabel: key,
                     itemId: 'time' + key,
                     value: timeValue,
@@ -406,7 +406,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
             items: [
                 {
                     xtype: 'numberfield',
-                    name: key,
+                    name: 'properties.' + key,
                     fieldLabel: key,
                     itemId: key,
                     value: count,
@@ -418,7 +418,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
                 {
                     xtype: 'combobox',
                     itemId: 'tu_' + key,
-                    name: 'tu_' + key,
+                    name: 'properties.' + key,
                     store: timeUnitsStore,
                     queryMode: 'local',
                     displayField: 'timeUnit',
@@ -439,20 +439,6 @@ Ext.define('Mdc.view.setup.property.Edit', {
             ]
         });
     },
-    addCodeTableProperty: function (key, value) {
-        var me = this;
-        me.down('#propertiesform').add({
-            xtype: 'codeTableSelector',
-            name: key,
-            fieldLabel: key,
-            itemId: key,
-            value: value,
-            width: 600,
-            handler: function (picker, date) {
-                console.log('dit is een test');
-            }
-        })
-    },
     addCodeTablePropertyWithSelectionWindow: function (key, value, defaultValue, required) {
         var me = this;
         me.down('#propertiesform').add({
@@ -467,13 +453,14 @@ Ext.define('Mdc.view.setup.property.Edit', {
             items: [
                 {
                     xtype: 'textfield',
-                    name: key,
+                    name: 'properties.' + key,
                     value: value,
                     itemId: key,
                     size: 75,
                     margin: '0 5 5 0',
                     width: 395,
-                    required: required
+                    required: required,
+                    readOnly: true
                 },
                 {
                     xtype: 'button',
@@ -506,13 +493,14 @@ Ext.define('Mdc.view.setup.property.Edit', {
             items: [
                 {
                     xtype: 'textfield',
-                    name: key,
+                    name: 'properties.' + key,
                     value: value,
                     itemId: key,
                     size: 75,
                     margin: '0 5 5 0',
                     width: 395,
-                    required: required
+                    required: required,
+                    readOnly: true
                 },
                 {
                     xtype: 'button',
@@ -545,13 +533,14 @@ Ext.define('Mdc.view.setup.property.Edit', {
             items: [
                 {
                     xtype: 'textfield',
-                    name: key,
+                    name: 'properties.' + key,
                     value: value,
                     itemId: key,
                     size: 200,
                     margin: '0 5 5 0',
                     width: 395,
-                    required: required
+                    required: required,
+                    readOnly: true
                 },
                 {
                     xtype: 'button',
@@ -585,7 +574,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
                 {
                     xtype: 'combobox',
                     itemId: key,
-                    name: key,
+                    name: 'properties.' + key,
                     fieldLabel: key,
                     store: store,
                     queryMode: 'local',
@@ -621,7 +610,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
                 {
                     xtype: 'combobox',
                     itemId: key,
-                    name: key,
+                    name: 'properties.' + key,
                     fieldLabel: key,
                     store: store,
                     queryMode: 'local',
@@ -657,14 +646,14 @@ Ext.define('Mdc.view.setup.property.Edit', {
             items: [
                 {
                     xtype: 'textfield',
-                    name: key,
+                    name: 'properties.' + key,
                     fieldLabel: key,
                     itemId: key,
                     value: text,
                     size: 200,
                     margin: '0 5 5 0',
                     width: 395,
-                    vtype: 'ean18',
+                   // vtype: 'ean18',
                     required: required
                 },
                 {
@@ -689,14 +678,14 @@ Ext.define('Mdc.view.setup.property.Edit', {
             items: [
                 {
                     xtype: 'textfield',
-                    name: key,
+                    name: 'properties.' + key,
                     fieldLabel: key,
                     itemId: key,
                     value: text,
                     size: 200,
                     margin: '0 5 5 0',
                     width: 395,
-                    vtype: 'ean13',
+               //     vtype: 'ean13',
                     required: required
                 },
                 {
