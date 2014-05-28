@@ -1,21 +1,27 @@
-package com.elster.jupiter.issue.datacollection;
+package com.elster.jupiter.issue.datacollection.templates.params;
 
-import com.elster.jupiter.issue.share.cep.AbstractParameterDefenition;
+import com.elster.jupiter.issue.datacollection.impl.i18n.MessageSeeds;
 import com.elster.jupiter.issue.share.cep.ParameterConstraint;
 import com.elster.jupiter.issue.share.cep.ParameterControl;
 import com.elster.jupiter.issue.share.cep.StringParameterConstraint;
+import com.elster.jupiter.issue.share.cep.controls.SimpleControl;
+import com.elster.jupiter.nls.Thesaurus;
 
-public class EndDeviceEventTypeParameter extends AbstractParameterDefenition{
+public class IssueEventTopicParameter extends TranslatedParameter{
     private static final ParameterConstraint CONSTRAINT = new StringParameterConstraint(false, 2, 80);
+
+    public IssueEventTopicParameter(Thesaurus thesaurus) {
+        super(thesaurus);
+    }
 
     @Override
     public String getKey() {
-        return "endDeviceEventType";
+        return "eventTopic";
     }
 
     @Override
     public ParameterControl getControl() {
-        return null;
+        return SimpleControl.TEXT_FIELD;
     }
 
     @Override
@@ -25,6 +31,6 @@ public class EndDeviceEventTypeParameter extends AbstractParameterDefenition{
 
     @Override
     public String getLabel() {
-        return "End device event type";
+        return getString(MessageSeeds.PARAMETER_NAME_EVENT_TOPIC);
     }
 }

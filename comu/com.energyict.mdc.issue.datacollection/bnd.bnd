@@ -1,4 +1,4 @@
 -classpath: target/classes 
 -dsannotations: *
-Private-Package: com.elster.jupiter.issue.datacollection.impl.*
+Private-Package: com.elster.jupiter.issue.datacollection.*
 Export-Package: com.elster.jupiter.issue.datacollection

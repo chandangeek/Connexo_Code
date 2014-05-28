@@ -2,6 +2,7 @@ package com.elster.jupiter.issue.datacollection.impl.install;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.datacollection.impl.ModuleConstants;
+import com.elster.jupiter.issue.datacollection.impl.i18n.TranslationInstaller;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
@@ -29,12 +30,14 @@ public class InstallServiceImpl implements InstallService {
         setIssueService(issueService);
         setEventService(eventService);
         setNlsService(nlsService);
+
         install();
     }
 
     @Override
     public void install() {
         new Installer(issueService, messageService, eventService, thesaurus).install();
+        new TranslationInstaller(thesaurus).createTranslations();
     }
 
     @Reference

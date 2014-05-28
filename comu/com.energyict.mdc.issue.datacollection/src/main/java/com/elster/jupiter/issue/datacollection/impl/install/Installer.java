@@ -6,11 +6,7 @@ import com.elster.jupiter.issue.share.entity.IssueEventType;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.nls.*;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import com.elster.jupiter.nls.Thesaurus;
 
 public class Installer {
 
@@ -31,7 +27,6 @@ public class Installer {
         setDataCollectionReasons(issueType);
         setAQSubscriber();
         setEventTopics();
-        setTranslations();
     }
 
     private IssueType setSupportedIssueType(){
@@ -50,6 +45,7 @@ public class Installer {
         issueService.createReason("Connection failed", issueType);
         issueService.createReason("Power outage", issueType);
         issueService.createReason("Time sync failed", issueType);
+        issueService.createReason("Slope detection", issueType);
     }
 
     // TODO remove it when MDC will register topics
@@ -62,33 +58,5 @@ public class Installer {
                 System.out.println("Could not create event type : " + eventType.name());
             }
         }
-    }
-
-    private void setTranslations(){
-        List<Translation> translations = new ArrayList<>(com.elster.jupiter.issue.datacollection.impl.install.MessageSeeds.values().length);
-        for (com.elster.jupiter.issue.datacollection.impl.install.MessageSeeds messageSeed : com.elster.jupiter.issue.datacollection.impl.install.MessageSeeds.values()) {
-            SimpleNlsKey nlsKey = SimpleNlsKey.key(ModuleConstants.COMPONENT_NAME, Layer.DOMAIN, messageSeed.getKey()).defaultMessage(messageSeed.getDefaultFormat());
-            translations.add(toTranslation(nlsKey, Locale.ENGLISH, messageSeed.getDefaultFormat()));
-        }
-        thesaurus.addTranslations(translations);
-    }
-
-    private Translation toTranslation(final SimpleNlsKey nlsKey, final Locale locale, final String translation) {
-        return new Translation() {
-            @Override
-            public NlsKey getNlsKey() {
-                return nlsKey;
-            }
-
-            @Override
-            public Locale getLocale() {
-                return locale;
-            }
-
-            @Override
-            public String getTranslation() {
-                return translation;
-            }
-        };
     }
 }

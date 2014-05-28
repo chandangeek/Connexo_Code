@@ -1,7 +1,6 @@
 package com.elster.jupiter.issue.tests;
 
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.util.conditions.Condition;
@@ -16,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class InstallerTest extends BaseTest {
-    private static final int DEFAULT_REASON_COUNT = 7;
+    private static final int DEFAULT_REASON_COUNT = 8;
     private static final int DEFAULT_ISSUE_TYPES_COUNT = 1;
 
     @Test
@@ -28,13 +27,4 @@ public class InstallerTest extends BaseTest {
         }
     }
 
-/*    @Test
-    public void testDefaultIssueTypes(){
-        try (TransactionContext context = getContext()) {
-           // Query<IssueActionType> query = getIssueCreationService().getCreationRuleActionTypeQuery();
-            Query<IssueActionType> query = getIssueActionService().getActionTypeQuery();
-            List<IssueActionType> defaultTypes = query.select(Condition.TRUE);
-            assertThat(defaultTypes).hasSize(DEFAULT_ISSUE_TYPES_COUNT);
-        }
-    }*/
 }

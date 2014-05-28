@@ -7,6 +7,7 @@ import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.datacollection.impl.IssueDataCollectionModule;
 import com.elster.jupiter.issue.datacollection.impl.install.InstallServiceImpl;
 import com.elster.jupiter.issue.impl.module.IssueModule;
+import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueMappingService;
