@@ -15,11 +15,13 @@ Ext.define('Isu.view.workspace.issues.bulk.Step1', {
             hidden: true,
             items: [
                 {
+                    itemId: 'form-errors',
                     xtype: 'uni-form-error-message'
                 }
             ]
         },
         {
+            itemId: 'radiogroupStep1',
             xtype: 'radiogroup',
             name: 'AllOrSelectedIssues',
             columns: 1,
@@ -29,13 +31,13 @@ Ext.define('Isu.view.workspace.issues.bulk.Step1', {
                 padding: '0 0 30 0'
             },
             items: [
-                {
+                {   itemId: 'issueRange1',
                     boxLabel: '<b>All issues</b><br/>' +
                         '<span style="color: grey;">Select all issues (related to filters and grouping on the issues screen)</span>',
                     name: 'issuesRange',
                     inputValue: 'ALL'
                 },
-                {
+                {   itemId: 'issueRange2',
                     boxLabel: '<b>Selected issues</b><br/><span style="color: grey;">Select issues in table</span>',
                     name: 'issuesRange',
                     inputValue: 'SELECTED'
@@ -43,17 +45,20 @@ Ext.define('Isu.view.workspace.issues.bulk.Step1', {
             ]
         },
         {
+            itemId: 'selected-issues',
             xtype: 'container',
             name: 'selected-issues-txt-holder',
             layout: 'hbox',
             padding: '0 0 10 0',
             items: [
                 {
+                    itemId: 'issues-qty-txt',
                     xtype: 'label',
                     name: 'issues-qty-txt',
                     width: 120
                 },
                 {
+                    itemId: 'uncheck-all',
                     xtype: 'button',
                     name: 'uncheck-all-btn',
                     text: 'Uncheck all',
@@ -62,6 +67,7 @@ Ext.define('Isu.view.workspace.issues.bulk.Step1', {
             ]
         },
         {
+            itemId: 'issues-list',
             xtype: 'issues-list',
             height: 285,
             selType: 'checkboxmodel',
@@ -77,12 +83,14 @@ Ext.define('Isu.view.workspace.issues.bulk.Step1', {
                 },
                 items: [
                     {
+                        itemId: 'Title',
                         header: 'Title',
                         xtype: 'templatecolumn',
                         tpl: '{reason.name}<tpl if="device"> to {device.serialNumber}</tpl>',
                         flex: 2
                     },
                     {
+                        itemId: 'dueDate',
                         header: 'Due date',
                         dataIndex: 'dueDate',
                         xtype: 'datecolumn',
@@ -90,12 +98,14 @@ Ext.define('Isu.view.workspace.issues.bulk.Step1', {
                         width: 140
                     },
                     {
+                        itemId: 'status',
                         header: 'Status',
                         xtype: 'templatecolumn',
                         tpl: '<tpl if="status">{status.name}</tpl>',
                         width: 100
                     },
                     {
+                        itemId: 'assignee',
                         header: 'Assignee',
                         xtype: 'templatecolumn',
                         tpl: '<tpl if="assignee.type"><span class="isu-icon-{assignee.type} isu-assignee-type-icon"></span></tpl> {assignee.name}',

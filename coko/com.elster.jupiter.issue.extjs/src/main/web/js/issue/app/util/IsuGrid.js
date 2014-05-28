@@ -70,49 +70,12 @@ Ext.define('Isu.util.IsuGrid', {
     },
 
     /**
-     * Handle actioncolumn 'click' event.
-     * Show menu for actioncolumn icon.
-     */
-    showItemAction: function (grid, cell, rowIndex, colIndex, e, record) {
-        var cellEl = Ext.get(cell);
-
-        this.hideItemAction();
-
-        this.gridActionIcon = cellEl.first();
-
-        this.gridActionIcon.hide();
-        this.gridActionIcon.setHeight(0);
-        this.gridActionBtn = Ext.create('widget.grid-action', {
-            renderTo: cell,
-            menu: {
-                xtype: this.actionMenuXtype,
-                issueId: record.data.id
-            }
-        });
-        this.gridActionBtn.showMenu();
-    },
-
-    /**
-     * Hide menu for actioncolumn icon.
-     */
-    hideItemAction: function () {
-        if (this.gridActionBtn) {
-            this.gridActionBtn.destroy();
-        }
-
-        if (this.gridActionIcon) {
-            this.gridActionIcon.show();
-            this.gridActionIcon.setHeight(22);
-        }
-    },
-
-    /**
      * Handle 'itemclick' event.
      * Load item model and fire event for item panel view.
      */
     loadGridItemDetail: function (grid, record) {
         var itemPanel = this.getItemPanel(),
-            form = itemPanel.down('issue-form'),
+            form = itemPanel.down('form'),
             preloader = Ext.create('Ext.LoadMask', {
                 msg: "Loading...",
                 target: itemPanel
@@ -126,9 +89,6 @@ Ext.define('Isu.util.IsuGrid', {
         this.gridItemModel.load(record.data.id, {
             success: function (record) {
                 form.loadRecord(record);
-                itemPanel.setTitle(record.get('title'))
-            },
-            callback: function() {
                 preloader.destroy();
             }
         });

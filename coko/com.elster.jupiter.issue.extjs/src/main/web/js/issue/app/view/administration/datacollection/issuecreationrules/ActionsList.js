@@ -37,7 +37,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.ActionsLis
                 xtype: 'actioncolumn',
                 iconCls: 'isu-action-icon',
                 align: 'left',
-                width: 70
+                width: 100
             }
         ]
     }

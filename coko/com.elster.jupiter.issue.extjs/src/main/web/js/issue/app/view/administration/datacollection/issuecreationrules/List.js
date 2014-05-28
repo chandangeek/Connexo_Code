@@ -9,19 +9,29 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.List', {
     ],
     alias: 'widget.issues-creation-rules-list',
     border: false,
-    height: 365,
     items: [
         {
+            itemId: 'noRuleFound',
             name: 'empty-text',
             border: false,
             hidden: true,
-            html: '<h3>No rule found</h3>' +
-                '<p>No issue creation rules have been created yet.</p>' +
-                '<p>Possible steps:</p>',
+            html: '<h3>No rule found</h3>',
+
+            items: [
+                {
+                    xtype: 'label',
+                    text: 'No issue creation rules have been created yet.'
+                },
+                {
+                    xtype: 'label',
+                    text: 'Possible steps:'
+                }
+            ],
             bbar: {
                 padding: 0,
                 items: [
                     {
+                        itemId: 'createRule',
                         text: 'Create rule',
                         action: 'create'
                     }
@@ -29,9 +39,9 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.List', {
             }
         },
         {
+            itemId: 'createRuleGrid',
             xtype: 'grid',
             store: 'Isu.store.CreationRule',
-            height: 285,
             columns: {
                 defaults: {
                     sortable: false,
@@ -39,12 +49,14 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.List', {
                 },
                 items: [
                     {
+                        itemId: 'Name',
                         header: 'Name',
                         dataIndex: 'name',
                         tdCls: 'isu-grid-description',
                         flex: 1
                     },
                     {
+                        itemId: 'templateColumn',
                         header: 'Rule template',
                         xtype: 'templatecolumn',
                         tpl: '<tpl if="template">{template.name}</tpl>',
@@ -52,18 +64,16 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.List', {
                         flex: 1
                     },
                     {
+                        itemId : 'issueType',
                         header: 'Issue type',
                         xtype: 'templatecolumn',
                         tpl: '<tpl if="issueType">{issueType.name}</tpl>',
                         tdCls: 'isu-grid-description',
                         flex: 1
                     },
-                    {
-                        header: 'Action',
-                        xtype: 'actioncolumn',
-                        iconCls: 'isu-action-icon',
-                        align: 'left',
-                        width: 70
+                    {   itemId: 'action',
+                        xtype: 'uni-actioncolumn',
+                        items: 'Isu.view.administration.datacollection.issuecreationrules.ActionMenu'
                     }
                 ]
             }
@@ -72,11 +82,13 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.List', {
 
     dockedItems: [
         {
+            itemId: 'toolbarTop',
             xtype: 'toolbar',
             dock: 'top',
             layout: 'hbox',
             items: [
                 {
+                    itemId: 'pagingtoolbarTop',
                     xtype: 'pagingtoolbartop',
                     store: 'Isu.store.CreationRule',
                     displayMsg: '{0} - {1} of {2} rules',
@@ -86,8 +98,10 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.List', {
                     flex: 1
                 },
                 {
+                    itemId: 'createRule',
                     xtype: 'button',
                     text: 'Create rule',
+                    href: '#/administration/issuecreationrules/create',
                     action: 'create'
                 }
             ]

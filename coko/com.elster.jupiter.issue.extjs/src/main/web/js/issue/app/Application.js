@@ -7,8 +7,6 @@ Ext.define('Isu.Application', {
     controllers: [
         'Isu.controller.Main',
         'Isu.controller.history.Workspace',
-        'Isu.controller.Workspace',
-        'Isu.controller.DataCollection',
         'Isu.controller.Issues',
         'Isu.controller.AssignIssues',
         'Isu.controller.CloseIssues',
@@ -20,7 +18,6 @@ Ext.define('Isu.Application', {
         'Isu.controller.history.Workspace',
         'Isu.controller.IssueDetail',
         'Isu.controller.history.Administration',
-        'Isu.controller.Administration',
         'Isu.controller.AdministrationDataCollection',
         'Isu.controller.Notify'
     ],

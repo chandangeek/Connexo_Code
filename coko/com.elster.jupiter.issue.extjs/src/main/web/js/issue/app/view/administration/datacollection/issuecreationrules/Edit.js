@@ -11,7 +11,9 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                 {
                     xtype: 'panel',
                     name: 'pageTitle',
-                    margin: '0 0 40 0'
+                    margin: '0 0 40 32',
+                    ui: 'large',
+                    title: 'Create issue creation rule'
                 },
                 {
                     xtype: 'form',
@@ -26,12 +28,14 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                     },
                     items: [
                         {
+                            itemId: 'form-errors',
                             xtype: 'uni-form-error-message',
                             name: 'form-errors',
                             hidden: true,
                             margin: '0 0 20 50'
                         },
                         {
+                            itemId: 'name',
                             xtype: 'textfield',
                             name: 'name',
                             fieldLabel: 'Name',
@@ -40,6 +44,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                             maxLength: 80
                         },
                         {
+                            itemId: 'issueType',
                             xtype: 'combobox',
                             name: 'issueType',
                             fieldLabel: 'Issue type',
@@ -52,6 +57,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                             editable: false
                         },
                         {
+                            itemId: 'ruleTemplate',
                             xtype: 'combobox',
                             name: 'template',
                             fieldLabel: 'Rule template',
@@ -65,6 +71,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                             margin: 0
                         },
                         {
+                            itemId: 'templateDetails',
                             xtype: 'container',
                             name: 'templateDetails',
                             defaults: {
@@ -77,6 +84,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                             }
                         },
                         {
+                            itemId: 'issueReason',
                             xtype: 'combobox',
                             name: 'reason',
                             fieldLabel: 'Issue reason',
@@ -95,34 +103,21 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                             },
                             items: [
                                 {
-                                    xtype: 'component',
-                                    html: '<b>Due date</b>',
-                                    width: 150,
-                                    style: 'margin-right: 5px',
-                                    cls: 'x-form-item-label uni-form-item-bold x-form-item-label-right'
+                                    xtype: 'label',
+                                    text: 'Due date',
+                                    width: 140,
+                                    itemId: 'dueDate'
+                
                                 },
                                 {
-                                    xtype: 'numberfield',
-                                    name: 'dueIn.number',
-                                    minValue: 1,
-                                    width: 60,
-                                    margin: '0 10 0 10'
-                                },
-                                {
-//                                    xtype: 'combobox',
-//                                    name: 'dueIn.type',
-//                                    store: 'Isu.store.DueinType',
-//                                    queryMode: 'local',
-//                                    displayField: 'name',
-//                                    valueField: 'name',
-//                                    editable: false,
-//                                    width: 100
                                     xtype: 'container',
+                                    margin: '0 16 0 26',
                                     layout: {
                                         type: 'hbox'
                                     },
                                     items: [
                                         {
+                                            itemId: 'dueDateTrigger',
                                             xtype: 'radiogroup',
                                             name: 'dueDateTrigger',
                                             formBind: false,
@@ -136,10 +131,12 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                                             },
                                             items: [
                                                 {
+                                                    itemId: 'noDueDate',
                                                     boxLabel: 'No due date',
                                                     inputValue: false
                                                 },
                                                 {
+                                                    itemId: 'dueIn',
                                                     boxLabel: 'Due in',
                                                     inputValue: true
                                                 }
@@ -153,14 +150,16 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                                             }
                                         },
                                         {
+                                            itemId: 'dueDateValues',
                                             xtype: 'container',
                                             name: 'dueDateValues',
                                             layout: {
                                                 type: 'hbox'
                                             },
-                                            margin: '26 0 0 -30',
+                                            margin: '32 0 0 16',
                                             items: [
                                                 {
+                                                    itemId: 'dueIn.number',
                                                     xtype: 'numberfield',
                                                     name: 'dueIn.number',
                                                     minValue: 1,
@@ -176,6 +175,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                                                     }
                                                 },
                                                 {
+                                                    itemId: 'dueIn.type',
                                                     xtype: 'combobox',
                                                     name: 'dueIn.type',
                                                     store: 'Isu.store.DueinType',
@@ -200,6 +200,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                             ]
                         },
                         {
+                            itemId: 'comment',
                             xtype: 'textareafield',
                             name: 'comment',
                             fieldLabel: 'Comment',
@@ -214,20 +215,23 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                     },
                     items: [
                         {
+                            itemId: 'actionsL',
                             xtype: 'component',
                             html: '<b>Actions</b>',
                             width: 150,
-                            style: 'margin-right: 5px',
                             cls: 'x-form-item-label uni-form-item-bold x-form-item-label-right'
                         },
                         {
+                            itemId: 'actionToolbar',
                             xtype: 'toolbar',
                             border: false,
-                            padding: 0,
+                            padding: '0 0 0 4',
                             items: [
                                 {
+                                    itemId: 'addAction',
                                     text: 'Add action',
-                                    disabled: true
+                                    disabled: true,
+                                    ui: 'action'
                                 }
                             ]
                         }
@@ -235,25 +239,29 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                 },
                 {
                     xtype: 'issues-creation-rules-actions-list',
-                    margin: '15 20 0 150'
+                    margin: '15 20 0 165'
                 },
                 {
                     xtype: 'container',
                     layout: 'hbox',
                     defaultType: 'button',
-                    margin: '20 0',
+                    margin: '20 165',
                     items: [
                         {
+                            itemId: 'ruleAction',
                             name: 'ruleAction',
-                            formBind: false
+                            ui: 'action',
+                            formBind: false,
+                            text: 'Cerate'
                         },
                         {
+                            itemId: 'cancel',
                             text: 'Cancel',
                             ui: 'link',
                             name: 'cancel',
                             cls: 'isu-btn-link',
                             hrefTarget: '',
-                            href: '#/issue-administration/issuecreationrules'
+                            href: '#/administration/issuecreationrules'
                         }
                     ]
                 }

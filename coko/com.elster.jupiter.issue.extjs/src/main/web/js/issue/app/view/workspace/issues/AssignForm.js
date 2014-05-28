@@ -21,6 +21,7 @@ Ext.define('Isu.view.workspace.issues.AssignForm', {
               align: 'left'
             },
             items: {
+                itemId: 'form-errors',
                 xtype: 'uni-form-error-message',
                 name: 'form-errors',
                 hidden: true
@@ -41,11 +42,13 @@ Ext.define('Isu.view.workspace.issues.AssignForm', {
                         {
                             width: 80,
                             items: {
+                                itemId: 'AssignTo',
                                 xtype: 'label',
                                 text: 'Assign to *'
                             }
                         },
                         {
+                            itemId: 'radiogroup',
                             xtype: 'radiogroup',
                             formBind: false,
                             columns: 1,
@@ -71,15 +74,18 @@ Ext.define('Isu.view.workspace.issues.AssignForm', {
                             },
                             items: [
                                 {
+                                    itemId: 'USER',
                                     boxLabel: 'User',
                                     inputValue: 'USER'
                                 },
                                 {
+                                    itemId: 'ROLE',
                                     boxLabel: 'User role',
                                     margin: '5 0 0 0',
                                     inputValue: 'ROLE'
                                 },
                                 {
+                                    itemId: 'GROUP',
                                     boxLabel: 'User group',
                                     margin: '5 0 0 0',
                                     inputValue: 'GROUP'
@@ -119,17 +125,19 @@ Ext.define('Isu.view.workspace.issues.AssignForm', {
                             },
                             items: [
                                 {
+                                    itemId: 'Ucombo',
                                     name: 'USER',
                                     store: 'Isu.store.UserList',
                                     allowBlank: false,
                                     displayField: 'authenticationName'
                                 },
                                 {
+                                    itemId: 'Rcombo',
                                     name: 'ROLE',
                                     store: 'Isu.store.UserRoleList',
                                     displayField: 'name'
                                 },
-                                {
+                                {   itemId: 'Gcombo',
                                     name: 'GROUP',
                                     store: 'Isu.store.UserGroupList',
                                     displayField: 'name'
@@ -148,11 +156,13 @@ Ext.define('Isu.view.workspace.issues.AssignForm', {
                         {
                             width: 80,
                             items: {
+                                itemId: 'Comment',
                                 xtype: 'label',
                                 text: 'Assign to *'
                             }
                         },
                         {
+                            itemId: 'commentarea',
                             xtype: 'textareafield',
                             name: 'comment',
                             emptyText: 'Provide a comment \r\n(optionally)',

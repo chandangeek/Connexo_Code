@@ -9,6 +9,7 @@ Ext.define('Isu.view.workspace.issues.MessagePanel', {
         fontSize: '12px',
         margin: '5 0 0 10'
     },
+    itemId: 'message-panel',
     autoShow: true,
     resizable: false,
     bodyBorder: false,
@@ -66,6 +67,7 @@ Ext.define('Isu.view.workspace.issues.MessagePanel', {
             items: [
                 // ICON
                 {
+                    itemId: 'msgIcon',
                     xtype: 'panel',
                     name: 'msgiconpanel',
                     layout: {
@@ -79,6 +81,7 @@ Ext.define('Isu.view.workspace.issues.MessagePanel', {
                 },
                 // MESSAGE
                 {
+                    itemId : 'msgmessage',
                     xtype: 'panel',
                     name: 'msgmessagepanel',
                     cls: 'isu-msg-panel',
@@ -92,6 +95,7 @@ Ext.define('Isu.view.workspace.issues.MessagePanel', {
                 },
                 // CLOSE BTN
                 {
+                    itemId : 'closeBTN',
                     xtype: 'panel',
                     name: 'msgclosepanel',
                     cls: 'isu-msg-panel',

@@ -6,6 +6,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Overview',
         'Isu.view.administration.datacollection.issuecreationrules.Item'
     ],
     alias: 'widget.issue-creation-rules-overview',
+    itemId: 'creation-rules-overview',
     side: [
         {
             xtype: 'navigationSubMenu',
@@ -17,15 +18,18 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Overview',
             cls: 'content-wrapper',
             items: [
                 {
+                    itemId: 'pageTitle',
                     title: 'Issue creation rules',
                     ui: 'large',
                     margin: '0 0 20 0'
                 },
                 {
+                    itemId: 'creation-rules-list',
                     xtype: 'issues-creation-rules-list',
                     margin: '0 15 20 0'
                 },
                 {
+                    itemId: 'creation-rules-item',
                     xtype: 'issue-creation-rules-item',
                     margin: '0 15 0 0'
                 }
@@ -44,9 +48,10 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Overview',
             menu = this.getSideMenuCmp();
 
         menu.add({
+            itemId: 'navEl',
             text: 'Issue creation rules',
             pressed: true,
-            href: '#/issue-administration/datacollection/issuecreationrules',
+            href: '#/issue-administration/issuecreationrules',
             hrefTarget: '_self'
         });
     },

@@ -4,11 +4,12 @@ Ext.define('Isu.view.ext.button.Action', {
     cls: 'isu-action-button-inactive',
     menuActiveCls: 'isu-action-button-active',
     iconCls: 'isu-action-icon',
-    menuAlign: 'tl-bl',
+    menuAlign: 'tr-br?',
     listeners: {
         click: {
             fn: function (btn, e) {
                 btn.showMenu();
+                console.log('click')
             }
         },
         menushow: {

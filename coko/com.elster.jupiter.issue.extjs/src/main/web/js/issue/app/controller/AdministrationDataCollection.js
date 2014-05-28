@@ -6,7 +6,6 @@ Ext.define('Isu.controller.AdministrationDataCollection', {
     ],
 
     views: [
-        'administration.datacollection.Overview'
     ],
 
     init: function () {
@@ -15,11 +14,6 @@ Ext.define('Isu.controller.AdministrationDataCollection', {
                 afterrender: this.setBreadcrumb
             }
         });
-    },
-
-    showOverview: function () {
-        var widget = Ext.widget('administration-datacollection-overview');
-        this.getApplication().fireEvent('changecontentevent', widget);
     },
 
     setBreadcrumb: function (breadcrumbs) {

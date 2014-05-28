@@ -39,19 +39,14 @@ Ext.define('Isu.controller.IssueCreationRules', {
                 itemclick: this.loadGridItemDetail,
                 refresh: this.onGridRefresh
             },
-            'issue-creation-rules-overview issues-creation-rules-list actioncolumn': {
-                click: this.showItemAction
-            },
-            'creation-rule-action-menu': {
-                beforehide: this.hideItemAction,
-                click: this.chooseAction
+            'issues-creation-rules-list uni-actioncolumn': {
+                menuclick: this.chooseAction
             },
             'issue-creation-rules-overview button[action=create]': {
                 click: this.createRule
             }
         });
 
-        this.actionMenuXtype = 'creation-rule-action-menu';
         this.gridItemModel = this.getModel('Isu.model.CreationRule');
     },
 
@@ -83,29 +78,30 @@ Ext.define('Isu.controller.IssueCreationRules', {
 
     chooseAction: function (menu, item) {
         var action = item.action;
+        var id = menu.record.getId();
 
         switch (action) {
             case 'delete':
-                this.deleteRule(menu);
+                this.deleteRule(menu.record);
                 break;
             case 'edit':
-                window.location.href = '#/issue-administration/issuecreationrules/' + menu.issueId + '/edit';
+                window.location.href = '#/administration/issuecreationrules/' + id + '/edit';
                 break;
         }
     },
 
     createRule: function () {
-        window.location.href = '#/issue-administration/issuecreationrules/create';
+        window.location.href = '#/administration/issuecreationrules/create';
     },
 
-    deleteRule: function (menu) {
+    deleteRule: function (rule) {
         var self = this,
             store = self.getStore('Isu.store.CreationRule'),
-            rule = store.getById(menu.issueId),
             confirmMessage = Ext.widget('messagebox', {
                 buttons: [
                     {
                         text: 'Delete',
+                        ui: 'delete',
                         handler: function () {
                             rule.destroy({
                                 params: {
@@ -134,7 +130,7 @@ Ext.define('Isu.controller.IssueCreationRules', {
                     },
                     {
                         text: 'Cancel',
-                        cls: 'isu-btn-link',
+                        ui: 'link',
                         handler: function () {
                             confirmMessage.close();
                         }

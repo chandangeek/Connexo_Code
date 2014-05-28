@@ -4,7 +4,7 @@ Ext.define('Isu.view.workspace.issues.List', {
         'Ext.grid.column.Date',
         'Ext.form.field.ComboBox',
         'Ext.grid.column.Template',
-        'Ext.grid.column.Action',
+        'Uni.grid.column.Action',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom'
     ],
@@ -17,13 +17,14 @@ Ext.define('Isu.view.workspace.issues.List', {
             menuDisabled: true
         },
         items: [
-            {
+            {   itemId: 'Title',
                 header: 'Title',
                 xtype: 'templatecolumn',
                 tpl: '<a href="#/workspace/datacollection/issues/{id}">{title}</a>',
                 flex: 2
             },
             {
+                itemId: 'dueDate',
                 header: 'Due date',
                 dataIndex: 'dueDate',
                 xtype: 'datecolumn',
@@ -31,27 +32,28 @@ Ext.define('Isu.view.workspace.issues.List', {
                 width: 140
             },
             {
+                itemId: 'status',
                 header: 'Status',
                 dataIndex: 'status_name',
                 width: 100
             },
             {
+                itemId: 'assignee',
                 header: 'Assignee',
                 xtype: 'templatecolumn',
                 tpl: '<tpl if="assignee_type"><span class="isu-icon-{assignee_type} isu-assignee-type-icon"></span></tpl> {assignee_name}',
                 flex: 1
             },
             {
-                header: 'Actions',
-                xtype: 'actioncolumn',
-                iconCls: 'x-uni-action-icon',
-                width: 70,
-                align: 'left'
+                itemId: 'action',
+                xtype: 'uni-actioncolumn',
+                items: 'Isu.view.workspace.issues.ActionMenu'
             }
         ]
     },
     dockedItems: [
         {
+            itemId: 'pagingtoolbartop',
             xtype: 'pagingtoolbartop',
             dock: 'top',
             store: 'Isu.store.Issues',
@@ -61,6 +63,7 @@ Ext.define('Isu.view.workspace.issues.List', {
             items: [
                 '->',
                 {
+                    itemId: 'bulkAction',
                     xtype: 'button',
                     text: 'Bulk action',
                     action: 'bulkchangesissues',
@@ -70,6 +73,7 @@ Ext.define('Isu.view.workspace.issues.List', {
             ]
         },
         {
+            itemId: 'pagingtoolbarbottom',
             xtype: 'pagingtoolbarbottom',
             store: 'Isu.store.Issues',
             dock: 'bottom'

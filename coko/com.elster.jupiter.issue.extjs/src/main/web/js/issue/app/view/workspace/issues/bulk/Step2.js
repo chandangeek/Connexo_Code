@@ -15,6 +15,7 @@ Ext.define('Isu.view.workspace.issues.bulk.Step2', {
 
             items: [
                 {
+                    itemId: 'radiogroupStep2',
                     xtype: 'radiogroup',
                     columns: 1,
                     vertical: true,
@@ -24,8 +25,8 @@ Ext.define('Isu.view.workspace.issues.bulk.Step2', {
                     },
 
                     items: [
-                        { boxLabel: 'Assign issues', name: 'operation', inputValue: 'assign', checked: true },
-                        { boxLabel: 'Close issues', name: 'operation', inputValue: 'close'}
+                        { itemId: 'Assign', boxLabel: 'Assign issues', name: 'operation', inputValue: 'assign', checked: true },
+                        { itemId: 'Close', boxLabel: 'Close issues', name: 'operation', inputValue: 'close'}
                     ]
                 }
             ]

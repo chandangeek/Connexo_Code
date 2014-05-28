@@ -45,11 +45,8 @@ Ext.define('Isu.view.administration.datacollection.issueassignmentrules.List', {
                         flex: 1
                     },
                     {
-                        header: 'Actions',
-                        xtype: 'actioncolumn',
-                        iconCls: 'isu-action-icon',
-                        align: 'left',
-                        width: 70
+                        xtype: 'uni-actioncolumn',
+                        items: 'Isu.view.administration.datacollection.issueassignmentrules.ActionMenu'
                     }
                 ]
             },

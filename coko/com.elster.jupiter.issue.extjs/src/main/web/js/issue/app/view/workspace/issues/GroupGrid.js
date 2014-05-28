@@ -7,6 +7,7 @@ Ext.define('Isu.view.workspace.issues.GroupGrid', {
     ],
     alias: 'widget.issue-group-grid',
     store: 'Isu.store.IssuesGroups',
+    itemId: 'GroupGrid',
     columns: {
         defaults: {
             sortable: false,
@@ -14,11 +15,13 @@ Ext.define('Isu.view.workspace.issues.GroupGrid', {
         },
         items: [
             {
+                itemId: 'reason',
                 text: 'Reason',
                 dataIndex: 'reason',
                 flex: 5
             },
             {
+                itemId: 'issues_num',
                 text: 'Issues',
                 dataIndex: 'number',
                 flex: 1
@@ -26,6 +29,7 @@ Ext.define('Isu.view.workspace.issues.GroupGrid', {
         ]
     },
     tbar: {
+        itemId: '#pagingtoolbar',
         xtype: 'pagingtoolbartop',
         store: 'Isu.store.IssuesGroups',
         displayMsg: '{0} - {1} of {2} reasons',
@@ -33,6 +37,7 @@ Ext.define('Isu.view.workspace.issues.GroupGrid', {
         emptyMsg: '0 reasons'
     },
     bbar: {
+        itemId: '#pagingtoolbar',
         xtype: 'pagingtoolbarbottom',
         store: 'Isu.store.IssuesGroups'
     }

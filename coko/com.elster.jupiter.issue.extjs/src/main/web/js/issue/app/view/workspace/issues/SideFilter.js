@@ -1,6 +1,7 @@
 Ext.define('Isu.view.workspace.issues.SideFilter', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.issues-side-filter',
+    itemId: 'issues-side-filter',
     cls: 'filter-form',
     width: 200,
     title: "Filter",
@@ -19,6 +20,7 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
 
             items: [
                 {
+                    itemId: 'StatusFilter',
                     xtype: 'filter-checkboxgroup',
                     store: 'Isu.store.IssueStatus',
                     name: 'status',
@@ -28,6 +30,7 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
                     vertical: true
                 },
                 {
+                    itemId: 'AssigneeFilter',
                     xtype: 'issues-assignee-combo',
                     name: 'assignee',
                     fieldLabel: 'Assignee',
@@ -38,6 +41,7 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
                     tooltipText: 'Start typing for assignee'
                 },
                 {
+                    itemId: 'ReasonFilter',
                     xtype: 'combobox',
                     name: 'reason',
                     fieldLabel: 'Reason',
@@ -65,6 +69,7 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
                     tooltipText: 'Start typing for reason'
                 },
                 {
+                    itemId: 'MeterFilter',
                     xtype: 'combobox',
                     name: 'meter',
                     fieldLabel: 'Meter',
@@ -97,10 +102,12 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
 
     buttons: [
         {
+            itemId : 'fApply',
             text: 'Apply',
             action: 'filter'
         },
         {
+            itemId: 'fReset',
             text: 'Clear all',
             action: 'reset'
         }

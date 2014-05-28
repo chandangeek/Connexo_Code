@@ -5,13 +5,14 @@ Ext.define('Isu.controller.Main', {
         'Ext.window.Window',
         'Uni.controller.Navigation',
         'Uni.controller.Configuration',
-        'Uni.controller.history.EventBus'
+        'Uni.controller.history.EventBus',
+        'Uni.model.PortalItem',
+        'Uni.store.PortalItems',
+        'Uni.store.MenuItems'
     ],
 
     controllers: [
         'Isu.controller.history.Workspace',
-        'Isu.controller.Workspace',
-        'Isu.controller.DataCollection',
         'Isu.controller.Issues',
         'Isu.controller.AssignIssues',
         'Isu.controller.CloseIssues',
@@ -22,7 +23,6 @@ Ext.define('Isu.controller.Main', {
         'Isu.controller.history.Workspace',
         'Isu.controller.IssueDetail',
         'Isu.controller.history.Administration',
-        'Isu.controller.Administration',
         'Isu.controller.AdministrationDataCollection',
         'Isu.controller.Notify'
     ],
@@ -49,29 +49,115 @@ Ext.define('Isu.controller.Main', {
 
     init: function () {
         this.getApplication().on('changecontentevent', this.showContent, this);
-        this.initDefaultHistoryToken();
         this.initNavigation();
         this.initMenu();
     },
 
     initMenu: function () {
-        var me = this;
-
-        var menuItem = Ext.create('Uni.model.MenuItem', {
+        var workspaceItem = Ext.create('Uni.model.MenuItem', {
             text: 'Workspace',
-            href: me.getController('Isu.controller.history.Workspace').tokenizeShowOverview(),
-            glyph: 'workspace'
+            glyph: 'workspace',
+            portal: 'workspace',
+            index: 30
         });
 
-        Uni.store.MenuItems.add(menuItem);
+        Uni.store.MenuItems.add(workspaceItem);
 
-        var menuItem = Ext.create('Uni.model.MenuItem', {
+        var administrationItem = Ext.create('Uni.model.MenuItem', {
             text: 'Administration',
-            href: me.getController('Isu.controller.history.Administration').tokenizeShowOverview(),
-            glyph: 'settings'
+            glyph: 'settings',
+            portal: 'administration',
+            index: 10
         });
 
-        Uni.store.MenuItems.add(menuItem);
+        Uni.store.MenuItems.add(administrationItem);
+
+        var datacollection = Ext.create('Uni.model.PortalItem', {
+            title: 'Data collection',
+            portal: 'workspace',
+            route: 'datacollection',
+            items: [
+                {
+                    text: 'Overview',
+                    href: '#/workspace/datacollection'
+                },
+                {
+                    text: 'Issues',
+                    href: '#/workspace/datacollection/issues'
+                }
+            ]
+        });
+
+//        var dataexchange = Ext.create('Uni.model.PortalItem', {
+//            title: 'Data exchange',
+//            portal: 'workspace',
+//            route: 'dataexchange',
+//            items: [
+//                {
+//                    text: 'Overview',
+//                    href: '#/workspace/dataexchange'
+//                },
+//                {
+//                    text: 'Issues',
+//                    href: '#/workspace/dataexchange/issues'
+//                }
+//            ]
+//        });
+//        var dataoperation = Ext.create('Uni.model.PortalItem', {
+//            title: 'Data operation',
+//            portal: 'workspace',
+//            route: 'dataoperation',
+//            items: [
+//                {
+//                    text: 'Overview',
+//                    href: '#/workspace/dataoperation'
+//                },
+//                {
+//                    text: 'Issues',
+//                    href: '#/workspace/dataoperation/issues'
+//                }
+//            ]
+//        });
+//
+//        var datavalidation = Ext.create('Uni.model.PortalItem', {
+//            title: 'Data validation',
+//            portal: 'workspace',
+//            route: 'datavalidation',
+//            items: [
+//                {
+//                    text: 'Overview',
+//                    href: '#/workspace/datavalidation'
+//                },
+//                {
+//                    text: 'Issues',
+//                    href: '#/workspace/datavalidation/issues'
+//                }
+//            ]
+//        });
+
+        var issuemanagement = Ext.create('Uni.model.PortalItem', {
+            title: 'Issue management',
+            portal: 'administration',
+            route: 'issuemanagement',
+            items: [
+                {
+                    text: 'Issue assignment rules',
+                    href: '#/administration/issueassignmentrules'
+                },
+                {
+                    text: 'Issue creation rules',
+                    href: '#/administration/issuecreationrules'
+                }
+            ]
+        });
+
+        Uni.store.PortalItems.add(
+            datacollection,
+//            dataexchange,
+//            dataoperation,
+//            datavalidation,
+            issuemanagement
+        );
     },
 
     initNavigation: function () {
@@ -80,14 +166,6 @@ Ext.define('Isu.controller.Main', {
 
         this.setNavigationController(navigationController);
         this.setConfigurationController(configurationController);
-    },
-
-    initDefaultHistoryToken: function () {
-        var workspaceController = this.getController('Isu.controller.history.Workspace'),
-            eventBus = this.getController('Uni.controller.history.EventBus'),
-            defaultToken = workspaceController.tokenizeShowOverview();
-
-        eventBus.setDefaultToken(defaultToken);
     },
 
     showContent: function (widget) {

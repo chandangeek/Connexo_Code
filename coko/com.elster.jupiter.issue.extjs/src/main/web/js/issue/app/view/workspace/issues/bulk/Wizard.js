@@ -154,6 +154,7 @@ Ext.define('Isu.view.workspace.issues.bulk.Wizard', {
         Ext.apply(this, {
             dockedItems: [
                 {
+                    itemId: 'toolbarbot',
                     xtype: 'toolbar',
                     name: 'wizar-toolbar',
                     dock: 'bottom',

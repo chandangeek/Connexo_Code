@@ -33,6 +33,7 @@ Ext.define('Isu.view.workspace.issues.Close', {
                     + '</span></h3>'
                 },
                 {
+                    itemId: 'close-form',
                     xtype: 'issues-close-form',
                     padding: '30 50 0 50',
                     margin: '0',
@@ -49,12 +50,13 @@ Ext.define('Isu.view.workspace.issues.Close', {
                         margin: '0 10 0 0'
                     },
                     items: [
-                        {
+                        {   itemId: '#Close',
                             name: 'close',
                             text: 'Close',
                             formBind: true
                         },
                         {
+                            itemId: '#Cancel',
                             text: 'Cancel',
                             name: 'cancel',
                             cls: 'isu-btn-link',
