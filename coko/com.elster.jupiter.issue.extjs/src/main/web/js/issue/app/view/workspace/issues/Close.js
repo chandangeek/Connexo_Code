@@ -8,29 +8,31 @@ Ext.define('Isu.view.workspace.issues.Close', {
 
     initComponent: function () {
         var self = this;
-
         self.callParent(arguments);
         self.addForm();
     },
 
     addForm: function () {
         var self = this;
+            self.title = 'Close issue ' + self.record.data.reason_name + ' ' + ' to ' + self.record.data.device_name + ' ' + self.record.raw.device.serialNumber;
+        console.log(self.title);
+
         self.getCenterContainer().add({
             flex: 1,
             minHeight: 305,
             border: false,
             header: false,
-            recordTitle: self.record.data.reason.name + ' ' + (self.record.data.device ? ' to ' + self.record.data.device.name + ' ' + self.record.data.device.serialNumber : ''),
+            recordTitle: self.title,
             bodyPadding: 10,
             defaults: {
                 border: false
             },
             items: [
                 {
-                    html: '<h3 class="isu-assign-text"><span>Close issue </span><span>'
-                    + (self.record.data.reason ? self.record.data.reason.name : '')
-                    + (self.record.data.device ? ' to ' + self.record.data.device.name + ' ' + self.record.data.device.serialNumber : '')
-                    + '</span></h3>'
+                    xtype: 'panel',
+                    ui: 'medium',
+                    title: self.title
+
                 },
                 {
                     itemId: 'close-form',
@@ -50,7 +52,8 @@ Ext.define('Isu.view.workspace.issues.Close', {
                         margin: '0 10 0 0'
                     },
                     items: [
-                        {   itemId: '#Close',
+                        {
+                            itemId: '#Close',
                             name: 'close',
                             text: 'Close',
                             formBind: true
@@ -59,7 +62,7 @@ Ext.define('Isu.view.workspace.issues.Close', {
                             itemId: '#Cancel',
                             text: 'Cancel',
                             name: 'cancel',
-                            cls: 'isu-btn-link',
+                            ui: 'link',
                             hrefTarget: '',
                             href: '#/workspace/datacollection/issues'
                         }

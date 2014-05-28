@@ -10,7 +10,6 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.ActionsLis
         data: []
     }),
     height: 165,
-    maxWidth: 708,
     enableColumnHide: false,
     columns: {
         defaults: {

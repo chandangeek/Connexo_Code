@@ -88,6 +88,9 @@ Ext.define('Isu.controller.Issues', {
             'issues-list uni-actioncolumn': {
                 menuclick: this.chooseIssuesAction
             },
+            'issue-action-menu' : {
+                click: this.chooseIssuesAction
+            },
             'issues-overview issues-item': {
                 afterChange: this.setFilterIconsActions
             },
@@ -350,9 +353,9 @@ Ext.define('Isu.controller.Issues', {
     },
 
     chooseIssuesAction: function (menu, item) {
+
         var action = item.action;
         var issueId = menu.record.getId();
-
         switch (action) {
             case 'assign':
                 window.location.href = '#/workspace/datacollection/issues/' + issueId + '/assign';
