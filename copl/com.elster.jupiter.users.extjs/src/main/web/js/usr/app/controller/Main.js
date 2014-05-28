@@ -40,7 +40,6 @@ Ext.define('Usr.controller.Main', {
     init: function () {
         var me = this;
         this.initNavigation();
-        this.getApplication().on('changecontentevent', this.showContent, this);
 
         this.control({
             'viewport menuitem[action=logout]': {
@@ -81,12 +80,6 @@ Ext.define('Usr.controller.Main', {
     initNavigation: function () {
         var controller = this.getController('Uni.controller.Navigation');
         this.setNavigationController(controller);
-    },
-
-    showContent: function (widget) {
-        this.getContentPanel().removeAll();
-        this.getContentPanel().add(widget);
-        this.getContentPanel().doComponentLayout();
     },
 
     signout: function () {
