@@ -1,7 +1,9 @@
 package com.energyict.mdc.engine.impl.core.aspects.events;
 
+import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.impl.core.ConfigurableReadComChannel;
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.core.SystemOutComChannel;
 import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
@@ -9,6 +11,9 @@ import com.energyict.mdc.engine.impl.events.io.ReadEvent;
 import com.energyict.mdc.engine.impl.events.io.WriteEvent;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannel;
+
+import com.elster.jupiter.util.time.impl.DefaultClock;
+
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.ArgumentCaptor;
@@ -41,16 +46,34 @@ public class ComChannelReadWriteEventPublisherTest {
     private EventPublisherImpl eventPublisher;
     @Mock
     private ComPort comPort;
+
+    private FakeServiceProvider serviceProvider = new FakeServiceProvider();
     private byte[] expectedBytes;
 
     @Before
     public void initializeMocksAndFactories () throws IOException {
-        this.initializeEventPublisher();
         this.initializeExpectedBytes();
     }
 
-    private void initializeEventPublisher () {
+    @Before
+    public void setupServiceProvider () {
+        this.serviceProvider.setClock(new DefaultClock());
+        ServiceProvider.instance.set(this.serviceProvider);
+    }
+
+    @After
+    public void resetServiceProvider () {
+        ServiceProvider.instance.set(null);
+    }
+
+    @Before
+    public void setupEventPublisher () {
         EventPublisherImpl.setInstance(this.eventPublisher);
+    }
+
+    @After
+    public void resetEventPublisher () {
+        EventPublisherImpl.setInstance(null);
     }
 
     private void initializeExpectedBytes () throws IOException {
