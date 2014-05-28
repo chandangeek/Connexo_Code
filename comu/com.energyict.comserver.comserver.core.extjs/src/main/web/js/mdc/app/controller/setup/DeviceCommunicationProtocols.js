@@ -118,6 +118,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
                     var json = Ext.decode(operation.response.responseText);
                     if (json && json.errors) {
                         me.getDeviceCommunicationProtocolEditForm().getForm().markInvalid(json.errors);
+                        me.getPropertiesController().showErrors(json.errors);
                     }
                 }
             });
