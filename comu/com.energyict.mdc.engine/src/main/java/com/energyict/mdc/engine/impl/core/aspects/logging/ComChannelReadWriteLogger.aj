@@ -10,14 +10,14 @@ import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannel;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.protocols.mdc.channels.AbstractComChannel;
+import com.energyict.mdc.protocol.api.ComChannel;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 /**
  * Defines pointcuts and advice that will log the actual bytes
- * of read and write sessions on a {@link AbstractComChannel}s.
+ * of read and write sessions on {@link ComChannel}s.
  * A read session is defined as a series of read method invocations
  * marked by:
  * <ul>
@@ -40,16 +40,15 @@ import java.io.IOException;
  */
 public aspect ComChannelReadWriteLogger {
 
-    private ByteArrayOutputStream AbstractComChannel.bytesReadForLogging;
-    private ByteArrayOutputStream AbstractComChannel.bytesWrittenForLogging;
-    private ExecutionContext AbstractComChannel.executionContext;
+    private ByteArrayOutputStream ComPortRelatedComChannel.bytesReadForLogging;
+    private ByteArrayOutputStream ComPortRelatedComChannel.bytesWrittenForLogging;
+    private ExecutionContext ComPortRelatedComChannel.executionContext;
 
     private pointcut findOrCreateComChannel (JobExecution jobExecution):
-            call(ServerComChannel findOrCreateComChannel())
+            call(ComPortRelatedComChannel findOrCreateComChannel())
          && target(jobExecution);
 
-    after (JobExecution jobExecution) returning (ComPortRelatedComChannel serverComChannel): findOrCreateComChannel(jobExecution) {
-        AbstractComChannel comChannel = (AbstractComChannel) serverComChannel;
+    after (JobExecution jobExecution) returning (ComPortRelatedComChannel comChannel): findOrCreateComChannel(jobExecution) {
         if (comChannel != null) {
             ExecutionContext executionContext = jobExecution.getExecutionContext();
             executionContext.setComChannelLogger(this.newComChannelLogger(executionContext));
@@ -57,114 +56,114 @@ public aspect ComChannelReadWriteLogger {
         }
     }
 
-    private pointcut startReading (AbstractComChannel comChannel):
-            execution(boolean AbstractComChannel.startReading())
-                    && target(comChannel);
+    private pointcut startReading (ComPortRelatedComChannel comChannel):
+            execution(boolean ComPortRelatedComChannel.startReading())
+         && target(comChannel);
 
-    after (AbstractComChannel comChannel) returning (boolean changed) : startReading(comChannel) {
+    after (ComPortRelatedComChannel comChannel) returning (boolean changed) : startReading(comChannel) {
         if (changed) {
             this.logBytesWrittenIfAny(comChannel);
             comChannel.bytesReadForLogging = null;
         }
     }
 
-    private pointcut startWriting (AbstractComChannel comChannel):
-            execution(boolean AbstractComChannel.startWriting())
+    private pointcut startWriting (ComPortRelatedComChannel comChannel):
+            execution(boolean ComPortRelatedComChannel.startWriting())
          && target(comChannel);
 
-    after (AbstractComChannel comChannel) returning (boolean changed) : startWriting(comChannel) {
+    after (ComPortRelatedComChannel comChannel) returning (boolean changed) : startWriting(comChannel) {
         if (changed) {
             this.logBytesReadIfAny(comChannel);
             comChannel.bytesWrittenForLogging = null;
         }
     }
 
-    private pointcut close (AbstractComChannel comChannel):
-            execution(void AbstractComChannel.close())
+    private pointcut close (ComPortRelatedComChannel comChannel):
+            execution(void ComPortRelatedComChannel.close())
          && target(comChannel);
 
-    after (AbstractComChannel comChannel): close(comChannel) {
+    after (ComPortRelatedComChannel comChannel): close(comChannel) {
         this.logRemainingBytesOnClose(comChannel);
     }
 
-    private void logRemainingBytesOnClose (AbstractComChannel comChannel) {
+    private void logRemainingBytesOnClose (ComPortRelatedComChannel comChannel) {
         this.logBytesReadIfAny(comChannel);
         this.logBytesWrittenIfAny(comChannel);
     }
 
     private void logRemainingBytesOnClose (JobExecution jobExecution) {
         ComPortRelatedComChannel comChannel = jobExecution.getExecutionContext().getComChannel();
-        if (comChannel != null && comChannel instanceof AbstractComChannel) {
-            this.logRemainingBytesOnClose((AbstractComChannel) comChannel);
+        if (comChannel != null) {
+            this.logRemainingBytesOnClose(comChannel);
         }
     }
 
-    private pointcut readSingleByte (AbstractComChannel comChannel):
-            execution(int AbstractComChannel+.read())
-                    && target(comChannel);
+    private pointcut readSingleByte (ComPortRelatedComChannel comChannel):
+            execution(int ComPortRelatedComChannel+.read())
+         && target(comChannel);
 
-    after (AbstractComChannel comChannel) returning (int byteRead) : readSingleByte(comChannel) {
+    after (ComPortRelatedComChannel comChannel) returning (int byteRead) : readSingleByte(comChannel) {
         if (byteRead != -1) {
             this.startReading(comChannel);
             comChannel.bytesReadForLogging.write(byteRead);
         }
     }
 
-    private pointcut readBytes (AbstractComChannel comChannel, byte[] bytes):
-            execution(int AbstractComChannel+.read(byte[]))
-                    && target(comChannel)
-                    && args(bytes);
+    private pointcut readBytes (ComPortRelatedComChannel comChannel, byte[] bytes):
+            execution(int ComPortRelatedComChannel+.read(byte[]))
+         && target(comChannel)
+         && args(bytes);
 
-    after (AbstractComChannel comChannel, byte[] bytes) returning (int numberOfBytesRead) : readBytes(comChannel, bytes) {
+    after (ComPortRelatedComChannel comChannel, byte[] bytes) returning (int numberOfBytesRead) : readBytes(comChannel, bytes) {
         if (numberOfBytesRead != -1) {
             this.startReading(comChannel);
             this.safeWriteTo(bytes, comChannel.bytesReadForLogging);
         }
     }
 
-    private pointcut readBytesWithOffset (AbstractComChannel comChannel, byte[] bytes, int offset, int length):
-            execution(int AbstractComChannel+.read(byte[], int, int))
-                    && target(comChannel)
-                    && args(bytes, offset, length);
+    private pointcut readBytesWithOffset (ComPortRelatedComChannel comChannel, byte[] bytes, int offset, int length):
+            execution(int ComPortRelatedComChannel+.read(byte[], int, int))
+         && target(comChannel)
+         && args(bytes, offset, length);
 
-    after (AbstractComChannel comChannel, byte[] bytes, int offset, int length) returning (int numberOfBytesRead) : readBytesWithOffset(comChannel, bytes, offset, length) {
+    after (ComPortRelatedComChannel comChannel, byte[] bytes, int offset, int length) returning (int numberOfBytesRead) : readBytesWithOffset(comChannel, bytes, offset, length) {
         if (numberOfBytesRead != -1) {
             this.startReading(comChannel);
             this.safeWriteTo(bytes, offset, length, comChannel.bytesReadForLogging);
         }
     }
 
-    private pointcut writeSingleByte (AbstractComChannel comChannel, int singleByte):
-            execution(int AbstractComChannel.write(int))
-                    && target(comChannel)
-                    && args(singleByte);
+    private pointcut writeSingleByte (ComPortRelatedComChannel comChannel, int singleByte):
+            execution(int ComPortRelatedComChannel.write(int))
+         && target(comChannel)
+         && args(singleByte);
 
-    after (AbstractComChannel comChannel, int singleByte) returning (int numberOfBytesWritten) : writeSingleByte(comChannel, singleByte) {
+    after (ComPortRelatedComChannel comChannel, int singleByte) returning (int numberOfBytesWritten) : writeSingleByte(comChannel, singleByte) {
         if (numberOfBytesWritten != -1) {
             this.startWriting(comChannel);
             comChannel.bytesWrittenForLogging.write(singleByte);
         }
     }
 
-    private pointcut writeBytes (AbstractComChannel comChannel, byte[] bytes):
-            execution(int AbstractComChannel.write(byte[]))
-                    && target(comChannel)
-                    && args(bytes);
+    private pointcut writeBytes (ComPortRelatedComChannel comChannel, byte[] bytes):
+            execution(int ComPortRelatedComChannel.write(byte[]))
+         && target(comChannel)
+         && args(bytes);
 
-    after (AbstractComChannel comChannel, byte[] bytes) returning (int numberOfBytesWritten) : writeBytes(comChannel, bytes) {
+    after (ComPortRelatedComChannel comChannel, byte[] bytes) returning (int numberOfBytesWritten) : writeBytes(comChannel, bytes) {
         if (numberOfBytesWritten != -1) {
             this.startWriting(comChannel);
             this.safeWriteTo(bytes, comChannel.bytesWrittenForLogging);
         }
     }
 
-    private void startReading (AbstractComChannel comChannel) {
+    private void startReading (ComPortRelatedComChannel comChannel) {
         if (comChannel.bytesReadForLogging == null) {
             comChannel.bytesReadForLogging = new ByteArrayOutputStream();
         }
     }
 
-    private void startWriting (AbstractComChannel comChannel) {
+    private void startWriting (ComPortRelatedComChannel comChannel) {
         if (comChannel.bytesWrittenForLogging == null) {
             comChannel.bytesWrittenForLogging = new ByteArrayOutputStream();
         }
@@ -184,26 +183,26 @@ public aspect ComChannelReadWriteLogger {
         os.write(bytes, offset, length);
     }
 
-    private void logBytesReadIfAny (AbstractComChannel comChannel) {
+    private void logBytesReadIfAny (ComPortRelatedComChannel comChannel) {
         if (comChannel.bytesReadForLogging != null && comChannel.executionContext != null) {
             this.logBytesRead(comChannel, comChannel.bytesReadForLogging);
             comChannel.bytesReadForLogging = null;
         }
     }
 
-    private void logBytesWrittenIfAny (AbstractComChannel comChannel) {
+    private void logBytesWrittenIfAny (ComPortRelatedComChannel comChannel) {
         if (comChannel.bytesWrittenForLogging != null && comChannel.executionContext != null) {
             this.logBytesWritten(comChannel, comChannel.bytesWrittenForLogging);
             comChannel.bytesWrittenForLogging = null;
         }
     }
 
-    private void logBytesWritten (AbstractComChannel comChannel, ByteArrayOutputStream bytes) {
+    private void logBytesWritten (ComPortRelatedComChannel comChannel, ByteArrayOutputStream bytes) {
         String hexBytes = ServiceProvider.instance.get().hexService().toHexString(bytes.toByteArray());
         comChannel.executionContext.getComChannelLogger().bytesWritten(hexBytes);
     }
 
-    private void logBytesRead (AbstractComChannel comChannel, ByteArrayOutputStream bytes) {
+    private void logBytesRead (ComPortRelatedComChannel comChannel, ByteArrayOutputStream bytes) {
         String hexBytes = ServiceProvider.instance.get().hexService().toHexString(bytes.toByteArray());
         comChannel.executionContext.getComChannelLogger().bytesRead(hexBytes);
     }
