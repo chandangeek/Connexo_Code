@@ -13,6 +13,7 @@ public class StringParameterConstraint implements ParameterConstraint {
     private boolean optional = true;
     private Integer minLength = 5;
     private Integer maxLength = 100;
+    private String regexp;
 
     public StringParameterConstraint(boolean optional, Integer minLength, Integer maxLength) {
         this.optional = optional;
@@ -23,6 +24,15 @@ public class StringParameterConstraint implements ParameterConstraint {
     @Override
     public boolean isOptional() {
         return optional;
+    }
+
+    public void setRegexp(String regexp) {
+        this.regexp = regexp;
+    }
+
+    @Override
+    public String getRegexp() {
+        return regexp;
     }
 
     @Override
@@ -38,10 +48,10 @@ public class StringParameterConstraint implements ParameterConstraint {
     @Override
     public List<ParameterViolation> validate(String value, String paramKey) {
         List<ParameterViolation> errors = new ArrayList<>();
-        Object[] args = new Object[] {minLength, maxLength};
         boolean empty = is(value).emptyOrOnlyWhiteSpace();
         boolean outsideLimits = value.length() < minLength || value.length() > maxLength;
         if( !optional && (empty || outsideLimits) || optional && !empty && outsideLimits) {
+            Object[] args = new Object[] {minLength, maxLength};
             errors.add(new ParameterViolation(paramKey, MessageSeeds.ISSUE_CREATION_RULE_INVALID_SRTING_PARAMETER.getKey(), IssueService.COMPONENT_NAME, args));
         }
         return errors;

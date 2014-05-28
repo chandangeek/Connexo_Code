@@ -1,5 +1,6 @@
 package com.elster.jupiter.issue.share.cep;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -14,7 +15,7 @@ public abstract class AbstractParameterDefenition implements ParameterDefinition
     }
 
     @Override
-    public String getDefaultValue() {
+    public Object getDefaultValue() {
         return null;
     }
 
@@ -24,7 +25,7 @@ public abstract class AbstractParameterDefenition implements ParameterDefinition
     }
 
     @Override
-    public List<String> getDefaultValues() {
+    public List<Object> getDefaultValues() {
         return null;
     }
 
@@ -35,6 +36,9 @@ public abstract class AbstractParameterDefenition implements ParameterDefinition
 
     @Override
     public List<ParameterViolation> validate(String value, ParameterDefinitionContext context) {
-        return getConstraint().validate(value, context.wrapKey(getKey()));
+        if (getConstraint() != null){
+            return getConstraint().validate(value, context.wrapKey(getKey()));
+        }
+        return Collections.emptyList();
     }
 }

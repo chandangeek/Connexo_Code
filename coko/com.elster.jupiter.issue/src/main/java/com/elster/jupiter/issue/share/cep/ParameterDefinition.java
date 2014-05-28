@@ -11,9 +11,9 @@ public interface ParameterDefinition {
 
     String getLabel();
     String getSuffix();
-    String getDefaultValue();
+    Object getDefaultValue();
     String getHelp();
-    List<String> getDefaultValues();
+    List<Object> getDefaultValues();
 
 
     ParameterDefinition getValue(Map<String, Object> parameters);

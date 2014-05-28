@@ -180,18 +180,30 @@ public class IssueCreationServiceImpl implements IssueCreationService{
     @Override
     public void processCreationEvent(long ruleId, IssueEvent event) {
         CreationRule firedRule = findCreationRule(ruleId).orNull();
-        if (firedRule != null) {
-            Issue issue = dataModel.getInstance(IssueImpl.class);
-            issue.setReason(firedRule.getReason());
-            issue.setStatus(event.getStatus());
-            issue.setDueDate(new UtcInstant(firedRule.getDueInType().dueValueFor(firedRule.getDueInValue())));
-            issue.setOverdue(false);
-            issue.setRule(firedRule);
-            issue.setDevice(event.getDevice());
-            issue.save();
-            issue.autoAssign();
-            executeCreationActions(issue);
+        if (firedRule != null && validateEvent(event, firedRule)) {
+            createIssue(event, firedRule);
         }
+    }
+
+    private boolean validateEvent(IssueEvent event, CreationRule firedRule) {
+        if (event == null || firedRule == null) {
+            return false;
+        }
+        Query<Issue> query = queryService.wrap(dataModel.query(Issue.class, CreationRule.class));
+        return query.select(where("rule").isEqualTo(firedRule).and(where("device").isEqualTo(event.getDevice()))).isEmpty();
+    }
+
+    private void createIssue(IssueEvent event, CreationRule firedRule) {
+        Issue issue = dataModel.getInstance(IssueImpl.class);
+        issue.setReason(firedRule.getReason());
+        issue.setStatus(event.getStatus());
+        issue.setDueDate(new UtcInstant(firedRule.getDueInType().dueValueFor(firedRule.getDueInValue())));
+        issue.setOverdue(false);
+        issue.setRule(firedRule);
+        issue.setDevice(event.getDevice());
+        issue.save();
+        issue.autoAssign();
+        executeCreationActions(issue);
     }
 
     @Override
