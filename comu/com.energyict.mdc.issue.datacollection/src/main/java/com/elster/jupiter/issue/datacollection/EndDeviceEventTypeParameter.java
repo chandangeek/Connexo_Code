@@ -1,40 +1,30 @@
 package com.elster.jupiter.issue.datacollection;
 
-import com.elster.jupiter.issue.share.cep.CreationRuleTemplateParameter;
+import com.elster.jupiter.issue.share.cep.AbstractParameterDefenition;
+import com.elster.jupiter.issue.share.cep.ParameterConstraint;
+import com.elster.jupiter.issue.share.cep.ParameterControl;
+import com.elster.jupiter.issue.share.cep.StringParameterConstraint;
 
-public class EndDeviceEventTypeParameter implements CreationRuleTemplateParameter {
+public class EndDeviceEventTypeParameter extends AbstractParameterDefenition{
+    private static final ParameterConstraint CONSTRAINT = new StringParameterConstraint(false, 2, 80);
+
     @Override
-    public String getName() {
+    public String getKey() {
         return "endDeviceEventType";
     }
 
     @Override
-    public String getType() {
-        return "number";
+    public ParameterControl getControl() {
+        return null;
+    }
+
+    @Override
+    public ParameterConstraint getConstraint() {
+        return CONSTRAINT;
     }
 
     @Override
     public String getLabel() {
         return "End device event type";
-    }
-
-    @Override
-    public boolean isOptional() {
-        return false;
-    }
-
-    @Override
-    public String getSuffix() {
-        return "";
-    }
-
-    @Override
-    public int getMin() {
-        return 10;
-    }
-
-    @Override
-    public int getMax() {
-        return 100;
     }
 }

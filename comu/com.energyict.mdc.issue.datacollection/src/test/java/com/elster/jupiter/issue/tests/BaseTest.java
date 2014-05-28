@@ -8,6 +8,7 @@ import com.elster.jupiter.issue.datacollection.impl.IssueDataCollectionModule;
 import com.elster.jupiter.issue.datacollection.impl.install.InstallServiceImpl;
 import com.elster.jupiter.issue.impl.module.IssueModule;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
+import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueMappingService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -115,5 +116,8 @@ public class BaseTest {
     }
     protected IssueCreationService getIssueCreationService(){
         return injector.getInstance(IssueCreationService.class);
+    }
+    protected IssueActionService getIssueActionService(){
+        return injector.getInstance(IssueActionService.class);
     }
 }

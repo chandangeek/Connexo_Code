@@ -1,16 +1,32 @@
 package com.elster.jupiter.issue.datacollection;
 
 import com.elster.jupiter.issue.datacollection.impl.ModuleConstants;
+import com.elster.jupiter.issue.datacollection.impl.install.MessageSeeds;
 import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
-import com.elster.jupiter.issue.share.cep.CreationRuleTemplateParameter;
+import com.elster.jupiter.issue.share.cep.ParameterDefinition;
+import com.elster.jupiter.issue.share.cep.ParameterDefinitionContext;
+import com.elster.jupiter.issue.share.cep.ParameterViolation;
+import com.elster.jupiter.issue.share.entity.CreationRule;
+import com.elster.jupiter.issue.share.entity.CreationRuleParameter;
 import org.osgi.service.component.annotations.Component;
 
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component(name = "com.elster.jupiter.issue.datacollection.BasicDatacollectionRuleTemplate", property = {"uuid=" + BasicDatacollectionRuleTemplate.BASIC_TEMPLATE_UUID}, service = CreationRuleTemplate.class, immediate = true)
 public class BasicDatacollectionRuleTemplate implements CreationRuleTemplate {
     public static final String BASIC_TEMPLATE_UUID = "e29b-41d4-a716";
+
+    private Map<String, ParameterDefinition> parameterDefinitions;
+
+    public BasicDatacollectionRuleTemplate() {
+        this.parameterDefinitions = new HashMap<>();
+
+        ParameterDefinition eventType =  new IssueEventTopicParameter();
+        parameterDefinitions.put(eventType.getKey(), eventType);
+    }
 
     @Override
     public String getUUID() {
@@ -48,8 +64,27 @@ public class BasicDatacollectionRuleTemplate implements CreationRuleTemplate {
     }
 
     @Override
-    public List<CreationRuleTemplateParameter> getParameters() {
-        CreationRuleTemplateParameter parameter = new IssueEventTopicParameter();
-        return Collections.singletonList(parameter);
+    public Map<String, ParameterDefinition> getParameterDefinitions() {
+        return parameterDefinitions;
+    }
+
+    @Override
+    public List<ParameterViolation> validate(CreationRule rule) {
+        List<ParameterViolation> errors = new ArrayList<>();
+        if(rule == null){
+            throw new IllegalArgumentException("Rule is missing");
+        }
+
+        Map<String, ParameterDefinition> parameterDefinitionsCopy = new HashMap<>(parameterDefinitions);
+        for (CreationRuleParameter parameter : rule.getParameters()) {
+            ParameterDefinition definition = parameterDefinitionsCopy.remove(parameter.getKey());
+            errors.addAll(definition.validate(parameter.getValue(), ParameterDefinitionContext.RULE));
+        }
+        for (ParameterDefinition definition : parameterDefinitionsCopy.values()) {
+            if (!definition.getConstraint().isOptional()) {
+                errors.add(new ParameterViolation(ParameterDefinitionContext.RULE.wrapKey(definition.getKey()), MessageSeeds.ISSUE_CREATION_RULE_PARAMETER_ABSENT.getKey(), ModuleConstants.COMPONENT_NAME));
+            }
+        }
+        return errors;
     }
 }

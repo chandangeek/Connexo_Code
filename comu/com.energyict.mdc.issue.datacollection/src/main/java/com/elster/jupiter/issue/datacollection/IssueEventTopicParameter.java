@@ -1,16 +1,25 @@
 package com.elster.jupiter.issue.datacollection;
 
-import com.elster.jupiter.issue.share.cep.CreationRuleTemplateParameter;
+import com.elster.jupiter.issue.share.cep.*;
 
-public class IssueEventTopicParameter implements CreationRuleTemplateParameter {
+import java.util.Map;
+
+public class IssueEventTopicParameter extends AbstractParameterDefenition{
+    private static final ParameterConstraint CONSTRAINT = new StringParameterConstraint(false, 2, 80);
+
     @Override
-    public String getName() {
+    public String getKey() {
         return "eventTopic";
     }
 
     @Override
-    public String getType() {
-        return "number";
+    public ParameterControl getControl() {
+        return null;
+    }
+
+    @Override
+    public ParameterConstraint getConstraint() {
+        return CONSTRAINT;
     }
 
     @Override
@@ -19,22 +28,12 @@ public class IssueEventTopicParameter implements CreationRuleTemplateParameter {
     }
 
     @Override
-    public boolean isOptional() {
-        return false;
-    }
-
-    @Override
     public String getSuffix() {
         return "";
     }
 
     @Override
-    public int getMin() {
-        return 10;
-    }
-
-    @Override
-    public int getMax() {
-        return 100;
+    public ParameterDefinition getValue(Map<String, Object> parameters) {
+        return this;
     }
 }

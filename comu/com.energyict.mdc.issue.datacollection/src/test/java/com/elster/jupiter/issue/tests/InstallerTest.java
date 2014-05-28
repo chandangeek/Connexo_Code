@@ -1,7 +1,7 @@
 package com.elster.jupiter.issue.tests;
 
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.issue.share.entity.CreationRuleActionType;
+import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.util.conditions.Condition;
@@ -28,12 +28,13 @@ public class InstallerTest extends BaseTest {
         }
     }
 
-    @Test
+/*    @Test
     public void testDefaultIssueTypes(){
         try (TransactionContext context = getContext()) {
-            Query<CreationRuleActionType> query = getIssueCreationService().getCreationRuleActionTypeQuery();
-            List<CreationRuleActionType> defaultTypes = query.select(Condition.TRUE);
+           // Query<IssueActionType> query = getIssueCreationService().getCreationRuleActionTypeQuery();
+            Query<IssueActionType> query = getIssueActionService().getActionTypeQuery();
+            List<IssueActionType> defaultTypes = query.select(Condition.TRUE);
             assertThat(defaultTypes).hasSize(DEFAULT_ISSUE_TYPES_COUNT);
         }
-    }
+    }*/
 }
