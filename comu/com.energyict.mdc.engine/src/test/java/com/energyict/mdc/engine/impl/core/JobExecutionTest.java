@@ -376,7 +376,8 @@ public class JobExecutionTest {
     @Test
     public void timeDifferenceExceedsMaxShouldFailCompleteSessionTest() throws ConnectionException {
         Date meterTime = new DateTime(2013, 9, 18, 16, 0, 0, 0).toDate();
-        when(this.clock.now()).thenReturn(meterTime);
+        Date systemTime = new DateTime(2013, 9, 18, 15, 0, 0, 0).toDate();
+        when(this.clock.now()).thenReturn(systemTime);
         when(deviceProtocol.getTime()).thenReturn(meterTime);
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = mock(DeviceProtocolSecurityPropertySet.class);
         ScheduledComTaskExecutionGroup jobExecution = getJobExecutionForBasicCheckInFrontTests();
