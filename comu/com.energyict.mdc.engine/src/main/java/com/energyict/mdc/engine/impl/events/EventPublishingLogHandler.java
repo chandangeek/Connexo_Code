@@ -22,12 +22,15 @@ public abstract class EventPublishingLogHandler extends Handler {
 
     @Override
     public void publish (LogRecord record) {
-        EventPublisherImpl.getInstance().
-            publish(
-                this.toEvent(
-                        EventPublisherImpl.getInstance().serviceProvider(),
-                        LogLevelMapper.toComServerLogLevel(record.getLevel()),
-                        this.extractInfo(record)));
+        EventPublisherImpl eventPublisher = EventPublisherImpl.getInstance();
+        // During shutdown, the EventPublisher may already be shutdown so test for null
+        if (eventPublisher != null) {
+            eventPublisher.publish(
+                    this.toEvent(
+                            eventPublisher.serviceProvider(),
+                            LogLevelMapper.toComServerLogLevel(record.getLevel()),
+                            this.extractInfo(record)));
+        }
     }
 
     /**

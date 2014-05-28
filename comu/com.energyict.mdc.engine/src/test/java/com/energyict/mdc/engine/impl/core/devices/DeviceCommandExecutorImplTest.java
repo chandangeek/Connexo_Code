@@ -70,6 +70,8 @@ public class DeviceCommandExecutorImplTest {
     private User user;
     @Mock
     private Environment environment;
+    @Mock
+    private EventPublisherImpl eventPublisher;
 
     @Before
     public void setupComServer() {
@@ -134,99 +136,131 @@ public class DeviceCommandExecutorImplTest {
 
     @Test
     public void testExecuteWithHighPriority() {
-        TrackingThreadFactory threadFactory = new TrackingThreadFactory(new ComServerThreadFactory(this.comServer));
-        int threadPriority = Thread.MAX_PRIORITY;
-        DeviceCommandExecutor deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer, CAPACITY, NUMBER_OF_THREADS, threadPriority, ComServer.LogLevel.INFO, threadFactory, mock(ComServerDAO.class), mock(ThreadPrincipalService.class), userService);
-        deviceCommandExecutor.start();
-        List<DeviceCommandExecutionToken> tokens = deviceCommandExecutor.tryAcquireTokens(1);
-        DeviceCommandExecutionToken token = tokens.get(0);
-        SignalReceiver receiver = mock(SignalReceiver.class);
+        DeviceCommandExecutor deviceCommandExecutor = null;
+        try {
+            TrackingThreadFactory threadFactory = new TrackingThreadFactory(new ComServerThreadFactory(this.comServer));
+            int threadPriority = Thread.MAX_PRIORITY;
+            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer, CAPACITY, NUMBER_OF_THREADS, threadPriority, ComServer.LogLevel.INFO, threadFactory, mock(ComServerDAO.class), mock(ThreadPrincipalService.class), userService);
+            deviceCommandExecutor.start();
+            List<DeviceCommandExecutionToken> tokens = deviceCommandExecutor.tryAcquireTokens(1);
+            DeviceCommandExecutionToken token = tokens.get(0);
+            SignalReceiver receiver = mock(SignalReceiver.class);
 
-        // Business method
-        deviceCommandExecutor.execute(new SignalSender(receiver), token);
+            // Business method
+            deviceCommandExecutor.execute(new SignalSender(receiver), token);
 
-        // Asserts
-        assertThat(threadFactory.getThread(0).getPriority()).isEqualTo(threadPriority);
+            // Asserts
+            assertThat(threadFactory.getThread(0).getPriority()).isEqualTo(threadPriority);
+        }
+        finally {
+            shutdown(deviceCommandExecutor);
+        }
     }
 
     @Test
     public void testExecuteWithPreparation() throws InterruptedException {
-        DeviceCommandExecutor deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer, CAPACITY, NUMBER_OF_THREADS, THREAD_PRIORITY, ComServer.LogLevel.INFO, mock(ComServerDAO.class), mock(ThreadPrincipalService.class), userService);
-        deviceCommandExecutor.start();
-        List<DeviceCommandExecutionToken> tokens = deviceCommandExecutor.tryAcquireTokens(1);
-        DeviceCommandExecutionToken token = tokens.get(0);
-        SignalReceiver receiver = mock(SignalReceiver.class);
-        CountDownLatch startLatch = new CountDownLatch(1);
-        CountDownLatch stopLatch = new CountDownLatch(1);
+        DeviceCommandExecutor deviceCommandExecutor = null;
+        try {
+            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer, CAPACITY, NUMBER_OF_THREADS, THREAD_PRIORITY, ComServer.LogLevel.INFO, mock(ComServerDAO.class), mock(ThreadPrincipalService.class), userService);
+            deviceCommandExecutor.start();
+            List<DeviceCommandExecutionToken> tokens = deviceCommandExecutor.tryAcquireTokens(1);
+            DeviceCommandExecutionToken token = tokens.get(0);
+            SignalReceiver receiver = mock(SignalReceiver.class);
+            CountDownLatch startLatch = new CountDownLatch(1);
+            CountDownLatch stopLatch = new CountDownLatch(1);
 
-        // Business method
-        deviceCommandExecutor.execute(new SignalSender(receiver, startLatch, stopLatch), token);
+            // Business method
+            deviceCommandExecutor.execute(new SignalSender(receiver, startLatch, stopLatch), token);
 
-        // Count down on the start latch to trigger the SignalSender
-        startLatch.countDown();
+            // Count down on the start latch to trigger the SignalSender
+            startLatch.countDown();
 
-        // Wait for the SignalSender to finish
-        stopLatch.await();
+            // Wait for the SignalSender to finish
+            stopLatch.await();
 
-        // Asserts
-        verify(receiver).receiveSignal();
+            // Asserts
+            verify(receiver).receiveSignal();
+        }
+        finally {
+            shutdown(deviceCommandExecutor);
+        }
     }
 
     @Test
     public void testExecuteInReverseOrder() throws InterruptedException {
         ComServer comServer = mock(ComServer.class);
         when(comServer.getName()).thenReturn("DeviceCommandExecutorImplTest");
-        DeviceCommandExecutor deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer, CAPACITY, NUMBER_OF_THREADS, THREAD_PRIORITY, ComServer.LogLevel.INFO, mock(ComServerDAO.class), mock(ThreadPrincipalService.class), userService);
-        deviceCommandExecutor.start();
-        List<DeviceCommandExecutionToken> tokens = deviceCommandExecutor.tryAcquireTokens(CAPACITY);
-        Collections.reverse(tokens);
-        SignalReceiver receiver = mock(SignalReceiver.class);
-        CountDownLatch startLatch = new CountDownLatch(1);
-        CountDownLatch stopLatch = new CountDownLatch(CAPACITY);
+        DeviceCommandExecutor deviceCommandExecutor = null;
+        try {
+            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer, CAPACITY, NUMBER_OF_THREADS, THREAD_PRIORITY, ComServer.LogLevel.INFO, mock(ComServerDAO.class), mock(ThreadPrincipalService.class), userService);
+            deviceCommandExecutor.start();
+            List<DeviceCommandExecutionToken> tokens = deviceCommandExecutor.tryAcquireTokens(CAPACITY);
+            Collections.reverse(tokens);
+            SignalReceiver receiver = mock(SignalReceiver.class);
+            CountDownLatch startLatch = new CountDownLatch(1);
+            CountDownLatch stopLatch = new CountDownLatch(CAPACITY);
 
-        // Business method
-        for (DeviceCommandExecutionToken token : tokens) {
-            deviceCommandExecutor.execute(new SignalSender(receiver, startLatch, stopLatch), token);
+            // Business method
+            for (DeviceCommandExecutionToken token : tokens) {
+                deviceCommandExecutor.execute(new SignalSender(receiver, startLatch, stopLatch), token);
+            }
+
+            // Signal the senders to start
+            startLatch.countDown();
+
+            // Wait for all SignalSenders to finish
+            stopLatch.await();
+
+            // Asserts
+            verify(receiver, times(CAPACITY)).receiveSignal();
         }
-
-        // Signal the senders to start
-        startLatch.countDown();
-
-        // Wait for all SignalSenders to finish
-        stopLatch.await();
-
-        // Asserts
-        verify(receiver, times(CAPACITY)).receiveSignal();
+        finally {
+            shutdown(deviceCommandExecutor);
+        }
     }
 
     @Test(expected = NoResourcesAcquiredException.class)
     public void testExecuteWithoutPreparation() {
         ComServer comServer = mock(ComServer.class);
         when(comServer.getName()).thenReturn("DeviceCommandExecutorImplTest");
-        DeviceCommandExecutor deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer, CAPACITY, NUMBER_OF_THREADS, THREAD_PRIORITY, ComServer.LogLevel.INFO, mock(ComServerDAO.class), mock(ThreadPrincipalService.class), userService);
-        deviceCommandExecutor.start();
-        DeviceCommandExecutionToken token = mock(DeviceCommandExecutionToken.class);
+        DeviceCommandExecutor deviceCommandExecutor = null;
 
-        // Business method
-        deviceCommandExecutor.execute(new SleepCommand(), token);
+        try {
+            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer, CAPACITY, NUMBER_OF_THREADS, THREAD_PRIORITY, ComServer.LogLevel.INFO, mock(ComServerDAO.class), mock(ThreadPrincipalService.class), userService);
+            deviceCommandExecutor.start();
+            DeviceCommandExecutionToken token = mock(DeviceCommandExecutionToken.class);
 
-        // Expected a NoResourcesAcquiredException because the command was not prepared
+            // Business method
+            deviceCommandExecutor.execute(new SleepCommand(), token);
+
+            // Expected a NoResourcesAcquiredException because the command was not prepared
+        }
+        finally {
+            shutdown(deviceCommandExecutor);
+        }
     }
 
     @Test(expected = IllegalStateException.class)
     public void testExecuteWhenAlreadyShutdown() {
         ComServer comServer = mock(ComServer.class);
         when(comServer.getName()).thenReturn("DeviceCommandExecutorImplTest");
-        DeviceCommandExecutor deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer, CAPACITY, NUMBER_OF_THREADS, THREAD_PRIORITY, ComServer.LogLevel.INFO, mock(ComServerDAO.class), mock(ThreadPrincipalService.class), userService);
-        deviceCommandExecutor.start();
-        List<DeviceCommandExecutionToken> tokens = deviceCommandExecutor.tryAcquireTokens(1);
-        DeviceCommandExecutionToken token = tokens.get(0);
-        deviceCommandExecutor.shutdown();
+        DeviceCommandExecutor deviceCommandExecutor = null;
 
-        // Business method
-        deviceCommandExecutor.execute(new SleepCommand(), token);
+        try {
+            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer, CAPACITY, NUMBER_OF_THREADS, THREAD_PRIORITY, ComServer.LogLevel.INFO, mock(ComServerDAO.class), mock(ThreadPrincipalService.class), userService);
+            deviceCommandExecutor.start();
+            List<DeviceCommandExecutionToken> tokens = deviceCommandExecutor.tryAcquireTokens(1);
+            DeviceCommandExecutionToken token = tokens.get(0);
+            deviceCommandExecutor.shutdown();
 
-        // Expected an IllegalStateException because the DeviceCommandExecutor was already shutdown
+            // Business method
+            deviceCommandExecutor.execute(new SleepCommand(), token);
+
+            // Expected an IllegalStateException because the DeviceCommandExecutor was already shutdown
+        }
+        finally {
+            shutdown(deviceCommandExecutor);
+        }
     }
 
     /**
@@ -294,21 +328,27 @@ public class DeviceCommandExecutorImplTest {
     public void testPrepareExecutionWithTooManyCommands3() {
         ComServer comServer = mock(ComServer.class);
         when(comServer.getName()).thenReturn("DeviceCommandExecutorImplTest");
-        DeviceCommandExecutor deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer, CAPACITY, NUMBER_OF_THREADS, THREAD_PRIORITY, ComServer.LogLevel.INFO, mock(ComServerDAO.class), mock(ThreadPrincipalService.class), userService);
-        deviceCommandExecutor.start();
-        int numberOfCommands = CAPACITY - 1;
-        List<DeviceCommandExecutionToken> alreadyPrepared = deviceCommandExecutor.tryAcquireTokens(numberOfCommands);
-        CountDownLatch startLatch = new CountDownLatch(1);
-        CountDownLatch stopLatch = new CountDownLatch(1);
-        deviceCommandExecutor.execute(new LatchDrivenCommand(startLatch, stopLatch), alreadyPrepared.get(0));
+        DeviceCommandExecutor deviceCommandExecutor = null;
+        try {
+            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer, CAPACITY, NUMBER_OF_THREADS, THREAD_PRIORITY, ComServer.LogLevel.INFO, mock(ComServerDAO.class), mock(ThreadPrincipalService.class), userService);
+            deviceCommandExecutor.start();
+            int numberOfCommands = CAPACITY - 1;
+            List<DeviceCommandExecutionToken> alreadyPrepared = deviceCommandExecutor.tryAcquireTokens(numberOfCommands);
+            CountDownLatch startLatch = new CountDownLatch(1);
+            CountDownLatch stopLatch = new CountDownLatch(1);
+            deviceCommandExecutor.execute(new LatchDrivenCommand(startLatch, stopLatch), alreadyPrepared.get(0));
 
-        // Never countdown on the start latch to avoid that the DeviceCommand effectively executes
+            // Never countdown on the start latch to avoid that the DeviceCommand effectively executes
 
-        // Business method
-        List<DeviceCommandExecutionToken> tokens = deviceCommandExecutor.tryAcquireTokens(2);
+            // Business method
+            List<DeviceCommandExecutionToken> tokens = deviceCommandExecutor.tryAcquireTokens(2);
 
-        // Asserts
-        assertThat(tokens).isEmpty();
+            // Asserts
+            assertThat(tokens).isEmpty();
+        }
+        finally {
+            shutdown(deviceCommandExecutor);
+        }
     }
 
     /**
@@ -329,24 +369,30 @@ public class DeviceCommandExecutorImplTest {
         int numberOfExecutingCommands = CAPACITY - 1;
         CountDownLatch startLatch = new CountDownLatch(1);
         CountDownLatch stopLatch = new CountDownLatch(numberOfExecutingCommands);
-        DeviceCommandExecutor deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer, CAPACITY, numberOfExecutingCommands, THREAD_PRIORITY, ComServer.LogLevel.INFO, mock(ComServerDAO.class), mock(ThreadPrincipalService.class), userService);
-        deviceCommandExecutor.start();
-        List<DeviceCommandExecutionToken> alreadyPrepared = deviceCommandExecutor.tryAcquireTokens(numberOfExecutingCommands);
-        for (DeviceCommandExecutionToken token : alreadyPrepared) {
-            deviceCommandExecutor.execute(new LatchDrivenCommand(startLatch, stopLatch), token);
+        DeviceCommandExecutor deviceCommandExecutor = null;
+        try {
+            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer, CAPACITY, numberOfExecutingCommands, THREAD_PRIORITY, ComServer.LogLevel.INFO, mock(ComServerDAO.class), mock(ThreadPrincipalService.class), userService);
+            deviceCommandExecutor.start();
+            List<DeviceCommandExecutionToken> alreadyPrepared = deviceCommandExecutor.tryAcquireTokens(numberOfExecutingCommands);
+            for (DeviceCommandExecutionToken token : alreadyPrepared) {
+                deviceCommandExecutor.execute(new LatchDrivenCommand(startLatch, stopLatch), token);
+            }
+
+            // Triggering the start latch, kicks the executing command(s)
+            startLatch.countDown();
+
+            // Now wait until the commands complete
+            stopLatch.await();
+
+            // Business method
+            List<DeviceCommandExecutionToken> tokens = deviceCommandExecutor.tryAcquireTokens(2);
+
+            // Asserts
+            assertThat(tokens).hasSize(2);
         }
-
-        // Triggering the start latch, kicks the executing command(s)
-        startLatch.countDown();
-
-        // Now wait until the commands complete
-        stopLatch.await();
-
-        // Business method
-        List<DeviceCommandExecutionToken> tokens = deviceCommandExecutor.tryAcquireTokens(2);
-
-        // Asserts
-        assertThat(tokens).hasSize(2);
+        finally {
+            shutdown(deviceCommandExecutor);
+        }
     }
 
     /**
@@ -368,44 +414,56 @@ public class DeviceCommandExecutorImplTest {
         int numberOfExecutingCommands = CAPACITY - 3;
         CountDownLatch startLatch = new CountDownLatch(1);
         CountDownLatch stopLatch = new CountDownLatch(numberOfExecutingCommands);
-        DeviceCommandExecutor deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer, CAPACITY, CAPACITY - 1, THREAD_PRIORITY, ComServer.LogLevel.INFO, mock(ComServerDAO.class), mock(ThreadPrincipalService.class), userService);
-        deviceCommandExecutor.start();
-        List<DeviceCommandExecutionToken> alreadyPrepared = deviceCommandExecutor.tryAcquireTokens(numberOfExecutingCommands + 2);
-        DeviceCommandExecutionToken unused1 = alreadyPrepared.remove(0);
-        DeviceCommandExecutionToken unused2 = alreadyPrepared.remove(1);
-        for (DeviceCommandExecutionToken token : alreadyPrepared) {
-            deviceCommandExecutor.execute(new LatchDrivenCommand(startLatch, stopLatch), token);
+        DeviceCommandExecutor deviceCommandExecutor = null;
+        try {
+            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer, CAPACITY, CAPACITY - 1, THREAD_PRIORITY, ComServer.LogLevel.INFO, mock(ComServerDAO.class), mock(ThreadPrincipalService.class), userService);
+            deviceCommandExecutor.start();
+            List<DeviceCommandExecutionToken> alreadyPrepared = deviceCommandExecutor.tryAcquireTokens(numberOfExecutingCommands + 2);
+            DeviceCommandExecutionToken unused1 = alreadyPrepared.remove(0);
+            DeviceCommandExecutionToken unused2 = alreadyPrepared.remove(1);
+            for (DeviceCommandExecutionToken token : alreadyPrepared) {
+                deviceCommandExecutor.execute(new LatchDrivenCommand(startLatch, stopLatch), token);
+            }
+
+            // Triggering the start latch, kicks the executing command(s)
+            startLatch.countDown();
+
+            // Free the unused tokens.
+            deviceCommandExecutor.free(unused1);
+            deviceCommandExecutor.free(unused2);
+
+            // Now wait until the commands complete
+            stopLatch.await();
+
+            // Business method
+            List<DeviceCommandExecutionToken> tokens = deviceCommandExecutor.tryAcquireTokens(2);
+
+            // Asserts
+            assertThat(tokens).hasSize(2);
         }
-
-        // Triggering the start latch, kicks the executing command(s)
-        startLatch.countDown();
-
-        // Free the unused tokens.
-        deviceCommandExecutor.free(unused1);
-        deviceCommandExecutor.free(unused2);
-
-        // Now wait until the commands complete
-        stopLatch.await();
-
-        // Business method
-        List<DeviceCommandExecutionToken> tokens = deviceCommandExecutor.tryAcquireTokens(2);
-
-        // Asserts
-        assertThat(tokens).hasSize(2);
+        finally {
+            shutdown(deviceCommandExecutor);
+        }
     }
 
     @Test(expected = NoResourcesAcquiredException.class)
     public void testFreeTokeThatWasNotPrepared() throws InterruptedException {
-        ComServer comServer = mock(ComServer.class);
-        when(comServer.getName()).thenReturn("DeviceCommandExecutorImplTest");
-        int numberOfExecutingCommands = CAPACITY - 1;
-        DeviceCommandExecutor deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer, CAPACITY, numberOfExecutingCommands, THREAD_PRIORITY, ComServer.LogLevel.INFO, mock(ComServerDAO.class), mock(ThreadPrincipalService.class), userService);
-        deviceCommandExecutor.start();
+        DeviceCommandExecutor deviceCommandExecutor = null;
+        try {
+            ComServer comServer = mock(ComServer.class);
+            when(comServer.getName()).thenReturn("DeviceCommandExecutorImplTest");
+            int numberOfExecutingCommands = CAPACITY - 1;
+            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer, CAPACITY, numberOfExecutingCommands, THREAD_PRIORITY, ComServer.LogLevel.INFO, mock(ComServerDAO.class), mock(ThreadPrincipalService.class), userService);
+            deviceCommandExecutor.start();
 
-        // Business method
-        deviceCommandExecutor.free(mock(DeviceCommandExecutionToken.class));
+            // Business method
+            deviceCommandExecutor.free(mock(DeviceCommandExecutionToken.class));
 
-        // Was expecting a NoResourcesAcquiredException
+            // Was expecting a NoResourcesAcquiredException
+        }
+        finally {
+            shutdown(deviceCommandExecutor);
+        }
     }
 
     /**
@@ -419,24 +477,30 @@ public class DeviceCommandExecutorImplTest {
         int numberOfExecutingCommands = CAPACITY - 1;
         CountDownLatch startLatch = new CountDownLatch(1);
         CountDownLatch stopLatch = new CountDownLatch(numberOfExecutingCommands);
-        DeviceCommandExecutor deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer, CAPACITY, numberOfExecutingCommands, THREAD_PRIORITY, ComServer.LogLevel.ERROR, mock(ComServerDAO.class), mock(ThreadPrincipalService.class), userService);
-        deviceCommandExecutor.start();
-        List<DeviceCommandExecutionToken> alreadyPrepared = deviceCommandExecutor.tryAcquireTokens(numberOfExecutingCommands);
-        for (DeviceCommandExecutionToken token : alreadyPrepared) {
-            deviceCommandExecutor.execute(new DataAccessExceptionCommand(startLatch, stopLatch), token);
+        DeviceCommandExecutor deviceCommandExecutor = null;
+        try {
+            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer, CAPACITY, numberOfExecutingCommands, THREAD_PRIORITY, ComServer.LogLevel.ERROR, mock(ComServerDAO.class), mock(ThreadPrincipalService.class), userService);
+            deviceCommandExecutor.start();
+            List<DeviceCommandExecutionToken> alreadyPrepared = deviceCommandExecutor.tryAcquireTokens(numberOfExecutingCommands);
+            for (DeviceCommandExecutionToken token : alreadyPrepared) {
+                deviceCommandExecutor.execute(new DataAccessExceptionCommand(startLatch, stopLatch), token);
+            }
+
+            // Triggering the start latch, kicks the executing command(s)
+            startLatch.countDown();
+
+            // Now wait until the commands complete
+            stopLatch.await();
+
+            // Business method
+            List<DeviceCommandExecutionToken> tokens = deviceCommandExecutor.tryAcquireTokens(2);
+
+            // Asserts
+            assertThat(tokens).hasSize(2);
         }
-
-        // Triggering the start latch, kicks the executing command(s)
-        startLatch.countDown();
-
-        // Now wait until the commands complete
-        stopLatch.await();
-
-        // Business method
-        List<DeviceCommandExecutionToken> tokens = deviceCommandExecutor.tryAcquireTokens(2);
-
-        // Asserts
-        assertThat(tokens).hasSize(2);
+        finally {
+            shutdown(deviceCommandExecutor);
+        }
     }
 
     /**
@@ -448,24 +512,30 @@ public class DeviceCommandExecutorImplTest {
         int numberOfExecutingCommands = CAPACITY - 1;
         CountDownLatch startLatch = new CountDownLatch(1);
         CountDownLatch stopLatch = new CountDownLatch(numberOfExecutingCommands);
-        DeviceCommandExecutor deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer, CAPACITY, numberOfExecutingCommands, THREAD_PRIORITY, ComServer.LogLevel.ERROR, mock(ComServerDAO.class), mock(ThreadPrincipalService.class), userService);
-        deviceCommandExecutor.start();
-        List<DeviceCommandExecutionToken> alreadyPrepared = deviceCommandExecutor.tryAcquireTokens(numberOfExecutingCommands);
-        for (DeviceCommandExecutionToken token : alreadyPrepared) {
-            deviceCommandExecutor.execute(new ApplicationExceptionCommand(startLatch, stopLatch), token);
+        DeviceCommandExecutor deviceCommandExecutor = null;
+        try {
+            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer, CAPACITY, numberOfExecutingCommands, THREAD_PRIORITY, ComServer.LogLevel.ERROR, mock(ComServerDAO.class), mock(ThreadPrincipalService.class), userService);
+            deviceCommandExecutor.start();
+            List<DeviceCommandExecutionToken> alreadyPrepared = deviceCommandExecutor.tryAcquireTokens(numberOfExecutingCommands);
+            for (DeviceCommandExecutionToken token : alreadyPrepared) {
+                deviceCommandExecutor.execute(new ApplicationExceptionCommand(startLatch, stopLatch), token);
+            }
+
+            // Triggering the start latch, kicks the executing command(s)
+            startLatch.countDown();
+
+            // Now wait until the commands complete
+            stopLatch.await();
+
+            // Business method
+            List<DeviceCommandExecutionToken> tokens = deviceCommandExecutor.tryAcquireTokens(2);
+
+            // Asserts
+            assertThat(tokens).hasSize(2);
         }
-
-        // Triggering the start latch, kicks the executing command(s)
-        startLatch.countDown();
-
-        // Now wait until the commands complete
-        stopLatch.await();
-
-        // Business method
-        List<DeviceCommandExecutionToken> tokens = deviceCommandExecutor.tryAcquireTokens(2);
-
-        // Asserts
-        assertThat(tokens).hasSize(2);
+        finally {
+            shutdown(deviceCommandExecutor);
+        }
     }
 
     /**
@@ -477,24 +547,30 @@ public class DeviceCommandExecutorImplTest {
         int numberOfExecutingCommands = CAPACITY - 1;
         CountDownLatch startLatch = new CountDownLatch(1);
         CountDownLatch stopLatch = new CountDownLatch(numberOfExecutingCommands);
-        DeviceCommandExecutor deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer, CAPACITY, numberOfExecutingCommands, THREAD_PRIORITY, ComServer.LogLevel.ERROR, mock(ComServerDAO.class), mock(ThreadPrincipalService.class), userService);
-        deviceCommandExecutor.start();
-        List<DeviceCommandExecutionToken> alreadyPrepared = deviceCommandExecutor.tryAcquireTokens(numberOfExecutingCommands);
-        for (DeviceCommandExecutionToken token : alreadyPrepared) {
-            deviceCommandExecutor.execute(new RuntimeExceptionCommand(startLatch, stopLatch), token);
+        DeviceCommandExecutor deviceCommandExecutor = null;
+        try {
+            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer, CAPACITY, numberOfExecutingCommands, THREAD_PRIORITY, ComServer.LogLevel.ERROR, mock(ComServerDAO.class), mock(ThreadPrincipalService.class), userService);
+            deviceCommandExecutor.start();
+            List<DeviceCommandExecutionToken> alreadyPrepared = deviceCommandExecutor.tryAcquireTokens(numberOfExecutingCommands);
+            for (DeviceCommandExecutionToken token : alreadyPrepared) {
+                deviceCommandExecutor.execute(new RuntimeExceptionCommand(startLatch, stopLatch), token);
+            }
+
+            // Triggering the start latch, kicks the executing command(s)
+            startLatch.countDown();
+
+            // Now wait until the commands complete
+            stopLatch.await();
+
+            // Business method
+            List<DeviceCommandExecutionToken> tokens = deviceCommandExecutor.tryAcquireTokens(2);
+
+            // Asserts
+            assertThat(tokens).hasSize(2);
         }
-
-        // Triggering the start latch, kicks the executing command(s)
-        startLatch.countDown();
-
-        // Now wait until the commands complete
-        stopLatch.await();
-
-        // Business method
-        List<DeviceCommandExecutionToken> tokens = deviceCommandExecutor.tryAcquireTokens(2);
-
-        // Asserts
-        assertThat(tokens).hasSize(2);
+        finally {
+            shutdown(deviceCommandExecutor);
+        }
     }
 
     @Test(expected = IllegalStateException.class)
@@ -510,75 +586,93 @@ public class DeviceCommandExecutorImplTest {
 
     @Test
     public void testShutdownWithoutCommands() {
-        DeviceCommandExecutor deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer, CAPACITY, NUMBER_OF_THREADS, THREAD_PRIORITY, ComServer.LogLevel.INFO, mock(ComServerDAO.class), mock(ThreadPrincipalService.class), userService);
-        deviceCommandExecutor.start();
+        DeviceCommandExecutor deviceCommandExecutor = null;
+        try {
+            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer, CAPACITY, NUMBER_OF_THREADS, THREAD_PRIORITY, ComServer.LogLevel.INFO, mock(ComServerDAO.class), mock(ThreadPrincipalService.class), userService);
+            deviceCommandExecutor.start();
 
-        // Business method
-        deviceCommandExecutor.shutdown();
+            // Business method
+            deviceCommandExecutor.shutdown();
 
-        // Asserts
-        assertThat(deviceCommandExecutor.getStatus()).isEqualTo(ServerProcessStatus.SHUTDOWN);
+            // Asserts
+            assertThat(deviceCommandExecutor.getStatus()).isEqualTo(ServerProcessStatus.SHUTDOWN);
+        }
+        finally {
+            shutdown(deviceCommandExecutor);
+        }
     }
 
     @Test
     public void testShutdownWithCommandsOnSingleThread() {
-        DeviceCommandExecutor deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer, CAPACITY, 1, THREAD_PRIORITY, ComServer.LogLevel.INFO, mock(ComServerDAO.class), mock(ThreadPrincipalService.class), userService);
-        deviceCommandExecutor.start();
-        List<DeviceCommandExecutionToken> tokens = deviceCommandExecutor.tryAcquireTokens(CAPACITY);
-        SignalReceiver receiver = mock(SignalReceiver.class);
-        final CountDownLatch startLatch = new CountDownLatch(1);
-        CountDownLatch stopLatch = new CountDownLatch(CAPACITY);
-        for (DeviceCommandExecutionToken token : tokens) {
-            deviceCommandExecutor.execute(new SignalSender(receiver, startLatch, stopLatch), token);
+        DeviceCommandExecutor deviceCommandExecutor = null;
+        try {
+            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer, CAPACITY, 1, THREAD_PRIORITY, ComServer.LogLevel.INFO, mock(ComServerDAO.class), mock(ThreadPrincipalService.class), userService);
+            deviceCommandExecutor.start();
+            List<DeviceCommandExecutionToken> tokens = deviceCommandExecutor.tryAcquireTokens(CAPACITY);
+            SignalReceiver receiver = mock(SignalReceiver.class);
+            final CountDownLatch startLatch = new CountDownLatch(1);
+            CountDownLatch stopLatch = new CountDownLatch(CAPACITY);
+            for (DeviceCommandExecutionToken token : tokens) {
+                deviceCommandExecutor.execute(new SignalSender(receiver, startLatch, stopLatch), token);
+            }
+
+            // Triggering the start latch, kicks the executing command(s)
+            startLatch.countDown();
+
+            // Business method
+            deviceCommandExecutor.shutdown();
+
+            // Asserts
+            assertThat(deviceCommandExecutor.getStatus()).isEqualTo(ServerProcessStatus.SHUTDOWN);
+            verify(receiver, times(CAPACITY)).receiveSignal();
         }
-
-        // Triggering the start latch, kicks the executing command(s)
-        startLatch.countDown();
-
-        // Business method
-        deviceCommandExecutor.shutdown();
-
-        // Asserts
-        assertThat(deviceCommandExecutor.getStatus()).isEqualTo(ServerProcessStatus.SHUTDOWN);
-        verify(receiver, times(CAPACITY)).receiveSignal();
+        finally {
+            shutdown(deviceCommandExecutor);
+        }
     }
 
     @Test
     public void testShutdownWithCommandsOnMultipleThreads() {
         ComServerThreadFactory realThreadFactory = new ComServerThreadFactory(this.comServer);
         TrackingThreadFactory threadFactory = new TrackingThreadFactory(realThreadFactory);
-        DeviceCommandExecutor deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer, CAPACITY, CAPACITY, THREAD_PRIORITY, ComServer.LogLevel.INFO, threadFactory, mock(ComServerDAO.class), mock(ThreadPrincipalService.class), userService);
-        deviceCommandExecutor.start();
-        List<DeviceCommandExecutionToken> tokens = deviceCommandExecutor.tryAcquireTokens(CAPACITY);
-        SignalReceiver receiver = mock(SignalReceiver.class);
-        final CountDownLatch startLatch = new CountDownLatch(1);
-        CountDownLatch stopLatch = new CountDownLatch(CAPACITY);
-        for (DeviceCommandExecutionToken token : tokens) {
-            deviceCommandExecutor.execute(new SignalSender(receiver, startLatch, stopLatch), token);
-        }
-
-        Runnable delay = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    // Delay the triggering or commands a little bit
-                    Thread.sleep(50);
-                    // Triggering the start latch, kicks the executing command(s)
-                    startLatch.countDown();
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
+        DeviceCommandExecutor deviceCommandExecutor = null;
+        try {
+            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer, CAPACITY, CAPACITY, THREAD_PRIORITY, ComServer.LogLevel.INFO, threadFactory, mock(ComServerDAO.class), mock(ThreadPrincipalService.class), userService);
+            deviceCommandExecutor.start();
+            List<DeviceCommandExecutionToken> tokens = deviceCommandExecutor.tryAcquireTokens(CAPACITY);
+            SignalReceiver receiver = mock(SignalReceiver.class);
+            final CountDownLatch startLatch = new CountDownLatch(1);
+            CountDownLatch stopLatch = new CountDownLatch(CAPACITY);
+            for (DeviceCommandExecutionToken token : tokens) {
+                deviceCommandExecutor.execute(new SignalSender(receiver, startLatch, stopLatch), token);
             }
-        };
 
-        realThreadFactory.newThread(delay).start();
+            Runnable delay = new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        // Delay the triggering or commands a little bit
+                        Thread.sleep(50);
+                        // Triggering the start latch, kicks the executing command(s)
+                        startLatch.countDown();
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+            };
 
-        // Business method
-        deviceCommandExecutor.shutdown();
+            realThreadFactory.newThread(delay).start();
 
-        // Asserts
-        assertThat(deviceCommandExecutor.getStatus()).isEqualTo(ServerProcessStatus.SHUTDOWN);
-        verify(receiver, times(CAPACITY)).receiveSignal();
+            // Business method
+            deviceCommandExecutor.shutdown();
+
+            // Asserts
+            assertThat(deviceCommandExecutor.getStatus()).isEqualTo(ServerProcessStatus.SHUTDOWN);
+            verify(receiver, times(CAPACITY)).receiveSignal();
+        }
+        finally {
+            shutdown(deviceCommandExecutor);
+        }
     }
 
     /**
@@ -598,88 +692,112 @@ public class DeviceCommandExecutorImplTest {
     public void testShutdownImmediateOnlyExecutesImmediateCommands() throws InterruptedException {
         TrackingThreadFactory threadFactory = new TrackingThreadFactory(new ComServerThreadFactory(this.comServer));
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
-        DeviceCommandExecutorImpl deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer, CAPACITY, 1, Thread.MIN_PRIORITY, ComServer.LogLevel.INFO, threadFactory, comServerDAO, mock(ThreadPrincipalService.class), userService);
-        deviceCommandExecutor.start();
-        List<DeviceCommandExecutionToken> setOfTokens = deviceCommandExecutor.tryAcquireTokens(3);
-        CountDownLatch startLatchForCommand1 = new CountDownLatch(1);
-        CountDownLatch startLatchForCommand2 = new CountDownLatch(10);  // Make sure not to coundDown on this to avoid that commands 2 and 3 kick off
-        CountDownLatch stopLatch = new CountDownLatch(1);   // 1 suffices as we only want to know when the first command completes
-        DeviceCommand command1 = spy(new LatchDrivenCommand(startLatchForCommand1, stopLatch));
-        DeviceCommand command2 = spy(new LatchDrivenCommand(startLatchForCommand2, stopLatch));
-        DeviceCommand command3 = spy(new LatchDrivenCommand(startLatchForCommand2, stopLatch));
-        deviceCommandExecutor.execute(command1, setOfTokens.get(0));
-        deviceCommandExecutor.execute(command2, setOfTokens.get(1));
-        deviceCommandExecutor.execute(command3, setOfTokens.get(2));
+        DeviceCommandExecutorImpl deviceCommandExecutor = null;
+        try {
+            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer, CAPACITY, 1, Thread.MIN_PRIORITY, ComServer.LogLevel.INFO, threadFactory, comServerDAO, mock(ThreadPrincipalService.class), userService);
+            deviceCommandExecutor.start();
+            List<DeviceCommandExecutionToken> setOfTokens = deviceCommandExecutor.tryAcquireTokens(3);
+            CountDownLatch startLatchForCommand1 = new CountDownLatch(1);
+            CountDownLatch startLatchForCommand2 = new CountDownLatch(10);  // Make sure not to coundDown on this to avoid that commands 2 and 3 kick off
+            CountDownLatch stopLatch = new CountDownLatch(1);   // 1 suffices as we only want to know when the first command completes
+            DeviceCommand command1 = spy(new LatchDrivenCommand(startLatchForCommand1, stopLatch));
+            DeviceCommand command2 = spy(new LatchDrivenCommand(startLatchForCommand2, stopLatch));
+            DeviceCommand command3 = spy(new LatchDrivenCommand(startLatchForCommand2, stopLatch));
+            deviceCommandExecutor.execute(command1, setOfTokens.get(0));
+            deviceCommandExecutor.execute(command2, setOfTokens.get(1));
+            deviceCommandExecutor.execute(command3, setOfTokens.get(2));
 
-        // Count down on the start latch to trigger the first command
-        startLatchForCommand1.countDown();
+            // Count down on the start latch to trigger the first command
+            startLatchForCommand1.countDown();
 
-        // Await on the stop latch to know when the first command completes
-        stopLatch.await();
+            // Await on the stop latch to know when the first command completes
+            stopLatch.await();
 
-        // Business method
-        deviceCommandExecutor.shutdownImmediate();
+            // Business method
+            deviceCommandExecutor.shutdownImmediate();
 
-        // Asserts
-        verify(command1).execute(comServerDAO);
-        verify(command3).executeDuringShutdown(comServerDAO);
+            // Asserts
+            verify(command1).execute(comServerDAO);
+            verify(command3).executeDuringShutdown(comServerDAO);
+        }
+        finally {
+            shutdown(deviceCommandExecutor);
+        }
     }
 
     @Test
     public void testChangeThreadPriority() {
         TrackingThreadFactory threadFactory = new TrackingThreadFactory(new ComServerThreadFactory(this.comServer));
         int threadPriority = Thread.MIN_PRIORITY;
-        DeviceCommandExecutorImpl deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer, CAPACITY, NUMBER_OF_THREADS, threadPriority, ComServer.LogLevel.INFO, threadFactory, mock(ComServerDAO.class), mock(ThreadPrincipalService.class), userService);
-        deviceCommandExecutor.start();
-        List<DeviceCommandExecutionToken> tokens = deviceCommandExecutor.tryAcquireTokens(1);
-        DeviceCommandExecutionToken token = tokens.get(0);
-        // Execute at least one DeviceCommand to create at least one Thread
-        SignalReceiver receiver = mock(SignalReceiver.class);
-        deviceCommandExecutor.execute(new SignalSender(receiver), token);
+        DeviceCommandExecutorImpl deviceCommandExecutor = null;
+        try {
+            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer, CAPACITY, NUMBER_OF_THREADS, threadPriority, ComServer.LogLevel.INFO, threadFactory, mock(ComServerDAO.class), mock(ThreadPrincipalService.class), userService);
+            deviceCommandExecutor.start();
+            List<DeviceCommandExecutionToken> tokens = deviceCommandExecutor.tryAcquireTokens(1);
+            DeviceCommandExecutionToken token = tokens.get(0);
+            // Execute at least one DeviceCommand to create at least one Thread
+            SignalReceiver receiver = mock(SignalReceiver.class);
+            deviceCommandExecutor.execute(new SignalSender(receiver), token);
 
-        int newThreadPriority = Thread.MAX_PRIORITY;
+            int newThreadPriority = Thread.MAX_PRIORITY;
 
-        // Business method
-        deviceCommandExecutor.changeThreadPriority(newThreadPriority);
+            // Business method
+            deviceCommandExecutor.changeThreadPriority(newThreadPriority);
 
-        // Asserts
-        assertThat(threadFactory.getThread(0).getPriority()).isEqualTo(newThreadPriority);
+            // Asserts
+            assertThat(threadFactory.getThread(0).getPriority()).isEqualTo(newThreadPriority);
+        }
+        finally {
+            shutdown(deviceCommandExecutor);
+        }
     }
 
     @Test
     public void testIncreaseQueueCapacity() {
         int threadPriority = Thread.MIN_PRIORITY;
         int initialCapacity = CAPACITY;
-        DeviceCommandExecutorImpl deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer, initialCapacity, NUMBER_OF_THREADS, threadPriority, ComServer.LogLevel.INFO, mock(ComServerDAO.class), mock(ThreadPrincipalService.class), userService);
-        deviceCommandExecutor.start();
-        deviceCommandExecutor.tryAcquireTokens(CAPACITY);
+        DeviceCommandExecutorImpl deviceCommandExecutor = null;
+        try {
+            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer, initialCapacity, NUMBER_OF_THREADS, threadPriority, ComServer.LogLevel.INFO, mock(ComServerDAO.class), mock(ThreadPrincipalService.class), userService);
+            deviceCommandExecutor.start();
+            deviceCommandExecutor.tryAcquireTokens(CAPACITY);
 
-        int changedCapacity = initialCapacity + 2;
+            int changedCapacity = initialCapacity + 2;
 
-        // Business method
-        deviceCommandExecutor.changeQueueCapacity(changedCapacity);
-        List<DeviceCommandExecutionToken> extraTokens = deviceCommandExecutor.tryAcquireTokens(2);
+            // Business method
+            deviceCommandExecutor.changeQueueCapacity(changedCapacity);
+            List<DeviceCommandExecutionToken> extraTokens = deviceCommandExecutor.tryAcquireTokens(2);
 
-        // Asserts
-        assertThat(extraTokens).hasSize(2);
+            // Asserts
+            assertThat(extraTokens).hasSize(2);
+        }
+        finally {
+            shutdown(deviceCommandExecutor);
+        }
     }
 
     @Test
     public void testReduceQueueCapacity() {
         int threadPriority = Thread.MIN_PRIORITY;
         int initialCapacity = CAPACITY;
-        DeviceCommandExecutorImpl deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer, initialCapacity, NUMBER_OF_THREADS, threadPriority, ComServer.LogLevel.INFO, mock(ComServerDAO.class), mock(ThreadPrincipalService.class), userService);
-        deviceCommandExecutor.start();
-        deviceCommandExecutor.tryAcquireTokens(CAPACITY - 2);
+        DeviceCommandExecutorImpl deviceCommandExecutor = null;
+        try {
+            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer, initialCapacity, NUMBER_OF_THREADS, threadPriority, ComServer.LogLevel.INFO, mock(ComServerDAO.class), mock(ThreadPrincipalService.class), userService);
+            deviceCommandExecutor.start();
+            deviceCommandExecutor.tryAcquireTokens(CAPACITY - 2);
 
-        int changedCapacity = initialCapacity - 2;
+            int changedCapacity = initialCapacity - 2;
 
-        // Business method
-        deviceCommandExecutor.changeQueueCapacity(changedCapacity);
-        List<DeviceCommandExecutionToken> extraTokens = deviceCommandExecutor.tryAcquireTokens(1);
+            // Business method
+            deviceCommandExecutor.changeQueueCapacity(changedCapacity);
+            List<DeviceCommandExecutionToken> extraTokens = deviceCommandExecutor.tryAcquireTokens(1);
 
-        // Asserts
-        assertThat(extraTokens).isEmpty();
+            // Asserts
+            assertThat(extraTokens).isEmpty();
+        }
+        finally {
+            shutdown(deviceCommandExecutor);
+        }
     }
 
     @Test
@@ -687,33 +805,39 @@ public class DeviceCommandExecutorImplTest {
         TrackingThreadFactory threadFactory = new TrackingThreadFactory(new ComServerThreadFactory(this.comServer));
         int threadPriority = Thread.MIN_PRIORITY;
         int initialNumberOfThreads = NUMBER_OF_THREADS;
-        DeviceCommandExecutorImpl deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer, CAPACITY, initialNumberOfThreads, threadPriority, ComServer.LogLevel.INFO, threadFactory, mock(ComServerDAO.class), mock(ThreadPrincipalService.class), userService);
-        deviceCommandExecutor.start();
-        List<DeviceCommandExecutionToken> firstSetOfTokens = deviceCommandExecutor.tryAcquireTokens(CAPACITY);
-        CountDownLatch firstStartLatch = new CountDownLatch(1);
-        CountDownLatch firstStopLatch = new CountDownLatch(CAPACITY);
-        for (DeviceCommandExecutionToken token : firstSetOfTokens) {
-            deviceCommandExecutor.execute(new LatchDrivenCommand(firstStartLatch, firstStopLatch), token);
+        DeviceCommandExecutorImpl deviceCommandExecutor = null;
+        try {
+            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer, CAPACITY, initialNumberOfThreads, threadPriority, ComServer.LogLevel.INFO, threadFactory, mock(ComServerDAO.class), mock(ThreadPrincipalService.class), userService);
+            deviceCommandExecutor.start();
+            List<DeviceCommandExecutionToken> firstSetOfTokens = deviceCommandExecutor.tryAcquireTokens(CAPACITY);
+            CountDownLatch firstStartLatch = new CountDownLatch(1);
+            CountDownLatch firstStopLatch = new CountDownLatch(CAPACITY);
+            for (DeviceCommandExecutionToken token : firstSetOfTokens) {
+                deviceCommandExecutor.execute(new LatchDrivenCommand(firstStartLatch, firstStopLatch), token);
+            }
+
+            int changedNumberOfThreads = initialNumberOfThreads + 2;
+
+            // Count down on the start latch to trigger the commands
+            firstStartLatch.countDown();
+
+            // Business method
+            deviceCommandExecutor.changeNumberOfThreads(changedNumberOfThreads);
+
+            // To be able to assert that more threads are created, we will need to execute more work.
+            List<DeviceCommandExecutionToken> secondSetOfTokens = deviceCommandExecutor.tryAcquireTokens(CAPACITY);
+            CountDownLatch secondStartLatch = new CountDownLatch(1);
+            CountDownLatch secondStopLatch = new CountDownLatch(CAPACITY);
+            for (DeviceCommandExecutionToken token : secondSetOfTokens) {
+                deviceCommandExecutor.execute(new LatchDrivenCommand(secondStartLatch, secondStopLatch), token);
+            }
+
+            // Asserts
+            assertThat(threadFactory.getThreads()).hasSize(changedNumberOfThreads);
         }
-
-        int changedNumberOfThreads = initialNumberOfThreads + 2;
-
-        // Count down on the start latch to trigger the commands
-        firstStartLatch.countDown();
-
-        // Business method
-        deviceCommandExecutor.changeNumberOfThreads(changedNumberOfThreads);
-
-        // To be able to assert that more threads are created, we will need to execute more work.
-        List<DeviceCommandExecutionToken> secondSetOfTokens = deviceCommandExecutor.tryAcquireTokens(CAPACITY);
-        CountDownLatch secondStartLatch = new CountDownLatch(1);
-        CountDownLatch secondStopLatch = new CountDownLatch(CAPACITY);
-        for (DeviceCommandExecutionToken token : secondSetOfTokens) {
-            deviceCommandExecutor.execute(new LatchDrivenCommand(secondStartLatch, secondStopLatch), token);
+        finally {
+            shutdown(deviceCommandExecutor);
         }
-
-        // Asserts
-        assertThat(threadFactory.getThreads()).hasSize(changedNumberOfThreads);
     }
 
     @Test
@@ -721,34 +845,46 @@ public class DeviceCommandExecutorImplTest {
         TrackingThreadFactory threadFactory = new TrackingThreadFactory(new ComServerThreadFactory(this.comServer));
         int threadPriority = Thread.MIN_PRIORITY;
         int initialNumberOfThreads = 5;
-        DeviceCommandExecutorImpl deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer, CAPACITY, initialNumberOfThreads, threadPriority, ComServer.LogLevel.INFO, threadFactory, mock(ComServerDAO.class), mock(ThreadPrincipalService.class), userService);
-        deviceCommandExecutor.start();
-        List<DeviceCommandExecutionToken> firstSetOfTokens = deviceCommandExecutor.tryAcquireTokens(CAPACITY);
-        CountDownLatch firstStartLatch = new CountDownLatch(1);
-        CountDownLatch firstStopLatch = new CountDownLatch(CAPACITY);
-        for (DeviceCommandExecutionToken token : firstSetOfTokens) {
-            deviceCommandExecutor.execute(new LatchDrivenCommand(firstStartLatch, firstStopLatch), token);
+        DeviceCommandExecutorImpl deviceCommandExecutor = null;
+        try {
+            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer, CAPACITY, initialNumberOfThreads, threadPriority, ComServer.LogLevel.INFO, threadFactory, mock(ComServerDAO.class), mock(ThreadPrincipalService.class), userService);
+            deviceCommandExecutor.start();
+            List<DeviceCommandExecutionToken> firstSetOfTokens = deviceCommandExecutor.tryAcquireTokens(CAPACITY);
+            CountDownLatch firstStartLatch = new CountDownLatch(1);
+            CountDownLatch firstStopLatch = new CountDownLatch(CAPACITY);
+            for (DeviceCommandExecutionToken token : firstSetOfTokens) {
+                deviceCommandExecutor.execute(new LatchDrivenCommand(firstStartLatch, firstStopLatch), token);
+            }
+
+            int changedNumberOfThreads = 2;
+
+            // Count down on the start latch to trigger the commands
+            firstStartLatch.countDown();
+
+            // Business method
+            deviceCommandExecutor.changeNumberOfThreads(changedNumberOfThreads);
+
+            // To be able to assert that more threads are created, we will need to execute more work.
+            threadFactory.reset();  // Forget about the old threads
+            List<DeviceCommandExecutionToken> secondSetOfTokens = deviceCommandExecutor.tryAcquireTokens(CAPACITY);
+            CountDownLatch secondStartLatch = new CountDownLatch(1);
+            CountDownLatch secondStopLatch = new CountDownLatch(CAPACITY);
+            for (DeviceCommandExecutionToken token : secondSetOfTokens) {
+                deviceCommandExecutor.execute(new LatchDrivenCommand(secondStartLatch, secondStopLatch), token);
+            }
+
+            // Asserts that no new thread has been created
+            assertThat(threadFactory.getThreads()).isEmpty();
         }
-
-        int changedNumberOfThreads = 2;
-
-        // Count down on the start latch to trigger the commands
-        firstStartLatch.countDown();
-
-        // Business method
-        deviceCommandExecutor.changeNumberOfThreads(changedNumberOfThreads);
-
-        // To be able to assert that more threads are created, we will need to execute more work.
-        threadFactory.reset();  // Forget about the old threads
-        List<DeviceCommandExecutionToken> secondSetOfTokens = deviceCommandExecutor.tryAcquireTokens(CAPACITY);
-        CountDownLatch secondStartLatch = new CountDownLatch(1);
-        CountDownLatch secondStopLatch = new CountDownLatch(CAPACITY);
-        for (DeviceCommandExecutionToken token : secondSetOfTokens) {
-            deviceCommandExecutor.execute(new LatchDrivenCommand(secondStartLatch, secondStopLatch), token);
+        finally {
+            shutdown(deviceCommandExecutor);
         }
+    }
 
-        // Asserts that no new thread has been created
-        assertThat(threadFactory.getThreads()).isEmpty();
+    private void shutdown(DeviceCommandExecutor deviceCommandExecutor) {
+        if (deviceCommandExecutor != null) {
+            deviceCommandExecutor.shutdownImmediate();
+        }
     }
 
     /**
