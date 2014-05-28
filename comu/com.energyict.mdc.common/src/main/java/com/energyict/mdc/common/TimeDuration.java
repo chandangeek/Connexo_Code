@@ -220,6 +220,7 @@ public class TimeDuration implements Comparable, Serializable {
                 this.timeUnitCode = YEARS;
                 break;
             }
+//            default: throw new InvalidValueException("UnknownTimeUnit", "Unknown time unit", "timeUnit", timeUnitAsString);
         }
     }
 
