@@ -128,17 +128,17 @@ public class MultiThreadedScheduledComPortTest {
     @Mock
     private OutboundComPortPool comPortPool;
     @Mock
-    private OutboundConnectionTask simultaneousConnectionTask1;
+    private ScheduledConnectionTask simultaneousConnectionTask1;
     @Mock
-    private OutboundConnectionTask simultaneousConnectionTask2;
+    private ScheduledConnectionTask simultaneousConnectionTask2;
     @Mock
     private ConnectionType serialConnectionType;
     @Mock
-    private OutboundConnectionTask serialConnectionTask1;
+    private ScheduledConnectionTask serialConnectionTask1;
     @Mock
-    private OutboundConnectionTask serialConnectionTask2;
+    private ScheduledConnectionTask serialConnectionTask2;
     @Mock
-    private OutboundConnectionTask serialConnectionTask3;
+    private ScheduledConnectionTask serialConnectionTask3;
     @Mock
     private ConnectionMethod connectionMethod;
     @Mock
@@ -840,7 +840,7 @@ public class MultiThreadedScheduledComPortTest {
     }
 
     private List<ComJob> toComJob (List<ServerComTaskExecution> serialComTasks) {
-        OutboundConnectionTask connectionTask = (OutboundConnectionTask) serialComTasks.get(0).getConnectionTask();
+        ScheduledConnectionTask connectionTask = (ScheduledConnectionTask) serialComTasks.get(0).getConnectionTask();
         ComTaskExecutionGroup group = new ComTaskExecutionGroup(connectionTask);
         for (ServerComTaskExecution comTask : serialComTasks) {
             group.add(comTask);

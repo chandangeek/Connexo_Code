@@ -13,7 +13,7 @@ import com.energyict.mdc.engine.model.ComServer;
  */
 public class SingleThreadedScheduledJobExecutor extends ScheduledJobExecutor {
 
-    public SingleThreadedScheduledJobExecutor(TransactionService transactionExecutor, ComServer.LogLevel logLevel, DeviceCommandExecutor deviceCommandExecutor) {
-        super(transactionExecutor, logLevel, deviceCommandExecutor);
+    public SingleThreadedScheduledJobExecutor(TransactionService transactionService, ComServer.LogLevel logLevel, DeviceCommandExecutor deviceCommandExecutor) {
+        super(transactionService, logLevel, deviceCommandExecutor);
     }
 }

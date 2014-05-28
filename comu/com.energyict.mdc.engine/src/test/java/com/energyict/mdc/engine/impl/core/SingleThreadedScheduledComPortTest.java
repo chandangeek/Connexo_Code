@@ -11,9 +11,11 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.ServerComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.FakeServiceProvider;
+import com.energyict.mdc.engine.FakeTransactionService;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
@@ -21,6 +23,7 @@ import com.energyict.mdc.engine.impl.core.devices.DeviceCommandExecutorImpl;
 import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundCapableComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
@@ -35,6 +38,8 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.history.ComSessionBuilder;
+import com.energyict.mdc.tasks.history.TaskHistoryService;
 
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
@@ -107,9 +112,9 @@ public class SingleThreadedScheduledComPortTest {
     @Mock
     private OutboundComPortPool comPortPool;
     @Mock
-    private OutboundConnectionTask simultaneousConnectionTask1;
+    private ScheduledConnectionTask simultaneousConnectionTask1;
     @Mock
-    private OutboundConnectionTask simultaneousConnectionTask2;
+    private ScheduledConnectionTask simultaneousConnectionTask2;
     @Mock
     private ConnectionType serialConnectionType;
     @Mock
@@ -146,6 +151,8 @@ public class SingleThreadedScheduledComPortTest {
     private IssueService issueService;
     @Mock
     private Clock clock;
+    @Mock
+    private TaskHistoryService taskHistoryService;
 
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
     private ComPortRelatedComChannel comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class));
@@ -192,9 +199,19 @@ public class SingleThreadedScheduledComPortTest {
 
     @Before
     public void setupServiceProvider () {
+        ServiceProvider.instance.set(this.serviceProvider);
         this.serviceProvider.setIssueService(this.issueService);
         this.serviceProvider.setUserService(this.userService);
         this.serviceProvider.setClock(this.clock);
+        this.serviceProvider.setTransactionService(new FakeTransactionService());
+        this.serviceProvider.setTaskHistoryService(this.taskHistoryService);
+        when(this.taskHistoryService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Date.class))).
+            thenReturn(mock(ComSessionBuilder.class));
+    }
+
+    @After
+    public void resetServiceProvider () {
+        ServiceProvider.instance.set(null);
     }
 
     @Before
@@ -692,7 +709,7 @@ public class SingleThreadedScheduledComPortTest {
     }
 
     private List<ComJob> toComJob (List<ServerComTaskExecution> serialComTasks) {
-        OutboundConnectionTask connectionTask = (OutboundConnectionTask) serialComTasks.get(0).getConnectionTask();
+        ScheduledConnectionTask connectionTask = (ScheduledConnectionTask) serialComTasks.get(0).getConnectionTask();
         ComTaskExecutionGroup group = new ComTaskExecutionGroup(connectionTask);
         for (ServerComTaskExecution comTask : serialComTasks) {
             group.add(comTask);
