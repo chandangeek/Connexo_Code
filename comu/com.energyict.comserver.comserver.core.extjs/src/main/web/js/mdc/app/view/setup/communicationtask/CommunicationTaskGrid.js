@@ -13,18 +13,6 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskGrid', {
         var me = this;
         me.columns = [
             {
-                header: Uni.I18n.translate('communicationtasks.task.active', 'MDC', 'Active'),
-                dataIndex: 'suspended',
-                renderer: function (value) {
-                    if (value === true) {
-                        return Uni.I18n.translate('general.no', 'MDC', 'No');
-                    }
-                    return Uni.I18n.translate('general.yes', 'MDC', 'Yes');
-                },
-                fixed: true,
-                flex: 3
-            },
-            {
                 header: Uni.I18n.translate('communicationtasks.task.name', 'MDC', 'Communication task'),
                 dataIndex: 'comTask',
                 renderer: function (value) {
@@ -38,6 +26,18 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskGrid', {
                 dataIndex: 'securityPropertySet',
                 renderer: function (value) {
                     return value.name;
+                },
+                fixed: true,
+                flex: 3
+            },
+            {
+                header: Uni.I18n.translate('communicationtasks.task.status', 'MDC', 'Status'),
+                dataIndex: 'suspended',
+                renderer: function (value) {
+                    if (value === true) {
+                        return Uni.I18n.translate('communicationtasks.task.inactive', 'MDC', 'Inactive');
+                    }
+                    return Uni.I18n.translate('communicationtasks.task.active', 'MDC', 'Active');
                 },
                 fixed: true,
                 flex: 3

@@ -81,6 +81,17 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskPreview', {
                     items: [
                         {
                             xtype: 'displayfield',
+                            fieldLabel: Uni.I18n.translate('communicationtasks.task.status', 'MDC', 'Status'),
+                            name: 'suspended',
+                            renderer: function (value) {
+                                if (value === true) {
+                                    return Uni.I18n.translate('communicationtasks.task.inactive', 'MDC', 'Inactive');
+                                }
+                                return Uni.I18n.translate('communicationtasks.task.active', 'MDC', 'Active');
+                            }
+                        },
+                        {
+                            xtype: 'displayfield',
                             fieldLabel: Uni.I18n.translate('communicationtasks.task.priority', 'MDC', 'Urgency'),
                             name: 'priority'
                         },
@@ -88,17 +99,6 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskPreview', {
                             xtype: 'displayfield',
                             fieldLabel: Uni.I18n.translate('communicationtasks.task.ignoreNextExecutionSpecsForInbound', 'MDC', 'Always execute for inbound'),
                             name: 'ignoreNextExecutionSpecsForInbound',
-                            renderer: function (value) {
-                                if (value === true) {
-                                    return Uni.I18n.translate('general.no', 'MDC', 'No');
-                                }
-                                return Uni.I18n.translate('general.yes', 'MDC', 'Yes');
-                            }
-                        },
-                        {
-                            xtype: 'displayfield',
-                            fieldLabel: Uni.I18n.translate('communicationtasks.task.isactive', 'MDC', 'Is active'),
-                            name: 'suspended',
                             renderer: function (value) {
                                 if (value === true) {
                                     return Uni.I18n.translate('general.no', 'MDC', 'No');
