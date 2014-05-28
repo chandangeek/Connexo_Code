@@ -71,7 +71,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
 
     showCommunicationSchedules: function(){
         var widget = Ext.widget('communicationSchedulesSetup');
-        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
+        this.getApplication().fireEvent('changecontentevent', widget);
         this.overviewBreadCrumb();
     },
 
@@ -90,7 +90,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
             edit: id !== undefined,
             returnLink: me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens()
         });
-        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
+        this.getApplication().fireEvent('changecontentevent', widget);
         if(id === undefined){
             this.record = Ext.create(Mdc.model.CommunicationSchedule);
             widget.down('#communicationScheduleEditCreateTitle').update('<h1>' + Uni.I18n.translate('communicationschedule.addCommunicationSchedule', 'MDC', 'Add communication schedule')  + '</h1>');

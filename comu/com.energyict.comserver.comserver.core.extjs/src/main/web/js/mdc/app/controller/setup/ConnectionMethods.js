@@ -96,7 +96,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                         var deviceTypeName = deviceType.get('name');
                         widget.down('#connectionMethodSetupPanel').setTitle(Uni.I18n.translate('connectionmethod.connectionmethods', 'MDC', 'Connection methods'));
                         var deviceConfigName = deviceConfig.get('name');
-                        me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+                        me.getApplication().fireEvent('changecontentevent', widget);
                         me.overviewBreadCrumbs(deviceTypeId, deviceConfigurationId, deviceTypeName, deviceConfigName);
                     }
                 });
@@ -155,7 +155,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
             connectionStrategies: connectionStrategiesStore,
             direction: direction
         });
-        me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+        me.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
@@ -317,7 +317,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                     direction: connectionMethod.get('direction')
                 });
 
-                me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+                me.getApplication().fireEvent('changecontentevent', widget);
                 widget.setLoading(true);
 
                 Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {

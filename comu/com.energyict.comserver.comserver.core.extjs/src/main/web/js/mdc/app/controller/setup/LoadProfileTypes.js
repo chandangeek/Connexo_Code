@@ -470,7 +470,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
     showLoadProfileTypes: function () {
         var widget = Ext.widget('loadProfileTypeSetup', { intervalStore: this.intervalStore });
         widget.down('#loadProfileTypesTitle').html = '<h1>' + Uni.I18n.translate('loadprofiletype.loadprofiletypes', 'MDC', 'Load profile types') + '</h1>';
-        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
+        this.getApplication().fireEvent('changecontentevent', widget);
         this.overviewBreadCrumbs(null, null);
         this.selectedMeasurementTypesStore.removeAll();
         this.temporallyFormValues = null;
@@ -480,7 +480,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
     showLoadProfileTypesCreateView: function () {
         var widget = Ext.widget('loadProfileTypeForm', { loadProfileTypeHeader: 'Add load profile type', loadProfileTypeAction: 'Add', loadProfileTypeActionHref: 'create'}),
             intervalCombobox = widget.down('combobox[name=timeDuration]');
-        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
+        this.getApplication().fireEvent('changecontentevent', widget);
         this.breadcrumbActionHref = 'create';
         this.loadProfileAction = 'Add load profile type';
         this.overviewBreadCrumbs(this.breadcrumbActionHref, this.loadProfileAction, null);
@@ -501,7 +501,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                 var loadProfileType = Ext.JSON.decode(response.responseText),
                     widget = Ext.widget('loadProfileTypeForm', { loadProfileTypeHeader: 'Edit load profile type', loadProfileTypeAction: 'Save', loadProfileTypeActionHref: me.loadProfileTypeId + '/edit' }),
                     intervalCombobox = widget.down('combobox[name=timeDuration]');
-                me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+                me.getApplication().fireEvent('changecontentevent', widget);
                 widget.down('textfield[name=name]').setValue(loadProfileType.name);
                 widget.down('textfield[name=obisCode]').setValue(loadProfileType.obisCode);
                 intervalCombobox.store = me.intervalStore;
@@ -521,7 +521,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             form = this.getLoadTypeForm();
         if (!Ext.isEmpty(form)) {
             this.saveTemporallyValues(form);
-            this.getApplication().getController('Mdc.controller.Main').showContent(widget);
+            this.getApplication().fireEvent('changecontentevent', widget);
             this.overviewBreadCrumbs(this.breadcrumbActionHref, this.loadProfileAction, 'Add measurement types');
         }
     },

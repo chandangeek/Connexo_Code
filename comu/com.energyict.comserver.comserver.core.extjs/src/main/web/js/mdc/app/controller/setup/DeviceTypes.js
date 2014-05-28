@@ -121,7 +121,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
 
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceType, {
             success: function (deviceType) {
-                me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+                me.getApplication().fireEvent('changecontentevent', widget);
                 var deviceTypeId = deviceType.get('id');
                 me.detailBreadCrumb(deviceType.get('name'), deviceTypeId);
 
@@ -200,7 +200,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             returnLink: me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens(),
             deviceCommunicationProtocols: protocolStore
         });
-        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
+        this.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);
         var me = this;
 
@@ -252,7 +252,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             deviceCommunicationProtocols: protocolStore
         });
         var me = this;
-        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
+        this.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);
         protocolStore.load({
             callback: function (store) {
@@ -412,7 +412,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 callback: function () {
                     var self = this,
                         widget = Ext.widget('device-type-logbooks', {deviceTypeId: deviceTypeId});
-                    me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+                    me.getApplication().fireEvent('changecontentevent', widget);
                     widget.setLoading(true);
                     model.load(deviceTypeId, {
                         success: function (deviceType) {
@@ -473,7 +473,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 callback: function () {
                     var self = this,
                         widget = Ext.widget('add-logbook-types', {deviceTypeId: deviceTypeId});
-                    me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+                    me.getApplication().fireEvent('changecontentevent', widget);
                     widget.setLoading(true);
                     model.load(deviceTypeId, {
                         success: function (deviceType) {

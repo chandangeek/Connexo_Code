@@ -88,7 +88,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
         var widget = Ext.widget('deviceCommunicationProtocolEdit', {
             edit: true
         });
-        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
+        this.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);
         var me = this;
         Ext.ModelManager.getModel('Mdc.model.DeviceCommunicationProtocol').load(deviceCommunicationProtocol, {

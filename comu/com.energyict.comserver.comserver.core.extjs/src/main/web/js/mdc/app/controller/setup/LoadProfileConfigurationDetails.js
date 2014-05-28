@@ -250,7 +250,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                 widget.down('#loadProfileConfigurationDetailChannelConfigurationTitle').html = '<h3>' + Uni.I18n.translate('loadprofileconfiguration.loadprofilechannelconfiguation', 'MDC', 'Channel configurations') + '</h3>';
                                 me.deviceTypeName = deviceType.get('name');
                                 me.deviceConfigName = deviceConfig.get('name');
-                                me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+                                me.getApplication().fireEvent('changecontentevent', widget);
                                 var detailedForm = me.getLoadConfigurationDetailForm();
                                 detailedForm.getForm().setValues(loadProfileConfiguration);
                                 detailedForm.down('[name=deviceConfigurationName]').setValue(Ext.String.format('<a href="#/administration/devicetypes/{0}/deviceconfigurations/{1}">{2}</a>', deviceTypeId, deviceConfigurationId, me.deviceConfigName));
@@ -292,7 +292,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                 unitOfMeasureCombobox.store = me.phenomenasStore;
                                 me.deviceTypeName = deviceType.get('name');
                                 me.deviceConfigName = deviceConfig.get('name');
-                                me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+                                me.getApplication().fireEvent('changecontentevent', widget);
 //                                var detailedForm = me.getLoadConfigurationDetailForm();
 //                                detailedForm.getForm().setValues(loadProfileConfiguration);
 //                                detailedForm.down('[name=deviceConfigurationName]').setValue(Ext.String.format('<a href="#/administration/devicetypes/{0}/deviceconfigurations/{1}">{2}</a>', deviceTypeId, deviceConfigurationId, me.deviceConfigName));

@@ -122,7 +122,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                     success: function (deviceConfig) {
                         var deviceTypeName = deviceType.get('name');
                         var deviceConfigName = deviceConfig.get('name');
-                        me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+                        me.getApplication().fireEvent('changecontentevent', widget);
                         me.overviewBreadCrumbs(deviceTypeId, deviceConfigId, deviceTypeName, deviceConfigName);
                     }
                 });
@@ -160,7 +160,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                                     registerTypesOfDeviceType: registerTypesOfDevicetypeStore,
                                     returnLink: '#/administration/devicetypes/' + deviceTypeId + '/deviceconfigurations/' + deviceConfigId + '/registerconfigurations'
                                 });
-                                me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+                                me.getApplication().fireEvent('changecontentevent', widget);
                                 me.getRegisterConfigEditForm().setTitle(Uni.I18n.translate('registerConfigs.createRegisterConfig', 'MDC', 'Create register configuration'));
                                 widget.down('#editNumberOfDigitsField').setValue(8);
                                 widget.down('#editNumberOfFractionDigitsField').setValue(0);
@@ -405,7 +405,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                     registerTypesOfDeviceType: registerTypesOfDevicetypeStore,
                     returnLink: me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens()
                 });
-                me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+                me.getApplication().fireEvent('changecontentevent', widget);
                 widget.setLoading(true);
                 var model = Ext.ModelManager.getModel('Mdc.model.RegisterConfiguration');
                 model.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigurationId});

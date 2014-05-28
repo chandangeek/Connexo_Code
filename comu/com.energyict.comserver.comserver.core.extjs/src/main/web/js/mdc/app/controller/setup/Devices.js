@@ -35,7 +35,7 @@ Ext.define('Mdc.controller.setup.Devices', {
         Ext.ModelManager.getModel('Mdc.model.Device').load(id, {
             success: function (device) {
                 var widget = Ext.widget('deviceSetup', {deviceId: id, mRID: device.get('mRID')});
-                me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+                me.getApplication().fireEvent('changecontentevent', widget);
                 me.getDeviceSetupPanel().setTitle(device.get('mRID'));
                 me.getDeviceGeneralInformationDeviceTypeLink().getEl().set({href: '#/administration/devicetypes/' + device.get('deviceTypeId')});
                 me.getDeviceGeneralInformationDeviceTypeLink().getEl().setHTML(device.get('deviceTypeName'));

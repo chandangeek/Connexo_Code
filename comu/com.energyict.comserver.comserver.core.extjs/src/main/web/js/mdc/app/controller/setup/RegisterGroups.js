@@ -86,7 +86,8 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
 
     showRegisterGroups: function (grid, record) {
         var widget = Ext.widget('registerGroupSetup');
-        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
+        this.getApplication().fireEvent('changecontentevent', widget);
+        this.getApplication().fireEvent('changecontentevent', widget);
     },
 
     onStoreLoad: function () {
@@ -179,7 +180,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
             }
         });
 
-        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
+        this.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);
     },
 
@@ -218,7 +219,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
             }
         });
 
-        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
+        this.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);
         widget.hide();
     },

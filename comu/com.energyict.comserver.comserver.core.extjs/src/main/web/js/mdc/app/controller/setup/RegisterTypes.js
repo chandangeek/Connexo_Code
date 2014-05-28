@@ -153,7 +153,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                 me.getRegisterTypePreview().setTitle(registerType.get('name') + ' ' + Uni.I18n.translate('general.overview', 'MDC', 'Overview'));
             }
         });
-        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
+        this.getApplication().fireEvent('changecontentevent', widget);
     },
 
     createRegisterTypeHistory: function () {
@@ -223,7 +223,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             unitOfMeasure: unitOfMeasureStore,
             timeOfUse: timeOfUseStore
         });
-        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
+        this.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);
         var me = this;
         Ext.ModelManager.getModel('Mdc.model.RegisterType').load(registerMapping, {
@@ -263,7 +263,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
 
     showRegisterTypes: function () {
         var widget = Ext.widget('registerTypeSetup');
-        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
+        this.getApplication().fireEvent('changecontentevent', widget);
     },
 
     showRegisterTypeCreateView: function () {
@@ -276,7 +276,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             timeOfUse: timeOfUseStore
         });
         var me = this;
-        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
+        this.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);
 
         timeOfUseStore.load({
