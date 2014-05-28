@@ -165,5 +165,5 @@ Ext.define('Isu.controller.Main', {
 
         this.setNavigationController(navigationController);
         this.setConfigurationController(configurationController);
-    },
+    }
 });
