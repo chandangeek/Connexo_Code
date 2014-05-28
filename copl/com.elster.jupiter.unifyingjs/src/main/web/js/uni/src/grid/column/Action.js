@@ -20,6 +20,9 @@ Ext.define('Uni.grid.column.Action', {
         var me = this,
             cfg = Ext.apply({}, config);
 
+        // reset the items for new menu instance.
+        me.menu.items = [];
+
         // workaround to work with menu instance
         if (_.isString(cfg.items)) {
             var menu = Ext.ClassManager.get(cfg.items);
