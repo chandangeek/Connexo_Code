@@ -11,12 +11,13 @@ public class IssueCommentInfo {
     private long version;
 
     public IssueCommentInfo(IssueComment issueComment) {
-        this.id = issueComment.getId();
-        this.comment = issueComment.getComment();
-        this.creationDate = issueComment.getCreateTime().getTime();
-        this.version = issueComment.getVersion();
-        this.author = new UserInfo(issueComment.getUser());
-
+        if (issueComment != null) {
+            this.id = issueComment.getId();
+            this.comment = issueComment.getComment();
+            this.creationDate = issueComment.getCreateTime().getTime();
+            this.version = issueComment.getVersion();
+            this.author = new UserInfo(issueComment.getUser());
+        }
     }
 
     public long getVersion() {

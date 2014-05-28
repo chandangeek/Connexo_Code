@@ -13,7 +13,10 @@ public enum MessageSeeds implements MessageSeed {
     ISSUE_ASSIGNEE_ME (0001, "IssueAssigneeMe", "Me", Level.SEVERE),
     ISSUE_ASSIGNEE_UNASSIGNED (0002, "IssueAssigneeUnassigned", "Unassigned", Level.SEVERE),
     ISSUE_DOES_NOT_EXIST (0003, "IssueDoesNotExist", "Issue doesn't exist", Level.SEVERE),
-    ISSUE_WAS_ALREADY_CHANGED (0004, "IssueWasAlreadyChanged", "Issue has been already changed", Level.SEVERE)
+    ISSUE_WAS_ALREADY_CHANGED (0004, "IssueWasAlreadyChanged", "Issue has been already changed", Level.SEVERE),
+    ISSUE_ACTION_CLASS_LOAD_FAIL(0005, "IssueActionClassLoadFail", "Unable to load Action class \"{0}\" for \"{1}\" action type", Level.SEVERE),
+    ISSUE_ACTION_PHASE_CREATE(0006, "IssueActionPhaseCreation", "Issue creation", Level.INFO),
+    ISSUE_ACTION_PHASE_OVERDUE(0007, "IssueActionPhaseOverdue", "Issue overdue", Level.INFO)
     ;
 
     private final int number;
@@ -54,15 +57,23 @@ public enum MessageSeeds implements MessageSeed {
     }
 
     public String getFormated(Object... args){
-        return MessageSeeds.getFormated(this.getDefaultFormat(), args);
-    }
-
-    public static String getFormated(String text, Object... args){
-        return MessageFormat.format(text, args);
+        return MessageFormat.format(this.getDefaultFormat(), args);
     }
 
     public static String getString(MessageSeed messageSeed, Thesaurus thesaurus, Object... args){
         String text = thesaurus.getString(messageSeed.getKey(), messageSeed.getDefaultFormat());
-        return getFormated(text, args);
+        return MessageFormat.format(text, args);
+    }
+
+
+    public static MessageSeeds getByKey(String key) {
+        if (key != null) {
+            for (MessageSeeds column : MessageSeeds.values()) {
+                if (column.getKey().equals(key)) {
+                    return column;
+                }
+            }
+        }
+        return null;
     }
 }

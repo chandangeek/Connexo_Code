@@ -3,19 +3,14 @@ package com.elster.jupiter.issue.rest;
 
 import com.elster.jupiter.issue.rest.i18n.TranslationInstaller;
 import com.elster.jupiter.issue.rest.resource.*;
-import com.elster.jupiter.issue.share.service.IssueAssignmentService;
-import com.elster.jupiter.issue.share.service.IssueCreationService;
-import com.elster.jupiter.issue.share.service.IssueHelpService;
-import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.issue.rest.response.cep.CreationRuleValidationExceptionMapper;
+import com.elster.jupiter.issue.share.service.*;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.rest.util.BinderProvider;
-import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
-import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
-import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.rest.util.*;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.google.common.collect.ImmutableSet;
@@ -38,6 +33,7 @@ public class IssueApplication extends Application implements BinderProvider, Ins
     private volatile UserService userService;
     private volatile IssueService issueService;
     private volatile IssueCreationService issueCreationService;
+    private volatile IssueActionService issueActionService;
     private volatile IssueAssignmentService issueAssignmentService;
     private volatile IssueHelpService issueHelpService;
     private volatile MeteringService meteringService;
@@ -53,11 +49,13 @@ public class IssueApplication extends Application implements BinderProvider, Ins
                 bind(issueHelpService).to(IssueHelpService.class);
                 bind(issueAssignmentService).to(IssueAssignmentService.class);
                 bind(issueCreationService).to(IssueCreationService.class);
+                bind(issueActionService).to(IssueActionService.class);
                 bind(userService).to(UserService.class);
                 bind(transactionService).to(TransactionService.class);
                 bind(restQueryService).to(RestQueryService.class);
                 bind(meteringService).to(MeteringService.class);
                 bind(nlsService).to(NlsService.class);
+                bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
                 bind(thesaurus).to(Thesaurus.class);
             }
         };
@@ -77,7 +75,8 @@ public class IssueApplication extends Application implements BinderProvider, Ins
                 IssueTypeResource.class,
                 ActionResource.class,
                 ConstraintViolationExceptionMapper.class,
-                LocalizedExceptionMapper.class);
+                LocalizedExceptionMapper.class,
+                CreationRuleValidationExceptionMapper.class);
     }
 
     @Activate
@@ -112,6 +111,10 @@ public class IssueApplication extends Application implements BinderProvider, Ins
     @Reference
     public void setIssueCreationService(IssueCreationService issueCreationService) {
         this.issueCreationService = issueCreationService;
+    }
+    @Reference
+    public void setIssueActionService(IssueActionService issueActionService) {
+        this.issueActionService = issueActionService;
     }
     @Reference
     public void setIssueHelpService(IssueHelpService issueHelpService) {

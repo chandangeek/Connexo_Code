@@ -4,6 +4,7 @@ public final class RequestHelper {
     private RequestHelper(){}
 
     public static final String ID = "id";
+    public static final String KEY = "key";
     public static final String ISSUE_TYPE = "issueType";
     public static final String LIKE = "like";
     public static final String START = "start";

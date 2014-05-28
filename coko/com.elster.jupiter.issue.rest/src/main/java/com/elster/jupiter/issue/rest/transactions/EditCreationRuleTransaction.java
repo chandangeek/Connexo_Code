@@ -1,28 +1,32 @@
 package com.elster.jupiter.issue.rest.transactions;
 
+import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionInfo;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleInfo;
 import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
-import com.elster.jupiter.issue.share.cep.CreationRuleTemplateParameter;
-import com.elster.jupiter.issue.share.entity.CreationRule;
-import com.elster.jupiter.issue.share.entity.DueInType;
-import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.cep.ParameterDefinition;
+import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
+import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.transaction.Transaction;
+import com.google.common.base.Optional;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import java.util.List;
 import java.util.Map;
 
 public class EditCreationRuleTransaction implements Transaction<CreationRule> {
 
     private IssueService issueService;
     private IssueCreationService issueCreationService;
+    private IssueActionService issueActionService;
     private CreationRuleInfo request;
 
-    public EditCreationRuleTransaction(IssueService issueService, IssueCreationService issueCreationService, CreationRuleInfo request) {
+    public EditCreationRuleTransaction(IssueService issueService, IssueCreationService issueCreationService, IssueActionService issueActionService, CreationRuleInfo request) {
         this.issueService = issueService;
         this.issueCreationService = issueCreationService;
+        this.issueActionService = issueActionService;
         this.request = request;
     }
 
@@ -45,7 +49,7 @@ public class EditCreationRuleTransaction implements Transaction<CreationRule> {
         CreationRuleTemplate template = getCreationRuleTemplate();
         DueInType dueInType = getDueInType();
         long dueValue = getDueInValue();
-        checkRuleParameters(template);
+//        checkRuleParameters(template);
 
         rule.setName(request.getName());
         rule.setComment(request.getComment());
@@ -55,6 +59,8 @@ public class EditCreationRuleTransaction implements Transaction<CreationRule> {
         rule.setDueInValue(dueValue);
         rule.setContent(template.getContent());
         addParameters(rule);
+        addActions(rule);
+        rule.validate();
         saveChanges(rule);
         updateRuleContent(rule);
 
@@ -93,14 +99,34 @@ public class EditCreationRuleTransaction implements Transaction<CreationRule> {
         }
     }
 
-    private void checkRuleParameters(CreationRuleTemplate template) {
-        for (CreationRuleTemplateParameter parameter : template.getParameters()) {
-            if (!parameter.isOptional() && (request.getParameters() == null || request.getParameters().get(parameter.getName()) == null)) {
-                throw new WebApplicationException(Response.Status.BAD_REQUEST);
+    protected void addActions(CreationRule rule) {
+        List<CreationRuleActionInfo> actions = request.getActions();
+        rule.getActions().clear();
+        if (actions != null) {
+            for (CreationRuleActionInfo action : actions) {
+                Optional<IssueActionType> actionTypeRef = issueActionService.findActionType(action.getId());
+                if (!actionTypeRef.isPresent()) {
+                    throw new WebApplicationException(Response.Status.BAD_REQUEST);
+                }
+                CreationRuleActionPhase phase = CreationRuleActionPhase.fromString(action.getPhase().getUuid());
+                CreationRuleAction newAction = rule.addAction(actionTypeRef.get(), phase);
+                if (action.getParameters() != null) {
+                    for (Map.Entry <String, String> actionParam : action.getParameters().entrySet()) {
+                        newAction.addParameter(actionParam.getKey(), actionParam.getValue());
+                    }
+                }
             }
         }
     }
 
+/*    private void checkRuleParameters(CreationRuleTemplate template) {
+        for (ParameterDefinition parameter : template.getParameterDefinitions().values()) {
+            if (!parameter.getConstraint().isOptional() && (request.getParameters() == null || request.getParameters().get(parameter.getKey()) == null)) {
+                throw new WebApplicationException(Response.Status.BAD_REQUEST);
+            }
+        }
+    }
+*/
     private long getDueInValue() {
         return request.getDueIn() != null ? request.getDueIn().getNumber() : 0;
     }

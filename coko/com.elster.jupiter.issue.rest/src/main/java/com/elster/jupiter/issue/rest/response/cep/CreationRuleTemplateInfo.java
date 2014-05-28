@@ -1,10 +1,12 @@
 package com.elster.jupiter.issue.rest.response.cep;
 
 import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
-import com.elster.jupiter.issue.share.cep.CreationRuleTemplateParameter;
+import com.elster.jupiter.issue.share.cep.ParameterDefinition;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -12,7 +14,7 @@ public class CreationRuleTemplateInfo {
     private String uid;
     private String name;
     private String description;
-    private Map<String,CreationRuleTemplateParameterInfo> parameters;
+    List<ParameterInfo> parameters;
 
     public CreationRuleTemplateInfo() {}
 
@@ -21,10 +23,10 @@ public class CreationRuleTemplateInfo {
             this.uid = template.getUUID();
             this.name = template.getName();
             this.description = template.getDescription();
-            if (template.getParameters() != null) {
-                this.parameters = new HashMap<>();
-                for (CreationRuleTemplateParameter parameter : template.getParameters()) {
-                    parameters.put(parameter.getName(), new CreationRuleTemplateParameterInfo(parameter));
+            if (template.getParameterDefinitions() != null) {
+                this.parameters = new ArrayList<>();
+                for (ParameterDefinition parameter : template.getParameterDefinitions().values()) {
+                    parameters.add(new ParameterInfo(parameter));
                 }
             }
         }
@@ -54,7 +56,7 @@ public class CreationRuleTemplateInfo {
         this.description = description;
     }
 
-    public Map<String, CreationRuleTemplateParameterInfo> getParameters() {
+    public List<ParameterInfo> getParameters() {
         return parameters;
     }
 }

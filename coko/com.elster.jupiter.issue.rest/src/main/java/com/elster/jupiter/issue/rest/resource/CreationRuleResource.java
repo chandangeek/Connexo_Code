@@ -82,14 +82,14 @@ public class CreationRuleResource extends BaseResource {
 
     @POST
     public Response addCreationRule(CreationRuleInfo rule){
-        getTransactionService().execute(new CreateCreationRuleTransaction(getIssueService(), getIssueCreationService(), rule));
+        getTransactionService().execute(new CreateCreationRuleTransaction(getIssueService(), getIssueCreationService(), getIssueActionService(), rule));
         return Response.status(Response.Status.CREATED).build();
     }
 
     @PUT
     @Path("/{id}")
     public Response editCreationRule(CreationRuleInfo rule){
-        getTransactionService().execute(new EditCreationRuleTransaction(getIssueService(), getIssueCreationService(), rule));
+        getTransactionService().execute(new EditCreationRuleTransaction(getIssueService(), getIssueCreationService(), getIssueActionService(), rule));
         return Response.ok().build();
     }
 }

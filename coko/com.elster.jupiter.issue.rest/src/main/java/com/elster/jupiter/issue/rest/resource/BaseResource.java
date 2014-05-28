@@ -1,5 +1,6 @@
 package com.elster.jupiter.issue.rest.resource;
 
+import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueHelpService;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -19,6 +20,7 @@ public abstract class BaseResource {
 
     private IssueService issueService;
     private IssueCreationService issueCreationService;
+    private IssueActionService issueActionService;
     private IssueHelpService issueHelpService; // TODO remove parameter when events will be defined by MDC
     private UserService userService;
     private MeteringService meteringService;
@@ -81,6 +83,14 @@ public abstract class BaseResource {
     }
     protected IssueCreationService getIssueCreationService() {
         return issueCreationService;
+    }
+
+    @Inject
+    public void setIssueActionService(IssueActionService issueActionService) {
+        this.issueActionService = issueActionService;
+    }
+    protected IssueActionService getIssueActionService() {
+        return issueActionService;
     }
 
     @Inject

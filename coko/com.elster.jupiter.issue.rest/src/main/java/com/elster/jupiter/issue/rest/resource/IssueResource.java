@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
 import com.elster.jupiter.issue.rest.request.CloseIssueRequest;
 import com.elster.jupiter.issue.rest.request.CreateCommentRequest;
+import com.elster.jupiter.issue.rest.request.PerformActionRequest;
 import com.elster.jupiter.issue.rest.response.ActionInfo;
 import com.elster.jupiter.issue.rest.response.IssueCommentInfo;
 import com.elster.jupiter.issue.rest.response.IssueGroupInfo;
@@ -26,6 +27,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -64,8 +66,6 @@ public class IssueResource extends BaseResource {
         Condition condition = getQueryCondition(params);
         List<? extends BaseIssue> list = query.select(condition, params.getFrom(), params.getTo(), params.getOrder());
         return ok(list, IssueInfo.class, params.getStart(), params.getLimit()).build();
-//        IssueListInfo resultList = new IssueListInfo(list, params.getStart(), params.getLimit());
-//        return Response.ok().entity(resultList).build();
     }
 
     /**
@@ -171,6 +171,23 @@ public class IssueResource extends BaseResource {
         User author = (User)securityContext.getUserPrincipal();
         ActionInfo info = getTransactionService().execute(new AssignIssueTransaction(request, getIssueService(), author, getThesaurus()));
         return new RootEntity<ActionInfo>(info);
+    }
+    
+    @PUT
+    @Path("{" + ID + "}/action")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response performAction(@PathParam(ID) long id, PerformActionRequest request) {
+        Optional<Issue> issue = getIssueService().findIssue(id, true);
+        if (!issue.isPresent()) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+        Optional<IssueActionType> action = getIssueActionService().findActionType(request.getId());
+        if (!action.isPresent()) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+        
+        getIssueActionService().executeAction(action.get(), issue.get(), request.getParameters());
+        return Response.ok().build();
     }
 
     private Class<? extends BaseIssue> getQueryApiClass(StandardParametersBean params){
