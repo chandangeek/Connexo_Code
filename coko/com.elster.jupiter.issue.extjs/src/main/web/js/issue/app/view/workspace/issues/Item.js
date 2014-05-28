@@ -9,7 +9,6 @@ Ext.define('Isu.view.workspace.issues.Item', {
     title: 'Details',
     itemId: 'issues-item',
     frame: true,
-
     tools: [
         {
             text: 'Actions',
@@ -18,7 +17,6 @@ Ext.define('Isu.view.workspace.issues.Item', {
             menu: {
                 itemId: 'action-menu',
                 xtype: 'issue-action-menu',
-                record: this.record,
                 issueId: this.record ? this.record.getId() : null
             }
         }

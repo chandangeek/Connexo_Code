@@ -9,8 +9,7 @@ Ext.define('Isu.view.administration.datacollection.issueassignmentrules.Overview
     side: [
         {
             itemId: 'sideMenu',
-            xtype: 'navigationSubMenu',
-            itemId: 'sideMenu'
+            xtype: 'navigationSubMenu'
         }
     ],
 
@@ -24,26 +23,4 @@ Ext.define('Isu.view.administration.datacollection.issueassignmentrules.Overview
             xtype: 'issues-assignment-rules-list'
         }
     },
-
-    initComponent: function () {
-        this.callParent(this);
-
-        this.initMenu();
-    },
-
-    initMenu: function () {
-        var me = this,
-            menu = this.getSideMenuCmp();
-
-        menu.add({
-            text: 'Issue assignment rules',
-            pressed: true,
-            href: '#/issue-administration/issueassignmentrules',
-            hrefTarget: '_self'
-        });
-    },
-
-    getSideMenuCmp: function () {
-        return this.down('#sideMenu');
-    }
 });

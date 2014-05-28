@@ -35,28 +35,5 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Overview',
                 }
             ]
         }
-    ],
-
-    initComponent: function () {
-        this.callParent(this);
-
-        this.initMenu();
-    },
-
-    initMenu: function () {
-        var me = this,
-            menu = this.getSideMenuCmp();
-
-        menu.add({
-            itemId: 'navEl',
-            text: 'Issue creation rules',
-            pressed: true,
-            href: '#/issue-administration/issuecreationrules',
-            hrefTarget: '_self'
-        });
-    },
-
-    getSideMenuCmp: function () {
-        return this.down('#sideMenu');
-    }
+    ]
 });
