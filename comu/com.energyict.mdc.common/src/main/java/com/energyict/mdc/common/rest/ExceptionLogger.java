@@ -34,7 +34,7 @@ public class ExceptionLogger implements ApplicationEventListener {
                 Throwable exception = event.getException();
                 if (exception !=null && !(exception instanceof WebApplicationException)) {
                     LOGGER.severe(exception.getMessage());
-                    LOGGER.log(Level.FINE, exception.getMessage(), exception);
+                    LOGGER.log(Level.SEVERE, exception.getMessage(), exception);
                 }
                 break;
             }
