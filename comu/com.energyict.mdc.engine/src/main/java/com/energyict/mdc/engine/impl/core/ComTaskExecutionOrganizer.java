@@ -60,7 +60,7 @@ public final class ComTaskExecutionOrganizer {
     }
 
     public List<DeviceOrganizedComTaskExecution> defineComTaskExecutionOrders(List<? extends ComTaskExecution> comTaskExecutions) {
-        Map<Device, DeviceOrganizedComTaskExecution> result = new HashMap<>();
+        Map<Device, DeviceOrganizedComTaskExecution> result = new LinkedHashMap<>();
         Map<Device, List<ComTaskExecution>> tasksPerDevice = groupComTaskExecutionsByDevice(comTaskExecutions);
         makeSureBasicCheckIsInBeginningOfExecutions(tasksPerDevice);
         Map<Key, List<ComTaskExecution>> tasksPerDeviceAndSecurity = groupComTaskExecutionsBySecuritySet(tasksPerDevice);
@@ -100,14 +100,15 @@ public final class ComTaskExecutionOrganizer {
 
     private ComTaskExecutionConnectionSteps determineFlags(Key previous, Key current, Key next) {
         ComTaskExecutionConnectionSteps steps = new ComTaskExecutionConnectionSteps(0);
-        if (previous == null || previous.isSameDevice(current)) {
+        if(previous == null){
             steps.signOn();
-        } else if (previous.isSameSecurityPropertySet(current)) {
+        } else if(!previous.isSameSecurityPropertySet(current) || !previous.isSameDevice(current)){
             steps.logOn();
         }
-        if (next == null || next.isSameDevice(current)) {
+
+        if(next == null){
             steps.signOff();
-        } else if (next.isSameSecurityPropertySet(current)) {
+        } else if(!next.isSameSecurityPropertySet(current) || !next.isSameDevice(current)){
             steps.logOff();
         }
         return steps;

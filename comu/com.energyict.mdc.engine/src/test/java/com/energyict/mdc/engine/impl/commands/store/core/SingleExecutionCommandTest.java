@@ -30,6 +30,7 @@ public class SingleExecutionCommandTest extends CommonCommandImplTests {
 
     private CommandRoot getMockedCommandRoot(){
         CommandRoot commandRoot = mock(CommandRoot.class);
+        when(commandRoot.getServiceProvider()).thenReturn(commandRootServiceProvider);
         when(commandRoot.getTimeDifferenceCommand(Matchers.<CompositeComCommand>any(), any(ComTaskExecution.class))).thenReturn(new TimeDifferenceCommandImpl(commandRoot));
         return commandRoot;
     }
@@ -53,6 +54,7 @@ public class SingleExecutionCommandTest extends CommonCommandImplTests {
     @Test
     public void executionTest() {
         Clock frozenClock = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate());
+        serviceProvider.setClock(frozenClock);
         final long timeDifferenceInMillis = 1000L;
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
 
@@ -89,6 +91,7 @@ public class SingleExecutionCommandTest extends CommonCommandImplTests {
     @Test
     public void multipleExecutionTest(){
         Clock frozenClock = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate());
+        serviceProvider.setClock(frozenClock);
         final long timeDifferenceInMillis = 1000L;
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
 

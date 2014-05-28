@@ -11,26 +11,26 @@ package com.energyict.mdc.engine.impl.core.inbound;
  */
 public final class ComChannelPlaceHolder {
 
-    private ComPortRelatedComChannel comChannel;
+    private ComPortRelatedComChannel comPortRelatedComChannel;
 
     public static ComChannelPlaceHolder empty () {
         return new ComChannelPlaceHolder();
     }
 
-    public static ComChannelPlaceHolder forKnownComChannel (ComPortRelatedComChannel comChannel) {
+    public static ComChannelPlaceHolder forKnownComChannel (ComPortRelatedComChannel comPortRelatedComChannel) {
         ComChannelPlaceHolder placeHolder = new ComChannelPlaceHolder();
-        placeHolder.setComChannel(comChannel);
+        placeHolder.setComPortRelatedComChannel(comPortRelatedComChannel);
         return placeHolder;
     }
 
     private ComChannelPlaceHolder () {super();}
 
-    public ComPortRelatedComChannel getComChannel () {
-        return comChannel;
+    public ComPortRelatedComChannel getComPortRelatedComChannel() {
+        return comPortRelatedComChannel;
     }
 
-    public void setComChannel (ComPortRelatedComChannel comChannel) {
-        this.comChannel = comChannel;
+    public void setComPortRelatedComChannel(ComPortRelatedComChannel comPortRelatedComChannel) {
+        this.comPortRelatedComChannel = comPortRelatedComChannel;
     }
 
 }

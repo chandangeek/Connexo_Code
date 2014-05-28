@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -27,8 +28,11 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
+import com.energyict.mdc.tasks.history.TaskHistoryService;
 import com.energyict.protocols.mdc.channels.serial.SerialComChannel;
 import com.energyict.protocols.mdc.channels.serial.ServerSerialPort;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
@@ -52,11 +56,28 @@ public class LegacySmartMeterProtocolCommandCreatorTest {
     private static final long COMPORT_POOL_ID = 1;
     private static final long COMPORT_ID = COMPORT_POOL_ID + 1;
     private static final long CONNECTION_TASK_ID = COMPORT_ID + 1;
+
     private final FakeServiceProvider serviceProvider = new FakeServiceProvider();
     private CommandRoot.ServiceProvider commandRootServiceProvider = new CommandRootServiceProviderAdapter(serviceProvider);
 
     @Mock
     private IssueService issueService;
+    @Mock
+    private Clock clock;
+    @Mock
+    private TaskHistoryService taskHistoryService;
+
+    @Before
+    public void initBefore() {
+        serviceProvider.setClock(clock);
+        serviceProvider.setTaskHistoryService(taskHistoryService);
+    }
+
+    @After
+    public void initAfter() {
+        serviceProvider.setClock(null);
+        serviceProvider.setTaskHistoryService(null);
+    }
 
     private ComTaskExecutionConnectionSteps createSingleDeviceComTaskExecutionSteps() {
         return new ComTaskExecutionConnectionSteps(ComTaskExecutionConnectionSteps.SIGNON, ComTaskExecutionConnectionSteps.SIGNOFF);

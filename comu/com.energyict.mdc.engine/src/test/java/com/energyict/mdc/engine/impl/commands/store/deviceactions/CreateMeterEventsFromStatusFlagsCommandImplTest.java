@@ -1,5 +1,8 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
+import com.elster.jupiter.cbo.EndDeviceType;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.ProgrammableClock;
 import com.energyict.mdc.common.ObisCode;
@@ -26,6 +29,7 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeFactory;
 import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
@@ -33,8 +37,10 @@ import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.LoadProfilesTask;
+import com.energyict.mdc.tasks.history.TaskHistoryService;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -74,7 +80,10 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
     private DeviceLoadProfile deviceLoadProfile;
     @Mock
     private IssueService issueService;
-
+    @Mock
+    private Clock clock;
+    @Mock
+    private TaskHistoryService taskHistoryService;
 
     private Clock frozenClock;
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
@@ -82,6 +91,8 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
 
     @Before
     public void setup(){
+        serviceProvider.setClock(clock);
+        serviceProvider.setTaskHistoryService(taskHistoryService);
         List<CollectedData> collectedDataList = new ArrayList<>();
         collectedDataList.add(deviceLoadProfile);
         when(loadProfileCommand.getCollectedData()).thenReturn(collectedDataList);
@@ -94,14 +105,41 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
         when(device.getId()).thenReturn(DEVICE_ID);
     }
 
+
+    @After
+    public void initAfter() {
+        serviceProvider.setClock(null);
+        serviceProvider.setTaskHistoryService(null);
+    }
+
     private void initializeDeviceLoadProfileWith(int intervalStateBit) {
         List<IntervalData> intervalDatas = new ArrayList<>();
         intervalDatas.add(new IntervalData(getFrozenClock().now(), intervalStateBit));
         when(deviceLoadProfile.getCollectedIntervalData()).thenReturn(intervalDatas);
     }
 
+    private void initializeEndDeviceEventTypeFactory() {
+        MeteringService meteringService = mock(MeteringService.class);
+        EndDeviceEventType hardwareError = mock(EndDeviceEventType.class);
+        when(hardwareError.getMRID()).thenReturn("0.0.0.79");
+        EndDeviceEventType powerDown = mock(EndDeviceEventType.class);
+        when(powerDown.getMRID()).thenReturn("0.26.38.47");
+        EndDeviceEventType configurationChange = mock(EndDeviceEventType.class);
+        when(configurationChange.getMRID()).thenReturn("0.7.31.13");
+        List<EndDeviceEventType> mockedAvailableEndDeviceEventTypes = new ArrayList<>();
+        mockedAvailableEndDeviceEventTypes.add(hardwareError);
+        mockedAvailableEndDeviceEventTypes.add(powerDown);
+        mockedAvailableEndDeviceEventTypes.add(configurationChange);
+        when(meteringService.getAvailableEndDeviceEventTypes()).thenReturn(mockedAvailableEndDeviceEventTypes);
+        EndDeviceEventTypeFactory endDeviceEventTypeFactory = new EndDeviceEventTypeFactory();
+        endDeviceEventTypeFactory.setMeteringService(meteringService);
+        endDeviceEventTypeFactory.activate();
+        // the getEventType will return null, if a specific result is required, then add it ot the meteringService MOCK
+    }
+
     @Test
     public void testDoExecute() throws Exception {
+        initializeEndDeviceEventTypeFactory();
         CreateMeterEventsFromStatusFlagsCommandImpl command = new CreateMeterEventsFromStatusFlagsCommandImpl(loadProfileCommand, commandRoot);
         ConnectionTask connectionTask = mock(ConnectionTask.class);
         when(connectionTask.getComPortPool()).thenReturn(mock(ComPortPool.class));

@@ -45,7 +45,7 @@ public class OfflineLogBookImpl implements OfflineLogBook {
     /**
      * The ID of the LogBookType
      */
-    private int logBookTypeId;
+    private long logBookTypeId;
 
     public OfflineLogBookImpl(LogBook logBook) {
         this.logBook = logBook;
@@ -60,7 +60,7 @@ public class OfflineLogBookImpl implements OfflineLogBook {
     protected void goOffline() {
         setLogBookId(this.logBook.getId());
         setDeviceId((int) this.logBook.getDevice().getId());
-        setLogBookTypeId((int) this.logBook.getLogBookType().getId());
+        setLogBookTypeId(this.logBook.getLogBookType().getId());
         setObisCode(this.logBook.getLogBookSpec().getDeviceObisCode());
         setMasterSerialNumber(this.logBook.getDevice().getSerialNumber());
         setLastLogBook(this.logBook.getLastLogBook());
@@ -87,7 +87,7 @@ public class OfflineLogBookImpl implements OfflineLogBook {
     }
 
     @Override
-    public int getLogBookTypeId() {
+    public long getLogBookTypeId() {
         return logBookTypeId;
     }
 
@@ -116,7 +116,7 @@ public class OfflineLogBookImpl implements OfflineLogBook {
         this.obisCode = obisCode;
     }
 
-    public void setLogBookTypeId(int logBookTypeId) {
+    public void setLogBookTypeId(long logBookTypeId) {
         this.logBookTypeId = logBookTypeId;
     }
 }

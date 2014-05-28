@@ -85,6 +85,7 @@ public class BasicCheckCommandImplTest extends CommonCommandImplTests {
     @Test
     public void verifyTimeDifferenceWithinBoundariesTest() {
         Clock frozenClock = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate());
+        serviceProvider.setClock(frozenClock);
         final long timeDifferenceInMillis = 3000L;
         long deviceTime = frozenClock.now().getTime() - timeDifferenceInMillis;
         when(deviceProtocol.getTime()).thenReturn(new Date(deviceTime)); // 3 seconds time difference
@@ -111,6 +112,7 @@ public class BasicCheckCommandImplTest extends CommonCommandImplTests {
     @Test
     public void verifyTimeDifferenceOutsideBoundariesTest() {
         Clock frozenClock = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate());
+        serviceProvider.setClock(frozenClock);
         long timeDifferenceInMillis = 60000L;
         long deviceTime = frozenClock.now().getTime() - timeDifferenceInMillis;
         when(deviceProtocol.getTime()).thenReturn(new Date(deviceTime)); // 60 seconds time difference

@@ -2,7 +2,6 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.ProgrammableClock;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.exceptions.CodingException;
@@ -42,9 +41,6 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
     private static final int MINIMUM_CLOCK_DIFFERENCE = 2;
     private static final int MAXIMUM_CLOCK_DIFFERENCE = 10;
     private static final int MAXIMUM_CLOCK_SHIFT = 8;
-
-//    @ClassRule
-//    public static TestRule mockEnvironmentTranslactions = new MockEnvironmentTranslations();
 
     @Mock
     private DeviceProtocol deviceProtocol;
@@ -140,7 +136,7 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         Assert.assertEquals("We expect 1 warning", 1, clockCommand.getWarnings().size());
         Assert.assertEquals("We expect no problems", 0, clockCommand.getProblems().size());
         assertTrue("The issue should be a warning", clockCommand.getIssues().get(0).isWarning());
-        Assert.assertEquals(Environment.DEFAULT.get().getTranslation("timediffXlargerthanmaxdefined"), clockCommand.getIssues().get(0).getDescription());
+        Assert.assertEquals("timediffXlargerthanmaxdefined", clockCommand.getIssues().get(0).getDescription());
     }
 
     @Test
@@ -207,7 +203,7 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         Assert.assertEquals("We expect 1 warning", 1, clockCommand.getWarnings().size());
         Assert.assertEquals("We expect no problems", 0, clockCommand.getProblems().size());
         assertTrue("The issue should be a warning", clockCommand.getIssues().get(0).isWarning());
-        Assert.assertEquals(Environment.DEFAULT.get().getTranslation("timediffXlargerthanmaxdefined"), clockCommand.getIssues().get(0).getDescription());
+        Assert.assertEquals("timediffXlargerthanmaxdefined", clockCommand.getIssues().get(0).getDescription());
     }
 
     @Test
@@ -288,7 +284,7 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         Assert.assertEquals("We expect 1 warning", 1, clockCommand.getWarnings().size());
         Assert.assertEquals("We expect no problems", 0, clockCommand.getProblems().size());
         assertTrue("The issue should be a warning", clockCommand.getIssues().get(0).isWarning());
-        Assert.assertEquals(Environment.DEFAULT.get().getTranslation("timediffXbelowthanmindefined"), clockCommand.getIssues().get(0).getDescription());
+        Assert.assertEquals("timediffXbelowthanmindefined", clockCommand.getIssues().get(0).getDescription());
     }
 
     @Test
@@ -297,7 +293,7 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         Clock systemTime = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate());
         Clock meterTime = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 16, 111).toDate()); // 3 seconds before the system time
         Clock timeToSet = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate()); // we add the clockShift to the timeToSet
-        serviceProvider.setClock(systemTime );
+        serviceProvider.setClock(systemTime);
         validationDate = timeToSet.now(); // set the validationDate to the meterTime + the clockDifference
         ClockTask clockTask = getSynchronizeClockTask();
         ClockCommand clockCommand = new ClockCommandImpl(clockTask, createCommandRoot(), comTaskExecution);
@@ -358,7 +354,7 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         Assert.assertEquals("We expect 1 warning", 1, clockCommand.getWarnings().size());
         Assert.assertEquals("We expect no problems", 0, clockCommand.getProblems().size());
         assertTrue("The issue should be a warning", clockCommand.getIssues().get(0).isWarning());
-        Assert.assertEquals(Environment.DEFAULT.get().getTranslation("timediffXbelowthanmindefined"), clockCommand.getIssues().get(0).getDescription());
+        Assert.assertEquals("timediffXbelowthanmindefined", clockCommand.getIssues().get(0).getDescription());
     }
 
     @Test

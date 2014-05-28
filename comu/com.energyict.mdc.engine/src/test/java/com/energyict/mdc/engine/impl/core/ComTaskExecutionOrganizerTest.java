@@ -1352,7 +1352,9 @@ public class ComTaskExecutionOrganizerTest {
 
     private Device mockDevice() {
         Device device = mock(Device.class);
-        when(device.getId()).thenReturn(this.nextDeviceId++);
+        long id = this.nextDeviceId++;
+        when(device.getId()).thenReturn(id);
+        when(device.toString()).thenReturn("Device with ID : " + id);
         return device;
     }
 
