@@ -26,6 +26,7 @@ Ext.define('Isu.view.workspace.issues.Item', {
         xtype: 'issue-form',
         // todo: animate button
         buttons: [{
+            itemId: 'viewDetails',
             text: 'View details',
             ui: 'link',
             action: 'view'
