@@ -45,8 +45,7 @@ public class BaseIssueImpl extends EntityImpl implements BaseIssue {
         if (endDevice != null) {
             StringBuilder titleWithDevice = new StringBuilder(title);
             titleWithDevice.append(" to ");
-            titleWithDevice.append(endDevice.getName()).append(" ");
-            titleWithDevice.append(endDevice.getSerialNumber());
+            titleWithDevice.append(endDevice.getMRID());
             title = titleWithDevice.toString();
         }
         return title;

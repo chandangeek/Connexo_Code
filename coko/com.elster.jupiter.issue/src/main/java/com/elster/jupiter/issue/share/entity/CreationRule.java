@@ -36,6 +36,7 @@ public interface CreationRule extends Entity {
     List<CreationRuleParameter> getParameters();
     List<CreationRuleAction> getActions();
     void addParameter(String key, String value);
-    CreationRuleAction addAction(CreationRuleActionType type, CreationRuleActionPhase phase);
+    CreationRuleAction addAction(IssueActionType type, CreationRuleActionPhase phase);
     void updateContent();
+    void validate();
 }

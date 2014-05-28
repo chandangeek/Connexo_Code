@@ -2,10 +2,7 @@ package com.elster.jupiter.issue.impl.service;
 
 import com.elster.jupiter.issue.impl.module.Installer;
 import com.elster.jupiter.issue.impl.tasks.IssueOverdueHandlerFactory;
-import com.elster.jupiter.issue.share.service.IssueAssignmentService;
-import com.elster.jupiter.issue.share.service.IssueCreationService;
-import com.elster.jupiter.issue.share.service.IssueMappingService;
-import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.issue.share.service.*;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
@@ -33,6 +30,7 @@ public class InstallServiceImpl implements InstallService {
 
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
+    private volatile  NlsService nlsService;
     private volatile MessageService messageService;
     private volatile MeteringService meteringService;
     private volatile UserService userService;
@@ -42,6 +40,7 @@ public class InstallServiceImpl implements InstallService {
     private volatile IssueService issueService;
     private volatile IssueAssignmentService issueAssignmentService;
     private volatile IssueCreationService issueCreationService;
+    private volatile IssueActionService issueActionService;
 
     public InstallServiceImpl(){}
 
@@ -54,6 +53,7 @@ public class InstallServiceImpl implements InstallService {
             IssueService issueService,
             IssueAssignmentService issueAssignmentService,
             IssueCreationService issueCreationService,
+            IssueActionService issueActionService,
             IssueMappingService issueMappingService,
             NlsService nlsService) {
 
@@ -67,6 +67,7 @@ public class InstallServiceImpl implements InstallService {
         setIssueService(issueService);
         setIssueAssignmentService(issueAssignmentService);
         setIssueCreationService(issueCreationService);
+        setIssueActionService(issueActionService);
         setIssueMappingService(issueMappingService);
 
         activate();
@@ -90,6 +91,8 @@ public class InstallServiceImpl implements InstallService {
                 bind(IssueService.class).toInstance(issueService);
                 bind(IssueAssignmentService.class).toInstance(issueAssignmentService);
                 bind(IssueCreationService.class).toInstance(issueCreationService);
+                bind(IssueActionService.class).toInstance(issueActionService);
+                bind(NlsService.class).toInstance(nlsService);
             }
         });
     }
@@ -146,10 +149,16 @@ public class InstallServiceImpl implements InstallService {
     }
     @Reference
     public final void setNlsService(NlsService nlsService) {
+        this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(IssueService.COMPONENT_NAME, Layer.DOMAIN);
     }
     @Reference
     public final void setTaskService(TaskService taskService) {
         this.taskService = taskService;
+    }
+
+    @Reference
+    public final void setIssueActionService(IssueActionService issueActionService) {
+        this.issueActionService = issueActionService;
     }
 }

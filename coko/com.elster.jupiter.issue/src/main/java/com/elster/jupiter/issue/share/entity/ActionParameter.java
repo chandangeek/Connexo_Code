@@ -1,6 +1,6 @@
 package com.elster.jupiter.issue.share.entity;
 
-public interface CreationRuleActionParameter extends Entity {
+public interface ActionParameter extends Entity {
 
     String getKey();
 

@@ -1,7 +1,6 @@
 package com.elster.jupiter.issue.impl.tasks;
 
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.issue.impl.actions.IssueActionExecutor;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
 import com.elster.jupiter.issue.share.entity.Issue;

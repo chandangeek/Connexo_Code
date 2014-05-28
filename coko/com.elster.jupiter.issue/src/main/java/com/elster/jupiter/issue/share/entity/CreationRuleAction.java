@@ -12,11 +12,11 @@ public interface CreationRuleAction extends Entity {
 
     void setRule(CreationRule rule);
 
-    CreationRuleActionType getType();
+    IssueActionType getType();
 
-    void setType(CreationRuleActionType type);
+    void setType(IssueActionType type);
 
-    List<CreationRuleActionParameter> getParameters();
+    List<ActionParameter> getParameters();
 
     void addParameter(String key, String value);
 }

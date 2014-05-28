@@ -1,6 +1,7 @@
-package com.elster.jupiter.issue.impl.actions;
+package com.elster.jupiter.issue.impl.tasks;
 
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
+import com.elster.jupiter.issue.share.cep.IssueAction;
 import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.nls.Thesaurus;
 
@@ -35,10 +36,10 @@ public class IssueActionExecutor implements Runnable {
             }
             try {
                 IssueAction realAction = IssueAction.class.cast(currentCl.loadClass(action.getType().getClassName()).newInstance());
-                realAction.setIssue(issue);
+                //realAction.setIssue(issue);
                 setActionParameters(realAction, action);
                 try {
-                    realAction.execute();
+                    realAction.execute(issue, null);
                 } catch (RuntimeException e){
                     MessageSeeds.ISSUE_ACTION_FAIL.log(LOG, thesaurus, e, action.getId(), issue.getTitle());
                 }
@@ -49,11 +50,11 @@ public class IssueActionExecutor implements Runnable {
     }
 
     private void setActionParameters(IssueAction action, CreationRuleAction ruleAction){
-        List<CreationRuleActionParameter> actionParameters = ruleAction.getParameters();
+        List<ActionParameter> actionParameters = ruleAction.getParameters();
         if (actionParameters.size() == 0){
             return;
         }
-        for (CreationRuleActionParameter actionParameter : actionParameters) {
+        for (ActionParameter actionParameter : actionParameters) {
             // TODO set parameters
         }
     }

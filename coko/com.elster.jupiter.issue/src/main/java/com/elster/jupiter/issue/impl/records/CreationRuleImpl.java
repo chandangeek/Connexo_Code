@@ -2,9 +2,12 @@ package com.elster.jupiter.issue.impl.records;
 
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
+import com.elster.jupiter.issue.share.cep.CreationRuleValidationException;
+import com.elster.jupiter.issue.share.cep.IssueAction;
 import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -12,6 +15,8 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.time.UtcInstant;
 
 import javax.inject.Inject;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.nio.charset.Charset;
@@ -45,12 +50,17 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
 
     private IssueService issueService;
     private IssueCreationService issueCreationService;
+   // private IssueActionService issueActionService;
+    private NlsService nlsService;
+    //private Thesaurus thesaurus;
 
     @Inject
-    public CreationRuleImpl(DataModel dataModel, IssueService issueService, IssueCreationService issueCreationService) {
+    public CreationRuleImpl(DataModel dataModel, IssueService issueService, IssueCreationService issueCreationService, NlsService nlsService) {
         super(dataModel);
         this.issueService = issueService;
         this.issueCreationService = issueCreationService;
+        //this.issueActionService = issueActionService;
+        this.nlsService = nlsService;
     }
 
     @Override
@@ -162,7 +172,7 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
     }
 
     @Override
-    public CreationRuleAction addAction(CreationRuleActionType type, CreationRuleActionPhase phase){
+    public CreationRuleAction addAction(IssueActionType type, CreationRuleActionPhase phase){
         if (type == null || phase == null) {
             throw new IllegalArgumentException("Type and phase parameters for rule action can't be null");
         }
@@ -208,6 +218,28 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
         } else {
             this.setObsoleteTime(new UtcInstant(new Date())); // mark obsolete
             this.update();
+        }
+    }
+
+    @Override
+    public void validate() {
+        CreationRuleValidationException exception = new CreationRuleValidationException(nlsService);
+
+        Validator validator = getDataModel().getValidatorFactory().getValidator();
+        for (ConstraintViolation<?> violation : validator.validate(this)) {
+            exception.addError(violation.getPropertyPath().toString(), violation.getMessage(), IssueService.COMPONENT_NAME);
+        }
+
+        CreationRuleTemplate template = getTemplate();
+        exception.addErrors(template.validate(this));
+
+        for (CreationRuleAction action : actions) {
+            IssueActionType actionType = action.getType();
+            IssueAction issueAction = actionType.createIssueAction();
+            exception.addErrors(issueAction.validate(action));
+        }
+        if (!exception.getErrors().isEmpty()) {
+            throw exception;
         }
     }
 }

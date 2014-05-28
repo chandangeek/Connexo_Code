@@ -123,9 +123,8 @@ public final class DatabaseConst {
     public static final String CREATION_PARAMETER_FK_TO_RULE = "CREATION_PARAMETER_FK_TO_RULE";
 
 // Issue Action Types
-    public static final String RULE_ACTION_TYPE_NAME = "NAME";
     public static final String RULE_ACTION_TYPE_CLASS_NAME = "CLASS_NAME";
-    public static final String RULE_ACTION_TYPE_DESCRIPTION = "DESCRIPTION";
+    public static final String RULE_ACTION_TYPE_FACTORY_ID = "FACTORY_ID";
     public static final String RULE_ACTION_TYPE_ISSUE_TYPE = "ISSUE_TYPE";
 
     public static final String RULE_ACTION_TYPE_PK_NAME = "ISU_PK_ACT_TYPE";

@@ -18,8 +18,8 @@ public class CreationRuleActionImpl extends EntityImpl implements CreationRuleAc
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private CreationRuleActionPhase phase;
     private Reference<CreationRule> rule = ValueReference.absent();
-    private Reference<CreationRuleActionType> type = ValueReference.absent();
-    private List<CreationRuleActionParameter> parameters = new ArrayList<>();
+    private Reference<IssueActionType> type = ValueReference.absent();
+    private List<ActionParameter> parameters = new ArrayList<>();
 
     @Inject
     public CreationRuleActionImpl(DataModel dataModel) {
@@ -42,21 +42,21 @@ public class CreationRuleActionImpl extends EntityImpl implements CreationRuleAc
         this.rule.set(rule);
     }
 
-    public CreationRuleActionType getType() {
+    public IssueActionType getType() {
         return type.orNull();
     }
 
-    public void setType(CreationRuleActionType type) {
+    public void setType(IssueActionType type) {
         this.type.set(type);
     }
 
-    public List<CreationRuleActionParameter> getParameters() {
+    public List<ActionParameter> getParameters() {
         return parameters;
     }
 
     public void addParameter(String key, String value){
         if (!is(key).emptyOrOnlyWhiteSpace() && !is(value).emptyOrOnlyWhiteSpace()) {
-            CreationRuleActionParameterImpl parameter = getDataModel().getInstance(CreationRuleActionParameterImpl.class);
+            ActionParameterImpl parameter = getDataModel().getInstance(ActionParameterImpl.class);
             parameter.setKey(key);
             parameter.setValue(value);
             parameter.setAction(this);

@@ -1,6 +1,9 @@
 package com.elster.jupiter.issue.share.cep;
 
+import com.elster.jupiter.issue.share.entity.CreationRule;
+
 import java.util.List;
+import java.util.Map;
 
 public interface CreationRuleTemplate {
     String getUUID();
@@ -8,5 +11,6 @@ public interface CreationRuleTemplate {
     String getDescription();
     String getContent();
     String getIssueType();
-    List<CreationRuleTemplateParameter> getParameters();
+    Map<String, ParameterDefinition> getParameterDefinitions();
+    public List<ParameterViolation> validate(CreationRule rule);
 }

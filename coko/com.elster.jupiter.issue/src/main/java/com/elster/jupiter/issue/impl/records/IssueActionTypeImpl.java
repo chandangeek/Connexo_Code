@@ -1,8 +1,10 @@
 package com.elster.jupiter.issue.impl.records;
 
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
-import com.elster.jupiter.issue.share.entity.CreationRuleActionType;
+import com.elster.jupiter.issue.share.cep.IssueAction;
+import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -11,45 +13,24 @@ import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-public class CreationRuleActionTypeImpl extends EntityImpl implements CreationRuleActionType{
-
-    @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
-    @Size(min = 1, max = 256, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_256 + "}")
-    private String name;
-
-    @Size(max = 256, message = "{" + MessageSeeds.Keys.ACTION_TYPE_DESCRIPTION_SIZE + "}")
-    private String description;
+public class IssueActionTypeImpl extends EntityImpl implements IssueActionType {
 
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     @Size(min = 1, max = 1024, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_1024 + "}")
     private String className;
 
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
+    @Size(min = 1, max = 80, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
+    private String factoryId;
+
     private Reference<IssueType> issueType = ValueReference.absent();
 
+    private IssueActionService issueActionService;
+    
     @Inject
-    public CreationRuleActionTypeImpl(DataModel dataModel) {
+    public IssueActionTypeImpl(DataModel dataModel, IssueActionService issueActionService) {
         super(dataModel);
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String getDescription() {
-        return description;
-    }
-
-    @Override
-    public void setDescription(String description) {
-        this.description = description;
+        this.issueActionService = issueActionService;
     }
 
     @Override
@@ -70,5 +51,20 @@ public class CreationRuleActionTypeImpl extends EntityImpl implements CreationRu
     @Override
     public void setIssueType(IssueType type) {
         issueType.set(type);
+    }
+
+    @Override
+    public String getFactoryId() {
+        return factoryId;
+    }
+
+    @Override
+    public void setFactoryId(String factoryId) {
+        this.factoryId = factoryId;
+    }
+    
+    @Override
+    public IssueAction createIssueAction() {
+        return issueActionService.createIssueAction(factoryId, className);
     }
 }

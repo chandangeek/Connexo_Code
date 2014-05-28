@@ -2,11 +2,10 @@ package com.elster.jupiter.issue.impl.service;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.issue.impl.actions.IssueActionExecutor;
 import com.elster.jupiter.issue.impl.module.DroolsValidationException;
-import com.elster.jupiter.issue.impl.records.CreationRuleActionTypeImpl;
 import com.elster.jupiter.issue.impl.records.CreationRuleImpl;
 import com.elster.jupiter.issue.impl.records.IssueImpl;
+import com.elster.jupiter.issue.impl.tasks.IssueActionExecutor;
 import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.cep.IssueEvent;
 import com.elster.jupiter.issue.share.entity.*;
@@ -130,25 +129,6 @@ public class IssueCreationServiceImpl implements IssueCreationService{
         Query<CreationRule> query = query(CreationRule.class, eagers);
         query.setRestriction(where("obsoleteTime").isNull());
         return query;
-    }
-
-    @Override
-    public CreationRuleActionType createCreationRuleActionType(String name, String className) {
-        CreationRuleActionType type = dataModel.getInstance(CreationRuleActionTypeImpl.class);
-        type.setName(name);
-        type.setClassName(className);
-        type.save();
-        return type;
-    }
-
-    @Override
-    public Optional<CreationRuleActionType> findCreationRuleActionType(long id) {
-        return find(CreationRuleActionType.class, id);
-    }
-
-    @Override
-    public Query<CreationRuleActionType> getCreationRuleActionTypeQuery() {
-        return query(CreationRuleActionType.class);
     }
 
     @Override

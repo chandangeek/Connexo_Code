@@ -1,6 +1,5 @@
 package com.elster.jupiter.issue.impl.module;
 
-import com.elster.jupiter.issue.impl.actions.PrintAction;
 import com.elster.jupiter.issue.impl.database.CreateIssueViewOperation;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -18,6 +17,7 @@ public class Installer {
     private final IssueService issueService;
     private final IssueCreationService issueCreationService;
 
+
     public Installer(DataModel dataModel, Thesaurus thesaurus, IssueService issueService, IssueCreationService issueCreationService) {
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
@@ -28,17 +28,12 @@ public class Installer {
     public void install(boolean executeDDL) {
         dataModel.install(executeDDL, false);
         createCommonIssueView();
-        setDefaultRuleActionTypes();
         setDefaultStatuses();
         setTranslations();
     }
 
     private void createCommonIssueView(){
         CreateIssueViewOperation.init(dataModel).execute();
-    }
-
-    private void setDefaultRuleActionTypes(){
-        issueCreationService.createCreationRuleActionType(PrintAction.getActionName(), PrintAction.class.getName());
     }
 
     private void setDefaultStatuses(){

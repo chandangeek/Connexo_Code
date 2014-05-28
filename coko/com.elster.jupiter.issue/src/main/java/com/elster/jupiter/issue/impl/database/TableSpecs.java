@@ -1,41 +1,11 @@
 package com.elster.jupiter.issue.impl.database;
 
-import com.elster.jupiter.issue.impl.records.AssignmentRuleImpl;
-import com.elster.jupiter.issue.impl.records.BaseIssueImpl;
-import com.elster.jupiter.issue.impl.records.CreationRuleActionImpl;
-import com.elster.jupiter.issue.impl.records.CreationRuleActionParameterImpl;
-import com.elster.jupiter.issue.impl.records.CreationRuleActionTypeImpl;
-import com.elster.jupiter.issue.impl.records.CreationRuleImpl;
-import com.elster.jupiter.issue.impl.records.CreationRuleParameterImpl;
-import com.elster.jupiter.issue.impl.records.HistoricalIssueImpl;
-import com.elster.jupiter.issue.impl.records.IssueCommentImpl;
-import com.elster.jupiter.issue.impl.records.IssueImpl;
-import com.elster.jupiter.issue.impl.records.IssueReasonImpl;
-import com.elster.jupiter.issue.impl.records.IssueStatusImpl;
-import com.elster.jupiter.issue.impl.records.IssueTypeImpl;
+import com.elster.jupiter.issue.impl.records.*;
 import com.elster.jupiter.issue.impl.records.assignee.AssigneeRoleImpl;
 import com.elster.jupiter.issue.impl.records.assignee.AssigneeTeamImpl;
-import com.elster.jupiter.issue.share.entity.AssigneeRole;
-import com.elster.jupiter.issue.share.entity.AssigneeTeam;
-import com.elster.jupiter.issue.share.entity.AssignmentRule;
-import com.elster.jupiter.issue.share.entity.BaseIssue;
-import com.elster.jupiter.issue.share.entity.CreationRule;
-import com.elster.jupiter.issue.share.entity.CreationRuleAction;
-import com.elster.jupiter.issue.share.entity.CreationRuleActionParameter;
-import com.elster.jupiter.issue.share.entity.CreationRuleActionType;
-import com.elster.jupiter.issue.share.entity.CreationRuleParameter;
-import com.elster.jupiter.issue.share.entity.HistoricalIssue;
-import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.entity.IssueComment;
-import com.elster.jupiter.issue.share.entity.IssueReason;
-import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.ColumnConversion;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.DeleteRule;
-import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.*;
 import com.elster.jupiter.users.UserService;
 
 import java.util.Arrays;
@@ -256,14 +226,13 @@ public enum TableSpecs {
     ISU_ACTIONTYPE {
         @Override
         public void addTo(DataModel dataModel) {
-            Table<CreationRuleActionType> table = dataModel.addTable(name(), CreationRuleActionType.class);
-            table.map(CreationRuleActionTypeImpl.class);
+            Table<IssueActionType> table = dataModel.addTable(name(), IssueActionType.class);
+            table.map(IssueActionTypeImpl.class);
 
             Column idColumn = table.addAutoIdColumn();
-            table.column(DatabaseConst.RULE_ACTION_TYPE_NAME).map("name").type("varchar2(256)").notNull().add();
             Column typeRefIdColumn = table.column(DatabaseConst.RULE_ACTION_TYPE_ISSUE_TYPE).type("varchar2(80)").add();
-            table.column(DatabaseConst.RULE_ACTION_TYPE_DESCRIPTION).map("description").type("varchar2(256)").add();
             table.column(DatabaseConst.RULE_ACTION_TYPE_CLASS_NAME).map("className").type("varchar2(1024)").notNull().add();
+            table.column(DatabaseConst.RULE_ACTION_TYPE_FACTORY_ID).map("factoryId").type("varchar2(80)").notNull().add();
             table.addAuditColumns();
 
             table.primaryKey(DatabaseConst.RULE_ACTION_TYPE_PK_NAME).on(idColumn).add();
@@ -291,8 +260,8 @@ public enum TableSpecs {
     ISU_RULEACTIONPARAM {
         @Override
         public void addTo(DataModel dataModel) {
-            Table<CreationRuleActionParameter> table = dataModel.addTable(name(), CreationRuleActionParameter.class);
-            table.map(CreationRuleActionParameterImpl.class);
+            Table<ActionParameter> table = dataModel.addTable(name(), ActionParameter.class);
+            table.map(ActionParameterImpl.class);
 
             Column idColumn = table.addAutoIdColumn();
             table.column(DatabaseConst.RULE_ACTION_PARAM_KEY).map("key").type("varchar2(256)").notNull().add();

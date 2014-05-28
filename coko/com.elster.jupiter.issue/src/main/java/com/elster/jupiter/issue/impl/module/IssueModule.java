@@ -33,6 +33,7 @@ public class IssueModule extends AbstractModule {
         bind(IssueAssignmentService.class).to(IssueAssignmentServiceImpl.class).in(Scopes.SINGLETON);
         bind(IssueService.class).to(IssueServiceImpl.class).in(Scopes.SINGLETON);
         bind(IssueCreationService.class).to(IssueCreationServiceImpl.class).in(Scopes.SINGLETON);
+        bind(IssueActionService.class).to(IssueActionServiceImpl.class).in(Scopes.SINGLETON);
         bind(IssueHelpService.class).to(IssueHelpServiceImpl.class).in(Scopes.SINGLETON); // TODO delete when events will be sent by MDC
     }
 }

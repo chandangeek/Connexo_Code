@@ -1,6 +1,6 @@
 package com.elster.jupiter.issue.tests;
 
-import com.elster.jupiter.issue.impl.records.CreationRuleActionTypeImpl;
+import com.elster.jupiter.issue.impl.records.IssueActionTypeImpl;
 import com.elster.jupiter.issue.impl.records.IssueImpl;
 import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -95,10 +95,10 @@ public class IssueCreationServiceImplTest extends BaseTest {
         try (TransactionContext context = getContext()){
             CreationRule rule = getSimpleCreationRule();
             rule.save();
-
+            
             // TODO use default rule action types
-            CreationRuleActionType actionType = getDataModel().getInstance(CreationRuleActionTypeImpl.class);
-            actionType.setName("name");
+            IssueActionType actionType = getDataModel().getInstance(IssueActionTypeImpl.class);
+            actionType.setFactoryId("some");
             actionType.setClassName("className");
             actionType.save();
 

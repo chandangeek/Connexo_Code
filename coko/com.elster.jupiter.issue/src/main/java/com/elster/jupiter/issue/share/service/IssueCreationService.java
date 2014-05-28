@@ -5,7 +5,6 @@ import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.cep.IssueEvent;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.CreationRuleAction;
-import com.elster.jupiter.issue.share.entity.CreationRuleActionType;
 import com.google.common.base.Optional;
 
 import java.util.List;
@@ -15,10 +14,6 @@ public interface IssueCreationService {
 
     Optional<CreationRule> findCreationRule(long id);
     Query<CreationRule> getCreationRuleQuery(Class<?>... eagers);
-
-    CreationRuleActionType createCreationRuleActionType(String name, String className);
-    Optional<CreationRuleActionType> findCreationRuleActionType(long id);
-    Query<CreationRuleActionType> getCreationRuleActionTypeQuery();
 
     Optional<CreationRuleAction> findCreationRuleAction(long id);
     Query<CreationRuleAction> getCreationRuleActionQuery();
