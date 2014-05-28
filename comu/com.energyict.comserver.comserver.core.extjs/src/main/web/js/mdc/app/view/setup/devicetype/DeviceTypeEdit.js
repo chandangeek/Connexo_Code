@@ -28,7 +28,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
     initComponent: function () {
         this.content = [
             {
-                xtype: 'container',
+    /*            xtype: 'container',
                 layout: {
                     type: 'vbox',
                     align: 'stretch'
@@ -51,15 +51,17 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                                 xtype: 'container',
                                 columnWidth: 0.5,
                                 items: [
-                                    {
+                                    {*/
                                         xtype: 'form',
-                                        border: false,
+                                        width: '100%',
+                                       // border: false,
                                         itemId: 'deviceTypeEditForm',
                                         //padding: '10 10 0 10',
-                                        layout: {
+                                        ui: 'large',
+                                       /* layout: {
                                             type: 'vbox',
                                             align: 'stretch'
-                                        },
+                                        },*/
                                         defaults: {
                                             labelWidth: 250
                                         },
@@ -77,7 +79,9 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                                                 required: true,
                                                 forceSelection: true,
                                                 typeAhead: true,
-                                                msgTarget: 'under'
+                                                msgTarget: 'under',
+                                                width: 600
+
                                             },
                                             {
                                                 xtype: 'textfield',
@@ -93,7 +97,8 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                                                 fieldLabel: Uni.I18n.translate('devicetype.name', 'MDC', 'Name'),
                                                 itemId: 'editDeviceTypeNameField',
                                                 maxLength: 80,
-                                                enforceMaxLength: true
+                                                enforceMaxLength: true,
+                                                width: 600
                                             },
                                             {
                                                 xtype: 'fieldcontainer',
@@ -122,15 +127,15 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                                                 ]
                                             }
                                         ]
-                                    }
-                                ]
+                          //          }
+                            //    ]
                             }
-                        ]
+                        /*]
                     }
 
 
                 ]
-            }
+            }*/
         ];
 
         this.callParent(arguments);

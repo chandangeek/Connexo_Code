@@ -28,7 +28,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.AddLogbookConfigurations', {
                             listeners: {
                                 click: {
                                     fn: function () {
-                                        window.location.href = '#/administration/logbook';
+                                        window.location.href = '#/administration/logbooktypes';
                                     }
                                 }
                             }
