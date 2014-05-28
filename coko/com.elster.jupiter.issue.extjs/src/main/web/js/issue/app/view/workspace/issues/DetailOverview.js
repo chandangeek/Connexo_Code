@@ -10,7 +10,7 @@ Ext.define('Isu.view.workspace.issues.DetailOverview', {
         {
             ui: 'large',
             items: [
-                {   itemId: 'issue-form',
+                {   itemId: 'detailedPage',
                     xtype: 'issue-form'},
                 {   itemId: 'issue-comments',
                     xtype: 'issue-comments'}

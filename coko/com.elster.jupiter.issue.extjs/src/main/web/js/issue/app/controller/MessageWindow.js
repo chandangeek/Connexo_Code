@@ -95,6 +95,7 @@ Ext.define('Isu.controller.MessageWindow', {
         Ext.Array.each(panel.msgBody, function (item) {
             item.xtype = 'label';
             item.style = panel[item.style];
+            item.itemId = 'msgmessagepanel';
             msgBody.push(item)
         });
         msgPanel.add(msgBody);
