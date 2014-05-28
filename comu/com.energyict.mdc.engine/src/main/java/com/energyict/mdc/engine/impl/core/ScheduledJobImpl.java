@@ -114,16 +114,12 @@ public abstract class ScheduledJobImpl extends JobExecution {
         return this.getExecutionContext().connect();
     }
 
-    void createExecutionContext () {
+    public void createExecutionContext () {
         this.createExecutionContext(true);
     }
 
     void createExecutionContext (boolean logConnectionProperties) {
         this.createExecutionContext(this.getComPort(), logConnectionProperties);
-    }
-
-    void createExecutionContext (ComPort comPort) {
-        this.createExecutionContext(comPort, true);
     }
 
     private void createExecutionContext (ComPort comPort, boolean logConnectionProperties) {

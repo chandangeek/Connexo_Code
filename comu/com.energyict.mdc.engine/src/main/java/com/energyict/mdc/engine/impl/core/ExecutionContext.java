@@ -78,7 +78,7 @@ public final class ExecutionContext {
         this.comPort = comPort;
         this.connectionTask = connectionTask;
         this.serviceProvider = serviceProvider;
-        sessionBuilder = this.serviceProvider.taskHistoryService().buildComSession(this.connectionTask, this.connectionTask.getComPortPool(), this.comPort, now());
+        this.sessionBuilder = serviceProvider.taskHistoryService().buildComSession(this.connectionTask, this.connectionTask.getComPortPool(), this.comPort, serviceProvider.clock().now());
         if (logConnectionProperties && this.isLogLevelEnabled(ComServer.LogLevel.DEBUG)) {
             this.addConnectionPropertiesAsJournalEntries(this.connectionTask);
         }
@@ -356,7 +356,12 @@ public final class ExecutionContext {
     }
 
     private String messageFor(Throwable t) {
-        return t.getMessage() == null ? t.toString() : t.getMessage();
+        if (t.getMessage() == null) {
+            return t.toString();
+        }
+        else {
+            return t.getMessage();
+        }
     }
 
     private Date now() {
