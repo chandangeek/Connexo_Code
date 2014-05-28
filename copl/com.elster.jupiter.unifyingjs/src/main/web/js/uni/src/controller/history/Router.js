@@ -3,7 +3,75 @@
  *
  * @class Uni.controller.history.Router
  *
- * todo: example
+ * Route confipuration parameters:
+ *
+ * title: string or function
+ * route: the part of route, srr crossroads for example.
+ * disabled: if true the route will not be registered with crossroads
+ * items: the set of child routes
+ *
+ * For creating URL in the application use the following example:
+ *
+ * router.getRoute('/app/item/view').getTitle() # for title
+ * router.getRoute('app/item/view').buildUrl({id: 1}) # example output: /application/item/1
+ *
+ * Router will fire event 'routematch' with the Router component as parameter when the route is activated.
+ * Example of route configuration:
+ *
+ * router.addConfig({
+        administration : {
+            title: 'Administration',
+            route: 'administration',
+            disabled: true,
+            items: {
+                issue: {
+                    title: 'Issue',
+                    route: 'issue',
+                    items: {
+                        assignmentrules: {
+                            title: 'Assignment Rules',
+                            route: 'assignmentrules',
+                            controller: 'Isu.controller.IssueAssignmentRules'
+                        },
+                        creationrules: {
+                            title: 'Creation Rules',
+                            route: 'creationrules',
+                            controller: 'Isu.controller.IssueCreationRules',
+                            items: {
+                                create: {
+                                    title: 'Create',
+                                    route: '/create',
+                                    controller: 'Isu.controller.IssueCreationRulesEdit'
+                                },
+                                edit: {
+                                    title: 'Edit',
+                                    route: '{id}/edit',
+                                    controller: 'Isu.controller.IssueCreationRulesEdit'
+                                }
+                            }
+                        }
+                    }
+                },
+                communicationtasks: {
+                    title: 'Communication Tasks',
+                    route: 'communicationtasks',
+                    controller: 'Isu.controller.CommunicationTasksView',
+                    items: {
+                        create: {
+                            title: 'Create',
+                            route: '/create',
+                            controller: 'Isu.controller.CommunicationTasksEdit'
+                        },
+                        edit: {
+                            title: 'Edit',
+                            route: '{id}',
+                            controller: 'Isu.controller.CommunicationTasksEdit'
+                        }
+                    }
+                }
+            }
+        }
+    })
  */
 Ext.define('Uni.controller.history.Router', {
     extend: 'Ext.app.Controller',
@@ -102,7 +170,7 @@ Ext.define('Uni.controller.history.Router', {
     /**
      * Bulds breadcrums data based on path
      * @param path
-     * @returns {Array}
+     * @returns [Route]
      */
     buildBreadcrumbs: function(path) {
         var me = this;
@@ -122,8 +190,11 @@ Ext.define('Uni.controller.history.Router', {
 
     /**
      * return the route via alias
+     * Route object have following api:
+     * getTitle() - returns the title of the route
+     * buildUrl(arguments) - builds URl with provided arguments
      * @param path
-     * @returns {*}
+     * @returns Route
      */
     getRoute: function(path) {
         var me = this;
