@@ -235,7 +235,7 @@ Ext.define('Mdc.controller.history.Setup', {
         });
 
         //Device routes
-        crossroads.addRoute('/administration/devices/{id}', function (id) {
+        crossroads.addRoute('/devices/{id}', function (id) {
             me.getApplication().getController('Mdc.controller.setup.Devices').showDeviceDetailsView(id);
         });
 

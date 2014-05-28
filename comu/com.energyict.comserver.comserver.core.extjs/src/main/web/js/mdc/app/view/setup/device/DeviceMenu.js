@@ -9,41 +9,41 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
             {
                 text: Uni.I18n.translate('devicemenu.overview', 'MDC', 'Overview'),
                 itemId: 'deviceOverviewLink',
-                href: '#/administration/devices/' + this.deviceId,
+                href: '#/devices/' + this.deviceId,
                 hrefTarget: '_self'
             },
             {
                 text: Uni.I18n.translate('devicemenu.registerTypes', 'MDC', 'Registers'),
                 itemId: 'registersLink',
-                href: '#/administration/devices/' + this.deviceId + '/registers',
+                href: '#/devices/' + this.deviceId + '/registers',
                 hrefTarget: '_self'
             }, {
                 text: Uni.I18n.translate('devicemenu.loadProfiles', 'MDC', 'Load profiles'),
                 itemId: 'loadProfilesLink',
-                href: '#/administration/devices/' + this.deviceId + '/loadprofiles',
+                href: '#/devices/' + this.deviceId + '/loadprofiles',
                 hrefTarget: '_self'
             }, {
                 text: Uni.I18n.translate('devicemenu.logbooks', 'MDC', 'Logbooks'),
                 itemId: 'logbooksLink',
-                href: '#/administration/devices/' + this.deviceId + '/logbooks',
+                href: '#/devices/' + this.deviceId + '/logbooks',
                 hrefTarget: '_self'
             },
             {
                 text: Uni.I18n.translate('devicemenu.connectionMethods', 'MDC', 'Connection methods'),
                 itemId: 'connectionMethodsLink',
-                href: '#/administration/devices/' + this.deviceId + '/connectionmethods',
+                href: '#/devices/' + this.deviceId + '/connectionmethods',
                 hrefTarget: '_self'
             },
             {
                 text: Uni.I18n.translate('devicemenu.protocols', 'MDC', 'Protocols'),
                 itemId: 'protocolLink',
-                href: '#/administration/devices/' + this.deviceId + '/protocols',
+                href: '#/devices/' + this.deviceId + '/protocols',
                 hrefTarget: '_self'
             },
             {
                 text: Uni.I18n.translate('devicemenu.communication', 'MDC', 'Communication'),
                 itemId: 'communicationLink',
-                href: '#/administration/devices/' + this.deviceId + '/communication',
+                href: '#/devices/' + this.deviceId + '/communication',
                 hrefTarget: '_self'
             }
         );

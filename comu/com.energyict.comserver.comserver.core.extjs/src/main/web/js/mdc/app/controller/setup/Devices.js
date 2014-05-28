@@ -41,7 +41,7 @@ Ext.define('Mdc.controller.setup.Devices', {
                 me.getDeviceGeneralInformationDeviceTypeLink().getEl().setHTML(device.get('deviceTypeName'));
                 me.getDeviceGeneralInformationDeviceConfigurationLink().getEl().set({href: '#/administration/devicetypes/' + device.get('deviceTypeId') + '/deviceconfigurations/' + device.get('deviceConfigurationId')});
                 me.getDeviceGeneralInformationDeviceConfigurationLink().getEl().setHTML(device.get('deviceConfigurationName'));
-                me.getDeviceCommunicationtopologyMasterLink().getEl().set({href: '#/administration/devices/' + device.get('masterDeviceId')});
+                me.getDeviceCommunicationtopologyMasterLink().getEl().set({href: '#/devices/' + device.get('masterDeviceId')});
                 me.getDeviceCommunicationtopologyMasterLink().getEl().setHTML(device.get('masterDevicemRID'));
                 device.slaveDevicesStore.data.items.forEach(function (slaveDevice) {
                     widget.addSlaveDevice(slaveDevice.get('mRID'), slaveDevice.get('id'));
@@ -65,7 +65,7 @@ Ext.define('Mdc.controller.setup.Devices', {
         });
         var breadcrumbChild = Ext.create('Uni.model.BreadcrumbItem', {
             text: Uni.I18n.translate('device.devices', 'MDC', 'Devices'),
-            href: 'devices'
+            href: '#/devices'
         });
         breadcrumbChild.setChild(breadcrumbChild2);
         this.getBreadCrumbs().setBreadcrumbItem(breadcrumbChild);
