@@ -58,7 +58,7 @@ public enum QueryMethod {
     RefreshComPort {
         @Override
         protected Object doExecute (Map<String, Object> parameters, ComServerDAOImpl comServerDAO) {
-            Long comportId = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.COMPORT);
+            Long comportId = getLong(parameters, RemoteComServerQueryJSonPropertyNames.COMPORT);
             Date modificationDate = this.getModificationDate(parameters);
             ComPort comPort = ServiceProvider.instance.get().engineModelService().findComPort(comportId);
             if (comPort.getModificationDate().after(modificationDate)) {
@@ -204,6 +204,15 @@ public enum QueryMethod {
     IsStillPending,
     AreStillPending,
     MessageNotUnderstood;
+
+    Long getLong(Map<String, Object> parameters, String jsonPropertyName) {
+        Object parameter = parameters.get(jsonPropertyName);
+        if(parameter instanceof Long){
+            return (Long) parameter;
+        } else {
+            return Long.valueOf((Integer) parameter);
+        }
+    }
 
     protected void executionStarted (final ComServerDAOImpl comServerDAO, final ConnectionTask connectionTask, final ComServer comServer) {
         this.executeTransaction(new VoidTransaction() {

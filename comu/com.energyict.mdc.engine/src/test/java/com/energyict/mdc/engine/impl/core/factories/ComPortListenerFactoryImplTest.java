@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.concurrent.ThreadFactory;
 
+import com.energyict.protocols.mdc.services.SocketService;
 import org.junit.*;
 import org.junit.runner.*;
 
@@ -63,6 +64,11 @@ public class ComPortListenerFactoryImplTest {
     public void setUpThreadFactory () {
         when(this.comServer.getName()).thenReturn("ComPortListenerFactoryImplTest");
         this.threadFactory = new ComServerThreadFactory(this.comServer);
+    }
+
+    @Before
+    public void setupSocketService() {
+        serviceProvider.setSocketService(socketService);
     }
 
     @Test

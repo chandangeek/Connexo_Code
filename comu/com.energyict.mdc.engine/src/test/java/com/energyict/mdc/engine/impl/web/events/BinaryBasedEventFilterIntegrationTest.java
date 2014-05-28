@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.web.events;
 
+import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -65,8 +66,6 @@ public class BinaryBasedEventFilterIntegrationTest {
     private static final long COMPORT_POOL_ID = CONNECTIONTASK_ID + 1;
 
     @Mock
-    private Clock clock;
-    @Mock
     private EngineModelService engineModelService;
     @Mock
     private DeviceDataService deviceDataService;
@@ -81,10 +80,12 @@ public class BinaryBasedEventFilterIntegrationTest {
     @Mock
     private AbstractComServerEventImpl.ServiceProvider eventServiceProvider;
 
-    private ServiceProvider serviceProvider = new FakeServiceProvider();
+    private FakeServiceProvider serviceProvider = new FakeServiceProvider();
+    private Clock clock = new DefaultClock();
 
     @Before
     public void initializeMocksAndFactories () {
+        ServiceProvider.instance.set(serviceProvider);
         this.device = mock(Device.class);
         when(this.device.getId()).thenReturn(DEVICE_ID);
         when(this.deviceDataService.findDeviceById(DEVICE_ID)).thenReturn(this.device);
@@ -98,9 +99,14 @@ public class BinaryBasedEventFilterIntegrationTest {
         List<OutboundComPort> outboundComPorts = Arrays.asList(this.comPort);
         when(this.comPortPool.getId()).thenReturn(COMPORT_POOL_ID);
         when(this.comPortPool.getComPorts()).thenReturn(outboundComPorts);
-        when(this.eventServiceProvider.clock()).thenReturn(this.clock);
-        when(this.eventServiceProvider.deviceDataService()).thenReturn(this.deviceDataService);
-        when(this.eventServiceProvider.engineModelService()).thenReturn(this.engineModelService);
+        this.serviceProvider.setClock(this.clock);
+        this.serviceProvider.setDeviceDataService(this.deviceDataService);
+        this.serviceProvider.setEngineModelService(this.engineModelService);
+    }
+
+    @After
+    public void initAfter() {
+        ServiceProvider.instance.set(null);
     }
 
     /**
