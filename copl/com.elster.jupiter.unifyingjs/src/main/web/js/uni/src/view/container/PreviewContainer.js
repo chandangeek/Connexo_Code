@@ -98,7 +98,6 @@ Ext.define('Uni.view.container.PreviewContainer', {
 
         this.callParent(arguments);
 
-        debugger;
         me.grid = me.getWrapperCt().items.items[0];
         me.bindStore(me.grid.store || 'ext-empty-store', true);
 
