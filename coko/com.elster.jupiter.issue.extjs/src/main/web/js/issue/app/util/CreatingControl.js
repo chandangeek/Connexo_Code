@@ -29,7 +29,7 @@ Ext.define('Isu.util.CreatingControl', {
 
         obj.constraint.max && (textField.maxLength = obj.constraint.max);
         obj.constraint.min && (textField.minLength = obj.constraint.min);
-        obj.constraint.regexp && (textField.regex = new RegExp(obj.constraint.regexp, 'g'));
+        obj.constraint.regexp && (textField.regex = new RegExp(obj.constraint.regexp));
         obj.defaultValue && (textField.value = obj.defaultValue);
         obj.help && (textField.afterSubTpl = obj.help);
 

@@ -55,10 +55,7 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
             'issues-creation-rules-edit': {
                 beforedestroy: this.removeTemplateDescription
             },
-            'issues-creation-rules-edit button[action=create]': {
-                click: this.ruleSave
-            },
-            'issues-creation-rules-edit button[action=edit]': {
+            'issues-creation-rules-edit button[action=save]': {
                 click: this.ruleSave
             }
         });
@@ -104,9 +101,8 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                 break;
         }
 
-        self.getPageTitle().title = prefix + 'issue creation rule',
+        self.getPageTitle().title = prefix + 'issue creation rule';
         self.getPageTitle().setUI('large');
-        ruleActionBtn.action = action;
         ruleActionBtn.setText(btnTxt);
     },
 
@@ -145,9 +141,10 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
 
                         if (formField.isXType('combobox')) {
                             value = formField.getStore().getById(parseInt(value)).get('title');
+                            formField.setRawValue(value);
+                        } else {
+                            formField.setValue(value);
                         }
-
-                        formField.setValue(value);
                     }
                 }
 
@@ -284,10 +281,12 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
     },
 
     comboTemplateResize: function (combo) {
-        var comboEl = combo.getEl();
+        var comboEl = combo.getEl(),
+            form = this.getRuleForm(),
+            formEl = form.getEl();
 
         combo.templateDescriptionIcon && combo.templateDescriptionIcon.setStyle({
-            top: comboEl.getY() - 245 + 'px',
+            top: comboEl.getY() - formEl.getY() + 'px',
             left: comboEl.getX() + comboEl.getWidth(false) - 65 + 'px'
         });
     },
@@ -300,24 +299,6 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
             combo.templateDescriptionIcon.destroy();
             delete combo.templateDescriptionIcon;
         }
-    },
-
-    createTextField: function (obj, name) {
-        var formItem = {
-            xtype: 'textfield',
-            name: name,
-            fieldLabel: obj.label,
-            allowBlank: obj.optional,
-            formBind: false,
-            labelSeparator: !obj.optional ? ' *' : ''
-        };
-
-        if (this.ruleModel.get('parameters')[name]) {
-            formItem.value = this.ruleModel.get('parameters')[name];
-            delete this.ruleModel.get('parameters')[name];
-        }
-
-        return formItem;
     },
 
     ruleSave: function (button) {
@@ -349,17 +330,10 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                                 messageText = 'Issue creation rule updated';
                                 break;
                         }
-                        self.getApplication().fireEvent('isushowmsg', {
-                            type: 'notify',
-                            msgBody: [
-                                {
-                                    style: 'msgHeaderStyle',
-                                    text: messageText
-                                }
-                            ],
-                            y: 10,
-                            showTime: 5000
-                        });
+                        Ext.create('widget.uxNotification', {
+                            html: messageText,
+                            ui: 'notification-success'
+                        }).show();
                         router.getRoute('administration/issue/creationrules').forward();
                     } else {
                         json = Ext.decode(operation.response.responseText);

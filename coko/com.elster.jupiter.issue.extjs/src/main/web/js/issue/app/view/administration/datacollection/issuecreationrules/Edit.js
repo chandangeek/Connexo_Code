@@ -1,8 +1,7 @@
 Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
     extend: 'Uni.view.container.ContentContainer',
     requires: [
-        'Isu.view.administration.datacollection.issuecreationrules.ActionsList',
-        'Isu.util.FormErrorMessage'
+        'Isu.view.administration.datacollection.issuecreationrules.ActionsList'
     ],
     alias: 'widget.issues-creation-rules-edit',
     content: [
@@ -253,7 +252,8 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                             itemId: 'ruleAction',
                             name: 'ruleAction',
                             ui: 'action',
-                            formBind: false
+                            formBind: false,
+                            action: 'save'
                         },
                         {
                             itemId: 'cancel',
