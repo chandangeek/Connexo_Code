@@ -4,19 +4,19 @@ Ext.define('Isu.view.workspace.issues.comment.AddForm', {
     alias: 'widget.comment-add-form',
     layout: 'fit',
     items: {
-        itemId: '#Comment',
+        itemId: 'comment-area',
         xtype: 'textareafield',
         label: 'comment',
         name: 'comment'
     },
     buttons: [
-        {   itemId: '#Add',
+        {   itemId: 'add',
             text: 'Add',
             action: 'send',
             disabled: true
         },
         {
-            itemId: '#Cancel',
+            itemId: 'cancel',
             text: 'Cancel',
             action: 'cancel'
         }
