@@ -17,6 +17,10 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
 
     refs: [
         {
+            ref: 'page',
+            selector: 'issues-creation-rules-edit'
+        },
+        {
             ref: 'pageTitle',
             selector: 'issues-creation-rules-edit [name=pageTitle]'
         },
@@ -35,7 +39,8 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
     ],
 
     mixins: [
-        'Isu.util.IsuGrid'
+        'Isu.util.IsuGrid',
+        'Isu.util.CreatingControl'
     ],
 
     init: function () {
@@ -63,6 +68,7 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
 
     showOverview: function (id, action) {
         var widget = Ext.widget('issues-creation-rules-edit');
+
         this.setPage(id, action);
         this.getApplication().fireEvent('changecontentevent', widget);
     },
@@ -99,7 +105,6 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
         self.getPageTitle().setUI('large');
         ruleActionBtn.action = action;
         ruleActionBtn.setText(btnTxt);
-  //      ruleActionBtn.render();
     },
 
     modelToForm: function (record) {
@@ -109,11 +114,43 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
             nameField = form.down('[name=name]'),
             issueTypeField = form.down('[name=issueType]'),
             templateField = form.down('[name=template]'),
+            templateDetails = this.getTemplateDetails(),
             reasonField = form.down('[name=reason]'),
             dueDateTrigger = form.down('[name=dueDateTrigger]'),
             dueInNumberField = form.down('[name=dueIn.number]'),
             dueInTypeField = form.down('[name=dueIn.type]'),
-            commentField = form.down('[name=comment]');
+            commentField = form.down('[name=comment]'),
+            preloader;
+
+        if (record.get('template')) {
+            preloader = Ext.create('Ext.LoadMask', {
+                msg: "Loading...",
+                target: self.getPage()
+            });
+
+            preloader.show();
+
+            self.on('templateloaded', function () {
+                var formField,
+                    name,
+                    value;
+
+                if (data.parameters) {
+                    for (name in data.parameters) {
+                        formField = templateDetails.down('[name=' + name + ']');
+                        value = data.parameters[name];
+
+                        if (formField.isXType('combobox')) {
+                            value = formField.getStore().getById(parseInt(value)).get('title');
+                        }
+
+                        formField.setValue(value);
+                    }
+                }
+
+                preloader.destroy();
+            }, self, {single: true});
+        }
 
         nameField.setValue(data.name);
         issueTypeField.getStore().load(function () {
@@ -206,14 +243,11 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
 
                     self.addTemplateDescription(combo, description);
 
-                    for (var fieldName in parameters) {
-                        switch (parameters[fieldName].type) {
-                            case 'number':
-                                formItem = self.createTextField(parameters[fieldName], fieldName);
-                                break;
-                        }
-                        templateDetails.add(formItem);
-                    }
+                    Ext.Array.each(parameters, function (obj) {
+                        formItem = self.createControl(obj);
+                        formItem && templateDetails.add(formItem);
+                    });
+                    self.fireEvent('templateloaded');
                 }
             });
         }
@@ -250,8 +284,8 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
         var comboEl = combo.getEl();
 
         combo.templateDescriptionIcon && combo.templateDescriptionIcon.setStyle({
-            top: comboEl.getY() - 145 + 'px',
-            left: comboEl.getX() + comboEl.getWidth(false) - 55 + 'px'
+            top: comboEl.getY() - 245 + 'px',
+            left: comboEl.getX() + comboEl.getWidth(false) - 65 + 'px'
         });
     },
 
@@ -263,24 +297,6 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
             combo.templateDescriptionIcon.destroy();
             delete combo.templateDescriptionIcon;
         }
-    },
-
-    createTextField: function (obj, name) {
-        var formItem = {
-            xtype: 'textfield',
-            name: name,
-            fieldLabel: obj.label,
-            allowBlank: obj.optional,
-            formBind: false,
-            labelSeparator: !obj.optional ? ' *' : ''
-        };
-
-        if (this.ruleModel.get('parameters')[name]) {
-            formItem.value = this.ruleModel.get('parameters')[name];
-            delete this.ruleModel.get('parameters')[name];
-        }
-
-        return formItem;
     },
 
     ruleSave: function (button) {

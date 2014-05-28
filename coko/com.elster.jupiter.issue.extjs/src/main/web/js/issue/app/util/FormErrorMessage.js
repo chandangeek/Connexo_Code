@@ -18,8 +18,7 @@ Ext.define('Isu.util.FormErrorMessage', {
         if (!me.errorIcon) {
             me.errorIcon = me.defaultErrorIcon
         }
-        me.renew()
-        console.log(me.msgPanel);
+        me.renew();
         me.callParent(arguments)
     },
 

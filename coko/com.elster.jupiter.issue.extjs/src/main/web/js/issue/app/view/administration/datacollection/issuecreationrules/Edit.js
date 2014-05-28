@@ -1,7 +1,8 @@
 Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
     extend: 'Uni.view.container.ContentContainer',
     requires: [
-        'Isu.view.administration.datacollection.issuecreationrules.ActionsList'
+        'Isu.view.administration.datacollection.issuecreationrules.ActionsList',
+        'Isu.util.FormErrorMessage'
     ],
     alias: 'widget.issues-creation-rules-edit',
     content: [
@@ -67,20 +68,21 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                             displayField: 'name',
                             valueField: 'uid',
                             allowBlank: false,
-                            editable: false,
-                            margin: 0
+                            editable: false
                         },
                         {
                             itemId: 'templateDetails',
                             xtype: 'container',
                             name: 'templateDetails',
+                            layout: 'fit',
+                            margin: 0,
+                            anchor: '70%',
                             defaults: {
                                 labelWidth: 150,
-                                labelAlign: 'right',
-                                margin: '20 0 0 0',
-                                msgTarget: 'under',
+                                margin: '0 0 20 0',
                                 validateOnChange: false,
-                                validateOnBlur: false
+                                validateOnBlur: false,
+                                anchor: '100%'
                             }
                         },
                         {
@@ -144,7 +146,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                                             listeners: {
                                                 change: {
                                                     fn: function (radioGroup, newValue, oldValue) {
-                                                       this.up('issues-creation-rules-edit').dueDateTrigger(radioGroup, newValue, oldValue);
+                                                        this.up('issues-creation-rules-edit').dueDateTrigger(radioGroup, newValue, oldValue);
                                                     }
                                                 }
                                             }
