@@ -7,7 +7,9 @@ Ext.define('Mdc.view.setup.device.DeviceOpenIssuesPanel', {
     mRID: null,
     ui: 'tile',
     title: Uni.I18n.translate('deviceOpenIssues.openIssuesTitle', 'MDC', 'Open issues'),
-    items: [
+    initComponent: function () {
+        var me = this;
+        this.items = [
         {
             xtype: 'form',
             itemId: 'deviceOpenIssuesForm',
@@ -31,7 +33,9 @@ Ext.define('Mdc.view.setup.device.DeviceOpenIssuesPanel', {
                 }
             ]
         }
-    ]
+        ];
+        this.callParent();
+    }
 })
 ;
 
