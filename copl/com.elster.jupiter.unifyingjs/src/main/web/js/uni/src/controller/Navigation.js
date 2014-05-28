@@ -23,6 +23,10 @@ Ext.define('Uni.controller.Navigation', {
         {
             ref: 'contentWrapper',
             selector: 'viewport > #contentPanel'
+        },
+        {
+            ref: 'breadcrumbs',
+            selector: 'breadcrumbTrail'
         }
     ],
 
@@ -40,6 +44,28 @@ Ext.define('Uni.controller.Navigation', {
 
         this.getApplication().on('changemaincontentevent', this.showContent, this);
         this.getApplication().on('changemainbreadcrumbevent', this.setBreadcrumb, this);
+        this.getController('Uni.controller.history.Router').on('routematch', this.initBreadcrumbs, this);
+    },
+
+    initBreadcrumbs: function() {
+        var me = this;
+        var router = me.getController('Uni.controller.history.Router');
+        var breadcrumbs = me.getBreadcrumbs();
+        var child, breadcrumb;
+
+        breadcrumbs.removeAll();
+        _.map(router.buildBreadcrumbs(), function(route) {
+            breadcrumb = Ext.create('Uni.model.BreadcrumbItem', {
+                text: route.getTitle(),
+                href: route.buildUrl(),
+                relative: false
+            });
+            if (child) {
+                breadcrumb.setChild(child);
+            }
+            child = breadcrumb;
+        });
+        breadcrumbs.setBreadcrumbItem(breadcrumb);
     },
 
     initMenuItems: function () {

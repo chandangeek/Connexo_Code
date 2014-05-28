@@ -18,13 +18,6 @@ Ext.define('Uni.controller.history.Router', {
     defaultAction: 'showOverview',
     currentRoute: null,
 
-    refs: [
-        {
-            ref: 'breadcrumbs',
-            selector: 'contentcontainer breadcrumbTrail'
-        }
-    ],
-
     /**
      * Add router configutarion
      * @param config
@@ -93,9 +86,7 @@ Ext.define('Uni.controller.history.Router', {
 
                 // fire the controller action with this route params as arguments
                 controller[action].apply(controller, arguments);
-
-                // todo: move away!
-                me.renderBreadcrumbs();
+                me.fireEvent('routematch', me);
             });
         }
 
@@ -127,29 +118,6 @@ Ext.define('Uni.controller.history.Router', {
         } while (path.length);
 
         return items;
-    },
-
-    /**
-     * todo: this function is out of responsibility of router and should be moved
-     */
-    renderBreadcrumbs: function() {
-        var me = this;
-        var breadcrumbs = this.getBreadcrumbs();
-        var child, breadcrumb;
-
-        breadcrumbs.removeAll();
-        _.map(me.buildBreadcrumbs(), function(route) {
-            breadcrumb = Ext.create('Uni.model.BreadcrumbItem', {
-                text: route.getTitle(),
-                href: route.buildUrl(),
-                relative: false
-            });
-            if (child) {
-                breadcrumb.setChild(child);
-            }
-            child = breadcrumb;
-        });
-        breadcrumbs.setBreadcrumbItem(breadcrumb);
     },
 
     /**
