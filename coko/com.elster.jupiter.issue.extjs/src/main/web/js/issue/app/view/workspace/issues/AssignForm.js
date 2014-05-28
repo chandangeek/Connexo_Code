@@ -247,7 +247,8 @@ Ext.define('Isu.view.workspace.issues.AssignForm', {
                 formErrorsPanel.hide();
                 formErrorsPanel.removeAll();
                 formErrorsPanel.add({
-                    html: 'There are errors on this page that require your attention.'
+                    html: 'There are errors on this page that require your attention.',
+                    itemId: 'error'
                 });
                 formErrorsPanel.show();
             }

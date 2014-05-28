@@ -258,7 +258,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                             text: 'Cancel',
                             ui: 'link',
                             name: 'cancel',
-                            href: '#/administration/issuecreationrules'
+                            href: '#/administration/issue/creationrules'
                         }
                     ]
                 }

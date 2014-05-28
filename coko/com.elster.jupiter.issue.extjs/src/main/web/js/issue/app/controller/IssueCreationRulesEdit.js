@@ -57,13 +57,17 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                 click: this.ruleSave
             }
         });
-
-        this.actionMenuXtype = 'issues-creation-rules-edit-actions-menu';
     },
 
-    showOverview: function (id, action) {
+    showCreate: function(id) {
         var widget = Ext.widget('issues-creation-rules-edit');
-        this.setPage(id, action);
+        this.setPage(id, 'create');
+        this.getApplication().fireEvent('changecontentevent', widget);
+    },
+
+    showEdit: function (id) {
+        var widget = Ext.widget('issues-creation-rules-edit');
+        this.setPage(id, 'edit');
         this.getApplication().fireEvent('changecontentevent', widget);
     },
 
@@ -291,6 +295,8 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
             store = self.getStore('Isu.store.CreationRule'),
             templateCombo = self.getRuleForm().down('combobox[name=template]');
 
+        var router = this.getController('Uni.controller.history.Router');
+
         if (form.isValid()) {
             button.setDisabled(true);
             formErrorsPanel.hide();
@@ -321,7 +327,7 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                             y: 10,
                             showTime: 5000
                         });
-                        window.location.href = '#/administration/issuecreationrules'
+                        router.getRoute('administration/issue/creationrules').forward();
                     } else {
                         json = Ext.decode(operation.response.responseText);
                         if (json && json.errors) {

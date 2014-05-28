@@ -457,9 +457,6 @@ span[class^=isu-assignee-] {
     border: none !important;
 }
 
-.isu-bulk-browse .west {
-    background-color: #E1E1E1;
-}
 .isu-bulk-navigation {
     margin: 0px 10px;
 }
@@ -511,17 +508,6 @@ span[class^=isu-assignee-] {
     width: 50%;
 }
 
-.isu-btn-link {
-    background: none repeat scroll 0 0 transparent;
-    border: medium none;
-    color: #3A7CFF;
-    text-decoration: underline;
-}
-
-.isu-btn-link .x-btn-inner {
-    color: #3A7CFF;
-}
-
 .x-panel .bulk-step {
     margin: 0px 0px 15px 15px;
 }
@@ -534,13 +520,6 @@ span[class^=isu-assignee-] {
     margin: 40px 0px 0px 0px !important;
 }
 
-.chkbox {
-    height: 13px;
-    width: 13px;
-    background: black url('http://cdn.sencha.io/extjs/4.1.0.b1/resources/themes/images/default/form/checkbox.gif') no-repeat -13px 0;
-    float: left;
-    margin: 0 5px 0 0;
-}
 .x-boundlist-selected .chkbox {
     background-position: -13px -13px;
 }

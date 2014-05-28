@@ -32,6 +32,7 @@ Ext.define('Isu.view.workspace.issues.Item', {
             },
             items: {
                 text: 'View details',
+                itemId: 'viewDetails',
                 ui: 'link',
                 action: 'view',
                 listeners: {

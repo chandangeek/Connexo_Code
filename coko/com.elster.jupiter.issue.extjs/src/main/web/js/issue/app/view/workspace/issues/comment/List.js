@@ -5,8 +5,6 @@ Ext.define('Isu.view.workspace.issues.comment.List', {
         'Isu.store.IssueComments',
         'Isu.view.workspace.issues.comment.AddForm'
     ],
-
-    itemId: 'Comment',
     alias: 'widget.issue-comments',
     title: 'Comments',
     emptyText: 'There are no comments yet on this issue',
