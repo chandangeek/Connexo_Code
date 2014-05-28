@@ -13,3 +13,11 @@ $form-toolbar-label-font-family: $font-family !default;
 $form-toolbar-label-line-height: round($form-toolbar-label-font-size * 1.15) !default;
 $form-toolbar-label-font: $form-toolbar-label-font-weight #{$form-toolbar-label-font-size}/#{$form-toolbar-label-line-height} $form-toolbar-label-font-family !default;
 
+/**
+ * @var {number}
+ * The bottom margin to apply to form items when in auto, anchor, vbox, or table layout
+ */
+$form-item-margin-bottom: 8px !default;
+
+
+
