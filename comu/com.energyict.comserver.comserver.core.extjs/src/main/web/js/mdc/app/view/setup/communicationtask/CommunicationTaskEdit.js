@@ -102,7 +102,7 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskEdit', {
                                             align: 'stretch'
                                         },
                                         defaults: {
-                                            labelWidth: 150,
+                                            labelWidth: 250,
                                             labelAlign: 'right'
                                         },
                                         items: [

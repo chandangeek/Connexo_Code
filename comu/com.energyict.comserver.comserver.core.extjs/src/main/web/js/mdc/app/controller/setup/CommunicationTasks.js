@@ -392,10 +392,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                     me.loadCommunicationTasksStore();
                 },
                 failure: function (result, request) {
-                    var data = result.responseText;
-                    var titleKey = ((suspended == true) ? 'communicationtasks.activate.error' : 'communicationtasks.deactivate.error');
-                    var titleText = ((suspended == true) ? 'Error during communication task activation' : 'Error during communication task deactivation');
-                    me.fireEvent('shownotification', Uni.I18n.translate(titleKey, 'MDC', titleText), data, 'notification-error');
+                    me.fireEvent('shownotification', null, Uni.I18n.translate('communicationtasks.operation.failed', 'MDC', 'Operation failed'), 'notification-error');
                 }
             });
         }
@@ -442,11 +439,16 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
             me.setPreLoader(me.getCommunicationTaskSetupPanel(), Uni.I18n.translate('communicationtasks.removing', 'MDC', 'Removing communication task'));
             communicationTaskToDelete.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigurationId});
             communicationTaskToDelete.destroy({
-                callback: function () {
+                callback: function (record, operation) {
                     me.clearPreLoader();
-                    location.href = '#/administration/devicetypes/'+me.deviceTypeId+'/deviceconfigurations/'+me.deviceConfigurationId+'/comtaskenablements';
-                    me.fireEvent('shownotification', null, Uni.I18n.translate('communicationtasks.removed', 'MDC', 'Communication task successfully removed'), 'notification-success');
-                    me.loadCommunicationTasksStore();
+                    if(operation.wasSuccessful()) {
+                        location.href = '#/administration/devicetypes/'+me.deviceTypeId+'/deviceconfigurations/'+me.deviceConfigurationId+'/comtaskenablements';
+                        me.fireEvent('shownotification', null, Uni.I18n.translate('communicationtasks.removed', 'MDC', 'Communication task successfully removed'), 'notification-success');
+                        me.loadCommunicationTasksStore();
+                    } else {
+                        me.fireEvent('shownotification', null, Uni.I18n.translate('communicationtasks.operation.failed', 'MDC', 'Operation failed'), 'notification-error');
+                    }
+
                 }
             });
     },
@@ -463,10 +465,10 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                 },
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText);
-                    console.log(json);
                     if (json && json.errors) {
                         me.getCommunicationTaskEditForm().getForm().markInvalid(json.errors);
                     }
+                    me.fireEvent('shownotification', null, Uni.I18n.translate('communicationtasks.operation.failed', 'MDC', 'Operation failed'), 'notification-error');
                 },
                 callback: function() {
                     me.clearPreLoader();
