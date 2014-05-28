@@ -1,19 +1,20 @@
 package com.elster.jupiter.issue.rest.response.cep;
 
+import com.elster.jupiter.issue.share.cep.ParameterControl;
 import com.elster.jupiter.issue.share.cep.ParameterDefinition;
 
 import java.util.List;
 
 public class ParameterInfo {
-    private ParameterControlInfo control;
+    private ParameterControl control;
     private ParameterConstraintInfo constraint;
 
     private String key;
     private String label;
     private String suffix;
     private String help;
-    private String defaultValue;
-    private List<String> values;
+    private Object defaultValue;
+    private List<Object> values;
 
     public ParameterInfo(ParameterDefinition parameter) {
         if (parameter != null) {
@@ -24,12 +25,14 @@ public class ParameterInfo {
             this.defaultValue = parameter.getDefaultValue();
             this.values = parameter.getDefaultValues();
 
-            this.control = new ParameterControlInfo(parameter.getControl());
-            this.constraint = new ParameterConstraintInfo(parameter.getConstraint());
+            this.control = parameter.getControl();
+            if (parameter.getConstraint() != null) {
+                this.constraint = new ParameterConstraintInfo(parameter.getConstraint());
+            }
         }
     }
 
-    public ParameterControlInfo getControl() {
+    public ParameterControl getControl() {
         return control;
     }
 
@@ -53,11 +56,11 @@ public class ParameterInfo {
         return help;
     }
 
-    public String getDefaultValue() {
+    public Object getDefaultValue() {
         return defaultValue;
     }
 
-    public List<String> getValues() {
+    public List<Object> getValues() {
         return values;
     }
 }

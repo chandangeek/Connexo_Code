@@ -3,28 +3,31 @@ package com.elster.jupiter.issue.rest.response.cep;
 import com.elster.jupiter.issue.share.cep.ParameterConstraint;
 
 public class ParameterConstraintInfo {
-    boolean isOptional;
-    Integer min;
-    Integer max;
+    private boolean required;
+    private Integer min;
+    private Integer max;
+    private String regexp;
 
     public ParameterConstraintInfo(ParameterConstraint constraint) {
-        isOptional = constraint.isOptional();
+        required = !constraint.isOptional();
         min = constraint.getMin();
         max = constraint.getMax();
+        regexp = constraint.getRegexp();
     }
-    public Integer getMax() {
-        return max;
+
+    public boolean isRequired() {
+        return required;
     }
 
     public Integer getMin() {
         return min;
     }
 
-    public boolean isOptional() {
-        return isOptional;
+    public Integer getMax() {
+        return max;
     }
 
-
-
-
+    public String getRegexp() {
+        return regexp;
+    }
 }
