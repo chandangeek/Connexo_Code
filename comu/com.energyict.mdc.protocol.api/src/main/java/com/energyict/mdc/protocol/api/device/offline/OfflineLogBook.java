@@ -46,7 +46,7 @@ public interface OfflineLogBook extends Offline {
      *
      * @return the ID of the LoadProfileType
      */
-    public int getLogBookTypeId();
+    public long getLogBookTypeId();
 
     /**
      * Returns the ObisCode for the LogBookSpec.
