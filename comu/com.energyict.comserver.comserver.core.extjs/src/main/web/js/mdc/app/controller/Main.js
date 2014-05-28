@@ -184,5 +184,5 @@ Ext.define('Mdc.controller.Main', {
             defaultToken = setupController.tokenizeShowOverview();
 
         eventBus.setDefaultToken(defaultToken);
-    },
+    }
 });

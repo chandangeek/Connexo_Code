@@ -60,7 +60,7 @@ Ext.define('Mdc.controller.setup.SearchItems', {
 
     showSearchItems : function () {
         var widget = Ext.widget('searchItems');
-        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
+        this.getApplication().fireEvent('changecontentevent', widget);
     },
 
     showBreadCrumb: function (breadcrumbs) {

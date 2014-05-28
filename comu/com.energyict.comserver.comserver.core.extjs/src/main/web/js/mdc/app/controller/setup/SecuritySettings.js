@@ -221,7 +221,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                     success: function (deviceConfig) {
                         me.deviceTypeName = deviceType.get('name');
                         me.deviceConfigName = deviceConfig.get('name');
-                        me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+                        me.getApplication().fireEvent('changecontentevent', widget);
                         me.overviewBreadCrumbs(deviceTypeId, deviceConfigurationId, me.deviceTypeName, me.deviceConfigName, null);
                     }
                 });
@@ -245,7 +245,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                         me.fillCombobox(widget.down('combobox[name=authenticationLevelId]'), me.authstore, null, 'No authentication');
                         me.deviceTypeName = deviceType.get('name');
                         me.deviceConfigName = deviceConfig.get('name');
-                        me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+                        me.getApplication().fireEvent('changecontentevent', widget);
                         me.overviewBreadCrumbs(deviceTypeId, deviceConfigurationId, me.deviceTypeName, me.deviceConfigName, "Add security setting");
                     }
                 });
@@ -274,7 +274,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                                     widget = Ext.widget('securitySettingForm', {deviceTypeId: deviceTypeId, deviceConfigurationId: deviceConfigurationId, securityHeader: 'Edit ' + security.name, actionButtonName: 'Save'});
                                 me.deviceTypeName = deviceType.get('name');
                                 me.deviceConfigName = deviceConfig.get('name');
-                                me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+                                me.getApplication().fireEvent('changecontentevent', widget);
                                 widget.down('textfield[name=name]').setValue(security.name);
                                 me.fillCombobox(widget.down('combobox[name=encryptionLevelId]'), me.encrstore, security.encryptionLevelId, 'No encryption');
                                 me.fillCombobox(widget.down('combobox[name=authenticationLevelId]'), me.authstore, security.authenticationLevelId, 'No authentication');

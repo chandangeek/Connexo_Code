@@ -21,44 +21,44 @@ Ext.define('Mdc.controller.setup.SetupOverview', {
 
     showOverview: function () {
         var widget = Ext.widget('setupBrowse');
-        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
+        this.getApplication().fireEvent('changecontentevent', widget);
     },
 
     showComServers: function () {
         var widget = Ext.widget('comServersSetup');
-        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
+        this.getApplication().fireEvent('changecontentevent', widget);
     },
     showDeviceCommunicationProtocols: function () {
         var widget = Ext.widget('deviceCommunicationProtocolSetup');
-        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
+        this.getApplication().fireEvent('changecontentevent', widget);
     },
     showLicensedProtocols: function () {
         var widget = Ext.widget('setupLicensedProtocols');
-        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
+        this.getApplication().fireEvent('changecontentevent', widget);
     },
     showComPortPools: function () {
         var widget = Ext.widget('comPortPoolsSetup');
-        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
+        this.getApplication().fireEvent('changecontentevent', widget);
     },
     showRegisterMappings: function () {
         var widget = Ext.widget('registerMappingsSetup');
-        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
+        this.getApplication().fireEvent('changecontentevent', widget);
     },
     showDeviceTypes: function () {
         var widget = Ext.widget('deviceTypesSetup');
-        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
+        this.getApplication().fireEvent('changecontentevent', widget);
     },
     showRegisterTypes: function () {
         var widget = Ext.widget('registerTypeSetup');
-        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
+        this.getApplication().fireEvent('changecontentevent', widget);
     },
     showRegisterConfigs: function () {
         var widget = Ext.widget('registerConfigSetup');
-        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
+        this.getApplication().fireEvent('changecontentevent', widget);
     },
     showLogbookTypes: function () {
         var widget = Ext.widget('logbook-overview');
-        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
+        this.getApplication().fireEvent('changecontentevent', widget);
     }
 
 });

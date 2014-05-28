@@ -253,7 +253,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
                     success: function (deviceConfig) {
                         me.deviceTypeName = deviceType.get('name');
                         me.deviceConfigName = deviceConfig.get('name');
-                        me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+                        me.getApplication().fireEvent('changecontentevent', widget);
                         me.overviewBreadCrumbs(deviceTypeId, deviceConfigurationId, me.deviceTypeName, me.deviceConfigName, null);
                     }
                 });
@@ -277,7 +277,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
                     success: function (deviceConfig) {
                         me.deviceTypeName = deviceType.get('name');
                         me.deviceConfigName = deviceConfig.get('name');
-                        me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+                        me.getApplication().fireEvent('changecontentevent', widget);
                         me.availableLoadProfileTypesStore.load();
                         widget.down('combobox[name=id]').store = me.availableLoadProfileTypesStore
                         me.overviewBreadCrumbs(deviceTypeId, deviceConfigurationId, me.deviceTypeName, me.deviceConfigName, 'Add load profile configuration');

@@ -76,14 +76,14 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
         if (id) {
             self.taskEditId = id;
             this.operationType = 'Edit';
-            this.getApplication().getController('Mdc.controller.Main').showContent(widget);
+            this.getApplication().fireEvent('changecontentevent', widget);
             this.getTaskEdit().getCenterContainer().down().setTitle(this.operationType + ' communication task');
             this.getTaskEdit().down('toolbar').getComponent('createEditTask').setText('Edit');
             self.commands = [];
             this.loadModelToEditForm(id);
         } else {
             this.operationType = 'Create';
-            this.getApplication().getController('Mdc.controller.Main').showContent(widget);
+            this.getApplication().fireEvent('changecontentevent', widget);
             this.getTaskEdit().getCenterContainer().down().setTitle(this.operationType + ' communication task');
             this.getTaskEdit().down('toolbar').getComponent('createEditTask').setText('Create');
             this.loadModelToCreateForm();

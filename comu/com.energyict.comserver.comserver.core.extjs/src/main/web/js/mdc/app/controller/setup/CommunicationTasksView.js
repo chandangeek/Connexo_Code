@@ -66,7 +66,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasksView', {
 
     showCommunicationTasksView: function () {
         var widget = Ext.widget('communication-tasks-view');
-        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
+        this.getApplication().fireEvent('changecontentevent', widget);
         this.setBreadcrumb();
     },
 

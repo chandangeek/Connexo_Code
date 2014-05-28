@@ -65,7 +65,7 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
                         var deviceTypeName = deviceType.get('name');
                         var deviceConfigName = deviceConfig.get('name');
                         //widget.down('#registerConfigTitle').html = '<h1>' + deviceConfigName + ' > ' + Uni.I18n.translate('registerConfig.registerConfigurations', 'MDC', 'Register configurations') + '</h1>';
-                        me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+                        me.getApplication().fireEvent('changecontentevent', widget);
                         me.overviewBreadCrumbs(deviceTypeId, deviceConfigurationId, deviceTypeName, deviceConfigName);
                     }
                 });
@@ -167,7 +167,7 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
                                 widget.down('form').loadRecord(protocolDialect);
                                 me.getPropertiesController().showProperties(protocolDialect, widget);
                                 widget.down('#protocolDialectEditAddTitle').update('<h1>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + protocolDialect.get('name') + '"</h1>');
-                                me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+                                me.getApplication().fireEvent('changecontentevent', widget);
                                 me.editBreadCrumb(deviceTypeId, deviceConfigId, protocolDialectId, deviceType.get('name'), deviceConfiguration.get('name'), protocolDialect.get('name'));
                                 widget.setLoading(false);
                             }

@@ -99,7 +99,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         var widget = Ext.widget('deviceConfigurationsSetup', {deviceTypeId: id});
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(id,{
             success: function(deviceType){
-                me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+                me.getApplication().fireEvent('changecontentevent', widget);
                 me.overviewBreadCrumb(id,deviceType.get('name'));
             }
         });
@@ -154,7 +154,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                 });
             }
         });
-        me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+        me.getApplication().fireEvent('changecontentevent', widget);
     },
 
     createDeviceConfigurationHistory: function(){
@@ -257,7 +257,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
 
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId,{
             success: function(deviceType){
-                me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+                me.getApplication().fireEvent('changecontentevent', widget);
                 widget.down('#deviceConfigurationEditCreateTitle').update('<h1>'+Uni.I18n.translate('general.create', 'MDC', 'Create') + ' ' + 'device configuration'+'</h1>');
                 me.setCheckBoxes(deviceType);
                 me.createBreadCrumb(deviceTypeId,deviceType.get('name'));
@@ -283,7 +283,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             edit: true,
             returnLink: me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens()
         });
-        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
+        this.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);
         var me = this;
         var model = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
@@ -462,7 +462,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                             deviceTypeId: deviceTypeId,
                             deviceConfigurationId: deviceConfigurationId
                         });
-                    me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+                    me.getApplication().fireEvent('changecontentevent', widget);
                     widget.setLoading(true);
                     model.load(deviceTypeId, {
                         success: function (deviceType) {
@@ -540,7 +540,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                             deviceTypeId: deviceTypeId,
                             deviceConfigurationId: deviceConfigurationId
                         });
-                    me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+                    me.getApplication().fireEvent('changecontentevent', widget);
                     widget.setLoading(true);
                     model.load(deviceTypeId, {
                         success: function (deviceType) {
@@ -613,7 +613,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                             deviceConfigurationId: deviceConfigurationId,
                             logbookConfigurationId: logbookConfigurationId
                         });
-                    me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+                    me.getApplication().fireEvent('changecontentevent', widget);
                     widget.setLoading(true);
                     var editView = me.getEditLogbookConfiguration(),
                         form = editView.down('form'),

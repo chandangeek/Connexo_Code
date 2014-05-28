@@ -175,7 +175,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                     success: function (deviceConfig) {
                         var deviceTypeName = deviceType.get('name');
                         var deviceConfigName = deviceConfig.get('name');
-                        me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+                        me.getApplication().fireEvent('changecontentevent', widget);
                         me.overviewBreadCrumbs(deviceTypeId, deviceConfigurationId, deviceTypeName, deviceConfigName, null);
                     }
                 });
@@ -199,7 +199,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
             connectionMethodsStore: connectionMethodsStore,
             protocolDialectsStore: protocolDialectsStore
         });
-        me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+        me.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
@@ -284,7 +284,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                     connectionMethodsStore: connectionMethodsStore,
                     protocolDialectsStore: protocolDialectsStore
                 });
-                me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+                me.getApplication().fireEvent('changecontentevent', widget);
                 widget.setLoading(true);
                 Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
                     success: function (deviceType) {

@@ -51,7 +51,7 @@ Ext.define('Mdc.controller.setup.LogForm', {
         var btn = form.down('button[name=logAction]');
         var title;
 
-        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
+        this.getApplication().fireEvent('changecontentevent', widget);
 
         if (id) {
             this.crumbId = this.logId = id;
