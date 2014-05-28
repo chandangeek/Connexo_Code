@@ -47,7 +47,6 @@ Ext.define('Isu.controller.Main', {
     ],
 
     init: function () {
-        this.getApplication().on('changecontentevent', this.showContent, this);
         this.initNavigation();
         this.initMenu();
     },
@@ -167,10 +166,4 @@ Ext.define('Isu.controller.Main', {
         this.setNavigationController(navigationController);
         this.setConfigurationController(configurationController);
     },
-
-    showContent: function (widget) {
-        this.getContentPanel().removeAll();
-        this.getContentPanel().add(widget);
-        this.getContentPanel().doComponentLayout();
-    }
 });

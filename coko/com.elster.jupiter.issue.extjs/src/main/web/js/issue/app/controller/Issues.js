@@ -233,7 +233,7 @@ Ext.define('Isu.controller.Issues', {
 
     refresh: function() {
         window.location.replace(this.extraParamsModel.getQueryStringFromValues());
-        this.showOverview();
+//        this.showOverview();
     },
 
     setGrouping: function () {
