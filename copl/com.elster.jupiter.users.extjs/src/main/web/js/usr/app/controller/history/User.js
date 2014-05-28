@@ -3,19 +3,28 @@ Ext.define('Usr.controller.history.User', {
 
     rootToken: 'users',
 
+    routeConfig: {
+        users: {
+            title: 'Users',
+            route: 'users',
+            controller: 'Usr.controller.User',
+            items: {
+                edit: {
+                    title: 'Edit',
+                    route: '{id}/edit',
+                    controller: 'Usr.controller.UserGroups',
+                    action: 'showEditOverview'
+                },
+                login: {
+                    title: 'login',
+                    route: 'login',
+                    controller: 'Usr.controller.Login'
+                }
+            }
+        }
+    },
+
     init: function () {
-        var me = this;
-
-        crossroads.addRoute('users', function () {
-            me.getApplication().getController('Usr.controller.User').showOverview();
-        });
-        crossroads.addRoute('users/{id}/edit', function (id) {
-            me.getApplication().getController('Usr.controller.UserGroups').showEditOverview(id);
-        });
-        crossroads.addRoute('users/login', function () {
-            me.getApplication().getController('Usr.controller.Login').showOverview();
-        });
-
-        this.callParent(arguments);
+        this.getController('Uni.controller.history.Router').addConfig(this.routeConfig);
     }
 });

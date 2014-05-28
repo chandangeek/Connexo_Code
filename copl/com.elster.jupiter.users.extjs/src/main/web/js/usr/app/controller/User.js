@@ -1,7 +1,6 @@
 Ext.define('Usr.controller.User', {
     extend: 'Ext.app.Controller',
     requires: [
-        'Uni.model.BreadcrumbItem',
         'Usr.controller.UserGroups'
     ],
     stores: [
@@ -27,9 +26,6 @@ Ext.define('Usr.controller.User', {
 
     init: function () {
         this.control({
-            'userBrowse breadcrumbTrail': {
-                afterrender: this.onAfterRender
-            },
             'userBrowse userList': {
                 itemclick: this.selectUser
             },
@@ -45,21 +41,6 @@ Ext.define('Usr.controller.User', {
     showOverview: function () {
         var widget = Ext.widget('userBrowse');
         this.getApplication().fireEvent('changecontentevent', widget);
-    },
-
-    onAfterRender: function (breadcrumbs) {
-        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('user.root', 'USM', 'User Management'),
-            href: '#'
-        });
-        var breadcrumbChild = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('user.title', 'USM', 'Users'),
-            href: 'users'
-        });
-
-        breadcrumbParent.setChild(breadcrumbChild);
-
-        breadcrumbs.setBreadcrumbItem(breadcrumbParent);
     },
 
     editUserMenu: function (button) {

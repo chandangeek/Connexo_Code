@@ -1,7 +1,6 @@
 Ext.define('Usr.controller.UserGroups', {
     extend: 'Ext.app.Controller',
     requires: [
-        'Uni.model.BreadcrumbItem'
     ],
     stores: [
         'Usr.store.Groups',
@@ -23,10 +22,6 @@ Ext.define('Usr.controller.UserGroups', {
         {
             ref: 'selectRolesGrid',
             selector: 'userEdit #selectRoles'
-        },
-        {
-            ref: 'breadCrumbs',
-            selector: 'breadcrumbTrail'
         }
     ],
 
@@ -84,8 +79,7 @@ Ext.define('Usr.controller.UserGroups', {
                                         widget.down('[itemId=selectRoles]').disable();
                                     }
 
-                                    me.getApplication().getController('Usr.controller.Main').showContent(widget);
-                                    me.displayBreadcrumb(user.get("authenticationName"));
+                                    me.getApplication().fireEvent('changecontentevent', widget);
 
                                     widget.setLoading(false);
                                     widget.show();
@@ -96,25 +90,6 @@ Ext.define('Usr.controller.UserGroups', {
                 })
             }
         });
-    },
-
-    displayBreadcrumb: function (userName) {
-        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('user.root', 'USM', 'User Management'),
-            href: '#'
-        });
-        var breadcrumbChild1 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('user.title', 'USM', 'Users'),
-            href: 'users'
-        });
-
-        var breadcrumbChild2 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('user.edit.with.name', 'USM', 'Edit user') + ' "' + userName + '"'
-        });
-
-        breadcrumbParent.setChild(breadcrumbChild1).setChild(breadcrumbChild2);
-
-        this.getBreadCrumbs().setBreadcrumbItem(breadcrumbParent);
     },
 
     updateUser: function (button) {

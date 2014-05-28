@@ -1,7 +1,6 @@
 Ext.define('Usr.controller.GroupPrivileges', {
     extend: 'Ext.app.Controller',
     requires: [
-        'Uni.model.BreadcrumbItem'
     ],
     stores: [
         'Usr.store.Privileges',
@@ -18,10 +17,6 @@ Ext.define('Usr.controller.GroupPrivileges', {
         {
             ref: 'selectPrivilegesGrid',
             selector: 'groupEdit #selectPrivileges'
-        },
-        {
-            ref: 'breadCrumbs',
-            selector: 'breadcrumbTrail'
         }
     ],
 
@@ -74,7 +69,6 @@ Ext.define('Usr.controller.GroupPrivileges', {
                             widget.down('form').loadRecord(group);
 
                             me.getApplication().fireEvent('changecontentevent', widget);
-                            me.displayBreadcrumb(title + ' "' + group.get("name") + '"');
 
                             widget.setLoading(false);
                             widget.show();
@@ -107,27 +101,7 @@ Ext.define('Usr.controller.GroupPrivileges', {
             widget.setLoading(false);
 
             me.getApplication().fireEvent('changecontentevent', widget);
-            me.displayBreadcrumb(title);
         });
-    },
-
-    displayBreadcrumb: function (current) {
-        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('user.root', 'USM', 'User Management'),
-            href: '#'
-        });
-        var breadcrumbChild1 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('group.title', 'USM', 'Roles'),
-            href: 'roles'
-        });
-
-        var breadcrumbChild2 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: current
-        });
-
-        breadcrumbParent.setChild(breadcrumbChild1).setChild(breadcrumbChild2);
-
-        this.getBreadCrumbs().setBreadcrumbItem(breadcrumbParent);
     },
 
     saveGroup: function (button) {

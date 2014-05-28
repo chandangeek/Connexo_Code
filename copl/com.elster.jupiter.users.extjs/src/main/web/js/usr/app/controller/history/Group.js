@@ -3,19 +3,29 @@ Ext.define('Usr.controller.history.Group', {
 
     rootToken: 'roles',
 
+    routeConfig: {
+        roles: {
+            title: 'Roles',
+            route: 'roles',
+            controller: 'Usr.controller.Group',
+            items: {
+                edit: {
+                    title: 'Edit',
+                    route: '{id}/edit',
+                    controller: 'Usr.controller.GroupPrivileges',
+                    action: 'showEditOverview'
+                },
+                create: {
+                    title: 'Create',
+                    route: 'create',
+                    controller: 'Usr.controller.GroupPrivileges',
+                    action: 'showCreateOverview'
+                }
+            }
+        }
+    },
+
     init: function () {
-        var me = this;
-
-        crossroads.addRoute('roles', function () {
-            me.getApplication().getController('Usr.controller.Group').showOverview();
-        });
-        crossroads.addRoute('roles/{id}/edit', function (id) {
-            me.getApplication().getController('Usr.controller.GroupPrivileges').showEditOverview(id);
-        });
-        crossroads.addRoute('roles/create', function () {
-            me.getApplication().getController('Usr.controller.GroupPrivileges').showCreateOverview();
-        });
-
-        this.callParent(arguments);
+        this.getController('Uni.controller.history.Router').addConfig(this.routeConfig);
     }
 });
