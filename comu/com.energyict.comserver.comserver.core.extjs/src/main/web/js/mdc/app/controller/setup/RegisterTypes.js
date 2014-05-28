@@ -44,7 +44,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         this.getRegisterTypesStore().on('load', this.onRegisterTypesStoreLoad, this);
 
         this.control({
-            '#registertypegrid': {
+            '#registerTypeSetup #registertypegrid': {
                 selectionchange: this.previewRegisterType
             },
             '#registerTypeSetup breadcrumbTrail': {
