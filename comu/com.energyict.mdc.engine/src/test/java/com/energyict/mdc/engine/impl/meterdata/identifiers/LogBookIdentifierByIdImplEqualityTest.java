@@ -1,13 +1,10 @@
 package com.energyict.mdc.engine.impl.meterdata.identifiers;
 
-import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.engine.impl.protocol.inbound.DeviceIdentifierById;
-
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
+import com.energyict.mdc.device.data.DeviceDataService;
+import org.junit.BeforeClass;
 
 import java.util.Arrays;
-
-import org.junit.*;
 
 import static org.mockito.Mockito.mock;
 
@@ -20,7 +17,7 @@ import static org.mockito.Mockito.mock;
 public class LogBookIdentifierByIdImplEqualityTest extends EqualsContractTest {
 
     private static final long LOGBOOK_ID_A = 1;
-    private static final long LOGBOOK_ID_B = 1;
+    private static final long LOGBOOK_ID_B = 2;
 
     private static DeviceDataService deviceDataService;
     private static LogBookIdentifierByIdImpl instanceA;
