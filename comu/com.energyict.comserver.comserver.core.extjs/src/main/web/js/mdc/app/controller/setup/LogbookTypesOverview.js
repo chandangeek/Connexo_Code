@@ -60,7 +60,7 @@ Ext.define('Mdc.controller.setup.LogbookTypesOverview', {
         this.store = this.getStore('Mdc.store.Logbook');
     },
 
-    loadStore: function() {
+    loadStore: function () {
         this.store.load();
     },
 
@@ -80,22 +80,24 @@ Ext.define('Mdc.controller.setup.LogbookTypesOverview', {
 
     checkLogBookTypesCount: function () {
         var numberOfLogbooksContainer = Ext.ComponentQuery.query('logbook-overview logbook-docked-buttons container[name=LogBookCount]')[0],
-            grid = Ext.ComponentQuery.query('logbook-overview logbook-list')[0],
-            gridView = grid.getView(),
-            selectionModel = gridView.getSelectionModel(),
-            widget = Ext.widget('container', {
-                html: this.store.getCount() + ' logbook type(s)'
-            });
+            grid = Ext.ComponentQuery.query('logbook-overview logbook-list')[0];
+        if (grid) {
+            var gridView = grid.getView(),
+                selectionModel = gridView.getSelectionModel(),
+                widget = Ext.widget('container', {
+                    html: this.store.getCount() + ' logbook type(s)'
+                });
 
-        numberOfLogbooksContainer.removeAll(true);
-        numberOfLogbooksContainer.add(widget);
+            numberOfLogbooksContainer.removeAll(true);
+            numberOfLogbooksContainer.add(widget);
 
-        if (this.store.getCount() < 1) {
-            grid.hide();
-            grid.next().show();
-        } else {
-            selectionModel.select(0);
-            grid.fireEvent('itemclick', gridView, selectionModel.getLastSelected());
+            if (this.store.getCount() < 1) {
+                grid.hide();
+                grid.next().show();
+            } else {
+                selectionModel.select(0);
+                grid.fireEvent('itemclick', gridView, selectionModel.getLastSelected());
+            }
         }
     },
 
@@ -146,7 +148,7 @@ Ext.define('Mdc.controller.setup.LogbookTypesOverview', {
 
             this.enableOverviewPanel();
             Ext.Ajax.request({
-                url: '/api/mds/logbooktypes/'+ logBookId,
+                url: '/api/mds/logbooktypes/' + logBookId,
                 method: 'DELETE',
                 waitMsg: 'Deleting...',
                 success: function () {
@@ -161,7 +163,7 @@ Ext.define('Mdc.controller.setup.LogbookTypesOverview', {
                     successMessage.show();
                     logBookStore.load();
                 },
-                failure: function (result, request ) {
+                failure: function (result, request) {
                     var jsonData = Ext.JSON.decode(result.responseText);
                     var errorMessage = Ext.widget('logbook-floating-panel', {
                         width: overview.getWidth() - 20,
