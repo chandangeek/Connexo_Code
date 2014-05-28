@@ -87,7 +87,6 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
     showRegisterGroups: function (grid, record) {
         var widget = Ext.widget('registerGroupSetup');
         this.getApplication().fireEvent('changecontentevent', widget);
-        this.getApplication().fireEvent('changecontentevent', widget);
     },
 
     onStoreLoad: function () {
