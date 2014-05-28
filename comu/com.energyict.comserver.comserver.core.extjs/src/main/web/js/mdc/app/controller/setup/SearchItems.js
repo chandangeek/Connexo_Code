@@ -116,7 +116,7 @@ Ext.define('Mdc.controller.setup.SearchItems', {
         searchItems.down('#resultsPanel').removeAll();
         searchItems.down('#resultsPanel').add(Ext.create('Mdc.view.setup.searchitems.SearchResults', {store: store}));
 
-        if (this.isFilterEmpty(searchItems)) {
+        if (this.isFilterFilled(searchItems)) {
             searchItems.down('#searchResults').store.on('load', function showResults() {
                 searchItems.down('#contentLayout').getLayout().setActiveItem(1);
                 this.removeListener('load', showResults);
@@ -127,7 +127,7 @@ Ext.define('Mdc.controller.setup.SearchItems', {
         }
     },
 
-    isFilterEmpty: function (srcItems) {
+    isFilterFilled: function (srcItems) {
         var criteriaContainer = srcItems.down('container[name=filter]').getContainer(),
             sortContainer = srcItems.down('container[name=sortitemspanel]').getContainer();
         return criteriaContainer.items.length > 0 || sortContainer.items.length > 0;
@@ -288,12 +288,9 @@ Ext.define('Mdc.controller.setup.SearchItems', {
     },
 
     cancelSearching: function(btn) {
-        var me = this;
-        Ext.Ajax.request({
-            url: '#/administration/searchitems',
-            success: function() {
-                me.clearAllItems();
-            }
-        });
+        var me = this,
+            searchItems = this.getSearchItems();
+        searchItems.down('#searchResults').getStore().clearListeners();
+        me.clearAllItems();
     }
 });
