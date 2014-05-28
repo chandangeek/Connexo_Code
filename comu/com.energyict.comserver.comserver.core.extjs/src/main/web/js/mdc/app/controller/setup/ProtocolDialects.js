@@ -22,7 +22,7 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
 
     refs: [
         {ref: 'breadCrumbs', selector: 'breadcrumbTrail'},
-        {ref: 'protocoldialectssgrid', selector: '#protocoldialectsgrid'},
+        {ref: 'protocolDialectsGrid', selector: '#protocoldialectsgrid'},
         {ref: 'protocolDialectPreviewForm', selector: '#protocolDialectPreviewForm'},
         {ref: 'protocolDialectPreview', selector: '#protocolDialectPreview'},
         {ref: 'protocolDialectPreviewTitle', selector: '#protocolDialectPreviewTitle'},
@@ -74,7 +74,7 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
     },
 
     previewProtocolDialect: function (grid, record) {
-        var protocolDialect = this.getProtocoldialectssgrid().getSelectionModel().getSelection();
+        var protocolDialect = this.getProtocolDialectsGrid().getSelectionModel().getSelection();
         if (protocolDialect.length === 1) {
             this.getProtocolDialectPreviewForm().loadRecord(protocolDialect[0]);
             var protocolDialectName = protocolDialect[0].get('name');
@@ -236,6 +236,7 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
                     var json = Ext.decode(operation.response.responseText);
                     if (json && json.errors) {
                         me.getProtocolDialectEditForm().getForm().markInvalid(json.errors);
+                        me.getPropertiesController().showErrors(json.errors);
                     }
                 }
             });

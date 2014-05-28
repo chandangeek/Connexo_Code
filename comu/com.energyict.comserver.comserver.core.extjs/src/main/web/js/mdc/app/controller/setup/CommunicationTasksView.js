@@ -56,6 +56,9 @@ Ext.define('Mdc.controller.setup.CommunicationTasksView', {
             },
             'communication-tasks-view communication-tasks-list uni-actioncolumn': {
                 menuclick: this.chooseCommunicationTasksAction
+            },
+            'communication-tasks-action-menu': {
+                click: this.chooseCommunicationTasksAction
             }
         });
         this.store = this.getStore('Mdc.store.CommunicationTasks');

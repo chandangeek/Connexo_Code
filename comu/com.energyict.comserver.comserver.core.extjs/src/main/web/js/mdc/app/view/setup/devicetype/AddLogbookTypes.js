@@ -27,7 +27,7 @@ Ext.define('Mdc.view.setup.devicetype.AddLogbookTypes', {
                             listeners: {
                                 click: {
                                     fn: function () {
-                                        window.location.href = '#/administration/logbook';
+                                        window.location.href = '#/administration/logbooktypes';
                                     }
                                 }
                             }
@@ -63,11 +63,13 @@ Ext.define('Mdc.view.setup.devicetype.AddLogbookTypes', {
                             }
                         ]
                     },
+                    buttonAlign: 'left',
                     buttons: [
                         {
                             text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
                             action: 'add',
-                            ui: 'action'
+                            ui: 'action',
+                            margin: '0 0 0 -5'
                         },
                         {
                             text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
