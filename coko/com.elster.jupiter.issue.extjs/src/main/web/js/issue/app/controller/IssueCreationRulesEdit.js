@@ -2,7 +2,6 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Uni.model.BreadcrumbItem'
     ],
 
     stores: [
@@ -32,10 +31,6 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
         {
             ref: 'templateDetails',
             selector: 'issues-creation-rules-edit form [name=templateDetails]'
-        },
-        {
-            ref: 'breadcrumbs',
-            selectior: 'issues-creation-rules-edit breadcrumbTrail'
         }
     ],
 
@@ -45,9 +40,6 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
 
     init: function () {
         this.control({
-            'issues-creation-rules-edit breadcrumbTrail': {
-                afterrender: this.setBreadcrumb
-            },
             'issues-creation-rules-edit form [name=issueType]': {
                 change: this.setRuleTemplateCombobox
             },
@@ -65,28 +57,18 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                 click: this.ruleSave
             }
         });
-
-        this.actionMenuXtype = 'issues-creation-rules-edit-actions-menu';
     },
 
-    showOverview: function (id, action) {
+    showCreate: function(id) {
         var widget = Ext.widget('issues-creation-rules-edit');
-        this.setPage(id, action);
+        this.setPage(id, 'create');
         this.getApplication().fireEvent('changecontentevent', widget);
     },
 
-    setBreadcrumb: function (breadcrumbs) {
-        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-                text: 'Administration',
-                href: '#/issue-administration'
-            }),
-            breadcrumbChild1 = Ext.create('Uni.model.BreadcrumbItem', {
-                text: 'Issue creation rules',
-                href: 'issuecreationrules'
-            });
-        breadcrumbParent.setChild(breadcrumbChild1).setChild(this.lastBreadcrumbChild);
-
-        breadcrumbs.setBreadcrumbItem(breadcrumbParent);
+    showEdit: function (id) {
+        var widget = Ext.widget('issues-creation-rules-edit');
+        this.setPage(id, 'edit');
+        this.getApplication().fireEvent('changecontentevent', widget);
     },
 
     setPage: function (id, action) {
@@ -117,9 +99,6 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                 break;
         }
 
-        this.lastBreadcrumbChild = Ext.create('Uni.model.BreadcrumbItem', {
-            text: prefix + 'issue creation rule'
-        });
         self.getPageTitle().title = prefix + 'issue creation rule',
         self.getPageTitle().setUI('large');
         ruleActionBtn.action = action;
@@ -316,6 +295,8 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
             store = self.getStore('Isu.store.CreationRule'),
             templateCombo = self.getRuleForm().down('combobox[name=template]');
 
+        var router = this.getController('Uni.controller.history.Router');
+
         if (form.isValid()) {
             button.setDisabled(true);
             formErrorsPanel.hide();
@@ -346,7 +327,7 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                             y: 10,
                             showTime: 5000
                         });
-                        window.location.href = '#/administration/issuecreationrules'
+                        router.getRoute('administration/issue/creationrules').forward();
                     } else {
                         json = Ext.decode(operation.response.responseText);
                         if (json && json.errors) {

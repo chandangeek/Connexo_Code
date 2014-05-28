@@ -7,7 +7,7 @@ Ext.define('Isu.view.workspace.issues.Item', {
     ],
     alias: 'widget.issues-item',
     title: 'Details',
-    itemId : 'issues-item',
+    itemId: 'issues-item',
     frame: true,
     tools: [
         {
@@ -25,6 +25,7 @@ Ext.define('Isu.view.workspace.issues.Item', {
         itemId: 'issue-form',
         xtype: 'issue-form',
         // todo: animate button
+<<<<<<< HEAD
         buttons: [{
             itemId: 'viewDetails',
             text: 'View details',
@@ -37,6 +38,21 @@ Ext.define('Isu.view.workspace.issues.Item', {
             //    }
             //}
         }]
+=======
+        buttons: [
+            {
+                text: 'View details',
+                ui: 'link',
+                action: 'view'
+                //listeners: {
+                //    click: function() {
+                //        console.log(Ext.ComponentQuery.query('#action-menu')[0]);
+                //        window.location.href = "#/workspace/datacollection/issues/" + Ext.ComponentQuery.query('#item-action')[0].issueId
+                //    }
+                //}
+            }
+        ]
+>>>>>>> 1b23cdc03364a9eac65a28a82780e45de86fa579
     },
     // todo: set empty text
     emptyText: '<h3>No issue selected</h3><p>Select an issue to view its detail.</p>'
