@@ -9,14 +9,16 @@ Ext.define('Uni.view.Viewport', {
         'Uni.view.navigation.Header',
         'Uni.view.navigation.Footer',
         'Uni.view.navigation.Menu',
-        'Uni.view.container.ContentContainer'
+        'Uni.view.container.ContentContainer',
+        'Uni.view.breadcrumb.Trail'
     ],
 
     layout: 'border',
     items: [
         {
             xtype: 'navigationHeader',
-            region: 'north'
+            region: 'north',
+            weight: 30
         },
         {
             xtype: 'container',
@@ -28,13 +30,30 @@ Ext.define('Uni.view.Viewport', {
                 {
                     xtype: 'navigationMenu'
                 }
-            ]
+            ],
+            weight: 20
         },
         {
             xtype: 'container',
             region: 'center',
             itemId: 'contentPanel',
             layout: 'fit'
+        },
+        {
+            region: 'north',
+            xtype: 'container',
+            itemId: 'northContainer',
+            cls: 'north',
+            layout: 'hbox',
+            ui: 'breadcrumbtrailcontainer',
+            height: 48,
+            items: [
+                {
+                    xtype: 'breadcrumbTrail',
+                    itemId: 'breadcrumbTrail'
+                }
+            ],
+            weight: 10
         }
     ]
 });

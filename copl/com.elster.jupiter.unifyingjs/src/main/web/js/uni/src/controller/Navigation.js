@@ -180,8 +180,7 @@ Ext.define('Uni.controller.Navigation', {
     },
 
     setBreadcrumb: function (breadcrumbItem) {
-        var contentContainer = this.getContentWrapper().down('contentcontainer'),
-            trail = contentContainer.getBreadcrumbTrail();
+        var trail = this.getBreadcrumbs();
         trail.setBreadcrumbItem(breadcrumbItem);
     }
 });

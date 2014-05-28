@@ -49,7 +49,6 @@ Ext.define('Uni.view.container.ContentContainer', {
     ui: 'contentcontainer',
 
     requires: [
-        'Uni.view.breadcrumb.Trail'
     ],
 
     //baseCls: Uni.About.baseCssPrefix + 'content-container',
@@ -70,21 +69,6 @@ Ext.define('Uni.view.container.ContentContainer', {
     content: null,
 
     items: [
-        {
-            region: 'north',
-            xtype: 'container',
-            itemId: 'northContainer',
-            cls: 'north',
-            layout: 'hbox',
-            ui: 'breadcrumbtrailcontainer',
-            height: 48,
-            items: [
-                {
-                    xtype: 'breadcrumbTrail',
-                    itemId: 'breadcrumbTrail'
-                }
-            ]
-        },
         {
             region: 'west',
             xtype: 'container',
@@ -114,14 +98,14 @@ Ext.define('Uni.view.container.ContentContainer', {
             side = Ext.clone(side);
         }
 
-        this.items[1].items = side;
+        this.items[0].items = side;
 
         if (!(content instanceof Ext.Component)) {
             // Never modify a passed config object, that could break the expectations of the using code.
             content = Ext.clone(content);
         }
 
-        this.items[2].items = content;
+        this.items[1].items = content;
 
         // Else use the default config already in place.
 
@@ -134,14 +118,6 @@ Ext.define('Uni.view.container.ContentContainer', {
      */
     getNorthContainer: function () {
         return this.down('#northContainer');
-    },
-
-    /**
-     *
-     * @returns {Uni.view.breadcrumb.Trail}
-     */
-    getBreadcrumbTrail: function () {
-        return this.down('#breadcrumbTrail');
     },
 
     /**

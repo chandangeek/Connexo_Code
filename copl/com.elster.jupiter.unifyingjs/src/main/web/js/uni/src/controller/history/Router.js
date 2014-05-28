@@ -137,6 +137,10 @@ Ext.define('Uni.controller.history.Router', {
                 return this.crossroad ?
                     '#' + this.crossroad.interpolate(params) :
                     '#' + this.path;
+            },
+
+            forward: function(params) {
+                window.location.href = this.buildUrl(params);
             }
         });
 
