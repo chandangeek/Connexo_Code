@@ -427,10 +427,8 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
                 parametersContainer.down('#radioFail').setValue({
                     fail: command.parameters[1].value.toString()
                 });
-                if (!parametersContainer.down('#disCont').isDisabled()) {
-                    parametersContainer.down('#disContTime').setValue(command.parameters[4].value.name);
-                    parametersContainer.down('#disContNum').setValue(command.parameters[4].value.value);
-                }
+                parametersContainer.down('#disContTime').setValue(command.parameters[4].value.name);
+                parametersContainer.down('#disContNum').setValue(command.parameters[4].value.value);
                 break;
             case 'clock':
                 switch (command.action) {
@@ -495,11 +493,55 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
     },
 
     addCommandParameters: function (combo, newValue) {
-        var commandContainer = combo.up('communication-tasks-command'),
+        var self = this,
+            commandContainer = combo.up('communication-tasks-command'),
             category = commandContainer.down('communication-tasks-categorycombo').getValue(),
+            valuesArr = [],
             parametersContainer = this.chooseCommandParameters(category, newValue);
         if (parametersContainer) {
-            commandContainer.add(parametersContainer);
+            var parametersComponent = commandContainer.add(parametersContainer);
+            if (!commandContainer.down('button[action=addCommand]').isHidden()) {
+                switch (parametersContainer.xtype) {
+                    case 'communication-tasks-logbookscombo':
+                        parametersComponent.getStore().load({
+                            callback: function (records) {
+                                Ext.Array.each(records, function (rec) {
+                                    valuesArr.push(rec.data.id);
+                                });
+                                parametersComponent.setValue(valuesArr);
+                            }
+                        });
+                        break;
+                    case 'communication-tasks-registerscombo':
+                        parametersComponent.getStore().load({
+                            callback: function (records) {
+                                Ext.Array.each(records, function (rec) {
+                                    valuesArr.push(rec.data.id);
+                                });
+                                parametersComponent.setValue(valuesArr);
+                            }
+                        });
+                        break;
+                    case 'communication-tasks-profilescombo':
+                        var preloader = Ext.create('Ext.LoadMask', {
+                            msg: "Loading load profile types",
+                            target: self.getTaskEdit()
+                        });
+                        preloader.show();
+                        parametersComponent.down('#checkProfileTypes').getStore().load({
+                            callback: function (records) {
+                                Ext.Array.each(records, function (rec) {
+                                    valuesArr.push(rec.data.id);
+                                });
+                                parametersComponent.down('#checkProfileTypes').setValue(valuesArr);
+                                preloader.destroy();
+                            }
+                        });
+                        break;
+                    default:
+                        break;
+                }
+            }
             combo.on('change', function () {
                 parametersContainer.destroy();
             }, combo, {single: true});
@@ -563,6 +605,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
             parametersContainer = commandContainer.down('communication-tasks-actioncombo').nextNode(),
             btnAction = button.action,
             numItem,
+            couldAdd = true,
             protocol = {};
         Ext.Array.each(btns, function (btn) {
             if (button.action === 'addCommand' && btn.category === category) {
@@ -583,12 +626,27 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
             self.commands.splice(numItem, 1);
             switch (parametersContainer.xtype) {
                 case 'communication-tasks-logbookscombo':
+                    if (parametersContainer.value.length < 1) {
+                        parametersContainer.markInvalid('This is a required field');
+                        button.disable();
+                        couldAdd = false;
+                    }
                     self.fillLogbooks(protocol, parametersContainer);
                     break;
                 case 'communication-tasks-registerscombo':
+                    if (parametersContainer.value.length < 1) {
+                        parametersContainer.markInvalid('This is a required field');
+                        button.disable();
+                        couldAdd = false;
+                    }
                     self.fillRegisters(protocol, parametersContainer);
                     break;
                 case 'communication-tasks-profilescombo':
+                    if (parametersContainer.down('#checkProfileTypes').value.length < 1) {
+                        parametersContainer.down('#checkProfileTypes').markInvalid('This is a required field');
+                        button.disable();
+                        couldAdd = false;
+                    }
                     self.fillProfiles(protocol, parametersContainer);
                     break;
                 case 'communication-tasks-parameters-clock-set':
@@ -601,15 +659,18 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
                     self.commands.push(protocol);
                     break;
             }
-            if (btnAction === 'addCommand') {
-                newCommand.destroy();
-                self.addTagButton(protocol);
-                self.addAnotherButton();
-            } else {
-                Ext.ComponentQuery.query('communication-tasks-edit #createEditTask')[0].setDisabled(false);
-                self.updateTagButton(protocol);
+            if (couldAdd) {
+                if (btnAction === 'addCommand') {
+                    newCommand.destroy();
+                    self.addTagButton(protocol);
+                    self.addAnotherButton();
+                    Ext.ComponentQuery.query('communication-tasks-edit #createEditTask')[0].setDisabled(false);
+                } else {
+                    Ext.ComponentQuery.query('communication-tasks-edit #createEditTask')[0].setDisabled(false);
+                    self.updateTagButton(protocol);
+                }
+                commandFields.removeAll();
             }
-            commandFields.removeAll();
         }
     },
 
@@ -661,6 +722,12 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
             profiles.value.push(profile);
         });
         protocol.parameters.push(profiles);
+        fail.name = "failifconfigurationmismatch";
+        if (parametersContainer.down('#radioFail').getValue().fail === 'true') {
+            failBoolean = true;
+        }
+        fail.value = failBoolean;
+        protocol.parameters.push(fail);
         intervals.name = "markintervalsasbadtime";
         if (parametersContainer.down('#radioIntervals').getValue().intervals === 'true') {
             intervalsBoolean = true;
@@ -673,21 +740,13 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
         }
         events.value = eventsBoolean;
         protocol.parameters.push(events);
-        fail.name = "failifconfigurationmismatch";
-        if (parametersContainer.down('#radioFail').getValue().fail === 'true') {
-            failBoolean = true;
-        }
-        fail.value = failBoolean;
-        protocol.parameters.push(fail);
-        if (!parametersContainer.down('#disCont').isDisabled()) {
-            var minTime = {},
-                minTimeValue = {};
-            minTime.name = "minclockdiffbeforebadtime";
-            minTimeValue.name = parametersContainer.down('#disContTime').value;
-            minTimeValue.value = parseInt(parametersContainer.down('#disContNum').getValue());
-            minTime.value = minTimeValue;
-            protocol.parameters.push(minTime);
-        }
+        var minTime = {},
+            minTimeValue = {};
+        minTime.name = "minclockdiffbeforebadtime";
+        minTimeValue.name = parametersContainer.down('#disContTime').value;
+        minTimeValue.value = parseInt(parametersContainer.down('#disContNum').getValue());
+        minTime.value = minTimeValue;
+        protocol.parameters.push(minTime);
         self.commands.push(protocol);
     },
 
@@ -763,6 +822,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
                     self.addAnotherButton();
                 }
                 self.showCommandsAndActions(command);
+                Ext.ComponentQuery.query('communication-tasks-edit #createEditTask')[0].setDisabled(true);
             },
             listeners: {
                 closeclick: function (me) {
@@ -779,6 +839,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
                         }
                     });
                     self.commands.splice(numItem, 1);
+                    Ext.ComponentQuery.query('communication-tasks-edit #createEditTask')[0].setDisabled(false);
                 }
             }
         });

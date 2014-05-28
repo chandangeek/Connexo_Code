@@ -2,7 +2,7 @@ Ext.define('Mdc.util.ComboSelectedCount', {
     alias: 'plugin.selectedCount',
     init: function (combo) {
         var fl = combo.getFieldLabel(),
-            allSelected = false,
+            allSelected = true,
             id = combo.getId() + '-toolbar-panel';
 
         Ext.apply(combo, {
@@ -15,7 +15,8 @@ Ext.define('Mdc.util.ComboSelectedCount', {
         var toolbar = Ext.create('Ext.toolbar.Toolbar', {
             items: [
                 {
-                    text: 'Select all',
+                    itemId: 'selectAll',
+                    text: 'Deselect all',
                     handler: function (btn, e) {
                         if (!allSelected) {
                             combo.select(combo.getStore().getRange());
@@ -37,6 +38,16 @@ Ext.define('Mdc.util.ComboSelectedCount', {
                 var len = records.length,
                     store = combo.getStore();
                 combo.setSelectedCount(len);
+            },
+            change: function () {
+                var addBtn = Ext.ComponentQuery.query('communication-tasks-edit communication-tasks-command button[action=addCommand]')[0],
+                    saveBtn = Ext.ComponentQuery.query('communication-tasks-edit communication-tasks-command button[action=saveCommand]')[0];
+                if (addBtn && addBtn.isDisabled()) {
+                    addBtn.enable();
+                }
+                if (saveBtn && saveBtn.isDisabled()) {
+                    saveBtn.enable();
+                }
             },
             beforedeselect: function (me, record, index) {
                 me.setFieldLabel(fl);

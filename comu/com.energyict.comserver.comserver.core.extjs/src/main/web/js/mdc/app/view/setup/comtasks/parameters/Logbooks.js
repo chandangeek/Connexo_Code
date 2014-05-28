@@ -14,7 +14,7 @@ Ext.define('Mdc.view.setup.comtasks.parameters.Logbooks', {
     store: 'Mdc.store.Logbook',
     displayField: 'name',
     valueField: 'id',
-    allowBlank: false,
+    allowBlank: true,
     editable: false,
     validateOnBlur: false,
     validateOnChange: false

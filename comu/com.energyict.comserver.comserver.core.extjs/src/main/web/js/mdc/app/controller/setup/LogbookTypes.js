@@ -24,7 +24,7 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
                 itemclick: this.loadGridItemDetail
             },
             'device-type-logbooks grid uni-actioncolumn': {
-                remove: this.deleteLogbookType
+                itemclick: this.deleteLogbookType
             }
         });
         this.store = this.getStore('Mdc.store.LogbookTypes');
@@ -48,7 +48,7 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
         preloader.destroy();
     },
 
-    showDatabaseError: function(msges) {
+    showDatabaseError: function (msges) {
         var self = this,
             logbooksView = self.getDeviceTypeLogbooks();
         self.getApplication().fireEvent('isushowmsg', {
@@ -116,9 +116,16 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
                                                 var numberOfLogbooksContainer = Ext.ComponentQuery.query('device-type-logbooks toolbar container[name=LogBookCount]')[0],
                                                     gridView = grid.getView(),
                                                     selectionModel = gridView.getSelectionModel(),
-                                                    count = Ext.widget('container', {
-                                                        html: self.store.getCount() + ' logbook type(s)'
-                                                    });
+                                                    count = [
+                                                        {
+                                                            xtype: 'label',
+                                                            text: self.store.getCount() + ' logbook type(s)'
+                                                        },
+                                                        {
+                                                           xtype: 'container',
+                                                           flex: 1
+                                                        }
+                                                    ];
                                                 numberOfLogbooksContainer.removeAll(true);
                                                 numberOfLogbooksContainer.add(count);
                                                 if (self.store.getCount() < 1) {

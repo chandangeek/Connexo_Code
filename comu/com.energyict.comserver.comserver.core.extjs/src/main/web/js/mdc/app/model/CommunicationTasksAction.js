@@ -13,7 +13,7 @@ Ext.define('Mdc.model.CommunicationTasksAction', {
 
     proxy: {
         type: 'rest',
-        url: '../../api/cts/comtasks/actions',
+        url: '/api/cts/comtasks/actions',
         reader: {
             type: 'json',
             root: 'data'

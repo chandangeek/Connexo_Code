@@ -138,6 +138,7 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskEdit', {
                                                 emptyText: Uni.I18n.translate('communicationtasks.form.selectComTask', 'MDC', 'Select communication task...'),
                                                 allowBlank: false,
                                                 forceSelection: true,
+                                                editable: false,
                                                 msgTarget: 'under'
                                             },
                                             {
@@ -153,6 +154,7 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskEdit', {
                                                 emptyText: Uni.I18n.translate('communicationtasks.form.selectSecurityPropertySet', 'MDC', 'Select security set...'),
                                                 allowBlank: false,
                                                 forceSelection: true,
+                                                editable: false,
                                                 msgTarget: 'under'
                                             },
                                             {
@@ -167,6 +169,7 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskEdit', {
                                                 valueField: 'id',
                                                 emptyText: Uni.I18n.translate('communicationtasks.form.selectPartialConnectionTask', 'MDC', 'Use the default connection method'),
                                                 forceSelection: true,
+                                                editable: false,
                                                 msgTarget: 'under'
                                             },
                                             {
@@ -189,6 +192,7 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskEdit', {
                                                 valueField: 'id',
                                                 emptyText: Uni.I18n.translate('communicationtasks.form.selectProtocolDialectConfigurationProperties', 'MDC', 'Use the default protocol dialect'),
                                                 forceSelection: true,
+                                                editable: false,
                                                 msgTarget: 'under'
                                             },
                                             {
