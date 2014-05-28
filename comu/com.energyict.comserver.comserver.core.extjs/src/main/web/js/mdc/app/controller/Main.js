@@ -185,17 +185,4 @@ Ext.define('Mdc.controller.Main', {
 
         eventBus.setDefaultToken(defaultToken);
     },
-
-    showContent: function (widget) {
-        this.clearContentPanel();
-        this.getContentPanel().add(widget);
-        this.getContentPanel().doComponentLayout();
-    },
-
-    clearContentPanel: function () {
-        var widget;
-        while (widget = this.getContentPanel().items.first()) {
-            this.getContentPanel().remove(widget, true);
-        }
-    }
 });

@@ -41,6 +41,10 @@ Ext.define('Mdc.controller.setup.Properties', {
         {
             ref: 'loadProfileTypeSelectionGrid',
             selector: '#loadProfileTypeSelectionGrid'
+        },
+        {
+            ref: 'propertiesForm',
+            selector: '#propertiesform'
         }
     ],
     timeDurationStore: Ext.create('Ext.data.Store', {
@@ -242,7 +246,7 @@ Ext.define('Mdc.controller.setup.Properties', {
                             //var durationValue = moment.duration(value.seconds, 'seconds').humanize();
                             unit = value.timeUnit;
                             count = value.count;
-                            timeDuration = count + ':' + unit;
+                            timeDuration = count + ' ' + unit;
                         }
 
                         if (selectionMode === 'COMBOBOX') {
@@ -252,7 +256,7 @@ Ext.define('Mdc.controller.setup.Properties', {
                                 //var timeDuration = moment.duration(predefinedPropertyValues[i].seconds, 'seconds').humanize();
                                 //me.timeDurationStore.add({key: predefinedPropertyValues[i].seconds, value: timeDuration})
                                 var timeDurationValue = predefinedPropertyValues[i].count + " " + predefinedPropertyValues[i].timeUnit;
-                                var timeDurationKey = predefinedPropertyValues[i].count + ":" + predefinedPropertyValues[i].timeUnit;
+                                var timeDurationKey = predefinedPropertyValues[i].count + " " + predefinedPropertyValues[i].timeUnit;
                                 me.timeDurationStore.add({key: timeDurationKey, value: timeDurationValue});
                             }
                             propertiesView.addComboBoxTextProperty(key, me.timeDurationStore, timeDuration, exhaustive, restoreValue, required);
@@ -359,11 +363,11 @@ Ext.define('Mdc.controller.setup.Properties', {
         }
         if (property.getPropertyType().data.simplePropertyType === 'NULLABLE_BOOLEAN') {
             if (newValue === 'false') {
-                view.down('#' + 'rg' + key).setValue({rb: 0});
+                view.down('#' + key).setValue({rb: 0});
             } else if (newValue === 'true') {
-                view.down('#' + 'rg' + key).setValue({rb: 1});
+                view.down('#' + key).setValue({rb: 1});
             } else {
-                view.down('#' + 'rg' + key).setValue({rb: null});
+                view.down('#' + + key).setValue({rb: null});
             }
         } else if (property.getPropertyType().data.simplePropertyType === 'CLOCK') {
             if (newValue !== null && newValue !== '' && newValue !== undefined) {
@@ -414,7 +418,7 @@ Ext.define('Mdc.controller.setup.Properties', {
             }
             if (selectionMode === 'COMBOBOX') {
                 if (newValue !== null && newValue !== '' && newValue !== undefined) {
-                    view.down('#' + key).setValue(newValue.count + ':' + newValue.timeUnit);
+                    view.down('#' + key).setValue(newValue.count + ' ' + newValue.timeUnit);
                 } else {
                     view.down('#' + key).setValue(null);
                 }
@@ -479,24 +483,31 @@ Ext.define('Mdc.controller.setup.Properties', {
                     if (view.down('#' + property.data.key) != null) {
                         var field = view.down('#' + property.data.key);
                         value = field.getValue();
-                        if (field.xtype === 'checkbox') {
-                            if (value === true) {
-                                value = 1;
-                            } else {
-                                value = 0;
+                        if (property.getPropertyType().data.simplePropertyType === 'CODETABLE'){
+                            if (value !== '') {
+                                var valueId = value.substr(0, value.indexOf('-'));
+                                value = new Object();
+                                value.codeTableId = parseInt(valueId);
                             }
                         }
-                        if (property.getPropertyType().data.simplePropertyType === 'CODETABLE' ||
-                            property.getPropertyType().data.simplePropertyType === 'USERFILEREFERENCE' ||
-                            property.getPropertyType().data.simplePropertyType === 'LOADPROFILETYPE') {
+                        if (property.getPropertyType().data.simplePropertyType === 'USERFILEREFERENCE') {
                             if (value !== '') {
-                                value = value.substr(0, value.indexOf('-'));
+                                var valueId = value.substr(0, value.indexOf('-'));
+                                value = new Object();
+                                value.userFileReferenceId = parseInt(valueId);
+                            }
+                        }
+                        if (property.getPropertyType().data.simplePropertyType === 'LOADPROFILETYPE') {
+                            if (value !== '') {
+                                var valueId = value.substr(0, value.indexOf('-'));
+                                value = new Object();
+                                value.loadProfileTypeId = parseInt(valueId);
                             }
                         }
 
                     }
                     if (property.getPropertyType().data.simplePropertyType === 'NULLABLE_BOOLEAN') {
-                        value = view.down('#rg' + property.data.key).getValue().rb;
+                        value = view.down('#' + property.data.key).getValue().rb;
                     }
                     if (property.getPropertyType().data.simplePropertyType === 'DATE') {
                         value = view.down('#date' + property.data.key).getValue();
@@ -527,17 +538,18 @@ Ext.define('Mdc.controller.setup.Properties', {
                         var unitField = view.down('#tu_' + property.data.key);
                         if (unitField === null) {
                             if (count.getValue() != null) {
-                                var countValue = count.getValue().substr(0, count.getValue().indexOf(':'));
-                                var timeUnitValue = count.getValue().substr(count.getValue().indexOf(':') + 1);
-                                value = countValue + ' ' + timeUnitValue;
+                                var countValue = count.getValue().substr(0, count.getValue().indexOf(' '));
+                                var timeUnitValue = count.getValue().substr(count.getValue().indexOf(' ') + 1);
+                                value = new Object();
+                                value.count = parseInt(countValue);
+                                value.timeUnit = timeUnitValue;
                             } else {
                                 value = null;
                             }
                         } else {
-                            /*value = new Object();
-                             value.count = count.getValue();
-                             value.timeUnit = unitField.getValue();*/
-                            value = count.getValue() + ' ' + unitField.getValue();
+                            value = new Object();
+                            value.count = count.getValue();
+                            value.timeUnit = unitField.getValue();
                         }
 
                     }
@@ -601,7 +613,12 @@ Ext.define('Mdc.controller.setup.Properties', {
 
     closeLoadProfileTypeSelectionWindow: function () {
         this.loadProfileTypeSelectionWindow.close();
+    },
+
+    showErrors: function(errors) {
+        this.getPropertiesForm().getForm().markInvalid(errors);
     }
+
 })
 ;
 
