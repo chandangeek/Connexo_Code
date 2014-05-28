@@ -60,19 +60,21 @@ Ext.define('Isu.controller.IssueCreationRules', {
     chooseAction: function (menu, item) {
         var action = item.action;
         var id = menu.record.getId();
+        var router = this.getController('Uni.controller.history.Router');
 
         switch (action) {
             case 'delete':
                 this.deleteRule(menu.record);
                 break;
             case 'edit':
-                window.location.href = '#/administration/issuecreationrules/' + id + '/edit';
+                router.getRoute('administration/issue/creationrules/edit').forward({id: id});
                 break;
         }
     },
 
     createRule: function () {
-        window.location.href = '#/administration/issuecreationrules/create';
+        var router = this.getController('Uni.controller.history.Router');
+        router.getRoute('administration/issue/creationrules/create').forward();
     },
 
     deleteRule: function (rule) {
