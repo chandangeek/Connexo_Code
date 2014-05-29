@@ -38,23 +38,6 @@ Ext.define('Isu.controller.history.Administration', {
                             }
                         }
                     }
-                },
-                communicationtasks: {
-                    title: 'Communication Tasks',
-                    route: 'communicationtasks',
-                    controller: 'Isu.controller.CommunicationTasksView',
-                    items: {
-                        create: {
-                            title: 'Create',
-                            route: '/create',
-                            controller: 'Isu.controller.CommunicationTasksEdit'
-                        },
-                        edit: {
-                            title: 'Edit',
-                            route: '{id}',
-                            controller: 'Isu.controller.CommunicationTasksEdit'
-                        }
-                    }
                 }
             }
         }
