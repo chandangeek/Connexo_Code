@@ -19,10 +19,12 @@ Ext.define('Isu.view.workspace.issues.ActionMenu', {
             action: 'addcomment'
         },
         {
+            itemId: 'notify',
             text: 'Notify user',
             action: 'notify'
         },
         {
+            itemId: 'send',
             text: 'Send to inspect',
             action: 'send'
         }

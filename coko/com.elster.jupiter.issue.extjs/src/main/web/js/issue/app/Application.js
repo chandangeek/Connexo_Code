@@ -19,7 +19,7 @@ Ext.define('Isu.Application', {
         'Isu.controller.IssueDetail',
         'Isu.controller.history.Administration',
         'Isu.controller.AdministrationDataCollection',
-        'Isu.controller.Notify'
+        'Isu.controller.NotifySend'
     ],
 
     init: function () {
