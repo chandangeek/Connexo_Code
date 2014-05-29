@@ -331,11 +331,15 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                                                 var deviceTypeName = deviceType.get('name');
                                                 var deviceConfigName = deviceConfig.get('name');
                                                 widget.down('form').loadRecord(communicationTask);
-                                                var title = Uni.I18n.translate('communicationtasks.edit', 'MDC', 'Edit communication task');
+                                                var comTaskName = '';
+                                                if(!Ext.isEmpty(communicationTask.get('comTask'))) {
+                                                    comTaskName = communicationTask.get('comTask').name;
+                                                }
+                                                var title = Uni.I18n.translate('communicationtasks.edit', 'MDC', 'Edit') + ' ' + comTaskName;
                                                 widget.down('#communicationTaskEditForm').setTitle(title);
                                                 widget.down('#enableScheduleFieldItem').fireEvent('change', null, false, false);
                                                 widget.setValues(communicationTask);
-                                                me.overviewBreadCrumbs(deviceTypeId, deviceConfigurationId, deviceTypeName, deviceConfigName, Uni.I18n.translate('communicationtasks.edit', 'MDC', 'Edit communication task'));
+                                                me.overviewBreadCrumbs(deviceTypeId, deviceConfigurationId, deviceTypeName, deviceConfigName, title);
                                                 widget.setLoading(false);
                                             }
                                         });
