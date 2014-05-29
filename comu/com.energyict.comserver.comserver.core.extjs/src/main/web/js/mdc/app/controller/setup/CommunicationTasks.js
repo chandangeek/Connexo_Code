@@ -423,7 +423,42 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                     me.loadCommunicationTasksStore();
                 },
                 failure: function (result, request) {
-                    me.fireEvent('shownotification', null, Uni.I18n.translate('communicationtasks.operation.failed', 'MDC', 'Operation failed'), 'notification-error');
+                    var errorText = Uni.I18n.translate('communicationtasks.error.unknown', 'MDC', 'Unknown error occurred');
+                    if(!Ext.isEmpty(result.responseText)) {
+                        var json = Ext.decode(result.responseText, true);
+                        if (json && json.error) {
+                            errorText = json.error;
+                        }
+                    }
+                    var titleKey = ((suspended == true) ? 'communicationtasks.activate.operation.failed' : 'communicationtasks.deactivate.operation.failed'),
+                        titleValue = ((suspended == true) ? 'Activate operation failed' : 'Deactivate operation failed');
+
+                    var errorMessage = Ext.widget('messagebox', {
+                        buttons: [
+                            {
+                                text: 'Retry',
+                                action: 'retry',
+                                ui: 'delete',
+                                handler: function () {
+                                    errorMessage.close();
+                                    me.activateCommunicationTask();
+                                }
+                            },
+                            {
+                                text: 'Cancel',
+                                action: 'cancel',
+                                ui: 'link',
+                                handler: function () {
+                                    errorMessage.close();
+                                }
+                            }
+                        ]
+                    }).show({
+                            ui: 'notification-error',
+                            title: Uni.I18n.translate(titleKey, 'MDC', titleValue),
+                            msg: errorText,
+                            icon: Ext.MessageBox.ERROR
+                    });
                 }
             });
         }
@@ -477,7 +512,42 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                         me.fireEvent('shownotification', null, Uni.I18n.translate('communicationtasks.removed', 'MDC', 'Communication task successfully removed'), 'notification-success');
                         me.loadCommunicationTasksStore();
                     } else {
-                        me.fireEvent('shownotification', null, Uni.I18n.translate('communicationtasks.operation.failed', 'MDC', 'Operation failed'), 'notification-error');
+                        var errorText = Uni.I18n.translate('communicationtasks.error.unknown', 'MDC', 'Unknown error occurred');
+                        if(!Ext.isEmpty(operation.response.responseText)) {
+                            var json = Ext.decode(operation.response.responseText, true);
+                            if (json && json.error) {
+                                errorText = json.error;
+                            }
+                        }
+                        var errorMessage = Ext.widget('messagebox', {
+                            buttons: [
+                                {
+                                    text: 'Retry',
+                                    action: 'retry',
+                                    ui: 'delete',
+                                    handler: function () {
+                                        errorMessage.close();
+                                        me.removeCommunicationTaskRecord({
+                                            communicationTaskToDelete: communicationTaskToDelete,
+                                            me: me
+                                        });
+                                    }
+                                },
+                                {
+                                    text: 'Cancel',
+                                    action: 'cancel',
+                                    ui: 'link',
+                                    handler: function () {
+                                        errorMessage.close();
+                                    }
+                                }
+                            ]
+                        }).show({
+                                ui: 'notification-error',
+                                title: Uni.I18n.translate('communicationtasks.remove.operation.failed', 'MDC', 'Remove operation failed'),
+                                msg: errorText,
+                                icon: Ext.MessageBox.ERROR
+                        });
                     }
 
                 }
