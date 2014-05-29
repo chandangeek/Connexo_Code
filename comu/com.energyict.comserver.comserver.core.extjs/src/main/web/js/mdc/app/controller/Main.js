@@ -198,4 +198,6 @@ Ext.define('Mdc.controller.Main', {
             this.getContentPanel().remove(widget, true);
         }
     }
+
+
 });

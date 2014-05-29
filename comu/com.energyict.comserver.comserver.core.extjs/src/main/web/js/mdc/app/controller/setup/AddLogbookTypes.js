@@ -12,6 +12,7 @@ Ext.define('Mdc.controller.setup.AddLogbookTypes', {
     ],
 
     init: function () {
+
         this.control({
             'add-logbook-types grid': {
                 selectionchange: this.countSelectedLogbooks
@@ -51,7 +52,6 @@ Ext.define('Mdc.controller.setup.AddLogbookTypes', {
             jsonData: jsonIds,
             success: function () {
                 window.location.href = '#/administration/devicetypes/' + addView.deviceTypeId + '/logbooktypes';
-
                 Ext.create('widget.uxNotification', {
                     html: 'Successfully added',
                     ui: 'notification-success'

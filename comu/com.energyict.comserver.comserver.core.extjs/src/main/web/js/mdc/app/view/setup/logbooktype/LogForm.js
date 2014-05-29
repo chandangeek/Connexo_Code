@@ -43,6 +43,7 @@ Ext.define('Mdc.view.setup.logbooktype.LogForm', {
                     itemId: 'obis',
                     xtype: 'textfield',
                     required: true,
+                    disabled: true,
                     allowBlank: false,
                     fieldLabel: 'OBIS code',
                     name: 'obis',

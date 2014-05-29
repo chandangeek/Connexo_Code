@@ -45,11 +45,12 @@ Ext.define('Mdc.controller.setup.LogForm', {
     },
 
     showOverview: function (id) {
-        var self = this;
-        var widget = Ext.widget('form-logbook');
-        var form = widget.down('form');
-        var btn = form.down('button[name=logAction]');
-        var title;
+        var self = this,
+            widget = Ext.widget('form-logbook'),
+            form = widget.down('form'),
+            obisField = form.down('#obis'),
+            btn = form.down('button[name=logAction]'),
+            title;
 
         this.getApplication().getController('Mdc.controller.Main').showContent(widget);
 
@@ -58,6 +59,7 @@ Ext.define('Mdc.controller.setup.LogForm', {
             self.getModel('Mdc.model.Logbook').load(id, {
                 success: function (record) {
                     form.loadRecord(record);
+                    self.logbookAssigned(record);
                 }
             });
             title = 'Edit logbook type';
@@ -67,9 +69,27 @@ Ext.define('Mdc.controller.setup.LogForm', {
             title = 'Create logbook type';
             btn.setText('Add');
             btn.action = 'create';
+            self.getFormPanel().down('#obis').setDisabled(false);
         }
-
         form.setTitle(title);
+
+    },
+
+    // todo: should be done by another way
+    logbookAssigned: function (record) {
+        var self = this,
+            result;
+        delete record.raw.id;
+        jsonValues = Ext.JSON.encode(record.raw);
+        Ext.Ajax.request({
+            url: '/api/mds/logbooktypes/' + self.logId,
+            method: 'PUT',
+            jsonData: jsonValues,
+            waitMsg: 'Loading...',
+            success: function () {
+                self.getFormPanel().down('#obis').setDisabled(false);
+            }
+        });
     },
 
     setBreadcrumb: function (breadcrumbs) {
@@ -83,6 +103,7 @@ Ext.define('Mdc.controller.setup.LogForm', {
                 href: 'logbooktypes'
             }),
             breadcrumbChild2;
+
         if (me.crumbId) {
             breadcrumbChild2 = Ext.create('Uni.model.BreadcrumbItem', {
                 text: 'Edit logbook type',
@@ -99,7 +120,7 @@ Ext.define('Mdc.controller.setup.LogForm', {
         breadcrumbs.setBreadcrumbItem(breadcrumbParent);
     },
 
-    createRequest: function(form, formErrorsPanel, preloader) {
+    createRequest: function (form, formErrorsPanel, preloader) {
         var self = this,
             jsonValues = Ext.JSON.encode(form.getValues());
 
@@ -141,10 +162,9 @@ Ext.define('Mdc.controller.setup.LogForm', {
         });
     },
 
-    editRequest: function(formPanel, form, formErrorsPanel, preloader) {
+    editRequest: function (formPanel, form, formErrorsPanel, preloader) {
         var self = this,
             jsonValues = Ext.JSON.encode(form.getValues());
-
         Ext.Ajax.request({
             url: '/api/mds/logbooktypes/' + self.logId,
             method: 'PUT',
@@ -184,7 +204,7 @@ Ext.define('Mdc.controller.setup.LogForm', {
         });
     },
 
-    showErrorsPanel: function(formErrorsPanel) {
+    showErrorsPanel: function (formErrorsPanel) {
         formErrorsPanel.hide();
         formErrorsPanel.removeAll();
         formErrorsPanel.add({
