@@ -425,13 +425,13 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         }
     },
 
-    updateCommunicationTask: function(mode) {
+    updateCommunicationTask: function(operation) {
         var me = this,
             form = me.getCommunicationTaskEditForm(),
             formErrorsPlaceHolder = Ext.ComponentQuery.query('#communicationTaskEditFormErrors')[0];
         if (form.isValid()) {
             formErrorsPlaceHolder.hide();
-            me[mode + 'CommunicationTaskRecord'](form.getValues());
+            me[operation + 'CommunicationTaskRecord'](form.getValues(), {operation : operation});
         } else {
             me.clearPreLoader();
             formErrorsPlaceHolder.hide();
@@ -443,20 +443,20 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         }
     },
 
-    editCommunicationTaskRecord: function(values) {
+    editCommunicationTaskRecord: function(values, cfg) {
         var me = this,
             record = me.getCommunicationTaskEditForm().getRecord();
-        me.updateRecord(record, values, {
+        me.updateRecord(record, values, Ext.apply({
             successMessage: Uni.I18n.translate('communicationtasks.updated', 'MDC', 'Communication task successfully updated')
-        });
+        }, cfg));
     },
 
-    addCommunicationTaskRecord: function(values) {
+    addCommunicationTaskRecord: function(values, cfg) {
         var me = this,
             record = Ext.create(Mdc.model.CommunicationTaskConfig);
-        me.updateRecord(record, values, {
+        me.updateRecord(record, values, Ext.apply({
             successMessage: Uni.I18n.translate('communicationtasks.created', 'MDC', 'Communication task successfully created')
-        });
+        }, cfg));
     },
 
     removeCommunicationTaskRecord: function(cfg) {
@@ -491,11 +491,46 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                     me.fireEvent('shownotification', null, cfg.successMessage, 'notification-success');
                 },
                 failure: function (record, operation) {
-                    var json = Ext.decode(operation.response.responseText);
-                    if (json && json.errors) {
-                        me.getCommunicationTaskEditForm().getForm().markInvalid(json.errors);
+                    var errorText = Uni.I18n.translate('communicationtasks.error.unknown', 'MDC', 'Unknown error occurred');
+                    if(!Ext.isEmpty(operation.response.responseText)) {
+                        var json = Ext.decode(operation.response.responseText, true);
+                        if (json && json.errors) {
+                            me.getCommunicationTaskEditForm().getForm().markInvalid(json.errors);
+                        }
+                        if (json && json.error) {
+                            errorText = json.error;
+                        }
                     }
-                    me.fireEvent('shownotification', null, Uni.I18n.translate('communicationtasks.operation.failed', 'MDC', 'Operation failed'), 'notification-error');
+
+                    var titleKey = ((cfg.operation == 'add') ? 'communicationtasks.add.operation.failed' : 'communicationtasks.edit.operation.failed'),
+                        titleValue = ((cfg.operation == 'add') ? 'Add operation failed' : 'Update operation failed');
+
+                    var errorMessage = Ext.widget('messagebox', {
+                        buttons: [
+                            {
+                                text: 'Retry',
+                                action: 'retry',
+                                ui: 'delete',
+                                handler: function () {
+                                    errorMessage.close();
+                                    me[cfg.operation + 'CommunicationTask']();
+                                }
+                            },
+                            {
+                                text: 'Cancel',
+                                action: 'cancel',
+                                ui: 'link',
+                                handler: function () {
+                                    errorMessage.close();
+                                }
+                            }
+                        ]
+                    }).show({
+                            ui: 'notification-error',
+                            title: Uni.I18n.translate(titleKey, 'MDC', titleValue),
+                            msg: errorText,
+                            icon: Ext.MessageBox.ERROR
+                    });
                 },
                 callback: function() {
                     me.clearPreLoader();
