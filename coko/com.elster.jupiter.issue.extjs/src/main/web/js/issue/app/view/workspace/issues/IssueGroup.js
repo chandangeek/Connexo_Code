@@ -9,7 +9,8 @@ Ext.define('Isu.view.workspace.issues.IssueGroup', {
     items: [
         {
             itemId: 'issue-group-grid',
-            xtype: 'issue-group-grid'},
+            xtype: 'issue-group-grid'
+        },
         {
             alias: 'widget.issue-group-info'
         }

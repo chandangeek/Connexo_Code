@@ -13,13 +13,25 @@ Ext.define('Isu.view.workspace.issues.Filter', {
         align: 'stretch'
     },
     items: [
-        { xtype: 'filtering-toolbar' },
-        {   itemId: 'menuseparator',
-            xtype: 'menuseparator' },
-        { xtype: 'grouping-toolbar' },
-        {   itemId: 'menuseparator',
-            xtype: 'menuseparator' },
-        { xtype: 'sorting-toolbar'},
-        { xtype: 'issue-group' }
+        {
+            xtype: 'filtering-toolbar'
+        },
+        {
+            itemId: 'menuseparator',
+            xtype: 'menuseparator'
+        },
+        {
+            xtype: 'grouping-toolbar'
+        },
+        {
+            itemId: 'menuseparator',
+            xtype: 'menuseparator'
+        },
+        {
+            xtype: 'sorting-toolbar'
+        },
+        {
+            xtype: 'issue-group'
+        }
     ]
 });

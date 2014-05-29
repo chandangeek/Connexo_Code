@@ -62,12 +62,8 @@ Ext.define('Isu.controller.Issues', {
             selector: 'issues-overview grouping-toolbar'
         },
         {
-            ref: 'groupGrid',
-            selector: 'issues-overview issue-group-grid'
-        },
-        {
-            ref: 'groupInfo',
-            selector: 'issues-overview issue-group-info'
+            ref: 'groupPanel',
+            selector: 'issues-overview issue-group'
         },
         {
             ref: 'issueFilter',
@@ -84,7 +80,7 @@ Ext.define('Isu.controller.Issues', {
             'issues-list uni-actioncolumn': {
                 menuclick: this.chooseIssuesAction
             },
-            'issue-action-menu' : {
+            'issue-action-menu': {
                 click: this.chooseIssuesAction
             },
             'issues-overview issues-item': {
@@ -129,30 +125,24 @@ Ext.define('Isu.controller.Issues', {
     showOverview: function () {
         var self = this,
             issuesStore = this.getStore('Isu.store.Issues'),
-            groupStore = this.getStore('Isu.store.IssuesGroups');
+            groupStore = this.getStore('Isu.store.IssuesGroups'),
+            filter,
+            sort;
 
         self.extraParamsModel = new Isu.model.ExtraParams();
-
-//        issuesStore.on('load', function () {
-//            issuesStore.proxy.extraParams = {};
-//        }, self, {single: true});
-
-        self.getApplication().fireEvent('changecontentevent', Ext.widget('issues-overview'));
-
-        var filter = self.getFilteringToolbar(),
-            sort =  self.getSortingToolbar();
 
         self.extraParamsModel.setValuesFromQueryString(function (extraParamsModel, data) {
             issuesStore.proxy.extraParams = data || {};
             self.setParamsForIssueGroups(extraParamsModel.get('filter'), extraParamsModel.get('group').get('value'));
 
+            self.getApplication().fireEvent('changecontentevent', Ext.widget('issues-overview'));
+            self.getFilteringToolbar().addFilterButtons(extraParamsModel.get('filter'));
+            self.getSortingToolbar().addSortButtons(extraParamsModel.get('sort'));
+            self.setFilterForm();
+
             groupStore.on('load', function () {
                 self.setGrouping();
             }, self, {single: true});
-
-            filter.addFilterButtons(extraParamsModel.get('filter'));
-            sort.addSortButtons(extraParamsModel.get('sort'));
-            self.setFilterForm();
         });
     },
 
@@ -234,7 +224,7 @@ Ext.define('Isu.controller.Issues', {
         this.refresh();
     },
 
-    refresh: function() {
+    refresh: function () {
         window.location.replace(this.extraParamsModel.getQueryStringFromValues());
 //        this.showOverview();
     },
@@ -243,15 +233,15 @@ Ext.define('Isu.controller.Issues', {
         var grouping = this.extraParamsModel.get('group').get('value'),
             groupStore = this.getStore('Isu.store.IssuesGroups'),
             groupingCombo = this.getGroupingToolbar().down('[name=groupingcombo]'),
-            groupingGrid = this.getGroupGrid(),
-            groupingInformation = this.getGroupInfo(),
+            groupPanel = this.getGroupPanel(),
+            groupingGrid = groupPanel.down('issue-group-grid'),
             selectionModel = groupingGrid.getSelectionModel(),
             groupingField;
 
         groupingCombo.setValue(grouping);
 
         if (grouping == 'none') {
-            groupingGrid.hide();
+            groupPanel.hide();
         } else {
             if (this.extraParamsModel.get('filter').get(grouping)) {
                 groupingField = groupStore.getById(this.extraParamsModel.get('filter').get(grouping).getId());
@@ -260,16 +250,16 @@ Ext.define('Isu.controller.Issues', {
             }
             if (groupingField) {
                 selectionModel.select(groupingField);
-                groupingInformation.down('[name=informationtext]').update('<h3>Issues for reason: ' + groupingField.get('reason') + '</h3>');
-                groupingInformation.show();
+                /*groupingInformation.down('[name=informationtext]').update('<h3>Issues for reason: ' + groupingField.get('reason') + '</h3>');
+                groupingInformation.show();*/
             } else {
                 this.getIssuesList().hide();
-                this.getNoIssues().update('<h3>No group selected</h3><p>Select a group of issues.</p>');
+                /*this.getNoIssues().update('<h3>No group selected</h3><p>Select a group of issues.</p>');
                 this.getNoIssues().show();
-                this.getItemPanel().fireEvent('clear');
+                this.getItemPanel().fireEvent('clear');*/
             }
             groupingGrid.on('itemclick', this.changeGroup, this, {single: true});
-            groupingGrid.show();
+            groupPanel.show();
         }
     },
 
@@ -518,7 +508,7 @@ Ext.define('Isu.controller.Issues', {
     onIssuesGridRefresh: function (grid) {
         var store = grid.getStore(),
             grouping = this.extraParamsModel.get('group').get('value'),
-           // groupingField = this.extraParamsModel.get('filter').get(grouping) || this.extraParamsModel.get('groupValue'),
+        // groupingField = this.extraParamsModel.get('filter').get(grouping) || this.extraParamsModel.get('groupValue'),
             extraParams = store.getProxy().extraParams,
             emptyText;
 
@@ -537,7 +527,7 @@ Ext.define('Isu.controller.Issues', {
 
         this.setAssigneeTypeIconTooltip(grid);
 
-        if (!(grouping && grouping != 'none' && !groupingField)) {
+        if (!(grouping && grouping != 'none'/* && !groupingField*/)) {
             this.selectFirstGridRow(grid);
         }
     }
