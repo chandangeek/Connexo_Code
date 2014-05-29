@@ -31,7 +31,8 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         {ref: 'communicationTaskPreviewForm', selector: '#communicationTaskPreviewForm'},
         {ref: 'communicationTaskEditForm',selector: '#communicationTaskEditForm'},
         {ref: 'communicationTaskEditPanel',selector: '#communicationTaskEdit'},
-        {ref: 'communicationTaskSetupPanel',selector: '#communicationTaskSetup'}
+        {ref: 'communicationTaskSetupPanel',selector: '#communicationTaskSetup'},
+        {ref: 'scheduleField',selector: '#communicationTaskEditForm #scheduleField #scheduleFieldItem'}
     ],
 
     init: function () {
@@ -48,6 +49,9 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
             },
             '#addEditButton[action=editCommunicationTaskAction]':{
                 click: me.editCommunicationTask
+            },
+            '#communicationTaskEditForm #scheduleField #enableScheduleFieldItem': {
+                change: me.enableScheduleFieldItemChanged
             },
             'menu menuitem[action=editcommunicationtask]': {
                 click: me.editCommunicationTaskHistory
@@ -96,6 +100,27 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
             html: text,
             ui: notificationType
         }).show();
+    },
+
+    enableScheduleFieldItemChanged: function(item, newValue, oldValue, eOpts) {
+        var me = this;
+
+        if(newValue === false) {
+            me.getScheduleField().clear();
+            me.getScheduleField().setValue({
+                every: {
+                    count: 15,
+                    timeUnit: 'minutes'
+                },
+                offset: {
+                    count: 0,
+                    timeUnit: 'seconds'
+                }
+            });
+            me.getScheduleField().disable();
+        } else {
+            me.getScheduleField().enable();
+        }
     },
 
     loadCommunicationTasksStore: function() {
@@ -238,7 +263,8 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                                                         var deviceTypeName = deviceType.get('name');
                                                         var deviceConfigName = deviceConfig.get('name');
                                                         var title = Uni.I18n.translate('communicationtasks.add', 'MDC', 'Add communication task');
-                                                        widget.down('#communicationTaskEditAddTitle').update('<h1>' + title  + '</h1>');
+                                                        widget.down('#communicationTaskEditForm').setTitle(title);
+                                                        widget.down('#enableScheduleFieldItem').fireEvent('change', null, false, false);
                                                         widget.setValues(communicationTask);
                                                         me.overviewBreadCrumbs(deviceTypeId, deviceConfigurationId, deviceTypeName, deviceConfigName, Uni.I18n.translate('communicationtasks.add', 'MDC', 'Add communication task'));
                                                         widget.setLoading(false);
@@ -278,7 +304,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
             success: function (communicationTask) {
                 var widget = Ext.widget('communicationTaskEdit', {
                     edit: true,
-                    returnLink: me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens(),
+                    returnLink: '#/administration/devicetypes/'+me.deviceTypeId+'/deviceconfigurations/'+me.deviceConfigurationId+'/comtaskenablements',
                     comTasksStore: comTasksStore,
                     securityPropertySetsStore: securityPropertySetsStore,
                     connectionMethodsStore: connectionMethodsStore,
@@ -306,7 +332,8 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                                                 var deviceConfigName = deviceConfig.get('name');
                                                 widget.down('form').loadRecord(communicationTask);
                                                 var title = Uni.I18n.translate('communicationtasks.edit', 'MDC', 'Edit communication task');
-                                                widget.down('#communicationTaskEditAddTitle').update('<h1>' + title  + '</h1>');
+                                                widget.down('#communicationTaskEditForm').setTitle(title);
+                                                widget.down('#enableScheduleFieldItem').fireEvent('change', null, false, false);
                                                 widget.setValues(communicationTask);
                                                 me.overviewBreadCrumbs(deviceTypeId, deviceConfigurationId, deviceTypeName, deviceConfigName, Uni.I18n.translate('communicationtasks.edit', 'MDC', 'Edit communication task'));
                                                 widget.setLoading(false);
@@ -489,6 +516,8 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         record.set("priority", values.priority);
         if(values.nextExecutionSpecsEnable == true) {
             record.set("nextExecutionSpecs", values.nextExecutionSpecs);
+        } else {
+            record.set("nextExecutionSpecs", null);
         }
         record.set("ignoreNextExecutionSpecsForInbound", values.ignoreNextExecutionSpecsForInbound);
     },

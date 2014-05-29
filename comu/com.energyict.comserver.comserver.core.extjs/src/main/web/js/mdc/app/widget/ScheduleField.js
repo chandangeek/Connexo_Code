@@ -347,6 +347,7 @@ Ext.define('Mdc.widget.ScheduleField', {
                     }
                     break;
             }
+            me.adjustOffsetGui(null, schedule.every.timeUnit);
         }
     },
 
