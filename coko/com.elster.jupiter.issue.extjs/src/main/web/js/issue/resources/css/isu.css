@@ -520,6 +520,14 @@ span[class^=isu-assignee-] {
     margin: 40px 0px 0px 0px !important;
 }
 
+.chkbox {
+    height: 13px;
+    width: 13px;
+    background: black url('http://cdn.sencha.io/extjs/4.1.0.b1/resources/themes/images/default/form/checkbox.gif') no-repeat -13px 0;
+    float: left;
+    margin: 0 5px 0 0;
+}
+
 .x-boundlist-selected .chkbox {
     background-position: -13px -13px;
 }
