@@ -125,11 +125,21 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
             },
             failure: function (result, request) {
                 var data = Ext.JSON.decode(result.responseText);
-                Ext.create('widget.uxNotification', {
-                    html: data,
-                    title: 'Error during removing of security setting',
-                    ui: 'notification-success'
-                }).show();
+                Ext.widget('messagebox', {
+                    buttons: [
+                        {
+                            text: 'Close',
+                            handler: function (button, event) {
+                                this.up('messagebox').hide();
+                            }
+                        }
+                    ]
+                }).show({
+                        ui: 'notification-error',
+                        title: 'Error during removing of security setting',
+                        msg: data.message,
+                        icon: Ext.MessageBox.ERROR
+                    })
             }
         });
     },
