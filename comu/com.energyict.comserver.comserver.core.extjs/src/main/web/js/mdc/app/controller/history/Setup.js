@@ -436,7 +436,7 @@ Ext.define('Mdc.controller.history.Setup', {
                         },
                         edit: {
                             title: 'Edit',
-                            route: '{id}/edit',
+                            route: '{id}',
                             controller: 'Mdc.controller.setup.CommunicationTasksCreateEdit',
                             action: 'showCommunicationTasksCreateEdit'
                         }
