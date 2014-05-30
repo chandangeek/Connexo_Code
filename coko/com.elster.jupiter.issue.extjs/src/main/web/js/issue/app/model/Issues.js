@@ -36,9 +36,15 @@ Ext.define('Isu.model.Issues', {
         },
         {
             name: 'title', mapping: function (data) {
-                // todo: internationalisation
-                return data.reason.name + (data.device ? ' to ' + data.device.name + ' ' + data.device.serialNumber : '');
-            }
+            // todo: internationalisation
+            return data.reason.name + (data.device ? ' to ' + data.device.name + ' ' + data.device.serialNumber : '');
+        }
+        },
+        {
+            name: 'devicelink', mapping: function (data) {
+            // todo: internationalisation
+            return data.device ? data.device.name + ' ' + data.device.serialNumber : '';
+        }
         },
         {name: 'reason_name', mapping: 'reason.name'},
         {name: 'status_name', mapping: 'status.name'},
