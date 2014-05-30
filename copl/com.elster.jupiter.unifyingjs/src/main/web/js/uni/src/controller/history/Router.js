@@ -177,7 +177,7 @@ Ext.define('Uni.controller.history.Router', {
     },
 
     /**
-     * Bulds breadcrums data based on path
+     * Builds breadcrumbs data based on path
      * @param path
      * @returns [Route]
      */
