@@ -2,7 +2,6 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Uni.model.BreadcrumbItem',
         'Ext.ux.window.Notification'
     ],
 
@@ -24,7 +23,6 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
         {ref: 'communicationSchedulePreview', selector: '#communicationSchedulePreview'},
         {ref: 'communicationSchedulePreviewForm', selector: '#communicationSchedulePreviewForm'},
         {ref: 'communicationScheduleEditForm', selector: '#communicationScheduleEditForm'},
-        {ref: 'breadCrumbs', selector: 'breadcrumbTrail'},
         {ref: 'communicationTaskGrid', selector: '#communicationTaskGridFromSchedule'}
     ],
 
@@ -72,7 +70,6 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
     showCommunicationSchedules: function(){
         var widget = Ext.widget('communicationSchedulesSetup');
         this.getApplication().fireEvent('changecontentevent', widget);
-        this.overviewBreadCrumb();
     },
 
     createCommunicationScheduleHistory: function(){
@@ -94,12 +91,10 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
         if(id === undefined){
             this.record = Ext.create(Mdc.model.CommunicationSchedule);
             widget.down('#communicationScheduleEditCreateTitle').update('<h1>' + Uni.I18n.translate('communicationschedule.addCommunicationSchedule', 'MDC', 'Add communication schedule')  + '</h1>');
-            this.createBreadCrumb();
         } else {
             Ext.ModelManager.getModel('Mdc.model.CommunicationSchedule').load(id, {
                 success: function(communicationSchedule){
                     me.record = communicationSchedule;
-                    me.createBreadCrumb(id);
                     widget.down('#communicationScheduleEditCreateTitle').update('<h1>' + Uni.I18n.translate('communicationschedule.editCommunicationSchedule', 'MDC', 'Edit') + ' ' + communicationSchedule.get('name') + '</h1>');
                     widget.down('#communicationScheduleEditForm').loadRecord(communicationSchedule);
                     widget.down('#communicationScheduleEditForm').down('#comTasksOnForm').reconfigure(communicationSchedule.comTaskUsages());
@@ -248,39 +243,5 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
         this.record.comTaskUsages().add(selection);
         this.getCommunicationScheduleEditForm().down('#comTasksOnForm').reconfigure(this.record.comTaskUsages());
         this.getCommunicationTaskGrid().up('.window').close();
-    },
-
-    overviewBreadCrumb: function () {
-        var breadcrumbChild = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('communicationschedule.communicationSchedules', 'MDC', 'Communication schedules'),
-            href: 'communicationschedules'
-        });
-        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#/administration'
-        });
-        breadcrumbParent.setChild(breadcrumbChild);
-        this.getBreadCrumbs().setBreadcrumbItem(breadcrumbParent);
-    },
-
-    createBreadCrumb: function (id) {
-        var breadcrumbChild2 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: id===undefined?Uni.I18n.translate('communicationschedule.add', 'MDC', 'Add communication schedule'):Uni.I18n.translate('communicationschedule.edit', 'MDC', 'Edit communication schedule'),
-            href: 'create'
-        });
-        var breadcrumbChild = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('communicationschedule.communicationSchedules', 'MDC', 'Communication schedules'),
-            href: 'communicationschedules'
-        });
-        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#/administration'
-        });
-        breadcrumbParent.setChild(breadcrumbChild).setChild(breadcrumbChild2);
-        this.getBreadCrumbs().setBreadcrumbItem(breadcrumbParent);
     }
-
-
-
-
 });

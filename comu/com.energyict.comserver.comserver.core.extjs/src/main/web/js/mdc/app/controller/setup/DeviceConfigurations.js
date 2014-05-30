@@ -2,7 +2,6 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Uni.model.BreadcrumbItem'
     ],
     deviceTypeId: null,
     views: [
@@ -42,7 +41,6 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         {ref: 'activateDeviceconfigurationMenuItem', selector: '#activateDeviceconfigurationMenuItem'},
         {ref: 'gatewayCheckbox', selector: '#gatewayCheckbox'},
         {ref: 'addressableCheckbox', selector: '#addressableCheckbox'},
-        {ref: 'breadCrumbs', selector: 'breadcrumbTrail'},
         {ref: 'gatewayMessage', selector: '#gatewayMessage'},
         {ref: 'addressableMessage', selector: '#addressableMessage'},
         {ref: 'editLogbookConfiguration', selector: 'edit-logbook-configuration'}
@@ -100,7 +98,6 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(id,{
             success: function(deviceType){
                 me.getApplication().fireEvent('changecontentevent', widget);
-                me.overviewBreadCrumb(id,deviceType.get('name'));
             }
         });
 
@@ -138,7 +135,6 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                 Ext.ModelManager.getModel('Mdc.model.DeviceType').load(devicetype,{
                     success: function(deviceType){
                         var deviceConfigurationId = deviceConfiguration.get('id');
-                        me.detailBreadCrumb(devicetype,deviceType.get('name'),deviceConfigurationId,deviceConfiguration.get('name'));
                         me.getDeviceConfigurationDetailDeviceTypeLink().getEl().set({href:'#/administration/devicetypes/' + me.deviceTypeId});
                         me.getDeviceConfigurationDetailDeviceTypeLink().getEl().setHTML(deviceType.get('name'));
                         me.getDeviceConfigurationDetailRegisterLink().getEl().set({href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + deviceConfigurationId +'/registerconfigurations'});
@@ -260,7 +256,6 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                 me.getApplication().fireEvent('changecontentevent', widget);
                 widget.down('#deviceConfigurationEditCreateTitle').update('<h1>'+Uni.I18n.translate('general.create', 'MDC', 'Create') + ' ' + 'device configuration'+'</h1>');
                 me.setCheckBoxes(deviceType);
-                me.createBreadCrumb(deviceTypeId,deviceType.get('name'));
             }
         });
     },
@@ -292,7 +287,6 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             success: function (deviceConfiguration) {
                 Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId,{
                     success: function(deviceType){
-                        me.editBreadCrumb(deviceTypeId, deviceType.get('name'), deviceConfigurationId, deviceConfiguration.get('name'));
                         widget.down('form').loadRecord(deviceConfiguration);
                         widget.down('#deviceConfigurationEditCreateTitle').update('<h1>'+Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + deviceConfiguration.get('name')+'"</h1>');
                         me.setCheckBoxes(deviceType);
@@ -341,110 +335,6 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         }
     },
 
-    overviewBreadCrumb: function (id,name) {
-        var breadcrumbChild3 = Ext.create('Uni.model.BreadcrumbItem',{
-            text: Uni.I18n.translate('deviceconfiguration.deviceConfigurations', 'MDC', 'Device configurations'),
-            href: 'deviceconfigurations'
-        });
-        var breadcrumbChild2 = Ext.create('Uni.model.BreadcrumbItem',{
-            text: name,
-            href: id
-        });
-        var breadcrumbChild = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('devicetype.deviceTypes', 'MDC', 'Device types'),
-            href: 'devicetypes'
-        });
-        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#/administration'
-        });
-        breadcrumbParent.setChild(breadcrumbChild).setChild(breadcrumbChild2).setChild(breadcrumbChild3);
-        this.getBreadCrumbs().setBreadcrumbItem(breadcrumbParent);
-    },
-
-    createBreadCrumb: function (id,name) {
-        var breadcrumbChild4 = Ext.create('Uni.model.BreadcrumbItem',{
-            text: Uni.I18n.translate('deviceconfiguration.createDeviceConfiguration', 'MDC', 'Create device configuration'),
-            href: 'create'
-        });
-        var breadcrumbChild3 = Ext.create('Uni.model.BreadcrumbItem',{
-            text: Uni.I18n.translate('deviceconfiguration.deviceConfigurations', 'MDC', 'Device configurations'),
-            href: 'deviceconfigurations'
-        });
-        var breadcrumbChild2 = Ext.create('Uni.model.BreadcrumbItem',{
-            text: name,
-            href: id
-        });
-        var breadcrumbChild = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('devicetype.deviceTypes', 'MDC', 'Device types'),
-            href: 'devicetypes'
-        });
-        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#/administration'
-        });
-        breadcrumbParent.setChild(breadcrumbChild).setChild(breadcrumbChild2).setChild(breadcrumbChild3).setChild(breadcrumbChild4);
-        this.getBreadCrumbs().setBreadcrumbItem(breadcrumbParent);
-    },
-
-    editBreadCrumb: function (deviceTypeId,deviceTypeName,deviceConfigurationId,deviceConfigurationName) {
-        var breadcrumbChild5 = Ext.create('Uni.model.BreadcrumbItem',{
-            text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-            href: 'edit'
-        });
-        var breadcrumbChild4 = Ext.create('Uni.model.BreadcrumbItem',{
-            text: deviceConfigurationName,
-            href: deviceConfigurationId
-        });
-        var breadcrumbChild3 = Ext.create('Uni.model.BreadcrumbItem',{
-            text: Uni.I18n.translate('deviceconfiguration.deviceConfigurations', 'MDC', 'Device configurations'),
-            href: 'deviceconfigurations'
-        });
-        var breadcrumbChild2 = Ext.create('Uni.model.BreadcrumbItem',{
-            text: deviceTypeName,
-            href: deviceTypeId
-        });
-        var breadcrumbChild = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('devicetype.deviceTypes', 'MDC', 'Device types'),
-            href: 'devicetypes'
-        });
-        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#/administration'
-        });
-        breadcrumbParent.setChild(breadcrumbChild).setChild(breadcrumbChild2).setChild(breadcrumbChild3).setChild(breadcrumbChild4).setChild(breadcrumbChild5);
-        this.getBreadCrumbs().setBreadcrumbItem(breadcrumbParent);
-    },
-
-    detailBreadCrumb: function (deviceTypeId,deviceTypeName,deviceConfigurationId,deviceConfigurationName) {
-        var breadcrumbChild5 = Ext.create('Uni.model.BreadcrumbItem',{
-            text: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),
-            href: 'overview'
-        });
-        var breadcrumbChild4 = Ext.create('Uni.model.BreadcrumbItem',{
-            text: deviceConfigurationName,
-            href: deviceConfigurationId
-        });
-        var breadcrumbChild3 = Ext.create('Uni.model.BreadcrumbItem',{
-            text: Uni.I18n.translate('deviceconfiguration.deviceConfigurations', 'MDC', 'Device configurations'),
-            href: 'deviceconfigurations'
-        });
-        var breadcrumbChild2 = Ext.create('Uni.model.BreadcrumbItem',{
-            text: deviceTypeName,
-            href: deviceTypeId
-        });
-        var breadcrumbChild = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('devicetype.deviceTypes', 'MDC', 'Device types'),
-            href: 'devicetypes'
-        });
-        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#/administration'
-        });
-        breadcrumbParent.setChild(breadcrumbChild).setChild(breadcrumbChild2).setChild(breadcrumbChild3).setChild(breadcrumbChild4).setChild(breadcrumbChild5);
-        this.getBreadCrumbs().setBreadcrumbItem(breadcrumbParent);
-    },
-
     showDeviceConfigurationLogbooksView: function (deviceTypeId, deviceConfigurationId) {
         var me = this,
             model = Ext.ModelManager.getModel('Mdc.model.DeviceType'),
@@ -468,7 +358,6 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                         success: function (deviceType) {
                             deviceConfigModel.load(deviceConfigurationId, {
                                 success: function (deviceConfiguration) {
-                                    me.logbookBreadCrumb(deviceType.get('name'), deviceTypeId, deviceConfiguration.get('name'), deviceConfigurationId);
                                     widget.setLoading(false);
                                 }
                             });
@@ -495,34 +384,6 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         );
     },
 
-    logbookBreadCrumb: function (deviceTypeName, deviceTypeId, deviceConfigurationName, deviceConfigurationId) {
-        var breadcrumb1 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#/administration'
-        });
-        var breadcrumb2 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('devicetype.deviceTypes', 'MDC', 'Device types'),
-            href: 'devicetypes'
-        });
-        var breadcrumb3 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: deviceTypeName,
-            href: deviceTypeId
-        });
-        var breadcrumb4 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: 'Device configurations',
-            href: 'deviceconfigurations'
-        });
-        var breadcrumb5 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: deviceConfigurationName,
-            href: deviceConfigurationId
-        });
-        var breadcrumb6 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: 'Logbook configuration'
-        });
-        breadcrumb1.setChild(breadcrumb2).setChild(breadcrumb3).setChild(breadcrumb4).setChild(breadcrumb5).setChild(breadcrumb6);
-        this.getBreadCrumbs().setBreadcrumbItem(breadcrumb1);
-    },
-
     showAddDeviceConfigurationLogbooksView: function (deviceTypeId, deviceConfigurationId) {
         var me = this,
             model = Ext.ModelManager.getModel('Mdc.model.DeviceType'),
@@ -546,7 +407,6 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                         success: function (deviceType) {
                             deviceConfigModel.load(deviceConfigurationId, {
                                 success: function (deviceConfiguration) {
-                                    me.addLogbookBreadCrumb(deviceType.get('name'), deviceTypeId, deviceConfiguration.get('name'), deviceConfigurationId);
                                     widget.setLoading(false);
                                 }
                             });
@@ -562,38 +422,6 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                 }
             }
         );
-    },
-
-    addLogbookBreadCrumb: function (deviceTypeName, deviceTypeId, deviceConfigurationName, deviceConfigurationId) {
-        var breadcrumb1 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#/administration'
-        });
-        var breadcrumb2 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('devicetype.deviceTypes', 'MDC', 'Device types'),
-            href: 'devicetypes'
-        });
-        var breadcrumb3 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: deviceTypeName,
-            href: deviceTypeId
-        });
-        var breadcrumb4 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: 'Device configurations',
-            href: 'deviceconfigurations'
-        });
-        var breadcrumb5 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: deviceConfigurationName,
-            href: deviceConfigurationId
-        });
-        var breadcrumb6 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: 'Logbook configuration',
-            href: 'logbookconfigurations'
-        });
-        var breadcrumb7 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: 'Add logbook configuration'
-        });
-        breadcrumb1.setChild(breadcrumb2).setChild(breadcrumb3).setChild(breadcrumb4).setChild(breadcrumb5).setChild(breadcrumb6).setChild(breadcrumb7);
-        this.getBreadCrumbs().setBreadcrumbItem(breadcrumb1);
     },
 
     showEditDeviceConfigurationLogbooksView: function (deviceTypeId, deviceConfigurationId, logbookConfigurationId) {
@@ -630,7 +458,6 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                         success: function (deviceType) {
                             deviceConfigModel.load(deviceConfigurationId, {
                                 success: function (deviceConfiguration) {
-                                    me.editLogbookBreadCrumb(deviceType.get('name'), deviceTypeId, deviceConfiguration.get('name'), deviceConfigurationId);
                                     widget.setLoading(false);
                                 }
                             });
@@ -640,37 +467,5 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             }
         );
     },
-
-    editLogbookBreadCrumb: function (deviceTypeName, deviceTypeId, deviceConfigurationName, deviceConfigurationId) {
-        var breadcrumb1 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#/administration'
-        });
-        var breadcrumb2 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('devicetype.deviceTypes', 'MDC', 'Device types'),
-            href: 'devicetypes'
-        });
-        var breadcrumb3 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: deviceTypeName,
-            href: deviceTypeId
-        });
-        var breadcrumb4 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: 'Device configurations',
-            href: 'deviceconfigurations'
-        });
-        var breadcrumb5 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: deviceConfigurationName,
-            href: deviceConfigurationId
-        });
-        var breadcrumb6 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: 'Logbook configuration',
-            href: 'logbookconfigurations'
-        });
-        var breadcrumb7 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: 'Edit logbook configuration'
-        });
-        breadcrumb1.setChild(breadcrumb2).setChild(breadcrumb3).setChild(breadcrumb4).setChild(breadcrumb5).setChild(breadcrumb6).setChild(breadcrumb7);
-        this.getBreadCrumbs().setBreadcrumbItem(breadcrumb1);
-    }
 });
 

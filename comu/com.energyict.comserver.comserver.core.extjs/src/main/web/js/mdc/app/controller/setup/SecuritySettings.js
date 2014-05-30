@@ -23,7 +23,6 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
     ],
 
     refs: [
-        {ref: 'breadCrumbs', selector: 'breadcrumbTrail'},
         {ref: 'formPanel', selector: 'securitySettingForm'},
         {ref: 'securityGridPanel', selector: 'securitySettingGrid'},
         {ref: 'securityPreviewPanel', selector: 'securitySettingPreview'}
@@ -222,7 +221,6 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                         me.deviceTypeName = deviceType.get('name');
                         me.deviceConfigName = deviceConfig.get('name');
                         me.getApplication().fireEvent('changecontentevent', widget);
-                        me.overviewBreadCrumbs(deviceTypeId, deviceConfigurationId, me.deviceTypeName, me.deviceConfigName, null);
                     }
                 });
             }
@@ -246,7 +244,6 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                         me.deviceTypeName = deviceType.get('name');
                         me.deviceConfigName = deviceConfig.get('name');
                         me.getApplication().fireEvent('changecontentevent', widget);
-                        me.overviewBreadCrumbs(deviceTypeId, deviceConfigurationId, me.deviceTypeName, me.deviceConfigName, "Add security setting");
                     }
                 });
             }
@@ -278,7 +275,6 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                                 widget.down('textfield[name=name]').setValue(security.name);
                                 me.fillCombobox(widget.down('combobox[name=encryptionLevelId]'), me.encrstore, security.encryptionLevelId, 'No encryption');
                                 me.fillCombobox(widget.down('combobox[name=authenticationLevelId]'), me.authstore, security.authenticationLevelId, 'No authentication');
-                                me.overviewBreadCrumbs(deviceTypeId, deviceConfigurationId, me.deviceTypeName, me.deviceConfigName, 'Edit ' + security.name);
                             }
                         });
                     }
@@ -320,52 +316,6 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 }
                 break;
         }
-    },
-
-    overviewBreadCrumbs: function (deviceTypeId, deviceConfigId, deviceTypeName, deviceConfigName, action) {
-        var me = this;
-
-        var breadcrumbSecuritySettings = Ext.create('Uni.model.BreadcrumbItem', {
-            text: "Security",
-            href: 'securitysettings'
-
-        });
-
-        var breadcrumbDeviceConfig = Ext.create('Uni.model.BreadcrumbItem', {
-            text: deviceConfigName,
-            href: deviceConfigId
-        });
-
-        var breadcrumbDeviceConfigs = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registerConfig.deviceConfigs', 'MDC', 'Device configurations'),
-            href: 'deviceconfigurations'
-        });
-
-        var breadcrumbDevicetype = Ext.create('Uni.model.BreadcrumbItem', {
-            text: deviceTypeName,
-            href: deviceTypeId
-        });
-
-        var breadcrumbDeviceTypes = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registerConfig.deviceTypes', 'MDC', 'Device types'),
-            href: 'devicetypes'
-        });
-        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#/administration'
-        });
-
-        if (Ext.isEmpty(action)) {
-            breadcrumbParent.setChild(breadcrumbDeviceTypes).setChild(breadcrumbDevicetype).setChild(breadcrumbDeviceConfigs).setChild(breadcrumbDeviceConfig).setChild(breadcrumbSecuritySettings);
-        } else {
-            var breadaction = Ext.create('Uni.model.BreadcrumbItem', {
-                text: action,
-                href: ''
-            });
-            breadcrumbParent.setChild(breadcrumbDeviceTypes).setChild(breadcrumbDevicetype).setChild(breadcrumbDeviceConfigs).setChild(breadcrumbDeviceConfig).setChild(breadcrumbSecuritySettings).setChild(breadaction);
-        }
-
-        me.getBreadCrumbs().setBreadcrumbItem(breadcrumbParent);
     },
 
     onSubmit: function (btn) {

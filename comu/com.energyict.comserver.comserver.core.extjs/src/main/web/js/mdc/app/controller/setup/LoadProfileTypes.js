@@ -26,7 +26,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
     ],
 
     refs: [
-        {ref: 'breadCrumbs', selector: 'breadcrumbTrail'},
         {ref: 'loadTypeGrid', selector: 'loadProfileTypeSetup #loadProfileTypeGrid'},
         {ref: 'loadTypePreview', selector: 'loadProfileTypeSetup #loadProfileTypePreview'},
         {ref: 'loadTypeCountContainer', selector: 'loadProfileTypeSetup #loadProfileTypesCountContainer'},
@@ -471,7 +470,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         var widget = Ext.widget('loadProfileTypeSetup', { intervalStore: this.intervalStore });
         widget.down('#loadProfileTypesTitle').html = '<h1>' + Uni.I18n.translate('loadprofiletype.loadprofiletypes', 'MDC', 'Load profile types') + '</h1>';
         this.getApplication().fireEvent('changecontentevent', widget);
-        this.overviewBreadCrumbs(null, null);
         this.selectedMeasurementTypesStore.removeAll();
         this.temporallyFormValues = null;
         this.loadProfileAction = null;
@@ -481,9 +479,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         var widget = Ext.widget('loadProfileTypeForm', { loadProfileTypeHeader: 'Add load profile type', loadProfileTypeAction: 'Add', loadProfileTypeActionHref: 'create'}),
             intervalCombobox = widget.down('combobox[name=timeDuration]');
         this.getApplication().fireEvent('changecontentevent', widget);
-        this.breadcrumbActionHref = 'create';
         this.loadProfileAction = 'Add load profile type';
-        this.overviewBreadCrumbs(this.breadcrumbActionHref, this.loadProfileAction, null);
         intervalCombobox.store = this.intervalStore;
         if (!Ext.isEmpty(this.temporallyFormValues)) {
             this.loadTemporallyValues();
@@ -510,8 +506,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                     me.selectedMeasurementTypesStore.add(measurementType);
                 });
                 me.loadProfileAction = 'Edit load profile type';
-                me.breadcrumbActionHref = me.loadProfileTypeId + '/edit';
-                me.overviewBreadCrumbs(me.breadcrumbActionHref, me.loadProfileAction, null);
             }
         });
     },
@@ -522,7 +516,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         if (!Ext.isEmpty(form)) {
             this.saveTemporallyValues(form);
             this.getApplication().fireEvent('changecontentevent', widget);
-            this.overviewBreadCrumbs(this.breadcrumbActionHref, this.loadProfileAction, 'Add measurement types');
         }
     },
 
@@ -534,37 +527,4 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         var form = this.getLoadTypeForm();
         form.getForm().setValues(this.temporallyFormValues);
     },
-
-    overviewBreadCrumbs: function (actionHref, action, nextAction) {
-        var breadcrumbLoadProfileTypes = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('loadprofiletype.loadprofiletypes', 'MDC', 'Load profile types'),
-            href: 'loadprofiletypes'
-        });
-
-        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#/administration'
-        });
-
-        if (Ext.isEmpty(action)) {
-            breadcrumbParent.setChild(breadcrumbLoadProfileTypes);
-        } else {
-            var breadcrumbLoadProfileTypesAction = Ext.create('Uni.model.BreadcrumbItem', {
-                text: action,
-                href: actionHref
-            });
-            if (Ext.isEmpty(nextAction)) {
-                breadcrumbParent.setChild(breadcrumbLoadProfileTypes).setChild(breadcrumbLoadProfileTypesAction);
-            } else {
-                var breadcrumbLoadProfileTypesNextAction = Ext.create('Uni.model.BreadcrumbItem', {
-                    text: nextAction,
-                    href: 'addmeasurementtypes'
-                });
-                breadcrumbParent.setChild(breadcrumbLoadProfileTypes).setChild(breadcrumbLoadProfileTypesAction).setChild(breadcrumbLoadProfileTypesNextAction);
-            }
-        }
-
-        this.getBreadCrumbs().setBreadcrumbItem(breadcrumbParent);
-    }
-
 });

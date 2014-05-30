@@ -2,7 +2,6 @@ Ext.define('Mdc.controller.setup.LogbookTypesOverview', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Uni.model.BreadcrumbItem'
     ],
 
     stores: [
@@ -22,9 +21,6 @@ Ext.define('Mdc.controller.setup.LogbookTypesOverview', {
 
     init: function () {
         this.control({
-            'logbook-overview breadcrumbTrail': {
-                afterrender: this.setBreadcrumb
-            },
             'logbook-overview logbook-list': {
                 afterrender: this.loadStore,
                 itemclick: this.loadGridItemDetail
@@ -62,20 +58,6 @@ Ext.define('Mdc.controller.setup.LogbookTypesOverview', {
 
     loadStore: function () {
         this.store.load();
-    },
-
-    setBreadcrumb: function (breadcrumbs) {
-        var me = this;
-        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-                text: 'Administration',
-                href: '#/administration'
-            }),
-            breadcrumbChild1 = Ext.create('Uni.model.BreadcrumbItem', {
-                text: 'Logbook types',
-                href: 'logbooktypes'
-            });
-        breadcrumbParent.setChild(breadcrumbChild1);
-        breadcrumbs.setBreadcrumbItem(breadcrumbParent);
     },
 
     checkLogBookTypesCount: function () {

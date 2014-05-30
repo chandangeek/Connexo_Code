@@ -2,7 +2,6 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Uni.model.BreadcrumbItem',
         'Ext.ux.window.Notification',
         'Mdc.controller.setup.PropertiesView',
         'Mdc.controller.setup.Properties'
@@ -25,8 +24,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
         {ref: 'deviceCommunicationProtocolPreviewForm', selector: '#deviceCommunicationProtocolPreviewForm'},
         {ref: 'deviceCommunicationProtocolPreview', selector: '#deviceCommunicationProtocolPreview'},
         {ref: 'deviceCommunicationProtocolEditView', selector: '#deviceCommunicationProtocolEdit'},
-        {ref: 'deviceCommunicationProtocolEditForm', selector: '#deviceCommunicationProtocolEditForm'},
-        {ref: 'breadCrumbs', selector: 'breadcrumbTrail'}
+        {ref: 'deviceCommunicationProtocolEditForm', selector: '#deviceCommunicationProtocolEditForm'}
     ],
 
     init: function () {
@@ -43,8 +41,6 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
             },
             '#createEditButton[action=editDeviceCommunicationProtocol]': {
                 click: this.editDeviceCommunicationProtocol
-            }, '#deviceCommunicationProtocolSetup breadcrumbTrail': {
-                afterrender: this.overviewBreadCrumb
             }
         });
     },
@@ -93,7 +89,6 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
         var me = this;
         Ext.ModelManager.getModel('Mdc.model.DeviceCommunicationProtocol').load(deviceCommunicationProtocol, {
             success: function (protocol) {
-                me.editBreadCrumb(protocol.get('name'), deviceCommunicationProtocol);
                 widget.down('form').loadRecord(protocol);
                 widget.down('#deviceCommunicationProtocolEditCreateTitle').update('<h1>' + protocol.get('name') + ' > ' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + Uni.I18n.translate('deviceCommunicationProtocol.protocol', 'MDC', 'Protocol') + '</h1>');
                 me.getPropertiesController().showProperties(protocol, widget, true);
@@ -124,36 +119,4 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
             });
         }
     },
-
-    overviewBreadCrumb: function (breadcrumbs) {
-        var breadcrumbChild = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('deviceCommunicationProtocols.protocols', 'MDC', 'Protocols'),
-            href: 'devicecommunicationprotocols'
-        });
-
-        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#/administration'
-        });
-        breadcrumbParent.setChild(breadcrumbChild);
-        breadcrumbs.setBreadcrumbItem(breadcrumbParent);
-    },
-
-    editBreadCrumb: function (registerTypeName, registerTypeId) {
-        var breadcrumb1 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#/administration'
-        });
-        var breadcrumb2 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('deviceCommunicationProtocol.prototocls', 'MDC', 'Protocols'),
-            href: 'devicecommunicationprotocols'
-        });
-        var breadcrumb4 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('deviceCommunicationProtocol.edit', 'MDC', 'Edit protocol'),
-            href: 'edit'
-        });
-        breadcrumb1.setChild(breadcrumb2).setChild(breadcrumb4);
-        this.getBreadCrumbs().setBreadcrumbItem(breadcrumb1);
-    }
-
 });

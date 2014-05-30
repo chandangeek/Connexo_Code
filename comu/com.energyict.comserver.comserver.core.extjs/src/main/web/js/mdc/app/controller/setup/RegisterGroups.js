@@ -2,7 +2,6 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Uni.model.BreadcrumbItem',
         'Ext.ux.window.Notification'
     ],
 
@@ -29,7 +28,6 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
         {ref: 'registerGroupEditView', selector: '#registerGroupEdit'},
         {ref: 'registerGroupEditForm', selector: '#registerGroupEditForm'},
         {ref: 'registerEditEmptyGrid', selector: '#registerEditEmptyGrid'},
-        {ref: 'breadCrumbs', selector: 'breadcrumbTrail'},
         {ref: 'registerGroupPreviewDetails', selector: '#registerGroupPreviewDetails'},
         {ref: 'registerTypePreviewForm', selector: '#registerTypePreviewForm'},
         {ref: 'registerTypePreview', selector: '#registerGroupSetup #registerTypePreview'},
@@ -55,9 +53,6 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
             },
             '#registerGroupGrid': {
                 selectionchange: this.previewRegisterGroup
-            },
-            '#registerGroupSetup breadcrumbTrail': {
-                afterrender: this.overviewBreadCrumb
             },
             '#registerGroupGrid actioncolumn': {
                 editItem: this.editRegisterGroupHistory
@@ -157,7 +152,6 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
                 me.getStore('Mdc.store.RegisterTypes').load({
                     limit: 500,
                     callback: function (registerTypes) {
-                        me.editBreadCrumb(registerGroup.get('name'));
                         widget.down('form').loadRecord(registerGroup);
                         widget.down('#registerGroupEditCreateTitle').update('<h1>' + registerGroup.get('name') + ' > ' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + Uni.I18n.translate('registerGroup.registerGroup', 'MDC', 'Register group') + '</h1>');
                         if(this.data.items.length > 0){
@@ -195,7 +189,6 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
         me.getStore('Mdc.store.RegisterTypes').load({
             limit: 500,
             callback: function (registerTypes) {
-                me.createBreadCrumb();
                 var registerGroup = Ext.create(Ext.ModelManager.getModel('Mdc.model.RegisterGroup'));
                 widget.down('form').loadRecord(registerGroup);
                 widget.down('#registerGroupEditCreateTitle').update('<h1>' + Uni.I18n.translate('registerGroup.create', 'MDC', 'Create register group') + '</h1>');
@@ -268,53 +261,5 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
         var widget = Ext.widget('readingTypeDetails');
         this.getReadingTypeDetailsForm().loadRecord(record.getReadingType());
         widget.show();
-    },
-
-    overviewBreadCrumb: function (breadcrumbs) {
-        var breadcrumbChild = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registerGroup.registerGroups', 'MDC', 'Register groups'),
-            href: 'registergroups'
-        });
-
-        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#/administration'
-        });
-        breadcrumbParent.setChild(breadcrumbChild);
-        breadcrumbs.setBreadcrumbItem(breadcrumbParent);
-    },
-
-    createBreadCrumb: function () {
-        var breadcrumb1 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#/administration'
-        });
-        var breadcrumb2 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registerGroup.registerGroups', 'MDC', 'Register groups'),
-            href: 'registergroups'
-        });
-        var breadcrumb3 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registerGroup.create', 'MDC', 'Create register group'),
-            href: 'create'
-        });
-        breadcrumb1.setChild(breadcrumb2).setChild(breadcrumb3);
-        this.getBreadCrumbs().setBreadcrumbItem(breadcrumb1);
-    },
-
-    editBreadCrumb: function (registerGroupName) {
-        var breadcrumb1 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#/administration'
-        });
-        var breadcrumb2 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registerGroup.registerGroups', 'MDC', 'Register groups'),
-            href: 'registergroups'
-        });
-        var breadcrumb4 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registerGroup.edit', 'MDC', 'Edit register group'),
-            href: 'edit'
-        });
-        breadcrumb1.setChild(breadcrumb2).setChild(breadcrumb4);
-        this.getBreadCrumbs().setBreadcrumbItem(breadcrumb1);
     }
 });

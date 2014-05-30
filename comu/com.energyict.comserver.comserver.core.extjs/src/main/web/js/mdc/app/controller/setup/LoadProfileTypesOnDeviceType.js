@@ -17,7 +17,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
     ],
 
     refs: [
-        {ref: 'breadCrumbs', selector: 'breadcrumbTrail'},
         {ref: 'loadTypeGrid', selector: 'loadProfileTypeOnDeviceTypeSetup #loadProfileTypeGrid'},
         {ref: 'loadTypePreview', selector: 'loadProfileTypeOnDeviceTypeSetup #loadProfileTypePreview'},
         {ref: 'loadTypeCountContainer', selector: 'loadProfileTypeOnDeviceTypeSetup #loadProfileTypesCountContainer'},
@@ -292,7 +291,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
                 me.deviceTypeName = deviceType.get('name');
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.store.load({ params: {sort: 'name' }});
-                me.overviewBreadCrumbs(deviceTypeId, me.deviceTypeName, null);
             }
         });
     },
@@ -308,46 +306,8 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
                 me.deviceTypeName = deviceType.get('name');
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.store.load({ params: { available: true }});
-                me.overviewBreadCrumbs(deviceTypeId, me.deviceTypeName, 'Add load profile types');
             }
         });
-    },
-
-
-    overviewBreadCrumbs: function (deviceTypeId, deviceTypeName, action) {
-        var me = this;
-
-        var breadcrumbLoadProfiles = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('loadprofiletype.loadprofiletypes', 'MDC', 'Load profile types'),
-            href: 'loadprofiles'
-        });
-
-        var breadcrumbDevicetype = Ext.create('Uni.model.BreadcrumbItem', {
-            text: deviceTypeName,
-            href: deviceTypeId
-        });
-
-        var breadcrumbDeviceTypes = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registerConfig.deviceTypes', 'MDC', 'Device types'),
-            href: 'devicetypes'
-        });
-        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#/administration'
-        });
-
-        if (Ext.isEmpty(action)) {
-            breadcrumbParent.setChild(breadcrumbDeviceTypes).setChild(breadcrumbDevicetype).setChild(breadcrumbLoadProfiles);
-        } else {
-            var breadaction = Ext.create('Uni.model.BreadcrumbItem', {
-                text: action,
-                href: ''
-            });
-            breadcrumbParent.setChild(breadcrumbDeviceTypes).setChild(breadcrumbDevicetype).setChild(breadcrumbLoadProfiles).setChild(breadaction);
-        }
-
-        me.getBreadCrumbs().setBreadcrumbItem(breadcrumbParent);
     }
-
 });
 

@@ -19,7 +19,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
     ],
 
     refs: [
-        {ref: 'breadCrumbs', selector: 'breadcrumbTrail'},
         {ref: 'loadConfigurationDetailForm', selector: '#loadProfileConfigurationDetailInfo'},
         {ref: 'loadProfileConfigurationChannelDetailsForm', selector: '#loadProfileConfigurationChannelDetailsForm'},
         {ref: 'loadProfileDetailChannelPreview', selector: '#loadProfileConfigurationDetailChannelPreview'},
@@ -254,7 +253,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                 var detailedForm = me.getLoadConfigurationDetailForm();
                                 detailedForm.getForm().setValues(loadProfileConfiguration);
                                 detailedForm.down('[name=deviceConfigurationName]').setValue(Ext.String.format('<a href="#/administration/devicetypes/{0}/deviceconfigurations/{1}">{2}</a>', deviceTypeId, deviceConfigurationId, me.deviceConfigName));
-                                me.overviewBreadCrumbs(deviceTypeId, deviceConfigurationId, loadProfileConfigurationId,  me.deviceTypeName, me.deviceConfigName, loadProfileConfiguration.name, null);
                             }
                         });
 
@@ -296,65 +294,11 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
 //                                var detailedForm = me.getLoadConfigurationDetailForm();
 //                                detailedForm.getForm().setValues(loadProfileConfiguration);
 //                                detailedForm.down('[name=deviceConfigurationName]').setValue(Ext.String.format('<a href="#/administration/devicetypes/{0}/deviceconfigurations/{1}">{2}</a>', deviceTypeId, deviceConfigurationId, me.deviceConfigName));
-                                me.overviewBreadCrumbs(deviceTypeId, deviceConfigurationId, loadProfileConfigurationId,  me.deviceTypeName, me.deviceConfigName, loadProfileConfiguration.name, Uni.I18n.translate('loadprofiles.loadporfileaddChannelConfiguration', 'MDC', 'Add channel Configuration'));
                             }
                         });
-
-
                     }
                 });
             }
         });
     },
-
-    overviewBreadCrumbs: function (deviceTypeId, deviceConfigId, loadProfileConfigurationId, deviceTypeName, deviceConfigName, loadProfileConfigurationName, action) {
-        var me = this;
-
-        var breadcrumbLoadProfileConfigurationConfig = Ext.create('Uni.model.BreadcrumbItem', {
-            text: loadProfileConfigurationName,
-            href: loadProfileConfigurationId
-        });
-
-        var breadcrumbLoadProfileConfigurations = Ext.create('Uni.model.BreadcrumbItem', {
-            text: ('loadprofiles.loadporfiles', 'MDC', 'Load profiles'),
-            href: 'loadprofiles'
-        });
-
-        var breadcrumbDeviceConfig = Ext.create('Uni.model.BreadcrumbItem', {
-            text: deviceConfigName,
-            href: deviceConfigId
-        });
-
-        var breadcrumbDeviceConfigs = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registerConfig.deviceConfigs', 'MDC', 'Device configurations'),
-            href: 'deviceconfigurations'
-        });
-
-        var breadcrumbDevicetype = Ext.create('Uni.model.BreadcrumbItem', {
-            text: deviceTypeName,
-            href: deviceTypeId
-        });
-
-        var breadcrumbDeviceTypes = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registerConfig.deviceTypes', 'MDC', 'Device types'),
-            href: 'devicetypes'
-        });
-        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#/administration'
-        });
-
-        if (Ext.isEmpty(action)) {
-            breadcrumbParent.setChild(breadcrumbDeviceTypes).setChild(breadcrumbDevicetype).setChild(breadcrumbDeviceConfigs).setChild(breadcrumbDeviceConfig).setChild(breadcrumbLoadProfileConfigurations).setChild(breadcrumbLoadProfileConfigurationConfig);
-        } else {
-            var breadaction = Ext.create('Uni.model.BreadcrumbItem', {
-                text: action,
-                href: ''
-            });
-            breadcrumbParent.setChild(breadcrumbDeviceTypes).setChild(breadcrumbDevicetype).setChild(breadcrumbDeviceConfigs).setChild(breadcrumbDeviceConfig).setChild(breadcrumbLoadProfileConfigurations).setChild(breadcrumbLoadProfileConfigurationConfig).setChild(breadaction);
-        }
-
-        me.getBreadCrumbs().setBreadcrumbItem(breadcrumbParent);
-    }
-
 });

@@ -4,7 +4,6 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
     deviceConfigurationId: null,
 
     requires: [
-        'Uni.model.BreadcrumbItem'
     ],
 
     views: [
@@ -25,7 +24,6 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
     ],
 
     refs: [
-        {ref: 'breadCrumbs', selector: 'breadcrumbTrail'},
         {ref: 'communicationTaskGridPanel', selector: '#communicationTaskGrid'},
         {ref: 'communicationTaskPreviewPanel', selector: '#communicationTaskPreview'},
         {ref: 'communicationTaskPreviewForm', selector: '#communicationTaskPreviewForm'},
@@ -201,7 +199,6 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                         var deviceTypeName = deviceType.get('name');
                         var deviceConfigName = deviceConfig.get('name');
                         me.getApplication().fireEvent('changecontentevent', widget);
-                        me.overviewBreadCrumbs(deviceTypeId, deviceConfigurationId, deviceTypeName, deviceConfigName, null);
                     }
                 });
             }
@@ -266,7 +263,6 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                                                         widget.down('#communicationTaskEditForm').setTitle(title);
                                                         widget.down('#enableScheduleFieldItem').fireEvent('change', null, false, false);
                                                         widget.setValues(communicationTask);
-                                                        me.overviewBreadCrumbs(deviceTypeId, deviceConfigurationId, deviceTypeName, deviceConfigName, Uni.I18n.translate('communicationtasks.add', 'MDC', 'Add communication task'));
                                                         widget.setLoading(false);
                                                     }
                                                 });
@@ -339,7 +335,6 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                                                 widget.down('#communicationTaskEditForm').setTitle(title);
                                                 widget.down('#enableScheduleFieldItem').fireEvent('change', null, false, false);
                                                 widget.setValues(communicationTask);
-                                                me.overviewBreadCrumbs(deviceTypeId, deviceConfigurationId, deviceTypeName, deviceConfigName, title);
                                                 widget.setLoading(false);
                                             }
                                         });
@@ -629,52 +624,6 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
             record.set("nextExecutionSpecs", null);
         }
         record.set("ignoreNextExecutionSpecsForInbound", values.ignoreNextExecutionSpecsForInbound);
-    },
-
-    overviewBreadCrumbs: function (deviceTypeId, deviceConfigId, deviceTypeName, deviceConfigName, action) {
-        var me = this;
-
-        var breadcrumbCommunicationTasks = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registerConfig.communicationTasks', 'MDC', 'Communication tasks'),
-            href: 'comtaskenablements'
-
-        });
-
-        var breadcrumbDeviceConfig = Ext.create('Uni.model.BreadcrumbItem', {
-            text: deviceConfigName,
-            href: deviceConfigId
-        });
-
-        var breadcrumbDeviceConfigs = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registerConfig.deviceConfigs', 'MDC', 'Device configurations'),
-            href: 'deviceconfigurations'
-        });
-
-        var breadcrumbDevicetype = Ext.create('Uni.model.BreadcrumbItem', {
-            text: deviceTypeName,
-            href: deviceTypeId
-        });
-
-        var breadcrumbDeviceTypes = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registerConfig.deviceTypes', 'MDC', 'Device types'),
-            href: 'devicetypes'
-        });
-        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#/administration'
-        });
-
-        if (Ext.isEmpty(action)) {
-            breadcrumbParent.setChild(breadcrumbDeviceTypes).setChild(breadcrumbDevicetype).setChild(breadcrumbDeviceConfigs).setChild(breadcrumbDeviceConfig).setChild(breadcrumbCommunicationTasks);
-        } else {
-            var breadaction = Ext.create('Uni.model.BreadcrumbItem', {
-                text: action,
-                href: ''
-            });
-            breadcrumbParent.setChild(breadcrumbDeviceTypes).setChild(breadcrumbDevicetype).setChild(breadcrumbDeviceConfigs).setChild(breadcrumbDeviceConfig).setChild(breadcrumbCommunicationTasks).setChild(breadaction);
-        }
-
-       me.getBreadCrumbs().setBreadcrumbItem(breadcrumbParent);
     },
 
     setPreLoader: function(target, message) {

@@ -2,7 +2,6 @@ Ext.define('Mdc.controller.setup.SearchItems', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Uni.model.BreadcrumbItem',
         'Ext.ux.window.Notification'
     ],
 
@@ -23,9 +22,6 @@ Ext.define('Mdc.controller.setup.SearchItems', {
 
     init: function () {
         this.control({
-            '#searchItems breadcrumbTrail': {
-                afterrender: this.showBreadCrumb
-            },
             'items-sort-menu': {
                 click: this.chooseSort
             },
@@ -61,20 +57,6 @@ Ext.define('Mdc.controller.setup.SearchItems', {
     showSearchItems : function () {
         var widget = Ext.widget('searchItems');
         this.getApplication().fireEvent('changecontentevent', widget);
-    },
-
-    showBreadCrumb: function (breadcrumbs) {
-        var breadcrumbChild = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('searchItems.searchItems', 'MDC', 'Search items'),
-            href: 'searchitems'
-        });
-
-        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#/administration'
-        });
-        breadcrumbParent.setChild(breadcrumbChild);
-        breadcrumbs.setBreadcrumbItem(breadcrumbParent);
     },
 
     searchAllItems: function() {

@@ -12,8 +12,7 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
 
     requires: [
         'Mdc.store.RegisterTypesOfDevicetype',
-        'Mdc.store.AvailableRegisterTypes',
-        'Uni.model.BreadcrumbItem'
+        'Mdc.store.AvailableRegisterTypes'
     ],
 
     stores: [
@@ -28,7 +27,6 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
         {ref: 'registerMappingPreviewTitle', selector: '#registerMappingPreviewTitle'},
         {ref: 'registerTypeAddTitle', selector: '#registerTypeAddTitle'},
         {ref: 'addRegisterMappingBtn', selector: '#addRegisterMappingBtn'},
-        {ref: 'breadCrumbs', selector: 'breadcrumbTrail'},
         {ref: 'readingTypeDetailsForm', selector: '#readingTypeDetailsForm'},
         {ref: 'registerMappingAddGrid', selector: '#registermappingaddgrid'},
         {ref: 'previewMrId', selector: '#preview_mrid'}
@@ -100,7 +98,6 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
                 var deviceTypeName = deviceType.get('name');
                // widget.down('#registerTypeTitle').html = '<h1>' + deviceTypeName + ' > ' + Uni.I18n.translate('registerMapping.registerTypes', 'MDC', 'Register types') + '</h1>';
                 me.getApplication().fireEvent('changecontentevent', widget);
-                me.createBreadCrumbs(id, deviceTypeName);
             }
         });
     },
@@ -118,70 +115,10 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
                             var deviceTypeName = deviceType.get('name');
                             //widget.down('#registerTypeAddTitle').html = '<h1>' + deviceTypeName + ' > ' + Uni.I18n.translate('registerMappingAdd.addRegisterTypes', 'MDC', 'Add register types') + '</h1>';
                             me.getApplication().fireEvent('changecontentevent', widget);
-                            me.createBreadCrumbsAddRegisterType(id, deviceTypeName);
                         }
                     });
                 }
             });
-    },
-
-    createBreadCrumbs: function (deviceTypeId, deviceTypeName) {
-        var me = this;
-
-        var breadcrumbRegisterTypes = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registerMapping.registerTypes', 'MDC', 'Register types'),
-            href: 'registertypes'
-        });
-
-        var breadcrumbDevicetype = Ext.create('Uni.model.BreadcrumbItem', {
-            text: deviceTypeName,
-            href: deviceTypeId
-        });
-
-        var breadcrumbDeviceTypes = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registerMapping.deviceTypes', 'MDC', 'Device types'),
-            href: 'devicetypes'
-        });
-        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#/administration'
-        });
-
-        breadcrumbParent.setChild(breadcrumbDeviceTypes).setChild(breadcrumbDevicetype).setChild(breadcrumbRegisterTypes);
-
-        me.getBreadCrumbs().setBreadcrumbItem(breadcrumbParent);
-    },
-
-    createBreadCrumbsAddRegisterType: function (deviceTypeId, deviceTypeName) {
-        var me = this;
-
-        var breadcrumbAddRegisterTypes = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registerMappingAdd.addRegisterTypes', 'MDC', 'Add register types'),
-            href: 'Add register types'
-        });
-
-        var breadcrumbRegisterTypes = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registerMapping.registerTypes', 'MDC', 'Register types'),
-            href: 'registertypes'
-        });
-
-        var breadcrumbDevicetype = Ext.create('Uni.model.BreadcrumbItem', {
-            text: deviceTypeName,
-            href: deviceTypeId
-        });
-
-        var breadcrumbDeviceTypes = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registerMapping.deviceTypes', 'MDC', 'Device types'),
-            href: 'devicetypes'
-        });
-        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#/administration'
-        });
-
-        breadcrumbParent.setChild(breadcrumbDeviceTypes).setChild(breadcrumbDevicetype).setChild(breadcrumbRegisterTypes).setChild(breadcrumbAddRegisterTypes);
-
-        me.getBreadCrumbs().setBreadcrumbItem(breadcrumbParent);
     },
 
     showReadingType: function (record) {

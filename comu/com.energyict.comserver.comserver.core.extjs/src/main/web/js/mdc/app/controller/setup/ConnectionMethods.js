@@ -4,7 +4,6 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
     deviceConfigurationId: null,
     requires: [
         'Mdc.store.ConnectionMethodsOfDeviceConfiguration',
-        'Uni.model.BreadcrumbItem',
         'Mdc.controller.setup.Properties',
         'Mdc.controller.setup.PropertiesView'
     ],
@@ -27,7 +26,6 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         {ref: 'connectionMethodPreviewForm', selector: '#connectionMethodPreviewForm'},
         {ref: 'connectionMethodPreview', selector: '#connectionMethodPreview'},
         {ref: 'connectionMethodPreviewTitle', selector: '#connectionMethodPreviewTitle'},
-        {ref: 'breadCrumbs', selector: 'breadcrumbTrail'},
         {ref: 'connectionMethodPreviewForm', selector: '#connectionMethodPreviewForm'},
         {ref: 'connectionMethodEditView',selector: '#connectionMethodEdit'},
         {ref: 'connectionMethodEditForm',selector: '#connectionMethodEditForm'},
@@ -97,7 +95,6 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                         widget.down('#connectionMethodSetupPanel').setTitle(Uni.I18n.translate('connectionmethod.connectionmethods', 'MDC', 'Connection methods'));
                         var deviceConfigName = deviceConfig.get('name');
                         me.getApplication().fireEvent('changecontentevent', widget);
-                        me.overviewBreadCrumbs(deviceTypeId, deviceConfigurationId, deviceTypeName, deviceConfigName);
                     }
                 });
             }
@@ -175,7 +172,6 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                                                  var deviceConfigName = deviceConfig.get('name');
                                                  var title = direction==='Outbound'?Uni.I18n.translate('connectionmethod.addOutboundConnectionMethod', 'MDC', 'Add outbound connection method'):Uni.I18n.translate('connectionmethod.addInboundConnectionMethod', 'MDC', 'Add inbound connection method');
                                                  widget.down('#connectionMethodEditAddTitle').update('<h1>' + title  + '</h1>');
-                                                 me.createBreadCrumbs(deviceTypeId, deviceConfigId, deviceTypeName, deviceConfigName, direction, 'add');
                                                  widget.setLoading(false);
                                              }
                                          });
@@ -347,7 +343,6 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                                                         widget.down('form').down('#communicationPortPoolComboBox').setValue(connectionMethod.get('comPortPool'));
                                                         widget.down('form').down('#connectionStrategyComboBox').setValue(connectionMethod.get('connectionStrategy'));
                                                         me.getPropertiesController().showProperties(connectionMethod,me.getConnectionMethodEditView(),false);
-                                                        me.createBreadCrumbs(deviceTypeId, deviceConfigId, deviceTypeName, deviceConfigName, connectionMethod.get('direction'), 'edit');
                                                         widget.setLoading(false);
                                                     }
                                                 });
@@ -384,96 +379,4 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
             }
         });
     },
-
-    overviewBreadCrumbs: function(deviceTypeId, deviceConfigId, deviceTypeName, deviceConfigName){
-        var me = this;
-
-        var breadcrumbRegisterConfigurations = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('connectionmethod.connectionmethods', 'MDC', 'Connection methods'),
-            href: 'connectionmethods'
-
-        });
-
-        var breadcrumbDeviceConfig = Ext.create('Uni.model.BreadcrumbItem', {
-            text: deviceConfigName,
-            href: deviceConfigId
-        });
-
-        var breadcrumbDeviceConfigs = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registerConfig.deviceConfigs', 'MDC', 'Device configurations'),
-            href: 'deviceconfigurations'
-        });
-
-        var breadcrumbDevicetype = Ext.create('Uni.model.BreadcrumbItem', {
-            text: deviceTypeName,
-            href: deviceTypeId
-        });
-
-        var breadcrumbDeviceTypes = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registerConfig.deviceTypes', 'MDC', 'Device types'),
-            href: 'devicetypes'
-        });
-        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#/administration'
-        });
-
-        breadcrumbParent.setChild(breadcrumbDeviceTypes).setChild(breadcrumbDevicetype).setChild(breadcrumbDeviceConfigs).setChild(breadcrumbDeviceConfig).setChild(breadcrumbRegisterConfigurations);
-
-        me.getBreadCrumbs().setBreadcrumbItem(breadcrumbParent);
-    },
-
-    createBreadCrumbs: function (deviceTypeId, deviceConfigId, deviceTypeName, deviceConfigName, direction, action) {
-        var me = this;
-        var directionText;
-        var createEditHref;
-        if(action === 'add'){
-            createEditHref = 'create';
-            directionText = direction==='Outbound'?Uni.I18n.translate('connectionmethod.addOutboundConnectionMethod', 'MDC', 'Add outbound connection method'):Uni.I18n.translate('connectionmethod.addInboundConnectionMethod', 'MDC', 'Add inbound connection method');
-        } else if (action === 'edit'){
-            createEditHref = 'edit';
-            directionText = direction==='Outbound'?Uni.I18n.translate('connectionmethod.editOutboundConnectionMethod', 'MDC', 'Edit outbound connection method'):Uni.I18n.translate('connectionmethod.editInboundConnectionMethod', 'MDC', 'Edit inbound connection method');
-        }
-
-        var breadcrumbCreate = Ext.create('Uni.model.BreadcrumbItem', {
-            text: directionText,
-            href: createEditHref
-        });
-
-        var breadcrumbRegisterConfigurations = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('connectionmethod.connectionmethods', 'MDC', 'Connection methods'),
-            href: 'connectionmethods'
-
-        });
-        var breadcrumbDeviceConfig = Ext.create('Uni.model.BreadcrumbItem', {
-            text: deviceConfigName,
-            href: deviceConfigId
-        });
-
-        var breadcrumbDeviceConfigs = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registerConfig.deviceConfigs', 'MDC', 'Device configurations'),
-            href: 'deviceconfigurations'
-        });
-
-        var breadcrumbDevicetype = Ext.create('Uni.model.BreadcrumbItem', {
-            text: deviceTypeName,
-            href: deviceTypeId
-        });
-
-        var breadcrumbDeviceTypes = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registerConfig.deviceTypes', 'MDC', 'Device types'),
-            href: 'devicetypes'
-        });
-        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#/administration'
-        });
-
-        breadcrumbParent.setChild(breadcrumbDeviceTypes).setChild(breadcrumbDevicetype).setChild(breadcrumbDeviceConfigs).setChild(breadcrumbDeviceConfig).setChild(breadcrumbRegisterConfigurations).setChild(breadcrumbCreate);
-
-        me.getBreadCrumbs().setBreadcrumbItem(breadcrumbParent);
-    }
-
-
-
 });

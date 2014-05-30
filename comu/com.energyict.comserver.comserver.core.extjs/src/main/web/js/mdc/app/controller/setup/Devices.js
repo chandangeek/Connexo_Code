@@ -2,7 +2,6 @@ Ext.define('Mdc.controller.setup.Devices', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Uni.model.BreadcrumbItem',
         'Mdc.model.Device'
     ],
     views: [
@@ -18,7 +17,6 @@ Ext.define('Mdc.controller.setup.Devices', {
     ],
 
     refs: [
-        {ref: 'breadCrumbs', selector: 'breadcrumbTrail'},
         {ref: 'deviceGeneralInformationForm', selector: '#deviceGeneralInformationForm'},
         {ref: 'deviceCommunicationTopologyForm', selector: '#deviceCommunicationTopologyForm'},
         {ref: 'deviceCommunicationtopologyMasterLink', selector: '#deviceCommunicationtopologyMasterLink'},
@@ -49,27 +47,11 @@ Ext.define('Mdc.controller.setup.Devices', {
                 me.getDeviceOpenIssuesForm().getForm().setValues({
                     issues: device.get('nbrOfDataCollectionIssues')
                 });
-                me.overviewBreadCrumb(id, device.get('mRID'));
                 me.getDeviceGeneralInformationForm().loadRecord(device);
                 me.getDeviceCommunicationTopologyForm().loadRecord(device);
                 me.getDeviceOpenIssuesForm().loadRecord(device);
             }
         });
-    },
-
-
-    overviewBreadCrumb: function (id, name) {
-        var breadcrumbChild2 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: name,
-            href: id
-        });
-        var breadcrumbChild = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('device.devices', 'MDC', 'Devices'),
-            href: '#/devices'
-        });
-        breadcrumbChild.setChild(breadcrumbChild2);
-        this.getBreadCrumbs().setBreadcrumbItem(breadcrumbChild);
     }
-
 });
 

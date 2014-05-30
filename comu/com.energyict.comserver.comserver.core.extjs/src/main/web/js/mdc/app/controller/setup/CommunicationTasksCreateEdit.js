@@ -2,7 +2,6 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Uni.model.BreadcrumbItem'
     ],
 
     stores: [
@@ -35,8 +34,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
         {
             ref: 'commandFields',
             selector: 'communication-tasks-edit [name=commandfields]'
-        },
-        {ref: 'breadCrumbs', selector: 'breadcrumbTrail'}
+        }
     ],
 
     init: function () {
@@ -89,24 +87,6 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
             this.loadModelToCreateForm();
             self.commands = [];
         }
-        self.setBreadcrumb();
-    },
-
-    setBreadcrumb: function () {
-        var me = this,
-            breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-                text: 'Administration',
-                href: '#/administration'
-            }),
-            breadcrumbChild1 = Ext.create('Uni.model.BreadcrumbItem', {
-                text: 'Communication tasks',
-                href: 'communicationtasks'
-            }),
-            breadcrumbChild2 = Ext.create('Uni.model.BreadcrumbItem', {
-                text: me.operationType + ' communication task'
-            });
-        breadcrumbParent.setChild(breadcrumbChild1).setChild(breadcrumbChild2);
-        me.getBreadCrumbs().setBreadcrumbItem(breadcrumbParent);
     },
 
     disableBtn: function () {

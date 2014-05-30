@@ -2,7 +2,6 @@ Ext.define('Mdc.controller.setup.CommunicationTasksView', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Uni.model.BreadcrumbItem'
     ],
 
     stores: [
@@ -44,8 +43,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasksView', {
         {
             ref: 'rulesGridPagingToolbarTop',
             selector: 'communication-tasks-list pagingtoolbartop'
-        },
-        {ref: 'breadCrumbs', selector: 'breadcrumbTrail'}
+        }
     ],
 
     init: function () {
@@ -67,21 +65,6 @@ Ext.define('Mdc.controller.setup.CommunicationTasksView', {
     showCommunicationTasksView: function () {
         var widget = Ext.widget('communication-tasks-view');
         this.getApplication().fireEvent('changecontentevent', widget);
-        this.setBreadcrumb();
-    },
-
-    setBreadcrumb: function () {
-        var me = this,
-            breadcrumbChild1 = Ext.create('Uni.model.BreadcrumbItem', {
-                text: Uni.I18n.translate('registerConfig.communicationTasks', 'MDC', 'Communication tasks'),
-                href: 'communicationtasks'
-            }),
-            breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#/administration'
-        });
-        breadcrumbParent.setChild(breadcrumbChild1);
-        me.getBreadCrumbs().setBreadcrumbItem(breadcrumbParent);
     },
 
     chooseCommunicationTasksAction: function (menu, item) {
