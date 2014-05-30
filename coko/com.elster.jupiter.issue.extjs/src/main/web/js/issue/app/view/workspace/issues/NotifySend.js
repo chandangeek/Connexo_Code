@@ -18,6 +18,19 @@ Ext.define('Isu.view.workspace.issues.NotifySend', {
                         validateOnBlur: false,
                         anchor: '100%'
                     },
+                    items: [
+                        {
+                            itemId: 'errors',
+                            name: 'errors',
+                            layout: 'hbox',
+                            margin: '0 0 20 100',
+                            hidden: true,
+                            defaults: {
+                                xtype: 'container',
+                                cls: 'isu-error-panel'
+                            }
+                        }
+                    ],
                     buttons: [
                         {
                             itemId: 'notifySend',

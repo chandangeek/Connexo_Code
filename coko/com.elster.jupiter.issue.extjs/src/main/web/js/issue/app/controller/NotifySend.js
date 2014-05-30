@@ -54,7 +54,7 @@ Ext.define('Isu.controller.NotifySend', {
                         var email = /^((([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z?]{2,5}){1,25})*(\n?)*)*$/;
                         return email.test(val);
                     },
-                    emailVtypeText: 'This field should be an e-mail address in the format "user@example.com"'
+                    emailVtypeText: 'This field should contains one e-mail address per line'
                 });
                 self.id = record.data.id;
                 view.down('form').add({
@@ -130,10 +130,12 @@ Ext.define('Isu.controller.NotifySend', {
             form = notifyView.down('form').getForm(),
             sendingData = {},
             preloader,
-            str = window.location.href;
+            str = window.location.href,
+            formErrorsPanel = Ext.ComponentQuery.query('notify-user panel[name=errors]')[0];
         if (str.match(/notify/) !== null) {
             self.trimFields();
             if (form.isValid()) {
+                formErrorsPanel.hide();
                 sendingData.id = self.id;
                 sendingData.parameters = form.getValues();
                 preloader = Ext.create('Ext.LoadMask', {
@@ -141,9 +143,13 @@ Ext.define('Isu.controller.NotifySend', {
                     target: notifyView
                 });
                 self.sendData(sendingData, preloader);
+            } else {
+                self.showErrorsPanel();
             }
         } else {
-            if (notifyView.down('#assignee').value !== null) {
+            if (notifyView.down('#assignee').value !== null && form.isValid()) {
+                notifyView.down('#assignee').clearInvalid();
+                formErrorsPanel.hide();
                 sendingData.id = self.id;
                 sendingData.parameters = form.getValues();
                 preloader = Ext.create('Ext.LoadMask', {
@@ -151,6 +157,9 @@ Ext.define('Isu.controller.NotifySend', {
                     target: notifyView
                 });
                 self.sendData(sendingData, preloader);
+            } else {
+                self.showErrorsPanel();
+                notifyView.down('#assignee').markInvalid('This is a required field');
             }
         }
     },
@@ -177,6 +186,16 @@ Ext.define('Isu.controller.NotifySend', {
                 preloader.destroy();
             }
         });
+    },
+
+    showErrorsPanel: function() {
+        var formErrorsPanel = Ext.ComponentQuery.query('notify-user panel[name=errors]')[0];
+        formErrorsPanel.hide();
+        formErrorsPanel.removeAll();
+        formErrorsPanel.add({
+            html: 'There are errors on this page that require your attention.'
+        });
+        formErrorsPanel.show();
     }
 });
 
