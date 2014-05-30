@@ -75,21 +75,10 @@ Ext.define('Mdc.controller.setup.LogForm', {
 
     },
 
-    // todo: should be done by another way
     logbookAssigned: function (record) {
-        var self = this,
-            result;
-        delete record.raw.id;
-        jsonValues = Ext.JSON.encode(record.raw);
-        Ext.Ajax.request({
-            url: '/api/mds/logbooktypes/' + self.logId,
-            method: 'PUT',
-            jsonData: jsonValues,
-            waitMsg: 'Loading...',
-            success: function () {
-                self.getFormPanel().down('#obis').setDisabled(false);
-            }
-        });
+        if (!record.raw.isInUse) {
+            this.getFormPanel().down('#obis').setDisabled(false);
+        }
     },
 
     setBreadcrumb: function (breadcrumbs) {
@@ -150,7 +139,7 @@ Ext.define('Mdc.controller.setup.LogForm', {
                     Ext.widget('messagebox').show({
                         ui: 'notification-error',
                         title: 'Error during creation.',
-                        msg: 'The logbook type could not be created because of an error in the database.',
+                        msg: 'The logbook type could not be created. There was a problem accessing the database',
                         icon: Ext.MessageBox.ERROR,
                         buttons: Ext.MessageBox.CANCEL
                     });
@@ -164,6 +153,7 @@ Ext.define('Mdc.controller.setup.LogForm', {
 
     editRequest: function (formPanel, form, formErrorsPanel, preloader) {
         var self = this,
+            record = form.getRecord(),
             jsonValues = Ext.JSON.encode(form.getValues());
         Ext.Ajax.request({
             url: '/api/mds/logbooktypes/' + self.logId,
@@ -179,23 +169,46 @@ Ext.define('Mdc.controller.setup.LogForm', {
                 }).show();
             },
             failure: function (response) {
-                var result = Ext.decode(response.responseText, true);
+                confirmMessage.close();
+                var result;
+                if (response != null) {
+                    result = Ext.decode(response.responseText, true);
+                }
                 if (result !== null) {
-                    Ext.widget('messagebox').show({
+                    Ext.widget('messagebox', {
+                        buttons: [
+                            {
+                                text: 'Close',
+                                action: 'cancel',
+                                handler: function(btn){
+                                    btn.up('messagebox').hide()
+                                }
+                            }
+                        ]
+                    }).show({
                         ui: 'notification-error',
                         title: result.error,
                         msg: result.message,
-                        icon: Ext.MessageBox.ERROR,
-                        buttons: Ext.MessageBox.CANCEL
-                    });
+                        icon: Ext.MessageBox.ERROR
+                    })
+
                 } else {
-                    Ext.widget('messagebox').show({
+                    Ext.widget('messagebox', {
+                        buttons: [
+                            {
+                                text: 'Close',
+                                action: 'cancel',
+                                handler: function(btn){
+                                    btn.up('messagebox').hide()
+                                }
+                            }
+                        ]
+                    }).show({
                         ui: 'notification-error',
-                        title: 'Error during edit.',
-                        msg: 'The logbook type could not be created because of an error in the database.',
-                        icon: Ext.MessageBox.ERROR,
-                        buttons: Ext.MessageBox.CANCEL
-                    });
+                        title: 'Failed to delete ' + record.data.name,
+                        msg: 'Logbook type could not be deleted. There was a problem accessing the database',
+                        icon: Ext.MessageBox.ERROR
+                    })
                 }
             },
             callback: function () {

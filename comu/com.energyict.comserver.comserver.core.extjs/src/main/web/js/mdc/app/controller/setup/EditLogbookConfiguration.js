@@ -56,6 +56,7 @@ Ext.define('Mdc.controller.setup.EditLogbookConfiguration', {
         var self = this,
             editView = self.getEditLogbookConfiguration(),
             form = editView.down('form').getForm(),
+            record = form.getRecord(),
             formErrorsPanel = Ext.ComponentQuery.query('edit-logbook-configuration panel[name=errors]')[0],
             jsonValues = Ext.JSON.encode(form.getValues()),
             url = '/api/dtc/devicetypes/' + editView.deviceTypeId + '/deviceconfigurations/' + editView.deviceConfigurationId + '/logbookconfigurations/' + editView.logbookConfigurationId,
@@ -77,53 +78,52 @@ Ext.define('Mdc.controller.setup.EditLogbookConfiguration', {
                 jsonData: jsonValues,
                 success: function () {
                     window.location.href = '#/administration/devicetypes/' + editView.deviceTypeId + '/deviceconfigurations/' + editView.deviceConfigurationId + '/logbookconfigurations';
-                    header.text = 'Successfully edited';
-                    self.getApplication().fireEvent('isushowmsg', {
-                        type: 'notify',
-                        msgBody: [header],
-                        y: 10,
-                        showTime: 5000
-                    });
+                    Ext.create('widget.uxNotification', {
+                        html: 'Successfully updated',
+                        ui: 'notification-success'
+                    }).show();
                 },
                 failure: function (response) {
-                    var result = Ext.decode(response.responseText);
-                    if (result !== null) {
-                        header.text = result.message;
-                        msges.push(header);
-                        bodyItem.style = 'msgItemStyle';
-                        bodyItem.text = result.error;
-                        msges.push(bodyItem);
-                        self.getApplication().fireEvent('isushowmsg', {
-                            type: 'error',
-                            msgBody: msges,
-                            y: 10,
-                            closeBtn: true,
-                            btns: [
-                                {
-                                    text: 'Cancel',
-                                    cls: 'isu-btn-link',
-                                    hnd: function () {
-                                        window.location = '#/administration/devicetypes/' + editView.deviceTypeId + '/deviceconfigurations/' + editView.deviceConfigurationId + '/logbookconfigurations/' + editView.logbookConfigurationId + '/edit';
-                                    }
-                                }
-                            ],
-                            listeners: {
-                                close: {
-                                    fn: function () {
-                                        editView.enable();
-                                    }
-                                }
-                            }
-                        });
-                        editView.disable();
+                    preloader.destroy();
+                    var result;
+                    if (response != null) {
+                        result = Ext.decode(response.responseText, true);
                     }
-                    else {
-                        header.text = 'Error during editing';
-                        msges.push(header);
-                        bodyItem.style = 'msgItemStyle';
-                        bodyItem.text = 'The logbook configuration could not be edited because of an error in the database.';
-                        msges.push(bodyItem);
-                        self.showDatabaseError(msges);
+                    if (result !== null) {
+                        Ext.widget('messagebox', {
+                            buttons: [
+                                {
+                                    text: 'Close',
+                                    action: 'cancel',
+                                    handler: function(btn){
+                                        btn.up('messagebox').hide()
+                                    }
+                                }
+                            ]
+                        }).show({
+                            ui: 'notification-error',
+                            title: result.error,
+                            msg: result.message,
+                            icon: Ext.MessageBox.ERROR
+                        })
+
+                    } else {
+                        Ext.widget('messagebox', {
+                            buttons: [
+                                {
+                                    text: 'Close',
+                                    action: 'cancel',
+                                    handler: function(btn){
+                                        btn.up('messagebox').hide()
+                                    }
+                                }
+                            ]
+                        }).show({
+                            ui: 'notification-error',
+                            title: 'Failed to update ' + record.data.name,
+                            msg: 'Logbook configuration could not be updated. There was a problem accessing the database',
+                            icon: Ext.MessageBox.ERROR
+                        })
                     }
                 },
                 callback: function () {

@@ -97,7 +97,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             jsonValues;
         formValue.measurementType = {id: formValue.measurementType };
         formValue.unitOfMeasure = {id: formValue.unitOfMeasure };
-        console.log(formValue);
         if (form.isValid()) {
             jsonValues = Ext.JSON.encode(formValue);
             formErrorsPanel.hide();

@@ -463,7 +463,6 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                 },
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText);
-                    console.log(json);
                     if (json && json.errors) {
                         me.getCommunicationTaskEditForm().getForm().markInvalid(json.errors);
                     }

@@ -58,25 +58,45 @@ Ext.define('Mdc.controller.setup.AddLogbookTypes', {
                 }).show();
             },
             failure: function (response) {
-                var result = Ext.decode(response.responseText);
-
+                var result;
+                if (response != null) {
+                    result = Ext.decode(response.responseText, true);
+                }
                 if (result !== null) {
-                    Ext.Msg.show({
+                    Ext.widget('messagebox', {
+                        buttons: [
+                            {
+                                text: 'Close',
+                                action: 'cancel',
+                                handler: function(btn){
+                                    btn.up('messagebox').hide()
+                                }
+                            }
+                        ]
+                    }).show({
+                        ui: 'notification-error',
                         title: result.error,
                         msg: result.message,
-                        icon: Ext.MessageBox.WARNING,
-                        buttons: Ext.MessageBox.CANCEL,
-                        ui: 'notification-error'
-                    });
-                }
-                else {
-                    Ext.Msg.show({
-                        title: 'Error during adding',
-                        msg: 'The logbook type could not be added because of an error in the database.',
-                        icon: Ext.MessageBox.WARNING,
-                        buttons: Ext.MessageBox.CANCEL,
-                        ui: 'notification-error'
-                    });
+                        icon: Ext.MessageBox.ERROR
+                    })
+
+                } else {
+                    Ext.widget('messagebox', {
+                        buttons: [
+                            {
+                                text: 'Close',
+                                action: 'cancel',
+                                handler: function(btn){
+                                    btn.up('messagebox').hide()
+                                }
+                            }
+                        ]
+                    }).show({
+                        ui: 'notification-error',
+                        title: 'Failed to add.',
+                        msg: 'Logbook types could not be added. There was a problem accessing the database',
+                        icon: Ext.MessageBox.ERROR
+                    })
                 }
             },
             callback: function () {

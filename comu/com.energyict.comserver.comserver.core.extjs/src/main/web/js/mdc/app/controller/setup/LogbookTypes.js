@@ -19,15 +19,16 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
     ],
 
     init: function () {
-        this.control({
+        var me = this;
+        me.control({
             'device-type-logbooks grid': {
-                itemclick: this.loadGridItemDetail
+                itemclick: me.loadGridItemDetail
             },
             'device-type-logbooks grid uni-actioncolumn': {
-                itemclick: this.deleteLogbookType
+                menuclick : me.deleteLogbookType
             }
         });
-        this.store = this.getStore('Mdc.store.LogbookTypes');
+        me.store = me.getStore('Mdc.store.LogbookTypes');
     },
 
     loadGridItemDetail: function (grid, record) {
@@ -48,43 +49,10 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
         preloader.destroy();
     },
 
-    showDatabaseError: function (msges) {
-        var self = this,
-            logbooksView = self.getDeviceTypeLogbooks();
-        self.getApplication().fireEvent('isushowmsg', {
-            type: 'error',
-            msgBody: msges,
-            y: 10,
-            closeBtn: true,
-            btns: [
-                {
-                    text: 'Cancel',
-                    cls: 'isu-btn-link',
-                    hnd: function () {
-                        window.location = '#/administration/devicetypes/' + logbooksView.deviceTypeId + '/logbooktypes';
-                    }
-                }
-            ],
-            listeners: {
-                close: {
-                    fn: function () {
-                        logbooksView.enable();
-                    }
-                }
-            }
-        });
-        logbooksView.disable();
-    },
-
     deleteLogbookType: function () {
         var self = this,
             logbooksView = self.getDeviceTypeLogbooks(),
             grid = logbooksView.down('grid'),
-            header = {
-                style: 'msgHeaderStyle'
-            },
-            bodyItem = {},
-            msges = [],
             record = grid.getSelectionModel().getLastSelected(),
             url = '/api/dtc/devicetypes/' + logbooksView.deviceTypeId + '/logbooktypes/' + record.data.id,
             itemPanel = Ext.ComponentQuery.query('device-type-logbooks panel[name=details]')[0],
@@ -102,7 +70,7 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
                             Ext.Ajax.request({
                                 url: url,
                                 method: 'DELETE',
-                                success: function () {
+                                success: function (response) {
                                     confirmMessage.close();
                                     itemPanel.hide();
 
@@ -145,44 +113,45 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
                                 },
                                 failure: function (response) {
                                     confirmMessage.close();
-                                    var result = Ext.decode(response.responseText, true);
-                                    if (result !== null) {
-                                        header.text = result.message;
-                                        msges.push(header);
-                                        bodyItem.style = 'msgItemStyle';
-                                        bodyItem.text = result.error;
-                                        msges.push(bodyItem);
-                                        self.getApplication().fireEvent('isushowmsg', {
-                                            type: 'error',
-                                            msgBody: msges,
-                                            y: 10,
-                                            closeBtn: true,
-                                            btns: [
-                                                {
-                                                    text: 'Cancel',
-                                                    cls: 'isu-btn-link',
-                                                    hnd: function () {
-                                                        window.location = '#/administration/devicetypes/' + logbooksView.deviceTypeId + '/logbooktypes';
-                                                    }
-                                                }
-                                            ],
-                                            listeners: {
-                                                close: {
-                                                    fn: function () {
-                                                        logbooksView.enable();
-                                                    }
-                                                }
-                                            }
-                                        });
-                                        logbooksView.disable();
+                                    var result;
+                                    if (response != null) {
+                                        result = Ext.decode(response.responseText, true);
                                     }
-                                    else {
-                                        header.text = 'Error during removing';
-                                        msges.push(header);
-                                        bodyItem.style = 'msgItemStyle';
-                                        bodyItem.text = 'The logbook type could not be removed because of an error in the database.';
-                                        msges.push(bodyItem);
-                                        self.showDatabaseError(msges);
+                                    if (result !== null) {
+                                        Ext.widget('messagebox', {
+                                            buttons: [
+                                                {
+                                                    text: 'Close',
+                                                    action: 'cancel',
+                                                    handler: function(btn){
+                                                        btn.up('messagebox').hide()
+                                                    }
+                                                }
+                                            ]
+                                        }).show({
+                                            ui: 'notification-error',
+                                            title: result.error,
+                                            msg: result.message,
+                                            icon: Ext.MessageBox.ERROR
+                                        })
+
+                                    } else {
+                                        Ext.widget('messagebox', {
+                                            buttons: [
+                                                {
+                                                    text: 'Close',
+                                                    action: 'cancel',
+                                                    handler: function(btn){
+                                                        btn.up('messagebox').hide()
+                                                    }
+                                                }
+                                            ]
+                                        }).show({
+                                            ui: 'notification-error',
+                                            title: 'Failed to delete ' + record.data.name,
+                                            msg: 'The device type could not be deleted. There was a problem accessing the database',
+                                            icon: Ext.MessageBox.ERROR
+                                        })
                                     }
                                 },
                                 callback: function () {
