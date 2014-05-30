@@ -124,7 +124,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 me.store.load();
             },
             failure: function (result, request) {
-                var data = result.responseText;
+                var data = Ext.JSON.decode(result.responseText);
                 Ext.create('widget.uxNotification', {
                     html: data,
                     title: 'Error during removing of security setting',
