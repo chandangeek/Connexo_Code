@@ -48,7 +48,7 @@ Ext.define('Isu.controller.NotifySend', {
     notifyUser: function (records, view) {
         var self = this;
         Ext.Array.each(records, function (record) {
-            if (record.data.parameters.recepients && record.data.parameters.recepients.control.alias === 'emailList') {
+            if (record.data.parameters.recepients && record.data.parameters.recepients.control.xtype === 'emailList') {
                 Ext.apply(Ext.form.VTypes, {
                     emailVtype: function (val) {
                         var email = /^((([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z?]{2,5}){1,25})*(\n?)*)*$/;
@@ -63,7 +63,7 @@ Ext.define('Isu.controller.NotifySend', {
                     name: record.data.parameters.recepients.key,
                     width: 500,
                     height: 150,
-                    allowBlank: record.data.parameters.recepients.constraint.optional,
+                    allowBlank: false,
                     labelSeparator: ' *',
                     fieldLabel: record.data.parameters.recepients.label,
                     vtype: 'emailVtype',
@@ -71,14 +71,14 @@ Ext.define('Isu.controller.NotifySend', {
                     maxLength: record.data.parameters.recepients.constraint.max
                 })
             }
-            if (record.data.parameters.emailBody && record.data.parameters.emailBody.control.alias === 'textArea') {
+            if (record.data.parameters.emailBody && record.data.parameters.emailBody.control.xtype === 'textArea') {
                 view.down('form').add({
                     xtype: 'textarea',
                     itemId: 'emailBody',
                     name: record.data.parameters.emailBody.key,
                     width: 500,
                     height: 150,
-                    allowBlank: record.data.parameters.emailBody.constraint.optional,
+                    allowBlank: false,
                     labelSeparator: ' *',
                     fieldLabel: record.data.parameters.emailBody.label,
                     msgTarget: 'under',
@@ -91,7 +91,7 @@ Ext.define('Isu.controller.NotifySend', {
     sendSomeone: function (records, view) {
         var self = this;
         Ext.Array.each(records, function (record) {
-            if (record.data.parameters.user && record.data.parameters.user.control.alias === 'userCombobox') {
+            if (record.data.parameters.user && record.data.parameters.user.control.xtype === 'userCombobox') {
                 self.id = record.data.id;
                 view.down('form').add({
                     xtype: 'issues-assignee-combo',
@@ -101,6 +101,7 @@ Ext.define('Isu.controller.NotifySend', {
                     forceSelection: true,
                     anyMatch: true,
                     labelSeparator: ' *',
+                    valueField: 'id',
                     emptyText: 'select an assignee',
                     tooltipText: 'Start typing for assignee'
                 })
@@ -148,10 +149,11 @@ Ext.define('Isu.controller.NotifySend', {
             }
         } else {
             if (notifyView.down('#assignee').value !== null && form.isValid()) {
+                sendingData.parameters = {};
                 notifyView.down('#assignee').clearInvalid();
                 formErrorsPanel.hide();
                 sendingData.id = self.id;
-                sendingData.parameters = form.getValues();
+                sendingData.parameters.user = form.getValues().user.toString();
                 preloader = Ext.create('Ext.LoadMask', {
                     msg: "Sending data",
                     target: notifyView
