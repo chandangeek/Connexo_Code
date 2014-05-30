@@ -90,7 +90,7 @@ Ext.define('Uni.controller.history.Router', {
     currentRoute: null,
 
     /**
-     * Add router configutarion
+     * Add router configuration
      * @param config
      */
     addConfig: function(config) {
