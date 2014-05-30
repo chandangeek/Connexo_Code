@@ -49,7 +49,7 @@ public privileged aspect OutboundCommunicationStatisticsMonitor extends Abstract
          * So first test if there was a connection. */
 //        ComSessionShadow comSessionShadow = executionContext.getComSessionShadow();
         if (this.isConnected(executionContext)) {
-            ComPortRelatedComChannelImpl comChannel = (ComPortRelatedComChannelImpl) executionContext.getComChannel();
+            ComPortRelatedComChannelImpl comChannel = (ComPortRelatedComChannelImpl) executionContext.getComPortRelatedComChannel();
             StopWatch talking = this.getComChannelTalkCounter(comChannel);
             talking.stop();
             ComSessionBuilder comSessionBuilder = executionContext.getComSessionBuilder();
@@ -64,7 +64,7 @@ public privileged aspect OutboundCommunicationStatisticsMonitor extends Abstract
     }
 
     private boolean isConnected (ExecutionContext executionContext) {
-        return executionContext.getComChannel() != null;
+        return executionContext.getComPortRelatedComChannel() != null;
     }
 
     private pointcut comTaskExecutionStarts (JobExecution scheduledJob, ComTaskExecution comTaskExecution):
@@ -75,7 +75,7 @@ public privileged aspect OutboundCommunicationStatisticsMonitor extends Abstract
     before (JobExecution jobExecution, ComTaskExecution comTaskExecution): comTaskExecutionStarts(jobExecution, comTaskExecution) {
         jobExecution.getExecutionContext().executing.start();
         if (this.isConnected(jobExecution.getExecutionContext())) {
-            ComPortRelatedComChannelImpl comChannel = (ComPortRelatedComChannelImpl) jobExecution.getExecutionContext().getComChannel();
+            ComPortRelatedComChannelImpl comChannel = (ComPortRelatedComChannelImpl) jobExecution.getExecutionContext().getComPortRelatedComChannel();
             Counters taskSessionCounters = this.getComChannelTaskSessionCounters(comChannel);
             taskSessionCounters.resetBytesRead();
             taskSessionCounters.resetBytesSent();
@@ -106,7 +106,7 @@ public privileged aspect OutboundCommunicationStatisticsMonitor extends Abstract
 
     private void comTaskExecutionCompleted (JobExecution jobExecution, ComTaskExecution comTaskExecution, Throwable t) {
         if (this.isConnected(jobExecution.getExecutionContext()) && this.hasCurrentTaskSession(jobExecution)) {
-            ComPortRelatedComChannelImpl comChannel = (ComPortRelatedComChannelImpl) jobExecution.getExecutionContext().getComChannel();
+            ComPortRelatedComChannelImpl comChannel = (ComPortRelatedComChannelImpl) jobExecution.getExecutionContext().getComPortRelatedComChannel();
             ComSessionBuilder comSessionBuilder = jobExecution.getExecutionContext().getComSessionBuilder();
             Counters taskSessionCounters = this.getComChannelTaskSessionCounters(comChannel);
             comSessionBuilder.addSentBytes(taskSessionCounters.getBytesSent());

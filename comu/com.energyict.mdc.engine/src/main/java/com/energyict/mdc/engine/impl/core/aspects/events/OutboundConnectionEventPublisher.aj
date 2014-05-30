@@ -58,7 +58,7 @@ public aspect OutboundConnectionEventPublisher {
     }
 
     private boolean isConnected (ExecutionContext executionContext) {
-        return executionContext.getComChannel() != null;
+        return executionContext.getComPortRelatedComChannel() != null;
     }
 
 }

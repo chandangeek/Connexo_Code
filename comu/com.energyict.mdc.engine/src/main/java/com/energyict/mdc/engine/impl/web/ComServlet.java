@@ -144,7 +144,7 @@ public class ComServlet extends HttpServlet {
     }
 
     private ServletBasedInboundDeviceProtocol newInboundDeviceProtocol() {
-        return (ServletBasedInboundDeviceProtocol) this.comPort.getComPortPool().getDiscoveryProtocolPluggableClass();
+        return (ServletBasedInboundDeviceProtocol) this.comPort.getComPortPool().getDiscoveryProtocolPluggableClass().getInboundDeviceProtocol();
     }
 
     private String getWebVersion () {

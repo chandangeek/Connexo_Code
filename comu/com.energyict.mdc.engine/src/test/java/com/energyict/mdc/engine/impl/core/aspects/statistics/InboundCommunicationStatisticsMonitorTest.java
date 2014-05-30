@@ -121,8 +121,8 @@ public class InboundCommunicationStatisticsMonitorTest {
         try {
             scheduledJob.createExecutionContext();
             if (scheduledJob.getExecutionContext().connect()) {
-                scheduledJob.getExecutionContext().getComChannel().write("Hello world".getBytes());
-                scheduledJob.getExecutionContext().getComChannel().read();
+                scheduledJob.getExecutionContext().getComPortRelatedComChannel().write("Hello world".getBytes());
+                scheduledJob.getExecutionContext().getComPortRelatedComChannel().read();
             }
         }
         finally {
@@ -158,8 +158,8 @@ public class InboundCommunicationStatisticsMonitorTest {
         try {
             scheduledJob.createExecutionContext();
             if (scheduledJob.getExecutionContext().connect()) {
-                scheduledJob.getExecutionContext().getComChannel().write(helloWorldBytes);
-                numberOfBytesRead = scheduledJob.getExecutionContext().getComChannel().read(readBuffer);
+                scheduledJob.getExecutionContext().getComPortRelatedComChannel().write(helloWorldBytes);
+                numberOfBytesRead = scheduledJob.getExecutionContext().getComPortRelatedComChannel().read(readBuffer);
             }
         }
         finally {

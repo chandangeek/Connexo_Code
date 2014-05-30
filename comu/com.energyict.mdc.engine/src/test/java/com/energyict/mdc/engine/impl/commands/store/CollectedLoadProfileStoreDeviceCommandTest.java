@@ -77,9 +77,6 @@ public class CollectedLoadProfileStoreDeviceCommandTest extends AbstractCollecte
 
     private LoadProfileType loadProfileType;
 
-    @Mock
-    private MdcReadingTypeUtilService readingTypeService;
-
     public List<IntervalValue> getIntervalValues(int addition) {
         List<IntervalValue> intervalValues = new ArrayList<>();
         intervalValues.add(new IntervalValue(intervalValueOne + addition, 0, 0));

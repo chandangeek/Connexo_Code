@@ -13,6 +13,7 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.google.common.base.Optional;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,6 +55,11 @@ public class CollectedDeviceCacheCommandTest {
     public void setupServiceProvider () {
         when(this.serviceProvider.engineService()).thenReturn(this.engineService);
         ServiceProvider.instance.set(this.serviceProvider);
+    }
+
+    @After
+    public void initAfter() {
+        ServiceProvider.instance.set(null);
     }
 
     @Test

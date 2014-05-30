@@ -53,7 +53,7 @@ public final class ExecutionContext {
     private final JobExecution jobExecution;
     private final CommandRoot.ServiceProvider serviceProvider;
 
-    private ComPortRelatedComChannel comChannel;
+    private ComPortRelatedComChannel comPortRelatedComChannel;
     private ComSessionBuilder sessionBuilder;
     private ComTaskExecutionSessionBuilder currentTaskExecutionBuilder;
     private ComCommandJournalist journalist;
@@ -87,8 +87,8 @@ public final class ExecutionContext {
 
     public void close() {
         // Check if establishing the connection succeeded
-        if (this.comChannel != null) {
-            this.comChannel.close();
+        if (this.comPortRelatedComChannel != null) {
+            this.comPortRelatedComChannel.close();
         }
     }
 
@@ -118,11 +118,11 @@ public final class ExecutionContext {
      */
     public boolean connect() {
         try {
-            this.setComChannel(this.jobExecution.findOrCreateComChannel());
+            this.setComPortRelatedComChannel(this.jobExecution.findOrCreateComChannel());
             this.getComServerDAO().executionStarted(this.connectionTask, this.comPort.getComServer());
             return this.jobExecution.isConnected();
         } catch (ConnectionException e) {
-            this.comChannel = null;
+            this.comPortRelatedComChannel = null;
             this.connectionFailed(e, this.connectionTask);
             throw new ConnectionSetupException(e);
         }
@@ -146,8 +146,8 @@ public final class ExecutionContext {
         comTaskExecutionCompleted(Success);
     }
 
-    public ComPortRelatedComChannel getComChannel() {
-        return comChannel;
+    public ComPortRelatedComChannel getComPortRelatedComChannel() {
+        return comPortRelatedComChannel;
     }
 
     public ComChannelLogger getComChannelLogger() {
@@ -368,9 +368,9 @@ public final class ExecutionContext {
         return serviceProvider.clock().now();
     }
 
-    private void setComChannel(ComPortRelatedComChannel comChannel) {
-        this.comChannel = comChannel;
-        this.jobExecution.connected(comChannel);
+    private void setComPortRelatedComChannel(ComPortRelatedComChannel comPortRelatedComChannel) {
+        this.comPortRelatedComChannel = comPortRelatedComChannel;
+        this.jobExecution.connected(comPortRelatedComChannel);
     }
 
     private List<DeviceCommand> toDeviceCommands(ComTaskExecutionComCommand commandRoot) {

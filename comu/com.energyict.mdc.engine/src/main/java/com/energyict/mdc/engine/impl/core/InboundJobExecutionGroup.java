@@ -60,7 +60,7 @@ public class InboundJobExecutionGroup extends JobExecution {
     }
 
     private boolean isBinaryConnected() {
-        return getExecutionContext().getComChannel() != null;
+        return getExecutionContext().getComPortRelatedComChannel() != null;
     }
 
     public void executeDeviceProtocol(List<ComTaskExecution> inboundComTaskExecutions) {

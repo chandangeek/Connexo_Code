@@ -92,7 +92,7 @@ public aspect ComChannelReadWriteLogger {
     }
 
     private void logRemainingBytesOnClose (JobExecution jobExecution) {
-        ComPortRelatedComChannel comChannel = jobExecution.getExecutionContext().getComChannel();
+        ComPortRelatedComChannel comChannel = jobExecution.getExecutionContext().getComPortRelatedComChannel();
         if (comChannel != null) {
             this.logRemainingBytesOnClose(comChannel);
         }

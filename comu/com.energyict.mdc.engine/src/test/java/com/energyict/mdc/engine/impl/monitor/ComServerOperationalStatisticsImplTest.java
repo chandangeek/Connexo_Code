@@ -72,6 +72,7 @@ public class ComServerOperationalStatisticsImplTest {
 
     @Test
     public void testCompositeDataItemTypes () {
+        when(this.clock.now()).thenReturn(new Date());
         ComServerOperationalStatisticsImpl operationalStatistics = new ComServerOperationalStatisticsImpl(this.runningComServer, clock);
 
         // Business method

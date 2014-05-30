@@ -39,7 +39,7 @@ public final class DeviceCreator implements DeviceBuilderForTesting {
 
     static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID = 139;
 
-    private static final DeviceBuilderForTesting COMPLETE = (DeviceBuilderForTesting) Proxy.newProxyInstance(DeviceBuilderForTesting.class.getClassLoader(), new Class<?>[]{DeviceBuilderForTesting.class}, new InvocationHandler() {
+    private final DeviceBuilderForTesting COMPLETE = (DeviceBuilderForTesting) Proxy.newProxyInstance(DeviceBuilderForTesting.class.getClassLoader(), new Class<?>[]{DeviceBuilderForTesting.class}, new InvocationHandler() {
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             throw new IllegalStateException("The builder is finished, you cannot change anything anymore ...");

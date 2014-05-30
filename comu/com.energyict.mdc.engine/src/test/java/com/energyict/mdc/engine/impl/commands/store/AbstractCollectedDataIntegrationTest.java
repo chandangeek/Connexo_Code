@@ -30,7 +30,6 @@ import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.impl.EngineModule;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
@@ -80,7 +79,6 @@ public abstract class AbstractCollectedDataIntegrationTest {
     private static Injector injector;
     private static InMemoryBootstrapModule bootstrapModule;
     private static MeteringService meteringService;
-    private static DeviceDataService deviceDataService;
     private static Clock clock = mock(Clock.class);
 
     @Mock
@@ -96,13 +94,12 @@ public abstract class AbstractCollectedDataIntegrationTest {
         bootstrapModule = new InMemoryBootstrapModule();
         EventAdmin eventAdmin = mock(EventAdmin.class);
         injector = Guice.createInjector(
-                new MockModule(bundleContext, eventAdmin, deviceDataService),
+                new MockModule(bundleContext, eventAdmin),
                 bootstrapModule,
                 new ThreadSecurityModule(principal),
                 new PubSubModule(),
                 new TransactionModule(),
                 new DomainUtilModule(),
-//                new UtilModule(),
                 new NlsModule(),
                 new UserModule(),
                 new MeteringModule(),
@@ -144,7 +141,6 @@ public abstract class AbstractCollectedDataIntegrationTest {
     @AfterClass
     public static void tearDownEnvironment() {
         bootstrapModule.deactivate();
-        ServiceProvider.instance.set(null);
     }
 
     @Before
@@ -208,16 +204,6 @@ public abstract class AbstractCollectedDataIntegrationTest {
         return comServerDAO;
     }
 
-//    protected Device mockDevice(long deviceId) {
-//        DeviceImpl device = mock(DeviceImpl.class, RETURNS_DEEP_STUBS);
-//        when(device.getId()).thenReturn(deviceId);
-//        doCallRealMethod().when(device).store(any(MeterReading.class));
-////        when(deviceFactory.findById(deviceId)).thenReturn(device);
-//        when(deviceDataService.findDeviceById(deviceId)).thenReturn(device);
-//        return device;
-//    }
-
-
     static Clock getClock() {
         return clock;
     }
@@ -231,13 +217,11 @@ public abstract class AbstractCollectedDataIntegrationTest {
 
         private final BundleContext bundleContext;
         private final EventAdmin eventAdmin;
-        private final DeviceDataService deviceDataService;
 
-        private MockModule(BundleContext bundleContext, EventAdmin eventAdmin, DeviceDataService deviceDataService) {
+        private MockModule(BundleContext bundleContext, EventAdmin eventAdmin) {
             super();
             this.bundleContext = bundleContext;
             this.eventAdmin = eventAdmin;
-            this.deviceDataService = deviceDataService;
         }
 
         @Override

@@ -41,7 +41,7 @@ public abstract class ScheduledJobImpl extends JobExecution {
 
     @Override
     protected boolean isConnected() {
-        return getExecutionContext().getComChannel() != null;
+        return getExecutionContext().getComPortRelatedComChannel() != null;
     }
 
     @Override
@@ -129,7 +129,7 @@ public abstract class ScheduledJobImpl extends JobExecution {
     void completeConnection () {
         if (getExecutionContext() != null) {
             try {
-                this.getConnectionTask().disconnect(getExecutionContext().getComChannel());
+                this.getConnectionTask().disconnect(getExecutionContext().getComPortRelatedComChannel());
             }
             catch (ConnectionException e) {
                 throw new ConnectionFailureException(e);

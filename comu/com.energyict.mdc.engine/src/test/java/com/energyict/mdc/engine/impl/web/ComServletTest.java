@@ -1,10 +1,13 @@
 package com.energyict.mdc.engine.impl.web;
 
+import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
+import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
@@ -18,14 +21,19 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Collections;
 
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -44,9 +52,37 @@ public class ComServletTest {
     private static final long COMPORT_ID = COMPORT_POOL_ID + 1;
     private FakeServiceProvider serviceProvider;
 
+    @Mock
+    private ProtocolPluggableService protocolPluggableService;
+    @Mock
+    private EventPublisherImpl eventPublisher;
+
+    @Before
+    public void initBefore() {
+        serviceProvider = new FakeServiceProvider();
+        serviceProvider.setClock(new DefaultClock());
+        serviceProvider.setProtocolPluggableService(protocolPluggableService);
+        when(protocolPluggableService.findInboundDeviceProtocolPluggableClassByClassName(anyString())).thenReturn(Collections.<InboundDeviceProtocolPluggableClass>emptyList());
+        ServiceProvider.instance.set(serviceProvider);
+    }
+
+    @After
+    public void initAfter() {
+        ServiceProvider.instance.set(null);
+    }
+
+    @Before
+    public void setupEventPublisher () {
+        EventPublisherImpl.setInstance(this.eventPublisher);
+    }
+
+    @After
+    public void resetEventPublisher () {
+        EventPublisherImpl.setInstance(null);
+    }
+
     @Test
     public void testDoGetDoesNotFail () throws IOException, ServletException {
-        serviceProvider = new FakeServiceProvider();
         ComServlet comServlet = new ComServlet(mock(ServletBasedInboundComPort.class), mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), this.serviceProvider);
         HttpServletResponse servletResponse = mock(HttpServletResponse.class);
         PrintWriter printWriter = mock(PrintWriter.class);
