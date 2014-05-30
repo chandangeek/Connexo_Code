@@ -794,12 +794,15 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
                         }
                     });
                     self.commands.splice(numItem, 1);
+                    numItem = null;
                     Ext.Array.each(self.commands, function (item) {
                         if (item.category === me.category) {
                             numItem = self.commands.indexOf(item);
                         }
                     });
-                    self.commands.splice(numItem, 1);
+                    if (numItem !== null) {
+                        self.commands.splice(numItem, 1);
+                    }
                     Ext.ComponentQuery.query('communication-tasks-edit #createEditTask')[0].setDisabled(false);
                 }
             }
