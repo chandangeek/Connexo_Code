@@ -7,8 +7,11 @@
  *
  * title: string or function
  * route: the part of route, srr crossroads for example.
- * disabled: if true the route will not be registered with crossroads
- * items: the set of child routes
+ * controller: specify the controller which will handle the route
+ * action: (optional) action of the controller which will be fired on route match. If not specified defaultAction will be used.
+ * disabled: (optional) if true the route will not be registered with crossroads
+ * items: (optional) the set of child routes
+ * params: (optional) the set of optional parameters which will be passed to the action
  *
  * For creating URL in the application use the following example:
  *
