@@ -94,7 +94,7 @@ Ext.define('Uni.controller.history.Router', {
         _.extend(this.config, config);
 
         var me = this;
-        _.each(this.config, function(item, key) {
+        _.each(config, function(item, key) {
             me.initRoute(key, item);
         });
     },
