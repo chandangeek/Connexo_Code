@@ -683,7 +683,10 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
 
     @Override
     public void removeSecurityPropertySet(SecurityPropertySet propertySet) {
-        securityPropertySets.remove(propertySet);
+        if (propertySet != null) {
+            ((SecurityPropertySetImpl)propertySet).validateDelete();
+            securityPropertySets.remove(propertySet);
+        }
     }
 
     @Override
