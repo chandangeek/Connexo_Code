@@ -21,11 +21,11 @@ Ext.define('Mdc.util.ComboSelectedCount', {
                         if (!allSelected) {
                             combo.select(combo.getStore().getRange());
                             combo.setSelectedCount(combo.getStore().getRange().length);
-                            btn.setText('Deselect all...');
+                            btn.setText('Deselect all');
                             allSelected = true;
                         } else {
                             combo.reset();
-                            btn.setText('Select all...');
+                            btn.setText('Select all');
                             allSelected = false;
                         }
                         e.stopEvent();
