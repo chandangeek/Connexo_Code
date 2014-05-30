@@ -3,6 +3,7 @@ Ext.define('Mdc.store.SelectedMeasurementTypesForLoadProfileType', {
     requires: [
         'Mdc.model.RegisterType'
     ],
+    pageSize: 100,
     model: 'Mdc.model.RegisterType',
     storeId: 'SelectedMeasurementTypesForLoadProfileType'
 });

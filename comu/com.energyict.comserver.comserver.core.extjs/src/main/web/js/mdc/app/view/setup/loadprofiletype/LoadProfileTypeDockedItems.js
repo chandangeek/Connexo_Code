@@ -2,6 +2,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeDockedItems', {
     extend: 'Ext.toolbar.Toolbar',
     border: 0,
     alias: 'widget.loadProfileTypeDockedItems',
+    itemId: 'LoadProfileTypeDockedItems',
     aling: 'left',
     actionHref: null,
 

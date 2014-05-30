@@ -47,14 +47,14 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                             xtype: 'displayfield',
                             labelSeparator: ' ',
                             fieldLabel: 'CIM reading type',
-                            name: 'OBIS code',
+                            name: 'cimreadingtype',
                             value: 'Select a measurement type first'
                         },
                         {
                             xtype: 'displayfield',
                             labelSeparator: ' ',
                             fieldLabel: 'OBIS code',
-                            name: 'OBIS code',
+                            name: 'obiscode',
                             value: 'Select a measurement type first'
                         },
                         {
@@ -134,6 +134,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                 xtype: 'button',
                 name: 'loadprofilechannelaction',
                 text: this.loadProfileConfigurationChannelAction,
+                action: this.loadProfileConfigurationChannelAction,
                 ui: 'action'
             }
         );

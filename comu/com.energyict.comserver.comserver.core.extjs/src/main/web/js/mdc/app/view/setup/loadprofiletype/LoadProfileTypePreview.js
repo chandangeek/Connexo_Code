@@ -13,27 +13,23 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypePreview', {
             xtype: 'form',
             name: 'loadProfileTypeDetails',
             layout: 'column',
-            defaults: {
-                xtype: 'container',
-                layout: 'form',
-                columnWidth: 0.5
-            },
             items: [
                 {
+                    columnWidth: .4,
                     items: [
                         {
                             xtype: 'displayfield',
-                            fieldLabel: 'Name: ',
+                            fieldLabel: 'Name',
                             name: 'name'
                         },
                         {
                             xtype: 'displayfield',
-                            fieldLabel: 'OBIS code: ',
+                            fieldLabel: 'OBIS code',
                             name: 'obisCode'
                         },
                         {
                             xtype: 'displayfield',
-                            fieldLabel: 'Interval: ',
+                            fieldLabel: 'Interval',
                             name: 'timeDuration',
                             renderer: function (value) {
                                 var intervalRecord = this.up('#loadProfileTypePreview').intervalStore.findRecord('id', value.id);
@@ -45,28 +41,48 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypePreview', {
                     ]
                 },
                 {
-                    items: [
-                        {
-                            xtype: 'displayfield',
-                            fieldLabel: 'Measurment Types: ',
-                            name: 'measurementTypes',
-                            renderer: function (value) {
-                                var typesString = '';
-                                if (!Ext.isEmpty(value)) {
-                                    Ext.each(value, function (type) {
-                                        typesString += type.name + '<br />';
-                                    });
-                                }
-                                return typesString;
-                            }
+                    columnWidth: .6,
+                    xtype: 'displayfield',
+                    fieldLabel: 'Measurement types',
+                    labelWidth: 200,
+                    name: 'measurementTypes',
+                    renderer: function (value) {
+                        var typesString = '';
+                        if (!Ext.isEmpty(value)) {
+                            Ext.each(value, function (type) {
+                                typesString += type.name + '<br />';
+                            });
                         }
-                    ]
+                        return typesString;
+                    }
                 }
             ]
         }
     ],
 
     initComponent: function () {
+        var me = this,
+            actionItems;
+        if (Ext.isEmpty(me.editActionName)) {
+            actionItems = [
+                {
+                    text: 'Remove',
+                    action: this.deleteActionName
+                }
+
+            ]
+        } else {
+            actionItems = [
+                {
+                    text: 'Edit',
+                    action: this.editActionName
+                },
+                {
+                    text: 'Remove',
+                    action: this.deleteActionName
+                }
+            ]
+        }
         this.tools = [
             {
                 xtype: 'button',
@@ -77,16 +93,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypePreview', {
                     plain: true,
                     border: false,
                     shadow: false,
-                    items: [
-                        {
-                            text: 'Edit',
-                            action: this.editActionName
-                        },
-                        {
-                            text: 'Remove',
-                            action: this.deleteActionName
-                        }
-                    ]
+                    items: actionItems
                 }
             }
         ];

@@ -5,6 +5,9 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
     store: 'LoadProfileConfigurationDetailChannels',
     height: 395,
     scroll: false,
+    editActionName: null,
+    deleteActionName: null,
+
     viewConfig: {
         style: { overflow: 'auto', overflowX: 'hidden' }
     },

@@ -1,6 +1,7 @@
 Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSorting', {
     extend: 'Skyline.panel.FilterToolbar',
     alias: 'widget.loadProfileTypeSorting',
+    itemId: 'LoadProfileTypeSorting',
     title: 'Sort',
     name: 'sortitemspanel',
     height: 40,

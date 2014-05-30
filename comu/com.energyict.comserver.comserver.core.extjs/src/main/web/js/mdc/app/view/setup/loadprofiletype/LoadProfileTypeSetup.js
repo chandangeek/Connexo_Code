@@ -47,9 +47,6 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSetup', {
                     itemId: 'loadProfileTypeGridContainer'
                 },
                 {
-                    xtype: 'menuseparator'
-                },
-                {
                     xtype: 'container',
                     itemId: 'loadProfileTypePreviewContainer'
                 }

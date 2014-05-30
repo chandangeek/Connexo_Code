@@ -7,6 +7,9 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationGrid
     intervalStore: null,
     deviceTypeId: null,
     deviceConfigurationId: null,
+    deleteActionName: null,
+    editActionName: null,
+
     height: 395,
     viewConfig: {
         style: { overflow: 'auto', overflowX: 'hidden' }
@@ -19,7 +22,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationGrid
                 dataIndex: 'id',
                 flex: 3,
                 renderer: function (value) {
-                    return Ext.String.format('<a href="#/administration/devicetypes/{0}/deviceconfigurations/{1}/loadprofiles/{2}">{3}</a>', this.deviceTypeId, this.deviceConfigurationId, value, this.store.findRecord('id', value).getData().name);
+                    return Ext.String.format('<a href="#/administration/devicetypes/{0}/deviceconfigurations/{1}/loadprofiles/{2}/channels">{3}</a>', this.deviceTypeId, this.deviceConfigurationId, value, this.store.findRecord('id', value).getData().name);
                 }
             },
             {
