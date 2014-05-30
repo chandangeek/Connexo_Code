@@ -56,7 +56,7 @@ Ext.define('Mdc.controller.history.Setup', {
                         logbooktypes: {
                             title: 'Logbook Types',
                             route: '{id}/logbooktypes',
-                            controller: 'Mdc.controller.setup.LogForm',
+                            controller: 'Mdc.controller.setup.DeviceTypes',
                             action: 'showDeviceTypeLogbookTypesView',
                             items: {
                                 add: {
