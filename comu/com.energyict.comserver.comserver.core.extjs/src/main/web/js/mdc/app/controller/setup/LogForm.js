@@ -2,7 +2,6 @@ Ext.define('Mdc.controller.setup.LogForm', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Uni.model.BreadcrumbItem'
     ],
 
     views: [
@@ -30,10 +29,6 @@ Ext.define('Mdc.controller.setup.LogForm', {
 
     init: function () {
         this.control({
-            'form-logbook breadcrumbTrail': {
-                afterrender: this.setBreadcrumb
-            },
-
             'form-logbook button[action=create]': {
                 click: this.onSubmit
             },
@@ -52,7 +47,7 @@ Ext.define('Mdc.controller.setup.LogForm', {
             btn = form.down('button[name=logAction]'),
             title;
 
-        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
+        this.getApplication().fireEvent('changecontentevent', widget);
 
         if (id) {
             this.crumbId = this.logId = id;
@@ -71,42 +66,14 @@ Ext.define('Mdc.controller.setup.LogForm', {
             btn.action = 'create';
             self.getFormPanel().down('#obis').setDisabled(false);
         }
-        form.setTitle(title);
 
+        form.setTitle(title);
     },
 
     logbookAssigned: function (record) {
         if (!record.raw.isInUse) {
             this.getFormPanel().down('#obis').setDisabled(false);
         }
-    },
-
-    setBreadcrumb: function (breadcrumbs) {
-        var me = this;
-        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-                text: 'Administration',
-                href: '#/administration'
-            }),
-            breadcrumbChild1 = Ext.create('Uni.model.BreadcrumbItem', {
-                text: 'Logbook types',
-                href: 'logbooktypes'
-            }),
-            breadcrumbChild2;
-
-        if (me.crumbId) {
-            breadcrumbChild2 = Ext.create('Uni.model.BreadcrumbItem', {
-                text: 'Edit logbook type',
-                href: 'edit'
-            });
-            delete me.crumbId;
-        } else {
-            breadcrumbChild2 = Ext.create('Uni.model.BreadcrumbItem', {
-                text: 'Create logbook type',
-                href: 'create'
-            });
-        }
-        breadcrumbParent.setChild(breadcrumbChild1).setChild(breadcrumbChild2);
-        breadcrumbs.setBreadcrumbItem(breadcrumbParent);
     },
 
     createRequest: function (form, formErrorsPanel, preloader) {

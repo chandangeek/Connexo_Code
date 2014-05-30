@@ -72,38 +72,11 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskEdit', {
 
         me.content = [
             {
-                xtype: 'container',
-                layout: {
-                    type: 'vbox',
-                    align: 'stretch'
-                },
-                items: [
-                    {
-                        xtype: 'component',
-                        html: '',
-                        itemId: 'communicationTaskEditAddTitle'
-                    },
-                    {
-                        xtype: 'container',
-                        layout: {
-                            type: 'column'
-                        },
-                        items: [
-                            {
-                                xtype: 'container',
-                                columnWidth: 0.5,
-                                items: [
-                                    {
                                         xtype: 'form',
-                                        border: false,
+                                        ui: 'large',
                                         itemId: 'communicationTaskEditForm',
-                                        layout: {
-                                            type: 'vbox',
-                                            align: 'stretch'
-                                        },
                                         defaults: {
-                                            labelWidth: 150,
-                                            labelAlign: 'right'
+                                            labelWidth: 250
                                         },
                                         items: [
                                             {
@@ -121,7 +94,6 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskEdit', {
                                                 xtype: 'displayfield',
                                                 name: 'comTaskName',
                                                 fieldLabel: Uni.I18n.translate('communicationtasks.form.comTask', 'MDC', 'Communication task'),
-                                                labelSeparator: ' ',
                                                 itemId: 'comTaskDisplayField',
                                                 hidden: true
                                             },
@@ -129,7 +101,6 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskEdit', {
                                                 xtype: 'combobox',
                                                 name: 'comTaskId',
                                                 fieldLabel: Uni.I18n.translate('communicationtasks.form.comTask', 'MDC', 'Communication task'),
-                                                labelSeparator: ' *',
                                                 itemId: 'comTaskComboBox',
                                                 store: this.comTasksStore,
                                                 queryMode: 'local',
@@ -138,13 +109,15 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskEdit', {
                                                 emptyText: Uni.I18n.translate('communicationtasks.form.selectComTask', 'MDC', 'Select communication task...'),
                                                 allowBlank: false,
                                                 forceSelection: true,
-                                                msgTarget: 'under'
+                                                required: true,
+                                                editable: false,
+                                                msgTarget: 'under',
+                                                width: 600
                                             },
                                             {
                                                 xtype: 'combobox',
                                                 name: 'securityPropertySetId',
                                                 fieldLabel: Uni.I18n.translate('communicationtasks.form.securityPropertySet', 'MDC', 'Security set'),
-                                                labelSeparator: ' *',
                                                 itemId: 'securityPropertySetComboBox',
                                                 store: this.securityPropertySetsStore,
                                                 queryMode: 'local',
@@ -153,13 +126,15 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskEdit', {
                                                 emptyText: Uni.I18n.translate('communicationtasks.form.selectSecurityPropertySet', 'MDC', 'Select security set...'),
                                                 allowBlank: false,
                                                 forceSelection: true,
-                                                msgTarget: 'under'
+                                                required: true,
+                                                editable: false,
+                                                msgTarget: 'under',
+                                                width: 600
                                             },
                                             {
                                                 xtype: 'combobox',
                                                 name: 'partialConnectionTaskId',
                                                 fieldLabel: Uni.I18n.translate('communicationtasks.form.partialConnectionTask', 'MDC', 'Connection method'),
-                                                labelSeparator: ' ',
                                                 itemId: 'partialConnectionTaskComboBox',
                                                 store: this.connectionMethodsStore,
                                                 queryMode: 'local',
@@ -167,13 +142,14 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskEdit', {
                                                 valueField: 'id',
                                                 emptyText: Uni.I18n.translate('communicationtasks.form.selectPartialConnectionTask', 'MDC', 'Use the default connection method'),
                                                 forceSelection: true,
-                                                msgTarget: 'under'
+                                                editable: false,
+                                                msgTarget: 'under',
+                                                width: 600
                                             },
                                             {
                                                 xtype: 'displayfield',
                                                 name: 'protocolDialectConfigurationPropertiesName',
                                                 fieldLabel: Uni.I18n.translate('communicationtasks.form.protocolDialectConfigurationProperties', 'MDC', 'Protocol dialect'),
-                                                labelSeparator: ' ',
                                                 itemId: 'protocolDialectConfigurationPropertiesDisplayField',
                                                 hidden: true
                                             },
@@ -181,7 +157,6 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskEdit', {
                                                 xtype: 'combobox',
                                                 name: 'protocolDialectConfigurationPropertiesId',
                                                 fieldLabel: Uni.I18n.translate('communicationtasks.form.protocolDialectConfigurationProperties', 'MDC', 'Protocol dialect'),
-                                                labelSeparator: ' ',
                                                 itemId: 'protocolDialectConfigurationPropertiesComboBox',
                                                 store: this.protocolDialectsStore,
                                                 queryMode: 'local',
@@ -189,13 +164,14 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskEdit', {
                                                 valueField: 'id',
                                                 emptyText: Uni.I18n.translate('communicationtasks.form.selectProtocolDialectConfigurationProperties', 'MDC', 'Use the default protocol dialect'),
                                                 forceSelection: true,
-                                                msgTarget: 'under'
+                                                editable: false,
+                                                msgTarget: 'under',
+                                                width: 600
                                             },
                                             {
                                                 xtype: 'numberfield',
                                                 name: 'priority',
                                                 fieldLabel: Uni.I18n.translate('communicationtasks.form.priority', 'MDC', 'Urgency'),
-                                                labelSeparator: ' ',
                                                 itemId: 'priorityNumberField',
                                                 value: 100,
                                                 maxValue: 999,
@@ -205,7 +181,6 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskEdit', {
                                                 xtype: 'fieldcontainer',
                                                 columnWidth: 0.5,
                                                 fieldLabel: ' ',
-                                                labelSeparator: ' ',
                                                 layout: {
                                                     type: 'vbox'
                                                 },
@@ -223,7 +198,6 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskEdit', {
                                                 xtype: 'fieldcontainer',
                                                 itemId: 'scheduleField',
                                                 fieldLabel: Uni.I18n.translate('communicationtasks.form.nextExecutionSpecs', 'MDC', 'Default schedule'),
-                                                labelSeparator: ' ',
                                                 layout: {
                                                     type: 'hbox',
                                                     align: 'stretch'
@@ -257,13 +231,13 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskEdit', {
                                             {
                                                 xtype: 'radiogroup',
                                                 fieldLabel: Uni.I18n.translate('communicationtasks.form.ignoreNextExecutionSpecsForInbound', 'MDC', 'Always execute for inbound'),
-                                                labelSeparator: ' *',
                                                 itemId: 'ignoreNextExecutionSpecsForInboundRadioGroup',
                                                 columns: 1,
                                                 defaults: {
                                                     name: 'ignoreNextExecutionSpecsForInbound'
                                                 },
                                                 allowBlank:false,
+                                                required: true,
                                                 items: [
                                                     {boxLabel: Uni.I18n.translate('general.yes', 'MDC', 'Yes'), inputValue: false},
                                                     {boxLabel: Uni.I18n.translate('general.no', 'MDC', 'No'), inputValue: true, checked: true}
@@ -294,12 +268,6 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskEdit', {
                                                     }
                                                 ]
                                             }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    }
                 ]
             }
         ];

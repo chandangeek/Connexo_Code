@@ -29,7 +29,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
         {ref: 'loadConfigurationForm', selector: '#LoadProfileConfigurationFormId'}
 
 
-
     ],
 
     deviceTypeId: null,
@@ -51,9 +50,17 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
             },
             'button[action=loadprofileconfigurationnotificationerrorretry]': {
                 click: this.retrySubmit
+            },
+            'menu menuitem[action=editloadprofileconfigurationondeviceconfiguration]': {
+                click: this.editRecord
+            },
+            'menu menuitem[action=deleteloadprofileconfigurationondeviceonfiguration]': {
+                click: this.showConfirmationPanel
+            },
+            'button[action=removeloadprofileconfigurationondeviceconfigurationconfirm]': {
+                click: this.deleteRecord
             }
         });
-
 
         this.listen({
             store: {
@@ -68,8 +75,61 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
         this.availableLoadProfileTypesStore = this.getStore('LoadProfileConfigurationsOnDeviceConfigurationAvailable');
     },
 
-    changeDisplayedObisCode: function(combobox) {
-        var record = this.availableLoadProfileTypesStore.findRecord('id', combobox.getValue() );
+    editRecord: function () {
+        var grid = this.getLoadConfigurationGrid(),
+            lastSelected = grid.getView().getSelectionModel().getLastSelected();
+        window.location.href = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/loadprofiles/' + lastSelected.getData().id + '/edit';
+    },
+
+    showConfirmationPanel: function () {
+        var grid = this.getLoadConfigurationGrid(),
+            lastSelected = grid.getView().getSelectionModel().getLastSelected();
+        Ext.widget('messagebox', {
+            buttons: [
+                {
+                    xtype: 'button',
+                    text: 'Remove',
+                    action: 'removeloadprofileconfigurationondeviceconfigurationconfirm',
+                    name: 'delete',
+                    ui: 'delete'
+                },
+                {
+                    xtype: 'button',
+                    text: 'Cancel',
+                    handler: function (button, event) {
+                        this.up('messagebox').hide();
+                    },
+                    ui: 'link'
+                }
+            ]
+        }).show({
+                title: 'Remove ' + lastSelected.getData().name + '?',
+                msg: 'This load profile configuration will be removed from the list',
+                icon: Ext.MessageBox.WARNING
+            })
+    },
+
+    deleteRecord: function (btn) {
+        var grid = this.getLoadConfigurationGrid(),
+            lastSelected = grid.getView().getSelectionModel().getLastSelected(),
+            me = this;
+        btn.up('messagebox').hide();
+        Ext.Ajax.request({
+            url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofileconfigurations/' + lastSelected.getData().id,
+            method: 'DELETE',
+            waitMsg: 'Removing...',
+            success: function () {
+                me.handleSuccessRequest('Load profile configuration was removed successfully');
+                me.store.load();
+            },
+            failure: function (result, request) {
+                me.handleFailureRequest(result, "Error during removing of load profile configuration", 'removeloadprofileconfigurationondeviceconfigurationconfirm');
+            }
+        });
+    },
+
+    changeDisplayedObisCode: function (combobox) {
+        var record = this.availableLoadProfileTypesStore.findRecord('id', combobox.getValue());
         combobox.next().setValue(record.getData().obisCode);
     },
 
@@ -93,7 +153,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
         }
     },
 
-    onSubmit: function(btn) {
+    onSubmit: function (btn) {
         var me = this,
             formPanel = me.getLoadConfigurationForm(),
             form = formPanel.getForm(),
@@ -104,7 +164,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
         if (form.isValid()) {
             jsonValues = Ext.JSON.encode(formValue);
             formErrorsPanel.hide();
-            switch (btn.text) {
+            switch (btn.action) {
                 case 'Add':
                     preloader = Ext.create('Ext.LoadMask', {
                         msg: "Adding load profile configuration",
@@ -119,7 +179,28 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
                             me.handleSuccessRequest('Successfully created');
                         },
                         failure: function (response) {
-                            me.handleFailureRequest(response, 'Error during create');
+                            me.handleFailureRequest(response, 'Error during create', 'loadprofileconfigurationnotificationerrorretry');
+                        },
+                        callback: function () {
+                            preloader.destroy();
+                        }
+                    });
+                    break;
+                case 'Save':
+                    preloader = Ext.create('Ext.LoadMask', {
+                        msg: "Editing load profile configuration",
+                        target: formPanel
+                    });
+                    preloader.show();
+                    Ext.Ajax.request({
+                        url: '/api/dtc/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/loadprofileconfigurations/' + this.loadProfileConfigurationId,
+                        method: 'PUT',
+                        jsonData: jsonValues,
+                        success: function () {
+                            me.handleSuccessRequest('Successfully updated');
+                        },
+                        failure: function (response) {
+                            me.handleFailureRequest(response, 'Error during update', 'loadprofileconfigurationnotificationerrorretry');
                         },
                         callback: function () {
                             preloader.destroy();
@@ -148,10 +229,11 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
         }).show();
     },
 
-    handleFailureRequest: function (response, headerText) {
+    handleFailureRequest: function (response, headerText, retryAction) {
         var result = Ext.JSON.decode(response.responseText),
-            errormsgs = '';
-        Ext.each(result.errors, function(error) {
+            errormsgs = '',
+            me = this;
+        Ext.each(result.errors, function (error) {
             errormsgs += error.msg + '<br>'
         });
         if (errormsgs == '') {
@@ -161,16 +243,16 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
             buttons: [
                 {
                     text: 'Retry',
-                    action: 'loadprofileconfigurationnotificationerrorretry',
+                    action: retryAction,
                     ui: 'delete'
                 },
                 {
                     text: 'Cancel',
                     action: 'cancel',
                     ui: 'link',
-                    handler:function(button,event){
+                    href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofiles',
+                    handler: function (button, event) {
                         this.up('messagebox').hide();
-                        Ext.History.back();
                     }
                 }
             ]
@@ -253,8 +335,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
                     success: function (deviceConfig) {
                         me.deviceTypeName = deviceType.get('name');
                         me.deviceConfigName = deviceConfig.get('name');
-                        me.getApplication().getController('Mdc.controller.Main').showContent(widget);
-                        me.overviewBreadCrumbs(deviceTypeId, deviceConfigurationId, me.deviceTypeName, me.deviceConfigName, null);
+                        me.getApplication().fireEvent('changecontentevent', widget);
                     }
                 });
             }
@@ -264,7 +345,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
     showDeviceConfigurationLoadProfilesAddView: function (deviceTypeId, deviceConfigurationId) {
         var me = this,
             widget = Ext.widget('loadProfileConfigurationForm', {deviceTypeId: deviceTypeId, deviceConfigurationId: deviceConfigurationId, loadProfileConfigurationAction: 'Add'});
-        widget.down('#LoadProfileConfigurationHeader').html = '<h1>' + Uni.I18n.translate('loadprofileconfigurations.addloadprofileconfigurations', 'MDC', 'Add Load profile configuration') + '</h1>';
+        widget.down('#LoadProfileConfigurationHeader').html = '<h1>' + Uni.I18n.translate('loadprofileconfigurations.addloadprofileconfigurations', 'MDC', 'Add load profile configuration') + '</h1>';
         me.deviceTypeId = deviceTypeId;
         me.deviceConfigurationId = deviceConfigurationId;
         me.store.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigurationId});
@@ -277,60 +358,49 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
                     success: function (deviceConfig) {
                         me.deviceTypeName = deviceType.get('name');
                         me.deviceConfigName = deviceConfig.get('name');
-                        me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+                        me.getApplication().fireEvent('changecontentevent', widget);
                         me.availableLoadProfileTypesStore.load();
                         widget.down('combobox[name=id]').store = me.availableLoadProfileTypesStore
-                        me.overviewBreadCrumbs(deviceTypeId, deviceConfigurationId, me.deviceTypeName, me.deviceConfigName, 'Add load profile configuration');
                     }
                 });
             }
         });
     },
 
-    overviewBreadCrumbs: function (deviceTypeId, deviceConfigId, deviceTypeName, deviceConfigName, action) {
-        var me = this;
-
-        var breadcrumbLoadProfileConfigurations = Ext.create('Uni.model.BreadcrumbItem', {
-            text: "Load profiles",
-            href: 'loadprofiles'
-
+    showDeviceConfigurationLoadProfilesEditView: function (deviceTypeId, deviceConfigurationId, loadProfileConfigurationId) {
+        var me = this,
+            widget = Ext.widget('loadProfileConfigurationForm', {deviceTypeId: deviceTypeId, deviceConfigurationId: deviceConfigurationId, loadProfileConfigurationAction: 'Save'});
+        widget.down('#LoadProfileConfigurationHeader').html = '<h1>' + Uni.I18n.translate('loadprofileconfigurations.addloadprofileconfigurations', 'MDC', 'Edit load profile configuration') + '</h1>';
+        me.deviceTypeId = deviceTypeId;
+        me.deviceConfigurationId = deviceConfigurationId;
+        me.loadProfileConfigurationId = loadProfileConfigurationId;
+        me.store.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigurationId});
+        me.availableLoadProfileTypesStore.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigurationId});
+        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
+            success: function (deviceType) {
+                var model = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
+                model.getProxy().setExtraParam('deviceType', deviceTypeId);
+                model.load(deviceConfigurationId, {
+                    success: function (deviceConfig) {
+                        Ext.Ajax.request({
+                            url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofileconfigurations/' + loadProfileConfigurationId,
+                            params: {},
+                            method: 'GET',
+                            success: function (response) {
+                                var record = Ext.JSON.decode(response.responseText).data[0];
+                                me.deviceTypeName = deviceType.get('name');
+                                me.deviceConfigName = deviceConfig.get('name');
+                                me.getApplication().fireEvent('changecontentevent', widget);
+                                widget.down('combobox[name=id]').store = me.store;
+                                me.store.add(record);
+                                widget.down('combobox[name=id]').setValue(record.id);
+                                widget.down('combobox[name=id]').disable();
+                                widget.down('displayfield[name=obisCode]').setValue(record.obisCode);
+                            }
+                        });
+                    }
+                });
+            }
         });
-
-        var breadcrumbDeviceConfig = Ext.create('Uni.model.BreadcrumbItem', {
-            text: deviceConfigName,
-            href: deviceConfigId
-        });
-
-        var breadcrumbDeviceConfigs = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registerConfig.deviceConfigs', 'MDC', 'Device configurations'),
-            href: 'deviceconfigurations'
-        });
-
-        var breadcrumbDevicetype = Ext.create('Uni.model.BreadcrumbItem', {
-            text: deviceTypeName,
-            href: deviceTypeId
-        });
-
-        var breadcrumbDeviceTypes = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registerConfig.deviceTypes', 'MDC', 'Device types'),
-            href: 'devicetypes'
-        });
-        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#/administration'
-        });
-
-        if (Ext.isEmpty(action)) {
-            breadcrumbParent.setChild(breadcrumbDeviceTypes).setChild(breadcrumbDevicetype).setChild(breadcrumbDeviceConfigs).setChild(breadcrumbDeviceConfig).setChild(breadcrumbLoadProfileConfigurations);
-        } else {
-            var breadaction = Ext.create('Uni.model.BreadcrumbItem', {
-                text: action,
-                href: ''
-            });
-            breadcrumbParent.setChild(breadcrumbDeviceTypes).setChild(breadcrumbDevicetype).setChild(breadcrumbDeviceConfigs).setChild(breadcrumbDeviceConfig).setChild(breadcrumbLoadProfileConfigurations).setChild(breadaction);
-        }
-
-        me.getBreadCrumbs().setBreadcrumbItem(breadcrumbParent);
-    }
-
+    },
 });

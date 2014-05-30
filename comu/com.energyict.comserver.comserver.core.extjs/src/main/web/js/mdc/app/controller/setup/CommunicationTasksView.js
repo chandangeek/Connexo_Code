@@ -2,7 +2,6 @@ Ext.define('Mdc.controller.setup.CommunicationTasksView', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Uni.model.BreadcrumbItem'
     ],
 
     stores: [
@@ -44,8 +43,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasksView', {
         {
             ref: 'rulesGridPagingToolbarTop',
             selector: 'communication-tasks-list pagingtoolbartop'
-        },
-        {ref: 'breadCrumbs', selector: 'breadcrumbTrail'}
+        }
     ],
 
     init: function () {
@@ -56,6 +54,9 @@ Ext.define('Mdc.controller.setup.CommunicationTasksView', {
             },
             'communication-tasks-view communication-tasks-list uni-actioncolumn': {
                 menuclick: this.chooseCommunicationTasksAction
+            },
+            'communication-tasks-action-menu': {
+                click: this.chooseCommunicationTasksAction
             }
         });
         this.store = this.getStore('Mdc.store.CommunicationTasks');
@@ -63,22 +64,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasksView', {
 
     showCommunicationTasksView: function () {
         var widget = Ext.widget('communication-tasks-view');
-        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
-        this.setBreadcrumb();
-    },
-
-    setBreadcrumb: function () {
-        var me = this,
-            breadcrumbChild1 = Ext.create('Uni.model.BreadcrumbItem', {
-                text: Uni.I18n.translate('registerConfig.communicationTasks', 'MDC', 'Communication tasks'),
-                href: 'communicationtasks'
-            }),
-            breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#/administration'
-        });
-        breadcrumbParent.setChild(breadcrumbChild1);
-        me.getBreadCrumbs().setBreadcrumbItem(breadcrumbParent);
+        this.getApplication().fireEvent('changecontentevent', widget);
     },
 
     chooseCommunicationTasksAction: function (menu, item) {

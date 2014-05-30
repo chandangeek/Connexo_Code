@@ -110,11 +110,10 @@ Ext.define('Mdc.view.setup.comtasks.parameters.Profiles', {
         {
             xtype: 'radiogroup',
             itemId: 'radioFail',
-            margin: '0 0 0 58',
+            margin: '0 0 0 61',
             fieldLabel: "Fail if profile configuration doesn't match ",
             afterLabelTextTpl: '<img src="../../apps/mdc/resources/images/information.png">',
             labelWidth: 310,
-            labelPad: 8,
             defaults: {
                 name: 'fail',
                 margin: '0 10 0 0'

@@ -25,13 +25,13 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
     ],
 
     refs: [
-        {ref: 'breadCrumbs', selector: 'breadcrumbTrail'},
         {ref: 'communicationTaskGridPanel', selector: '#communicationTaskGrid'},
         {ref: 'communicationTaskPreviewPanel', selector: '#communicationTaskPreview'},
         {ref: 'communicationTaskPreviewForm', selector: '#communicationTaskPreviewForm'},
         {ref: 'communicationTaskEditForm',selector: '#communicationTaskEditForm'},
         {ref: 'communicationTaskEditPanel',selector: '#communicationTaskEdit'},
-        {ref: 'communicationTaskSetupPanel',selector: '#communicationTaskSetup'}
+        {ref: 'communicationTaskSetupPanel',selector: '#communicationTaskSetup'},
+        {ref: 'scheduleField',selector: '#communicationTaskEditForm #scheduleField #scheduleFieldItem'}
     ],
 
     init: function () {
@@ -48,6 +48,9 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
             },
             '#addEditButton[action=editCommunicationTaskAction]':{
                 click: me.editCommunicationTask
+            },
+            '#communicationTaskEditForm #scheduleField #enableScheduleFieldItem': {
+                change: me.enableScheduleFieldItemChanged
             },
             'menu menuitem[action=editcommunicationtask]': {
                 click: me.editCommunicationTaskHistory
@@ -96,6 +99,27 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
             html: text,
             ui: notificationType
         }).show();
+    },
+
+    enableScheduleFieldItemChanged: function(item, newValue, oldValue, eOpts) {
+        var me = this;
+
+        if(newValue === false) {
+            me.getScheduleField().clear();
+            me.getScheduleField().setValue({
+                every: {
+                    count: 15,
+                    timeUnit: 'minutes'
+                },
+                offset: {
+                    count: 0,
+                    timeUnit: 'seconds'
+                }
+            });
+            me.getScheduleField().disable();
+        } else {
+            me.getScheduleField().enable();
+        }
     },
 
     loadCommunicationTasksStore: function() {
@@ -175,8 +199,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                     success: function (deviceConfig) {
                         var deviceTypeName = deviceType.get('name');
                         var deviceConfigName = deviceConfig.get('name');
-                        me.getApplication().getController('Mdc.controller.Main').showContent(widget);
-                        me.overviewBreadCrumbs(deviceTypeId, deviceConfigurationId, deviceTypeName, deviceConfigName, null);
+                        me.getApplication().fireEvent('changecontentevent', widget);
                     }
                 });
             }
@@ -199,7 +222,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
             connectionMethodsStore: connectionMethodsStore,
             protocolDialectsStore: protocolDialectsStore
         });
-        me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+        me.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
@@ -238,9 +261,9 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                                                         var deviceTypeName = deviceType.get('name');
                                                         var deviceConfigName = deviceConfig.get('name');
                                                         var title = Uni.I18n.translate('communicationtasks.add', 'MDC', 'Add communication task');
-                                                        widget.down('#communicationTaskEditAddTitle').update('<h1>' + title  + '</h1>');
+                                                        widget.down('#communicationTaskEditForm').setTitle(title);
+                                                        widget.down('#enableScheduleFieldItem').fireEvent('change', null, false, false);
                                                         widget.setValues(communicationTask);
-                                                        me.overviewBreadCrumbs(deviceTypeId, deviceConfigurationId, deviceTypeName, deviceConfigName, Uni.I18n.translate('communicationtasks.add', 'MDC', 'Add communication task'));
                                                         widget.setLoading(false);
                                                     }
                                                 });
@@ -278,13 +301,13 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
             success: function (communicationTask) {
                 var widget = Ext.widget('communicationTaskEdit', {
                     edit: true,
-                    returnLink: me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens(),
+                    returnLink: '#/administration/devicetypes/'+me.deviceTypeId+'/deviceconfigurations/'+me.deviceConfigurationId+'/comtaskenablements',
                     comTasksStore: comTasksStore,
                     securityPropertySetsStore: securityPropertySetsStore,
                     connectionMethodsStore: connectionMethodsStore,
                     protocolDialectsStore: protocolDialectsStore
                 });
-                me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+                me.getApplication().fireEvent('changecontentevent', widget);
                 widget.setLoading(true);
                 Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
                     success: function (deviceType) {
@@ -305,8 +328,13 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                                                 var deviceTypeName = deviceType.get('name');
                                                 var deviceConfigName = deviceConfig.get('name');
                                                 widget.down('form').loadRecord(communicationTask);
-                                                var title = Uni.I18n.translate('communicationtasks.edit', 'MDC', 'Edit communication task');
-                                                widget.down('#communicationTaskEditAddTitle').update('<h1>' + title  + '</h1>');
+                                                var comTaskName = '';
+                                                if(!Ext.isEmpty(communicationTask.get('comTask'))) {
+                                                    comTaskName = communicationTask.get('comTask').name;
+                                                }
+                                                var title = Uni.I18n.translate('communicationtasks.edit', 'MDC', 'Edit') + ' ' + comTaskName;
+                                                widget.down('#communicationTaskEditForm').setTitle(title);
+                                                widget.down('#enableScheduleFieldItem').fireEvent('change', null, false, false);
                                                 widget.setValues(communicationTask);
                                                 me.overviewBreadCrumbs(deviceTypeId, deviceConfigurationId, deviceTypeName, deviceConfigName, Uni.I18n.translate('communicationtasks.edit', 'MDC', 'Edit communication task'));
                                                 widget.setLoading(false);
@@ -392,22 +420,54 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                     me.loadCommunicationTasksStore();
                 },
                 failure: function (result, request) {
-                    var data = result.responseText;
-                    var titleKey = ((suspended == true) ? 'communicationtasks.activate.error' : 'communicationtasks.deactivate.error');
-                    var titleText = ((suspended == true) ? 'Error during communication task activation' : 'Error during communication task deactivation');
-                    me.fireEvent('shownotification', Uni.I18n.translate(titleKey, 'MDC', titleText), data, 'notification-error');
+                    var errorText = Uni.I18n.translate('communicationtasks.error.unknown', 'MDC', 'Unknown error occurred');
+                    if(!Ext.isEmpty(result.responseText)) {
+                        var json = Ext.decode(result.responseText, true);
+                        if (json && json.error) {
+                            errorText = json.error;
+                        }
+                    }
+                    var titleKey = ((suspended == true) ? 'communicationtasks.activate.operation.failed' : 'communicationtasks.deactivate.operation.failed'),
+                        titleValue = ((suspended == true) ? 'Activate operation failed' : 'Deactivate operation failed');
+
+                    var errorMessage = Ext.widget('messagebox', {
+                        buttons: [
+                            {
+                                text: 'Retry',
+                                action: 'retry',
+                                ui: 'delete',
+                                handler: function () {
+                                    errorMessage.close();
+                                    me.activateCommunicationTask();
+                                }
+                            },
+                            {
+                                text: 'Cancel',
+                                action: 'cancel',
+                                ui: 'link',
+                                handler: function () {
+                                    errorMessage.close();
+                                }
+                            }
+                        ]
+                    }).show({
+                            ui: 'notification-error',
+                            title: Uni.I18n.translate(titleKey, 'MDC', titleValue),
+                            msg: errorText,
+                            icon: Ext.MessageBox.ERROR
+                    });
                 }
             });
         }
     },
 
-    updateCommunicationTask: function(mode) {
+    updateCommunicationTask: function(operation) {
         var me = this,
             form = me.getCommunicationTaskEditForm(),
             formErrorsPlaceHolder = Ext.ComponentQuery.query('#communicationTaskEditFormErrors')[0];
         if (form.isValid()) {
             formErrorsPlaceHolder.hide();
-            me[mode + 'CommunicationTaskRecord'](form.getValues());
+            me[operation + 'CommunicationTaskRecord'](form.getValues(), {operation : operation});
         } else {
             me.clearPreLoader();
             formErrorsPlaceHolder.hide();
@@ -419,20 +479,20 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         }
     },
 
-    editCommunicationTaskRecord: function(values) {
+    editCommunicationTaskRecord: function(values, cfg) {
         var me = this,
             record = me.getCommunicationTaskEditForm().getRecord();
-        me.updateRecord(record, values, {
+        me.updateRecord(record, values, Ext.apply({
             successMessage: Uni.I18n.translate('communicationtasks.updated', 'MDC', 'Communication task successfully updated')
-        });
+        }, cfg));
     },
 
-    addCommunicationTaskRecord: function(values) {
+    addCommunicationTaskRecord: function(values, cfg) {
         var me = this,
             record = Ext.create(Mdc.model.CommunicationTaskConfig);
-        me.updateRecord(record, values, {
+        me.updateRecord(record, values, Ext.apply({
             successMessage: Uni.I18n.translate('communicationtasks.created', 'MDC', 'Communication task successfully created')
-        });
+        }, cfg));
     },
 
     removeCommunicationTaskRecord: function(cfg) {
@@ -442,11 +502,51 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
             me.setPreLoader(me.getCommunicationTaskSetupPanel(), Uni.I18n.translate('communicationtasks.removing', 'MDC', 'Removing communication task'));
             communicationTaskToDelete.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigurationId});
             communicationTaskToDelete.destroy({
-                callback: function () {
+                callback: function (record, operation) {
                     me.clearPreLoader();
-                    location.href = '#/administration/devicetypes/'+me.deviceTypeId+'/deviceconfigurations/'+me.deviceConfigurationId+'/comtaskenablements';
-                    me.fireEvent('shownotification', null, Uni.I18n.translate('communicationtasks.removed', 'MDC', 'Communication task successfully removed'), 'notification-success');
-                    me.loadCommunicationTasksStore();
+                    if(operation.wasSuccessful()) {
+                        location.href = '#/administration/devicetypes/'+me.deviceTypeId+'/deviceconfigurations/'+me.deviceConfigurationId+'/comtaskenablements';
+                        me.fireEvent('shownotification', null, Uni.I18n.translate('communicationtasks.removed', 'MDC', 'Communication task successfully removed'), 'notification-success');
+                        me.loadCommunicationTasksStore();
+                    } else {
+                        var errorText = Uni.I18n.translate('communicationtasks.error.unknown', 'MDC', 'Unknown error occurred');
+                        if(!Ext.isEmpty(operation.response.responseText)) {
+                            var json = Ext.decode(operation.response.responseText, true);
+                            if (json && json.error) {
+                                errorText = json.error;
+                            }
+                        }
+                        var errorMessage = Ext.widget('messagebox', {
+                            buttons: [
+                                {
+                                    text: 'Retry',
+                                    action: 'retry',
+                                    ui: 'delete',
+                                    handler: function () {
+                                        errorMessage.close();
+                                        me.removeCommunicationTaskRecord({
+                                            communicationTaskToDelete: communicationTaskToDelete,
+                                            me: me
+                                        });
+                                    }
+                                },
+                                {
+                                    text: 'Cancel',
+                                    action: 'cancel',
+                                    ui: 'link',
+                                    handler: function () {
+                                        errorMessage.close();
+                                    }
+                                }
+                            ]
+                        }).show({
+                                ui: 'notification-error',
+                                title: Uni.I18n.translate('communicationtasks.remove.operation.failed', 'MDC', 'Remove operation failed'),
+                                msg: errorText,
+                                icon: Ext.MessageBox.ERROR
+                        });
+                    }
+
                 }
             });
     },
@@ -462,10 +562,46 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                     me.fireEvent('shownotification', null, cfg.successMessage, 'notification-success');
                 },
                 failure: function (record, operation) {
-                    var json = Ext.decode(operation.response.responseText);
-                    if (json && json.errors) {
-                        me.getCommunicationTaskEditForm().getForm().markInvalid(json.errors);
+                    var errorText = Uni.I18n.translate('communicationtasks.error.unknown', 'MDC', 'Unknown error occurred');
+                    if(!Ext.isEmpty(operation.response.responseText)) {
+                        var json = Ext.decode(operation.response.responseText, true);
+                        if (json && json.errors) {
+                            me.getCommunicationTaskEditForm().getForm().markInvalid(json.errors);
+                        }
+                        if (json && json.error) {
+                            errorText = json.error;
+                        }
                     }
+
+                    var titleKey = ((cfg.operation == 'add') ? 'communicationtasks.add.operation.failed' : 'communicationtasks.edit.operation.failed'),
+                        titleValue = ((cfg.operation == 'add') ? 'Add operation failed' : 'Update operation failed');
+
+                    var errorMessage = Ext.widget('messagebox', {
+                        buttons: [
+                            {
+                                text: 'Retry',
+                                action: 'retry',
+                                ui: 'delete',
+                                handler: function () {
+                                    errorMessage.close();
+                                    me[cfg.operation + 'CommunicationTask']();
+                                }
+                            },
+                            {
+                                text: 'Cancel',
+                                action: 'cancel',
+                                ui: 'link',
+                                handler: function () {
+                                    errorMessage.close();
+                                }
+                            }
+                        ]
+                    }).show({
+                            ui: 'notification-error',
+                            title: Uni.I18n.translate(titleKey, 'MDC', titleValue),
+                            msg: errorText,
+                            icon: Ext.MessageBox.ERROR
+                    });
                 },
                 callback: function() {
                     me.clearPreLoader();
@@ -486,54 +622,10 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         record.set("priority", values.priority);
         if(values.nextExecutionSpecsEnable == true) {
             record.set("nextExecutionSpecs", values.nextExecutionSpecs);
+        } else {
+            record.set("nextExecutionSpecs", null);
         }
         record.set("ignoreNextExecutionSpecsForInbound", values.ignoreNextExecutionSpecsForInbound);
-    },
-
-    overviewBreadCrumbs: function (deviceTypeId, deviceConfigId, deviceTypeName, deviceConfigName, action) {
-        var me = this;
-
-        var breadcrumbCommunicationTasks = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registerConfig.communicationTasks', 'MDC', 'Communication tasks'),
-            href: 'comtaskenablements'
-
-        });
-
-        var breadcrumbDeviceConfig = Ext.create('Uni.model.BreadcrumbItem', {
-            text: deviceConfigName,
-            href: deviceConfigId
-        });
-
-        var breadcrumbDeviceConfigs = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registerConfig.deviceConfigs', 'MDC', 'Device configurations'),
-            href: 'deviceconfigurations'
-        });
-
-        var breadcrumbDevicetype = Ext.create('Uni.model.BreadcrumbItem', {
-            text: deviceTypeName,
-            href: deviceTypeId
-        });
-
-        var breadcrumbDeviceTypes = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registerConfig.deviceTypes', 'MDC', 'Device types'),
-            href: 'devicetypes'
-        });
-        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#/administration'
-        });
-
-        if (Ext.isEmpty(action)) {
-            breadcrumbParent.setChild(breadcrumbDeviceTypes).setChild(breadcrumbDevicetype).setChild(breadcrumbDeviceConfigs).setChild(breadcrumbDeviceConfig).setChild(breadcrumbCommunicationTasks);
-        } else {
-            var breadaction = Ext.create('Uni.model.BreadcrumbItem', {
-                text: action,
-                href: ''
-            });
-            breadcrumbParent.setChild(breadcrumbDeviceTypes).setChild(breadcrumbDevicetype).setChild(breadcrumbDeviceConfigs).setChild(breadcrumbDeviceConfig).setChild(breadcrumbCommunicationTasks).setChild(breadaction);
-        }
-
-       me.getBreadCrumbs().setBreadcrumbItem(breadcrumbParent);
     },
 
     setPreLoader: function(target, message) {

@@ -11,8 +11,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
     requires: [
         'Mdc.store.RegisterConfigsOfDeviceConfig',
         'Mdc.store.AvailableRegisterTypesForDeviceConfiguration',
-        'Mdc.store.RegisterTypesOfDevicetype',
-        'Uni.model.BreadcrumbItem'
+        'Mdc.store.RegisterTypesOfDevicetype'
     ],
 
     stores: [
@@ -26,7 +25,6 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         {ref: 'registerConfigPreviewForm', selector: '#registerConfigPreviewForm'},
         {ref: 'registerConfigPreview', selector: '#registerConfigPreview'},
         {ref: 'registerConfigPreviewTitle', selector: '#registerConfigPreviewTitle'},
-        {ref: 'breadCrumbs', selector: 'breadcrumbTrail'},
         {ref: 'readingTypeDetailsForm', selector: '#readingTypeDetailsForm'},
         {ref: 'registerConfigEditForm', selector: '#registerConfigEditForm'},
         {ref: 'createRegisterConfigBtn', selector: '#createRegisterConfigBtn'},
@@ -99,7 +97,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             this.getRegisterConfigPreviewForm().loadRecord(registerConfigs[0]);
             var registerConfigsName = this.getRegisterConfigPreviewForm().form.findField('name').getSubmitValue();
             this.getRegisterConfigPreview().getLayout().setActiveItem(1);
-            this.getDeviceTypePreview().setTitle(registerConfigsName);
+            this.getRegisterConfigPreview().setTitle(registerConfigsName);
             this.getPreviewMrId().setValue(registerConfigs[0].getReadingType().get('mrid'));
             this.getRegisterConfigPreviewForm().loadRecord(registerConfigs[0]);
         } else {
@@ -122,8 +120,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                     success: function (deviceConfig) {
                         var deviceTypeName = deviceType.get('name');
                         var deviceConfigName = deviceConfig.get('name');
-                        me.getApplication().getController('Mdc.controller.Main').showContent(widget);
-                        me.overviewBreadCrumbs(deviceTypeId, deviceConfigId, deviceTypeName, deviceConfigName);
+                        me.getApplication().fireEvent('changecontentevent', widget);
                     }
                 });
             }
@@ -160,13 +157,12 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                                     registerTypesOfDeviceType: registerTypesOfDevicetypeStore,
                                     returnLink: '#/administration/devicetypes/' + deviceTypeId + '/deviceconfigurations/' + deviceConfigId + '/registerconfigurations'
                                 });
-                                me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+                                me.getApplication().fireEvent('changecontentevent', widget);
                                 me.getRegisterConfigEditForm().setTitle(Uni.I18n.translate('registerConfigs.createRegisterConfig', 'MDC', 'Create register configuration'));
                                 widget.down('#editNumberOfDigitsField').setValue(8);
                                 widget.down('#editNumberOfFractionDigitsField').setValue(0);
                                 widget.down('#editMultiplierField').setValue(1);
                                 widget.down('#editOverflowValueField').setValue(100000000);
-                                me.createBreadCrumbs(deviceTypeId, deviceConfigId, deviceTypeName, deviceConfigName);
                             }
                         });
                     }
@@ -174,129 +170,6 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             }
         });
     },
-
-
-    overviewBreadCrumbs: function (deviceTypeId, deviceConfigId, deviceTypeName, deviceConfigName) {
-        var me = this;
-
-        var breadcrumbRegisterConfigurations = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registerConfig.registerConfigurations', 'MDC', 'Register configurations'),
-            href: 'registerconfigurations'
-        });
-
-        var breadcrumbDeviceConfig = Ext.create('Uni.model.BreadcrumbItem', {
-            text: deviceConfigName,
-            href: deviceConfigId
-        });
-
-        var breadcrumbDeviceConfigs = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registerConfig.deviceConfigs', 'MDC', 'Device configurations'),
-            href: 'deviceconfigurations'
-        });
-
-        var breadcrumbDevicetype = Ext.create('Uni.model.BreadcrumbItem', {
-            text: deviceTypeName,
-            href: deviceTypeId
-        });
-
-        var breadcrumbDeviceTypes = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registerConfig.deviceTypes', 'MDC', 'Device types'),
-            href: 'devicetypes'
-        });
-        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#/administration'
-        });
-
-        breadcrumbParent.setChild(breadcrumbDeviceTypes).setChild(breadcrumbDevicetype).setChild(breadcrumbDeviceConfigs).setChild(breadcrumbDeviceConfig).setChild(breadcrumbRegisterConfigurations);
-
-        me.getBreadCrumbs().setBreadcrumbItem(breadcrumbParent);
-    },
-
-    createBreadCrumbs: function (deviceTypeId, deviceConfigId, deviceTypeName, deviceConfigName) {
-        var me = this;
-
-        var breadcrumbCreate = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registerConfigs.createRegisterConfig', 'MDC', 'Create register configuration'),
-            href: 'create'
-        });
-
-        var breadcrumbRegisterConfigurations = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registerConfig.registerConfigurations', 'MDC', 'Register configurations'),
-            href: 'registerconfigurations'
-        });
-
-        var breadcrumbDeviceConfig = Ext.create('Uni.model.BreadcrumbItem', {
-            text: deviceConfigName,
-            href: deviceConfigId
-        });
-
-        var breadcrumbDeviceConfigs = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registerConfig.deviceConfigs', 'MDC', 'Device configurations'),
-            href: 'deviceconfigurations'
-        });
-
-        var breadcrumbDevicetype = Ext.create('Uni.model.BreadcrumbItem', {
-            text: deviceTypeName,
-            href: deviceTypeId
-        });
-
-        var breadcrumbDeviceTypes = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registerConfig.deviceTypes', 'MDC', 'Device types'),
-            href: 'devicetypes'
-        });
-        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#/administration'
-        });
-
-        breadcrumbParent.setChild(breadcrumbDeviceTypes).setChild(breadcrumbDevicetype).setChild(breadcrumbDeviceConfigs).setChild(breadcrumbDeviceConfig).setChild(breadcrumbRegisterConfigurations).setChild(breadcrumbCreate);
-
-        me.getBreadCrumbs().setBreadcrumbItem(breadcrumbParent);
-    },
-
-    editBreadCrumb: function (deviceTypeId, deviceConfigId, registerConfigId, deviceTypeName, deviceConfigName, registerConfigName) {
-        var me = this;
-
-        var breadcrumbEdit = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registerconfig.edit', 'MDC', 'Edit register configurations'),
-            href: 'edit'
-        });
-
-        var breadcrumbRegisterConfigurations = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registerConfig.registerConfigurations', 'MDC', 'Register configurations'),
-            href: 'registerconfigurations'
-        });
-
-        var breadcrumbDeviceConfig = Ext.create('Uni.model.BreadcrumbItem', {
-            text: deviceConfigName,
-            href: deviceConfigId
-        });
-
-        var breadcrumbDeviceConfigs = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registerConfig.deviceConfigs', 'MDC', 'Device configurations'),
-            href: 'deviceconfigurations'
-        });
-
-        var breadcrumbDevicetype = Ext.create('Uni.model.BreadcrumbItem', {
-            text: deviceTypeName,
-            href: deviceTypeId
-        });
-
-        var breadcrumbDeviceTypes = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registerConfig.deviceTypes', 'MDC', 'Device types'),
-            href: 'devicetypes'
-        });
-        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#/administration'
-        });
-
-        breadcrumbParent.setChild(breadcrumbDeviceTypes).setChild(breadcrumbDevicetype).setChild(breadcrumbDeviceConfigs).setChild(breadcrumbDeviceConfig).setChild(breadcrumbRegisterConfigurations).setChild(breadcrumbEdit);
-
-        me.getBreadCrumbs().setBreadcrumbItem(breadcrumbParent);
-    },
-
 
     showReadingType: function (record) {
         var widget = Ext.widget('readingTypeDetails');
@@ -405,7 +278,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                     registerTypesOfDeviceType: registerTypesOfDevicetypeStore,
                     returnLink: me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens()
                 });
-                me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+                me.getApplication().fireEvent('changecontentevent', widget);
                 widget.setLoading(true);
                 var model = Ext.ModelManager.getModel('Mdc.model.RegisterConfiguration');
                 model.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigurationId});
@@ -417,7 +290,6 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                                 deviceConfigModel.getProxy().setExtraParam('deviceType', deviceTypeId);
                                 deviceConfigModel.load(deviceConfigurationId, {
                                     success: function (deviceConfiguration) {
-                                        me.editBreadCrumb(deviceTypeId, deviceConfigurationId, registerConfigurationId, deviceType.get('name'), deviceConfiguration.get('name'), registerConfiguration.get('name'));
                                         widget.down('form').loadRecord(registerConfiguration);
                                         me.getRegisterConfigEditForm().setTitle(Uni.I18n.translate('registerConfigs.editRegisterConfig', 'MDC', 'Edit register configuration'));
                                         widget.down('#registerTypeComboBox').setValue(registerConfiguration.get('registerMapping'));

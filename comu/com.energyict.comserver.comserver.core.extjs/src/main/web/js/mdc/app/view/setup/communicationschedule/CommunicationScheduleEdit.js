@@ -89,7 +89,6 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                             {
                                 xtype: 'fieldcontainer',
                                 fieldLabel: Uni.I18n.translate('communicationschedule.communicationTasks', 'MDC', 'Communication tasks'),
-                                require: true,
                                 layout: {
                                     type: 'vbox',
                                     align: 'stretch'

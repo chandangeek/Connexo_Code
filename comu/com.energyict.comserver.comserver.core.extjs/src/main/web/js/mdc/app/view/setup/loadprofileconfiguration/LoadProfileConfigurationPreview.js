@@ -29,7 +29,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationPrev
                             renderer: function (value) {
                                 var record = this.up('#loadProfileConfigurationDetails').getRecord();
                                 if (!Ext.isEmpty(record)) {
-                                    return Ext.String.format('<a href="#/administration/devicetypes/{0}/deviceconfigurations/{1}/loadprofiles/{2}">{3}</a>', this.up('#loadProfileConfigurationPreview').deviceTypeId, this.up('#loadProfileConfigurationPreview').deviceConfigurationId, record.getData().id, value);
+                                    return Ext.String.format('<a href="#/administration/devicetypes/{0}/deviceconfigurations/{1}/loadprofiles/{2}/channels">{3}</a>', this.up('#loadProfileConfigurationPreview').deviceTypeId, this.up('#loadProfileConfigurationPreview').deviceConfigurationId, record.getData().id, value);
                                 }
                             }
                         },

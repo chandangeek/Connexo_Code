@@ -3,7 +3,6 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
     deviceTypeId: null,
     deviceConfigurationId: null,
     requires: [
-        'Uni.model.BreadcrumbItem',
         'Mdc.store.ProtocolDialectsOfDeviceConfiguration',
         'Mdc.controller.setup.Properties',
         'Mdc.controller.setup.PropertiesView'
@@ -21,8 +20,7 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
     ],
 
     refs: [
-        {ref: 'breadCrumbs', selector: 'breadcrumbTrail'},
-        {ref: 'protocoldialectssgrid', selector: '#protocoldialectsgrid'},
+        {ref: 'protocolDialectsGrid', selector: '#protocoldialectsgrid'},
         {ref: 'protocolDialectPreviewForm', selector: '#protocolDialectPreviewForm'},
         {ref: 'protocolDialectPreview', selector: '#protocolDialectPreview'},
         {ref: 'protocolDialectPreviewTitle', selector: '#protocolDialectPreviewTitle'},
@@ -65,8 +63,7 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
                         var deviceTypeName = deviceType.get('name');
                         var deviceConfigName = deviceConfig.get('name');
                         //widget.down('#registerConfigTitle').html = '<h1>' + deviceConfigName + ' > ' + Uni.I18n.translate('registerConfig.registerConfigurations', 'MDC', 'Register configurations') + '</h1>';
-                        me.getApplication().getController('Mdc.controller.Main').showContent(widget);
-                        me.overviewBreadCrumbs(deviceTypeId, deviceConfigurationId, deviceTypeName, deviceConfigName);
+                        me.getApplication().fireEvent('changecontentevent', widget);
                     }
                 });
             }
@@ -74,7 +71,7 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
     },
 
     previewProtocolDialect: function (grid, record) {
-        var protocolDialect = this.getProtocoldialectssgrid().getSelectionModel().getSelection();
+        var protocolDialect = this.getProtocolDialectsGrid().getSelectionModel().getSelection();
         if (protocolDialect.length === 1) {
             this.getProtocolDialectPreviewForm().loadRecord(protocolDialect[0]);
             var protocolDialectName = protocolDialect[0].get('name');
@@ -103,45 +100,6 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
         this.editProtocolDialectHistory(this.getProtocolDialectPreviewForm().getRecord());
     },
 
-
-    overviewBreadCrumbs: function (deviceTypeId, deviceConfigId, deviceTypeName, deviceConfigName) {
-        var me = this;
-
-        var breadcrumbRegisterConfigurations = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('protocoldialect.protocols', 'MDC', 'Protocols'),
-            href: 'protocols'
-
-        });
-
-        var breadcrumbDeviceConfig = Ext.create('Uni.model.BreadcrumbItem', {
-            text: deviceConfigName,
-            href: deviceConfigId
-        });
-
-        var breadcrumbDeviceConfigs = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registerConfig.deviceConfigs', 'MDC', 'Device configurations'),
-            href: 'deviceconfigurations'
-        });
-
-        var breadcrumbDevicetype = Ext.create('Uni.model.BreadcrumbItem', {
-            text: deviceTypeName,
-            href: deviceTypeId
-        });
-
-        var breadcrumbDeviceTypes = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registerConfig.deviceTypes', 'MDC', 'Device types'),
-            href: 'devicetypes'
-        });
-        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#/administration'
-        });
-
-        breadcrumbParent.setChild(breadcrumbDeviceTypes).setChild(breadcrumbDevicetype).setChild(breadcrumbDeviceConfigs).setChild(breadcrumbDeviceConfig).setChild(breadcrumbRegisterConfigurations);
-
-        me.getBreadCrumbs().setBreadcrumbItem(breadcrumbParent);
-    },
-
     showProtocolDialectsEditView: function (deviceTypeId, deviceConfigId, protocolDialectId) {
         this.deviceTypeId = deviceTypeId;
         this.deviceConfigurationId = deviceConfigId;
@@ -167,8 +125,7 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
                                 widget.down('form').loadRecord(protocolDialect);
                                 me.getPropertiesController().showProperties(protocolDialect, widget);
                                 widget.down('#protocolDialectEditAddTitle').update('<h1>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + protocolDialect.get('name') + '"</h1>');
-                                me.getApplication().getController('Mdc.controller.Main').showContent(widget);
-                                me.editBreadCrumb(deviceTypeId, deviceConfigId, protocolDialectId, deviceType.get('name'), deviceConfiguration.get('name'), protocolDialect.get('name'));
+                                me.getApplication().fireEvent('changecontentevent', widget);
                                 widget.setLoading(false);
                             }
                         });
@@ -176,48 +133,6 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
                 });
             }
         });
-    },
-
-    editBreadCrumb: function (deviceTypeId, deviceConfigId, protocolDialectId, deviceTypeName, deviceConfigName, protocolDialectName) {
-        var me = this;
-
-        var breadcrumbEdit = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('protocolDialect.edit', 'MDC', 'Edit protocol'),
-            href: 'edit'
-        });
-
-        var breadcrumbProtocolDialects = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('protocolDialect.protocolDialects', 'MDC', 'Protocol dialects'),
-            href: 'protocols'
-        });
-
-        var breadcrumbDeviceConfig = Ext.create('Uni.model.BreadcrumbItem', {
-            text: deviceConfigName,
-            href: deviceConfigId
-        });
-
-        var breadcrumbDeviceConfigs = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registerConfig.deviceConfigs', 'MDC', 'Device configurations'),
-            href: 'deviceconfigurations'
-        });
-
-        var breadcrumbDevicetype = Ext.create('Uni.model.BreadcrumbItem', {
-            text: deviceTypeName,
-            href: deviceTypeId
-        });
-
-        var breadcrumbDeviceTypes = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registerConfig.deviceTypes', 'MDC', 'Device types'),
-            href: 'devicetypes'
-        });
-        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#/administration'
-        });
-
-        breadcrumbParent.setChild(breadcrumbDeviceTypes).setChild(breadcrumbDevicetype).setChild(breadcrumbDeviceConfigs).setChild(breadcrumbDeviceConfig).setChild(breadcrumbProtocolDialects).setChild(breadcrumbEdit);
-
-        me.getBreadCrumbs().setBreadcrumbItem(breadcrumbParent);
     },
 
     editProtocolDialect: function () {
@@ -236,6 +151,7 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
                     var json = Ext.decode(operation.response.responseText);
                     if (json && json.errors) {
                         me.getProtocolDialectEditForm().getForm().markInvalid(json.errors);
+                        me.getPropertiesController().showErrors(json.errors);
                     }
                 }
             });

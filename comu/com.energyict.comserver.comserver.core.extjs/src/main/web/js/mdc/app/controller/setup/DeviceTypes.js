@@ -2,7 +2,6 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Uni.model.BreadcrumbItem',
         'Ext.ux.window.Notification',
         'Uni.util.When'
     ],
@@ -41,7 +40,6 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         {ref: 'deviceTypeDetailLoadProfilesLink', selector: '#deviceTypeDetailLoadProfilesLink'},
         {ref: 'deviceTypeDetailForm', selector: '#deviceTypeDetailForm'},
         {ref: 'editDeviceTypeNameField', selector: '#editDeviceTypeNameField'},
-        {ref: 'breadCrumbs', selector: 'breadcrumbTrail'},
         {ref: 'deviceTypeLogbookPanel', selector: '#deviceTypeLogbookPanel'},
         {ref: 'addLogbookPanel', selector: '#addLogbookPanel'}
     ],
@@ -51,9 +49,6 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         this.control({
             '#devicetypegrid': {
                 selectionchange: this.previewDeviceType
-            },
-            '#deviceTypeSetup breadcrumbTrail': {
-                afterrender: this.overviewBreadCrumb
             },
             '#devicetypegrid actioncolumn': {
                 editItem: this.editDeviceTypeHistory,
@@ -121,9 +116,8 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
 
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceType, {
             success: function (deviceType) {
-                me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+                me.getApplication().fireEvent('changecontentevent', widget);
                 var deviceTypeId = deviceType.get('id');
-                me.detailBreadCrumb(deviceType.get('name'), deviceTypeId);
 
                 me.getDeviceTypeDetailRegistersLink().getEl().set({href: '#/administration/devicetypes/' + deviceTypeId + '/registertypes'});
                 me.getDeviceTypeDetailRegistersLink().getEl().setHTML(deviceType.get('registerCount') + ' ' + Uni.I18n.translatePlural('devicetype.registers', deviceType.get('registerCount'), 'MDC', 'register types'));
@@ -200,7 +194,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             returnLink: me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens(),
             deviceCommunicationProtocols: protocolStore
         });
-        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
+        this.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);
         var me = this;
 
@@ -213,13 +207,11 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             {
                 success: function (results) {
                     var deviceType = results[0][0];
-                    me.editBreadCrumb(deviceType.get('name'), deviceTypeId)
                     me.getDeviceTypeEditForm().loadRecord(deviceType);
                     me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + deviceType.get('name') + '"');
                     widget.setLoading(false);
                 },
                 failure: function () {
-                    me.editBreadCrumb(deviceType.get('name'), deviceTypeId)
                     me.getDeviceTypeEditForm().loadRecord(deviceType);
                     me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + deviceType.get('name') + '"');
                     widget.setLoading(false);
@@ -230,7 +222,6 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
 
 //        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
 //            success: function (deviceType) {
-//                me.editBreadCrumb(deviceType.get('name'), deviceTypeId)
 //                protocolStore.load({
 //                    callback: function (store) {
 //                        widget.down('form').loadRecord(deviceType);
@@ -252,12 +243,11 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             deviceCommunicationProtocols: protocolStore
         });
         var me = this;
-        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
+        this.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);
         protocolStore.load({
             callback: function (store) {
                 me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.create', 'MDC', 'Create') + ' ' + 'device type' );
-                me.createBreadCrumb();
                 widget.setLoading(false);
             }
         });
@@ -305,77 +295,6 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         }
     },
 
-    overviewBreadCrumb: function (breadcrumbs) {
-        var breadcrumbChild = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('devicetype.deviceTypes', 'MDC', 'Device types'),
-            href: 'devicetypes'
-        });
-        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#/administration'
-        });
-        breadcrumbParent.setChild(breadcrumbChild);
-        breadcrumbs.setBreadcrumbItem(breadcrumbParent);
-    },
-
-    createBreadCrumb: function () {
-        var breadcrumb1 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#/administration'
-        });
-        var breadcrumb2 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('devicetype.deviceTypes', 'MDC', 'Device types'),
-            href: 'devicetypes'
-        });
-        var breadcrumb3 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('devicetype.createDeviceType', 'MDC', 'Create device type'),
-            href: 'create'
-        });
-        breadcrumb1.setChild(breadcrumb2).setChild(breadcrumb3);
-        this.getBreadCrumbs().setBreadcrumbItem(breadcrumb1);
-    },
-
-    editBreadCrumb: function (deviceTypeName, deviceTypeId) {
-        var breadcrumb1 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#/administration'
-        });
-        var breadcrumb2 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('devicetype.deviceTypes', 'MDC', 'Device types'),
-            href: 'devicetypes'
-        });
-        var breadcrumb3 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: deviceTypeName,
-            href: deviceTypeId
-        });
-        var breadcrumb4 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + deviceTypeName + '"',
-            href: 'edit'
-        });
-        breadcrumb1.setChild(breadcrumb2).setChild(breadcrumb3).setChild(breadcrumb4);
-        this.getBreadCrumbs().setBreadcrumbItem(breadcrumb1);
-    },
-
-    detailBreadCrumb: function (deviceTypeName, deviceTypeId) {
-        var breadcrumb1 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#/administration'
-        });
-        var breadcrumb2 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('devicetype.deviceTypes', 'MDC', 'Device types'),
-            href: 'devicetypes'
-        });
-        var breadcrumb3 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: deviceTypeName,
-            href: deviceTypeId
-        });
-        var breadcrumb4 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.overview', 'MDC', 'Overview')
-        });
-        breadcrumb1.setChild(breadcrumb2).setChild(breadcrumb3).setChild(breadcrumb4);
-        this.getBreadCrumbs().setBreadcrumbItem(breadcrumb1);
-    },
-
     editDeviceTypeFromDetails: function () {
         var record = this.getDeviceTypeDetailForm().getRecord();
         location.href = '#/administration/devicetypes/' + record.get('id') + '/edit';
@@ -412,11 +331,10 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 callback: function () {
                     var self = this,
                         widget = Ext.widget('device-type-logbooks', {deviceTypeId: deviceTypeId});
-                    me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+                    me.getApplication().fireEvent('changecontentevent', widget);
                     widget.setLoading(true);
                     model.load(deviceTypeId, {
                         success: function (deviceType) {
-                            me.logbookBreadCrumb(deviceType.get('name'), deviceTypeId);
                             me.getDeviceTypeLogbookPanel().setTitle('<b>' + deviceType.get('name') + '</b>' + ' > ' + 'Logbook types');
                             widget.setLoading(false);
                         }
@@ -442,26 +360,6 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         );
     },
 
-    logbookBreadCrumb: function (deviceTypeName, deviceTypeId) {
-        var breadcrumb1 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#/administration'
-        });
-        var breadcrumb2 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('devicetype.deviceTypes', 'MDC', 'Device types'),
-            href: 'devicetypes'
-        });
-        var breadcrumb3 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: deviceTypeName,
-            href: deviceTypeId
-        });
-        var breadcrumb4 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: 'Logbook types'
-        });
-        breadcrumb1.setChild(breadcrumb2).setChild(breadcrumb3).setChild(breadcrumb4);
-        this.getBreadCrumbs().setBreadcrumbItem(breadcrumb1);
-    },
-
     showAddLogbookTypesView: function (deviceTypeId) {
         var me = this,
             model = Ext.ModelManager.getModel('Mdc.model.DeviceType'),
@@ -473,11 +371,10 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 callback: function () {
                     var self = this,
                         widget = Ext.widget('add-logbook-types', {deviceTypeId: deviceTypeId});
-                    me.getApplication().getController('Mdc.controller.Main').showContent(widget);
+                    me.getApplication().fireEvent('changecontentevent', widget);
                     widget.setLoading(true);
                     model.load(deviceTypeId, {
                         success: function (deviceType) {
-                            me.addLogbookBreadCrumb(deviceType.get('name'), deviceTypeId);
                             me.getAddLogbookPanel().setTitle('<b>' + deviceType.get('name') + '</b>' + ' > ' + 'Add logbook type');
                             widget.setLoading(false);
                         }
@@ -493,29 +390,4 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             }
         );
     },
-
-    addLogbookBreadCrumb: function (deviceTypeName, deviceTypeId) {
-        var breadcrumb1 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#/administration'
-        });
-        var breadcrumb2 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('devicetype.deviceTypes', 'MDC', 'Device types'),
-            href: 'devicetypes'
-        });
-        var breadcrumb3 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: deviceTypeName,
-            href: deviceTypeId
-        });
-        var breadcrumb4 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: 'Logbook types',
-            href: 'logbooktypes'
-        });
-        var breadcrumb5 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: 'Add logbook type'
-        });
-        breadcrumb1.setChild(breadcrumb2).setChild(breadcrumb3).setChild(breadcrumb4).setChild(breadcrumb5);
-        this.getBreadCrumbs().setBreadcrumbItem(breadcrumb1);
-    }
-
 });

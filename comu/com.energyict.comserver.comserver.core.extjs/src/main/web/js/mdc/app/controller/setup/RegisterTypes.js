@@ -2,7 +2,6 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Uni.model.BreadcrumbItem',
         'Ext.ux.window.Notification'
     ],
 
@@ -33,7 +32,6 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         {ref: 'registerTypeEditForm', selector: '#registerTypeEditForm'},
         {ref: 'registerTypeDetailForm', selector: '#registerTypeDetailForm'},
         {ref: 'readingTypeDetailsForm', selector: '#readingTypeDetailsForm'},
-        {ref: 'breadCrumbs', selector: 'breadcrumbTrail'},
         {ref: 'registerTypeEditForm', selector: '#registerTypeEditForm'},
         {ref: 'previewMrId', selector: '#preview_mrid'},
         {ref: 'detailMrId', selector: '#detail_mrid'}
@@ -44,11 +42,8 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         this.getRegisterTypesStore().on('load', this.onRegisterTypesStoreLoad, this);
 
         this.control({
-            '#registertypegrid': {
+            '#registerTypeSetup #registertypegrid': {
                 selectionchange: this.previewRegisterType
-            },
-            '#registerTypeSetup breadcrumbTrail': {
-                afterrender: this.overviewBreadCrumb
             },
             '#registertypegrid actioncolumn': {
                 editItem: this.editRegisterTypeHistory,
@@ -147,13 +142,12 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         Ext.ModelManager.getModel('Mdc.model.RegisterType').load(registerType, {
             success: function (registerType) {
                 var registerMapping = registerType.get('id');
-                me.detailBreadCrumb(registerType.get('name'), registerMapping);
                 widget.down('form').loadRecord(registerType);
                 me.getDetailMrId().setValue(registerType.getReadingType().get('mrid'));
                 me.getRegisterTypePreview().setTitle(registerType.get('name') + ' ' + Uni.I18n.translate('general.overview', 'MDC', 'Overview'));
             }
         });
-        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
+        this.getApplication().fireEvent('changecontentevent', widget);
     },
 
     createRegisterTypeHistory: function () {
@@ -223,12 +217,11 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             unitOfMeasure: unitOfMeasureStore,
             timeOfUse: timeOfUseStore
         });
-        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
+        this.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);
         var me = this;
         Ext.ModelManager.getModel('Mdc.model.RegisterType').load(registerMapping, {
             success: function (registerType) {
-                me.editBreadCrumb(registerType.get('name'), registerMapping)
                 timeOfUseStore.load({
                     callback: function (store) {
                         unitOfMeasureStore.load({
@@ -263,7 +256,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
 
     showRegisterTypes: function () {
         var widget = Ext.widget('registerTypeSetup');
-        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
+        this.getApplication().fireEvent('changecontentevent', widget);
     },
 
     showRegisterTypeCreateView: function () {
@@ -276,7 +269,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             timeOfUse: timeOfUseStore
         });
         var me = this;
-        this.getApplication().getController('Mdc.controller.Main').showContent(widget);
+        this.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);
 
         timeOfUseStore.load({
@@ -284,7 +277,6 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                 unitOfMeasureStore.load({
                     callback: function (store) {
                         widget.down('#registerTypeEditCreateTitle').update('<h1>' + Uni.I18n.translate('registerType.createRegisterType', 'MDC', 'Create register type') + '</h1>');
-                        me.createBreadCrumb();
                         widget.setLoading(false);
                     }
                 });
@@ -351,74 +343,6 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                 }
             });
         }
-    },
-
-    overviewBreadCrumb: function (breadcrumbs) {
-        var breadcrumbChild = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registertype.registerTypes', 'MDC', 'Register types'),
-            href: 'registertypes'
-        });
-
-        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#/administration'
-        });
-        breadcrumbParent.setChild(breadcrumbChild);
-        breadcrumbs.setBreadcrumbItem(breadcrumbParent);
-    },
-
-    createBreadCrumb: function () {
-        var breadcrumb1 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#/administration'
-        });
-        var breadcrumb2 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registertype.registerTypes', 'MDC', 'Register types'),
-            href: 'registertypes'
-        });
-        var breadcrumb3 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registertype.create', 'MDC', 'Create register type'),
-            href: 'create'
-        });
-        breadcrumb1.setChild(breadcrumb2).setChild(breadcrumb3);
-        this.getBreadCrumbs().setBreadcrumbItem(breadcrumb1);
-    },
-
-    editBreadCrumb: function (registerTypeName, registerTypeId) {
-        var breadcrumb1 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#/administration'
-        });
-        var breadcrumb2 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registertype.registerTypes', 'MDC', 'Register types'),
-            href: 'registertypes'
-        });
-        var breadcrumb4 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registertype.edit', 'MDC', 'Edit register type'),
-            href: 'edit'
-        });
-        breadcrumb1.setChild(breadcrumb2).setChild(breadcrumb4);
-        this.getBreadCrumbs().setBreadcrumbItem(breadcrumb1);
-    },
-
-    detailBreadCrumb: function (registerTypeName, registerTypeId) {
-        var breadcrumb1 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-            href: '#/administration'
-        });
-        var breadcrumb2 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('registertype.registerTypes', 'MDC', 'Register types'),
-            href: 'registertypes'
-        });
-        var breadcrumb3 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: registerTypeName,
-            href: registerTypeId
-        });
-        var breadcrumb4 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('general.overview', 'MDC', 'Overview')
-        });
-        breadcrumb1.setChild(breadcrumb2).setChild(breadcrumb3).setChild(breadcrumb4);
-        this.getBreadCrumbs().setBreadcrumbItem(breadcrumb1);
     },
 
     editRegisterTypeFromDetails: function () {

@@ -72,13 +72,15 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeOnDeviceTypeSetup', {
             {
                 xtype: 'loadProfileTypeGrid',
                 intervalStore: this.intervalStore,
-                store: 'LoadProfileTypesOnDeviceType'
+                store: 'LoadProfileTypesOnDeviceType',
+                deleteActionName: 'deleteloadprofiletypeondevicetype'
             }
         );
         this.down('#loadProfileTypePreviewContainer').add(
             {
                 xtype: 'loadProfileTypePreview',
-                intervalStore: this.intervalStore
+                intervalStore: this.intervalStore,
+                deleteActionName: 'deleteloadprofiletypeondevicetype'
             }
         );
         this.down('#loadProfileTypeDockedItemsContainer').add(

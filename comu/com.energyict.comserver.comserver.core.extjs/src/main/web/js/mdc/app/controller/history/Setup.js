@@ -5,261 +5,498 @@ Ext.define('Mdc.controller.history.Setup', {
     previousPath: '',
     currentPath: null,
 
-    init: function () {
-        var me = this;
-
-        //Logbook type routes
-        crossroads.addRoute('/administration/logbooktypes', function () {
-            me.getApplication().getController('Mdc.controller.setup.SetupOverview').showLogbookTypes();
-        });
-        crossroads.addRoute('/administration/logbooktypes/create', function () {
-            me.getApplication().getController('Mdc.controller.setup.LogForm').showOverview();
-        });
-        crossroads.addRoute('/administration/logbooktypes/edit/{id}', function (id) {
-            me.getApplication().getController('Mdc.controller.setup.LogForm').showOverview(id);
-        });
-
-        //Device type routes
-        crossroads.addRoute('/administration/devicetypes', function () {
-            me.getApplication().getController('Mdc.controller.setup.SetupOverview').showDeviceTypes();
-        });
-        crossroads.addRoute('/administration/devicetypes/create', function () {
-            me.getApplication().getController('Mdc.controller.setup.DeviceTypes').showDeviceTypeCreateView(null);
-        });
-        crossroads.addRoute('/administration/devicetypes/{id}', function (id) {
-            me.getApplication().getController('Mdc.controller.setup.DeviceTypes').showDeviceTypeDetailsView(id);
-        });
-        crossroads.addRoute('/administration/devicetypes/{id}/edit', function (id) {
-            me.getApplication().getController('Mdc.controller.setup.DeviceTypes').showDeviceTypeEditView(id);
-        });
-        crossroads.addRoute('/administration/devicetypes/{id}/logbooktypes', function (id) {
-            me.getApplication().getController('Mdc.controller.setup.DeviceTypes').showDeviceTypeLogbookTypesView(id);
-        });
-        crossroads.addRoute('/administration/devicetypes/{id}/logbooktypes/add', function (id) {
-            me.getApplication().getController('Mdc.controller.setup.DeviceTypes').showAddLogbookTypesView(id);
-        });
-        crossroads.addRoute('/administration/devicetypes/{id}/loadprofiles', function (id) {
-            me.getApplication().getController('Mdc.controller.setup.LoadProfileTypesOnDeviceType').showDeviceTypeLoadProfileTypesView(id);
-        });
-        crossroads.addRoute('/administration/devicetypes/{id}/loadprofiles/add', function (id) {
-            me.getApplication().getController('Mdc.controller.setup.LoadProfileTypesOnDeviceType').showDeviceTypeLoadProfileTypesAddView(id);
-        });
-
-        //Load profile types routes
-        crossroads.addRoute('/administration/loadprofiletypes', function () {
-            me.getApplication().getController('Mdc.controller.setup.LoadProfileTypes').showLoadProfileTypes();
-        });
-        crossroads.addRoute('/administration/loadprofiletypes/create', function () {
-            me.getApplication().getController('Mdc.controller.setup.LoadProfileTypes').showLoadProfileTypesCreateView();
-        });
-        crossroads.addRoute('/administration/loadprofiletypes/create/addmeasurementtypes', function () {
-            me.getApplication().getController('Mdc.controller.setup.LoadProfileTypes').showMeasurementTypesAddView();
-        });
-        crossroads.addRoute('/administration/loadprofiletypes/{id}/edit/addmeasurementtypes', function () {
-            me.getApplication().getController('Mdc.controller.setup.LoadProfileTypes').showMeasurementTypesAddView();
-        });
-        crossroads.addRoute('/administration/loadprofiletypes/{id}/edit', function (id) {
-            me.getApplication().getController('Mdc.controller.setup.LoadProfileTypes').showLoadProfileTypesEditView(id);
-        });
-
-        //Load profile configurations routes
-        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/loadprofiles', function (deviceTypeId, deviceConfigurationId) {
-            me.getApplication().getController('Mdc.controller.setup.LoadProfileConfigurations').showDeviceConfigurationLoadProfilesView(deviceTypeId, deviceConfigurationId);
-        });
-        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/loadprofiles/add', function (deviceTypeId, deviceConfigurationId) {
-            me.getApplication().getController('Mdc.controller.setup.LoadProfileConfigurations').showDeviceConfigurationLoadProfilesAddView(deviceTypeId, deviceConfigurationId);
-        });
-        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/loadprofiles/{loadProfileConfigurationId}', function (deviceTypeId, deviceConfigurationId, loadProfileConfigurationId) {
-            me.getApplication().getController('Mdc.controller.setup.LoadProfileConfigurationDetails').showDeviceConfigurationLoadProfilesConfigurationDetailsView(deviceTypeId, deviceConfigurationId, loadProfileConfigurationId);
-        });
-        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/loadprofiles/{loadProfileConfigurationId}/addChannel', function (deviceTypeId, deviceConfigurationId, loadProfileConfigurationId) {
-            me.getApplication().getController('Mdc.controller.setup.LoadProfileConfigurationDetails').showDeviceConfigurationLoadProfilesConfigurationChannelsAddView(deviceTypeId, deviceConfigurationId, loadProfileConfigurationId);
-        });
-
-        //Device configuration routes
-        crossroads.addRoute('/administration/devicetypes/{id}/deviceconfigurations', function (id) {
-            me.getApplication().getController('Mdc.controller.setup.DeviceConfigurations').showDeviceConfigurations(id);
-        });
-        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/create', function (deviceTypeId) {
-            me.getApplication().getController('Mdc.controller.setup.DeviceConfigurations').showDeviceConfigurationCreateView(deviceTypeId);
-        });
-        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}', function (deviceTypeId, deviceConfigurationId) {
-            me.getApplication().getController('Mdc.controller.setup.DeviceConfigurations').showDeviceConfigurationDetailsView(deviceTypeId, deviceConfigurationId);
-        });
-        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/edit', function (deviceTypeId, deviceConfigurationId) {
-            me.getApplication().getController('Mdc.controller.setup.DeviceConfigurations').showDeviceConfigurationEditView(deviceTypeId, deviceConfigurationId);
-        });
-        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/logbookconfigurations', function (deviceTypeId, deviceConfigurationId) {
-            me.getApplication().getController('Mdc.controller.setup.DeviceConfigurations').showDeviceConfigurationLogbooksView(deviceTypeId, deviceConfigurationId);
-        });
-        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/logbookconfigurations/add', function (deviceTypeId, deviceConfigurationId) {
-            me.getApplication().getController('Mdc.controller.setup.DeviceConfigurations').showAddDeviceConfigurationLogbooksView(deviceTypeId, deviceConfigurationId);
-        });
-        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/logbookconfigurations/{logbookConfigurationId}/edit', function (deviceTypeId, deviceConfigurationId, logbookConfigurationId) {
-            me.getApplication().getController('Mdc.controller.setup.DeviceConfigurations').showEditDeviceConfigurationLogbooksView(deviceTypeId, deviceConfigurationId, logbookConfigurationId);
-        });
-
-        //Comserver routes
-        crossroads.addRoute('/administration/comservers', function () {
-            me.getApplication().getController('Mdc.controller.setup.SetupOverview').showComServers();
-        });
-        crossroads.addRoute('/administration/comservers/create', function () {
-            me.getApplication().getController('Mdc.controller.setup.ComServers').showEditView();
-        });
-        crossroads.addRoute('/administration/comservers/{id}/edit', function (id) {
-            me.getApplication().getController('Mdc.controller.setup.ComServers').showEditView(id);
-        });
-
-        //Communication protocol tokens
-        crossroads.addRoute('/administration/devicecommunicationprotocols', function () {
-            me.getApplication().getController('Mdc.controller.setup.SetupOverview').showDeviceCommunicationProtocols();
-        });
-        crossroads.addRoute('/administration/devicecommunicationprotocols/{id}/edit', function (id) {
-            me.getApplication().getController('Mdc.controller.setup.DeviceCommunicationProtocols').showDeviceCommunicationProtocolEditView(id);
-        });
-
-        //Licensed protocol routes
-        crossroads.addRoute('/administration/licensedprotocols', function () {
-            me.getApplication().getController('Mdc.controller.setup.SetupOverview').showLicensedProtocols();
-        });
-
-
-        //Comportpool routes
-        crossroads.addRoute('/administration/comportpools', function () {
-            me.getApplication().getController('Mdc.controller.setup.SetupOverview').showComPortPools();
-        });
-        crossroads.addRoute('/administration/comportpools/create', function () {
-            me.getApplication().getController('Mdc.controller.setup.ComPortPools').showEditView();
-        });
-        crossroads.addRoute('/administration/comportpools/{id}', function (id) {
-            me.getApplication().getController('Mdc.controller.setup.ComPortPools').showEditView(id);
-        });
-
-
-        //RegisterType routes
-        crossroads.addRoute('/administration/registertypes', function () {
-            me.getApplication().getController('Mdc.controller.setup.RegisterTypes').showRegisterTypes();
-        });
-        crossroads.addRoute('/administration/registertypes/create', function () {
-            me.getApplication().getController('Mdc.controller.setup.RegisterTypes').showRegisterTypeCreateView(null);
-        });
-        crossroads.addRoute('/administration/registertypes/{id}', function (id) {
-            me.getApplication().getController('Mdc.controller.setup.RegisterTypes').showRegisterTypeDetailsView(id);
-        });
-        crossroads.addRoute('/administration/registertypes/{id}/edit', function (id) {
-            me.getApplication().getController('Mdc.controller.setup.RegisterTypes').showRegisterTypeEditView(id);
-        });
-
-        //RegisterGroup routes
-        crossroads.addRoute('/administration/registergroups', function () {
-            me.getApplication().getController('Mdc.controller.setup.RegisterGroups').showRegisterGroups();
-        });
-        crossroads.addRoute('/administration/registergroups/create', function () {
-            me.getApplication().getController('Mdc.controller.setup.RegisterGroups').showRegisterGroupCreateView(null);
-        });
-        crossroads.addRoute('/administration/registergroups/{id}/edit', function (id) {
-            me.getApplication().getController('Mdc.controller.setup.RegisterGroups').showRegisterGroupEditView(id);
-        });
-
-
-        //RegisterMapping routes
-        crossroads.addRoute('/administration/devicetypes/{id}/registertypes', function (id) {
-            me.getApplication().getController('Mdc.controller.setup.RegisterMappings').showRegisterMappings(id);
-        });
-        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/registertypes/add', function (deviceTypeId) {
-            me.getApplication().getController('Mdc.controller.setup.RegisterMappings').addRegisterMappings(deviceTypeId);
-        });
-
-        //Register configuration routes
-        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/registerconfigurations', function (deviceTypeId, deviceConfigurationId) {
-            me.getApplication().getController('Mdc.controller.setup.RegisterConfigs').showRegisterConfigs(deviceTypeId, deviceConfigurationId);
-        });
-        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/registerconfigurations/create', function (deviceTypeId, deviceConfigurationId) {
-            me.getApplication().getController('Mdc.controller.setup.RegisterConfigs').showRegisterConfigurationCreateView(deviceTypeId, deviceConfigurationId);
-        });
-        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/registerconfigurations/{registerConfigurationId}/edit', function (deviceTypeId, deviceConfigurationId, registerConfigurationId) {
-            me.getApplication().getController('Mdc.controller.setup.RegisterConfigs').showRegisterConfigurationEditView(deviceTypeId, deviceConfigurationId, registerConfigurationId);
-        });
-
-        //Security settings routes
-        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/securitysettings',function(deviceTypeId,deviceConfigurationId){
-            me.getApplication().getController('Mdc.controller.setup.SecuritySettings').showSecuritySettings(deviceTypeId, deviceConfigurationId);
-        });
-        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/securitysettings/create',function(deviceTypeId, deviceConfigurationId){
-            me.getApplication().getController('Mdc.controller.setup.SecuritySettings').showSecuritySettingsCreateView(deviceTypeId, deviceConfigurationId);
-        });
-        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/securitysettings/{securitySettingId}/edit',function(deviceTypeId,deviceConfigurationId,securitySettingId){
-            me.getApplication().getController('Mdc.controller.setup.SecuritySettings').showSecuritySettingsEditView(deviceTypeId,deviceConfigurationId,securitySettingId);
-        });
-
-        //Communication tasks routes
-        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/comtaskenablements',function(deviceTypeId, deviceConfigurationId){
-            me.getApplication().getController('Mdc.controller.setup.CommunicationTasks').showCommunicationTasks(deviceTypeId, deviceConfigurationId);
-        });
-        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/comtaskenablements/create',function(deviceTypeId, deviceConfigurationId){
-            me.getApplication().getController('Mdc.controller.setup.CommunicationTasks').showAddCommunicationTaskView(deviceTypeId, deviceConfigurationId);
-        });
-        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/comtaskenablements/{comTaskEnablementId}/edit',function(deviceTypeId, deviceConfigurationId, comTaskEnablementId){
-            me.getApplication().getController('Mdc.controller.setup.CommunicationTasks').showEditCommunicationTaskView(deviceTypeId, deviceConfigurationId, comTaskEnablementId);
-        });
-        crossroads.addRoute('/administration/communicationtasks/',function(){
-            me.getApplication().getController('Mdc.controller.setup.CommunicationTasksView').showCommunicationTasksView();
-        });
-        crossroads.addRoute('/administration/communicationtasks/create',function(){
-            me.getApplication().getController('Mdc.controller.setup.CommunicationTasksCreateEdit').showCommunicationTasksCreateEdit();
-        });
-        crossroads.addRoute('/administration/communicationtasks/{id}',function(id){
-            me.getApplication().getController('Mdc.controller.setup.CommunicationTasksCreateEdit').showCommunicationTasksCreateEdit(id);
-        });
-
-        //connection methods routes
-        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/connectionmethods', function (deviceTypeId, deviceConfigurationId) {
-            me.getApplication().getController('Mdc.controller.setup.ConnectionMethods').showConnectionMethods(deviceTypeId, deviceConfigurationId);
-        });
-        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/connectionmethods/addoutbound', function (deviceTypeId, deviceConfigurationId) {
-            me.getApplication().getController('Mdc.controller.setup.ConnectionMethods').showAddConnectionMethodView(deviceTypeId, deviceConfigurationId, 'Outbound');
-        });
-        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/connectionmethods/addinbound', function (deviceTypeId, deviceConfigurationId) {
-            me.getApplication().getController('Mdc.controller.setup.ConnectionMethods').showAddConnectionMethodView(deviceTypeId, deviceConfigurationId, 'Inbound');
-        });
-        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/connectionmethods/{connectionMethodId}/edit', function (deviceTypeId, deviceConfigurationId, connectionMethodId) {
-            me.getApplication().getController('Mdc.controller.setup.ConnectionMethods').showConnectionMethodEditView(deviceTypeId, deviceConfigurationId, connectionMethodId);
-        });
-
-        //protocol dialects routes
-        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/protocols', function (deviceTypeId, deviceConfigurationId) {
-            me.getApplication().getController('Mdc.controller.setup.ProtocolDialects').showProtocolDialectsView(deviceTypeId, deviceConfigurationId);
-        });
-        crossroads.addRoute('/administration/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/protocols/{protocolDialectId}/edit', function (deviceTypeId, deviceConfigurationId, protocolDialectId) {
-            me.getApplication().getController('Mdc.controller.setup.ProtocolDialects').showProtocolDialectsEditView(deviceTypeId, deviceConfigurationId, protocolDialectId);
-        });
-
-        //Device routes
-        crossroads.addRoute('/administration/devices/{id}', function (id) {
-            me.getApplication().getController('Mdc.controller.setup.Devices').showDeviceDetailsView(id);
-        });
-
-        //master schedule routes
-        crossroads.addRoute('/administration/communicationschedules', function () {
-            me.getApplication().getController('Mdc.controller.setup.CommunicationSchedules').showCommunicationSchedules();
-        });
-
-        crossroads.addRoute('/administration/communicationschedules/create', function () {
-            me.getApplication().getController('Mdc.controller.setup.CommunicationSchedules').showCommunicationSchedulesEditView();
-        });
-
-        crossroads.addRoute('/administration/communicationschedules/{id}/edit',function(id){
-            me.getApplication().getController('Mdc.controller.setup.CommunicationSchedules').showCommunicationSchedulesEditView(id);
-        });
-
-        //search devices
-        crossroads.addRoute('/administration/searchitems', function () {
-            me.getApplication().getController('Mdc.controller.setup.SearchItems').showSearchItems();
-        });
-
-        this.callParent(arguments);
+    routeConfig: {
+        administration: {
+            title: 'Administration',
+            route: 'administration',
+            disabled: true,
+            items: {
+                logbooktypes: {
+                    title: 'Logbook Types',
+                    route: 'logbooktypes',
+                    controller: 'Mdc.controller.setup.SetupOverview',
+                    action: 'showLogbookTypes',
+                    items: {
+                        create: {
+                            title: 'Create',
+                            route: 'create',
+                            controller: 'Mdc.controller.setup.LogForm'
+                        },
+                        edit: {
+                            title: 'Edit',
+                            route: 'edit/{id}',
+                            controller: 'Mdc.controller.setup.LogForm'
+                        }
+                    }
+                },
+                devicetypes: {
+                    title: 'Device Types',
+                    route: 'devicetypes',
+                    controller: 'Mdc.controller.setup.SetupOverview',
+                    action: 'showDeviceTypes',
+                    items: {
+                        view: {
+                            title: 'View',
+                            route: '{id}',
+                            controller: 'Mdc.controller.setup.DeviceTypes',
+                            action: 'showDeviceTypeDetailsView'
+                        },
+                        create: {
+                            title: 'Create',
+                            route: 'create',
+                            controller: 'Mdc.controller.setup.DeviceTypes',
+                            action: 'showDeviceTypeCreateView'
+                        },
+                        edit: {
+                            title: 'Edit',
+                            route: '{id}/edit',
+                            controller: 'Mdc.controller.setup.DeviceTypes',
+                            action: 'showDeviceTypeEditView'
+                        },
+                        logbooktypes: {
+                            title: 'Logbook Types',
+                            route: '{id}/logbooktypes',
+                            controller: 'Mdc.controller.setup.LogForm',
+                            action: 'showDeviceTypeLogbookTypesView',
+                            items: {
+                                add: {
+                                    title: 'Add logbook type',
+                                    route: 'add',
+                                    controller: 'Mdc.controller.setup.DeviceTypes',
+                                    action: 'showAddLogbookTypesView'
+                                }
+                            }
+                        },
+                        loadprofiles: {
+                            title: 'Load Profiles',
+                            route: '{id}/loadprofiles',
+                            controller: 'Mdc.controller.setup.LoadProfileTypesOnDeviceType',
+                            action: 'showDeviceTypeLoadProfileTypesView',
+                            items: {
+                                add: {
+                                    title: 'Add Load Profile',
+                                    route: 'add',
+                                    controller: 'Mdc.controller.setup.LoadProfileTypesOnDeviceType',
+                                    action: 'showDeviceTypeLoadProfileTypesAddView'
+                                }
+                            }
+                        },
+                        deviceconfigurations: {
+                            title: 'Device Configurations',
+                            route: '{deviceTypeId}/deviceconfigurations',
+                            controller: 'Mdc.controller.setup.DeviceConfigurations',
+                            action: 'showDeviceConfigurations',
+                            items: {
+                                view: {
+                                    title: 'Details',
+                                    route: '{deviceConfigurationId}',
+                                    controller: 'Mdc.controller.setup.DeviceConfigurations',
+                                    action: 'showDeviceConfigurationDetailsView'
+                                },
+                                create: {
+                                    title: 'Create',
+                                    route: 'create',
+                                    controller: 'Mdc.controller.setup.DeviceConfigurations',
+                                    action: 'showDeviceConfigurationCreateView'
+                                },
+                                edit: {
+                                    title: 'Edit',
+                                    route: 'edit',
+                                    controller: 'Mdc.controller.setup.DeviceConfigurations',
+                                    action: 'showDeviceConfigurationEditView'
+                                },
+                                loadprofiles: {
+                                    title: 'Load profiles',
+                                    route: '{deviceConfigurationId}/loadprofiles',
+                                    controller: 'Mdc.controller.setup.LoadProfileConfigurations',
+                                    action: 'showDeviceConfigurationLoadProfilesView',
+                                    items: {
+                                        add: {
+                                            title: 'Add Load Profile',
+                                            route: 'add',
+                                            controller: 'Mdc.controller.setup.LoadProfileConfigurations',
+                                            action: 'showDeviceConfigurationLoadProfilesAddView'
+                                        },
+                                        edit: {
+                                            title: 'Add Load Profile',
+                                            route: '{loadProfileConfigurationId}/edit',
+                                            controller: 'Mdc.controller.setup.LoadProfileConfigurations',
+                                            action: 'showDeviceConfigurationLoadProfilesEditView'
+                                        },
+                                        view: {
+                                            title: 'Load Profile',
+                                            route: '{loadProfileConfigurationId}/channels',
+                                            controller: 'Mdc.controller.setup.LoadProfileConfigurationDetails',
+                                            action: 'showDeviceConfigurationLoadProfilesConfigurationDetailsView',
+                                            items: {
+                                                add: {
+                                                    title: 'Add Channel',
+                                                    route: 'add',
+                                                    controller: 'Mdc.controller.setup.LoadProfileConfigurationDetails',
+                                                    action: 'showDeviceConfigurationLoadProfilesConfigurationChannelsAddView'
+                                                },
+                                                edit: {
+                                                    title: 'Edit Channel',
+                                                    route: '{channelId}/edit',
+                                                    controller: 'Mdc.controller.setup.LoadProfileConfigurationDetails',
+                                                    action: 'showDeviceConfigurationLoadProfilesConfigurationChannelsEditView'
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                logbookconfigurations: {
+                                    title: 'Logbook configurations',
+                                    route: '{deviceConfigurationId}/logbookconfigurations',
+                                    controller: 'Mdc.controller.setup.DeviceConfigurations',
+                                    action: 'showDeviceConfigurationLogbooksView',
+                                    items: {
+                                        add: {
+                                            title: 'Add Logbook configuration',
+                                            route: 'add',
+                                            controller: 'Mdc.controller.setup.DeviceConfigurations',
+                                            action: 'showAddDeviceConfigurationLogbooksView'
+                                        },
+                                        edit: {
+                                            title: 'Edit',
+                                            route: '{logbookConfigurationId}/edit',
+                                            controller: 'Mdc.controller.setup.DeviceConfigurations',
+                                            action: 'showEditDeviceConfigurationLogbooksView'
+                                        }
+                                    }
+                                },
+                                //Register configuration routes
+                                registerconfigurations: {
+                                    title: 'Register configurations',
+                                    route: '{deviceConfigurationId}/registerconfigurations',
+                                    controller: 'Mdc.controller.setup.RegisterConfigs',
+                                    action: 'showRegisterConfigs',
+                                    items: {
+                                        create: {
+                                            title: 'Create',
+                                            route: 'create',
+                                            controller: 'Mdc.controller.setup.RegisterConfigs',
+                                            action: 'showRegisterConfigurationCreateView'
+                                        },
+                                        edit: {
+                                            title: 'Edit',
+                                            route: '{registerConfigurationId}/edit',
+                                            controller: 'Mdc.controller.setup.RegisterConfigs',
+                                            action: 'showRegisterConfigurationEditView'
+                                        }
+                                    }
+                                },
+                                //Security settings routes
+                                securitysettings: {
+                                    title: 'Security settings',
+                                    route: '{deviceConfigurationId}/securitysettings',
+                                    controller: 'Mdc.controller.setup.SecuritySettings',
+                                    action: 'showSecuritySettings',
+                                    items: {
+                                        create: {
+                                            title: 'Create',
+                                            route: 'create',
+                                            controller: 'Mdc.controller.setup.SecuritySettings',
+                                            action: 'showSecuritySettingsCreateView'
+                                        },
+                                        edit: {
+                                            title: 'Edit',
+                                            route: '{securitySettingId}/edit',
+                                            controller: 'Mdc.controller.setup.SecuritySettings',
+                                            action: 'showSecuritySettingsEditView'
+                                        }
+                                    }
+                                },
+                                //Communication tasks routes
+                                comtaskenablements: {
+                                    title: 'Communication tasks',
+                                    route: '{deviceConfigurationId}/comtaskenablements',
+                                    controller: 'Mdc.controller.setup.CommunicationTasks',
+                                    action: 'showCommunicationTasks',
+                                    items: {
+                                        create: {
+                                            title: 'Create',
+                                            route: 'create',
+                                            controller: 'Mdc.controller.setup.CommunicationTasks',
+                                            action: 'showAddCommunicationTaskView'
+                                        },
+                                        edit: {
+                                            title: 'Edit',
+                                            route: '{comTaskEnablementId}/edit',
+                                            controller: 'Mdc.controller.setup.CommunicationTasks',
+                                            action: 'showEditCommunicationTaskView'
+                                        }
+                                    }
+                                },
+                                //connection methods routes
+                                connectionmethods: {
+                                    title: 'Connection methods',
+                                    route: '{deviceConfigurationId}/connectionmethods',
+                                    controller: 'Mdc.controller.setup.ConnectionMethods',
+                                    action: 'showConnectionMethods',
+                                    items: {
+                                        addoutbound: {
+                                            title: 'Add outbound',
+                                            route: 'addoutbound',
+                                            controller: 'Mdc.controller.setup.ConnectionMethods',
+                                            action: 'showAddConnectionMethodView',
+                                            params: {
+                                                'type': 'Outbound'
+                                            }
+                                        },
+                                        addinbound: {
+                                            title: 'Add inbound',
+                                            route: 'addinbound',
+                                            controller: 'Mdc.controller.setup.ConnectionMethods',
+                                            action: 'showAddConnectionMethodView',
+                                            params: {
+                                                'type': 'Inbound'
+                                            }
+                                        },
+                                        edit: {
+                                            title: 'Edit',
+                                            route: '{connectionMethodId}/edit',
+                                            controller: 'Mdc.controller.setup.ConnectionMethods',
+                                            action: 'showConnectionMethodEditView'
+                                        }
+                                    }
+                                },
+                                //protocol dialects routes
+                                protocols: {
+                                    title: 'Protocols',
+                                    route: '{deviceConfigurationId}/protocols',
+                                    controller: 'Mdc.controller.setup.ProtocolDialects',
+                                    action: 'showProtocolDialectsView',
+                                    items: {
+                                        edit: {
+                                            title: 'Edit',
+                                            route: '{protocolDialectId}/edit',
+                                            controller: 'Mdc.controller.setup.ProtocolDialects',
+                                            action: 'showProtocolDialectsEditView'
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        registertypes: {
+                            title: 'Register types',
+                            route: '{id}/registertypes',
+                            controller: 'Mdc.controller.setup.RegisterMappings',
+                            action: 'showRegisterMappings',
+                            items: {
+                                add: {
+                                    title: 'Add Register mapping',
+                                    route: 'add',
+                                    controller: 'Mdc.controller.setup.RegisterMappings',
+                                    action: 'addRegisterMappings'
+                                }
+                            }
+                        }
+                    }
+                },
+                loadprofiletypes: {
+                    title: 'Load Profile Types',
+                    route: 'loadprofiletypes',
+                    controller: 'Mdc.controller.setup.LoadProfileTypes',
+                    action: 'showLoadProfileTypes',
+                    items: {
+                        create: {
+                            title: 'Create',
+                            route: 'create',
+                            controller: 'Mdc.controller.setup.LoadProfileTypes',
+                            action: 'showLoadProfileTypesCreateView',
+                            items: {
+                                addmeasurementtypes: {
+                                    title: 'Add Measurement Types',
+                                    route: 'addmeasurementtypes',
+                                    controller: 'Mdc.controller.setup.LoadProfileTypes',
+                                    action: 'showMeasurementTypesAddView'
+                                }
+                            }
+                        },
+                        edit: {
+                            title: 'Edit',
+                            route: '{id}/edit',
+                            controller: 'Mdc.controller.setup.LoadProfileTypes',
+                            action: 'showLoadProfileTypesEditView',
+                            items: {
+                                addmeasurementtypes: {
+                                    title: 'Add Measurement Types',
+                                    route: 'addmeasurementtypes',
+                                    controller: 'Mdc.controller.setup.LoadProfileTypes',
+                                    action: 'showMeasurementTypesAddView'
+                                }
+                            }
+                        }
+                    }
+                },
+                comservers: {
+                    title: 'Communication servers',
+                    route: 'comservers',
+                    controller: 'Mdc.controller.setup.SetupOverview',
+                    action: 'showComServers',
+                    items: {
+                        create: {
+                            title: 'Create',
+                            route: 'create',
+                            controller: 'Mdc.controller.setup.ComServers',
+                            action: 'showEditView'
+                        },
+                        edit: {
+                            title: 'Edit',
+                            route: '{id}/edit',
+                            controller: 'Mdc.controller.setup.ComServers',
+                            action: 'showEditView'
+                        }
+                    }
+                },
+                devicecommunicationprotocols: {
+                    title: 'Device Communication protocols',
+                    route: 'devicecommunicationprotocols',
+                    controller: 'Mdc.controller.setup.SetupOverview',
+                    action: 'showDeviceCommunicationProtocols',
+                    items: {
+                        edit: {
+                            title: 'Edit',
+                            route: '{id}/edit',
+                            controller: 'Mdc.controller.setup.DeviceCommunicationProtocols',
+                            action: 'showDeviceCommunicationProtocolEditView'
+                        }
+                    }
+                },
+                licensedprotocols: {
+                    title: 'Licensed protocols',
+                    route: 'licensedprotocols',
+                    controller: 'Mdc.controller.setup.SetupOverview',
+                    action: 'showLicensedProtocols'
+                },
+                comportpools: {
+                    title: 'Communication port pools',
+                    route: 'comportpools',
+                    controller: 'Mdc.controller.setup.SetupOverview',
+                    action: 'showComPortPools',
+                    items: {
+                        create: {
+                            title: 'Create',
+                            route: 'create',
+                            controller: 'Mdc.controller.setup.ComPortPools',
+                            action: 'showEditView'
+                        },
+                        view: {
+                            title: 'View',
+                            route: '{id}',
+                            controller: 'Mdc.controller.setup.ComPortPools',
+                            action: 'showEditView'
+                        }
+                    }
+                },
+                registertypes: {
+                    title: 'Register types',
+                    route: 'registertypes',
+                    controller: 'Mdc.controller.setup.RegisterTypes',
+                    action: 'showRegisterTypes',
+                    items: {
+                        create: {
+                            title: 'Create',
+                            route: 'create',
+                            controller: 'Mdc.controller.setup.RegisterTypes',
+                            action: 'showRegisterTypeCreateView'
+                        },
+                        view: {
+                            title: 'View',
+                            route: '{id}',
+                            controller: 'Mdc.controller.setup.RegisterTypes',
+                            action: 'showRegisterTypeDetailsView'
+                        },
+                        edit: {
+                            title: 'Edit',
+                            route: '{id}/edit',
+                            controller: 'Mdc.controller.setup.RegisterTypes',
+                            action: 'showRegisterTypeEditView'
+                        }
+                    }
+                },
+                registergroups: {
+                    title: 'Register groups',
+                    route: 'registergroups',
+                    controller: 'Mdc.controller.setup.RegisterGroups',
+                    action: 'showRegisterGroups',
+                    items: {
+                        create: {
+                            title: 'Create',
+                            route: 'create',
+                            controller: 'Mdc.controller.setup.RegisterGroups',
+                            action: 'showRegisterGroupCreateView'
+                        },
+                        edit: {
+                            title: 'Edit',
+                            route: '{id}/edit',
+                            controller: 'Mdc.controller.setup.RegisterGroups',
+                            action: 'showRegisterGroupEditView'
+                        }
+                    }
+                },
+                communicationtasks: {
+                    title: 'Communication tasks',
+                    route: 'communicationtasks',
+                    controller: 'Mdc.controller.setup.CommunicationTasksView',
+                    action: 'showCommunicationTasksView',
+                    items: {
+                        create: {
+                            title: 'Create',
+                            route: 'create',
+                            controller: 'Mdc.controller.setup.CommunicationTasksCreateEdit',
+                            action: 'showCommunicationTasksCreateEdit'
+                        },
+                        edit: {
+                            title: 'Edit',
+                            route: '{id}',
+                            controller: 'Mdc.controller.setup.CommunicationTasksCreateEdit',
+                            action: 'showCommunicationTasksCreateEdit'
+                        }
+                    }
+                },
+                communicationschedules: {
+                    title: 'Communication schedules',
+                    route: 'communicationschedules',
+                    controller: 'Mdc.controller.setup.CommunicationSchedules',
+                    action: 'showCommunicationSchedules',
+                    items: {
+                        create: {
+                            title: 'Create',
+                            route: 'create',
+                            controller: 'Mdc.controller.setup.CommunicationSchedules',
+                            action: 'showCommunicationSchedulesEditView'
+                        },
+                        edit: {
+                            title: 'Edit',
+                            route: '{id}/edit',
+                            controller: 'Mdc.controller.setup.CommunicationSchedules',
+                            action: 'showCommunicationSchedulesEditView'
+                        }
+                    }
+                },
+                search: {
+                    title: 'Search',
+                    route: 'searchitems',
+                    controller: 'Mdc.controller.setup.SearchItems',
+                    action: 'showSearchItems'
+                },
+                device: {
+                    title: 'Device',
+                    route: 'devices/{id}',
+                    controller: 'Mdc.controller.setup.Devices',
+                    action: 'showDeviceDetailsView'
+                }
+            }
+        }
     },
 
+    init: function () {
+        var router = this.getController('Uni.controller.history.Router');
+        router.addConfig(this.routeConfig);
+        this.callParent(arguments);
+    },
     tokenizePreviousTokens: function () {
         return this.tokenizePath(this.getApplication().getController('Uni.controller.history.EventBus').previousPath);
     },
