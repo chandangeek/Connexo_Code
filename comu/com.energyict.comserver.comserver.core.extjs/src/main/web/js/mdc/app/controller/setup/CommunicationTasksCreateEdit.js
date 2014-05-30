@@ -128,20 +128,22 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
         self.trimFields();
         sendingData.name = nameField.getValue();
         sendingData.commands = self.commands;
-        if (btn.text === 'Create') {
-            preloader = Ext.create('Ext.LoadMask', {
-                msg: "Creating communication task",
-                target: editView
-            });
-            preloader.show();
-            self.createTask(preloader, sendingData, header, msges);
-        } else {
-            preloader = Ext.create('Ext.LoadMask', {
-                msg: "Editing communication task",
-                target: editView
-            });
-            preloader.show();
-            self.editTask(preloader, sendingData, header, msges);
+        if (form.isValid()) {
+            if (btn.text === 'Create') {
+                preloader = Ext.create('Ext.LoadMask', {
+                    msg: "Creating communication task",
+                    target: editView
+                });
+                preloader.show();
+                self.createTask(preloader, sendingData, header, msges);
+            } else if (btn.text === 'Edit') {
+                preloader = Ext.create('Ext.LoadMask', {
+                    msg: "Editing communication task",
+                    target: editView
+                });
+                preloader.show();
+                self.editTask(preloader, sendingData, header, msges);
+            }
         }
     },
 

@@ -51,7 +51,6 @@ Ext.define('Mdc.view.setup.comtasks.Edit', {
                             xtype: 'button',
                             name: 'action',
                             ui: 'action',
-                            formBind: true,
                             itemId: 'createEditTask',
                             disabled: true
                         },
