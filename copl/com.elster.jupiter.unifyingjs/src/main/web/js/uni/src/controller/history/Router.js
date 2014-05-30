@@ -110,6 +110,7 @@ Ext.define('Uni.controller.history.Router', {
         prefix = typeof prefix !== 'undefined' ? prefix : '';
         var route = prefix + '/' + config.route;
         var action = typeof config.action !== 'undefined' ? config.action : me.defaultAction;
+        var params = typeof config.params !== 'undefined' ? config.params : {};
 
         // register route within controller
         // todo: move route class to external entity.
@@ -156,6 +157,7 @@ Ext.define('Uni.controller.history.Router', {
                 );
                 var controller = me.getController(config.controller);
 
+                arguments = _.extend(arguments, _.values(params));
                 // fire the controller action with this route params as arguments
                 controller[action].apply(controller, arguments);
                 me.fireEvent('routematch', me);
