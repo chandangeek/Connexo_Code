@@ -1,8 +1,12 @@
 package com.energyict.mdc.masterdata.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.rest.LogBookTypeInfo;
@@ -19,11 +23,16 @@ import java.util.List;
 
 @Path("/logbooktypes")
 public class LogBookResource {
-    private MasterDataService masterDataService;
+
+    private final MasterDataService masterDataService;
+    private final DeviceConfigurationService deviceConfigurationService;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public LogBookResource(MasterDataService masterDataService) {
+    public LogBookResource(MasterDataService masterDataService, DeviceConfigurationService deviceConfigurationService, Thesaurus thesaurus) {
         this.masterDataService = masterDataService;
+        this.deviceConfigurationService = deviceConfigurationService;
+        this.thesaurus = thesaurus;
     }
 
     @GET
@@ -44,12 +53,14 @@ public class LogBookResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public RootEntity<LogBookTypeInfo> getLogbookType(@PathParam("id") long id) {
+    public PagedInfoList getLogbookType(@PathParam("id") long id, @BeanParam QueryParameters queryParameters) {
         Optional<LogBookType> logBookRef = masterDataService.findLogBookType(id);
         if (!logBookRef.isPresent()) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
-        return new RootEntity<LogBookTypeInfo>(new LogBookTypeInfo(logBookRef.get()));
+        LogBookType logBookType = logBookRef.get();
+        List<DeviceConfiguration> deviceConfigurations = this.deviceConfigurationService.findDeviceConfigurationsUsingLogBookType(logBookType);
+        return PagedInfoList.asJson("data", Collections.singletonList(LogBookTypeInfo.from(logBookType, !deviceConfigurations.isEmpty())), queryParameters);
     }
 
     @POST

@@ -6,12 +6,12 @@ import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
 
-    NO_LOAD_PROFILE_TYPE_FOUND(1, "MDR.NoLoadProfileTypeFound", "No LoadProfile type with id {0}",Level.SEVERE),
-    TIME_MINUTE(2, "MDR.TimeMinute", "%s minute",Level.SEVERE),
-    TIME_MINUTES(3, "MDR.TimeMinutes", "%s minutes",Level.SEVERE),
-    TIME_HOUR(4, "MDR.TimeHour", "%s hour",Level.SEVERE),
-    TIME_DAY(5, "MDR.TimeDay", "%s day",Level.SEVERE),
-    TIME_WEEK(6, "MDR.TimeWeek", "%s week",Level.SEVERE);
+    NO_LOAD_PROFILE_TYPE_FOUND(1, "NoLoadProfileTypeFound", "No LoadProfile type with id {0}",Level.SEVERE),
+    TIME_MINUTE(2, "TimeMinute", "%s minute",Level.SEVERE),
+    TIME_MINUTES(3, "TimeMinutes", "%s minutes",Level.SEVERE),
+    TIME_HOUR(4, "TimeHour", "%s hour",Level.SEVERE),
+    TIME_DAY(5, "TimeDay", "%s day",Level.SEVERE),
+    TIME_WEEK(6, "TimeWeek", "%s week",Level.SEVERE);
 
     private final int number;
     private final String key;
