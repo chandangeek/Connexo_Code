@@ -50,7 +50,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileConfigurationForm', {
                             xtype: 'displayfield',
                             labelSeparator: ' ',
                             fieldLabel: 'OBIS code',
-                            name: 'OBIS code',
+                            name: 'obisCode',
                             value: 'Select a load profile type first'
                         },
                         {
@@ -92,6 +92,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileConfigurationForm', {
             {
                 xtype: 'button',
                 name: 'loadprofileconfigurationaction',
+                action: this.loadProfileConfigurationAction,
                 text: this.loadProfileConfigurationAction,
                 ui: 'action'
             }

@@ -74,11 +74,6 @@ Ext.define('Mdc.controller.setup.LogbookConfigurations', {
         var self = this,
             logbooksView = self.getDeviceConfigurationLogbooks(),
             grid = logbooksView.down('grid'),
-            header = {
-                style: 'msgHeaderStyle'
-            },
-            bodyItem = {},
-            msges = [],
             record = grid.getSelectionModel().getLastSelected(),
             url = '/api/dtc/devicetypes/' + logbooksView.deviceTypeId + '/deviceconfigurations/' + logbooksView.deviceConfigurationId + '/logbookconfigurations/' + record.data.id,
             itemPanel = Ext.ComponentQuery.query('device-configuration-logbooks panel[name=details]')[0],
@@ -96,8 +91,9 @@ Ext.define('Mdc.controller.setup.LogbookConfigurations', {
                             Ext.Ajax.request({
                                 url: url,
                                 method: 'DELETE',
-                                success: function () {
+                                success: function (response) {
                                     confirmMessage.close();
+                                    preloader.destroy();
                                     itemPanel.hide();
 
                                     Ext.create('widget.uxNotification', {
@@ -132,25 +128,46 @@ Ext.define('Mdc.controller.setup.LogbookConfigurations', {
                                 },
                                 failure: function (response) {
                                     confirmMessage.close();
-                                    var result = Ext.decode(response.responseText);
-
+                                    preloader.destroy();
+                                    var result;
+                                    if (response != null) {
+                                        result = Ext.decode(response.responseText, true);
+                                    }
                                     if (result !== null) {
-                                        Ext.Msg.show({
+                                        Ext.widget('messagebox', {
+                                            buttons: [
+                                                {
+                                                    text: 'Close',
+                                                    action: 'cancel',
+                                                    handler: function(btn){
+                                                        btn.up('messagebox').hide()
+                                                    }
+                                                }
+                                            ]
+                                        }).show({
+                                            ui: 'notification-error',
                                             title: result.error,
                                             msg: result.message,
-                                            icon: Ext.MessageBox.WARNING,
-                                            buttons: Ext.MessageBox.CANCEL,
-                                            ui: 'notification-error'
-                                        });
-                                    }
-                                    else {
-                                        Ext.Msg.show({
-                                            title: 'Error during deleting',
-                                            msg: 'The logbook configuration could not be deleted because of an error in the database.',
-                                            icon: Ext.MessageBox.WARNING,
-                                            buttons: Ext.MessageBox.CANCEL,
-                                            ui: 'notification-error'
-                                        });
+                                            icon: Ext.MessageBox.ERROR
+                                        })
+
+                                    } else {
+                                        Ext.widget('messagebox', {
+                                            buttons: [
+                                                {
+                                                    text: 'Close',
+                                                    action: 'cancel',
+                                                    handler: function(btn){
+                                                        btn.up('messagebox').hide()
+                                                    }
+                                                }
+                                            ]
+                                        }).show({
+                                            ui: 'notification-error',
+                                            title: 'Failed to udelete ' + record.data.name,
+                                            msg: 'Logbook configuration could not be deleted. There was a problem accessing the database',
+                                            icon: Ext.MessageBox.ERROR
+                                        })
                                     }
                                 },
                                 callback: function () {
@@ -167,7 +184,8 @@ Ext.define('Mdc.controller.setup.LogbookConfigurations', {
                         }
                     }
                 ]
-            });
+            })
+            ;
         confirmMessage.show({
             title: 'Delete logbook configuration ' + record.data.name + ' ?',
             msg: '<p>The logbook configuration will no longer be available on this device type.</p>',
@@ -175,4 +193,5 @@ Ext.define('Mdc.controller.setup.LogbookConfigurations', {
             cls: 'isu-delete-message'
         });
     }
-});
+})
+;

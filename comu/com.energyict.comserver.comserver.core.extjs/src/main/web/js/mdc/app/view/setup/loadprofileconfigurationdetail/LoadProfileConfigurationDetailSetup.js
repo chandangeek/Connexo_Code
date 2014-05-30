@@ -42,13 +42,15 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationDeta
 //                    itemId: 'loadProfileConfigurationEmptyListContainer'
 //                },
                 {
-                    xtype: 'loadProfileConfigurationDetailChannelGrid'
+                    xtype: 'container',
+                    itemId: 'loadProfileConfigurationDetailChannelGridContainer'
                 },
                 {
                     xtype: 'menuseparator'
                 },
                 {
-                    xtype: 'loadProfileConfigurationDetailChannelPreview'
+                    xtype: 'container',
+                    itemId: 'loadProfileConfigurationDetailChannelPreviewContainer'
                 }
             ]
         }
@@ -69,6 +71,20 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationDeta
                 deviceTypeId: this.deviceTypeId,
                 deviceConfigurationId: this.deviceConfigId,
                 loadProfileConfigurationId: this.loadProfileConfigurationId
+            }
+        );
+        this.down('#loadProfileConfigurationDetailChannelGridContainer').add(
+            {
+                xtype: 'loadProfileConfigurationDetailChannelGrid',
+                editActionName: 'editloadprofileconfigurationdetailchannel',
+                deleteActionName: 'deleteloadprofileconfigurationdetailchannel'
+            }
+        );
+        this.down('#loadProfileConfigurationDetailChannelPreviewContainer').add(
+            {
+                xtype: 'loadProfileConfigurationDetailChannelPreview',
+                editActionName: 'editloadprofileconfigurationdetailchannel',
+                deleteActionName: 'deleteloadprofileconfigurationdetailchannel'
             }
         );
     }

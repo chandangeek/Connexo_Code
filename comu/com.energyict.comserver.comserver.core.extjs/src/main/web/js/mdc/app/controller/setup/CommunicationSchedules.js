@@ -197,7 +197,6 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
 
     deleteComTask: function(comTask){
         this.record.comTaskUsages().remove(comTask);
-        console.log('delete comtask');
     },
 
     deleteCommunicationSchedule: function(communicationSchedule){

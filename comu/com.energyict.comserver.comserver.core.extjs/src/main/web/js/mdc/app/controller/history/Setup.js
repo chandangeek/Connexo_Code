@@ -117,17 +117,31 @@ Ext.define('Mdc.controller.history.Setup', {
                                             controller: 'Mdc.controller.setup.LoadProfileConfigurations',
                                             action: 'showDeviceConfigurationLoadProfilesAddView'
                                         },
+                                        edit: {
+                                            title: 'Add Load Profile',
+                                            route: '{loadProfileConfigurationId}/edit',
+                                            controller: 'Mdc.controller.setup.LoadProfileConfigurations',
+                                            action: 'showDeviceConfigurationLoadProfilesEditView'
+                                        },
                                         view: {
                                             title: 'Load Profile',
-                                            route: '{loadProfileConfigurationId}',
+                                            route: '{loadProfileConfigurationId}/channels',
                                             controller: 'Mdc.controller.setup.LoadProfileConfigurationDetails',
-                                            action: 'showDeviceConfigurationLoadProfilesConfigurationDetailsView'
-                                        },
-                                        addchannel: {
-                                            title: 'Add Channel',
-                                            route: '{loadProfileConfigurationId}/addChannel',
-                                            controller: 'Mdc.controller.setup.LoadProfileConfigurationDetails',
-                                            action: 'showDeviceConfigurationLoadProfilesConfigurationChannelsAddView'
+                                            action: 'showDeviceConfigurationLoadProfilesConfigurationDetailsView',
+                                            items: {
+                                                add: {
+                                                    title: 'Add Channel',
+                                                    route: 'add',
+                                                    controller: 'Mdc.controller.setup.LoadProfileConfigurationDetails',
+                                                    action: 'showDeviceConfigurationLoadProfilesConfigurationChannelsAddView'
+                                                },
+                                                edit: {
+                                                    title: 'Edit Channel',
+                                                    route: '{channelId}/edit',
+                                                    controller: 'Mdc.controller.setup.LoadProfileConfigurationDetails',
+                                                    action: 'showDeviceConfigurationLoadProfilesConfigurationChannelsEditView'
+                                                }
+                                            }
                                         }
                                     }
                                 },
@@ -481,7 +495,6 @@ Ext.define('Mdc.controller.history.Setup', {
     init: function () {
         var router = this.getController('Uni.controller.history.Router');
         router.addConfig(this.routeConfig);
-
         this.callParent(arguments);
     },
     tokenizePreviousTokens: function () {

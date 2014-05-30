@@ -126,6 +126,7 @@ Ext.define('Mdc.controller.setup.LogbookTypesOverview', {
                 cssErrorClass = 'logbook-delete-error',
                 cssSuccessClass = 'logbook-delete-success',
                 overview = Ext.ComponentQuery.query('logbook-overview')[0],
+                record = overview.down('form').getRecord(),
                 logBookStore = this.store;
 
             this.enableOverviewPanel();
@@ -134,31 +135,56 @@ Ext.define('Mdc.controller.setup.LogbookTypesOverview', {
                 method: 'DELETE',
                 waitMsg: 'Deleting...',
                 success: function () {
-                    successMessage = Ext.widget('logbook-floating-panel', {
-                        width: overview.getWidth() / 3,
-                        title: "Success",
-                        html: "<br> Logbook has been removed successfully <br><br>",
-                        autoCloseDelay: 2000,
-                        cls: cssSuccessClass
-                    });
-                    successMessage.getDockedItems()[0].hide();
-                    successMessage.show();
+
+                    Ext.create('widget.uxNotification', {
+                        html: 'Logbook has been removed successfully',
+                        ui: 'notification-success'
+                    }).show();
+
                     logBookStore.load();
                 },
-                failure: function (result, request) {
-                    var jsonData = Ext.JSON.decode(result.responseText);
-                    var errorMessage = Ext.widget('logbook-floating-panel', {
-                        width: overview.getWidth() - 20,
-                        title: "Error during deletion logbook type",
-                        html: "<br>" + jsonData.message + "<br><br>",
-                        cls: cssErrorClass
-                    });
-                    errorMessage.getDockedItems()[0].addCls(cssErrorClass);
-                    errorMessage.down('button[name=cancel]').hide();
-                    errorMessage.down('button[name=retry]').hide();
-                    errorMessage.down('button[name=delete]').hide();
-                    errorMessage.show();
-                }
+                failure: function (response) {
+                    var result;
+                    if (response != null) {
+                        result = Ext.decode(response.responseText, true);
+                    }
+                    if (result !== null) {
+                        Ext.widget('messagebox', {
+                            buttons: [
+                                {
+                                    text: 'Close',
+                                    action: 'cancel',
+                                    handler: function(btn){
+                                        btn.up('messagebox').hide()
+                                    }
+                                }
+                            ]
+                        }).show({
+                            ui: 'notification-error',
+                            title: 'Failed to delete logbook ' + record.data.name,
+                            msg: result.message,
+                            icon: Ext.MessageBox.ERROR
+                        })
+
+                    } else {
+                        Ext.widget('messagebox', {
+                            buttons: [
+                                {
+                                    text: 'Close',
+                                    action: 'cancel',
+                                    handler: function(btn){
+                                        btn.up('messagebox').hide()
+                                    }
+                                }
+                            ]
+                        }).show({
+                            ui: 'notification-error',
+                            title: 'Failed to delete ' + record.data.name,
+                            msg: 'The device type could not be deleted. There was a problem accessing the database',
+                            icon: Ext.MessageBox.ERROR
+                        })
+                    }
+                },
             });
         }
     },

@@ -17,6 +17,11 @@ Ext.define('Mdc.model.Logbook', {
             name: 'obis',
             displayValue: 'OBIS',
             type: 'string'
+        },
+        {
+            name: 'isInUse',
+            displayValue: 'Is in use',
+            type: 'boolean'
         }
     ],
 

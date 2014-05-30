@@ -16,7 +16,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesDoc
                 text: 'Uncheck All',
                 action: 'uncheckallmeasurementtypes',
                 itemId: 'uncheckAllMeasurementTypes',
-                margin: '0 5'
+                ui: 'action'
             }
         )
     }

@@ -40,11 +40,12 @@ Ext.define('Mdc.controller.setup.LogForm', {
     },
 
     showOverview: function (id) {
-        var self = this;
-        var widget = Ext.widget('form-logbook');
-        var form = widget.down('form');
-        var btn = form.down('button[name=logAction]');
-        var title;
+        var self = this,
+            widget = Ext.widget('form-logbook'),
+            form = widget.down('form'),
+            obisField = form.down('#obis'),
+            btn = form.down('button[name=logAction]'),
+            title;
 
         this.getApplication().fireEvent('changecontentevent', widget);
 
@@ -53,6 +54,7 @@ Ext.define('Mdc.controller.setup.LogForm', {
             self.getModel('Mdc.model.Logbook').load(id, {
                 success: function (record) {
                     form.loadRecord(record);
+                    self.logbookAssigned(record);
                 }
             });
             title = 'Edit logbook type';
@@ -62,12 +64,19 @@ Ext.define('Mdc.controller.setup.LogForm', {
             title = 'Create logbook type';
             btn.setText('Add');
             btn.action = 'create';
+            self.getFormPanel().down('#obis').setDisabled(false);
         }
 
         form.setTitle(title);
     },
 
-    createRequest: function(form, formErrorsPanel, preloader) {
+    logbookAssigned: function (record) {
+        if (!record.raw.isInUse) {
+            this.getFormPanel().down('#obis').setDisabled(false);
+        }
+    },
+
+    createRequest: function (form, formErrorsPanel, preloader) {
         var self = this,
             jsonValues = Ext.JSON.encode(form.getValues());
 
@@ -97,7 +106,7 @@ Ext.define('Mdc.controller.setup.LogForm', {
                     Ext.widget('messagebox').show({
                         ui: 'notification-error',
                         title: 'Error during creation.',
-                        msg: 'The logbook type could not be created because of an error in the database.',
+                        msg: 'The logbook type could not be created. There was a problem accessing the database',
                         icon: Ext.MessageBox.ERROR,
                         buttons: Ext.MessageBox.CANCEL
                     });
@@ -109,10 +118,10 @@ Ext.define('Mdc.controller.setup.LogForm', {
         });
     },
 
-    editRequest: function(formPanel, form, formErrorsPanel, preloader) {
+    editRequest: function (formPanel, form, formErrorsPanel, preloader) {
         var self = this,
+            record = form.getRecord(),
             jsonValues = Ext.JSON.encode(form.getValues());
-
         Ext.Ajax.request({
             url: '/api/mds/logbooktypes/' + self.logId,
             method: 'PUT',
@@ -127,23 +136,46 @@ Ext.define('Mdc.controller.setup.LogForm', {
                 }).show();
             },
             failure: function (response) {
-                var result = Ext.decode(response.responseText, true);
+                confirmMessage.close();
+                var result;
+                if (response != null) {
+                    result = Ext.decode(response.responseText, true);
+                }
                 if (result !== null) {
-                    Ext.widget('messagebox').show({
+                    Ext.widget('messagebox', {
+                        buttons: [
+                            {
+                                text: 'Close',
+                                action: 'cancel',
+                                handler: function(btn){
+                                    btn.up('messagebox').hide()
+                                }
+                            }
+                        ]
+                    }).show({
                         ui: 'notification-error',
                         title: result.error,
                         msg: result.message,
-                        icon: Ext.MessageBox.ERROR,
-                        buttons: Ext.MessageBox.CANCEL
-                    });
+                        icon: Ext.MessageBox.ERROR
+                    })
+
                 } else {
-                    Ext.widget('messagebox').show({
+                    Ext.widget('messagebox', {
+                        buttons: [
+                            {
+                                text: 'Close',
+                                action: 'cancel',
+                                handler: function(btn){
+                                    btn.up('messagebox').hide()
+                                }
+                            }
+                        ]
+                    }).show({
                         ui: 'notification-error',
-                        title: 'Error during edit.',
-                        msg: 'The logbook type could not be created because of an error in the database.',
-                        icon: Ext.MessageBox.ERROR,
-                        buttons: Ext.MessageBox.CANCEL
-                    });
+                        title: 'Failed to delete ' + record.data.name,
+                        msg: 'Logbook type could not be deleted. There was a problem accessing the database',
+                        icon: Ext.MessageBox.ERROR
+                    })
                 }
             },
             callback: function () {
@@ -152,7 +184,7 @@ Ext.define('Mdc.controller.setup.LogForm', {
         });
     },
 
-    showErrorsPanel: function(formErrorsPanel) {
+    showErrorsPanel: function (formErrorsPanel) {
         formErrorsPanel.hide();
         formErrorsPanel.removeAll();
         formErrorsPanel.add({

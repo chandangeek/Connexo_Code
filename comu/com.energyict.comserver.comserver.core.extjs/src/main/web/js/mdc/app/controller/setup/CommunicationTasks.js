@@ -4,6 +4,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
     deviceConfigurationId: null,
 
     requires: [
+        'Uni.model.BreadcrumbItem'
     ],
 
     views: [
@@ -335,6 +336,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                                                 widget.down('#communicationTaskEditForm').setTitle(title);
                                                 widget.down('#enableScheduleFieldItem').fireEvent('change', null, false, false);
                                                 widget.setValues(communicationTask);
+                                                me.overviewBreadCrumbs(deviceTypeId, deviceConfigurationId, deviceTypeName, deviceConfigName, Uni.I18n.translate('communicationtasks.edit', 'MDC', 'Edit communication task'));
                                                 widget.setLoading(false);
                                             }
                                         });
