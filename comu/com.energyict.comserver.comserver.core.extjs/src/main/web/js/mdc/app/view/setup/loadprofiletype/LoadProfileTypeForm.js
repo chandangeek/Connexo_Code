@@ -78,7 +78,26 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeForm', {
                                     xtype: 'gridpanel',
                                     store: 'SelectedMeasurementTypesForLoadProfileType',
                                     columns: [
-                                        { text: 'Name', dataIndex: 'name', flex: 1 }
+                                        {
+                                            text: 'Name',
+                                            dataIndex: 'name',
+                                            flex: 1,
+                                            renderer: function (value, metaData, record) {
+                                                var id = Ext.id();
+                                                Ext.defer(function () {
+                                                    Ext.widget('button', {
+                                                        renderTo: id,
+                                                        icon: '../mdc/resources/images/actionsDetail.png',
+                                                        cls: 'uni-btn-transparent',
+                                                        handler: function (item, test) {
+                                                            this.fireEvent('removeMeasurementTypeFromAddGrid', record);
+                                                        },
+                                                        itemId: 'measurementTypeAddGridBtn'
+                                                    });
+                                                }, 50);
+                                                return Ext.String.format('<div id="{0}">{1}</div>',  id , value);
+                                            }
+                                        }
                                     ],
                                     height: 220,
                                     margin: '0 0 0 10'

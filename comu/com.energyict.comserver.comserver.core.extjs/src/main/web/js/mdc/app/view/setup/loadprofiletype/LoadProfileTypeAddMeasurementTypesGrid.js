@@ -45,7 +45,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesGri
                     }, 50);
                     return Ext.String.format('<div id="{0}">{1}</div>',  id , record.getReadingType().get('mrid'));
                 }
-            },
+            }
         ];
         this.callParent();
     }

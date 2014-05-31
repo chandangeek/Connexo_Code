@@ -84,6 +84,9 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             },
             'button[action=retryremoveloadprofiletype]': {
                 click: this.deleteRecord
+            },
+            '#measurementTypeAddGridBtn': {
+                removeMeasurementTypeFromAddGrid: this.removeMeasurementType
             }
         });
 
@@ -116,6 +119,9 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         }});
     },
 
+    removeMeasurementType: function (record) {
+        this.selectedMeasurementTypesStore.remove(record);
+    },
 
     showReadingType: function (record) {
         var widget = Ext.widget('readingTypeDetails');
