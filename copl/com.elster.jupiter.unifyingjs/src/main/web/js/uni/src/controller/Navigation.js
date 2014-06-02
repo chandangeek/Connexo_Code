@@ -55,11 +55,23 @@ Ext.define('Uni.controller.Navigation', {
 
         breadcrumbs.removeAll();
         _.map(router.buildBreadcrumbs(), function(route) {
+            var title = route.getTitle();
+
             breadcrumb = Ext.create('Uni.model.BreadcrumbItem', {
-                text: route.getTitle(),
+                text: Ext.isString(title) ? title : '',
                 href: route.buildUrl(),
                 relative: false
             });
+
+            if (title instanceof Deft.Promise) {
+                title.then({
+                    success: function(title) {
+                        breadcrumb.text = title;
+                        me.initBreadcrumbs();
+                    }
+                }).done()
+            }
+
             if (child) {
                 breadcrumb.setChild(child);
             }

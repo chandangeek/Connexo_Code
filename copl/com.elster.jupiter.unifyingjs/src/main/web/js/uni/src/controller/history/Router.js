@@ -125,9 +125,9 @@ Ext.define('Uni.controller.history.Router', {
              * @returns string
              */
             getTitle: function() {
-                var me = this;
+                var route = this;
                 return _.isFunction(this.title)
-                    ? this.title.apply(me, this)
+                    ? this.title.apply(me, [route])
                     : this.title;
             },
 
