@@ -34,8 +34,8 @@ public class HandHeldUnitEnablerCommand extends SimpleComCommand {
 
     @Override
     public void doExecute (DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
-        if (this.comChannelPlaceHolder.getComPortRelatedComChannel().getDelegatingComChannel() instanceof SerialComChannel) {
-            SerialComChannel comChannel = (SerialComChannel) this.comChannelPlaceHolder.getComPortRelatedComChannel().getDelegatingComChannel();
+        if (this.comChannelPlaceHolder.getComPortRelatedComChannel().getActualComChannel() instanceof SerialComChannel) {
+            SerialComChannel comChannel = (SerialComChannel) this.comChannelPlaceHolder.getComPortRelatedComChannel().getActualComChannel();
             SerialCommunicationChannelAdapter serialCommunicationChannel = new SerialCommunicationChannelAdapter(comChannel);
             try {
                 if (deviceProtocol instanceof MeterProtocolAdapter || deviceProtocol instanceof SmartMeterProtocolAdapter) {

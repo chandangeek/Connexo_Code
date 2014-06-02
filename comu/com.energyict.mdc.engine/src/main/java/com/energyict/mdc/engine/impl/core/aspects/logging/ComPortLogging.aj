@@ -41,7 +41,7 @@ public aspect ComPortLogging extends AbstractComPortLogging {
 
     @Override
     protected ComPortConnectionLogger initializeUniqueLogger (ComPort comPort, ExecutionContext executionContext, LogLevel logLevel) {
-        ComPortConnectionLogger logger = this.getUniqueLogger(comPort, logLevel);
+        ComPortConnectionLogger logger = this.getUniqueLogger(logLevel);
         this.attachHandlerTo(logger, executionContext);
         return logger;
     }
@@ -50,12 +50,12 @@ public aspect ComPortLogging extends AbstractComPortLogging {
     protected ComPortOperationsLogger getOperationsLogger (ComPortServerProcess comPortProcess) {
         if (this.getNormalOperationsLogger(comPortProcess) == null) {
             ComPort comPort = comPortProcess.getComPort();
-            this.setNormalOperationsLogger(comPortProcess, this.newOperationsLogger(comPort, this.getServerLogLevel(comPort)));
+            this.setNormalOperationsLogger(comPortProcess, this.newOperationsLogger(this.getServerLogLevel(comPort)));
         }
         return this.getNormalOperationsLogger(comPortProcess);
     }
 
-    private ComPortOperationsLogger newOperationsLogger (ComPort comPort, LogLevel logLevel) {
+    private ComPortOperationsLogger newOperationsLogger(LogLevel logLevel) {
         return LoggerFactory.getLoggerFor(ComPortOperationsLogger.class, logLevel);
     }
 
@@ -64,7 +64,7 @@ public aspect ComPortLogging extends AbstractComPortLogging {
         actualLogger.addHandler(new ExecutionContextLogHandler(ServiceProvider.instance.get().clock(), executionContext));
     }
 
-    private ComPortConnectionLogger getUniqueLogger (ComPort comPort, LogLevel logLevel) {
+    private ComPortConnectionLogger getUniqueLogger(LogLevel logLevel) {
         return LoggerFactory.getUniqueLoggerFor(ComPortConnectionLogger.class, logLevel);
     }
 

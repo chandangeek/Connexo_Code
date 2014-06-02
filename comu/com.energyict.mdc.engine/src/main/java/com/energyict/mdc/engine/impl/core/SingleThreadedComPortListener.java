@@ -64,7 +64,7 @@ public class SingleThreadedComPortListener extends ComChannelBasedComPortListene
     @Override
     protected void doRun() {
         ComPortRelatedComChannel comChannel = listen();
-        if (!(comChannel instanceof VoidComChannel)) {
+        if (!(comChannel.getActualComChannel() instanceof VoidComChannel)) {
             handleInboundDeviceProtocol(comChannel);
         }
         /*

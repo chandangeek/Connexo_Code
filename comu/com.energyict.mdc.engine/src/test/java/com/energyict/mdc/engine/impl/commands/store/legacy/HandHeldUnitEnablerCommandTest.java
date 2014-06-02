@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.commands.store.legacy;
 
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.engine.exceptions.ComCommandException;
@@ -87,7 +86,7 @@ public class HandHeldUnitEnablerCommandTest extends AbstractComCommandExecuteTes
         when(serialComChannel.getSerialPort()).thenReturn(serverSerialPort);
         when(serverSerialPort.getInputStream()).thenReturn(inputStream);
         this.comChannelPlaceHolder = ComChannelPlaceHolder.forKnownComChannel(this.comPortRelatedComChannel);
-        when(this.comPortRelatedComChannel.getDelegatingComChannel()).thenReturn(serialComChannel);
+        when(this.comPortRelatedComChannel.getActualComChannel()).thenReturn(serialComChannel);
     }
 
     @Test

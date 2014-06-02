@@ -16,6 +16,6 @@ public interface ComPortRelatedComChannel extends ComChannel {
 
     public void setComPort (ComPort comPort);
 
-    ComChannel getDelegatingComChannel();
+    public ComChannel getActualComChannel();
 
 }

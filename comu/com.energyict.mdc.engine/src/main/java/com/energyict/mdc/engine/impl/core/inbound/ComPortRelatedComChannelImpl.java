@@ -33,7 +33,7 @@ public class ComPortRelatedComChannelImpl  implements ComPortRelatedComChannel {
     }
 
     @Override
-    public ComChannel getDelegatingComChannel() {
+    public ComChannel getActualComChannel() {
         return comChannel;
     }
 
