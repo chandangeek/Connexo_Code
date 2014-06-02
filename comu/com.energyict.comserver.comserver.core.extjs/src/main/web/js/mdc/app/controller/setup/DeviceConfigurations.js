@@ -275,7 +275,6 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         this.deviceTypeId=deviceTypeId;
         var me=this;
         var returnlink;
-        debugger;
         if(me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens().indexOf('null')>-1){
             returnlink =  '#/administration/devicetypes/';
         } else {
