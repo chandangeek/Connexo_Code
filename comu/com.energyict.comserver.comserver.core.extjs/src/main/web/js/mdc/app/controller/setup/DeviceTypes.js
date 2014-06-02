@@ -113,8 +113,8 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     showDeviceTypeDetailsView: function (deviceType) {
         var me = this;
         var widget = Ext.widget('deviceTypeDetail', {deviceTypeId: deviceType});
-
-        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceType, {
+        var model = Ext.ModelManager.getModel('Mdc.model.DeviceType');
+        model.load(deviceType, {
             success: function (deviceType) {
                 me.getApplication().fireEvent('changecontentevent', widget);
                 var deviceTypeId = deviceType.get('id');
@@ -128,6 +128,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 me.getDeviceConfigurationsDetailLink().getEl().set({href: '#/administration/devicetypes/' + deviceTypeId + '/deviceconfigurations'});
                 me.getDeviceConfigurationsDetailLink().getEl().setHTML(deviceType.get('deviceConfigurationCount') + ' ' + Uni.I18n.translatePlural('devicetype.deviceconfigurations', deviceType.get('deviceConfigurationCount'), 'MDC', 'device configurations'));
                 widget.down('form').loadRecord(deviceType);
+                me.fireEvent('loadDeviceType', deviceType);
 
                 me.getDeviceTypePreviewTitle().update('<h1>' + deviceType.get('name') + ' - ' + Uni.I18n.translate('general.overview', 'MDC', 'Overview') + '</h1>');
             }

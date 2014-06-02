@@ -36,7 +36,17 @@ Ext.define('Mdc.controller.history.Setup', {
                     action: 'showDeviceTypes',
                     items: {
                         view: {
-                            title: 'View',
+                            title: function(route) {
+                                var deferred = Ext.create('Deft.Deferred');
+                                var ctrl = this.getController(route.controller);
+
+                                ctrl.on('loadDeviceType', function(record) {
+                                    route.title = record.get('name');
+                                    deferred.resolve(route.title);
+                                }, {single: true});
+
+                                return deferred.promise;
+                            },
                             route: '{id}',
                             controller: 'Mdc.controller.setup.DeviceTypes',
                             action: 'showDeviceTypeDetailsView'
