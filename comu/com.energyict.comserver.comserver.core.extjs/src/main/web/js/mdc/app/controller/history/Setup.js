@@ -35,17 +35,17 @@ Ext.define('Mdc.controller.history.Setup', {
                     controller: 'Mdc.controller.setup.SetupOverview',
                     action: 'showDeviceTypes',
                     items: {
-                        view: {
-                            title: 'View',
-                            route: '{id}',
-                            controller: 'Mdc.controller.setup.DeviceTypes',
-                            action: 'showDeviceTypeDetailsView'
-                        },
                         create: {
                             title: 'Create',
                             route: 'create',
                             controller: 'Mdc.controller.setup.DeviceTypes',
                             action: 'showDeviceTypeCreateView'
+                        },
+                        view: {
+                            title: 'View',
+                            route: '{id}',
+                            controller: 'Mdc.controller.setup.DeviceTypes',
+                            action: 'showDeviceTypeDetailsView'
                         },
                         edit: {
                             title: 'Edit',
