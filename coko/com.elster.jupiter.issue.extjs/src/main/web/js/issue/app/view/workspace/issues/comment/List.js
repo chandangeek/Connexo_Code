@@ -47,6 +47,7 @@ Ext.define('Isu.view.workspace.issues.comment.List', {
             this.child('toolbar').child('#Add').hide();
             this.child('#comment-add-form').show()
         }
+        console.log(this);
         this.callParent(arguments)
     },
 

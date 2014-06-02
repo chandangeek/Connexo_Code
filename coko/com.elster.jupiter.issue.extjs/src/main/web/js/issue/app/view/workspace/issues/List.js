@@ -17,7 +17,8 @@ Ext.define('Isu.view.workspace.issues.List', {
             menuDisabled: true
         },
         items: [
-            {   itemId: 'Title',
+            {
+                itemId: 'Title',
                 header: 'Title',
                 xtype: 'templatecolumn',
                 tpl: '<a href="#/workspace/datacollection/issues/{id}">{title}</a>',

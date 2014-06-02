@@ -60,7 +60,6 @@ Ext.define('Isu.controller.IssueDetail', {
             form = widget.down('issue-form');
 
         showCommentForm && self.showCommentForm();
-
         issueDetailModel.load(id, {
             success: function (record) {
                 form.loadRecord(record);
@@ -72,8 +71,8 @@ Ext.define('Isu.controller.IssueDetail', {
                 store.getProxy().url = store.getProxy().url.replace('{issue_id}', record.getId());
                 store.clearFilter();
                 self.getCommentsPanel().bindStore(record.comments());
+                store.proxy.url = '/api/isu/issue/' + id + '/comments';
                 store.load();
-
                 self.getApplication().fireEvent('changecontentevent', widget);
             },
             failure: function () {

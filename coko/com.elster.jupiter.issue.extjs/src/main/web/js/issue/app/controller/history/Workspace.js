@@ -40,16 +40,6 @@ Ext.define('Isu.controller.history.Workspace', {
                                     title: 'Issue Close',
                                     route: '{id}/close',
                                     controller: 'Isu.controller.CloseIssues'
-                                },
-                                notify: {
-                                    title: 'Notify user',
-                                    route: '{id}/notify',
-                                    controller: 'Isu.controller.NotifySend'
-                                },
-                                send: {
-                                    title: 'Send to inspect',
-                                    route: '{id}/send',
-                                    controller: 'Isu.controller.NotifySend'
                                 }
                             }
                         },
