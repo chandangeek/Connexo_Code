@@ -41,7 +41,7 @@ public class MdcPropertyUtils {
         PropertyValueInfo<?> propertyValueInfo = getThePropertyValueInfo(properties, propertySpec);
         SimplePropertyType simplePropertyType = getSimplePropertyType(propertySpec);
         PropertyTypeInfo propertyTypeInfo = getPropertyTypeInfo(uriInfo, propertySpec, simplePropertyType);
-        return new PropertyInfo(propertySpec.getName(), propertyValueInfo, propertyTypeInfo, false);
+        return new PropertyInfo(propertySpec.getName(), propertyValueInfo, propertyTypeInfo, propertySpec.isRequired());
     }
 
     private static PropertyValueInfo<Object> getThePropertyValueInfo(TypedProperties properties, PropertySpec<?> propertySpec) {
