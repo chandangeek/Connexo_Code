@@ -12,6 +12,28 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeGrid', {
         style: { overflow: 'auto', overflowX: 'hidden' }
     },
     initComponent: function () {
+        var me = this,
+            actionItems;
+        if (Ext.isEmpty(me.editActionName)){
+            actionItems =  [
+                {
+                    text: 'Remove',
+                    action: this.deleteActionName
+                }
+
+            ]
+        } else {
+            actionItems =  [
+                {
+                    text: 'Edit',
+                    action: this.editActionName
+                },
+                {
+                    text: 'Remove',
+                    action: this.deleteActionName
+                }
+            ]
+        }
         this.columns = [
             {
                 header: 'Name',
@@ -34,18 +56,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
-                items: [
-
-                    {
-                        text: 'Edit',
-                        action: this.editActionName
-                    },
-                    {
-                        text: 'Remove',
-                        action: this.deleteActionName
-                    }
-
-                ]
+                items: actionItems
             }
         ];
         this.callParent();

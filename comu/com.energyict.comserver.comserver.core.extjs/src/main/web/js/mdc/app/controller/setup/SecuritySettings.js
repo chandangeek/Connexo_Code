@@ -124,12 +124,22 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 me.store.load();
             },
             failure: function (result, request) {
-                var data = result.responseText;
-                Ext.create('widget.uxNotification', {
-                    html: data,
-                    title: 'Error during removing of security setting',
-                    ui: 'notification-success'
-                }).show();
+                var data = Ext.JSON.decode(result.responseText);
+                Ext.widget('messagebox', {
+                    buttons: [
+                        {
+                            text: 'Close',
+                            handler: function (button, event) {
+                                this.up('messagebox').hide();
+                            }
+                        }
+                    ]
+                }).show({
+                        ui: 'notification-error',
+                        title: 'Error during removing of security setting',
+                        msg: data.message,
+                        icon: Ext.MessageBox.ERROR
+                    })
             }
         });
     },
@@ -153,9 +163,9 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 securityWord;
 
             if (securityCount == 1) {
-                securityWord = ' security'
+                securityWord = ' security setting'
             } else {
-                securityWord = ' securities'
+                securityWord = ' security settings'
             }
             var widget = Ext.widget('container', {
                 html: securityCount + securityWord
@@ -191,7 +201,8 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
     },
 
     loadGridItemDetail: function (grid, record) {
-        var form = Ext.ComponentQuery.query('securitySettingSetup securitySettingPreview form')[0],
+        var detailPanel = Ext.ComponentQuery.query('securitySettingSetup securitySettingPreview')[0],
+            form = detailPanel.down('form'),
             preloader = Ext.create('Ext.LoadMask', {
                 msg: "Loading...",
                 target: form
@@ -201,6 +212,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
             preloader.show();
         }
         this.displayedItemId = record.getData().id;
+        detailPanel.setTitle(record.getData().name);
         form.loadRecord(record);
         preloader.destroy();
     },
@@ -380,7 +392,8 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
             formErrorsPanel.hide();
             formErrorsPanel.removeAll();
             formErrorsPanel.add({
-                html: 'There are errors on this page that require your attention.'
+                html: 'There are errors on this page that require your attention.',
+                style: 'color: #eb5642; border: 1px solid #eb5642; border-radius: 20px; padding: 10px;'
             });
             formErrorsPanel.show();
         }

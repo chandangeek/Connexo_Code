@@ -80,7 +80,6 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
     },
 
     showDeviceCommunicationProtocolEditView: function (deviceCommunicationProtocol) {
-        console.log('show device communication protocol edit');
         var widget = Ext.widget('deviceCommunicationProtocolEdit', {
             edit: true
         });

@@ -76,7 +76,8 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
             this.operationType = 'Edit';
             this.getApplication().fireEvent('changecontentevent', widget);
             this.getTaskEdit().getCenterContainer().down().setTitle(this.operationType + ' communication task');
-            this.getTaskEdit().down('toolbar').getComponent('createEditTask').setText('Edit');
+            this.getTaskEdit().down('toolbar').getComponent('createEditTask').setText('Save');
+            this.getTaskEdit().down('toolbar').getComponent('createEditTask').enable();
             self.commands = [];
             this.loadModelToEditForm(id);
         } else {
@@ -116,10 +117,6 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
 
     createEdit: function (btn) {
         var self = this,
-            header = {
-                style: 'msgHeaderStyle'
-            },
-            msges = [],
             sendingData = {},
             editView = self.getTaskEdit(),
             form = editView.down('form').getForm(),
@@ -135,19 +132,19 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
                     target: editView
                 });
                 preloader.show();
-                self.createTask(preloader, sendingData, header, msges);
-            } else if (btn.text === 'Edit') {
+                self.createTask(preloader, sendingData, btn);
+            } else if (btn.text === 'Save') {
                 preloader = Ext.create('Ext.LoadMask', {
                     msg: "Editing communication task",
                     target: editView
                 });
                 preloader.show();
-                self.editTask(preloader, sendingData, header, msges);
+                self.editTask(preloader, sendingData, btn);
             }
         }
     },
 
-    createTask: function (preloader, sendingData, header, msges) {
+    createTask: function (preloader, sendingData, btn) {
         var self = this;
         Ext.Ajax.request({
             url: '/api/cts/comtasks',
@@ -155,33 +152,19 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
             jsonData: sendingData,
             success: function () {
                 window.location.href = '#/administration/communicationtasks';
-                header.text = 'Successfully created';
-                self.getApplication().fireEvent('isushowmsg', {
-                    type: 'notify',
-                    msgBody: [header],
-                    y: 10,
-                    showTime: 5000
-                });
+                Ext.create('widget.uxNotification', {
+                    html: 'Successfully created',
+                    ui: 'notification-success'
+                }).show();
                 self.commands = [];
             },
             failure: function (response) {
-                header.text = 'Error during creation.';
-                msges.push(header);
                 var result = Ext.decode(response.responseText, true);
                 if (result !== null) {
                     if (result.errors[0].id === 'protocolTasks') {
                         var msgWindow = Ext.widget('messagebox', {
                             itemId: 'msgWindow',
                             buttons: [
-                                {
-                                    text: 'Retry',
-                                    action: 'retry',
-                                    ui: 'delete',
-                                    handler: function () {
-                                        var btn = Ext.ComponentQuery.query('communication-tasks-edit #createEditTask')[0];
-                                        btn.fireEvent('click', btn);
-                                    }
-                                },
                                 {
                                     text: 'Cancel',
                                     action: 'cancel',
@@ -196,18 +179,14 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
                         msgWindow.show({
                             ui: 'notification-error',
                             title: 'Error during creation',
-                            msg: 'Requires at least one protocol task',
+                            msg: 'Requires at least one command',
                             icon: Ext.MessageBox.ERROR
                         });
                     } else {
-                        self.showNameNotUniqueError(result, msges);
+                        self.showNameNotUniqueError();
                     }
                 } else {
-                    var bodyItem = {};
-                    bodyItem.style = 'msgItemStyle';
-                    bodyItem.text = 'The communication task could not be created because of an error in the database.';
-                    msges.push(bodyItem);
-                    self.showDatabaseError(msges);
+                    self.showDatabaseError(btn);
                 }
             },
             callback: function () {
@@ -216,7 +195,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
         });
     },
 
-    editTask: function (preloader, sendingData, header, msges) {
+    editTask: function (preloader, sendingData, btn) {
         var self = this;
         Ext.Ajax.request({
             url: '/api/cts/comtasks/' + self.taskEditId,
@@ -224,23 +203,14 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
             jsonData: sendingData,
             success: function () {
                 window.location.href = '#/administration/communicationtasks';
-                header.text = 'Successfully edited';
-                self.getApplication().fireEvent('isushowmsg', {
-                    type: 'notify',
-                    msgBody: [header],
-                    y: 10,
-                    showTime: 5000
-                });
+                Ext.create('widget.uxNotification', {
+                    html: 'Successfully edited',
+                    ui: 'notification-success'
+                }).show();
                 self.commands = [];
             },
             failure: function (response) {
-                var bodyItem = {};
-                header.text = 'Error during edit.';
-                msges.push(header);
-                bodyItem.style = 'msgItemStyle';
-                bodyItem.text = 'The communication task could not be edited because of an error in the database.';
-                msges.push(bodyItem);
-                self.showDatabaseError(msges);
+                self.showDatabaseError(btn);
             },
             callback: function () {
                 preloader.destroy();
@@ -248,15 +218,12 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
         });
     },
 
-    showNameNotUniqueError: function (result, msges) {
+    showNameNotUniqueError: function () {
         var self = this,
             editView = self.getTaskEdit(),
             nameField = editView.down('form').down('[name=name]'),
-            bodyItem = {};
-        bodyItem.style = 'msgItemStyle';
-        bodyItem.text = 'The name is not unique';
-        nameField.markInvalid(bodyItem.text);
-        msges.push(bodyItem);
+            nameText = 'The name is not unique';
+        nameField.markInvalid(nameText);
     },
 
     trimFields: function () {
@@ -265,32 +232,36 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
         nameField.setValue(nameValue);
     },
 
-    showDatabaseError: function (msges) {
-        var self = this,
-            editView = self.getTaskEdit();
-        self.getApplication().fireEvent('isushowmsg', {
-            type: 'error',
-            msgBody: msges,
-            y: 10,
-            closeBtn: true,
-            btns: [
+    showDatabaseError: function (btn) {
+        var msgWindow = Ext.widget('messagebox', {
+            itemId: 'msgWindowDb',
+            buttons: [
                 {
                     text: 'Cancel',
-                    cls: 'isu-btn-link',
-                    hnd: function () {
+                    action: 'cancel',
+                    ui: 'link',
+                    handler: function (me) {
+                        me.up('#msgWindowDb').close();
                         window.location = '#/administration/communicationtasks';
                     }
                 }
-            ],
-            listeners: {
-                close: {
-                    fn: function () {
-                        editView.enable();
-                    }
-                }
-            }
+            ]
         });
-        editView.disable();
+        if (btn.text === 'Create') {
+            msgWindow.show({
+                ui: 'notification-error',
+                title: 'Error during creating',
+                msg: 'The communication task could not be created because of an error in the database.',
+                icon: Ext.MessageBox.ERROR
+            });
+        } else {
+            msgWindow.show({
+                ui: 'notification-error',
+                title: 'Error during editing',
+                msg: 'The communication task could not be edited because of an error in the database.',
+                icon: Ext.MessageBox.ERROR
+            });
+        }
     },
 
     setTooltip: function () {
@@ -605,7 +576,9 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
                     numItem = self.commands.indexOf(item);
                 }
             });
-            self.commands.splice(numItem, 1);
+            if (numItem) {
+                self.commands.splice(numItem, 1);
+            }
             switch (parametersContainer.xtype) {
                 case 'communication-tasks-logbookscombo':
                     if (parametersContainer.value.length < 1) {
@@ -821,6 +794,15 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
                         }
                     });
                     self.commands.splice(numItem, 1);
+                    numItem = null;
+                    Ext.Array.each(self.commands, function (item) {
+                        if (item.category === me.category) {
+                            numItem = self.commands.indexOf(item);
+                        }
+                    });
+                    if (numItem !== null) {
+                        self.commands.splice(numItem, 1);
+                    }
                     Ext.ComponentQuery.query('communication-tasks-edit #createEditTask')[0].setDisabled(false);
                 }
             }

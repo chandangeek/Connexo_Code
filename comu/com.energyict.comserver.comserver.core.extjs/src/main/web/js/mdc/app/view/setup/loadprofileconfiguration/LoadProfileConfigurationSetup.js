@@ -82,7 +82,9 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationSetu
                 xtype: 'loadProfileConfigurationGrid',
                 intervalStore: this.intervalStore,
                 deviceTypeId: this.deviceTypeId,
-                deviceConfigurationId: this.deviceConfigId
+                deviceConfigurationId: this.deviceConfigId,
+                deleteActionName: 'deleteloadprofileconfigurationondeviceonfiguration',
+                editActionName: 'editloadprofileconfigurationondeviceconfiguration'
             }
         );
         this.down('#loadProfileConfigurationPreviewContainer').add(
@@ -90,7 +92,9 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationSetu
                 xtype: 'loadProfileConfigurationPreview',
                 intervalStore: this.intervalStore,
                 deviceTypeId: this.deviceTypeId,
-                deviceConfigurationId: this.deviceConfigId
+                deviceConfigurationId: this.deviceConfigId,
+                deleteActionName: 'deleteloadprofileconfigurationondeviceonfiguration',
+                editActionName: 'editloadprofileconfigurationondeviceconfiguration'
             }
         );
     }

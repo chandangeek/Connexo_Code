@@ -47,17 +47,20 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeForm', {
                             labelSeparator: ' *',
                             allowBlank: false,
                             fieldLabel: 'Interval',
-                            emptyText: '0 minutes',
+                            emptyText: '1 minute',
                             name: 'timeDuration',
                             displayField: 'name',
                             valueField: 'id',
-                            queryMode: 'local'
+                            queryMode: 'local',
+                            forceSelection: true,
+                            editable: false
                         },
                         {
                             xtype: 'textfield',
                             labelSeparator: ' *',
                             allowBlank: false,
                             fieldLabel: 'OBIS code',
+                            emptyText: 'x.x.x.x.x.x',
                             name: 'obisCode',
                             maskRe: /[\d.]+/,
                             vtype: 'obisCode',
@@ -65,7 +68,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeForm', {
                         },
                         {
                             xtype: 'fieldcontainer',
-                            fieldLabel: 'Measurment types',
+                            fieldLabel: 'Measurement types',
                             labelSeparator: ' *',
                             hidehead: true,
                             width: 1000,
@@ -75,10 +78,29 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeForm', {
                                     xtype: 'gridpanel',
                                     store: 'SelectedMeasurementTypesForLoadProfileType',
                                     columns: [
-                                        { text: 'Name', dataIndex: 'name', flex: 1 }
+                                        {
+                                            text: 'Name',
+                                            dataIndex: 'name',
+                                            flex: 1,
+                                            renderer: function (value, metaData, record) {
+                                                var id = Ext.id();
+                                                Ext.defer(function () {
+                                                    Ext.widget('button', {
+                                                        renderTo: id,
+                                                        icon: '../mdc/resources/images/actionsDetail.png',
+                                                        cls: 'uni-btn-transparent',
+                                                        handler: function (item, test) {
+                                                            this.fireEvent('removeMeasurementTypeFromAddGrid', record);
+                                                        },
+                                                        itemId: 'measurementTypeAddGridBtn'
+                                                    });
+                                                }, 50);
+                                                return Ext.String.format('<div id="{0}">{1}</div>',  id , value);
+                                            }
+                                        }
                                     ],
-                                    height: 200,
-                                    margin: 10
+                                    height: 220,
+                                    margin: '0 0 0 10'
                                 },
                                 {
                                     xtype: 'container',
@@ -101,7 +123,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeForm', {
                             xtype: 'toolbar',
                             dock: 'bottom',
                             border: false,
-                            margin: '0 0 0 100',
+                            margin: '0 0 0 160',
                             items: [
                                 {
                                     xtype: 'container',
@@ -126,13 +148,14 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeForm', {
         this.down('#LoadProfileTypeHeader').add(
             {
                 xtype: 'container',
-                html: '<h2>' + this.loadProfileTypeHeader + '</h2>'
+                html: '<h1>' + this.loadProfileTypeHeader + '</h1>'
             }
         );
         this.down('#LoadProfileTypeAddMeasurementTypeAction').add(
             {
                 xtype: 'button',
                 text: 'Add measurement types',
+                margin: 10,
                 href: '#/administration/loadprofiletypes/' + this.loadProfileTypeActionHref + '/addmeasurementtypes',
                 ui: 'action'
             }

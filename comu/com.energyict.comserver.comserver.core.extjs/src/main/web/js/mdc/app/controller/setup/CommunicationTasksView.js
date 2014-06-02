@@ -129,43 +129,34 @@ Ext.define('Mdc.controller.setup.CommunicationTasksView', {
         });
     },
 
-    showDatabaseError: function (msges) {
+    showDatabaseError: function () {
         var self = this,
-            tasksView = self.getTasksView();
-        self.getApplication().fireEvent('isushowmsg', {
-            type: 'error',
-            msgBody: msges,
-            y: 10,
-            closeBtn: true,
-            btns: [
-                {
-                    text: 'Cancel',
-                    cls: 'isu-btn-link',
-                    hnd: function () {
-                        window.location = '#/administration/communicationtasks';
+            msgWindow = Ext.widget('messagebox', {
+                itemId: 'msgWindowRemove',
+                buttons: [
+                    {
+                        text: 'Cancel',
+                        action: 'cancel',
+                        ui: 'link',
+                        handler: function (me) {
+                            me.up('#msgWindowRemove').close();
+                            window.location = '#/administration/communicationtasks';
+                        }
                     }
-                }
-            ],
-            listeners: {
-                close: {
-                    fn: function () {
-                        tasksView.enable();
-                    }
-                }
-            }
+                ]
+            });
+        msgWindow.show({
+            ui: 'notification-error',
+            title: 'Error during removing',
+            msg: 'The communication task could not be removed because of an error in the database.',
+            icon: Ext.MessageBox.ERROR
         });
-        tasksView.disable();
     },
 
     deleteTask: function (id) {
         var self = this,
             tasksView = self.getTasksView(),
             grid = tasksView.down('grid'),
-            header = {
-                style: 'msgHeaderStyle'
-            },
-            bodyItem = {},
-            msges = [],
             record = grid.getSelectionModel().getLastSelected(),
             url = '/api/cts/comtasks/' + id,
             confirmMessage = Ext.widget('messagebox', {
@@ -186,13 +177,10 @@ Ext.define('Mdc.controller.setup.CommunicationTasksView', {
                                 success: function () {
                                     confirmMessage.close();
                                     self.getRulesGridPagingToolbarTop().totalCount = 0;
-                                    header.text = 'Successfully removed';
-                                    self.getApplication().fireEvent('isushowmsg', {
-                                        type: 'notify',
-                                        msgBody: [header],
-                                        y: 10,
-                                        showTime: 5000
-                                    });
+                                    Ext.create('widget.uxNotification', {
+                                        html: 'Successfully removed',
+                                        ui: 'notification-success'
+                                    }).show();
                                     self.store.loadPage(1, {
                                         callback: function () {
                                             grid.getSelectionModel().select(0);
@@ -202,12 +190,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasksView', {
                                 },
                                 failure: function (response) {
                                     confirmMessage.close();
-                                    header.text = 'Error during removing';
-                                    msges.push(header);
-                                    bodyItem.style = 'msgItemStyle';
-                                    bodyItem.text = "The communication task could not be removed because it's in use.";
-                                    msges.push(bodyItem);
-                                    self.showDatabaseError(msges);
+                                    self.showDatabaseError();
                                 },
                                 callback: function () {
                                     preloader.destroy();

@@ -2,7 +2,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesGri
     extend: 'Ext.grid.Panel',
     alias: 'widget.loadProfileTypeAddMeasurementTypesGrid',
     itemId: 'loadProfileTypeAddMeasurementTypesGrid',
-    store: 'RegisterTypes',
+    store: 'MeasurementTypesToAdd',
     height: 395,
     scroll: false,
     viewConfig: {
@@ -45,7 +45,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesGri
                     }, 50);
                     return Ext.String.format('<div id="{0}">{1}</div>',  id , record.getReadingType().get('mrid'));
                 }
-            },
+            }
         ];
         this.callParent();
     }

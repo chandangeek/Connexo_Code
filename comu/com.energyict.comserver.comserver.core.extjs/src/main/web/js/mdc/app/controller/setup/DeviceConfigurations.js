@@ -254,7 +254,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId,{
             success: function(deviceType){
                 me.getApplication().fireEvent('changecontentevent', widget);
-                widget.down('#deviceConfigurationEditCreateTitle').update('<h1>'+Uni.I18n.translate('general.create', 'MDC', 'Create') + ' ' + 'device configuration'+'</h1>');
+                widget.down('#deviceConfigurationEditCreateTitle').update('<h1>'+Uni.I18n.translate('general.add', 'MDC', 'Add') + ' ' + 'device configuration'+'</h1>');
                 me.setCheckBoxes(deviceType);
             }
         });
@@ -274,9 +274,15 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
     showDeviceConfigurationEditView: function(deviceTypeId,deviceConfigurationId){
         this.deviceTypeId=deviceTypeId;
         var me=this;
+        var returnlink;
+        if(me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens().indexOf('null')>-1){
+            returnlink =  '#/administration/devicetypes/';
+        } else {
+            returnlink = me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens();
+        }
         var widget = Ext.widget('deviceConfigurationEdit', {
             edit: true,
-            returnLink: me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens()
+            returnLink: returnlink
         });
         this.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);

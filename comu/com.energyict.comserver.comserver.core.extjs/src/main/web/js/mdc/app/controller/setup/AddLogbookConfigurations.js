@@ -48,6 +48,7 @@ Ext.define('Mdc.controller.setup.AddLogbookConfigurations', {
             method: 'POST',
             jsonData: jsonIds,
             success: function () {
+                preloader.destroy();
                 window.location.href = '#/administration/devicetypes/' + addView.deviceTypeId + '/deviceconfigurations/' + addView.deviceConfigurationId + '/logbookconfigurations';
 
                 Ext.create('widget.uxNotification', {
@@ -56,24 +57,46 @@ Ext.define('Mdc.controller.setup.AddLogbookConfigurations', {
                 }).show();
             },
             failure: function (response) {
-                var result = Ext.decode(response.responseText);
+                preloader.destroy();
+                var result;
+                if (response != null) {
+                    result = Ext.decode(response.responseText, true);
+                }
                 if (result !== null) {
-                    Ext.Msg.show({
+                    Ext.widget('messagebox', {
+                        buttons: [
+                            {
+                                text: 'Close',
+                                action: 'cancel',
+                                handler: function(btn){
+                                    btn.up('messagebox').hide()
+                                }
+                            }
+                        ]
+                    }).show({
+                        ui: 'notification-error',
                         title: result.error,
                         msg: result.message,
-                        icon: Ext.MessageBox.WARNING,
-                        buttons: Ext.MessageBox.CANCEL,
+                        icon: Ext.MessageBox.ERROR
+                    })
+
+                } else {
+                    Ext.widget('messagebox', {
+                        buttons: [
+                            {
+                                text: 'Close',
+                                action: 'cancel',
+                                handler: function(btn){
+                                    btn.up('messagebox').hide()
+                                }
+                            }
+                        ]
+                    }).show({
                         ui: 'notification-error',
-                    });
-                }
-                else {
-                    Ext.Msg.show({
-                        title: 'Error during adding',
-                        msg: 'The logbook configuration could not be added because of an error in the database.',
-                        icon: Ext.MessageBox.WARNING,
-                        buttons: Ext.MessageBox.CANCEL,
-                        ui: 'notification-error',
-                    });
+                        title: 'Failed to add',
+                        msg: 'Logbook configuration could not be added. There was a problem accessing the database',
+                        icon: Ext.MessageBox.ERROR
+                    })
                 }
             },
             callback: function () {

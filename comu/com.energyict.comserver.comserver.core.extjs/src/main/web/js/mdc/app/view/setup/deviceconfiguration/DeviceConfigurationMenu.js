@@ -48,7 +48,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
                 hrefTarget: '_self'
             },
             {
-                text: Uni.I18n.translate('deviceconfigurationmenu.protocols', 'MDC', 'Protocols'),
+                text: Uni.I18n.translate('deviceconfigurationmenu.protocols', 'MDC', 'Protocol dialects'),
                 pressed: false,
                 itemId: 'protocolLink',
                 href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/protocols',

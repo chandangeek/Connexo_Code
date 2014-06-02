@@ -88,56 +88,87 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                             },
                             {
                                 xtype: 'fieldcontainer',
+                                fieldLabel: '&nbsp',
+                                layout: {
+                                    type: 'hbox',
+                                    align: 'stretch'
+                                },
+                                items: [
+                                    {
+                                        html: '<span style="color: grey"><i>' + Uni.I18n.translate('communicationschedule.MRIDInfo', 'MDC', 'Unique identifier to link the schedule to one or more devices using the API') + '</i></span>',
+                                        xtype: 'component',
+                                        itemId: 'MRIDInfo'
+                                    }
+                                ]
+                            },
+                            {
+                                xtype: 'fieldcontainer',
                                 fieldLabel: Uni.I18n.translate('communicationschedule.communicationTasks', 'MDC', 'Communication tasks'),
                                 layout: {
                                     type: 'vbox',
                                     align: 'stretch'
                                 },
-                                width: '100%',
+                                required: true,
                                 items: [
                                     {
-                                        xtype: 'grid',
-                                        itemId: 'comTasksOnForm',
-                                        hideHeaders: true,
-                                        disableSelection: true,
-                                        trackMouseOver: false,
-                                        border: false,
-                                        frame: false,
-                                        viewConfig: {
-                                            stripeRows: false
+                                        xtype: 'panel',
+                                        itemId: 'comTaskPanel',
+                                        layout: {
+                                            type: 'card',
+                                            align: 'stretch'
                                         },
-                                        columns: [
+                                        items: [
                                             {
-                                                dataIndex: 'name',
-                                                sortable: false,
-                                                hideable: false,
-                                                fixed: true,
-                                                flex: 0.9
+                                               xtype: 'displayfield',
+                                              value: '<span style="color: grey"><i>' + Uni.I18n.translate('communicationschedule.noComTaskSelected', 'MDC', 'No communication task(s) selected yet') + '</i></span>'
                                             },
                                             {
-                                                xtype: 'actioncolumn',
-                                                iconCls: 'uni-actioncolumn-gear',
-                                                columnWidth: 32,
-                                                fixed: true,
-//                                                header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-                                                sortable: false,
-                                                hideable: false,
-                                                items: [
+                                                xtype: 'grid',
+                                                itemId: 'comTasksOnForm',
+                                                hideHeaders: true,
+                                                disableSelection: true,
+                                                trackMouseOver: false,
+                                                border: false,
+                                                frame: false,
+                                                viewConfig: {
+                                                    stripeRows: false
+                                                },
+                                                columns: [
                                                     {
-                                                        tooltip: 'Edit',
-                                                        handler: function(grid, rowIndex, colIndex, item, e, record, row) {
-                                                            this.fireEvent('deleteComTask', record);
-                                                        }
+                                                        dataIndex: 'name',
+                                                        sortable: false,
+                                                        hideable: false,
+                                                        fixed: true,
+                                                        flex: 0.9
+                                                    },
+                                                    {
+                                                        xtype: 'actioncolumn',
+                                                        iconCls: 'uni-actioncolumn-gear',
+                                                        columnWidth: 32,
+                                                        fixed: true,
+//                                                header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                                                        sortable: false,
+                                                        hideable: false,
+                                                        items: [
+                                                            {
+                                                                tooltip: 'Edit',
+                                                                handler: function(grid, rowIndex, colIndex, item, e, record, row) {
+                                                                    this.fireEvent('deleteComTask', record);
+                                                                }
+                                                            }
+                                                        ]
                                                     }
                                                 ]
                                             }
+
                                         ]
+
                                     },
                                     {
                                         xtype: 'container',
                                         layout: {
-                                            type:'vbox',
-                                            align: 'center'
+                                            type:'hbox'
+//                                            align: 'center'
                                         },
                                         items: [
 
@@ -145,12 +176,13 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                                 xtype: 'button',
                                                 itemId: 'addCommunicationTaskButton',
                                                 action: 'addCommunicationTask',
-                                                text: Uni.I18n.translate('communicationschedule.addCommunicationTask', 'MDC', 'Add communication task')
+                                                text: Uni.I18n.translate('communicationschedule.addCommunicationTasks', 'MDC', 'Add communication tasks')
                                             }
                                         ]
 
                                     }
                                 ]
+
                             },
                             {
                                 xtype: 'fieldcontainer',
@@ -249,7 +281,6 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                     type: 'hbox',
                                     align: 'stretch'
                                 },
-                                width: '100%',
                                 items: [
                                     {
                                         text: Uni.I18n.translate('general.create', 'MDC', 'Create'),

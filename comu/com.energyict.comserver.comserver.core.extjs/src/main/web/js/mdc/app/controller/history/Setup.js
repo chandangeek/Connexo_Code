@@ -35,6 +35,12 @@ Ext.define('Mdc.controller.history.Setup', {
                     controller: 'Mdc.controller.setup.SetupOverview',
                     action: 'showDeviceTypes',
                     items: {
+                        create: {
+                            title: 'Add',
+                            route: 'add',
+                            controller: 'Mdc.controller.setup.DeviceTypes',
+                            action: 'showDeviceTypeCreateView'
+                        },
                         view: {
                             title: function(route) {
                                 var deferred = Ext.create('Deft.Deferred');
@@ -51,12 +57,6 @@ Ext.define('Mdc.controller.history.Setup', {
                             controller: 'Mdc.controller.setup.DeviceTypes',
                             action: 'showDeviceTypeDetailsView'
                         },
-                        create: {
-                            title: 'Create',
-                            route: 'create',
-                            controller: 'Mdc.controller.setup.DeviceTypes',
-                            action: 'showDeviceTypeCreateView'
-                        },
                         edit: {
                             title: 'Edit',
                             route: '{id}/edit',
@@ -66,7 +66,7 @@ Ext.define('Mdc.controller.history.Setup', {
                         logbooktypes: {
                             title: 'Logbook Types',
                             route: '{id}/logbooktypes',
-                            controller: 'Mdc.controller.setup.LogForm',
+                            controller: 'Mdc.controller.setup.DeviceTypes',
                             action: 'showDeviceTypeLogbookTypesView',
                             items: {
                                 add: {
@@ -97,12 +97,6 @@ Ext.define('Mdc.controller.history.Setup', {
                             controller: 'Mdc.controller.setup.DeviceConfigurations',
                             action: 'showDeviceConfigurations',
                             items: {
-                                view: {
-                                    title: 'Details',
-                                    route: '{deviceConfigurationId}',
-                                    controller: 'Mdc.controller.setup.DeviceConfigurations',
-                                    action: 'showDeviceConfigurationDetailsView'
-                                },
                                 create: {
                                     title: 'Create',
                                     route: 'create',
@@ -111,9 +105,15 @@ Ext.define('Mdc.controller.history.Setup', {
                                 },
                                 edit: {
                                     title: 'Edit',
-                                    route: 'edit',
+                                    route: '{id}/edit',
                                     controller: 'Mdc.controller.setup.DeviceConfigurations',
                                     action: 'showDeviceConfigurationEditView'
+                                },
+                                view: {
+                                    title: 'Details',
+                                    route: '{deviceConfigurationId}',
+                                    controller: 'Mdc.controller.setup.DeviceConfigurations',
+                                    action: 'showDeviceConfigurationDetailsView'
                                 },
                                 loadprofiles: {
                                     title: 'Load profiles',
@@ -127,17 +127,31 @@ Ext.define('Mdc.controller.history.Setup', {
                                             controller: 'Mdc.controller.setup.LoadProfileConfigurations',
                                             action: 'showDeviceConfigurationLoadProfilesAddView'
                                         },
+                                        edit: {
+                                            title: 'Add Load Profile',
+                                            route: '{loadProfileConfigurationId}/edit',
+                                            controller: 'Mdc.controller.setup.LoadProfileConfigurations',
+                                            action: 'showDeviceConfigurationLoadProfilesEditView'
+                                        },
                                         view: {
                                             title: 'Load Profile',
-                                            route: '{loadProfileConfigurationId}',
+                                            route: '{loadProfileConfigurationId}/channels',
                                             controller: 'Mdc.controller.setup.LoadProfileConfigurationDetails',
-                                            action: 'showDeviceConfigurationLoadProfilesConfigurationDetailsView'
-                                        },
-                                        addchannel: {
-                                            title: 'Add Channel',
-                                            route: '{loadProfileConfigurationId}/addChannel',
-                                            controller: 'Mdc.controller.setup.LoadProfileConfigurationDetails',
-                                            action: 'showDeviceConfigurationLoadProfilesConfigurationChannelsAddView'
+                                            action: 'showDeviceConfigurationLoadProfilesConfigurationDetailsView',
+                                            items: {
+                                                add: {
+                                                    title: 'Add Channel',
+                                                    route: 'add',
+                                                    controller: 'Mdc.controller.setup.LoadProfileConfigurationDetails',
+                                                    action: 'showDeviceConfigurationLoadProfilesConfigurationChannelsAddView'
+                                                },
+                                                edit: {
+                                                    title: 'Edit Channel',
+                                                    route: '{channelId}/edit',
+                                                    controller: 'Mdc.controller.setup.LoadProfileConfigurationDetails',
+                                                    action: 'showDeviceConfigurationLoadProfilesConfigurationChannelsEditView'
+                                                }
+                                            }
                                         }
                                     }
                                 },
@@ -259,7 +273,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                 },
                                 //protocol dialects routes
                                 protocols: {
-                                    title: 'Protocols',
+                                    title: 'Protocol dialects',
                                     route: '{deviceConfigurationId}/protocols',
                                     controller: 'Mdc.controller.setup.ProtocolDialects',
                                     action: 'showProtocolDialectsView',
@@ -477,23 +491,18 @@ Ext.define('Mdc.controller.history.Setup', {
                     route: 'searchitems',
                     controller: 'Mdc.controller.setup.SearchItems',
                     action: 'showSearchItems'
-                },
-                device: {
-                    title: 'Device',
-                    route: 'devices/{id}',
-                    controller: 'Mdc.controller.setup.Devices',
-                    action: 'showDeviceDetailsView'
                 }
             }
+        },
+        device: {
+            title: 'Device',
+            route: 'devices/{id}',
+            controller: 'Mdc.controller.setup.Devices',
+            action: 'showDeviceDetailsView'
         }
+
     },
 
-    init: function () {
-        var router = this.getController('Uni.controller.history.Router');
-        router.addConfig(this.routeConfig);
-
-        this.callParent(arguments);
-    },
     tokenizePreviousTokens: function () {
         return this.tokenizePath(this.getApplication().getController('Uni.controller.history.EventBus').previousPath);
     },

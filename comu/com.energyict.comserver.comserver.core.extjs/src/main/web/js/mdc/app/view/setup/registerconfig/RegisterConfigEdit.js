@@ -29,7 +29,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                 xtype: 'form',
                 itemId: 'registerConfigEditForm',
                 ui: 'large',
-                width: '100%',
+                //width: '100%',
                 defaults: {
                     labelWidth: 250
                 },
@@ -47,7 +47,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                         required: true,
                         forceSelection: true,
                         typeAhead: true,
-                        width: 650,
+                        width: 320,
                         msgTarget: 'under'
                     },
                     {
@@ -74,7 +74,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                         msgTarget: 'under',
                         fieldLabel: Uni.I18n.translate('registerConfig.obisCode', 'MDC', 'OBIS code'),
                         itemId: 'editOverruledObisCodeField',
-                        width: 450
+                        width: 256
                     },
                     {
                         xtype: 'textfield',
@@ -82,7 +82,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                         msgTarget: 'under',
                         fieldLabel: Uni.I18n.translate('registerConfig.obisCode', 'MDC', 'OBIS code'),
                         itemId: 'editObisCodeField',
-                        width: 450,
+                        width: 256,
                         hidden: true
                     },
                     {
@@ -96,7 +96,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                         minValue: 0,
                         enforceMaxLength: true,
                         maxLength: 2,
-                        width: 450
+                        width: 64
                     },
                     {
                         xtype: 'numberfield',
@@ -108,7 +108,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                         minValue: 0,
                         maxLength: 1,
                         enforceMaxLength: true,
-                        width: 450
+                        width: 64
                     },
                     {
                         xtype: 'numberfield',
@@ -116,7 +116,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                         msgTarget: 'under',
                         fieldLabel: Uni.I18n.translate('registerConfig.overflowValue', 'MDC', 'Overflow value'),
                         itemId: 'editOverflowValueField',
-                        width: 450,
+                        width: 128,
                         maxValue: 100000000,
                         hideTrigger: true,
                         maxLength: 22,
@@ -143,7 +143,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                         msgTarget: 'under',
                         fieldLabel: Uni.I18n.translate('registerConfig.multiplier', 'MDC', 'Multiplier'),
                         itemId: 'editMultiplierField',
-                        width: 450,
+                        width: 64,
                         hideTrigger: true
                     },
                     {
