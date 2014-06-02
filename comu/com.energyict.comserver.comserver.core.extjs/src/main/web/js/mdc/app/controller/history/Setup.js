@@ -492,11 +492,6 @@ Ext.define('Mdc.controller.history.Setup', {
         }
     },
 
-    init: function () {
-        var router = this.getController('Uni.controller.history.Router');
-        router.addConfig(this.routeConfig);
-        this.callParent(arguments);
-    },
     tokenizePreviousTokens: function () {
         return this.tokenizePath(this.getApplication().getController('Uni.controller.history.EventBus').previousPath);
     },
