@@ -9,7 +9,13 @@ Ext.define('Uni.controller.history.Converter', {
     ],
 
     rootToken: null, // Implemented by extending classes.
-    
+
+    init: function () {
+        var router = this.getController('Uni.controller.history.Router');
+        router.addConfig(this.routeConfig);
+        this.callParent(arguments);
+    },
+
     tokenize: function (tokens, includeHash) {
         includeHash = includeHash !== undefined ? includeHash : true;
 
