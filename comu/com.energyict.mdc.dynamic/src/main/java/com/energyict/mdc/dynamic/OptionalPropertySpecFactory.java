@@ -7,7 +7,6 @@ import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TimeOfDay;
 import com.energyict.mdc.dynamic.impl.PropertySpecBuilderImpl;
 import com.energyict.mdc.dynamic.impl.PropertySpecFactoryImpl;
-
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -131,5 +130,17 @@ public class OptionalPropertySpecFactory extends PropertySpecFactoryImpl {
     // Hide utility class constructor
     private OptionalPropertySpecFactory () {
     }
+
+    @Override
+    public PropertySpec<ObisCode> obisCodePropertySpecWithValuesExhaustive(String name, ObisCode... values) {
+        return PropertySpecBuilderImpl.
+                forClass(new ObisCodeValueFactory()).
+                name(name).
+                markExhaustive().
+                addValues(values).
+                finish();
+    }
+
+
 
 }

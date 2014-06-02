@@ -1,10 +1,8 @@
 package com.energyict.mdc.dynamic;
 
 import com.energyict.mdc.common.SqlBuilder;
-
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Types;
 
 import static com.elster.jupiter.util.Checks.is;
 

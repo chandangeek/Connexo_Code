@@ -1,11 +1,14 @@
 package com.energyict.mdc.dynamic.impl;
 
 import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.Translator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -26,11 +29,20 @@ public abstract class AbstractPropertySpecTest {
 
     @Mock
     private Environment environment;
+    @Mock
+    private Translator translator;
 
     @Before
     public void setEnvironment () {
         Environment.DEFAULT.set(this.environment);
         when(this.environment.getErrorMsg(anyString())).thenReturn("MR");
+        when(this.environment.getTranslator()).thenReturn(translator);
+        when(translator.getErrorMsg(anyString())).thenAnswer(new Answer<String>() {
+            @Override
+            public String answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return (String) invocationOnMock.getArguments()[0];
+            }
+        });
     }
 
     @After

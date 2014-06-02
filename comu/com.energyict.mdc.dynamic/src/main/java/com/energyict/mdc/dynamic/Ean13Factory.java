@@ -1,9 +1,8 @@
 package com.energyict.mdc.dynamic;
 
+import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.common.ean.Ean13;
-import com.energyict.mdc.common.ApplicationException;
-
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.ParseException;
@@ -63,11 +62,10 @@ public class Ean13Factory extends AbstractValueFactory<Ean13> {
     @Override
     public Ean13 fromStringValue (String stringValue) {
         try {
-            if (stringValue == null || stringValue.length() != 13) {
-                return null;
-            }
-            else {
+            if (stringValue!=null) {
                 return new Ean13(stringValue);
+            } else {
+                return null;
             }
         }
         catch (ParseException e) {
