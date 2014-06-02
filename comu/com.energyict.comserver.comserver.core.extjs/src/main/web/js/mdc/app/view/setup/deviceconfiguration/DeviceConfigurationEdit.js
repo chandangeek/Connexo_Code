@@ -3,7 +3,6 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
     alias: 'widget.deviceConfigurationEdit',
     itemId: 'deviceConfigurationEdit',
     edit: false,
-
     isEdit: function () {
         return this.edit
     },

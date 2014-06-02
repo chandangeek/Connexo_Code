@@ -95,7 +95,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                 },
                                 edit: {
                                     title: 'Edit',
-                                    route: 'edit',
+                                    route: '{id}/edit',
                                     controller: 'Mdc.controller.setup.DeviceConfigurations',
                                     action: 'showDeviceConfigurationEditView'
                                 },
