@@ -3,25 +3,45 @@ Ext.define('Cfg.controller.history.Validation', {
 
     rootToken: 'administration',
 
-    init: function () {
-        var me = this;
-
-        crossroads.addRoute('administration/rules', function () {
-            me.getApplication().getController('Cfg.controller.Validation').showRuleSets();
-        });
-        crossroads.addRoute('administration/rules/{id}', function (id) {
-            me.getApplication().getController('Cfg.controller.Validation').showRules(id);
-        });
-        crossroads.addRoute('administration/overview/{id}', function (id) {
-            me.getApplication().getController('Cfg.controller.Validation').showRuleSetOverview(id);
-        });
-        crossroads.addRoute('administration/createset', function () {
-            me.getApplication().getController('Cfg.controller.Validation').newRuleSet();
-        });
-        crossroads.addRoute('administration/addRule/{id}', function (id) {
-            me.getApplication().getController('Cfg.controller.Validation').addRule(id);
-        });
-
-        this.callParent(arguments);
+    routeConfig: {
+        administration: {
+            title: 'Administration',
+            route: 'administration',
+            disabled: true,
+            items: {
+                validation: {
+                    title: 'Validation rule sets',
+                    route: 'validation',
+                    controller: 'Cfg.controller.Validation',
+                    action: 'showRuleSets',
+                    items: {
+                        rules: {
+                            title: 'Overview',
+                            route: 'rules/{id}',
+                            controller: 'Cfg.controller.Validation',
+                            action: 'showRules'
+                        },
+                        overview: {
+                            title: 'Overview',
+                            route: 'overview/{id}',
+                            controller: 'Cfg.controller.Validation',
+                            action: 'showRuleSetOverview'
+                        },
+                        createset: {
+                            title: 'Create rule set',
+                            route: 'createset',
+                            controller: 'Cfg.controller.Validation',
+                            action: 'newRuleSet'
+                        },
+                        addRule: {
+                            title: 'Create rule set',
+                            route: 'addRule/{id}',
+                            controller: 'Cfg.controller.Validation',
+                            action: 'addRule'
+                        }
+                    }
+                }
+            }
+        }
     }
 });
