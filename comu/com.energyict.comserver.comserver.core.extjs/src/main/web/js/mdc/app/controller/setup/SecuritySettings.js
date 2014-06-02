@@ -201,7 +201,8 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
     },
 
     loadGridItemDetail: function (grid, record) {
-        var form = Ext.ComponentQuery.query('securitySettingSetup securitySettingPreview form')[0],
+        var detailPanel = Ext.ComponentQuery.query('securitySettingSetup securitySettingPreview')[0],
+            form = detailPanel.down('form'),
             preloader = Ext.create('Ext.LoadMask', {
                 msg: "Loading...",
                 target: form
@@ -211,6 +212,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
             preloader.show();
         }
         this.displayedItemId = record.getData().id;
+        detailPanel.setTitle(record.getData().name);
         form.loadRecord(record);
         preloader.destroy();
     },
