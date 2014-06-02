@@ -40,49 +40,46 @@ Ext.define('Mdc.view.setup.searchitems.SideFilter', {
                     xtype: 'combobox',
                     name: 'type',
                     itemId: 'type',
-                    store: new Mdc.store.DeviceTypes(
-                        {
-                            storeId:'DeviceTypesCbSearch',
-                            listeners:{
-                                load:function(store){
-                                    store.insert(0, Ext.create('Mdc.model.DeviceType', {
-                                        id: -1,
-                                        name: '&nbsp;'
-                                    }));
-                                }
-                            }
-                        }),
+                    store: new Mdc.store.DeviceTypes({
+                        storeId:'DeviceTypesCbSearch'
+                    }),
                     fieldLabel: Uni.I18n.translate('searchItems.type', 'MDC', 'Type'),
                     displayField: 'name',
                     valueField: 'id',
+
                     forceSelection: false,
                     editable: false,
                     allowBlank:true,
-                    listeners: {
-                        select: function (comp) {
-                            if (comp.getValue() == "-1")
-                                comp.setValue(null);
-                        },
-                        change: function(comp, newValue){
+                    multiSelect: true,
+                    triggerAction: 'all',
+                    listConfig : {
+                        getInnerTpl : function() {
+                            return '<div class="x-combo-list-item"><img src="' + Ext.BLANK_IMAGE_URL + '" class="x-form-checkbox" /> {name} </div>';
+                        }
+                    },
+                    listeners:{
+                        collapse: function(){
                             var me = this.up('#sideFilter'),
                                 comboConfig = me.down('#configuration');
-                            if (newValue != null && newValue != -1) {
-                                comboConfig.setVisible(true);
+                            if (this.getValue().length == 1) {
                                 var store = comboConfig.getStore();
-                                store.removeAll();
-                                store.getProxy().setExtraParam('deviceType', newValue);
+                                comboConfig.setVisible(true);
+                                store.getProxy().setExtraParam('deviceType', this.getValue()[0]);
                                 store.load(function(){
-                                    store.insert(0, Ext.create('Mdc.model.DeviceConfiguration', {
-                                        id: -1,
-                                        name: '&nbsp;'
-                                    }));
                                     store.sort('name', 'ASC');
                                     comboConfig.bindStore(store);
-                                    if (store.getCount() == 1) {
+                                    if (store.getCount() == 0) {
                                         me.clearComboConfiguration(comboConfig);
                                     }
                                 });
                             } else {
+                                me.clearComboConfiguration(comboConfig);
+                            }
+                        },
+                        change: function(comp, newValue) {
+                            var me = comp.up('#sideFilter'),
+                                comboConfig = me.down('#configuration');
+                            if (newValue == "") {
                                 me.clearComboConfiguration(comboConfig);
                             }
                         }
@@ -100,11 +97,11 @@ Ext.define('Mdc.view.setup.searchitems.SideFilter', {
                     valueField: 'id',
                     forceSelection: false,
                     editable: false,
-                    allowBlank:true,
-                    listeners: {
-                        select: function (comp) {
-                            if (comp.getValue() == "-1")
-                                comp.setValue(null);
+                    allowBlank: true,
+                    multiSelect: true,
+                    listConfig : {
+                        getInnerTpl : function() {
+                            return '<div class="x-combo-list-item"><img src="' + Ext.BLANK_IMAGE_URL + '" class="x-form-checkbox" /> {name} </div>';
                         }
                     }
                 }
@@ -124,7 +121,7 @@ Ext.define('Mdc.view.setup.searchitems.SideFilter', {
         }
     ],
     clearComboConfiguration: function(cmbConfig){
-        cmbConfig.setValue(null);
+        cmbConfig.setValue("");
         cmbConfig.setVisible(false);
     }
 });
