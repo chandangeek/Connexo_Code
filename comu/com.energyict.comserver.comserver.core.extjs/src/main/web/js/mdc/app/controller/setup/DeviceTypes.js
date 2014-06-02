@@ -136,7 +136,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     },
 
     createDeviceTypeHistory: function () {
-        location.href = '#/administration/devicetypes/create';
+        location.href = '#/administration/devicetypes/add';
     },
 
     editDeviceTypeHistory: function (record) {
@@ -152,7 +152,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         if (deviceTypeToDelete.get('deviceConfigurationCount') === 0) {
             Ext.MessageBox.show({
                 msg: Uni.I18n.translate('deviceType.deleteDeviceType', 'MDC', 'The device type will no longer be available.'),
-                title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' ' + deviceTypeToDelete.get('name') + '?',
+                title: Uni.I18n.translate('general.delete', 'MDC', 'Delete') + ' ' + deviceTypeToDelete.get('name') + '?',
                 config: {
                     deviceTypeToDelete: deviceTypeToDelete,
                     me: me
@@ -164,7 +164,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         } else {
             Ext.MessageBox.show({
                 msg: Uni.I18n.translate('deviceType.deleteDeviceTypeWithConfig', 'MDC', 'The device type and its configurations will no longer be available.'),
-                title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' ' + deviceTypeToDelete.get('name') + '?',
+                title: Uni.I18n.translate('general.delete', 'MDC', 'Delete') + ' ' + deviceTypeToDelete.get('name') + '?',
                 config: {
                     deviceTypeToDelete: deviceTypeToDelete,
                     me: me
@@ -247,7 +247,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         widget.setLoading(true);
         protocolStore.load({
             callback: function (store) {
-                me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.create', 'MDC', 'Create') + ' ' + 'device type' );
+                me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.add', 'MDC', 'Add') + ' ' + 'device type' );
                 widget.setLoading(false);
             }
         });

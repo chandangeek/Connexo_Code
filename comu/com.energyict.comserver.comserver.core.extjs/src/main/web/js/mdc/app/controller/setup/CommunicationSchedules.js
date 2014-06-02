@@ -23,7 +23,8 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
         {ref: 'communicationSchedulePreview', selector: '#communicationSchedulePreview'},
         {ref: 'communicationSchedulePreviewForm', selector: '#communicationSchedulePreviewForm'},
         {ref: 'communicationScheduleEditForm', selector: '#communicationScheduleEditForm'},
-        {ref: 'communicationTaskGrid', selector: '#communicationTaskGridFromSchedule'}
+        {ref: 'communicationTaskGrid', selector: '#communicationTaskGridFromSchedule'},
+        {ref: 'comTaskPanel', selector: '#comTaskPanel'}
     ],
 
     record: null,
@@ -68,8 +69,16 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
     },
 
     showCommunicationSchedules: function(){
-        var widget = Ext.widget('communicationSchedulesSetup');
-        this.getApplication().fireEvent('changecontentevent', widget);
+        var me=this;
+        var store = Ext.data.StoreManager.lookup('CommunicationSchedules');
+        store.load({
+            callback: function(records){
+                var widget = Ext.widget('communicationSchedulesSetup');
+                me.getApplication().fireEvent('changecontentevent', widget);
+                me.getCommunicationSchedulesGrid().getSelectionModel().doSelect(0);
+
+            }
+        });
     },
 
     createCommunicationScheduleHistory: function(){
@@ -97,6 +106,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
                     me.record = communicationSchedule;
                     widget.down('#communicationScheduleEditCreateTitle').update('<h1>' + Uni.I18n.translate('communicationschedule.editCommunicationSchedule', 'MDC', 'Edit') + ' ' + communicationSchedule.get('name') + '</h1>');
                     widget.down('#communicationScheduleEditForm').loadRecord(communicationSchedule);
+                    me.getComTaskPanel().getLayout().setActiveItem(1);
                     widget.down('#communicationScheduleEditForm').down('#comTasksOnForm').reconfigure(communicationSchedule.comTaskUsages());
                 },
                 failure: function(){
@@ -104,9 +114,41 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
                 }
             });
         }
+        me.initComTaskStore();
+    },
+
+    initComTaskStore: function(){
+        this.comTaskStore = Ext.data.StoreManager.lookup('CommunicationTasks');
+        if(this.record.get('id')===null){
+            this.comTaskStore.setProxy({
+                type: 'rest',
+                url: '../../api/cts/comtasks',
+                reader: {
+                    type: 'json',
+                    root: 'data'
+                }
+            });
+        } else {
+            this.comTaskStore.setProxy({
+                type: 'rest',
+                url: '../../api/scr/schedules/{id}/comTasks',
+                reader: {
+                    type: 'json',
+                    root: 'data'
+                }
+            });
+            this.comTaskStore.getProxy().setExtraParam('id',this.record.get('id'));
+            this.comTaskStore.getProxy().setExtraParam('filter',Ext.encode([{
+                property:'available',
+                value:true
+            }]));
+        }
+        this.comTaskStore.load({
+            callback: function(records){
 
 
-
+            }
+        });
     },
 
     previewCommunicationSchedule: function(){
@@ -160,43 +202,19 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
 
     addCommunicationTask: function(){
         var me=this;
-        var store = Ext.data.StoreManager.lookup('CommunicationTasks');
-        if(this.record.get('id')===null){
-            store.setProxy({
-                type: 'rest',
-                    url: '../../api/cts/comtasks',
-                    reader: {
-                    type: 'json',
-                    root: 'data'
-                }
-            });
-        } else {
-            store.setProxy({
-                type: 'rest',
-                url: '../../api/scr/schedules/{id}/comTasks',
-                reader: {
-                    type: 'json',
-                    root: 'data'
-                }
-            });
-            store.getProxy().setExtraParam('id',this.record.get('id'));
-            store.getProxy().setExtraParam('filter',Ext.encode([{
-                property:'available',
-                value:true
-            }]));
-        }
-        store.load({
-            callback: function(records){
-                var widget = Ext.widget('addCommunicationTaskWindow');
-                widget.show();
-                widget.down('#communicationTaskGridFromSchedule').getSelectionModel().select(me.record.comTaskUsages().data.items);
-
-            }
-        });
+        var widget = Ext.widget('addCommunicationTaskWindow');
+        widget.show();
+        widget.down('#communicationTaskGridFromSchedule').getSelectionModel().select(me.record.comTaskUsages().data.items);
     },
 
     deleteComTask: function(comTask){
         this.record.comTaskUsages().remove(comTask);
+        this.comTaskStore.add(comTask);
+        if(this.record.comTaskUsages().getCount()>0){
+            this.getComTaskPanel().getLayout().setActiveItem(1);
+        } else {
+            this.getComTaskPanel().getLayout().setActiveItem(0);
+        }
     },
 
     deleteCommunicationSchedule: function(communicationSchedule){
@@ -240,7 +258,13 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
         var selection = this.getCommunicationTaskGrid().getSelectionModel().getSelection();
         this.record.comTaskUsages().removeAll();
         this.record.comTaskUsages().add(selection);
+        this.comTaskStore.remove(selection);
         this.getCommunicationScheduleEditForm().down('#comTasksOnForm').reconfigure(this.record.comTaskUsages());
+        if(this.record.comTaskUsages().getCount()>0){
+            this.getComTaskPanel().getLayout().setActiveItem(1);
+        } else {
+            this.getComTaskPanel().getLayout().setActiveItem(0);
+        }
         this.getCommunicationTaskGrid().up('.window').close();
     }
 });

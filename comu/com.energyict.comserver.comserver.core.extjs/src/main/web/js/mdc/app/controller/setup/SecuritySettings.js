@@ -163,9 +163,9 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 securityWord;
 
             if (securityCount == 1) {
-                securityWord = ' security'
+                securityWord = ' security setting'
             } else {
-                securityWord = ' securities'
+                securityWord = ' security settings'
             }
             var widget = Ext.widget('container', {
                 html: securityCount + securityWord
@@ -390,7 +390,8 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
             formErrorsPanel.hide();
             formErrorsPanel.removeAll();
             formErrorsPanel.add({
-                html: 'There are errors on this page that require your attention.'
+                html: 'There are errors on this page that require your attention.',
+                style: 'color: #eb5642; border: 1px solid #eb5642; border-radius: 20px; padding: 10px;'
             });
             formErrorsPanel.show();
         }
