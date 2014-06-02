@@ -10,10 +10,12 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingEmptyList', {
         this.add(
             {
                 xtype: 'panel',
-                html: "<h3>No securities found</h3><br>\
-          There are no securities. This could be because:<br>\
-          &nbsp;&nbsp; - No securities have been defined yet.<br>\
-          &nbsp;&nbsp; - No securities comply to the filter.<br><br>\
+                html: "<h3>No security settings found</h3><br>\
+          There are no security settings. This could be because:\
+              <ul>\
+                  <li>No security settings have been defined yet.</li>\
+                  <li>No security settings comply to the filter.</li>\
+              </ul>\
           Possible steps:<br><br>"
             },
             {

@@ -163,9 +163,9 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 securityWord;
 
             if (securityCount == 1) {
-                securityWord = ' security'
+                securityWord = ' security setting'
             } else {
-                securityWord = ' securities'
+                securityWord = ' security settings'
             }
             var widget = Ext.widget('container', {
                 html: securityCount + securityWord
