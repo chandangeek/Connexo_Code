@@ -14,10 +14,10 @@ Ext.define('Skyline.panel.FilterToolbar', {
         {
             xtype: 'container',
             itemId: 'itemsContainer',
-            layout: {
-                type: 'hbox',
-                align: 'stretch'
-            },
+			defaults: {
+				margin: '0 8 0 0'
+			},
+			flex:1,
             items: []
         },
         {
