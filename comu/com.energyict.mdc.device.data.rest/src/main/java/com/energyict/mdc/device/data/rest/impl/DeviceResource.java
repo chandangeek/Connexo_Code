@@ -74,13 +74,22 @@ public class DeviceResource {
         }
         String deviceType = params.getFirst("deviceTypeName");
         if (deviceType != null) {
-            conditionDevice = conditionDevice.and(where("deviceConfiguration.deviceType.name").isEqualTo(deviceType));
+            conditionDevice = conditionDevice.and(createMultipleConditions(deviceType,"deviceConfiguration.deviceType.name"));
         }
         String deviceConfiguration = params.getFirst("deviceConfigurationName");
         if (deviceConfiguration != null) {
-            conditionDevice = conditionDevice.and(where("deviceConfiguration.name").isEqualTo(deviceConfiguration));
+            conditionDevice = conditionDevice.and(createMultipleConditions(deviceConfiguration,"deviceConfiguration.name"));
         }
         return conditionDevice;
+    }
+
+    private Condition createMultipleConditions(String params, String conditionField) {
+        Condition condition = Condition.FALSE;
+        String[] values = params.split(",");
+        for (String value : values) {
+            condition = condition.or(where(conditionField).isEqualTo(value));
+        }
+        return condition;
     }
 
 }
