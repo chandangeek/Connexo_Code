@@ -263,7 +263,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                 },
                                 //protocol dialects routes
                                 protocols: {
-                                    title: 'Protocols',
+                                    title: 'Protocol dialects',
                                     route: '{deviceConfigurationId}/protocols',
                                     controller: 'Mdc.controller.setup.ProtocolDialects',
                                     action: 'showProtocolDialectsView',
