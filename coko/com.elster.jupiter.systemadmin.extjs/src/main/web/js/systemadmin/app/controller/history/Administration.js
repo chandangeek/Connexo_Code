@@ -3,16 +3,33 @@ Ext.define('Sam.controller.history.Administration', {
 
     rootToken: 'administration',
 
-    init: function () {
-        var me = this;
-
-        crossroads.addRoute('administration/licensing/licenses', function () {
-            me.getController('Sam.controller.licensing.Licenses').showOverview();
-        });
-        crossroads.addRoute('administration/licensing/upload', function () {
-            me.getController('Sam.controller.licensing.Upload').showOverview();
-        });
-
-        this.callParent(arguments);
+    routeConfig: {
+        administration: {
+            title: 'Administration',
+            route: 'administration',
+            disabled: true,
+            items: {
+                licensing: {
+                    title: 'Licensing',
+                    route: 'licensing',
+                    controller: 'Sam.controller.licensing.Licenses',
+                    action: 'showOverview',
+                    items: {
+                        licences: {
+                            title: 'Licenses',
+                            route: 'licenses',
+                            controller: 'Sam.controller.licensing.Licenses',
+                            action: 'showOverview'
+                        },
+                        upload: {
+                            title: 'Upload',
+                            route: 'upload',
+                            controller: 'Sam.controller.licensing.Upload',
+                            action: 'showOverview'
+                        }
+                    }
+                }
+            }
+        }
     }
 });
