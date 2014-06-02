@@ -254,7 +254,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId,{
             success: function(deviceType){
                 me.getApplication().fireEvent('changecontentevent', widget);
-                widget.down('#deviceConfigurationEditCreateTitle').update('<h1>'+Uni.I18n.translate('general.create', 'MDC', 'Create') + ' ' + 'device configuration'+'</h1>');
+                widget.down('#deviceConfigurationEditCreateTitle').update('<h1>'+Uni.I18n.translate('general.add', 'MDC', 'Add') + ' ' + 'device configuration'+'</h1>');
                 me.setCheckBoxes(deviceType);
             }
         });

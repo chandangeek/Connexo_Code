@@ -87,12 +87,6 @@ Ext.define('Mdc.controller.history.Setup', {
                             controller: 'Mdc.controller.setup.DeviceConfigurations',
                             action: 'showDeviceConfigurations',
                             items: {
-                                view: {
-                                    title: 'Details',
-                                    route: '{deviceConfigurationId}',
-                                    controller: 'Mdc.controller.setup.DeviceConfigurations',
-                                    action: 'showDeviceConfigurationDetailsView'
-                                },
                                 create: {
                                     title: 'Create',
                                     route: 'create',
@@ -104,6 +98,12 @@ Ext.define('Mdc.controller.history.Setup', {
                                     route: 'edit',
                                     controller: 'Mdc.controller.setup.DeviceConfigurations',
                                     action: 'showDeviceConfigurationEditView'
+                                },
+                                view: {
+                                    title: 'Details',
+                                    route: '{deviceConfigurationId}',
+                                    controller: 'Mdc.controller.setup.DeviceConfigurations',
+                                    action: 'showDeviceConfigurationDetailsView'
                                 },
                                 loadprofiles: {
                                     title: 'Load profiles',
