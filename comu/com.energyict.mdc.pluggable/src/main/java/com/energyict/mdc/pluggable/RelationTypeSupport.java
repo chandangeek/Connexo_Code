@@ -24,7 +24,7 @@ public interface RelationTypeSupport {
      * @return The RelationType
      * @param activate A flag that indicates if the RelationType should be activated too
      */
-    public RelationType findOrCreateRelationType (boolean activate);
+    public RelationType findOrCreateRelationType(boolean activate);
 
     /**
      * Finds the {@link RelationType} that holds the properties of {@link RelationParticipant}.
