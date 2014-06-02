@@ -29,8 +29,7 @@ Ext.define('Isu.view.workspace.issues.FilteringToolbar', {
             container.add(Ext.create(btnClass, {
                 itemId: 'filter-by-assignee',
                 text: 'Assignee: ' + filter.get('assignee').get('name'),
-                target: 'assignee',
-                margin: '0 5 0 5'
+                target: 'assignee'
             }));
 
         }
@@ -39,8 +38,7 @@ Ext.define('Isu.view.workspace.issues.FilteringToolbar', {
             container.add(Ext.create(btnClass, {
                 itemId: 'filter-by-reason',
                 text: 'Reason: ' + filter.get('reason').get('name'),
-                target: 'reason',
-                margin: '0 5 0 5'
+                target: 'reason'
             }));
         }
 
@@ -48,8 +46,7 @@ Ext.define('Isu.view.workspace.issues.FilteringToolbar', {
             container.add(Ext.create(btnClass, {
                 itemId: 'filter-by-department',
                 text: 'Department: ' + filter.get('department').get('name'),
-                target: 'department',
-                margin: '0 5 0 5'
+                target: 'department'
             }));
         }
 
@@ -57,8 +54,7 @@ Ext.define('Isu.view.workspace.issues.FilteringToolbar', {
             container.add(Ext.create(btnClass, {
                 itemId: 'filter-by-meter',
                 text: 'Meter: ' + filter.get('meter').get('name'),
-                target: 'meter',
-                margin: '0 5 0 5'
+                target: 'meter'
             }));
         }
 
@@ -69,10 +65,8 @@ Ext.define('Isu.view.workspace.issues.FilteringToolbar', {
                     itemId: 'filter-by-status',
                     text: 'Status: ' + status.get('name'),
                     target: 'status',
-                    targetId: status.getId(),
-                    margin: '0 5 0 5'
+                    targetId: status.getId()
                 });
-                console.log(c)
             });
         }
     }
