@@ -96,14 +96,14 @@ Ext.define('Mdc.controller.setup.SearchItems', {
         } else {
             delete store.getProxy().extraParams.serialNumber;
         }
-        if(searchItems.down('#type').getValue() != null) {
+        if(searchItems.down('#type').getValue() != "") {
             var button = searchItems.down('button[name=typeBtn]');
             button = this.createCriteriaButton(button, criteriaContainer, 'typeBtn', Uni.I18n.translate('searchItems.type', 'MDC', 'Type')+': '+searchItems.down('#type').getRawValue());
             store.getProxy().setExtraParam('deviceTypeName', searchItems.down('#type').getRawValue());
         } else {
             delete store.getProxy().extraParams.deviceTypeName;
         }
-        if(searchItems.down('#configuration').getValue() != null) {
+        if(searchItems.down('#configuration').getValue() != "") {
             var button = searchItems.down('button[name=configurationBtn]');
             button = this.createCriteriaButton(button, criteriaContainer, 'configurationBtn', Uni.I18n.translate('searchItems.configuration', 'MDC', 'Configuration')+': '+searchItems.down('#configuration').getRawValue());
             store.getProxy().setExtraParam('deviceConfigurationName', searchItems.down('#configuration').getRawValue());
@@ -116,7 +116,10 @@ Ext.define('Mdc.controller.setup.SearchItems', {
         searchItems.down('#resultsPanel').removeAll();
         searchItems.down('#resultsPanel').add(Ext.create('Mdc.view.setup.searchitems.SearchResults', {store: store}));
 
-        if (this.isFilterFilled(searchItems)) {
+        var isFilterSet = this.isFilterFilled(searchItems);
+        this.showSearchContentContainer(isFilterSet);
+
+        if (isFilterSet) {
             searchItems.down('#searchResults').store.on('load', function showResults() {
                 searchItems.down('#contentLayout').getLayout().setActiveItem(1);
                 this.removeListener('load', showResults);
@@ -205,8 +208,8 @@ Ext.define('Mdc.controller.setup.SearchItems', {
         var searchItems = this.getSearchItems();
         searchItems.down('#mrid').setValue("");
         searchItems.down('#sn').setValue("");
-        searchItems.down('#type').setValue(null);
-        searchItems.down('#configuration').setValue(null);
+        searchItems.down('#type').setValue("");
+        searchItems.down('#configuration').setValue("");
         this.clearFilterContent(searchItems.down('container[name=filter]').getContainer());
     },
 
@@ -253,14 +256,14 @@ Ext.define('Mdc.controller.setup.SearchItems', {
                 searchItems.down('#sn').setValue("");
                 break;
             case 'typeBtn':
-                searchItems.down('#type').setValue(null);
-                searchItems.down('#configuration').setValue(null);
+                searchItems.down('#type').setValue("");
+                searchItems.down('#configuration').setValue("");
                 if (searchItems.down('button[name=configurationBtn]') != null) {
                     searchItems.down('button[name=configurationBtn]').destroy();
                 }
                 break;
             case 'configurationBtn':
-                searchItems.down('#configuration').setValue(null);
+                searchItems.down('#configuration').setValue("");
                 break;
         }
         btn.destroy();
@@ -292,5 +295,15 @@ Ext.define('Mdc.controller.setup.SearchItems', {
             searchItems = this.getSearchItems();
         searchItems.down('#searchResults').getStore().clearListeners();
         me.clearAllItems();
+    },
+
+    showSearchContentContainer: function(isVisible) {
+        var searchItems = this.getSearchItems(),
+            centerConatiner = searchItems.getCenterContainer();
+        if (isVisible != centerConatiner.down('#searchContentFilter').isVisible()) {
+            isVisible
+                ? centerConatiner.down('#searchContentFilter').show()
+                : centerConatiner.down('#searchContentFilter').hide();
+        }
     }
 });
