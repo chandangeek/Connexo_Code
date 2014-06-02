@@ -334,6 +334,12 @@ Ext.define('Isu.controller.Issues', {
             case 'addcomment':
                 window.location.href = '#/workspace/datacollection/issues/' + issueId + '/addcomment';
                 break;
+            case 'notify':
+                window.location.href = '#/workspace/datacollection/issues/' + issueId + '/notify';
+                break;
+            case 'send':
+                window.location.href = '#/workspace/datacollection/issues/' + issueId + '/send';
+                break;
         }
     },
 
