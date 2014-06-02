@@ -111,6 +111,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     },
 
     showDeviceTypeDetailsView: function (deviceType) {
+        debugger;
         var me = this;
         var widget = Ext.widget('deviceTypeDetail', {deviceTypeId: deviceType});
 
@@ -236,6 +237,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     },
 
     showDeviceTypeCreateView: function () {
+        debugger;
         var protocolStore = Ext.StoreManager.get('DeviceCommunicationProtocols');
         var widget = Ext.widget('deviceTypeEdit', {
             edit: false,
@@ -247,13 +249,14 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         widget.setLoading(true);
         protocolStore.load({
             callback: function (store) {
-                me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.create', 'MDC', 'Create') + ' ' + 'device type' );
+                me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.add', 'MDC', 'Add') + ' ' + 'device type' );
                 widget.setLoading(false);
             }
         });
     },
 
     createDeviceType: function () {
+        debugger;
         var me = this;
         var record = Ext.create(Mdc.model.DeviceType),
             values = this.getDeviceTypeEditForm().getValues();
