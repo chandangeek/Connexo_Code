@@ -137,7 +137,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     },
 
     createDeviceTypeHistory: function () {
-        location.href = '#/administration/devicetypes/create';
+        location.href = '#/administration/devicetypes/add';
     },
 
     editDeviceTypeHistory: function (record) {
