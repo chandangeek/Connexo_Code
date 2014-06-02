@@ -9,7 +9,6 @@ Ext.define('Isu.view.ext.button.Action', {
         click: {
             fn: function (btn, e) {
                 btn.showMenu();
-                console.log('click')
             }
         },
         menushow: {

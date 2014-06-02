@@ -7,7 +7,6 @@ Ext.define('Isu.view.workspace.issues.comment.List', {
     ],
     alias: 'widget.issue-comments',
     title: 'Comments',
-    emptyText: 'There are no comments yet on this issue',
     ui: 'medium',
     buttonAlign: 'left',
     items: [
@@ -15,7 +14,8 @@ Ext.define('Isu.view.workspace.issues.comment.List', {
             itemId: 'dataview',
             xtype: 'dataview',
             title: 'User Images',
-            emptyText: 'No comments to display',
+            deferEmptyText: false,
+            emptyText: '<h3>There are no comments yet on this issue </h3>',
             itemSelector: 'div.thumb-wrap',
             tpl: new Ext.XTemplate(
                 '<tpl for=".">',
@@ -47,7 +47,6 @@ Ext.define('Isu.view.workspace.issues.comment.List', {
             this.child('toolbar').child('#Add').hide();
             this.child('#comment-add-form').show()
         }
-        console.log(this);
         this.callParent(arguments)
     },
 

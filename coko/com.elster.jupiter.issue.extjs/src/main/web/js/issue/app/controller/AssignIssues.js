@@ -50,16 +50,18 @@ Ext.define('Isu.controller.AssignIssues', {
                 formPanel = assignPanel.down('issues-assign-form'),
                 activeCombo = formPanel.down('combobox[allowBlank=false]'),
                 form = formPanel.getForm(),
+                record = formPanel.getRecord(),
                 formValues = form.getValues(),
                 url = '/api/isu/issue/assign',
                 sendingData = {},
                 preloader;
 
+
             if (form.isValid()) {
                 sendingData.issues = [
                     {
-                        id: formPanel.getRecord().getId(),
-                        version: formPanel.getRecord().get('version')
+                        id: record.getId(),
+                        version: record.get('version')
                     }
                 ];
                 sendingData.assignee = {
@@ -90,7 +92,7 @@ Ext.define('Isu.controller.AssignIssues', {
                                 Ext.Array.each(item.issues, function (issue) {
                                     var header = {},
                                         bodyItem = {};
-                                    header.text = 'Failed to assign issue ' + assignPanel.record.data.reason.name + (assignPanel.record.data.device ? ' to ' + assignPanel.record.data.device.name + ' ' + assignPanel.record.data.device.serialNumber : '') + ' to ' + activeCombo.rawValue;
+                                    header.text = 'Failed to assign issue ' + record.data.reason_name + (record.data.device_name ? ' to ' + record.data.device_name + ' ' + record.raw.device.serialNumber : '') + ' to ' + activeCombo.rawValue;
                                     header.style = 'msgHeaderStyle';
                                     msges.push(header);
                                     bodyItem.text = item.reason;
