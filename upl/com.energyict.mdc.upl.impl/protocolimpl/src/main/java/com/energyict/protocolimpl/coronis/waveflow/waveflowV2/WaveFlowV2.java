@@ -60,11 +60,6 @@ public class WaveFlowV2 extends WaveFlow implements MessageProtocol {
     }
 
     @Override
-    public String getProtocolDescription() {
-        return "WaveFlow V2";
-    }
-
-    @Override
     public String getProtocolVersion() {
         return "$Date$";
     }

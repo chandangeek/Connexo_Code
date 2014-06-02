@@ -45,11 +45,6 @@ public class MTT3A extends Metcom3 implements RegisterProtocol {
         genericRegisters = new GenericRegisters(this);
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "L&G MTT3A SCTM";
-    }
-
     public String getProtocolVersion() {
         return "$Date$";
     }    

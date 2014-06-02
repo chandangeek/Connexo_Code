@@ -90,11 +90,6 @@ public class EK220 extends LIS200 implements IRegisterReadable {
         setEventInterpreter(new Ek220EventInterpreter());
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Elster EK220";
-    }
-
     public String getProtocolVersion() {
         return "$Date: 2011-09-01 11:00:00 +0200 (do, 1 Sep 2011) $";
     }

@@ -32,11 +32,6 @@ public class EMeter extends SlaveMeter implements MessageProtocol {
         super(meterProtocol, serialNumber, physicalAddress);
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "EnergyICT WebRTU Z3 Emeter Slave";
-    }
-
     /**
      * Returns the implementation version
      *

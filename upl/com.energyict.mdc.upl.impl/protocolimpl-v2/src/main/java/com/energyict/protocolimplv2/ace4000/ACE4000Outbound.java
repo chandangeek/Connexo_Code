@@ -3,22 +3,48 @@ package com.energyict.protocolimplv2.ace4000;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.*;
-import com.energyict.mdc.protocol.*;
+import com.energyict.mdc.meterdata.CollectedDataFactoryProvider;
+import com.energyict.mdc.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.meterdata.CollectedLogBook;
+import com.energyict.mdc.meterdata.CollectedMessageList;
+import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.meterdata.CollectedTopology;
+import com.energyict.mdc.meterdata.DeviceLoadProfileConfiguration;
+import com.energyict.mdc.meterdata.ResultType;
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.DeviceProtocol;
+import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.tasks.support.DeviceLoadProfileSupport;
-import com.energyict.mdc.tasks.*;
-import com.energyict.mdw.offline.*;
+import com.energyict.mdc.tasks.ACE4000DeviceProtocolDialect;
+import com.energyict.mdc.tasks.ConnectionType;
+import com.energyict.mdc.tasks.DeviceProtocolDialect;
+import com.energyict.mdw.offline.OfflineDevice;
+import com.energyict.mdw.offline.OfflineDeviceMessage;
+import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.LogBookReader;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.ace4000.objects.ObjectFactory;
-import com.energyict.protocolimplv2.ace4000.requests.*;
-import com.energyict.protocolimplv2.identifiers.*;
+import com.energyict.protocolimplv2.ace4000.requests.ReadLoadProfile;
+import com.energyict.protocolimplv2.ace4000.requests.ReadMBusRegisters;
+import com.energyict.protocolimplv2.ace4000.requests.ReadMeterEvents;
+import com.energyict.protocolimplv2.ace4000.requests.ReadRegisters;
+import com.energyict.protocolimplv2.ace4000.requests.SetTime;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
+import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
@@ -52,7 +78,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
 
     @Override
     public String getProtocolDescription() {
-        return "Actaris ACE4000";
+        return "Actaris ACE4000 MeterXML";
     }
 
     public String getVersion() {

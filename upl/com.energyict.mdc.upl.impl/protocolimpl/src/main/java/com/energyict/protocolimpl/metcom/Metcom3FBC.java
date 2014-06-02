@@ -100,8 +100,4 @@ public class Metcom3FBC extends Metcom3 {
        }
     } // protected ProfileData doGetProfileData(Calendar calendarFrom, Calendar calendarTo, boolean includeEvents) throws IOException
 
-    @Override
-    public String getProtocolDescription() {
-        return "Metcom3 FBC Protocol Base";
-    }
 }

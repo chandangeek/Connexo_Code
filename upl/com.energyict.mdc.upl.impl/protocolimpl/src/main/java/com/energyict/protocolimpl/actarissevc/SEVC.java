@@ -413,11 +413,6 @@ public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNu
         return result;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Actaris SEVCD";
-    }
-
     public String getProtocolVersion() {
         return "$Date$";
     }

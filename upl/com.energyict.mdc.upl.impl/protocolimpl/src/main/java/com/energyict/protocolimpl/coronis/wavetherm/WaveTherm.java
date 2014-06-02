@@ -120,11 +120,6 @@ public class WaveTherm extends AbstractProtocol implements MessageProtocol, Prot
     }
 
     @Override
-    public String getProtocolDescription() {
-        return "WaveTherm";
-    }
-
-    @Override
     public String getProtocolVersion() {
         return "$Date: 2011-05-24 15:37:24 +0200 (di, 24 mei 2011) $";
     }

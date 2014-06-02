@@ -32,11 +32,6 @@ public class MbusDevice extends SlaveMeter implements MessageProtocol{
         super(meterProtocol, serialNumber, physicalAddress);
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "EnergyICT WebRTU Z3 Mbus Slave";
-    }
-
     /**
      * Returns the implementation version
      *

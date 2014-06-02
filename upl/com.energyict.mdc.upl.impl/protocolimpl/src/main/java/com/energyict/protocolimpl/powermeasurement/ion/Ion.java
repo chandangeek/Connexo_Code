@@ -454,11 +454,6 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
 
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Power Measurement ION";
-    }
-
     public String getProtocolVersion() {
         return "$Date$";
     }

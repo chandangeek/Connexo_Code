@@ -463,11 +463,6 @@ public class PPM extends PluggableMeterProtocol implements HHUEnabler, SerialNum
         return result;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "ABB/GE PPM Issue2 IEC1107";
-    }
-
     public String getProtocolVersion() {
         return "$Date$";
     }

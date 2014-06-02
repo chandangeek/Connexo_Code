@@ -68,11 +68,6 @@ public class GenericModbusDiscover extends Modbus {
         return "THIS PROTOCOL IS ONLY FOR DISCOVERY";
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "EICT Modbus Discover Protocol";
-    }
-
     public String getProtocolVersion() {
         return "$Revision: 1.4 $";
     }

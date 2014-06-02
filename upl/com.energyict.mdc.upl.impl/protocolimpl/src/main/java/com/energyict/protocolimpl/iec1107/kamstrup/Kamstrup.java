@@ -307,11 +307,6 @@ public class Kamstrup extends PluggableMeterProtocol implements ProtocolLink, Re
         return result;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Kamstrup EVHI IEC1107";
-    }
-
 
     public String getProtocolVersion() {
         return "$Date$";

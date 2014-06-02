@@ -72,11 +72,6 @@ public class A20 extends Modbus {
         return result;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Socomec Diris A20";
-    }
-    
     public String getProtocolVersion() {
         return "$Date$";
     }

@@ -333,11 +333,6 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         return result;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Elster AS220";
-    }
-
     public String getProtocolVersion() {
         return "$Date$";
     }

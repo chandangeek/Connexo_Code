@@ -272,11 +272,6 @@ public class Generic extends MBus {
         return "NOT YET IMPLEMENTED";
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "GENERIC Mbus Protocol";
-    }
-
     public String getProtocolVersion() {
         return "$Date$";
     }    

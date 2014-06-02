@@ -240,11 +240,6 @@ public class Unigas300 extends AbstractUnigas300 {
         return result;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Kampstrup Unigas 300";
-    }
-
     /**
      * The protocol version
      *

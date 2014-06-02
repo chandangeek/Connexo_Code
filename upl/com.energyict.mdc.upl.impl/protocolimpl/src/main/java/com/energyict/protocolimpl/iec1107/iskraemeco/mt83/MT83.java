@@ -317,11 +317,6 @@ public class MT83 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
         return result;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Iskraemeco MT83 IEC1107";
-    }
-
     public String getProtocolVersion() {
         return "$Date$";
     }

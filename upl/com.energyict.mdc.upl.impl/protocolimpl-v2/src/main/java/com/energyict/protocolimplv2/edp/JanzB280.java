@@ -15,6 +15,6 @@ public class JanzB280 extends CX20009 {
 
     @Override
     public String getProtocolDescription() {
-        return "Contar JanzB280 DLMS (protocolimpl V2)";
+        return "Janz B280 DLMS";
     }
 }

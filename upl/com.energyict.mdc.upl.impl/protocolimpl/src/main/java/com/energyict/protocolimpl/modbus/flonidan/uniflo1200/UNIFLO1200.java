@@ -59,11 +59,6 @@ public class UNIFLO1200 extends Modbus {
         return getModbusConnection();
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Flonidan UNIFLO Modbus";
-    }
-
     public String getProtocolVersion() {
         return "$Date$";
     }

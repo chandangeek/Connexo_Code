@@ -495,11 +495,6 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
         }
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Elster/ABB A140 IEC1107";
-    }
-
     public String getProtocolVersion() {
         return "$Date$";
     }

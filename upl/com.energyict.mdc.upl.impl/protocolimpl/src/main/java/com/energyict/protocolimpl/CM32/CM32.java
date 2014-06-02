@@ -130,12 +130,7 @@ public class CM32 extends AbstractProtocol {
 		return null;
 	}
 
-    @Override
-    public String getProtocolDescription() {
-        return "Siemens Energy Services Ltd CM32";
-    }
-
-	public String getProtocolVersion() {
+    public String getProtocolVersion() {
 		return "$Date$";
 	}
 

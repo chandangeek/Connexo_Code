@@ -1,14 +1,23 @@
 package com.energyict.messaging.confluence.messagesync;
 
 import com.energyict.comserver.adapters.common.DefaultMessageAdapterMappingFactoryProvider;
+import com.energyict.comserver.adapters.common.DefaultProtocolDescriptionAdapterMappingFactoryProvider;
 import com.energyict.comserver.adapters.common.MessageAdapterMappingFactoryProvider;
+import com.energyict.comserver.adapters.common.ProtocolDescriptionAdapterMappingFactory;
 import com.energyict.comserver.adapters.meterprotocol.MeterProtocolMessageAdapter;
 import com.energyict.comserver.adapters.smartmeterprotocol.SmartMeterProtocolMessageAdapter;
-import com.energyict.cpo.*;
+import com.energyict.cpo.Environment;
+import com.energyict.cpo.IdBusinessObject;
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecPossibleValues;
 import com.energyict.mdc.messages.DeviceMessageCategory;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.DeviceProtocol;
-import com.energyict.mdw.core.*;
+import com.energyict.mdw.core.ClassTypes;
+import com.energyict.mdw.core.DataVaultProvider;
+import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.ObjectType;
+import com.energyict.mdw.core.RandomProvider;
 import com.energyict.mdw.crypto.KeyStoreDataVaultProvider;
 import com.energyict.mdw.crypto.SecureRandomProvider;
 import com.energyict.protocol.MeterProtocol;
@@ -22,7 +31,9 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -386,15 +397,17 @@ public class MessageHtmlGenerator {
 
     public String getProtocolDescription(String[] args) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         Object protocolObject = getProtocolObject(args);
-        if (protocolObject instanceof MeterProtocol) {
-            return ((MeterProtocol) protocolObject).getProtocolDescription();
-        } else if (protocolObject instanceof SmartMeterProtocol) {
-            return ((SmartMeterProtocol) protocolObject).getProtocolDescription();
+        if (protocolObject instanceof MeterProtocol || protocolObject instanceof  SmartMeterProtocol) {
+            return getProtocolDescriptionAdapterMappingFactory().getUniqueProtocolDescriptionForDeviceProtocol(protocolObject.getClass().getCanonicalName());
         } else if (protocolObject instanceof DeviceProtocol) {
             return ((DeviceProtocol) protocolObject).getProtocolDescription();
         } else {
             throw new IllegalArgumentException("Unsupported protocol class type: " + protocolObject.getClass().getSimpleName() + ". Expected MeterProtocol, SmartMeterProtocol or DeviceProtocol");
         }
+    }
+
+    private ProtocolDescriptionAdapterMappingFactory getProtocolDescriptionAdapterMappingFactory() {
+        return new DefaultProtocolDescriptionAdapterMappingFactoryProvider().getProtocolDescriptionAdapterMappingFactory();
     }
 
     private void doBefore() throws IOException {

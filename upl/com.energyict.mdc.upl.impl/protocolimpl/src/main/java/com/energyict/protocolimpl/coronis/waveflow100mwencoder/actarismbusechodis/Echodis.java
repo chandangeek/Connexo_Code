@@ -137,11 +137,6 @@ public class Echodis extends WaveFlow100mW {
 		return obisCodeMapper.getRegisterExtendedLogging();
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return"Echodis WaveFlow";
-    }
-
 
     @Override
     public String getProtocolVersion() {

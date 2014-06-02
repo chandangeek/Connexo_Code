@@ -1244,11 +1244,6 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         return serialnr;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Iskraemeco Mx372 DLMS";
-    }
-
     public String getProtocolVersion() {
         return "$Date$";
     }

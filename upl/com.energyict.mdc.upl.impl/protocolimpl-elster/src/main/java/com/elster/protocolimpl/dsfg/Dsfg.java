@@ -114,11 +114,6 @@ public class Dsfg extends PluggableMeterProtocol implements RegisterProtocol, Pr
         this.logger = logger;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Elster DsfG";
-    }
-
     public String getProtocolVersion() {
         String rev = "$Revision: 99 $" + " - "
                 + "$Date: 2010-07-22 09:25:00 +0200 (do, 22 jul 2010) $";

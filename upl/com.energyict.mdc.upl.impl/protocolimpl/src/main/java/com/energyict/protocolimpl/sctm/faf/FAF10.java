@@ -34,11 +34,6 @@ public class FAF10 extends Metcom3FAF implements RegisterProtocol {
         fafRegisters = new FAF10Registers(this);
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "L&G FAF10 SCTM";
-    }
-
     public String getProtocolVersion() {
         return "$Date$";
     }    

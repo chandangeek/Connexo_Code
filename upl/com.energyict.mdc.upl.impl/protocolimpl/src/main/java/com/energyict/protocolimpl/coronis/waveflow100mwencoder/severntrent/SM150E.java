@@ -90,11 +90,6 @@ public class SM150E extends WaveFlow100mW {
     }
 
     @Override
-    public String getProtocolDescription() {
-        return "Severntrent SM150E WaveFlow";
-    }
-
-    @Override
     public String getProtocolVersion() {
         return "$Date$";
     }

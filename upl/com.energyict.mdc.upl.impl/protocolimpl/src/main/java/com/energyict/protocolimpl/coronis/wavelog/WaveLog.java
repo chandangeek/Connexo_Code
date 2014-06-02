@@ -134,11 +134,6 @@ public class WaveLog extends AbstractProtocol implements MessageProtocol, Protoc
     }
 
     @Override
-    public String getProtocolDescription() {
-        return "WaveLog";
-    }
-
-    @Override
     public String getProtocolVersion() {
         return "$Date: 2011-05-30 14:06:22 +0200 (ma, 30 mei 2011) $";
     }

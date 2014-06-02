@@ -28,7 +28,7 @@ public class MbusDevice extends AbstractNtaMbusDevice {
 
     @Override
     public String getProtocolDescription() {
-        return "Elster AS220/AS1440 AM100 NTA Mbus Slave (protocolimpl V2)";
+        return "Elster AS220/AS1440 AM100 DLMS (PRE-NTA) Mbus Slave";
     }
 
     @Override

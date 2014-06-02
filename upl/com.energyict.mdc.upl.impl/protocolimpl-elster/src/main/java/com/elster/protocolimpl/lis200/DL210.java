@@ -57,11 +57,6 @@ public class DL210 extends LIS200 implements IRegisterReadable {
         setEventInterpreter(new Dl210EventInterpreter());
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Elster DL210";
-    }
-
     public String getProtocolVersion() {
         return "$Date: 2011-09-01 11:00:00 +0200 (do, 1 Sep 2011) $";
     }

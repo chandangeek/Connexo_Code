@@ -51,12 +51,7 @@ public class IndigoPXAR extends AbstractIEC1107Protocol {
 		//TODO if necessary, add additional information to the super() [Like an encryptor for security]
 	}
 
-    @Override
-    public String getProtocolDescription() {
-        return "Actaris Indigo PXA/R IEC1107";
-    }
-
-	/**
+    /**
 	 * @return the ProtocolVerison 
 	 */
     public String getProtocolVersion() {

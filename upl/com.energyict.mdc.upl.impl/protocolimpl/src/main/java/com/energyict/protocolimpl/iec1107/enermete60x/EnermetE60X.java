@@ -32,11 +32,6 @@ public class EnermetE60X extends EnermetBase {
         return regs;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Enernet E6xx IEC1107";
-    }
-    
     public String getProtocolVersion() {
         return "$Date$";
     }

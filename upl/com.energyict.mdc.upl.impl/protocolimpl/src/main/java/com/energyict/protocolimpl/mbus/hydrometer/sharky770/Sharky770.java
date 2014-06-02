@@ -72,11 +72,6 @@ public class Sharky770 extends MBus {
         return "NOT YET IMPLEMENTED";
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Hydrometer Sharky 770";
-    }
-
     public String getProtocolVersion() {
         return "$Date$";
     }    

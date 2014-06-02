@@ -89,11 +89,6 @@ public class WaveTalk extends AbstractWaveTalk {
 	}
 
     @Override
-    public String getProtocolDescription() {
-        return "WaveTalk";
-    }
-
-    @Override
    	public String getProtocolVersion() {
            return "$Date$";
    	}

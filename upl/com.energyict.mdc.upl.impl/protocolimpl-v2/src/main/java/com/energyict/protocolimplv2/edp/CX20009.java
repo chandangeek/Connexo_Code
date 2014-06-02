@@ -7,12 +7,22 @@ import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialConnectionType;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.*;
+import com.energyict.mdc.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.meterdata.CollectedLogBook;
+import com.energyict.mdc.meterdata.CollectedMessageList;
+import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.meterdata.CollectedTopology;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.exceptions.CommunicationException;
-import com.energyict.mdc.tasks.*;
-import com.energyict.mdw.offline.*;
+import com.energyict.mdc.tasks.ConnectionType;
+import com.energyict.mdc.tasks.DeviceProtocolDialect;
+import com.energyict.mdc.tasks.EDPSerialDeviceProtocolDialect;
+import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
+import com.energyict.mdw.offline.OfflineDevice;
+import com.energyict.mdw.offline.OfflineDeviceMessage;
+import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.edp.logbooks.LogbookReader;
@@ -22,7 +32,9 @@ import com.energyict.protocolimplv2.edp.registers.RegisterReader;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -131,7 +143,7 @@ public class CX20009 extends AbstractDlmsProtocol {
 
     @Override
     public String getProtocolDescription() {
-        return "SagemCom CX2000-9 DLMS (protocolimpl V2)";
+        return "SagemCom CX2000-9 DLMS";
     }
 
     @Override

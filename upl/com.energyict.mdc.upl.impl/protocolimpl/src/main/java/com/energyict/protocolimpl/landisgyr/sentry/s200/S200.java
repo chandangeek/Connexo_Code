@@ -139,11 +139,6 @@ public class S200 extends AbstractProtocol {
         getCommandFactory().getEnterTimeCommand();
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Landis&Gyr Sentry S200";
-    }
-
     public String getProtocolVersion() {
         return "$Date$";
     }

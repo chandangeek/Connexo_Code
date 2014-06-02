@@ -24,11 +24,6 @@ public class SagemCom extends AS330D {
         return properties;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "SagemCom PLC G3 DLMS";
-    }
-
     /**
      * The protocol version
      */

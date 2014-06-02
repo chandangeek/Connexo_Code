@@ -69,7 +69,7 @@ public class WebRTUWavenisGateway extends AbstractGateway {
 
     @Override
     public String getProtocolDescription() {
-        return "Coronis Wavecell Wavenis";
+        return "EnergyICT WebRTU MUC Wavenis Gateway";
     }
 
     @Override

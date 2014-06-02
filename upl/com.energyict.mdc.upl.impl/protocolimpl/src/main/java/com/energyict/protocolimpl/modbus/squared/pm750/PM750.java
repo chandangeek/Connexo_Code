@@ -74,12 +74,7 @@ public class PM750 extends Modbus  {
 		return result;
 	}
 
-    @Override
-    public String getProtocolDescription() {
-        return "Merlin Gerin PM750";
-    }
-
-	public String getProtocolVersion() {
+    public String getProtocolVersion() {
 		return "$Date$";
 	}
 

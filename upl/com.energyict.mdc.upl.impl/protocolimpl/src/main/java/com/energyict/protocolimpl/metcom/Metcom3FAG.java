@@ -101,8 +101,4 @@ public class Metcom3FAG extends Metcom3 {
        }
     } // protected ProfileData doGetProfileData(Calendar calendarFrom, Calendar calendarTo, boolean includeEvents) throws IOException
 
-    @Override
-    public String getProtocolDescription() {
-        return "Metcom3 FAG Protocol Base";
-    }
 }

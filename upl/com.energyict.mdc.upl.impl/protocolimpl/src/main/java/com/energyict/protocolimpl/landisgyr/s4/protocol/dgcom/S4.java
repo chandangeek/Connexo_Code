@@ -145,11 +145,6 @@ public class S4 extends AbstractProtocol {
         getCommandFactory().setTime();
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Landis&Gyr S4 DGCOM";
-    }
-    
     public String getProtocolVersion() {
         return "$Date$";
     }

@@ -74,11 +74,6 @@ public class EKM extends Metcom2 implements RegisterProtocol {
         return result;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "L&G EKM SCTM";
-    }
-
     public String getProtocolVersion() {
         return "$Date$";
     }    

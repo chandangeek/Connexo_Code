@@ -142,11 +142,6 @@ public class Metcom3 extends Metcom {
         return result;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Metcom3 Protocol Base";
-    }
-
     public String getProtocolVersion() {
         return "$Date$";
     }

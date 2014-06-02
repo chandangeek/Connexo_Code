@@ -292,11 +292,6 @@ public class Ferranti extends PluggableMeterProtocol implements ProtocolLink, Me
         return result;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Ferranti Realtime-Gas IEC1107";
-    }
-
     public String getProtocolVersion() {
         return "$Date$";
     }

@@ -187,11 +187,6 @@ public class Medo extends PluggableMeterProtocol implements RegisterProtocol {
         return mfv.getVersion();
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Kenda Medeo";
-    }
-
     public String getProtocolVersion() {
         return "$Date$";
     }

@@ -86,11 +86,6 @@ public class A40 extends Modbus {
         result.add("SocomecType");
         return result;
     }
-    
-    @Override
-    public String getProtocolDescription() {
-        return "Socomec Diris A40";
-    }
 
     public String getProtocolVersion() {
         return "$Date$";

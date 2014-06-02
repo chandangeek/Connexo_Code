@@ -1,6 +1,8 @@
 package com.energyict.protocolimpl.dlms.g3;
 
-import com.energyict.cbo.*;
+import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.NestedIOException;
+import com.energyict.cbo.NotFoundException;
 import com.energyict.cpo.Transaction;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.aso.ApplicationServiceObject;
@@ -8,8 +10,16 @@ import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.messaging.FirmwareUpdateMessageBuilder;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocolimpl.base.RTUCache;
 import com.energyict.protocolimpl.dlms.common.AbstractDlmsSessionProtocol;
 import com.energyict.protocolimpl.dlms.g3.events.G3Events;
@@ -19,7 +29,9 @@ import com.energyict.protocolimpl.dlms.g3.registers.G3RegisterMapper;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.logging.Level;
 
 /**
@@ -47,11 +59,6 @@ public class AS330D extends AbstractDlmsSessionProtocol {
             properties = new G3Properties();
         }
         return properties;
-    }
-
-    @Override
-    public String getProtocolDescription() {
-        return "Elster AS330D PLC G3 DLMS";
     }
 
     /**

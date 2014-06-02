@@ -112,11 +112,6 @@ public class IDISMBus extends IDIS {
     }
 
     @Override
-    public String getProtocolDescription() {
-        return "Elster AS220/AS1440 AM500 PLC IDIS Mbus Slave";
-    }
-
-    @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         ObisCode originalObisCode = ObisCode.fromByteArray(obisCode.getLN());
         if (isMBusValueChannel(obisCode)) {  //Extended register

@@ -29,15 +29,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-
-
 
 /**
  * 
@@ -106,11 +97,6 @@ public class RecDigitPower extends Modbus {
     
     protected List doTheGetOptionalKeys() {
         return new ArrayList();
-    }
-
-    @Override
-    public String getProtocolDescription() {
-        return "Enerdis Recdigit Power";
     }
 
     public String getProtocolVersion() {

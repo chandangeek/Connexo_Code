@@ -133,11 +133,6 @@ public class DataWatt extends PluggableMeterProtocol implements IEC870ProtocolLi
         return iProfileInterval;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "DataWatt D15 IEC870-5-101";
-    }
-
     public String getProtocolVersion() {
         return "$Date$";
     }

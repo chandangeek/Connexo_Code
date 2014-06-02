@@ -116,12 +116,7 @@ public class DL240 extends LIS200 implements IRegisterReadable {
 		setEventInterpreter(new Dl240EventInterpreter());
 	}
 
-    @Override
-    public String getProtocolDescription() {
-        return "Elster DL240";
-    }
-
-	public String getProtocolVersion() {
+    public String getProtocolVersion() {
         return "$Date: 2011-09-01 11:00:00 +0200 (do, 1 Sep 2011) $";
 	}
 

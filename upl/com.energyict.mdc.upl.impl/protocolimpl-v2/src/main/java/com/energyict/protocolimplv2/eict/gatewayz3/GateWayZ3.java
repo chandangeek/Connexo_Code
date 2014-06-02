@@ -125,7 +125,7 @@ public class GateWayZ3 extends AbstractDlmsProtocol {
 
     @Override
     public String getProtocolDescription() {
-        return "EnergyICT WebRTU Z3 Gateway";
+        return "EnergyICT WebRTU Z3 DLMS Gateway";
     }
 
     @Override

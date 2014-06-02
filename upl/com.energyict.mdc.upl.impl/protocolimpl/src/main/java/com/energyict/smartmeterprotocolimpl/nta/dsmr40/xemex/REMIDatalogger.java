@@ -104,11 +104,6 @@ public class REMIDatalogger extends E350 {
     }
 
     @Override
-    public String getProtocolDescription() {
-        return "XEMEX ReMI NTA DSMR 4.0";
-    }
-
-    @Override
     public String getVersion() {
         return "$Date$";
     }

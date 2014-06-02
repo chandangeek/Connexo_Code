@@ -328,11 +328,6 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         return result;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Elster A1440";
-    }
-
     public String getProtocolVersion() {
         return "$Date$";
     }

@@ -7,15 +7,30 @@ import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.CacheMechanism;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocolimpl.dlms.AbstractDLMSProtocol;
 import com.energyict.protocolimpl.dlms.edp.logbooks.LogbookReader;
 import com.energyict.protocolimpl.dlms.edp.registers.EDPStoredValues;
 import com.energyict.protocolimpl.dlms.edp.registers.RegisterReader;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
 import java.util.logging.Level;
 
 /**
@@ -44,11 +59,6 @@ public class CX20009 extends AbstractDLMSProtocol implements MessageProtocol, Ca
             return new Date();
         }
         return getCosemObjectFactory().getClock().getDateTime();
-    }
-
-    @Override
-    public String getProtocolDescription() {
-        return "SagemCom CX2000-9 DLMS";
     }
 
     @Override

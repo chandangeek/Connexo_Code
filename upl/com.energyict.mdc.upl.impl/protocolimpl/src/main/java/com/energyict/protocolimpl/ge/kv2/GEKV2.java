@@ -234,11 +234,6 @@ public class GEKV2 extends AbstractProtocol implements C12ProtocolLink {
         return 0;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "General Electric KV2 ANSI C12";
-    }
-    
     public String getProtocolVersion() {
         return "$Date$";
     }

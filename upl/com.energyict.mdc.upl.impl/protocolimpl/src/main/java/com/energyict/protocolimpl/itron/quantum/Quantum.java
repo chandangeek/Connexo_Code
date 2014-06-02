@@ -112,11 +112,6 @@ public class Quantum extends SchlumbergerProtocol {
 //        else throw new UnsupportedException("setTime() is not supported on the Fulcrum meter because is clears all the memory. However, when 'AllowClockSet' property is set to 1, a setTime() can be forced but all memory will be cleared!");
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Itron/Schlumberger Quantum";
-    }
-
     public String getProtocolVersion() {
         return "$Date$";
     }

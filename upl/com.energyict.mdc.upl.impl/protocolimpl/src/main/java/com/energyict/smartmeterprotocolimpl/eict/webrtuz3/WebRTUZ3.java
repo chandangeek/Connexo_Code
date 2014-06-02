@@ -129,11 +129,6 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements MasterMeter, 
         this.meterTopology = meterTopology;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "EnergyICT WebRTU Z3";
-    }
-
     /**
      * The protocol version in the following format: yyyy-mm-dd
      * This field is updated by svn on every commit.

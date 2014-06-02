@@ -143,11 +143,6 @@ public class MarkV extends AbstractProtocol {
         return result;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Transdata MarkV";
-    }
-
     public String getProtocolVersion() {
         return "$Date$";
     }

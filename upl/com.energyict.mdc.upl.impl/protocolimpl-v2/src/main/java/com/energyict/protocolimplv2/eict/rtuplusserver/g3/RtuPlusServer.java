@@ -4,7 +4,12 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.dlms.common.AbstractDlmsProtocol;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.*;
+import com.energyict.mdc.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.meterdata.CollectedLogBook;
+import com.energyict.mdc.meterdata.CollectedMessageList;
+import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.meterdata.CollectedTopology;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
@@ -14,7 +19,9 @@ import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -120,7 +127,7 @@ public class RtuPlusServer extends AbstractDlmsProtocol {
 
     @Override
     public String getProtocolDescription() {
-        return "EnergyICT RTU+Server2 G3 PLC";
+        return "EnergyICT RTU+Server2 G3 DLMS";
     }
 
     @Override

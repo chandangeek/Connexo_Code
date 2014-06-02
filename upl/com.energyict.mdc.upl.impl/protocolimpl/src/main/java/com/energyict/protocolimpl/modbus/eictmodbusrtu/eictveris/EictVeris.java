@@ -69,11 +69,6 @@ public class EictVeris extends Modbus {
         return getRegisterFactory().getFunctionCodeFactory().getReportSlaveId().getSlaveId()+", "+getRegisterFactory().getFunctionCodeFactory().getReportSlaveId().getAdditionalDataAsString();
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "EnergyICT Hawkeye";
-    }
-    
     public String getProtocolVersion() {
         return "$Revision: 1.3 $";
     }

@@ -105,11 +105,6 @@ public class U1600 extends AbstractProtocol {
         return u1600Profile.getProfileData(calendarFrom.getTime(),calendarTo.getTime());
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "GMC U1600";
-    }
-
     public String getProtocolVersion() {
         return "$Date$";
     }

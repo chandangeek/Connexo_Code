@@ -116,11 +116,6 @@ public class Datastar extends SchlumbergerProtocol {
         else throw new UnsupportedException("setTime() is supported on the Datastar meter but you have to make sure that the firmware version you have allows a clocksync without clearing the load profile. Therefor, the 'AllowClockSet' (set to 1 to enable) property adds an extra level of security to the timeset functionality.");
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Itron/Schlumberger Datastar";
-    }
-
     public String getProtocolVersion() {
         return "$Date$";
     }

@@ -1318,11 +1318,6 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
         return serialnr;
     } // public String getSerialNumber() throws IOException
 
-    @Override
-    public String getProtocolDescription() {
-        return "Actaris SL7000 DLMS";
-    }
-
     public String getProtocolVersion() {
         return "$Date$";
     }

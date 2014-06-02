@@ -456,11 +456,6 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
         rFactory.setRegister("TimeDate", calendar.getTime());
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Elster/ABB A1140 IEC1107";
-    }
-
     /* (non-Javadoc)
 	 * @see com.energyict.protocol.MeterProtocol#getProtocolVersion()
       *

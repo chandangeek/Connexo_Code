@@ -57,11 +57,6 @@ public class EIMeter extends Modbus {
 
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "EnergyICT EIMeter";
-    }
-
     public String getProtocolVersion() {
         return "$Date: 2012-03-27 09:33:50 +0200 (di, 27 mrt 2012) $";
     }

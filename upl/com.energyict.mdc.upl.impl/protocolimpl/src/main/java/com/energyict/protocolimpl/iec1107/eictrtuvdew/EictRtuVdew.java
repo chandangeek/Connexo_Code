@@ -282,11 +282,6 @@ public class EictRtuVdew extends PluggableMeterProtocol implements HHUEnabler, P
         return result;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "EnergyICT RTU IEC1107 VDEW";
-    }
-
     public String getProtocolVersion() {
         return "$Date$";
     }

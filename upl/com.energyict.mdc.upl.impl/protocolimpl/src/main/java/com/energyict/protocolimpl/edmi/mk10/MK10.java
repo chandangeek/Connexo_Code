@@ -1,9 +1,6 @@
-
 package com.energyict.protocolimpl.edmi.mk10;
 
 import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.protocolimpl.edmi.mk10.streamfilters.MK10PushInputStream;
-import com.energyict.protocolimpl.edmi.mk10.streamfilters.MK10PushOutputStream;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;
@@ -21,6 +18,8 @@ import com.energyict.protocolimpl.edmi.mk10.command.TimeInfo;
 import com.energyict.protocolimpl.edmi.mk10.registermapping.MK10Register;
 import com.energyict.protocolimpl.edmi.mk10.registermapping.ObisCodeFactory;
 import com.energyict.protocolimpl.edmi.mk10.registermapping.ObisCodeMapper;
+import com.energyict.protocolimpl.edmi.mk10.streamfilters.MK10PushInputStream;
+import com.energyict.protocolimpl.edmi.mk10.streamfilters.MK10PushOutputStream;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -163,11 +162,6 @@ public class MK10 extends AbstractProtocol {
 		TimeInfo ti = new TimeInfo(this);
 		ti.setTime();
 	}
-
-    @Override
-    public String getProtocolDescription() {
-        return "EDMI MK10";
-    }
 
     /** Protocol version **/
 	public String getProtocolVersion() {

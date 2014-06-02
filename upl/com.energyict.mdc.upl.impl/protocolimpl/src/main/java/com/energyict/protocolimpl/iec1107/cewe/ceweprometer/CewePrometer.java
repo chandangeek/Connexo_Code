@@ -296,11 +296,6 @@ public class CewePrometer extends AbstractProtocol  {
         return channelCount.intValue();
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "CEWE CEWEPrometer IEC1107";
-    }
-
     /* (non-Javadoc)
      * @see AbstractProtocol#getProtocolVersion()
      */

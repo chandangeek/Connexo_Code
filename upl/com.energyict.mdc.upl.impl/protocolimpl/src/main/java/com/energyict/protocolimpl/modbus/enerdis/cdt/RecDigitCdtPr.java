@@ -369,11 +369,6 @@ public class RecDigitCdtPr extends RecDigitCdt {
         return (RegisterFactoryCdtPr)getRegisterFactory();
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Enerdis Recdigit CDT PR";
-    }
-    
     public String getProtocolVersion() {
         return "$Date$";
     }

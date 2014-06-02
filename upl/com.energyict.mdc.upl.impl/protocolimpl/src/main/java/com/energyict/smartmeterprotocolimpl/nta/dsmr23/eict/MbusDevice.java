@@ -1,6 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict;
 
-import com.energyict.cpo.*;
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.cpo.TypedProperties;
 import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.protocol.MessageProtocol;
@@ -29,11 +31,6 @@ public class MbusDevice extends AbstractNtaMbusDevice {
     @Override
     public MessageProtocol getMessageProtocol() {
         return new Dsmr23MbusMessaging();
-    }
-
-    @Override
-    public String getProtocolDescription() {
-        return "EnergyICT Mbus Slave NTA DSMR 2.3";
     }
 
     /**

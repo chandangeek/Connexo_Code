@@ -47,11 +47,6 @@ public class WaveFlowV210 extends WaveFlow implements MessageProtocol {
     }
 
     @Override
-    public String getProtocolDescription() {
-        return "Waveflow V210";
-    }
-
-    @Override
     public String getProtocolVersion() {
         return "$Date: 2013-03-21 10:44:10 +0100 (do, 21 mrt 2013) $";
     }

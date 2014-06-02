@@ -9,11 +9,6 @@ package com.energyict.protocolimpl.dlms.prime;
 public class AS330D extends AbstractPrimeMeter {
 
     @Override
-    public String getProtocolDescription() {
-        return "Elster AS330D PLC PRIME DLMS";
-    }
-
-    @Override
     public String getProtocolVersion() {
         return "$Date$";
     }

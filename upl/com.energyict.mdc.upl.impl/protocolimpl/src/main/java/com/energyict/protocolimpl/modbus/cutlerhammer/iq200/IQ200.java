@@ -70,11 +70,6 @@ public class IQ200 extends Modbus  {
         return result;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Cutler-Hammer IQ200";
-    }
-    
     public String getProtocolVersion() {
         return "$Date$";
     }

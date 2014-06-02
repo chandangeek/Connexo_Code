@@ -9,11 +9,6 @@ package com.energyict.protocolimpl.dlms.prime;
 public class Cirwatt extends AbstractPrimeMeter {
 
     @Override
-    public String getProtocolDescription() {
-        return "Circutor Cirwatt B 410D PLC PRIME DLMS";
-    }
-
-    @Override
     public String getProtocolVersion() {
         return "$Date$";
     }

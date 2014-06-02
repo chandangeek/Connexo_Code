@@ -1,15 +1,21 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372;
 
 import com.energyict.cbo.Unit;
-import com.energyict.cpo.*;
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.cpo.TypedProperties;
 import com.energyict.mdw.core.Device;
 import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
-import com.energyict.protocol.*;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MissingPropertyException;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractNtaMbusDevice;
 import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging.IskraMx372MbusMessaging;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 import java.util.logging.Logger;
 
 /**
@@ -60,11 +66,6 @@ public class MbusDevice extends AbstractNtaMbusDevice {
 
     public LegacyPartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
         return ((IskraMx372MbusMessaging) getMessageProtocol()).getPartialLoadProfileMessageBuilder();
-    }
-
-    @Override
-    public String getProtocolDescription() {
-        return "Iskraemeco Mx372 PRE-NTA MbusDevice";
     }
 
     /**

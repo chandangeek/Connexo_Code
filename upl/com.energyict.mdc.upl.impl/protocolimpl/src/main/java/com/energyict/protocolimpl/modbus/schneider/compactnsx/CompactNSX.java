@@ -57,11 +57,6 @@ public class CompactNSX extends Modbus {
 		return null;
 	}
 
-    @Override
-    public String getProtocolDescription() {
-        return "Schneider Electric Compact NSX";
-    }
-
     public String getProtocolVersion() {
         return "$Date$";
     }

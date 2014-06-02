@@ -23,11 +23,6 @@ public class Kaifa extends E350 {
     private Dsmr40Messaging messageProtocol = null;
 
     @Override
-    public String getProtocolDescription() {
-        return "IBM Kaifa NTA DSMR 4.0";
-    }
-
-    @Override
     public String getVersion() {
         return "$Date: 2013-05-02 17:50:49 +0200 (do, 02 mei 2013) $";
     }

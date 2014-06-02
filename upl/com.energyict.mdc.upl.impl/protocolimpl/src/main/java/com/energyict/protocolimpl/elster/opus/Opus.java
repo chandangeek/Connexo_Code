@@ -192,12 +192,7 @@ public class Opus extends AbstractProtocol{
 		return this.interval;
 	}
 
-    @Override
-    public String getProtocolDescription() {
-        return  "Elster OPUS";
-    }
-
-	public String getProtocolVersion() {
+    public String getProtocolVersion() {
 		return "$Date$";
 	}
 

@@ -645,11 +645,6 @@ public class Prometer extends AbstractProtocol  {
         
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "CEWE Prometer IEC1107";
-    }
-
     /* (non-Javadoc)
      * @see AbstractProtocol#getProtocolVersion()
      */

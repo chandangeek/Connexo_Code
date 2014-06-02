@@ -90,11 +90,6 @@ public class LIS100 extends PluggableMeterProtocol implements ProtocolLink, Regi
         this.logger = logger;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Elster LIS100 Protocol Base";
-    }
-
     public String getProtocolVersion() {
         return "$Date: 2012-01-09 15:06:09 +0100 (ma, 09 jan 2012) $";
     }

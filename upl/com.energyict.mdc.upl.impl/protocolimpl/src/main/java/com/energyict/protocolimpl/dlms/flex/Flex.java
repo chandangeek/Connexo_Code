@@ -1165,11 +1165,6 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
         return serialnr;
     } // public String getSerialNumber() throws IOException
 
-    @Override
-    public String getProtocolDescription() {
-        return "L&G ZxF AD-FG DLMS";
-    }
-
     public String getProtocolVersion() {
         return "$Date$";
     }

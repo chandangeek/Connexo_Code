@@ -12,7 +12,7 @@ public class AM100 extends WebRTUKP {
 
     @Override
     public String getProtocolDescription() {
-        return "Elster AS220/AS1440 AM100 NTA (protocolimpl V2)";
+        return "Elster AS220/AS1440 AM100 DLMS (PRE-NTA)";
     }
 
     @Override

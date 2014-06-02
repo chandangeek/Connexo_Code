@@ -320,11 +320,6 @@ public class LZQJ extends PluggableMeterProtocol implements HHUEnabler, Protocol
         return result;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "EMH LZQJ VDEW";
-    }
-
     public String getProtocolVersion() {
         return "$Date$";
     }

@@ -81,11 +81,6 @@ public class Ci extends Modbus {
         return multiplierFactory;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Socomec Countis Ci";
-    }
-
     public String getProtocolVersion() {
         return "$Date$";
     }

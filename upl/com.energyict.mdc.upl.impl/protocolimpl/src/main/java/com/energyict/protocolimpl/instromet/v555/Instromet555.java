@@ -158,12 +158,7 @@ public class Instromet555 extends InstrometProtocol {
 		return getTableFactory().getCorrectorInformationTable().getFirwareVersion();
 	}
 
-    @Override
-    public String getProtocolDescription() {
-        return "Instromet EVHI 555";
-    }
-
-	public String getProtocolVersion() {
+    public String getProtocolVersion() {
 		return "$Date$";
 	}
 

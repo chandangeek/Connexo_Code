@@ -316,7 +316,7 @@ public class SDKDeviceProtocol implements DeviceProtocol {
 
     @Override
     public String getProtocolDescription() {
-        return "EICT SDK DeviceProtocol";
+        return "EnergyICT SDK DeviceProtocol";
     }
 
     @Override

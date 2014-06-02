@@ -251,11 +251,6 @@ public class Zmd extends PluggableMeterProtocol implements HHUEnabler, ProtocolL
         return result;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "L&G/Siemens ZMD IEC1107 VDEW";
-    }
-
     public String getProtocolVersion() {
         return "$Date$";
     }

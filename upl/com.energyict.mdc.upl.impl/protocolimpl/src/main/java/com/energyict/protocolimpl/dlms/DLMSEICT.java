@@ -19,7 +19,6 @@ import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityProvider;
-import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterEvent;
@@ -27,6 +26,7 @@ import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -79,11 +79,6 @@ public class DLMSEICT extends DLMSSN
     @Override
     protected ConformanceBlock configureConformanceBlock() {
         return new ConformanceBlock(1573408L);
-    }
-
-    @Override
-    public String getProtocolDescription() {
-        return "EnergyICT RTU DLMS";
     }
 
     public String getProtocolVersion() {

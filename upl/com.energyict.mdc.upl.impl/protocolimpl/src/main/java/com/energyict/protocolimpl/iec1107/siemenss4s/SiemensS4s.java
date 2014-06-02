@@ -170,11 +170,6 @@ public class SiemensS4s extends AbstractIEC1107Protocol {
 		return this.objectFactory;
 	}
 
-    @Override
-    public String getProtocolDescription() {
-        return "Landis&Gyr S4 IEC1107";
-    }
-	
     public String getProtocolVersion() {
         return "$Date$";
     }

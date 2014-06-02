@@ -7,7 +7,9 @@ import com.energyict.protocol.MessageProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MbusMessaging;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * Place holder class for the MBus device.
@@ -80,8 +82,4 @@ public class MBusDevice extends com.energyict.smartmeterprotocolimpl.nta.dsmr40.
         return new LegacyPartialLoadProfileMessageBuilder();
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Placeholder Mbus Slave NTA DSMR 4.0";
-    }
 }

@@ -124,11 +124,6 @@ public class G3B extends AbstractDLMSProtocol {
         return getProfileChannel().getNumberOfChannels();
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Elgama G3B";
-    }
-
     /**
      * Getter for the protocol version
      *

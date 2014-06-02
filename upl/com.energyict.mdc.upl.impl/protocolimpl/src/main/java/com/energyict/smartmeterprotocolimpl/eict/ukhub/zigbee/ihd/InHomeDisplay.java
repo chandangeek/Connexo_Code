@@ -37,11 +37,6 @@ public class InHomeDisplay extends UkHub {
     }
 
     @Override
-    public String getProtocolDescription() {
-        return "Elster InHomeDisplay (SSWG IC) DLMS";
-    }
-
-    @Override
     public String getVersion() {
         return "$Date$";
     }

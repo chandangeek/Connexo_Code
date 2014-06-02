@@ -4,16 +4,36 @@
 package com.energyict.protocolimpl.dlms.as220;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocolimpl.base.ContactorController;
-import com.energyict.protocolimpl.dlms.as220.gmeter.*;
+import com.energyict.protocolimpl.dlms.as220.gmeter.GMeter;
+import com.energyict.protocolimpl.dlms.as220.gmeter.GMeterMessaging;
+import com.energyict.protocolimpl.dlms.as220.gmeter.GasRegister;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * Basic implementation of a GasDevice
@@ -45,11 +65,6 @@ public class GasDevice extends AS220 implements MessageProtocol{
 
     public int getDif() {
         return dif;
-    }
-
-    @Override
-    public String getProtocolDescription() {
-        return "Elster AS220/AS1440 AM500 PLC Mbus Slave";
     }
 
     @Override

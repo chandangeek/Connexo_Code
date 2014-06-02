@@ -475,11 +475,6 @@ public class PPM extends AbstractPPM {
         return result;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "ABB/GE PPM Issue1 IEC1107";
-    }
-
     /* (non-Javadoc)
       * @see com.energyict.protocol.MeterProtocol#getProtocolVersion()
       */

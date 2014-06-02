@@ -59,11 +59,6 @@ public class EnermetE70x extends Metcom2 implements RegisterProtocol {
         return result;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Enernet E7xx SCTM";
-    }
-
     public String getProtocolVersion() {
         return "$Date$";
     }    

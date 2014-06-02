@@ -205,12 +205,7 @@ public class CM10 extends AbstractProtocol {
 		}
 	}
 
-    @Override
-    public String getProtocolDescription() {
-        return "Siemens Energy Services Ltd CM10";
-    }
-
-	public String getProtocolVersion() {
+    public String getProtocolVersion() {
 		return "$Date$";
 	}
 

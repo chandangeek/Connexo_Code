@@ -91,11 +91,6 @@ public class EK280 extends LIS200 implements IRegisterReadable {
 //        setEventInterpreter(new Ek280EventInterpreter()); //ToDo - this class does not yet exists!
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Elster EK280 LIS200";
-    }
-
     public String getProtocolVersion() {
         return "$Date: 2012-12-12 09:00:00 +0100$";
     }

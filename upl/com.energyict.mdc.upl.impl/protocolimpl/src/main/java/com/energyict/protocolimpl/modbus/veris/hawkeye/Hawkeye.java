@@ -62,11 +62,6 @@ public class Hawkeye extends Modbus  {
         return getRegisterFactory().getFunctionCodeFactory().getReportSlaveId().getSlaveId()+", "+getRegisterFactory().getFunctionCodeFactory().getReportSlaveId().getAdditionalDataAsString();
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Veris Hawkeye H8036";
-    }
-    
     public String getProtocolVersion() {
         return "$Revision: 1.5 $";
     }

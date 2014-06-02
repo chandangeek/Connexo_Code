@@ -47,11 +47,6 @@ public class DLMSZMD_EXT extends DLMSZMD{
         return super.getProfileData(lastReading, includeEvents);
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "L&G/Siemens ZMD DLMS-SN_EXT";
-    }
-
     /** ProtocolVersion **/
     public String getProtocolVersion() {
         return "$Date$";

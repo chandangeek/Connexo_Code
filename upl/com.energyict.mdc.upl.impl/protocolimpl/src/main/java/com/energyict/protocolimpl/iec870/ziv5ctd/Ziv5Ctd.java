@@ -406,11 +406,6 @@ public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, Reg
         }
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Ziv 5CTD IEC870-102";
-    }
-
     public String getProtocolVersion() {
         return "$Date$";
     }

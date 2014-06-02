@@ -9,11 +9,6 @@ package com.energyict.protocolimpl.dlms.edp;
 public class JanzB280 extends CX20009 {
 
     @Override
-    public String getProtocolDescription() {
-        return "Janz B280 DLMS";
-    }
-
-    @Override
     public String getProtocolVersion() {
         return "$Date: 2014-02-18 16:12:07 +0100 (di, 18 feb 2014) $";
     }

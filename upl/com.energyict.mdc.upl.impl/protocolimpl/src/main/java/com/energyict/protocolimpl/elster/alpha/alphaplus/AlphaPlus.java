@@ -154,11 +154,6 @@ public class AlphaPlus extends AbstractProtocol implements Alpha {
         getCommandFactory().getFunctionWithDataCommand().syncTime(getInfoTypeRoundtripCorrection(), getTimeZone());
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Elster Alpha Plus";
-    }
-
     public String getProtocolVersion() {
         return "$Date$";
     }

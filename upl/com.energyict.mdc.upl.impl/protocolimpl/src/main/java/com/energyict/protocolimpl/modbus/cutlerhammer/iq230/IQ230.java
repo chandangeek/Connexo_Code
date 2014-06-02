@@ -68,11 +68,6 @@ public class IQ230 extends Modbus {
         return result;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Cutlerhammer IQ230";
-    }
-
     public String getProtocolVersion() {
         return "$Date$";
     }

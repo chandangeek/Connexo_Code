@@ -117,11 +117,6 @@ public class RecDigitCct extends Modbus {
     
     protected List doTheGetOptionalKeys() {
     	return new ArrayList();
-    }    
-
-    @Override
-    public String getProtocolDescription() {
-        return "Enerdis Recdigit CCT";
     }
 
     public String getProtocolVersion() {

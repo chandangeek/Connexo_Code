@@ -146,11 +146,6 @@ public class Quantum1000 extends AbstractProtocol implements ProtocolLink {
         return getDataDefinitionFactory().getRealTime().getCurrentDateTime();
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Itron/Schlumberger Quantum1000";
-    }
-
     public String getProtocolVersion() {
         return "$Date$";
     }

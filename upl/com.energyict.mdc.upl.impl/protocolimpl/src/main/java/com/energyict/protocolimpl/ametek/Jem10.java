@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * @author cju
  */
-public class Jem10 extends Jem implements MessageProtocol {
+public abstract class Jem10 extends Jem implements MessageProtocol {
 
     final private static long TIMEOUT = 5000;
 
@@ -372,11 +372,6 @@ public class Jem10 extends Jem implements MessageProtocol {
             throw new IOException("Failed to set time");
         }
         getLogger().info("Set time successful");
-    }
-
-    @Override
-    public String getProtocolDescription() {
-        return "Ametek Power Jem10";
     }
 
     public String getProtocolVersion() {

@@ -187,12 +187,7 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 		return firm;
 	}
 
-    @Override
-    public String getProtocolDescription() {
-        return "EDF Trimaran 2P";
-    }
-
-	public String getProtocolVersion() {
+    public String getProtocolVersion() {
 		return "$Date$";
 //		return "$Revision$";
 	}

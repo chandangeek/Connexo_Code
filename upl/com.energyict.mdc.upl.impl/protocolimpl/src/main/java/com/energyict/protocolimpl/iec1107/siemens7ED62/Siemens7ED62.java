@@ -48,11 +48,6 @@ public class Siemens7ED62 extends AbstractIEC1107Protocol {
         siemens7ED62Profile = new Siemens7ED62Profile(this,this,siemens7ED62Registry);
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Siemens 7ED62 IEC1107 VDEW";
-    }
-
     public String getProtocolVersion() {
         return "$Date$";
     }

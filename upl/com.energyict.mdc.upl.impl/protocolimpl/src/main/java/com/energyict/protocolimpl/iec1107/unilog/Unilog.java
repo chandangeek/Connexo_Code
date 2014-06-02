@@ -354,11 +354,6 @@ public class Unilog extends AbstractUnilog {
         return pRetries;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Kamstrup Unilog IEC1107";
-    }
-
     /**
      * Get the protocol version
      *

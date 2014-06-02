@@ -32,7 +32,6 @@ import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.CacheMechanism;
 import com.energyict.protocol.HHUEnabler;
@@ -43,6 +42,7 @@ import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
+import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -596,11 +596,6 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
             //absorb -> trying to close communication
             getLogger().log(Level.FINEST, e.getMessage());
         }
-    }
-
-    @Override
-    public String getProtocolDescription() {
-        return "EICT Simple DLMS Protocol";
     }
 
     /**

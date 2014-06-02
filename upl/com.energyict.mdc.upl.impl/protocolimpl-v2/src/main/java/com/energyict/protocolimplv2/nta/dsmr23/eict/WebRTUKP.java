@@ -148,6 +148,6 @@ public class WebRTUKP extends AbstractDlmsProtocol {
 
     @Override
     public String getProtocolDescription() {
-        return "EnergyICT WebRTU KP NTA DSMR 2.3 (protocolimpl V2)";
+        return "EnergyICT WebRTU KP DLMS (NTA DSMR2.3)";
     }
 }

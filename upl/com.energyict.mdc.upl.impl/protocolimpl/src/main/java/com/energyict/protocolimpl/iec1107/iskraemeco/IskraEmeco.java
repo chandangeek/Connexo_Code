@@ -317,11 +317,6 @@ public class IskraEmeco extends PluggableMeterProtocol implements ProtocolLink, 
         return result;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Iskraemeco MT851 IEC1107";
-    }
-
     /** Protocol Version **/
     public String getProtocolVersion() {
         return "$Date$";

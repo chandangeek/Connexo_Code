@@ -43,7 +43,7 @@ public class ACE4000MBus extends ACE4000Outbound {
 
     @Override
     public String getProtocolDescription() {
-        return "Actaris ACE4000 Mbus Slave";
+        return "Actaris ACE4000 MeterXML Mbus Device";
     }
 
     @Override

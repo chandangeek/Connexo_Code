@@ -7,8 +7,21 @@ import com.energyict.dialer.coreimpl.IPDialer;
 import com.energyict.dialer.coreimpl.SocketStreamConnection;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.LoadProfileConfiguration;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.Register;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.SmartMeterProtocol;
+import com.energyict.protocol.WakeUpProtocolSupport;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.UkHubSecurityProvider;
@@ -17,7 +30,10 @@ import com.energyict.smartmeterprotocolimpl.elster.apollo.messaging.AS300Message
 import com.energyict.smartmeterprotocolimpl.elster.apollo.messaging.AS300Messaging;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
@@ -147,11 +163,6 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
 
     public List<ProfileData> getLoadProfileData(List<LoadProfileReader> loadProfiles) throws IOException {
         return getLoadProfileBuilder().getLoadProfileData(loadProfiles);
-    }
-
-    @Override
-    public String getProtocolDescription() {
-        return "Elster AS300-P (SSWG IC) DLMS";
     }
 
     public String getVersion() {

@@ -180,12 +180,7 @@ public class Instromet444 extends InstrometProtocol {
 		return getTableFactory().getCorrectorInformationTable().getFirwareVersion();
 	}
 
-    @Override
-    public String getProtocolDescription() {
-        return "Instromet EVHI 444";
-    }
-
-	public String getProtocolVersion() {
+    public String getProtocolVersion() {
 		return "$Date$";
 	}
 

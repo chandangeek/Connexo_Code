@@ -416,11 +416,6 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
         }
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Siemens 7ED62 SCTM";
-    }
-    
     public String getProtocolVersion() {
         return "$Date$";
     }

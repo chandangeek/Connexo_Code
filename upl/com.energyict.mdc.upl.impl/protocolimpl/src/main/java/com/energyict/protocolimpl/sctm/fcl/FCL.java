@@ -37,11 +37,6 @@ public class FCL extends Metcom3FCL implements RegisterProtocol {
         fclRegisters = new FCLRegisters(this);
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "L&G FCL SCTM";
-    }
-
     public String getProtocolVersion() {
         return "$Date$";
     }

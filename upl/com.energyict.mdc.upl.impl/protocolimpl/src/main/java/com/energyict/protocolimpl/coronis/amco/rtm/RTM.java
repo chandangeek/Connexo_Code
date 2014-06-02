@@ -196,11 +196,6 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
     }
 
     @Override
-    public String getProtocolDescription() {
-        return "RTM";
-    }
-
-    @Override
     public String getProtocolVersion() {
         return "$Date: 2011-11-29 10:33:55 +0100 (di, 29 nov 2011) $";
     }

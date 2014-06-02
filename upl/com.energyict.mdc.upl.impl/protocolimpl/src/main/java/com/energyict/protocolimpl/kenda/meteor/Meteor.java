@@ -193,11 +193,6 @@ public class Meteor extends PluggableMeterProtocol implements RegisterProtocol {
         return mfv.getVersion();
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Kenda Meteor";
-    }
-
     public String getProtocolVersion() {
         return "$Date$";
     }

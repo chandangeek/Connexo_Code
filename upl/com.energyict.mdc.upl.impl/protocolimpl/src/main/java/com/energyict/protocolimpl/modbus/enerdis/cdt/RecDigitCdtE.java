@@ -28,11 +28,6 @@ public class RecDigitCdtE extends RecDigitCdt {
         return new Date();
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Enerdis Recdigit CDT E";
-    }
-
     public String getProtocolVersion() {
         return "$Date$";
     }

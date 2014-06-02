@@ -177,11 +177,6 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
         getCosemObjectFactory().getClock().setTimeAttr(new DateTime(newTimeToSet));
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Janz C280";
-    }
-
     /**
      * Override this method to control the protocolversion.
      *

@@ -144,11 +144,6 @@ public class AlphaBasic extends AbstractProtocol implements Alpha {
         getCommandFactory().getFunctionWithDataCommand().syncTime(getInfoTypeRoundtripCorrection(), getTimeZone());
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Elster Alpha Basic";
-    }
-
     public String getProtocolVersion() {
         return "$Date$";
     }
