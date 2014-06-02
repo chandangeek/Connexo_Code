@@ -3,6 +3,7 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
@@ -17,6 +18,7 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterM
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SimpleLegacyMessageConverter;
 import org.junit.*;
 import org.junit.runner.*;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.SQLException;
@@ -40,6 +42,9 @@ import static org.mockito.Mockito.withSettings;
 @RunWith(MockitoJUnitRunner.class)
 public class MeterProtocolMessageAdapterTest {
 
+    @Mock
+    private CollectedDataFactory collectedDataFactory;
+
     private InMemoryPersistence inMemoryPersistence;
     private ProtocolPluggableServiceImpl protocolPluggableService;
     private PropertySpecService propertySpecService;
@@ -55,6 +60,7 @@ public class MeterProtocolMessageAdapterTest {
                         initializeMessageAdapterMappingFactory(dataModel);
                     }
                 });
+        this.propertySpecService = this.inMemoryPersistence.getPropertySpecService();
         this.protocolPluggableService = this.inMemoryPersistence.getProtocolPluggableService();
         this.initializeMocks();
     }
@@ -62,6 +68,18 @@ public class MeterProtocolMessageAdapterTest {
     @After
     public void cleanUpDataBase() throws SQLException {
         this.inMemoryPersistence.cleanUpDataBase();
+    }
+
+    @Before
+    public void initializeCollecteData () {
+        CollectedDataFactoryProvider collectedDataFactoryProvider = mock(CollectedDataFactoryProvider.class);
+        when(collectedDataFactoryProvider.getCollectedDataFactory()).thenReturn(this.collectedDataFactory);
+        CollectedDataFactoryProvider.instance.set(collectedDataFactoryProvider);
+    }
+
+    @After
+    public void resetCollectedData () {
+        CollectedDataFactoryProvider.instance.set(null);
     }
 
     private void initializeMocks () {
@@ -103,7 +121,7 @@ public class MeterProtocolMessageAdapterTest {
         try {
             new MeterProtocolMessageAdapter(meterProtocol, this.protocolPluggableService.getDataModel(), this.protocolPluggableService, this.inMemoryPersistence.getIssueService());
         } catch (DeviceProtocolAdapterCodingExceptions e) {
-            if (!e.getMessageId().equals("CSC-DEV-124")) {
+            if (!"CSC-DEV-124".equals(e.getMessageId())) {
                 fail("Exception should have indicated that the given MeterProtocol is not known in the adapter mapping, but was " + e.getMessage());
             }
             throw e;
@@ -114,10 +132,11 @@ public class MeterProtocolMessageAdapterTest {
     @Test
     public void testNotAMessageSupportClass() {
         MeterProtocol meterProtocol = new ThirdSimpleTestMeterProtocol();
-        final MeterProtocolMessageAdapter protocolMessageAdapter = new MeterProtocolMessageAdapter(meterProtocol, this.protocolPluggableService.getDataModel(), this.protocolPluggableService, this.inMemoryPersistence.getIssueService());
+        MeterProtocolMessageAdapter protocolMessageAdapter = new MeterProtocolMessageAdapter(meterProtocol, this.protocolPluggableService.getDataModel(), this.protocolPluggableService, this.inMemoryPersistence.getIssueService());
+        when(this.collectedDataFactory.createEmptyCollectedMessageList()).thenReturn(mock(CollectedMessageList.class));
 
-        assertThat(protocolMessageAdapter.executePendingMessages(Collections.<OfflineDeviceMessage>emptyList())).isInstanceOf(CollectedMessageList.class);
-        assertThat(protocolMessageAdapter.updateSentMessages(Collections.<OfflineDeviceMessage>emptyList())).isInstanceOf(CollectedMessageList.class);
+        assertThat(protocolMessageAdapter.executePendingMessages(Collections.<OfflineDeviceMessage>emptyList())).isNotNull();
+        assertThat(protocolMessageAdapter.updateSentMessages(Collections.<OfflineDeviceMessage>emptyList())).isNotNull();
         assertThat(protocolMessageAdapter.format(null, null)).isEqualTo("");
 
         assertThat(protocolMessageAdapter.getSupportedMessages()).isEmpty();

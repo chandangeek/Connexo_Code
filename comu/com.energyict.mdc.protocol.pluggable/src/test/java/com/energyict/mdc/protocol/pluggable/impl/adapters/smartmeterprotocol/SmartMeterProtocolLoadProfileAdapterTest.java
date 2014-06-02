@@ -4,6 +4,7 @@ import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
@@ -98,11 +99,19 @@ public class SmartMeterProtocolLoadProfileAdapterTest {
                                 false);
                     }
                 });
+        CollectedDataFactoryProvider collectedDataFactoryProvider = mock(CollectedDataFactoryProvider.class);
+        when(collectedDataFactoryProvider.getCollectedDataFactory()).thenReturn(this.collectedDataFactory);
+        CollectedDataFactoryProvider.instance.set(collectedDataFactoryProvider);
         when(this.applicationContext.getModulesImplementing(CollectedDataFactory.class)).thenReturn(Arrays.asList(this.collectedDataFactory));
         when(this.environment.getApplicationContext()).thenReturn(this.applicationContext);
         when(this.environment.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
         when(this.environment.getTranslation(anyString())).thenReturn("Translation missing in unit testing");
         Environment.DEFAULT.set(this.environment);
+    }
+
+    @After
+    public void resetCollectedDataFactoryProvider () {
+        CollectedDataFactoryProvider.instance.set(null);
     }
 
     @AfterClass

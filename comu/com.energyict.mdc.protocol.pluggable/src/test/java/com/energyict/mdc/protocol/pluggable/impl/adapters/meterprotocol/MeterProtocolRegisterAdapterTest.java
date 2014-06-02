@@ -6,6 +6,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.Problem;
+import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
@@ -91,6 +92,9 @@ public class MeterProtocolRegisterAdapterTest {
                     return new MockCollectedRegister(registerIdentifier);
                 }
             });
+        CollectedDataFactoryProvider collectedDataFactoryProvider = mock(CollectedDataFactoryProvider.class);
+        when(collectedDataFactoryProvider.getCollectedDataFactory()).thenReturn(this.collectedDataFactory);
+        CollectedDataFactoryProvider.instance.set(collectedDataFactoryProvider);
         when(this.applicationContext.getModulesImplementing(CollectedDataFactory.class)).thenReturn(Arrays.asList(this.collectedDataFactory));
         Environment.DEFAULT.set(this.environment);
     }
@@ -98,6 +102,11 @@ public class MeterProtocolRegisterAdapterTest {
     @After
     public void tearDownEnvironment () {
         Environment.DEFAULT.set(null);
+    }
+
+    @After
+    public void resetCollectedDataFactoryProvider() {
+        CollectedDataFactoryProvider.instance.set(null);
     }
 
     private static OfflineRegister getMockedRegister() {

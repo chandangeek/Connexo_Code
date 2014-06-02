@@ -8,6 +8,7 @@ import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.Problem;
+import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
@@ -91,6 +92,9 @@ public class SmartMeterProtocolLogBookAdapterTest {
                         return collectedLoadProfile;
                     }
                 });
+        CollectedDataFactoryProvider collectedDataFactoryProvider = mock(CollectedDataFactoryProvider.class);
+        when(collectedDataFactoryProvider.getCollectedDataFactory()).thenReturn(this.collectedDataFactory);
+        CollectedDataFactoryProvider.instance.set(collectedDataFactoryProvider);
         when(this.applicationContext.getModulesImplementing(CollectedDataFactory.class)).thenReturn(Arrays.asList(this.collectedDataFactory));
         when(this.environment.getApplicationContext()).thenReturn(this.applicationContext);
         when(this.environment.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
@@ -102,6 +106,11 @@ public class SmartMeterProtocolLogBookAdapterTest {
         EndDeviceEventTypeFactory endDeviceEventTypeFactory = new EndDeviceEventTypeFactory();
         endDeviceEventTypeFactory.setMeteringService(this.meteringService);
         endDeviceEventTypeFactory.activate();
+    }
+
+    @After
+    public void resetCollectedDataFactoryProvider () {
+        CollectedDataFactoryProvider.instance.set(null);
     }
 
     @Before

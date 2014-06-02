@@ -1,22 +1,5 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
-import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
-import com.elster.jupiter.domain.util.impl.DomainUtilModule;
-import com.elster.jupiter.events.impl.EventsModule;
-import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.impl.OrmModule;
-import com.elster.jupiter.pubsub.impl.PubSubModule;
-import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.util.UtilModule;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
@@ -59,6 +42,24 @@ import com.energyict.mdc.protocol.pluggable.mocks.MockDeviceProtocolWithTestProp
 import com.energyict.mdc.protocol.pluggable.mocks.MockMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.mocks.MockSmartMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.mocks.NotADeviceProtocol;
+
+import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
+import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.util.UtilModule;
 import com.energyict.protocolimplv2.sdksample.SDKDeviceProtocolTestWithMandatoryProperty;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
@@ -66,13 +67,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
 import org.joda.time.DateMidnight;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -84,11 +78,17 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 /**
  * Test the {@link DeviceProtocolPluggableClassImpl} component.
@@ -107,8 +107,6 @@ public class DeviceProtocolPluggableClassImplTest {
     public static final String MOCK_SMART_METER_PROTOCOL = "com.energyict.mdc.protocol.pluggable.mocks.MockSmartMeterProtocol";
     public static final String MOCK_NOT_A_DEVICE_PROTOCOL = "com.energyict.mdc.protocol.pluggable.mocks.NotADeviceProtocol";
 
-    private static final int CODE_ID = 97;
-    private static final String CODE_NAME = "Code for DeviceProtocolPluggableClassImplTest";
     private static final String SDK_DEVICE_PROTOCOL_TEST_WITH_MANDATORY_PROPERTY = "com.energyict.protocolimplv2.sdksample.SDKDeviceProtocolTestWithMandatoryProperty";
 
     private TransactionService transactionService;
@@ -120,7 +118,6 @@ public class DeviceProtocolPluggableClassImplTest {
     public ExpectedConstraintViolationRule rule = new ExpectedConstraintViolationRule();
 
     private DataModel dataModel;
-//    private IdBusinessObjectFactory codeFactory = mock(IdBusinessObjectFactory.class);
     @Mock
     private License license;
     private InMemoryBootstrapModule bootstrapModule;
@@ -164,7 +161,6 @@ public class DeviceProtocolPluggableClassImplTest {
         IdBusinessObjectFactory deviceProtocolDialectFactory = mock(IdBusinessObjectFactory.class);
         when(deviceProtocolDialectFactory.getInstanceType()).thenReturn(DeviceProtocolDialect.class);
         when(applicationContext.findFactory(FactoryIds.DEVICE_PROTOCOL_DIALECT.id())).thenReturn(deviceProtocolDialectFactory);
-//        when(codeFactory.getInstanceType()).thenReturn(Code.class);
 
         if (Environment.DEFAULT.get().getApplicationContext() != null) {
             fail("Application context was not cleaned up properly by previous test");
@@ -177,11 +173,11 @@ public class DeviceProtocolPluggableClassImplTest {
             public List<CanFindByLongPrimaryKey<? extends HasId>> finders() {
                 List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
                 finders.add(new ProtocolDialectPropertiesFinder());
+                finders.add(new CodeFinder());
                 return finders;
             }
         });
 
-//        when(applicationContext.findFactory(FactoryIds.CODE.id())).thenReturn(codeFactory);
         Translator translator = mock(Translator.class);
         when(translator.getTranslation(anyString())).thenReturn("Translation missing in unit testing");
         when(translator.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
@@ -260,14 +256,9 @@ public class DeviceProtocolPluggableClassImplTest {
      */
     @Test
     public void newDeviceProtocolWithProperties() {
-        Code code = mock(Code.class);
-        when(code.getId()).thenReturn(CODE_ID);
-        when(code.getName()).thenReturn(CODE_NAME);
-//        when(codeFactory.get(CODE_ID)).thenReturn(code);
         final TypedProperties creationProperties = TypedProperties.empty();
         Date activationDate = new DateMidnight().toDate();
         creationProperties.setProperty(DeviceMessageTestSpec.ACTIVATIONDATE_PROPERTY_SPEC_NAME, activationDate);
-        creationProperties.setProperty(DeviceMessageTestSpec.CODETABLE_PROPERTY_SPEC_NAME, code);
 
         // Business method
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = transactionService.
@@ -284,16 +275,10 @@ public class DeviceProtocolPluggableClassImplTest {
         DeviceProtocol deviceProtocol = deviceProtocolPluggableClass.getDeviceProtocol();
         assertThat(deviceProtocol).isNotNull();
         assertThat(deviceProtocol).isInstanceOf(DeviceProtocol.class);
-        assertThat(deviceProtocol.getPropertySpecs()).hasSize(2);
+        assertThat(deviceProtocol.getPropertySpecs()).hasSize(1);
         assertThat(deviceProtocol.getPropertySpec(DeviceMessageTestSpec.ACTIVATIONDATE_PROPERTY_SPEC_NAME)).isNotNull();
-        assertThat(deviceProtocol.getPropertySpec(DeviceMessageTestSpec.CODETABLE_PROPERTY_SPEC_NAME)).isNotNull();
         TypedProperties properties = deviceProtocolPluggableClass.getProperties();
         assertThat(properties.getProperty(DeviceMessageTestSpec.ACTIVATIONDATE_PROPERTY_SPEC_NAME)).isEqualTo(activationDate);
-        Object propertyValue = properties.getProperty(DeviceMessageTestSpec.CODETABLE_PROPERTY_SPEC_NAME);
-        assertThat(propertyValue).isInstanceOf(Code.class);
-        Code codePropertyValue = (Code) propertyValue;
-        assertThat(codePropertyValue.getId()).isEqualTo(CODE_ID);
-        assertThat(codePropertyValue.getName()).isEqualTo(CODE_NAME);
     }
 
     /**
@@ -302,14 +287,9 @@ public class DeviceProtocolPluggableClassImplTest {
      */
     @Test
     public void saveDeviceProtocolProperties() {
-        final Code code = mock(Code.class);
-        when(code.getId()).thenReturn(CODE_ID);
-        when(code.getName()).thenReturn(CODE_NAME);
-//        when(codeFactory.get(CODE_ID)).thenReturn(code);
         final TypedProperties creationProperties = TypedProperties.empty();
         final Date activationDate = new DateMidnight().toDate();
         creationProperties.setProperty(DeviceMessageTestSpec.ACTIVATIONDATE_PROPERTY_SPEC_NAME, activationDate);
-        creationProperties.setProperty(DeviceMessageTestSpec.CODETABLE_PROPERTY_SPEC_NAME, code);
 
         // Business method
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = transactionService.
@@ -320,9 +300,6 @@ public class DeviceProtocolPluggableClassImplTest {
                         deviceProtocolPluggableClass.setProperty(
                                 DeviceMessageTestSpec.extendedSpecs(propertySpecService).getPropertySpec(DeviceMessageTestSpec.ACTIVATIONDATE_PROPERTY_SPEC_NAME),
                                 activationDate);
-                        deviceProtocolPluggableClass.setProperty(
-                                DeviceMessageTestSpec.extendedSpecs(propertySpecService).getPropertySpec(DeviceMessageTestSpec.CODETABLE_PROPERTY_SPEC_NAME),
-                                code);
                         deviceProtocolPluggableClass.save();
                         return deviceProtocolPluggableClass;
 
@@ -335,17 +312,10 @@ public class DeviceProtocolPluggableClassImplTest {
         DeviceProtocol deviceProtocol = deviceProtocolPluggableClass.getDeviceProtocol();
         assertThat(deviceProtocol).isNotNull();
         assertThat(deviceProtocol).isInstanceOf(DeviceProtocol.class);
-        assertThat(deviceProtocol.getPropertySpecs()).hasSize(2);
+        assertThat(deviceProtocol.getPropertySpecs()).hasSize(1);
         assertThat(deviceProtocol.getPropertySpec(DeviceMessageTestSpec.ACTIVATIONDATE_PROPERTY_SPEC_NAME)).isNotNull();
-        assertThat(deviceProtocol.getPropertySpec(DeviceMessageTestSpec.CODETABLE_PROPERTY_SPEC_NAME)).isNotNull();
-        assertThat(deviceProtocol.getPropertySpec(DeviceMessageTestSpec.CODETABLE_PROPERTY_SPEC_NAME)).isNotNull();
         TypedProperties properties = deviceProtocolPluggableClass.getProperties();
         assertThat(properties.getProperty(DeviceMessageTestSpec.ACTIVATIONDATE_PROPERTY_SPEC_NAME)).isEqualTo(activationDate);
-        Object propertyValue = properties.getProperty(DeviceMessageTestSpec.CODETABLE_PROPERTY_SPEC_NAME);
-        assertThat(propertyValue).isInstanceOf(Code.class);
-        Code codePropertyValue = (Code) propertyValue;
-        assertThat(codePropertyValue.getId()).isEqualTo(CODE_ID);
-        assertThat(codePropertyValue.getName()).isEqualTo(CODE_NAME);
     }
 
     /**
@@ -517,6 +487,23 @@ public class DeviceProtocolPluggableClassImplTest {
             return null;
         }
 
+    }
+
+    private class CodeFinder implements CanFindByLongPrimaryKey {
+        @Override
+        public FactoryIds factoryId() {
+            return FactoryIds.CODE;
+        }
+
+        @Override
+        public Class<Code> valueDomain() {
+            return Code.class;
+        }
+
+        @Override
+        public Optional<Code> findByPrimaryKey(long id) {
+            return Optional.absent();
+        }
     }
 
 }

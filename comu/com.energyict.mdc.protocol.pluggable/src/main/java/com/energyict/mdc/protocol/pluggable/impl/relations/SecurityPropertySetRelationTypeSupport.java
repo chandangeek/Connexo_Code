@@ -1,14 +1,12 @@
 package com.energyict.mdc.protocol.pluggable.impl.relations;
 
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessObjectFactory;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.dynamic.JupiterReferenceFactory;
 import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdc.dynamic.LegacyReferenceFactory;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.ValueFactory;
 import com.energyict.mdc.dynamic.relation.ConstraintShadow;
 import com.energyict.mdc.dynamic.relation.RelationAttributeTypeShadow;
@@ -21,6 +19,9 @@ import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.PluggableClassRelationAttributeTypeRegistry;
 import com.energyict.mdc.protocol.pluggable.impl.PluggableClassRelationAttributeTypeUsage;
+
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
 
 /**
  * Provides {@link RelationTypeSupport} for the security properties of a {@link DeviceSecuritySupport}.
@@ -37,20 +38,21 @@ public class SecurityPropertySetRelationTypeSupport extends AbstractSecurityProp
             DataModel dataModel,
             ProtocolPluggableService protocolPluggableService,
             RelationService relationService,
+            PropertySpecService propertySpecService,
             DeviceSecuritySupport securitySupport,
             DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
-        super(protocolPluggableService, relationService, securitySupport);
+        super(protocolPluggableService, relationService, propertySpecService, securitySupport);
         this.mapper = dataModel.mapper(PluggableClassRelationAttributeTypeUsage.class);
         this.deviceProtocolPluggableClass = deviceProtocolPluggableClass;
     }
 
     @Override
-    public RelationType findOrCreateRelationType (boolean activate) {
+    public RelationType findOrCreateRelationType(boolean activate) {
         if (this.deviceProtocolHasSecurityProperties()) {
             String relationTypeName = this.appropriateRelationTypeName();
             RelationType relationType = this.findRelationType(relationTypeName);
             if (relationType == null) {
-                relationType = this.createRelationType(this.getSecuritySupport());
+                relationType = this.createRelationType(this.getSecuritySupport(), this.getPropertySpecService());
                 if (activate) {
                     this.activate(relationType);
                 }
@@ -65,7 +67,7 @@ public class SecurityPropertySetRelationTypeSupport extends AbstractSecurityProp
         }
     }
 
-    private RelationType createRelationType (DeviceSecuritySupport securitySupport) {
+    private RelationType createRelationType(DeviceSecuritySupport securitySupport, PropertySpecService propertySpecService) {
         RelationTypeShadow relationTypeShadow = new RelationTypeShadow();
         relationTypeShadow.setSystem(true);
         relationTypeShadow.setName(this.appropriateRelationTypeName());
@@ -79,7 +81,7 @@ public class SecurityPropertySetRelationTypeSupport extends AbstractSecurityProp
             relationTypeShadow.add(this.relationAttributeTypeShadowFor(propertySpec));
         }
         relationTypeShadow.add(this.constraintShadowFor(deviceAttribute, securityPropertySetAttribute));
-        return this.createRelationType(relationTypeShadow);
+        return this.createRelationType(relationTypeShadow, propertySpecService);
     }
 
     private RelationAttributeTypeShadow deviceAttributeTypeShadow () {

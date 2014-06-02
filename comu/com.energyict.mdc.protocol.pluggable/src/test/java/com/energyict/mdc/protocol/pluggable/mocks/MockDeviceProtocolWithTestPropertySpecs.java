@@ -44,7 +44,7 @@ public class MockDeviceProtocolWithTestPropertySpecs implements DeviceProtocol {
 
     @Override
     public void setPropertySpecService(PropertySpecService propertySpecService) {
-
+        this.propertySpecService = propertySpecService;
     }
 
     @Override

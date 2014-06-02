@@ -88,7 +88,6 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
         try {
             if (DeviceProtocol.class.isAssignableFrom(protocolClass)) {
                 deviceProtocol = (DeviceProtocol) protocolClass.newInstance();
-                return deviceProtocol;
             }
             else {
                 // Must be a lecagy pluggable class
@@ -149,13 +148,13 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
     }
 
     private void createSecurityPropertiesRelationType () {
-        DeviceProtocolSecurityRelationTypeCreator.createRelationType(this.dataModel, this.protocolPluggableService, this.relationService, this);
+        DeviceProtocolSecurityRelationTypeCreator.createRelationType(this.dataModel, this.protocolPluggableService, this.relationService, this, this.propertySpecService);
     }
 
     private void createDialectRelationTypes () {
         for (DeviceProtocolDialect deviceProtocolDialect : this.getDeviceProtocol().getDeviceProtocolDialects()) {
             DeviceProtocolDialectUsagePluggableClass dialectUsagePluggableClass =
-                    new DeviceProtocolDialectUsagePluggableClassImpl(this, deviceProtocolDialect, this.dataModel, this.relationService);
+                    new DeviceProtocolDialectUsagePluggableClassImpl(this, deviceProtocolDialect, this.dataModel, this.relationService, this.propertySpecService);
             dialectUsagePluggableClass.findOrCreateRelationType(true);
         }
     }
@@ -170,7 +169,7 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
     private void deleteDialectRelationTypes() {
         DeviceProtocolDialectUsagePluggableClassImpl deviceProtocolDialectUsagePluggableClass;
         for (DeviceProtocolDialect deviceProtocolDialect : this.newInstance().getDeviceProtocolDialects()) {
-            deviceProtocolDialectUsagePluggableClass = new DeviceProtocolDialectUsagePluggableClassImpl(this, deviceProtocolDialect, this.dataModel, this.relationService);
+            deviceProtocolDialectUsagePluggableClass = new DeviceProtocolDialectUsagePluggableClassImpl(this, deviceProtocolDialect, this.dataModel, this.relationService, this.propertySpecService);
             deviceProtocolDialectUsagePluggableClass.deleteRelationType();
         }
     }
@@ -182,6 +181,7 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
                         this.dataModel,
                         this.protocolPluggableService,
                         this.relationService,
+                        this.propertySpecService,
                         deviceProtocol,
                         this);
         relationTypeSupport.deleteRelationType();

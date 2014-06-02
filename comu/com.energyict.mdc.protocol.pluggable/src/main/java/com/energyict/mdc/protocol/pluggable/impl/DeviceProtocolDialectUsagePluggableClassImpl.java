@@ -1,13 +1,12 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.JupiterReferenceFactory;
 import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.ValueFactory;
 import com.energyict.mdc.dynamic.relation.ConstraintShadow;
 import com.energyict.mdc.dynamic.relation.Relation;
@@ -22,6 +21,10 @@ import com.energyict.mdc.pluggable.PluggableClassType;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
+
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.time.Interval;
+
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.Date;
@@ -42,13 +45,15 @@ public class DeviceProtocolDialectUsagePluggableClassImpl implements DeviceProto
     private final DeviceProtocolDialect deviceProtocolDialect;
     private final DataModel dataModel;
     private final RelationService relationService;
+    private final PropertySpecService propertySpecService;
     private RelationType relationType;  // Cache
 
-    public DeviceProtocolDialectUsagePluggableClassImpl(DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceProtocolDialect deviceProtocolDialect, DataModel dataModel, RelationService relationService) {
+    public DeviceProtocolDialectUsagePluggableClassImpl(DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceProtocolDialect deviceProtocolDialect, DataModel dataModel, RelationService relationService, PropertySpecService propertySpecService) {
         this.deviceProtocolPluggableClass = deviceProtocolPluggableClass;
         this.deviceProtocolDialect = deviceProtocolDialect;
         this.dataModel = dataModel;
         this.relationService = relationService;
+        this.propertySpecService = propertySpecService;
     }
 
     @Override
@@ -62,13 +67,13 @@ public class DeviceProtocolDialectUsagePluggableClassImpl implements DeviceProto
             String relationTypeName = getConformRelationTypeName();
             RelationType relationType = this.findRelationType(relationTypeName);
             if (relationType == null) {
-                relationType = this.createRelationType(this.deviceProtocolDialect);
+                relationType = this.createRelationType(this.deviceProtocolDialect, this.propertySpecService);
                 if (activate) {
                     this.activate(relationType);
                 }
             }
             if (relationType != null) {
-                this.registerRelationType(relationType, deviceProtocolPluggableClass);
+                this.registerRelationType(relationType, this.deviceProtocolPluggableClass);
             }
             return relationType;
         } else {
@@ -84,7 +89,7 @@ public class DeviceProtocolDialectUsagePluggableClassImpl implements DeviceProto
         return this.relationService.findRelationType(relationTypeName);
     }
 
-    private RelationType createRelationType(DeviceProtocolDialect deviceProtocolDialect) {
+    private RelationType createRelationType(DeviceProtocolDialect deviceProtocolDialect, PropertySpecService propertySpecService) {
         RelationTypeShadow relationTypeShadow = new RelationTypeShadow();
         relationTypeShadow.setSystem(true);
         relationTypeShadow.setName(getConformRelationTypeName());
@@ -96,7 +101,7 @@ public class DeviceProtocolDialectUsagePluggableClassImpl implements DeviceProto
             relationTypeShadow.add(this.relationAttributeTypeShadowFor(propertySpec, false));   // Not required because the user can decide to specify a value on the config level
         }
         relationTypeShadow.add(this.constraintShadowFor(defaultAttribute));
-        return this.relationService.createRelationType(relationTypeShadow);
+        return this.relationService.createRelationType(relationTypeShadow, propertySpecService);
     }
 
     private ConstraintShadow constraintShadowFor(RelationAttributeTypeShadow defaultAttributeTypeShadow) {

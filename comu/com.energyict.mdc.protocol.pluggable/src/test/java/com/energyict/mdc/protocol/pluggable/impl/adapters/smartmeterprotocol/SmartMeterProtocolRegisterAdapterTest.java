@@ -8,6 +8,7 @@ import com.energyict.mdc.common.UserEnvironment;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.Problem;
 import com.energyict.mdc.issues.Warning;
+import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.Register;
@@ -101,11 +102,19 @@ public class SmartMeterProtocolRegisterAdapterTest {
         when(this.environment.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
         when(this.environment.getApplicationContext()).thenReturn(this.applicationContext);
         Environment.DEFAULT.set(this.environment);
+        CollectedDataFactoryProvider collectedDataFactoryProvider = mock(CollectedDataFactoryProvider.class);
+        when(collectedDataFactoryProvider.getCollectedDataFactory()).thenReturn(this.collectedDataFactory);
+        CollectedDataFactoryProvider.instance.set(collectedDataFactoryProvider);
     }
 
     @After
     public void cleanupEnvironment() {
         Environment.DEFAULT.set(null);
+    }
+
+    @After
+    public void resetCollectedDataFactoryProvider() {
+        CollectedDataFactoryProvider.instance.set(null);
     }
 
     @Before

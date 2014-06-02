@@ -14,7 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Test enum implementing DeviceMessageSpec
+ * Test enum implementing DeviceMessageSpec.
  * <p/>
  * Copyrights EnergyICT
  * Date: 8/02/13
@@ -22,7 +22,6 @@ import java.util.List;
  */
 public final class DeviceMessageTestSpec implements DeviceMessageSpec {
 
-    public static final String CODETABLE_PROPERTY_SPEC_NAME = "testMessageSpec.codetable";
     public static final String ACTIVATIONDATE_PROPERTY_SPEC_NAME = "testMessageSpec.activationdate";
     public static final String SIMPLE_STRING_PROPERTY_SPEC_NAME = "testMessageSpec.simpleString";
     public static final String SIMPLE_BIGDECIMAL_PROPERTY_SPEC_NAME = "testMessageSpec.simpleBigDecimal";
@@ -50,7 +49,6 @@ public final class DeviceMessageTestSpec implements DeviceMessageSpec {
     public static DeviceMessageTestSpec extendedSpecs(PropertySpecService propertySpecService) {
         return new DeviceMessageTestSpec(
                 "TEST_SPEC_WITH_EXTENDED_SPECS",
-                propertySpecService.referencePropertySpec(CODETABLE_PROPERTY_SPEC_NAME, true, FactoryIds.CODE),
                 propertySpecService.basicPropertySpec(ACTIVATIONDATE_PROPERTY_SPEC_NAME, true, new DateAndTimeFactory()));
     }
     public static DeviceMessageTestSpec noSpecs() {

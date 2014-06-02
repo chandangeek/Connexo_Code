@@ -194,7 +194,7 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
     }
 
     @Override
-    public RelationType findOrCreateRelationType (boolean activate) {
+    public RelationType findOrCreateRelationType(boolean activate) {
         if (this.connectionTypeHasProperties()) {
             ConnectionType connectionType = this.newInstance();
             String relationTypeName = this.relationTypeNameFor(connectionType);
@@ -282,7 +282,7 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
             relationTypeShadow.add(this.relationAttributeTypeShadowFor(propertySpec));
         }
         relationTypeShadow.add(this.constraintShadowFor(connectionType, defaultAttribute));
-        return this.relationService.createRelationType(relationTypeShadow);
+        return this.relationService.createRelationType(relationTypeShadow, propertySpecService);
     }
 
     private ConstraintShadow constraintShadowFor (ConnectionType connectionType, RelationAttributeTypeShadow defaultAttributeTypeShadow) {

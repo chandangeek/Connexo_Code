@@ -71,7 +71,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 
 /**
- * Tests for the {@link SmartMeterProtocolAdapter}
+ * Tests for the {@link SmartMeterProtocolAdapter}.
  *
  * @author gna
  * @since 5/04/12 - 13:20
@@ -336,7 +336,7 @@ public class SmartMeterProtocolAdapterTest {
             // call the logOn business method
             smartMeterProtocolAdapter.logOn();
         } catch (CommunicationException e) {
-            if (!e.getMessage().equals(Environment.DEFAULT.get().getErrorMsg("CSC-COM-113"))) {
+            if (!e.getMessageId().equals("CSC-COM-113")) {
                 throw e;
             }
         }
@@ -368,7 +368,7 @@ public class SmartMeterProtocolAdapterTest {
             // call the logOn business method
             smartMeterProtocolAdapter.logOff();
         } catch (CommunicationException e) {
-            if (!e.getMessage().equals(Environment.DEFAULT.get().getErrorMsg("CSC-COM-114"))) {
+            if (!e.getMessageId().equals("CSC-COM-114")) {
                 throw e;
             }
         }

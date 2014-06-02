@@ -6,6 +6,7 @@ import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
@@ -113,11 +114,19 @@ public class SmartMeterProtocolMessageAdapterTest {
                 }
         );
         when(this.collectedDataFactory.createEmptyCollectedMessageList()).thenReturn(new MockCollectedMessageList());
+        CollectedDataFactoryProvider collectedDataFactoryProvider = mock(CollectedDataFactoryProvider.class);
+        when(collectedDataFactoryProvider.getCollectedDataFactory()).thenReturn(this.collectedDataFactory);
+        CollectedDataFactoryProvider.instance.set(collectedDataFactoryProvider);
     }
 
     @After
     public void cleanUpDataBase () throws SQLException {
         this.inMemoryPersistence.cleanUpDataBase();
+    }
+
+    @After
+    public void resetCollectedDataFactoryProvider () {
+        CollectedDataFactoryProvider.instance.set(null);
     }
 
     @Test

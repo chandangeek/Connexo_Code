@@ -6,6 +6,7 @@ import com.energyict.mdc.common.UserEnvironment;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.Problem;
+import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
@@ -89,6 +90,14 @@ public class DeviceProtocolTopologyAdapterTest {
     @Before
     public void initializeCollecteData () {
         when(this.collectedDataFactory.createCollectedTopology(getDeviceIdentifier())).thenReturn(this.collectedTopology);
+        CollectedDataFactoryProvider collectedDataFactoryProvider = mock(CollectedDataFactoryProvider.class);
+        when(collectedDataFactoryProvider.getCollectedDataFactory()).thenReturn(this.collectedDataFactory);
+        CollectedDataFactoryProvider.instance.set(collectedDataFactoryProvider);
+    }
+
+    @After
+    public void resetCollectedData () {
+        CollectedDataFactoryProvider.instance.set(null);
     }
 
     @Before
