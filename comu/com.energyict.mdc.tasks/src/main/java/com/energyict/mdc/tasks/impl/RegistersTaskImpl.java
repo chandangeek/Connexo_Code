@@ -87,15 +87,6 @@ class RegistersTaskImpl extends ProtocolTaskImpl implements RegistersTask {
         }
     }
 
-    private <T extends HasId> T getById(List<T> list, long id) {
-        for (T t : list) {
-            if (t.getId()==id) {
-                return t;
-            }
-        }
-        return null;
-    }
-
     void deleteDependents() {
         this.registerGroupUsages.clear();
     }

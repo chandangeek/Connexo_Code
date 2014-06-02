@@ -24,4 +24,9 @@ class StatusInformationTaskImpl extends ProtocolTaskImpl implements StatusInform
         setFlags(FLAGS);
     }
 
+    @Override
+    void deleteDependents() {
+        // currently no dependents to delete
+    }
+
 }

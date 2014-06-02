@@ -43,6 +43,11 @@ class TopologyTaskImpl extends ProtocolTaskImpl implements TopologyTask {
     }
 
     @Override
+    void deleteDependents() {
+        // currently no dependents to delete
+    }
+
+    @Override
     public TopologyAction getTopologyAction() {
         return this.topologyAction;
     }

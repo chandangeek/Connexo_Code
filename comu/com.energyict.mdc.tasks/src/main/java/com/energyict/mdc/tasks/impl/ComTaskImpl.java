@@ -7,6 +7,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TranslatableApplicationException;
+import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
@@ -344,6 +345,12 @@ public class ComTaskImpl implements ComTask, HasId {
 
         LoadProfilesTaskBuilderImpl(ComTask comTask) {
             loadProfilesTask.ownedBy(comTask);
+        }
+
+        @Override
+        public LoadProfilesTask.LoadProfilesTaskBuilder loadProfileTypes(List<LoadProfileType> loadProfileTypes) {
+            loadProfilesTask.setLoadProfileTypes(loadProfileTypes);
+            return this;
         }
 
         @Override
