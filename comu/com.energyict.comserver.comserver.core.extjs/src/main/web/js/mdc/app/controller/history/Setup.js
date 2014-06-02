@@ -481,15 +481,16 @@ Ext.define('Mdc.controller.history.Setup', {
                     route: 'searchitems',
                     controller: 'Mdc.controller.setup.SearchItems',
                     action: 'showSearchItems'
-                },
-                device: {
-                    title: 'Device',
-                    route: 'devices/{id}',
-                    controller: 'Mdc.controller.setup.Devices',
-                    action: 'showDeviceDetailsView'
                 }
             }
+        },
+        device: {
+            title: 'Device',
+            route: 'devices/{id}',
+            controller: 'Mdc.controller.setup.Devices',
+            action: 'showDeviceDetailsView'
         }
+
     },
 
     init: function () {

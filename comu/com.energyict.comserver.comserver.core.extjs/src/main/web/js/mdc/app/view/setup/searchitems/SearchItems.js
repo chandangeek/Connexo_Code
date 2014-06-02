@@ -36,6 +36,7 @@ Ext.define('Mdc.view.setup.searchitems.SearchItems', {
         this.callParent(arguments);
 
         this.down('#contentLayout').getLayout().setActiveItem(0);
+        this.getCenterContainer().down('#searchContentFilter').hide();
 
     }
 });
