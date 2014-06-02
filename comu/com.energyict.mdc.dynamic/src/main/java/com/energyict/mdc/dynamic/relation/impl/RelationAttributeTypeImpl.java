@@ -68,10 +68,18 @@ public class RelationAttributeTypeImpl extends PersistentNamedObject implements 
         this.propertySpecService = propertySpecService;
     }
 
-    public RelationAttributeTypeImpl(RelationType relationType, Thesaurus thesaurus, String name) {
+    public RelationAttributeTypeImpl(RelationType relationType, Thesaurus thesaurus, String name, PropertySpecService propertySpecService) {
         super(name);
         this.thesaurus = thesaurus;
         this.relationType.set(relationType);
+        this.propertySpecService = propertySpecService;
+    }
+
+    public RelationAttributeTypeImpl(RelationType relationType, Thesaurus thesaurus, String name, ValueFactory valueFactory) {
+        super(name);
+        this.thesaurus = thesaurus;
+        this.relationType.set(relationType);
+        this.valueFactory = valueFactory;
     }
 
     @Override

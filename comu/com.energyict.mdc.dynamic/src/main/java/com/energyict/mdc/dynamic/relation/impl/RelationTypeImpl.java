@@ -1,11 +1,7 @@
 package com.energyict.mdc.dynamic.relation.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.BusinessObject;
 import com.energyict.mdc.common.BusinessObjectFactory;
 import com.energyict.mdc.common.DatabaseException;
 import com.energyict.mdc.common.FactoryIds;
@@ -15,11 +11,19 @@ import com.energyict.mdc.common.ShadowList;
 import com.energyict.mdc.common.SoftTypeId;
 import com.energyict.mdc.common.TypeId;
 import com.energyict.mdc.common.UserEnvironment;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.ValueFactory;
-import com.energyict.mdc.dynamic.relation.exceptions.CannotAddRequiredRelationAttributeException;
-import com.energyict.mdc.dynamic.relation.exceptions.CannotDeleteRelationType;
 import com.energyict.mdc.dynamic.relation.Constraint;
 import com.energyict.mdc.dynamic.relation.ConstraintShadow;
+import com.energyict.mdc.dynamic.relation.Relation;
+import com.energyict.mdc.dynamic.relation.RelationAttributeType;
+import com.energyict.mdc.dynamic.relation.RelationAttributeTypeShadow;
+import com.energyict.mdc.dynamic.relation.RelationSearchFilter;
+import com.energyict.mdc.dynamic.relation.RelationTransaction;
+import com.energyict.mdc.dynamic.relation.RelationType;
+import com.energyict.mdc.dynamic.relation.RelationTypeShadow;
+import com.energyict.mdc.dynamic.relation.exceptions.CannotAddRequiredRelationAttributeException;
+import com.energyict.mdc.dynamic.relation.exceptions.CannotDeleteRelationType;
 import com.energyict.mdc.dynamic.relation.exceptions.DuplicateNameException;
 import com.energyict.mdc.dynamic.relation.exceptions.LockAttributeShouldBeReferenceTypeException;
 import com.energyict.mdc.dynamic.relation.exceptions.LockAttributeShouldBeRequiredException;
@@ -28,16 +32,12 @@ import com.energyict.mdc.dynamic.relation.exceptions.NameContainsInvalidCharacte
 import com.energyict.mdc.dynamic.relation.exceptions.NameIsRequiredException;
 import com.energyict.mdc.dynamic.relation.exceptions.NameTooLongException;
 import com.energyict.mdc.dynamic.relation.exceptions.NoLockAttributeException;
-import com.energyict.mdc.dynamic.relation.Relation;
-import com.energyict.mdc.dynamic.relation.RelationAttributeType;
-import com.energyict.mdc.dynamic.relation.RelationAttributeTypeShadow;
-import com.energyict.mdc.dynamic.relation.RelationParticipant;
-import com.energyict.mdc.dynamic.relation.RelationSearchFilter;
-import com.energyict.mdc.dynamic.relation.RelationTransaction;
-import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.dynamic.relation.exceptions.RelationTypeDDLException;
-import com.energyict.mdc.dynamic.relation.RelationTypeShadow;
 import com.energyict.mdc.dynamic.relation.impl.legacy.PersistentNamedObject;
+
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
@@ -125,10 +125,6 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
         return this.hasTimeResolution;
     }
 
-    public int getLockAttributeTypeId() {
-        return this.lockAttributeTypeId;
-    }
-
     public synchronized RelationAttributeType getLockAttributeType() {
         if (this.lockAttributeType == null) {
             this.lockAttributeType = this.findLockAttribute();
@@ -210,21 +206,21 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
         return new RelationTypeShadow(this);
     }
 
-    public void update(RelationTypeShadow shadow) {
+    public void update(RelationTypeShadow shadow, PropertySpecService propertySpecService) {
         this.validateUpdate(shadow);
         this.copyUpdate(shadow);
-        this.processAttributes(shadow.getAttributeTypeShadows());
+        this.processAttributes(shadow.getAttributeTypeShadows(), propertySpecService);
         this.post();
         this.lockAttributeTypeId = this.findLockAttributeByName(shadow.getLockAttributeTypeShadow().getName()).getId();
         this.processConstraints(shadow.getConstraintShadows());
         this.post();
     }
 
-    protected void processAttributes(ShadowList<RelationAttributeTypeShadow> list) {
+    protected void processAttributes(ShadowList<RelationAttributeTypeShadow> list, PropertySpecService propertySpecService) {
         if (list.isDirty()) {
             this.processDeletedAttributes(list.getDeletedShadows());
             this.processUpdatedAttributes(list.getUpdatedShadows());
-            this.processNewAttributes(list.getNewShadows());
+            this.processNewAttributes(list.getNewShadows(), propertySpecService);
         }
     }
 
@@ -246,10 +242,10 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
         }
     }
 
-    private void processNewAttributes(List<RelationAttributeTypeShadow> newShadows) {
+    private void processNewAttributes(List<RelationAttributeTypeShadow> newShadows, PropertySpecService propertySpecService) {
         for (RelationAttributeTypeShadow attShadow : newShadows) {
             attShadow.setRelationTypeId(getId());
-            RelationAttributeType target = this.doAddAttribute(attShadow);
+            RelationAttributeType target = this.doAddAttribute(attShadow, propertySpecService);
             attShadow.setId(target.getId());
         }
     }
@@ -291,10 +287,10 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
         }
     }
 
-    public void init(RelationTypeShadow shadow) {
+    public void init(RelationTypeShadow shadow, PropertySpecService propertySpecService) {
         this.validateNew(shadow);
         this.copyNew(shadow);
-        this.processAttributes(shadow.getAttributeTypeShadows());
+        this.processAttributes(shadow.getAttributeTypeShadows(), propertySpecService);
         this.postNew();
         this.lockAttributeTypeId = this.findLockAttributeByName(shadow.getLockAttributeTypeShadow().getName()).getId();
         this.processConstraints(shadow.getConstraintShadows());
@@ -388,11 +384,17 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
         shadow.setName(fieldName);
         shadow.setRelationTypeId(this.getId());
         shadow.setObjectFactoryId(objectFactoryId);
-        this.doAddAttribute(shadow);
+        this.doAddAttribute(shadow, factory);
     }
 
-    private RelationAttributeType doAddAttribute(RelationAttributeTypeShadow shadow) {
-        RelationAttributeType attributeType = this.createAttributeType(shadow);
+    private RelationAttributeType doAddAttribute(RelationAttributeTypeShadow shadow, PropertySpecService propertySpecService) {
+        RelationAttributeType attributeType = this.createAttributeType(shadow, propertySpecService);
+        new RelationTypeDdlGenerator(this, this.thesaurus, true).addAttributeColumn(attributeType);
+        return attributeType;
+    }
+
+    private RelationAttributeType doAddAttribute(RelationAttributeTypeShadow shadow, ValueFactory valueFactory) {
+        RelationAttributeType attributeType = this.createAttributeType(shadow, valueFactory);
         new RelationTypeDdlGenerator(this, this.thesaurus, true).addAttributeColumn(attributeType);
         return attributeType;
     }
@@ -413,16 +415,14 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
     }
 
     public Map<RelationAttributeType, Object> getAttributes(Relation relation) {
-        HashMap<RelationAttributeType, Object> result = new HashMap<>();
+        Map<RelationAttributeType, Object> result = new HashMap<>();
         if (hasNoAttributes()) {
             return result;
         }
         try {
-            PreparedStatement statement = getAttributeStatement(relation.isObsolete());
-            try {
+            try (PreparedStatement statement = getAttributeStatement(relation.isObsolete())) {
                 statement.setInt(1, relation.getId());
-                ResultSet rs = statement.executeQuery();
-                try {
+                try (ResultSet rs = statement.executeQuery()) {
                     List<RelationAttributeType> aTypes = getAttributeTypes();
                     if (rs.next()) {
                         for (int i = 0; i < aTypes.size(); i++) {
@@ -431,12 +431,6 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
                         }
                     }
                 }
-                finally {
-                    rs.close();
-                }
-            }
-            finally {
-                statement.close();
             }
         }
         catch (SQLException ex) {
@@ -658,16 +652,19 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
         return null;
     }
 
-    public List<RelationAttributeType> getAvailableAttributeTypes(RelationParticipant participant) {
-        return Bus.getServiceLocator().getOrmClient().findByRelationTypeAndParticipant(this, (BusinessObject) participant);
-    }
-
     public boolean hasAttribute(String name) {
         return getAttributeType(name) != null;
     }
 
-    public RelationAttributeType createAttributeType(RelationAttributeTypeShadow raShadow) {
-        RelationAttributeTypeImpl relationAttributeType = new RelationAttributeTypeImpl(this, this.thesaurus, raShadow.getName());
+    public RelationAttributeType createAttributeType(RelationAttributeTypeShadow raShadow, PropertySpecService propertySpecService) {
+        RelationAttributeTypeImpl relationAttributeType = new RelationAttributeTypeImpl(this, this.thesaurus, raShadow.getName(), propertySpecService);
+        relationAttributeType.init(this, raShadow);
+        this.attributeTypes.add(relationAttributeType);
+        return relationAttributeType;
+    }
+
+    public RelationAttributeType createAttributeType(RelationAttributeTypeShadow raShadow, ValueFactory valueFactory) {
+        RelationAttributeTypeImpl relationAttributeType = new RelationAttributeTypeImpl(this, this.thesaurus, raShadow.getName(), valueFactory);
         relationAttributeType.init(this, raShadow);
         this.attributeTypes.add(relationAttributeType);
         return relationAttributeType;
@@ -754,10 +751,6 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
         return new RelationTransactionImpl(this);
     }
 
-    public Relation createRelation(RelationTransaction transaction) throws BusinessException, SQLException {
-        return transaction.doExecute();
-    }
-
     public boolean isDefault() {
         for (RelationAttributeType mdwAttributeType : getAttributeTypes()) {
             if (mdwAttributeType.isDefault()) {
@@ -807,10 +800,6 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
      */
     public final boolean isMetaTypeFactory() {
         return false;
-    }
-
-    public List<Relation> getModifiedSince(Date since) {
-        return this.getBaseFactory().findModifiedSince(since);
     }
 
     @Override

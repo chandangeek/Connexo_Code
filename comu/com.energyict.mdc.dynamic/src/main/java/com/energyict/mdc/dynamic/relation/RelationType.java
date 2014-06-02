@@ -3,10 +3,10 @@ package com.energyict.mdc.dynamic.relation;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.BusinessObjectFactory;
 import com.energyict.mdc.common.NamedBusinessObject;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.ValueFactory;
 
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -33,14 +33,14 @@ public interface RelationType extends NamedBusinessObject, BusinessObjectFactory
      *
      * @return a List of RelationAttributeType objects
      */
-    List<RelationAttributeType> getAttributeTypes();
+    public List<RelationAttributeType> getAttributeTypes();
 
     /**
      * returns the list of unique constraints tied to this relation type
      *
      * @return a List of Constraint objects
      */
-    List<Constraint> getConstraints();
+    public List<Constraint> getConstraints();
 
     /**
      * returns the list of constraints that will reject violations and throw an
@@ -48,7 +48,7 @@ public interface RelationType extends NamedBusinessObject, BusinessObjectFactory
      *
      * @return a List of Constraint objects
      */
-    List<Constraint> getRejectViolationConstraints();
+    public List<Constraint> getRejectViolationConstraints();
 
     /**
      * tests if the receiver is configured for having versions on time
@@ -56,14 +56,14 @@ public interface RelationType extends NamedBusinessObject, BusinessObjectFactory
      *
      * @return true if the type has time resolution, false otherwise
      */
-    boolean hasTimeResolution();
+    public boolean hasTimeResolution();
 
     /**
      * tests if the receiver is active
      *
      * @return true if active, false otherwise
      */
-    boolean isActive();
+    public boolean isActive();
 
     /**
      * returns the attribute values for a given <code>Relation</code>
@@ -72,7 +72,7 @@ public interface RelationType extends NamedBusinessObject, BusinessObjectFactory
      * @return a Map with keys the attribute type and values the attribute
      *         values.
      */
-    Map<RelationAttributeType, Object> getAttributes(Relation relation);
+    public Map<RelationAttributeType, Object> getAttributes(Relation relation);
 
     /**
      * returns the list of affected relations when inserting the new relation,
@@ -82,22 +82,14 @@ public interface RelationType extends NamedBusinessObject, BusinessObjectFactory
      *                    returned
      * @return a List with affected relation objects
      */
-    List<Relation> getAffectedRelations(RelationTransaction transaction);
+    public List<Relation> getAffectedRelations(RelationTransaction transaction);
 
     /**
      * returns an empty transaction object for relation construction
      *
      * @return the transaction object
      */
-    RelationTransaction newRelationTransaction();
-
-    /**
-     * creates a new relation as specified in the transaction object
-     *
-     * @param transaction transaction containing the definition for the new relation
-     * @return the Relation object
-     */
-    Relation createRelation(RelationTransaction transaction) throws BusinessException, SQLException;
+    public RelationTransaction newRelationTransaction();
 
     /**
      * tests if this folder type has this attribute defined
@@ -105,7 +97,7 @@ public interface RelationType extends NamedBusinessObject, BusinessObjectFactory
      * @param name the attribute name to test
      * @return true if defined , false otherwise
      */
-    boolean hasAttribute(String name);
+    public boolean hasAttribute(String name);
 
     /**
      * returns the attribute type with the given index
@@ -113,7 +105,7 @@ public interface RelationType extends NamedBusinessObject, BusinessObjectFactory
      * @param index the zero based index
      * @return the attribute type.
      */
-    RelationAttributeType getAttributeType(int index);
+    public RelationAttributeType getAttributeType(int index);
 
     /**
      * Returns the {@link RelationAttributeType} with the specified id.
@@ -121,7 +113,7 @@ public interface RelationType extends NamedBusinessObject, BusinessObjectFactory
      * @param id The id of the RelationAttributeType
      * @return the attribute type.
      */
-    RelationAttributeType getAttributeTypeById(int id);
+    public RelationAttributeType getAttributeTypeById(int id);
 
     /**
      * returns the attribute type with the given name
@@ -129,23 +121,14 @@ public interface RelationType extends NamedBusinessObject, BusinessObjectFactory
      * @param name the name to match
      * @return the attribute type or null
      */
-    RelationAttributeType getAttributeType(String name);
-
-    /**
-     * returns the list of attribute types that can be used to host the
-     * participant
-     *
-     * @param participant
-     * @return a List of RelationAttributeType objects
-     */
-    List<RelationAttributeType> getAvailableAttributeTypes(RelationParticipant participant);
+    public RelationAttributeType getAttributeType(String name);
 
     /**
      * returns a shadow object initialized with the receiver
      *
      * @return a shadow object
      */
-    RelationTypeShadow getShadow();
+    public RelationTypeShadow getShadow();
 
     /**
      * updates the folder type
@@ -154,35 +137,13 @@ public interface RelationType extends NamedBusinessObject, BusinessObjectFactory
      * @throws BusinessException if a business exception occurred
      * @throws SQLException      if a database error occurred
      */
-    void update(final RelationTypeShadow shadow) throws BusinessException, SQLException;
-
-    /**
-     * creates a new folder attribute type
-     *
-     * @param faShadow contains the new folder attribute type attribute values.
-     * @return the new folder attribute type
-     * @throws SQLException      if a database error occurred
-     * @throws BusinessException if a business exception occurred
-     */
-    RelationAttributeType createAttributeType(RelationAttributeTypeShadow faShadow) throws SQLException, BusinessException;
-
-    /**
-     * deletes a folder attribute type
-     *
-     * @param faType the folder attribute type to delete
-     * @throws SQLException      if a database error occurred
-     * @throws BusinessException if a business exception occurred
-     */
-    void deleteAttributeType(RelationAttributeType faType) throws SQLException, BusinessException;
+    public void update(final RelationTypeShadow shadow, PropertySpecService propertySpecService) throws BusinessException, SQLException;
 
     /**
      * activates the receiver. This will generate a database table to store the
      * values of the defined attribute types
-     *
-     * @throws SQLException      if a database error occurred
-     * @throws BusinessException if a business exception occurred
      */
-    void activate();
+    public void activate();
 
     /**
      * deactivates the receiver
@@ -190,21 +151,21 @@ public interface RelationType extends NamedBusinessObject, BusinessObjectFactory
      * @throws SQLException      if a database error occurred
      * @throws BusinessException if a business exception occurred
      */
-    void deactivate() throws SQLException, BusinessException;
+    public void deactivate() throws SQLException, BusinessException;
 
     /**
      * returns the name of the table storing the dynamic attributes
      *
      * @return the dynamic attribute table name
      */
-    String getDynamicAttributeTableName();
+    public String getDynamicAttributeTableName();
 
     /**
      * returns the name of the table storing the obsolete dynamic attributes
      *
      * @return the obsolete dynamic attribute table name
      */
-    String getObsoleteAttributeTableName();
+    public String getObsoleteAttributeTableName();
 
     /**
      * Add a new attribute to this relation type
@@ -215,7 +176,7 @@ public interface RelationType extends NamedBusinessObject, BusinessObjectFactory
      * @throws SQLException      if a database error occured.
      * @throws BusinessException if a business error occured.
      */
-    void addAttribute(String fieldName, String displayName, ValueFactory factory) throws BusinessException, SQLException;
+    public void addAttribute(String fieldName, String displayName, ValueFactory factory) throws BusinessException, SQLException;
 
     /**
      * returns the receiver's display name (which can - in contrast to the name
@@ -223,7 +184,7 @@ public interface RelationType extends NamedBusinessObject, BusinessObjectFactory
      *
      * @return the receiver's display name
      */
-    String getDisplayName();
+    public String getDisplayName();
 
     /**
      * tests if the receiver is a default relation of the FolderType
@@ -231,19 +192,14 @@ public interface RelationType extends NamedBusinessObject, BusinessObjectFactory
      * @return true if the receiver is a default relation of the FolderType,
      *         false otherwise
      */
-    boolean isDefault();
+    public boolean isDefault();
 
     /**
      * Returns the attribute used to lock relation creation/editing
      */
-    RelationAttributeType getLockAttributeType();
+    public RelationAttributeType getLockAttributeType();
 
-    /**
-     * Returns the id of the attribute used to lock relation creation/editing
-     */
-    int getLockAttributeTypeId();
-
-    RelationAttributeType getDefaultAttributeType();
+    public RelationAttributeType getDefaultAttributeType();
 
     /**
      * return a list with relations for this type according to the specified
@@ -252,21 +208,13 @@ public interface RelationType extends NamedBusinessObject, BusinessObjectFactory
      * @param searchFilter the searchfilter criteria
      * @return a list of relations
      */
-    List<Relation> findByFilter(RelationSearchFilter searchFilter);
-
-    /**
-     * get all relations that have been modified since the specified date
-     *
-     * @param since query modifications since date
-     * @return
-     */
-    List<Relation> getModifiedSince(Date since);
+    public List<Relation> findByFilter(RelationSearchFilter searchFilter);
 
     /**
      * The system may set up certain relation types for internal use. These are marked as System RelationTypes.
      *
      * @return true if this is a System Relation Type, false otherwise.
      */
-    boolean isSystemRelationType();
+    public boolean isSystemRelationType();
 
 }

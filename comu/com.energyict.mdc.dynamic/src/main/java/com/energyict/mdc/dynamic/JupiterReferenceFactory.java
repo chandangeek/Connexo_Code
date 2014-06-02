@@ -99,7 +99,7 @@ public class JupiterReferenceFactory<T extends HasId> extends AbstractValueFacto
     @Override
     public T fromStringValue (String stringValue) {
         try {
-            Integer id = new Integer(stringValue);
+            Long id = new Long(stringValue);
             return LazyLoadProxy.newInstance(new HasIdLazyLoader<>(id, this.domainClass, this.finder));
         }
         catch (NumberFormatException e) {

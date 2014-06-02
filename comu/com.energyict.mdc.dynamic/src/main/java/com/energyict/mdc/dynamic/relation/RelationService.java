@@ -1,6 +1,7 @@
 package com.energyict.mdc.dynamic.relation;
 
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.dynamic.PropertySpecService;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -38,9 +39,10 @@ public interface RelationService {
      * laid out in the {@link RelationTypeShadow}.
      *
      * @param shadow The RelationTypeShadow
+     * @param propertySpecService The PropertySpecService
      * @return the newly created RelationType
      */
-    public RelationType createRelationType(RelationTypeShadow shadow);
+    public RelationType createRelationType(RelationTypeShadow shadow, PropertySpecService propertySpecService);
 
     /**
      * Finds the {@link RelationType} with the specified name.
