@@ -28,6 +28,9 @@ Ext.define('Mdc.view.setup.communicationschedule.AddCommunicationTaskWindow', {
             xtype: 'grid',
             itemId: 'communicationTaskGridFromSchedule',
             store: 'CommunicationTasks',
+            selModel: {
+                mode: 'MULTI'
+            },
             selType: 'checkboxmodel',
             columns: [
                 {
