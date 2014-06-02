@@ -79,7 +79,7 @@ Ext.define('Sam.controller.licensing.Upload', {
                 waitMsg: 'Loading...',
                 failure: function (form, action) {
                     if (Ext.isEmpty(action.result.data.failure)) {
-                        window.location.href = '#/sysadministration/licensing/licenses';
+                        window.location.href = '#/administration/licensing/licenses';
                         header.text = 'Licenses successfully uploaded for applications:';
                         msges.push(header);
                         Ext.Array.each(action.result.data.success, function(item) {
@@ -112,7 +112,7 @@ Ext.define('Sam.controller.licensing.Upload', {
                                     text: 'Cancel',
                                     cls: 'isu-btn-link',
                                     hnd: function () {
-                                        window.location = '#/sysadministration/licensing/licenses';
+                                        window.location = '#/administration/licensing/licenses';
                                     }
                                 }
                             ],

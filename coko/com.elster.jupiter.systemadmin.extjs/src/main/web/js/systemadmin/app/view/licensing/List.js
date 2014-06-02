@@ -35,7 +35,7 @@ Ext.define('Sam.view.licensing.List', {
                             text: 'Upload licenses',
                             action: 'uploadlicenses',
                             hrefTarget: '',
-                            href: '#/sysadministration/licensing/upload'
+                            href: '#/administration/licensing/upload'
                         }
                     ]
                 }

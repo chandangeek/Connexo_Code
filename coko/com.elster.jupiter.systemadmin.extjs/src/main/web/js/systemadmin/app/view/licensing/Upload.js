@@ -59,7 +59,7 @@ Ext.define('Sam.view.licensing.Upload', {
                                     text: 'Cancel',
                                     ui: 'link',
                                     hrefTarget: '',
-                                    href: '#/sysadministration/licensing/licenses',
+                                    href: '#/administration/licensing/licenses',
                                 }
                             ]
                         }
@@ -87,7 +87,7 @@ Ext.define('Sam.view.licensing.Upload', {
         menu.add({
             text: 'Upload licenses',
             pressed: true,
-            href: '#/sysadministration/licensing/upload',
+            href: '#/administration/licensing/upload',
             hrefTarget: '_self'
         });
     },

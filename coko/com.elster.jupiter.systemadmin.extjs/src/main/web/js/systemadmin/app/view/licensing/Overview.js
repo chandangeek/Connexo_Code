@@ -48,7 +48,7 @@ Ext.define('Sam.view.licensing.Overview', {
             itemId: 'navEl',
             text: 'Licenses',
             pressed: true,
-            href: '#/sysadministration/licensing/licenses',
+            href: '#/administration/licensing/licenses',
             hrefTarget: '_self'
         });
     },
