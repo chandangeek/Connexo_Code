@@ -51,6 +51,9 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.Provider;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
@@ -63,8 +66,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -85,6 +86,7 @@ public class InMemoryPersistence {
     private Principal principal;
     private EventAdmin eventAdmin;
     private TransactionService transactionService;
+    private EventService eventService;
     private Publisher publisher;
     private NlsService nlsService;
     private MasterDataService masterDataService;
@@ -108,7 +110,6 @@ public class InMemoryPersistence {
     private RegisterMappingDeletionEventHandler registerMappingDeletionEventHandler;
     private RegisterMappingDeleteFromLoadProfileTypeEventHandler registerMappingDeleteFromLoadProfileTypeEventHandler;
     private OrmService ormService;
-    private EventService eventService;
 
     public void initializeDatabaseWithMockedProtocolPluggableService(String testName, boolean showSqlLogging) {
         this.initializeDatabase(testName, showSqlLogging, true);
@@ -124,7 +125,7 @@ public class InMemoryPersistence {
         injector = Guice.createInjector(this.guiceModules(showSqlLogging, mockedProtocolPluggableService, bootstrapModule));
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
-            this.ormService = injector.getInstance(OrmService.class);
+            injector.getInstance(OrmService.class);
             this.userService = injector.getInstance(UserService.class);
             this.eventService = injector.getInstance(EventService.class);
             this.publisher = injector.getInstance(Publisher.class);

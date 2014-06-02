@@ -33,13 +33,14 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.tasks.ComTask;
+
+import javax.inject.Inject;
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import javax.inject.Inject;
-import javax.validation.Valid;
 
 /**
  * Provides an implementation for the {@link DeviceCommunicationConfiguration} interface.

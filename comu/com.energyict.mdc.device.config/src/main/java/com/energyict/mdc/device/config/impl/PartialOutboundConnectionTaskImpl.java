@@ -39,7 +39,9 @@ public abstract class PartialOutboundConnectionTaskImpl extends PartialConnectio
             return javaFieldName;
         }
     }
+    
     private final SchedulingService schedulingService;
+    
     @Valid
     private Reference<NextExecutionSpecs> nextExecutionSpecs = ValueReference.absent();
 
