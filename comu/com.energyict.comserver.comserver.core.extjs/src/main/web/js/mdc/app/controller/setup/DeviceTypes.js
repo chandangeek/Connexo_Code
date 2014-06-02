@@ -249,7 +249,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         widget.setLoading(true);
         protocolStore.load({
             callback: function (store) {
-                me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.create', 'MDC', 'Create') + ' ' + 'device type' );
+                me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.add', 'MDC', 'Add') + ' ' + 'device type' );
                 widget.setLoading(false);
             }
         });
