@@ -31,11 +31,17 @@ Ext.define('Uni.controller.Navigation', {
     ],
 
     init: function () {
+        var me = this;
+
+        Ext.util.History.addListener('change', function () {
+            me.selectMenuItemByActiveToken();
+        });
+
         this.initMenuItems();
 
         this.control({
             'navigationMenu': {
-                afterrender: this.refreshNavigationMenu
+                afterrender: this.onAfterRenderNavigationMenu
             },
             'navigationAppSwitcher': {
                 afterrender: this.resetAppSwitcherState
@@ -47,14 +53,14 @@ Ext.define('Uni.controller.Navigation', {
         this.getController('Uni.controller.history.Router').on('routematch', this.initBreadcrumbs, this);
     },
 
-    initBreadcrumbs: function() {
+    initBreadcrumbs: function () {
         var me = this;
         var router = me.getController('Uni.controller.history.Router');
         var breadcrumbs = me.getBreadcrumbs();
         var child, breadcrumb;
 
         breadcrumbs.removeAll();
-        _.map(router.buildBreadcrumbs(), function(route) {
+        _.map(router.buildBreadcrumbs(), function (route) {
             breadcrumb = Ext.create('Uni.model.BreadcrumbItem', {
                 text: route.getTitle(),
                 href: route.buildUrl(),
@@ -66,6 +72,11 @@ Ext.define('Uni.controller.Navigation', {
             child = breadcrumb;
         });
         breadcrumbs.setBreadcrumbItem(breadcrumb);
+    },
+
+    onAfterRenderNavigationMenu: function () {
+        this.refreshNavigationMenu();
+        this.selectMenuItemByActiveToken();
     },
 
     initMenuItems: function () {
@@ -146,20 +157,24 @@ Ext.define('Uni.controller.Navigation', {
         this.getNavigationMenu().addMenuItem(item);
     },
 
-    selectMenuItemByTokens: function (tokens, delimiter) {
+    selectMenuItemByActiveToken: function () {
         var me = this,
-            href = '#';
+            token = Ext.util.History.getToken(),
+            tokens = me.stripAndSplitToken(token);
 
-        for (var i = 0; i < tokens.length; i++) {
-            var token = tokens[i];
-            href += delimiter + token;
-
-            var result = Uni.store.MenuItems.findRecord('href', href);
-
-            if (result != null) {
-                me.getNavigationMenu().selectMenuItem(result);
+        Uni.store.MenuItems.each(function (model) {
+            modelTokens = me.stripAndSplitToken(model.get('href'));
+            if (tokens[0] === modelTokens[0]) {
+                me.getNavigationMenu().selectMenuItem(model);
+                return;
             }
-        }
+        });
+    },
+
+    stripAndSplitToken: function (token) {
+        token = token.indexOf(Uni.controller.history.Settings.tokenDelimiter) === 0 ? token.substring(1) : token;
+        token = token.replace(/#\/|#/g, ''); // Regex to replace all '#' or '#/'.
+        return token.split(Uni.controller.history.Settings.tokenDelimiter);
     },
 
     showContent: function (content, side) {
