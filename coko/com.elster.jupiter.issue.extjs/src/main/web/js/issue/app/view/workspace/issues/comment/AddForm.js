@@ -17,14 +17,14 @@ Ext.define('Isu.view.workspace.issues.comment.AddForm', {
         },
         items: [
             {
-                itemId: '#add',
+                itemId: 'add',
                 text: 'Add',
                 ui: 'action',
                 action: 'send',
                 disabled: true
             },
             {
-                itemId: '#cancel',
+                itemId: 'cancel',
                 text: 'Cancel',
                 action: 'cancel',
                 ui: 'link'

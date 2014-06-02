@@ -23,7 +23,8 @@ Ext.define('Isu.controller.Main', {
         'Isu.controller.history.Workspace',
         'Isu.controller.IssueDetail',
         'Isu.controller.history.Administration',
-        'Isu.controller.AdministrationDataCollection'
+        'Isu.controller.AdministrationDataCollection',
+        'Isu.controller.NotifySend'
     ],
 
     stores: [
