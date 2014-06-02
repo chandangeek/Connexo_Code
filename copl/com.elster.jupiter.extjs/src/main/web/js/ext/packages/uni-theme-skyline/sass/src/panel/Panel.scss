@@ -35,6 +35,14 @@ $ui-body-color: $panel-filter-body-color,
 $ui-body-background-color: $panel-filter-background-color
 );
 
+// Large
+
+.#{$prefix}panel-large {
+    padding: 16px 0 0 0;
+}
+
+// Framed
+
 .#{$prefix}panel-default-framed {
     overflow: visible;
 
