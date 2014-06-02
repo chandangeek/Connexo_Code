@@ -7,13 +7,12 @@ import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
 
 /**
  * Validates the {@link HasValidProperties} constraint against a {@link ConnectionTaskImpl}.
@@ -66,10 +65,11 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
     }
 
     private void validatePropertyValue(ConnectionType connectionType, String propertyName, Object propertyValue, ConstraintValidatorContext context) {
+        PropertySpec propertySpec=null;
         try {
             /* Not using fail-fast anymore so it is possible
              * that there is not spec for the propertyName. */
-            PropertySpec propertySpec = connectionType.getPropertySpec(propertyName);
+            propertySpec = connectionType.getPropertySpec(propertyName);
             if (propertySpec != null) {
                 propertySpec.validateValue(propertyValue);
             }
@@ -78,7 +78,7 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
             context.disableDefaultConstraintViolation();
             context
                 .buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.CONNECTION_TASK_INVALID_PROPERTY_KEY + "}")
-                .addPropertyNode("properties").addConstraintViolation();
+                .addPropertyNode("properties").addPropertyNode(propertySpec.getName()).addConstraintViolation();
             this.valid = false;
         }
     }
@@ -91,7 +91,7 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
                     context.disableDefaultConstraintViolation();
                     context
                         .buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.CONNECTION_TASK_REQUIRED_PROPERTY_MISSING_KEY + "}")
-                        .addPropertyNode("properties").addConstraintViolation();
+                        .addPropertyNode("properties").addPropertyNode(propertySpec.getName()).addConstraintViolation();
                     this.valid = false;
                 }
             }
