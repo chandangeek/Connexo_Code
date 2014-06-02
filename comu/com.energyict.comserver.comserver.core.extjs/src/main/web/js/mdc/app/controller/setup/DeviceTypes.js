@@ -153,7 +153,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         if (deviceTypeToDelete.get('deviceConfigurationCount') === 0) {
             Ext.MessageBox.show({
                 msg: Uni.I18n.translate('deviceType.deleteDeviceType', 'MDC', 'The device type will no longer be available.'),
-                title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' ' + deviceTypeToDelete.get('name') + '?',
+                title: Uni.I18n.translate('general.delete', 'MDC', 'Delete') + ' ' + deviceTypeToDelete.get('name') + '?',
                 config: {
                     deviceTypeToDelete: deviceTypeToDelete,
                     me: me
@@ -165,7 +165,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         } else {
             Ext.MessageBox.show({
                 msg: Uni.I18n.translate('deviceType.deleteDeviceTypeWithConfig', 'MDC', 'The device type and its configurations will no longer be available.'),
-                title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' ' + deviceTypeToDelete.get('name') + '?',
+                title: Uni.I18n.translate('general.delete', 'MDC', 'Delete') + ' ' + deviceTypeToDelete.get('name') + '?',
                 config: {
                     deviceTypeToDelete: deviceTypeToDelete,
                     me: me
