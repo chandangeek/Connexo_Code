@@ -71,6 +71,10 @@
 /** @class Ext.panel.Header */
 /** @class Ext.panel.Panel */
 /**
+ * @var {number}
+ * The bottom margin to apply to form items when in auto, anchor, vbox, or table layout
+ */
+/**
  * @class Ext.panel.Table
  */
 /* including package ext-theme-neptune */
@@ -15749,7 +15753,7 @@ div.x-lbl-top-err-icon {
 .x-anchor-form-item,
 .x-vbox-form-item,
 .x-table-form-item {
-  margin-bottom: 5px;
+  margin-bottom: 8px;
 }
 
 /* line 54, ../../../ext-theme-neutral/sass/src/form/Labelable.scss */
@@ -15758,7 +15762,7 @@ div.x-lbl-top-err-icon {
 }
 /* line 60, ../../../ext-theme-neutral/sass/src/form/Labelable.scss */
 .x-ie6 td.x-form-item-pad {
-  height: 5px;
+  height: 8px;
 }
 
 /* line 1, ../../../ext-theme-neutral/sass/src/form/field/Base.scss */

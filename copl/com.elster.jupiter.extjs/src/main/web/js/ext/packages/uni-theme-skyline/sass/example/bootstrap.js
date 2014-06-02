@@ -36,9 +36,9 @@ Ext.ClassManager.addNameAlternateMappings({
   "Skyline.button.StepButton": [],
   "Skyline.button.TagButton": [],
   "Skyline.form.Label": [],
-  "Skyline.form.Labelable": [],
   "Skyline.form.Panel": [],
   "Skyline.form.field.Base": [],
+  "Skyline.form.field.FieldContainer": [],
   "Skyline.form.field.Text": [],
   "Skyline.grid.Panel": [],
   "Skyline.menu.NavigationItem": [],
@@ -78,9 +78,9 @@ Ext.ClassManager.addNameAliasMappings({
     "widget.tag-button"
   ],
   "Skyline.form.Label": [],
-  "Skyline.form.Labelable": [],
   "Skyline.form.Panel": [],
   "Skyline.form.field.Base": [],
+  "Skyline.form.field.FieldContainer": [],
   "Skyline.form.field.Text": [],
   "Skyline.grid.Panel": [],
   "Skyline.menu.NavigationItem": [
@@ -108,10 +108,10 @@ Ext.Loader.loadScript("../../overrides/panel/Header.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/toolbar/Toolbar.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/layout/component/Dock.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/container/ButtonGroup.js");
-Ext.Loader.loadScript("../../overrides/form/Labelable.js");
 Ext.Loader.loadScript("../../overrides/window/MessageBox.js");
 Ext.Loader.loadScript("../../overrides/form/field/Text.js");
 Ext.Loader.loadScript("../../overrides/form/field/Base.js");
+Ext.Loader.loadScript("../../overrides/form/field/FieldContainer.js");
 Ext.Loader.loadScript("../../overrides/form/Label.js");
 Ext.Loader.loadScript("../../overrides/form/Panel.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/toolbar/Paging.js");

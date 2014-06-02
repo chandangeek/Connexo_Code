@@ -7025,57 +7025,62 @@
   border-width: 1px !important;
 }
 
-/* line 38, ../../sass/src/panel/Panel.scss */
+/* line 40, ../../sass/src/panel/Panel.scss */
+.x-panel-large {
+  padding: 16px 0 0 0;
+}
+
+/* line 46, ../../sass/src/panel/Panel.scss */
 .x-panel-default-framed {
   overflow: visible;
 }
-/* line 41, ../../sass/src/panel/Panel.scss */
+/* line 49, ../../sass/src/panel/Panel.scss */
 .x-panel-default-framed .x-panel-header {
   border-color: #71adc7;
   background: #71adc7;
 }
-/* line 44, ../../sass/src/panel/Panel.scss */
+/* line 52, ../../sass/src/panel/Panel.scss */
 .x-panel-default-framed .x-panel-header .x-panel-header-text-container {
   color: white;
 }
-/* line 48, ../../sass/src/panel/Panel.scss */
+/* line 56, ../../sass/src/panel/Panel.scss */
 .x-panel-default-framed .x-panel-header .x-btn-default-small {
   background-color: transparent;
 }
-/* line 54, ../../sass/src/panel/Panel.scss */
+/* line 62, ../../sass/src/panel/Panel.scss */
 .x-panel-default-framed .x-panel-header .x-btn-default-small-menu-active,
 .x-panel-default-framed .x-panel-header .x-btn-default-small-focus,
 .x-panel-default-framed .x-panel-header .x-btn-default-small-over {
   background-color: #1e7d9e;
 }
-/* line 58, ../../sass/src/panel/Panel.scss */
+/* line 66, ../../sass/src/panel/Panel.scss */
 .x-panel-default-framed .x-panel-header-top {
   padding: 4px 4px 4px 16px;
 }
-/* line 61, ../../sass/src/panel/Panel.scss */
+/* line 69, ../../sass/src/panel/Panel.scss */
 .x-panel-default-framed .x-panel {
   padding: 0;
 }
 
-/* line 67, ../../sass/src/panel/Panel.scss */
+/* line 75, ../../sass/src/panel/Panel.scss */
 .x-panel-header .x-panel-header-sub-text {
   float: none;
   color: #686868;
   clear: both;
   display: block;
 }
-/* line 73, ../../sass/src/panel/Panel.scss */
+/* line 81, ../../sass/src/panel/Panel.scss */
 .x-panel-header .x-panel-header-sub-text-medium {
   font-size: 20px;
   line-height: 20px;
 }
-/* line 77, ../../sass/src/panel/Panel.scss */
+/* line 85, ../../sass/src/panel/Panel.scss */
 .x-panel-header .x-panel-header-sub-text-large {
   font-size: 30px;
   line-height: 20px;
 }
 
-/* line 83, ../../sass/src/panel/Panel.scss */
+/* line 91, ../../sass/src/panel/Panel.scss */
 .x-panel-filter {
   background-color: #ebebeb;
   -webkit-border-radius: 10px;
@@ -7084,26 +7089,26 @@
   -o-border-radius: 10px;
   border-radius: 10px;
 }
-/* line 87, ../../sass/src/panel/Panel.scss */
+/* line 95, ../../sass/src/panel/Panel.scss */
 .x-panel-filter .x-panel-body {
   background: transparent;
 }
 
-/* line 92, ../../sass/src/panel/Panel.scss */
+/* line 100, ../../sass/src/panel/Panel.scss */
 .x-panel-filter-toolbar {
   padding: 8px 0;
 }
-/* line 94, ../../sass/src/panel/Panel.scss */
+/* line 102, ../../sass/src/panel/Panel.scss */
 .x-panel-filter-toolbar .x-header-text-container {
   width: 64px;
   color: #686868;
   font-weight: bold;
 }
-/* line 99, ../../sass/src/panel/Panel.scss */
+/* line 107, ../../sass/src/panel/Panel.scss */
 .x-panel-filter-toolbar .x-box-item {
   margin-right: 8px;
 }
-/* line 102, ../../sass/src/panel/Panel.scss */
+/* line 110, ../../sass/src/panel/Panel.scss */
 .x-panel-filter-toolbar .x-panel-body {
   background: transparent;
 }
@@ -9222,7 +9227,7 @@
   border-width: 1px !important;
 }
 
-/* line 125, ../../sass/src/panel/Panel.scss */
+/* line 133, ../../sass/src/panel/Panel.scss */
 .x-uni-form-error-msg-icon {
   background-image: url("images/form/ico_warning.png");
 }
@@ -15426,11 +15431,16 @@ div.x-form-spinner-down {
   font-size: 13px;
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   font-weight: bold;
-  padding-right: 14px;
-  text-align: right;
 }
 
-/* line 17, ../../sass/src/form/Label.scss */
+/* line 10, ../../sass/src/form/Label.scss */
+.x-form-item-label-right {
+  padding-right: 14px;
+  text-align: right;
+  margin-right: 15px !important;
+}
+
+/* line 20, ../../sass/src/form/Label.scss */
 .uni-form-item-label-required {
   background-image: url("images/form/mandatory.png");
   background-repeat: no-repeat;
@@ -15582,6 +15592,11 @@ div.x-form-spinner-down {
 /* line 67, ../../sass/src/toolbar/Paging.scss */
 .x-toolbar-pagingtoolbarbottom .pagenav .x-toolbar-text a:hover {
   text-decoration: underline;
+}
+
+/* line 1, ../../sass/src/view/BoundList.scss */
+.x-boundlist-selected .x-combo-list-item .x-form-checkbox {
+  background-position: 0px -15px;
 }
 
 /* line 1, ../../sass/src/picker/Date.scss */

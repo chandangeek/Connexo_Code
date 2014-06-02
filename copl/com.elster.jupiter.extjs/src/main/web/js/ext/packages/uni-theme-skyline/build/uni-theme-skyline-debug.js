@@ -485,46 +485,6 @@ Ext.define('ExtThemeNeptune.container.ButtonGroup', {
     usePlainButtons: false
 });
 
-Ext.define('Skyline.form.Labelable', {
-    override: 'Ext.form.Labelable',
-    labelPad: 15,
-    msgTarget: 'under',
-    blankText: 'This is a required field',
-
-    /**
-     * Required property, set when a field is required.
-     */
-    required: false,
-
-    /**
-     * Changes the default value ':'.
-     */
-    labelSeparator: '',
-
-    /**
-     * Changes the default value 'left'.
-     */
-    labelAlign: 'right',
-
-    /**
-     * @inheritDoc Ext.form.Labelable#getLabelCls
-     *
-     * Adds an extra required class when needed
-     *
-     * @returns {string}
-     */
-    getLabelCls: function () {
-        var labelCls = this.labelCls;
-
-        if (this.required) {
-            labelCls += ' ' + 'uni-form-item-label-required';
-        }
-
-        return labelCls;
-    }
-});
-
-
 Ext.define('Skyline.window.MessageBox', {
     override: 'Ext.window.MessageBox',
     shadow: false,
@@ -599,10 +559,35 @@ Ext.define('Skyline.form.field.Base', {
     labelAlign: 'right',
     labelPad: 15,
     msgTarget: 'under',
-    blankText: 'This is a required field'
+    blankText: 'This is a required field',
+    getLabelCls: function () {
+        var labelCls = this.labelCls;
+        if (this.required) {
+            labelCls += ' ' + 'uni-form-item-label-required';
+        }
+
+        return labelCls;
+    },
+    initComponent: function() {
+        this.callParent(arguments);
+    }
 });
 
 
+
+Ext.define('Skyline.form.field.FieldContainer', {
+    override: "Ext.form.FieldContainer",
+    getLabelCls: function () {
+        var labelCls = this.labelCls;
+        if (this.required) {
+            labelCls += ' ' + 'uni-form-item-label-required';
+        }
+        return labelCls;
+    },
+    initComponent: function() {
+        this.callParent(arguments);
+    }
+});
 
 Ext.define('Skyline.form.Label', {
     override: 'Ext.form.Label',
@@ -722,7 +707,12 @@ Ext.define('Skyline.grid.Panel', {
     bodyBorder: true,
     enableColumnHide: false,
     enableColumnMove: false,
-    enableColumnResize: false
+    enableColumnResize: false,
+    sortableColumns: false,
+    collapsible: false,
+    selModel: {
+        mode: 'SINGLE'
+    }
 });
 
 Ext.define('Skyline.view.Table', {
@@ -1107,7 +1097,8 @@ Ext.define('Skyline.panel.FilterToolbar', {
             xtype: 'header',
             dock: 'left'
         },
-        {
+        {	
+        	itemId : 'Reset',
             xtype: 'button',
             text: 'Clear all',
             action: 'clear',
