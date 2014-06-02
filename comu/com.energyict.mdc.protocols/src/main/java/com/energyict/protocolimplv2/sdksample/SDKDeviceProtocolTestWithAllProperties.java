@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.sdksample;
 
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
@@ -43,7 +42,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
@@ -54,6 +52,7 @@ import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
+import com.energyict.protocols.mdc.ConnectionTypeRule;
 import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.math.BigDecimal;
@@ -66,6 +65,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static com.elster.jupiter.util.Checks.is;
+
 /**
  * Provides an implementation of a DeviceProtocol which serves as a <i>guiding</i>
  * protocol for implementors
@@ -77,8 +78,6 @@ import java.util.logging.Logger;
 public class SDKDeviceProtocolTestWithAllProperties implements DeviceProtocol {
 
     private Logger logger = Logger.getLogger(SDKDeviceProtocol.class.getSimpleName());
-
-    private final String defaultOptionalProperty = "defaultOptionalProperty";
 
     /**
      * The {@link OfflineDevice} that holds all <i>necessary</i> information to perform the relevant ComTasks for this <i>session</i>
@@ -103,10 +102,6 @@ public class SDKDeviceProtocolTestWithAllProperties implements DeviceProtocol {
      * Keeps track of all the protocol properties <b>AND</b> the current deviceProtocolDialectProperties
      */
     private TypedProperties typedProperties = TypedProperties.empty();
-    /**
-     * The securityPropertySet that will be used for this session
-     */
-    private DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet;
 
     @Override
     public void setPropertySpecService(PropertySpecService propertySpecService) {
@@ -344,7 +339,6 @@ public class SDKDeviceProtocolTestWithAllProperties implements DeviceProtocol {
     @Override
     public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
         this.logger.log(Level.INFO, "Adding the deviceProtocolSecurity properties to the DeviceProtocol instance.");
-        this.deviceProtocolSecurityPropertySet = deviceProtocolSecurityPropertySet;
     }
 
     @Override
@@ -381,10 +375,10 @@ public class SDKDeviceProtocolTestWithAllProperties implements DeviceProtocol {
     @Override
     public CollectedTopology getDeviceTopology() {
         final CollectedTopology collectedTopology = this.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierBySerialNumber(this.offlineDevice.getSerialNumber()));
-        if(!getSlaveOneSerialNumber().equals("")){
+        if (!is(getSlaveOneSerialNumber()).empty()) {
             collectedTopology.addSlaveDevice(new DeviceIdentifierBySerialNumber(getSlaveOneSerialNumber()));
         }
-        if(!getSlaveTwoSerialNumber().equals("")){
+        if (!is(getSlaveTwoSerialNumber()).empty()) {
             collectedTopology.addSlaveDevice(new DeviceIdentifierBySerialNumber(getSlaveTwoSerialNumber()));
         }
         return collectedTopology;
@@ -438,8 +432,16 @@ public class SDKDeviceProtocolTestWithAllProperties implements DeviceProtocol {
 
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
-        // Todo: call the Enum that holds all known connection type classes
-        return Collections.emptyList();
+        List<ConnectionType> connectionTypes = new ArrayList<>();
+        for (ConnectionTypeRule connectionTypeRule : ConnectionTypeRule.values()) {
+            try {
+                connectionTypes.add(connectionTypeRule.getProtocolTypeClass().newInstance());
+            }
+            catch (InstantiationException | IllegalAccessException e) {
+                e.printStackTrace(System.err);
+            }
+        }
+        return connectionTypes;
     }
 
     private CollectedDataFactory getCollectedDataFactory() {

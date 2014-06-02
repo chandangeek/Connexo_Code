@@ -34,11 +34,13 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
+import com.energyict.protocols.mdc.ConnectionTypeRule;
 import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.math.BigDecimal;
@@ -397,8 +399,16 @@ public class SDKDeviceProtocol implements DeviceProtocol {
 
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
-        // Todo: call the Enum that holds all known connection type classes
-        return Collections.emptyList();
+        List<ConnectionType> connectionTypes = new ArrayList<>();
+        for (ConnectionTypeRule connectionTypeRule : ConnectionTypeRule.values()) {
+            try {
+                connectionTypes.add(connectionTypeRule.getProtocolTypeClass().newInstance());
+            }
+            catch (InstantiationException | IllegalAccessException e) {
+                e.printStackTrace(System.err);
+            }
+        }
+        return connectionTypes;
     }
 
     private CollectedDataFactory getCollectedDataFactory() {
