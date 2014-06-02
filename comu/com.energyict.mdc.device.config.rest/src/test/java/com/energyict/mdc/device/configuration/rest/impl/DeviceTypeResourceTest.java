@@ -21,6 +21,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
+import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
@@ -56,11 +57,13 @@ import java.util.Collections;
 import java.util.Currency;
 import java.util.List;
 import java.util.Map;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.client.ClientResponse;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
@@ -122,6 +125,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
                 RegisterConfigurationResource.class,
                 ConnectionMethodResource.class,
                 ConstraintViolationExceptionMapper.class,
+                LocalizedFieldValidationExceptionMapper.class,
                 LocalizedExceptionMapper.class);
         resourceConfig.register(JacksonFeature.class); // Server side JSON processing
         resourceConfig.register(new AbstractBinder() {
@@ -205,6 +209,32 @@ public class DeviceTypeResourceTest extends JerseyTest {
 
         Response response = target("/devicetypes/").request().post(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
+   @Test(expected = BadRequestException.class)
+   public void testCreateDeviceTypeEmptyProtocolName() throws Exception {
+        DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
+        deviceTypeInfo.name="newName";
+        Entity<DeviceTypeInfo> json = Entity.json(deviceTypeInfo);
+
+        NlsMessageFormat nlsMessageFormat = mock(NlsMessageFormat.class);
+        when(thesaurus.getFormat(Matchers.<MessageSeed>anyObject())).thenReturn(nlsMessageFormat);
+
+        ClientResponse response = target("/devicetypes/").request().post(json, ClientResponse.class);
+    }
+
+   @Test(expected = BadRequestException.class)
+   public void testCreateDeviceTypeInvalidProtocolName() throws Exception {
+        DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
+        deviceTypeInfo.name="newName";
+        deviceTypeInfo.communicationProtocolName="x";
+        Entity<DeviceTypeInfo> json = Entity.json(deviceTypeInfo);
+
+        NlsMessageFormat nlsMessageFormat = mock(NlsMessageFormat.class);
+        when(thesaurus.getFormat(Matchers.<MessageSeed>anyObject())).thenReturn(nlsMessageFormat);
+       when(protocolPluggableService.findDeviceProtocolPluggableClassByName(anyString())).thenReturn(Optional.<DeviceProtocolPluggableClass>absent());
+
+        ClientResponse response = target("/devicetypes/").request().post(json, ClientResponse.class);
     }
 
     @Test
