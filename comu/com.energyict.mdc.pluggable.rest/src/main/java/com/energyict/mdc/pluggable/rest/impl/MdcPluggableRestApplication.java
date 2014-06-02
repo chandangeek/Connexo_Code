@@ -1,7 +1,12 @@
 package com.energyict.mdc.pluggable.rest.impl;
 
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
+import com.elster.jupiter.rest.util.ConstraintViolationInfo;
+import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
+import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.rest.AutoCloseDatabaseConnection;
 import com.energyict.mdc.common.rest.TransactionWrapper;
@@ -21,12 +26,15 @@ import org.osgi.service.component.annotations.Reference;
 @Component(name = "com.energyict.mdc.pluggable.rest", service = Application.class, immediate = true, property = {"alias=/plr"})
 public class MdcPluggableRestApplication extends Application {
 
+    public static final String COMPONENT_NAME = "PLR";
+
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile LicensedProtocolService licensedProtocolService;
     private volatile PropertySpecService propertySpecService;
     private volatile TransactionService transactionService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private NlsService nlsService;
+    private Thesaurus thesaurus;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -39,7 +47,9 @@ public class MdcPluggableRestApplication extends Application {
                 TimeZoneInUseResource.class,
                 UserFileReferenceResource.class,
                 LoadProfileTypeResource.class,
-                CodeTableResource.class);
+                CodeTableResource.class,
+                LocalizedFieldValidationExceptionMapper.class,
+                JsonMappingExceptionMapper.class);
     }
 
     @Override
@@ -73,6 +83,7 @@ public class MdcPluggableRestApplication extends Application {
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
+        thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
     }
 
     @Reference
@@ -89,6 +100,8 @@ public class MdcPluggableRestApplication extends Application {
             bind(propertySpecService).to(PropertySpecService.class);
             bind(transactionService).to(TransactionService.class);
             bind(nlsService).to(NlsService.class);
+            bind(thesaurus).to(Thesaurus.class);
+            bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(deviceConfigurationService).to(DeviceConfigurationService.class);
         }
     }

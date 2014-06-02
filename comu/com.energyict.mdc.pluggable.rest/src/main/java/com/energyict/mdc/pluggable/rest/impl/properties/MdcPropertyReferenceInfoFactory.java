@@ -17,9 +17,8 @@ import com.energyict.mdc.pluggable.rest.impl.UserFileReferenceResource;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.timezones.TimeZoneInUse;
-
-import javax.ws.rs.core.UriInfo;
 import java.net.URI;
+import javax.ws.rs.core.UriInfo;
 
 /**
  * Provides functionality for property 'Reference' objects
@@ -36,7 +35,7 @@ public class MdcPropertyReferenceInfoFactory {
      * @param property the BusinessObject
      * @return the Info version of the BusinessObject
      */
-    public static Object asInfoObject(Object property) {
+    public static <T> Object asInfoObject(T property) {
         Object info = property;
         if (property != null) {
             if (TimeZoneInUse.class.isAssignableFrom(property.getClass())) {
