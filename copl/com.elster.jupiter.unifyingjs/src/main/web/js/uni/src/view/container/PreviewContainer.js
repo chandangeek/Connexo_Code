@@ -6,12 +6,12 @@
  * done loading with no items then the custom {@link #emptyComponent} will be shown.
  *
  * The {@link #grid} needs to be of the type {@link Ext.grid.Panel} and have a valid store
- * attached as property. While the {@link #emptyComponent} can be any type of component.
+ * attached as property. While the {@link #emptyComponent} and {@link #previewComponent}
+ * can be any type of component.
  *
  * # How to use
  *
- * @Example
- *
+ *     @example
  *     {
  *         xtype: 'preview-container',
  *         grid: {
