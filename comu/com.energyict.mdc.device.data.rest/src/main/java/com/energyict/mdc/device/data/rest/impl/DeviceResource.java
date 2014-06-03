@@ -45,8 +45,8 @@ public class DeviceResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public DeviceInfo findDeviceType(@PathParam("id") long id) {
-        Device device = resourceHelper.findDeviceByIdOrThrowException(id);
+    public DeviceInfo findDeviceType(@PathParam("id") String id) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
         return DeviceInfo.from(device, deviceImportService, issueService);
     }
 	

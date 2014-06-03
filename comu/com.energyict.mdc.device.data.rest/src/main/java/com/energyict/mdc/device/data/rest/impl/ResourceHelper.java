@@ -25,4 +25,12 @@ public class ResourceHelper {
         return device;
     }
 
+    public Device findDeviceByMrIdOrThrowException(String mRID) {
+        Device device = deviceDataService.findByUniqueMrid(mRID);
+        if (device == null) {
+            throw new WebApplicationException("No device with mRID " + mRID, Response.Status.NOT_FOUND);
+        }
+        return device;
+    }
+
 }
