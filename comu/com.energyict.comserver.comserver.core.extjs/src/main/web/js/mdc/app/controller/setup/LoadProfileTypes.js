@@ -511,15 +511,32 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             success: function (response) {
                 var loadProfileType = Ext.JSON.decode(response.responseText),
                     widget = Ext.widget('loadProfileTypeForm', { loadProfileTypeHeader: Uni.I18n.translate('loadprofiletype.editloadprofiletypes', 'MDC', 'Edit load profile type'), loadProfileTypeAction: 'Save', loadProfileTypeActionHref: me.loadProfileTypeId + '/edit' }),
-                    intervalCombobox = widget.down('combobox[name=timeDuration]');
+                    nameField = widget.down('textfield[name=name]'),
+                    intervalCombobox = widget.down('combobox[name=timeDuration]'),
+                    obisCodeField = widget.down('textfield[name=obisCode]'),
+                    measurementTypesView = widget.down('fieldcontainer');
+
                 me.getApplication().fireEvent('changecontentevent', widget);
-                widget.down('textfield[name=name]').setValue(loadProfileType.name);
-                widget.down('textfield[name=obisCode]').setValue(loadProfileType.obisCode);
+
+                nameField.setValue(loadProfileType.name);
+                nameField.focus();
+
                 intervalCombobox.store = me.intervalStore;
                 intervalCombobox.setValue(loadProfileType.timeDuration.id);
+                intervalCombobox.disable();
+
+                obisCodeField.setValue(loadProfileType.obisCode);
+                obisCodeField.disable();
+
+                Ext.each(measurementTypesView.items.items, function(item){
+                    item.disable();
+                });
+                measurementTypesView.disable();
+
                 Ext.each(loadProfileType.measurementTypes, function (measurementType) {
                     me.selectedMeasurementTypesStore.add(measurementType);
                 });
+
                 me.loadProfileAction = 'Edit load profile type';
                 if (!Ext.isEmpty(this.temporallyFormValues)) {
                     this.loadTemporallyValues();
