@@ -60,7 +60,7 @@ Ext.define('Uni.controller.Navigation', {
         var child, breadcrumb;
 
         breadcrumbs.removeAll();
-        _.map(router.buildBreadcrumbs(), function(route) {
+        _.map(router.buildBreadcrumbs(), function (route) {
             var title = route.getTitle();
 
             breadcrumb = Ext.create('Uni.model.BreadcrumbItem', {
@@ -71,7 +71,7 @@ Ext.define('Uni.controller.Navigation', {
 
             if (title instanceof Deft.Promise) {
                 title.then({
-                    success: function(title) {
+                    success: function (title) {
                         breadcrumb.text = title;
                         me.initBreadcrumbs();
                     }
@@ -184,9 +184,13 @@ Ext.define('Uni.controller.Navigation', {
     },
 
     stripAndSplitToken: function (token) {
-        token = token.indexOf(Uni.controller.history.Settings.tokenDelimiter) === 0 ? token.substring(1) : token;
-        token = token.replace(/#\/|#/g, ''); // Regex to replace all '#' or '#/'.
-        return token.split(Uni.controller.history.Settings.tokenDelimiter);
+        if (token) {
+            token = token.indexOf(Uni.controller.history.Settings.tokenDelimiter) === 0 ? token.substring(1) : token;
+            token = token.replace(/#\/|#/g, ''); // Regex to replace all '#' or '#/'.
+            return token.split(Uni.controller.history.Settings.tokenDelimiter);
+        } else {
+            return [];
+        }
     },
 
     showContent: function (content, side) {
