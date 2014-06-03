@@ -17,8 +17,6 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeForm', {
                     itemId: 'LoadProfileTypeFormId',
                     defaults: {
                         labelWidth: 250,
-                        labelAlign: 'right',
-                        margin: '0 0 20 0',
                         validateOnChange: false,
                         validateOnBlur: false,
                         anchor: '100%'
@@ -74,46 +72,27 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeForm', {
                             hidehead: true,
                             items: [
                                 {
-                                    xtype: 'container',
-                                    layout: {
-                                        type: 'column'
-                                    },
-                                    items: [
+                                    xtype: 'gridpanel',
+                                    hideHeaders: true,
+                                    store: 'SelectedMeasurementTypesForLoadProfileType',
+                                    itemId: 'MeasurementTypesGrid',
+                                    columns: [
                                         {
-                                            xtype: 'gridpanel',
-                                            hideHeaders : true,
-                                            columnWidth: 0.7,
-                                            store: 'SelectedMeasurementTypesForLoadProfileType',
-                                            columns: [
-                                                {
-                                                    dataIndex: 'name',
-                                                    flex: 1,
-                                                    renderer: function (value, metaData, record) {
-                                                        var id = Ext.id();
-                                                        Ext.defer(function () {
-                                                            Ext.widget('button', {
-                                                                renderTo: id,
-                                                                icon: '../mdc/resources/images/actionsDetail.png',
-                                                                cls: 'uni-btn-transparent',
-                                                                handler: function (item, test) {
-                                                                    this.fireEvent('removeMeasurementTypeFromAddGrid', record);
-                                                                },
-                                                                itemId: 'measurementTypeAddGridBtn'
-                                                            });
-                                                        }, 50);
-                                                        return Ext.String.format('<div id="{0}">{1}</div>',  id , value);
-                                                    }
-                                                }
-                                            ],
-                                            height: 220
+                                            text: 'Name',
+                                            dataIndex: 'name',
+                                            flex: 1
                                         },
                                         {
-                                            xtype: 'container',
-                                            columnWidth: 0.3,
-                                            itemId: 'LoadProfileTypeAddMeasurementTypeAction',
-                                            margin: '-7px 0 0 0'
+                                            xtype: 'actioncolumn',
+                                            iconCls: 'icon-delete',
+                                            align: 'right'
                                         }
-                                    ]
+                                    ],
+                                    height: 220
+                                },
+                                {
+                                    xtype: 'container',
+                                    itemId: 'LoadProfileTypeAddMeasurementTypeAction'
                                 },
                                 {
                                     name: 'measurementTypesErrors',
@@ -126,24 +105,16 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeForm', {
                             ]
                         }
                     ],
-                    dockedItems: [
+                    buttons: [
                         {
-                            xtype: 'toolbar',
-                            dock: 'bottom',
-                            border: false,
-                            margin: '0 0 0 160',
-                            items: [
-                                {
-                                    xtype: 'container',
-                                    itemId: 'LoadProfileTypeAction'
-                                },
-                                {
-                                    xtype: 'button',
-                                    text: 'Cancel',
-                                    href: '#/administration/loadprofiletypes',
-                                    ui: 'link'
-                                }
-                            ]
+                            xtype: 'container',
+                            itemId: 'LoadProfileTypeAction'
+                        },
+                        {
+                            xtype: 'button',
+                            text: 'Cancel',
+                            href: '#/administration/loadprofiletypes',
+                            ui: 'link'
                         }
                     ]
                 }

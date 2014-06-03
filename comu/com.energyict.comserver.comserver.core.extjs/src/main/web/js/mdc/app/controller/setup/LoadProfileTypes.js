@@ -67,6 +67,9 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             'loadProfileTypeForm button[name=loadprofiletypeaction]': {
                 click: this.onSubmit
             },
+            '#LoadProfileTypeFormId #MeasurementTypesGrid actioncolumn': {
+                click: this.removeMeasurementType
+            },
             'menu menuitem[action=editloadprofiletype]': {
                 click: this.editRecord
             },
@@ -84,9 +87,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             },
             'button[action=retryremoveloadprofiletype]': {
                 click: this.deleteRecord
-            },
-            '#measurementTypeAddGridBtn': {
-                removeMeasurementTypeFromAddGrid: this.removeMeasurementType
             }
         });
 
@@ -119,7 +119,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         }});
     },
 
-    removeMeasurementType: function (record) {
+    removeMeasurementType: function (grid, index, id, row, event, record) {
         this.selectedMeasurementTypesStore.remove(record);
     },
 
