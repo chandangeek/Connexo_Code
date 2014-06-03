@@ -84,10 +84,10 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
     },
 
     onRegisterTypesStoreLoad: function () {
-        if (this.getRegisterTypesStore().data.items.length > 0){
+        if (this.getRegisterTypesStore().data.items.length > 0) {
             var setupWidget = this.getRegisterTypeSetup(),
                 gridWidget = this.getRegisterTypeGrid();
-            if (!Ext.isEmpty(setupWidget) && !Ext.isEmpty(gridWidget) ){
+            if (!Ext.isEmpty(setupWidget) && !Ext.isEmpty(gridWidget)) {
                 setupWidget.show();
                 gridWidget.getSelectionModel().doSelect(0);
             }
@@ -179,7 +179,6 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
 
     deleteRegisterTypeFromPreview: function (registerTypeToDelete) {
         this.deleteRegisterType(this.getRegisterTypeGrid().getSelectionModel().getSelection()[0]);
-
     },
 
     deleteRegisterTypeInDatabase: function (btn, text, opt) {
@@ -190,7 +189,6 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                     location.href = '#/administration/registertypes/';
                 }
             });
-
         }
     },
 
