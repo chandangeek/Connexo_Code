@@ -27,7 +27,7 @@ public class ParameterInfo {
             this.suffix = is(parameter.getSuffix()).emptyOrOnlyWhiteSpace() ? null : parameter.getSuffix();
             this.help = is(parameter.getHelp()).emptyOrOnlyWhiteSpace() ? null : parameter.getHelp();
             this.defaultValue = parameter.getDefaultValue();
-            this.values = parameter.getDefaultValues().isEmpty() ? null : parameter.getDefaultValues();
+            this.values = parameter.getDefaultValues();
 
             this.control = parameter.getControl();
             if (parameter.getConstraint() != null) {

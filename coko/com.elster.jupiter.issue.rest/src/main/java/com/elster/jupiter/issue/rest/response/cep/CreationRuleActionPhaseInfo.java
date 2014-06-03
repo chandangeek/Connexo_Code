@@ -9,9 +9,7 @@ public class CreationRuleActionPhaseInfo {
     private String title;
     private String description;
 
-    public CreationRuleActionPhaseInfo(String phase) {
-        this(CreationRuleActionPhase.fromString(phase));
-    }
+    public CreationRuleActionPhaseInfo() {}
 
     public CreationRuleActionPhaseInfo(CreationRuleActionPhaseInfo phase) {
         if (phase == null) {
