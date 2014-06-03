@@ -452,13 +452,13 @@ Ext.define('Mdc.controller.history.Setup', {
                     action: 'showCommunicationTasksView',
                     items: {
                         create: {
-                            title: 'Create',
+                            title: 'Create communication task',
                             route: 'create',
                             controller: 'Mdc.controller.setup.CommunicationTasksCreateEdit',
                             action: 'showCommunicationTasksCreateEdit'
                         },
                         edit: {
-                            title: 'Edit',
+                            title: 'Edit communication task',
                             route: '{id}',
                             controller: 'Mdc.controller.setup.CommunicationTasksCreateEdit',
                             action: 'showCommunicationTasksCreateEdit'

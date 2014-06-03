@@ -55,7 +55,8 @@ Ext.define('Mdc.view.setup.comtasks.List', {
         {
             xtype: 'pagingtoolbarbottom',
             store: 'Mdc.store.CommunicationTasks',
-            dock: 'bottom'
+            dock: 'bottom',
+            itemsPerPageMsg: 'Communication tasks per page'
         }
     ]
 });

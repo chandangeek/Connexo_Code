@@ -115,17 +115,29 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
         actionBtn.setDisabled(false);
     },
 
+    showErrorsPanel: function () {
+        var formErrorsPanel = this.getTaskEdit().down('#errors');
+        formErrorsPanel.hide();
+        formErrorsPanel.removeAll();
+        formErrorsPanel.add({
+            html: 'There are errors on this page that require your attention.'
+        });
+        formErrorsPanel.show();
+    },
+
     createEdit: function (btn) {
         var self = this,
             sendingData = {},
             editView = self.getTaskEdit(),
             form = editView.down('form').getForm(),
             preloader,
+            formErrorsPanel = self.getTaskEdit().down('#errors'),
             nameField = editView.down('form').down('textfield[name=name]');
         self.trimFields();
         sendingData.name = nameField.getValue();
         sendingData.commands = self.commands;
         if (form.isValid()) {
+            formErrorsPanel.hide();
             if (btn.text === 'Create') {
                 preloader = Ext.create('Ext.LoadMask', {
                     msg: "Creating communication task",
@@ -141,6 +153,8 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
                 preloader.show();
                 self.editTask(preloader, sendingData, btn);
             }
+        } else {
+            self.showErrorsPanel();
         }
     },
 
@@ -184,6 +198,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
                         });
                     } else {
                         self.showNameNotUniqueError();
+                        self.showErrorsPanel();
                     }
                 } else {
                     self.showDatabaseError(btn);
@@ -210,7 +225,15 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
                 self.commands = [];
             },
             failure: function (response) {
-                self.showDatabaseError(btn);
+                var result = Ext.decode(response.responseText, true);
+                if (result !== null) {
+                    if (result.errors[0].id === 'name') {
+                        self.showNameNotUniqueError();
+                        self.showErrorsPanel();
+                    }
+                } else {
+                    self.showDatabaseError(btn);
+                }
             },
             callback: function () {
                 preloader.destroy();
@@ -804,6 +827,15 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
                         self.commands.splice(numItem, 1);
                     }
                     Ext.ComponentQuery.query('communication-tasks-edit #createEditTask')[0].setDisabled(false);
+
+                    if (self.commands.length < 1) {
+                        var addAnotherBtn =  Ext.ComponentQuery.query('communication-tasks-edit #addAnotherButton')[0];
+                        if (addAnotherBtn) {
+                            addAnotherBtn.destroy();
+                        }
+                        self.loadModelToCreateForm();
+                        Ext.ComponentQuery.query('communication-tasks-edit #createEditTask')[0].setDisabled(true);
+                    }
                 }
             }
         });

@@ -9,14 +9,12 @@ Ext.define('Mdc.controller.setup.LogbookTypesOverview', {
     ],
 
     views: [
-        'Ext.ux.window.Notification',
         'setup.logbooktype.LogbookTypesOverview',
         'setup.logbooktype.List',
         'setup.logbooktype.Item',
         'setup.logbooktype.ActionMenu',
         'setup.logbooktype.DockedButtons',
-        'setup.logbooktype.EmptyListMessage',
-        'setup.logbooktype.FloatingPanel'
+        'setup.logbooktype.EmptyListMessage'
     ],
 
     init: function () {
@@ -30,18 +28,6 @@ Ext.define('Mdc.controller.setup.LogbookTypesOverview', {
             },
             'logbook-overview logbook-item logbook-action-menu': {
                 click: this.chooseAction
-            },
-            'logbook-floating-panel button[action=cancel]': {
-                click: this.closeFloatingMessage
-            },
-            'logbook-floating-panel button[action=delete]': {
-                click: this.deleteLogbook
-            },
-            'logbook-floating-panel': {
-                beforeclose: this.enableOverviewPanel
-            },
-            'uxNotification': {
-                beforeclose: this.enableOverviewPanel
             }
         });
 
@@ -114,108 +100,114 @@ Ext.define('Mdc.controller.setup.LogbookTypesOverview', {
                 window.location.href = '#/administration/logbooktypes/edit/' + menu.record.getId();
                 break;
             case 'delete':
-                this.showConfirmationPanel(menu.record.getId());
+                this.removeLogbook(menu.record.getId());
                 break;
         }
     },
 
-    deleteLogbook: function (btn) {
-        btn.up('logbook-floating-panel').hide();
-        if (!Ext.isEmpty(this.lastLogBookIdToRemove)) {
-            var logBookId = this.lastLogBookIdToRemove,
-                cssErrorClass = 'logbook-delete-error',
-                cssSuccessClass = 'logbook-delete-success',
-                overview = Ext.ComponentQuery.query('logbook-overview')[0],
-                record = overview.down('form').getRecord(),
-                logBookStore = this.store;
-
-            this.enableOverviewPanel();
-            Ext.Ajax.request({
-                url: '/api/mds/logbooktypes/' + logBookId,
-                method: 'DELETE',
-                waitMsg: 'Deleting...',
-                success: function () {
-
-                    Ext.create('widget.uxNotification', {
-                        html: 'Logbook has been removed successfully',
-                        ui: 'notification-success'
-                    }).show();
-
-                    logBookStore.load();
-                },
-                failure: function (response) {
-                    var result;
-                    if (response != null) {
-                        result = Ext.decode(response.responseText, true);
-                    }
-                    if (result !== null) {
-                        Ext.widget('messagebox', {
-                            buttons: [
-                                {
-                                    text: 'Close',
-                                    action: 'cancel',
-                                    handler: function(btn){
-                                        btn.up('messagebox').hide()
+    removeLogbook: function (logBookId) {
+        var self = this,
+            overview = Ext.ComponentQuery.query('logbook-overview')[0],
+            record = overview.down('form').getRecord(),
+            logBookStore = self.store;
+        self.lastLogBookIdToRemove = logBookId;
+        if (!Ext.isEmpty(self.lastLogBookIdToRemove)) {
+            var logBookId = self.lastLogBookIdToRemove,
+                confirmMessage = Ext.widget('messagebox', {
+                buttons: [
+                    {
+                        xtype: 'button',
+                        text: 'Remove',
+                        ui: 'delete',
+                        handler: function () {
+                            var preloader = Ext.create('Ext.LoadMask', {
+                                msg: "Loading...",
+                                target: confirmMessage
+                            });
+                            preloader.show();
+                            Ext.Ajax.request({
+                                url: '/api/mds/logbooktypes/' + logBookId,
+                                method: 'DELETE',
+                                success: function () {
+                                    confirmMessage.close();
+                                    Ext.create('widget.uxNotification', {
+                                        html: 'Successfully removed',
+                                        ui: 'notification-success'
+                                    }).show();
+                                    logBookStore.load();
+                                },
+                                failure: function (response) {
+                                    confirmMessage.close();
+                                    var result;
+                                    if (response != null) {
+                                        result = Ext.decode(response.responseText, true);
                                     }
-                                }
-                            ]
-                        }).show({
-                            ui: 'notification-error',
-                            title: 'Failed to delete logbook ' + record.data.name,
-                            msg: result.message,
-                            icon: Ext.MessageBox.ERROR
-                        })
-
-                    } else {
-                        Ext.widget('messagebox', {
-                            buttons: [
-                                {
-                                    text: 'Close',
-                                    action: 'cancel',
-                                    handler: function(btn){
-                                        btn.up('messagebox').hide()
+                                    if (result !== null) {
+                                        var msgWindow = Ext.widget('messagebox', {
+                                            buttons: [
+                                                {
+                                                    text: 'Cancel',
+                                                    action: 'cancel',
+                                                    ui: 'link',
+                                                    handler: function (me) {
+                                                        me.up('messagebox').close();
+                                                    }
+                                                }
+                                            ]
+                                        });
+                                        msgWindow.show({
+                                            ui: 'notification-error',
+                                            title: 'Failed to remove ' + record.data.name,
+                                            msg: result.message,
+                                            icon: Ext.MessageBox.ERROR
+                                        });
+                                    } else {
+                                        self.showDatabaseError(record);
                                     }
+                                },
+                                callback: function () {
+                                    preloader.destroy();
                                 }
-                            ]
-                        }).show({
-                            ui: 'notification-error',
-                            title: 'Failed to delete ' + record.data.name,
-                            msg: 'The device type could not be deleted. There was a problem accessing the database',
-                            icon: Ext.MessageBox.ERROR
-                        })
+                            });
+                        }
+                    },
+                    {
+                        xtype: 'button',
+                        text: 'Cancel',
+                        ui: 'link',
+                        handler: function () {
+                            confirmMessage.close();
+                        }
                     }
-                },
+                ]
+            });
+            confirmMessage.show({
+                title: 'Remove ' + record.data.name + ' ?',
+                msg: '<p>This logbook will no longer be available.</p>',
+                icon: Ext.MessageBox.WARNING
             });
         }
     },
 
-    enableOverviewPanel: function () {
-        var overviewPanel = Ext.ComponentQuery.query('logbook-overview')[0];
-        if (!Ext.isEmpty(overviewPanel)) {
-            overviewPanel.enable();
-        }
-    },
-
-    closeFloatingMessage: function (btn) {
-        this.enableOverviewPanel();
-        btn.up('logbook-floating-panel').hide();
-    },
-
-    showConfirmationPanel: function (logBookId) {
-        this.lastLogBookIdToRemove = logBookId;
-        var overview = Ext.ComponentQuery.query('logbook-overview')[0],
-            cssConfirmationClass = 'logbook-confirmation-message',
-            confirmationMessage = Ext.widget('logbook-floating-panel', {
-                width: overview.getWidth() / 3,
-                title: "Delete logbook?",
-                html: "<br>This logbook type will no longer be available<br><br>",
-                cls: cssConfirmationClass
-            });
-        confirmationMessage.getDockedItems()[0].addCls(cssConfirmationClass);
-        confirmationMessage.down('button[name=close]').hide();
-        confirmationMessage.down('button[name=retry]').hide();
-        overview.disable();
-        confirmationMessage.show();
+    showDatabaseError: function (record) {
+        var msgWindow = Ext.widget('messagebox', {
+            buttons: [
+                {
+                    text: 'Cancel',
+                    action: 'cancel',
+                    ui: 'link',
+                    handler: function (me) {
+                        me.up('messagebox').close();
+                    }
+                }
+            ]
+        });
+        msgWindow.show({
+            ui: 'notification-error',
+            title: 'Failed to remove ' + record.data.name,
+            msg: 'The logbook could not be removed because of an error in the database.',
+            icon: Ext.MessageBox.ERROR
+        });
     }
 
 });

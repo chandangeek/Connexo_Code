@@ -10,6 +10,17 @@ Ext.define('Mdc.view.setup.comtasks.Edit', {
             ui: 'large',
             items: [
                 {
+                    itemId: 'errors',
+                    name: 'errors',
+                    layout: 'hbox',
+                    margin: '0 0 20 100',
+                    hidden: true,
+                    defaults: {
+                        xtype: 'container',
+                        cls: 'isu-error-panel'
+                    }
+                },
+                {
                     xtype: 'textfield',
                     name: 'name',
                     fieldLabel: 'Name',

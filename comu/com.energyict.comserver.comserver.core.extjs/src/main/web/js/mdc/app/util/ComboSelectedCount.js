@@ -39,14 +39,28 @@ Ext.define('Mdc.util.ComboSelectedCount', {
                     store = combo.getStore();
                 combo.setSelectedCount(len);
             },
-            change: function () {
+            change: function (me) {
                 var addBtn = Ext.ComponentQuery.query('communication-tasks-edit communication-tasks-command button[action=addCommand]')[0],
-                    saveBtn = Ext.ComponentQuery.query('communication-tasks-edit communication-tasks-command button[action=saveCommand]')[0];
+                    saveBtn = Ext.ComponentQuery.query('communication-tasks-edit communication-tasks-command button[action=saveCommand]')[0],
+                    toolbarBtn = Ext.ComponentQuery.query('#selectAll')[0];
                 if (addBtn && addBtn.isDisabled()) {
                     addBtn.enable();
                 }
                 if (saveBtn && saveBtn.isDisabled()) {
                     saveBtn.enable();
+                }
+                if (Ext.isEmpty(me.getValue())) {
+                    toolbarBtn.setText('Select all');
+                    allSelected = false;
+                    if (addBtn) {
+                        addBtn.disable();
+                    }
+                    if (saveBtn) {
+                        saveBtn.disable();
+                    }
+                } else {
+                    toolbarBtn.setText('Deselect all');
+                    allSelected = true;
                 }
             },
             beforedeselect: function (me, record, index) {
