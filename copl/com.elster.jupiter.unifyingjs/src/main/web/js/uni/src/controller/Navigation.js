@@ -51,6 +51,7 @@ Ext.define('Uni.controller.Navigation', {
         this.getApplication().on('changemaincontentevent', this.showContent, this);
         this.getApplication().on('changemainbreadcrumbevent', this.setBreadcrumb, this);
         this.getController('Uni.controller.history.Router').on('routematch', this.initBreadcrumbs, this);
+        this.getController('Uni.controller.history.Router').on('routeChange', this.initBreadcrumbs, this);
     },
 
     initBreadcrumbs: function () {
@@ -68,15 +69,6 @@ Ext.define('Uni.controller.Navigation', {
                 href: route.buildUrl(),
                 relative: false
             });
-
-            if (title instanceof Deft.Promise) {
-                title.then({
-                    success: function(title) {
-                        breadcrumb.text = title;
-                        me.initBreadcrumbs();
-                    }
-                }).done()
-            }
 
             if (child) {
                 breadcrumb.setChild(child);

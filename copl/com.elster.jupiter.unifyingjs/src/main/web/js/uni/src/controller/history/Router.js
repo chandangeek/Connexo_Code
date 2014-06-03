@@ -124,11 +124,16 @@ Ext.define('Uni.controller.history.Router', {
              * Return title of the route
              * @returns string
              */
-            getTitle: function() {
+            getTitle: function (){
                 var route = this;
                 return _.isFunction(this.title)
                     ? this.title.apply(me, [route])
                     : this.title;
+            },
+
+            setTitle: function (title){
+                this.title = title;
+                me.fireEvent('routeChange', this);
             },
 
             /**
@@ -158,11 +163,15 @@ Ext.define('Uni.controller.history.Router', {
                     me.routes[key].crossroad._paramsIds,
                     arguments
                 );
+                if (me.routes[key].callback) {
+                    me.routes[key].callback.apply(me, [me.routes[key]])
+                }
                 var controller = me.getController(config.controller);
 
                 arguments = _.extend(arguments, _.values(params));
                 // fire the controller action with this route params as arguments
                 controller[action].apply(controller, arguments);
+
                 me.fireEvent('routematch', me);
             });
         }
