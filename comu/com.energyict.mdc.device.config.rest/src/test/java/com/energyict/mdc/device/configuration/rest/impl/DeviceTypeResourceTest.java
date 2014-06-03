@@ -715,7 +715,6 @@ public class DeviceTypeResourceTest extends JerseyTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(deviceConfiguration101, never()).setName(anyString());
         verify(deviceConfiguration101, times(1)).activate();
-        verify(deviceConfiguration101, times(1)).save();
     }
 
     @Test
