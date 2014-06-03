@@ -9,24 +9,32 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
-
+import java.util.List;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.util.List;
 
 public class ProtocolDialectResource {
 
     private final DeviceConfigurationService deviceConfigurationService;
     private final ResourceHelper resourceHelper;
+    private final MdcPropertyUtils mdcPropertyUtils;
 
     @Inject
-    public ProtocolDialectResource(DeviceConfigurationService deviceConfigurationService, ResourceHelper resourceHelper) {
+    public ProtocolDialectResource(DeviceConfigurationService deviceConfigurationService, ResourceHelper resourceHelper, MdcPropertyUtils mdcPropertyUtils) {
         this.deviceConfigurationService = deviceConfigurationService;
         this.resourceHelper = resourceHelper;
+        this.mdcPropertyUtils = mdcPropertyUtils;
     }
 
     @GET
@@ -35,7 +43,7 @@ public class ProtocolDialectResource {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         List<ProtocolDialectConfigurationProperties> pagedDialectProtocols = ListPager.of(deviceConfiguration.getProtocolDialectConfigurationPropertiesList(), new ProtocolDialectComparator()).from(queryParameters).find();
-        List<ProtocolDialectInfo> protocolDialectInfos = ProtocolDialectInfo.from(pagedDialectProtocols, uriInfo);
+        List<ProtocolDialectInfo> protocolDialectInfos = ProtocolDialectInfo.from(pagedDialectProtocols, uriInfo, mdcPropertyUtils);
         return PagedInfoList.asJson("protocolDialects", protocolDialectInfos, queryParameters);
     }
 
@@ -43,7 +51,7 @@ public class ProtocolDialectResource {
     @Path("/{protocolDialectId}")
     @Produces(MediaType.APPLICATION_JSON)
     public ProtocolDialectInfo getProtocolDialects(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @PathParam("protocolDialectId") long protocolDialectId, @Context UriInfo uriInfo) {
-        return ProtocolDialectInfo.from(findProtocolDialectOrThrowException(deviceTypeId, deviceConfigurationId, protocolDialectId), uriInfo);
+        return ProtocolDialectInfo.from(findProtocolDialectOrThrowException(deviceTypeId, deviceConfigurationId, protocolDialectId), uriInfo, mdcPropertyUtils);
     }
 
     @PUT
@@ -60,7 +68,7 @@ public class ProtocolDialectResource {
         ProtocolDialectConfigurationProperties protocolDialect = findProtocolDialectOrThrowException(deviceTypeId, deviceConfigurationId, protocolDialectId);
         updateProperties(protocolDialectInfo, protocolDialect);
         protocolDialect.save();
-        return protocolDialectInfo.from(protocolDialect, uriInfo);
+        return protocolDialectInfo.from(protocolDialect, uriInfo, mdcPropertyUtils);
     }
 
 
@@ -83,7 +91,7 @@ public class ProtocolDialectResource {
     private void updateProperties(ProtocolDialectInfo protocolDialectInfo, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
         if (protocolDialectInfo.properties != null) {
             for (PropertySpec<?> propertySpec : protocolDialectConfigurationProperties.getPropertySpecs()) {
-                Object propertyValue = MdcPropertyUtils.findPropertyValue(propertySpec, protocolDialectInfo.properties);
+                Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, protocolDialectInfo.properties);
                 if (propertyValue != null) {
                     protocolDialectConfigurationProperties.setProperty(propertySpec.getName(), propertyValue);
                 } else {

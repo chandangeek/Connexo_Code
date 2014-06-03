@@ -19,6 +19,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 
@@ -30,6 +31,10 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
      @JsonSubTypes.Type(value = InboundConnectionMethodInfo.class, name = "Inbound"),
      @JsonSubTypes.Type(value = ScheduledConnectionMethodInfo.class, name = "Outbound") })
 public abstract class ConnectionMethodInfo<T extends PartialConnectionTask> {
+
+    @JsonIgnore
+    private MdcPropertyUtils mdcPropertyUtils;
+
     public long id;
     public String name;
     public String connectionType;
@@ -47,7 +52,8 @@ public abstract class ConnectionMethodInfo<T extends PartialConnectionTask> {
     public ConnectionMethodInfo() {
     }
 
-    protected ConnectionMethodInfo(PartialConnectionTask partialConnectionTask, UriInfo uriInfo) {
+    protected ConnectionMethodInfo(PartialConnectionTask partialConnectionTask, UriInfo uriInfo, MdcPropertyUtils mdcPropertyUtils) {
+        this.mdcPropertyUtils = mdcPropertyUtils;
         this.id=partialConnectionTask.getId();
         this.name= partialConnectionTask.getName();
         this.connectionType= partialConnectionTask.getPluggableClass().getName();
@@ -56,13 +62,13 @@ public abstract class ConnectionMethodInfo<T extends PartialConnectionTask> {
         List<PropertySpec> propertySpecs = partialConnectionTask.getConnectionType().getPropertySpecs();
         TypedProperties typedProperties = partialConnectionTask.getTypedProperties();
         this.properties = new ArrayList<>();
-        MdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, propertySpecs, typedProperties, this.properties);
+        mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, propertySpecs, typedProperties, this.properties);
     }
 
     protected void addPropertiesToPartialConnectionTask(PartialConnectionTaskBuilder<?, ?, ?> connectionTaskBuilder, ConnectionTypePluggableClass connectionTypePluggableClass) {
         if (this.properties !=null) {
             for (PropertySpec propertySpec : connectionTypePluggableClass.getPropertySpecs()) {
-                Object propertyValue = MdcPropertyUtils.findPropertyValue(propertySpec, this.properties);
+                Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, this.properties);
                 if (propertyValue!=null) {
                     connectionTaskBuilder.addProperty(propertySpec.getName(), propertyValue);
                 }

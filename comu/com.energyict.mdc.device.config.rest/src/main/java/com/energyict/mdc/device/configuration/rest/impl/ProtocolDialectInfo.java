@@ -5,10 +5,9 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.pluggable.rest.PropertyInfo;
-
-import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
 import java.util.List;
+import javax.ws.rs.core.UriInfo;
 
 public class ProtocolDialectInfo {
 
@@ -20,7 +19,7 @@ public class ProtocolDialectInfo {
     public ProtocolDialectInfo() {
     }
 
-    public static ProtocolDialectInfo from(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties, UriInfo uriInfo) {
+    public static ProtocolDialectInfo from(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties, UriInfo uriInfo, MdcPropertyUtils mdcPropertyUtils) {
         ProtocolDialectInfo protocolDialectInfo = new ProtocolDialectInfo();
         protocolDialectInfo.id = protocolDialectConfigurationProperties.getId();
         protocolDialectInfo.name = protocolDialectConfigurationProperties.getDeviceProtocolDialect().getDisplayName();
@@ -29,15 +28,15 @@ public class ProtocolDialectInfo {
         List<PropertySpec> propertySpecs = protocolDialectConfigurationProperties.getPropertySpecs();
         TypedProperties typedProperties = protocolDialectConfigurationProperties.getTypedProperties();
         protocolDialectInfo.properties = new ArrayList();
-        MdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, propertySpecs, typedProperties, protocolDialectInfo.properties);
+        mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, propertySpecs, typedProperties, protocolDialectInfo.properties);
 
         return protocolDialectInfo;
     }
 
-    public static List<ProtocolDialectInfo> from(List<ProtocolDialectConfigurationProperties> protocolDialectConfigurationPropertiesList, UriInfo uriInfo) {
+    public static List<ProtocolDialectInfo> from(List<ProtocolDialectConfigurationProperties> protocolDialectConfigurationPropertiesList, UriInfo uriInfo, MdcPropertyUtils mdcPropertyUtils) {
         List<ProtocolDialectInfo> protocolDialectInfos = new ArrayList<>(protocolDialectConfigurationPropertiesList.size());
         for (ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties : protocolDialectConfigurationPropertiesList) {
-            protocolDialectInfos.add(ProtocolDialectInfo.from(protocolDialectConfigurationProperties, uriInfo));
+            protocolDialectInfos.add(ProtocolDialectInfo.from(protocolDialectConfigurationProperties, uriInfo, mdcPropertyUtils));
         }
         return protocolDialectInfos;
     }

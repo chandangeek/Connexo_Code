@@ -10,6 +10,7 @@ import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTaskBuilder;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
@@ -20,8 +21,8 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialS
     public ScheduledConnectionMethodInfo() {
     }
 
-    public ScheduledConnectionMethodInfo(PartialScheduledConnectionTask partialConnectionTask, UriInfo uriInfo) {
-        super(partialConnectionTask, uriInfo);
+    public ScheduledConnectionMethodInfo(PartialScheduledConnectionTask partialConnectionTask, UriInfo uriInfo, MdcPropertyUtils mdcPropertyUtils) {
+        super(partialConnectionTask, uriInfo, mdcPropertyUtils);
         this.connectionStrategy=partialConnectionTask.getConnectionStrategy();
         this.allowSimultaneousConnections=partialConnectionTask.isSimultaneousConnectionsAllowed();
         this.rescheduleRetryDelay = partialConnectionTask.getRescheduleDelay()!=null?new TimeDurationInfo(partialConnectionTask.getRescheduleDelay()):null;

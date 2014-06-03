@@ -39,13 +39,17 @@ public class ConnectionMethodResource {
     private final ProtocolPluggableService protocolPluggableService;
     private final EngineModelService engineModelService;
     private final DeviceConfigurationService deviceConfigurationService;
+    private final ConnectionMethodInfoFactory connectionMethodInfoFactory;
+    private final MdcPropertyUtils mdcPropertyUtils;
 
     @Inject
-    public ConnectionMethodResource(ResourceHelper resourceHelper, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService) {
+    public ConnectionMethodResource(ResourceHelper resourceHelper, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, ConnectionMethodInfoFactory connectionMethodInfoFactory, MdcPropertyUtils mdcPropertyUtils) {
         this.resourceHelper = resourceHelper;
         this.protocolPluggableService = protocolPluggableService;
         this.engineModelService = engineModelService;
         this.deviceConfigurationService = deviceConfigurationService;
+        this.connectionMethodInfoFactory = connectionMethodInfoFactory;
+        this.mdcPropertyUtils = mdcPropertyUtils;
     }
 
     @GET
@@ -55,7 +59,7 @@ public class ConnectionMethodResource {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         List<ConnectionMethodInfo<?>> connectionMethodInfos = new ArrayList<>();
         for (PartialConnectionTask partialConnectionTask : deviceConfiguration.getPartialConnectionTasks()) {
-            connectionMethodInfos.add(ConnectionMethodInfoFactory.asInfo(partialConnectionTask, uriInfo));
+            connectionMethodInfos.add(connectionMethodInfoFactory.asInfo(partialConnectionTask, uriInfo));
         }
         List<ConnectionMethodInfo<?>> pagedConnectionMethodInfos = ListPager.of(connectionMethodInfos).from(queryParameters).find();
         return PagedInfoList.asJson("connectionMethods", pagedConnectionMethodInfos, queryParameters);
@@ -72,7 +76,7 @@ public class ConnectionMethodResource {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         for (PartialConnectionTask partialConnectionTask : deviceConfiguration.getPartialConnectionTasks()) {
             if (partialConnectionTask.getId()==connectionMethodId) {
-                return ConnectionMethodInfoFactory.asInfo(partialConnectionTask, uriInfo);
+                return connectionMethodInfoFactory.asInfo(partialConnectionTask, uriInfo);
             }
         }
         throw new WebApplicationException(Response.Status.NOT_FOUND);
@@ -100,7 +104,7 @@ public class ConnectionMethodResource {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         PartialConnectionTask created = connectionMethodInfo.createPartialTask(deviceConfiguration, engineModelService, protocolPluggableService);
-        return Response.status(Response.Status.CREATED).entity(ConnectionMethodInfoFactory.asInfo(created, uriInfo)).build();
+        return Response.status(Response.Status.CREATED).entity(connectionMethodInfoFactory.asInfo(created, uriInfo)).build();
     }
 
     @PUT
@@ -119,7 +123,7 @@ public class ConnectionMethodResource {
         updateProperties(connectionMethodInfo, partialConnectionTask);
         partialConnectionTask.save();
 
-        return ConnectionMethodInfoFactory.asInfo(deviceConfigurationService.getPartialConnectionTask(partialConnectionTask.getId()).get(), uriInfo);
+        return connectionMethodInfoFactory.asInfo(deviceConfigurationService.getPartialConnectionTask(partialConnectionTask.getId()).get(), uriInfo);
     }
 
     /**
@@ -130,7 +134,7 @@ public class ConnectionMethodResource {
     private void updateProperties(ConnectionMethodInfo<?> connectionMethodInfo, PartialConnectionTask partialConnectionTask) {
         if (connectionMethodInfo.properties !=null) {
             for (PropertySpec<?> propertySpec : partialConnectionTask.getPluggableClass().getPropertySpecs()) {
-                Object propertyValue = MdcPropertyUtils.findPropertyValue(propertySpec, connectionMethodInfo.properties);
+                Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, connectionMethodInfo.properties);
                 if (propertyValue!=null) {
                     partialConnectionTask.setProperty(propertySpec.getName(), propertyValue);
                 } else {

@@ -7,6 +7,7 @@ import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTaskBuilder;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPortPool;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import javax.ws.rs.core.UriInfo;
@@ -16,8 +17,8 @@ public class InboundConnectionMethodInfo extends ConnectionMethodInfo<PartialInb
     public InboundConnectionMethodInfo() {
     }
 
-    public InboundConnectionMethodInfo(PartialInboundConnectionTask partialInboundConnectionTask, UriInfo uriInfo) {
-        super(partialInboundConnectionTask, uriInfo);
+    public InboundConnectionMethodInfo(PartialInboundConnectionTask partialInboundConnectionTask, UriInfo uriInfo, MdcPropertyUtils mdcPropertyUtils) {
+        super(partialInboundConnectionTask, uriInfo, mdcPropertyUtils);
     }
 
     @Override

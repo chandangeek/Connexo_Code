@@ -4,7 +4,11 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.*;
+import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
+import com.elster.jupiter.rest.util.ConstraintViolationInfo;
+import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
+import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
+import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.common.rest.ExceptionLogger;
@@ -15,15 +19,15 @@ import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.TaskService;
+import com.energyict.mdw.UserFileService;
 import com.google.common.collect.ImmutableSet;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
-import javax.ws.rs.core.Application;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import javax.ws.rs.core.Application;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 @Component(name = "com.energyict.dtc.rest", service = Application.class, immediate = true, property = {"alias=/dtc"})
 public class DeviceConfigurationApplication extends Application {
@@ -41,6 +45,7 @@ public class DeviceConfigurationApplication extends Application {
     private volatile NlsService nlsService;
     private volatile JsonService jsonService;
     private volatile Thesaurus thesaurus;
+    private volatile UserFileService userFileService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -127,6 +132,11 @@ public class DeviceConfigurationApplication extends Application {
         this.engineModelService = engineModelService;
     }
 
+    @Reference
+    public void setUserFileService(UserFileService userFileService) {
+        this.userFileService = userFileService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -144,6 +154,7 @@ public class DeviceConfigurationApplication extends Application {
             bind(jsonService).to(JsonService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(engineModelService).to(EngineModelService.class);
+            bind(userFileService).to(UserFileService.class);
         }
     }
 
