@@ -98,12 +98,12 @@ Ext.define('Uni.view.container.PreviewContainer', {
 
         me.items[1].items.push(previewCmp);
 
-        this.callParent(arguments);
+        me.callParent(arguments);
 
         me.grid = me.getWrapperCt().items.items[0];
         me.bindStore(me.grid.store || 'ext-empty-store', true);
 
-        this.on('beforedestroy', this.onBeforeDestroy, this);
+        me.on('beforedestroy', this.onBeforeDestroy, this);
     },
 
     getStoreListeners: function () {
