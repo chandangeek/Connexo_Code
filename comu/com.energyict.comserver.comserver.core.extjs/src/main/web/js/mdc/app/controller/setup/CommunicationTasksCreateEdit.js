@@ -105,7 +105,15 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
                 btn.destroy();
             }
         });
-        actionBtn.setDisabled(false);
+        if (!Ext.isEmpty(this.commands)) {
+            actionBtn.setDisabled(false);
+        }
+        if (this.getTaskEdit().down('#addAnotherButton') === null) {
+            this.addAnotherButton();
+        }
+        if (Ext.isEmpty(this.commands) && this.getTaskEdit().down('#addAnotherButton') !== null) {
+            this.getTaskEdit().down('#addAnotherButton').destroy();
+        }
     },
 
     cancelEdit: function () {
@@ -641,7 +649,9 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
                 if (btnAction === 'addCommand') {
                     newCommand.destroy();
                     self.addTagButton(protocol);
-                    self.addAnotherButton();
+                    if (!(self.commands.length === 5)) {
+                        self.addAnotherButton();
+                    }
                     Ext.ComponentQuery.query('communication-tasks-edit #createEditTask')[0].setDisabled(false);
                 } else {
                     Ext.ComponentQuery.query('communication-tasks-edit #createEditTask')[0].setDisabled(false);
@@ -792,6 +802,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
             itemId: 'tagBtn' + command.category,
             text: command.action + ' ' + command.category,
             margin: '5 0 5 0',
+            width: 150,
             category: command.category,
             handler: function () {
                 var newCommand = Ext.ComponentQuery.query('#newCommand')[0];
@@ -827,13 +838,14 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
                         self.commands.splice(numItem, 1);
                     }
                     Ext.ComponentQuery.query('communication-tasks-edit #createEditTask')[0].setDisabled(false);
-
                     if (self.commands.length < 1) {
-                        var addAnotherBtn =  Ext.ComponentQuery.query('communication-tasks-edit #addAnotherButton')[0];
+                        var addAnotherBtn = Ext.ComponentQuery.query('communication-tasks-edit #addAnotherButton')[0];
                         if (addAnotherBtn) {
                             addAnotherBtn.destroy();
                         }
-                        self.loadModelToCreateForm();
+                        if (!commandView || Ext.isEmpty(commandView.items.items)) {
+                            self.loadModelToCreateForm();
+                        }
                         Ext.ComponentQuery.query('communication-tasks-edit #createEditTask')[0].setDisabled(true);
                     }
                 }

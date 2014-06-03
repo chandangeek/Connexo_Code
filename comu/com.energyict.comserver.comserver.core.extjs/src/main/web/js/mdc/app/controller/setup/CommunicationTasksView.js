@@ -95,7 +95,6 @@ Ext.define('Mdc.controller.setup.CommunicationTasksView', {
         }
     },
 
-
     showTaskDetails: function (grid, record) {
         var itemPanel = this.getItemPanel(),
             form = itemPanel.down('communication-tasks-form'),
@@ -119,7 +118,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasksView', {
                 itemPanel.setTitle(rec.name);
                 nameField.setValue(rec.name);
                 Ext.Array.each(rec.commands, function (command) {
-                    str += command.action + ' ' + command.category + '<br/>';
+                    str += command.action.charAt(0).toUpperCase() + command.action.slice(1) + ' ' + command.category.charAt(0).toUpperCase() + command.category.slice(1) + '<br/>';
                 });
                 commandsField.setValue(str);
             },

@@ -146,7 +146,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                             {
                                 xtype: 'fieldcontainer',
                                 columnWidth: 0.5,
-                                fieldLabel: Uni.I18n.translate('devicetype.deviceConfigurationCount', 'MDC', 'Device configuration count'),
+                                fieldLabel: Uni.I18n.translate('devicetype.deviceConfigurations', 'MDC', 'Device configurations'),
                                 labelAlign: 'right',
                                 layout: {
                                     type: 'vbox'
