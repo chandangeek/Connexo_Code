@@ -43,7 +43,9 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         {ref: 'addressableCheckbox', selector: '#addressableCheckbox'},
         {ref: 'gatewayMessage', selector: '#gatewayMessage'},
         {ref: 'addressableMessage', selector: '#addressableMessage'},
-        {ref: 'editLogbookConfiguration', selector: 'edit-logbook-configuration'}
+        {ref: 'editLogbookConfiguration', selector: 'edit-logbook-configuration'} ,
+
+        {ref: 'actionStatusMenuItem', selector: '#actionStatusMenuItem'}
     ],
 
     init: function () {
@@ -107,6 +109,11 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         var deviceConfigurations = this.getDeviceConfigurationsGrid().getSelectionModel().getSelection();
         if (deviceConfigurations.length == 1) {
             var deviceConfigurationId = deviceConfigurations[0].get('id');
+            var activateDeactivateText =
+                deviceConfigurations[0].get('active')  ?
+                    Uni.I18n.translate('general.deActivate', 'MDC', 'Deactivate') :
+                    Uni.I18n.translate('general.activate', 'MDC', 'Activate');
+            this.getActionStatusMenuItem().setText(activateDeactivateText);
             this.getActivateDeviceconfigurationMenuItem().setText(deviceConfigurations[0].get('active')===true?Uni.I18n.translate('general.deActivate', 'MDC', 'Deactivate'):Uni.I18n.translate('general.activate', 'MDC', 'Activate'));
             this.getDeviceConfigurationRegisterLink().getEl().set({href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + deviceConfigurationId + '/registerconfigurations'});
             this.getDeviceConfigurationRegisterLink().getEl().setHTML(deviceConfigurations[0].get('registerCount') + ' ' + Uni.I18n.translatePlural('deviceconfig.registerconfigs', deviceConfigurations[0].get('registerCount'), 'MDC', 'register configurations'));

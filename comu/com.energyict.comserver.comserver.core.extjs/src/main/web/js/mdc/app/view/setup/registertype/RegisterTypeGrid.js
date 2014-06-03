@@ -54,48 +54,17 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
         if (this.withActions) {
             this.columns.push(
                 {
-                    xtype: 'actioncolumn',
-                    iconCls: 'uni-actioncolumn-gear',
-                    columnWidth: 32,
-                    header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                    xtype: 'uni-actioncolumn',
                     items: [
                         {
-                            handler: function (grid, rowIndex, colIndex, item, e, record, row) {
-                                var menu = Ext.widget('menu', {
-                                    items: [
-                                        {
-                                            xtype: 'menuitem',
-                                            text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                                            listeners: {
-                                                click: {
-                                                    element: 'el',
-                                                    fn: function () {
-                                                        this.fireEvent('editItem', record);
-                                                    },
-                                                    scope: this
-                                                }
-
-                                            }
-                                        },
-                                        {
-                                            xtype: 'menuitem',
-                                            text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
-                                            listeners: {
-                                                click: {
-                                                    element: 'el',
-                                                    fn: function () {
-                                                        this.fireEvent('deleteItem', record);
-                                                    },
-                                                    scope: this
-                                                }
-
-                                            }
-                                        }
-                                    ]
-                                });
-                                menu.showAt(e.getXY());
-                            }
+                            text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                            action: 'editItem'
+                        },
+                        {
+                            text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
+                            action: 'deleteItem'
                         }
+
                     ]
                 }
             );

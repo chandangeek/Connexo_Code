@@ -390,5 +390,5 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 }
             }
         );
-    },
+    }
 });

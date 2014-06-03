@@ -34,6 +34,8 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsGrid', {
 
      }
      },  */
+
+
     initComponent: function () {
         var me = this;
         this.columns = [
@@ -55,60 +57,22 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsGrid', {
             },
 
             {
-                xtype: 'actioncolumn',
-                iconCls: 'uni-actioncolumn-gear',
-                columnWidth: 32,
-                header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                xtype: 'uni-actioncolumn',
                 items: [
                     {
-                        handler: function (grid, rowIndex, colIndex, item, e, record, row) {
-                            grid.getSelectionModel().select(rowIndex);
-                            var menu = Ext.widget('menu', {
-                                items: [
-                                    {
-                                        xtype: 'menuitem',
-                                        text: record.get('active') === true ? Uni.I18n.translate('general.deActivate', 'MDC', 'Deactivate') : Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
-                                        listeners: {
-                                            click: {
-                                                element: 'el',
-                                                fn: function () {
-                                                    this.fireEvent('activateItem', record);
-                                                },
-                                                scope: this
-                                            }
-                                        }
-                                    },
-                                    {
-                                        xtype: 'menuitem',
-                                        text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                                        listeners: {
-                                            click: {
-                                                element: 'el',
-                                                fn: function () {
-                                                    this.fireEvent('editItem', record);
-                                                },
-                                                scope: this
-                                            }
-                                        }
-                                    },
-                                    {
-                                        xtype: 'menuitem',
-                                        text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
-                                        listeners: {
-                                            click: {
-                                                element: 'el',
-                                                fn: function () {
-                                                    this.fireEvent('deleteItem', record);
-                                                },
-                                                scope: this
-                                            }
-                                        }
-                                    }
-                                ]
-                            });
-                            menu.showAt(e.getXY());
-                        }
+                        itemId: 'actionStatusMenuItem',
+                        text: "test",
+                        action: 'activateItem'
+                    },
+                    {
+                        text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                        action: 'editItem'
+                    },
+                    {
+                        text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
+                        action: 'deleteItem'
                     }
+
                 ]
             }
         ];
