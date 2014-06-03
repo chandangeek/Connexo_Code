@@ -90,8 +90,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeForm', {
                                             align: 'right'
                                         }
                                     ],
-                                    height: 220,
-                                    margin: '0 0 0 10'
+                                    height: 220
                                 },
                                 {
                                     xtype: 'container',
