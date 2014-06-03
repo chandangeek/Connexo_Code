@@ -54,49 +54,17 @@ Ext.define('Cfg.view.validation.RuleList', {
                 }
             },
             {
-                xtype: 'actioncolumn',
-                iconCls: 'uni-actioncolumn-gear',
-                columnWidth: 32,
-                fixed: true,
-                header: Uni.I18n.translate('validation.actions', 'CFG', 'Actions'),
-                sortable: false,
-                hideable: false,
+                xtype: 'uni-actioncolumn',
                 items: [
                     {
-                        handler: function (grid, rowIndex, colIndex, item, e) {
-                            var menu = Ext.widget('menu', {
-                                items: [
-                                    {
-                                        xtype: 'menuitem',
-                                        text: Uni.I18n.translate('general.edit', 'CFG', 'Edit'),
-                                        listeners: {
-                                            click: {
-                                                element: 'el',
-                                                fn: function () {
-                                                    this.fireEvent('edit', grid.getSelectionModel().getSelection());
-                                                },
-                                                scope: this
-                                            }
-                                        }
-                                    },
-                                    {
-                                        xtype: 'menuitem',
-                                        text: Uni.I18n.translate('general.delete', 'CFG', 'Delete'),
-                                        listeners: {
-                                            click: {
-                                                element: 'el',
-                                                fn: function () {
-                                                    console.log('delete');
-                                                    this.fireEvent('delete', grid.getSelectionModel().getSelection());
-                                                },
-                                                scope: this
-                                            }
-                                        }
-                                    }
-                                ]
-                            });
-                            menu.showAt(e.getXY());
-                        }
+                        itemId: 'editRule',
+                        text: 'Edit',
+                        action: 'editRule'
+                    },
+                    {
+                        itemId: 'deleteRule',
+                        text: 'Delete',
+                        action: 'deleteRule'
                     }
                 ]
             }
