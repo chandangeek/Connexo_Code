@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -9,6 +10,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -133,9 +135,15 @@ public abstract class AbstractCollectedDataIntegrationTest {
             protected void doPerform() {
                 injector.getInstance(MeteringService.class);
                 injector.getInstance(EngineService.class);
+                EventService eventService = injector.getInstance(EventService.class);
+                makeSureJupiterEventsAreInstalled(eventService);
                 meteringService = injector.getInstance(MeteringService.class);
             }
         });
+    }
+
+    private static void makeSureJupiterEventsAreInstalled(EventService eventService) {
+        ((InstallService) eventService).install();
     }
 
     @AfterClass

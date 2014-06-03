@@ -13,7 +13,7 @@ import com.energyict.mdc.protocol.api.OpticalDriver;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolAdapter;
+import com.energyict.mdc.protocol.pluggable.SmartMeterProtocolAdapter;
 import com.energyict.protocols.mdc.channels.serial.SerialComChannel;
 
 /**

@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.commands.store.legacy;
 
-import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.exceptions.ComCommandException;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
@@ -8,15 +7,11 @@ import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTes
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.engine.impl.core.CommandFactory;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolAdapter;
-
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.impl.DefaultClock;
+import com.energyict.mdc.protocol.pluggable.SmartMeterProtocolAdapter;
 
 import java.util.logging.Logger;
 

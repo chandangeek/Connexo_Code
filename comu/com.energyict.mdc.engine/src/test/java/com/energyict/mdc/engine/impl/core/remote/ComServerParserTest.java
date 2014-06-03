@@ -87,6 +87,11 @@ public class ComServerParserTest {
         }
     }
 
+    @AfterClass
+    public static void cleanup(){
+        inMemoryBootstrapModule.deactivate();
+    }
+
     public static TransactionService getTransactionService() {
         return injector.getInstance(TransactionService.class);
     }

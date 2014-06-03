@@ -12,7 +12,7 @@ import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolAdapter;
+import com.energyict.mdc.protocol.pluggable.SmartMeterProtocolAdapter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

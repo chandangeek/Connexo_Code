@@ -85,6 +85,11 @@ public class ComPortParserTest {
         return injector.getInstance(TransactionService.class);
     }
 
+    @AfterClass
+    public static void cleanupDatabase() {
+        inMemoryBootstrapModule.deactivate();
+    }
+
     @Test
     public void testDelegateToEngineModelService () throws JSONException {
         EngineModelService engineModelService = mock(EngineModelService.class);
