@@ -6,6 +6,7 @@ import com.energyict.mdc.common.rest.FieldValidationException;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
@@ -42,13 +43,15 @@ public class DeviceCommunicationProtocolsResource {
     private final ProtocolPluggableService protocolPluggableService;
     private final LicensedProtocolService licensedProtocolService;
     private final Thesaurus thesaurus;
+    private final MdcPropertyUtils mdcPropertyUtils;
 
     @Inject
-    public DeviceCommunicationProtocolsResource(PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, LicensedProtocolService licensedProtocolService, Thesaurus thesaurus) {
+    public DeviceCommunicationProtocolsResource(PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, LicensedProtocolService licensedProtocolService, Thesaurus thesaurus, MdcPropertyUtils mdcPropertyUtils) {
         this.propertySpecService = propertySpecService;
         this.protocolPluggableService = protocolPluggableService;
         this.licensedProtocolService = licensedProtocolService;
         this.thesaurus = thesaurus;
+        this.mdcPropertyUtils = mdcPropertyUtils;
     }
 
     @GET
@@ -58,7 +61,7 @@ public class DeviceCommunicationProtocolsResource {
         List<DeviceCommunicationProtocolInfo> deviceCommunicationProtocolInfos = new ArrayList<>(deviceProtocolPluggableClasses.size());
         for (DeviceProtocolPluggableClass deviceProtocolPluggableClass : deviceProtocolPluggableClasses) {
             LicensedProtocol licensedProtocol = this.licensedProtocolService.findLicensedProtocolFor(deviceProtocolPluggableClass);
-            deviceCommunicationProtocolInfos.add(new DeviceCommunicationProtocolInfo(uriInfo, deviceProtocolPluggableClass, licensedProtocol, false));
+            deviceCommunicationProtocolInfos.add(new DeviceCommunicationProtocolInfo(uriInfo, deviceProtocolPluggableClass, licensedProtocol, false, mdcPropertyUtils));
         }
         return PagedInfoList.asJson("DeviceProtocolPluggableClass", deviceCommunicationProtocolInfos, queryParameters);
     }
@@ -69,7 +72,7 @@ public class DeviceCommunicationProtocolsResource {
     public DeviceCommunicationProtocolInfo getDeviceCommunicationProtocol(@Context UriInfo uriInfo, @PathParam("id") long id) {
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = this.protocolPluggableService.findDeviceProtocolPluggableClass(id);
         LicensedProtocol licensedProtocol = this.licensedProtocolService.findLicensedProtocolFor(deviceProtocolPluggableClass);
-        return new DeviceCommunicationProtocolInfo(uriInfo, deviceProtocolPluggableClass, licensedProtocol, true);
+        return new DeviceCommunicationProtocolInfo(uriInfo, deviceProtocolPluggableClass, licensedProtocol, true, mdcPropertyUtils);
     }
 
     @GET
@@ -83,7 +86,7 @@ public class DeviceCommunicationProtocolsResource {
         for(ConnectionType supportedConnectionType: supportedConnectionTypes){
             for(ConnectionTypePluggableClass registeredConnectionTypePluggableClass:allConnectionTypePluggableClassesToCheck){
                 if(registeredConnectionTypePluggableClass.getJavaClassName().equals(supportedConnectionType.getClass().getCanonicalName())){
-                     infos.add(ConnectionTypeInfo.from(registeredConnectionTypePluggableClass, uriInfo));
+                     infos.add(ConnectionTypeInfo.from(registeredConnectionTypePluggableClass, uriInfo, mdcPropertyUtils));
                 }
             }
         }
@@ -112,10 +115,10 @@ public class DeviceCommunicationProtocolsResource {
                     protocolPluggableService.newDeviceProtocolPluggableClass(
                             deviceCommunicationProtocolInfo.licensedProtocol.protocolName,
                             deviceCommunicationProtocolInfo.licensedProtocol.protocolJavaClassName);
-            deviceCommunicationProtocolInfo.copyProperties(deviceProtocolPluggableClass);
+            deviceCommunicationProtocolInfo.copyProperties(deviceProtocolPluggableClass, mdcPropertyUtils);
             deviceProtocolPluggableClass.save();
             LicensedProtocol licensedProtocol = licensedProtocolService.findLicensedProtocolFor(deviceProtocolPluggableClass);
-            return new DeviceCommunicationProtocolInfo(uriInfo, deviceProtocolPluggableClass, licensedProtocol, true);
+            return new DeviceCommunicationProtocolInfo(uriInfo, deviceProtocolPluggableClass, licensedProtocol, true, mdcPropertyUtils);
         } catch (FieldValidationException fieldValidationException) {
             throw new LocalizedFieldValidationException(thesaurus, MessageSeeds.INVALID_VALUE, "properties."+fieldValidationException.getFieldName());
         }
@@ -129,10 +132,10 @@ public class DeviceCommunicationProtocolsResource {
         try {
             DeviceProtocolPluggableClass deviceProtocolPluggableClass = protocolPluggableService.findDeviceProtocolPluggableClass(id);
             deviceProtocolPluggableClass.setName(deviceCommunicationProtocolInfo.name);
-            deviceCommunicationProtocolInfo.copyProperties(deviceProtocolPluggableClass);
+            deviceCommunicationProtocolInfo.copyProperties(deviceProtocolPluggableClass, mdcPropertyUtils);
             deviceProtocolPluggableClass.save();
             LicensedProtocol licensedProtocol = licensedProtocolService.findLicensedProtocolFor(deviceProtocolPluggableClass);
-            return new DeviceCommunicationProtocolInfo(uriInfo, protocolPluggableService.findDeviceProtocolPluggableClass(id), licensedProtocol, true);
+            return new DeviceCommunicationProtocolInfo(uriInfo, protocolPluggableService.findDeviceProtocolPluggableClass(id), licensedProtocol, true, mdcPropertyUtils);
         } catch (FieldValidationException fieldValidationException) {
             throw new LocalizedFieldValidationException(thesaurus, MessageSeeds.INVALID_VALUE, "properties."+fieldValidationException.getFieldName());
         }

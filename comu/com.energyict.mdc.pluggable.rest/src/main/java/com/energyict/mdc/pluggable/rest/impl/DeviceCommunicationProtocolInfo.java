@@ -28,7 +28,7 @@ public class DeviceCommunicationProtocolInfo {
     public DeviceCommunicationProtocolInfo() {
     }
 
-    public DeviceCommunicationProtocolInfo(final UriInfo uriInfo, DeviceProtocolPluggableClass deviceProtocolPluggableClass, LicensedProtocol licensedProtocol, boolean embedProperties) {
+    public DeviceCommunicationProtocolInfo(final UriInfo uriInfo, DeviceProtocolPluggableClass deviceProtocolPluggableClass, LicensedProtocol licensedProtocol, boolean embedProperties, MdcPropertyUtils mdcPropertyUtils) {
         this.name = deviceProtocolPluggableClass.getName();
         this.id = deviceProtocolPluggableClass.getId();
         try {
@@ -42,23 +42,23 @@ public class DeviceCommunicationProtocolInfo {
             this.licensedProtocol = new LicensedProtocolInfo(licensedProtocol);
         }
         if (embedProperties) {
-            List<PropertyInfo> propertyInfoList = createPropertyInfoList(uriInfo, deviceProtocolPluggableClass);
+            List<PropertyInfo> propertyInfoList = createPropertyInfoList(uriInfo, deviceProtocolPluggableClass, mdcPropertyUtils);
             this.properties = propertyInfoList.toArray(new PropertyInfo[propertyInfoList.size()]);
         }
     }
 
-    private List<PropertyInfo> createPropertyInfoList(UriInfo uriInfo, DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
+    private List<PropertyInfo> createPropertyInfoList(UriInfo uriInfo, DeviceProtocolPluggableClass deviceProtocolPluggableClass, MdcPropertyUtils mdcPropertyUtils) {
         List<PropertySpec> propertySpecs = deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpecs();
         TypedProperties properties = deviceProtocolPluggableClass.getProperties(propertySpecs);
         List<PropertyInfo> propertyInfoList = new ArrayList<>();
-        MdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, propertySpecs, properties, propertyInfoList);
+        mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, propertySpecs, properties, propertyInfoList);
         return propertyInfoList;
     }
 
-    public void copyProperties(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
+    public void copyProperties(DeviceProtocolPluggableClass deviceProtocolPluggableClass, MdcPropertyUtils mdcPropertyUtils) {
         List<PropertySpec> propertySpecs = deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpecs();
         for (PropertySpec propertySpec : propertySpecs) {
-            Object value = MdcPropertyUtils.findPropertyValue(propertySpec, this.properties);
+            Object value = mdcPropertyUtils.findPropertyValue(propertySpec, this.properties);
             if (value == null || "".equals(value)) {
                 deviceProtocolPluggableClass.removeProperty(propertySpec);
             } else {

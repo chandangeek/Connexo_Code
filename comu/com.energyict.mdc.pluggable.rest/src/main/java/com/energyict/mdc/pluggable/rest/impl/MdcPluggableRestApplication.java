@@ -14,6 +14,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdw.UserFileService;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
 import java.util.HashSet;
@@ -32,6 +33,7 @@ public class MdcPluggableRestApplication extends Application {
     private volatile LicensedProtocolService licensedProtocolService;
     private volatile PropertySpecService propertySpecService;
     private volatile TransactionService transactionService;
+    private volatile UserFileService userFileService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private NlsService nlsService;
     private Thesaurus thesaurus;
@@ -91,6 +93,11 @@ public class MdcPluggableRestApplication extends Application {
         this.deviceConfigurationService = deviceConfigurationService;
     }
 
+    @Reference
+    public void setUserFileService(UserFileService userFileService) {
+        this.userFileService = userFileService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -103,6 +110,7 @@ public class MdcPluggableRestApplication extends Application {
             bind(thesaurus).to(Thesaurus.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(deviceConfigurationService).to(DeviceConfigurationService.class);
+            bind(userFileService).to(UserFileService.class);
         }
     }
 
