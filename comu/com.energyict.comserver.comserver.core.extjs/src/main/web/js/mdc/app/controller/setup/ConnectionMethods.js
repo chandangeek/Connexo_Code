@@ -286,7 +286,13 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
     },
 
     showConnectionTypeProperties: function(combobox,objList){
-        this.getPropertiesController().showProperties(this.getConnectionTypeComboBox().findRecordByValue(this.getConnectionTypeComboBox().getValue()),this.getConnectionMethodEditView(),false);
+        var objectWithProperties = this.getConnectionTypeComboBox().findRecordByValue(this.getConnectionTypeComboBox().getValue());
+        if(objectWithProperties.propertiesStore.data.items.length > 0){
+            this.getConnectionMethodEditView().down('#connectionDetailsTitle').setVisible(true);
+        } else {
+            this.getConnectionMethodEditView().down('#connectionDetailsTitle').setVisible(false);
+        }
+        this.getPropertiesController().showProperties(objectWithProperties,this.getConnectionMethodEditView(),false);
     },
 
     getPropertiesController: function () {
