@@ -2,7 +2,7 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.List', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.setupDeviceCommunicationProtocols',
     itemId: 'devicecommunicationprotocolgrid',
-    title: 'All device communication protocols',
+    title: 'All communication protocols',
     store: 'DeviceCommunicationProtocols',
 
     requires: [

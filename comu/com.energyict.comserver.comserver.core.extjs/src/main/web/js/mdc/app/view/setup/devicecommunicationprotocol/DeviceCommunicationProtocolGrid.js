@@ -87,15 +87,15 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
                 xtype: 'pagingtoolbartop',
                 store: this.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('deviceCommunicationProtocols.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} protocols'),
-                displayMoreMsg: Uni.I18n.translate('deviceCommumnicationProtocols.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} protocols'),
-                emptyMsg: Uni.I18n.translate('deviceCommunicationProtocols.pagingtoolbartop.emptyMsg', 'MDC', 'There are no protocols to display')
+                displayMsg: Uni.I18n.translate('deviceCommunicationProtocols.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} communication protocols'),
+                displayMoreMsg: Uni.I18n.translate('deviceCommumnicationProtocols.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} communication protocols'),
+                emptyMsg: Uni.I18n.translate('deviceCommunicationProtocols.pagingtoolbartop.emptyMsg', 'MDC', 'There are no communication protocols to display')
             },
             {
                 xtype: 'pagingtoolbarbottom',
                 store: this.store,
                 dock: 'bottom',
-                itemsPerPageMsg: Uni.I18n.translate('deviceCommunicationProtocols.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Protocols per page')
+                itemsPerPageMsg: Uni.I18n.translate('deviceCommunicationProtocols.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Communication protocols per page')
             }
         ];
 

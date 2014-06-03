@@ -89,7 +89,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
         Ext.ModelManager.getModel('Mdc.model.DeviceCommunicationProtocol').load(deviceCommunicationProtocol, {
             success: function (protocol) {
                 widget.down('form').loadRecord(protocol);
-                widget.down('#deviceCommunicationProtocolEditCreateTitle').update('<h1>' + protocol.get('name') + ' > ' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + Uni.I18n.translate('deviceCommunicationProtocol.protocol', 'MDC', 'Protocol') + '</h1>');
+                widget.down('#deviceCommunicationProtocolEditCreateTitle').update('<h1>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + protocol.get('name') + '</h1>');
                 me.getPropertiesController().showProperties(protocol, widget, true);
                 widget.setLoading(false);
             }
@@ -117,5 +117,5 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
                 }
             });
         }
-    },
+    }
 });
