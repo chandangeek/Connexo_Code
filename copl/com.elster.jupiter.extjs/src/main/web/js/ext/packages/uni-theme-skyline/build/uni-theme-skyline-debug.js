@@ -489,8 +489,10 @@ Ext.define('Skyline.window.MessageBox', {
     override: 'Ext.window.MessageBox',
     shadow: false,
 
-    reconfigure: function(cfg) {
-        if (((typeof cfg) != "undefined") && cfg.ui) {
+    buttonAlign: 'left',
+
+    reconfigure: function (cfg) {
+        if (((typeof cfg) != 'undefined') && cfg.ui) {
             this.ui = cfg.ui;
         }
         this.callParent(arguments);
@@ -514,7 +516,7 @@ Ext.define('Skyline.window.MessageBox', {
      * Set a title for the panel's header. See {@link Ext.panel.Header#title}.
      * @param {String} newTitle
      */
-    setTitle: function(newTitle) {
+    setTitle: function (newTitle) {
         var me = this,
             header = me.titleComponent;
 
@@ -535,7 +537,7 @@ Ext.define('Skyline.window.MessageBox', {
 
         me.fireEvent('titlechange', me, newTitle, oldTitle);
     }
-}, function() {
+}, function () {
     /**
      * @class Ext.MessageBox
      * @alternateClassName Ext.Msg
