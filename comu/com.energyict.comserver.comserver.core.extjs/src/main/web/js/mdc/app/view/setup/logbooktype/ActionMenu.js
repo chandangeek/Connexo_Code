@@ -13,7 +13,7 @@ Ext.define('Mdc.view.setup.logbooktype.ActionMenu', {
         },
         {
             itemId: 'delete',
-            text: 'Delete',
+            text: 'Remove',
             action: 'delete'
         }
     ]

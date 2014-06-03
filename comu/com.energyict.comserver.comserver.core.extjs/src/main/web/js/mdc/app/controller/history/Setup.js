@@ -42,16 +42,15 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showDeviceTypeCreateView'
                         },
                         view: {
-                            title: function(route) {
-                                var deferred = Ext.create('Deft.Deferred');
+                            callback: function(route) {
                                 var ctrl = this.getController(route.controller);
 
                                 ctrl.on('loadDeviceType', function(record) {
-                                    route.title = record.get('name');
-                                    deferred.resolve(route.title);
+                                    route.setTitle(record.get('name'));
+                                    return true;
                                 }, {single: true});
 
-                                return deferred.promise;
+                                return this;
                             },
                             route: '{id}',
                             controller: 'Mdc.controller.setup.DeviceTypes',
@@ -453,13 +452,13 @@ Ext.define('Mdc.controller.history.Setup', {
                     action: 'showCommunicationTasksView',
                     items: {
                         create: {
-                            title: 'Create',
+                            title: 'Create communication task',
                             route: 'create',
                             controller: 'Mdc.controller.setup.CommunicationTasksCreateEdit',
                             action: 'showCommunicationTasksCreateEdit'
                         },
                         edit: {
-                            title: 'Edit',
+                            title: 'Edit communication task',
                             route: '{id}',
                             controller: 'Mdc.controller.setup.CommunicationTasksCreateEdit',
                             action: 'showCommunicationTasksCreateEdit'

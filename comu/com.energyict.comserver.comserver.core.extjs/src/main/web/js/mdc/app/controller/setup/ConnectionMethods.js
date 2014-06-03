@@ -95,6 +95,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                         widget.down('#connectionMethodSetupPanel').setTitle(Uni.I18n.translate('connectionmethod.connectionmethods', 'MDC', 'Connection methods'));
                         var deviceConfigName = deviceConfig.get('name');
                         me.getApplication().fireEvent('changecontentevent', widget);
+                        me.getConnectionmethodsgrid().getSelectionModel().doSelect(0);
                     }
                 });
             }
@@ -137,7 +138,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         this.editConnectionMethodHistory(this.getConnectionMethodPreviewForm().getRecord());
     },
 
-    showAddConnectionMethodView:function(deviceTypeId,deviceConfigId,direction){
+    showAddConnectionMethodView:function(deviceTypeId,deviceConfigId,direction, a, b){
         var connectionTypesStore = Ext.StoreManager.get('ConnectionTypes');
         var comPortPoolStore = Ext.StoreManager.get('ComPortPools');
         var connectionStrategiesStore = Ext.StoreManager.get('ConnectionStrategies');
