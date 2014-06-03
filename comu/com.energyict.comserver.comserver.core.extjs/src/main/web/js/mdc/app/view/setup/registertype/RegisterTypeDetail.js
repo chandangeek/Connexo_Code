@@ -134,13 +134,13 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeDetail', {
                                     labelWidth: 250
                                 },
                                 items: [
-                                    {
+                                 /*   {
                                         xtype: 'displayfield',
                                         name: 'dataCollectionGroup',
                                         fieldLabel: Uni.I18n.translate('registerType.dataCollectionGroup', 'MDC', 'Data collection group'),
                                         labelAlign: 'right',
                                         labelWidth: 150
-                                    }
+                                    }*/
                                 ]
                             }
 

@@ -133,13 +133,13 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
                                     align: 'stretch'
                                 },
                                 items: [
-                                    {
+                                   /* {
                                         xtype: 'displayfield',
                                         name: 'dataCollectionGroup',
                                         fieldLabel: Uni.I18n.translate('registerMapping.dataCollectionGroup', 'MDC', 'Data collection group'),
                                         labelAlign: 'right',
                                         labelWidth: 250
-                                    }
+                                    }*/
 
                                 ]
                             }
