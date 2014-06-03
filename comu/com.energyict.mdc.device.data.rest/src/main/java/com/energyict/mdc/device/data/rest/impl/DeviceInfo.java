@@ -76,7 +76,7 @@ public class DeviceInfo {
             slaveInfo.mRID = ((Device)dev).getmRID();
             deviceInfo.slaveDevices.add(slaveInfo);
         }
-        deviceInfo.nbrOfDataCollectionIssues = issueService.findNbrOfOpenDataCollectionIssues(device.getmRID());
+        deviceInfo.nbrOfDataCollectionIssues = issueService.countOpenDataCollectionIssues(device.getmRID());
         return deviceInfo;
     }
 
