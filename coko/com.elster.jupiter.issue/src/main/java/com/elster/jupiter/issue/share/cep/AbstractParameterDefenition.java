@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class AbstractParameterDefenition implements ParameterDefinition {
-    public boolean isDependant() {
+    public boolean isDependent() {
         return false;
     }
 
