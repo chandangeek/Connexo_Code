@@ -98,6 +98,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(id,{
             success: function(deviceType){
                 me.getApplication().fireEvent('changecontentevent', widget);
+                me.getDeviceConfigurationsGrid().getSelectionModel().doSelect(0);
             }
         });
 
