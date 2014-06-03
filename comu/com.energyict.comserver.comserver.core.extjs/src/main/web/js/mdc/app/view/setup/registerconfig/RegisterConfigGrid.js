@@ -19,7 +19,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigGrid', {
         var me = this;
         this.columns = [
             {
-                header: Uni.I18n.translate('registerConfigs.name', 'MDC', 'Name'),
+                header: Uni.I18n.translate('registerConfigs.name', 'MDC', 'Register type'),
                 dataIndex: 'name',
                 flex: 3
             },

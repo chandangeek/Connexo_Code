@@ -85,7 +85,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
                                     {
                                         xtype: 'displayfield',
                                         name: 'name',
-                                        fieldLabel: Uni.I18n.translate('registerConfig.deviceRegister', 'MDC', 'Device register'),
+                                        fieldLabel: Uni.I18n.translate('registerConfig.deviceRegister', 'MDC', 'Register type'),
                                         labelAlign: 'right',
                                         labelWidth: 250
                                     },
