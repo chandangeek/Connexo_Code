@@ -10,7 +10,6 @@ import com.energyict.protocols.mdc.protocoltasks.ServerConnectionType;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -30,11 +29,6 @@ public class ConnectionTypeServiceImpl implements ConnectionTypeService {
     public PropertySpecService getPropertySpecService() {
         return propertySpecService;
     }
-
-//    @Inject
-//    public ConnectionTypeServiceImpl(PropertySpecService propertySpecService) {
-//        this.propertySpecService = propertySpecService;
-//    }
 
     @Reference
     public void setPropertySpecService(PropertySpecService propertySpecService) {
