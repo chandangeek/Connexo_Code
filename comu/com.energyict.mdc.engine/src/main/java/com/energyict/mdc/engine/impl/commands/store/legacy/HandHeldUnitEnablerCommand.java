@@ -38,7 +38,7 @@ public class HandHeldUnitEnablerCommand extends SimpleComCommand {
             SerialComChannel comChannel = (SerialComChannel) this.comChannelPlaceHolder.getComPortRelatedComChannel().getActualComChannel();
             SerialCommunicationChannelAdapter serialCommunicationChannel = new SerialCommunicationChannelAdapter(comChannel);
             try {
-                if (deviceProtocol instanceof MeterProtocolAdapter || deviceProtocol instanceof SmartMeterProtocolAdapter) {
+                if (deviceProtocol instanceof DeviceProtocolAdapter) {
                     if (executionContext.getConnectionTask().getConnectionType() instanceof OpticalDriver) {
                         ((DeviceProtocolAdapter) deviceProtocol).enableHHUSignOn(serialCommunicationChannel);
                     }
