@@ -84,6 +84,8 @@ Ext.define('Uni.view.container.PreviewContainer', {
         }
         me.items[0] = emptyCmp;
 
+        me.items[1].items = [];
+
         if (!(grid instanceof Ext.Component)) {
             grid = Ext.clone(grid);
         }
