@@ -46,6 +46,7 @@ import com.energyict.mdc.device.data.impl.finders.DeviceFinder;
 import com.energyict.mdc.device.data.impl.finders.LoadProfileFinder;
 import com.energyict.mdc.device.data.impl.finders.LogBookFinder;
 import com.energyict.mdc.device.data.impl.finders.ProtocolDialectPropertiesFinder;
+import com.energyict.mdc.device.data.impl.finders.SecuritySetFinder;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
@@ -164,6 +165,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         finders.add(new LogBookFinder(this.dataModel));
         finders.add(new ConnectionMethodFinder(this.dataModel));
         finders.add(new ProtocolDialectPropertiesFinder(this.dataModel));
+        finders.add(new SecuritySetFinder(this.dataModel));
         return finders;
     }
 

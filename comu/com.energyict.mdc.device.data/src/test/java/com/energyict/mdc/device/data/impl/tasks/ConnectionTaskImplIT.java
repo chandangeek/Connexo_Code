@@ -1,11 +1,8 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Transaction;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -30,7 +27,6 @@ import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
@@ -63,7 +59,6 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
 
-    protected static final int CODE_TABLE_ID = 102;
     protected static final TimeDuration EVERY_HOUR = new TimeDuration(1, TimeDuration.HOURS);
     private static final String DEVICE_PROTOCOL_DIALECT_NAME = "Limbueregs";
 
@@ -107,8 +102,6 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     protected PartialConnectionInitiationTask partialConnectionInitiationTask2;
 
 
-    protected static Code codeTable;
-    private static IdBusinessObjectFactory<Code> codeTableFactory;
     protected int comTaskEnablementPriority = 213;
     private OnlineComServer onlineComServer;
     private OnlineComServer otherOnlineComServer;
@@ -128,7 +121,6 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
 
     @BeforeClass
     public static void registerConnectionTypePluggableClasses () {
-        initializeCodeTable();
         try {
             Environment.DEFAULT.get().execute(new Transaction<Object>() {
                 @Override
@@ -149,23 +141,6 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         noParamsConnectionTypePluggableClass = refreshConnectionTypePluggableClass(NoParamsConnectionType.class);
         ipConnectionTypePluggableClass = refreshConnectionTypePluggableClass(IpConnectionType.class);
         modemConnectionTypePluggableClass = refreshConnectionTypePluggableClass(ModemConnectionType.class);
-    }
-
-    private static void initializeCodeTable () {
-        codeTable = mock(Code.class);
-        when(codeTable.getId()).thenReturn(CODE_TABLE_ID);
-        when(codeTable.getName()).thenReturn("ConnectionTaskImplIT");
-        when(codeTable.getBusinessObject()).thenReturn(codeTable);
-        codeTableFactory = mock(IdBusinessObjectFactory.class);
-        when(codeTableFactory.getInstanceType()).thenReturn(Code.class);
-        when(codeTableFactory.findAll()).thenReturn(Arrays.asList(codeTable));
-        when(codeTableFactory.get(CODE_TABLE_ID)).thenReturn(codeTable);
-        when(codeTableFactory.findByPrimaryKey(CODE_TABLE_ID)).thenReturn(codeTable);
-        when(codeTableFactory.getId()).thenReturn(FactoryIds.CODE.id());
-
-        ApplicationContext applicationContext = Environment.DEFAULT.get().getApplicationContext();
-        when(applicationContext.findFactory(FactoryIds.CODE.id())).thenReturn(codeTableFactory);
-        when(applicationContext.findFactory(Code.class.getName())).thenReturn(codeTableFactory);
     }
 
     private static <T extends ConnectionType> ConnectionTypePluggableClass registerConnectionTypePluggableClass(Class<T> connectionTypeClass) {
@@ -439,7 +414,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         else {
             connectionTask = inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool);
         }
-        this.setIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE, codeTable);
+        this.setIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE);
         ((ScheduledConnectionTaskImpl) connectionTask).save();
         return connectionTask;
     }
@@ -447,19 +422,15 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     protected List<PropertySpec> getOutboundIpPropertySpecs() {
         return Arrays.asList(
                 ipConnectionTypePluggableClass.getPropertySpec(IpConnectionType.IP_ADDRESS_PROPERTY_NAME),
-                ipConnectionTypePluggableClass.getPropertySpec(IpConnectionType.PORT_PROPERTY_NAME),
-                ipConnectionTypePluggableClass.getPropertySpec(IpConnectionType.CODE_TABLE_PROPERTY_NAME));
+                ipConnectionTypePluggableClass.getPropertySpec(IpConnectionType.PORT_PROPERTY_NAME));
     }
 
-    protected void setIpConnectionProperties (ConnectionTask connectionTask, String ipAddress, BigDecimal port, Code codeTable) {
+    protected void setIpConnectionProperties(ConnectionTask connectionTask, String ipAddress, BigDecimal port) {
         if (ipAddress != null) {
             connectionTask.setProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME, ipAddress);
         }
         if (port != null) {
             connectionTask.setProperty(IpConnectionType.PORT_PROPERTY_NAME, port);
-        }
-        if (codeTable != null) {
-            connectionTask.setProperty(IpConnectionType.CODE_TABLE_PROPERTY_NAME, codeTable);
         }
     }
 
