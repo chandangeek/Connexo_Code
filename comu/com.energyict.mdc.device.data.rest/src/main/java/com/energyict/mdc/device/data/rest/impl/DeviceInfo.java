@@ -57,26 +57,26 @@ public class DeviceInfo {
         deviceInfo.deviceConfigurationId = device.getDeviceConfiguration().getId();
         deviceInfo.deviceConfigurationName = device.getDeviceConfiguration().getName();
         if (device.getYearOfCertification()!= null) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy");
-        deviceInfo.yearOfCertification = dateFormat.format(device.getYearOfCertification());
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy");
+            deviceInfo.yearOfCertification = dateFormat.format(device.getYearOfCertification());
         }
         Optional<Batch> optionalBatch = deviceImportService.findBatch(device.getId());
         if (optionalBatch.isPresent()) {
             deviceInfo.batch = device.getName();
         }
         if (device.getPhysicalGateway() != null) {
-        deviceInfo.masterDeviceId = device.getPhysicalGateway().getId();
-        deviceInfo.masterDevicemRID = device.getPhysicalGateway().getmRID();
+            deviceInfo.masterDeviceId = device.getPhysicalGateway().getId();
+            deviceInfo.masterDevicemRID = device.getPhysicalGateway().getmRID();
         }
-        List<BaseDevice<Channel, LoadProfile, Register>> slaves = device.getPhysicalConnectedDevices();
-        deviceInfo.slaveDevices = new ArrayList();
+        List<Device> slaves = device.getPhysicalConnectedDevices();
+        deviceInfo.slaveDevices = new ArrayList<>();
         for (BaseDevice dev : slaves) {
             DeviceInfo slaveInfo = new DeviceInfo();
             slaveInfo.id  = dev.getId();
             slaveInfo.mRID = ((Device)dev).getmRID();
             deviceInfo.slaveDevices.add(slaveInfo);
         }
-        deviceInfo.nbrOfDataCollectionIssues = issueService.findNbrOfOpenDataCollectionIssues(device.getmRID());
+        deviceInfo.nbrOfDataCollectionIssues = issueService.countOpenDataCollectionIssues(device.getmRID());
         return deviceInfo;
     }
 
