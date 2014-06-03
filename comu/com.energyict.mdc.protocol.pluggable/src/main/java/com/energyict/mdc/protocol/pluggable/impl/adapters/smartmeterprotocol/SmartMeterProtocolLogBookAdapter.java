@@ -10,7 +10,6 @@ import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLogBookSupport;
 
@@ -19,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Adapter between a {@link SmartMeterProtocolAdapter} and {@link DeviceLogBookSupport}
+ * Adapter between a {@link com.energyict.mdc.protocol.pluggable.SmartMeterProtocolAdapter} and {@link DeviceLogBookSupport}
  *
  * @author gna
  * @since 10/04/12 - 15:29

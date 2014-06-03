@@ -24,7 +24,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolNotAllowedByLicenseException
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.MeterProtocolAdapterImpl;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolAdapter;
+import com.energyict.mdc.protocol.pluggable.SmartMeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.relations.SecurityPropertySetRelationTypeSupport;
 import java.util.List;
 import javax.inject.Inject;
@@ -34,7 +34,7 @@ import javax.inject.Inject;
  * <p/>
  * We are responsible for wrapping the given Pluggable with a correct Adapter
  * ({@link com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter} or
- * {@link com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolAdapter})
+ * {@link com.energyict.mdc.protocol.pluggable.SmartMeterProtocolAdapter})
  * or a correct cast to {@link DeviceProtocol}.
  * <p/>
  * Copyrights EnergyICT

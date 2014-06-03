@@ -11,7 +11,6 @@ import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
-import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.api.exceptions.DataParseException;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
@@ -27,7 +26,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Adapter between a {@link SmartMeterProtocolAdapter} and a {@link com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport}
+ * Adapter between a {@link com.energyict.mdc.protocol.pluggable.SmartMeterProtocolAdapter} and a {@link com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport}
  *
  * @author gna
  * @since 5/04/12 - 13:56

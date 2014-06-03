@@ -1,4 +1,4 @@
-package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
+package com.energyict.mdc.protocol.pluggable;
 
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.TypedProperties;
@@ -41,6 +41,12 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceProtocolA
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceProtocolTopologyAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.PropertiesAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolClockAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolLoadProfileAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolLogBookAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolMessageAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolRegisterAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolSecuritySupportAdapter;
 import com.energyict.protocolimplv2.identifiers.SerialNumberDeviceIdentifier;
 import java.io.IOException;
 import java.util.ArrayList;
