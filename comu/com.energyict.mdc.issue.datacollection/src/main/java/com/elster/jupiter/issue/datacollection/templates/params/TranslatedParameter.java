@@ -1,10 +1,10 @@
 package com.elster.jupiter.issue.datacollection.templates.params;
 
 import com.elster.jupiter.issue.datacollection.impl.i18n.MessageSeeds;
-import com.elster.jupiter.issue.share.cep.AbstractParameterDefenition;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.issue.share.cep.AbstractParameterDefinition;
 
-public abstract class TranslatedParameter extends AbstractParameterDefenition {
+public abstract class TranslatedParameter extends AbstractParameterDefinition {
     private final Thesaurus thesaurus;
 
     protected TranslatedParameter(Thesaurus thesaurus) {

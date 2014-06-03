@@ -36,8 +36,8 @@ public class InstallServiceImpl implements InstallService {
 
     @Override
     public void install() {
-        new Installer(issueService, messageService, eventService, thesaurus).install();
         new TranslationInstaller(thesaurus).createTranslations();
+        new Installer(issueService, messageService, eventService, thesaurus).install();
     }
 
     @Reference
