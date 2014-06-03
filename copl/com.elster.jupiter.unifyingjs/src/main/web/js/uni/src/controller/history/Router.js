@@ -142,7 +142,7 @@ Ext.define('Uni.controller.history.Router', {
              * @returns {string}
              */
             buildUrl: function (params) {
-                params = typeof params !== 'undefined' ? params : this.params;
+                params = typeof params !== 'undefined' ? params : me.routeparams;
                 return this.crossroad ?
                     '#' + this.crossroad.interpolate(params) :
                     '#' + this.path;
@@ -159,16 +159,18 @@ Ext.define('Uni.controller.history.Router', {
                 me.currentRoute = key;
 
                 // todo: this will not work with optional params
-                me.routes[key].params = _.object(
+                me.routeparams = _.object(
                     me.routes[key].crossroad._paramsIds,
                     arguments
                 );
+
                 if (me.routes[key].callback) {
                     me.routes[key].callback.apply(me, [me.routes[key]])
                 }
                 var controller = me.getController(config.controller);
 
-                arguments = _.extend(arguments, _.values(params));
+                var arguments = _.values(_.extend(me.routeparams, params));
+
                 // fire the controller action with this route params as arguments
                 controller[action].apply(controller, arguments);
 
