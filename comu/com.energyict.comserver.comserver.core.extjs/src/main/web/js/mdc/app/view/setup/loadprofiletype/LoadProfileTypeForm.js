@@ -16,7 +16,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeForm', {
                     width: '50%',
                     itemId: 'LoadProfileTypeFormId',
                     defaults: {
-                        labelWidth: 150,
+                        labelWidth: 250,
                         labelAlign: 'right',
                         margin: '0 0 20 0',
                         validateOnChange: false,
@@ -36,15 +36,14 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeForm', {
                         {
                             xtype: 'textfield',
                             name: 'name',
-                            labelSeparator: ' *',
                             regex: /[a-zA-Z0-9]+/,
                             allowBlank: false,
+                            required: true,
                             fieldLabel: 'Name',
                             msgTarget: 'under'
                         },
                         {
                             xtype: 'combobox',
-                            labelSeparator: ' *',
                             allowBlank: false,
                             fieldLabel: 'Interval',
                             emptyText: '1 minute',
@@ -53,26 +52,26 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeForm', {
                             valueField: 'id',
                             queryMode: 'local',
                             forceSelection: true,
+                            required: true,
                             editable: false
                         },
                         {
                             xtype: 'textfield',
-                            labelSeparator: ' *',
                             allowBlank: false,
+                            required: true,
                             fieldLabel: 'OBIS code',
                             emptyText: 'x.x.x.x.x.x',
                             name: 'obisCode',
                             maskRe: /[\d.]+/,
                             vtype: 'obisCode',
+                            afterSubTpl: 'Provide the value for the 6 attributes of the OBIS code. Separate each value with a "."',
                             msgTarget: 'under'
                         },
                         {
                             xtype: 'fieldcontainer',
                             fieldLabel: 'Measurement types',
-                            labelSeparator: ' *',
+                            required: true,
                             hidehead: true,
-                            width: 1000,
-
                             items: [
                                 {
                                     xtype: 'gridpanel',
@@ -101,7 +100,6 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeForm', {
                                 {
                                     name: 'measurementTypesErrors',
                                     layout: 'hbox',
-                                    margin: 10,
                                     hidden: true,
                                     defaults: {
                                         xtype: 'container'

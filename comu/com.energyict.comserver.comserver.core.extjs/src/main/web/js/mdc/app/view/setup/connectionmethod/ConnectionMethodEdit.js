@@ -198,11 +198,12 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                     {
                         xtype: 'form',
                         border: false,
+                        itemId: 'connectionDetailsTitle',
+                        hidden: true,
                         layout: {
                             type: 'vbox',
                             align: 'stretch'
                         },
-                        width: '100%',
                         defaults: {
                             labelWidth: 250
                         },
@@ -218,6 +219,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                         xtype: 'propertyEdit',
                         width: '100%'
                     },
+
                     {
                         xtype: 'form',
                         border: false,
@@ -233,20 +235,18 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                         items: [
                             {
                                 xtype: 'fieldcontainer',
+                                ui: 'actions',
                                 fieldLabel: '&nbsp',
-                                //width: 430,
                                 layout: {
                                     type: 'hbox',
                                     align: 'stretch'
                                 },
-                                width: '100%',
                                 items: [
                                     {
                                         text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
                                         xtype: 'button',
                                         action: 'addAction',
                                         itemId: 'addEditButton'
-//                                                        formBind: true
                                     },
                                     {
                                         xtype: 'component',
