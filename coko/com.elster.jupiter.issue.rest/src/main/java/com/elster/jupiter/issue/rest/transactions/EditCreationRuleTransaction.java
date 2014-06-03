@@ -49,7 +49,6 @@ public class EditCreationRuleTransaction implements Transaction<CreationRule> {
         CreationRuleTemplate template = getCreationRuleTemplate();
         DueInType dueInType = getDueInType();
         long dueValue = getDueInValue();
-//        checkRuleParameters(template);
 
         rule.setName(request.getName());
         rule.setComment(request.getComment());
@@ -90,6 +89,9 @@ public class EditCreationRuleTransaction implements Transaction<CreationRule> {
     }
 
     protected void addParameters(CreationRule rule) {
+        if (rule == null) {
+            throw new IllegalArgumentException("Unable to add parameters to a null rule value");
+        }
         Map<String, String> parameters = request.getParameters();
         rule.getParameters().clear();
         if (parameters != null) {
@@ -100,6 +102,9 @@ public class EditCreationRuleTransaction implements Transaction<CreationRule> {
     }
 
     protected void addActions(CreationRule rule) {
+        if (rule == null) {
+            throw new IllegalArgumentException("Unable to add actions to a null rule value");
+        }
         List<CreationRuleActionInfo> actions = request.getActions();
         rule.getActions().clear();
         if (actions != null) {
@@ -110,23 +115,19 @@ public class EditCreationRuleTransaction implements Transaction<CreationRule> {
                 }
                 CreationRuleActionPhase phase = CreationRuleActionPhase.fromString(action.getPhase().getUuid());
                 CreationRuleAction newAction = rule.addAction(actionTypeRef.get(), phase);
-                if (action.getParameters() != null) {
-                    for (Map.Entry <String, String> actionParam : action.getParameters().entrySet()) {
-                        newAction.addParameter(actionParam.getKey(), actionParam.getValue());
-                    }
-                }
+                addActionParameters(newAction, action);
             }
         }
     }
 
-/*    private void checkRuleParameters(CreationRuleTemplate template) {
-        for (ParameterDefinition parameter : template.getParameterDefinitions().values()) {
-            if (!parameter.getConstraint().isOptional() && (request.getParameters() == null || request.getParameters().get(parameter.getKey()) == null)) {
-                throw new WebApplicationException(Response.Status.BAD_REQUEST);
+    private void addActionParameters(CreationRuleAction newAction, CreationRuleActionInfo action) {
+        if (action.getParameters() != null) {
+            for (Map.Entry <String, String> actionParam : action.getParameters().entrySet()) {
+                newAction.addParameter(actionParam.getKey(), actionParam.getValue());
             }
         }
     }
-*/
+
     private long getDueInValue() {
         return request.getDueIn() != null ? request.getDueIn().getNumber() : 0;
     }

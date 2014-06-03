@@ -30,32 +30,34 @@ public class CreationRuleInfo {
     public CreationRuleInfo() {}
 
     public CreationRuleInfo(CreationRule rule) {
-        if (rule != null) {
-            this.id = rule.getId();
-            this.name = rule.getName();
-            this.comment = rule.getComment();
-            this.reason = new IssueReasonInfo(rule.getReason());
-            this.issueType = new IssueTypeInfo(rule.getReason().getIssueType());
-            if (rule.getDueInType() != null){
-                this.dueIn = new DueInInfo(rule.getDueInType().getName(), rule.getDueInValue());
-            }
-            if (rule.getActions() != null) {
-                this.actions = new ArrayList<>();
-                for (CreationRuleAction action : rule.getActions()) {
-                    actions.add(new CreationRuleActionInfo(action));
-                }
-            }
-            if (rule.getParameters() != null) {
-                this.parameters = new HashMap<>();
-                for (CreationRuleParameter parameter : rule.getParameters()) {
-                    parameters.put(parameter.getKey(), parameter.getValue());
-                }
-            }
-            this.template = new CreationRuleTemplateInfo(rule.getTemplate());
-            this.modificationDate = rule.getModTime().getTime();
-            this.creationDate = rule.getCreateTime().getTime();
-            this.version = rule.getVersion();
+        if (rule == null) {
+            throw new IllegalArgumentException("CreationRuleInfo is initialized with the null CreationRule value");
         }
+        this.id = rule.getId();
+        this.name = rule.getName();
+        this.comment = rule.getComment();
+        this.reason = new IssueReasonInfo(rule.getReason());
+        this.issueType = new IssueTypeInfo(rule.getReason().getIssueType());
+        if (rule.getDueInType() != null){
+            this.dueIn = new DueInInfo(rule.getDueInType().getName(), rule.getDueInValue());
+        }
+        if (rule.getActions() != null) {
+            this.actions = new ArrayList<>();
+            for (CreationRuleAction action : rule.getActions()) {
+                actions.add(new CreationRuleActionInfo(action));
+            }
+        }
+        if (rule.getParameters() != null) {
+            this.parameters = new HashMap<>();
+            for (CreationRuleParameter parameter : rule.getParameters()) {
+                parameters.put(parameter.getKey(), parameter.getValue());
+            }
+        }
+        this.template = new CreationRuleTemplateInfo(rule.getTemplate());
+        this.modificationDate = rule.getModTime().getTime();
+        this.creationDate = rule.getCreateTime().getTime();
+        this.version = rule.getVersion();
+
     }
 
     public long getId() {

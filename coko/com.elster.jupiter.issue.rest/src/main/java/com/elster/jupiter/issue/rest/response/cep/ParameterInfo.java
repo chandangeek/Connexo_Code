@@ -5,6 +5,8 @@ import com.elster.jupiter.issue.share.cep.ParameterDefinition;
 
 import java.util.List;
 
+import static com.elster.jupiter.util.Checks.is;
+
 public class ParameterInfo {
     private ParameterControl control;
     private ParameterConstraintInfo constraint;
@@ -17,19 +19,21 @@ public class ParameterInfo {
     private List<Object> values;
 
     public ParameterInfo(ParameterDefinition parameter) {
-        if (parameter != null) {
+        if (parameter == null) {
+            throw new IllegalArgumentException("ParameterInfo is initialized with the null ParameterDefinition value");
+        }
             this.key = parameter.getKey();
             this.label = parameter.getLabel();
-            this.suffix = parameter.getSuffix();
-            this.help = parameter.getHelp();
+            this.suffix = is(parameter.getSuffix()).emptyOrOnlyWhiteSpace() ? null : parameter.getSuffix();
+            this.help = is(parameter.getHelp()).emptyOrOnlyWhiteSpace() ? null : parameter.getHelp();
             this.defaultValue = parameter.getDefaultValue();
-            this.values = parameter.getDefaultValues();
+            this.values = parameter.getDefaultValues().isEmpty() ? null : parameter.getDefaultValues();
 
             this.control = parameter.getControl();
             if (parameter.getConstraint() != null) {
                 this.constraint = new ParameterConstraintInfo(parameter.getConstraint());
             }
-        }
+
     }
 
     public ParameterControl getControl() {

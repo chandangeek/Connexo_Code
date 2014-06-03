@@ -19,15 +19,16 @@ public class CreationRuleTemplateInfo {
     public CreationRuleTemplateInfo() {}
 
     public CreationRuleTemplateInfo(CreationRuleTemplate template) {
-        if (template != null) {
-            this.uid = template.getUUID();
-            this.name = template.getName();
-            this.description = template.getDescription();
-            if (template.getParameterDefinitions() != null) {
-                this.parameters = new ArrayList<>();
-                for (ParameterDefinition parameter : template.getParameterDefinitions().values()) {
-                    parameters.add(new ParameterInfo(parameter));
-                }
+        if (template == null) {
+            throw new IllegalArgumentException("CreationRuleTemplateInfo is initialized with the null CreationRuleTemplate value");
+        }
+        this.uid = template.getUUID();
+        this.name = template.getName();
+        this.description = template.getDescription();
+        if (template.getParameterDefinitions() != null) {
+            this.parameters = new ArrayList<>();
+            for (ParameterDefinition parameter : template.getParameterDefinitions().values()) {
+                parameters.add(new ParameterInfo(parameter));
             }
         }
     }

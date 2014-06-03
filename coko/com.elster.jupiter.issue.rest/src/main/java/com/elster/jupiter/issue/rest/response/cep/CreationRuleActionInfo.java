@@ -16,13 +16,14 @@ public class CreationRuleActionInfo {
     public CreationRuleActionInfo() {}
 
     public CreationRuleActionInfo(CreationRuleAction action) {
-        if (action != null) {
-            this.id = action.getId();
-            this.phase = new CreationRuleActionPhaseInfo(action.getPhase());
-            this.parameters = new HashMap<>(action.getParameters().size());
-            for (ActionParameter parameter : action.getParameters()) {
-                this.parameters.put(parameter.getKey(), parameter.getValue());
-            }
+        if (action == null) {
+            throw new IllegalArgumentException("CreationRuleActionInfo is initialized with the null CreationRuleAction value");
+        }
+        this.id = action.getId();
+        this.phase = new CreationRuleActionPhaseInfo(action.getPhase());
+        this.parameters = new HashMap<>(action.getParameters().size());
+        for (ActionParameter parameter : action.getParameters()) {
+            this.parameters.put(parameter.getKey(), parameter.getValue());
         }
     }
 

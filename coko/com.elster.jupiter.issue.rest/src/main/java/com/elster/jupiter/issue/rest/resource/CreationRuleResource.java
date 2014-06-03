@@ -88,7 +88,8 @@ public class CreationRuleResource extends BaseResource {
 
     @PUT
     @Path("/{id}")
-    public Response editCreationRule(CreationRuleInfo rule){
+    public Response editCreationRule(@PathParam("id") long id, CreationRuleInfo rule){
+        rule.setId(id);
         getTransactionService().execute(new EditCreationRuleTransaction(getIssueService(), getIssueCreationService(), getIssueActionService(), rule));
         return Response.ok().build();
     }

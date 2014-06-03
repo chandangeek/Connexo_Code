@@ -9,6 +9,9 @@ public class ParameterConstraintInfo {
     private String regexp;
 
     public ParameterConstraintInfo(ParameterConstraint constraint) {
+        if (constraint == null) {
+            throw new IllegalArgumentException("ParameterConstraintInfo is initialized with the null ParameterConstraint value");
+        }
         required = !constraint.isOptional();
         min = constraint.getMin();
         max = constraint.getMax();

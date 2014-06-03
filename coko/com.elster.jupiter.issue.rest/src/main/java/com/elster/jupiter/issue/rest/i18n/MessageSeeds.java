@@ -16,7 +16,9 @@ public enum MessageSeeds implements MessageSeed {
     ISSUE_WAS_ALREADY_CHANGED (0004, "IssueWasAlreadyChanged", "Issue has been already changed", Level.SEVERE),
     ISSUE_ACTION_CLASS_LOAD_FAIL(0005, "IssueActionClassLoadFail", "Unable to load Action class \"{0}\" for \"{1}\" action type", Level.SEVERE),
     ISSUE_ACTION_PHASE_CREATE(0006, "IssueActionPhaseCreation", "Issue creation", Level.INFO),
-    ISSUE_ACTION_PHASE_OVERDUE(0007, "IssueActionPhaseOverdue", "Issue overdue", Level.INFO)
+    ISSUE_ACTION_PHASE_OVERDUE(0007, "IssueActionPhaseOverdue", "Issue overdue", Level.INFO),
+    ISSUE_ACTION_PHASE_CREATE_DESCRIPTION(0010, "IssueActionPhaseCreationDescription", "The action will be performed at the issue creation time", Level.INFO),
+    ISSUE_ACTION_PHASE_OVERDUE_DESCRIPTION(0011, "IssueActionPhaseOverdueDescription", "The action will be performed when the issue becomes overdue", Level.INFO)
     ;
 
     private final int number;

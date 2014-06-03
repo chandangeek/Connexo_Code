@@ -15,13 +15,14 @@ public class CreationRuleActionTypeInfo {
     private Map<String, ParameterInfo> parameters;
 
     public CreationRuleActionTypeInfo(IssueActionType type) {
-        if (type != null) {
-            this.id = type.getId();
-            IssueAction action = type.createIssueAction();
-            this.name = action.getLocalizedName();
-            this.issueType = new IssueTypeInfo(type.getIssueType());
-            initParameters(action);
+        if (type == null) {
+            throw new IllegalArgumentException("CreationRuleActionTypeInfo is initialized with the null IssueActionType value");
         }
+        this.id = type.getId();
+        IssueAction action = type.createIssueAction();
+        this.name = action.getLocalizedName();
+        this.issueType = new IssueTypeInfo(type.getIssueType());
+        initParameters(action);
     }
 
     private final void initParameters(IssueAction action) {
