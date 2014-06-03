@@ -1,7 +1,6 @@
 Ext.define('Mdc.view.setup.securitysettings.SecuritySettingPreview', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.securitySettingPreview',
-//    height: 310,
     frame: true,
     tools: [
         {
@@ -33,11 +32,11 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingPreview', {
             layout: 'column',
             defaults: {
                 xtype: 'container',
-                layout: 'form',
-                columnWidth: 0.5
+                layout: 'form'
             },
             items: [
                 {
+                    columnWidth: 0.4,
                     items: [
                         {
                             xtype: 'displayfield',
@@ -47,10 +46,12 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingPreview', {
                     ]
                 },
                 {
+                    columnWidth: 0.6,
                     items: [
                         {
                             xtype: 'displayfield',
                             fieldLabel: 'Authentication level',
+                            labelWidth: 200,
                             name: 'authenticationLevel',
                             renderer: function (value) {
                                 return value.name;
@@ -59,6 +60,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingPreview', {
                         {
                             xtype: 'displayfield',
                             fieldLabel: 'Encryption level',
+                            labelWidth: 200,
                             name: 'encryptionLevel',
                             renderer: function (value) {
                                 return value.name;

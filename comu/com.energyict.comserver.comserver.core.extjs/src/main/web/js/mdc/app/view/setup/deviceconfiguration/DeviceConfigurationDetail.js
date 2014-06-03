@@ -86,7 +86,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                                             xtype: 'fieldcontainer',
                                             columnWidth: 0.5,
                                             fieldLabel: Uni.I18n.translate('devicetype.deviceType', 'MDC', 'Device type'),
-                                            labelAlign: 'right',
+//                                            labelAlign: 'right',
                                             layout: {
                                                 type: 'vbox'
                                             },

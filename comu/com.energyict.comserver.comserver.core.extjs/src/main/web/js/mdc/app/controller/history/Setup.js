@@ -36,13 +36,23 @@ Ext.define('Mdc.controller.history.Setup', {
                     action: 'showDeviceTypes',
                     items: {
                         create: {
-                            title: 'Create',
-                            route: 'create',
+                            title: 'Add',
+                            route: 'add',
                             controller: 'Mdc.controller.setup.DeviceTypes',
                             action: 'showDeviceTypeCreateView'
                         },
                         view: {
-                            title: 'View',
+                            title: function(route) {
+                                var deferred = Ext.create('Deft.Deferred');
+                                var ctrl = this.getController(route.controller);
+
+                                ctrl.on('loadDeviceType', function(record) {
+                                    route.title = record.get('name');
+                                    deferred.resolve(route.title);
+                                }, {single: true});
+
+                                return deferred.promise;
+                            },
                             route: '{id}',
                             controller: 'Mdc.controller.setup.DeviceTypes',
                             action: 'showDeviceTypeDetailsView'
@@ -87,12 +97,6 @@ Ext.define('Mdc.controller.history.Setup', {
                             controller: 'Mdc.controller.setup.DeviceConfigurations',
                             action: 'showDeviceConfigurations',
                             items: {
-                                view: {
-                                    title: 'Details',
-                                    route: '{deviceConfigurationId}',
-                                    controller: 'Mdc.controller.setup.DeviceConfigurations',
-                                    action: 'showDeviceConfigurationDetailsView'
-                                },
                                 create: {
                                     title: 'Create',
                                     route: 'create',
@@ -101,9 +105,15 @@ Ext.define('Mdc.controller.history.Setup', {
                                 },
                                 edit: {
                                     title: 'Edit',
-                                    route: 'edit',
+                                    route: '{id}/edit',
                                     controller: 'Mdc.controller.setup.DeviceConfigurations',
                                     action: 'showDeviceConfigurationEditView'
+                                },
+                                view: {
+                                    title: 'Details',
+                                    route: '{deviceConfigurationId}',
+                                    controller: 'Mdc.controller.setup.DeviceConfigurations',
+                                    action: 'showDeviceConfigurationDetailsView'
                                 },
                                 loadprofiles: {
                                     title: 'Load profiles',
@@ -493,11 +503,6 @@ Ext.define('Mdc.controller.history.Setup', {
 
     },
 
-    init: function () {
-        var router = this.getController('Uni.controller.history.Router');
-        router.addConfig(this.routeConfig);
-        this.callParent(arguments);
-    },
     tokenizePreviousTokens: function () {
         return this.tokenizePath(this.getApplication().getController('Uni.controller.history.EventBus').previousPath);
     },

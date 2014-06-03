@@ -74,7 +74,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
         );
     },
 
-    addSlaveDevice: function (mRID, id) {
+    addSlaveDevice: function (mRID) {
         var me = this;
         var slaveDevices = me.down('#slaveDevicesContainer');
         slaveDevices.add(
@@ -83,7 +83,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                 cls: 'x-form-display-field',
                 autoEl: {
                     tag: 'a',
-                    href: '#/devices/' + id,
+                    href: '#/devices/' + mRID,
                     html: mRID
                 }
             });

@@ -28,114 +28,74 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
     initComponent: function () {
         this.content = [
             {
-    /*            xtype: 'container',
-                layout: {
-                    type: 'vbox',
-                    align: 'stretch'
+                xtype: 'form',
+                width: '100%',
+                itemId: 'deviceTypeEditForm',
+                ui: 'large',
+                defaults: {
+                    labelWidth: 250
                 },
-
                 items: [
                     {
-                        xtype: 'component',
-                        html: '',
-                        itemId: 'deviceTypeEditCreateTitle'
-                        //margins: '10 10 10 10'
+                        xtype: 'combobox',
+                        name: 'communicationProtocolName',
+                        fieldLabel: Uni.I18n.translate('devicetype.communicationProtocol', 'MDC', 'Communication protocol'),
+                        itemId: 'communicationProtocolComboBox',
+                        store: this.deviceCommunicationProtocols,
+                        queryMode: 'local',
+                        displayField: 'name',
+                        valueField: 'name',
+                        emptyText: Uni.I18n.translate('devicetype.selectProtocol', 'MDC', 'Select a communication protocol...'),
+                        required: true,
+                        forceSelection: true,
+                        typeAhead: true,
+                        msgTarget: 'under',
+                        width: 600
+
                     },
                     {
-                        xtype: 'container',
+                        xtype: 'textfield',
+                        name: 'name',
+                        validator: function (text) {
+                            if (Ext.util.Format.trim(text).length == 0)
+                                return Uni.I18n.translate('devicetype.emptyName', 'MDC', 'The name of a device type can not be empty.')
+                            else
+                                return true;
+                        },
+                        msgTarget: 'under',
+                        required: true,
+                        fieldLabel: Uni.I18n.translate('devicetype.name', 'MDC', 'Name'),
+                        itemId: 'editDeviceTypeNameField',
+                        maxLength: 80,
+                        enforceMaxLength: true,
+                        width: 600
+                    },
+                    {
+                        xtype: 'fieldcontainer',
+                        ui: 'actions',
+                        fieldLabel: '&nbsp',
                         layout: {
-                            type: 'column'
+                            type: 'hbox'
                         },
                         items: [
                             {
-                                xtype: 'container',
-                                columnWidth: 0.5,
-                                items: [
-                                    {*/
-                                        xtype: 'form',
-                                        width: '100%',
-                                       // border: false,
-                                        itemId: 'deviceTypeEditForm',
-                                        //padding: '10 10 0 10',
-                                        ui: 'large',
-                                       /* layout: {
-                                            type: 'vbox',
-                                            align: 'stretch'
-                                        },*/
-                                        defaults: {
-                                            labelWidth: 250
-                                        },
-                                        items: [
-                                            {
-                                                xtype: 'combobox',
-                                                name: 'communicationProtocolName',
-                                                fieldLabel: Uni.I18n.translate('devicetype.communicationProtocol', 'MDC', 'Communication protocol'),
-                                                itemId: 'communicationProtocolComboBox',
-                                                store: this.deviceCommunicationProtocols,
-                                                queryMode: 'local',
-                                                displayField: 'name',
-                                                valueField: 'name',
-                                                emptyText: Uni.I18n.translate('devicetype.selectProtocol', 'MDC', 'Select a communication protocol...'),
-                                                required: true,
-                                                forceSelection: true,
-                                                typeAhead: true,
-                                                msgTarget: 'under',
-                                                width: 600
-
-                                            },
-                                            {
-                                                xtype: 'textfield',
-                                                name: 'name',
-                                                validator: function (text) {
-                                                    if (Ext.util.Format.trim(text).length == 0)
-                                                        return Uni.I18n.translate('devicetype.emptyName', 'MDC', 'The name of a device type can not be empty.')
-                                                    else
-                                                        return true;
-                                                },
-                                                msgTarget: 'under',
-                                                required: true,
-                                                fieldLabel: Uni.I18n.translate('devicetype.name', 'MDC', 'Name'),
-                                                itemId: 'editDeviceTypeNameField',
-                                                maxLength: 80,
-                                                enforceMaxLength: true,
-                                                width: 600
-                                            },
-                                            {
-                                                xtype: 'fieldcontainer',
-                                                ui: 'actions',
-                                                fieldLabel: '&nbsp',
-                                                layout: {
-                                                    type: 'hbox',
-                                                    align: 'stretch'
-                                                },
-                                                width: '100%',
-                                                items: [
-                                                    {
-                                                        text: Uni.I18n.translate('general.create', 'MDC', 'Create'),
-                                                        xtype: 'button',
-                                                        ui: 'action',
-                                                        action: 'createAction',
-                                                        itemId: 'createEditButton'
-                                                    },
-                                                    {
-                                                        text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
-                                                        xtype: 'button',
-                                                        ui: 'link',
-                                                        itemId: 'cancelLink',
-                                                        href: '#/administration/devicetypes/'
-                                                    }
-                                                ]
-                                            }
-                                        ]
-                          //          }
-                            //    ]
+                                text: Uni.I18n.translate('general.create', 'MDC', 'Create'),
+                                xtype: 'button',
+                                ui: 'action',
+                                action: 'createAction',
+                                itemId: 'createEditButton'
+                            },
+                            {
+                                text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                                xtype: 'button',
+                                ui: 'link',
+                                itemId: 'cancelLink',
+                                href: '#/administration/devicetypes/'
                             }
-                        /*]
+                        ]
                     }
-
-
                 ]
-            }*/
+            }
         ];
 
         this.callParent(arguments);

@@ -111,11 +111,10 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     },
 
     showDeviceTypeDetailsView: function (deviceType) {
-        debugger;
         var me = this;
         var widget = Ext.widget('deviceTypeDetail', {deviceTypeId: deviceType});
-
-        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceType, {
+        var model = Ext.ModelManager.getModel('Mdc.model.DeviceType');
+        model.load(deviceType, {
             success: function (deviceType) {
                 me.getApplication().fireEvent('changecontentevent', widget);
                 var deviceTypeId = deviceType.get('id');
@@ -129,6 +128,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 me.getDeviceConfigurationsDetailLink().getEl().set({href: '#/administration/devicetypes/' + deviceTypeId + '/deviceconfigurations'});
                 me.getDeviceConfigurationsDetailLink().getEl().setHTML(deviceType.get('deviceConfigurationCount') + ' ' + Uni.I18n.translatePlural('devicetype.deviceconfigurations', deviceType.get('deviceConfigurationCount'), 'MDC', 'device configurations'));
                 widget.down('form').loadRecord(deviceType);
+                me.fireEvent('loadDeviceType', deviceType);
 
                 me.getDeviceTypePreviewTitle().update('<h1>' + deviceType.get('name') + ' - ' + Uni.I18n.translate('general.overview', 'MDC', 'Overview') + '</h1>');
             }
@@ -137,7 +137,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     },
 
     createDeviceTypeHistory: function () {
-        location.href = '#/administration/devicetypes/create';
+        location.href = '#/administration/devicetypes/add';
     },
 
     editDeviceTypeHistory: function (record) {
@@ -153,7 +153,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         if (deviceTypeToDelete.get('deviceConfigurationCount') === 0) {
             Ext.MessageBox.show({
                 msg: Uni.I18n.translate('deviceType.deleteDeviceType', 'MDC', 'The device type will no longer be available.'),
-                title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' ' + deviceTypeToDelete.get('name') + '?',
+                title: Uni.I18n.translate('general.delete', 'MDC', 'Delete') + ' ' + deviceTypeToDelete.get('name') + '?',
                 config: {
                     deviceTypeToDelete: deviceTypeToDelete,
                     me: me
@@ -165,7 +165,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         } else {
             Ext.MessageBox.show({
                 msg: Uni.I18n.translate('deviceType.deleteDeviceTypeWithConfig', 'MDC', 'The device type and its configurations will no longer be available.'),
-                title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' ' + deviceTypeToDelete.get('name') + '?',
+                title: Uni.I18n.translate('general.delete', 'MDC', 'Delete') + ' ' + deviceTypeToDelete.get('name') + '?',
                 config: {
                     deviceTypeToDelete: deviceTypeToDelete,
                     me: me
@@ -237,7 +237,6 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     },
 
     showDeviceTypeCreateView: function () {
-        debugger;
         var protocolStore = Ext.StoreManager.get('DeviceCommunicationProtocols');
         var widget = Ext.widget('deviceTypeEdit', {
             edit: false,
@@ -256,7 +255,6 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     },
 
     createDeviceType: function () {
-        debugger;
         var me = this;
         var record = Ext.create(Mdc.model.DeviceType),
             values = this.getDeviceTypeEditForm().getValues();

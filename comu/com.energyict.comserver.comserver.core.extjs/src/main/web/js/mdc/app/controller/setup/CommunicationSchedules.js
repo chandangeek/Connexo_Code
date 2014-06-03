@@ -210,7 +210,6 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
     deleteComTask: function(comTask){
         this.record.comTaskUsages().remove(comTask);
         this.comTaskStore.add(comTask);
-        debugger;
         if(this.record.comTaskUsages().getCount()>0){
             this.getComTaskPanel().getLayout().setActiveItem(1);
         } else {
