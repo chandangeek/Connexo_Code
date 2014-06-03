@@ -1,3 +1,13 @@
+/* line 588, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-active-small-focus .x-frame-tl,
+.x-btn-step-active-small-focus .x-frame-bl,
+.x-btn-step-active-small-focus .x-frame-tr,
+.x-btn-step-active-small-focus .x-frame-br,
+.x-btn-step-active-small-focus .x-frame-tc,
+.x-btn-step-active-small-focus .x-frame-bc {
+  background-image: url(images/btn/btn-step-active-small-focus-corners.gif);
+}
+/* line 592, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-step-active-small-focus .x-frame-ml,
 .x-btn-step-active-small-focus .x-frame-mr {
   background-image: url(images/btn/btn-step-active-small-focus-sides.gif);

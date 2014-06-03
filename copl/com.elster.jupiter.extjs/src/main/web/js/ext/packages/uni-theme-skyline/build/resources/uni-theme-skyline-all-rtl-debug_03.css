@@ -1,3 +1,18 @@
+.x-btn-sort-medium-focus .x-frame-mc {
+  background-color: #c6c6c6;
+  background-image: url(images/btn/btn-sort-medium-focus-fbg.gif);
+}
+
+/* line 610, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-sort-medium-over .x-frame-tl,
+.x-btn-sort-medium-over .x-frame-bl,
+.x-btn-sort-medium-over .x-frame-tr,
+.x-btn-sort-medium-over .x-frame-br,
+.x-btn-sort-medium-over .x-frame-tc,
+.x-btn-sort-medium-over .x-frame-bc {
+  background-image: url(images/btn/btn-sort-medium-over-corners.gif);
+}
+/* line 614, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-sort-medium-over .x-frame-ml,
 .x-btn-sort-medium-over .x-frame-mr {
   background-image: url(images/btn/btn-sort-medium-over-sides.gif);
