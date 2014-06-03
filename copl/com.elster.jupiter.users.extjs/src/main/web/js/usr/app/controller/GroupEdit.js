@@ -1,7 +1,6 @@
 Ext.define('Usr.controller.GroupEdit', {
     extend: 'Ext.app.Controller',
     requires: [
-        'Uni.model.BreadcrumbItem'
     ],
     stores: [
         'Usr.store.Privileges',
@@ -18,10 +17,6 @@ Ext.define('Usr.controller.GroupEdit', {
         {
             ref: 'selectPrivilegesGrid',
             selector: 'groupEdit #selectPrivileges'
-        },
-        {
-            ref: 'breadCrumbs',
-            selector: 'breadcrumbTrail'
         }
     ],
 
@@ -38,7 +33,7 @@ Ext.define('Usr.controller.GroupEdit', {
 
     backUrl: null,
 
-    back: function() {
+    back: function () {
         location.href = this.backUrl;
     },
 
@@ -55,7 +50,7 @@ Ext.define('Usr.controller.GroupEdit', {
         });
     },
 
-    showCreateOverviewWithHistory: function(groupId) {
+    showCreateOverviewWithHistory: function (groupId) {
         location.href = '#usermanagement/roles/create';
     },
 
@@ -79,27 +74,7 @@ Ext.define('Usr.controller.GroupEdit', {
             widget.setLoading(false);
 
             me.getApplication().getController('Usr.controller.Main').showContent(widget);
-            me.displayBreadcrumb(title);
         });
-    },
-
-    displayBreadcrumb: function (current) {
-        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('user.root', 'USM', 'User Management'),
-            href: '#usermanagement'
-        });
-        var breadcrumbChild1 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('group.title', 'USM', 'Roles'),
-            href: 'roles'
-        });
-
-        var breadcrumbChild2 = Ext.create('Uni.model.BreadcrumbItem', {
-            text: current
-        });
-
-        breadcrumbParent.setChild(breadcrumbChild1).setChild(breadcrumbChild2);
-
-        this.getBreadCrumbs().setBreadcrumbItem(breadcrumbParent);
     },
 
     saveGroup: function (button) {
@@ -111,7 +86,7 @@ Ext.define('Usr.controller.GroupEdit', {
             success: function (record) {
                 me.back();
             },
-            failure: function(record,operation){
+            failure: function (record, operation) {
                 var json = Ext.decode(operation.response.responseText);
                 if (json && json.errors) {
                     form.markInvalid(json.errors);

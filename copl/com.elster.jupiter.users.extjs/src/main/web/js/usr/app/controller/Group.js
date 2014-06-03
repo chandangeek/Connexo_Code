@@ -1,7 +1,6 @@
 Ext.define('Usr.controller.Group', {
     extend: 'Ext.app.Controller',
     requires: [
-        'Uni.model.BreadcrumbItem',
         'Usr.controller.GroupEdit'
     ],
     stores: [
@@ -19,17 +18,14 @@ Ext.define('Usr.controller.Group', {
 
     init: function () {
         this.control({
-            'groupBrowse breadcrumbTrail': {
-                afterrender: this.onAfterRender
-            },
             'groupBrowse groupList': {
                 selectionchange: this.selectGroup
             },
             'groupBrowse groupDetails menuitem[action=editGroup]': {
                 click: this.editGroupMenu
             },
-            'groupBrowse groupList actioncolumn': {
-                editGroupItem: this.editGroup
+            'groupBrowse groupList uni-actioncolumn': {
+                edit: this.editGroup
             },
             'groupBrowse groupList button[action=createGroup]': {
                 click: this.createGroup
@@ -44,21 +40,6 @@ Ext.define('Usr.controller.Group', {
         Ext.StoreManager.get('Usr.store.Groups').on('load', function () {
             widget.down('#groupList').getSelectionModel().doSelect(0);
         });
-    },
-
-    onAfterRender: function (breadcrumbs) {
-        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('user.root', 'USM', 'User Management'),
-            href: '#usermanagement'
-        });
-        var breadcrumbChild = Ext.create('Uni.model.BreadcrumbItem', {
-            text: Uni.I18n.translate('group.title', 'USM', 'Roles'),
-            href: 'roles'
-        });
-
-        breadcrumbParent.setChild(breadcrumbChild);
-
-        breadcrumbs.setBreadcrumbItem(breadcrumbParent);
     },
 
     editGroupMenu: function (button) {

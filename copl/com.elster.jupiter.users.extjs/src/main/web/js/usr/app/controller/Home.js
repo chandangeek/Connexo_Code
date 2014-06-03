@@ -1,7 +1,6 @@
 Ext.define('Usr.controller.Home', {
     extend: 'Ext.app.Controller',
     requires: [
-        'Uni.model.BreadcrumbItem'
     ],
     views: [
         'Home'

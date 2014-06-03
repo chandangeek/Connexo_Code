@@ -5,45 +5,58 @@ Ext.define('Usr.controller.history.UserManagement', {
     previousPath: '',
     currentPath: null,
 
-    init: function () {
-        var me = this;
-        crossroads.addRoute('usermanagement',function(){
-            me.getApplication().getController('Usr.controller.Home').showOverview();
-        });
-
-        crossroads.addRoute('usermanagement/users', function () {
-            me.getApplication().getController('Usr.controller.User').showOverview();
-        });
-        crossroads.addRoute('usermanagement/users/{id}/edit', function (id) {
-            me.getApplication().getController('Usr.controller.UserEdit').showEditOverview(id);
-        });
-
-        crossroads.addRoute('usermanagement/roles',function(){
-            me.getApplication().getController('Usr.controller.Group').showOverview();
-        });
-        crossroads.addRoute('usermanagement/roles/{id}/edit',function(id){
-            me.getApplication().getController('Usr.controller.GroupEdit').showEditOverview(id);
-        });
-        crossroads.addRoute('usermanagement/roles/create',function(){
-            me.getApplication().getController('Usr.controller.GroupEdit').showCreateOverview();
-        });
-
-        this.callParent(arguments);
+    routeConfig: {
+        usermanagement: {
+            title: 'User Management',
+            route: 'usermanagement',
+            disabled: true,
+            items: {
+                roles: {
+                    title: 'Roles',
+                    route: 'roles',
+                    controller: 'Usr.controller.Group',
+                    items: {
+                        edit: {
+                            title: 'Edit',
+                            route: '{id}/edit',
+                            controller: 'Usr.controller.GroupPrivileges',
+                            action: 'showEditOverview'
+                        },
+                        create: {
+                            title: 'Create',
+                            route: 'create',
+                            controller: 'Usr.controller.GroupPrivileges',
+                            action: 'showCreateOverview'
+                        }
+                    }
+                },
+                users: {
+                    title: 'Users',
+                    route: 'users',
+                    controller: 'Usr.controller.User',
+                    items: {
+                        edit: {
+                            title: 'Edit',
+                            route: '{id}/edit',
+                            controller: 'Usr.controller.UserGroups',
+                            action: 'showEditOverview'
+                        }
+                        /*login: {
+                            title: 'login',
+                            route: 'login',
+                            controller: 'Usr.controller.Login'
+                        }*/
+                    }
+                }
+            }
+        }
     },
 
-    doConversion: function (tokens, token) {
-        var queryStringIndex = token.indexOf('?');
-        if (queryStringIndex > 0) {
-            token = token.substring(0, queryStringIndex);
-        }
-        if (this.currentPath !== null) {
-            this.previousPath = this.currentPath;
-        }
-        this.currentPath = token;
-        crossroads.parse(token);
-    },
+    //init: function () {
+    //    this.getController('Uni.controller.history.Router').addConfig(this.routeConfig);
+    //},
 
     tokenizePreviousTokens: function () {
-        return this.tokenizePath(this.previousPath);
+        return this.tokenizePath(this.getApplication().getController('Uni.controller.history.EventBus').previousPath);
     }
 });
