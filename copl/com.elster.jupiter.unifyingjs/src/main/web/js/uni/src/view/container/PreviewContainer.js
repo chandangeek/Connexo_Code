@@ -104,6 +104,11 @@ Ext.define('Uni.view.container.PreviewContainer', {
         me.bindStore(me.grid.store || 'ext-empty-store', true);
 
         me.on('beforedestroy', this.onBeforeDestroy, this);
+        me.on('afterrender', this.onAfterRender, this);
+    },
+
+    onAfterRender: function () {
+        this.setLoading(true);
     },
 
     getStoreListeners: function () {
@@ -121,7 +126,6 @@ Ext.define('Uni.view.container.PreviewContainer', {
         var me = this;
 
         me.getLayout().setActiveItem(1);
-        me.setVisible(true);
     },
 
     onLoad: function () {
@@ -130,7 +134,7 @@ Ext.define('Uni.view.container.PreviewContainer', {
             isEmpty = count === 0;
 
         me.getLayout().setActiveItem(isEmpty ? 0 : 1);
-        me.setVisible(true);
+        me.setLoading(false);
     },
 
     getWrapperCt: function () {
