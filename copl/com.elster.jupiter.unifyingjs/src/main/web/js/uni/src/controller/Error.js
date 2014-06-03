@@ -24,7 +24,7 @@ Ext.define('Uni.controller.Error', {
         var me = this;
 
         Ext.Error.handle = me.handleGenericError;
-//        Ext.Ajax.on('requestexception', me.handleRequestError, this);
+        Ext.Ajax.on('requestexception', me.handleRequestError, this);
     },
 
     handleGenericError: function (error) {
@@ -36,38 +36,70 @@ Ext.define('Uni.controller.Error', {
     },
 
     handleRequestError: function (conn, response, options) {
-        if(response.status!==400){
-            var message = response.responseText || response.statusText;
-            if(Ext.isEmpty(message)) {
-                message = '<h2>ERROR</h2><br><h4>Unexpected connection problems. Please check that server is available.</h4>';
-            }
-            this.showError(message);
-        } else {
-            var response = Ext.decode(response.responseText);
-            if(Ext.isEmpty(response.errors)){
-                this.showError(response.message);
-            }
+        var title = Uni.I18n.translate('error.failedRequest', 'UNI', 'Failed request'),
+            message = response.responseText || response.statusText,
+            decoded = Ext.decode(message);
+
+        if (!Ext.isEmpty(decoded.message)) {
+            message = decoded.message;
         }
+
+        //<debug>
+        if (!Ext.isEmpty(decoded.error)) {
+            console.log('Error code: ' + decoded.error);
+        }
+        //</debug>
+
+        switch (response.status) {
+            case 400:
+                if (Ext.isEmpty(message)) {
+                    title = Uni.I18n.translate(
+                        'error.connectionProblemsTitle',
+                        'UNI',
+                        'Unexpected connection problems'
+                    );
+
+                    message = Uni.I18n.translate(
+                        'error.connectionProblemsMessage',
+                        'UNI',
+                        'Unexpected connection problems. Please check that server is available.'
+                    );
+                }
+                break;
+            case 403:
+            // Fallthrough.
+            case 404:
+            // Fallthrough.
+            default:
+                title = Uni.I18n.translate(
+                    'error.unknownError',
+                    'UNI',
+                    'Unknown error'
+                );
+                break;
+        }
+
+        this.showError(title, message);
     },
 
-    showError: function (error) {
-        var me = this;
-        Ext.create('widget.uxNotification', {
-            position: 'tc',
-            manager: '#contentPanel',
-            cls: 'ux-notification-light',
-            width: me.getContentPanel().getWidth()-20,
-//            iconCls: 'ux-notification-icon-information',
-            html: error,
-            slideInDuration: 200,
-            slideBackDuration: 200,
-            autoCloseDelay: 7000,
-            slideInAnimation: 'linear',
-            slideBackAnimation: 'linear'
-        }).show();
-    },
+    showError: function (title, message, config) {
+        config = config ? config : {};
+        Ext.apply(config, {
+            title: title,
+            msg: message,
+            modal: false,
+            ui: 'message-error',
+            icon: Ext.MessageBox.ERROR,
+            buttons: [
+                {
+                    text: Uni.I18n.translate('general.close', 'UNI', 'Close'),
+                    scope: this,
+                    handler: this.close,
+                    action: 'close'
+                }
+            ]
+        });
 
-    showHttp404: function () {
-        // TODO
+        Ext.create('Ext.window.MessageBox').show(config);
     }
 });
