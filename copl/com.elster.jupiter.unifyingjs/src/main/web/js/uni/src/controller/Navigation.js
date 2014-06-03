@@ -176,9 +176,13 @@ Ext.define('Uni.controller.Navigation', {
     },
 
     stripAndSplitToken: function (token) {
-        token = token.indexOf(Uni.controller.history.Settings.tokenDelimiter) === 0 ? token.substring(1) : token;
-        token = token.replace(/#\/|#/g, ''); // Regex to replace all '#' or '#/'.
-        return token.split(Uni.controller.history.Settings.tokenDelimiter);
+        if (token) {
+            token = token.indexOf(Uni.controller.history.Settings.tokenDelimiter) === 0 ? token.substring(1) : token;
+            token = token.replace(/#\/|#/g, ''); // Regex to replace all '#' or '#/'.
+            return token.split(Uni.controller.history.Settings.tokenDelimiter);
+        } else {
+            return [];
+        }
     },
 
     showContent: function (content, side) {
