@@ -45,10 +45,6 @@ import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.tasks.ComTask;
-
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -59,6 +55,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.validation.Valid;
 
 /**
  *     //TODO the creation of the CommunicationConfiguration is currently skipped ...
@@ -648,6 +647,8 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     public void activate() {
         this.active = true;
+        this.modificationDate = this.clock.now();
+        super.save();
     }
 
     public void deactivate() {
@@ -657,10 +658,15 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 //        }
         //TODO need to check if there are devices who are modeled by this DeviceConfiguration (JP-906)
         this.active = false;
+        this.modificationDate = this.clock.now();
+        super.save();
     }
 
     @Override
     public void save() {
+        if (isActive()) {
+            throw new DeviceConfigurationIsActiveException(this.thesaurus, this);
+        }
         this.modificationDate = this.clock.now();
         super.save();
     }

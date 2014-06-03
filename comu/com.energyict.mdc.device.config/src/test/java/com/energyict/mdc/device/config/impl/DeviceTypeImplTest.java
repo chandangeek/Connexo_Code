@@ -841,7 +841,6 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         DeviceConfiguration second = deviceType.newConfiguration("second").description("this is it!").add();
         deviceType.save();
         second.activate();
-        second.save();
 
         // Business method
         deviceType.delete();

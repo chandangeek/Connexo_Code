@@ -19,6 +19,7 @@ import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotAddToActiveDeviceConfigurationException;
+import com.energyict.mdc.device.config.exceptions.DeviceConfigurationIsActiveException;
 import com.energyict.mdc.device.config.exceptions.DuplicateLoadProfileTypeException;
 import com.energyict.mdc.device.config.exceptions.DuplicateLogBookTypeException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
@@ -360,6 +361,16 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
         when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Collections.<DeviceProtocolCapabilities>emptyList());
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("gateway").add();
         deviceConfiguration.addCommunicationFunction(DeviceCommunicationFunction.GATEWAY);
+        deviceConfiguration.save();
+    }
+
+    @Test(expected = DeviceConfigurationIsActiveException.class)
+    @Transactional
+    public void testCanNotRemoveDeviceConfigIfInUse() throws Exception {
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("first").description("this is it!").add();
+        deviceConfiguration.activate();
+
+        deviceConfiguration.setName("updated");
         deviceConfiguration.save();
     }
 }
