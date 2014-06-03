@@ -16,7 +16,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeForm', {
                     width: '50%',
                     itemId: 'LoadProfileTypeFormId',
                     defaults: {
-                        labelWidth: 150,
+                        labelWidth: 250,
                         labelAlign: 'right',
                         margin: '0 0 20 0',
                         validateOnChange: false,
@@ -36,15 +36,14 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeForm', {
                         {
                             xtype: 'textfield',
                             name: 'name',
-                            labelSeparator: ' *',
                             regex: /[a-zA-Z0-9]+/,
                             allowBlank: false,
+                            required: true,
                             fieldLabel: 'Name',
                             msgTarget: 'under'
                         },
                         {
                             xtype: 'combobox',
-                            labelSeparator: ' *',
                             allowBlank: false,
                             fieldLabel: 'Interval',
                             emptyText: '1 minute',
@@ -53,63 +52,72 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeForm', {
                             valueField: 'id',
                             queryMode: 'local',
                             forceSelection: true,
+                            required: true,
                             editable: false
                         },
                         {
                             xtype: 'textfield',
-                            labelSeparator: ' *',
                             allowBlank: false,
+                            required: true,
                             fieldLabel: 'OBIS code',
                             emptyText: 'x.x.x.x.x.x',
                             name: 'obisCode',
                             maskRe: /[\d.]+/,
                             vtype: 'obisCode',
+                            afterSubTpl: 'Provide the value for the 6 attributes of the OBIS code. Separate each value with a "."',
                             msgTarget: 'under'
                         },
                         {
                             xtype: 'fieldcontainer',
                             fieldLabel: 'Measurement types',
-                            labelSeparator: ' *',
+                            required: true,
                             hidehead: true,
-                            width: 1000,
-
                             items: [
                                 {
-                                    xtype: 'gridpanel',
-                                    store: 'SelectedMeasurementTypesForLoadProfileType',
-                                    columns: [
-                                        {
-                                            text: 'Name',
-                                            dataIndex: 'name',
-                                            flex: 1,
-                                            renderer: function (value, metaData, record) {
-                                                var id = Ext.id();
-                                                Ext.defer(function () {
-                                                    Ext.widget('button', {
-                                                        renderTo: id,
-                                                        icon: '../mdc/resources/images/actionsDetail.png',
-                                                        cls: 'uni-btn-transparent',
-                                                        handler: function (item, test) {
-                                                            this.fireEvent('removeMeasurementTypeFromAddGrid', record);
-                                                        },
-                                                        itemId: 'measurementTypeAddGridBtn'
-                                                    });
-                                                }, 50);
-                                                return Ext.String.format('<div id="{0}">{1}</div>',  id , value);
-                                            }
-                                        }
-                                    ],
-                                    height: 220,
-                                    margin: '0 0 0 10'
-                                },
-                                {
                                     xtype: 'container',
-                                    itemId: 'LoadProfileTypeAddMeasurementTypeAction'
+                                    layout: {
+                                        type: 'column'
+                                    },
+                                    items: [
+                                        {
+                                            xtype: 'gridpanel',
+                                            hideHeaders : true,
+                                            columnWidth: 0.7,
+                                            store: 'SelectedMeasurementTypesForLoadProfileType',
+                                            columns: [
+                                                {
+                                                    dataIndex: 'name',
+                                                    flex: 1,
+                                                    renderer: function (value, metaData, record) {
+                                                        var id = Ext.id();
+                                                        Ext.defer(function () {
+                                                            Ext.widget('button', {
+                                                                renderTo: id,
+                                                                icon: '../mdc/resources/images/actionsDetail.png',
+                                                                cls: 'uni-btn-transparent',
+                                                                handler: function (item, test) {
+                                                                    this.fireEvent('removeMeasurementTypeFromAddGrid', record);
+                                                                },
+                                                                itemId: 'measurementTypeAddGridBtn'
+                                                            });
+                                                        }, 50);
+                                                        return Ext.String.format('<div id="{0}">{1}</div>',  id , value);
+                                                    }
+                                                }
+                                            ],
+                                            height: 220
+                                        },
+                                        {
+                                            xtype: 'container',
+                                            columnWidth: 0.3,
+                                            itemId: 'LoadProfileTypeAddMeasurementTypeAction',
+                                            margin: '-7px 0 0 0'
+                                        }
+                                    ]
                                 },
                                 {
                                     name: 'measurementTypesErrors',
                                     layout: 'hbox',
-                                    margin: 10,
                                     hidden: true,
                                     defaults: {
                                         xtype: 'container'
