@@ -6,7 +6,6 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.UnableToCreateConnectionType;
 import com.energyict.protocols.mdc.ConnectionTypeRule;
-import com.energyict.protocols.mdc.protocoltasks.ConnectionTypeImpl;
 import com.energyict.protocols.mdc.protocoltasks.ServerConnectionType;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -32,10 +31,10 @@ public class ConnectionTypeServiceImpl implements ConnectionTypeService {
         return propertySpecService;
     }
 
-    @Inject
-    public ConnectionTypeServiceImpl(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
-    }
+//    @Inject
+//    public ConnectionTypeServiceImpl(PropertySpecService propertySpecService) {
+//        this.propertySpecService = propertySpecService;
+//    }
 
     @Reference
     public void setPropertySpecService(PropertySpecService propertySpecService) {
