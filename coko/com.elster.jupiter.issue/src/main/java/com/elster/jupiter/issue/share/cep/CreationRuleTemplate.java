@@ -12,5 +12,5 @@ public interface CreationRuleTemplate {
     String getContent();
     String getIssueType();
     Map<String, ParameterDefinition> getParameterDefinitions();
-    public List<ParameterViolation> validate(CreationRule rule);
+    List<ParameterViolation> validate(CreationRule rule);
 }

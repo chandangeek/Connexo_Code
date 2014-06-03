@@ -1,5 +1,6 @@
 package com.elster.jupiter.issue.impl.records;
 
+import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.cep.CreationRuleValidationException;
@@ -50,16 +51,13 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
 
     private IssueService issueService;
     private IssueCreationService issueCreationService;
-   // private IssueActionService issueActionService;
     private NlsService nlsService;
-    //private Thesaurus thesaurus;
 
     @Inject
     public CreationRuleImpl(DataModel dataModel, IssueService issueService, IssueCreationService issueCreationService, NlsService nlsService) {
         super(dataModel);
         this.issueService = issueService;
         this.issueCreationService = issueCreationService;
-        //this.issueActionService = issueActionService;
         this.nlsService = nlsService;
     }
 

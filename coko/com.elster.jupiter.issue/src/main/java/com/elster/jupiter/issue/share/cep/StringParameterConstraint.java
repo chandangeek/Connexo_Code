@@ -48,12 +48,25 @@ public class StringParameterConstraint implements ParameterConstraint {
     @Override
     public List<ParameterViolation> validate(String value, String paramKey) {
         List<ParameterViolation> errors = new ArrayList<>();
+
         boolean empty = is(value).emptyOrOnlyWhiteSpace();
         boolean outsideLimits = value.length() < minLength || value.length() > maxLength;
-        if( !optional && (empty || outsideLimits) || optional && !empty && outsideLimits) {
-            Object[] args = new Object[] {minLength, maxLength};
-            errors.add(new ParameterViolation(paramKey, MessageSeeds.ISSUE_CREATION_RULE_INVALID_SRTING_PARAMETER.getKey(), IssueService.COMPONENT_NAME, args));
+
+        if(optional) {
+            if (!empty && outsideLimits) {
+                addError(errors, paramKey);
+            }
+
+        }  else {
+            if (empty || outsideLimits) {
+                addError(errors, paramKey);
+            }
         }
         return errors;
+    }
+
+    private void addError(List<ParameterViolation> errors, String paramKey) {
+        Object[] args = new Object[] {minLength, maxLength};
+        errors.add(new ParameterViolation(paramKey, MessageSeeds.ISSUE_CREATION_RULE_INVALID_SRTING_PARAMETER.getKey(), IssueService.COMPONENT_NAME, args));
     }
 }

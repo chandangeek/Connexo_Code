@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
 import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.tasks.TaskExecutor;
@@ -21,10 +22,12 @@ public class IssueOverdueHandler implements TaskExecutor{
 
     private final IssueService issueService;
     private final Thesaurus thesaurus;
+    private final IssueActionService issueActionService;
 
-    public IssueOverdueHandler(IssueService issueService, Thesaurus thesaurus) {
+    public IssueOverdueHandler(IssueService issueService, Thesaurus thesaurus, IssueActionService issueActionService) {
         this.issueService = issueService;
         this.thesaurus = thesaurus;
+        this.issueActionService = issueActionService;
     }
 
     @Override
@@ -48,6 +51,6 @@ public class IssueOverdueHandler implements TaskExecutor{
     }
 
     private void doOverdueActions(Issue issue) {
-        new IssueActionExecutor(issue, CreationRuleActionPhase.OVERDUE, thesaurus).run();
+        new IssueActionExecutor(issue, CreationRuleActionPhase.OVERDUE, thesaurus, issueActionService).run();
     }
 }

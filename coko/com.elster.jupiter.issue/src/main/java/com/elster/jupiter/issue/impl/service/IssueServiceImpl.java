@@ -178,13 +178,12 @@ public class IssueServiceImpl implements IssueService {
     }
 
     @Override
-    public int findNbrOfOpenDataCollectionIssues(String mRID) {
+    public int countOpenDataCollectionIssues(String mRID) {
         Optional<IssueType> issueType = findIssueType("datacollection");
         if (issueType.isPresent()) {
             Condition condition = Where.where("reason.issueType").isEqualTo(issueType.get())
-                    .and(where("device.mRID").isEqualTo(mRID))
-                    .and(where("status.id").isEqualTo(1));
-            List<Issue> issues = dataModel.query(Issue.class, IssueReason.class, IssueStatus.class, EndDevice.class)
+                    .and(where("device.mRID").isEqualTo(mRID));
+            List<Issue> issues = dataModel.query(Issue.class)
                     .select(condition);
             return issues.size();
         } else {

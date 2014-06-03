@@ -9,6 +9,7 @@ import com.elster.jupiter.issue.impl.tasks.IssueActionExecutor;
 import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.cep.IssueEvent;
 import com.elster.jupiter.issue.share.entity.*;
+import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueMappingService;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -54,6 +55,7 @@ public class IssueCreationServiceImpl implements IssueCreationService{
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
     private volatile QueryService queryService;
+    private volatile IssueActionService issueActionService;
 
     private volatile KnowledgeBase knowledgeBase;
     private volatile KnowledgeBuilderFactoryService knowledgeBuilderFactoryService;
@@ -69,6 +71,7 @@ public class IssueCreationServiceImpl implements IssueCreationService{
             NlsService nlsService,
             QueryService queryService,
             IssueMappingService issueMappingService,
+            IssueActionService issueActionService,
             KnowledgeBuilderFactoryService knowledgeBuilderFactoryService,
             KnowledgeBaseFactoryService knowledgeBaseFactoryService,
             KieResources resourceFactoryService) {
@@ -78,6 +81,7 @@ public class IssueCreationServiceImpl implements IssueCreationService{
         setKnowledgeBaseFactoryService(knowledgeBaseFactoryService);
         setKnowledgeBuilderFactoryService(knowledgeBuilderFactoryService);
         setResourceFactoryService(resourceFactoryService);
+        setIssueActionService(issueActionService);
     }
 
     @Reference
@@ -88,6 +92,11 @@ public class IssueCreationServiceImpl implements IssueCreationService{
     @Reference
     public final void setIssueMappingService(IssueMappingService issueMappingService) {
         dataModel = IssueMappingServiceImpl.class.cast(issueMappingService).getDataModel();
+    }
+
+    @Reference
+    public final void setIssueActionService(IssueActionService issueActionService) {
+        this.issueActionService = issueActionService;
     }
 
     @Reference
@@ -212,7 +221,7 @@ public class IssueCreationServiceImpl implements IssueCreationService{
     }
 
     private void executeCreationActions(Issue issue) {
-        new IssueActionExecutor(issue, CreationRuleActionPhase.CREATE, thesaurus).run();
+        new IssueActionExecutor(issue, CreationRuleActionPhase.CREATE, thesaurus, issueActionService).run();
     }
 
     private  <T extends Entity> Query<T> query(Class<T> clazz, Class<?>... eagers) {

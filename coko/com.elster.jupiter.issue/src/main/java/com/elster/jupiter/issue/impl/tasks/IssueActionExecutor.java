@@ -3,9 +3,13 @@ package com.elster.jupiter.issue.impl.tasks;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.share.cep.IssueAction;
 import com.elster.jupiter.issue.share.entity.*;
+import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.google.common.base.Optional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 public class IssueActionExecutor implements Runnable {
@@ -13,49 +17,54 @@ public class IssueActionExecutor implements Runnable {
     private Issue issue;
     private CreationRuleActionPhase phase;
     private Thesaurus thesaurus;
+    private IssueActionService issueActionService;
 
-    public IssueActionExecutor(Issue issue, CreationRuleActionPhase phase, Thesaurus thesaurus) {
-        this.issue = issue;
-        this.phase = phase;
-        this.thesaurus = thesaurus;
-    }
-
-    @Override
-    public void run() {
+    public IssueActionExecutor(Issue issue, CreationRuleActionPhase phase, Thesaurus thesaurus, IssueActionService issueActionService) {
         if (issue == null){
             throw new IllegalArgumentException("Issue for execution can't be null");
         }
         if (phase == null){
-           throw new IllegalArgumentException("Phase for execution can't be null");
+            throw new IllegalArgumentException("Phase for execution can't be null");
         }
+        this.issue = issue;
+        this.phase = phase;
+        this.thesaurus = thesaurus;
+        this.issueActionService = issueActionService;
+    }
+
+    @Override
+    public void run() {
         CreationRule rule = issue.getRule();
-        ClassLoader currentCl = getClass().getClassLoader();
+
         for (CreationRuleAction action : rule.getActions()){
-            if (action.getPhase() != phase){
-                continue;
-            }
-            try {
-                IssueAction realAction = IssueAction.class.cast(currentCl.loadClass(action.getType().getClassName()).newInstance());
-                //realAction.setIssue(issue);
-                setActionParameters(realAction, action);
-                try {
-                    realAction.execute(issue, null);
-                } catch (RuntimeException e){
-                    MessageSeeds.ISSUE_ACTION_FAIL.log(LOG, thesaurus, e, action.getId(), issue.getTitle());
-                }
-            } catch (ReflectiveOperationException e) {
-                MessageSeeds.ISSUE_ACTION_CLASS_LOAD_FAIL.log(LOG, thesaurus, e, action.getId(), issue.getTitle());
+            if (action.getPhase() == phase) {
+                executeAction(action);
             }
         }
     }
 
-    private void setActionParameters(IssueAction action, CreationRuleAction ruleAction){
+    private Map<String, String> getActionParameters (CreationRuleAction ruleAction) {
+        Map<String, String> parametersMap = new HashMap<>();
         List<ActionParameter> actionParameters = ruleAction.getParameters();
         if (actionParameters.size() == 0){
-            return;
+            return parametersMap;
         }
         for (ActionParameter actionParameter : actionParameters) {
-            // TODO set parameters
+            parametersMap.put(actionParameter.getKey(), actionParameter.getValue());
+        }
+        return parametersMap;
+    }
+
+    private void executeAction(CreationRuleAction action) {
+        Optional<IssueActionType> actionTypeRef = issueActionService.findActionType(action.getId());
+        if (!actionTypeRef.isPresent()) {
+            throw new IllegalArgumentException("Rule action type doesn't exist");
+        }
+        IssueAction realAction = actionTypeRef.get().createIssueAction();
+        try {
+            realAction.execute(issue, getActionParameters(action));
+        } catch (RuntimeException e){
+            MessageSeeds.ISSUE_ACTION_FAIL.log(LOG, thesaurus, e, action.getId(), issue.getTitle());
         }
     }
 }

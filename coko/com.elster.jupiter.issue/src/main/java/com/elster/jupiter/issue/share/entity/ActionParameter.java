@@ -11,6 +11,4 @@ public interface ActionParameter extends Entity {
     void setValue(String value);
 
     CreationRuleAction getAction();
-
-    void setAction(CreationRuleAction action);
 }

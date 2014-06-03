@@ -21,14 +21,15 @@ public class CreationRuleValidationException extends LocalizedException {
     }
 
     public void addError(String fieldId, String messageSeed, String componentName, Object... args) {
+        String resultMessage = messageSeed;
         if (componentName != null) {
             Thesaurus thesaurus = nlsService.getThesaurus(componentName, Layer.DOMAIN);
-            messageSeed = thesaurus.getString(messageSeed, messageSeed);
+            resultMessage = thesaurus.getString(messageSeed, messageSeed);
         }
         if (args != null) {
-            messageSeed = String.format(messageSeed, args);
+            resultMessage = String.format(messageSeed, args);
         }
-        errors.put(fieldId, messageSeed);
+        errors.put(fieldId, resultMessage);
     }
 
     public void addErrors(List<ParameterViolation> errorList) {

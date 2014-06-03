@@ -40,7 +40,9 @@ public abstract class AbstractIssueAction implements IssueAction {
         Map<String, ParameterDefinition> parameterDefinitionsCopy = new HashMap<>(parameterDefinitions);
         for (ActionParameter parameter : action.getParameters()) {
             ParameterDefinition definition = parameterDefinitionsCopy.remove(parameter.getKey());
-            errors.addAll(definition.validate(parameter.getValue(), ParameterDefinitionContext.ACTION));
+            if (definition != null) {
+                errors.addAll(definition.validate(parameter.getValue(), ParameterDefinitionContext.ACTION));
+            }
         }
         for (ParameterDefinition definition : parameterDefinitionsCopy.values()){
             if (!definition.getConstraint().isOptional()) {

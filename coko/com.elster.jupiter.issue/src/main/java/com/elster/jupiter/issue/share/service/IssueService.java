@@ -28,5 +28,5 @@ public interface IssueService {
 
     public <T extends Entity> Query<T> query(Class<T> clazz, Class<?>... eagers);
     List<GroupByReasonEntity> getIssueGroupList(GroupQueryBuilder builder);
-    public int findNbrOfOpenDataCollectionIssues(String mRID);
+    public int countOpenDataCollectionIssues(String mRID);
 }

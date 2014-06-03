@@ -1,5 +1,6 @@
 package com.elster.jupiter.issue.impl.tasks;
 
+import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
@@ -24,6 +25,7 @@ public class IssueOverdueHandlerFactory implements MessageHandlerFactory{
     private volatile MeteringService meteringService;
     private volatile TaskService taskService;
     private volatile Thesaurus thesaurus;
+    private volatile IssueActionService issueActionService;
 
     public IssueOverdueHandlerFactory(){}
 
@@ -33,17 +35,19 @@ public class IssueOverdueHandlerFactory implements MessageHandlerFactory{
             TaskService taskService,
             IssueService issueService,
             NlsService nlsService,
-            MeteringService meteringService) {
+            MeteringService meteringService,
+            IssueActionService issueActionService) {
         setJsonService(jsonService);
         setMeteringService(meteringService);
         setIssueService(issueService);
         setTaskService(taskService);
         setNlsService(nlsService);
+        setIssueActionService(issueActionService);
     }
 
     @Override
     public MessageHandler newMessageHandler() {
-        return taskService.createMessageHandler(new IssueOverdueHandler(issueService, thesaurus));
+        return taskService.createMessageHandler(new IssueOverdueHandler(issueService, thesaurus, issueActionService));
     }
 
     @Reference
@@ -65,5 +69,9 @@ public class IssueOverdueHandlerFactory implements MessageHandlerFactory{
     @Reference
     public final void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(IssueService.COMPONENT_NAME, Layer.DOMAIN);
+    }
+    @Reference
+    public final void setIssueActionService(IssueActionService issueActionService) {
+        this.issueActionService = issueActionService;
     }
 }

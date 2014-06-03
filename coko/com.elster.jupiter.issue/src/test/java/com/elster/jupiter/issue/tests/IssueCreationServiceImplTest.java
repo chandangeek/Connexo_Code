@@ -96,7 +96,6 @@ public class IssueCreationServiceImplTest extends BaseTest {
             CreationRule rule = getSimpleCreationRule();
             rule.save();
             
-            // TODO use default rule action types
             IssueActionType actionType = getDataModel().getInstance(IssueActionTypeImpl.class);
             actionType.setFactoryId("some");
             actionType.setClassName("className");
