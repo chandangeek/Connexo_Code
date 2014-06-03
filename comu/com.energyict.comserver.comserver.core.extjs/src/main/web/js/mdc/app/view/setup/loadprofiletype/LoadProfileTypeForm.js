@@ -17,8 +17,6 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeForm', {
                     itemId: 'LoadProfileTypeFormId',
                     defaults: {
                         labelWidth: 250,
-                        labelAlign: 'right',
-                        margin: '0 0 20 0',
                         validateOnChange: false,
                         validateOnBlur: false,
                         anchor: '100%'
@@ -107,24 +105,16 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeForm', {
                             ]
                         }
                     ],
-                    dockedItems: [
+                    buttons: [
                         {
-                            xtype: 'toolbar',
-                            dock: 'bottom',
-                            border: false,
-                            margin: '0 0 0 160',
-                            items: [
-                                {
-                                    xtype: 'container',
-                                    itemId: 'LoadProfileTypeAction'
-                                },
-                                {
-                                    xtype: 'button',
-                                    text: 'Cancel',
-                                    href: '#/administration/loadprofiletypes',
-                                    ui: 'link'
-                                }
-                            ]
+                            xtype: 'container',
+                            itemId: 'LoadProfileTypeAction'
+                        },
+                        {
+                            xtype: 'button',
+                            text: 'Cancel',
+                            href: '#/administration/loadprofiletypes',
+                            ui: 'link'
                         }
                     ]
                 }
