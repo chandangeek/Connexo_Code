@@ -76,27 +76,19 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeForm', {
                             items: [
                                 {
                                     xtype: 'gridpanel',
+                                    hideHeaders: true,
                                     store: 'SelectedMeasurementTypesForLoadProfileType',
+                                    itemId: 'MeasurementTypesGrid',
                                     columns: [
                                         {
                                             text: 'Name',
                                             dataIndex: 'name',
-                                            flex: 1,
-                                            renderer: function (value, metaData, record) {
-                                                var id = Ext.id();
-                                                Ext.defer(function () {
-                                                    Ext.widget('button', {
-                                                        renderTo: id,
-                                                        icon: '../mdc/resources/images/actionsDetail.png',
-                                                        cls: 'uni-btn-transparent',
-                                                        handler: function (item, test) {
-                                                            this.fireEvent('removeMeasurementTypeFromAddGrid', record);
-                                                        },
-                                                        itemId: 'measurementTypeAddGridBtn'
-                                                    });
-                                                }, 50);
-                                                return Ext.String.format('<div id="{0}">{1}</div>',  id , value);
-                                            }
+                                            flex: 1
+                                        },
+                                        {
+                                            xtype: 'actioncolumn',
+                                            iconCls: 'icon-delete',
+                                            align: 'right'
                                         }
                                     ],
                                     height: 220,
