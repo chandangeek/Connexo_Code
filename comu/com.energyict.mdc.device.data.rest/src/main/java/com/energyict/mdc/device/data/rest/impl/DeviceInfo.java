@@ -68,7 +68,7 @@ public class DeviceInfo {
             deviceInfo.masterDeviceId = device.getPhysicalGateway().getId();
             deviceInfo.masterDevicemRID = device.getPhysicalGateway().getmRID();
         }
-        List<Device> slaves = device.getPhysicalConnectedDevices();
+        List<BaseDevice<Channel, LoadProfile, Register>> slaves = device.getPhysicalConnectedDevices();
         deviceInfo.slaveDevices = new ArrayList<>();
         for (BaseDevice dev : slaves) {
             DeviceInfo slaveInfo = new DeviceInfo();
