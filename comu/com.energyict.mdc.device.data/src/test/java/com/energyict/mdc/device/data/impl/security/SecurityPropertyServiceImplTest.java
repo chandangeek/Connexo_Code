@@ -155,14 +155,20 @@ public class SecurityPropertyServiceImplTest {
 
     @Test
     public void getSecurityProperties () throws SQLException {
-        this.initializeDatabase();
 
-        // Business method
-        List<SecurityProperty> securityProperties = this.testService().getSecurityProperties(this.device, new Date(), this.securityPropertySet);
+        try {
+            this.initializeDatabase();
+            // Business method
+            List<SecurityProperty> securityProperties = this.testService().getSecurityProperties(this.device, new Date(), this.securityPropertySet);
 
-        // Asserts
-        verify(this.protocolPluggableService).findSecurityPropertyRelationType(this.deviceProtocolPluggableClass);
-        assertThat(securityProperties).isEmpty();
+            // Asserts
+            verify(this.protocolPluggableService).findSecurityPropertyRelationType(this.deviceProtocolPluggableClass);
+            assertThat(securityProperties).isEmpty();
+        } finally {
+            if (this.inMemoryPersistence != null) {
+                this.inMemoryPersistence.cleanUpDataBase();
+            }
+        }
     }
 
     private SecurityPropertyService testService () {

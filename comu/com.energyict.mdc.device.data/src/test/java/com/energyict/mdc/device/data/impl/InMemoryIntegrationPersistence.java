@@ -106,6 +106,7 @@ public class InMemoryIntegrationPersistence {
     private TaskService taskService;
     private DeviceDataServiceImpl deviceDataService;
     private SchedulingService schedulingService;
+    private InMemoryBootstrapModule bootstrapModule;
 
     public InMemoryIntegrationPersistence() {
         this(new DefaultClock());
@@ -118,7 +119,7 @@ public class InMemoryIntegrationPersistence {
 
     public void initializeDatabase(String testName, boolean showSqlLogging, boolean createMasterData) throws SQLException {
         this.initializeMocks(testName);
-        InMemoryBootstrapModule bootstrapModule = new InMemoryBootstrapModule();
+        bootstrapModule = new InMemoryBootstrapModule();
         Injector injector = Guice.createInjector(
                 new MockModule(),
                 bootstrapModule,
@@ -230,6 +231,7 @@ public class InMemoryIntegrationPersistence {
                 deactivate(bootstrapModule);
             }
         }
+        Environment.DEFAULT.get().close();
     }
 
     private void deactivate(Object bootstrapModule) {
