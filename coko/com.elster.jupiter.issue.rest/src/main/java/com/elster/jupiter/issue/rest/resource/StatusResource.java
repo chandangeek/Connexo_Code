@@ -40,7 +40,7 @@ public class StatusResource extends BaseResource {
     @GET
     @Path("/{" + ID + "}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getReason(@PathParam(ID) long id){
+    public Response getStatus(@PathParam(ID) long id){
         Optional<IssueStatus> statusRef = getIssueService().findStatus(id);
         if(!statusRef.isPresent()){
             throw new WebApplicationException(Response.Status.NOT_FOUND);

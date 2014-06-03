@@ -1,7 +1,6 @@
 package com.elster.jupiter.issue.rest.response.cep;
 
 import com.elster.jupiter.issue.share.cep.CreationRuleValidationException;
-import com.elster.jupiter.issue.share.cep.ParameterViolation;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 

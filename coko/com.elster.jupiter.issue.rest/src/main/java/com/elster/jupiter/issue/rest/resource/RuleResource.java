@@ -95,9 +95,11 @@ public class RuleResource extends BaseResource{
             return Response.status(Response.Status.NOT_FOUND).build();
         }
         List<ParameterDefinition> parameters = new ArrayList<>();
-        for (ParameterDefinition parameter : template.get().getParameterDefinitions().values()) {
-            if (parameter.isDependent()) {
-                parameters.add(parameter.getValue(paramValues));
+        if (template.get().getParameterDefinitions() != null) {
+            for (ParameterDefinition parameter : template.get().getParameterDefinitions().values()) {
+                if (parameter.isDependent()) {
+                    parameters.add(parameter.getValue(paramValues));
+                }
             }
         }
         return ok(parameters, ParameterInfo.class).build();
@@ -111,6 +113,9 @@ public class RuleResource extends BaseResource{
     public Response getSingleParametersValues(@PathParam(ID) String id, @PathParam(KEY) String key, Map<String, Object> paramValues){
         Optional<CreationRuleTemplate> template = getIssueCreationService().findCreationRuleTemplate(id);
         if (!template.isPresent()){
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        if (template.get().getParameterDefinitions() == null){
             return Response.status(Response.Status.NOT_FOUND).build();
         }
         ParameterDefinition parameter = template.get().getParameterDefinitions().get(key);

@@ -1,12 +1,12 @@
 package com.elster.jupiter.issue.rest.response.cep;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import com.elster.jupiter.issue.rest.response.IssueTypeInfo;
 import com.elster.jupiter.issue.share.cep.IssueAction;
 import com.elster.jupiter.issue.share.cep.ParameterDefinition;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class CreationRuleActionTypeInfo {
     private long id;

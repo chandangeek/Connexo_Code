@@ -5,9 +5,7 @@ import com.elster.jupiter.issue.share.cep.ParameterDefinition;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CreationRuleTemplateInfo {

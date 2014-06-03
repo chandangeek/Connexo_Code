@@ -1,9 +1,9 @@
 package com.elster.jupiter.issue.rest.request;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PerformActionRequest {
