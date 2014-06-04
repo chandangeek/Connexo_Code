@@ -156,9 +156,7 @@ Ext.define('Isu.controller.CloseIssues', {
                                     cls: 'isu-btn-link',
                                     hrefTarget: '',
                                     href: '#/workspace/datacollection/issues',
-                                    // this function is necessary and MUST be empty
                                     hnd: function () {
-                                        Ext.History.back();
                                     }
                                 }
                             ],
