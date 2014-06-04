@@ -2,6 +2,8 @@ package com.energyict.mdc.protocol.api.device;
 
 import com.energyict.mdc.common.ObisCode;
 
+import com.google.common.base.Optional;
+
 import java.util.List;
 
 /**
@@ -71,7 +73,7 @@ public interface BaseDevice<C extends BaseChannel, LP extends BaseLoadProfile<C>
      *
      * @return the list of physically connected Devices
      */
-    List<BaseDevice<C, LP, R>> getPhysicalConnectedDevices();
+    List<? extends BaseDevice<C, LP, R>> getPhysicalConnectedDevices();
 
     /**
      * returns the {@link BaseLoadProfile}s defined for this device.
