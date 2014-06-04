@@ -66,7 +66,7 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolsGrid', {
                                     },
                                     {
                                         xtype: 'menuitem',
-                                        text: 'Delete',
+                                        text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
                                         listeners: {
                                             click: {
                                                 element: 'el',
