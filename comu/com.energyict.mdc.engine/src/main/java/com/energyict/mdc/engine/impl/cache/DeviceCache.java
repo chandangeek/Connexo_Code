@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.impl.cache;
 
+import com.energyict.mdc.protocol.api.DeviceProtocolCache;
+
 import java.io.Serializable;
 
 /**
@@ -27,12 +29,12 @@ public interface DeviceCache {
     /**
      * @return the cache object
      */
-    public Serializable getSimpleCacheObject();
+    public DeviceProtocolCache getSimpleCacheObject();
 
     /**
      * Sets the current cache object
-     * @param cacheObject the current cacheObject
+     * @param deviceProtocolCache the current cacheObject
      */
-    public void setCacheObject(Serializable cacheObject);
+    public void setCacheObject(DeviceProtocolCache deviceProtocolCache);
 
 }
