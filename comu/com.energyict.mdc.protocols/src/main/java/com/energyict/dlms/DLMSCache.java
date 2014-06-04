@@ -8,15 +8,24 @@ package com.energyict.dlms;
 
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 
 /**
  *
  * @author  Koen
  */
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 public class DLMSCache implements DeviceProtocolCache, Serializable {
+    @XmlElement
     UniversalObject[] objectList;
+    @XmlElement
     int confProgChange;
+    @XmlElement
     boolean changed;
     /** Creates a new instance of DLMSCache */
     public DLMSCache() {

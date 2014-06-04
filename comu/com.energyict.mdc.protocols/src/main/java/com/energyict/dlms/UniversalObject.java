@@ -4,6 +4,7 @@ package com.energyict.dlms;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.mdc.common.ObisCode;
 
+import javax.xml.bind.annotation.XmlElement;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
@@ -40,7 +41,8 @@ public class UniversalObject implements Serializable {
 	private static final byte IOL_LN_F=8;
 
 
-	private long[] fields;
+    @XmlElement
+    private long[] fields;
 
 	private static final int ASSOC_SN_OBJECT_LIST_STRUCTURE_SIZE=9;
 
