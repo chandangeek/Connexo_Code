@@ -13644,7 +13644,7 @@ div.x-lbl-top-err-icon {
 /* line 6, ../../../ext-theme-neutral/sass/src/form/field/Base.scss */
 .x-form-item,
 .x-form-field {
-  font: normal 13px "Lato", helvetica, arial, verdana, sans-serif; }
+  font: normal 13px Lato; }
 
 /* line 21, ../../../ext-theme-neutral/sass/src/form/field/Base.scss */
 .x-form-type-text textarea.x-form-invalid-field, .x-form-type-text input.x-form-invalid-field,
@@ -13713,7 +13713,7 @@ textarea.x-form-empty-field {
 
 /* line 11, ../../../ext-theme-neutral/sass/src/form/field/Display.scss */
 .x-form-display-field {
-  font: normal 13px/17px "Lato", helvetica, arial, verdana, sans-serif;
+  font: normal 13px/17px Lato;
   color: #686868;
   margin-top: 6px; }
 
@@ -14514,7 +14514,7 @@ a.x-color-picker-item:hover {
 
 /* line 100, ../../../ext-theme-neutral/sass/src/form/field/HtmlEditor.scss */
 .x-html-editor-wrap textarea {
-  font: normal 13px "Lato", helvetica, arial, verdana, sans-serif;
+  font: normal 13px Lato;
   background-color: white;
   resize: none; }
 
@@ -20733,6 +20733,18 @@ h6 {
     border-radius: 10px;
     padding: 65px 82px; }
 
+/* line 22, ../../sass/src/Component.scss */
+.icon-delete {
+  background-image: url("images/button/ico_delete.png") !important;
+  width: 16px !important;
+  height: 16px !important; }
+
+/* line 28, ../../sass/src/Component.scss */
+.icon-delete:hover {
+  background-image: url("images/button/ico_deleteA.png") !important;
+  width: 16px !important;
+  height: 16px !important; }
+
 /* line 1, ../../sass/src/container/BreadcrumbTrailContainer.scss */
 .x-container-breadcrumbtrailcontainer {
   background-color: #71adc7;
@@ -20982,6 +20994,10 @@ h6 {
   /* line 10, ../../sass/src/container/ActionsContainer.scss */
   .x-container-actions *[class*='x-btn-link-'] {
     margin-left: 16px; }
+
+/* line 3, ../../sass/src/LoadMask.scss */
+.x-panel .x-mask {
+  background: white !important; }
 
 /* line 1, ../../sass/src/button/Button.scss */
 .x-uni-action-iconA {
@@ -45223,8 +45239,16 @@ a.x-datepicker-date:hover {
   /* line 7, ../../sass/src/panel/Table.scss */
   .x-grid .x-docked-bottom {
     margin-bottom: -16px; }
+  /* line 13, ../../sass/src/panel/Table.scss */
+  .x-grid.x-grid-header-hidden .x-grid-body {
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    -ms-border-radius: 10px;
+    -o-border-radius: 10px;
+    border-radius: 10px;
+    border-top-width: 1px !important; }
 
-/* line 13, ../../sass/src/panel/Table.scss */
+/* line 20, ../../sass/src/panel/Table.scss */
 .x-grid-body {
   border-color: #d2d2d2 !important;
   border-width: 1px !important;
@@ -45235,18 +45259,18 @@ a.x-datepicker-date:hover {
   -ms-border-radius: 0 0 10px 10px;
   -o-border-radius: 0 0 10px 10px;
   border-radius: 0 0 10px 10px; }
-  /* line 20, ../../sass/src/panel/Table.scss */
+  /* line 27, ../../sass/src/panel/Table.scss */
   .x-grid-body .x-grid-view {
     margin: -1px !important;
     margin-top: 0 !important; }
-  /* line 34, ../../sass/src/panel/Table.scss */
+  /* line 41, ../../sass/src/panel/Table.scss */
   .x-grid-body .x-grid-row a {
     color: #686868;
     text-decoration: none; }
-  /* line 41, ../../sass/src/panel/Table.scss */
+  /* line 48, ../../sass/src/panel/Table.scss */
   .x-grid-body .x-grid-row a:hover {
     text-decoration: underline; }
-  /* line 47, ../../sass/src/panel/Table.scss */
+  /* line 54, ../../sass/src/panel/Table.scss */
   .x-grid-body .x-grid-row-selected a, .x-grid-body .x-grid-row-over a {
     color: white; }
 
