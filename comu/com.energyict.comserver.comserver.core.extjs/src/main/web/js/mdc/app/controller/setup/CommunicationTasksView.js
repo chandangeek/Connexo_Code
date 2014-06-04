@@ -50,7 +50,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasksView', {
         this.control({
             'communication-tasks-view communication-tasks-list gridview': {
                 itemclick: this.showTaskDetails,
-                refresh: this.onCommunicationTasksGridRefresh
+                afterrender: this.onCommunicationTasksGridRefresh
             },
             'communication-tasks-view communication-tasks-list uni-actioncolumn': {
                 menuclick: this.chooseCommunicationTasksAction
