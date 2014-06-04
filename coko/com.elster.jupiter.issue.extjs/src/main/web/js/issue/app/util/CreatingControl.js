@@ -32,7 +32,8 @@ Ext.define('Isu.util.CreatingControl', {
             name: obj.key,
             fieldLabel: obj.label,
             allowBlank: !obj.constraint.required,
-            labelSeparator: (obj.constraint.required ? ' *' : '')
+            required: obj.constraint.required,
+            formBind: false
         };
 
         obj.constraint.max && (textField.maxLength = obj.constraint.max);
@@ -50,7 +51,8 @@ Ext.define('Isu.util.CreatingControl', {
             name: obj.key,
             fieldLabel: obj.label,
             allowBlank: !obj.constraint.required,
-            labelSeparator: (obj.constraint.required ? ' *' : '')
+            required: obj.constraint.required,
+            formBind: false
         };
 
         obj.constraint.max && (numberField.maxValue = obj.constraint.max);
@@ -70,12 +72,13 @@ Ext.define('Isu.util.CreatingControl', {
                 name: obj.key,
                 fieldLabel: obj.label,
                 allowBlank: !obj.constraint.required,
-                labelSeparator: (obj.constraint.required ? ' *' : ''),
+                required: obj.constraint.required,
                 store: comboboxStore,
                 queryMode: 'local',
                 displayField: 'title',
                 valueField: 'id',
-                editable: false
+                editable: false,
+                formBind: false
             };
 
         obj.defaultValue && (combobox.value = obj.defaultValue.id);
@@ -86,12 +89,14 @@ Ext.define('Isu.util.CreatingControl', {
     createTextArea: function (obj) {
         var textareafield = {
             xtype: 'textareafield',
+            itemId: 'emailBody',
             name: obj.key,
             fieldLabel: obj.label,
             allowBlank: !obj.constraint.required,
-            labelSeparator: (obj.constraint.required ? ' *' : ''),
+            required: obj.constraint.required,
             width: 500,
-            height: 150
+            height: 150,
+            formBind: false
         };
 
         obj.constraint.max && (textareafield.maxLength = obj.constraint.max);
@@ -111,11 +116,12 @@ Ext.define('Isu.util.CreatingControl', {
             width: 500,
             height: 150,
             allowBlank: !obj.constraint.required,
-            labelSeparator: ' *',
+            required: obj.constraint.required,
             fieldLabel: obj.label,
             emptyText: 'user@example.com',
             regex: /^((([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z?]{2,5}){1,25})*(\n?)*)*$/,
-            regexText: 'This field should contains one e-mail address per line'
+            regexText: 'This field should contains one e-mail address per line',
+            formBind: false
         };
 
         obj.constraint.max && (emailList.maxLength = obj.constraint.max);
@@ -133,10 +139,11 @@ Ext.define('Isu.util.CreatingControl', {
             allowBlank: !obj.constraint.required,
             forceSelection: true,
             anyMatch: true,
-            labelSeparator: ' *',
+            required: obj.constraint.required,
             valueField: 'id',
             emptyText: 'select an assignee',
-            tooltipText: 'Start typing for assignee'
+            tooltipText: 'Start typing for assignee',
+            formBind: false
         };
 
         return userCombobox;
