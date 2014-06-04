@@ -48,8 +48,6 @@ public class ConstraintViolationInfo {
     }
 
     public ConstraintViolationInfo from(ConstraintViolationException exception) {
-        message=exception.getMessage();
-        error=exception.getLocalizedMessage();
 
         for (ConstraintViolation<?> constraintViolation : exception.getConstraintViolations()) {
             if (constraintViolation.getPropertyPath()!=null) {
