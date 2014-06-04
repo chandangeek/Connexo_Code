@@ -9,7 +9,6 @@ import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.services.Finder;
-import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.data.impl.InfoType;
 import com.energyict.mdc.device.data.tasks.*;
 import com.energyict.mdc.engine.model.ComPort;
@@ -17,12 +16,12 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 
 import com.elster.jupiter.util.sql.Fetcher;
+import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
 
 import java.util.Collection;
@@ -272,7 +271,7 @@ public interface DeviceDataService {
      * @param device the 'master' device
      * @return a list of physically connected devices to the given device
      */
-    public List<BaseDevice<Channel, LoadProfile, Register>> findPhysicalConnectedDevicesFor(Device device);
+    public List<Device> findPhysicalConnectedDevicesFor(Device device);
 
     /**
      * Finds the devices which are linked to the given device for communication purposes.
@@ -280,7 +279,27 @@ public interface DeviceDataService {
      * @param device the device that arranges the communication
      * @return a list of devices which use the given device for communication purposes
      */
-    public List<BaseDevice<Channel, LoadProfile, Register>> findCommunicationReferencingDevicesFor(Device device);
+    public List<Device> findCommunicationReferencingDevicesFor(Device device);
+
+    /**
+     * Finds the devices which are linked on the specified timestamp
+     * to the specified device for communication purposes.
+     *
+     * @param device the device that arranges the communication
+     * @param timestamp The timestamp on which the devices are linked for communication purposes
+     * @return a list of devices which use the given device for communication purposes
+     */
+    public List<Device> findCommunicationReferencingDevicesFor(Device device, Date timestamp);
+
+    /**
+     * Finds the devices which are linked on the specified timestamp
+     * to the specified device for communication purposes.
+     *
+     * @param device the device that arranges the communication
+     * @param interval The interval during which the devices are linked for communication purposes
+     * @return a list of devices which use the given device for communication purposes
+     */
+    public List<CommunicationTopologyEntry> findCommunicationReferencingDevicesFor(Device device, Interval interval);
 
     /**
      * Finds the LoadProfile based on the given unique ID

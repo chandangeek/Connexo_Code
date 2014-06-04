@@ -1,26 +1,5 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingRecord;
-import com.elster.jupiter.metering.events.EndDeviceEventRecord;
-import com.elster.jupiter.metering.events.EndDeviceEventType;
-import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.TemporalReference;
-import com.elster.jupiter.orm.associations.Temporals;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
@@ -39,6 +18,7 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.CommunicationTopologyEntry;
 import com.energyict.mdc.device.data.DefaultSystemTimeZoneFactory;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceCacheFactory;
@@ -67,7 +47,6 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.engine.model.InboundComPortPool;
@@ -82,6 +61,27 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.events.EndDeviceEventRecord;
+import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.TemporalReference;
+import com.elster.jupiter.orm.associations.Temporals;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
 import com.google.inject.Inject;
 
@@ -91,13 +91,19 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
+
+import static com.elster.jupiter.util.Checks.is;
 
 @UniqueMrid(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_DEVICE_MRID + "}")
 public class DeviceImpl implements Device {
@@ -322,11 +328,11 @@ public class DeviceImpl implements Device {
     }
 
     private void validateGatewayUsage() {
-        List<BaseDevice<Channel, LoadProfile, Register>> physicalConnectedDevices = getPhysicalConnectedDevices();
+        List<Device> physicalConnectedDevices = getPhysicalConnectedDevices();
         if (!physicalConnectedDevices.isEmpty()) {
             throw StillGatewayException.forPhysicalGateway(thesaurus, this, physicalConnectedDevices.toArray(new Device[physicalConnectedDevices.size()]));
         }
-        List<BaseDevice<Channel, LoadProfile, Register>> communicationReferencingDevices = getCommunicationReferencingDevices();
+        List<Device> communicationReferencingDevices = getCommunicationReferencingDevices();
         if (!communicationReferencingDevices.isEmpty()) {
             throw StillGatewayException.forCommunicationGateway(thesaurus, this, communicationReferencingDevices.toArray(new Device[communicationReferencingDevices.size()]));
 
@@ -469,13 +475,18 @@ public class DeviceImpl implements Device {
     }
 
     @Override
-    public List<BaseDevice<Channel, LoadProfile, Register>> getPhysicalConnectedDevices() {
+    public List<Device> getPhysicalConnectedDevices() {
         return this.deviceDataService.findPhysicalConnectedDevicesFor(this);
     }
 
     @Override
     public Device getPhysicalGateway() {
-        Optional<PhysicalGatewayReference> physicalGatewayReferenceOptional = this.physicalGatewayReferenceDevice.effective(clock.now());
+        return this.getPhysicalGateway(this.clock.now());
+    }
+
+    @Override
+    public Device getPhysicalGateway(Date timestamp) {
+        Optional<PhysicalGatewayReference> physicalGatewayReferenceOptional = this.physicalGatewayReferenceDevice.effective(timestamp);
         if (physicalGatewayReferenceOptional.isPresent()) {
             return physicalGatewayReferenceOptional.get().getPhysicalGateway();
         }
@@ -574,13 +585,140 @@ public class DeviceImpl implements Device {
     }
 
     @Override
-    public List<BaseDevice<Channel, LoadProfile, Register>> getCommunicationReferencingDevices() {
+    public List<Device> getCommunicationReferencingDevices() {
         return this.deviceDataService.findCommunicationReferencingDevicesFor(this);
     }
 
     @Override
+    public List<Device> getCommunicationReferencingDevices(Date timestamp) {
+        return this.deviceDataService.findCommunicationReferencingDevicesFor(this, timestamp);
+    }
+
+    @Override
+    public List<Device> getAllCommunicationReferencingDevices() {
+        return this.getAllCommunicationReferencingDevices(this.clock.now());
+    }
+
+    @Override
+    public List<Device> getAllCommunicationReferencingDevices(Date timestamp) {
+        Map<Long, Device> allDevicesInTopology = new HashMap<>();
+        this.collectAllCommunicationReferencingDevices(timestamp, this, allDevicesInTopology);
+        return new ArrayList<>(allDevicesInTopology.values());
+    }
+
+    private void collectAllCommunicationReferencingDevices (Date timestamp, Device topologyRoot, Map<Long, Device> devices) {
+        for (Device device : topologyRoot.getCommunicationReferencingDevices(timestamp)) {
+            if (!devices.containsKey(device.getId())) {
+                // The device was not encountered yet, recursive call
+                devices.put(device.getId(), device);
+                this.collectAllCommunicationReferencingDevices(timestamp, device, devices);
+            }
+        }
+    }
+
+    @Override
+    public List<CommunicationTopologyEntry> getAllCommunicationTopologies(Interval interval) {
+        CommunicationTopology communicationTopology = this.buildCommunicationTopology(this, interval);
+        return this.toSortedCommunicationTopologyEntries(communicationTopology);
+    }
+
+    /**
+     * Collects the {@link CommunicationTopologyEntry CommunicationTopologies} for the specified Interval
+     * for the target {@link Device} that is part of the communication topology governed by the root device.
+     *
+     * @param root The root of the CommunicationTopology
+     * @param interval The Interval
+     * @return The CommunicationTopology
+     */
+    private CommunicationTopology buildCommunicationTopology(Device root, Interval interval) {
+        List<CommunicationTopologyEntry> firstLevelTopologyEntries = this.deviceDataService.findCommunicationReferencingDevicesFor(root, interval);
+        Interval spanningInterval = this.intervalSpanOf(firstLevelTopologyEntries);
+        CommunicationTopology topology = new CommunicationTopologyImpl(root, interval.intersection(spanningInterval));
+        for (CommunicationTopologyEntry firstLevelTopologyEntry : firstLevelTopologyEntries) {
+            for (Device device : firstLevelTopologyEntry.getDevices()) {
+                topology.addChild(this.buildCommunicationTopology(device, interval.intersection(firstLevelTopologyEntry.getInterval())));
+            }
+        }
+        return topology;
+    }
+
+    private Interval intervalSpanOf(List<CommunicationTopologyEntry> topologyEntries) {
+        Date earliestStartDate = this.earliestStartDate(topologyEntries);
+        Date latestEndDate = this.latestEndDate(topologyEntries);
+        return new Interval(earliestStartDate, latestEndDate);
+    }
+
+    private Date earliestStartDate(List<CommunicationTopologyEntry> topologyEntries) {
+        if (!topologyEntries.isEmpty()) {
+            return Collections.min(this.startDatesOfAll(topologyEntries), new MinDateComparator());
+        }
+        else {
+            return null;
+        }
+    }
+
+    private Collection<? extends Date> startDatesOfAll(List<CommunicationTopologyEntry> topologyEntries) {
+        Collection<Date> startDates = new ArrayList<>(topologyEntries.size());
+        for (CommunicationTopologyEntry topologyEntry : topologyEntries) {
+            startDates.add(topologyEntry.getInterval().getStart());
+        }
+        return startDates;
+    }
+
+    private Date latestEndDate(List<CommunicationTopologyEntry> topologyEntries) {
+        if (!topologyEntries.isEmpty()) {
+            return Collections.max(this.endDatesOfAll(topologyEntries), new MaxDateComparator());
+        }
+        else {
+            return null;
+        }
+    }
+
+    private Collection<? extends Date> endDatesOfAll(List<CommunicationTopologyEntry> topologyEntries) {
+        Collection<Date> endDates = new ArrayList<>(topologyEntries.size());
+        for (CommunicationTopologyEntry topologyEntry : topologyEntries) {
+            endDates.add(topologyEntry.getInterval().getEnd());
+        }
+        return endDates;
+    }
+
+    private List<CommunicationTopologyEntry> toSortedCommunicationTopologyEntries(CommunicationTopology communicationTopology) {
+        CommunicationTopologyEntryMerger merger = new CommunicationTopologyEntryMerger();
+        for (CommunicationTopology firstLevelTopology : communicationTopology.getChildren()) {
+            this.addCommunicationTopologyEntries(firstLevelTopology, merger);
+        }
+        List<CommunicationTopologyEntry> entries = new ArrayList<>();
+        for (CompleteCommunicationTopologyEntryImpl entry : merger.getEntries()) {
+            entries.add(entry);
+        }
+        Collections.sort(entries, new CommunicationTopologyEntryComparator());
+        return entries;
+    }
+
+    private void addCommunicationTopologyEntries(CommunicationTopology topology, CommunicationTopologyEntryMerger merger) {
+        if (topology.isLeaf()) {
+            merger.add(new CompleteCommunicationTopologyEntryImpl(topology.getInterval(), topology.getRoot()));
+        }
+        else {
+            CommunicationTopologyEntryMerger nestedMerger = new CommunicationTopologyEntryMerger();
+            for (CommunicationTopology childTopology : topology.getChildren()) {
+                this.addCommunicationTopologyEntries(childTopology, nestedMerger);
+            }
+            for (CompleteCommunicationTopologyEntryImpl childEntry : nestedMerger.getEntries()) {
+                childEntry.add(topology.getRoot());
+                merger.add(childEntry);
+            }
+        }
+    }
+
+    @Override
     public Device getCommunicationGateway() {
-        Optional<CommunicationGatewayReference> communicationGatewayReferenceOptional = this.communicationGatewayReferenceDevice.effective(clock.now());
+        return this.getCommunicationGateway(this.clock.now());
+    }
+
+    @Override
+    public Device getCommunicationGateway(Date timestamp) {
+        Optional<CommunicationGatewayReference> communicationGatewayReferenceOptional = this.communicationGatewayReferenceDevice.effective(timestamp);
         if (communicationGatewayReferenceOptional.isPresent()) {
             return communicationGatewayReferenceOptional.get().getCommunicationGateway();
         }
@@ -1213,4 +1351,79 @@ public class DeviceImpl implements Device {
             return scheduledConnectionTask;
         }
     }
+
+    /**
+     * Compares {@link CommunicationTopologyEntry} in the context of the {@link #getAllCommunicationTopologies(Interval)} method.
+     */
+    public static class CommunicationTopologyEntryComparator implements Comparator<CommunicationTopologyEntry> {
+
+        @Override
+        public int compare(CommunicationTopologyEntry topology1, CommunicationTopologyEntry topology2) {
+            if (is(topology1.getInterval().getStart()).equalTo(topology2.getInterval().getStart())) {
+                // Both Intervals start at the same timestamp, which could be the early big bang, i.e. null
+                if (is(topology1.getInterval().getEnd()).equalTo(topology2.getInterval().getEnd())) {
+                    return 0;   // Equals start and end
+                }
+                else if (topology1.getInterval().endsBefore(topology2.getInterval().getEnd())) {
+                    return -1;
+                }
+                else {
+                    // Remember that end of other interval is not equal
+                    return 1;
+                }
+            }
+            else if (topology1.getInterval().startsBefore(topology2.getInterval().getStart())) {
+                return -1;
+            }
+            else {
+                // Remember that start of other interval is not equal
+                return 1;
+            }
+        }
+    }
+
+    /**
+     * Compares Dates where <code>null</code> is considered infinity in the past (aka the early big bang)
+     * and is always smaller than anything else (except another <code>null</code> of course).
+     */
+    private class MinDateComparator implements Comparator<Date> {
+        @Override
+        public int compare(Date date1, Date date2) {
+            if (date1 == null && date2 == null) {
+                return 0;
+            }
+            else if (date1 == null) {
+                return -1;
+            }
+            else if (date2 == null) {
+                return 1;
+            }
+            else {
+                return date1.compareTo(date2);
+            }
+        }
+    }
+
+    /**
+     * Compares Dates where <code>null</code> is considered infinity in the future
+     * and is always bigger than anything else (except another <code>null</code> of course).
+     */
+    private class MaxDateComparator implements Comparator<Date> {
+        @Override
+        public int compare(Date date1, Date date2) {
+            if (date1 == null && date2 == null) {
+                return 0;
+            }
+            else if (date1 == null) {
+                return 1;
+            }
+            else if (date2 == null) {
+                return -1;
+            }
+            else {
+                return date1.compareTo(date2);
+            }
+        }
+    }
+
 }
