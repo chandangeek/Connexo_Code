@@ -1,5 +1,8 @@
 /**
  * @class Uni.controller.Error
+ *
+ * General error controller that is responsible to log and show uncaught errors
+ * that are not dealt with in a separate failure handle case.
  */
 Ext.define('Uni.controller.Error', {
     extend: 'Ext.app.Controller',
@@ -83,6 +86,13 @@ Ext.define('Uni.controller.Error', {
         this.showError(title, message);
     },
 
+    /**
+     * Shows an error window with a title and a message to the user.
+     *
+     * @param {String} title Window title to show
+     * @param {String} message Error message to show
+     * @param {String} [config={}] Optional {@link Ext.window.MessageBox} configuration if tweaks are required
+     */
     showError: function (title, message, config) {
         config = config ? config : {};
         Ext.apply(config, {
