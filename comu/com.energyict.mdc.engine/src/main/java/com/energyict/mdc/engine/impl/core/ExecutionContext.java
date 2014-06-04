@@ -112,7 +112,7 @@ public final class ExecutionContext {
 
     /**
      * Perform a logical connect if this has not been done yet.
-     * Return true if the connect succeeded, false otherwise
+     * Return true if the connect succeeded, false otherwise.
      *
      * @return true if the connect succeeded, false otherwise
      */

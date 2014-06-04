@@ -40,7 +40,7 @@ public class InboundJobExecutionGroup extends JobExecution {
 
     @Override
     protected ComPortRelatedComChannel findOrCreateComChannel() throws ConnectionException {
-        return (ComPortRelatedComChannel) this.inboundDiscoveryContext.getComChannel();
+        return this.inboundDiscoveryContext.getComChannel();
     }
 
     @Override

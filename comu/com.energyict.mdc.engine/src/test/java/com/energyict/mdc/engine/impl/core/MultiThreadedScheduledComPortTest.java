@@ -166,8 +166,6 @@ public class MultiThreadedScheduledComPortTest {
     private DeviceConfiguration deviceConfiguration;
     @Mock
     private DeviceCommunicationConfiguration deviceCommunicationConfiguration;
-//    @Mock
-//    private OfflineDevice offlineDevice;
     @Mock
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     @Mock
@@ -455,8 +453,7 @@ public class MultiThreadedScheduledComPortTest {
         when(comServerDAOMock.isStillPending(anyInt())).thenReturn(true);
         when(comServerDAOMock.areStillPending(anyCollection())).thenReturn(true);
         // Force the connection to fail
-        ConnectionException connectionSetupException = mock(ConnectionException.class);
-        when(this.simultaneousConnectionTask1.connect(comPort)).thenThrow(connectionSetupException);
+        doThrow(ConnectionException.class).when(this.simultaneousConnectionTask1).connect(comPort);
         final List<ComJob> work = new ArrayList<>();
         for (int i = 0; i < NUMBER_OF_TASKS; i++) {
             work.add(this.toComJob(this.mockComTask(i + 1, this.simultaneousConnectionTask1)));
@@ -558,8 +555,7 @@ public class MultiThreadedScheduledComPortTest {
         when(comServerDAOMock.isStillPending(anyInt())).thenReturn(true);
         when(comServerDAOMock.areStillPending(anyCollection())).thenReturn(true);
         // Force the connection to fail
-        ConnectionException connectionSetupException = mock(ConnectionException.class);
-        when(this.serialConnectionTask1.connect(comPort)).thenThrow(connectionSetupException);
+        doThrow(ConnectionException.class).when(this.serialConnectionTask1).connect(comPort);
         final List<ServerComTaskExecution> work = new ArrayList<>();
         for (int i = 0; i < NUMBER_OF_TASKS; i++) {
             work.add(this.mockComTask(i + 1, this.serialConnectionTask1));
@@ -1081,7 +1077,7 @@ public class MultiThreadedScheduledComPortTest {
             @Override
             public void reschedule(Throwable t, RescheduleBehavior.RescheduleReason rescheduleReason) {
                 super.reschedule(t, rescheduleReason);
-                if(rescheduleReason.equals(RescheduleBehavior.RescheduleReason.CONNECTION_SETUP)){
+                if (rescheduleReason.equals(RescheduleBehavior.RescheduleReason.CONNECTION_SETUP)) {
                     connectionError.countDown();
                 }
             }
@@ -1106,7 +1102,7 @@ public class MultiThreadedScheduledComPortTest {
             @Override
             public void reschedule(Throwable t, RescheduleBehavior.RescheduleReason rescheduleReason) {
                 super.reschedule(t, rescheduleReason);
-                if(rescheduleReason.equals(RescheduleBehavior.RescheduleReason.CONNECTION_SETUP)){
+                if (rescheduleReason.equals(RescheduleBehavior.RescheduleReason.CONNECTION_SETUP)) {
                     connectionError.countDown();
                 }
             }

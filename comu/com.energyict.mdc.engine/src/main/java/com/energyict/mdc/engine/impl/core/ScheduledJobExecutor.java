@@ -105,7 +105,7 @@ public abstract class ScheduledJobExecutor {
                 job.rescheduleToNextComWindow();
             }
             break;
-            case ATTEMPT_LOCK_FAILED:    // intentional fall through
+            case ATTEMPT_LOCK_FAILED:   // intentional fall through
             case NOT_PENDING_ANYMORE:   // intentional fall through
             default:
                 job.releaseToken();

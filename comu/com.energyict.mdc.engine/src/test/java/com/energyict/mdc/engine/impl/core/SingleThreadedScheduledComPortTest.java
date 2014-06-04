@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.elster.jupiter.users.User;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.TimeDuration;
@@ -51,6 +50,7 @@ import com.energyict.mdc.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.tasks.history.TaskHistoryService;
 
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
@@ -84,7 +84,10 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyCollection;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.atMost;
 import static org.mockito.Mockito.mock;
@@ -330,7 +333,6 @@ public class SingleThreadedScheduledComPortTest {
         verify(mockedThread, times(1)).interrupt();
     }
 
-    @Ignore // this one doesn't run on bamboo ...
     @Test(timeout = 7000)
     public void testExecuteTasksWithNoWork () throws InterruptedException, BusinessException, SQLException {
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
@@ -640,13 +642,14 @@ public class SingleThreadedScheduledComPortTest {
         }
     }
 
-    @Test(timeout = 5000)
+    //@Test(timeout = 5000)
+    @Test
     public void testPreventNoResourcesAcquiredExceptionWhenSchedulingJustOutsideComWindow() throws ConnectionException, InterruptedException {
         ComServer comServer = mock(ComServer.class);
         when(comServer.getName()).thenReturn("RealTimeDevComExec");
         Date now = new DateTime(2013, Calendar.AUGUST, 22, 9, 1, 0, 0).toDate();    // It's now 09:01 am
         when(this.clock.now()).thenReturn(now);
-        ComWindow comWindow = new ComWindow(DateTimeConstants.SECONDS_PER_HOUR * 4, DateTimeConstants.SECONDS_PER_DAY * 9); // Window is from 4 am to 9 am
+        ComWindow comWindow = new ComWindow(DateTimeConstants.SECONDS_PER_HOUR * 4, DateTimeConstants.SECONDS_PER_HOUR * 9); // Window is from 4 am to 9 am
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksOneByOneOutsideComWindow");
         when(comServerDAO.refreshComPort(comPort)).thenReturn(comPort);
@@ -658,14 +661,14 @@ public class SingleThreadedScheduledComPortTest {
         work.add(this.mockComTask(1, this.serialConnectionTask1));
         List<ComJob> jobs = this.toComJob(work);
         CountDownLatch stopLatch = new CountDownLatch(1);
-        CountDownLatch devComExecStartedLatch = new CountDownLatch(1);
+        CountDownLatch deviceCommandExecutorStartedLatch = new CountDownLatch(1);
         when(comServerDAO.findExecutableOutboundComTasks(comPort)).thenReturn(jobs).thenReturn(Collections.<ComJob>emptyList());;
-        DeviceCommandExecutor deviceCommandExecutor = spy(new RealTimeWorkingLatchDrivenDeviceCommandExecutor(comServer, 10, 1, 1, ComServer.LogLevel.TRACE, comServerDAO, devComExecStartedLatch, stopLatch));
+        DeviceCommandExecutor deviceCommandExecutor = spy(new RealTimeWorkingLatchDrivenDeviceCommandExecutor(comServer, 10, 1, 1, ComServer.LogLevel.TRACE, comServerDAO, deviceCommandExecutorStartedLatch, stopLatch));
         deviceCommandExecutor.start();
         SpySingleThreadedScheduledComPort scheduledComPort = new SpySingleThreadedScheduledComPort(comPort, comServerDAO, deviceCommandExecutor, this.serviceProvider);
 
         try {
-            devComExecStartedLatch.await();
+            deviceCommandExecutorStartedLatch.await();
             // Business method
             scheduledComPort.start();
 
@@ -926,6 +929,16 @@ public class SingleThreadedScheduledComPortTest {
             } finally {
                 this.startedLatch.countDown();
             }
+        }
+
+        @Override
+        public synchronized List<DeviceCommandExecutionToken> tryAcquireTokens(int numberOfCommands) {
+            return super.tryAcquireTokens(numberOfCommands);
+        }
+
+        @Override
+        public List<DeviceCommandExecutionToken> acquireTokens(int numberOfCommands) throws InterruptedException {
+            return super.acquireTokens(numberOfCommands);
         }
 
         @Override
