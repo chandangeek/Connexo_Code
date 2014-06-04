@@ -206,7 +206,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
             this.down('#createEditButton').setText(Uni.I18n.translate('general.edit', 'MDC', 'Edit'));
             this.down('#createEditButton').action = 'editRegisterConfiguration';
         } else {
-            this.down('#createEditButton').setText(Uni.I18n.translate('general.create', 'MDC', 'Create'));
+            this.down('#createEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
             this.down('#createEditButton').action = 'createRegisterConfiguration';
         }
         this.down('#cancelLink').href = this.returnLink;
