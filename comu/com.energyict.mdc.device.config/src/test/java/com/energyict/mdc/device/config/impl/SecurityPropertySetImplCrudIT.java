@@ -350,7 +350,7 @@ public class SecurityPropertySetImplCrudIT {
     }
 
     @Test()
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.INCORRECT_SIZE + "}", property = "name")
     public void testCreateWithEmptyName () {
         DeviceCommunicationConfiguration communicationConfiguration;
         SecurityPropertySet propertySet = null;
@@ -362,6 +362,29 @@ public class SecurityPropertySetImplCrudIT {
             deviceConfiguration.save();
 
             propertySet = deviceConfiguration.createSecurityPropertySet("       ")
+                    .authenticationLevel(1)
+                    .encryptionLevel(2)
+                    .addUserAction(ALLOWCOMTASKEXECUTION1)
+                    .addUserAction(EDITDEVICESECURITYPROPERTIES2)
+                    .build();
+
+            context.commit();
+        }
+    }
+
+    @Test()
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.INCORRECT_SIZE + "}", property = "name")
+    public void testCreateWithLongName () {
+        DeviceCommunicationConfiguration communicationConfiguration;
+        SecurityPropertySet propertySet = null;
+        try (TransactionContext context = transactionService.getContext()) {
+            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+            deviceType.save();
+
+            DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
+            deviceConfiguration.save();
+
+            propertySet = deviceConfiguration.createSecurityPropertySet("приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--+")
                     .authenticationLevel(1)
                     .encryptionLevel(2)
                     .addUserAction(ALLOWCOMTASKEXECUTION1)

@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -39,6 +40,7 @@ import com.energyict.mdc.device.config.exceptions.DeviceTypeIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.DuplicateLoadProfileTypeException;
 import com.energyict.mdc.device.config.exceptions.DuplicateLogBookTypeException;
 import com.energyict.mdc.device.config.exceptions.DuplicateObisCodeException;
+import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterMapping;
@@ -58,6 +60,7 @@ import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.Valid;
+import javax.validation.constraints.Size;
 
 /**
  *     //TODO the creation of the CommunicationConfiguration is currently skipped ...
@@ -84,6 +87,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         }
     }
 
+    @Size(min=0, max=4000, groups = {Save.Update.class, Save.Create.class}, message = "{"+ MessageSeeds.Keys.INCORRECT_SIZE+"}")
     private String description;
 
     private boolean active;

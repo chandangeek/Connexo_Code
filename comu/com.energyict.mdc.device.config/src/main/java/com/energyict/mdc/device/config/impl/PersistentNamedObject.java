@@ -20,7 +20,7 @@ import javax.validation.constraints.Size;
 public abstract class PersistentNamedObject<T> extends PersistentIdObject<T> {
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
-    @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.INCORRECT_SIZE + "}")
+    @Size(min = 1, max=80, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.INCORRECT_SIZE + "}")
     private String name;
 
     protected PersistentNamedObject(Class<T> domainClass, DataModel dataModel, EventService eventService, Thesaurus thesaurus) {

@@ -220,6 +220,31 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.INCORRECT_SIZE + "}", property = "name")
+    public void testDeviceTypeCreationWithTooLongAName() {
+        DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(longUnicodeString(81), this.deviceProtocolPluggableClass);
+
+        // Business method
+        deviceType.save();
+
+        // Asserts: See the ExpectedConstraintViolation rule
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.INCORRECT_SIZE + "}", property = "description")
+    public void testDeviceTypeCreationWithTooLongADescription() {
+        DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(longUnicodeString(80), this.deviceProtocolPluggableClass);
+        deviceType.setDescription(longUnicodeString(4001));
+
+        // Business method
+        deviceType.save();
+
+        // Asserts: See the ExpectedConstraintViolation rule
+    }
+
+    @Test
+    @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DEVICE_PROTOCOL_IS_REQUIRED + "}")
     public void testDeviceTypeCreationWithoutProtocol() {
         DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType("testDeviceTypeCreationWithoutProtocol", (DeviceProtocolPluggableClass) null);
@@ -890,6 +915,35 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
     @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Keys.INCORRECT_SIZE+"}", property = "name")
     public void testCanNotAddDeviceConfigurationWithEmptyName() throws Exception {
         deviceType.newConfiguration("").description("this is it!").add();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Keys.INCORRECT_SIZE+"}", property = "name")
+    public void testCanNotAddDeviceConfigurationWithLongName() throws Exception {
+        deviceType.newConfiguration("01234567890123456789012345678901234567890123456789012345678901234567890123456789-").description("desc").add(); // 81 chars
+    }
+
+    @Test
+    @Transactional
+    public void testCanNotAddDeviceConfigurationWithMaxUnicodeCharsDescription() throws Exception {
+        String string = longUnicodeString(4000);
+        deviceType.newConfiguration("name").description(string).add();
+    }
+
+    private String longUnicodeString(int size) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i=0; i<size; i++) {
+            stringBuilder.append("я");
+        }
+        return stringBuilder.toString();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Keys.INCORRECT_SIZE+"}", property = "description")
+    public void testCanNotAddDeviceConfigurationWithTooManyUnicodeCharsDescription() throws Exception {
+        deviceType.newConfiguration("name").description(longUnicodeString(4001)).add();
     }
 
     @Test

@@ -32,10 +32,12 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 @ProtocolCannotChangeWithExistingConfigurations(groups = {Save.Update.class})
 public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements DeviceType {
 
+    @Size(min=0, max=4000, groups = {Save.Update.class, Save.Create.class}, message = "{"+MessageSeeds.Keys.INCORRECT_SIZE+"}")
     private String description;
     private boolean useChannelJournal;
     private int deviceUsageTypeId;
