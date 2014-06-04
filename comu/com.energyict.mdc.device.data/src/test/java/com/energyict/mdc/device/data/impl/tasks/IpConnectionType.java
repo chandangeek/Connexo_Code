@@ -30,7 +30,6 @@ public class IpConnectionType implements ServerConnectionType {
 
     public static final String IP_ADDRESS_PROPERTY_NAME = "ipAddress";
     public static final String PORT_PROPERTY_NAME = "port";
-    public static final String CODE_TABLE_PROPERTY_NAME = "codeTable";
     private static final int HASH_CODE = 35809; // Random prime number
 
     private PropertySpecService propertySpecService;
@@ -67,13 +66,9 @@ public class IpConnectionType implements ServerConnectionType {
         return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(PORT_PROPERTY_NAME);
     }
 
-    private PropertySpec codeTablePropertySpec () {
-        return this.propertySpecService.referencePropertySpec(CODE_TABLE_PROPERTY_NAME, false, FactoryIds.CODE);
-    }
-
-    @Override
+     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return Arrays.asList(this.ipAddressPropertySpec(), this.portNumberPropertySpec(), this.codeTablePropertySpec());
+        return Arrays.asList(this.ipAddressPropertySpec(), this.portNumberPropertySpec());
     }
 
     @Override
@@ -83,8 +78,6 @@ public class IpConnectionType implements ServerConnectionType {
                 return this.ipAddressPropertySpec();
             case PORT_PROPERTY_NAME:
                 return this.portNumberPropertySpec();
-            case CODE_TABLE_PROPERTY_NAME:
-                return this.codeTablePropertySpec();
             default:
                 return null;
         }

@@ -292,6 +292,11 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         }
     }
 
+    private void setDefaultConnectionTask(ConnectionTask<?, ?> defaultConnectionTask) {
+        this.useDefaultConnectionTask = true;
+        setConnectionTask(defaultConnectionTask);
+    }
+
     @Override
     public Date getExecutionStartedTimestamp() {
         return this.executionStart;
@@ -1078,6 +1083,12 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         public ComTaskExecution.ComTaskExecutionUpdater setNextExecutionTimeStampAndPriority(Date nextExecutionTimestamp, int priority) {
             this.comTaskExecution.setNextExecutionTimestamp(nextExecutionTimestamp);
             this.comTaskExecution.setExecutingPriority(priority);
+            return this;
+        }
+
+        @Override
+        public ComTaskExecution.ComTaskExecutionUpdater setUseDefaultConnectionTask(ConnectionTask<?, ?> defaultConnectionTask) {
+            this.comTaskExecution.setDefaultConnectionTask(defaultConnectionTask);
             return this;
         }
 

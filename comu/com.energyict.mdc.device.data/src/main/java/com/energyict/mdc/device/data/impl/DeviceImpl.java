@@ -1169,12 +1169,6 @@ public class DeviceImpl implements Device {
         }
 
         @Override
-        public ComTaskExecution.ComTaskExecutionUpdater setUseDefaultConnectionTask(ConnectionTask<?, ?> defaultConnectionTask) {
-            //TODO automatically generated method body, provide implementation.
-            return null;
-        }
-
-        @Override
         public ComTaskExecution update() {
             //TODO validate unique ComTaskEnablement?
             return super.update();

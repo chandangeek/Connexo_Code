@@ -2,17 +2,27 @@ package com.energyict.mdc.device.data.impl.security;
 
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.BusinessEventManager;
+import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryIds;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.Translator;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.common.license.License;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.impl.finders.ConnectionMethodFinder;
+import com.energyict.mdc.device.data.impl.finders.DeviceFinder;
+import com.energyict.mdc.device.data.impl.finders.SecuritySetFinder;
+import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
+import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.issues.impl.IssuesModule;
@@ -61,6 +71,7 @@ import org.osgi.service.event.EventAdmin;
 import java.security.Principal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -70,6 +81,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -124,6 +137,7 @@ public class SecurityPropertyServiceImplTest {
         when(this.deviceConfiguration.getDeviceType()).thenReturn(this.deviceType);
         when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(this.deviceProtocolPluggableClass);
         when(this.protocolPluggableService.findSecurityPropertyRelationType(this.deviceProtocolPluggableClass)).thenReturn(this.securityPropertyRelationType);
+        when(this.deviceProtocolPluggableClass.getProperties(anyListOf(PropertySpec.class))).thenReturn(TypedProperties.empty());
 
         when(this.securityPropertySet.currentUserIsAllowedToViewDeviceProperties()).thenReturn(true);
         when(this.securityPropertySet.currentUserIsAllowedToEditDeviceProperties()).thenReturn(true);
@@ -155,14 +169,20 @@ public class SecurityPropertyServiceImplTest {
 
     @Test
     public void getSecurityProperties () throws SQLException {
-        this.initializeDatabase();
 
-        // Business method
-        List<SecurityProperty> securityProperties = this.testService().getSecurityProperties(this.device, new Date(), this.securityPropertySet);
+        try {
+            this.initializeDatabase();
+            // Business method
+            List<SecurityProperty> securityProperties = this.testService().getSecurityProperties(this.device, new Date(), this.securityPropertySet);
 
-        // Asserts
-        verify(this.protocolPluggableService).findSecurityPropertyRelationType(this.deviceProtocolPluggableClass);
-        assertThat(securityProperties).isEmpty();
+            // Asserts
+            verify(this.protocolPluggableService).findSecurityPropertyRelationType(this.deviceProtocolPluggableClass);
+            assertThat(securityProperties).isEmpty();
+        } finally {
+            if (this.inMemoryPersistence != null) {
+                this.inMemoryPersistence.cleanUpDataBase();
+            }
+        }
     }
 
     private SecurityPropertyService testService () {
@@ -193,6 +213,7 @@ public class SecurityPropertyServiceImplTest {
         private License license;
         private Environment environment;
         private ApplicationContext applicationContext;
+        private PropertySpecService propertySpecService;
 
         public RelationService getRelationService() {
             return relationService;
@@ -248,10 +269,25 @@ public class SecurityPropertyServiceImplTest {
                 this.relationService = injector.getInstance(RelationService.class);
                 this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
                 this.ormService = injector.getInstance(OrmService.class);
+                this.propertySpecService = injector.getInstance(PropertySpecService.class);
                 createOracleAliases((OrmServiceImpl) this.ormService);
+                initializeFactoryProviders();
                 ctx.commit();
             }
             this.initializeLicense();
+        }
+
+        private void initializeFactoryProviders() {
+            ((PropertySpecServiceImpl) this.propertySpecService).addFactoryProvider(new ReferencePropertySpecFinderProvider() {
+                @Override
+                public List<CanFindByLongPrimaryKey<? extends HasId>> finders() {
+                    List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
+                    finders.add(new ConnectionMethodFinder(ormService.getDataModels().get(0)));
+                    finders.add(new DeviceFinder(ormService.getDataModels().get(0)));
+                    finders.add(new SecuritySetFinder(ormService.getDataModels().get(0)));
+                    return finders;
+                }
+            });
         }
 
         private void initializeMocks() {

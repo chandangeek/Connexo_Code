@@ -29,13 +29,20 @@ import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.BusinessEventManager;
+import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.common.license.License;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
+import com.energyict.mdc.device.data.impl.finders.ConnectionMethodFinder;
+import com.energyict.mdc.device.data.impl.finders.ProtocolDialectPropertiesFinder;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
+import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
@@ -69,6 +76,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -106,6 +115,8 @@ public class InMemoryIntegrationPersistence {
     private TaskService taskService;
     private DeviceDataServiceImpl deviceDataService;
     private SchedulingService schedulingService;
+    private InMemoryBootstrapModule bootstrapModule;
+    private PropertySpecService propertySpecService;
 
     public InMemoryIntegrationPersistence() {
         this(new DefaultClock());
@@ -118,7 +129,7 @@ public class InMemoryIntegrationPersistence {
 
     public void initializeDatabase(String testName, boolean showSqlLogging, boolean createMasterData) throws SQLException {
         this.initializeMocks(testName);
-        InMemoryBootstrapModule bootstrapModule = new InMemoryBootstrapModule();
+        bootstrapModule = new InMemoryBootstrapModule();
         Injector injector = Guice.createInjector(
                 new MockModule(),
                 bootstrapModule,
@@ -169,11 +180,25 @@ public class InMemoryIntegrationPersistence {
             this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
             this.schedulingService = injector.getInstance(SchedulingService.class);
             this.deviceDataService = injector.getInstance(DeviceDataServiceImpl.class);
+            this.propertySpecService = injector.getInstance(PropertySpecService.class);
             this.dataModel = this.deviceDataService.getDataModel();
+            initializeFactoryProviders();
             ctx.commit();
         }
         createOracleAliases();
         this.initializeLicense();
+    }
+
+    private void initializeFactoryProviders() {
+        ((PropertySpecServiceImpl) getPropertySpecService()).addFactoryProvider(new ReferencePropertySpecFinderProvider() {
+            @Override
+            public List<CanFindByLongPrimaryKey<? extends HasId>> finders() {
+                List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
+                finders.add(new ConnectionMethodFinder(dataModel));
+                finders.add(new ProtocolDialectPropertiesFinder(dataModel));
+                return finders;
+            }
+        });
     }
 
     private void initializeLicense() {
@@ -230,6 +255,7 @@ public class InMemoryIntegrationPersistence {
                 deactivate(bootstrapModule);
             }
         }
+        Environment.DEFAULT.get().close();
     }
 
     private void deactivate(Object bootstrapModule) {
@@ -297,6 +323,10 @@ public class InMemoryIntegrationPersistence {
 
     public TaskService getTaskService() {
         return taskService;
+    }
+
+    public PropertySpecService getPropertySpecService() {
+        return propertySpecService;
     }
 
     public static String query(String sql) {
