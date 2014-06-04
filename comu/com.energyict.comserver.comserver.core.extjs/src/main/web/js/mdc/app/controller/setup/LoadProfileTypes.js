@@ -67,6 +67,9 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             'loadProfileTypeForm button[name=loadprofiletypeaction]': {
                 click: this.onSubmit
             },
+            '#LoadProfileTypeFormId #MeasurementTypesGrid actioncolumn': {
+                click: this.removeMeasurementType
+            },
             'menu menuitem[action=editloadprofiletype]': {
                 click: this.editRecord
             },
@@ -84,9 +87,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             },
             'button[action=retryremoveloadprofiletype]': {
                 click: this.deleteRecord
-            },
-            '#measurementTypeAddGridBtn': {
-                removeMeasurementTypeFromAddGrid: this.removeMeasurementType
             }
         });
 
@@ -119,7 +119,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         }});
     },
 
-    removeMeasurementType: function (record) {
+    removeMeasurementType: function (grid, index, id, row, event, record) {
         this.selectedMeasurementTypesStore.remove(record);
     },
 
@@ -511,15 +511,34 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             success: function (response) {
                 var loadProfileType = Ext.JSON.decode(response.responseText),
                     widget = Ext.widget('loadProfileTypeForm', { loadProfileTypeHeader: Uni.I18n.translate('loadprofiletype.editloadprofiletypes', 'MDC', 'Edit load profile type'), loadProfileTypeAction: 'Save', loadProfileTypeActionHref: me.loadProfileTypeId + '/edit' }),
-                    intervalCombobox = widget.down('combobox[name=timeDuration]');
+                    nameField = widget.down('textfield[name=name]'),
+                    intervalCombobox = widget.down('combobox[name=timeDuration]'),
+                    obisCodeField = widget.down('textfield[name=obisCode]'),
+                    measurementTypesView = widget.down('fieldcontainer');
+
                 me.getApplication().fireEvent('changecontentevent', widget);
-                widget.down('textfield[name=name]').setValue(loadProfileType.name);
-                widget.down('textfield[name=obisCode]').setValue(loadProfileType.obisCode);
+
+                nameField.setValue(loadProfileType.name);
+                nameField.focus();
+
                 intervalCombobox.store = me.intervalStore;
                 intervalCombobox.setValue(loadProfileType.timeDuration.id);
+
+                obisCodeField.setValue(loadProfileType.obisCode);
+
+                if (loadProfileType.isLinkedToActiveDeviceConf) {
+                    intervalCombobox.disable();
+                    obisCodeField.disable();
+                    Ext.each(measurementTypesView.items.items, function (item) {
+                        item.disable();
+                    });
+                    measurementTypesView.disable();
+                }
+
                 Ext.each(loadProfileType.measurementTypes, function (measurementType) {
                     me.selectedMeasurementTypesStore.add(measurementType);
                 });
+
                 me.loadProfileAction = 'Edit load profile type';
                 if (!Ext.isEmpty(this.temporallyFormValues)) {
                     this.loadTemporallyValues();

@@ -50,63 +50,26 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodsGrid', {
                 dataIndex: 'connectionType',
                 flex: 0.3
             },
+
             {
-                xtype: 'actioncolumn',
-                iconCls: 'uni-actioncolumn-gear',
-                columnWidth: 32,
-                header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                xtype: 'uni-actioncolumn',
                 items: [
                     {
-                        handler: function (grid, rowIndex, colIndex, item, e, record, row) {
-                            grid.getSelectionModel().select(rowIndex);
-                            var menu = Ext.widget('menu', {
-                                items: [
-                                    {
-                                        xtype: 'menuitem',
-                                        text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                                        listeners: {
-                                            click: {
-                                                element: 'el',
-                                                fn: function () {
-                                                    this.fireEvent('editItem', record);
-                                                },
-                                                scope: this
-                                            }
-                                        }
-                                    },
-                                    {
-                                        xtype: 'menuitem',
-                                        text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
-                                        listeners: {
-                                            click: {
-                                                element: 'el',
-                                                fn: function () {
-                                                    this.fireEvent('deleteItem', record);
-                                                },
-                                                scope: this
-                                            }
-                                        }
-                                    },
-                                    {
-                                        xtype: 'menuitem',
-                                        text: record.get('isDefault') === true ? Uni.I18n.translate('connectionmethod.unsetAsDefault', 'MDC', 'Remove as default') : Uni.I18n.translate('connectionmethod.setAsDefault', 'MDC', 'Set as default'),
-                                        listeners: {
-                                            click: {
-                                                element: 'el',
-                                                fn: function () {
-                                                    this.fireEvent('toggleDefault', record);
-                                                },
-                                                scope: this
-                                            }
-                                        }
-                                    }
-                                ]
-                            });
-                            menu.showAt(e.getXY());
-                        }
+                        text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                        action: 'editItem'
+                    },
+                    {
+                        text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
+                        action: 'deleteItem'
+                    },
+                    {
+                        text: 'test', // value set in the controller
+                        action: 'toggleDefault',
+                        itemId: 'toggleDefaultMenuItem'
                     }
                 ]
             }
+
         ];
         this.dockedItems = [
             {
@@ -122,16 +85,20 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodsGrid', {
                         flex: 1
                     },
                     {
-                        text: Uni.I18n.translate('connectionmethod.addOutboundConnectionMethod', 'MDC', 'Add outbound connection method'),
-                        itemId: 'createOutboundConnectionButton',
                         xtype: 'button',
-                        action: 'createOutboundConnectionMethod'
-                    },
-                    {
-                        text: Uni.I18n.translate('connectionmethod.addInboundConnectionMethod', 'MDC', 'Add inbound connection method'),
-                        itemId: 'createInboundConnectionButton',
-                        xtype: 'button',
-                        action: 'createInboundConnectionMethod'
+                        text: Uni.I18n.translate('connectionmethod.addConnectionMethod', 'MDC', 'Add connection method'),
+                        menu: [
+                            {
+                                text: Uni.I18n.translate('connectionmethod.addOutboundConnectionMethod', 'MDC', 'Add outbound connection method'),
+                                itemId: 'createOutboundConnectionButton',
+                                action: 'createOutboundConnectionMethod'
+                            },
+                            {
+                                text: Uni.I18n.translate('connectionmethod.addInboundConnectionMethod', 'MDC', 'Add inbound connection method'),
+                                itemId: 'createInboundConnectionButton',
+                                action: 'createInboundConnectionMethod'
+                            }
+                        ]
                     }
                 ]
             },

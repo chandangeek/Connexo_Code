@@ -10,7 +10,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.ActionMenu', {
             action: 'edit'
         },
         {
-            text: 'Delete',
+            text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
             action: 'delete'
         }
     ]

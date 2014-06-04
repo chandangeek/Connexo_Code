@@ -44,7 +44,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeDetail', {
                                     action: 'editRegisterType'
                                 },
                                 {
-                                    text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
+                                    text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
                                     itemId: 'deleteRegisterType',
                                     action: 'deleteRegisterType'
                                 }
@@ -134,13 +134,13 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeDetail', {
                                     labelWidth: 250
                                 },
                                 items: [
-                                    {
+                                 /*   {
                                         xtype: 'displayfield',
                                         name: 'dataCollectionGroup',
                                         fieldLabel: Uni.I18n.translate('registerType.dataCollectionGroup', 'MDC', 'Data collection group'),
                                         labelAlign: 'right',
                                         labelWidth: 150
-                                    }
+                                    }*/
                                 ]
                             }
 

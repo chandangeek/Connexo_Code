@@ -131,7 +131,8 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
     addRegisterMappingsToDeviceType: function () {
         var me = this;
         var registerMappings = this.getRegisterMappingAddGrid().getSelectionModel().getSelection();
-
+        var widget = this.getRegisterMappingAddGrid();
+        widget.setLoading(true);
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(me.deviceTypeId, {
             success: function (deviceType) {
                 deviceType.registerTypes().add(registerMappings);
@@ -140,6 +141,7 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
                         deviceType.commit();
                         me.getRegisterTypesOfDevicetypeStore().add(registerMappings);
                         location.href = '#/administration/devicetypes/' + me.deviceTypeId + '/registertypes';
+                        widget.setLoading(false);
                     }
                 });
             }

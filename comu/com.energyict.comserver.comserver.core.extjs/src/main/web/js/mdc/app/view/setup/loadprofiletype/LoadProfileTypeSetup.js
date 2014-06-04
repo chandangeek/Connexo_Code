@@ -25,15 +25,15 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSetup', {
                     margins: '10 10 10 10',
                     itemId: 'loadProfileTypesTitle'
                 },
-                {
-                    xtype: 'loadProfileTypeFiltering'
-                },
-                {
-                    xtype: 'menuseparator'
-                },
-                {
-                    xtype: 'loadProfileTypeSorting'
-                },
+//                {
+//                    xtype: 'loadProfileTypeFiltering'
+//                },
+//                {
+//                    xtype: 'menuseparator'
+//                },
+//                {
+//                    xtype: 'loadProfileTypeSorting'
+//                },
                 {
                     xtype: 'container',
                     itemId: 'loadProfileTypeDockedItemsContainer'

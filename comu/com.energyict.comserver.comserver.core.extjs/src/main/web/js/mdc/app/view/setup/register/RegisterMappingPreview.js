@@ -133,12 +133,24 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
                                     align: 'stretch'
                                 },
                                 items: [
-                                    {
+                                   /* {
                                         xtype: 'displayfield',
                                         name: 'dataCollectionGroup',
                                         fieldLabel: Uni.I18n.translate('registerMapping.dataCollectionGroup', 'MDC', 'Data collection group'),
                                         labelAlign: 'right',
                                         labelWidth: 250
+                                    }*/
+                                    {
+                                        xtype: 'displayfield',
+                                        name: 'unit',
+                                        fieldLabel: Uni.I18n.translate('registerMapping.measurementUnit', 'MDC', 'Unit of measure'),
+                                        labelWidth: 150
+                                    },
+                                    {
+                                        xtype: 'displayfield',
+                                        name: 'timeOfUse',
+                                        fieldLabel: Uni.I18n.translate('registerMapping.timeOfUse', 'MDC', 'Time of use'),
+                                        labelWidth: 150
                                     }
 
                                 ]

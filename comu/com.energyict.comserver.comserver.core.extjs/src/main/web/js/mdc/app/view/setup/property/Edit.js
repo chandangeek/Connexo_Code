@@ -43,26 +43,22 @@ Ext.define('Mdc.view.setup.property.Edit', {
             xtype: 'fieldcontainer',
             fieldLabel: key,
             layout: 'hbox',
-            defaults: {
-                hideLabel: true
-            },
+            required: required,
             margin: this.fieldMargin,
             items: [
                 {
                     xtype: 'textfield',
                     name: 'properties.' + key,
-                    fieldLabel: key,
                     itemId: key,
                     value: text,
                     width: 395,
                     msgTarget: 'under',
-                    margin: '0 0 5 0 ',
-                    required: required
+                    margin: '0 0 5 0 '
                 },
                 {
                     xtype: 'defaultButton',
                     key: key,
-                    default: defaultValue
+                    defaultValue: defaultValue
                 }
             ]
         });
@@ -73,28 +69,24 @@ Ext.define('Mdc.view.setup.property.Edit', {
             xtype: 'fieldcontainer',
             fieldLabel: key,
             layout: 'hbox',
-            defaults: {
-                hideLabel: true
-            },
             margin: this.fieldMargin,
+            required: required,
             items: [
                 {
                     xtype: 'textfield',
                     name: 'properties.' + key,
-                    fieldLabel: key,
                     itemId: key,
                     value: text,
                     inputType: 'password',
                     size: 200,
                     margin: '0 5 5 0',
                     width: 395,
-                    msgTarget: 'under',
-                    required: required
+                    msgTarget: 'under'
                 },
                 {
                     xtype: 'defaultButton',
                     key: key,
-                    default: defaultValue
+                    defaultValue: defaultValue
                 }
             ]
         });
@@ -105,28 +97,24 @@ Ext.define('Mdc.view.setup.property.Edit', {
             xtype: 'fieldcontainer',
             fieldLabel: key,
             layout: 'hbox',
-            defaults: {
-                hideLabel: true
-            },
+            required: required,
             margin: this.fieldMargin,
             items: [
                 {
                     xtype: 'textfield',
                     name: 'properties.' + key,
-                    fieldLabel: key,
                     itemId: key,
                     value: text,
                     size: 200,
                     margin: '0 5 5 0',
                     width: 395,
                     vtype: 'hexstring',
-                    msgTarget: 'under',
-                    required: required
+                    msgTarget: 'under'
                 },
                 {
                     xtype: 'defaultButton',
                     key: key,
-                    default: defaultValue
+                    defaultValue: defaultValue
                 }
             ]
         });
@@ -137,15 +125,12 @@ Ext.define('Mdc.view.setup.property.Edit', {
             xtype: 'fieldcontainer',
             fieldLabel: key,
             layout: 'hbox',
-            defaults: {
-                hideLabel: true
-            },
             margin: this.fieldMargin,
+            required: required,
             items: [
                 {
                     xtype: 'textareafield',
                     name: 'properties.' + key,
-                    fieldLabel: key,
                     itemId: key,
                     value: text,
                     size: 200,
@@ -153,14 +138,12 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     width: 395,
                     grow: true,
                     anchor: '100%',
-                    msgTarget: 'under',
-                    required: required
+                    msgTarget: 'under'
                 },
                 {
                     xtype: 'defaultButton',
                     key: key,
-
-                    default: defaultValue
+                    defaultValue: defaultValue
                 }
             ]
         });
@@ -171,15 +154,12 @@ Ext.define('Mdc.view.setup.property.Edit', {
             xtype: 'fieldcontainer',
             fieldLabel: key,
             layout: 'hbox',
-            defaults: {
-                hideLabel: true
-            },
+            required: required,
             margin: this.fieldMargin,
             items: [
                 {
                     xtype: 'numberfield',
                     name: 'properties.' + key,
-                    fieldLabel: key,
                     itemId: key,
                     value: value,
                     size: 15,
@@ -191,14 +171,12 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     minValue: minvalue,
                     maxValue: maxvalue,
                     allowDecimals: allowdecimals,
-                    msgTarget: 'under',
-                    required: required
+                    msgTarget: 'under'
                 },
                 {
                     xtype: 'defaultButton',
                     key: key,
-
-                    default: defaultValue
+                    defaultValue: defaultValue
                 }
             ]
         });
@@ -210,27 +188,23 @@ Ext.define('Mdc.view.setup.property.Edit', {
             fieldLabel: key,
             msgTarget: 'under',
             layout: 'hbox',
-            defaults: {
-                hideLabel: true
-            },
+            required: required,
             margin: this.fieldMargin,
             items: [
                 {
                     xtype: 'checkbox',
                     name: 'properties.' + key,
-                    fieldLabel: key,
                     itemId: key,
                     checked: value,
                     margin: '0 5 5 0',
                     cls: 'check',
-                    required: required,
                     msgTarget: 'under'
                 }
                 ,
                 {
                     xtype: 'defaultButton',
                     key: key,
-                    default: defaultValue
+                    defaultValue: defaultValue
                 }
             ]
         });
@@ -242,17 +216,14 @@ Ext.define('Mdc.view.setup.property.Edit', {
             fieldLabel: key,
             msgTarget: 'under',
             layout: 'hbox',
-            defaults: {
-                hideLabel: true
-            },
             margin: this.fieldMargin,
+            required: required,
             items: [
                 {
                     xtype: 'radiogroup',
                     itemId: key,
                     name: 'properties.' + key,
                     allowBlank: false,
-                    required: required,
                     vertical: true,
                     columns: 1,
                     items: [
@@ -285,7 +256,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
                 {
                     xtype: 'defaultButton',
                     key: key,
-                    default: defaultValue
+                    defaultValue: defaultValue
                 }
             ]
         });
@@ -297,26 +268,22 @@ Ext.define('Mdc.view.setup.property.Edit', {
             fieldLabel: key,
             msgTarget: 'under',
             layout: 'hbox',
-            defaults: {
-                hideLabel: true
-            },
+            required: required,
             margin: this.fieldMargin,
             items: [
                 {
                     xtype: 'datefield',
                     name: 'properties.' + key,
-                    fieldLabel: key,
                     itemId: 'date' + key,
                     value: value,
                     format: 'd/m/Y',
                     altFormats: 'd.m.Y|d m Y',
-                    margin: '0 5 5 0',
-                    required: required
+                    margin: '0 5 5 0'
                 },
                 {
                     xtype: 'defaultButton',
                     key: key,
-                    default: defaultValue
+                    defaultValue: defaultValue
                 }
             ]
         });
@@ -328,25 +295,21 @@ Ext.define('Mdc.view.setup.property.Edit', {
             fieldLabel: key,
             msgTarget: 'under',
             layout: 'hbox',
-            defaults: {
-                hideLabel: true
-            },
+            required: required,
             margin: this.fieldMargin,
             items: [
                 {
                     xtype: 'timefield',
                     name: 'properties.' + key,
-                    fieldLabel: key,
                     itemId: 'time' + key,
                     value: value,
                     format: 'H:i:s',
-                    margin: '0 5 5 0',
-                    required: required
+                    margin: '0 5 5 0'
                 },
                 {
                     xtype: 'defaultButton',
                     key: key,
-                    default: defaultValue
+                    defaultValue: defaultValue
                 }
             ]
         });
@@ -358,15 +321,12 @@ Ext.define('Mdc.view.setup.property.Edit', {
             fieldLabel: key,
             msgTarget: 'under',
             layout: 'hbox',
-            defaults: {
-                hideLabel: true
-            },
+            required: required,
             margin: this.fieldMargin,
             items: [
                 {
                     xtype: 'datefield',
                     name: 'properties.' + key,
-                    fieldLabel: key,
                     itemId: 'date' + key,
                     value: dateValue,
                     format: 'd/m/Y',
@@ -377,7 +337,6 @@ Ext.define('Mdc.view.setup.property.Edit', {
                 {
                     xtype: 'timefield',
                     name: 'properties.' + key,
-                    fieldLabel: key,
                     itemId: 'time' + key,
                     value: timeValue,
                     format: 'H:i:s',
@@ -387,7 +346,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
                 {
                     xtype: 'defaultButton',
                     key: key,
-                    default: defaultValue
+                    defaultValue: defaultValue
                 }
             ]
         });
@@ -399,15 +358,12 @@ Ext.define('Mdc.view.setup.property.Edit', {
             fieldLabel: key,
             msgTarget: 'under',
             layout: 'hbox',
-            defaults: {
-                hideLabel: true
-            },
+            required: required,
             margin: this.fieldMargin,
             items: [
                 {
                     xtype: 'numberfield',
                     name: 'properties.' + key,
-                    fieldLabel: key,
                     itemId: key,
                     value: count,
                     size: 200,
@@ -434,7 +390,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
                 {
                     xtype: 'defaultButton',
                     key: key,
-                    default: defaultValue
+                    defaultValue: defaultValue
                 }
             ]
         });
@@ -446,9 +402,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
             fieldLabel: key,
             msgTarget: 'under',
             layout: 'hbox',
-            defaults: {
-                hideLabel: true
-            },
+            required: required,
             margin: this.fieldMargin,
             items: [
                 {
@@ -459,7 +413,6 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     size: 75,
                     margin: '0 5 5 0',
                     width: 395,
-                    required: required,
                     readOnly: true
                 },
                 {
@@ -474,7 +427,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
                 {
                     xtype: 'defaultButton',
                     key: key,
-                    default: defaultValue
+                    defaultValue: defaultValue
                 }
             ]
         });
@@ -486,9 +439,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
             fieldLabel: key,
             msgTarget: 'under',
             layout: 'hbox',
-            defaults: {
-                hideLabel: true
-            },
+            required: required,
             margin: this.fieldMargin,
             items: [
                 {
@@ -499,7 +450,6 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     size: 75,
                     margin: '0 5 5 0',
                     width: 395,
-                    required: required,
                     readOnly: true
                 },
                 {
@@ -514,7 +464,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
                 {
                     xtype: 'defaultButton',
                     key: key,
-                    default: defaultValue
+                    defaultValue: defaultValue
                 }
             ]
         });
@@ -526,9 +476,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
             fieldLabel: key,
             msgTarget: 'under',
             layout: 'hbox',
-            defaults: {
-                hideLabel: true
-            },
+            required: required,
             margin: this.fieldMargin,
             items: [
                 {
@@ -539,7 +487,6 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     size: 200,
                     margin: '0 5 5 0',
                     width: 395,
-                    required: required,
                     readOnly: true
                 },
                 {
@@ -554,7 +501,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
                 {
                     xtype: 'defaultButton',
                     key: key,
-                    default: defaultValue
+                    defaultValue: defaultValue
                 }
             ]
         });
@@ -566,16 +513,13 @@ Ext.define('Mdc.view.setup.property.Edit', {
             fieldLabel: key,
             msgTarget: 'under',
             layout: 'hbox',
-            defaults: {
-                hideLabel: true
-            },
+            required: required,
             margin: this.fieldMargin,
             items: [
                 {
                     xtype: 'combobox',
                     itemId: key,
                     name: 'properties.' + key,
-                    fieldLabel: key,
                     store: store,
                     queryMode: 'local',
                     displayField: 'value',
@@ -584,13 +528,12 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     size: 50,
                     margin: '0 0 5 0',
                     width: 395,
-                    forceSelection: exhaustive,
-                    required: required
+                    forceSelection: exhaustive
                 },
                 {
                     xtype: 'defaultButton',
                     key: key,
-                    default: defaultValue
+                    defaultValue: defaultValue
                 }
             ]
         });
@@ -602,16 +545,13 @@ Ext.define('Mdc.view.setup.property.Edit', {
             fieldLabel: key,
             msgTarget: 'under',
             layout: 'hbox',
-            defaults: {
-                hideLabel: true
-            },
+            required: required,
             margin: this.fieldMargin,
             items: [
                 {
                     xtype: 'combobox',
                     itemId: key,
                     name: 'properties.' + key,
-                    fieldLabel: key,
                     store: store,
                     queryMode: 'local',
                     displayField: 'value',
@@ -621,13 +561,12 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     margin: '0 0 5 0',
                     width: 200,
                     fieldStyle: 'text-align:right;',
-                    forceSelection: exhaustive,
-                    required: required
+                    forceSelection: exhaustive
                 },
                 {
                     xtype: 'defaultButton',
                     key: key,
-                    default: defaultValue
+                    defaultValue: defaultValue
                 }
             ]
         });
@@ -639,27 +578,23 @@ Ext.define('Mdc.view.setup.property.Edit', {
             fieldLabel: key,
             msgTarget: 'under',
             layout: 'hbox',
-            defaults: {
-                hideLabel: true
-            },
+            required: required,
             margin: this.fieldMargin,
             items: [
                 {
                     xtype: 'textfield',
                     name: 'properties.' + key,
-                    fieldLabel: key,
                     itemId: key,
                     value: text,
                     size: 200,
                     margin: '0 5 5 0',
-                    width: 395,
-                   // vtype: 'ean18',
-                    required: required
+                    width: 395
+                   // vtype: 'ean18'
                 },
                 {
                     xtype: 'defaultButton',
                     key: key,
-                    default: defaultValue
+                    defaultValue: defaultValue
                 }
             ]
         });
@@ -671,27 +606,23 @@ Ext.define('Mdc.view.setup.property.Edit', {
             fieldLabel: key,
             msgTarget: 'under',
             layout: 'hbox',
-            defaults: {
-                hideLabel: true
-            },
+            required: required,
             margin: this.fieldMargin,
             items: [
                 {
                     xtype: 'textfield',
                     name: 'properties.' + key,
-                    fieldLabel: key,
                     itemId: key,
                     value: text,
                     size: 200,
                     margin: '0 5 5 0',
-                    width: 395,
+                    width: 395
                //     vtype: 'ean13',
-                    required: required
                 },
                 {
                     xtype: 'defaultButton',
                     key: key,
-                    default: defaultValue
+                    defaultValue: defaultValue
                 }
             ]
         });

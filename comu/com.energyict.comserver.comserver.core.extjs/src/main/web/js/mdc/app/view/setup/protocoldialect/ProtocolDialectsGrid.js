@@ -45,37 +45,15 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectsGrid', {
                 flex: 0.6
             },
             {
-                xtype: 'actioncolumn',
-                iconCls: 'uni-actioncolumn-gear',
-                columnWidth: 32,
-                header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                xtype: 'uni-actioncolumn',
                 items: [
                     {
-                        handler: function (grid, rowIndex, colIndex, item, e, record, row) {
-                            grid.getSelectionModel().select(rowIndex);
-                            var menu = Ext.widget('menu', {
-                                items: [
-                                    {
-                                        xtype: 'menuitem',
-                                        text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                                        listeners: {
-                                            click: {
-                                                element: 'el',
-                                                fn: function () {
-                                                    this.fireEvent('editItem', record);
-                                                },
-                                                scope: this
-                                            }
-
-                                        }
-                                    }
-                                ]
-                            });
-                            menu.showAt(e.getXY());
-                        }
+                        text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                        action: 'editItem'
                     }
                 ]
             }
+
         ];
         this.dockedItems = [
             {

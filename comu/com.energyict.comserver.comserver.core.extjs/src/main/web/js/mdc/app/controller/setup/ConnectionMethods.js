@@ -31,7 +31,9 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         {ref: 'connectionMethodEditForm',selector: '#connectionMethodEditForm'},
         {ref: 'connectionStrategyComboBox',selector: '#connectionStrategyComboBox'},
         {ref: 'scheduleField',selector: '#scheduleField'},
-        {ref: 'connectionTypeComboBox',selector: '#connectionTypeComboBox'}
+        {ref: 'connectionTypeComboBox',selector: '#connectionTypeComboBox'},
+
+        {ref: 'toggleDefaultMenuItem', selector: '#toggleDefaultMenuItem'}
     ],
 
     init: function () {
@@ -39,10 +41,10 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                 '#connectionmethodsgrid': {
                     selectionchange: this.previewConnectionMethod
                 },
-                'button[action = createOutboundConnectionMethod]': {
+                '#connectionmethodsgrid menuitem[action = createOutboundConnectionMethod]': {
                     click: this.addOutboundConnectionMethodHistory
                 },
-                'button[action = createInboundConnectionMethod]': {
+                '#connectionmethodsgrid menuitem[action = createInboundConnectionMethod]': {
                     click: this.addInboundConnectionMethodHistory
                 },
                 '#connectionmethodsgrid actioncolumn': {
@@ -95,6 +97,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                         widget.down('#connectionMethodSetupPanel').setTitle(Uni.I18n.translate('connectionmethod.connectionmethods', 'MDC', 'Connection methods'));
                         var deviceConfigName = deviceConfig.get('name');
                         me.getApplication().fireEvent('changecontentevent', widget);
+                        me.getConnectionmethodsgrid().getSelectionModel().doSelect(0);
                     }
                 });
             }
@@ -104,6 +107,13 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
     previewConnectionMethod: function(){
         var connectionMethod = this.getConnectionmethodsgrid().getSelectionModel().getSelection();
         if (connectionMethod.length == 1) {
+
+            var toggleDefaultMenuItemText =
+                connectionMethod[0].get('isDefault')  ?
+                    Uni.I18n.translate('connectionmethod.unsetAsDefault', 'MDC', 'Remove as default') :
+                    Uni.I18n.translate('connectionmethod.setAsDefault', 'MDC', 'Set as default');
+            this.getToggleDefaultMenuItem().setText(toggleDefaultMenuItemText);
+
             this.getConnectionMethodPreviewForm().loadRecord(connectionMethod[0]);
             var connectionMethodName = connectionMethod[0].get('name');
             this.getConnectionMethodPreview().getLayout().setActiveItem(1);
@@ -137,7 +147,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         this.editConnectionMethodHistory(this.getConnectionMethodPreviewForm().getRecord());
     },
 
-    showAddConnectionMethodView:function(deviceTypeId,deviceConfigId,direction){
+    showAddConnectionMethodView:function(deviceTypeId,deviceConfigId,direction, a, b){
         var connectionTypesStore = Ext.StoreManager.get('ConnectionTypes');
         var comPortPoolStore = Ext.StoreManager.get('ComPortPools');
         var connectionStrategiesStore = Ext.StoreManager.get('ConnectionStrategies');
@@ -285,7 +295,13 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
     },
 
     showConnectionTypeProperties: function(combobox,objList){
-        this.getPropertiesController().showProperties(this.getConnectionTypeComboBox().findRecordByValue(this.getConnectionTypeComboBox().getValue()),this.getConnectionMethodEditView(),false);
+        var objectWithProperties = this.getConnectionTypeComboBox().findRecordByValue(this.getConnectionTypeComboBox().getValue());
+        if(objectWithProperties.propertiesStore.data.items.length > 0){
+            this.getConnectionMethodEditView().down('#connectionDetailsTitle').setVisible(true);
+        } else {
+            this.getConnectionMethodEditView().down('#connectionDetailsTitle').setVisible(false);
+        }
+        this.getPropertiesController().showProperties(objectWithProperties,this.getConnectionMethodEditView(),false);
     },
 
     getPropertiesController: function () {

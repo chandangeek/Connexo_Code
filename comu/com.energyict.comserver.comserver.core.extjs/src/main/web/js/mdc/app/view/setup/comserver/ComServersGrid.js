@@ -65,7 +65,7 @@ Ext.define('Mdc.view.setup.comserver.ComServersGrid', {
                                     },
                                     {
                                         xtype: 'menuitem',
-                                        text: 'Delete',
+                                        text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
                                         listeners: {
                                             click: {
                                                 element: 'el',

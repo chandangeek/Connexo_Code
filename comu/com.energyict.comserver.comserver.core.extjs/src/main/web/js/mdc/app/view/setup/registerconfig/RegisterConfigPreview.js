@@ -25,7 +25,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
 
                 },
                 {
-                    text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
+                    text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
                     itemId: 'deleteRegisterConfig',
                     action: 'deleteRegisterConfig'
 
@@ -85,7 +85,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
                                     {
                                         xtype: 'displayfield',
                                         name: 'name',
-                                        fieldLabel: Uni.I18n.translate('registerConfig.deviceRegister', 'MDC', 'Device register'),
+                                        fieldLabel: Uni.I18n.translate('registerConfig.deviceRegister', 'MDC', 'Register type'),
                                         labelAlign: 'right',
                                         labelWidth: 250
                                     },
