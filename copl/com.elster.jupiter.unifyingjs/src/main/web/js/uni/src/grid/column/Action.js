@@ -56,11 +56,23 @@ Ext.define('Uni.grid.column.Action', {
         var record = grid.getStore().getAt(rowIndex);
         var cell = grid.getCellByPosition({row: rowIndex, column: colIndex});
 
-        cell.addCls('active');
+        if (me.menu.cell === cell) {
+            me.menu.hide();
+            me.menu.cell = null;
+        } else {
+            cell.addCls('active');
+            me.menu.record = record;
+            me.menu.showBy(cell);
+            me.menu.cell = cell;
+        }
 
-        me.menu.record = record;
-        me.menu.showBy(cell);
-        me.menu.on('hide', function(){
+        me.menu.on('hide', function() {
+            // this is for menu toggling, change the code below with accuracy!
+            var e = window.event;
+            var actions = grid.getEl().query('.' + me.iconCls); //.x-action-col-cell:not(.active)
+            if (!_.contains(actions, document.elementFromPoint(e.clientX, e.clientY))) {
+                me.menu.cell = null;
+            }
             cell.removeCls('active');
         });
     }
