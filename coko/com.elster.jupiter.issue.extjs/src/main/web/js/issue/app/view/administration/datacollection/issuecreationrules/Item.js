@@ -51,10 +51,6 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Item', {
                         {
                             fieldLabel: 'Due in',
                             name: 'due_in'
-                        },
-                        {
-                            fieldLabel: 'Issue type',
-                            name: 'service_location'
                         }
                     ]
                 },

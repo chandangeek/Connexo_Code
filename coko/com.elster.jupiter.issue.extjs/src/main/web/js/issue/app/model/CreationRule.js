@@ -51,6 +51,29 @@ Ext.define('Isu.model.CreationRule', {
         {
             name: 'dueIn',
             type: 'auto'
+        },
+        {name: 'issueType_name',
+            mapping: 'issueType.name'
+        },
+        {
+            name: 'reason_name',
+            mapping: 'reason.name'
+        },
+        {
+            name: 'template_name',
+            mapping: 'template.name'
+        },
+        {
+            name: 'due_in',
+            mapping: function (data) {
+                var dueIn = '';
+
+                if (data.dueIn && data.dueIn.number) {
+                    dueIn =  data.dueIn.number + ' ' + data.dueIn.type;
+                }
+
+                return dueIn;
+            }
         }
     ],
 

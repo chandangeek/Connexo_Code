@@ -75,22 +75,20 @@ Ext.define('Isu.util.IsuGrid', {
      */
     loadGridItemDetail: function (grid, record) {
         var itemPanel = this.getItemPanel(),
-            form = itemPanel.down('form'),
-            preloader = Ext.create('Ext.LoadMask', {
-                msg: "Loading...",
-                target: itemPanel
-            });
+            form = itemPanel.down('form');
 
         if (this.displayedItemId != record.id) {
             grid.clearHighlight();
-            preloader.show();
+            itemPanel.setLoading(true);
         }
         this.displayedItemId = record.id;
         this.gridItemModel.load(record.data.id, {
             success: function (record) {
-                form.loadRecord(record);
-                form.up('panel').down('item-action').menu.record = record;
-                preloader.destroy();
+                if (!form.isDestroyed) {
+                    form.loadRecord(record);
+                    form.up('panel').down('item-action').menu.record = record;
+                    itemPanel.setLoading(false);
+                }
             }
         });
     },
@@ -107,10 +105,11 @@ Ext.define('Isu.util.IsuGrid', {
             record;
 
         if (item) {
+            itemPanel.show();
             record = grid.getRecord(item);
             grid.fireEvent('itemclick', grid, record, item, index);
         } else {
-            itemPanel.fireEvent('clear');
+            itemPanel.hide();
         }
     }
 });

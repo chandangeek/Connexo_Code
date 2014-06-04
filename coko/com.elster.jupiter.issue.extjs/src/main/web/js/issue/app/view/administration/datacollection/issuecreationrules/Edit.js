@@ -230,7 +230,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                                 {
                                     itemId: 'addAction',
                                     text: 'Add action',
-                                    disabled: true,
+                                    action: 'addAction',
                                     ui: 'action',
                                     margin: '0 5 0 -5'
                                 }
@@ -240,7 +240,14 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                 },
                 {
                     xtype: 'issues-creation-rules-actions-list',
-                    margin: '15 20 0 165'
+                    margin: '15 20 0 165',
+                    hidden: true
+                },
+                {
+                    name: 'noactions',
+                    html: 'There are no actions added yet to this rule',
+                    margin: '15 20 0 165',
+                    hidden: true
                 },
                 {
                     xtype: 'container',
