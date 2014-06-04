@@ -57,7 +57,7 @@ $include-ie: false;
   }
 }
 
-// error
+// Success.
 @include extjs-window-ui(
   $ui: 'notification-success',
 
@@ -83,4 +83,44 @@ $include-ie: false;
       }
     }
   }
+}
+
+// Error message.
+@include extjs-window-ui(
+    $ui: 'message-error',
+
+    $ui-padding: 0 24px 16px 16px,
+    $ui-border-color: #70bb51,
+    $ui-border-width: 1px,
+    $ui-border-radius: 10px,
+
+    $ui-header-color: #70bb51,
+    $ui-header-background-color: transparent,
+    $ui-header-padding: 0 8px 0 0,
+    $ui-header-text-padding: 0,
+    $ui-body-background-color: transparent,
+    $ui-body-color: #70bb51,
+
+    $ui-background-color: rgba(230, 255, 227, 0.9)
+);
+
+.#{$prefix}window-message-error {
+    .#{$prefix}window-body {
+        margin-top: -16px;
+
+        .#{$prefix}header {
+            .#{$prefix}header-text {
+                color: #70bb51
+            }
+        }
+    }
+
+    .#{$prefix}form-display-field {
+        margin-top: 16px;
+        color: #70bb51
+    }
+
+    .#{$prefix}message-box-error {
+        background-position: 12px 4px;
+    }
 }
