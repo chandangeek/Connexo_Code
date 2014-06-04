@@ -17,16 +17,17 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
         return this.edit;
     },
 
-    setEdit: function (edit) {
+    setEdit: function (edit, returnLink) {
         if (edit) {
             this.edit = edit;
             this.down('#createEditButton').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
             this.down('#createEditButton').action = 'editRegisterType';
         } else {
             this.edit = edit;
-            this.down('#createEditButton').setText(Uni.I18n.translate('general.create', 'MDC', 'Create'));
+            this.down('#createEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
             this.down('#createEditButton').action = 'createRegisterType';
         }
+        this.down('#cancelLink').href = returnLink;
     },
 
     initComponent: function () {
@@ -186,7 +187,8 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                                 xtype: 'button',
                                                 ui: 'link',
                                                 text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
-                                                itemId: 'cancelLink'
+                                                itemId: 'cancelLink',
+                                                href: '#/administration/registertypes/'
                                             }
                                         ]
                                     }
@@ -209,6 +211,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
             this.down('#createEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
             this.down('#createEditButton').action = 'createRegisterType';
         }
+        this.down('#cancelLink').href = this.returnLink;
     }
 
 });

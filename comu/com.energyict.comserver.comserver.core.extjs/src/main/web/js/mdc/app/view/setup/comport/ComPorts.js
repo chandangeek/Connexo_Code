@@ -30,7 +30,7 @@ Ext.define('Mdc.view.setup.comport.ComPorts', {
                 action: 'add'
             },
             {
-                text: 'Delete',
+                text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
                 action: 'delete'
             }
         ];

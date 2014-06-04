@@ -69,7 +69,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsGrid', {
                         action: 'editItem'
                     },
                     {
-                        text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
+                        text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
                         action: 'deleteItem'
                     }
 

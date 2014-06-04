@@ -175,24 +175,17 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskEdit', {
                                                 itemId: 'priorityNumberField',
                                                 value: 100,
                                                 maxValue: 999,
-                                                minValue: 0
-                                            },
-                                            {
-                                                xtype: 'fieldcontainer',
-                                                columnWidth: 0.5,
-                                                fieldLabel: ' ',
-                                                layout: {
-                                                    type: 'vbox'
-                                                },
-                                                hidden: false,
-                                                itemId: 'priorityMessage',
-                                                items: [
-                                                    {
-                                                        xtype: 'component',
-                                                        cls: 'x-form-display-field',
-                                                        html: '<i>' + Uni.I18n.translate('communicationtasks.form.priorityMessage', 'MDC', '(Low=999 - High=0)') + '</i>'
+                                                minValue: 0,
+                                                listeners: {
+                                                    blur: {
+                                                        fn: function(field){
+                                                            if(Ext.isEmpty(field.getValue())) {
+                                                                field.setValue(100);
+                                                            }
+                                                        }
                                                     }
-                                                ]
+                                                },
+                                                afterSubTpl: '<div class="x-form-display-field"><i>' + Uni.I18n.translate('communicationtasks.form.priorityMessage', 'MDC', '(Low=999 - High=0)') + '</i></div>'
                                             },
                                             {
                                                 xtype: 'fieldcontainer',

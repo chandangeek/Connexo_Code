@@ -360,7 +360,7 @@ Ext.define('Mdc.controller.history.Setup', {
                     }
                 },
                 devicecommunicationprotocols: {
-                    title: 'Device Communication protocols',
+                    title: 'Communication protocols',
                     route: 'devicecommunicationprotocols',
                     controller: 'Mdc.controller.setup.SetupOverview',
                     action: 'showDeviceCommunicationProtocols',
@@ -406,8 +406,8 @@ Ext.define('Mdc.controller.history.Setup', {
                     action: 'showRegisterTypes',
                     items: {
                         create: {
-                            title: 'Create',
-                            route: 'create',
+                            title: 'Add',
+                            route: 'add',
                             controller: 'Mdc.controller.setup.RegisterTypes',
                             action: 'showRegisterTypeCreateView'
                         },

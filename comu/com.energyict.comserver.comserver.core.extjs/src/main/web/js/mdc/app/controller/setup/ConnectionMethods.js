@@ -31,7 +31,9 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         {ref: 'connectionMethodEditForm',selector: '#connectionMethodEditForm'},
         {ref: 'connectionStrategyComboBox',selector: '#connectionStrategyComboBox'},
         {ref: 'scheduleField',selector: '#scheduleField'},
-        {ref: 'connectionTypeComboBox',selector: '#connectionTypeComboBox'}
+        {ref: 'connectionTypeComboBox',selector: '#connectionTypeComboBox'},
+
+        {ref: 'toggleDefaultMenuItem', selector: '#toggleDefaultMenuItem'}
     ],
 
     init: function () {
@@ -105,6 +107,13 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
     previewConnectionMethod: function(){
         var connectionMethod = this.getConnectionmethodsgrid().getSelectionModel().getSelection();
         if (connectionMethod.length == 1) {
+
+            var toggleDefaultMenuItemText =
+                connectionMethod[0].get('isDefault')  ?
+                    Uni.I18n.translate('connectionmethod.unsetAsDefault', 'MDC', 'Remove as default') :
+                    Uni.I18n.translate('connectionmethod.setAsDefault', 'MDC', 'Set as default');
+            this.getToggleDefaultMenuItem().setText(toggleDefaultMenuItemText);
+
             this.getConnectionMethodPreviewForm().loadRecord(connectionMethod[0]);
             var connectionMethodName = connectionMethod[0].get('name');
             this.getConnectionMethodPreview().getLayout().setActiveItem(1);

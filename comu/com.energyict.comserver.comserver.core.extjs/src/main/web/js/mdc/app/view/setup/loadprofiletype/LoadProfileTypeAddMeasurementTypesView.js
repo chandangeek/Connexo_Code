@@ -5,19 +5,14 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesVie
 
     content: [
         {
-            xtype: 'container',
-            cls: 'content-container',
+            xtype: 'panel',
+            ui: 'large',
+            title: 'Add measurement types',
             layout: {
                 type: 'vbox',
                 align: 'stretch'
             },
-            padding: '0 10 0 10',
             items: [
-                {
-                    xtype: 'component',
-                    margins: '10 10 10 10',
-                    html: '<h1>Add measurement types</h1>'
-                },
                 {
                     xtype: 'radiogroup',
                     name: 'AllOrSelectedMeasurementTypes',
@@ -47,31 +42,22 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesVie
                 },
                 {
                     xtype: 'loadProfileTypeAddMeasurementTypesGrid'
+                }
+            ],
+            buttons: [
+                {
+                    name: 'addmeasurementtypestoloadprofiletype',
+                    text: 'Add',
+                    ui: 'action'
                 },
                 {
-                    xtype: 'toolbar',
-                    border: 0,
-                    items: [
-                        {
-                            xtype: 'button',
-                            name: 'addmeasurementtypestoloadprofiletype',
-                            text: 'Add',
-                            ui: 'action'
-                        },
-                        {
-                            xtype: 'button',
-                            text: 'Cancel',
-                            handler:function(button,event){
-                                Ext.History.back();
-                            },
-                            ui: 'link'
-                        }
-                    ]
+                    text: 'Cancel',
+                    handler: function (button, event) {
+                        Ext.History.back();
+                    },
+                    ui: 'link'
                 }
-
-
             ]
-
         }
     ],
 
