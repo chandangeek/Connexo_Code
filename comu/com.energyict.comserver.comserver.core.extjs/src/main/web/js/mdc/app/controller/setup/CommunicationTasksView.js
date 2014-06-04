@@ -81,18 +81,23 @@ Ext.define('Mdc.controller.setup.CommunicationTasksView', {
         }
     },
 
-    onCommunicationTasksGridRefresh: function (grid) {
-        var tasksGrid = this.getTasksGrid(),
-            itemPanel = this.getItemPanel(),
+    onCommunicationTasksGridRefresh: function () {
+        var self = this,
+            tasksGrid = self.getTasksGrid(),
+            itemPanel = self.getItemPanel(),
             selectionModel = tasksGrid.getView().getSelectionModel();
-        if (this.store.getTotalCount() < 1) {
-            tasksGrid.hide();
-            itemPanel.hide();
-            this.getEmptyPanel().show();
-        } else {
-            tasksGrid.getView().getSelectionModel().select(0);
-            this.showTaskDetails(tasksGrid.getView(), selectionModel.getLastSelected());
-        }
+        self.store.load({
+            callback: function() {
+                if (this.getTotalCount() < 1) {
+                    tasksGrid.hide();
+                    itemPanel.hide();
+                    self.getEmptyPanel().show();
+                } else {
+                    tasksGrid.getView().getSelectionModel().select(0);
+                    self.showTaskDetails(tasksGrid.getView(), selectionModel.getLastSelected());
+                }
+            }
+        })
     },
 
     showTaskDetails: function (grid, record) {

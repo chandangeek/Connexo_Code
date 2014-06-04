@@ -800,7 +800,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
         self.getCommandNames().add({
             xtype: 'tag-button',
             itemId: 'tagBtn' + command.category,
-            text: command.action + ' ' + command.category,
+            text: command.action.charAt(0).toUpperCase() + command.action.slice(1) + ' ' + command.category.charAt(0).toUpperCase() + command.category.slice(1),
             margin: '5 0 5 0',
             width: 150,
             category: command.category,
