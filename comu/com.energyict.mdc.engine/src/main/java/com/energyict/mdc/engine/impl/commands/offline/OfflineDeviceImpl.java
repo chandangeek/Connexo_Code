@@ -138,10 +138,10 @@ public class OfflineDeviceImpl implements OfflineDevice {
         addProperties(this.device.getDeviceProtocolProperties());
 
         if (context.needsSlaveDevices()) {
-            List<BaseDevice<Channel,LoadProfile,Register>> downstreamDevices = this.device.getPhysicalConnectedDevices();
+            List<Device> downstreamDevices = this.device.getPhysicalConnectedDevices();
             List<Device> downStreamEndDevices = new ArrayList<>(downstreamDevices.size());
-            for (BaseDevice downstreamDevice : downstreamDevices) {
-                downStreamEndDevices.add((Device) downstreamDevice);
+            for (Device downstreamDevice : downstreamDevices) {
+                downStreamEndDevices.add(downstreamDevice);
             }
             setSlaveDevices(convertToOfflineRtus(downStreamEndDevices, serviceProvider));
         }
@@ -191,8 +191,8 @@ public class OfflineDeviceImpl implements OfflineDevice {
     private List<BaseRegister> createCompleteRegisterList() {
         List<BaseRegister> registers = new ArrayList<>();
         registers.addAll(this.device.getRegisters());
-        for (BaseDevice<?,?,?> slave : this.device.getPhysicalConnectedDevices()) {
-            if (checkTheNeedToGoOffline((Device) slave)) {
+        for (Device slave : this.device.getPhysicalConnectedDevices()) {
+            if (checkTheNeedToGoOffline(slave)) {
                 registers.addAll(slave.getRegisters());
             }
         }
@@ -204,14 +204,14 @@ public class OfflineDeviceImpl implements OfflineDevice {
      * including his {@link com.energyict.mdc.protocol.api.device.BaseDevice#getPhysicalConnectedDevices()} which have the
      * {@link com.energyict.mdc.device.config.DeviceType#isLogicalSlave()} flag checked.
      *
-     * @param rtu the <CODE>Device</CODE> to collect the <CODE>LoadProfiles</CODE> from
+     * @param device the <CODE>Device</CODE> to collect the <CODE>LoadProfiles</CODE> from
      * @return a List of <CODE>LoadProfiles</CODE>
      */
-    private List<BaseLoadProfile<Channel>> getAllLoadProfilesIncludingDownStreams(Device rtu) {
-        List<BaseLoadProfile<Channel>> allLoadProfiles = new ArrayList<BaseLoadProfile<Channel>>(rtu.getLoadProfiles());
-        for (BaseDevice slave : rtu.getPhysicalConnectedDevices()) {
-            if (checkTheNeedToGoOffline((Device) slave)) {
-                for (BaseLoadProfile<Channel> lp : getAllLoadProfilesIncludingDownStreams((Device) slave)) {
+    private List<BaseLoadProfile<Channel>> getAllLoadProfilesIncludingDownStreams(Device device) {
+        List<BaseLoadProfile<Channel>> allLoadProfiles = new ArrayList<BaseLoadProfile<Channel>>(device.getLoadProfiles());
+        for (Device slave : device.getPhysicalConnectedDevices()) {
+            if (checkTheNeedToGoOffline(slave)) {
+                for (BaseLoadProfile<Channel> lp : getAllLoadProfilesIncludingDownStreams(slave)) {
                     if (lp.getLoadProfileTypeObisCode().anyChannel()) {
                         allLoadProfiles.add(lp);
                     } else {
