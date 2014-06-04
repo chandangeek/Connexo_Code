@@ -18,6 +18,7 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_TYPE(1, "DTC.deviceType.with.article", "a device type", SEVERE),
     NAME_IS_REQUIRED(1000, Keys.NAME_REQUIRED, "The name is required", SEVERE),
     NAME_IS_UNIQUE(1001, Keys.NAME_UNIQUE, "The name must be unique", SEVERE),
+    ILLEGAL_FIELD_SIZE(1002, Keys.INCORRECT_SIZE, "Field size is incorrect, should be {min} to {max}", SEVERE),
     REGISTER_GROUP_NAME_IS_REQUIRED(1501, "registerGroup.name.required", "The name of a register group is required", SEVERE),
     READING_TYPE_ALREADY_EXISTS(2002, Keys.READING_TYPE_ALREADY_EXISTS, "The product spec with the reading type {0} already exists", SEVERE),
     DEFAULT_PRODUCT_SPEC_CANNOT_BE_DELETED(2003, "productSpec.cannotDeleteDefault", "The default product spec cannot be deleted", SEVERE),
@@ -188,6 +189,7 @@ public enum MessageSeeds implements MessageSeed {
     public static class Keys {
         public static final String NAME_REQUIRED = "DTC.X.name.required";
         public static final String NAME_UNIQUE = "DTC.X.name.unique";
+        public static final String INCORRECT_SIZE = "DTC.incorrect.field.size";
         public static final String DEVICE_TYPE_XSTILL_HAS_ACTIVE_CONFIGURATIONS = "DTC.deviceType.XstillHasActiveConfigurations";
         public static final String DEVICE_PROTOCOL_IS_REQUIRED = "DTC.deviceType.protocol.required";
         public static final String DEVICE_PROTOCOL_CANNOT_CHANGE_WITH_EXISTING_CONFIGURATIONS = "DTC.deviceType.protocol.noupdate";

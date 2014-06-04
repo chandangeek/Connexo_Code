@@ -208,7 +208,7 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.INCORRECT_SIZE + "}")
     public void testDeviceTypeCreationWithEmptyName() {
         DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType("", this.deviceProtocolPluggableClass);
 
@@ -887,7 +887,7 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{DTC.X.name.required}", property = "name")
+    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Keys.INCORRECT_SIZE+"}", property = "name")
     public void testCanNotAddDeviceConfigurationWithEmptyName() throws Exception {
         deviceType.newConfiguration("").description("this is it!").add();
     }
