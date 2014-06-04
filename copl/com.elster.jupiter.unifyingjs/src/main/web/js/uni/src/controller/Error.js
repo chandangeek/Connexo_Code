@@ -90,11 +90,25 @@ Ext.define('Uni.controller.Error', {
             msg: message,
             modal: false,
             ui: 'message-error',
-            icon: Ext.MessageBox.ERROR,
-            // TODO Make sure there is a close button, difficult to do, see: MessageBox.js:545
-            buttons: Ext.MessageBox.OK
+            icon: Ext.MessageBox.ERROR
         });
 
-        Ext.create('Ext.window.MessageBox').show(config);
+        var box = Ext.create('Ext.window.MessageBox', {
+            buttons: [
+                {
+                    xtype: 'button',
+                    text: Uni.I18n.translate('general.close', 'UNI', 'Close'),
+                    action: 'close',
+                    name: 'close',
+                    ui: 'action',
+                    margin: '0 0 0 44px',
+                    handler: function () {
+                        box.close();
+                    }
+                }
+            ]
+        });
+
+        box.show(config);
     }
 });
