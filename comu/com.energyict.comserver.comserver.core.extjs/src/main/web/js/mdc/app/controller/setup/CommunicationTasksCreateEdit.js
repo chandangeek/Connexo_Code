@@ -108,12 +108,6 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
         if (!Ext.isEmpty(this.commands)) {
             actionBtn.setDisabled(false);
         }
-        if (this.getTaskEdit().down('#addAnotherButton') === null) {
-            this.addAnotherButton();
-        }
-        if (Ext.isEmpty(this.commands) && this.getTaskEdit().down('#addAnotherButton') !== null) {
-            this.getTaskEdit().down('#addAnotherButton').destroy();
-        }
     },
 
     cancelEdit: function () {
@@ -847,6 +841,12 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
                             self.loadModelToCreateForm();
                         }
                         Ext.ComponentQuery.query('communication-tasks-edit #createEditTask')[0].setDisabled(true);
+                    }
+                    if (self.getTaskEdit().down('#addAnotherButton') === null) {
+                        self.addAnotherButton();
+                    }
+                    if (Ext.isEmpty(self.commands) && self.getTaskEdit().down('#addAnotherButton') !== null) {
+                        self.getTaskEdit().down('#addAnotherButton').destroy();
                     }
                 }
             }

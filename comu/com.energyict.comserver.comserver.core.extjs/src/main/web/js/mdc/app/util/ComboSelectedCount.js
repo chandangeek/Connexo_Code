@@ -42,7 +42,13 @@ Ext.define('Mdc.util.ComboSelectedCount', {
             change: function (me) {
                 var addBtn = Ext.ComponentQuery.query('communication-tasks-edit communication-tasks-command button[action=addCommand]')[0],
                     saveBtn = Ext.ComponentQuery.query('communication-tasks-edit communication-tasks-command button[action=saveCommand]')[0],
-                    toolbarBtn = Ext.ComponentQuery.query('#selectAll')[0];
+                    toolbarBtns = Ext.ComponentQuery.query('#selectAll'),
+                    toolbarBtn;
+                if (toolbarBtns.length > 1) {
+                    toolbarBtns[0].destroy();
+                    toolbarBtns.splice(0, 1);
+                }
+                toolbarBtn = toolbarBtns[0];
                 if (addBtn && addBtn.isDisabled()) {
                     addBtn.enable();
                 }
