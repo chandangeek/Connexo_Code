@@ -183,7 +183,7 @@ public class IssueServiceImpl implements IssueService {
         if (issueType.isPresent()) {
             Condition condition = Where.where("reason.issueType").isEqualTo(issueType.get())
                     .and(where("device.mRID").isEqualTo(mRID));
-            List<Issue> issues = dataModel.query(Issue.class)
+            List<Issue> issues = dataModel.query(Issue.class, IssueReason.class, EndDevice.class)
                     .select(condition);
             return issues.size();
         } else {
