@@ -791,6 +791,7 @@ $uni-theme-skyline-resource-path: 'images' !default;
 $relative-image-path-for-uis: $uni-theme-skyline-resource-path;
 @import '../sass/src/Component';
 @import '../sass/src/container/Container';
+@import '../sass/src/LoadMask';
 @import '../sass/src/button/Button';
 @import '../sass/src/toolbar/Toolbar';
 @import '../sass/src/panel/Panel';

@@ -23695,6 +23695,11 @@ h6 {
   margin-left: 16px;
 }
 
+/* line 2, ../../sass/src/LoadMask.scss */
+.x-panel .x-mask {
+  background: white !important;
+}
+
 /* line 1, ../../sass/src/button/Button.scss */
 .x-uni-action-iconA {
   background-image: url("images/button/ico_actionsA.png");

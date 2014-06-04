@@ -1,0 +1,6 @@
+.#{$prefix}panel {
+  // the mask inside of the panel is used for disabling fields and should match the background
+  .#{$prefix}mask {
+    background: white !important;
+  }
+}
