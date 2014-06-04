@@ -932,16 +932,6 @@ public class SingleThreadedScheduledComPortTest {
         }
 
         @Override
-        public synchronized List<DeviceCommandExecutionToken> tryAcquireTokens(int numberOfCommands) {
-            return super.tryAcquireTokens(numberOfCommands);
-        }
-
-        @Override
-        public List<DeviceCommandExecutionToken> acquireTokens(int numberOfCommands) throws InterruptedException {
-            return super.acquireTokens(numberOfCommands);
-        }
-
-        @Override
         public void execute (DeviceCommand command, DeviceCommandExecutionToken token) {
             try {
                 super.execute(command, token);
