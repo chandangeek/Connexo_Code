@@ -20,6 +20,7 @@ import com.energyict.mdc.protocol.api.legacy.DeviceCachingSupport;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
@@ -42,6 +43,7 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
     public static final String NETWORK_ID_PROPERTY_NAME = "networkId";
 
     private DataModel dataModel;
+    private final DeviceCacheMarshallingService deviceCacheMarshallingService;
     private PropertySpecService propertySpecService;
     private ProtocolPluggableService protocolPluggableService;
     private SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory;
@@ -60,11 +62,12 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
      */
     public abstract HHUEnabler getHhuEnabler();
 
-    protected DeviceProtocolAdapterImpl(ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, DataModel dataModel) {
+    protected DeviceProtocolAdapterImpl(ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, DataModel dataModel, DeviceCacheMarshallingService deviceCacheMarshallingService) {
         super();
         this.protocolPluggableService = protocolPluggableService;
         this.securitySupportAdapterMappingFactory = securitySupportAdapterMappingFactory;
         this.dataModel = dataModel;
+        this.deviceCacheMarshallingService = deviceCacheMarshallingService;
     }
 
     public void setPropertySpecService(PropertySpecService propertySpecService) {
@@ -153,14 +156,15 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
     public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
         if (deviceProtocolCache instanceof DeviceProtocolCacheAdapter) {
             DeviceProtocolCacheAdapter deviceCacheAdapter = (DeviceProtocolCacheAdapter) deviceProtocolCache;
-            setCache(deviceCacheAdapter.getLegacyCache());
+            setCache(deviceCacheMarshallingService.unMarshallCache(deviceCacheAdapter.getLegacyJsonCache()));
         }
     }
 
     @Override
     public DeviceProtocolCache getDeviceCache() {
         DeviceProtocolCacheAdapter deviceCacheAdapter = new DeviceProtocolCacheAdapter();
-        deviceCacheAdapter.setLegacyCache(getCache());
+        String legacyJsonCache = deviceCacheMarshallingService.marshall(getCache());
+        deviceCacheAdapter.setLegacyJsonCache(legacyJsonCache);
         return deviceCacheAdapter;
     }
 

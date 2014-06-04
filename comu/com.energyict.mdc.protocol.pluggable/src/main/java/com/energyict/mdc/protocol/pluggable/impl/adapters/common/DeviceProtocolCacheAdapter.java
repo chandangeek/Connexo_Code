@@ -2,6 +2,11 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * Adapter object to wrap the cache from a legacy protocol to a new {@link DeviceProtocolCache}
  * <p/>
@@ -9,9 +14,13 @@ import com.energyict.mdc.protocol.api.DeviceProtocolCache;
  * Date: 31/08/12
  * Time: 14:35
  */
+@XmlRootElement(name = "DeviceProtocolCacheAdapter")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class DeviceProtocolCacheAdapter implements DeviceProtocolCache {
 
-    private Object legacyCache;
+    private transient Object legacyCache;
+    @XmlElement(name = "LegacyJson")
+    private String jsonCache;
 
     public DeviceProtocolCacheAdapter() {
     }
@@ -22,10 +31,20 @@ public class DeviceProtocolCacheAdapter implements DeviceProtocolCache {
     }
 
     public Object getLegacyCache() {
+        // TODO fetch it from the remote bundle with the jsonString
         return legacyCache;
     }
 
     public void setLegacyCache(Object legacyCache) {
         this.legacyCache = legacyCache;
+    }
+
+    public String getLegacyJsonCache() {
+        // TODO fetch for the actual object ...
+        return jsonCache;
+    }
+
+    public void setLegacyJsonCache(String legacyJsonCache) {
+        this.jsonCache = legacyJsonCache;
     }
 }

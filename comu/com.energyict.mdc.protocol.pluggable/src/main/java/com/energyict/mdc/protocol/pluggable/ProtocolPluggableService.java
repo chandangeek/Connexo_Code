@@ -6,6 +6,7 @@ import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.pluggable.PluggableClass;
+import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.google.common.base.Optional;
 import java.util.List;
@@ -222,5 +223,24 @@ public interface ProtocolPluggableService {
      * @return The RelationType
      */
     public RelationType findSecurityPropertyRelationType(DeviceProtocolPluggableClass deviceProtocolPluggableClass);
+
+    /**
+     * UnMarshals the given jsonCache object. We need the type to be able to set the concrete class
+     * in the JAXBContext
+     *
+     * @param type      the javaClassName of the DeviceProtocolCache implementation
+     * @param jsonCache the json representation of the Cache object
+     * @return the unmarshalled object
+     */
+    public DeviceProtocolCache unMarshalDeviceProtocolCache(String type, String jsonCache);
+
+    /**
+     * Marshals the given DeviceProtocolCache object.
+     * We need to pass it to the protocol bundle as a class instance is required for the JAXBContext
+     *
+     * @param deviceProtocolCache the deviceProtocolCache
+     * @return the json representation of the cache
+     */
+    public String marshalDeviceProtocolCache(DeviceProtocolCache deviceProtocolCache);
 
 }
