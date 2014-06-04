@@ -17,6 +17,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdw.UserFileService;
@@ -150,6 +151,7 @@ public class DeviceConfigurationApplication extends Application {
             bind(taskService).to(TaskService.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
+            bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class);
             bind(nlsService).to(NlsService.class);
             bind(jsonService).to(JsonService.class);
             bind(thesaurus).to(Thesaurus.class);
