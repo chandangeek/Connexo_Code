@@ -4,7 +4,8 @@ Ext.define('Cfg.view.validation.RuleSetPreview', {
     alias: 'widget.ruleSetPreview',
     itemId: 'ruleSetPreview',
     requires: [
-        'Cfg.model.ValidationRuleSet'
+        'Cfg.model.ValidationRuleSet',
+        'Cfg.view.validation.RuleSetActionMenu'
     ],
 
     layout: {
@@ -13,26 +14,15 @@ Ext.define('Cfg.view.validation.RuleSetPreview', {
     },
 
     title: "Details",
+
+
     tools: [
         {
             xtype: 'button',
-            icon: '../cfg/resources/images/actionsDetail.png',
             text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
+            iconCls: 'x-uni-action-iconA',
             menu: {
-                items: [
-                    {
-                        text: Uni.I18n.translate('general.edit', 'CFG', 'Edit'),
-                        itemId: 'editRuleset',
-                        action: 'editRuleset'
-
-                    },
-                    {
-                        text: Uni.I18n.translate('general.delete', 'CFG', 'Delete'),
-                        itemId: 'deleteRuleset',
-                        action: 'deleteRuleset'
-
-                    }
-                ]
+                xtype: 'ruleset-action-menu'
             }
         }
     ],

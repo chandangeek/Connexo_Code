@@ -9,7 +9,7 @@ Ext.define('Cfg.view.validation.RuleSetList', {
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Uni.grid.column.Action',
-        'Cfg.view.RuleSetListActionMenu'
+        'Cfg.view.validation.RuleSetActionMenu'
     ],
 
     listeners: {
@@ -51,18 +51,7 @@ Ext.define('Cfg.view.validation.RuleSetList', {
             { header:Uni.I18n.translate('validation.numberOfInActiveRules', 'CFG', 'Number of inactive rules'), dataIndex: 'numberOfInactiveRules', flex: 0.3, align: 'right', sortable: false, fixed: true },
             {
                 xtype: 'uni-actioncolumn',
-                items: [
-                    {
-                        itemId: 'editRuleSet',
-                        text: 'Edit',
-                        action: 'editRuleSet'
-                    },
-                    {
-                        itemId: 'deleteRuleSet',
-                        text: 'Delete',
-                        action: 'deleteRuleSet'
-                    }
-                ]
+                items: 'Cfg.view.validation.RuleSetActionMenu'
             }
         ]
     },

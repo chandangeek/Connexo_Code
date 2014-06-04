@@ -55,18 +55,7 @@ Ext.define('Cfg.view.validation.RuleList', {
             },
             {
                 xtype: 'uni-actioncolumn',
-                items: [
-                    {
-                        itemId: 'editRule',
-                        text: 'Edit',
-                        action: 'editRule'
-                    },
-                    {
-                        itemId: 'deleteRule',
-                        text: 'Delete',
-                        action: 'deleteRule'
-                    }
-                ]
+                items: 'Cfg.view.validation.RuleActionMenu'
             }
         ];
         this.dockedItems = [

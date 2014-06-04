@@ -4,7 +4,8 @@ Ext.define('Cfg.view.validation.RulePreview', {
     alias: 'widget.rulePreview',
     itemId: 'rulePreview',
     requires: [
-        'Cfg.model.ValidationRule'
+        'Cfg.model.ValidationRule',
+        'Cfg.view.validation.RuleActionMenu'
     ],
 
     layout: {
@@ -13,26 +14,14 @@ Ext.define('Cfg.view.validation.RulePreview', {
     },
 
     title: "Details",
+
     tools: [
         {
             xtype: 'button',
-            icon: '../cfg/resources/images/actionsDetail.png',
             text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
+            iconCls: 'x-uni-action-iconA',
             menu: {
-                items: [
-                    {
-                        text: Uni.I18n.translate('general.edit', 'CFG', 'Edit'),
-                        itemId: 'editRule',
-                        action: 'editRule'
-
-                    },
-                    {
-                        text: Uni.I18n.translate('general.delete', 'CFG', 'Delete'),
-                        itemId: 'deleteRule',
-                        action: 'deleteRule'
-
-                    }
-                ]
+                xtype: 'rule-action-menu'
             }
         }
     ],
