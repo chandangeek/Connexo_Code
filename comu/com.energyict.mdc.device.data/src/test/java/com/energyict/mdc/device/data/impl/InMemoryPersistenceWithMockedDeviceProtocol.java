@@ -49,6 +49,7 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
+import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
@@ -465,6 +466,16 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         @Override
         public RelationType findSecurityPropertyRelationType(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
             return protocolPluggableService.findSecurityPropertyRelationType(deviceProtocolPluggableClass);
+        }
+
+        @Override
+        public DeviceProtocolCache unMarshalDeviceProtocolCache(String type, String jsonCache) {
+            return protocolPluggableService.unMarshalDeviceProtocolCache(type, jsonCache);
+        }
+
+        @Override
+        public String marshalDeviceProtocolCache(DeviceProtocolCache deviceProtocolCache) {
+            return protocolPluggableService.marshalDeviceProtocolCache(deviceProtocolCache);
         }
     }
 
