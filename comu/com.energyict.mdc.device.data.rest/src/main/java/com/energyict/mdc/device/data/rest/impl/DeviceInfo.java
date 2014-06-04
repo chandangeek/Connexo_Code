@@ -1,13 +1,11 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.imp.Batch;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
+
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.google.common.base.Optional;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
@@ -68,7 +66,7 @@ public class DeviceInfo {
             deviceInfo.masterDeviceId = device.getPhysicalGateway().getId();
             deviceInfo.masterDevicemRID = device.getPhysicalGateway().getmRID();
         }
-        List<BaseDevice<Channel, LoadProfile, Register>> slaves = device.getPhysicalConnectedDevices();
+        List<Device> slaves = device.getPhysicalConnectedDevices();
         deviceInfo.slaveDevices = new ArrayList<>();
         for (BaseDevice dev : slaves) {
             DeviceInfo slaveInfo = new DeviceInfo();
