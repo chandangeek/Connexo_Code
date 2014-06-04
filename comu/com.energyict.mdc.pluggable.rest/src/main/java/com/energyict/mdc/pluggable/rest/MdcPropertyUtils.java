@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
+import javax.inject.Inject;
 import javax.ws.rs.core.UriInfo;
 
 /**
@@ -32,6 +33,7 @@ public class MdcPropertyUtils {
 
     private final UserFileService userFileService;
 
+    @Inject
     public MdcPropertyUtils(UserFileService userFileService) {
         this.userFileService = userFileService;
     }

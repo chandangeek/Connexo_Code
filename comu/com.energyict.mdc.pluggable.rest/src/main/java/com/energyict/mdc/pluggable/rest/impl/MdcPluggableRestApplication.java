@@ -12,6 +12,7 @@ import com.energyict.mdc.common.rest.AutoCloseDatabaseConnection;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdw.UserFileService;
@@ -111,6 +112,7 @@ public class MdcPluggableRestApplication extends Application {
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(deviceConfigurationService).to(DeviceConfigurationService.class);
             bind(userFileService).to(UserFileService.class);
+            bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class);
         }
     }
 
