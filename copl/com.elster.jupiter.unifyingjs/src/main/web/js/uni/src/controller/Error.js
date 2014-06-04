@@ -32,11 +32,12 @@ Ext.define('Uni.controller.Error', {
         console.log(error);
         //</debug>
 
-        this.showError(error);
+        var title = Uni.I18n.translate('error.requestFailed', 'UNI', 'Request failed');
+        this.showError(title, error);
     },
 
     handleRequestError: function (conn, response, options) {
-        var title = Uni.I18n.translate('error.failedRequest', 'UNI', 'Failed request'),
+        var title = Uni.I18n.translate('error.requestFailed', 'UNI', 'Request failed'),
             message = response.responseText || response.statusText,
             decoded = Ext.decode(message);
 
@@ -90,14 +91,8 @@ Ext.define('Uni.controller.Error', {
             modal: false,
             ui: 'message-error',
             icon: Ext.MessageBox.ERROR,
-            buttons: [
-                {
-                    text: Uni.I18n.translate('general.close', 'UNI', 'Close'),
-                    scope: this,
-                    handler: this.close,
-                    action: 'close'
-                }
-            ]
+            // TODO Make sure there is a close button, difficult to do, see: MessageBox.js:545
+            buttons: Ext.MessageBox.OK
         });
 
         Ext.create('Ext.window.MessageBox').show(config);
