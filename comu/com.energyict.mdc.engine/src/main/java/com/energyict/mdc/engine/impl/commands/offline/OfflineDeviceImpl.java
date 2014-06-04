@@ -111,7 +111,7 @@ public class OfflineDeviceImpl implements OfflineDevice {
 
     public interface ServiceProvider {
 
-        public Optional<DeviceCache> findProtocolCacheByDeviceId(long deviceId);
+        public Optional<DeviceCache> findProtocolCacheByDevice(Device device);
 
     }
 
@@ -174,7 +174,7 @@ public class OfflineDeviceImpl implements OfflineDevice {
      * @param serviceProvider The ServiceProvider
      */
     private void setDeviceCache(ServiceProvider serviceProvider) {
-        Optional<DeviceCache> deviceProtocolCache = serviceProvider.findProtocolCacheByDeviceId(getId());
+        Optional<DeviceCache> deviceProtocolCache = serviceProvider.findProtocolCacheByDevice(device);
         if (deviceProtocolCache.isPresent()) {
             Serializable cacheObject = deviceProtocolCache.get().getSimpleCacheObject();
             if (cacheObject instanceof DeviceProtocolCache) {

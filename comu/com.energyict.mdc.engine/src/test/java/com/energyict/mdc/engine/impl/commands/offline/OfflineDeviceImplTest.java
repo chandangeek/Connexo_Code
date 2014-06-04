@@ -34,7 +34,6 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -47,8 +46,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static junit.framework.Assert.assertNotNull;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
-import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -144,7 +143,7 @@ public class OfflineDeviceImplTest {
         when(mockedEnvironment.getApplicationContext()).thenReturn(applicationContext);
         when(applicationContext.getModulesImplementing(DeviceMessageFactory.class)).thenReturn(Arrays.asList(deviceMessageFactory));
         Environment.DEFAULT.set(mockedEnvironment);
-        when(this.offlineDeviceServiceProvider.findProtocolCacheByDeviceId(anyLong())).thenReturn(Optional.<DeviceCache>absent());
+        when(this.offlineDeviceServiceProvider.findProtocolCacheByDevice(any(Device.class))).thenReturn(Optional.<DeviceCache>absent());
     }
 
     private int getTotalSizeOfProperties() {

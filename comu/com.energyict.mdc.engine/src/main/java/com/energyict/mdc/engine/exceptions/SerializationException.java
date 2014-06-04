@@ -41,6 +41,6 @@ public class SerializationException extends LocalizedException {
      * @return the newly created SerializationException
      */
     public static SerializationException whenDeSerializingCacheObject(Thesaurus thesaurus, byte[] bytes, String message) {
-        return new SerializationException(thesaurus, MessageSeeds.DEVICE_CACHE_SERIALIZATION, bytes, message);
+        return new SerializationException(thesaurus, MessageSeeds.DEVICE_CACHE_DESERIALIZATION, bytes, message);
     }
 }

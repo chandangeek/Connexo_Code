@@ -20,8 +20,6 @@ public interface EngineService {
 
     public DeviceCache newDeviceCache(Device device, Serializable simpleCacheObject);
 
-    public Optional<DeviceCache> findDeviceCacheByDeviceId(long deviceId);
-
     public Optional<DeviceCache> findDeviceCacheByDevice(Device device);
 
 }

@@ -128,8 +128,8 @@ public class ComServerDAOImpl implements ComServerDAO {
     private class OfflineDeviceServiceProvider implements OfflineDeviceImpl.ServiceProvider {
 
         @Override
-        public Optional<DeviceCache> findProtocolCacheByDeviceId(long deviceId) {
-            return serviceProvider.engineService().findDeviceCacheByDeviceId(deviceId);
+        public Optional<DeviceCache> findProtocolCacheByDevice(Device device) {
+            return serviceProvider.engineService().findDeviceCacheByDevice(device);
         }
 
     }

@@ -214,7 +214,7 @@ public class JobExecutionTest {
         when(this.securityPropertySet.getAuthenticationDeviceAccessLevel()).thenReturn(authenticationDeviceAccessLevel);
         when(this.securityPropertySet.getEncryptionDeviceAccessLevel()).thenReturn(encryptionDeviceAccessLevel);
 
-        when(this.engineService.findDeviceCacheByDeviceId(anyLong())).thenReturn(Optional.<DeviceCache>absent());
+        when(this.engineService.findDeviceCacheByDevice(any(Device.class))).thenReturn(Optional.<DeviceCache>absent());
 
         ExecutionContext executionContext = newTestExecutionContext();
         root = spy(new CommandRootImpl(offlineDevice, executionContext, this.serviceProvider));

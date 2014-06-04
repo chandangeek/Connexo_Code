@@ -154,7 +154,7 @@ public class InboundCommunicationHandlerTest {
         // The following prohibits the execution of every ComTask on all devices
         when(this.deviceConfigurationService.findComTaskEnablement(any(ComTask.class), any(DeviceConfiguration.class))).thenReturn(Optional.<ComTaskEnablement>absent());
         this.serviceProvider.setEngineService(this.engineService);
-        when(this.engineService.findDeviceCacheByDeviceId(anyLong())).thenReturn(Optional.<DeviceCache>absent());
+        when(this.engineService.findDeviceCacheByDevice(any(Device.class))).thenReturn(Optional.<DeviceCache>absent());
         this.serviceProvider.setTransactionService(this.transactionService);
         when(this.protocolPluggableService.findInboundDeviceProtocolPluggableClassByClassName(anyString())).thenReturn(Collections.<InboundDeviceProtocolPluggableClass>emptyList());
         when(this.comServer.getId()).thenReturn(Long.valueOf(COMSERVER_ID));
