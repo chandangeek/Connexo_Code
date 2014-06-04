@@ -126,7 +126,8 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                         maxValue: 100000000,
                         hideTrigger: true,
                         maxLength: 22,
-                        enforceMaxLength: true
+                        enforceMaxLength: true,
+                        required: true
                     },
                     {
                         xtype: 'fieldcontainer',

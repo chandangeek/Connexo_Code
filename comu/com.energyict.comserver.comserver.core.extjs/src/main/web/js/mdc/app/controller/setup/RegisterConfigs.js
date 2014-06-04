@@ -293,6 +293,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                                         widget.down('form').loadRecord(registerConfiguration);
                                         me.getRegisterConfigEditForm().setTitle(Uni.I18n.translate('registerConfigs.editRegisterConfig', 'MDC', 'Edit register configuration'));
                                         widget.down('#registerTypeComboBox').setValue(registerConfiguration.get('registerMapping'));
+                                        widget.down('#create_mrid').setValue(registerConfiguration.getReadingType().get('mrid'));
                                         widget.setLoading(false);
                                     }
                                 });
