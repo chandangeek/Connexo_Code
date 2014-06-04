@@ -11,17 +11,16 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingGrid', {
         style: { overflow: 'auto', overflowX: 'hidden' }
     },
     columns: {
-        defaults: {
-            flex: 1
-        },
         items: [
             {
                 header: 'Name',
-                dataIndex: 'name'
+                dataIndex: 'name',
+                flex: 0.2
             },
             {
                 header: 'Authentication level',
                 dataIndex: 'authenticationLevel',
+                flex: 0.3,
                 renderer: function (value) {
                     return value.name;
                 }
@@ -29,6 +28,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingGrid', {
             {
                 header: 'Encryption level',
                 dataIndex: 'encryptionLevel',
+                flex: 0.3,
                 renderer: function (value) {
                     return value.name;
                 }

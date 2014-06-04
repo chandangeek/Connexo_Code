@@ -147,7 +147,7 @@ Ext.define('Mdc.controller.Main', {
                     route: 'comportpools'
                 },
                 {
-                    text: Uni.I18n.translate('general.deviceComProtocols', 'MDC', 'Device communication protocols'),
+                    text: Uni.I18n.translate('general.deviceComProtocols', 'MDC', 'Communication protocols'),
                     href: '#/administration/devicecommunicationprotocols',
                     route: 'devicecommunicationprotocols'
                 },

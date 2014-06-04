@@ -32,7 +32,7 @@ Ext.define('Mdc.view.setup.comport.ModemInitStrings', {
                 }
             },
             {
-                text: 'Delete',
+                text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
                 action: 'delete',
                 style: {
                     background: '#404040 ',
