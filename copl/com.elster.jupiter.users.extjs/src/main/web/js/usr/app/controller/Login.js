@@ -49,7 +49,7 @@ Ext.define('Usr.controller.Login', {
         loginMask.show();
 
         var request = Ext.Ajax.request({
-            url: '/apps/usr/index.html',
+            url: '/apps/usr/login.html',
             method: 'GET',
             headers: {
                 'Authorization' : encodedToken
@@ -62,13 +62,19 @@ Ext.define('Usr.controller.Login', {
                 me.loginNOK();
             },
             callback: function() {
-                myMask.hide();
+                loginMask.hide();
             }
         });
     },
 
     loginOK : function(){
-        //window.location.replace("http://localhost:8080/apps/master/login-dev.html");
+        var params = Ext.urlDecode(location.search.substring(1));
+        if(params.page){
+            window.location.replace(params.page);
+        }
+        else{
+            window.location.replace("http://localhost:8080/apps/master/index.html");
+        }
         this.getLoginViewport().destroy();
     },
 

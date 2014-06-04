@@ -39,7 +39,10 @@ Ext.define('Usr.controller.User', {
 
         var me = this;
         Ext.StoreManager.get('Usr.store.Users').on('load', function () {
-            widget.down('#userList').getSelectionModel().doSelect(0);
+            var list = widget.down('#userList');
+            if(list){
+                list.getSelectionModel().doSelect(0);
+            }
         });
     },
 

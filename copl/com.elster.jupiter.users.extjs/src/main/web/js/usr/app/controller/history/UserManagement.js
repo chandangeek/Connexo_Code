@@ -12,33 +12,33 @@ Ext.define('Usr.controller.history.UserManagement', {
             disabled: true,
             items: {
                 roles: {
-                    title: 'Roles',
+                    title: Uni.I18n.translate('group.title', 'USM', 'Roles'),
                     route: 'roles',
                     controller: 'Usr.controller.Group',
                     items: {
                         edit: {
-                            title: 'Edit',
+                            title: Uni.I18n.translate('general.edit', 'USM', 'Edit'),
                             route: '{id}/edit',
-                            controller: 'Usr.controller.GroupPrivileges',
+                            controller: 'Usr.controller.GroupEdit',
                             action: 'showEditOverview'
                         },
                         create: {
-                            title: 'Create',
+                            title: Uni.I18n.translate('general.create', 'USM', 'Create'),
                             route: 'create',
-                            controller: 'Usr.controller.GroupPrivileges',
+                            controller: 'Usr.controller.GroupEdit',
                             action: 'showCreateOverview'
                         }
                     }
                 },
                 users: {
-                    title: 'Users',
+                    title: Uni.I18n.translate('user.title', 'USM', 'Users'),
                     route: 'users',
                     controller: 'Usr.controller.User',
                     items: {
                         edit: {
-                            title: 'Edit',
+                            title: Uni.I18n.translate('general.edit', 'USM', 'Edit'),
                             route: '{id}/edit',
-                            controller: 'Usr.controller.UserGroups',
+                            controller: 'Usr.controller.UserEdit',
                             action: 'showEditOverview'
                         }
                         /*login: {

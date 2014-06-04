@@ -37,9 +37,12 @@ Ext.define('Usr.controller.Group', {
         var widget = Ext.widget('groupBrowse');
         this.getApplication().getController('Usr.controller.Main').showContent(widget);
 
-        Ext.StoreManager.get('Usr.store.Groups').on('load', function () {
-            widget.down('#groupList').getSelectionModel().doSelect(0);
-        });
+        /*Ext.StoreManager.get('Usr.store.Groups').on('load', function () {
+            var list = widget.down('#groupList');
+            if(list){
+                list.getSelectionModel().doSelect(0);
+            }
+        });*/
     },
 
     editGroupMenu: function (button) {
