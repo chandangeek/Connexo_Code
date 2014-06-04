@@ -46,6 +46,22 @@ Ext.define('Uni.controller.Error', {
 
         if (!Ext.isEmpty(decoded.message)) {
             message = decoded.message;
+        } else if (Ext.isDefined(decoded.errors) && Ext.isArray(decoded.errors)) {
+            if (1 === decoded.errors.length) {
+                message = decoded.errors[0].msg;
+            } else if (1 < decoded.errors.length) {
+                message = '<ul>';
+                for (var i = 0; i < decoded.errors.length; i++) {
+                    message += '<li>' + decoded.errors[i].msg + '</li>';
+                }
+                message += '</ul>';
+            } else {
+                message = Uni.I18n.translate(
+                    'error.unknownErrorOccurred',
+                    'UNI',
+                    'An unknown error occurred.'
+                );
+            }
         }
 
         //<debug>
