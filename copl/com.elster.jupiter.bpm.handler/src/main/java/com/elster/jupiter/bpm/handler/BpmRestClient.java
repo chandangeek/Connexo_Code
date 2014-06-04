@@ -9,9 +9,6 @@ import java.net.URL;
 public class BpmRestClient {
 
     private HttpURLConnection httpConnection;
-    private static final String BPM_ROOT_URL = "http://localhost:8081/jbpm-console";
-    private static final String BPM_USER = "admin";
-    private static final String BPM_PASSWORD = "admin";
 
     void doGet(String targetURL) {
         //TODO: Will be implemented for the 'get' methods (i.e. getProcesses(), getProcessParameters(String processId))
@@ -19,8 +16,8 @@ public class BpmRestClient {
 
     void doPost(String targetURL){
         try {
-            String basicAuth = "Basic " + new String(Base64.encode((BPM_USER+":"+BPM_PASSWORD).getBytes()));
-            URL targetUrl = new URL(BPM_ROOT_URL + targetURL);
+            String basicAuth = "Basic " + new String(Base64.encode((BpmStatrup.getInstance().getUser()+":"+BpmStatrup.getInstance().getPassword()).getBytes()));
+            URL targetUrl = new URL(BpmStatrup.getInstance().getUrl() + targetURL);
             httpConnection = (HttpURLConnection) targetUrl.openConnection();
             httpConnection.setDoOutput(true);
             httpConnection.setRequestMethod("POST");
