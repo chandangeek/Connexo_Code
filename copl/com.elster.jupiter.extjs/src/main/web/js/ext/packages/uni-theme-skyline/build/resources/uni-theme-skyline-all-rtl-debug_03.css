@@ -1,3 +1,18 @@
+.x-btn-sort-medium-focus .x-frame-mc {
+  background-color: #c6c6c6;
+  background-image: url(images/btn/btn-sort-medium-focus-fbg.gif);
+}
+
+/* line 610, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-sort-medium-over .x-frame-tl,
+.x-btn-sort-medium-over .x-frame-bl,
+.x-btn-sort-medium-over .x-frame-tr,
+.x-btn-sort-medium-over .x-frame-br,
+.x-btn-sort-medium-over .x-frame-tc,
+.x-btn-sort-medium-over .x-frame-bc {
+  background-image: url(images/btn/btn-sort-medium-over-corners.gif);
+}
+/* line 614, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-sort-medium-over .x-frame-ml,
 .x-btn-sort-medium-over .x-frame-mr {
   background-image: url(images/btn/btn-sort-medium-over-sides.gif);
@@ -15715,8 +15730,17 @@ a.x-datepicker-date:hover {
 .x-grid .x-docked-bottom {
   margin-bottom: -16px;
 }
-
 /* line 13, ../../sass/src/panel/Table.scss */
+.x-grid.x-grid-header-hidden .x-grid-body {
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  -ms-border-radius: 10px;
+  -o-border-radius: 10px;
+  border-radius: 10px;
+  border-top-width: 1px !important;
+}
+
+/* line 20, ../../sass/src/panel/Table.scss */
 .x-grid-body {
   border-color: #d2d2d2 !important;
   border-width: 1px !important;
@@ -15728,21 +15752,21 @@ a.x-datepicker-date:hover {
   -o-border-radius: 0 0 10px 10px;
   border-radius: 0 0 10px 10px;
 }
-/* line 20, ../../sass/src/panel/Table.scss */
+/* line 27, ../../sass/src/panel/Table.scss */
 .x-grid-body .x-grid-view {
   margin: -1px !important;
   margin-top: 0 !important;
 }
-/* line 34, ../../sass/src/panel/Table.scss */
+/* line 41, ../../sass/src/panel/Table.scss */
 .x-grid-body .x-grid-row a {
   color: #686868;
   text-decoration: none;
 }
-/* line 41, ../../sass/src/panel/Table.scss */
+/* line 48, ../../sass/src/panel/Table.scss */
 .x-grid-body .x-grid-row a:hover {
   text-decoration: underline;
 }
-/* line 47, ../../sass/src/panel/Table.scss */
+/* line 54, ../../sass/src/panel/Table.scss */
 .x-grid-body .x-grid-row-selected a, .x-grid-body .x-grid-row-over a {
   color: white;
 }

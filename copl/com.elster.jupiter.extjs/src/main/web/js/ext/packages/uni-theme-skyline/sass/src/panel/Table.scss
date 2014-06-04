@@ -8,6 +8,13 @@
     margin-bottom: - $panel-padding;
   }
   padding-bottom: 2 * $panel-padding;
+
+  &.#{$prefix}grid-header-hidden {
+    .#{$prefix}grid-body {
+      @include border-radius($grid-header-border-radius);
+      border-top-width: $grid-body-border-width !important;
+    }
+  }
 }
 
 .#{$prefix}grid-body {
