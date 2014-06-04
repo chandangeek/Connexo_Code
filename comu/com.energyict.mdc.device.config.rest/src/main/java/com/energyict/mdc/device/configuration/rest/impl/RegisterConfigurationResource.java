@@ -8,7 +8,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
-
+import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.DELETE;
@@ -21,7 +21,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
 
 public class RegisterConfigurationResource {
 
@@ -75,7 +74,7 @@ public class RegisterConfigurationResource {
         RegisterMapping registerMapping = registerConfigInfo.registerMapping ==null?null:findRegisterMappingOrThrowException(registerConfigInfo.registerMapping);
         registerConfigInfo.writeTo(registerSpec, registerMapping);
         registerSpec.save();
-        return RegisterConfigInfo.from(registerSpec);
+        return RegisterConfigInfo.from(findRegisterSpecOrThrowException(deviceTypeId, deviceConfigurationId, registerTypeId));
     }
 
     @DELETE
