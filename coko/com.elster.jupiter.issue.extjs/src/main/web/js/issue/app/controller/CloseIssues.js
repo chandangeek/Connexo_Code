@@ -82,6 +82,7 @@ Ext.define('Isu.controller.CloseIssues', {
     submitIssueClosing: function () {
         var self = this,
             closeView = Ext.ComponentQuery.query('issues-close')[0],
+            record = closeView.record,
             formPanel = closeView.down('issues-close-form'),
             form = formPanel.getForm(),
             formValues = form.getValues(),
@@ -92,8 +93,8 @@ Ext.define('Isu.controller.CloseIssues', {
         if (form.isValid()) {
             sendingData.issues = [
                 {
-                    id: closeView.record.data.id,
-                    version: closeView.record.data.version
+                    id: record.data.id,
+                    version: record.data.version
                 }
             ];
             sendingData.status = formValues.status;
@@ -172,6 +173,49 @@ Ext.define('Isu.controller.CloseIssues', {
                         formPanel.disable();
                     }
                 },
+                failure: function (response) {
+                    var result;
+                    if (response != null) {
+                        result = Ext.decode(response.responseText, true);
+                    }
+                    if (result !== null) {
+                        Ext.widget('messagebox', {
+                            buttons: [
+                                {
+                                    text: 'Close',
+                                    action: 'cancel',
+                                    handler: function(btn){
+                                        btn.up('messagebox').hide()
+                                    }
+                                }
+                            ]
+                        }).show({
+                            ui: 'notification-error',
+                            title: result.error,
+                            msg: result.message,
+                            icon: Ext.MessageBox.ERROR
+                        })
+
+                    } else {
+                        Ext.widget('messagebox', {
+                            buttons: [
+                                {
+                                    text: 'Close',
+                                    action: 'cancel',
+                                    handler: function(btn){
+                                        btn.up('messagebox').hide()
+                                    }
+                                }
+                            ]
+                        }).show({
+                            ui: 'notification-error',
+                            title: 'Failed to close issue: ' + record.data.title,
+                            msg: 'Issue already closed',
+                            icon: Ext.MessageBox.ERROR
+                        })
+                    }
+                },
+
                 callback: function () {
                     preloader.destroy();
                 }
