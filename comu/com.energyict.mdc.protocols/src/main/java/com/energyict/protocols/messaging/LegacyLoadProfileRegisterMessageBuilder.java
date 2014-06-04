@@ -166,10 +166,10 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
     }
 
     private void checkRtuRegistersForLoadProfile() throws BusinessException {
-        BaseDevice<BaseChannel, BaseLoadProfile<BaseChannel>, BaseRegister> rtu = this.loadProfile.getDevice();
+        BaseDevice<BaseChannel, BaseLoadProfile<BaseChannel>, BaseRegister> device = this.loadProfile.getDevice();
 
-        List<BaseRegister> allRegisters = rtu.getRegisters();
-        for (BaseDevice dRtu : rtu.getPhysicalConnectedDevices()) {
+        List<BaseRegister> allRegisters = device.getRegisters();
+        for (BaseDevice dRtu : device.getPhysicalConnectedDevices()) {
             allRegisters.addAll(dRtu.getRegisters());
         }
 
@@ -179,7 +179,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
                 contains |= register.getRegisterMappingObisCode().equals(channel.getRegisterTypeObisCode());
             }
             if (!contains) {
-                throw new BusinessException("notAllRegisterMappingsDefined", "Not all RegisterMappings from {0} are defined on {1}", this.loadProfile, rtu);
+                throw new BusinessException("notAllRegisterMappingsDefined", "Not all RegisterMappings from {0} are defined on {1}", this.loadProfile, device);
             }
         }
     }
