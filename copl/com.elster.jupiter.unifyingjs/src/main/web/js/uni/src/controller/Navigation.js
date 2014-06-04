@@ -61,7 +61,7 @@ Ext.define('Uni.controller.Navigation', {
         var child, breadcrumb;
 
         breadcrumbs.removeAll();
-        _.map(router.buildBreadcrumbs(), function(route) {
+        _.map(router.buildBreadcrumbs(), function (route) {
             var title = route.getTitle();
 
             breadcrumb = Ext.create('Uni.model.BreadcrumbItem', {
@@ -168,7 +168,7 @@ Ext.define('Uni.controller.Navigation', {
 
         Uni.store.MenuItems.each(function (model) {
             modelTokens = me.stripAndSplitToken(model.get('href'));
-            if (tokens[0] === modelTokens[0]) {
+            if (tokens[0] === modelTokens[0] || tokens[0] === model.get('portal')) {
                 me.getNavigationMenu().selectMenuItem(model);
                 return;
             }
