@@ -4,15 +4,19 @@ import com.elster.jupiter.issue.rest.response.IssueTypeInfo;
 import com.elster.jupiter.issue.share.cep.IssueAction;
 import com.elster.jupiter.issue.share.cep.ParameterDefinition;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CreationRuleActionTypeInfo {
     private long id;
     private String name;
     private IssueTypeInfo issueType;
     private Map<String, ParameterInfo> parameters;
+
+    public CreationRuleActionTypeInfo(){}
 
     public CreationRuleActionTypeInfo(IssueActionType type) {
         if (type == null) {

@@ -11,6 +11,7 @@ import java.util.Map;
 public class CreationRuleActionInfo {
     private long id;
     private CreationRuleActionPhaseInfo phase;
+    private CreationRuleActionTypeInfo type;
     private Map<String, String> parameters;
 
     public CreationRuleActionInfo() {}
@@ -21,6 +22,7 @@ public class CreationRuleActionInfo {
         }
         this.id = action.getId();
         this.phase = new CreationRuleActionPhaseInfo(action.getPhase());
+        this.type = new CreationRuleActionTypeInfo(action.getType());
         this.parameters = new HashMap<>(action.getParameters().size());
         for (ActionParameter parameter : action.getParameters()) {
             this.parameters.put(parameter.getKey(), parameter.getValue());
@@ -37,5 +39,9 @@ public class CreationRuleActionInfo {
 
     public Map<String, String> getParameters() {
         return parameters;
+    }
+
+    public CreationRuleActionTypeInfo getType() {
+        return type;
     }
 }

@@ -108,7 +108,7 @@ public class EditCreationRuleTransaction implements Transaction<CreationRule> {
         rule.getActions().clear();
         if (actions != null) {
             for (CreationRuleActionInfo action : actions) {
-                Optional<IssueActionType> actionTypeRef = issueActionService.findActionType(action.getId());
+                Optional<IssueActionType> actionTypeRef = issueActionService.findActionType(action.getType().getId());
                 if (!actionTypeRef.isPresent()) {
                     throw new WebApplicationException(Response.Status.BAD_REQUEST);
                 }
