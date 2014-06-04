@@ -434,8 +434,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
                                 .or(where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isNotEqual(connectionTask))));
         List<ComTaskExecution> comTaskExecutions = this.dataModel.mapper(ComTaskExecution.class).select(query);
         scheduledComTasks.addAll(comTaskExecutions);
-        for (Object physicalConnectedDevice : device.getPhysicalConnectedDevices()) {
-            Device slave = (Device) physicalConnectedDevice;
+        for (Device slave : device.getPhysicalConnectedDevices()) {
             this.collectComTaskWithDefaultConnectionTaskForCompleteTopology(slave, scheduledComTasks, connectionTask);
         }
     }

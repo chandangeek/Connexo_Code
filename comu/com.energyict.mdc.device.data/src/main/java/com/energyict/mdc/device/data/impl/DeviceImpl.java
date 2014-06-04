@@ -1194,7 +1194,7 @@ public class DeviceImpl implements Device {
         int eventCounter = 0;
         Optional<AmrSystem> amrSystem = this.getMdcAmrSystem();
         if (amrSystem.isPresent()) {
-            for (BaseDevice<Channel, LoadProfile, Register> slaveDevice : this.getPhysicalConnectedDevices()) {
+            for (Device slaveDevice : this.getPhysicalConnectedDevices()) {
                 Optional<Meter> slaveMeter = amrSystem.get().findMeter(String.valueOf(slaveDevice.getId()));
                 if (slaveMeter.isPresent()) {
                     eventCounter = eventCounter + this.countUniqueEndDeviceEvents(slaveMeter.get(), eventTypes, interval);
