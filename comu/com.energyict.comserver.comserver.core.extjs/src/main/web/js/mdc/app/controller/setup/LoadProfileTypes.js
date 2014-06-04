@@ -523,15 +523,17 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
 
                 intervalCombobox.store = me.intervalStore;
                 intervalCombobox.setValue(loadProfileType.timeDuration.id);
-                intervalCombobox.disable();
 
                 obisCodeField.setValue(loadProfileType.obisCode);
-                obisCodeField.disable();
 
-                Ext.each(measurementTypesView.items.items, function(item){
-                    item.disable();
-                });
-                measurementTypesView.disable();
+                if (loadProfileType.isLinkedToActiveDeviceConf) {
+                    intervalCombobox.disable();
+                    obisCodeField.disable();
+                    Ext.each(measurementTypesView.items.items, function (item) {
+                        item.disable();
+                    });
+                    measurementTypesView.disable();
+                }
 
                 Ext.each(loadProfileType.measurementTypes, function (measurementType) {
                     me.selectedMeasurementTypesStore.add(measurementType);
