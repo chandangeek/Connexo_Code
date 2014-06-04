@@ -15,7 +15,6 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteFromActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.DuplicateObisCodeException;
-import com.energyict.mdc.device.config.exceptions.InvalidValueException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.device.config.exceptions.OverFlowValueCanNotExceedNumberOfDigitsException;
 import com.energyict.mdc.device.config.exceptions.OverFlowValueHasIncorrectFractionDigitsException;
@@ -196,6 +195,39 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.REGISTER_SPEC_INVALID_OVERFLOW_VALUE+"}", property = "overflow")
+    public void updateOverflowValueTooSmallTest() {
+        RegisterSpec registerSpec = createDefaultRegisterSpec();
+
+        RegisterSpec.RegisterSpecUpdater registerSpecUpdater = this.deviceConfiguration.getRegisterSpecUpdaterFor(registerSpec);
+        registerSpecUpdater.setOverflow(BigDecimal.ZERO);
+        registerSpecUpdater.update();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.REGISTER_SPEC_INVALID_MULTIPLIER_VALUE+"}", property = "multiplier")
+    public void updateMultiplierValueTooSmallTest() {
+        RegisterSpec registerSpec = createDefaultRegisterSpec();
+
+        RegisterSpec.RegisterSpecUpdater registerSpecUpdater = this.deviceConfiguration.getRegisterSpecUpdaterFor(registerSpec);
+        registerSpecUpdater.setMultiplier(BigDecimal.ZERO);
+        registerSpecUpdater.update();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS+"}", property = "numberOfFractionDigits", strict = false)
+    public void setNegativeNumberOfFractionDigitsTest() {
+        RegisterSpec registerSpec = createDefaultRegisterSpec();
+
+        RegisterSpec.RegisterSpecUpdater registerSpecUpdater = this.deviceConfiguration.getRegisterSpecUpdaterFor(registerSpec);
+        registerSpecUpdater.setNumberOfFractionDigits(-1);
+        registerSpecUpdater.update();
+    }
+
+    @Test
+    @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS+"}", property = "numberOfDigits", strict = false)
     public void setNegativeNumberOfDigitsTest() {
         RegisterSpec registerSpec = createDefaultRegisterSpec();
@@ -276,17 +308,6 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     public void updateOverflowLargerThanNumberOfDigitsTest() {
         RegisterSpec registerSpec = createDefaultRegisterSpec();
         BigDecimal overflow = new BigDecimal(1000000001);
-
-        RegisterSpec.RegisterSpecUpdater registerSpecUpdater = this.deviceConfiguration.getRegisterSpecUpdaterFor(registerSpec);
-        registerSpecUpdater.setOverflow(overflow);
-        registerSpecUpdater.update();
-    }
-
-    @Test(expected = InvalidValueException.class)
-    @Transactional
-    public void updateOverflowZeroTest() {
-        RegisterSpec registerSpec = createDefaultRegisterSpec();
-        BigDecimal overflow = new BigDecimal(0);
 
         RegisterSpec.RegisterSpecUpdater registerSpecUpdater = this.deviceConfiguration.getRegisterSpecUpdaterFor(registerSpec);
         registerSpecUpdater.setOverflow(overflow);
