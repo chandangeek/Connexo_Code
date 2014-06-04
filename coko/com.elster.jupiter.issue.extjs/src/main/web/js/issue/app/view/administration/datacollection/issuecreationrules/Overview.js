@@ -7,12 +7,6 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Overview',
     ],
     alias: 'widget.issue-creation-rules-overview',
     itemId: 'creation-rules-overview',
-    side: [
-        {
-            xtype: 'navigationSubMenu',
-            itemId: 'sideMenu'
-        }
-    ],
     content: [
         {
             cls: 'content-wrapper',

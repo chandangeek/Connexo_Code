@@ -1,15 +1,30 @@
 Ext.define('Isu.view.administration.datacollection.issuecreationrules.ActionsList', {
     extend: 'Ext.grid.Panel',
+    requires: [
+        'Ext.grid.column.Template',
+        'Uni.grid.column.Action'
+    ],
     alias: 'widget.issues-creation-rules-actions-list',
     store: Ext.create('Ext.data.Store', {
         fields: [
-            {name: 'description', type: 'string'},
-            {name: 'type', type: 'string'},
-            {name: 'whenToPerform', type: 'string'}
-        ],
-        data: []
+            {
+                name: 'id',
+                type: 'int'
+            },
+            {
+                name: 'type',
+                type: 'auto'
+            },
+            {
+                name: 'phase',
+                type: 'auto'
+            },
+            {
+                name: 'parameters',
+                type: 'auto'
+            }
+        ]
     }),
-    height: 165,
     enableColumnHide: false,
     columns: {
         defaults: {
@@ -18,26 +33,39 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.ActionsLis
         },
         items: [
             {
+                itemId: 'description',
                 header: 'Description',
-                dataIndex: 'description',
-                flex: 2
-            },
-            {
-                header: 'Type',
-                dataIndex: 'type',
+                xtype: 'templatecolumn',
+                tpl: '{type.name}',
                 flex: 1
             },
             {
+                itemId: 'phase',
                 header: 'When to perform',
-                dataIndex: 'whenToPerform',
+                xtype: 'templatecolumn',
+                tpl: new Ext.XTemplate('{[this.getWhenToPerform(values.phase.uuid)]}', {
+                    getWhenToPerform: function (uuid) {
+                        var phasesStore = Ext.getStore('Isu.store.CreationRuleActionPhases'),
+                            whenToPerform = phasesStore.getById(uuid).get('title');
+
+                        return (whenToPerform || '');
+                    }
+                }),
                 flex: 1
             },
             {
-                header: 'Action',
-                xtype: 'actioncolumn',
-                iconCls: 'isu-action-icon',
-                align: 'left',
-                width: 100
+                itemId: 'action',
+                xtype: 'uni-actioncolumn',
+                items: [
+                    {
+                        text: 'Edit',
+                        action: 'edit'
+                    },
+                    {
+                        text: 'Delete',
+                        action: 'delete'
+                    }
+                ]
             }
         ]
     }

@@ -8,7 +8,9 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
         'Isu.store.CreationRule',
         'Isu.store.IssueType',
         'Isu.store.CreationRuleTemplate',
-        'Isu.store.DueinType'
+        'Isu.store.DueinType',
+        'Isu.store.Clipboard',
+        'Isu.store.CreationRuleActionPhases'
     ],
     views: [
         'Isu.view.administration.datacollection.issuecreationrules.Edit',
@@ -35,6 +37,10 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
         {
             ref: 'templateDetails',
             selector: 'issues-creation-rules-edit form [name=templateDetails]'
+        },
+        {
+            ref: 'actionsGrid',
+            selector: 'issues-creation-rules-edit issues-creation-rules-actions-list'
         }
     ],
 
@@ -57,18 +63,26 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
             },
             'issues-creation-rules-edit button[action=save]': {
                 click: this.ruleSave
+            },
+            'issues-creation-rules-edit button[action=addAction]': {
+                click: this.addAction
+            },
+            'issues-creation-rules-edit issues-creation-rules-actions-list uni-actioncolumn': {
+                menuclick: this.chooseActionOperation
             }
         });
     },
 
-    showCreate: function(id) {
+    showCreate: function (id) {
         var widget = Ext.widget('issues-creation-rules-edit');
+
         this.setPage(id, 'create');
         this.getApplication().fireEvent('changecontentevent', widget);
     },
 
     showEdit: function (id) {
         var widget = Ext.widget('issues-creation-rules-edit');
+
         this.setPage(id, 'edit');
         this.getApplication().fireEvent('changecontentevent', widget);
     },
@@ -76,6 +90,9 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
     setPage: function (id, action) {
         var self = this,
             ruleActionBtn = self.getRuleActionBtn(),
+            clipboard = this.getStore('Isu.store.Clipboard'),
+            savedData = clipboard.get('issuesCreationRuleState'),
+            page = self.getPage(),
             prefix,
             btnTxt;
 
@@ -83,27 +100,53 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
             case 'edit':
                 prefix = 'Edit ';
                 btnTxt = 'Save';
-                self.getModel('Isu.model.CreationRule').load(id, {
-                    success: function (record) {
-                        self.ruleModel = record;
-                        delete self.ruleModel.data.creationDate;
-                        delete self.ruleModel.data.modificationDate;
-                        self.modelToForm(record);
-                    }
-                });
+                if (savedData) {
+                    self.ruleModel = savedData;
+                    clipboard.clear('issuesCreationRuleState');
+                    page.on('afterrender', function () {
+                        self.modelToForm(self.ruleModel);
+                    }, self, {single: true});
+                } else {
+                    self.getModel('Isu.model.CreationRule').load(id, {
+                        success: function (record) {
+                            self.ruleModel = record;
+                            delete self.ruleModel.data.creationDate;
+                            delete self.ruleModel.data.modificationDate;
+                            if (page.isVisible()) {
+                                self.modelToForm(record);
+                            } else {
+                                page.on('afterrender', function () {
+                                    self.modelToForm(record);
+                                }, self, {single: true});
+                            }
+                        }
+                    });
+                }
                 break;
             case 'create':
                 prefix = btnTxt = 'Create ';
-                self.ruleModel = Isu.model.CreationRule.create();
-                delete self.ruleModel.data.id;
-                self.ruleModel.data.actions = [];
-                self.modelToForm(self.ruleModel);
+                if (savedData) {
+                    self.ruleModel = savedData;
+                    clipboard.clear('issuesCreationRuleState');
+                } else {
+                    self.ruleModel = Isu.model.CreationRule.create();
+                    delete self.ruleModel.data.id;
+                    self.ruleModel.data.actions = [];
+                }
+                page.on('afterrender', function () {
+                    self.modelToForm(self.ruleModel);
+                }, self, {single: true});
                 break;
         }
 
         self.getPageTitle().title = prefix + 'issue creation rule';
-        self.getPageTitle().setUI('large');
         ruleActionBtn.setText(btnTxt);
+    },
+
+    setDataToModel: function (data, model) {
+        for (var field in data) {
+            model.set(field, data[field]);
+        }
     },
 
     modelToForm: function (record) {
@@ -119,16 +162,10 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
             dueInNumberField = form.down('[name=dueIn.number]'),
             dueInTypeField = form.down('[name=dueIn.type]'),
             commentField = form.down('[name=comment]'),
-            preloader;
+            page = self.getPage();
 
-        if (record.get('template')) {
-            preloader = Ext.create('Ext.LoadMask', {
-                msg: "Loading...",
-                target: self.getPage()
-            });
-
-            preloader.show();
-
+        if (record.get('template') && record.get('template').uid) {
+            page.setLoading(true);
             self.on('templateloaded', function () {
                 var formField,
                     name,
@@ -148,7 +185,7 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                     }
                 }
 
-                preloader.destroy();
+                page.setLoading(false);
             }, self, {single: true});
         }
 
@@ -170,6 +207,8 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
             dueDateTrigger.setValue({dueDate: false});
         }
         commentField.setValue(data.comment);
+
+        self.loadActionsToForm(data.actions);
     },
 
     formToModel: function (model) {
@@ -201,15 +240,14 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
         });
         ruleModel.set('comment', commentField.getValue());
 
-        Ext.Array.each(templateDetails.query('[formBind=false]'), function (item) {
-            var value = item.getValue();
-
-            if (value) {
-                parameters[item.name] = value;
+        Ext.Array.each(templateDetails.query(), function (formItem) {
+            if (formItem.isFormField) {
+                parameters[formItem.name] = formItem.getValue();
             }
         });
 
         ruleModel.set('parameters', parameters);
+        this.loadActionsToModel(ruleModel);
 
         return ruleModel;
     },
@@ -307,11 +345,12 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
             rule = self.formToModel(self.ruleModel),
             formErrorsPanel = self.getRuleForm().down('[name=form-errors]'),
             store = self.getStore('Isu.store.CreationRule'),
-            templateCombo = self.getRuleForm().down('combobox[name=template]');
-
-        var router = this.getController('Uni.controller.history.Router');
+            templateCombo = self.getRuleForm().down('combobox[name=template]'),
+            router = this.getController('Uni.controller.history.Router'),
+            page = self.getPage();
 
         if (form.isValid()) {
+            page.setLoading('Saving...');
             button.setDisabled(true);
             formErrorsPanel.hide();
             rule.save({
@@ -319,6 +358,7 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                     var messageText,
                         json;
 
+                    page.setLoading(false);
                     button.setDisabled(false);
 
                     if (success) {
@@ -348,6 +388,73 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
         } else {
             formErrorsPanel.show();
             self.comboTemplateResize(templateCombo);
+        }
+    },
+
+    addAction: function () {
+        var router = this.getController('Uni.controller.history.Router'),
+            rule = this.formToModel(this.ruleModel);
+
+        this.getStore('Isu.store.Clipboard').set('issuesCreationRuleState', rule);
+
+        router.getRoute('administration/issue/creationrules/create/addaction').forward();
+    },
+
+    loadActionsToForm: function (actions) {
+        var actionsGrid = this.getActionsGrid(),
+            actionsStore = actionsGrid.getStore(),
+            noActionsText = this.getPage().down('[name=noactions]'),
+            phasesStore = this.getStore('Isu.store.CreationRuleActionPhases');
+
+        actionsStore.removeAll();
+
+        if (actions.length) {
+            phasesStore.load(function () {
+                actionsStore.add(actions);
+                actionsGrid.show();
+                noActionsText.hide();
+            });
+        } else {
+            actionsGrid.hide();
+            noActionsText.show();
+        }
+    },
+
+    loadActionsToModel: function (model) {
+        var self = this,
+            actionsGrid = this.getActionsGrid(),
+            actionsStore = actionsGrid.getStore(),
+            actions = [];
+
+        actionsStore.each(function (action) {
+            actions.push(action.getData());
+        }, self);
+
+        model.set('actions', actions);
+    },
+
+    chooseActionOperation: function (menu, item) {
+        var operation = item.action,
+            actionId = menu.record.getId();
+
+        switch (operation) {
+            case 'delete':
+                this.deleteAction(actionId);
+                break;
+        }
+    },
+
+    deleteAction: function (id) {
+        var actionsGrid = this.getActionsGrid(),
+            actionsStore = actionsGrid.getStore(),
+            action = actionsStore.getById(id),
+            noActionsText = this.getPage().down('[name=noactions]');
+
+        actionsStore.remove(action);
+
+        if (!actionsStore.getCount()) {
+            actionsGrid.hide();
+            noActionsText.show();
         }
     }
 });

@@ -27,7 +27,15 @@ Ext.define('Isu.controller.history.Administration', {
                                     title: 'Create',
                                     route: 'create',
                                     controller: 'Isu.controller.IssueCreationRulesEdit',
-                                    action: 'showCreate'
+                                    action: 'showCreate',
+                                    items: {
+                                        addaction: {
+                                            title: 'Add action',
+                                            route: 'addaction',
+                                            controller: 'Isu.controller.IssueCreationRulesActionsEdit',
+                                            action: 'showCreate'
+                                        }
+                                    }
                                 },
                                 edit: {
                                     title: 'Edit',

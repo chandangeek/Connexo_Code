@@ -95,17 +95,10 @@ Ext.define('Isu.controller.IssueCreationRules', {
                                     if (operation.response.status == 204) {
                                         self.getRulesGridPagingToolbarTop().totalCount = 0;
                                         store.loadPage(1);
-                                        self.getApplication().fireEvent('isushowmsg', {
-                                            type: 'notify',
-                                            msgBody: [
-                                                {
-                                                    style: 'msgHeaderStyle',
-                                                    text: 'Issue creation rule deleted'
-                                                }
-                                            ],
-                                            y: 10,
-                                            showTime: 5000
-                                        });
+                                        Ext.create('widget.uxNotification', {
+                                            html: 'Issue creation rule deleted',
+                                            ui: 'notification-success'
+                                        }).show();
                                     }
                                 }
                             });

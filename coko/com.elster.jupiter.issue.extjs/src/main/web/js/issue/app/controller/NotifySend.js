@@ -1,6 +1,7 @@
 Ext.define('Isu.controller.NotifySend', {
     extend: 'Ext.app.Controller',
     actionId: null,
+    issId: null,
     views: [
         'workspace.issues.NotifySend'
     ],
@@ -24,10 +25,11 @@ Ext.define('Isu.controller.NotifySend', {
         });
     },
 
-    showOverview: function () {
+    showNotifySend: function (id) {
         var self = this,
             widget = Ext.widget('notify-user'),
             view = self.getNotifyView();
+        self.issId = id;
         self.getApplication().fireEvent('changecontentevent', widget);
         self.getStore('Actions').load({
             callback: function (records) {
@@ -56,7 +58,7 @@ Ext.define('Isu.controller.NotifySend', {
                     },
                     emailVtypeText: 'This field should contains one e-mail address per line'
                 });
-                self.id = record.data.id;
+                self.actionId = record.data.id;
                 view.down('form').add({
                     xtype: 'textarea',
                     itemId: 'emailList',
@@ -92,7 +94,7 @@ Ext.define('Isu.controller.NotifySend', {
         var self = this;
         Ext.Array.each(records, function (record) {
             if (record.data.parameters.user && record.data.parameters.user.control.xtype === 'userCombobox') {
-                self.id = record.data.id;
+                self.actionId = record.data.id;
                 view.down('form').add({
                     xtype: 'issues-assignee-combo',
                     itemId: 'assignee',
@@ -137,7 +139,7 @@ Ext.define('Isu.controller.NotifySend', {
             self.trimFields();
             if (form.isValid()) {
                 formErrorsPanel.hide();
-                sendingData.id = self.id;
+                sendingData.id = self.actionId;
                 sendingData.parameters = form.getValues();
                 preloader = Ext.create('Ext.LoadMask', {
                     msg: "Notifying user",
@@ -152,7 +154,7 @@ Ext.define('Isu.controller.NotifySend', {
                 sendingData.parameters = {};
                 notifyView.down('#assignee').clearInvalid();
                 formErrorsPanel.hide();
-                sendingData.id = self.id;
+                sendingData.id = self.actionId;
                 sendingData.parameters.user = form.getValues().user.toString();
                 preloader = Ext.create('Ext.LoadMask', {
                     msg: "Sending data",
@@ -167,8 +169,9 @@ Ext.define('Isu.controller.NotifySend', {
     },
 
     sendData: function(sendingData, preloader) {
+        var self = this;
         Ext.Ajax.request({
-            url: '/api/isu/issue/' + window.location.hash.match(/[0-9]/)[0] + '/action',
+            url: '/api/isu/issue/' + self.issId + '/action',
             method: 'PUT',
             jsonData: sendingData,
             success: function () {
