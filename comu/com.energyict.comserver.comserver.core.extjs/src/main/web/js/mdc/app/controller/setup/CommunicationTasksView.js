@@ -50,7 +50,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasksView', {
         this.control({
             'communication-tasks-view communication-tasks-list gridview': {
                 itemclick: this.showTaskDetails,
-                refresh: this.onCommunicationTasksGridRefresh
+                afterrender: this.onCommunicationTasksGridRefresh
             },
             'communication-tasks-view communication-tasks-list uni-actioncolumn': {
                 menuclick: this.chooseCommunicationTasksAction
@@ -81,18 +81,23 @@ Ext.define('Mdc.controller.setup.CommunicationTasksView', {
         }
     },
 
-    onCommunicationTasksGridRefresh: function (grid) {
-        var tasksGrid = this.getTasksGrid(),
-            itemPanel = this.getItemPanel(),
+    onCommunicationTasksGridRefresh: function () {
+        var self = this,
+            tasksGrid = self.getTasksGrid(),
+            itemPanel = self.getItemPanel(),
             selectionModel = tasksGrid.getView().getSelectionModel();
-        if (this.store.getTotalCount() < 1) {
-            tasksGrid.hide();
-            itemPanel.hide();
-            this.getEmptyPanel().show();
-        } else {
-            tasksGrid.getView().getSelectionModel().select(0);
-            this.showTaskDetails(tasksGrid.getView(), selectionModel.getLastSelected());
-        }
+        self.store.load({
+            callback: function() {
+                if (this.getTotalCount() < 1) {
+                    tasksGrid.hide();
+                    itemPanel.hide();
+                    self.getEmptyPanel().show();
+                } else {
+                    tasksGrid.getView().getSelectionModel().select(0);
+                    self.showTaskDetails(tasksGrid.getView(), selectionModel.getLastSelected());
+                }
+            }
+        })
     },
 
     showTaskDetails: function (grid, record) {
