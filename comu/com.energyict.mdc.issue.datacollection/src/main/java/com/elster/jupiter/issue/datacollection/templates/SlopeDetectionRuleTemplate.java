@@ -53,7 +53,7 @@ public class SlopeDetectionRuleTemplate extends AbstractTemplate {
             "global com.elster.jupiter.issue.share.service.IssueCreationService issueCreationService; \n" +
             "rule \"Slope detection @{ruleId}\"\n" +
             "when\n" +
-            "\tevent : MeterReadingIssueEvent( readingType.getMRID() == @{readingType}, computeMaxSlope(@{trendPeriod}, @{trendPeriodUnit}) > @{maxSlope} )\n" +
+            "\tevent : MeterReadingIssueEvent( readingType.getMRID() == \"@{readingType}\", computeMaxSlope(@{trendPeriod}, @{trendPeriodUnit}) > @{maxSlope} )\n" +
             "then\n" +
             "\tSystem.out.println(\"Slope detection @{ruleId}\");\n" +
             "\tissueCreationService.processCreationEvent(@{ruleId}, event);\n" +
