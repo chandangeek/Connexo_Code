@@ -127,7 +127,8 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                         hideTrigger: true,
                         maxLength: 22,
                         enforceMaxLength: true,
-                        required: true
+                        required: true,
+                        minValue: 1
                     },
                     {
                         xtype: 'fieldcontainer',
@@ -152,7 +153,8 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                         itemId: 'editMultiplierField',
                         width: 450,
                         //width: 64,
-                        hideTrigger: true
+                        hideTrigger: true,
+                        minValue: 1
                     },
                     {
                         xtype: 'fieldcontainer',
