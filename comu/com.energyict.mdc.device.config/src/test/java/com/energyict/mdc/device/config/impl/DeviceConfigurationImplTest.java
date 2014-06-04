@@ -311,7 +311,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
             registerSpecBuilder.add();
         } catch (CannotAddToActiveDeviceConfigurationException e) {
             if(!e.getMessageSeed().equals(MessageSeeds.REGISTER_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIG)){
-                fail("Should have gotten the exception indicating that the register spec could not be added to an active device configuration, but was " + e.getMessage());
+                fail("Should have gotten the exception indicating that the register configuration could not be added to an active device configuration, but was " + e.getMessage());
             } else {
                 throw e;
             }
