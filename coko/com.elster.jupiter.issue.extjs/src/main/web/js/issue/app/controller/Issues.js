@@ -273,7 +273,9 @@ Ext.define('Isu.controller.Issues', {
     changeGrouping: function (combo, newValue) {
         var store = combo.getStore();
 
-        this.extraParamsModel.set('groupValue', null);
+        if (newValue !== 'reason') {
+            this.extraParamsModel.set('groupValue', null);
+        }
         this.extraParamsModel.set('group', store.getById(newValue));
         this.refresh();
     },
