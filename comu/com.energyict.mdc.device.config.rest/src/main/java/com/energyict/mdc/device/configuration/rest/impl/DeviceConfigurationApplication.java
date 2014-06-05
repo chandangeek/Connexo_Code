@@ -158,6 +158,7 @@ public class DeviceConfigurationApplication extends Application implements Insta
             bind(ResourceHelper.class).to(ResourceHelper.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class);
+            bind(ConnectionMethodInfoFactory.class).to(ConnectionMethodInfoFactory.class);
             bind(nlsService).to(NlsService.class);
             bind(jsonService).to(JsonService.class);
             bind(thesaurus).to(Thesaurus.class);
