@@ -197,6 +197,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             {
                 success: function (results) {
                     var deviceType = results[0][0];
+                    me.getApplication().fireEvent('loadDeviceType', deviceType);
                     me.getDeviceTypeEditForm().loadRecord(deviceType);
                     me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + deviceType.get('name') + '"');
                     widget.setLoading(false);
@@ -325,6 +326,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                     widget.setLoading(true);
                     model.load(deviceTypeId, {
                         success: function (deviceType) {
+                            me.getApplication().fireEvent('loadDeviceType', deviceType);
                             me.getDeviceTypeLogbookPanel().setTitle('<b>' + deviceType.get('name') + '</b>' + ' > ' + 'Logbook types');
                             widget.setLoading(false);
                         }
@@ -365,6 +367,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                     widget.setLoading(true);
                     model.load(deviceTypeId, {
                         success: function (deviceType) {
+                            me.getApplication().fireEvent('loadDeviceType', deviceType);
                             me.getAddLogbookPanel().setTitle('<b>' + deviceType.get('name') + '</b>' + ' > ' + 'Add logbook type');
                             widget.setLoading(false);
                         }

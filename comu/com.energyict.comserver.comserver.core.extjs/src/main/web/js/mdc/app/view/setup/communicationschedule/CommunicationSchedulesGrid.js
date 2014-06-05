@@ -10,7 +10,6 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulesGrid', {
         'Mdc.view.setup.communicationschedule.CommunicationScheduleActionMenu'
     ],
     store: 'CommunicationSchedules',
-    padding: '10 10 10 10',
     initComponent: function () {
         var me = this;
         this.columns = [

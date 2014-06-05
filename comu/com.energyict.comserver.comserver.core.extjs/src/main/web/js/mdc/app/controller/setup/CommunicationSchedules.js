@@ -103,6 +103,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
         } else {
             Ext.ModelManager.getModel('Mdc.model.CommunicationSchedule').load(id, {
                 success: function (communicationSchedule) {
+                    me.getApplication().fireEvent('loadCommunicationSchedule', communicationSchedule);
                     me.record = communicationSchedule;
                     widget.down('#communicationScheduleEditCreateTitle').update('<h1>' + Uni.I18n.translate('communicationschedule.editCommunicationSchedule', 'MDC', 'Edit') + ' ' + communicationSchedule.get('name') + '</h1>');
                     widget.down('#communicationScheduleEditForm').loadRecord(communicationSchedule);
