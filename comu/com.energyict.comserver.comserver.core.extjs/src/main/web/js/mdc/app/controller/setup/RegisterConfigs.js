@@ -84,8 +84,8 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
     },
 
     editRegisterConfigurationHistoryFromPreview: function () {
-            location.href = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigId + '/registerconfigurations/' + this.getRegisterConfigGrid().getSelectionModel().getSelection()[0].get("id") + '/edit';
-        },
+        location.href = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigId + '/registerconfigurations/' + this.getRegisterConfigGrid().getSelectionModel().getSelection()[0].get("id") + '/edit';
+    },
 
     createRegisterConfigurationHistory: function () {
         location.href = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigId + '/registerconfigurations/create';
@@ -134,13 +134,16 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         var registerTypesOfDevicetypeStore = Ext.data.StoreManager.lookup('AvailableRegisterTypesForDeviceConfiguration');
 
         registerTypesOfDevicetypeStore.getProxy().setExtraParam('deviceType', deviceTypeId);
-        registerTypesOfDevicetypeStore.getProxy().setExtraParam('filter',Ext.encode([{
-            property:'available',
-            value:true
-        },{
-            property:'deviceconfigurationid',
-            value: this.deviceConfigId
-        }]));
+        registerTypesOfDevicetypeStore.getProxy().setExtraParam('filter', Ext.encode([
+            {
+                property: 'available',
+                value: true
+            },
+            {
+                property: 'deviceconfigurationid',
+                value: this.deviceConfigId
+            }
+        ]));
 
         registerTypesOfDevicetypeStore.load({
             callback: function (store) {
@@ -223,16 +226,15 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
 
     deleteRegisterConfiguration: function (registerConfigurationToDelete) {
         var me = this;
-        Ext.MessageBox.show({
+
+        Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('registerConfig.removeUsedRegisterConfig', 'MDC', 'The register configuration will no longer be available.'),
             title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' ' + registerConfigurationToDelete.get('name') + '?',
             config: {
                 registerConfigurationToDelete: registerConfigurationToDelete,
                 me: me
             },
-            buttons: Ext.MessageBox.YESNO,
-            fn: me.removeRegisterConfigFromDeviceType,
-            icon: Ext.MessageBox.WARNING
+            fn: me.removeRegisterConfigFromDeviceType
         });
     },
 
@@ -242,7 +244,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
 
 
     removeRegisterConfigFromDeviceType: function (btn, text, opt) {
-        if (btn === 'yes') {
+        if (btn === 'confirm') {
             var registerConfigurationToDelete = opt.config.registerConfigurationToDelete;
             var me = opt.config.me;
             registerConfigurationToDelete.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigId});

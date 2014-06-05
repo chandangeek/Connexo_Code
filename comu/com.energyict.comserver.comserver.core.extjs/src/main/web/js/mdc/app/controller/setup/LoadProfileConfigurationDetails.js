@@ -94,7 +94,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                     text: 'Remove',
                     action: 'removeloadprofileconfigurationdetailchannelconfirm',
                     name: 'delete',
-                    ui: 'delete'
+                    ui: 'remove'
                 },
                 {
                     xtype: 'button',
@@ -244,7 +244,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                 {
                     text: 'Retry',
                     action: retryAction,
-                    ui: 'delete'
+                    ui: 'remove'
                 },
                 {
                     text: 'Cancel',

@@ -65,9 +65,6 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             '#createEditButton[action=editRegisterType]': {
                 click: this.editRegisterType
             },
-            '#registerTypeDetail menuitem[action=RegisterType]': {
-                click: this.deleteRegisterTypeFromDetails
-            },
             '#registerTypeDetail menuitem[action=editRegisterType]': {
                 click: this.editRegisterTypeFromDetails
             },
@@ -117,6 +114,11 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                 widget.down('#editMrIdField').setValue(me.getReadingTypesStore().first().get('mrid'));
             }
         }
+        var obisCode = widget.down('#editObisCodeField').getValue();
+        var measurementUnit = widget.down('#measurementUnitComboBox').getValue();
+        if (obisCode !== '' && measurementUnit !== null) {
+            widget.down('#editMrIdField').enable();
+        }
     },
 
     changeReadingType: function (btn, text, opt) {
@@ -164,17 +166,15 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
 
     deleteRegisterType: function (registerTypeToDelete) {
         var me = this;
-        Ext.MessageBox.show({
+
+        Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('registerType.deleteRegisterType', 'MDC', 'The register type will no longer be available.'),
             title: Uni.I18n.translate('general.delete', 'MDC', 'Delete') + ' ' + registerTypeToDelete.get('name') + '?',
             config: {
                 registerTypeToDelete: registerTypeToDelete
             },
-            buttons: Ext.MessageBox.YESNO,
-            fn: me.deleteRegisterTypeInDatabase,
-            icon: Ext.MessageBox.WARNING
+            fn: me.deleteRegisterTypeInDatabase
         });
-
     },
 
     deleteRegisterTypeFromPreview: function (registerTypeToDelete) {
@@ -182,7 +182,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
     },
 
     deleteRegisterTypeInDatabase: function (btn, text, opt) {
-        if (btn === 'yes') {
+        if (btn === 'confirm') {
             var registerTypeToDelete = opt.config.registerTypeToDelete;
             registerTypeToDelete.destroy({
                 callback: function () {
@@ -190,21 +190,6 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                 }
             });
         }
-    },
-
-    deleteRegisterTypeFromDetails: function () {
-        var me = this;
-        var registerTypeToDelete = this.getRegisterTypeDetailForm().getRecord();
-        Ext.MessageBox.show({
-            msg: Uni.I18n.translate('registerType.deleteRegisterType', 'MDC', 'The register type will no longer be available.'),
-            title: Uni.I18n.translate('general.delete', 'MDC', 'Delete') + ' ' + registerTypeToDelete.get('name') + '?',
-            config: {
-                registerTypeToDelete: registerTypeToDelete
-            },
-            buttons: Ext.MessageBox.YESNO,
-            fn: me.deleteRegisterTypeFromDetailsInDatabase,
-            icon: Ext.MessageBox.WARNING
-        });
     },
 
     showRegisterTypeEditView: function (registerMapping) {
@@ -363,8 +348,6 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                 {property: 'unit', value: measurementUnit}
             ]);
         }
-        widget.down('#editMrIdField').setDisabled(false);
-        widget.down('#editMrIdField').setReadOnly(false);
     }
 
 

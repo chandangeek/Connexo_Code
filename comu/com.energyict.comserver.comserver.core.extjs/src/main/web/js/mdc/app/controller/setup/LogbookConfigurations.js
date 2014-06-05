@@ -81,7 +81,7 @@ Ext.define('Mdc.controller.setup.LogbookConfigurations', {
                 buttons: [
                     {
                         text: 'Delete',
-                        ui: 'delete',
+                        ui: 'remove',
                         handler: function () {
                             var preloader = Ext.create('Ext.LoadMask', {
                                 msg: "Loading...",

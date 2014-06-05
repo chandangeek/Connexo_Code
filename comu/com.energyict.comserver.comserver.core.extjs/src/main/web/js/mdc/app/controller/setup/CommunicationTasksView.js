@@ -168,7 +168,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasksView', {
                     {
                         xtype: 'button',
                         text: 'Remove',
-                        ui: 'delete',
+                        ui: 'remove',
                         handler: function () {
                             var preloader = Ext.create('Ext.LoadMask', {
                                 msg: "Loading...",
