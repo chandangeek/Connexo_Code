@@ -319,10 +319,12 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         me.store.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigurationId, loadProfileConfiguration: loadProfileConfigurationId });
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
+                me.getApplication().fireEvent('loadDeviceType', deviceType);
                 var model = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
                 model.getProxy().setExtraParam('deviceType', deviceTypeId);
                 model.load(deviceConfigurationId, {
                     success: function (deviceConfig) {
+                        me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
                         Ext.Ajax.request({
                             url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofileconfigurations/' + me.loadProfileConfigurationId,
                             params: {},
@@ -356,10 +358,12 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         me.availableMeasurementTypesStore.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigurationId, loadProfileConfiguration: loadProfileConfigurationId });
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
+                me.getApplication().fireEvent('loadDeviceType', deviceType);
                 var model = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
                 model.getProxy().setExtraParam('deviceType', deviceTypeId);
                 model.load(deviceConfigurationId, {
                     success: function (deviceConfig) {
+                        me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
                         Ext.Ajax.request({
                             url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofileconfigurations/' + me.loadProfileConfigurationId,
                             params: {},
@@ -393,10 +397,12 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         me.availableMeasurementTypesStore.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigurationId, loadProfileConfiguration: loadProfileConfigurationId });
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
+                me.getApplication().fireEvent('loadDeviceType', deviceType);
                 var model = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
                 model.getProxy().setExtraParam('deviceType', deviceTypeId);
                 model.load(deviceConfigurationId, {
                     success: function (deviceConfig) {
+                        me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
                         Ext.Ajax.request({
                             url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofileconfigurations/' + me.loadProfileConfigurationId,
                             params: {},

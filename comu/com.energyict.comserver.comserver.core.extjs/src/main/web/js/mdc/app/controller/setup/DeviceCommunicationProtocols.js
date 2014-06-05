@@ -28,7 +28,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
     ],
 
     init: function () {
-
+        this.getDeviceCommunicationProtocolsPagedStore().on('load', this.onDeviceCommunicationProtocolsStoreLoad, this);
         this.control({
             '#devicecommunicationprotocolgrid': {
                 selectionchange: this.previewDeviceCommunicationProtocol
@@ -62,6 +62,12 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
         }
     },
 
+    onDeviceCommunicationProtocolsStoreLoad: function () {
+        if (this.getDeviceCommunicationProtocolsPagedStore().getCount() > 0) {
+            this.getDeviceCommunicationProtocolGrid().getSelectionModel().select(0);
+        }
+    },
+
     getPropertiesViewController: function () {
         return this.getController('Mdc.controller.setup.PropertiesView');
     },
@@ -88,6 +94,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
         var me = this;
         Ext.ModelManager.getModel('Mdc.model.DeviceCommunicationProtocol').load(deviceCommunicationProtocol, {
             success: function (protocol) {
+                me.getApplication().fireEvent('loadDeviceCommunicationProtocol', protocol);
                 widget.down('form').loadRecord(protocol);
                 widget.down('#deviceCommunicationProtocolEditCreateTitle').update('<h1>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + protocol.get('name') + '</h1>');
                 me.getPropertiesController().showProperties(protocol, widget, true);

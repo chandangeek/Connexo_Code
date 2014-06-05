@@ -42,6 +42,10 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showDeviceTypeCreateView'
                         },
                         view: {
+                            title: 'Device type',
+                            route: '{deviceTypeId}',
+                            controller: 'Mdc.controller.setup.DeviceTypes',
+                            action: 'showDeviceTypeDetailsView',
                             callback: function(route) {
                                 this.getApplication().on('loadDeviceType', function(record) {
                                     route.setTitle(record.get('name'));
@@ -50,9 +54,6 @@ Ext.define('Mdc.controller.history.Setup', {
 
                                 return this;
                             },
-                            route: '{deviceTypeId}',
-                            controller: 'Mdc.controller.setup.DeviceTypes',
-                            action: 'showDeviceTypeDetailsView',
                             items: {
                                 edit: {
                                     title: 'Edit device type',
@@ -101,6 +102,10 @@ Ext.define('Mdc.controller.history.Setup', {
                                             action: 'showDeviceConfigurationCreateView'
                                         },
                                         view: {
+                                            title: 'Device Configuration',
+                                            route: '{deviceConfigurationId}',
+                                            controller: 'Mdc.controller.setup.DeviceConfigurations',
+                                            action: 'showDeviceConfigurationDetailsView',
                                             callback: function(route) {
                                                 this.getApplication().on('loadDeviceConfiguration', function(record) {
                                                     route.setTitle(record.get('name'));
@@ -109,9 +114,6 @@ Ext.define('Mdc.controller.history.Setup', {
 
                                                 return this;
                                             },
-                                            route: '{deviceConfigurationId}',
-                                            controller: 'Mdc.controller.setup.DeviceConfigurations',
-                                            action: 'showDeviceConfigurationDetailsView',
                                             items: {
                                                 edit: {
                                                     title: 'Edit device configuration',
@@ -238,7 +240,10 @@ Ext.define('Mdc.controller.history.Setup', {
                                                             title: 'Edit communication task',
                                                             route: '{comTaskEnablementId}/edit',
                                                             controller: 'Mdc.controller.setup.CommunicationTasks',
-                                                            action: 'showEditCommunicationTaskView'
+                                                            action: 'showEditCommunicationTaskView',
+                                                            callback: function () {
+
+                                                            }
                                                         }
                                                     }
                                                 },
@@ -378,7 +383,15 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: 'Edit communication protocol',
                             route: '{id}/edit',
                             controller: 'Mdc.controller.setup.DeviceCommunicationProtocols',
-                            action: 'showDeviceCommunicationProtocolEditView'
+                            action: 'showDeviceCommunicationProtocolEditView',
+                            callback: function(route) {
+                                this.getApplication().on('loadDeviceCommunicationProtocol', function(record) {
+                                    route.setTitle('Edit "' + record.get('name') + '"');
+                                    return true;
+                                }, {single: true});
+
+                                return this;
+                            }
                         }
                     }
                 },
@@ -400,8 +413,8 @@ Ext.define('Mdc.controller.history.Setup', {
                             controller: 'Mdc.controller.setup.ComPortPools',
                             action: 'showEditView'
                         },
-                        view: {
-                            title: 'View communication port pool',
+                        edit: {
+                            title: 'Edit communication port pool',
                             route: '{id}',
                             controller: 'Mdc.controller.setup.ComPortPools',
                             action: 'showEditView'
@@ -424,13 +437,23 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: 'View register type',
                             route: '{id}',
                             controller: 'Mdc.controller.setup.RegisterTypes',
-                            action: 'showRegisterTypeDetailsView'
-                        },
-                        edit: {
-                            title: 'Edit register type',
-                            route: '{id}/edit',
-                            controller: 'Mdc.controller.setup.RegisterTypes',
-                            action: 'showRegisterTypeEditView'
+                            action: 'showRegisterTypeDetailsView',
+                            callback: function(route) {
+                                this.getApplication().on('loadRegisterType', function(record) {
+                                    route.setTitle(record.get('name'));
+                                    return true;
+                                }, {single: true});
+
+                                return this;
+                            },
+                            items: {
+                                edit: {
+                                    title: 'Edit register type',
+                                    route: 'edit',
+                                    controller: 'Mdc.controller.setup.RegisterTypes',
+                                    action: 'showRegisterTypeEditView'
+                                }
+                            }
                         }
                     }
                 },
@@ -450,7 +473,15 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: 'Edit register group',
                             route: '{id}/edit',
                             controller: 'Mdc.controller.setup.RegisterGroups',
-                            action: 'showRegisterGroupEditView'
+                            action: 'showRegisterGroupEditView',
+                            callback: function(route) {
+                                this.getApplication().on('loadRegisterGroup', function(record) {
+                                    route.setTitle('Edit "' + record.get('name') + '"');
+                                    return true;
+                                }, {single: true});
+
+                                return this;
+                            }
                         }
                     }
                 },
@@ -470,7 +501,15 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: 'Edit communication task',
                             route: '{id}',
                             controller: 'Mdc.controller.setup.CommunicationTasksCreateEdit',
-                            action: 'showCommunicationTasksCreateEdit'
+                            action: 'showCommunicationTasksCreateEdit',
+                            callback: function(route) {
+                                this.getApplication().on('loadCommunicationTask', function(record) {
+                                    route.setTitle('Edit "' + record.get('name') + '"');
+                                    return true;
+                                }, {single: true});
+
+                                return this;
+                            }
                         }
                     }
                 },
@@ -490,7 +529,15 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: 'Edit communication schedule',
                             route: '{id}/edit',
                             controller: 'Mdc.controller.setup.CommunicationSchedules',
-                            action: 'showCommunicationSchedulesEditView'
+                            action: 'showCommunicationSchedulesEditView',
+                            callback: function(route) {
+                                this.getApplication().on('loadCommunicationSchedule', function(record) {
+                                    route.setTitle('Edit "' + record.get('name') + '"');
+                                    return true;
+                                }, {single: true});
+
+                                return this;
+                            }
                         }
                     }
                 },
