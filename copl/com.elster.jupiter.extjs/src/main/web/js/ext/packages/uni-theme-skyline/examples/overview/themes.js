@@ -359,7 +359,7 @@ function getFormWidgets() {
                     },
                     {
                         text: 'Delete',
-                        ui: 'delete'
+                        ui: 'remove'
                     },
                     {
                         text: 'Disabled',
