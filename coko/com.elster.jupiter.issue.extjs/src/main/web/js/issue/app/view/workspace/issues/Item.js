@@ -3,7 +3,7 @@ Ext.define('Isu.view.workspace.issues.Item', {
     requires: [
         'Isu.view.ext.button.ItemAction',
         'Isu.view.workspace.issues.ActionMenu',
-        'Isu.view.workspace.issues.Form'
+        'Isu.view.workspace.issues.FormWithFilters'
     ],
     alias: 'widget.issues-item',
     title: 'Details',
@@ -23,8 +23,8 @@ Ext.define('Isu.view.workspace.issues.Item', {
     ],
     items: {
 
-        itemId: 'issue-form',
-        xtype: 'issue-form',
+        itemId: 'issue-form-with-filters',
+        xtype: 'issue-form-with-filters',
         // todo: animate button
         bbar: {
             layout: {
@@ -38,7 +38,7 @@ Ext.define('Isu.view.workspace.issues.Item', {
                 action: 'view',
                 listeners: {
                     click: function () {
-                        window.location.href = "#/workspace/datacollection/issues/" + Ext.ComponentQuery.query('#issue-form')[0].getRecord().get('id')
+                        window.location.href = "#/workspace/datacollection/issues/" + Ext.ComponentQuery.query('#issue-form-with-filters')[0].getRecord().get('id')
                     }
                 }
             }

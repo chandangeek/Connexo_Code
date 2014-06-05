@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Activator implements BundleActivator {
+public class Activator {
 	public static final String HTTP_RESOURCE_ALIAS = "/issue";
     private volatile ServiceRegistration<HttpResource> registration;
 	
@@ -27,7 +27,7 @@ public class Activator implements BundleActivator {
 			"/index.html", 
 			"Isu.controller.Main", 
 			scripts, 
-			Arrays.asList("ISU"),
+			Arrays.asList("ISE"),
 			Arrays.asList("/resources/css/isu.css"),
             dependencies
 		);

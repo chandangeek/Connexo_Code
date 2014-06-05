@@ -1,4 +1,4 @@
 -classpath: target/classes
-Bundle-Activator: com.elster.jupiter.issue.extjs.Activator
+-dsannotations: *
 Private-Package: com.elster.jupiter.issue.extjs
 -include: -../development.bnd
