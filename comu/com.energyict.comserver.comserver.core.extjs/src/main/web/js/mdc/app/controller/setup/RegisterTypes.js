@@ -220,6 +220,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                                     widget.down('#editMrIdField').disable();
                                    // widget.down('#editRegisterTypeNameField').disable();
                                     widget.down('#registerTypeEditCreateInformation').update(Uni.I18n.translate('registertype.warningLinkedTodeviceType', 'MDC', 'The register type has been added to a device type.  Only the name is editable.'));
+                                    widget.down('#registerTypeEditCreateInformation').show();
                                 } else {
                                     widget.down('#editMrIdField').enable();
 

@@ -48,7 +48,9 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                     {
                         xtype: 'component',
                         html: '',
-                        itemId: 'registerTypeEditCreateInformation'
+                        itemId: 'registerTypeEditCreateInformation',
+                        margin: '0 0 20 0',
+                        hidden: true
                     },
                     {
                         xtype: 'container',
@@ -90,7 +92,6 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                     {
                                         xtype: 'fieldcontainer',
                                         fieldLabel: '&nbsp',
-
                                         layout: {
                                             type: 'hbox',
                                             align: 'stretch'
@@ -99,7 +100,6 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                             {
                                                 html: '<span style="color: grey"><i>' + Uni.I18n.translate('registerType.obisCodeInfo', 'MDC', 'Provide the values for the 6 attributes of the Obis code, separated by a "."') + '</i></span>',
                                                 xtype: 'component'
-
                                             }
                                         ]
                                     },
@@ -115,7 +115,6 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                         emptyText: Uni.I18n.translate('registerType.selectMeasurementUnit', 'MDC', 'Select a unit of measure...'),
                                         required: true,
                                         forceSelection: true,
-
                                         cls: 'obisCode',
                                         typeAhead: true,
                                         msgTarget: 'under',
@@ -134,7 +133,6 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                         emptyText: Uni.I18n.translate('registerType.selectTimeOfUse', 'MDC', 'Select a time of use...'),
                                         required: true,
                                         forceSelection: true,
-
                                         width: 650,
                                         typeAhead: true,
                                         msgTarget: 'under'
