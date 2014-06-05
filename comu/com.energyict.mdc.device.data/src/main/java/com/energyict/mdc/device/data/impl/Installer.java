@@ -27,7 +27,7 @@ import java.util.logging.Logger;
 public class Installer {
 
     private final Logger logger = Logger.getLogger(Installer.class.getName());
-    public static final String MESSAGING_NAME = "COM_SCHEDULE_RECALCULATOR";
+    public static final String MESSAGING_NAME = "COMSCHEDULE_RECALCULATOR";
     private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
 
     private final DataModel dataModel;
