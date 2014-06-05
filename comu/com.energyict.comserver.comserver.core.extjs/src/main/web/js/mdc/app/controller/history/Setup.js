@@ -452,8 +452,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     action: 'showRegisterTypeEditView'
                                 }
                             }
-                        },
-
+                        }
                     }
                 },
                 registergroups: {
