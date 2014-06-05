@@ -325,7 +325,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
     loadModelToEditForm: function (id) {
         var self = this,
             nameField = self.getTaskEdit().down('textfield'),
-            categoriesStore = self.getStore('Mdc.store.CommunicationTasksCategories');
+            categoriesStore = self.getStore('Mdc.store.CommuncationTasksCategories');
         categoriesStore.load({
             scope: this,
             callback: function () {
@@ -333,6 +333,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
                     url: '/api/cts/comtasks/' + id,
                     success: function (response) {
                         var rec = Ext.decode(response.responseText);
+                        self.getApplication().fireEvent('loadCommunicationTask', rec);
                         nameField.setValue(rec.name);
                         Ext.Array.each(rec.commands, function (command) {
                             self.addTagButton(command);

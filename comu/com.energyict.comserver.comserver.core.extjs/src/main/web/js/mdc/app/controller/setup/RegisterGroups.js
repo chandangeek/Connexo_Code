@@ -149,6 +149,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
         // TODO: change this to activate infinite scrolling when JP-2844 is fixed
         Ext.ModelManager.getModel('Mdc.model.RegisterGroup').load(registerGroupId, {
             success: function (registerGroup) {
+                me.getApplication().fireEvent('loadRegisterGroup', registerGroup);
                 me.getStore('Mdc.store.RegisterTypes').load({
                     limit: 500,
                     callback: function (registerTypes) {

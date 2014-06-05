@@ -1,7 +1,6 @@
 Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulePreview', {
     extend: 'Ext.panel.Panel',
-    border: true,
-    margins: '0 10 10 10',
+    frame: true,
     alias: 'widget.communicationSchedulePreview',
     itemId: 'communicationSchedulePreview',
     requires: [
@@ -9,68 +8,33 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulePreview', 
         'Mdc.util.ScheduleToStringConverter',
         'Mdc.view.setup.communicationschedule.CommunicationScheduleActionMenu'
     ],
-//    controllers: [
-//        'Mdc.controller.setup.DeviceTypes'
-//    ],
-    layout: {
-        type: 'card',
-        align: 'stretch'
-    },
+
+    tools: [
+        {
+            xtype: 'button',
+            text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
+            iconCls: 'x-uni-action-iconA',
+            menu: {
+                xtype: 'communication-schedule-action-menu'
+            }
+        }
+    ],
 
     items: [
-        {
-            xtype: 'panel',
-            border: false,
-            padding: '0 10 0 10',
-            tbar: [
-                {
-                    xtype: 'component',
-                    html: '<h4>' + Uni.I18n.translate('communicationschedule.noCommunicationScheduleSelected', 'MDC', 'No communication schedule selected') + '</h4>'
-                }
-            ],
-            items: [
-                {
-                    xtype: 'component',
-                    height: '100px',
-                    html: '<h5>' + Uni.I18n.translate('communicationschedule.selectCommunicationSchedule', 'MDC', 'Select a communication schedule to see its details') + '</h5>'
-                }
-            ]
-
-        },
         {
             xtype: 'form',
             border: false,
             itemId: 'communicationSchedulePreviewForm',
-            padding: '0 10 0 10',
             layout: {
                 type: 'vbox',
                 align: 'stretch'
             },
-            tbar: [
-                {
-                    xtype: 'component',
-                    html: '<h4>Communication schedule</h4>',
-                    itemId: 'communicationSchedulePreviewTitle'
-                },
-                '->',
-
-                {
-                    xtype: 'button',
-                    text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
-                    iconCls: 'x-uni-action-iconA',
-                    menu: {
-                        xtype: 'communication-schedule-action-menu'
-                    }
-                }
-            ],
             items: [
                 {
                     xtype: 'container',
                     layout: {
                         type: 'column'
-//                        align: 'stretch'
                     },
-                    padding: '10 0 0 0',
                     items: [
                         {
                             xtype: 'container',
@@ -104,9 +68,6 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulePreview', 
                                         {
                                             xtype: 'container',
                                             itemId: 'comTaskPreviewContainer',
-                                            layout: {
-                                                type: 'vbox'
-                                            },
                                             items: [
                                             ]
                                         }
@@ -176,6 +137,8 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulePreview', 
             ]
         }
     ],
+
+    emptyText: '<h3>' + Uni.I18n.translate('communicationschedule.noCommunicationScheduleSelected', 'MDC', 'No communication schedule selected') + '</h3><p>' + Uni.I18n.translate('communicationschedule.selectCommunicationSchedule', 'MDC', 'Select a communication schedule to see its details') + '</p>',
 
     initComponent: function () {
         this.callParent(arguments);
