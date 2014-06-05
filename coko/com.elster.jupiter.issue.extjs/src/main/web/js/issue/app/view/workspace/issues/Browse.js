@@ -15,6 +15,10 @@ Ext.define('Isu.view.workspace.issues.Browse', {
         {   itemId: 'issues-list',
             xtype: 'issues-list'
         },
+        {   itemId: 'noIssues',
+            name: 'noIssues',
+            hidden: true
+        },
         {   itemId: 'issues-item',
             xtype: 'issues-item'
         }
