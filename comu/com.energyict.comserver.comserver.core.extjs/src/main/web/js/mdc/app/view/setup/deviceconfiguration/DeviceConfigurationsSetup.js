@@ -84,7 +84,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsSetup', {
                                                 Uni.I18n.translate('deviceConfiguration.empty.steps', 'MDC', 'Possible steps:')
                                         },
                                         {
-                                            text: Uni.I18n.translate('deviceConfiguration.addDeviceConfiguration', 'MDC', 'Add outbound connection method'),
+                                            text: Uni.I18n.translate('deviceConfiguration.addDeviceConfiguration', 'MDC', 'Add device configuration'),
                                             itemId: 'createDeviceConfigurationButton',
                                             xtype: 'button',
                                             action: 'createDeviceConfiguration'
