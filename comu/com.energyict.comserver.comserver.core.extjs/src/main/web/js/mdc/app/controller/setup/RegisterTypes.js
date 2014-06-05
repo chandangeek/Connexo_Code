@@ -65,9 +65,6 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             '#createEditButton[action=editRegisterType]': {
                 click: this.editRegisterType
             },
-            '#registerTypeDetail menuitem[action=RegisterType]': {
-                click: this.deleteRegisterTypeFromDetails
-            },
             '#registerTypeDetail menuitem[action=editRegisterType]': {
                 click: this.editRegisterTypeFromDetails
             },
@@ -188,20 +185,6 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                 }
             });
         }
-    },
-
-    deleteRegisterTypeFromDetails: function () {
-        var me = this;
-        var registerTypeToDelete = this.getRegisterTypeDetailForm().getRecord();
-
-        Ext.create('Uni.view.window.Confirmation').show({
-            msg: Uni.I18n.translate('registerType.deleteRegisterType', 'MDC', 'The register type will no longer be available.'),
-            title: Uni.I18n.translate('general.delete', 'MDC', 'Delete') + ' ' + registerTypeToDelete.get('name') + '?',
-            config: {
-                registerTypeToDelete: registerTypeToDelete
-            },
-            fn: me.deleteRegisterTypeFromDetailsInDatabase  // TODO Has this ever worked?
-        });
     },
 
     showRegisterTypeEditView: function (registerMapping) {
