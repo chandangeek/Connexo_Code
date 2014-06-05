@@ -8,9 +8,9 @@ Ext.define('Uni.view.window.Confirmation', {
     /**
      * @cfg {String}
      *
-     * Text for the confirmation button. By default 'Delete'.
+     * Text for the confirmation button. By default 'Remove'.
      */
-    confirmText: Uni.I18n.translate('general.delete', 'UNI', 'Delete'),
+    confirmText: Uni.I18n.translate('general.remove', 'UNI', 'Remove'),
 
     /**
      * @cfg {String}
@@ -52,7 +52,7 @@ Ext.define('Uni.view.window.Confirmation', {
                 name: 'confirm',
                 scope: me,
                 text: me.confirmText,
-                ui: 'delete',
+                ui: 'remove',
                 handler: me.confirmation
             },
             {
