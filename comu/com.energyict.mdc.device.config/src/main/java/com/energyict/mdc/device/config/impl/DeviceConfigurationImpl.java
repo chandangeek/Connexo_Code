@@ -68,7 +68,8 @@ import javax.validation.constraints.Size;
  * User: gde
  * Date: 5/11/12
  */
-@DeviceFunctionsAreSupportedByProtocol
+@DeviceFunctionsAreSupportedByProtocol(groups = {Save.Update.class, Save.Create.class})
+@ImmutablePropertiesCanNotChangeForActiveConfiguration(groups = {Save.Update.class, Save.Create.class})
 public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfiguration> implements DeviceConfiguration, ServerDeviceConfiguration {
 
     private static final DeviceCommunicationFunctionSetPersister deviceCommunicationFunctionSetPersister = new DeviceCommunicationFunctionSetPersister();
@@ -87,7 +88,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         }
     }
 
-    @Size(min=0, max=4000, groups = {Save.Update.class, Save.Create.class}, message = "{"+ MessageSeeds.Keys.INCORRECT_SIZE+"}")
+    @Size(max=4000, groups = {Save.Update.class, Save.Create.class}, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG +"}")
     private String description;
 
     private boolean active;
@@ -664,9 +665,6 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     @Override
     public void save() {
-        if (isActive()) {
-            throw new DeviceConfigurationIsActiveException(this.thesaurus, this);
-        }
         this.modificationDate = this.clock.now();
         super.save();
     }

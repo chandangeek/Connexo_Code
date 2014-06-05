@@ -18,7 +18,7 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_TYPE(1, "DTC.deviceType.with.article", "a device type", SEVERE),
     NAME_IS_REQUIRED(1000, Keys.NAME_REQUIRED, "The name is required", SEVERE),
     NAME_IS_UNIQUE(1001, Keys.NAME_UNIQUE, "The name must be unique", SEVERE),
-    ILLEGAL_FIELD_SIZE(1002, Keys.INCORRECT_SIZE, "Field size is incorrect, should be {min} to {max}", SEVERE),
+    FIELD_TOO_LONG(1002, Keys.FIELD_TOO_LONG, "Field length must not exceed {max} characters", SEVERE),
     REGISTER_GROUP_NAME_IS_REQUIRED(1501, "registerGroup.name.required", "The name of a register group is required", SEVERE),
     READING_TYPE_ALREADY_EXISTS(2002, Keys.READING_TYPE_ALREADY_EXISTS, "The product spec with the reading type {0} already exists", SEVERE),
     DEFAULT_PRODUCT_SPEC_CANNOT_BE_DELETED(2003, "productSpec.cannotDeleteDefault", "The default product spec cannot be deleted", SEVERE),
@@ -104,6 +104,7 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_CONFIGURATION_DUPLICATE_OBIS_CODE_FOR_CHANNEL_SPEC(12010, "deviceConfig.duplicate.obisCode.channelSpec", "The device configuration \"{0}\" already contains a channel specification this obis code \"{1}\"", SEVERE),
     DEVICE_CONFIGURATION_CAN_NOT_BE_GATEWAY(12012, Keys.DEVICE_CONFIG_GATEWAY_NOT_ALLOWED, "The device configuration can not be gateway as the device protocol does not allow it", SEVERE),
     DEVICE_CONFIGURATION_CAN_NOT_BE_DIRECTLY_ADDRESSED(12013, Keys.DEVICE_CONFIG_DIRECT_ADDRESS_NOT_ALLOWED, "The device configuration can not be directly addressable as the device protocol does not allow it", SEVERE),
+    DEVICE_CONFIGURATION_IS_ACTIVE_CAN_NOT_CHANGE_FIELD(12014, Keys.DEVICE_CONFIG_ACTIVE_FIELD_IMMUTABLE, "You can not change this field for an active configuration", SEVERE),
     NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED(13000, Keys.NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED, "The temporal expression of a NextExecutionSpec is required", SEVERE),
     TEMPORAL_EXPRESSION_FREQUENCY_REQUIRED(13001, Keys.TEMPORAL_EXPRESSION_FREQUENCY_REQUIRED, "The frequency of a temporal expression is required", SEVERE),
     TEMPORAL_EXPRESSION_UNKNOWN_UNIT(13002, Keys.TEMPORAL_EXPRESSION_UNKNOWN_UNIT, "The unit {0} is unknown or unsupported for temporal expressions", SEVERE),
@@ -191,7 +192,7 @@ public enum MessageSeeds implements MessageSeed {
     public static class Keys {
         public static final String NAME_REQUIRED = "DTC.X.name.required";
         public static final String NAME_UNIQUE = "DTC.X.name.unique";
-        public static final String INCORRECT_SIZE = "DTC.incorrect.field.size";
+        public static final String FIELD_TOO_LONG = "DTC.incorrect.field.size";
         public static final String DEVICE_TYPE_XSTILL_HAS_ACTIVE_CONFIGURATIONS = "DTC.deviceType.XstillHasActiveConfigurations";
         public static final String DEVICE_PROTOCOL_IS_REQUIRED = "DTC.deviceType.protocol.required";
         public static final String DEVICE_PROTOCOL_CANNOT_CHANGE_WITH_EXISTING_CONFIGURATIONS = "DTC.deviceType.protocol.noupdate";
@@ -241,6 +242,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String COM_TASK_ENABLEMENT_PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_MUST_BE_FROM_SAME_CONFIGURATION = "DTC.comTaskEnablement.protocolDialectConfigurationProperties.fromSameConfiguration";
         public static final String COM_TASK_ENABLEMENT_SECURITY_PROPERTY_SET_MUST_BE_FROM_SAME_CONFIGURATION = "DTC.comTaskEnablement.securityPropertySet.fromSameConfiguration";
         public static final String COM_TASK_ENABLEMENT_DOES_NOT_EXIST = "DTC.comTaskEnablement.doesNotExist";
+        public static final String DEVICE_CONFIG_ACTIVE_FIELD_IMMUTABLE = "DTC.deviceConfig.active.field.immutable";
     }
 
 }
