@@ -153,6 +153,10 @@ Ext.define('Uni.controller.history.Router', {
             }
         });
 
+        if (me.routes[key].callback) {
+            me.routes[key].callback.apply(me, [me.routes[key]])
+        }
+
         // register route with crossroads if not disabled
         if (!config.disabled) {
             me.routes[key].crossroad = crossroads.addRoute(route, function() {
@@ -164,11 +168,7 @@ Ext.define('Uni.controller.history.Router', {
                     arguments
                 );
 
-                if (me.routes[key].callback) {
-                    me.routes[key].callback.apply(me, [me.routes[key]])
-                }
                 var controller = me.getController(config.controller);
-
                 var arguments = _.values(_.extend(me.routeparams, params));
 
                 // fire the controller action with this route params as arguments
