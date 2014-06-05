@@ -92,7 +92,7 @@ Ext.define('Uni.view.container.PreviewContainer', {
         if (!(grid instanceof Ext.Component)) {
             grid = Ext.clone(grid);
         }
-
+        grid.height = 450;
         me.items[1].items.push(grid);
 
         if (!(previewCmp instanceof Ext.Component)) {
