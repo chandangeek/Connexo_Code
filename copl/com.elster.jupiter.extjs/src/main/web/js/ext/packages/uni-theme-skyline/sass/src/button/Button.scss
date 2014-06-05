@@ -2,6 +2,10 @@
     background-image: $button-action-iconA;
 }
 
+.#{$prefix}uni-action-iconD {
+    background-image: $button-action-iconD;
+}
+
 .#{$prefix}uni-action-icon {
     background-image: $button-action-icon;
 }
@@ -10,6 +14,8 @@
     background-image: $button-action-iconA;
   }
 }
+
+
 
 .#{$prefix}btn-default-toolbar-small .#{$prefix}btn-arrow {
     background-image: url('images/button/default-small-arrow.png');
