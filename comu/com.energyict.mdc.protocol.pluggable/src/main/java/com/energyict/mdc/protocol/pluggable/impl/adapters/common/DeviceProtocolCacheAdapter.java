@@ -18,7 +18,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class DeviceProtocolCacheAdapter implements DeviceProtocolCache {
 
-    private transient Object legacyCache;
     @XmlElement(name = "LegacyJson")
     private String jsonCache;
 
@@ -28,15 +27,6 @@ public class DeviceProtocolCacheAdapter implements DeviceProtocolCache {
     @Override
     public boolean contentChanged() {
         return true;    //always return true so the update is always performed
-    }
-
-    public Object getLegacyCache() {
-        // TODO fetch it from the remote bundle with the jsonString
-        return legacyCache;
-    }
-
-    public void setLegacyCache(Object legacyCache) {
-        this.legacyCache = legacyCache;
     }
 
     public String getLegacyJsonCache() {

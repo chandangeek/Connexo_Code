@@ -28,6 +28,7 @@ import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
@@ -83,6 +84,7 @@ public class InMemoryPersistence {
     private ApplicationContext applicationContext;
     private PluggableService pluggableService;
     private RelationService relationService;
+    private DeviceCacheMarshallingService deviceCacheMarshallingService;
 
     private ProtocolPluggableServiceImpl protocolPluggableService;
 
@@ -150,6 +152,7 @@ public class InMemoryPersistence {
         this.licensedProtocolService = mock(LicensedProtocolService.class);
         this.legacySecurityPropertyConverter = mock(LegacySecurityPropertyConverter.class);
         this.applicationContext = mock(ApplicationContext.class);
+        this.deviceCacheMarshallingService = mock(DeviceCacheMarshallingService.class);
         Translator translator = mock(Translator.class);
         when(translator.getTranslation(anyString())).thenReturn("Translation missing in unit testing");
         when(translator.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
@@ -170,7 +173,8 @@ public class InMemoryPersistence {
                         this.deviceProtocolMessageService,
                         this.deviceProtocolSecurityService,
                         this.inboundDeviceProtocolService,
-                        this.connectionTypeService, deviceCacheMarshallingService);
+                        this.connectionTypeService,
+                        this.deviceCacheMarshallingService);
         return this.protocolPluggableService.getDataModel();
     }
 
@@ -207,6 +211,10 @@ public class InMemoryPersistence {
         return issueService;
     }
 
+    public DeviceCacheMarshallingService getDeviceCacheMarshallingService() {
+        return deviceCacheMarshallingService;
+    }
+
     public DeviceProtocolSecurityService getDeviceProtocolSecurityService() {
         return deviceProtocolSecurityService;
     }
@@ -227,6 +235,7 @@ public class InMemoryPersistence {
             bind(DeviceProtocolService.class).toInstance(deviceProtocolService);
             bind(InboundDeviceProtocolService.class).toInstance(inboundDeviceProtocolService);
             bind(LicensedProtocolService.class).toInstance(licensedProtocolService);
+            bind(DeviceCacheMarshallingService.class).toInstance(deviceCacheMarshallingService);
             bind(DataModel.class).toProvider(new Provider<DataModel>() {
                 @Override
                 public DataModel get() {

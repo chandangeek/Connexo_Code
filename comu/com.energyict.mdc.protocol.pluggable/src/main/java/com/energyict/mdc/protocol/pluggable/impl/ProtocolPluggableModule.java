@@ -6,6 +6,7 @@ import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
@@ -32,6 +33,7 @@ public class ProtocolPluggableModule extends AbstractModule {
         requireBinding(InboundDeviceProtocolService.class);
         requireBinding(LicensedProtocolService.class);
         requireBinding(IssueService.class);
+        requireBinding(DeviceCacheMarshallingService.class);
 
         bind(ProtocolPluggableService.class).to(ProtocolPluggableServiceImpl.class).in(Scopes.SINGLETON);
     }

@@ -597,7 +597,7 @@ public class MeterProtocolAdapterTest {
     }
 
     protected MeterProtocolAdapterImpl newMeterProtocolAdapter(MeterProtocol meterProtocol) {
-        MeterProtocolAdapterImpl adapter = new MeterProtocolAdapterImpl(meterProtocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.protocolPluggableService.getDataModel(), this.inMemoryPersistence.getIssueService(), deviceCacheMarshallingService);
+        MeterProtocolAdapterImpl adapter = new MeterProtocolAdapterImpl(meterProtocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.protocolPluggableService.getDataModel(), this.inMemoryPersistence.getIssueService(), this.inMemoryPersistence.getDeviceCacheMarshallingService());
         adapter.setPropertySpecService(this.inMemoryPersistence.getPropertySpecService());
         return adapter;
     }
@@ -608,7 +608,7 @@ public class MeterProtocolAdapterTest {
     private class TestMeterProtocolAdapter extends MeterProtocolAdapterImpl {
 
         private TestMeterProtocolAdapter(final MeterProtocol meterProtocol, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService1, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory) {
-            super(meterProtocol, protocolPluggableService1, securitySupportAdapterMappingFactory, protocolPluggableService.getDataModel(), inMemoryPersistence.getIssueService(), deviceCacheMarshallingService);
+            super(meterProtocol, protocolPluggableService1, securitySupportAdapterMappingFactory, protocolPluggableService.getDataModel(), inMemoryPersistence.getIssueService(), inMemoryPersistence.getDeviceCacheMarshallingService());
             this.setPropertySpecService(propertySpecService);
         }
 

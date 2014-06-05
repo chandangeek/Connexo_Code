@@ -561,7 +561,7 @@ public class SmartMeterProtocolAdapterTest {
     }
 
     protected SmartMeterProtocolAdapter newSmartMeterProtocolAdapter(SmartMeterProtocol smartMeterProtocol) {
-        SmartMeterProtocolAdapter adapter = new SmartMeterProtocolAdapter(smartMeterProtocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.protocolPluggableService.getDataModel(), this.inMemoryPersistence.getIssueService(), deviceCacheMarshallingService);
+        SmartMeterProtocolAdapter adapter = new SmartMeterProtocolAdapter(smartMeterProtocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.protocolPluggableService.getDataModel(), this.inMemoryPersistence.getIssueService(), this.inMemoryPersistence.getDeviceCacheMarshallingService());
         adapter.setPropertySpecService(this.inMemoryPersistence.getPropertySpecService());
         return adapter;
     }
@@ -572,7 +572,7 @@ public class SmartMeterProtocolAdapterTest {
     private class TestSmartMeterProtocolAdapter extends SmartMeterProtocolAdapter {
 
         private TestSmartMeterProtocolAdapter(final SmartMeterProtocol meterProtocol, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService1, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory) {
-            super(meterProtocol, protocolPluggableService1, securitySupportAdapterMappingFactory, protocolPluggableService.getDataModel(), inMemoryPersistence.getIssueService(), deviceCacheMarshallingService);
+            super(meterProtocol, protocolPluggableService1, securitySupportAdapterMappingFactory, protocolPluggableService.getDataModel(), inMemoryPersistence.getIssueService(), inMemoryPersistence.getDeviceCacheMarshallingService());
             this.setPropertySpecService(propertySpecService);
         }
 

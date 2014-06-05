@@ -25,6 +25,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
@@ -459,6 +460,7 @@ public class DeviceProtocolPluggableClassImplTest {
             bind(DeviceProtocolService.class).toInstance(deviceProtocolService);
             bind(DeviceProtocolMessageService.class).toInstance(mock(DeviceProtocolMessageService.class));
             bind(DeviceProtocolSecurityService.class).toInstance(mock(DeviceProtocolSecurityService.class));
+            bind(DeviceCacheMarshallingService.class).toInstance(mock(DeviceCacheMarshallingService.class));
             bind(DataModel.class).toProvider(new Provider<DataModel>() {
                 @Override
                 public DataModel get() {
