@@ -414,8 +414,12 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                 },
                 failure: function (result, request) {
                     var errorText = Uni.I18n.translate('communicationtasks.error.unknown', 'MDC', 'Unknown error occurred');
+                    if(!Ext.isEmpty(result.statusText)) {
+                        errorText = result.statusText;
+                    }
                     if(!Ext.isEmpty(result.responseText)) {
                         var json = Ext.decode(result.responseText, true);
+
                         if (json && json.error) {
                             errorText = json.error;
                         }
@@ -503,6 +507,9 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                         me.loadCommunicationTasksStore();
                     } else {
                         var errorText = Uni.I18n.translate('communicationtasks.error.unknown', 'MDC', 'Unknown error occurred');
+                        if(!Ext.isEmpty(operation.response.statusText)) {
+                            errorText = operation.response.statusText;
+                        }
                         if(!Ext.isEmpty(operation.response.responseText)) {
                             var json = Ext.decode(operation.response.responseText, true);
                             if (json && json.error) {
@@ -556,6 +563,9 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                 },
                 failure: function (record, operation) {
                     var errorText = Uni.I18n.translate('communicationtasks.error.unknown', 'MDC', 'Unknown error occurred');
+                    if(!Ext.isEmpty(operation.response.statusText)) {
+                        errorText = operation.response.statusText;
+                    }
                     if(!Ext.isEmpty(operation.response.responseText)) {
                         var json = Ext.decode(operation.response.responseText, true);
                         if (json && json.errors) {

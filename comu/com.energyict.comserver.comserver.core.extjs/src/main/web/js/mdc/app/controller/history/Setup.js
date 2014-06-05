@@ -12,18 +12,18 @@ Ext.define('Mdc.controller.history.Setup', {
             disabled: true,
             items: {
                 logbooktypes: {
-                    title: 'Logbook Types',
+                    title: 'Logbook types',
                     route: 'logbooktypes',
                     controller: 'Mdc.controller.setup.SetupOverview',
                     action: 'showLogbookTypes',
                     items: {
                         create: {
-                            title: 'Create',
+                            title: 'Create logbook type',
                             route: 'create',
                             controller: 'Mdc.controller.setup.LogForm'
                         },
                         edit: {
-                            title: 'Edit',
+                            title: 'Edit logbook type',
                             route: 'edit/{id}',
                             controller: 'Mdc.controller.setup.LogForm'
                         }
@@ -36,268 +36,277 @@ Ext.define('Mdc.controller.history.Setup', {
                     action: 'showDeviceTypes',
                     items: {
                         create: {
-                            title: 'Add',
+                            title: 'Add device type',
                             route: 'add',
                             controller: 'Mdc.controller.setup.DeviceTypes',
                             action: 'showDeviceTypeCreateView'
                         },
                         view: {
                             callback: function(route) {
-                                var ctrl = this.getController(route.controller);
-
-                                ctrl.on('loadDeviceType', function(record) {
+                                this.getApplication().on('loadDeviceType', function(record) {
                                     route.setTitle(record.get('name'));
                                     return true;
                                 }, {single: true});
 
                                 return this;
                             },
-                            route: '{id}',
+                            route: '{deviceTypeId}',
                             controller: 'Mdc.controller.setup.DeviceTypes',
-                            action: 'showDeviceTypeDetailsView'
-                        },
-                        edit: {
-                            title: 'Edit',
-                            route: '{id}/edit',
-                            controller: 'Mdc.controller.setup.DeviceTypes',
-                            action: 'showDeviceTypeEditView'
-                        },
-                        logbooktypes: {
-                            title: 'Logbook Types',
-                            route: '{id}/logbooktypes',
-                            controller: 'Mdc.controller.setup.DeviceTypes',
-                            action: 'showDeviceTypeLogbookTypesView',
+                            action: 'showDeviceTypeDetailsView',
                             items: {
-                                add: {
-                                    title: 'Add logbook type',
-                                    route: 'add',
-                                    controller: 'Mdc.controller.setup.DeviceTypes',
-                                    action: 'showAddLogbookTypesView'
-                                }
-                            }
-                        },
-                        loadprofiles: {
-                            title: 'Load Profiles',
-                            route: '{id}/loadprofiles',
-                            controller: 'Mdc.controller.setup.LoadProfileTypesOnDeviceType',
-                            action: 'showDeviceTypeLoadProfileTypesView',
-                            items: {
-                                add: {
-                                    title: 'Add Load Profile',
-                                    route: 'add',
-                                    controller: 'Mdc.controller.setup.LoadProfileTypesOnDeviceType',
-                                    action: 'showDeviceTypeLoadProfileTypesAddView'
-                                }
-                            }
-                        },
-                        deviceconfigurations: {
-                            title: 'Device Configurations',
-                            route: '{deviceTypeId}/deviceconfigurations',
-                            controller: 'Mdc.controller.setup.DeviceConfigurations',
-                            action: 'showDeviceConfigurations',
-                            items: {
-                                create: {
-                                    title: 'Create',
-                                    route: 'create',
-                                    controller: 'Mdc.controller.setup.DeviceConfigurations',
-                                    action: 'showDeviceConfigurationCreateView'
-                                },
                                 edit: {
-                                    title: 'Edit',
-                                    route: '{id}/edit',
-                                    controller: 'Mdc.controller.setup.DeviceConfigurations',
-                                    action: 'showDeviceConfigurationEditView'
+                                    title: 'Edit device type',
+                                    route: 'edit',
+                                    controller: 'Mdc.controller.setup.DeviceTypes',
+                                    action: 'showDeviceTypeEditView'
                                 },
-                                view: {
-                                    title: 'Details',
-                                    route: '{deviceConfigurationId}',
-                                    controller: 'Mdc.controller.setup.DeviceConfigurations',
-                                    action: 'showDeviceConfigurationDetailsView'
-                                },
-                                loadprofiles: {
-                                    title: 'Load profiles',
-                                    route: '{deviceConfigurationId}/loadprofiles',
-                                    controller: 'Mdc.controller.setup.LoadProfileConfigurations',
-                                    action: 'showDeviceConfigurationLoadProfilesView',
+                                logbooktypes: {
+                                    title: 'Logbook Types',
+                                    route: 'logbooktypes',
+                                    controller: 'Mdc.controller.setup.DeviceTypes',
+                                    action: 'showDeviceTypeLogbookTypesView',
                                     items: {
                                         add: {
-                                            title: 'Add Load Profile',
+                                            title: 'Add logbook type',
                                             route: 'add',
-                                            controller: 'Mdc.controller.setup.LoadProfileConfigurations',
-                                            action: 'showDeviceConfigurationLoadProfilesAddView'
-                                        },
-                                        edit: {
-                                            title: 'Add Load Profile',
-                                            route: '{loadProfileConfigurationId}/edit',
-                                            controller: 'Mdc.controller.setup.LoadProfileConfigurations',
-                                            action: 'showDeviceConfigurationLoadProfilesEditView'
+                                            controller: 'Mdc.controller.setup.DeviceTypes',
+                                            action: 'showAddLogbookTypesView'
+                                        }
+                                    }
+                                },
+                                loadprofiles: {
+                                    title: 'Load Profiles',
+                                    route: 'loadprofiles',
+                                    controller: 'Mdc.controller.setup.LoadProfileTypesOnDeviceType',
+                                    action: 'showDeviceTypeLoadProfileTypesView',
+                                    items: {
+                                        add: {
+                                            title: 'Add load profile',
+                                            route: 'add',
+                                            controller: 'Mdc.controller.setup.LoadProfileTypesOnDeviceType',
+                                            action: 'showDeviceTypeLoadProfileTypesAddView'
+                                        }
+                                    }
+                                },
+                                deviceconfigurations: {
+                                    title: 'Device Configurations',
+                                    route: 'deviceconfigurations',
+                                    controller: 'Mdc.controller.setup.DeviceConfigurations',
+                                    action: 'showDeviceConfigurations',
+                                    items: {
+                                        create: {
+                                            title: 'Create device configuration',
+                                            route: 'create',
+                                            controller: 'Mdc.controller.setup.DeviceConfigurations',
+                                            action: 'showDeviceConfigurationCreateView'
                                         },
                                         view: {
-                                            title: 'Load Profile',
-                                            route: '{loadProfileConfigurationId}/channels',
-                                            controller: 'Mdc.controller.setup.LoadProfileConfigurationDetails',
-                                            action: 'showDeviceConfigurationLoadProfilesConfigurationDetailsView',
+                                            callback: function(route) {
+                                                this.getApplication().on('loadDeviceConfiguration', function(record) {
+                                                    route.setTitle(record.get('name'));
+                                                    return true;
+                                                }, {single: true});
+
+                                                return this;
+                                            },
+                                            route: '{deviceConfigurationId}',
+                                            controller: 'Mdc.controller.setup.DeviceConfigurations',
+                                            action: 'showDeviceConfigurationDetailsView',
                                             items: {
-                                                add: {
-                                                    title: 'Add Channel',
-                                                    route: 'add',
-                                                    controller: 'Mdc.controller.setup.LoadProfileConfigurationDetails',
-                                                    action: 'showDeviceConfigurationLoadProfilesConfigurationChannelsAddView'
-                                                },
                                                 edit: {
-                                                    title: 'Edit Channel',
-                                                    route: '{channelId}/edit',
-                                                    controller: 'Mdc.controller.setup.LoadProfileConfigurationDetails',
-                                                    action: 'showDeviceConfigurationLoadProfilesConfigurationChannelsEditView'
+                                                    title: 'Edit device configuration',
+                                                    route: 'edit',
+                                                    controller: 'Mdc.controller.setup.DeviceConfigurations',
+                                                    action: 'showDeviceConfigurationEditView'
+                                                },
+                                                loadprofiles: {
+                                                    title: 'Load profiles',
+                                                    route: 'loadprofiles',
+                                                    controller: 'Mdc.controller.setup.LoadProfileConfigurations',
+                                                    action: 'showDeviceConfigurationLoadProfilesView',
+                                                    items: {
+                                                        add: {
+                                                            title: 'Add load profile',
+                                                            route: 'add',
+                                                            controller: 'Mdc.controller.setup.LoadProfileConfigurations',
+                                                            action: 'showDeviceConfigurationLoadProfilesAddView'
+                                                        },
+                                                        edit: {
+                                                            title: 'Edit load profile',
+                                                            route: '{loadProfileConfigurationId}/edit',
+                                                            controller: 'Mdc.controller.setup.LoadProfileConfigurations',
+                                                            action: 'showDeviceConfigurationLoadProfilesEditView'
+                                                        },
+                                                        view: {
+                                                            title: 'Load profile',
+                                                            route: '{loadProfileConfigurationId}/channels',
+                                                            controller: 'Mdc.controller.setup.LoadProfileConfigurationDetails',
+                                                            action: 'showDeviceConfigurationLoadProfilesConfigurationDetailsView',
+                                                            items: {
+                                                                add: {
+                                                                    title: 'Add Channel',
+                                                                    route: 'add',
+                                                                    controller: 'Mdc.controller.setup.LoadProfileConfigurationDetails',
+                                                                    action: 'showDeviceConfigurationLoadProfilesConfigurationChannelsAddView'
+                                                                },
+                                                                edit: {
+                                                                    title: 'Edit Channel',
+                                                                    route: '{channelId}/edit',
+                                                                    controller: 'Mdc.controller.setup.LoadProfileConfigurationDetails',
+                                                                    action: 'showDeviceConfigurationLoadProfilesConfigurationChannelsEditView'
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                logbookconfigurations: {
+                                                    title: 'Logbook configurations',
+                                                    route: 'logbookconfigurations',
+                                                    controller: 'Mdc.controller.setup.DeviceConfigurations',
+                                                    action: 'showDeviceConfigurationLogbooksView',
+                                                    items: {
+                                                        add: {
+                                                            title: 'Add logbook configuration',
+                                                            route: 'add',
+                                                            controller: 'Mdc.controller.setup.DeviceConfigurations',
+                                                            action: 'showAddDeviceConfigurationLogbooksView'
+                                                        },
+                                                        edit: {
+                                                            title: 'Edit logbook configuration',
+                                                            route: '{logbookConfigurationId}/edit',
+                                                            controller: 'Mdc.controller.setup.DeviceConfigurations',
+                                                            action: 'showEditDeviceConfigurationLogbooksView'
+                                                        }
+                                                    }
+                                                },
+                                                //Register configuration routes
+                                                registerconfigurations: {
+                                                    title: 'Register configurations',
+                                                    route: 'registerconfigurations',
+                                                    controller: 'Mdc.controller.setup.RegisterConfigs',
+                                                    action: 'showRegisterConfigs',
+                                                    items: {
+                                                        create: {
+                                                            title: 'Create register configuration',
+                                                            route: 'create',
+                                                            controller: 'Mdc.controller.setup.RegisterConfigs',
+                                                            action: 'showRegisterConfigurationCreateView'
+                                                        },
+                                                        edit: {
+                                                            title: 'Edit register configuration',
+                                                            route: '{registerConfigurationId}/edit',
+                                                            controller: 'Mdc.controller.setup.RegisterConfigs',
+                                                            action: 'showRegisterConfigurationEditView'
+                                                        }
+                                                    }
+                                                },
+                                                //Security settings routes
+                                                securitysettings: {
+                                                    title: 'Security settings',
+                                                    route: 'securitysettings',
+                                                    controller: 'Mdc.controller.setup.SecuritySettings',
+                                                    action: 'showSecuritySettings',
+                                                    items: {
+                                                        create: {
+                                                            title: 'Create security setting',
+                                                            route: 'create',
+                                                            controller: 'Mdc.controller.setup.SecuritySettings',
+                                                            action: 'showSecuritySettingsCreateView'
+                                                        },
+                                                        edit: {
+                                                            title: 'Edit security setting',
+                                                            route: '{securitySettingId}/edit',
+                                                            controller: 'Mdc.controller.setup.SecuritySettings',
+                                                            action: 'showSecuritySettingsEditView'
+                                                        }
+                                                    }
+                                                },
+                                                //Communication tasks routes
+                                                comtaskenablements: {
+                                                    title: 'Communication tasks',
+                                                    route: 'comtaskenablements',
+                                                    controller: 'Mdc.controller.setup.CommunicationTasks',
+                                                    action: 'showCommunicationTasks',
+                                                    items: {
+                                                        create: {
+                                                            title: 'Create communication task',
+                                                            route: 'create',
+                                                            controller: 'Mdc.controller.setup.CommunicationTasks',
+                                                            action: 'showAddCommunicationTaskView'
+                                                        },
+                                                        edit: {
+                                                            title: 'Edit communication task',
+                                                            route: '{comTaskEnablementId}/edit',
+                                                            controller: 'Mdc.controller.setup.CommunicationTasks',
+                                                            action: 'showEditCommunicationTaskView'
+                                                        }
+                                                    }
+                                                },
+                                                //connection methods routes
+                                                connectionmethods: {
+                                                    title: 'Connection methods',
+                                                    route: 'connectionmethods',
+                                                    controller: 'Mdc.controller.setup.ConnectionMethods',
+                                                    action: 'showConnectionMethods',
+                                                    items: {
+                                                        addoutbound: {
+                                                            title: 'Add outbound',
+                                                            route: 'addoutbound',
+                                                            controller: 'Mdc.controller.setup.ConnectionMethods',
+                                                            action: 'showAddConnectionMethodView',
+                                                            params: {
+                                                                'type': 'Outbound'
+                                                            }
+                                                        },
+                                                        addinbound: {
+                                                            title: 'Add inbound',
+                                                            route: 'addinbound',
+                                                            controller: 'Mdc.controller.setup.ConnectionMethods',
+                                                            action: 'showAddConnectionMethodView',
+                                                            params: {
+                                                                'type': 'Inbound'
+                                                            }
+                                                        },
+                                                        edit: {
+                                                            title: 'Edit connection method',
+                                                            route: '{connectionMethodId}/edit',
+                                                            controller: 'Mdc.controller.setup.ConnectionMethods',
+                                                            action: 'showConnectionMethodEditView'
+                                                        }
+                                                    }
+                                                },
+                                                //protocol dialects routes
+                                                protocols: {
+                                                    title: 'Protocol dialects',
+                                                    route: 'protocols',
+                                                    controller: 'Mdc.controller.setup.ProtocolDialects',
+                                                    action: 'showProtocolDialectsView',
+                                                    items: {
+                                                        edit: {
+                                                            title: 'Edit protocol dialect',
+                                                            route: '{protocolDialectId}/edit',
+                                                            controller: 'Mdc.controller.setup.ProtocolDialects',
+                                                            action: 'showProtocolDialectsEditView'
+                                                        }
+                                                    }
                                                 }
                                             }
                                         }
                                     }
                                 },
-                                logbookconfigurations: {
-                                    title: 'Logbook configurations',
-                                    route: '{deviceConfigurationId}/logbookconfigurations',
-                                    controller: 'Mdc.controller.setup.DeviceConfigurations',
-                                    action: 'showDeviceConfigurationLogbooksView',
+                                registertypes: {
+                                    title: 'Register types',
+                                    route: 'registertypes',
+                                    controller: 'Mdc.controller.setup.RegisterMappings',
+                                    action: 'showRegisterMappings',
                                     items: {
                                         add: {
-                                            title: 'Add Logbook configuration',
+                                            title: 'Add Register mapping',
                                             route: 'add',
-                                            controller: 'Mdc.controller.setup.DeviceConfigurations',
-                                            action: 'showAddDeviceConfigurationLogbooksView'
-                                        },
-                                        edit: {
-                                            title: 'Edit',
-                                            route: '{logbookConfigurationId}/edit',
-                                            controller: 'Mdc.controller.setup.DeviceConfigurations',
-                                            action: 'showEditDeviceConfigurationLogbooksView'
+                                            controller: 'Mdc.controller.setup.RegisterMappings',
+                                            action: 'addRegisterMappings'
                                         }
                                     }
-                                },
-                                //Register configuration routes
-                                registerconfigurations: {
-                                    title: 'Register configurations',
-                                    route: '{deviceConfigurationId}/registerconfigurations',
-                                    controller: 'Mdc.controller.setup.RegisterConfigs',
-                                    action: 'showRegisterConfigs',
-                                    items: {
-                                        create: {
-                                            title: 'Create',
-                                            route: 'create',
-                                            controller: 'Mdc.controller.setup.RegisterConfigs',
-                                            action: 'showRegisterConfigurationCreateView'
-                                        },
-                                        edit: {
-                                            title: 'Edit',
-                                            route: '{registerConfigurationId}/edit',
-                                            controller: 'Mdc.controller.setup.RegisterConfigs',
-                                            action: 'showRegisterConfigurationEditView'
-                                        }
-                                    }
-                                },
-                                //Security settings routes
-                                securitysettings: {
-                                    title: 'Security settings',
-                                    route: '{deviceConfigurationId}/securitysettings',
-                                    controller: 'Mdc.controller.setup.SecuritySettings',
-                                    action: 'showSecuritySettings',
-                                    items: {
-                                        create: {
-                                            title: 'Create',
-                                            route: 'create',
-                                            controller: 'Mdc.controller.setup.SecuritySettings',
-                                            action: 'showSecuritySettingsCreateView'
-                                        },
-                                        edit: {
-                                            title: 'Edit',
-                                            route: '{securitySettingId}/edit',
-                                            controller: 'Mdc.controller.setup.SecuritySettings',
-                                            action: 'showSecuritySettingsEditView'
-                                        }
-                                    }
-                                },
-                                //Communication tasks routes
-                                comtaskenablements: {
-                                    title: 'Communication tasks',
-                                    route: '{deviceConfigurationId}/comtaskenablements',
-                                    controller: 'Mdc.controller.setup.CommunicationTasks',
-                                    action: 'showCommunicationTasks',
-                                    items: {
-                                        create: {
-                                            title: 'Create',
-                                            route: 'create',
-                                            controller: 'Mdc.controller.setup.CommunicationTasks',
-                                            action: 'showAddCommunicationTaskView'
-                                        },
-                                        edit: {
-                                            title: 'Edit',
-                                            route: '{comTaskEnablementId}/edit',
-                                            controller: 'Mdc.controller.setup.CommunicationTasks',
-                                            action: 'showEditCommunicationTaskView'
-                                        }
-                                    }
-                                },
-                                //connection methods routes
-                                connectionmethods: {
-                                    title: 'Connection methods',
-                                    route: '{deviceConfigurationId}/connectionmethods',
-                                    controller: 'Mdc.controller.setup.ConnectionMethods',
-                                    action: 'showConnectionMethods',
-                                    items: {
-                                        addoutbound: {
-                                            title: 'Add outbound',
-                                            route: 'addoutbound',
-                                            controller: 'Mdc.controller.setup.ConnectionMethods',
-                                            action: 'showAddConnectionMethodView',
-                                            params: {
-                                                'type': 'Outbound'
-                                            }
-                                        },
-                                        addinbound: {
-                                            title: 'Add inbound',
-                                            route: 'addinbound',
-                                            controller: 'Mdc.controller.setup.ConnectionMethods',
-                                            action: 'showAddConnectionMethodView',
-                                            params: {
-                                                'type': 'Inbound'
-                                            }
-                                        },
-                                        edit: {
-                                            title: 'Edit',
-                                            route: '{connectionMethodId}/edit',
-                                            controller: 'Mdc.controller.setup.ConnectionMethods',
-                                            action: 'showConnectionMethodEditView'
-                                        }
-                                    }
-                                },
-                                //protocol dialects routes
-                                protocols: {
-                                    title: 'Protocol dialects',
-                                    route: '{deviceConfigurationId}/protocols',
-                                    controller: 'Mdc.controller.setup.ProtocolDialects',
-                                    action: 'showProtocolDialectsView',
-                                    items: {
-                                        edit: {
-                                            title: 'Edit',
-                                            route: '{protocolDialectId}/edit',
-                                            controller: 'Mdc.controller.setup.ProtocolDialects',
-                                            action: 'showProtocolDialectsEditView'
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        registertypes: {
-                            title: 'Register types',
-                            route: '{id}/registertypes',
-                            controller: 'Mdc.controller.setup.RegisterMappings',
-                            action: 'showRegisterMappings',
-                            items: {
-                                add: {
-                                    title: 'Add Register mapping',
-                                    route: 'add',
-                                    controller: 'Mdc.controller.setup.RegisterMappings',
-                                    action: 'addRegisterMappings'
                                 }
                             }
                         }
@@ -310,7 +319,7 @@ Ext.define('Mdc.controller.history.Setup', {
                     action: 'showLoadProfileTypes',
                     items: {
                         create: {
-                            title: 'Create',
+                            title: 'Create profile type',
                             route: 'create',
                             controller: 'Mdc.controller.setup.LoadProfileTypes',
                             action: 'showLoadProfileTypesCreateView',
@@ -324,7 +333,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             }
                         },
                         edit: {
-                            title: 'Edit',
+                            title: 'Edit profile type',
                             route: '{id}/edit',
                             controller: 'Mdc.controller.setup.LoadProfileTypes',
                             action: 'showLoadProfileTypesEditView',
@@ -346,13 +355,13 @@ Ext.define('Mdc.controller.history.Setup', {
                     action: 'showComServers',
                     items: {
                         create: {
-                            title: 'Create',
+                            title: 'Create communication server',
                             route: 'create',
                             controller: 'Mdc.controller.setup.ComServers',
                             action: 'showEditView'
                         },
                         edit: {
-                            title: 'Edit',
+                            title: 'Edit communication server',
                             route: '{id}/edit',
                             controller: 'Mdc.controller.setup.ComServers',
                             action: 'showEditView'
@@ -366,7 +375,7 @@ Ext.define('Mdc.controller.history.Setup', {
                     action: 'showDeviceCommunicationProtocols',
                     items: {
                         edit: {
-                            title: 'Edit',
+                            title: 'Edit communication protocol',
                             route: '{id}/edit',
                             controller: 'Mdc.controller.setup.DeviceCommunicationProtocols',
                             action: 'showDeviceCommunicationProtocolEditView'
@@ -386,13 +395,13 @@ Ext.define('Mdc.controller.history.Setup', {
                     action: 'showComPortPools',
                     items: {
                         create: {
-                            title: 'Create',
+                            title: 'Create communication port pool',
                             route: 'create',
                             controller: 'Mdc.controller.setup.ComPortPools',
                             action: 'showEditView'
                         },
                         view: {
-                            title: 'View',
+                            title: 'View communication port pool',
                             route: '{id}',
                             controller: 'Mdc.controller.setup.ComPortPools',
                             action: 'showEditView'
@@ -406,19 +415,19 @@ Ext.define('Mdc.controller.history.Setup', {
                     action: 'showRegisterTypes',
                     items: {
                         create: {
-                            title: 'Add',
+                            title: 'Add register type',
                             route: 'add',
                             controller: 'Mdc.controller.setup.RegisterTypes',
                             action: 'showRegisterTypeCreateView'
                         },
                         view: {
-                            title: 'View',
+                            title: 'View register type',
                             route: '{id}',
                             controller: 'Mdc.controller.setup.RegisterTypes',
                             action: 'showRegisterTypeDetailsView'
                         },
                         edit: {
-                            title: 'Edit',
+                            title: 'Edit register type',
                             route: '{id}/edit',
                             controller: 'Mdc.controller.setup.RegisterTypes',
                             action: 'showRegisterTypeEditView'
@@ -432,13 +441,13 @@ Ext.define('Mdc.controller.history.Setup', {
                     action: 'showRegisterGroups',
                     items: {
                         create: {
-                            title: 'Create',
+                            title: 'Create register group',
                             route: 'create',
                             controller: 'Mdc.controller.setup.RegisterGroups',
                             action: 'showRegisterGroupCreateView'
                         },
                         edit: {
-                            title: 'Edit',
+                            title: 'Edit register group',
                             route: '{id}/edit',
                             controller: 'Mdc.controller.setup.RegisterGroups',
                             action: 'showRegisterGroupEditView'
@@ -472,13 +481,13 @@ Ext.define('Mdc.controller.history.Setup', {
                     action: 'showCommunicationSchedules',
                     items: {
                         create: {
-                            title: 'Create',
+                            title: 'Create communication schedule',
                             route: 'create',
                             controller: 'Mdc.controller.setup.CommunicationSchedules',
                             action: 'showCommunicationSchedulesEditView'
                         },
                         edit: {
-                            title: 'Edit',
+                            title: 'Edit communication schedule',
                             route: '{id}/edit',
                             controller: 'Mdc.controller.setup.CommunicationSchedules',
                             action: 'showCommunicationSchedulesEditView'
@@ -499,7 +508,6 @@ Ext.define('Mdc.controller.history.Setup', {
             controller: 'Mdc.controller.setup.Devices',
             action: 'showDeviceDetailsView'
         }
-
     },
 
     tokenizePreviousTokens: function () {

@@ -140,8 +140,10 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         deviceConfigModel.getProxy().setExtraParam('deviceType', devicetype);
         deviceConfigModel.load(deviceconfiguration, {
             success: function (deviceConfiguration) {
+                me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfiguration);
                 Ext.ModelManager.getModel('Mdc.model.DeviceType').load(devicetype,{
                     success: function(deviceType){
+                        me.getApplication().fireEvent('loadDeviceType', deviceType);
                         var deviceConfigurationId = deviceConfiguration.get('id');
                         me.getDeviceConfigurationDetailDeviceTypeLink().getEl().set({href:'#/administration/devicetypes/' + me.deviceTypeId});
                         me.getDeviceConfigurationDetailDeviceTypeLink().getEl().setHTML(deviceType.get('name'));
@@ -153,6 +155,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                         me.getDeviceConfigurationDetailLoadProfilesLink().getEl().setHTML(deviceConfiguration.get('loadProfileCount') + ' ' + Uni.I18n.translatePlural('deviceconfiguration.loadprofiles', deviceConfiguration.get('loadProfileCount'), 'MDC', 'load profiles'));
                         me.getDeviceConfigurationPreviewTitle().update('<h1>' + deviceConfiguration.get('name') + ' - ' + Uni.I18n.translate('general.overview', 'MDC', 'Overview') + '</h1>');
                         me.getActivateDeactivateDeviceConfiguration().setText(deviceConfiguration.get('active')===true?Uni.I18n.translate('general.deActivate', 'MDC', 'Deactivate'):Uni.I18n.translate('general.activate', 'MDC', 'Activate'));
+
                         widget.down('form').loadRecord(deviceConfiguration);
                     }
                 });
