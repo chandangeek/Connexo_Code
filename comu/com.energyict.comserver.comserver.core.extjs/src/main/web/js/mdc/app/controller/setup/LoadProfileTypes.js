@@ -145,7 +145,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                     text: 'Remove',
                     action: 'removeloadprofiletypeconfirm',
                     name: 'delete',
-                    ui: 'delete'
+                    ui: 'remove'
                 },
                 {
                     xtype: 'button',
@@ -301,7 +301,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                 {
                     text: 'Retry',
                     action: retryAction,
-                    ui: 'delete'
+                    ui: 'remove'
                 },
                 {
                     text: 'Cancel',

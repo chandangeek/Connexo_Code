@@ -10,7 +10,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingFloatingPanel', {
             action: 'delete',
             name: 'delete',
             text: 'Remove',
-            ui: 'delete'
+            ui: 'remove'
         },
         {
             xtype: 'button',

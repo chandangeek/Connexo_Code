@@ -367,7 +367,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                     text: 'Remove',
                     action: 'remove',
                     name: 'remove',
-                    ui: 'delete',
+                    ui: 'remove',
                     handler: function () {
                         confirmMessage.close();
                         me.removeCommunicationTaskRecord({
@@ -432,7 +432,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                             {
                                 text: 'Retry',
                                 action: 'retry',
-                                ui: 'delete',
+                                ui: 'remove',
                                 handler: function () {
                                     errorMessage.close();
                                     me.activateCommunicationTask();
@@ -521,7 +521,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                                 {
                                     text: 'Retry',
                                     action: 'retry',
-                                    ui: 'delete',
+                                    ui: 'remove',
                                     handler: function () {
                                         errorMessage.close();
                                         me.removeCommunicationTaskRecord({
@@ -584,7 +584,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                             {
                                 text: 'Retry',
                                 action: 'retry',
-                                ui: 'delete',
+                                ui: 'remove',
                                 handler: function () {
                                     errorMessage.close();
                                     me[cfg.operation + 'CommunicationTask']();
