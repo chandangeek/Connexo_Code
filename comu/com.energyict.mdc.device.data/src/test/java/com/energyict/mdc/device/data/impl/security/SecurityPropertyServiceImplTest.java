@@ -31,6 +31,7 @@ import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
@@ -127,6 +128,8 @@ public class SecurityPropertyServiceImplTest {
     private ConnectionTypeService connectionTypeService;
     @Mock
     private LicensedProtocolService licensedProtocolService;
+    @Mock
+    private DeviceCacheMarshallingService deviceCacheMarshallingService;
 
     private InMemoryPersistence inMemoryPersistence;
 
@@ -243,6 +246,7 @@ public class SecurityPropertyServiceImplTest {
                             bind(InboundDeviceProtocolService.class).toInstance(inboundDeviceProtocolService);
                             bind(ConnectionTypeService.class).toInstance(connectionTypeService);
                             bind(LicensedProtocolService.class).toInstance(licensedProtocolService);
+                            bind(DeviceCacheMarshallingService.class).toInstance(deviceCacheMarshallingService);
                         }
                     },
                     this.bootstrapModule,
