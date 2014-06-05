@@ -29,6 +29,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
 
     deviceTypeName: null,
     deviceConfigName: null,
+    secId: -1,
 
     init: function () {
         this.control({
@@ -61,7 +62,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
         this.listen({
             store: {
                 '#Mdc.store.SecuritySettingsOfDeviceConfiguration': {
-                    load: this.checkSecurityCount
+                    load: this.onStoreLoad
                 }
             }
         });
@@ -150,14 +151,14 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
         encrCombobox.store = this.encrstore;
     },
 
-    checkSecurityCount: function () {
+    onStoreLoad: function (store) {
         var grid = this.getSecurityGridPanel();
         if (!Ext.isEmpty(grid)) {
             var numberOfSecuritiesContainer = Ext.ComponentQuery.query('securitySettingSetup securitySettingDockedItems container[name=SecurityCount]')[0],
                 emptyMessage = Ext.ComponentQuery.query('securitySettingSetup')[0].down('#SecuritySettingEmptyList'),
                 gridView = grid.getView(),
                 selectionModel = gridView.getSelectionModel(),
-                securityCount = this.store.getCount(),
+                securityCount = store.getCount(),
                 widget,
                 securityWord;
 
@@ -184,7 +185,18 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 );
                 this.getSecurityPreviewPanel().hide();
             } else {
-                selectionModel.select(0);
+                if(securityCount > 1) {
+                    var index = store.find("id", this.secId);
+                    if(index == -1) {
+                        selectionModel.select(0);
+                    } else {
+                        selectionModel.select(index);
+                        this.secId = -1;
+                    }
+                } else {
+                    selectionModel.select(0);
+                }
+
                 grid.fireEvent('itemclick', gridView, selectionModel.getLastSelected());
             }
         }
@@ -355,8 +367,8 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                         url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/securityproperties',
                         method: 'POST',
                         jsonData: jsonValues,
-                        success: function () {
-                            me.handleSuccessRequest('Successfully created');
+                        success: function (response) {
+                            me.handleSuccessRequest(response, 'Successfully created');
                         },
                         failure: function (response) {
                             me.handleFailureRequest(response, 'Error during create');
@@ -376,8 +388,8 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                         url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/securityproperties/' + me.securitySettingId,
                         method: 'PUT',
                         jsonData: jsonValues,
-                        success: function () {
-                            me.handleSuccessRequest('Successfully updated');
+                        success: function (response) {
+                            me.handleSuccessRequest(response, 'Successfully updated');
                         },
                         failure: function (response) {
                             me.handleFailureRequest(response, 'Error during update');
@@ -404,7 +416,11 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
         formErrorsPanel.show();
     },
 
-    handleSuccessRequest: function (headerText) {
+    handleSuccessRequest: function (response, headerText) {
+        var data = Ext.JSON.decode(response.responseText, true);
+        if(data && data.id) {
+            this.secId = parseInt(data.id);
+        }
         window.location.href = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/securitysettings';
 
         Ext.create('widget.uxNotification', {
