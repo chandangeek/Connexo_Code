@@ -148,7 +148,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
     },
 
     createRegisterTypeHistory: function () {
-        location.href = '#/administration/registertypes/create';
+        location.href = '#/administration/registertypes/add';
     },
 
     editRegisterTypeHistory: function (item) {
@@ -188,16 +188,17 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
     },
 
     showRegisterTypeEditView: function (registerMapping) {
+        var me = this;
         var timeOfUseStore = Ext.create('Mdc.store.TimeOfUses');
         var unitOfMeasureStore = Ext.create('Mdc.store.UnitOfMeasures');
         var widget = Ext.widget('registerTypeEdit', {
             edit: true,
             unitOfMeasure: unitOfMeasureStore,
-            timeOfUse: timeOfUseStore
+            timeOfUse: timeOfUseStore,
+            returnLink: me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens()
         });
         this.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);
-        var me = this;
         Ext.ModelManager.getModel('Mdc.model.RegisterType').load(registerMapping, {
             success: function (registerType) {
                 timeOfUseStore.load({
@@ -205,23 +206,18 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                         unitOfMeasureStore.load({
                             callback: function (store) {
                                 widget.down('form').loadRecord(registerType);
-                                widget.down('#registerTypeEditCreateTitle').update('<h1>' + registerType.get('name') + ' > ' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + Uni.I18n.translate('registerType.registerType', 'MDC', 'Register type') + '</h1>');
+                                widget.down('#registerTypeEditCreateTitle').update('<h1>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + registerType.get('name') + '</h1>');
                                 widget.down('#editMrIdField').setValue(registerType.getReadingType().get('mrid'));
                                 if (registerType.get('isLinkedByDeviceType') === true) {
-                                    widget.down('#editObisCodeField').setDisabled(true);
-                                    widget.down('#editObisCodeField').setReadOnly(true);
-                                    widget.down('#measurementUnitComboBox').setDisabled(true);
-                                    widget.down('#measurementUnitComboBox').setReadOnly(true);
-                                    widget.down('#timeOfUseComboBox').setDisabled(true);
-                                    widget.down('#timeOfUseComboBox').setReadOnly(true);
-                                    widget.down('#editMrIdField').setDisabled(true);
-                                    widget.down('#editMrIdField').setReadOnly(true);
-                                    widget.down('#editRegisterTypeNameField').setDisabled(false);
-                                    widget.down('#editRegisterTypeNameField').setReadOnly(false);
+                                    widget.down('#editObisCodeField').disable();
+                                    widget.down('#measurementUnitComboBox').disable();
+                                    widget.down('#timeOfUseComboBox').disable();
+                                    widget.down('#editMrIdField').disable();
+                                    widget.down('#editRegisterTypeNameField').disable();
                                     widget.down('#registerTypeEditCreateInformation').update(Uni.I18n.translate('registertype.warningLinkedTodeviceType', 'MDC', 'The register type has been added to a device type.  Only the name is editable.'));
                                 } else {
-                                    widget.down('#editMrIdField').setDisabled(false);
-                                    widget.down('#editMrIdField').setReadOnly(false);
+                                    widget.down('#editMrIdField').enable();
+
                                 }
                                 widget.setLoading(false);
                             }
@@ -254,7 +250,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             callback: function (store) {
                 unitOfMeasureStore.load({
                     callback: function (store) {
-                        widget.down('#registerTypeEditCreateTitle').update('<h1>' + Uni.I18n.translate('registerType.createRegisterType', 'MDC', 'Create register type') + '</h1>');
+                        widget.down('#registerTypeEditCreateTitle').update('<h1>' + Uni.I18n.translate('registerType.createRegisterType', 'MDC', 'Add register type') + '</h1>');
                         widget.setLoading(false);
                     }
                 });
