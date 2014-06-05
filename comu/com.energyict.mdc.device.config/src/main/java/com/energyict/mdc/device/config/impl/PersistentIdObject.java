@@ -149,7 +149,7 @@ public abstract class PersistentIdObject<T> {
     }
 
     /**
-     * Remove the given HasId object form the given HasId object List.
+     * Remove the given HasId object from the given HasId object List.
      *
      * @param hasIdList the list containing the HasId objects
      * @param idObject the hasId object to remove from the list
