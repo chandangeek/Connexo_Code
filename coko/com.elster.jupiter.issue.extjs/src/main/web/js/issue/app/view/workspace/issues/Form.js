@@ -38,18 +38,10 @@ Ext.define('Isu.view.workspace.issues.Form', {
                     name: 'usage_point'
                 },
                 {
-                    xtype: 'container',
-                    autoEl: {
-                        tag: 'a',
-                        href: '#/assets/devices/'
-                    },
-                    items: {
-                        itemId: '_devicename',
-                        xtype: 'displayfield',
-                        fieldLabel: 'Device',
-                        name: 'devicelink',
-                        fieldCls: 'isu-device-link'
-                    }
+                    itemId: '_devicename',
+                    xtype: 'displayfield',
+                    fieldLabel: 'Device',
+                    name: 'devicelink'
                 }
             ]
         },
