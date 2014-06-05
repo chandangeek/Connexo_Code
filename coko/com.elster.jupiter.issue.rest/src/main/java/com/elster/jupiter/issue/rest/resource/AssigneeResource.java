@@ -15,6 +15,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
+import java.util.Collections;
 import java.util.List;
 
 import static com.elster.jupiter.issue.rest.request.RequestHelper.*;
@@ -98,5 +99,20 @@ public class AssigneeResource extends BaseResource {
         Query<AssigneeRole> query = getIssueService().query(AssigneeRole.class);
         List<AssigneeRole> list = query.select(Condition.TRUE);
         return ok(list, IssueAssigneeInfo.class).build();
+    }
+
+    @GET
+    @Path("/users")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getUsers(@BeanParam StandardParametersBean params) {
+        String searchText = params.getFirst(LIKE);
+        Condition condition = Condition.TRUE;
+        if (searchText != null && !searchText.isEmpty()) {
+            String dbSearchText = "%" + searchText + "%";
+            condition = condition.and(where("authenticationName").likeIgnoreCase(dbSearchText));
+        }
+        Query<User> query = getUserService().getUserQuery();
+        List<User> list = query.select(condition, Order.ascending("authname"));
+        return Response.ok(new AssigneeFilterListInfo(Collections.<AssigneeTeam>emptyList(), Collections.<AssigneeRole>emptyList(), list)).build();
     }
 }

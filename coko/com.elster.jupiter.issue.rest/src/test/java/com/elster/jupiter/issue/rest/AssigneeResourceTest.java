@@ -1,14 +1,13 @@
 package com.elster.jupiter.issue.rest;
 
 import static com.elster.jupiter.issue.rest.request.RequestHelper.ASSIGNEE_TYPE;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.LIKE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.regex.Matcher;
 
 import javax.ws.rs.core.Response;
 
@@ -192,5 +191,43 @@ public class AssigneeResourceTest extends Mocks {
 
         assertThat(map.get("total")).isEqualTo(0);
         assertThat((List<?>) map.get("data")).hasSize(0);
+    }
+
+    @Test
+    public void testGetUsersWOLike() {
+        List<User> list = new ArrayList<>();
+        list.add(mockUser(1, "Admin"));
+        list.add(mockUser(2, "Admiral"));
+
+        Query<User> query = mock(Query.class);
+        when(query.select(Matchers.any(Condition.class), Matchers.any(Order[].class))).thenReturn(list);
+        when(userService.getUserQuery()).thenReturn(query);
+
+        Map<String, Object> map = target("/assignees/users").queryParam(LIKE, "ad").request().get(Map.class);
+
+        assertThat(map.get("total")).isEqualTo(2);
+        List<?> data = (List<?>) map.get("data");
+        assertThat(data).hasSize(2);
+        assertThat(((Map) data.get(0)).get("id")).isEqualTo(1);
+        assertThat(((Map) data.get(0)).get("type")).isEqualTo(IssueAssignee.Types.USER);
+    }
+
+    @Test
+    public void testGetUsers() {
+        List<User> list = new ArrayList<>();
+        list.add(mockUser(1, "Admin"));
+        list.add(mockUser(2, "Simple"));
+
+        Query<User> query = mock(Query.class);
+        when(query.select(Matchers.any(Condition.class), Matchers.any(Order[].class))).thenReturn(list);
+        when(userService.getUserQuery()).thenReturn(query);
+
+        Map<String, Object> map = target("/assignees/users").request().get(Map.class);
+
+        assertThat(map.get("total")).isEqualTo(2);
+        List<?> data = (List<?>) map.get("data");
+        assertThat(data).hasSize(2);
+        assertThat(((Map) data.get(0)).get("id")).isEqualTo(1);
+        assertThat(((Map) data.get(0)).get("type")).isEqualTo(IssueAssignee.Types.USER);
     }
 }
