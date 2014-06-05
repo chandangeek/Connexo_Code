@@ -28,7 +28,8 @@ Ext.define('Isu.controller.Main', {
     ],
 
     stores: [
-        'Isu.store.Issues'
+        'Isu.store.Issues',
+        'Isu.store.Users'
     ],
 
     config: {

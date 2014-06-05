@@ -1,4 +1,7 @@
 Ext.define('Isu.util.CreatingControl', {
+    requires: [
+        'Isu.view.workspace.issues.component.UserCombo'
+    ],
     createControl: function (obj) {
         var control = false;
 
@@ -132,20 +135,13 @@ Ext.define('Isu.util.CreatingControl', {
 
     createUserCombobox: function (obj) {
         var userCombobox = {
-            xtype: 'issues-assignee-combo',
-            itemId: 'assignee',
+            xtype: 'issues-user-combo',
+            itemId: 'userCombo',
             name: obj.key,
             fieldLabel: obj.label,
             allowBlank: !obj.constraint.required,
-            forceSelection: true,
-            anyMatch: true,
-            required: obj.constraint.required,
-            valueField: 'id',
-            emptyText: 'select an assignee',
-            tooltipText: 'Start typing for assignee',
-            formBind: false
+            required: obj.constraint.required
         };
-
         return userCombobox;
     }
 });

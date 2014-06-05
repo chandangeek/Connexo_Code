@@ -113,14 +113,15 @@ Ext.define('Isu.controller.NotifySend', {
                     msg: "Notifying user",
                     target: notifyView
                 });
+                preloader.show();
                 self.sendData(sendingData, preloader);
             } else {
                 self.showErrorsPanel();
             }
         } else {
-            if (notifyView.down('#assignee').value !== null && form.isValid()) {
+            if (notifyView.down('#userCombo').value !== null && form.isValid()) {
                 sendingData.parameters = {};
-                notifyView.down('#assignee').clearInvalid();
+                notifyView.down('#userCombo').clearInvalid();
                 formErrorsPanel.hide();
                 sendingData.id = self.actionId;
                 sendingData.parameters.user = form.getValues().user.toString();
@@ -128,10 +129,11 @@ Ext.define('Isu.controller.NotifySend', {
                     msg: "Sending data",
                     target: notifyView
                 });
+                preloader.show();
                 self.sendData(sendingData, preloader);
             } else {
                 self.showErrorsPanel();
-                notifyView.down('#assignee').markInvalid('This is a required field');
+                notifyView.down('#userCombo').markInvalid('This is a required field');
             }
         }
     },
