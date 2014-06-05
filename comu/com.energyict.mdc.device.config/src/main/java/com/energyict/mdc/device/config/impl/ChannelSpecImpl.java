@@ -218,11 +218,11 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
 
     private void validateDeviceTypeContainsRegisterMapping() {
         if (this.loadProfileSpec.isPresent()) { // then the RegisterMapping should be included in the LoadProfileSpec
-            if (!getLoadProfileSpec().getLoadProfileType().getRegisterMappings().contains(getRegisterMapping())) {
+            if (!doesListContainIdObject(getLoadProfileSpec().getLoadProfileType().getRegisterMappings(), getRegisterMapping())) {
                 throw RegisterMappingIsNotConfiguredException.forChannelInLoadProfileSpec(thesaurus, getLoadProfileSpec(), getRegisterMapping(), this);
             }
         } else { // then the RegisterMapping should be included in the DeviceType
-            if (!getDeviceConfiguration().getDeviceType().getRegisterMappings().contains(getRegisterMapping())) {
+            if (!doesListContainIdObject(getDeviceConfiguration().getDeviceType().getRegisterMappings(), getRegisterMapping())) {
                 throw RegisterMappingIsNotConfiguredException.forChannelInDeviceType(thesaurus, this, getRegisterMapping(), getDeviceConfiguration().getDeviceType());
             }
         }
@@ -230,7 +230,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
 
     private void validateDeviceConfigurationContainsLoadProfileSpec() {
         if (this.loadProfileSpec.isPresent()) {
-            if (!getDeviceConfiguration().getLoadProfileSpecs().contains(getLoadProfileSpec())) {
+            if (!doesListContainIdObject(getDeviceConfiguration().getLoadProfileSpecs(), getLoadProfileSpec())) {
                 throw new LoadProfileSpecIsNotConfiguredOnDeviceConfigurationException(this.thesaurus, getLoadProfileSpec());
             }
         }

@@ -119,15 +119,20 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         registerSpecBuilder.setNumberOfFractionDigits(numberOfFractionDigits);
     }
 
+
+    private DeviceConfiguration getReloadedDeviceConfiguration(){
+        return inMemoryPersistence.getDeviceConfigurationService().findDeviceConfiguration(this.deviceConfiguration.getId());
+    }
+
     @Test
     @Transactional
     public void createRegisterSpecTest() {
         RegisterSpec registerSpec = createDefaultRegisterSpec();
 
-        assertThat(registerSpec.getRegisterMapping()).isEqualTo(registerMapping);
+        assertThat(registerSpec.getRegisterMapping().getId()).isEqualTo(registerMapping.getId());
         assertThat(registerSpec.getObisCode()).isEqualTo(registerMappingObisCode);
         assertThat(registerSpec.getDeviceObisCode()).isEqualTo(registerMappingObisCode);
-        assertThat(registerSpec.getDeviceConfiguration()).isEqualTo(this.deviceConfiguration);
+        assertThat(registerSpec.getDeviceConfiguration().getId()).isEqualTo(this.getReloadedDeviceConfiguration().getId());
         assertThat(registerSpec.getNumberOfDigits()).isEqualTo(this.numberOfDigits);
         assertThat(registerSpec.getNumberOfFractionDigits()).isEqualTo(this.numberOfFractionDigits);
         assertThat(registerSpec.getOverflowValue()).isEqualTo(BigDecimal.valueOf(1000000000));
@@ -139,15 +144,15 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS+"}", property = "numberOfFractionDigits")
     public void createRegisterSpecNoFractionDigits() {
-        RegisterSpec registerSpec = this.deviceConfiguration.createRegisterSpec(registerMapping).setNumberOfDigits(1).add();
+        RegisterSpec registerSpec = this.getReloadedDeviceConfiguration().createRegisterSpec(registerMapping).setNumberOfDigits(1).add();
     }
 
     @Test
     @Transactional
     public void createRegisterSpecTestMultiplierDefaultToOne() {
-        RegisterSpec registerSpec = this.deviceConfiguration.createRegisterSpec(registerMapping).setNumberOfDigits(1).setNumberOfFractionDigits(0).add();
+        RegisterSpec registerSpec = this.getReloadedDeviceConfiguration().createRegisterSpec(registerMapping).setNumberOfDigits(1).setNumberOfFractionDigits(0).add();
 
-        assertThat(registerSpec.getRegisterMapping()).isEqualTo(registerMapping);
+        assertThat(registerSpec.getRegisterMapping().getId()).isEqualTo(registerMapping.getId());
         assertThat(registerSpec.getMultiplier()).isEqualTo(BigDecimal.ONE);
         assertThat(registerSpec.getMultiplierMode()).isEqualTo(MultiplierMode.CONFIGURED_ON_OBJECT);
     }
@@ -155,7 +160,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     @Test
     @Transactional
     public void createRegisterSpecTestOverflowDefaultIsApplied() {
-        RegisterSpec registerSpec = this.deviceConfiguration.createRegisterSpec(registerMapping).setNumberOfDigits(5).setNumberOfFractionDigits(0).add();
+        RegisterSpec registerSpec = this.getReloadedDeviceConfiguration().createRegisterSpec(registerMapping).setNumberOfDigits(5).setNumberOfFractionDigits(0).add();
 
         assertThat(registerSpec.getOverflowValue()).isEqualTo(BigDecimal.valueOf(100000));
     }
@@ -164,7 +169,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     @Transactional
     public void createRegisterSpecTestOverflowDefaultIsAppliedLargeValue() {
         // JP-2164
-        RegisterSpec registerSpec = this.deviceConfiguration.createRegisterSpec(registerMapping).setNumberOfDigits(20).setNumberOfFractionDigits(0).add();
+        RegisterSpec registerSpec = this.getReloadedDeviceConfiguration().createRegisterSpec(registerMapping).setNumberOfDigits(20).setNumberOfFractionDigits(0).add();
 
         assertThat(registerSpec.getOverflowValue()).isEqualTo(BigDecimal.TEN.pow(20));
     }
@@ -175,7 +180,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         RegisterSpec registerSpec = createDefaultRegisterSpec();
         int updatedNumberOfDigits = 18;
 
-        RegisterSpec.RegisterSpecUpdater registerSpecUpdater = this.deviceConfiguration.getRegisterSpecUpdaterFor(registerSpec);
+        RegisterSpec.RegisterSpecUpdater registerSpecUpdater = this.getReloadedDeviceConfiguration().getRegisterSpecUpdaterFor(registerSpec);
         registerSpecUpdater.setNumberOfDigits(updatedNumberOfDigits);
         registerSpecUpdater.update();
 
@@ -189,7 +194,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         RegisterSpec registerSpec = createDefaultRegisterSpec();
         int updatedNumberOfDigits = 98;
 
-        RegisterSpec.RegisterSpecUpdater registerSpecUpdater = this.deviceConfiguration.getRegisterSpecUpdaterFor(registerSpec);
+        RegisterSpec.RegisterSpecUpdater registerSpecUpdater = this.getReloadedDeviceConfiguration().getRegisterSpecUpdaterFor(registerSpec);
         registerSpecUpdater.setNumberOfDigits(updatedNumberOfDigits);
         registerSpecUpdater.update();
     }
@@ -201,7 +206,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         RegisterSpec registerSpec = createDefaultRegisterSpec();
         int updatedNumberOfDigits = -1;
 
-        RegisterSpec.RegisterSpecUpdater registerSpecUpdater = this.deviceConfiguration.getRegisterSpecUpdaterFor(registerSpec);
+        RegisterSpec.RegisterSpecUpdater registerSpecUpdater = this.getReloadedDeviceConfiguration().getRegisterSpecUpdaterFor(registerSpec);
         registerSpecUpdater.setNumberOfDigits(updatedNumberOfDigits);
         registerSpecUpdater.update();
     }
@@ -212,7 +217,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         RegisterSpec registerSpec = createDefaultRegisterSpec();
         int updatedNumberOfFractionDigits = 123;
 
-        RegisterSpec.RegisterSpecUpdater registerSpecUpdater = this.deviceConfiguration.getRegisterSpecUpdaterFor(registerSpec);
+        RegisterSpec.RegisterSpecUpdater registerSpecUpdater = this.getReloadedDeviceConfiguration().getRegisterSpecUpdaterFor(registerSpec);
         registerSpecUpdater.setNumberOfFractionDigits(updatedNumberOfFractionDigits);
         registerSpecUpdater.update();
 
@@ -225,7 +230,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         RegisterSpec registerSpec = createDefaultRegisterSpec();
         ObisCode overruledObisCode = ObisCode.fromString("1.0.2.8.3.255");
 
-        RegisterSpec.RegisterSpecUpdater registerSpecUpdater = this.deviceConfiguration.getRegisterSpecUpdaterFor(registerSpec);
+        RegisterSpec.RegisterSpecUpdater registerSpecUpdater = this.getReloadedDeviceConfiguration().getRegisterSpecUpdaterFor(registerSpec);
         registerSpecUpdater.setOverruledObisCode(overruledObisCode);
         registerSpecUpdater.update();
 
@@ -238,7 +243,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     public void updateMultiplierModeTest() {
         RegisterSpec registerSpec = createDefaultRegisterSpec();
 
-        RegisterSpec.RegisterSpecUpdater registerSpecUpdater = this.deviceConfiguration.getRegisterSpecUpdaterFor(registerSpec);
+        RegisterSpec.RegisterSpecUpdater registerSpecUpdater = this.getReloadedDeviceConfiguration().getRegisterSpecUpdaterFor(registerSpec);
         registerSpecUpdater.setMultiplierMode(MultiplierMode.NONE);
         registerSpecUpdater.update();
 
@@ -251,7 +256,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         RegisterSpec registerSpec = createDefaultRegisterSpec();
         BigDecimal multiplier = new BigDecimal("123.32");
 
-        RegisterSpec.RegisterSpecUpdater registerSpecUpdater = this.deviceConfiguration.getRegisterSpecUpdaterFor(registerSpec);
+        RegisterSpec.RegisterSpecUpdater registerSpecUpdater = this.getReloadedDeviceConfiguration().getRegisterSpecUpdaterFor(registerSpec);
         registerSpecUpdater.setMultiplier(multiplier);
         registerSpecUpdater.update();
 
@@ -264,7 +269,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         RegisterSpec registerSpec = createDefaultRegisterSpec();
         BigDecimal overflow = new BigDecimal(456789);
 
-        RegisterSpec.RegisterSpecUpdater registerSpecUpdater = this.deviceConfiguration.getRegisterSpecUpdaterFor(registerSpec);
+        RegisterSpec.RegisterSpecUpdater registerSpecUpdater = this.getReloadedDeviceConfiguration().getRegisterSpecUpdaterFor(registerSpec);
         registerSpecUpdater.setOverflow(overflow);
         registerSpecUpdater.update();
 
@@ -277,7 +282,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         RegisterSpec registerSpec = createDefaultRegisterSpec();
         BigDecimal overflow = new BigDecimal(1000000001);
 
-        RegisterSpec.RegisterSpecUpdater registerSpecUpdater = this.deviceConfiguration.getRegisterSpecUpdaterFor(registerSpec);
+        RegisterSpec.RegisterSpecUpdater registerSpecUpdater = this.getReloadedDeviceConfiguration().getRegisterSpecUpdaterFor(registerSpec);
         registerSpecUpdater.setOverflow(overflow);
         registerSpecUpdater.update();
     }
@@ -288,7 +293,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         RegisterSpec registerSpec = createDefaultRegisterSpec();
         BigDecimal overflow = new BigDecimal(0);
 
-        RegisterSpec.RegisterSpecUpdater registerSpecUpdater = this.deviceConfiguration.getRegisterSpecUpdaterFor(registerSpec);
+        RegisterSpec.RegisterSpecUpdater registerSpecUpdater = this.getReloadedDeviceConfiguration().getRegisterSpecUpdaterFor(registerSpec);
         registerSpecUpdater.setOverflow(overflow);
         registerSpecUpdater.update();
     }
@@ -299,7 +304,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         RegisterSpec registerSpec = createDefaultRegisterSpec();
         BigDecimal overflow = new BigDecimal(123.33333333); // assuming we have three fractionDigits
 
-        RegisterSpec.RegisterSpecUpdater registerSpecUpdater = this.deviceConfiguration.getRegisterSpecUpdaterFor(registerSpec);
+        RegisterSpec.RegisterSpecUpdater registerSpecUpdater = this.getReloadedDeviceConfiguration().getRegisterSpecUpdaterFor(registerSpec);
         registerSpecUpdater.setOverflow(overflow);
         registerSpecUpdater.update();
     }
@@ -309,9 +314,9 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     public void deleteTest() {
         RegisterSpec registerSpec = createDefaultRegisterSpec();
 
-        this.deviceConfiguration.deleteRegisterSpec(registerSpec);
+        this.getReloadedDeviceConfiguration().deleteRegisterSpec(registerSpec);
 
-        assertThat(this.deviceConfiguration.getRegisterSpecs()).hasSize(0);
+        assertThat(this.getReloadedDeviceConfiguration().getRegisterSpecs()).hasSize(0);
     }
 
     @Test(expected = CannotDeleteFromActiveDeviceConfigurationException.class)
@@ -319,8 +324,8 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     public void deleteFromActiveConfigTest() {
         RegisterSpec registerSpec = createDefaultRegisterSpec();
 
-        this.deviceConfiguration.activate();
-        this.deviceConfiguration.deleteRegisterSpec(registerSpec);
+        this.getReloadedDeviceConfiguration().activate();
+        this.getReloadedDeviceConfiguration().deleteRegisterSpec(registerSpec);
     }
 
     @Test(expected = DuplicateObisCodeException.class)
@@ -339,11 +344,11 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         otherMapping.save();
         this.deviceType.addRegisterMapping(otherMapping);
         this.deviceType.save();
-        RegisterSpec.RegisterSpecBuilder registerSpecBuilder = this.deviceConfiguration.createRegisterSpec(otherMapping);
+        RegisterSpec.RegisterSpecBuilder registerSpecBuilder = this.getReloadedDeviceConfiguration().createRegisterSpec(otherMapping);
         setRegisterSpecDefaultFields(registerSpecBuilder);
         registerSpec2 = registerSpecBuilder.add();
 
-        RegisterSpec.RegisterSpecUpdater registerSpecUpdater = this.deviceConfiguration.getRegisterSpecUpdaterFor(registerSpec2);
+        RegisterSpec.RegisterSpecUpdater registerSpecUpdater = this.getReloadedDeviceConfiguration().getRegisterSpecUpdaterFor(registerSpec2);
         registerSpecUpdater.setOverruledObisCode(registerMappingObisCode);
         registerSpecUpdater.update();
     }
@@ -357,7 +362,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 //        otherMapping.save();
 //        this.deviceType.addRegisterMapping(otherMapping);
 //        this.deviceType.save();
-//        RegisterSpec.RegisterSpecBuilder registerSpecBuilder = this.deviceConfiguration.createRegisterSpec(otherMapping);
+//        RegisterSpec.RegisterSpecBuilder registerSpecBuilder = this.getReloadedDeviceConfiguration().createRegisterSpec(otherMapping);
 //        setRegisterSpecDefaultFields(registerSpecBuilder);
 //        registerSpec2 = registerSpecBuilder.add();
 //    }
@@ -368,7 +373,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         RegisterSpec registerSpec;
         RegisterMapping otherMapping = inMemoryPersistence.getMasterDataService().newRegisterMapping("OtherMapping", ObisCode.fromString("32.12.32.5.12.32"), unit2, readingType2, readingType2.getTou());
         otherMapping.save();
-        RegisterSpec.RegisterSpecBuilder registerSpecBuilder = this.deviceConfiguration.createRegisterSpec(otherMapping);
+        RegisterSpec.RegisterSpecBuilder registerSpecBuilder = this.getReloadedDeviceConfiguration().createRegisterSpec(otherMapping);
         setRegisterSpecDefaultFields(registerSpecBuilder);
         registerSpec = registerSpecBuilder.add();
     }
@@ -377,7 +382,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     @Transactional
     public void validateMultiplierModeIsByDefaultSetToCONFIGUREDONOBJECTTest() {
         RegisterSpec registerSpec;
-        RegisterSpec.RegisterSpecBuilder registerSpecBuilder = this.deviceConfiguration.createRegisterSpec(registerMapping);
+        RegisterSpec.RegisterSpecBuilder registerSpecBuilder = this.getReloadedDeviceConfiguration().createRegisterSpec(registerMapping);
         registerSpecBuilder.setNumberOfDigits(numberOfDigits);
         registerSpecBuilder.setNumberOfFractionDigits(numberOfFractionDigits);
         registerSpec = registerSpecBuilder.add();
@@ -389,7 +394,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     @Transactional
     public void validateMultiplierIsByDefaultSetToONEByDefaultTest() {
         RegisterSpec registerSpec;
-        RegisterSpec.RegisterSpecBuilder registerSpecBuilder = this.deviceConfiguration.createRegisterSpec(registerMapping);
+        RegisterSpec.RegisterSpecBuilder registerSpecBuilder = this.getReloadedDeviceConfiguration().createRegisterSpec(registerMapping);
         registerSpecBuilder.setNumberOfDigits(numberOfDigits);
         registerSpecBuilder.setNumberOfFractionDigits(numberOfFractionDigits);
         registerSpec = registerSpecBuilder.add();
@@ -401,7 +406,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     @Transactional
     public void multiplierAutoSetToONEIfModeIsNoneTest() {
         RegisterSpec registerSpec;
-        RegisterSpec.RegisterSpecBuilder registerSpecBuilder = this.deviceConfiguration.createRegisterSpec(registerMapping);
+        RegisterSpec.RegisterSpecBuilder registerSpecBuilder = this.getReloadedDeviceConfiguration().createRegisterSpec(registerMapping);
         registerSpecBuilder.setMultiplierMode(MultiplierMode.NONE);
         registerSpecBuilder.setNumberOfDigits(numberOfDigits);
         registerSpecBuilder.setNumberOfFractionDigits(numberOfFractionDigits);
@@ -414,7 +419,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     @Transactional
     public void multiplierAutoSetBackToONEWhenModeIsSetToNONETest() {
         RegisterSpec registerSpec;
-        RegisterSpec.RegisterSpecBuilder registerSpecBuilder = this.deviceConfiguration.createRegisterSpec(registerMapping);
+        RegisterSpec.RegisterSpecBuilder registerSpecBuilder = this.getReloadedDeviceConfiguration().createRegisterSpec(registerMapping);
         registerSpecBuilder.setMultiplier(BigDecimal.TEN);
         registerSpecBuilder.setMultiplierMode(MultiplierMode.NONE); // should erase the previously set multiplier
         registerSpecBuilder.setNumberOfDigits(numberOfDigits);
@@ -428,7 +433,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     @Transactional
     public void multiplierAutoSetBackToONEWhenModeIsSetToVERSIONEDTest() {
         RegisterSpec registerSpec;
-        RegisterSpec.RegisterSpecBuilder registerSpecBuilder = this.deviceConfiguration.createRegisterSpec(registerMapping);
+        RegisterSpec.RegisterSpecBuilder registerSpecBuilder = this.getReloadedDeviceConfiguration().createRegisterSpec(registerMapping);
         registerSpecBuilder.setMultiplier(BigDecimal.TEN);
         registerSpecBuilder.setMultiplierMode(MultiplierMode.VERSIONED); // should erase the previously set multiplier
         registerSpecBuilder.setNumberOfDigits(numberOfDigits);
@@ -442,7 +447,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     @Transactional
     public void validateMultiplierIsChangeableWhenModeIsCONFIGUREDONOBJECTTest() {
         RegisterSpec registerSpec;
-        RegisterSpec.RegisterSpecBuilder registerSpecBuilder = this.deviceConfiguration.createRegisterSpec(registerMapping);
+        RegisterSpec.RegisterSpecBuilder registerSpecBuilder = this.getReloadedDeviceConfiguration().createRegisterSpec(registerMapping);
         registerSpecBuilder.setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT);
         registerSpecBuilder.setMultiplier(BigDecimal.TEN);
         registerSpecBuilder.setNumberOfDigits(numberOfDigits);
@@ -456,7 +461,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED+"}", property = "numberOfDigits")
     public void testDecreaseNumberOfDigits() throws Exception {
-        RegisterSpec registerSpec = this.deviceConfiguration.createRegisterSpec(registerMapping).setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT).setMultiplier(BigDecimal.ONE).setNumberOfDigits(10).setNumberOfFractionDigits(3).add();
+        RegisterSpec registerSpec = this.getReloadedDeviceConfiguration().createRegisterSpec(registerMapping).setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT).setMultiplier(BigDecimal.ONE).setNumberOfDigits(10).setNumberOfFractionDigits(3).add();
         registerSpec.setNumberOfDigits(8); // decreased!!
         registerSpec.save();
     }
@@ -465,7 +470,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED+"}", property = "numberOfFractionDigits")
     public void testDecreaseNumberOfFractionDigits() throws Exception {
-        RegisterSpec registerSpec = this.deviceConfiguration.createRegisterSpec(registerMapping).setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT).setMultiplier(BigDecimal.ONE).setNumberOfDigits(10).setNumberOfFractionDigits(3).add();
+        RegisterSpec registerSpec = this.getReloadedDeviceConfiguration().createRegisterSpec(registerMapping).setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT).setMultiplier(BigDecimal.ONE).setNumberOfDigits(10).setNumberOfFractionDigits(3).add();
         registerSpec.setNumberOfFractionDigits(1); // decreased!!
         registerSpec.save();
     }
@@ -474,9 +479,9 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.REGISTER_SPEC_MULTIPLIER_ACTIVE_DEVICE_CONFIG+"}", property = "multiplier")
     public void testUpdateMultiplierForActiveConfig() throws Exception {
-        RegisterSpec registerSpec = this.deviceConfiguration.createRegisterSpec(registerMapping).setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT).setMultiplier(BigDecimal.ONE).setNumberOfDigits(10).setNumberOfFractionDigits(3).add();
-        deviceConfiguration.save();
-        deviceConfiguration.activate();
+        RegisterSpec registerSpec = this.getReloadedDeviceConfiguration().createRegisterSpec(registerMapping).setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT).setMultiplier(BigDecimal.ONE).setNumberOfDigits(10).setNumberOfFractionDigits(3).add();
+        getReloadedDeviceConfiguration().save();
+        getReloadedDeviceConfiguration().activate();
         registerSpec.setMultiplier(BigDecimal.valueOf(101)); // changed!
         registerSpec.save();
     }
@@ -485,9 +490,9 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.REGISTER_SPEC_REGISTER_MAPPING_ACTIVE_DEVICE_CONFIG+"}", property = "registerMapping")
     public void testUpdateRegisterMappingForActiveConfig() throws Exception {
-        RegisterSpec registerSpec = this.deviceConfiguration.createRegisterSpec(registerMapping).setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT).setMultiplier(BigDecimal.ONE).setNumberOfDigits(10).setNumberOfFractionDigits(3).add();
-        deviceConfiguration.save();
-        deviceConfiguration.activate();
+        RegisterSpec registerSpec = this.getReloadedDeviceConfiguration().createRegisterSpec(registerMapping).setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT).setMultiplier(BigDecimal.ONE).setNumberOfDigits(10).setNumberOfFractionDigits(3).add();
+        getReloadedDeviceConfiguration().save();
+        getReloadedDeviceConfiguration().activate();
         RegisterMapping registerMapping2 = inMemoryPersistence.getMasterDataService().newRegisterMapping(REGISTER_MAPPING_NAME + "2", registerMappingObisCode, unit2, readingType2, readingType2.getTou());
         registerMapping2.save();
 
@@ -499,7 +504,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     @Transactional
     @Expected(value = OverFlowValueCanNotExceedNumberOfDigitsException.class)
     public void testVeryBigOverflowValueExceedsMaxInt() throws Exception {
-        RegisterSpec registerSpec = this.deviceConfiguration.
+        RegisterSpec registerSpec = this.getReloadedDeviceConfiguration().
                 createRegisterSpec(registerMapping).
                 setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT).
                 setMultiplier(BigDecimal.ONE).
@@ -507,13 +512,13 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
                 setNumberOfFractionDigits(3).
                 setOverflow(BigDecimal.valueOf(Long.MAX_VALUE)).
                 add();
-        deviceConfiguration.save();
+        getReloadedDeviceConfiguration().save();
     }
 
     @Test
     @Transactional
     public void testVeryBigOverflowValueOverflowsToNegativeInt() throws Exception {
-        RegisterSpec registerSpec = this.deviceConfiguration.
+        RegisterSpec registerSpec = this.getReloadedDeviceConfiguration().
                 createRegisterSpec(registerMapping).
                 setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT).
                 setMultiplier(BigDecimal.ONE).
@@ -521,6 +526,6 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
                 setNumberOfFractionDigits(3).
                 setOverflow(BigDecimal.valueOf(Integer.MAX_VALUE).add(BigDecimal.valueOf(1000))).
                 add();
-        deviceConfiguration.save();
+        getReloadedDeviceConfiguration().save();
     }
 }
