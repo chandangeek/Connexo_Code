@@ -28,7 +28,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
     ],
 
     init: function () {
-
+        this.getDeviceCommunicationProtocolsPagedStore().on('load', this.onDeviceCommunicationProtocolsStoreLoad, this);
         this.control({
             '#devicecommunicationprotocolgrid': {
                 selectionchange: this.previewDeviceCommunicationProtocol
@@ -59,6 +59,12 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
             });
         } else {
             this.getDeviceCommunicationProtocolPreview().getLayout().setActiveItem(0);
+        }
+    },
+
+    onDeviceCommunicationProtocolsStoreLoad: function () {
+        if (this.getDeviceCommunicationProtocolsPagedStore().getCount() > 0) {
+            this.getDeviceCommunicationProtocolGrid().getSelectionModel().select(0);
         }
     },
 
