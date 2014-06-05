@@ -20,6 +20,7 @@ import com.elster.jupiter.http.whiteboard.Resolver;
 public class HttpContextImpl implements HttpContext {
 
     static final String USERPRINCIPAL = "com.elster.jupiter.userprincipal";
+    static final String LOGIN_URI = "/apps/usr/login.html";
 
 	private final Resolver resolver;
     private final UserService userService;
@@ -49,7 +50,19 @@ public class HttpContextImpl implements HttpContext {
         String authentication = request.getHeader("Authorization");
         if (authentication == null) {
             if(request.getSession(true).getAttribute("user") == null) {
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                String referer = request.getHeader("referer");
+                String server = request.getRequestURL().substring(0, request.getRequestURL().indexOf(request.getRequestURI()));
+
+                if(request.getRequestURI().startsWith(LOGIN_URI) || (referer != null && referer.startsWith(server + LOGIN_URI))){
+                    // Allow access to resources used by the login page
+                    response.setStatus(HttpServletResponse.SC_ACCEPTED);
+                }
+                else{
+                    if(!request.getRequestURI().startsWith(LOGIN_URI)){
+                        response.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
+                        response.sendRedirect(server + LOGIN_URI + "?" + "page=" + request.getRequestURI());
+                    }
+                }
             }
             return true;
         }
