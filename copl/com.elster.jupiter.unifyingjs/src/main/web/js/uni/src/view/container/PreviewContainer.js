@@ -73,7 +73,10 @@ Ext.define('Uni.view.container.PreviewContainer', {
         }
     ],
 
+    loaded: false,
+
     initComponent: function () {
+        this.loaded = false;
         var me = this,
             grid = me.grid,
             emptyCmp = me.emptyComponent,
@@ -89,7 +92,7 @@ Ext.define('Uni.view.container.PreviewContainer', {
         if (!(grid instanceof Ext.Component)) {
             grid = Ext.clone(grid);
         }
-
+        grid.height = 450;
         me.items[1].items.push(grid);
 
         if (!(previewCmp instanceof Ext.Component)) {
@@ -98,19 +101,25 @@ Ext.define('Uni.view.container.PreviewContainer', {
 
         me.items[1].items.push(previewCmp);
 
-        this.callParent(arguments);
+        me.callParent(arguments);
+        me.setVisible(false);
 
         me.grid = me.getWrapperCt().items.items[0];
         me.bindStore(me.grid.store || 'ext-empty-store', true);
 
-        me.setVisible(false);
-        me.setLoading(true);
+        me.on('beforedestroy', this.onBeforeDestroy, this);
+        me.on('afterrender', this.onAfterRender, this);
+    },
 
-        this.on('beforedestroy', this.onBeforeDestroy, this);
+    onAfterRender: function () {
+        if(!this.loaded){
+            this.setLoading(true);
+        }
     },
 
     getStoreListeners: function () {
         return {
+            beforeload: this.onBeforeLoad,
             load: this.onLoad
         };
     },
@@ -119,12 +128,19 @@ Ext.define('Uni.view.container.PreviewContainer', {
         this.bindStore('ext-empty-store');
     },
 
+    onBeforeLoad: function () {
+        var me = this;
+
+        me.getLayout().setActiveItem(1);
+    },
+
     onLoad: function () {
         var me = this,
             count = me.grid.store.getCount(),
             isEmpty = count === 0;
 
         me.getLayout().setActiveItem(isEmpty ? 0 : 1);
+        me.loaded = true;
         me.setVisible(true);
         me.setLoading(false);
 
