@@ -39,6 +39,8 @@ public interface UserService {
 
     Query<Group> getGroupQuery();
 
+    Query<Privilege> getPrivilegeQuery();
+
     Group newGroup(String name, String description);
 
     List<Privilege> getPrivileges();

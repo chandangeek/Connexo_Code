@@ -252,6 +252,11 @@ public class UserServiceImpl implements UserService, InstallService {
         return getQueryService().wrap(dataModel.query(Group.class));
     }
 
+    @Override
+    public Query<Privilege> getPrivilegeQuery() {
+        return getQueryService().wrap(dataModel.query(Privilege.class));
+    }
+
     public void install() {
         new InstallerImpl(dataModel).install(getRealm());
     }
