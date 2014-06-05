@@ -5,7 +5,8 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
     itemId: 'deviceTypePreview',
 
     requires: [
-        'Mdc.model.DeviceType'
+        'Mdc.model.DeviceType',
+        'Mdc.view.setup.devicetype.DeviceTypeActionMenu'
     ],
 
     title: 'Details',
@@ -13,31 +14,19 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
     tools: [
         {
             xtype: 'button',
-            icon: '../mdc/resources/images/actionsDetail.png',
-            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-            menu: [
-                {
-                    text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                    itemId: 'editDeviceType',
-                    action: 'editDeviceType'
-
-                },
-                {
-                    text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-                    itemId: 'deleteDeviceType',
-                    action: 'deleteDeviceType'
-
-                }
-            ]
+            text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
+            iconCls: 'x-uni-action-iconA',
+            menu: {
+                xtype: 'device-type-action-menu'
+            }
         }
-
     ],
+
 
     items: {
         xtype: 'form',
         border: false,
         itemId: 'deviceTypePreviewForm',
-        //padding: '10 10 0 10',
         layout: {
             type: 'vbox',
             align: 'stretch'
@@ -47,9 +36,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                 xtype: 'container',
                 layout: {
                     type: 'column'
-//                        align: 'stretch'
                 },
-                //padding: '10 0 0 0',
                 items: [
                     {
                         xtype: 'container',
@@ -166,22 +153,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                     }
 
                 ]
-            }/*,
-             {
-             xtype: 'toolbar',
-             docked: 'bottom',
-             border: false,
-             title: 'Bottom Toolbar',
-             items: [
-             '->',
-             {
-             xtype: 'component',
-             itemId: 'deviceTypeDetailsLink',
-             html: '' // filled in in Controller
-             }
-
-             ]
-             }   */
+            }
         ]
     },
     // todo: set empty text

@@ -42,23 +42,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                             icon: '../mdc/resources/images/actionsDetail.png',
                             text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
                             menu: {
-                                items: [
-                                    {
-                                        text: Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
-                                        itemId: 'activateDeactivateDeviceConfiguration',
-                                        action: 'activateDeactivateDeviceConfiguration'
-                                    },
-                                    {
-                                        text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                                        itemId: 'editDeviceConfiguration',
-                                        action: 'editDeviceConfiguration'
-                                    },
-                                    {
-                                        text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-                                        itemId: 'deleteDeviceConfiguration',
-                                        action: 'deleteDeviceConfiguration'
-                                    }
-                                ]
+                                xtype: 'device-configuration-action-menu'
                             }
                         }
                     ],

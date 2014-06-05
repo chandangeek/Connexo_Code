@@ -3,37 +3,24 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
     alias: 'widget.deviceConfigurationPreview',
     itemId: 'deviceConfigurationPreview',
     requires: [
-        'Mdc.model.DeviceConfiguration'
+        'Mdc.model.DeviceConfiguration',
+        'Mdc.view.setup.deviceconfiguration.DeviceConfigurationActionMenu'
     ],
     frame: true,
     title: "Details",
+
+
     tools: [
         {
             xtype: 'button',
-            icon: '../mdc/resources/images/actionsDetail.png',
             text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
+            iconCls: 'x-uni-action-iconA',
             menu: {
-                items: [
-                    {
-                        text: Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
-                        itemId: 'activateDeviceconfigurationMenuItem',
-                        action: 'activateDeactivateDeviceConfiguration'
-                    },
-                    {
-                        text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                        itemId: 'editDeviceConfiguration',
-                        action: 'editDeviceConfiguration'
-                    },
-                    {
-                        text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-                        itemId: 'deleteDeviceConfiguration',
-                        action: 'deleteDeviceConfiguration'
-                    }
-                ]
+                xtype: 'device-configuration-action-menu'
             }
         }
-
     ],
+
     layout: {
         type: 'card',
         align: 'stretch'

@@ -6,7 +6,8 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Mdc.store.DeviceTypes'
+        'Mdc.store.DeviceTypes',
+        'Mdc.view.setup.devicetype.DeviceTypeActionMenu'
     ],
     store: 'DeviceTypes',
     initComponent: function () {
@@ -27,16 +28,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
-                items: [
-                    {
-                        text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                        action: 'editItem'
-                    },
-                    {
-                        text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-                        action: 'deleteItem'
-                    }
-                ]
+                items: 'Mdc.view.setup.devicetype.DeviceTypeActionMenu'
             }
         ];
 
