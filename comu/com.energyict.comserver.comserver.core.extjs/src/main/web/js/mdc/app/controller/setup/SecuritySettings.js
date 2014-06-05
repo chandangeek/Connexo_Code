@@ -410,7 +410,6 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
     handleFailureRequest: function (response, headerText) {
         var me = this,
             result = Ext.JSON.decode(response.responseText, true),
-            formErrorsPanel = me.getFormPanel().down('panel[name=errors]'),
             form = me.getFormPanel().down('form').getForm(),
             errorText = "Unknown error occurred";
 
