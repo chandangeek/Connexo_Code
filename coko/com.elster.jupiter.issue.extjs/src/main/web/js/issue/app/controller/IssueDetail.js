@@ -27,6 +27,10 @@ Ext.define('Isu.controller.IssueDetail', {
             selector: 'issue-detail-overview issue-comments comment-add-form'
         },
         {
+            ref: 'commentInput',
+            selector: 'issue-detail-overview issue-comments comment-add-form textareafield'
+        },
+        {
             ref: 'addCommentButton',
             selector: 'issue-detail-overview issue-comments button[action=add]'
         },
@@ -83,6 +87,7 @@ Ext.define('Isu.controller.IssueDetail', {
 
     showCommentForm: function (btn) {
         this.getCommentForm().show();
+        this.getCommentInput().focus();
         btn.hide();
     },
 
