@@ -7,7 +7,8 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
     requires: [
         'Mdc.model.RegisterType',
         'Ext.layout.container.Column',
-        'Ext.form.FieldSet'
+        'Ext.form.FieldSet',
+        'Mdc.view.setup.registertype.RegisterTypeActionMenu'
     ],
     layout: {
         type: 'vbox',
@@ -122,30 +123,18 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
         ];
 
         if (this.withActions) {
+
+
             this.tools = [
                 {
                     xtype: 'button',
-                    itemId: 'actionsButton',
-                    // TODO Replace this icon below with an 'actions' ui.
-                    icon: '../mdc/resources/images/actionsDetail.png',
-                    text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                    text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
+                    iconCls: 'x-uni-action-iconA',
                     menu: {
-                        items: [
-                            {
-                                text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                                itemId: 'editRegisterType',
-                                action: 'editRegisterType'
-                            },
-                            {
-                                text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-                                itemId: 'deleteRegisterType',
-                                action: 'deleteRegisterType'
-
-                            }
-                        ]
+                        xtype: 'register-type-action-menu'
                     }
                 }
-            ];
+            ]
         }
 
         this.callParent(arguments);

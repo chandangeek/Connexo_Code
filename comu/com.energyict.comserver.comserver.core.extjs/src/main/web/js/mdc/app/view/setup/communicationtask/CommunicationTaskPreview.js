@@ -2,34 +2,22 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskPreview', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.communicationTaskPreview',
     itemId: 'communicationTaskPreview',
+    requires: [
+        'Mdc.view.setup.communicationtask.CommunicationTaskActionMenu'
+    ],
     frame: true,
+
     tools: [
         {
             xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+            text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
             iconCls: 'x-uni-action-iconA',
             menu: {
-                xtype: 'menu',
-                plain: true,
-                border: false,
-                shadow: false,
-                items: [
-                    {
-                        text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                        action: 'editcommunicationtask'
-                    },
-                    {
-                        text: Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
-                        action: 'activatecommunicationtask'
-                    },
-                    {
-                        text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-                        action: 'removecommunicationtask'
-                    }
-                ]
+                xtype: 'communication-task-action-menu'
             }
         }
     ],
+
     items: [
         {
             xtype: 'form',

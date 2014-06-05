@@ -4,7 +4,8 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupPreview', {
     alias: 'widget.registerGroupPreview',
     itemId: 'registerGroupPreview',
     requires: [
-        'Mdc.model.RegisterGroup'
+        'Mdc.model.RegisterGroup',
+        'Mdc.view.setup.registergroup.RegisterGroupActionMenu'
     ],
     padding: '20 0 0 0',
     layout: {
@@ -30,16 +31,11 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupPreview', {
                     },
                     '->',
                     {
-                        icon: '../mdc/resources/images/actionsDetail.png',
-                        text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                        xtype: 'button',
+                        text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
+                        iconCls: 'x-uni-action-iconA',
                         menu: {
-                            items: [
-                                {
-                                    text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                                    itemId: 'editRegisterGroup',
-                                    action: 'editRegisterGroup'
-                                }
-                            ]
+                            xtype: 'register-group-action-menu'
                         }
                     }
                 ],

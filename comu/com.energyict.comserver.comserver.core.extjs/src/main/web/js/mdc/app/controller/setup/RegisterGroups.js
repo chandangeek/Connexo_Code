@@ -55,7 +55,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
                 selectionchange: this.previewRegisterGroup
             },
             '#registerGroupGrid actioncolumn': {
-                editItem: this.editRegisterGroupHistory
+                editRegisterGroup: this.editRegisterGroupHistory
             },
             '#registerGroupSetup button[action = createRegisterGroup]': {
                 click: this.createRegisterGroupHistory

@@ -46,8 +46,8 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                 selectionchange: this.previewRegisterType
             },
             '#registertypegrid actioncolumn': {
-                editItem: this.editRegisterTypeHistory,
-                deleteItem: this.deleteRegisterType,
+                editRegisterType: this.editRegisterTypeHistory,
+                deleteRegisterType: this.deleteRegisterType,
                 showReadingTypeInfo: this.showReadingType
             },
             '#registerTypeSetup button[action = createRegisterType]': {
