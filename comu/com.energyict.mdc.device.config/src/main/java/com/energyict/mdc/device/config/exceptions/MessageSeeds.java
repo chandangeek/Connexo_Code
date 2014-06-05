@@ -34,19 +34,21 @@ public enum MessageSeeds implements MessageSeed {
     LOAD_PROFILE_TYPE_STILL_IN_USE_BY_DEVICE_TYPES(4012, "loadProfileType.XstillInUseByDeviceTypesY", "The product spec with reading type {0} cannot be deleted because it is still in use by the following device type(s): {1}", SEVERE),
     LOG_BOOK_TYPE_OBIS_CODE_CANNOT_BE_UPDATED(5000, "DTC.logBookType.cannotUpdateObisCode", "The obis code of the log book type \"{0}\" cannot be updated because it is in use", SEVERE),
     LOG_BOOK_TYPE_STILL_IN_USE_BY_LOG_BOOK_SPECS(5001, "logBookType.XstillInUseByLogBookSpecsY", "The log book type {0} cannot be deleted because it is still in use by the following log book spec(s): {1}", SEVERE),
-    REGISTER_SPEC_NUMBER_OF_DIGITS_LARGER_THAN_ONE(6001, Keys.REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS, "Invalid number of digits. At least 1 digit is required", SEVERE),
+    REGISTER_SPEC_NUMBER_OF_DIGITS_INVALID(6001, Keys.REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS, "Invalid number of digits. At least {min} digit is required, maximum is {max}", SEVERE),
     REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED(6002, Keys.REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED, "The number of digits can not be decreased", SEVERE),
-    REGISTER_SPEC_REGISTER_MAPPING_IS_REQUIRED(6003, Keys.REGISTER_SPEC_REGISTER_MAPPING_IS_REQUIRED,"The register type of a register configuration is required", SEVERE),
+    REGISTER_SPEC_REGISTER_MAPPING_IS_REQUIRED(6003, Keys.REGISTER_SPEC_REGISTER_MAPPING_IS_REQUIRED,"The register mapping of a register specification is required", SEVERE),
     REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED(6004, Keys.REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED, "The number of fraction digits can not be decreased", SEVERE),
     REGISTER_SPEC_OVERFLOW_LARGER_THAN_NUMBER_OF_DIGITS(6005, "registerSpec.overflow.exceed","The provided overflow value \"{0}\" may not exceed \"{1}\" (according to the provided number of digits \"{2}\")", SEVERE),
     REGISTER_SPEC_OVERFLOW_LARGER_THAN_ZERO(6006, "registerSpec.overflow.invalidValue","The provided overflow value \"{0}\" must be larger then zero (0))", SEVERE),
     REGISTER_SPEC_OVERFLOW_INCORRECT_FRACTION_DIGITS(6007, "registerSpec.overflow.fractionDigits","The provided overflow value \"{0}\" more fraction digits \"{1}\" than provided \"{2}\")", SEVERE),
-    REGISTER_SPEC_CANNOT_DELETE_FOR_ACTIVE_CONFIG(6009, "registerSpec.delete.active.config","It is not allowed to delete a register configuration from an active device configuration", SEVERE),
-    REGISTER_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIG(6010, "registerSpec.add.active.config","You can not add a register configuration to an active device configuration", SEVERE),
-    REGISTER_SPEC_REGISTER_MAPPING_IS_NOT_ON_DEVICE_TYPE(6011, "registerSpec.not.deviceType","The register configuration contains a register mapping {0} which is not configured on the device type", SEVERE),
+    REGISTER_SPEC_CANNOT_DELETE_FOR_ACTIVE_CONFIG(6009, "registerSpec.delete.active.config","It is not allowed to delete a register spec from an active device configuration", SEVERE),
+    REGISTER_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIG(6010, "registerSpec.add.active.config","You can not add a register spec to an active device configuration", SEVERE),
+    REGISTER_SPEC_REGISTER_MAPPING_IS_NOT_ON_DEVICE_TYPE(6011, "registerSpec.not.deviceType","The register spec contains a register mapping {0} which is not configured on the device type", SEVERE),
     REGISTER_SPEC_REGISTER_MAPPING_CAN_NOT_CHANGE_FOR_ACTIVE_CONFIG(6012, Keys.REGISTER_SPEC_REGISTER_MAPPING_ACTIVE_DEVICE_CONFIG,"The register mapping type can not be modified if the device configuration is active", SEVERE),
     REGISTER_SPEC_MULTIPLIER_CAN_NOT_CHANGE_FOR_ACTIVE_CONFIG(6013, Keys.REGISTER_SPEC_MULTIPLIER_ACTIVE_DEVICE_CONFIG,"The register mapping type can not be modified if the device configuration is active", SEVERE),
     REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_LARGER_THAN_ONE(6014, Keys.REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS, "Invalid number of fraction digits.", Level.SEVERE),
+    REGISTER_SPEC_OVERFLOW_LARGER_THAN_ONE(6015, Keys.REGISTER_SPEC_INVALID_OVERFLOW_VALUE, "Invalid overflow value, must be above 0", Level.SEVERE),
+    REGISTER_SPEC_MULTIPLIER_LARGER_THAN_ONE(6016, Keys.REGISTER_SPEC_INVALID_MULTIPLIER_VALUE, "Invalid multiplier value, must be above 0", Level.SEVERE),
     DEVICE_TYPE_NAME_IS_REQUIRED(7001, "deviceType.name.required", "The name of a device type is required", SEVERE),
     DEVICE_TYPE_STILL_HAS_ACTIVE_CONFIGURATIONS(7003, Keys.DEVICE_TYPE_XSTILL_HAS_ACTIVE_CONFIGURATIONS, "The device type {0} cannot be deleted because it still has active configurations", SEVERE),
     DEVICE_PROTOCOL_IS_REQUIRED(7004, Keys.DEVICE_PROTOCOL_IS_REQUIRED, "The protocol of a device type is required", SEVERE),
@@ -97,7 +99,7 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_CONFIGURATION_DUPLICATE_OBIS_CODE_FOR_LOAD_PROFILE_SPEC(12005, "deviceConfig.duplicate.obisCode.loadProfileSpec", "The device configuration \"{0}\" already contains a load profile specification this obis code \"{1}\"", SEVERE),
     DEVICE_CONFIGURATION_DUPLICATE_LOG_BOOK_TYPE_IN_SPEC(12006, "deviceConfig.duplicate.logBookType", "The device configuration \"{0}\" already contains a logbook specification this logbook type \"{1}\"", SEVERE),
     DEVICE_CONFIGURATION_DUPLICATE_OBIS_CODE_FOR_LOGBOOK_SPEC(12007, "deviceConfig.duplicate.obisCode.logBookSpec", "The device configuration \"{0}\" already contains a logbook specification this obis code \"{1}\"", SEVERE),
-    DEVICE_CONFIGURATION_DUPLICATE_OBIS_CODE_FOR_REGISTER_SPEC(12008, "deviceConfig.duplicate.obisCode.registerSpec", "The device configuration \"{0}\" already contains a register configuration with this obis code \"{1}\"", SEVERE),
+    DEVICE_CONFIGURATION_DUPLICATE_OBIS_CODE_FOR_REGISTER_SPEC(12008, "deviceConfig.duplicate.obisCode.registerSpec", "The device configuration \"{0}\" already contains a register specification this obis code \"{1}\"", SEVERE),
     DEVICE_CONFIGURATION_DUPLICATE_OBIS_CODE_FOR_CHANNEL_SPEC_IN_LOAD_PROFILE_SPEC(12009, "deviceConfig.duplicate.obisCode.channelSpec.loadProfileSpec", "Load profile specification \"{0}\" in device configuration \"{1}\" already contains a channel specification this obis code \"{2}\"", SEVERE),
     DEVICE_CONFIGURATION_DUPLICATE_OBIS_CODE_FOR_CHANNEL_SPEC(12010, "deviceConfig.duplicate.obisCode.channelSpec", "The device configuration \"{0}\" already contains a channel specification this obis code \"{1}\"", SEVERE),
     DEVICE_CONFIGURATION_CAN_NOT_BE_GATEWAY(12012, Keys.DEVICE_CONFIG_GATEWAY_NOT_ALLOWED, "The device configuration can not be gateway as the device protocol does not allow it", SEVERE),
@@ -226,6 +228,8 @@ public enum MessageSeeds implements MessageSeed {
         public static final String NEXT_EXECUTION_SPEC_OFFSET_IS_GREATER_THAN_FREQUENCY = "DTC.nextExecutionSpecs.offsetGreaterThanFrequency";
         public static final String UNDER_MINIMUM_RESCHEDULE_DELAY = "DTC.partialScheduledConnectionTask.underMinimumRescheduleDelay";
         public static final String REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS = "DTC.registerSpec.invalidNumberOfFractionDigits";
+        public static final String REGISTER_SPEC_INVALID_OVERFLOW_VALUE = "DTC.registerSpec.invalidOverflow";
+        public static final String REGISTER_SPEC_INVALID_MULTIPLIER_VALUE = "DTC.registerSpec.invalidMultiplier";
         public static final String UNSUPPORTED_SECURITY_LEVEL = "DTC.securityPropertySet.unsupportedSecurityLevel";
         public static final String SECURITY_PROPERTY_SET_IN_USE = "DTC.securityPropertySet.inUse";
         public static final String COM_TASK_ENABLEMENT_COM_TASK_REQUIRED = "DTC.comTaskEnablement.comTask.required";
