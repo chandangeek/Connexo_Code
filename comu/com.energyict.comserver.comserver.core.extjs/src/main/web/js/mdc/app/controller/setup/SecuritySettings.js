@@ -2,7 +2,6 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
     extend: 'Ext.app.Controller',
 
     views: [
-        //'setup.Browse',
         'setup.securitysettings.SecuritySettingSetup',
         'setup.securitysettings.SecuritySettingGrid',
         'setup.securitysettings.SecuritySettingPreview',
@@ -334,14 +333,8 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
         var me = this,
             formPanel = me.getFormPanel(),
             form = formPanel.down('form').getForm(),
-            header = {
-                style: 'msgHeaderStyle'
-            },
-            msges = [],
             formErrorsPanel = Ext.ComponentQuery.query('securitySettingForm panel[name=errors]')[0],
-            nameField = formPanel.down('form').down('[name=name]'),
             jsonValues = Ext.JSON.encode(form.getValues()),
-            formButton = formPanel.down('form').down('button'),
             preloader;
         if (form.isValid()) {
             formErrorsPanel.hide();
@@ -357,10 +350,10 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                         method: 'POST',
                         jsonData: jsonValues,
                         success: function () {
-                            me.handleSuccessRequest('Successfully created', header);
+                            me.handleSuccessRequest('Successfully created');
                         },
                         failure: function (response) {
-                            me.handleFailureRequest(response, 'Error during create', header, msges, nameField, formButton);
+                            me.handleFailureRequest(response, 'Error during create');
                         },
                         callback: function () {
                             preloader.destroy();
@@ -378,10 +371,10 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                         method: 'PUT',
                         jsonData: jsonValues,
                         success: function () {
-                            me.handleSuccessRequest('Successfully updated', header);
+                            me.handleSuccessRequest('Successfully updated');
                         },
                         failure: function (response) {
-                            me.handleFailureRequest(response, 'Error during update', header, msges, nameField, formButton);
+                            me.handleFailureRequest(response, 'Error during update');
                         },
                         callback: function () {
                             preloader.destroy();
@@ -389,17 +382,23 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                     });
             }
         } else {
-            formErrorsPanel.hide();
-            formErrorsPanel.removeAll();
-            formErrorsPanel.add({
-                html: 'There are errors on this page that require your attention.',
-                style: 'color: #eb5642; border: 1px solid #eb5642; border-radius: 20px; padding: 10px;'
-            });
-            formErrorsPanel.show();
+            me.showErrorPanel();
         }
     },
 
-    handleSuccessRequest: function (headerText, header) {
+    showErrorPanel: function() {
+        var me = this,
+            formErrorsPanel = me.getFormPanel().down('panel[name=errors]');
+
+        formErrorsPanel.hide();
+        formErrorsPanel.removeAll();
+        formErrorsPanel.add({
+            html: 'There are errors on this page that require your attention.'
+        });
+        formErrorsPanel.show();
+    },
+
+    handleSuccessRequest: function (headerText) {
         window.location.href = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/securitysettings';
 
         Ext.create('widget.uxNotification', {
@@ -408,12 +407,28 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
         }).show();
     },
 
-    handleFailureRequest: function (response, headerText, header, msges, nameField, formButton) {
-        var result = Ext.JSON.decode(response.responseText);
+    handleFailureRequest: function (response, headerText) {
+        var me = this,
+            result = Ext.JSON.decode(response.responseText, true),
+            formErrorsPanel = me.getFormPanel().down('panel[name=errors]'),
+            form = me.getFormPanel().down('form').getForm(),
+            errorText = "Unknown error occurred";
+
+        if(result && result.errors) {
+            form.markInvalid(result.errors);
+            me.showErrorPanel();
+            return;
+        }
+        if(!Ext.isEmpty(response.statusText)) {
+            errorText = response.statusText;
+        }
+        if(result && result.message) {
+            errorText = result.message;
+        }
 
         Ext.Msg.show({
-            title: result.error,
-            msg: result.message,
+            title: headerText,
+            msg: errorText,
             icon: Ext.MessageBox.WARNING,
             buttons: Ext.MessageBox.CANCEL,
             ui: 'notification-error'
