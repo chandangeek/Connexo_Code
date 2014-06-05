@@ -15,6 +15,10 @@ Ext.define('Isu.controller.IssueDetail', {
 
     refs: [
         {
+            ref: 'page',
+            selector: 'issue-detail-overview'
+        },
+        {
             ref: 'detailPanel',
             selector: 'issue-detail-overview issue-detail'
         },
@@ -78,6 +82,7 @@ Ext.define('Isu.controller.IssueDetail', {
                 store.proxy.url = '/api/isu/issue/' + id + '/comments';
                 store.load();
                 self.getApplication().fireEvent('changecontentevent', widget);
+                self.setNavigationButtons(record);
             },
             failure: function () {
                 window.location.href = '#/workspace/datacollection/issues';
@@ -109,12 +114,49 @@ Ext.define('Isu.controller.IssueDetail', {
         var self = this,
             commentsPanel = self.getCommentsPanel(),
             commentsStore = commentsPanel.getStore()
-        ;
+            ;
 
         var store = commentsPanel.getStore();
         store.add(self.getCommentForm().getValues());
         store.sync();
 
         self.hideCommentForm();
+    },
+
+    setNavigationButtons: function (model) {
+        var prevBtn = this.getPage().down('[action=prev]'),
+            nextBtn = this.getPage().down('[action=next]'),
+            issueStore = this.getStore('Isu.store.Issues'),
+            currentIndex = issueStore.indexOf(model),
+            router = this.getController('Uni.controller.history.Router'),
+            prevIndex,
+            nextIndex;
+
+        if (currentIndex != -1) {
+            currentIndex && (prevIndex = currentIndex - 1);
+            (issueStore.getCount() > (currentIndex + 1)) && (nextIndex = currentIndex + 1);
+
+            if (prevIndex || prevIndex == 0) {
+                prevBtn.on('click', function () {
+                    router.getRoute('workspace/datacollection/issues/view').forward({id: issueStore.getAt(prevIndex).getId()});
+                });
+            } else {
+                prevBtn.setDisabled(true);
+            }
+
+            if (nextIndex) {
+                nextBtn.on('click', function () {
+                    router.getRoute('workspace/datacollection/issues/view').forward({id: issueStore.getAt(nextIndex).getId()});
+                });
+            } else {
+                nextBtn.setDisabled(true);
+            }
+
+            prevBtn.show();
+            nextBtn.show();
+        } else {
+            prevBtn.hide();
+            nextBtn.hide();
+        }
     }
 });
