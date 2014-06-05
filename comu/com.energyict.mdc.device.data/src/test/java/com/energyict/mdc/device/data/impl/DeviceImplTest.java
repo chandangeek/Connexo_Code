@@ -1,5 +1,26 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.interval.Phenomenon;
+import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.data.DefaultSystemTimeZoneFactory;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceCacheFactory;
+import com.energyict.mdc.device.data.DeviceDependant;
+import com.energyict.mdc.device.data.exceptions.MessageSeeds;
+import com.energyict.mdc.device.data.exceptions.StillGatewayException;
+import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.protocol.api.device.BaseChannel;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
+
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.FlowDirection;
@@ -16,36 +37,8 @@ import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.common.interval.Phenomenon;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.RegisterMapping;
-import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.DefaultSystemTimeZoneFactory;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceCacheFactory;
-import com.energyict.mdc.device.data.DeviceDependant;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.data.exceptions.MessageSeeds;
-import com.energyict.mdc.device.data.exceptions.StillGatewayException;
-import com.energyict.mdc.protocol.api.device.BaseChannel;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.google.common.base.Optional;
 import org.fest.assertions.core.Condition;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -54,9 +47,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import org.junit.*;
+import org.junit.rules.*;
+
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.assertions.api.Fail.fail;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link com.energyict.mdc.device.data.impl.DeviceImpl} component.
@@ -747,12 +745,12 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         device2.setPhysicalGateway(physicalMaster);
         device2.save();
 
-        List<BaseDevice<Channel, LoadProfile, Register>> downstreamDevices = physicalMaster.getPhysicalConnectedDevices();
+        List<Device> downstreamDevices = physicalMaster.getPhysicalConnectedDevices();
 
         assertThat(downstreamDevices).hasSize(2);
-        assertThat(downstreamDevices).has(new Condition<List<BaseDevice<Channel, LoadProfile, Register>>>() {
+        assertThat(downstreamDevices).has(new Condition<List<Device>>() {
             @Override
-            public boolean matches(List<BaseDevice<Channel, LoadProfile, Register>> value) {
+            public boolean matches(List<Device> value) {
                 boolean bothMatch = true;
                 for (BaseDevice baseDevice : value) {
                     bothMatch &= ((baseDevice.getId() == device1.getId()) || (baseDevice.getId() == device2.getId()));
@@ -777,7 +775,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         device1.clearPhysicalGateway();
         device1.save();
 
-        List<BaseDevice<Channel, LoadProfile, Register>> downstreamDevices = physicalMaster.getPhysicalConnectedDevices();
+        List<Device> downstreamDevices = physicalMaster.getPhysicalConnectedDevices();
 
         assertThat(downstreamDevices).hasSize(1);
         assertThat(downstreamDevices.get(0).getId()).isEqualTo(device2.getId());
@@ -797,7 +795,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         //business method
         device1.delete();
 
-        List<BaseDevice<Channel, LoadProfile, Register>> downstreamDevices = physicalMaster.getPhysicalConnectedDevices();
+        List<Device> downstreamDevices = physicalMaster.getPhysicalConnectedDevices();
 
         assertThat(downstreamDevices).hasSize(1);
         assertThat(downstreamDevices.get(0).getId()).isEqualTo(device2.getId());
@@ -820,7 +818,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         device1.save();
 
 
-        List<BaseDevice<Channel, LoadProfile, Register>> downstreamDevices = physicalMaster.getPhysicalConnectedDevices();
+        List<Device> downstreamDevices = physicalMaster.getPhysicalConnectedDevices();
 
         assertThat(downstreamDevices).hasSize(1);
         assertThat(downstreamDevices.get(0).getId()).isEqualTo(device2.getId());

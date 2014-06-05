@@ -1,22 +1,5 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.ListOperator;
-import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.conditions.Where;
-import com.elster.jupiter.util.sql.Fetcher;
-import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.HasId;
@@ -32,14 +15,13 @@ import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.ComTaskExecutionFields;
+import com.energyict.mdc.device.data.CommunicationTopologyEntry;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.DeviceFields;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.ServerComTaskExecution;
 import com.energyict.mdc.device.data.impl.finders.ConnectionMethodFinder;
 import com.energyict.mdc.device.data.impl.finders.DeviceFinder;
@@ -73,13 +55,31 @@ import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.pluggable.PluggableService;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
+
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.ListOperator;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.sql.Fetcher;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -434,8 +434,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
                                 .or(where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isNotEqual(connectionTask))));
         List<ComTaskExecution> comTaskExecutions = this.dataModel.mapper(ComTaskExecution.class).select(query);
         scheduledComTasks.addAll(comTaskExecutions);
-        for (Object physicalConnectedDevice : device.getPhysicalConnectedDevices()) {
-            Device slave = (Device) physicalConnectedDevice;
+        for (Device slave : device.getPhysicalConnectedDevices()) {
             this.collectComTaskWithDefaultConnectionTaskForCompleteTopology(slave, scheduledComTasks, connectionTask);
         }
     }
@@ -865,31 +864,61 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     }
 
     @Override
-    public List<BaseDevice<Channel, LoadProfile, Register>> findPhysicalConnectedDevicesFor(Device device) {
+    public List<Device> findPhysicalConnectedDevicesFor(Device device) {
         Condition condition = where("gateway").isEqualTo(device).and(where("interval").isEffective());
         List<PhysicalGatewayReference> physicalGatewayReferences = this.dataModel.mapper(PhysicalGatewayReference.class).select(condition);
-        if(!physicalGatewayReferences.isEmpty()){
-            List<BaseDevice<Channel, LoadProfile, Register>> baseDevices = new ArrayList<>();
+        if (!physicalGatewayReferences.isEmpty()) {
+            List<Device> devices = new ArrayList<>();
             for (PhysicalGatewayReference physicalGatewayReference : physicalGatewayReferences) {
-                baseDevices.add(physicalGatewayReference.getOrigin());
+                devices.add(physicalGatewayReference.getOrigin());
             }
-            return baseDevices;
+            return devices;
         } else {
             return Collections.emptyList();
         }
     }
 
     @Override
-    public List<BaseDevice<Channel, LoadProfile, Register>> findCommunicationReferencingDevicesFor(Device device) {
+    public List<Device> findCommunicationReferencingDevicesFor(Device device) {
         Condition condition = where("gateway").isEqualTo(device).and(where("interval").isEffective());
+        return this.findCommunicationReferencingDevicesFor(condition);
+    }
+
+    private List<Device> findCommunicationReferencingDevicesFor(Condition condition) {
         List<CommunicationGatewayReference> communicationGatewayReferences = this.dataModel.mapper(CommunicationGatewayReference.class).select(condition);
-        if(!communicationGatewayReferences.isEmpty()){
-            List<BaseDevice<Channel, LoadProfile, Register>> baseDevices = new ArrayList<>();
+        if (!communicationGatewayReferences.isEmpty()) {
+            List<Device> devices = new ArrayList<>();
             for (CommunicationGatewayReference communicationGatewayReference : communicationGatewayReferences) {
-                baseDevices.add(communicationGatewayReference.getOrigin());
+                devices.add(communicationGatewayReference.getOrigin());
             }
-            return baseDevices;
-        } else {
+            return devices;
+        }
+        else {
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public List<Device> findCommunicationReferencingDevicesFor(Device device, Date timestamp) {
+        Condition condition = where("gateway").isEqualTo(device).and(where("interval").isEffective(timestamp));
+        return this.findCommunicationReferencingDevicesFor(condition);
+    }
+
+    @Override
+    public List<CommunicationTopologyEntry> findCommunicationReferencingDevicesFor(Device device, Interval interval) {
+        Condition condition = where("gateway").isEqualTo(device).and(where("interval").isEffective(interval));
+        List<CommunicationGatewayReference> communicationGatewayReferences = this.dataModel.mapper(CommunicationGatewayReference.class).select(condition);
+        if (!communicationGatewayReferences.isEmpty()) {
+            List<CommunicationTopologyEntry> entries = new ArrayList<>(communicationGatewayReferences.size());
+            for (CommunicationGatewayReference communicationGatewayReference : communicationGatewayReferences) {
+                entries.add(
+                        new SimpleCommunicationTopologyEntryImpl(
+                                communicationGatewayReference.getOrigin(),
+                                communicationGatewayReference.getInterval()));
+            }
+            return entries;
+        }
+        else {
             return Collections.emptyList();
         }
     }

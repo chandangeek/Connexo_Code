@@ -1,10 +1,5 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
@@ -14,10 +9,13 @@ import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfileChannel;
+
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.time.UtcInstant;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -106,7 +104,7 @@ public class LoadProfileImpl implements LoadProfile {
     @Override
     public List<Channel> getAllChannels() {
         List<Channel> allChannels = getChannels();
-        for (BaseDevice<Channel, LoadProfile, Register> physicalConnectedDevice : this.device.get().getPhysicalConnectedDevices()) {
+        for (Device physicalConnectedDevice : this.device.get().getPhysicalConnectedDevices()) {
             if (physicalConnectedDevice.isLogicalSlave()) {
                 for (Channel channel : physicalConnectedDevice.getChannels()) {
                     if (channel.getLoadProfile().getLoadProfileTypeId() == this.getLoadProfileTypeId()) {
