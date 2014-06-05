@@ -451,10 +451,7 @@ Ext.define('Isu.controller.Issues', {
             icons = Ext.get(itemPanel.getEl()).select('.isu-apply-filter');
 
         icons.on('click', self.addFilterIconAction, self);
-        itemPanel.on('change', function () {
-            icons.un('click', self.addFilterIconAction, self);
-        });
-        itemPanel.on('clear', function () {
+        itemPanel.on('destroy', function () {
             icons.un('click', self.addFilterIconAction, self);
         });
     },
@@ -462,7 +459,7 @@ Ext.define('Isu.controller.Issues', {
     addFilterIconAction: function (event, icon) {
         var filterType = icon.getAttribute('data-filterType'),
             filterValue = icon.getAttribute('data-filterValue'),
-            visualValue = Ext.get(icon).prev().getHTML();
+            visualValue = icon.getAttribute('data-filterSearch');
 
         if (!filterType || !filterValue) {
             return;
@@ -479,7 +476,7 @@ Ext.define('Isu.controller.Issues', {
                 this.setComboFilter(filterType, parseInt(filterValue), visualValue);
                 break;
             case 'meter':
-                this.setComboFilter(filterType, parseInt(filterValue), filterValue);
+                this.setComboFilter(filterType, parseInt(filterValue), visualValue);
                 break;
         }
     },
@@ -522,7 +519,7 @@ Ext.define('Isu.controller.Issues', {
 
         if (!store.getCount()) {
             if (extraParams.status || extraParams.assigneeId || extraParams.reason || extraParams.meter) {
-                emptyText = '<h3>No issues found</h3><p>The filter is too narrow</p>';
+                emptyText = '<h3>No issues found</h3><p>There are no data collection issues. This could be because:<br>&nbsp;&nbsp;- No data collection issues have been created yet.<br>&nbsp;&nbsp;- No data collection issues comply to the filter.</p>';
             } else {
                 emptyText = '<h3>No issue found</h3><p>No data collection issues have been created yet.</p>';
             }

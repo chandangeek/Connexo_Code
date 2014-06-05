@@ -40,12 +40,6 @@ Ext.define('Isu.model.Issues', {
             return data.reason.name + (data.device ? ' to ' + data.device.name + ' ' + data.device.serialNumber : '');
         }
         },
-        {
-            name: 'devicelink', mapping: function (data) {
-            // todo: internationalisation
-            return data.device ? data.device.name + ' ' + data.device.serialNumber : '';
-        }
-        },
         {name: 'reason_name', mapping: 'reason.name'},
         {name: 'status_name', mapping: 'status.name'},
         {name: 'device_name', mapping: 'device.name'},
@@ -53,7 +47,65 @@ Ext.define('Isu.model.Issues', {
         {name: 'assignee_type', mapping: 'assignee.type'},
         {name: 'usage_point', mapping: 'device.usagePoint.info'},
         {name: 'service_location', mapping: 'device.serviceLocation.info'},
-        {name: 'service_category', mapping: 'device.serviceCategory.info'}
+        {name: 'service_category', mapping: 'device.serviceCategory.info'},
+        {
+            name: 'status_name_f',
+            mapping: function (data) {
+                var filterIcon;
+                if (data.status) {
+                    filterIcon = '<span class="isu-icon-filter isu-apply-filter" data-filterType="status" data-filterValue="' + data.status.id + '"></span>';
+                    return data.status.name + ' ' + filterIcon;
+                } else {
+                    return '';
+                }
+            }
+        },
+        {
+            name: 'reason_name_f',
+            mapping: function (data) {
+                var filterIcon;
+                if (data.reason) {
+                    filterIcon = '<span class="isu-icon-filter isu-apply-filter" data-filterType="reason" data-filterValue="' + data.reason.id + '" data-filterSearch="' + data.reason.name + '"></span>';
+                    return data.reason.name + ' ' + filterIcon;
+                } else {
+                    return '';
+                }
+            }
+        },
+        {
+            name: 'device_f',
+            mapping: function (data) {
+                var filterIcon;
+                if (data.device) {
+                    filterIcon = '<span class="isu-icon-filter isu-apply-filter" data-filterType="meter" data-filterValue="' + data.device.id + '" data-filterSearch="' + data.device.serialNumber + '"></span>';
+                    return '<a href="#/assets/devices/">' + data.device.name + ' ' + data.device.serialNumber + '</a>' + filterIcon;
+                } else {
+                    return '';
+                }
+            }
+        },
+        {
+            name: 'assignee_name_f',
+            mapping: function (data) {
+                var filterIcon;
+                if (data.assignee) {
+                    filterIcon = '<span class="isu-icon-filter isu-apply-filter" data-filterType="assignee" data-filterValue="' + data.assignee.id + ':' + data.assignee.type + '" data-filterSearch="' + data.assignee.name + '"></span>';
+                    return data.assignee.name + filterIcon;
+                } else {
+                    return '';
+                }
+            }
+        },
+        {
+            name: 'devicelink',
+            mapping: function (data) {
+                if (data.device) {
+                    return '<a href="#/assets/devices/">' + data.device.name + ' ' + data.device.serialNumber + '</a>';
+                } else {
+                    return '';
+                }
+            }
+        }
     ],
 
     associations: [

@@ -17,6 +17,10 @@ Ext.define('Isu.controller.NotifySend', {
         }
     ],
 
+    mixins: [
+        'Isu.util.CreatingControl'
+    ],
+
     init: function () {
         this.control({
             'notify-user button[action=notifySend]': {
@@ -48,65 +52,29 @@ Ext.define('Isu.controller.NotifySend', {
     },
 
     notifyUser: function (records, view) {
-        var self = this;
+        var self = this,
+            control;
         Ext.Array.each(records, function (record) {
             if (record.data.parameters.recepients && record.data.parameters.recepients.control.xtype === 'emailList') {
-                Ext.apply(Ext.form.VTypes, {
-                    emailVtype: function (val) {
-                        var email = /^((([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z?]{2,5}){1,25})*(\n?)*)*$/;
-                        return email.test(val);
-                    },
-                    emailVtypeText: 'This field should contains one e-mail address per line'
-                });
+                control = self.createControl(record.data.parameters.recepients);
                 self.actionId = record.data.id;
-                view.down('form').add({
-                    xtype: 'textarea',
-                    itemId: 'emailList',
-                    name: record.data.parameters.recepients.key,
-                    width: 500,
-                    height: 150,
-                    allowBlank: false,
-                    labelSeparator: ' *',
-                    fieldLabel: record.data.parameters.recepients.label,
-                    vtype: 'emailVtype',
-                    emptyText: 'user@example.com',
-                    maxLength: record.data.parameters.recepients.constraint.max
-                })
+                view.down('form').add(control);
             }
             if (record.data.parameters.emailBody && record.data.parameters.emailBody.control.xtype === 'textArea') {
-                view.down('form').add({
-                    xtype: 'textarea',
-                    itemId: 'emailBody',
-                    name: record.data.parameters.emailBody.key,
-                    width: 500,
-                    height: 150,
-                    allowBlank: false,
-                    labelSeparator: ' *',
-                    fieldLabel: record.data.parameters.emailBody.label,
-                    msgTarget: 'under',
-                    maxLength: record.data.parameters.emailBody.constraint.max
-                })
+                control = self.createControl(record.data.parameters.emailBody);
+                view.down('form').add(control);
             }
         })
     },
 
     sendSomeone: function (records, view) {
-        var self = this;
+        var self = this,
+            control;
         Ext.Array.each(records, function (record) {
             if (record.data.parameters.user && record.data.parameters.user.control.xtype === 'userCombobox') {
                 self.actionId = record.data.id;
-                view.down('form').add({
-                    xtype: 'issues-assignee-combo',
-                    itemId: 'assignee',
-                    name: record.data.parameters.user.key,
-                    fieldLabel: record.data.parameters.user.label,
-                    forceSelection: true,
-                    anyMatch: true,
-                    labelSeparator: ' *',
-                    valueField: 'id',
-                    emptyText: 'select an assignee',
-                    tooltipText: 'Start typing for assignee'
-                })
+                control = self.createControl(record.data.parameters.user);
+                view.down('form').add(control);
             }
         });
     },

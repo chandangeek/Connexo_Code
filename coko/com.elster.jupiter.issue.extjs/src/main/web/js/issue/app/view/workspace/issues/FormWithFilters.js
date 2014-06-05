@@ -1,6 +1,6 @@
-Ext.define('Isu.view.workspace.issues.Form', {
+Ext.define('Isu.view.workspace.issues.FormWithFilters', {
     extend: 'Ext.form.Panel',
-    alias: 'widget.issue-form',
+    alias: 'widget.issue-form-with-filters',
     layout: 'column',
     itemId: 'issue-detailed-form',
     defaults: {
@@ -17,7 +17,7 @@ Ext.define('Isu.view.workspace.issues.Form', {
                     itemId: '_reason',
                     xtype: 'displayfield',
                     fieldLabel: 'Reason',
-                    name: 'reason_name'
+                    name: 'reason_name_f'
                 },
                 {
                     itemId: '_customer',
@@ -41,7 +41,7 @@ Ext.define('Isu.view.workspace.issues.Form', {
                     itemId: '_devicename',
                     xtype: 'displayfield',
                     fieldLabel: 'Device',
-                    name: 'devicelink'
+                    name: 'device_f'
                 }
             ]
         },
@@ -51,7 +51,7 @@ Ext.define('Isu.view.workspace.issues.Form', {
                     itemId: '_status',
                     xtype: 'displayfield',
                     fieldLabel: 'Status',
-                    name: 'status_name'
+                    name: 'status_name_f'
                 },
                 {
                     itemId: '_dueDate',
@@ -64,7 +64,7 @@ Ext.define('Isu.view.workspace.issues.Form', {
                     itemId: '_assignee',
                     xtype: 'displayfield',
                     fieldLabel: 'Assignee',
-                    name: 'assignee_name'
+                    name: 'assignee_name_f'
                 },
                 {
                     itemId: '_creationDate',

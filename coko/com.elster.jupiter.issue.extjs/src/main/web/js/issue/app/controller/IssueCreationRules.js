@@ -84,7 +84,7 @@ Ext.define('Isu.controller.IssueCreationRules', {
                 buttons: [
                     {
                         text: 'Delete',
-                        ui: 'delete',
+                        ui: 'remove',
                         handler: function () {
                             rule.destroy({
                                 params: {
