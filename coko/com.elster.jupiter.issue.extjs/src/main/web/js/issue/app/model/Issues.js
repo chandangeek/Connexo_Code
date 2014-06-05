@@ -78,7 +78,7 @@ Ext.define('Isu.model.Issues', {
                 var filterIcon;
                 if (data.device) {
                     filterIcon = '<span class="isu-icon-filter isu-apply-filter" data-filterType="meter" data-filterValue="' + data.device.id + '" data-filterSearch="' + data.device.serialNumber + '"></span>';
-                    return '<a href="#/assets/devices/">' + data.device.name + ' ' + data.device.serialNumber + '</a>' + filterIcon;
+                    return '<a href="#/devices/' + data.device.serialNumber + '">' + data.device.name + ' ' + data.device.serialNumber + '</a>' + filterIcon;
                 } else {
                     return '';
                 }
@@ -100,7 +100,7 @@ Ext.define('Isu.model.Issues', {
             name: 'devicelink',
             mapping: function (data) {
                 if (data.device) {
-                    return '<a href="#/assets/devices/">' + data.device.name + ' ' + data.device.serialNumber + '</a>';
+                    return '<a href="#/devices/' + data.device.serialNumber + '">' + data.device.name + ' ' + data.device.serialNumber + '</a>';
                 } else {
                     return '';
                 }
