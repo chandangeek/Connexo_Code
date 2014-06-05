@@ -6,22 +6,14 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.EditAction
     alias: 'widget.issues-creation-rules-edit-action',
     content: [
         {
-            cls: 'content-wrapper',
+            name: 'pageTitle',
+            ui: 'large',
             items: [
-                {
-                    xtype: 'panel',
-                    name: 'pageTitle',
-                    margin: '0 0 40 32',
-                    ui: 'large',
-                    title: 'Add action'
-                },
                 {
                     xtype: 'form',
                     width: '75%',
-                    bodyPadding: '0 30 0 0',
                     defaults: {
                         labelWidth: 150,
-                        margin: '0 0 20 0',
                         validateOnChange: false,
                         validateOnBlur: false,
                         anchor: '100%'
@@ -31,15 +23,14 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.EditAction
                             itemId: 'form-errors',
                             xtype: 'uni-form-error-message',
                             name: 'form-errors',
-                            hidden: true,
-                            margin: '0 0 20 50'
+                            hidden: true
                         },
                         {
                             xtype: 'radiogroup',
                             itemId: 'phasesRadioGroup',
                             name: 'phasesRadioGroup',
                             fieldLabel: 'When to perform',
-                            labelSeparator: ' *',
+                            required: true,
                             columns: 1,
                             vertical: true
                         },
@@ -48,7 +39,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.EditAction
                             xtype: 'combobox',
                             name: 'actionType',
                             fieldLabel: 'Action',
-                            labelSeparator: ' *',
+                            required: true,
                             store: 'Isu.store.Actions',
                             queryMode: 'local',
                             displayField: 'name',
@@ -65,20 +56,14 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.EditAction
                             anchor: '100%',
                             defaults: {
                                 labelWidth: 150,
-                                margin: '0 0 20 0',
+                                margin: '0 0 10 0',
                                 validateOnChange: false,
                                 validateOnBlur: false,
                                 anchor: '100%'
                             }
                         }
-                    ]
-                },
-                {
-                    xtype: 'container',
-                    layout: 'hbox',
-                    defaultType: 'button',
-                    margin: '20 165',
-                    items: [
+                    ],
+                    buttons: [
                         {
                             itemId: 'actionOperation',
                             name: 'actionOperation',

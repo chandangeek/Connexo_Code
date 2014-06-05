@@ -96,7 +96,7 @@ Ext.define('Isu.controller.IssueCreationRulesActionsEdit', {
                         break;
                 }
 
-                self.getPageTitle().title = prefix + 'action';
+                self.getPageTitle().setTitle(prefix + 'action');
                 self.getActionOperationBtn().setText(btnTxt);
             }
         };

@@ -6,22 +6,14 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
     alias: 'widget.issues-creation-rules-edit',
     content: [
         {
-            cls: 'content-wrapper',
+            name: 'pageTitle',
+            ui: 'large',
             items: [
-                {
-                    xtype: 'panel',
-                    name: 'pageTitle',
-                    margin: '0 0 40 32',
-                    ui: 'large',
-                    title: 'Create issue creation rule'
-                },
                 {
                     xtype: 'form',
                     width: '75%',
-                    bodyPadding: '0 30 0 0',
                     defaults: {
                         labelWidth: 150,
-                        margin: '0 0 20 0',
                         validateOnChange: false,
                         validateOnBlur: false,
                         anchor: '100%'
@@ -31,15 +23,14 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                             itemId: 'form-errors',
                             xtype: 'uni-form-error-message',
                             name: 'form-errors',
-                            hidden: true,
-                            margin: '0 0 20 50'
+                            hidden: true
                         },
                         {
                             itemId: 'name',
                             xtype: 'textfield',
                             name: 'name',
                             fieldLabel: 'Name',
-                            labelSeparator: ' *',
+                            required: true,
                             allowBlank: false,
                             maxLength: 80
                         },
@@ -48,7 +39,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                             xtype: 'combobox',
                             name: 'issueType',
                             fieldLabel: 'Issue type',
-                            labelSeparator: ' *',
+                            required: true,
                             store: 'Isu.store.IssueType',
                             queryMode: 'local',
                             displayField: 'name',
@@ -61,7 +52,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                             xtype: 'combobox',
                             name: 'template',
                             fieldLabel: 'Rule template',
-                            labelSeparator: ' *',
+                            required: true,
                             store: 'Isu.store.CreationRuleTemplate',
                             queryMode: 'local',
                             displayField: 'name',
@@ -74,11 +65,10 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                             xtype: 'container',
                             name: 'templateDetails',
                             layout: 'fit',
-                            margin: 0,
                             anchor: '70%',
                             defaults: {
                                 labelWidth: 150,
-                                margin: '0 0 20 0',
+                                margin: '0 0 10 0',
                                 validateOnChange: false,
                                 validateOnBlur: false,
                                 anchor: '100%'
@@ -89,7 +79,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                             xtype: 'combobox',
                             name: 'reason',
                             fieldLabel: 'Issue reason',
-                            labelSeparator: ' *',
+                            required: true,
                             store: 'Isu.store.IssueReason',
                             queryMode: 'local',
                             displayField: 'name',
@@ -154,10 +144,10 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                                             itemId: 'dueDateValues',
                                             xtype: 'container',
                                             name: 'dueDateValues',
+                                            margin: '30 0 10 0',
                                             layout: {
                                                 type: 'hbox'
                                             },
-                                            margin: '32 0 0 16',
                                             items: [
                                                 {
                                                     itemId: 'dueIn.number',
@@ -168,7 +158,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                                                     margin: '0 10 0 0',
                                                     listeners: {
                                                         focus: {
-                                                            fn: function (field) {
+                                                            fn: function () {
                                                                 var radioButton = Ext.ComponentQuery.query('issues-creation-rules-edit [boxLabel=Due in]')[0];
                                                                 radioButton.setValue(true);
                                                             }
@@ -187,7 +177,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                                                     width: 100,
                                                     listeners: {
                                                         focus: {
-                                                            fn: function (field) {
+                                                            fn: function () {
                                                                 var radioButton = Ext.ComponentQuery.query('issues-creation-rules-edit [boxLabel=Due in]')[0];
                                                                 radioButton.setValue(true);
                                                             }
