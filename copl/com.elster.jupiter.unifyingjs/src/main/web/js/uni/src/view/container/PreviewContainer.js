@@ -103,25 +103,20 @@ Ext.define('Uni.view.container.PreviewContainer', {
         me.grid = me.getWrapperCt().items.items[0];
         me.bindStore(me.grid.store || 'ext-empty-store', true);
 
+        me.setVisible(false);
+        me.setLoading(true);
+
         this.on('beforedestroy', this.onBeforeDestroy, this);
     },
 
     getStoreListeners: function () {
         return {
-            beforeload: this.onBeforeLoad,
             load: this.onLoad
         };
     },
 
     onBeforeDestroy: function () {
         this.bindStore('ext-empty-store');
-    },
-
-    onBeforeLoad: function () {
-        var me = this;
-
-        me.getLayout().setActiveItem(1);
-        me.setVisible(true);
     },
 
     onLoad: function () {
@@ -131,6 +126,11 @@ Ext.define('Uni.view.container.PreviewContainer', {
 
         me.getLayout().setActiveItem(isEmpty ? 0 : 1);
         me.setVisible(true);
+        me.setLoading(false);
+
+        if(!isEmpty){
+            me.grid.getSelectionModel().doSelect(0);
+        }
     },
 
     getWrapperCt: function () {
