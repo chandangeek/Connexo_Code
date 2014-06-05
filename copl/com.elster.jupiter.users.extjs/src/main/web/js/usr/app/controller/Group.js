@@ -46,6 +46,7 @@ Ext.define('Usr.controller.Group', {
 
     editGroup: function (record) {
         this.getApplication().getController('Usr.controller.GroupEdit').showEditOverviewWithHistory(record.get('id'));
+        this.getApplication().fireEvent('editRole', record);
     },
 
     createGroup: function () {

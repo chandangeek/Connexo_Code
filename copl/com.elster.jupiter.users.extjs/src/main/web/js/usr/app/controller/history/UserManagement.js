@@ -20,7 +20,15 @@ Ext.define('Usr.controller.history.UserManagement', {
                             title: Uni.I18n.translate('general.edit', 'USM', 'Edit'),
                             route: '{id}/edit',
                             controller: 'Usr.controller.GroupEdit',
-                            action: 'showEditOverview'
+                            action: 'showEditOverview',
+                            callback: function(route) {
+                                this.getApplication().on('editRole', function(record) {
+                                    route.setTitle(Uni.I18n.translate('general.edit', 'USM', 'Edit') + ' "' + record.get('name') + '"');
+                                    return true;
+                                }, {single: true});
+
+                                return this;
+                            }
                         },
                         create: {
                             title: Uni.I18n.translate('general.create', 'USM', 'Create'),
@@ -39,22 +47,21 @@ Ext.define('Usr.controller.history.UserManagement', {
                             title: Uni.I18n.translate('general.edit', 'USM', 'Edit'),
                             route: '{id}/edit',
                             controller: 'Usr.controller.UserEdit',
-                            action: 'showEditOverview'
+                            action: 'showEditOverview',
+                            callback: function(route) {
+                                this.getApplication().on('editUser', function(record) {
+                                    route.setTitle(Uni.I18n.translate('general.edit', 'USM', 'Edit') + ' "' + record.get('name') + '"');
+                                    return true;
+                                }, {single: true});
+
+                                return this;
+                            }
                         }
-                        /*login: {
-                            title: 'login',
-                            route: 'login',
-                            controller: 'Usr.controller.Login'
-                        }*/
                     }
                 }
             }
         }
     },
-
-    //init: function () {
-    //    this.getController('Uni.controller.history.Router').addConfig(this.routeConfig);
-    //},
 
     tokenizePreviousTokens: function () {
         return this.tokenizePath(this.getApplication().getController('Uni.controller.history.EventBus').previousPath);

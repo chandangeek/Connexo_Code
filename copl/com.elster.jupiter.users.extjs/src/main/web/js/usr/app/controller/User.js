@@ -45,6 +45,7 @@ Ext.define('Usr.controller.User', {
 
     editUser: function (record) {
         this.getApplication().getController('Usr.controller.UserEdit').showEditOverviewWithHistory(record.get('id'));
+        this.getApplication().fireEvent('editUser', record);
     },
 
     selectUser: function (grid, record) {
