@@ -63,7 +63,7 @@ Ext.define('Cfg.view.validation.RuleList', {
                     },
                     {
                         itemId: 'deleteRule',
-                        text: 'Delete',
+                        text: 'Remove',
                         action: 'deleteRule'
                     }
                 ]

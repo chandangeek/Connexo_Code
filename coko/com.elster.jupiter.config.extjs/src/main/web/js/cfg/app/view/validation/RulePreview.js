@@ -27,7 +27,7 @@ Ext.define('Cfg.view.validation.RulePreview', {
 
                     },
                     {
-                        text: Uni.I18n.translate('general.delete', 'CFG', 'Delete'),
+                        text: Uni.I18n.translate('general.remove', 'CFG', 'Remove'),
                         itemId: 'deleteRule',
                         action: 'deleteRule'
 
