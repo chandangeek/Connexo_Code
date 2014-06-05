@@ -505,6 +505,7 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
 
     @Override
     protected void doDelete() {
+        configurationPropertiesList.clear();
         dataModel.mapper(DeviceCommunicationConfiguration.class).remove(this);
     }
 
