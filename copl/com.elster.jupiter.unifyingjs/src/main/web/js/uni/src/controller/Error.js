@@ -27,7 +27,7 @@ Ext.define('Uni.controller.Error', {
         var me = this;
 
         Ext.Error.handle = me.handleGenericError;
-        Ext.Ajax.on('requestexception', me.handleRequestError, this);
+        Ext.Ajax.on('requestexception', me.handleRequestError, me);
     },
 
     handleGenericError: function (error) {
@@ -42,33 +42,41 @@ Ext.define('Uni.controller.Error', {
     handleRequestError: function (conn, response, options) {
         var title = Uni.I18n.translate('error.requestFailed', 'UNI', 'Request failed'),
             message = response.responseText || response.statusText,
+            decoded;
+
+        try {
             decoded = Ext.decode(message);
+        } catch (e) {
+            // Ignore invalid JSON.
+        }
 
-        if (!Ext.isEmpty(decoded.message)) {
-            message = decoded.message;
-        } else if (Ext.isDefined(decoded.errors) && Ext.isArray(decoded.errors)) {
-            if (1 === decoded.errors.length) {
-                message = decoded.errors[0].msg;
-            } else if (1 < decoded.errors.length) {
-                message = '<ul>';
-                for (var i = 0; i < decoded.errors.length; i++) {
-                    message += '<li>' + decoded.errors[i].msg + '</li>';
+        if (Ext.isDefined(decoded)) {
+            if (!Ext.isEmpty(decoded.message)) {
+                message = decoded.message;
+            } else if (Ext.isDefined(decoded.errors) && Ext.isArray(decoded.errors)) {
+                if (1 === decoded.errors.length) {
+                    message = decoded.errors[0].msg;
+                } else if (1 < decoded.errors.length) {
+                    message = '<ul>';
+                    for (var i = 0; i < decoded.errors.length; i++) {
+                        message += '<li>' + decoded.errors[i].msg + '</li>';
+                    }
+                    message += '</ul>';
+                } else {
+                    message = Uni.I18n.translate(
+                        'error.unknownErrorOccurred',
+                        'UNI',
+                        'An unknown error occurred.'
+                    );
                 }
-                message += '</ul>';
-            } else {
-                message = Uni.I18n.translate(
-                    'error.unknownErrorOccurred',
-                    'UNI',
-                    'An unknown error occurred.'
-                );
             }
-        }
 
-        //<debug>
-        if (!Ext.isEmpty(decoded.error)) {
-            console.log('Error code: ' + decoded.error);
+            //<debug>
+            if (!Ext.isEmpty(decoded.error)) {
+                console.log('Error code: ' + decoded.error);
+            }
+            //</debug>
         }
-        //</debug>
 
         if (Ext.isEmpty(message)) {
             title = Uni.I18n.translate(
