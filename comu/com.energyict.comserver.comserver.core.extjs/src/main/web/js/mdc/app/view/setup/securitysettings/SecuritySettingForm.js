@@ -30,8 +30,9 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingForm', {
                     items: [
                         {
                             name: 'errors',
+                            ui: 'form-error-framed',
                             layout: 'hbox',
-                            margin: '0 0 20 100',
+                            margin: '0 0 10 0',
                             hidden: true,
                             defaults: {
                                 xtype: 'container'
