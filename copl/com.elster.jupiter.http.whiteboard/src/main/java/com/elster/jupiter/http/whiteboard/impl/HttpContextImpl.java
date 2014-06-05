@@ -2,6 +2,7 @@ package com.elster.jupiter.http.whiteboard.impl;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -12,7 +13,10 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableMap;
 
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventAdmin;
 import org.osgi.service.http.HttpContext;
 
 import com.elster.jupiter.http.whiteboard.Resolver;
@@ -25,11 +29,13 @@ public class HttpContextImpl implements HttpContext {
 	private final Resolver resolver;
     private final UserService userService;
     private final TransactionService transactionService;
+    private final AtomicReference<EventAdmin> eventAdminHolder;
 
-    HttpContextImpl(Resolver resolver, UserService userService, TransactionService transactionService) {
+    HttpContextImpl(Resolver resolver, UserService userService, TransactionService transactionService, AtomicReference<EventAdmin> eventAdminHolder) {
         this.resolver = resolver;
         this.userService = userService;
         this.transactionService = transactionService;
+        this.eventAdminHolder = eventAdminHolder;
     }
 
     @Override
@@ -44,6 +50,16 @@ public class HttpContextImpl implements HttpContext {
 
     @Override
     public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException {
+       	EventAdmin eventAdmin = eventAdminHolder.get();
+    	if (eventAdmin != null) {
+    		StringBuffer requestUrl = request.getRequestURL();
+        	String queryString = request.getQueryString();
+        	if (queryString != null) {
+        		requestUrl.append("?").append(queryString);
+        	}
+    		Event event = new Event("com/elster/jupiter/http/GET",ImmutableMap.of("resource",requestUrl.toString()));
+    		eventAdmin.postEvent(event);
+    	}
         if (isClearSessionRequested(request)){
             return true;
         }
@@ -64,6 +80,7 @@ public class HttpContextImpl implements HttpContext {
                     }
                 }
             }
+            response.setHeader("Cache-Control", "max-age=86400");
             return true;
         }
         Optional<User> user = Optional.absent();
@@ -72,14 +89,15 @@ public class HttpContextImpl implements HttpContext {
             user = userService.authenticateBase64(authentication.split(" ")[1]);
             context.commit();
         }
-        return user.isPresent() ? allow(request, user.get()) : deny(response);
+        return user.isPresent() ? allow(request, response, user.get()) : deny(response);
     }
 
-    private boolean allow(HttpServletRequest request, User user) {
+    private boolean allow(HttpServletRequest request, HttpServletResponse response, User user) {
         request.setAttribute(HttpContext.AUTHENTICATION_TYPE, HttpServletRequest.BASIC_AUTH);
         request.setAttribute(USERPRINCIPAL, user);
         request.setAttribute(HttpContext.REMOTE_USER, user.getName());
         request.getSession(true).setAttribute("user", user);
+        response.setHeader("Cache-Control", "max-age=86400");
         return true;
     }
 

@@ -6,22 +6,28 @@ import com.elster.jupiter.rest.util.BinderProvider;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.google.common.collect.ImmutableSet;
+
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
-
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventAdmin;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 
 import javax.ws.rs.core.Application;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -30,6 +36,9 @@ public class WhiteBoard extends Application implements BinderProvider {
     private volatile HttpService httpService;
     private volatile UserService userService;
     private volatile TransactionService transactionService;
+    private AtomicReference<EventAdmin> eventAdminHolder = new AtomicReference<>();
+    private boolean generateEvents;
+    
     private List<HttpResource> resources = new CopyOnWriteArrayList<>();
 
     private static final Logger LOGGER = Logger.getLogger(WhiteBoard.class.getName());
@@ -51,24 +60,38 @@ public class WhiteBoard extends Application implements BinderProvider {
     public void setHttpService(HttpService httpService) {
         this.httpService = httpService;
     }
+    
+    @Reference
+    public void setEventAdminService(EventAdmin eventAdminService) {
+    	this.eventAdminHolder.set(eventAdminService);
+    }
 
     @Reference(name = "ZResource", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addResource(HttpResource resource) {
-        HttpContext httpContext = new HttpContextImpl(resource.getResolver(), userService, transactionService);
+    	String alias = getAlias(resource.getAlias());
+        HttpContext httpContext = new HttpContextImpl(resource.getResolver(), userService, transactionService, eventAdminHolder);
         try {
-            httpService.registerResources(getAlias(resource.getAlias()), resource.getLocalName(), httpContext);
+            httpService.registerResources(alias, resource.getLocalName(), httpContext);
             resources.add(resource);
         } catch (NamespaceException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            LOGGER.log(Level.SEVERE, "Error while registering " + alias + ": " + e.getMessage() , e);
             throw new UnderlyingNetworkException(e);
         }
     }
 
+    @Activate
+    public void activate(Map<String,Object> props) {
+    	boolean generateEvents = props != null && Boolean.TRUE.equals(props.get("event"));
+    	if (!generateEvents) {
+    		eventAdminHolder.set(null);
+    	}
+    }
+    
     public void removeResource(HttpResource resource) {
         httpService.unregister(getAlias(resource.getAlias()));
         resources.remove(resource);
     }
-
+    
     String getAlias(String name) {
         return "/apps" + name;
     }
