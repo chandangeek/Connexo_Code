@@ -53,9 +53,14 @@ public class LogBookSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         deviceType.save();
     }
 
+
+    private DeviceConfiguration getReloadedDeviceConfiguration(){
+        return inMemoryPersistence.getDeviceConfigurationService().findDeviceConfiguration(this.deviceConfiguration.getId());
+    }
+
     private LogBookSpec createDefaultTestingLogBookSpecWithOverruledObisCode() {
         LogBookSpec logBookSpec;
-        LogBookSpec.LogBookSpecBuilder logBookSpecBuilder = deviceConfiguration.createLogBookSpec(this.logBookType);
+        LogBookSpec.LogBookSpecBuilder logBookSpecBuilder = getReloadedDeviceConfiguration().createLogBookSpec(this.logBookType);
         logBookSpecBuilder.setOverruledObisCode(overruledLogBookSpecObisCode);
         logBookSpec = logBookSpecBuilder.add();
         return logBookSpec;
@@ -68,7 +73,7 @@ public class LogBookSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
         assertThat(logBookSpec.getLogBookType()).isEqualTo(this.logBookType);
         assertThat(logBookSpec.getDeviceObisCode()).isEqualTo(overruledLogBookSpecObisCode);
-        assertThat(logBookSpec.getDeviceConfiguration()).isEqualTo(this.deviceConfiguration);
+        assertThat(logBookSpec.getDeviceConfiguration().getId()).isEqualTo(this.getReloadedDeviceConfiguration().getId());
         assertThat(logBookSpec.getObisCode()).isEqualTo(this.logBookTypeObisCode);
     }
 
@@ -77,13 +82,13 @@ public class LogBookSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     public void updateLogBookSpecTest() {
         LogBookSpec logBookSpec = createDefaultTestingLogBookSpecWithOverruledObisCode();
 
-        LogBookSpec.LogBookSpecUpdater logBookSpecUpdater = this.deviceConfiguration.getLogBookSpecUpdaterFor(logBookSpec);
+        LogBookSpec.LogBookSpecUpdater logBookSpecUpdater = this.getReloadedDeviceConfiguration().getLogBookSpecUpdaterFor(logBookSpec);
         logBookSpecUpdater.setOverruledObisCode(null);
         logBookSpecUpdater.update();
 
         assertThat(logBookSpec.getLogBookType()).isEqualTo(this.logBookType);
         assertThat(logBookSpec.getDeviceObisCode()).isEqualTo(this.logBookTypeObisCode);
-        assertThat(logBookSpec.getDeviceConfiguration()).isEqualTo(this.deviceConfiguration);
+        assertThat(logBookSpec.getDeviceConfiguration().getId()).isEqualTo(this.getReloadedDeviceConfiguration().getId());
         assertThat(logBookSpec.getObisCode()).isEqualTo(this.logBookTypeObisCode);
     }
 
@@ -96,7 +101,7 @@ public class LogBookSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         logBookType = inMemoryPersistence.getMasterDataService().newLogBookType(LOGBOOK_TYPE_NAME + "Incorrect", ObisCode.fromString("1.0.1.0.1.0"));
         logBookType.save();
 
-        LogBookSpec.LogBookSpecBuilder logBookSpecBuilder = deviceConfiguration.createLogBookSpec(logBookType);
+        LogBookSpec.LogBookSpecBuilder logBookSpecBuilder = getReloadedDeviceConfiguration().createLogBookSpec(logBookType);
         logBookSpecBuilder.setOverruledObisCode(overruledLogBookSpecObisCode);
         logBookSpec = logBookSpecBuilder.add();
     }
@@ -104,8 +109,8 @@ public class LogBookSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     @Test(expected = CannotAddToActiveDeviceConfigurationException.class)
     @Transactional
     public void addWithActiveDeviceConfigurationTest() {
-        this.deviceConfiguration.activate();
-        LogBookSpec.LogBookSpecBuilder logBookSpecBuilder = deviceConfiguration.createLogBookSpec(this.logBookType);
+        this.getReloadedDeviceConfiguration().activate();
+        LogBookSpec.LogBookSpecBuilder logBookSpecBuilder = getReloadedDeviceConfiguration().createLogBookSpec(this.logBookType);
         logBookSpecBuilder.setOverruledObisCode(overruledLogBookSpecObisCode);
         LogBookSpec logBookSpec = logBookSpecBuilder.add();
     }
@@ -116,9 +121,9 @@ public class LogBookSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         LogBookType otherLogBookType = inMemoryPersistence.getMasterDataService().newLogBookType(LOGBOOK_TYPE_NAME + "Incorrect", logBookTypeObisCode);
         otherLogBookType.save();
         this.deviceType.addLogBookType(otherLogBookType);
-        LogBookSpec.LogBookSpecBuilder logBookSpecBuilder1 = deviceConfiguration.createLogBookSpec(this.logBookType);
+        LogBookSpec.LogBookSpecBuilder logBookSpecBuilder1 = getReloadedDeviceConfiguration().createLogBookSpec(this.logBookType);
         LogBookSpec logBookSpec1 = logBookSpecBuilder1.add();
-        LogBookSpec.LogBookSpecBuilder logBookSpecBuilder2 = deviceConfiguration.createLogBookSpec(otherLogBookType);
+        LogBookSpec.LogBookSpecBuilder logBookSpecBuilder2 = getReloadedDeviceConfiguration().createLogBookSpec(otherLogBookType);
         LogBookSpec logBookSpec2 = logBookSpecBuilder2.add();
     }
 
@@ -128,9 +133,9 @@ public class LogBookSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         LogBookType otherLogBookType = inMemoryPersistence.getMasterDataService().newLogBookType(LOGBOOK_TYPE_NAME + "Incorrect", ObisCode.fromString("1.0.1.0.1.0"));
         otherLogBookType.save();
         this.deviceType.addLogBookType(otherLogBookType);
-        LogBookSpec.LogBookSpecBuilder logBookSpecBuilder1 = deviceConfiguration.createLogBookSpec(this.logBookType);
+        LogBookSpec.LogBookSpecBuilder logBookSpecBuilder1 = getReloadedDeviceConfiguration().createLogBookSpec(this.logBookType);
         LogBookSpec logBookSpec1 = logBookSpecBuilder1.add();
-        LogBookSpec.LogBookSpecBuilder logBookSpecBuilder2 = deviceConfiguration.createLogBookSpec(otherLogBookType);
+        LogBookSpec.LogBookSpecBuilder logBookSpecBuilder2 = getReloadedDeviceConfiguration().createLogBookSpec(otherLogBookType);
         logBookSpecBuilder2.setOverruledObisCode(logBookTypeObisCode);
         LogBookSpec logBookSpec2 = logBookSpecBuilder2.add();
     }
@@ -142,11 +147,11 @@ public class LogBookSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         LogBookType otherLogBookType = inMemoryPersistence.getMasterDataService().newLogBookType(LOGBOOK_TYPE_NAME + "Incorrect", ObisCode.fromString("1.0.1.0.1.0"));
         otherLogBookType.save();
         this.deviceType.addLogBookType(otherLogBookType);
-        LogBookSpec.LogBookSpecBuilder logBookSpecBuilder1 = deviceConfiguration.createLogBookSpec(this.logBookType);
+        LogBookSpec.LogBookSpecBuilder logBookSpecBuilder1 = getReloadedDeviceConfiguration().createLogBookSpec(this.logBookType);
         LogBookSpec logBookSpec1 = logBookSpecBuilder1.add();
-        LogBookSpec.LogBookSpecBuilder logBookSpecBuilder2 = deviceConfiguration.createLogBookSpec(otherLogBookType);
+        LogBookSpec.LogBookSpecBuilder logBookSpecBuilder2 = getReloadedDeviceConfiguration().createLogBookSpec(otherLogBookType);
         logBookSpec2 = logBookSpecBuilder2.add();
-        LogBookSpec.LogBookSpecUpdater logBookSpecUpdater = this.deviceConfiguration.getLogBookSpecUpdaterFor(logBookSpec2);
+        LogBookSpec.LogBookSpecUpdater logBookSpecUpdater = this.getReloadedDeviceConfiguration().getLogBookSpecUpdaterFor(logBookSpec2);
         logBookSpecUpdater.setOverruledObisCode(logBookTypeObisCode);
         logBookSpecUpdater.update();
     }
@@ -156,7 +161,7 @@ public class LogBookSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     public void successfulDeleteTest() {
         LogBookSpec logBookSpec = createDefaultTestingLogBookSpecWithOverruledObisCode();
 
-        deviceConfiguration.deleteLogBookSpec(logBookSpec);
+        getReloadedDeviceConfiguration().deleteLogBookSpec(logBookSpec);
     }
 
     @Test(expected = CannotDeleteFromActiveDeviceConfigurationException.class)
@@ -164,8 +169,8 @@ public class LogBookSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     public void cannotDeleteWhenConfigIsActiveTest() {
         LogBookSpec logBookSpec = createDefaultTestingLogBookSpecWithOverruledObisCode();
 
-        this.deviceConfiguration.activate();
-        this.deviceConfiguration.deleteLogBookSpec(logBookSpec);
+        this.getReloadedDeviceConfiguration().activate();
+        this.getReloadedDeviceConfiguration().deleteLogBookSpec(logBookSpec);
     }
 
 }

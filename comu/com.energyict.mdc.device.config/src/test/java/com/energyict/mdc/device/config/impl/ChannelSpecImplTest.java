@@ -108,10 +108,14 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
     private LoadProfileSpec createDefaultTestingLoadProfileSpecWithOverruledObisCode() {
         LoadProfileSpec loadProfileSpec;
-        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = deviceConfiguration.createLoadProfileSpec(this.loadProfileType);
+        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = getReloadedDeviceConfiguration().createLoadProfileSpec(this.loadProfileType);
         loadProfileSpecBuilder.setOverruledObisCode(overruledChannelSpecObisCode);
         loadProfileSpec = loadProfileSpecBuilder.add();
         return loadProfileSpec;
+    }
+
+    private DeviceConfiguration getReloadedDeviceConfiguration(){
+        return inMemoryPersistence.getDeviceConfigurationService().findDeviceConfiguration(this.deviceConfiguration.getId());
     }
 
     @Test
@@ -122,7 +126,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
         channelSpec = createDefaultChannelSpec(loadProfileSpec);
 
-        assertThat(channelSpec.getDeviceConfiguration()).isEqualTo(this.deviceConfiguration);
+        assertThat(channelSpec.getDeviceConfiguration().getId()).isEqualTo(getReloadedDeviceConfiguration().getId());
         assertThat(channelSpec.getObisCode()).isEqualTo(registerMappingObisCode);
         assertThat(channelSpec.getDeviceObisCode()).isEqualTo(registerMappingObisCode);
         assertThat(channelSpec.getInterval()).isEqualTo(interval);
@@ -133,7 +137,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
     private ChannelSpec createDefaultChannelSpec(LoadProfileSpec loadProfileSpec) {
         ChannelSpec channelSpec;
-        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = this.deviceConfiguration.createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
+        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
         channelSpec = channelSpecBuilder.add();
         return channelSpec;
     }
@@ -166,7 +170,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         ChannelSpec channelSpec;
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
 
-        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = this.deviceConfiguration.createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
+        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
         channelSpecBuilder.setMultiplier(BigDecimal.TEN);
         channelSpec = channelSpecBuilder.add();
 
@@ -179,7 +183,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         ChannelSpec channelSpec;
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
 
-        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = this.deviceConfiguration.createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
+        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
         channelSpecBuilder.setMultiplier(BigDecimal.TEN);
         channelSpecBuilder.setMultiplierMode(MultiplierMode.NONE);
         channelSpec = channelSpecBuilder.add();
@@ -193,7 +197,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         ChannelSpec channelSpec;
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
 
-        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = this.deviceConfiguration.createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
+        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
         channelSpecBuilder.setMultiplier(BigDecimal.TEN);
         channelSpecBuilder.setMultiplierMode(MultiplierMode.VERSIONED);
         channelSpec = channelSpecBuilder.add();
@@ -219,7 +223,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         int digits = 3;
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
 
-        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = this.deviceConfiguration.createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
+        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
         channelSpecBuilder.setNbrOfFractionDigits(digits);
         channelSpec = channelSpecBuilder.add();
 
@@ -235,7 +239,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
         channelSpec = createDefaultChannelSpec(loadProfileSpec);
 
-        ChannelSpec.ChannelSpecUpdater channelSpecUpdater = this.deviceConfiguration.getChannelSpecUpdaterFor(channelSpec);
+        ChannelSpec.ChannelSpecUpdater channelSpecUpdater = getReloadedDeviceConfiguration().getChannelSpecUpdaterFor(channelSpec);
         channelSpecUpdater.setNbrOfFractionDigits(digits);
         channelSpecUpdater.update();
 
@@ -260,7 +264,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         BigDecimal overflow = BigDecimal.valueOf(10000000L);
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
 
-        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = this.deviceConfiguration.createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
+        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
         channelSpecBuilder.setOverflow(overflow);
         channelSpec = channelSpecBuilder.add();
 
@@ -276,7 +280,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
         channelSpec = createDefaultChannelSpec(loadProfileSpec);
 
-        ChannelSpec.ChannelSpecUpdater channelSpecUpdater = this.deviceConfiguration.getChannelSpecUpdaterFor(channelSpec);
+        ChannelSpec.ChannelSpecUpdater channelSpecUpdater = getReloadedDeviceConfiguration().getChannelSpecUpdaterFor(channelSpec);
         channelSpecUpdater.setOverflow(overflow);
         channelSpecUpdater.update();
 
@@ -289,7 +293,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         ChannelSpec channelSpec;
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
 
-        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = this.deviceConfiguration.createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
+        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
         channelSpecBuilder.setOverruledObisCode(overruledChannelSpecObisCode);
         channelSpec = channelSpecBuilder.add();
 
@@ -305,7 +309,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
         channelSpec = createDefaultChannelSpec(loadProfileSpec);
 
-        ChannelSpec.ChannelSpecUpdater channelSpecUpdater = this.deviceConfiguration.getChannelSpecUpdaterFor(channelSpec);
+        ChannelSpec.ChannelSpecUpdater channelSpecUpdater = getReloadedDeviceConfiguration().getChannelSpecUpdaterFor(channelSpec);
         channelSpecUpdater.setOverruledObisCode(overruledChannelSpecObisCode);
         channelSpecUpdater.update();
 
@@ -330,7 +334,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         ChannelSpec channelSpec;
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
 
-        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = this.deviceConfiguration.createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
+        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
         channelSpecBuilder.setReadingMethod(ReadingMethod.BASIC_DATA);
         channelSpec = channelSpecBuilder.add();
 
@@ -345,7 +349,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
         channelSpec = createDefaultChannelSpec(loadProfileSpec);
 
-        ChannelSpec.ChannelSpecUpdater channelSpecUpdater = this.deviceConfiguration.getChannelSpecUpdaterFor(channelSpec);
+        ChannelSpec.ChannelSpecUpdater channelSpecUpdater = getReloadedDeviceConfiguration().getChannelSpecUpdaterFor(channelSpec);
         channelSpecUpdater.setReadingMethod(ReadingMethod.BASIC_DATA);
         channelSpecUpdater.update();
 
@@ -369,7 +373,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         ChannelSpec channelSpec;
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
 
-        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = this.deviceConfiguration.createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
+        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
         channelSpecBuilder.setValueCalculationMethod(ValueCalculationMethod.RAW_DATA);
         channelSpec = channelSpecBuilder.add();
 
@@ -382,7 +386,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         ChannelSpec channelSpec;
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
 
-        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = this.deviceConfiguration.createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
+        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
         channelSpecBuilder.setValueCalculationMethod(ValueCalculationMethod.FORCE_METER_ADVANCE);
         channelSpec = channelSpecBuilder.add();
 
@@ -397,7 +401,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
         channelSpec = createDefaultChannelSpec(loadProfileSpec);
 
-        ChannelSpec.ChannelSpecUpdater channelSpecUpdater = this.deviceConfiguration.getChannelSpecUpdaterFor(channelSpec);
+        ChannelSpec.ChannelSpecUpdater channelSpecUpdater = getReloadedDeviceConfiguration().getChannelSpecUpdaterFor(channelSpec);
         channelSpecUpdater.setValueCalculationMethod(ValueCalculationMethod.RAW_DATA);
         channelSpecUpdater.update();
 
@@ -412,7 +416,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
         channelSpec = createDefaultChannelSpec(loadProfileSpec);
 
-        ChannelSpec.ChannelSpecUpdater channelSpecUpdater = this.deviceConfiguration.getChannelSpecUpdaterFor(channelSpec);
+        ChannelSpec.ChannelSpecUpdater channelSpecUpdater = getReloadedDeviceConfiguration().getChannelSpecUpdaterFor(channelSpec);
         channelSpecUpdater.setValueCalculationMethod(ValueCalculationMethod.FORCE_METER_ADVANCE);
         channelSpecUpdater.update();
 
@@ -429,7 +433,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         RegisterMapping registerMapping = inMemoryPersistence.getMasterDataService().newRegisterMapping(REGISTER_MAPPING_NAME + "Other", overruledChannelSpecObisCode, phenomenonUnit, readingType, readingType
                 .getTou());
         registerMapping.save();
-        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = this.deviceConfiguration.createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
+        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
         channelSpecBuilder.add();
     }
 
@@ -444,7 +448,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         registerMapping.save();
         this.deviceType.addRegisterMapping(registerMapping);
         this.deviceType.save();
-        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = this.deviceConfiguration.createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
+        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
         channelSpecBuilder.add();
     }
 
@@ -459,7 +463,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         loadProfileSpecBuilder.setOverruledObisCode(overruledChannelSpecObisCode);
         LoadProfileSpec otherLoadProfileSpec = loadProfileSpecBuilder.add();
 
-        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = this.deviceConfiguration.createChannelSpec(registerMapping, phenomenon, otherLoadProfileSpec);
+        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(registerMapping, phenomenon, otherLoadProfileSpec);
         channelSpecBuilder.add();
     }
 
@@ -468,7 +472,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     public void createWithSameRegisterMappingTest() {
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
         createDefaultChannelSpec(loadProfileSpec);
-        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = this.deviceConfiguration.createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
+        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
         channelSpecBuilder.setName(DEFAULT_CHANNEL_SPEC_NAME);
         channelSpecBuilder.add();
     }
@@ -478,7 +482,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CHANNEL_SPEC_VALUE_CALCULATION_METHOD_IS_REQUIRED + "}")
     public void createWithoutValueCalculationMethodTest() {
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
-        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = this.deviceConfiguration.createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
+        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
         channelSpecBuilder.setValueCalculationMethod(null);
         channelSpecBuilder.add();
     }
@@ -488,7 +492,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CHANNEL_SPEC_MULTIPLIER_MODE_IS_REQUIRED + "}")
     public void createWithoutMultiplierModeTest() {
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
-        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = this.deviceConfiguration.createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
+        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
         channelSpecBuilder.setMultiplierMode(null);
         channelSpecBuilder.add();
     }
@@ -498,7 +502,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CHANNEL_SPEC_MULTIPLIER_IS_REQUIRED_WHEN + "}")
     public void createWithoutMultiplierTest() {
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
-        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = this.deviceConfiguration.createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
+        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
         channelSpecBuilder.setMultiplier(null);
         channelSpecBuilder.add();
     }
@@ -508,9 +512,9 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     public void successfulDeleteTest() {
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
         ChannelSpec channelSpec = createDefaultChannelSpec(loadProfileSpec);
-        this.deviceConfiguration.deleteChannelSpec(channelSpec);
+        getReloadedDeviceConfiguration().deleteChannelSpec(channelSpec);
 
-        assertThat(this.deviceConfiguration.getChannelSpecs()).hasSize(0);
+        assertThat(getReloadedDeviceConfiguration().getChannelSpecs()).hasSize(0);
     }
 
     @Test(expected = CannotDeleteFromActiveDeviceConfigurationException.class)
@@ -518,8 +522,8 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     public void deleteFromActiveDeviceConfigurationTest() {
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
         ChannelSpec channelSpec = createDefaultChannelSpec(loadProfileSpec);
-        this.deviceConfiguration.activate();
-        this.deviceConfiguration.deleteChannelSpec(channelSpec);
+        getReloadedDeviceConfiguration().activate();
+        getReloadedDeviceConfiguration().deleteChannelSpec(channelSpec);
     }
 
     private Phenomenon createPhenomenonIfMissing(Unit unit) {

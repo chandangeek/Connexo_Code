@@ -411,7 +411,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
             throw CannotDeleteFromActiveDeviceConfigurationException.canNotDeleteRegisterSpec(this.thesaurus, this, registerSpec);
         }
         registerSpec.validateDelete();
-        this.registerSpecs.remove(registerSpec);
+        removeFromHasIdList(this.registerSpecs,registerSpec);
         this.eventService.postEvent(EventType.DEVICETYPE_DELETED.topic(),registerSpec);
     }
 
@@ -489,7 +489,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
             throw CannotDeleteFromActiveDeviceConfigurationException.forChannelSpec(this.thesaurus, channelSpec, this);
         }
         channelSpec.validateDelete();
-        this.channelSpecs.remove(channelSpec);
+        removeFromHasIdList(this.channelSpecs, channelSpec);
         this.eventService.postEvent(EventType.DEVICETYPE_DELETED.topic(),channelSpec);
     }
 
@@ -560,7 +560,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
             throw CannotDeleteFromActiveDeviceConfigurationException.forLoadProfileSpec(this.thesaurus, loadProfileSpec, this);
         }
         loadProfileSpec.validateDelete();
-        this.loadProfileSpecs.remove(loadProfileSpec);
+        removeFromHasIdList(this.loadProfileSpecs,loadProfileSpec);
         this.eventService.postEvent(EventType.DEVICETYPE_DELETED.topic(),loadProfileSpec);
     }
 
@@ -632,16 +632,12 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         }
     }
 
-    private boolean isSameIdObject(HasId first, HasId second) {
-        return first.getId() == second.getId();
-    }
-
     public void deleteLogBookSpec(LogBookSpec logBookSpec) {
         if (isActive()) {
             throw CannotDeleteFromActiveDeviceConfigurationException.forLogbookSpec(this.thesaurus, logBookSpec, this);
         }
         logBookSpec.validateDelete();
-        this.logBookSpecs.remove(logBookSpec);
+        removeFromHasIdList(this.logBookSpecs,logBookSpec);
         this.eventService.postEvent(EventType.DEVICETYPE_DELETED.topic(),logBookSpec);
     }
 
