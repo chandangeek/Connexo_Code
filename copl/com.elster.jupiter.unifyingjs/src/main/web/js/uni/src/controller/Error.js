@@ -70,6 +70,20 @@ Ext.define('Uni.controller.Error', {
         }
         //</debug>
 
+        if (Ext.isEmpty(message)) {
+            title = Uni.I18n.translate(
+                'error.connectionProblemsTitle',
+                'UNI',
+                'Unexpected connection problems'
+            );
+
+            message = Uni.I18n.translate(
+                'error.connectionProblemsMessage',
+                'UNI',
+                'Unexpected connection problems. Please check that server is available.'
+            );
+        }
+
         switch (response.status) {
             case 400: // Bad request.
                 // Do nothing.
@@ -79,19 +93,6 @@ Ext.define('Uni.controller.Error', {
             case 403: // Forbidden.
             // Fallthrough.
             case 404: // Not found.
-                if (Ext.isEmpty(message)) {
-                    title = Uni.I18n.translate(
-                        'error.connectionProblemsTitle',
-                        'UNI',
-                        'Unexpected connection problems'
-                    );
-
-                    message = Uni.I18n.translate(
-                        'error.connectionProblemsMessage',
-                        'UNI',
-                        'Unexpected connection problems. Please check that server is available.'
-                    );
-                }
             // Fallthrough.
             default:
                 this.showError(title, message);
