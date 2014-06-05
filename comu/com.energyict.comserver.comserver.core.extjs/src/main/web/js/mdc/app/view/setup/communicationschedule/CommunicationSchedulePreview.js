@@ -6,7 +6,8 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulePreview', 
     itemId: 'communicationSchedulePreview',
     requires: [
         'Mdc.model.DeviceType',
-        'Mdc.util.ScheduleToStringConverter'
+        'Mdc.util.ScheduleToStringConverter',
+        'Mdc.view.setup.communicationschedule.CommunicationScheduleActionMenu'
     ],
 //    controllers: [
 //        'Mdc.controller.setup.DeviceTypes'
@@ -52,24 +53,13 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulePreview', 
                     itemId: 'communicationSchedulePreviewTitle'
                 },
                 '->',
+
                 {
-                    icon: '../mdc/resources/images/gear-16x16.png',
+                    xtype: 'button',
                     text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
+                    iconCls: 'x-uni-action-iconA',
                     menu: {
-                        items: [
-                            {
-                                text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                                itemId: 'editCommunicationSchedule',
-                                action: 'editCommunicationSchedule'
-
-                            },
-                            {
-                                text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-                                itemId: 'deleteCommunicationSchedule',
-                                action: 'deleteCommunicationSchedule'
-
-                            }
-                        ]
+                        xtype: 'communication-schedule-action-menu'
                     }
                 }
             ],

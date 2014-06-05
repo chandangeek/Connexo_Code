@@ -7,7 +7,8 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
 
     requires: [
         'Mdc.model.DeviceCommunicationProtocol',
-        'Mdc.view.setup.property.PropertyView'
+        'Mdc.view.setup.property.PropertyView',
+        'Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtocolActionMenu'
     ],
 
     layout: {
@@ -20,17 +21,10 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
     tools: [
         {
             xtype: 'button',
-            // TODO Replace this icon below with an 'actions' ui.
-            icon: '../mdc/resources/images/actionsDetail.png',
             text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
+            iconCls: 'x-uni-action-iconA',
             menu: {
-                items: [
-                    {
-                        text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                        itemId: 'editProtocol',
-                        action: 'editProtocol'
-                    }
-                ]
+                xtype: 'device-communication-protocol-action-menu'
             }
         }
     ],

@@ -11,7 +11,8 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Mdc.store.DeviceCommunicationProtocolsPaged'
+        'Mdc.store.DeviceCommunicationProtocolsPaged',
+        'Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtocolActionMenu'
     ],
 
     store: 'DeviceCommunicationProtocolsPaged',
@@ -53,12 +54,7 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
 
             {
                 xtype: 'uni-actioncolumn',
-                items: [
-                    {
-                        text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                        action: 'editItem'
-                    }
-                ]
+                items:'Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtocolActionMenu'
             }
 
         ];

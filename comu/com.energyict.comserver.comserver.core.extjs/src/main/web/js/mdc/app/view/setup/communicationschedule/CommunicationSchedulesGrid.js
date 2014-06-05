@@ -6,7 +6,8 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulesGrid', {
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Mdc.store.CommunicationSchedules'
+        'Mdc.store.CommunicationSchedules',
+        'Mdc.view.setup.communicationschedule.CommunicationScheduleActionMenu'
     ],
     store: 'CommunicationSchedules',
     padding: '10 10 10 10',
@@ -57,16 +58,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulesGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
-                items: [
-                    {
-                        text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                        action: 'editItem'
-                    },
-                    {
-                        text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-                        action: 'deleteItem'
-                    }
-                ]
+                items: 'Mdc.view.setup.communicationschedule.CommunicationScheduleActionMenu'
             }
 
         ];

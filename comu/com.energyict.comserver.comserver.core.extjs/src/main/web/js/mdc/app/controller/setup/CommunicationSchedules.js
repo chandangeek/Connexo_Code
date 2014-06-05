@@ -35,8 +35,8 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
                 click: this.createCommunicationScheduleHistory
             },
             '#communicationSchedulesGrid actioncolumn': {
-                editItem: this.editCommunicationScheduleHistory,
-                deleteItem: this.deleteCommunicationSchedule
+                editCommunicationSchedule: this.editCommunicationScheduleHistory,
+                deleteCommunicationSchedule: this.deleteCommunicationSchedule
             },
             '#comTasksOnForm actioncolumn': {
                 deleteComTask: this.deleteComTask
