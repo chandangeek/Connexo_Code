@@ -451,10 +451,7 @@ Ext.define('Isu.controller.Issues', {
             icons = Ext.get(itemPanel.getEl()).select('.isu-apply-filter');
 
         icons.on('click', self.addFilterIconAction, self);
-        itemPanel.on('change', function () {
-            icons.un('click', self.addFilterIconAction, self);
-        });
-        itemPanel.on('clear', function () {
+        itemPanel.on('destroy', function () {
             icons.un('click', self.addFilterIconAction, self);
         });
     },
@@ -462,7 +459,7 @@ Ext.define('Isu.controller.Issues', {
     addFilterIconAction: function (event, icon) {
         var filterType = icon.getAttribute('data-filterType'),
             filterValue = icon.getAttribute('data-filterValue'),
-            visualValue = Ext.get(icon).prev().getHTML();
+            visualValue = icon.getAttribute('data-filterSearch');
 
         if (!filterType || !filterValue) {
             return;
@@ -479,7 +476,7 @@ Ext.define('Isu.controller.Issues', {
                 this.setComboFilter(filterType, parseInt(filterValue), visualValue);
                 break;
             case 'meter':
-                this.setComboFilter(filterType, parseInt(filterValue), filterValue);
+                this.setComboFilter(filterType, parseInt(filterValue), visualValue);
                 break;
         }
     },
