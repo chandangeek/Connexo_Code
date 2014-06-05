@@ -67,12 +67,6 @@ public class GroupResource {
         throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
 
-    /*@GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public GroupInfos getGroups(@Context UriInfo uriInfo) {
-    	return new GroupInfos(userService.getGroups());
-    }*/
-
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public GroupInfos getGroups(@Context UriInfo uriInfo) {

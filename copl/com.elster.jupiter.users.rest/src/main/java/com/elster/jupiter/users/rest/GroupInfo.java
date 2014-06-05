@@ -7,6 +7,8 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 @XmlRootElement
@@ -34,6 +36,12 @@ public class GroupInfo {
         for (Privilege privilege : group.getPrivileges()) {
             privileges.add(new PrivilegeInfo(privilege));
         }
+
+        Collections.sort(privileges, new Comparator<PrivilegeInfo>() {
+            public int compare(PrivilegeInfo p1, PrivilegeInfo p2) {
+                return p1.name.compareTo(p2.name);
+            }
+        });
     }
 
     public boolean update(Group group) {
