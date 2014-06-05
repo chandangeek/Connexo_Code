@@ -61,12 +61,12 @@ public class SecurityPropertySetResource {
     public Response createSecurityPropertySet(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, SecurityPropertySetInfo securityPropertySetInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        deviceConfiguration.createSecurityPropertySet(securityPropertySetInfo.name)
-                           .authenticationLevel(securityPropertySetInfo.authenticationLevelId)
-                           .encryptionLevel(securityPropertySetInfo.encryptionLevelId)
-                           .build();
+        SecurityPropertySet securityPropertySet = deviceConfiguration.createSecurityPropertySet(securityPropertySetInfo.name)
+                                                  .authenticationLevel(securityPropertySetInfo.authenticationLevelId)
+                                                  .encryptionLevel(securityPropertySetInfo.encryptionLevelId)
+                                                  .build();
 
-        return Response.status(Response.Status.CREATED).build();
+        return Response.status(Response.Status.CREATED).entity(SecurityPropertySetInfo.from(securityPropertySet, thesaurus)).build();
     }
 
     @PUT
@@ -80,7 +80,7 @@ public class SecurityPropertySetResource {
         securityPropertySetInfo.writeTo(securityPropertySet);
         securityPropertySet.update();
 
-        return Response.status(Response.Status.OK).build();
+        return Response.status(Response.Status.OK).entity(SecurityPropertySetInfo.from(securityPropertySet, thesaurus)).build();
     }
 
     @DELETE
