@@ -36,14 +36,6 @@ Ext.define('Usr.controller.User', {
     showOverview: function () {
         var widget = Ext.widget('userBrowse');
         this.getApplication().getController('Usr.controller.Main').showContent(widget);
-
-        var me = this;
-        Ext.StoreManager.get('Usr.store.Users').on('load', function () {
-            var list = widget.down('#userList');
-            if(list){
-                list.getSelectionModel().doSelect(0);
-            }
-        });
     },
 
     editUserMenu: function (button) {

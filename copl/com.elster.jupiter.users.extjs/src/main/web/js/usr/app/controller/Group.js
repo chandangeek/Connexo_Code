@@ -36,13 +36,6 @@ Ext.define('Usr.controller.Group', {
     showOverview: function () {
         var widget = Ext.widget('groupBrowse');
         this.getApplication().getController('Usr.controller.Main').showContent(widget);
-
-        /*Ext.StoreManager.get('Usr.store.Groups').on('load', function () {
-            var list = widget.down('#groupList');
-            if(list){
-                list.getSelectionModel().doSelect(0);
-            }
-        });*/
     },
 
     editGroupMenu: function (button) {

@@ -20,11 +20,17 @@ Ext.define('Usr.view.group.Browse', {
             },
             items: [
                 {
-                    // No need for Uni.view.container.EmptyGridContainer, at least one role (Administrators) is created at system install
-                    xtype: 'groupList'
-                },
-                {
-                    xtype: 'groupDetails'
+                    xtype: 'preview-container',
+                    grid: {
+                         xtype: 'groupList'
+                    },
+                    emptyComponent: {
+                         xtype: 'component',
+                         html: 'There are no items'
+                    },
+                    previewComponent: {
+                         xtype: 'groupDetails'
+                    }
                 }
             ]
         }

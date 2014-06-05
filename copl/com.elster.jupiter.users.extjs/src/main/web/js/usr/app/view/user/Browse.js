@@ -20,11 +20,17 @@ Ext.define('Usr.view.user.Browse', {
             },
             items: [
                 {
-                    // No need for Uni.view.container.EmptyGridContainer, at least one user (internal Admin) is created at system install
-                    xtype: 'userList'
-                },
-                {
-                    xtype: 'userDetails'
+                    xtype: 'preview-container',
+                    grid: {
+                        xtype: 'userList'
+                    },
+                    emptyComponent: {
+                        xtype: 'component',
+                        html: 'There are no items'
+                    },
+                    previewComponent: {
+                        xtype: 'userDetails'
+                    }
                 }
             ]
         }
