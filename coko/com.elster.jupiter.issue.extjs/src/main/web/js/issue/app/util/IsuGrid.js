@@ -88,6 +88,7 @@ Ext.define('Isu.util.IsuGrid', {
                     form.loadRecord(record);
                     form.up('panel').down('item-action').menu.record = record;
                     itemPanel.setLoading(false);
+                    itemPanel.fireEvent('afterChange',itemPanel);
                 }
             }
         });
