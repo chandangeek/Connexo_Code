@@ -73,7 +73,10 @@ Ext.define('Uni.view.container.PreviewContainer', {
         }
     ],
 
+    loaded: false,
+
     initComponent: function () {
+        this.loaded = false;
         var me = this,
             grid = me.grid,
             emptyCmp = me.emptyComponent,
@@ -108,7 +111,9 @@ Ext.define('Uni.view.container.PreviewContainer', {
     },
 
     onAfterRender: function () {
-        this.setLoading(true);
+        if(!this.loaded){
+            this.setLoading(true);
+        }
     },
 
     getStoreListeners: function () {
@@ -134,6 +139,7 @@ Ext.define('Uni.view.container.PreviewContainer', {
             isEmpty = count === 0;
 
         me.getLayout().setActiveItem(isEmpty ? 0 : 1);
+        me.loaded = true;
         me.setLoading(false);
     },
 
