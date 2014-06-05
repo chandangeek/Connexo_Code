@@ -87,7 +87,7 @@ public class DeviceResource {
         Condition condition = Condition.FALSE;
         String[] values = params.split(",");
         for (String value : values) {
-            condition = condition.or(where(conditionField).isEqualTo(value));
+            condition = condition.or(where(conditionField).isEqualTo(value.trim()));
         }
         return condition;
     }
