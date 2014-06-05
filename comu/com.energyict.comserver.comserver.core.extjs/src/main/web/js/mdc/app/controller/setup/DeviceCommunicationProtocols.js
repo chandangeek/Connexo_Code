@@ -34,7 +34,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
                 selectionchange: this.previewDeviceCommunicationProtocol
             },
             '#devicecommunicationprotocolgrid actioncolumn': {
-                editItem: this.editDeviceCommunicatonProtocolHistory
+                editProtocol: this.editDeviceCommunicatonProtocolHistory
             },
             '#deviceCommunicationProtocolPreview menuitem[action=editProtocol]': {
                 click: this.editDeviceCommunicationProtocolHistoryFromPreview
