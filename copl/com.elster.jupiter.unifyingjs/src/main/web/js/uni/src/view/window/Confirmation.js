@@ -4,6 +4,7 @@
 Ext.define('Uni.view.window.Confirmation', {
     extend: 'Ext.window.MessageBox',
     xtype: 'confirmation-window',
+    cls: Uni.About.baseCssPrefix + 'confirmation-window',
 
     /**
      * @cfg {String}
