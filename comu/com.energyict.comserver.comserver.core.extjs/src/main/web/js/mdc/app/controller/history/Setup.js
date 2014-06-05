@@ -42,6 +42,10 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showDeviceTypeCreateView'
                         },
                         view: {
+                            title: 'Device type',
+                            route: '{deviceTypeId}',
+                            controller: 'Mdc.controller.setup.DeviceTypes',
+                            action: 'showDeviceTypeDetailsView',
                             callback: function(route) {
                                 this.getApplication().on('loadDeviceType', function(record) {
                                     route.setTitle(record.get('name'));
@@ -50,9 +54,6 @@ Ext.define('Mdc.controller.history.Setup', {
 
                                 return this;
                             },
-                            route: '{deviceTypeId}',
-                            controller: 'Mdc.controller.setup.DeviceTypes',
-                            action: 'showDeviceTypeDetailsView',
                             items: {
                                 edit: {
                                     title: 'Edit device type',
@@ -101,6 +102,10 @@ Ext.define('Mdc.controller.history.Setup', {
                                             action: 'showDeviceConfigurationCreateView'
                                         },
                                         view: {
+                                            title: 'Device Configuration',
+                                            route: '{deviceConfigurationId}',
+                                            controller: 'Mdc.controller.setup.DeviceConfigurations',
+                                            action: 'showDeviceConfigurationDetailsView',
                                             callback: function(route) {
                                                 this.getApplication().on('loadDeviceConfiguration', function(record) {
                                                     route.setTitle(record.get('name'));
@@ -109,9 +114,6 @@ Ext.define('Mdc.controller.history.Setup', {
 
                                                 return this;
                                             },
-                                            route: '{deviceConfigurationId}',
-                                            controller: 'Mdc.controller.setup.DeviceConfigurations',
-                                            action: 'showDeviceConfigurationDetailsView',
                                             items: {
                                                 edit: {
                                                     title: 'Edit device configuration',

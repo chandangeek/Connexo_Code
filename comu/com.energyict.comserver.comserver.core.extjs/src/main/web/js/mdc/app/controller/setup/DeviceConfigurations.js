@@ -97,6 +97,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         var widget = Ext.widget('deviceConfigurationsSetup', {deviceTypeId: id});
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(id, {
             success: function (deviceType) {
+                me.getApplication().fireEvent('loadDeviceType', deviceType);
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.getDeviceConfigurationsGrid().getSelectionModel().doSelect(0);
             }
@@ -268,6 +269,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
 
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
+                me.getApplication().fireEvent('loadDeviceType', deviceType);
                 me.getApplication().fireEvent('changecontentevent', widget);
                 widget.down('#deviceConfigurationEditCreateTitle').update('<h1>' + Uni.I18n.translate('general.add', 'MDC', 'Add') + ' ' + 'device configuration' + '</h1>');
                 me.setCheckBoxes(deviceType);
@@ -306,8 +308,10 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         model.getProxy().setExtraParam('deviceType', this.deviceTypeId);
         model.load(deviceConfigurationId, {
             success: function (deviceConfiguration) {
+                me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfiguration);
                 Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
                     success: function (deviceType) {
+                        me.getApplication().fireEvent('loadDeviceType', deviceType);
                         widget.down('form').loadRecord(deviceConfiguration);
                         widget.down('#deviceConfigurationEditCreateTitle').update('<h1>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + deviceConfiguration.get('name') + '"</h1>');
                         me.setCheckBoxes(deviceType);
@@ -377,8 +381,10 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                     widget.setLoading(true);
                     model.load(deviceTypeId, {
                         success: function (deviceType) {
+                            me.getApplication().fireEvent('loadDeviceType', deviceType);
                             deviceConfigModel.load(deviceConfigurationId, {
                                 success: function (deviceConfiguration) {
+                                    me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfiguration);
                                     widget.setLoading(false);
                                 }
                             });
@@ -426,8 +432,10 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                     widget.setLoading(true);
                     model.load(deviceTypeId, {
                         success: function (deviceType) {
+                            me.getApplication().fireEvent('loadDeviceType', deviceType);
                             deviceConfigModel.load(deviceConfigurationId, {
                                 success: function (deviceConfiguration) {
+                                    me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfiguration);
                                     widget.setLoading(false);
                                 }
                             });
@@ -477,8 +485,10 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                     });
                     model.load(deviceTypeId, {
                         success: function (deviceType) {
+                            me.getApplication().fireEvent('loadDeviceType', deviceType);
                             deviceConfigModel.load(deviceConfigurationId, {
                                 success: function (deviceConfiguration) {
+                                    me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfiguration);
                                     widget.setLoading(false);
                                 }
                             });
