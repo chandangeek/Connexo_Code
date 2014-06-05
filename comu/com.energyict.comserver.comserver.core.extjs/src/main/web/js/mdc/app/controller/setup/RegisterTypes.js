@@ -143,6 +143,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         var widget = Ext.widget('registerTypeDetail');
         Ext.ModelManager.getModel('Mdc.model.RegisterType').load(registerType, {
             success: function (registerType) {
+                me.getApplication().fireEvent('loadRegisterType', registerType);
                 var registerMapping = registerType.get('id');
                 widget.down('form').loadRecord(registerType);
                 me.getDetailMrId().setValue(registerType.getReadingType().get('mrid'));
@@ -206,6 +207,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         widget.setLoading(true);
         Ext.ModelManager.getModel('Mdc.model.RegisterType').load(registerMapping, {
             success: function (registerType) {
+                me.getApplication().fireEvent('loadRegisterType', registerType);
                 timeOfUseStore.load({
                     callback: function (store) {
                         unitOfMeasureStore.load({
