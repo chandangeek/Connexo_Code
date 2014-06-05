@@ -19,7 +19,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigGrid', {
         var me = this;
         this.columns = [
             {
-                header: Uni.I18n.translate('registerConfigs.name', 'MDC', 'Name'),
+                header: Uni.I18n.translate('registerConfigs.name', 'MDC', 'Register type'),
                 dataIndex: 'name',
                 flex: 3
             },
@@ -50,50 +50,22 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigGrid', {
                 dataIndex: 'overruledObisCode',
                 flex: 1
             },
+
             {
-                xtype: 'actioncolumn',
-                iconCls: 'uni-actioncolumn-gear',
-                columnWidth: 32,
-                header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                xtype: 'uni-actioncolumn',
                 items: [
                     {
-                        handler: function (grid, rowIndex, colIndex, item, e, record, row) {
-                            var menu = Ext.widget('menu', {
-                                items: [
-                                    {
-                                        xtype: 'menuitem',
-                                        text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                                        listeners: {
-                                            click: {
-                                                element: 'el',
-                                                fn: function () {
-                                                    this.fireEvent('editItem', record);
-                                                },
-                                                scope: this
-                                            }
-
-                                        }
-                                    },
-                                    {
-                                        xtype: 'menuitem',
-                                        text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
-                                        listeners: {
-                                            click: {
-                                                element: 'el',
-                                                fn: function () {
-                                                    this.fireEvent('deleteItem', record, me.deviceTypeId, me.deviceConfigId);
-                                                },
-                                                scope: this
-                                            }
-                                        }
-                                    }
-                                ]
-                            });
-                            menu.showAt(e.getXY());
-                        }
+                        text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                        action: 'editItem'
+                    },
+                    {
+                        text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
+                        action: 'deleteItem'
                     }
+
                 ]
             }
+
         ];
         this.dockedItems = [
             {

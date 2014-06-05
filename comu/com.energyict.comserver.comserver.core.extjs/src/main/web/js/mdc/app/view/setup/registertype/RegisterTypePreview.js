@@ -137,7 +137,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
                                 action: 'editRegisterType'
                             },
                             {
-                                text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
+                                text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
                                 itemId: 'deleteRegisterType',
                                 action: 'deleteRegisterType'
 

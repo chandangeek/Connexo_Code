@@ -23,7 +23,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
 
                 },
                 {
-                    text: Uni.I18n.translate('general.delete', 'MDC', 'Delete'),
+                    text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
                     itemId: 'deleteDeviceType',
                     action: 'deleteDeviceType'
 
@@ -146,7 +146,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                             {
                                 xtype: 'fieldcontainer',
                                 columnWidth: 0.5,
-                                fieldLabel: Uni.I18n.translate('devicetype.deviceConfigurationCount', 'MDC', 'Device configuration count'),
+                                fieldLabel: Uni.I18n.translate('devicetype.deviceConfigurations', 'MDC', 'Device configurations'),
                                 labelAlign: 'right',
                                 layout: {
                                     type: 'vbox'

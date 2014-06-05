@@ -50,52 +50,32 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
                 dataIndex: 'deviceProtocolVersion',
                 flex: 2
             },
+
             {
-                xtype: 'actioncolumn',
-                iconCls: 'uni-actioncolumn-gear',
-                columnWidth: 32,
-                header: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
+                xtype: 'uni-actioncolumn',
                 items: [
                     {
-                        handler: function (grid, rowIndex, colIndex, item, e, record, row) {
-                            var menu = Ext.widget('menu', {
-                                items: [
-                                    {
-                                        xtype: 'menuitem',
-                                        text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                                        listeners: {
-                                            click: {
-                                                element: 'el',
-                                                fn: function () {
-                                                    this.fireEvent('editItem', record);
-                                                },
-                                                scope: this
-                                            }
-
-                                        }
-                                    }
-                                ]
-                            });
-                            menu.showAt(e.getXY());
-                        }
+                        text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                        action: 'editItem'
                     }
                 ]
             }
+
         ];
         this.dockedItems = [
             {
                 xtype: 'pagingtoolbartop',
                 store: this.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('deviceCommunicationProtocols.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} protocols'),
-                displayMoreMsg: Uni.I18n.translate('deviceCommumnicationProtocols.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} protocols'),
-                emptyMsg: Uni.I18n.translate('deviceCommunicationProtocols.pagingtoolbartop.emptyMsg', 'MDC', 'There are no protocols to display')
+                displayMsg: Uni.I18n.translate('deviceCommunicationProtocols.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} communication protocols'),
+                displayMoreMsg: Uni.I18n.translate('deviceCommumnicationProtocols.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} communication protocols'),
+                emptyMsg: Uni.I18n.translate('deviceCommunicationProtocols.pagingtoolbartop.emptyMsg', 'MDC', 'There are no communication protocols to display')
             },
             {
                 xtype: 'pagingtoolbarbottom',
                 store: this.store,
                 dock: 'bottom',
-                itemsPerPageMsg: Uni.I18n.translate('deviceCommunicationProtocols.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Protocols per page')
+                itemsPerPageMsg: Uni.I18n.translate('deviceCommunicationProtocols.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Communication protocols per page')
             }
         ];
 

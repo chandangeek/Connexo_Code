@@ -13,13 +13,13 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeForm', {
                 },
                 {
                     xtype: 'form',
-                    width: '50%',
+                    width: '100%',
                     itemId: 'LoadProfileTypeFormId',
                     defaults: {
                         labelWidth: 250,
                         validateOnChange: false,
                         validateOnBlur: false,
-                        anchor: '100%'
+                        anchor: '50%'
                     },
                     items: [
                         {
@@ -70,6 +70,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeForm', {
                             fieldLabel: 'Measurement types',
                             required: true,
                             hidehead: true,
+                            anchor: '100%',
                             items: [
                                 {
                                     xtype: 'gridpanel',
@@ -88,11 +89,13 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeForm', {
                                             align: 'right'
                                         }
                                     ],
-                                    height: 220
-                                },
-                                {
-                                    xtype: 'container',
-                                    itemId: 'LoadProfileTypeAddMeasurementTypeAction'
+                                    height: 220,
+                                    rbar: [
+                                        {
+                                            xtype: 'container',
+                                            itemId: 'LoadProfileTypeAddMeasurementTypeAction'
+                                        }
+                                    ]
                                 },
                                 {
                                     name: 'measurementTypesErrors',
