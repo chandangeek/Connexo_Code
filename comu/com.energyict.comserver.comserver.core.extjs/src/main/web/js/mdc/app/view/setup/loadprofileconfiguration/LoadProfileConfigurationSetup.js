@@ -27,6 +27,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationSetu
                     margins: '10 10 10 10',
                     itemId: 'loadProfileConfigurationTitle'
                 },
+                /*
                 {
                     xtype: 'loadProfileConfigurationFiltering'
                 },
@@ -36,6 +37,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationSetu
                 {
                     xtype: 'loadProfileConfigurationSorting'
                 },
+                */
                 {
                     xtype: 'container',
                     itemId: 'loadProfileConfigurationDockedItemsContainer'

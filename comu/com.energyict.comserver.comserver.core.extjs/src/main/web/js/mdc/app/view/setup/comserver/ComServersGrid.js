@@ -70,7 +70,6 @@ Ext.define('Mdc.view.setup.comserver.ComServersGrid', {
                                             click: {
                                                 element: 'el',
                                                 fn: function () {
-                                                    console.log('deleteItem');
                                                     this.fireEvent('deleteItem', record);
                                                 },
                                                 scope: this
