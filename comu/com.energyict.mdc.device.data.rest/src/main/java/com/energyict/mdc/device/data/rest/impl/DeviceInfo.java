@@ -80,13 +80,24 @@ public class DeviceInfo {
         return deviceInfo;
     }
 
-    public static List<DeviceInfo> from(List<Device> devices, DeviceImportService deviceImportService, IssueService issueService) {
+    private static DeviceInfo from(Device device) {
+        DeviceInfo deviceInfo = new DeviceInfo();
+        deviceInfo.id = device.getId();
+        deviceInfo.mRID = device.getmRID();
+        deviceInfo.serialNumber = device.getSerialNumber();
+        deviceInfo.deviceTypeId = device.getDeviceType().getId();
+        deviceInfo.deviceTypeName = device.getDeviceType().getName();
+        deviceInfo.deviceConfigurationId = device.getDeviceConfiguration().getId();
+        deviceInfo.deviceConfigurationName = device.getDeviceConfiguration().getName();
+        return deviceInfo;
+    }
+
+    public static List<DeviceInfo> from(List<Device> devices) {
         List<DeviceInfo> deviceInfos = new ArrayList<>();
         for (Device device : devices) {
-            deviceInfos.add(DeviceInfo.from(device, deviceImportService, issueService));
+            deviceInfos.add(DeviceInfo.from(device));
         }
         return deviceInfos;
     }
-
 
 }

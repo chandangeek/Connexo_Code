@@ -38,7 +38,7 @@ public class DeviceResource {
         Condition condition = getQueryCondition(params);
         Finder<Device> allDevicesFinder = deviceDataService.findAllDevices(condition);
         List<Device> allDevices = allDevicesFinder.from(queryParameters).find();
-        List<DeviceInfo> deviceInfos = DeviceInfo.from(allDevices, deviceImportService, issueService);
+        List<DeviceInfo> deviceInfos = DeviceInfo.from(allDevices);
         return PagedInfoList.asJson("devices", deviceInfos, queryParameters);
     }
 
