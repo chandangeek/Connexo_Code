@@ -114,6 +114,11 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                 widget.down('#editMrIdField').setValue(me.getReadingTypesStore().first().get('mrid'));
             }
         }
+        var obisCode = widget.down('#editObisCodeField').getValue();
+        var measurementUnit = widget.down('#measurementUnitComboBox').getValue();
+        if (obisCode !== '' && measurementUnit !== null) {
+            widget.down('#editMrIdField').enable();
+        }
     },
 
     changeReadingType: function (btn, text, opt) {
@@ -343,8 +348,6 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                 {property: 'unit', value: measurementUnit}
             ]);
         }
-        widget.down('#editMrIdField').setDisabled(false);
-        widget.down('#editMrIdField').setReadOnly(false);
     }
 
 
