@@ -350,7 +350,7 @@ public class SecurityPropertySetImplCrudIT {
     }
 
     @Test()
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.INCORRECT_SIZE + "}", property = "name")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}", property = "name")
     public void testCreateWithEmptyName () {
         DeviceCommunicationConfiguration communicationConfiguration;
         SecurityPropertySet propertySet = null;
@@ -373,7 +373,7 @@ public class SecurityPropertySetImplCrudIT {
     }
 
     @Test()
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.INCORRECT_SIZE + "}", property = "name")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}", property = "name")
     public void testCreateWithLongName () {
         DeviceCommunicationConfiguration communicationConfiguration;
         SecurityPropertySet propertySet = null;
