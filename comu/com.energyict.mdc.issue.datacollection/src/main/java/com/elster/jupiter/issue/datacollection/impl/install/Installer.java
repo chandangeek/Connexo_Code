@@ -34,7 +34,8 @@ public class Installer {
     }
 
     private void setAQSubscriber() {
-        messageService.getDestinationSpec(EventService.JUPITER_EVENTS).get().subscribe(ModuleConstants.AQ_SUBSCRIBER_NAME);
+        messageService.getDestinationSpec(EventService.JUPITER_EVENTS).get().subscribe(ModuleConstants.AQ_SUBSCRIBER_DATACOLLECTION);
+        messageService.getDestinationSpec(EventService.JUPITER_EVENTS).get().subscribe(ModuleConstants.AQ_SUBSCRIBER_SLOPE_DETECTION);
     }
 
     private void setDataCollectionReasons(IssueType issueType) {

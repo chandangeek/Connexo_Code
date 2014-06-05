@@ -11,7 +11,7 @@ import com.elster.jupiter.util.json.JsonService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-@Component(name="com.elster.jupiter.issue.datacollection.DataCollectionEventHandlerFactory", service = MessageHandlerFactory.class, property = {"subscriber=" + ModuleConstants.AQ_SUBSCRIBER_NAME, "destination=" + EventService.JUPITER_EVENTS}, immediate = true)
+@Component(name="com.elster.jupiter.issue.datacollection.DataCollectionEventHandlerFactory", service = MessageHandlerFactory.class, property = {"subscriber=" + ModuleConstants.AQ_SUBSCRIBER_DATACOLLECTION, "destination=" + EventService.JUPITER_EVENTS}, immediate = true)
 public class DataCollectionEventHandlerFactory implements MessageHandlerFactory {
     private volatile JsonService jsonService;
     private volatile IssueCreationService issueCreationService;
