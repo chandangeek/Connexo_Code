@@ -62,10 +62,23 @@ public class ConstraintViolationInfo {
     }
 
     public ConstraintViolationInfo from(JsonMappingException exception) {
-        errors.add(new FieldError(exception.getPath().get(exception.getPath().size()-1).getFieldName(),
+        String property = getPathAsSingleProperty(exception);
+
+        errors.add(new FieldError(property,
                 nlsService.getThesaurus(MessageSeeds.COMPONENT_NAME, Layer.REST).getString(MessageSeeds.INVALID_VALUE.getKey(), "Invalid value")));
 
         return this;
+    }
+
+    private String getPathAsSingleProperty(JsonMappingException exception) {
+        String property="";
+        for (JsonMappingException.Reference reference : exception.getPath()) {
+            if (property.length()>0) {
+                property+=".";
+            }
+            property+=reference.getFieldName();
+        }
+        return property;
     }
 
     class FieldError {
