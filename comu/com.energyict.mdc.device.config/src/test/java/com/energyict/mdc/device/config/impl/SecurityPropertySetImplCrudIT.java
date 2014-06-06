@@ -350,7 +350,7 @@ public class SecurityPropertySetImplCrudIT {
     }
 
     @Test()
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}", property = "name")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}", property = "name")
     public void testCreateWithEmptyName () {
         DeviceCommunicationConfiguration communicationConfiguration;
         SecurityPropertySet propertySet = null;
