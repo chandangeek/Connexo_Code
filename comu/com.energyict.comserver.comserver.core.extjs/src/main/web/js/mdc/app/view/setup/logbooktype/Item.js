@@ -8,7 +8,7 @@ Ext.define('Mdc.view.setup.logbooktype.Item', {
             itemId: 'actions',
             xtype: 'button',
             text: 'Actions',
-            iconCls: 'x-uni-action-iconA',
+            iconCls: 'x-uni-action-iconD',
             menu: {
                 xtype: 'logbook-action-menu'
             }

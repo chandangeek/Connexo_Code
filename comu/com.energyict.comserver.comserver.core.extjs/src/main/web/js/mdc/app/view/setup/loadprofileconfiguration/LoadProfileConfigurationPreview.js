@@ -79,7 +79,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationPrev
             {
                 xtype: 'button',
                 text: 'Actions',
-                iconCls: 'x-uni-action-iconA',
+                iconCls: 'x-uni-action-iconD',
                 menu: {
                     xtype: 'menu',
                     plain: true,

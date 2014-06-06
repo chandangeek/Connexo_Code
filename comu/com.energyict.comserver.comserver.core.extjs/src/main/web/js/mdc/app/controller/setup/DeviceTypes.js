@@ -130,7 +130,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 widget.down('form').loadRecord(deviceType);
                 me.getApplication().fireEvent('loadDeviceType', deviceType);
 
-                me.getDeviceTypePreviewTitle().update('<h1>' + deviceType.get('name') + ' - ' + Uni.I18n.translate('general.overview', 'MDC', 'Overview') + '</h1>');
+                me.getDeviceTypePreviewTitle().update('<h1>' + Uni.I18n.translate('general.overview', 'MDC', 'Overview') + '</h1>');
             }
         });
 
@@ -199,12 +199,12 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                     var deviceType = results[0][0];
                     me.getApplication().fireEvent('loadDeviceType', deviceType);
                     me.getDeviceTypeEditForm().loadRecord(deviceType);
-                    me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + deviceType.get('name') + '"');
+                    me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + deviceType.get('name'));
                     widget.setLoading(false);
                 },
                 failure: function () {
                     me.getDeviceTypeEditForm().loadRecord(deviceType);
-                    me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + deviceType.get('name') + '"');
+                    me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + deviceType.get('name'));
                     widget.setLoading(false);
                 }
             }

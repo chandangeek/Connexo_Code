@@ -1,22 +1,36 @@
 Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectPreview', {
     extend: 'Ext.panel.Panel',
-    border: true,
-    margins: '0 10 10 10',
     alias: 'widget.protocolDialectPreview',
     itemId: 'protocolDialectPreview',
     requires: [
         'Mdc.model.ProtocolDialect',
-        'Mdc.view.setup.property.PropertyView'
+        'Mdc.view.setup.property.PropertyView',
+        'Mdc.view.setup.protocoldialect.ProtocolDialectActionMenu'
     ],
+    frame: true,
+    title: "Details",
+
+    tools: [
+        {
+            xtype: 'button',
+            text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
+            iconCls: 'x-uni-action-iconD',
+            menu: {
+                xtype: 'protocol-dialect-action-menu'
+            }
+        }
+    ],
+
     layout: {
         type: 'card',
         align: 'stretch'
     },
+
+
     items: [
         {
             xtype: 'panel',
             border: false,
-            padding: '0 10 0 10',
             tbar: [
                 {
                     xtype: 'component',
@@ -34,35 +48,12 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectPreview', {
         },
         {
             xtype: 'form',
-            border: false,
             itemId: 'protocolDialectPreviewForm',
-            padding: '0 10 0 10',
             layout: {
                 type: 'vbox',
                 align: 'stretch'
             },
-            tbar: [
-                {
-                    xtype: 'component',
-                    html: '<h4>Protocol</h4>',
-                    itemId: 'protocolDialectPreviewTitle'
-                },
-                '->',
-                {
-                    icon: 'resources/images/actionsDetail.png',
-                    text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-                    menu: {
-                        items: [
-                            {
-                                text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                                itemId: 'editProtocolDialect',
-                                action: 'editProtocolDialect'
 
-                            }
-                        ]
-                    }
-                }
-            ],
             items: [
                 {
                     xtype: 'container',
@@ -96,13 +87,13 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectPreview', {
                                 type: 'vbox'
                             },
                             items: [
-                               /* {
-                                    xtype: 'displayfield',
-                                    name: 'availableForUse',
-                                    fieldLabel: Uni.I18n.translate('protocolDialect.availableForUse', 'MDC', 'Available for use'),
-                                    labelAlign: 'right',
-                                    labelWidth: 250
-                                }*/
+                                /* {
+                                 xtype: 'displayfield',
+                                 name: 'availableForUse',
+                                 fieldLabel: Uni.I18n.translate('protocolDialect.availableForUse', 'MDC', 'Available for use'),
+                                 labelAlign: 'right',
+                                 labelWidth: 250
+                                 }*/
 
                             ]
                         }
