@@ -16,7 +16,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class InstallerTest extends BaseTest {
     private static final int DEFAULT_STATUS_COUNT = 3;
-    private static final int DEFAULT_ACTION_TYPES_COUNT = 1;
 
     @Test
     public void testDefaultStatuses(){
@@ -26,13 +25,4 @@ public class InstallerTest extends BaseTest {
             assertThat(defaultStatuses).hasSize(DEFAULT_STATUS_COUNT);
         }
     }
-
-/*    @Test
-    public void testDefaultActionTypes(){
-        try (TransactionContext context = getContext()) {
-            Query<IssueActionType> query = getIssueActionService().getActionTypeQuery();
-            List<IssueActionType> defaultTypes = query.select(Condition.TRUE);
-            assertThat(defaultTypes).hasSize(DEFAULT_ACTION_TYPES_COUNT);
-        }
-    }*/
 }

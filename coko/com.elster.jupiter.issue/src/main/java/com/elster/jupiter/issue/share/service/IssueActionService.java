@@ -8,6 +8,7 @@ import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.google.common.base.Optional;
 
+import java.util.List;
 import java.util.Map;
 
 public interface IssueActionService {
@@ -16,4 +17,5 @@ public interface IssueActionService {
     IssueActionType createActionType(String factoryId, String className, IssueType issueType);
     Optional<IssueActionType> findActionType(long id);
     Query<IssueActionType> getActionTypeQuery();
+    List<IssueActionFactory> getRegisteredFactories();
 }

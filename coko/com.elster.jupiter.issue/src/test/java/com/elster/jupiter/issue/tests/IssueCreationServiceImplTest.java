@@ -1,16 +1,23 @@
 package com.elster.jupiter.issue.tests;
 
+import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.impl.records.IssueActionTypeImpl;
 import com.elster.jupiter.issue.impl.records.IssueImpl;
+import com.elster.jupiter.issue.impl.service.IssueCreationServiceImpl;
+import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
+import com.elster.jupiter.issue.share.cep.IssueEvent;
 import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.util.conditions.Condition;
+import com.google.common.base.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.HashMap;
 import java.util.List;
 
+import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -29,7 +36,7 @@ public class IssueCreationServiceImplTest extends BaseTest {
         // Add creation rule parameter
         try (TransactionContext context = getContext()){
             List<CreationRule> rules = getIssueCreationService().getCreationRuleQuery().select(Condition.TRUE);
-            assertThat(rules).hasSize(1);
+            assertThat(rules).isNotEmpty();
 
             CreationRule rule = getIssueCreationService().findCreationRule(id).orNull();
             assertThat(rule).isNotNull();
@@ -94,8 +101,7 @@ public class IssueCreationServiceImplTest extends BaseTest {
     public void testRuleActions(){
         try (TransactionContext context = getContext()){
             CreationRule rule = getSimpleCreationRule();
-            rule.save();
-            
+
             IssueActionType actionType = getDataModel().getInstance(IssueActionTypeImpl.class);
             actionType.setFactoryId("some");
             actionType.setClassName("className");
@@ -103,23 +109,57 @@ public class IssueCreationServiceImplTest extends BaseTest {
 
             CreationRuleAction action = rule.addAction(actionType, CreationRuleActionPhase.CREATE);
             action.addParameter("key", "value");
-            rule.update();
+            rule.save();
 
-            rule = getIssueCreationService().findCreationRule(rule.getId()).orNull();
-            assertThat(rule.getActions()).hasSize(1);
-            assertThat(rule.getActions().get(0).getParameters()).hasSize(1);
+            Query<CreationRuleAction> actionQuery = getIssueCreationService().getCreationRuleActionQuery();
+            List<CreationRuleAction> actionList = actionQuery.select(Condition.TRUE);
+            assertThat(actionList).isNotEmpty();
+            CreationRule foundRule = getIssueCreationService().findCreationRule(rule.getId()).orNull();
+            assertThat(foundRule.getActions()).isNotEmpty();
+            assertThat(foundRule.getActions().get(0).getParameters()).hasSize(1);
+
+            Optional<CreationRuleAction> foundActionRef = getIssueCreationService()
+                    .findCreationRuleAction(foundRule.getActions().get(0).getId());
+            assertThat(foundActionRef).isNotEqualTo(Optional.absent());
         }
     }
 
-    private CreationRule getSimpleCreationRule() {
-        CreationRule rule = getIssueCreationService().createRule();
-        rule.setName("Simple Rule");
-        rule.setComment("Comment for rule");
-        rule.setContent("Empty content");
-        rule.setReason(getIssueService().findReason(1L).orNull());
-        rule.setDueInValue(15L);
-        rule.setDueInType(DueInType.DAY);
-        rule.setTemplateUuid("Parent template uuid");
-        return rule;
+    @Test
+    public void testRuleTemplates() {
+        Optional<CreationRuleTemplate> templateRef = getIssueCreationService().findCreationRuleTemplate("fakeUuid");
+        assertThat(templateRef).isEqualTo(Optional.absent());
+        List<CreationRuleTemplate> templates = getIssueCreationService().getCreationRuleTemplates();
+        assertThat(templates).isEmpty();
+
+        CreationRuleTemplate template = getMockCreationRuleTemplate();
+        IssueCreationServiceImpl impl = IssueCreationServiceImpl.class.cast(getIssueCreationService());
+        impl.addRuleTemplate(template, new HashMap<String, Object>());
+        assertThat(getIssueCreationService().getCreationRuleTemplates().size()).isEqualTo(1);
+
+        assertThat(getIssueCreationService().reReadRules()).isTrue();
+
+        impl.removeRuleTemplate(template);
+        assertThat(getIssueCreationService().getCreationRuleTemplates()).isEmpty();
+    }
+
+    @Test
+    public void testCreationEvents() {
+        IssueCreationServiceImpl impl = IssueCreationServiceImpl.class.cast(getIssueCreationService());
+        IssueEvent event = getMockIssueEvent();
+        impl.dispatchCreationEvent(event);
+
+        try (TransactionContext context = getContext()) {
+            CreationRule rule = getSimpleCreationRule();
+            IssueReason reason = getIssueService().createReason("TestReason", getIssueService().findIssueType("datacollection").get());
+            rule.setReason(reason);
+            rule.save();
+
+            impl.processCreationEvent(rule.getId(), event);
+
+            Query<? extends BaseIssue> query = getIssueService().query(Issue.class, IssueReason.class);
+            Condition condition = where("reason.id").isEqualTo(reason.getId());
+            List<? extends BaseIssue> list = query.select(condition);
+            assertThat(list.size()).isEqualTo(1);
+        }
     }
 }

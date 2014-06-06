@@ -20,14 +20,16 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Component(name = "com.elster.jupiter.issue.action", service = {IssueActionService.class}, immediate = true)
 public class IssueActionServiceImpl implements IssueActionService {
     private volatile QueryService queryService;
     private volatile DataModel dataModel;
-    private Map<String, IssueActionFactory> issueActionFactories = new HashMap<>();
+    private Map<String, IssueActionFactory> registeredFactories = new HashMap<>();
 
     public IssueActionServiceImpl() {
     }
@@ -50,16 +52,23 @@ public class IssueActionServiceImpl implements IssueActionService {
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public final void addIssueActionFactory(IssueActionFactory issueActionFactory, Map<String, Object> map) {
-        issueActionFactories.put(issueActionFactory.getId(), issueActionFactory);
+        registeredFactories.put(issueActionFactory.getId(), issueActionFactory);
     }
 
     public final void removeIssueActionFactory(IssueActionFactory issueActionFactory) {
-        issueActionFactories.remove(issueActionFactory.getId());
+        registeredFactories.remove(issueActionFactory.getId());
+    }
+
+    @Override
+    public List<IssueActionFactory> getRegisteredFactories() {
+        List<IssueActionFactory> factories = new ArrayList<>();
+        factories.addAll(registeredFactories.values());
+        return factories;
     }
 
     @Override
     public IssueAction createIssueAction(String factoryId, String issueActionClassName) {
-        IssueActionFactory actionFactory = issueActionFactories.get(factoryId);
+        IssueActionFactory actionFactory = registeredFactories.get(factoryId);
         if (actionFactory == null) {
             throw new IllegalArgumentException("Action Factory with provided factoryId: " + factoryId + " doesn't exist");
         }
