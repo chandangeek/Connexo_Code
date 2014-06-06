@@ -2,6 +2,9 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.loadProfileTypeGrid',
     itemId: 'loadProfileTypeGrid',
+    requires: [
+        'Mdc.view.setup.loadprofiletype.LoadProfileTypeActionMenu'
+    ],
     height: 395,
     scroll: false,
     intervalStore: null,
@@ -12,28 +15,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeGrid', {
         style: { overflow: 'auto', overflowX: 'hidden' }
     },
     initComponent: function () {
-        var me = this,
-            actionItems;
-        if (Ext.isEmpty(me.editActionName)){
-            actionItems =  [
-                {
-                    text: 'Remove',
-                    action: this.deleteActionName
-                }
-
-            ]
-        } else {
-            actionItems =  [
-                {
-                    text: 'Edit',
-                    action: this.editActionName
-                },
-                {
-                    text: 'Remove',
-                    action: this.deleteActionName
-                }
-            ]
-        }
+        var me = this;
         this.columns = [
             {
                 header: 'Name',
@@ -56,7 +38,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
-                items: actionItems
+                items: 'Mdc.view.setup.loadprofiletype.LoadProfileTypeActionMenu'
             }
         ];
         this.callParent();

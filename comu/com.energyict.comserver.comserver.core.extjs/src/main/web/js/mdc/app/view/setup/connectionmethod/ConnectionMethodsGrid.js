@@ -8,7 +8,8 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodsGrid', {
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Mdc.store.ConnectionMethodsOfDeviceConfiguration'
+        'Mdc.store.ConnectionMethodsOfDeviceConfiguration',
+        'Mdc.view.setup.connectionmethod.ConnectionMethodActionMenu'
     ],
 //    controllers: [
 //        'Mdc.controller.setup.DeviceTypes'
@@ -53,21 +54,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodsGrid', {
 
             {
                 xtype: 'uni-actioncolumn',
-                items: [
-                    {
-                        text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                        action: 'editItem'
-                    },
-                    {
-                        text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-                        action: 'deleteItem'
-                    },
-                    {
-                        text: 'test', // value set in the controller
-                        action: 'toggleDefault',
-                        itemId: 'toggleDefaultMenuItem'
-                    }
-                ]
+                items: 'Mdc.view.setup.connectionmethod.ConnectionMethodActionMenu'
             }
 
         ];
