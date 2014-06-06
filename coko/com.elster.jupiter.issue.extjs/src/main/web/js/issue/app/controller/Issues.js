@@ -107,6 +107,9 @@ Ext.define('Isu.controller.Issues', {
             'issues-side-filter button[action="reset"]': {
                 click: this.resetFilter
             },
+            'issues-overview filtering-toolbar button[action="clear"]': {
+                click: this.resetFilter
+            },
             'issues-side-filter button[action="filter"]': {
                 click: this.applyFilter
             },
