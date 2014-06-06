@@ -148,6 +148,13 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS+"}", property = "numberOfDigits")
+    public void createRegisterSpecNegativeDigits() {
+        RegisterSpec registerSpec = this.getReloadedDeviceConfiguration().createRegisterSpec(registerMapping).setNumberOfDigits(-1).setNumberOfFractionDigits(1).add();
+    }
+
+    @Test
+    @Transactional
     public void createRegisterSpecTestMultiplierDefaultToOne() {
         RegisterSpec registerSpec = this.getReloadedDeviceConfiguration().createRegisterSpec(registerMapping).setNumberOfDigits(1).setNumberOfFractionDigits(0).add();
 
