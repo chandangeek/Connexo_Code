@@ -3,6 +3,9 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationGrid
     alias: 'widget.loadProfileConfigurationGrid',
     itemId: 'loadProfileConfigurationGrid',
     store: 'LoadProfileConfigurationsOnDeviceConfiguration',
+    requires: [
+        'Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationActionMenu'
+    ],
     scroll: false,
     intervalStore: null,
     deviceTypeId: null,
@@ -42,18 +45,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationGrid
             },
             {
                 xtype: 'uni-actioncolumn',
-                items: [
-
-                    {
-                        text: 'Edit',
-                        action: this.editActionName
-                    },
-                    {
-                        text: 'Remove',
-                        action: this.deleteActionName
-                    }
-
-                ]
+                items: 'Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationActionMenu'
             }
         ];
         this.callParent();
