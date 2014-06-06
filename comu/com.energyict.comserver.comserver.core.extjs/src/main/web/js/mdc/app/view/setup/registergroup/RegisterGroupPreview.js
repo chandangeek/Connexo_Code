@@ -33,7 +33,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupPreview', {
                     {
                         xtype: 'button',
                         text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
-                        iconCls: 'x-uni-action-iconA',
+                        iconCls: 'x-uni-action-iconD',
                         menu: {
                             xtype: 'register-group-action-menu'
                         }

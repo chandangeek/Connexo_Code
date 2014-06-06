@@ -2,29 +2,19 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingPreview', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.securitySettingPreview',
     frame: true,
+
+
     tools: [
         {
             xtype: 'button',
-            text: 'Actions',
-            iconCls: 'x-uni-action-iconA',
+            text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
+            iconCls: 'x-uni-action-iconD',
             menu: {
-                xtype: 'menu',
-                plain: true,
-                border: false,
-                shadow: false,
-                items: [
-                    {
-                        text: 'Edit',
-                        action: 'editsecuritysetting'
-                    },
-                    {
-                        text: 'Remove',
-                        action: 'deletesecuritysetting'
-                    }
-                ]
+                xtype: 'security-settings-action-menu'
             }
         }
     ],
+
     items: [
         {
             xtype: 'form',

@@ -101,7 +101,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
                         {
                             xtype: 'button',
                             text: 'Actions',
-                            iconCls: 'x-uni-action-iconA',
+                            iconCls: 'x-uni-action-iconD',
                             menu: {
                                 xtype: 'device-type-logbook-action-menu'
                             }

@@ -114,9 +114,7 @@ Ext.define('Mdc.controller.setup.Properties', {
         var propertiesForm = view.down('#propertiesform');
         var items = propertiesForm.items.items.slice(0);
         Ext.each(items, function (child, index) {
-            if (index !== 0) {
                 propertiesForm.remove(child);
-            }
         });
 
         var properties = objectWithProperties.propertiesStore.data.items;
