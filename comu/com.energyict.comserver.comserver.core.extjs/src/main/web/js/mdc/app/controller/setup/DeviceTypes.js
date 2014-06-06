@@ -199,12 +199,12 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                     var deviceType = results[0][0];
                     me.getApplication().fireEvent('loadDeviceType', deviceType);
                     me.getDeviceTypeEditForm().loadRecord(deviceType);
-                    me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + deviceType.get('name') + '"');
+                    me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + deviceType.get('name'));
                     widget.setLoading(false);
                 },
                 failure: function () {
                     me.getDeviceTypeEditForm().loadRecord(deviceType);
-                    me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + deviceType.get('name') + '"');
+                    me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + deviceType.get('name'));
                     widget.setLoading(false);
                 }
             }

@@ -62,7 +62,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     action: 'showDeviceTypeEditView'
                                 },
                                 logbooktypes: {
-                                    title: 'Logbook Types',
+                                    title: 'Logbook types',
                                     route: 'logbooktypes',
                                     controller: 'Mdc.controller.setup.DeviceTypes',
                                     action: 'showDeviceTypeLogbookTypesView',
@@ -76,7 +76,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     }
                                 },
                                 loadprofiles: {
-                                    title: 'Load Profiles',
+                                    title: 'Load profiles',
                                     route: 'loadprofiles',
                                     controller: 'Mdc.controller.setup.LoadProfileTypesOnDeviceType',
                                     action: 'showDeviceTypeLoadProfileTypesView',
@@ -90,7 +90,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     }
                                 },
                                 deviceconfigurations: {
-                                    title: 'Device Configurations',
+                                    title: 'Device configurations',
                                     route: 'deviceconfigurations',
                                     controller: 'Mdc.controller.setup.DeviceConfigurations',
                                     action: 'showDeviceConfigurations',
@@ -102,7 +102,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                             action: 'showDeviceConfigurationCreateView'
                                         },
                                         view: {
-                                            title: 'Device Configuration',
+                                            title: 'Device configuration',
                                             route: '{deviceConfigurationId}',
                                             controller: 'Mdc.controller.setup.DeviceConfigurations',
                                             action: 'showDeviceConfigurationDetailsView',
@@ -137,22 +137,30 @@ Ext.define('Mdc.controller.history.Setup', {
                                                             title: 'Edit load profile',
                                                             route: '{loadProfileConfigurationId}/edit',
                                                             controller: 'Mdc.controller.setup.LoadProfileConfigurations',
-                                                            action: 'showDeviceConfigurationLoadProfilesEditView'
+                                                            action: 'showDeviceConfigurationLoadProfilesEditView',
+                                                            callback: function(route) {
+                                                                this.getApplication().on('loadLoadProfile', function(record) {
+                                                                    route.setTitle('Edit "' + record.name + '"');
+                                                                    return true;
+                                                                }, {single: true});
+
+                                                                return this;
+                                                            }
                                                         },
-                                                        view: {
+                                                        channels: {
                                                             title: 'Load profile',
                                                             route: '{loadProfileConfigurationId}/channels',
                                                             controller: 'Mdc.controller.setup.LoadProfileConfigurationDetails',
                                                             action: 'showDeviceConfigurationLoadProfilesConfigurationDetailsView',
                                                             items: {
                                                                 add: {
-                                                                    title: 'Add Channel',
+                                                                    title: 'Add channel configuration',
                                                                     route: 'add',
                                                                     controller: 'Mdc.controller.setup.LoadProfileConfigurationDetails',
                                                                     action: 'showDeviceConfigurationLoadProfilesConfigurationChannelsAddView'
                                                                 },
                                                                 edit: {
-                                                                    title: 'Edit Channel',
+                                                                    title: 'Edit channel configuration',
                                                                     route: '{channelId}/edit',
                                                                     controller: 'Mdc.controller.setup.LoadProfileConfigurationDetails',
                                                                     action: 'showDeviceConfigurationLoadProfilesConfigurationChannelsEditView'
@@ -306,7 +314,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     action: 'showRegisterMappings',
                                     items: {
                                         add: {
-                                            title: 'Add Register mapping',
+                                            title: 'Add register mapping',
                                             route: 'add',
                                             controller: 'Mdc.controller.setup.RegisterMappings',
                                             action: 'addRegisterMappings'
@@ -318,7 +326,7 @@ Ext.define('Mdc.controller.history.Setup', {
                     }
                 },
                 loadprofiletypes: {
-                    title: 'Load Profile Types',
+                    title: 'Load profile types',
                     route: 'loadprofiletypes',
                     controller: 'Mdc.controller.setup.LoadProfileTypes',
                     action: 'showLoadProfileTypes',
@@ -330,7 +338,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showLoadProfileTypesCreateView',
                             items: {
                                 addmeasurementtypes: {
-                                    title: 'Add Measurement Types',
+                                    title: 'Add measurement types',
                                     route: 'addmeasurementtypes',
                                     controller: 'Mdc.controller.setup.LoadProfileTypes',
                                     action: 'showMeasurementTypesAddView'
@@ -342,9 +350,17 @@ Ext.define('Mdc.controller.history.Setup', {
                             route: '{id}/edit',
                             controller: 'Mdc.controller.setup.LoadProfileTypes',
                             action: 'showLoadProfileTypesEditView',
+                            callback: function(route) {
+                                this.getApplication().on('loadProfileType', function(record) {
+                                    route.setTitle('Edit "' + record.name + '"');
+                                    return true;
+                                }, {single: true});
+
+                                return this;
+                            },
                             items: {
                                 addmeasurementtypes: {
-                                    title: 'Add Measurement Types',
+                                    title: 'Add measurement types',
                                     route: 'addmeasurementtypes',
                                     controller: 'Mdc.controller.setup.LoadProfileTypes',
                                     action: 'showMeasurementTypesAddView'
@@ -369,7 +385,15 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: 'Edit communication server',
                             route: '{id}/edit',
                             controller: 'Mdc.controller.setup.ComServers',
-                            action: 'showEditView'
+                            action: 'showEditView',
+                            callback: function(route) {
+                                this.getApplication().on('loadComServer', function(record) {
+                                    route.setTitle('Edit "' + record.get('name') + '"');
+                                    return true;
+                                }, {single: true});
+
+                                return this;
+                            }
                         }
                     }
                 },

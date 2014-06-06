@@ -516,6 +516,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                     obisCodeField = widget.down('textfield[name=obisCode]'),
                     measurementTypesView = widget.down('fieldcontainer');
 
+                me.getApplication().fireEvent('loadProfileType', loadProfileType);
                 me.getApplication().fireEvent('changecontentevent', widget);
 
                 nameField.setValue(loadProfileType.name);
