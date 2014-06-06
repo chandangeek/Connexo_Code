@@ -170,10 +170,10 @@ public class SchedulingResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response generatePreviewForSchedule(PreviewInfo previewInfo) {
         if (previewInfo.temporalExpression==null) {
-            throw new LocalizedFieldValidationException(thesaurus, MessageSeeds.CAN_NOT_BE_EMPTY, "temporalExpression");
+            throw new LocalizedFieldValidationException(MessageSeeds.CAN_NOT_BE_EMPTY, "temporalExpression");
         }
         if (previewInfo.temporalExpression.every==null) {
-            throw new LocalizedFieldValidationException(thesaurus, MessageSeeds.CAN_NOT_BE_EMPTY, "temporalExpression.every");
+            throw new LocalizedFieldValidationException(MessageSeeds.CAN_NOT_BE_EMPTY, "temporalExpression.every");
         }
         previewInfo.nextOccurrences = calculateNextOccurrences(previewInfo);
         return Response.ok().entity(previewInfo).build();
