@@ -20,14 +20,25 @@ Ext.define('Isu.view.workspace.issues.DetailOverview', {
                     xtype: 'issue-comments'
                 }
             ],
-            buttons: [
+            dockedItems: [
                 {
-                    text: 'Previous',
-                    action: 'prev'
-                },
-                {
-                    text: 'Next',
-                    action: 'next'
+                    xtype: 'toolbar',
+                    dock: 'top',
+                    defaultButtonUI: 'link',
+                    rtl: false,
+                    items: [
+                        {
+                            xtype: 'tbfill'
+                        },
+                        {
+                            text: 'Previous',
+                            action: 'prev'
+                        },
+                        {
+                            text: 'Next',
+                            action: 'next'
+                        }
+                    ]
                 }
             ]
         }
