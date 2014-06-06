@@ -306,6 +306,7 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
                 };
                 propertySpec = mock(PropertySpec.class);
                 protocolDialect = mock(DeviceProtocolDialect.class);
+                when(protocolDialect.getDisplayName()).thenReturn(PROTOCOL_DIALECT);
                 valueFactory = mock(ValueFactory.class);
                 when(getProtocolDialect().getPropertySpec(MY_PROPERTY)).thenReturn(getPropertySpec());
                 when(getPropertySpec().getValueFactory()).thenReturn(getValueFactory());

@@ -259,4 +259,9 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
         }
         return propertySpec.getValueFactory().toStringValue(value);
     }
+
+    @Override
+    protected boolean validateUniqueName() {
+        return true;
+    }
 }
