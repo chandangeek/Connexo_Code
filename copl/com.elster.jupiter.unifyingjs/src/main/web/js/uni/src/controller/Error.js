@@ -107,11 +107,8 @@ Ext.define('Uni.controller.Error', {
                     'UNI',
                     'Please contact your system administrator.'
                 );
-            // Fallthrough.
-            case 401: // Unauthorized.
-            // Fallthrough.
-            case 403: // Forbidden.
-            // Fallthrough.
+                this.showError(title, message);
+                break;
             case 404: // Not found.
                 title = Uni.I18n.translate(
                     'error.requestFailed',
@@ -123,6 +120,11 @@ Ext.define('Uni.controller.Error', {
                     'UNI',
                     'Please contact your system administrator.'
                 );
+                this.showError(title, message);
+                break;
+            case 401: // Unauthorized.
+            // Fallthrough.
+            case 403: // Forbidden.
             // Fallthrough.
             case 418: // I'm a teapot.
             // Fallthrough.
