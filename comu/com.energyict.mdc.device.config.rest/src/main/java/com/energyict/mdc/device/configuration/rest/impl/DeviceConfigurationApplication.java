@@ -164,7 +164,6 @@ public class DeviceConfigurationApplication extends Application implements Insta
             bind(thesaurus).to(Thesaurus.class);
             bind(engineModelService).to(EngineModelService.class);
             bind(userFileService).to(UserFileService.class);
-            bind(ExceptionFactory.class).to(ExceptionFactory.class);
         }
     }
 

@@ -139,7 +139,6 @@ public class DeviceTypeResourceTest extends JerseyTest {
                 bind(ResourceHelper.class).to(ResourceHelper.class);
                 bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
                 bind(thesaurus).to(Thesaurus.class);
-                bind(new ExceptionFactory(thesaurus)).to(ExceptionFactory.class);
             }
         });
         return resourceConfig;

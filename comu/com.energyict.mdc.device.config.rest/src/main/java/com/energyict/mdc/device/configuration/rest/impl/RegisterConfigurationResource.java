@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
@@ -28,14 +29,12 @@ public class RegisterConfigurationResource {
 
     private final ResourceHelper resourceHelper;
     private final MasterDataService masterDataService;
-    private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public RegisterConfigurationResource(ResourceHelper resourceHelper, MasterDataService masterDataService, ExceptionFactory exceptionFactory) {
+    public RegisterConfigurationResource(ResourceHelper resourceHelper, MasterDataService masterDataService) {
         super();
         this.resourceHelper = resourceHelper;
         this.masterDataService = masterDataService;
-        this.exceptionFactory = exceptionFactory;
     }
 
     @GET
@@ -95,7 +94,7 @@ public class RegisterConfigurationResource {
     private RegisterMapping findRegisterMappingOrThrowException(Long registerTypeId) {
         Optional<RegisterMapping> registerMapping = masterDataService.findRegisterMapping(registerTypeId);
         if (!registerMapping.isPresent()) {
-            throw exceptionFactory.illegalRegisterMappingReference();
+            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_REFERENCE_TO_REGISTER_MAPPING, "registerMapping");
         }
         return registerMapping.get();
     }
