@@ -37,6 +37,22 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationDeta
                     xtype: 'container',
                     itemId: 'loadProfileConfigurationDetailDockedItems'
                 },
+                {
+                    xtype: 'panel',
+                    itemId: 'emptyPanel',
+                    hidden: true,
+                    height: 200,
+                    items: [
+                        {
+                            xtype: 'panel',
+                            html: "<h3>No channel configurations found</h3><br>\
+          There are no channel configurations. This could be because:<br>\
+          &nbsp;&nbsp; - No channel configurations have been defined yet.<br>\
+          &nbsp;&nbsp; - No channel configurations comply to the filter.<br><br>\
+          Possible steps:<br><br>"
+                        }
+                    ]
+                },
 //                {
 //                    xtype: 'container',
 //                    itemId: 'loadProfileConfigurationEmptyListContainer'
@@ -46,7 +62,8 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationDeta
                     itemId: 'loadProfileConfigurationDetailChannelGridContainer'
                 },
                 {
-                    xtype: 'menuseparator'
+                    xtype: 'menuseparator',
+                    itemId: 'separator'
                 },
                 {
                     xtype: 'container',
@@ -71,6 +88,15 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationDeta
                 deviceTypeId: this.deviceTypeId,
                 deviceConfigurationId: this.deviceConfigId,
                 loadProfileConfigurationId: this.loadProfileConfigurationId
+            }
+        );
+        this.down('#emptyPanel').add(
+            {
+                xtype: 'button',
+                text: Uni.I18n.translate('loadprofileconfiguration.loadprofilechaneelconfiguationsadd', 'MDC', 'Add channel configuration'),
+                action: 'addchannelconfiguration',
+                hrefTarget: '',
+                href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigId + '/loadprofiles/' + this.loadProfileConfigurationId + '/channels/add'
             }
         );
         this.down('#loadProfileConfigurationDetailChannelGridContainer').add(

@@ -26,7 +26,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         {ref: 'channelForm', selector: '#loadProfileConfigurationDetailChannelFormId'},
         {ref: 'readingTypeDetailsForm', selector: '#readingTypeDetailsForm'},
         {ref: 'channelsGrid', selector: '#loadProfileConfigurationDetailChannelGrid'}
-
     ],
 
     deviceTypeId: null,
@@ -44,7 +43,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                 showReadingTypeInfo: this.showReadingType
             },
             'loadProfileConfigurationDetailForm combobox[name=measurementType]': {
-                select: this.changeDisplayedObisCodeAndCIM
+                change: this.changeDisplayedObisCodeAndCIM
             },
             'loadProfileConfigurationDetailForm button[name=loadprofilechannelaction]': {
                 click: this.onSubmit
@@ -132,10 +131,13 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
     },
 
 
-    changeDisplayedObisCodeAndCIM: function (combobox) {
-        var record = this.availableMeasurementTypesStore.findRecord('id', combobox.getValue());
-        combobox.next().setValue(record.getData().readingType.mrid);
-        combobox.next().next().setValue(record.getData().obisCode);
+    changeDisplayedObisCodeAndCIM: function (combobox, newValue) {
+        var record = combobox.getStore().getById(newValue),
+            form = combobox.up('form');
+
+        form.down('[name=cimreadingtype]').setValue(record.get('readingType').mrid);
+        form.down('[name=obiscode]').setValue(record.get('obisCode'));
+        form.down('[name=unitOfMeasure]').setValue(record.get('phenomenon').id);
     },
 
 
@@ -332,6 +334,16 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                             success: function (response) {
                                 var loadProfileConfiguration = Ext.JSON.decode(response.responseText).data[0],
                                     widget = Ext.widget('loadProfileConfigurationDetailSetup', {intervalStore: me.intervalStore, deviceTypeId: deviceTypeId, deviceConfigId: deviceConfigurationId, loadProfileConfigurationId: loadProfileConfigurationId });
+                                widget.down('loadProfileConfigurationDetailChannelGrid').getStore().load({
+                                    callback: function() {
+                                        if (this.getTotalCount() < 1) {
+                                            widget.down('#emptyPanel').show();
+                                            widget.down('#loadProfileConfigurationDetailChannelGridContainer').hide();
+                                            widget.down('#loadProfileConfigurationDetailChannelPreviewContainer').hide();
+                                            widget.down('#separator').hide();
+                                        }
+                                    }
+                                });
                                 widget.down('#loadProfileConfigurationDetailTitle').html = '<h1>' + loadProfileConfiguration.name + '</h1>';
                                 widget.down('#loadProfileConfigurationDetailChannelConfigurationTitle').html = '<h3>' + Uni.I18n.translate('loadprofileconfiguration.loadprofilechannelconfiguation', 'MDC', 'Channel configurations') + '</h3>';
                                 me.deviceTypeName = deviceType.get('name');
@@ -342,8 +354,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                 detailedForm.down('[name=deviceConfigurationName]').setValue(Ext.String.format('<a href="#/administration/devicetypes/{0}/deviceconfigurations/{1}">{2}</a>', deviceTypeId, deviceConfigurationId, me.deviceConfigName));
                             }
                         });
-
-
                     }
                 });
             }
@@ -454,5 +464,5 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                 });
             }
         });
-    },
+    }
 });

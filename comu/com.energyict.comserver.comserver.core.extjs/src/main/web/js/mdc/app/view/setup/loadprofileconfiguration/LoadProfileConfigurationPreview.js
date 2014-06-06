@@ -35,8 +35,9 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationPrev
                         },
                         {
                             xtype: 'displayfield',
+                            itemId: 'displayObis',
                             fieldLabel: 'OBIS code: ',
-                            name: 'obisCode'
+                            name: 'overruledObisCode'
                         },
                         {
                             xtype: 'displayfield',
@@ -78,7 +79,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationPrev
             {
                 xtype: 'button',
                 text: 'Actions',
-                iconCls: 'x-uni-action-iconA',
+                iconCls: 'x-uni-action-iconD',
                 menu: {
                     xtype: 'menu',
                     plain: true,

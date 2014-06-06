@@ -14,7 +14,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
         {
             xtype: 'button',
             text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
-            iconCls: 'x-uni-action-iconA',
+            iconCls: 'x-uni-action-iconD',
             menu: {
                 xtype: 'device-configuration-action-menu'
             }
@@ -112,7 +112,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
                                         {
                                             xtype: 'button',
                                             name: 'loadProfileCount',
-                                            text: Uni.I18n.translate('deviceconfiguration.loadprofiles', 'MDC', 'loadprofiles'),
+                                            text: Uni.I18n.translate('deviceconfiguration.loadprofiles', 'MDC', 'load profiles'),
                                             ui: 'link',
                                             itemId: 'deviceConfigurationLoadProfilesLink',
                                             href: '#'
