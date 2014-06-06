@@ -53,6 +53,9 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             '#registerTypeSetup button[action = createRegisterType]': {
                 click: this.createRegisterTypeHistory
             },
+            '#registerGroupEdit button[action = createRegisterType]': {
+                click: this.createRegisterTypeHistory
+            },
             '#registerTypePreview menuitem[action=editRegisterType]': {
                 click: this.editRegisterTypeHistoryFromPreview
             },

@@ -124,7 +124,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
     },
 
     createRegisterGroupHistory: function () {
-        location.href = '#/administration/registergroups/create';
+        location.href = '#/administration/registergroups/add';
     },
 
     editRegisterGroupHistory: function (item) {
@@ -136,7 +136,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
     },
 
     createRegisterTypeHistory: function () {
-        location.href = '#/administration/registertypes/create';
+        location.href = '#/administration/registertypes/add';
     },
 
     showRegisterGroupEditView: function (registerGroupId) {
@@ -153,7 +153,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
                     limit: 500,
                     callback: function (registerTypes) {
                         widget.down('form').loadRecord(registerGroup);
-                        widget.down('#registerGroupEditCreateTitle').update('<h1>' + registerGroup.get('name') + ' > ' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + Uni.I18n.translate('registerGroup.registerGroup', 'MDC', 'Register group') + '</h1>');
+                        widget.down('panel').setTitle(registerGroup.get('name') + ' > ' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + Uni.I18n.translate('registerGroup.registerGroup', 'MDC', 'Register group'));
                         if(this.data.items.length > 0){
                             me.getRegisterEditEmptyGrid().getLayout().setActiveItem('gridContainer');
                             widget.down('#editRegisterGroupGridField').getSelectionModel().doSelect(registerGroup.registerTypes().data.items);
@@ -162,7 +162,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
                         else{
                             widget.down('#editRegisterGroupSelectedField').hide();
                             widget.down('#editRegisterGroupNameField').hide();
-                            widget.down('#btnsContainer').hide();
+                            //widget.down('#btnsContainer').hide();
                             widget.down('#separator').hide();
                             me.getRegisterEditEmptyGrid().getLayout().setActiveItem('emptyContainer');
                         }
@@ -191,7 +191,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
             callback: function (registerTypes) {
                 var registerGroup = Ext.create(Ext.ModelManager.getModel('Mdc.model.RegisterGroup'));
                 widget.down('form').loadRecord(registerGroup);
-                widget.down('#registerGroupEditCreateTitle').update('<h1>' + Uni.I18n.translate('registerGroup.create', 'MDC', 'Create register group') + '</h1>');
+                widget.down('panel').setTitle(Uni.I18n.translate('registerGroup.create', 'MDC', 'Add register group'));
                 if(this.totalCount > 0){
                     me.getRegisterEditEmptyGrid().getLayout().setActiveItem('gridContainer');
                     widget.down('#editRegisterGroupSelectedField').setValue(Ext.String.format(Uni.I18n.translate('registerGroup.selectedRegisterTypes', 'MDC', '{0} register types selected'), 0));
@@ -200,10 +200,10 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
                 else{
                     widget.down('#editRegisterGroupSelectedField').hide();
                     widget.down('#editRegisterGroupNameField').hide();
-                    widget.down('#btnsContainer').hide();
+                    //widget.down('#btnsContainer').hide();
                     widget.down('#separator').hide();
                     me.getRegisterEditEmptyGrid().getLayout().setActiveItem('emptyContainer');
-                    me.getRegisterEditEmptyGrid().setMargin('0 0 0 10');
+                    //me.getRegisterEditEmptyGrid().setMargin('0 0 0 10');
                 }
                 me.getRegisterEditEmptyGrid().setVisible(true);
                 widget.show();

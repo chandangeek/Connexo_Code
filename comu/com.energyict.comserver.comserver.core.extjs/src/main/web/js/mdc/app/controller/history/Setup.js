@@ -441,13 +441,13 @@ Ext.define('Mdc.controller.history.Setup', {
                     action: 'showRegisterGroups',
                     items: {
                         create: {
-                            title: 'Create register group',
-                            route: 'create',
+                            title: Uni.I18n.translate('registerGroup.create', 'USM', 'Add register group'),
+                            route: 'add',
                             controller: 'Mdc.controller.setup.RegisterGroups',
                             action: 'showRegisterGroupCreateView'
                         },
                         edit: {
-                            title: 'Edit register group',
+                            title: Uni.I18n.translate('registerGroup.edit', 'USM', 'Edit register group'),
                             route: '{id}/edit',
                             controller: 'Mdc.controller.setup.RegisterGroups',
                             action: 'showRegisterGroupEditView'
