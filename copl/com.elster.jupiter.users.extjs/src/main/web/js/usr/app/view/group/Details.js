@@ -11,23 +11,18 @@ Ext.define('Usr.view.group.Details', {
     requires: [
         'Usr.store.Users',
         'Usr.model.User',
-        'Ext.button.Button'
+        'Ext.button.Button',
+        'Usr.view.group.GroupActionMenu'
     ],
     title: 'Group',
 
     tools: [
         {
             xtype: 'button',
+            text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
             iconCls: 'x-uni-action-iconD',
-            text: Uni.I18n.translate('general.actions', 'USM', 'Actions'),
             menu: {
-                items: [
-                    {
-                        text: Uni.I18n.translate('general.edit', 'USM', 'Edit'),
-                        itemId: 'editGroup',
-                        action: 'editGroup'
-                    }
-                ]
+                xtype: 'group-action-menu'
             }
         }
     ],
