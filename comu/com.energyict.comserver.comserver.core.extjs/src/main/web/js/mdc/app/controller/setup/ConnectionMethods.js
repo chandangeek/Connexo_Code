@@ -323,6 +323,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         model.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigId});
         model.load(connectionMethodId, {
             success: function (connectionMethod) {
+                me.getApplication().fireEvent('loadConnectionMethod', connectionMethod);
                 var widget = Ext.widget('connectionMethodEdit', {
                     edit: true,
                     returnLink: me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens(),

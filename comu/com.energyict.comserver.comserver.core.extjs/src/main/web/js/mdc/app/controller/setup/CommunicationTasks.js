@@ -299,6 +299,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         model.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigurationId});
         model.load(comTaskEnablementId, {
             success: function (communicationTask) {
+                me.getApplication().fireEvent('loadCommunicationTask', communicationTask);
                 var widget = Ext.widget('communicationTaskEdit', {
                     edit: true,
                     returnLink: '#/administration/devicetypes/'+me.deviceTypeId+'/deviceconfigurations/'+me.deviceConfigurationId+'/comtaskenablements',

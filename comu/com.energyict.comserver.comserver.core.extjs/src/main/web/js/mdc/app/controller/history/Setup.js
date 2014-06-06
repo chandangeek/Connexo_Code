@@ -249,8 +249,13 @@ Ext.define('Mdc.controller.history.Setup', {
                                                             route: '{comTaskEnablementId}/edit',
                                                             controller: 'Mdc.controller.setup.CommunicationTasks',
                                                             action: 'showEditCommunicationTaskView',
-                                                            callback: function () {
+                                                            callback: function(route) {
+                                                                this.getApplication().on('loadCommunicationTask', function(record) {
+                                                                    route.setTitle('Edit "' + record.get('comTask').name + '"');
+                                                                    return true;
+                                                                }, {single: true});
 
+                                                                return this;
                                                             }
                                                         }
                                                     }
@@ -284,7 +289,15 @@ Ext.define('Mdc.controller.history.Setup', {
                                                             title: 'Edit connection method',
                                                             route: '{connectionMethodId}/edit',
                                                             controller: 'Mdc.controller.setup.ConnectionMethods',
-                                                            action: 'showConnectionMethodEditView'
+                                                            action: 'showConnectionMethodEditView',
+                                                            callback: function(route) {
+                                                                this.getApplication().on('loadConnectionMethod', function(record) {
+                                                                    route.setTitle('Edit "' + record.get('name') + '"');
+                                                                    return true;
+                                                                }, {single: true});
+
+                                                                return this;
+                                                            }
                                                         }
                                                     }
                                                 },
