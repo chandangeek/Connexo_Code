@@ -35,7 +35,7 @@ class ClockTaskImpl extends ProtocolTaskImpl implements ClockTask {
             return objectFieldName;
         }
     }
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{"+Constants.CAN_NOT_BE_EMPTY +"}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY +"}")
     private ClockTaskType clockTaskType;
     private TimeDuration minimumClockDiff;
     private TimeDuration maximumClockDiff;

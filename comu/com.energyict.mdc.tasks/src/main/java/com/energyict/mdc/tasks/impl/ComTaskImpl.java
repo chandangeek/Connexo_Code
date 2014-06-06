@@ -44,7 +44,7 @@ import javax.validation.constraints.Size;
  * @author gna
  * @since 2/05/12 - 16:10
  */
-@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{"+Constants.DUPLICATE_COMTASK_NAME +"}")
+@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.DUPLICATE_COMTASK_NAME +"}")
 public class ComTaskImpl implements ComTask, HasId {
 
     private final DataModel dataModel;
@@ -77,8 +77,8 @@ public class ComTaskImpl implements ComTask, HasId {
     }
 
     private long id;
-    @Size(min=1, groups = {Save.Create.class, Save.Update.class}, message = "{"+Constants.CAN_NOT_BE_EMPTY +"}")
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{"+Constants.CAN_NOT_BE_EMPTY +"}")
+    @Size(min=1, groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY +"}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY +"}")
     private String name;
     private boolean storeData; // Indication whether to store the data which is read
     private Date modificationDate;
@@ -86,14 +86,14 @@ public class ComTaskImpl implements ComTask, HasId {
     /**
      * Holds a list of all {@link ProtocolTask ProtocolTasks} which must be performed during the execution of this kind of ComTask
      */
-    @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{"+Constants.COMTASK_WITHOUT_PROTOCOLTASK +"}")
+    @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.COMTASK_WITHOUT_PROTOCOLTASK +"}")
     @Valid
     private final List<ProtocolTaskImpl> protocolTasks = new ArrayList<>();
 
     /**
      * Keeps track of the maximum number of tries a ComTask may execute before failing
      */
-    @Min(value = 1, groups = {Save.Create.class, Save.Update.class}, message="{"+Constants.VALUE_TOO_SMALL +"}")
+    @Min(value = 1, groups = {Save.Create.class, Save.Update.class}, message="{"+ MessageSeeds.Keys.VALUE_TOO_SMALL +"}")
     private int maxNrOfTries = 3;
 
     @Inject

@@ -28,6 +28,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Component(name = "com.energyict.mdc.tasks", service = {TaskService.class, InstallService.class}, property = "name=" + TaskService.COMPONENT_NAME, immediate = true)
@@ -47,11 +48,12 @@ public class TaskServiceImpl implements TaskService, InstallService {
 
     @Inject
     public TaskServiceImpl(OrmService ormService, NlsService nlsService, EventService eventService) {
+        this();
         this.setOrmService(ormService);
         this.setNlsService(nlsService);
         this.setEventService(eventService);
-        activate();
-        createEventTypes();
+        this.activate();
+        this.createEventTypes();
         this.install();
     }
 
@@ -88,12 +90,13 @@ public class TaskServiceImpl implements TaskService, InstallService {
     }
 
     private void createEventTypes() {
-        try {
-            for (EventType eventType : EventType.values()) {
+        for (EventType eventType : EventType.values()) {
+            try {
                 eventType.install(this.eventService);
             }
-        } catch (Exception e) {
-            logger.severe(e.getMessage());
+            catch (Exception e) {
+                logger.log(Level.SEVERE, e.getMessage(), e);
+            }
         }
     }
 

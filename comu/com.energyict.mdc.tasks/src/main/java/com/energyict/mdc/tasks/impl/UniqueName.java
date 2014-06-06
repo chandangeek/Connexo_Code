@@ -14,7 +14,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Constraint(validatedBy = { UniqueComTaskNameValidator.class })
 public @interface UniqueName {
 
-	String message() default "{"+Constants.SIZE_TOO_LONG +"}";
+	String message() default "{"+ MessageSeeds.Keys.SIZE_TOO_LONG +"}";
 
 	Class<?>[] groups() default { };
 

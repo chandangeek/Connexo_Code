@@ -92,7 +92,7 @@ public class ComTaskImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.CAN_NOT_BE_EMPTY+"}", property = "name")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}", property = "name")
     public void createWithWhitespaceNameTest()  {
         ComTask comTask = getTaskService().newComTask("");
         comTask.setStoreData(STORE_DATA_TRUE);
@@ -164,7 +164,7 @@ public class ComTaskImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.DUPLICATE_COMTASK_NAME+"}", property = "name")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.DUPLICATE_COMTASK_NAME+"}", property = "name")
     public void createWithDuplicateNameTest()  {
         createSimpleComTaskWithStatusInformation();
         createSimpleComTaskWithStatusInformation();
@@ -225,7 +225,7 @@ public class ComTaskImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.COMTASK_WITHOUT_PROTOCOLTASK+"}", property = "protocolTasks")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.COMTASK_WITHOUT_PROTOCOLTASK+"}", property = "protocolTasks")
     public void createWithNoProtocolTasksTest() {
         ComTask comTask = getTaskService().newComTask(COM_TASK_NAME);
         comTask.setStoreData(STORE_DATA_TRUE);
