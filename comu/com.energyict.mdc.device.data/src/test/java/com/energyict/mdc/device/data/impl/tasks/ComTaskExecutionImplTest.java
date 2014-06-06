@@ -21,6 +21,7 @@ import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.impl.DeviceDataServiceImpl;
 import com.energyict.mdc.device.data.impl.InMemoryIntegrationPersistence;
 import com.energyict.mdc.device.data.impl.PersistenceIntegrationTest;
+import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.engine.model.ComServer;
@@ -773,7 +774,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
         ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         device.save();
 
-        InMemoryIntegrationPersistence.update("update MDCCOMTASKEXEC set comport = " + outboundComPort.getId() + " where id = " + comTaskExecution.getId());
+        InMemoryIntegrationPersistence.update("update " + TableSpecs.DDC_COMTASKEXEC.name() + " set comport = " + outboundComPort.getId() + " where id = " + comTaskExecution.getId());
 
         comTaskExecution.makeObsolete();
     }
@@ -791,7 +792,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
         ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         device.save();
 
-        InMemoryIntegrationPersistence.update("update mdcconnectiontask set comserver = " + comServer.getId() + " where id = " + connectionTask.getId());
+        InMemoryIntegrationPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set comserver = " + comServer.getId() + " where id = " + connectionTask.getId());
 
         comTaskExecution.makeObsolete();
     }
@@ -810,9 +811,9 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
         ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device);
         inMemoryPersistence.getDeviceDataService().setDefaultConnectionTask(connectionTask);
 
-        InMemoryIntegrationPersistence.update("update mdcconnectiontask set comserver = " + comServer.getId() + " where id = " + connectionTask.getId());
+        InMemoryIntegrationPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set comserver = " + comServer.getId() + "where id = " + connectionTask.getId());
 
-        comTaskExecution.makeObsolete();
+                comTaskExecution.makeObsolete();
     }
 
     @Test
@@ -908,8 +909,8 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
         ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         device.save();
 
-        InMemoryIntegrationPersistence.update("update mdccomtaskexec set " + ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName() + " = 1 where id = " + comTaskExecution.getId());
-        InMemoryIntegrationPersistence.update("update mdcconnectiontask set comserver = " + comServer.getId() + " where id = " + connectionTask.getId());
+        InMemoryIntegrationPersistence.update("update " + TableSpecs.DDC_COMTASKEXEC.name() + " set " + ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName() + " = 1 where id = " + comTaskExecution.getId());
+        InMemoryIntegrationPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set comserver = " + comServer.getId() + " where id = " + connectionTask.getId());
         ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device);
         assertThat(reloadedComTaskExecution.isExecuting()).isTrue();
     }
@@ -928,8 +929,8 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
         device.save();
 
         long future = inMemoryPersistence.getClock().now().getTime() + 1000000000000L;  // let's just hope it won't take that long until this test is finished
-        InMemoryIntegrationPersistence.update("update mdccomtaskexec set " + ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName() + " = " + future + " where id = " + comTaskExecution.getId());
-        InMemoryIntegrationPersistence.update("update mdcconnectiontask set comserver = " + comServer.getId() + " where id = " + connectionTask.getId());
+        InMemoryIntegrationPersistence.update("update " + TableSpecs.DDC_COMTASKEXEC.name() + " set " + ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName() + " = " + future + " where id = " + comTaskExecution.getId());
+        InMemoryIntegrationPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set comserver = " + comServer.getId() + " where id = " + connectionTask.getId());
         ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device);
         assertThat(reloadedComTaskExecution.isExecuting()).isFalse();
     }

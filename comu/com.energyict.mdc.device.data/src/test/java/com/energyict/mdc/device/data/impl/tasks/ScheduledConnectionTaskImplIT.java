@@ -42,7 +42,6 @@ import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
-import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import org.assertj.core.api.Condition;
 import org.joda.time.DateMidnight;
@@ -1202,7 +1201,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     private SqlBuilder getUpdateObsoleteDateSqlBuilder(long id) {
         SqlBuilder sqlBuilder = new SqlBuilder("update ");
-        sqlBuilder.append(TableSpecs.MDCCONNECTIONTASK.name());
+        sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
         sqlBuilder.append(" set obsolete_date = ? where id = ?");
         sqlBuilder.bindDate(clock.now());
         sqlBuilder.bindLong(id);

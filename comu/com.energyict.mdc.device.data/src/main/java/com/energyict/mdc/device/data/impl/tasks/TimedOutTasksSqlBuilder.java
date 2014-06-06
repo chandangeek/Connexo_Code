@@ -27,10 +27,10 @@ public class TimedOutTasksSqlBuilder {
      * @param timeOutSeconds The maximum number of seconds that tasks are expected to run
      */
     public static void appendTimedOutComTaskExecutionSql (SqlBuilder sqlBuilder, ComPortPool ComPortPool, long now, int timeOutSeconds) {
-        sqlBuilder.append("SELECT cte.id FROM mdccomtaskexec cte, ");
-        sqlBuilder.append(TableSpecs.MDCCONNECTIONTASK.name());
+        sqlBuilder.append("SELECT cte.id FROM " + TableSpecs.DDC_COMTASKEXEC.name() + " cte, ");
+        sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
         sqlBuilder.append(" ct, " );
-        sqlBuilder.append(TableSpecs.MDCCONNECTIONMETHOD.name());
+        sqlBuilder.append(TableSpecs.DDC_CONNECTIONMETHOD.name());
         sqlBuilder.append(" cm ");
         sqlBuilder.append(" WHERE cte.connectiontask = ct.id");
         sqlBuilder.append("   AND ct.connectionmethod = cm.id");

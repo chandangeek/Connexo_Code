@@ -43,72 +43,71 @@ import static com.elster.jupiter.orm.DeleteRule.CASCADE;
  */
 public enum TableSpecs {
 
-    EISRTU {
+    DDC_DEVICE {
         @Override
         public void addTo(DataModel dataModel) {
             Table<Device> table = dataModel.addTable(name(), Device.class);
             table.map(DeviceImpl.class);
             Column id = table.addAutoIdColumn();
             table.column("NAME").varChar(80).notNull().map(DeviceFields.NAME.fieldName()).add();
-            // TODO rename the column to serialNumber
-            table.column("DEVICENAME").varChar(80).map(DeviceFields.SERIALNUMBER.fieldName()).add();
+            table.column("SERIALNUMBER").varChar(80).map(DeviceFields.SERIALNUMBER.fieldName()).add();
             table.column("TIMEZONE").varChar(32).map(DeviceFields.TIMEZONE.fieldName()).add();
-            Column externid = table.column("EXTERNID").varChar(255).map(DeviceFields.MRID.fieldName()).add();
+            Column externid = table.column("MRID").varChar(255).map(DeviceFields.MRID.fieldName()).add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
             table.column("CERTIF_DATE").type("DATE").conversion(ColumnConversion.DATE2DATE).map("yearOfCertification").add();
             Column deviceConfigId = table.column("DEVICECONFIGID").number().add();
-            table.foreignKey("FK_EISRTU_DEVICECONFIG").on(deviceConfigId).references(DeviceConfigurationService.COMPONENTNAME, "EISDEVICECONFIG").map(DeviceFields.DEVICECONFIGURATION.fieldName()).add();
-            table.unique("UK_RTU_EXTID").on(externid).add();
-            table.primaryKey("PK_RTU").on(id).add();
+            table.foreignKey("FK_DDC_DEVICE_DEVICECONFIG").on(deviceConfigId).references(DeviceConfigurationService.COMPONENTNAME, "DTC_DEVICECONFIG").map(DeviceFields.DEVICECONFIGURATION.fieldName()).add();
+            table.unique("UK_DDC_DEVICE_MRID").on(externid).add();
+            table.primaryKey("PK_DDC_DEVICE").on(id).add();
         }
     },
 
-    EISRTUINCOMSCHEDULE {
+    DDC_DEVICEINCOMSCHEDULE {
         @Override
         void addTo(DataModel component) {
             Table<DeviceInComSchedule> table = component.addTable(name(), DeviceInComSchedule.class);
             table.map(DeviceInComScheduleImpl.class);
-            Column deviceId = table.column("RTUID").number().notNull().conversion(NUMBER2LONG).add();
+            Column deviceId = table.column("DEVICEID").number().notNull().conversion(NUMBER2LONG).add();
             Column comScheduleId = table.column("COMSCHEDULEID").number().notNull().conversion(NUMBER2LONG).add();
 
-            table.foreignKey("FK_GROUP_DEVICE").on(deviceId).references(EISRTU.name()).map(DeviceInComScheduleImpl.Fields.DEVICE_REFERENCE.fieldName())
+            table.foreignKey("FK_DDC_DEVINCOMSCHEDULE_DEVICE").on(deviceId).references(DDC_DEVICE.name()).map(DeviceInComScheduleImpl.Fields.DEVICE_REFERENCE.fieldName())
                     .reverseMap(DeviceImpl.Fields.COM_SCHEDULE_USAGES.fieldName())
                     .composition()
                     .add();
-            table.foreignKey("FK_GROUP_COMSCHEDULE").on(comScheduleId).references(SchedulingService.COMPONENT_NAME, "MDCCOMSCHEDULE")
+            table.foreignKey("FK_DEVINCOMSCHEDULE_CSCHEDULE").on(comScheduleId).references(SchedulingService.COMPONENT_NAME, "SCH_COMSCHEDULE")
                     .map(DeviceInComScheduleImpl.Fields.COM_SCHEDULE_REFERENCE.fieldName())
                     .add();
-            table.primaryKey("PK_EISRTUINCOMSCHEDULE").on(deviceId, comScheduleId).add();
+            table.primaryKey("PK_DDC_DEVICEINCOMSCHEDULE").on(deviceId, comScheduleId).add();
         }
     },
 
-    EISINFOTYPE {
+    DDC_INFOTYPE {
         @Override
         public void addTo(DataModel dataModel) {
             Table<InfoType> table = dataModel.addTable(name(), InfoType.class);
             table.map(InfoTypeImpl.class);
             Column id = table.addAutoIdColumn();
             Column name = table.column("NAME").varChar(80).notNull().map("name").add();
-            table.primaryKey("PK_INFOTYPE").on(id).add();
-            table.unique("UK_INFOTYPE").on(name).add();
+            table.primaryKey("PK_DDC_INFOTYPE").on(id).add();
+            table.unique("UK_DDC_INFOTYPE").on(name).add();
         }
     },
 
-    EISRTUINFO {
+    DDC_DEVICEPROTOCOLPROPERTY {
         @Override
         public void addTo(DataModel dataModel) {
             Table<DeviceProtocolProperty> table = dataModel.addTable(name(), DeviceProtocolProperty.class);
             table.map(DeviceProtocolPropertyImpl.class);
-            Column deviceId = table.column("RTUID").number().notNull().conversion(NUMBER2LONG).add();
+            Column deviceId = table.column("DEVICEID").number().notNull().conversion(NUMBER2LONG).add();
             Column infoTypeId = table.column("INFOTYPEID").map("infoTypeId").number().conversion(NUMBER2LONG).notNull().add();
             table.column("INFOVALUE").varChar(255).map("propertyValue").add();
-            table.primaryKey("PK_RTUINFO").on(deviceId,infoTypeId).add();
-            table.foreignKey("FK_RTUINFOTYPEID").on(infoTypeId).references(EISINFOTYPE.name()).map("infoTypeId").add();
-            table.foreignKey("FK_RTUINFOTYPEDEVID").on(deviceId).references(EISRTU.name()).map("device").reverseMap("deviceProperties").composition().add();
+            table.primaryKey("PK_DDC_DEVICEPROTOCOLPROPERTY").on(deviceId,infoTypeId).add();
+            table.foreignKey("FK_DDC_DEVICEPROTPROP_INFOTYPE").on(infoTypeId).references(DDC_INFOTYPE.name()).map("infoTypeId").add();
+            table.foreignKey("FK_DDC_DEVICEPROTPROP_DEVICE").on(deviceId).references(DDC_DEVICE.name()).map("device").reverseMap("deviceProperties").composition().add();
         }
     },
 
-    MDCPHYSICALGATEWAYREFERENCE {
+    DDC_PHYSICALGATEWAYREFERENCE {
         @Override
         void addTo(DataModel dataModel) {
             Table<PhysicalGatewayReference> table = dataModel.addTable(name(), PhysicalGatewayReference.class);
@@ -116,13 +115,24 @@ public enum TableSpecs {
             Column originId = table.column("ORIGINID").notNull().number().conversion(NUMBER2LONG).add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
             Column physicalGatewayId = table.column("GATEWAYID").notNull().number().conversion(NUMBER2LONG).add();
-            table.primaryKey("DDC_U_PHY_GATEWAY").on(originId, intervalColumns.get(0)).add();
-            table.foreignKey("DDC_FK_DEVPHYORIGIN").on(originId).references(EISRTU.name()).onDelete(CASCADE).map("origin").reverseMap("physicalGatewayReferenceDevice").composition().add();
-            table.foreignKey("DDC_FK_DEVPHYGATEWAY").on(physicalGatewayId).references(EISRTU.name()).onDelete(CASCADE).map("gateway").add();
+            table.primaryKey("PK_DDC_PHYSICALGATEWAYREF").on(originId, intervalColumns.get(0)).add();
+            table.foreignKey("FK_DDC_PHYSGATEWAYREF_ORIGIN").
+                    on(originId).
+                    references(DDC_DEVICE.name()).
+                    onDelete(CASCADE).map("origin").
+                    reverseMap("physicalGatewayReferenceDevice").
+                    composition().
+                    add();
+            table.foreignKey("FK_DDC_PHYSGATEWAYREF_GATEWAY").
+                    on(physicalGatewayId).
+                    references(DDC_DEVICE.name()).
+                    onDelete(CASCADE).
+                    map("gateway").
+                    add();
         }
     },
 
-    MDCCOMGATEWAYREFERENCE {
+    DDC_COMGATEWAYREFERENCE {
         @Override
         void addTo(DataModel dataModel) {
             Table<CommunicationGatewayReference> table = dataModel.addTable(name(), CommunicationGatewayReference.class);
@@ -130,29 +140,40 @@ public enum TableSpecs {
             Column originId = table.column("ORIGINID").notNull().number().conversion(NUMBER2LONG).add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
             Column communicationGatewayId = table.column("GATEWAYID").notNull().number().conversion(NUMBER2LONG).add();
-            table.primaryKey("DDC_U_COM_GATEWAY").on(originId, intervalColumns.get(0)).add();
-            table.foreignKey("DDC_FK_DEVCOMORIGIN").on(originId).references(EISRTU.name()).onDelete(CASCADE).map("origin").reverseMap("communicationGatewayReferenceDevice").composition().add();
-            table.foreignKey("DDC_FK_DEVCOMGATEWAY").on(communicationGatewayId).references(EISRTU.name()).onDelete(CASCADE).map("gateway").add();
+            table.primaryKey("PK_DDC_COMMUNICATIONGATEWAYREF").on(originId, intervalColumns.get(0)).add();
+            table.foreignKey("FK_DDC_COMGATEWAYREF_ORIGIN").
+                    on(originId).references(DDC_DEVICE.name()).
+                    onDelete(CASCADE).
+                    map("origin").
+                    reverseMap("communicationGatewayReferenceDevice").
+                    composition().
+                    add();
+            table.foreignKey("FK_DDC_COMGATEWAYREF_GATEWAY").
+                    on(communicationGatewayId).
+                    references(DDC_DEVICE.name()).
+                    onDelete(CASCADE).
+                    map("gateway").
+                    add();
         }
     },
 
-    EISLOADPROFILE {
+    DDC_LOADPROFILE {
         @Override
         public void addTo(DataModel dataModel) {
             Table<LoadProfile> table = dataModel.addTable(name(), LoadProfile.class);
             table.map(LoadProfileImpl.class);
             Column id = table.addAutoIdColumn();
-            Column deviceId = table.column("RTUID").number().notNull().add();
+            Column deviceId = table.column("DEVICEID").number().notNull().add();
             table.column("LASTREADING").number().map("lastReading").conversion(ColumnConversion.NUMBER2UTCINSTANT).add();
             Column loadprofilespecid = table.column("LOADPROFILESPECID").number().add();
-            table.primaryKey("PK_LOADPROFILE").on(id).add();
-            table.foreignKey("FK_LOADPROFILE_LOADPROFILESPEC").on(loadprofilespecid).references(DeviceConfigurationService.COMPONENTNAME, "EISLOADPROFILESPEC").map("loadProfileSpec").add();
-            table.foreignKey("FK_LOADPROFILE_RTU").on(deviceId).references(EISRTU.name()).map("device").reverseMap("loadProfiles").composition().add();
+            table.primaryKey("PK_DDC_LOADPROFILE").on(id).add();
+            table.foreignKey("FK_DDC_LOADPROFILE_LPSPEC").on(loadprofilespecid).references(DeviceConfigurationService.COMPONENTNAME, "DTC_LOADPROFILESPEC").map("loadProfileSpec").add();
+            table.foreignKey("FK_DDC_LOADPROFILE_DEVICE").on(deviceId).references(DDC_DEVICE.name()).map("device").reverseMap("loadProfiles").composition().add();
 
         }
     },
 
-    EISLOGBOOK {
+    DDC_LOGBOOK {
         @Override
         public void addTo(DataModel dataModel) {
             Table<LogBook> table = dataModel.addTable(name(), LogBook.class);
@@ -161,28 +182,27 @@ public enum TableSpecs {
             Column logBookSpecId = table.column("LOGBOOKSPECID").number().notNull().add();
             Column deviceid = table.column("DEVICEID").number().notNull().add();
             table.column("LASTLOGBOOK").number().map("lastReading").conversion(ColumnConversion.NUMBER2UTCINSTANT).add();
-            table.primaryKey("PK_EISLOGBOOKID").on(id).add();
-            table.foreignKey("FK_EISLOGBOOK_LOGBOOKSPEC").on(logBookSpecId).references(DeviceConfigurationService.COMPONENTNAME, "EISLOGBOOKSPEC").map("logBookSpec").add();
-            table.foreignKey("FK_EISLOGBOOK_DEVICE").on(deviceid).references(EISRTU.name()).map("device").reverseMap("logBooks").composition().add();
+            table.primaryKey("PK_DDC_LOGBOOK").on(id).add();
+            table.foreignKey("FK_DDC_LOGBOOK_LOGBOOKSPEC").on(logBookSpecId).references(DeviceConfigurationService.COMPONENTNAME, "DTC_LOGBOOKSPEC").map("logBookSpec").add();
+            table.foreignKey("FK_DDC_LOGBOOK_DEVICE").on(deviceid).references(DDC_DEVICE.name()).map("device").reverseMap("logBooks").composition().add();
         }
     },
 
-    MDCCONNECTIONMETHOD {
+    DDC_CONNECTIONMETHOD {
         @Override
         public void addTo(DataModel dataModel) {
             Table<ConnectionMethod> table = dataModel.addTable(name(), ConnectionMethod.class);
             table.map(ConnectionMethodImpl.class);
             Column id = table.addAutoIdColumn();
             Column connectionTypePluggableClass = table.column("CONNECTIONTYPEPLUGGABLECLASS").number().conversion(NUMBER2LONG).map("pluggableClassId").notNull().add();
-//            table.column("NAME").varChar(255).map("name").add();
             Column comPortPool = table.column("COMPORTPOOL").number().notNull().add();
-            table.primaryKey("PK_MDCCONNECTIONMETHOD").on(id).add();
-            table.foreignKey("FK_MDCCONNMETHOD_CLASS").on(connectionTypePluggableClass).references(PluggableService.COMPONENTNAME, "EISPLUGGABLECLASS").map("pluggableClass").add();
-            table.foreignKey("FK_MDCCONNTASKUSAGE_CPP").on(comPortPool).references(EngineModelService.COMPONENT_NAME, "MDCCOMPORTPOOL").map("comPortPool").add();
+            table.primaryKey("PK_DDC_CONNECTIONMETHOD").on(id).add();
+            table.foreignKey("FK_DDC_CONNECTIONMETHOD_CLASS").on(connectionTypePluggableClass).references(PluggableService.COMPONENTNAME, "CPC_PLUGGABLECLASS").map("pluggableClass").add();
+            table.foreignKey("FK_DDC_CONNECTIONMETHOD_CPP").on(comPortPool).references(EngineModelService.COMPONENT_NAME, "MDC_COMPORTPOOL").map("comPortPool").add();
         }
     },
 
-    MDCCONNECTIONTASK {
+    DDC_CONNECTIONTASK {
         @Override
         public void addTo(DataModel dataModel) {
             Table<ConnectionTask> table = dataModel.addTable(name(), ConnectionTask.class);
@@ -190,7 +210,7 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             // Common columns
-            table.column("RTU").number().conversion(NUMBER2LONG).map("deviceId").add();
+            table.column("DEVICE").number().conversion(NUMBER2LONG).map("deviceId").add();
             Column connectionMethod = table.column("CONNECTIONMETHOD").number().add();
             table.column("MOD_DATE").type("DATE").conversion(DATE2DATE).map("modificationDate").add();
             table.column("OBSOLETE_DATE").type("DATE").conversion(DATE2DATE).map("obsoleteDate").add();
@@ -200,7 +220,7 @@ public enum TableSpecs {
             table.column("LASTSUCCESSFULCOMMUNICATIONEND").conversion(NUMBERINUTCSECONDS2DATE).number().map("lastSuccessfulCommunicationEnd").add();
             Column comServer = table.column("COMSERVER").number().add();
             Column comPortPool = table.column("COMPORTPOOL").number().add();
-            Column partialConnectionTaskColumn = table.column("PARTIALCONNECTIONTASK").number().add();
+            Column partialConnectionTask = table.column("PARTIALCONNECTIONTASK").number().add();
             // Common columns for sheduled connection tasks
             table.column("CURRENTRETRYCOUNT").number().conversion(NUMBER2INT).map("currentRetryCount").add();
             table.column("LASTEXECUTIONFAILED").number().conversion(NUMBER2BOOLEAN).map("lastExecutionFailed").add();
@@ -216,17 +236,17 @@ public enum TableSpecs {
             Column initiator = table.column("INITIATOR").number().add();
             // InboundConnectionTaskImpl columns: none at this moment
             // ConnectionInitiationTaskImpl columns: none at this moment
-            table.primaryKey("PK_MDCCONNTASK").on(id).add();
-            table.foreignKey("FK_MDCCONNTASK_METHOD").on(connectionMethod).references(MDCCONNECTIONMETHOD.name()).map("connectionMethod").add();
-            table.foreignKey("FK_MDCCONNTASK_CPP").on(comPortPool).references(EngineModelService.COMPONENT_NAME, "MDCCOMPORTPOOL").map("comPortPool").add();
-            table.foreignKey("FK_MDCCONNTASK_COMSERVER").on(comServer).references(EngineModelService.COMPONENT_NAME, "MDCCOMSERVER").map("comServer").add();
-            table.foreignKey("FK_MDCCONNTASK_INITIATOR").on(initiator).references(MDCCONNECTIONTASK.name()).map("initiationTask").add();
-            table.foreignKey("FK_MDCCONNTASK_NEXTEXEC").on(nextExecutionSpecs).references(SchedulingService.COMPONENT_NAME, "MDCNEXTEXECUTIONSPEC").map("nextExecutionSpecs").add();
-            table.foreignKey("FK_MDCCONNTASK_PARTIAL").on(partialConnectionTaskColumn).references(DeviceConfigurationService.COMPONENTNAME, "MDCPARTIALCONNECTIONTASK").map("partialConnectionTask").add();
+            table.primaryKey("PK_DDC_CONNECTIONTASK").on(id).add();
+            table.foreignKey("FK_DDC_CONNECTIONTASK_METHOD").on(connectionMethod).references(DDC_CONNECTIONMETHOD.name()).map("connectionMethod").add();
+            table.foreignKey("FK_DDC_CONNECTIONTASK_CPP").on(comPortPool).references(EngineModelService.COMPONENT_NAME, "MDC_COMPORTPOOL").map("comPortPool").add();
+            table.foreignKey("FK_DDC_CONNECTIONTASK_COMSRVER").on(comServer).references(EngineModelService.COMPONENT_NAME, "MDC_COMSERVER").map("comServer").add();
+            table.foreignKey("FK_DDC_CONNECTIONTASK_INITIATR").on(initiator).references(DDC_CONNECTIONTASK.name()).map("initiationTask").add();
+            table.foreignKey("FK_DDC_CONNECTIONTASK_NEXTEXEC").on(nextExecutionSpecs).references(SchedulingService.COMPONENT_NAME, "SCH_NEXTEXECUTIONSPEC").map("nextExecutionSpecs").add();
+            table.foreignKey("FK_DDC_CONNECTIONTASK_PARTIAL").on(partialConnectionTask).references(DeviceConfigurationService.COMPONENTNAME, "DTC_PARTIALCONNECTIONTASK").map("partialConnectionTask").add();
         }
     },
 
-    MDCPROTOCOLDIALECTPROPERTIES {
+    DDC_PROTOCOLDIALECTPROPS {
         @Override
         public void addTo(DataModel dataModel) {
             Table<ProtocolDialectProperties> table = dataModel.addTable(name(), ProtocolDialectProperties.class);
@@ -234,23 +254,23 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             table.column("NAME").varChar(255).map("name").add();
             Column deviceProtocolId = table.column("DEVICEPROTOCOLID").number().conversion(NUMBER2LONG).notNull().map("pluggableClassId").add();
-            Column device = table.column("RTUID").number().conversion(NUMBER2LONG).notNull().add();
+            Column device = table.column("DEVICEID").number().conversion(NUMBER2LONG).notNull().add();
             table.column("MOD_DATE").type("DATE").conversion(DATE2DATE).map("modificationDate").add();
             Column configurationProperties = table.column("CONFIGURATIONPROPERTIESID").number().add();
-            table.foreignKey("FK_MDCPRTDIALECTPROPS_PCID").on(deviceProtocolId).references(PluggableService.COMPONENTNAME, "EISPLUGGABLECLASS").map("deviceProtocolPluggableClass").add();
-            table.foreignKey("FK_MDCPRTDIALECTPROPS_RTU").on(device).references(EISRTU.name()).map("device").reverseMap("dialectPropertiesList").add();
-            table.foreignKey("FK_MDCPRTDIALECTPROPS_PDCP").on(configurationProperties).references(DeviceConfigurationService.COMPONENTNAME, "MDCDIALECTCONFIGPROPERTIES").map("configurationProperties").add();
-            table.primaryKey("PK_MDCPRTDIALECTPROPS").on(id).add();
+            table.foreignKey("FK_DDC_PROTDIALECTPROPS_PC").on(deviceProtocolId).references(PluggableService.COMPONENTNAME, "CPC_PLUGGABLECLASS").map("deviceProtocolPluggableClass").add();
+            table.foreignKey("FK_DDC_PROTDIALECTPROPS_DEV").on(device).references(DDC_DEVICE.name()).map("device").reverseMap("dialectPropertiesList").add();
+            table.foreignKey("FK_DDC_PROTDIALECTPROPS_PDCP").on(configurationProperties).references(DeviceConfigurationService.COMPONENTNAME, "DTC_DIALECTCONFIGPROPERTIES").map("configurationProperties").add();
+            table.primaryKey("PK_DDC_PROTOCOLDIALECTPROPS").on(id).add();
         }
     },
 
-    MDCCOMTASKEXEC {
+    DDC_COMTASKEXEC {
         @Override
         public void addTo(DataModel dataModel) {
             Table<ComTaskExecution> table = dataModel.addTable(name(), ComTaskExecution.class);
             table.map(ComTaskExecutionImpl.class);
             Column id = table.addAutoIdColumn();
-            Column device = table.column("RTU").number().notNull().add();
+            Column device = table.column("DEVICE").number().notNull().add();
             Column comtask = table.column("COMTASK").number().notNull().add();
             Column comSchedule = table.column("COMSCHEDULE").number().add();
             table.column("NEXTEXECUTIONSPECS").number().conversion(NUMBER2LONG).map(ComTaskExecutionFields.NEXTEXECUTIONSPEC.fieldName()).add();
@@ -271,13 +291,13 @@ public enum TableSpecs {
             Column connectionTask = table.column("CONNECTIONTASK").number().conversion(NUMBER2LONGNULLZERO).map("connectionTaskId").add();
             Column protocolDialectConfigurationProperties = table.column("PROTOCOLDIALECTCONFIGPROPS").number().notNull().add();
             table.column("IGNORENEXTEXECSPECS").number().conversion(NUMBER2BOOLEAN).notNull().map(ComTaskExecutionFields.IGNORENEXTEXECUTIONSPECSFORINBOUND.fieldName()).add();
-            table.foreignKey("FK_MDCCOMTASKEXEC_COMPORT").on(comport).references(EngineModelService.COMPONENT_NAME, "MDCCOMPORT").map(ComTaskExecutionFields.COMPORT.fieldName()).add();
-            table.foreignKey("FK_MDCCOMTASKEXEC_COMTASK").on(comtask).references(TaskService.COMPONENT_NAME, "MDCCOMTASK").map(ComTaskExecutionFields.COMTASK.fieldName()).add();
-            table.foreignKey("FK_MDCCOMTASKEXEC_COMSCHEDULE").on(comSchedule).references(SchedulingService.COMPONENT_NAME, "MDCCOMSCHEDULE").map(ComTaskExecutionFields.COM_SCHEDULE_REFERENCE.fieldName()).add();
-            table.foreignKey("FK_MDCCOMTASKEXEC_CONNECTTASK").on(connectionTask).references(MDCCONNECTIONTASK.name()).map(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).add();
-            table.foreignKey("FK_MDCCOMTASKEXEC_DIALECT").on(protocolDialectConfigurationProperties).references(DeviceConfigurationService.COMPONENTNAME, "MDCDIALECTCONFIGPROPERTIES").map(ComTaskExecutionFields.PROTOCOLDIALECTCONFIGURATIONPROPERTIES.fieldName()).add();
-            table.foreignKey("FK_MDCCOMTASKEXEC_RTU").on(device).references(EISRTU.name()).map(ComTaskExecutionFields.DEVICE.fieldName()).add();
-            table.primaryKey("PK_MDCCOMTASKEXEC").on(id).add();
+            table.foreignKey("FK_DDC_COMTASKEXEC_COMPORT").on(comport).references(EngineModelService.COMPONENT_NAME, "MDC_COMPORT").map(ComTaskExecutionFields.COMPORT.fieldName()).add();
+            table.foreignKey("FK_DDC_COMTASKEXEC_COMTASK").on(comtask).references(TaskService.COMPONENT_NAME, "CTS_COMTASK").map(ComTaskExecutionFields.COMTASK.fieldName()).add();
+            table.foreignKey("FK_DDC_COMTASKEXEC_COMSCHEDULE").on(comSchedule).references(SchedulingService.COMPONENT_NAME, "SCH_COMSCHEDULE").map(ComTaskExecutionFields.COM_SCHEDULE_REFERENCE.fieldName()).add();
+            table.foreignKey("FK_DDC_COMTASKEXEC_CONNECTTASK").on(connectionTask).references(DDC_CONNECTIONTASK.name()).map(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).add();
+            table.foreignKey("FK_DDC_COMTASKEXEC_DIALECT").on(protocolDialectConfigurationProperties).references(DeviceConfigurationService.COMPONENTNAME, "DTC_DIALECTCONFIGPROPERTIES").map(ComTaskExecutionFields.PROTOCOLDIALECTCONFIGURATIONPROPERTIES.fieldName()).add();
+            table.foreignKey("FK_DDC_COMTASKEXEC_DEVICE").on(device).references(DDC_DEVICE.name()).map(ComTaskExecutionFields.DEVICE.fieldName()).add();
+            table.primaryKey("PK_DDC_COMTASKEXEC").on(id).add();
         }
     }
     ;

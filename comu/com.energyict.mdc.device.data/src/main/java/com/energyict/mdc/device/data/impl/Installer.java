@@ -16,6 +16,7 @@ import com.energyict.mdc.device.data.DeviceDataService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -26,7 +27,6 @@ import java.util.logging.Logger;
  */
 public class Installer {
 
-    private final Logger logger = Logger.getLogger(Installer.class.getName());
     public static final String MESSAGING_NAME = "COMSCHEDULE_RECALCULATOR";
     private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
 
@@ -34,6 +34,7 @@ public class Installer {
     private final EventService eventService;
     private final Thesaurus thesaurus;
     private final MessageService messageService;
+    private final Logger logger = Logger.getLogger(Installer.class.getName());
 
     public Installer(DataModel dataModel, EventService eventService, Thesaurus thesaurus, MessageService messageService) {
         super();
@@ -49,7 +50,7 @@ public class Installer {
                 this.dataModel.install(executeDdl, true);
             }
         } catch (Exception e) {
-            this.logger.severe(e.getMessage());
+            this.logger.log(Level.SEVERE, e.getMessage(), e);
         }
         this.createEventTypes();
         this.createTranslations();
@@ -96,7 +97,7 @@ public class Installer {
             try {
                 eventType.install(this.eventService);
             } catch (Exception e) {
-                this.logger.severe(e.getMessage());
+                this.logger.log(Level.SEVERE, e.getMessage(), e);
             }
         }
     }
