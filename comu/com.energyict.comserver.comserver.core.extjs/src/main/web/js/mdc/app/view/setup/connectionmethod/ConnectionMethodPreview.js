@@ -5,11 +5,9 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
     itemId: 'connectionMethodPreview',
     requires: [
         'Mdc.model.ConnectionMethod',
-        'Mdc.view.setup.property.PropertyView'
+        'Mdc.view.setup.property.PropertyView',
+        'Mdc.view.setup.connectionmethod.ConnectionMethodActionMenu'
     ],
-//    controllers: [
-//        'Mdc.controller.setup.DeviceTypes'
-//    ],
     layout: {
         type: 'card',
         align: 'stretch'
@@ -20,27 +18,12 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
     tools: [
         {
             xtype: 'button',
-            icon: '../mdc/resources/images/actionsDetail.png',
-            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-            menu: [
-                {
-                    text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                    itemId: 'editConnectionMethod',
-                    action: 'editConnectionMethod'
-                },
-                {
-                    text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-                    itemId: 'deleteConnectionMethod',
-                    action: 'deleteConnectionMethod'
-                },
-                {
-                    text: 'default',
-                    itemId: 'toggleDefault',
-                    action: 'toggleDefault'
-                }
-            ]
+            text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
+            iconCls: 'x-uni-action-iconD',
+            menu: {
+                xtype: 'connection-method-action-menu'
+            }
         }
-
     ],
 
     items: [

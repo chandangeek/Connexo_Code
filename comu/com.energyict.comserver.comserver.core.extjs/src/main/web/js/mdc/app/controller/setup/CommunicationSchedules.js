@@ -100,6 +100,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
         if (id === undefined) {
             this.record = Ext.create(Mdc.model.CommunicationSchedule);
             widget.down('#communicationScheduleEditCreateTitle').update('<h1>' + Uni.I18n.translate('communicationschedule.addCommunicationSchedule', 'MDC', 'Add communication schedule') + '</h1>');
+            me.initComTaskStore();
         } else {
             Ext.ModelManager.getModel('Mdc.model.CommunicationSchedule').load(id, {
                 success: function (communicationSchedule) {
@@ -109,16 +110,17 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
                     widget.down('#communicationScheduleEditForm').loadRecord(communicationSchedule);
                     me.getComTaskPanel().getLayout().setActiveItem(1);
                     widget.down('#communicationScheduleEditForm').down('#comTasksOnForm').reconfigure(communicationSchedule.comTaskUsages());
+                    me.initComTaskStore(communicationSchedule.comTaskUsages());
                 },
                 failure: function () {
 
                 }
             });
         }
-        me.initComTaskStore();
+
     },
 
-    initComTaskStore: function () {
+    initComTaskStore: function (toRemove) {
         this.comTaskStore = Ext.data.StoreManager.lookup('CommunicationTasks');
         if (this.record.get('id') === null) {
             this.comTaskStore.setProxy({
@@ -148,7 +150,9 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
         }
         this.comTaskStore.load({
             callback: function (records) {
-
+                if(toRemove != undefined){
+                    this.comTaskStore.remove(toRemove);
+                }
 
             }
         });
