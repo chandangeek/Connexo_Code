@@ -1166,6 +1166,26 @@ public class DeviceTypeResourceTest extends JerseyTest {
     }
 
     @Test
+    public void testCreateRegisterConfigWithLinkToNonExistingRegisterMapping() throws Exception {
+        long deviceType_id=41L;
+        long deviceConfig_id=51L;
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(deviceConfiguration.getId()).thenReturn(deviceConfig_id);
+        RegisterSpec registerSpec = mock(RegisterSpec.class);
+        when(registerSpec.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(deviceConfiguration.getRegisterSpecs()).thenReturn(Arrays.asList(registerSpec));
+        DeviceType deviceType = mock(DeviceType.class);
+        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
+        when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(deviceType);
+        RegisterConfigInfo registerConfigInfo = new RegisterConfigInfo();
+        when(masterDataService.findRegisterMapping(12345)).thenReturn(Optional.<RegisterMapping>absent());
+        registerConfigInfo.registerMapping=12345L;
+        Entity<RegisterConfigInfo> json = Entity.json(registerConfigInfo);
+        Response response = target("/devicetypes/41/deviceconfigurations/51/registerconfigurations/").request().post(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
     public void testConstraintViolationResultsInProperJson() throws Exception {
         // Backend has RM 101 and 102, UI sets for 101: delete 102
         long RM_ID_1 = 101L;

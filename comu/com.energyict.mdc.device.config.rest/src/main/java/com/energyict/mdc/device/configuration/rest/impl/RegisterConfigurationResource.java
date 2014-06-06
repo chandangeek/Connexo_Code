@@ -6,8 +6,10 @@ import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
+import com.google.common.base.Optional;
 import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -25,11 +27,13 @@ import javax.ws.rs.core.Response;
 public class RegisterConfigurationResource {
 
     private final ResourceHelper resourceHelper;
+    private final MasterDataService masterDataService;
 
     @Inject
-    public RegisterConfigurationResource(ResourceHelper resourceHelper) {
+    public RegisterConfigurationResource(ResourceHelper resourceHelper, MasterDataService masterDataService) {
         super();
         this.resourceHelper = resourceHelper;
+        this.masterDataService = masterDataService;
     }
 
     @GET
@@ -71,7 +75,7 @@ public class RegisterConfigurationResource {
     @Produces(MediaType.APPLICATION_JSON)
     public RegisterConfigInfo updateRegisterConfig(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @PathParam("registerConfigId") long registerTypeId, RegisterConfigInfo registerConfigInfo) {
         RegisterSpec registerSpec = findRegisterSpecOrThrowException(deviceTypeId, deviceConfigurationId, registerTypeId);
-        RegisterMapping registerMapping = registerConfigInfo.registerMapping ==null?null:findRegisterMappingOrThrowException(registerConfigInfo.registerMapping);
+        RegisterMapping registerMapping = registerConfigInfo.registerMapping ==null?null:resourceHelper.findRegisterMappingByIdOrThrowException(registerConfigInfo.registerMapping);
         registerConfigInfo.writeTo(registerSpec, registerMapping);
         registerSpec.save();
         return RegisterConfigInfo.from(findRegisterSpecOrThrowException(deviceTypeId, deviceConfigurationId, registerTypeId));
@@ -86,12 +90,12 @@ public class RegisterConfigurationResource {
         return Response.ok().build();
     }
 
-    private RegisterMapping findRegisterMappingOrThrowException(long registerTypeId) {
-        RegisterMapping registerMapping = resourceHelper.findRegisterMappingByIdOrThrowException(registerTypeId);
-        if (registerMapping==null) {
-            throw new WebApplicationException("No register type with id " + registerTypeId, Response.status(Response.Status.NOT_FOUND).entity("No register type with id " + registerTypeId).build());
+    private RegisterMapping findRegisterMappingOrThrowException(Long registerTypeId) {
+        Optional<RegisterMapping> registerMapping = masterDataService.findRegisterMapping(registerTypeId);
+        if (!registerMapping.isPresent()) {
+            throw new WebApplicationException("No register type with id " + registerTypeId, Response.status(Response.Status.BAD_REQUEST).entity("No register type with id " + registerTypeId).build());
         }
-        return registerMapping;
+        return registerMapping.get();
     }
 
     private RegisterSpec findRegisterSpecOrThrowException(long deviceTypeId, long deviceConfigId, long registerId) {
