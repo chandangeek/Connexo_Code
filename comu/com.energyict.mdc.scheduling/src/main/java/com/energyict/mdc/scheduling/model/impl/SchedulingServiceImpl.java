@@ -42,13 +42,14 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService 
 
     @Inject
     public SchedulingServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, TaskService tasksService) {
+        this();
         setOrmService(ormService);
         setEventService(eventService);
         setNlsService(nlsService);
         setTasksService(tasksService);
         activate();
         if (!this.dataModel.isInstalled()) {
-            this.install(true);
+            this.install();
         }
     }
 
@@ -83,11 +84,7 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService 
 
     @Override
     public void install() {
-        new Installer(dataModel, eventService, thesaurus).install(true);
-    }
-
-    private void install(boolean exeuteDdl) {
-        new Installer(this.dataModel, this.eventService, this.thesaurus).install(exeuteDdl);
+        new Installer(this.dataModel, this.eventService, this.thesaurus).install(true);
     }
 
     private Module getModule() {
