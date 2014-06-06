@@ -3,6 +3,7 @@ package com.energyict.mdc.engine;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 
+import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.google.common.base.Optional;
 
 import java.io.Serializable;
@@ -18,7 +19,7 @@ public interface EngineService {
 
     public static String COMPONENTNAME = "CES";
 
-    public DeviceCache newDeviceCache(Device device, Serializable simpleCacheObject);
+    public DeviceCache newDeviceCache(Device device, DeviceProtocolCache deviceProtocolCache);
 
     public Optional<DeviceCache> findDeviceCacheByDevice(Device device);
 

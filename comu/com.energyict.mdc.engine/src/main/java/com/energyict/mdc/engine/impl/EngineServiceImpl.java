@@ -22,6 +22,7 @@ import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.history.TaskHistoryService;
@@ -37,7 +38,6 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.io.Serializable;
 
 /**
  * Copyrights EnergyICT
@@ -117,8 +117,8 @@ public class EngineServiceImpl implements EngineService, InstallService {
     }
 
     @Override
-    public DeviceCache newDeviceCache(Device device, Serializable simpleCacheObject) {
-        return dataModel.getInstance(DeviceCacheImpl.class).initialize(device, simpleCacheObject);
+    public DeviceCache newDeviceCache(Device device, DeviceProtocolCache deviceProtocolCache) {
+        return dataModel.getInstance(DeviceCacheImpl.class).initialize(device, deviceProtocolCache);
     }
 
     @Reference
@@ -225,6 +225,7 @@ public class EngineServiceImpl implements EngineService, InstallService {
                 bind(DataModel.class).toInstance(dataModel);
                 bind(EventService.class).toInstance(eventService);
                 bind(Thesaurus.class).toInstance(thesaurus);
+                bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
             }
         };
     }

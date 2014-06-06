@@ -10,15 +10,24 @@ import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.exceptions.SerializationException;
+import com.energyict.mdc.protocol.api.DeviceProtocolCache;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.inject.Inject;
+import org.osgi.service.log.LogService;
 
-import java.io.ByteArrayInputStream;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Functionality to handle the {@link DeviceCache} object
@@ -27,26 +36,34 @@ import java.util.Date;
  * Date: 31/08/12
  * Time: 16:32
  */
-public class  DeviceCacheImpl implements DeviceCache {
+public class DeviceCacheImpl implements DeviceCache {
+
+    private static final String REGEX = ":::";
+    private static final int NUMBER_OF_ELEMENTS_IN_JSON_CACHE = 2;
+    private static final int CLASS_NAME_INDEX = 0;
+    private static final int JSON_PAYLOAD_INDEX = 1;
 
     private final Thesaurus thesaurus;
     private final DataModel dataModel;
     private final Clock clock;
+    private final ProtocolPluggableService protocolPluggableService;
     private byte[] simpleCache;
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DEVICE_IS_REQUIRED_FOR_CACHE + "}")
     private Reference<Device> device = ValueReference.absent();
+
     private Date modificationDate;
 
     @Inject
-    public DeviceCacheImpl(Thesaurus thesaurus, DataModel dataModel, Clock clock) {
+    public DeviceCacheImpl(Thesaurus thesaurus, DataModel dataModel, Clock clock, ProtocolPluggableService protocolPluggableService) {
         this.thesaurus = thesaurus;
         this.dataModel = dataModel;
         this.clock = clock;
+        this.protocolPluggableService = protocolPluggableService;
     }
 
-    public DeviceCacheImpl initialize(Device device, Serializable simpleCacheObject) {
+    public DeviceCacheImpl initialize(Device device, DeviceProtocolCache deviceProtocolCache) {
         this.device.set(device);
-        this.simpleCache = serialize(simpleCacheObject);
+        this.simpleCache = marshal(deviceProtocolCache);
         return this;
     }
 
@@ -74,33 +91,31 @@ public class  DeviceCacheImpl implements DeviceCache {
     }
 
     @Override
-    public Serializable getSimpleCacheObject() {
-        return deSerialize(this.simpleCache);
+    public DeviceProtocolCache getSimpleCacheObject() {
+        return unMarshal(this.simpleCache);
     }
 
     @Override
-    public void setCacheObject(Serializable cacheObject) {
-        this.simpleCache = serialize(cacheObject);
+    public void setCacheObject(DeviceProtocolCache deviceProtocolCache) {
+        this.simpleCache = marshal(deviceProtocolCache);
     }
 
-    public Serializable deSerialize(byte[] bytes) {
-        try (ByteArrayInputStream b = new ByteArrayInputStream(bytes)) {
-            try (ObjectInputStream objectInputStream = new ObjectInputStream(b)){
-                return (Serializable) objectInputStream.readObject();
+    public DeviceProtocolCache unMarshal(byte[] bytes) {
+        DeviceProtocolCache deviceProtocolCache = null;
+        if(bytes != null){
+            String completeCache = new String(bytes);
+            String[] cacheElements = completeCache.split(REGEX);
+            if(cacheElements.length == NUMBER_OF_ELEMENTS_IN_JSON_CACHE){
+                deviceProtocolCache = this.protocolPluggableService.unMarshalDeviceProtocolCache(
+                        cacheElements[CLASS_NAME_INDEX],
+                        cacheElements[JSON_PAYLOAD_INDEX]);
             }
-        } catch (IOException | ClassNotFoundException e) {
-            throw SerializationException.whenDeSerializingCacheObject(thesaurus, bytes, e.getMessage());
         }
+        return deviceProtocolCache;
     }
 
-    public byte[] serialize(Serializable obj) {
-        try (ByteArrayOutputStream b = new ByteArrayOutputStream()) {
-            try (ObjectOutputStream o = new ObjectOutputStream(b)) {
-                o.writeObject(obj);
-                return b.toByteArray();
-            }
-        } catch (IOException e) {
-            throw SerializationException.whenSerializingCacheObject(thesaurus, obj, e.getMessage());
-        }
+    public byte[] marshal(DeviceProtocolCache deviceProtocolCache) {
+        String jsonCache = this.protocolPluggableService.marshalDeviceProtocolCache(deviceProtocolCache);
+        return (deviceProtocolCache.getClass().getName()+ REGEX +jsonCache).getBytes();
     }
 }
