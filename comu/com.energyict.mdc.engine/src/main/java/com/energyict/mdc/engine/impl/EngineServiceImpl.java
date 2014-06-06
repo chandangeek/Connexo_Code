@@ -99,18 +99,6 @@ public class EngineServiceImpl implements EngineService, InstallService {
         activate();
     }
 
-    @Activate
-    public void activate() {
-        this.dataModel.register(this.getModule());
-        ServiceProvider serviceProvider = new ServiceProviderImpl();
-        ServiceProvider.instance.set(serviceProvider);
-    }
-
-    @Deactivate
-    public void deactivate() {
-        ServiceProvider.instance.set(null);
-    }
-
     @Override
     public Optional<DeviceCache> findDeviceCacheByDevice(Device device) {
         return dataModel.mapper(DeviceCache.class).getUnique("device", device);
@@ -228,6 +216,18 @@ public class EngineServiceImpl implements EngineService, InstallService {
                 bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
             }
         };
+    }
+
+    @Activate
+    public void activate() {
+        this.dataModel.register(this.getModule());
+        ServiceProvider serviceProvider = new ServiceProviderImpl();
+        ServiceProvider.instance.set(serviceProvider);
+    }
+
+    @Deactivate
+    public void deactivate() {
+        ServiceProvider.instance.set(null);
     }
 
     @Override
