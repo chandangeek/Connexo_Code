@@ -52,7 +52,12 @@ Ext.define('Isu.model.CreationRule', {
             name: 'dueIn',
             type: 'auto'
         },
-        {name: 'issueType_name',
+        {
+            name: 'title',
+            mapping: 'name'
+        },
+        {
+            name: 'issueType_name',
             mapping: 'issueType.name'
         },
         {
