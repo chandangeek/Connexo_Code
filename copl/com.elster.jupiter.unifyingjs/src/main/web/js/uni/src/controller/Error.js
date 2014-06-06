@@ -94,13 +94,27 @@ Ext.define('Uni.controller.Error', {
 
         switch (response.status) {
             case 400: // Bad request.
-                // Do nothing.
+                // Do nothing, handled by each specific failure callback.
                 break;
+            case 500: // Internal server error.
+                title = Uni.I18n.translate(
+                    'error.internalServerError',
+                    'UNI',
+                    'Internal server error'
+                );
+                message = Uni.I18n.translate(
+                    'error.internalServerErrorMessage',
+                    'UNI',
+                    'Please contact your system administrator.'
+                );
+            // Fallthrough.
             case 401: // Unauthorized.
             // Fallthrough.
             case 403: // Forbidden.
             // Fallthrough.
             case 404: // Not found.
+            // Fallthrough.
+            case 418: // I'm a teapot.
             // Fallthrough.
             default:
                 this.showError(title, message);
@@ -133,7 +147,6 @@ Ext.define('Uni.controller.Error', {
                     action: 'close',
                     name: 'close',
                     ui: 'action',
-                    margin: '0 0 0 44px',
                     handler: function () {
                         box.close();
                     }
