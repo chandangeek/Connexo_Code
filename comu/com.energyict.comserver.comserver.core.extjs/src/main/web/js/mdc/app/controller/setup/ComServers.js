@@ -173,6 +173,7 @@ Ext.define('Mdc.controller.setup.ComServers', {
         if (id) {
             Ext.ModelManager.getModel('Mdc.model.ComServer').load(id, {
                 success: function (comserver) {
+                    me.getApplication().fireEvent('loadComServer', comserver);
                     me.comserver = comserver;
                     if (me.comserver.getData().comServerType === 'Remote') {
                         var view = Ext.widget('remoteComServerEdit');

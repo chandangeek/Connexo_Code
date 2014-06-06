@@ -394,6 +394,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
                             method: 'GET',
                             success: function (response) {
                                 var record = Ext.JSON.decode(response.responseText).data[0];
+                                me.getApplication().fireEvent('loadLoadProfile', record);
                                 me.deviceTypeName = deviceType.get('name');
                                 me.deviceConfigName = deviceConfig.get('name');
                                 me.getApplication().fireEvent('changecontentevent', widget);
