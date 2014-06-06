@@ -484,12 +484,6 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showCommunicationSchedulesEditView'
                         }
                     }
-                },
-                search: {
-                    title: 'Search',
-                    route: 'searchitems',
-                    controller: 'Mdc.controller.setup.SearchItems',
-                    action: 'showSearchItems'
                 }
             }
         },
@@ -498,6 +492,12 @@ Ext.define('Mdc.controller.history.Setup', {
             route: 'devices/{id}',
             controller: 'Mdc.controller.setup.Devices',
             action: 'showDeviceDetailsView'
+        },
+        search: {
+            title: 'Search',
+            route: 'searchitems',
+            controller: 'Mdc.controller.setup.SearchItems',
+            action: 'showSearchItems'
         }
 
     },
