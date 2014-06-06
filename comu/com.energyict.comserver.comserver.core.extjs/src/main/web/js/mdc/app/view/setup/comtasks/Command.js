@@ -33,7 +33,7 @@ Ext.define('Mdc.view.setup.comtasks.Command', {
         {
             xtype: 'button',
             text: 'Remove',
-            ui: 'delete',
+            ui: 'remove',
             action: 'removeCommand',
             hidden: true
         },

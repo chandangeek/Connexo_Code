@@ -46,8 +46,8 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                 selectionchange: this.previewRegisterType
             },
             '#registertypegrid actioncolumn': {
-                editItem: this.editRegisterTypeHistory,
-                deleteItem: this.deleteRegisterType,
+                editRegisterType: this.editRegisterTypeHistory,
+                deleteRegisterType: this.deleteRegisterType,
                 showReadingTypeInfo: this.showReadingType
             },
             '#registerTypeSetup button[action = createRegisterType]': {
@@ -67,9 +67,6 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             },
             '#createEditButton[action=editRegisterType]': {
                 click: this.editRegisterType
-            },
-            '#registerTypeDetail menuitem[action=RegisterType]': {
-                click: this.deleteRegisterTypeFromDetails
             },
             '#registerTypeDetail menuitem[action=editRegisterType]': {
                 click: this.editRegisterTypeFromDetails
@@ -120,6 +117,11 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                 widget.down('#editMrIdField').setValue(me.getReadingTypesStore().first().get('mrid'));
             }
         }
+        var obisCode = widget.down('#editObisCodeField').getValue();
+        var measurementUnit = widget.down('#measurementUnitComboBox').getValue();
+        if (obisCode !== '' && measurementUnit !== null) {
+            widget.down('#editMrIdField').enable();
+        }
     },
 
     changeReadingType: function (btn, text, opt) {
@@ -144,6 +146,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         var widget = Ext.widget('registerTypeDetail');
         Ext.ModelManager.getModel('Mdc.model.RegisterType').load(registerType, {
             success: function (registerType) {
+                me.getApplication().fireEvent('loadRegisterType', registerType);
                 var registerMapping = registerType.get('id');
                 widget.down('form').loadRecord(registerType);
                 me.getDetailMrId().setValue(registerType.getReadingType().get('mrid'));
@@ -167,17 +170,15 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
 
     deleteRegisterType: function (registerTypeToDelete) {
         var me = this;
-        Ext.MessageBox.show({
+
+        Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('registerType.deleteRegisterType', 'MDC', 'The register type will no longer be available.'),
             title: Uni.I18n.translate('general.delete', 'MDC', 'Delete') + ' ' + registerTypeToDelete.get('name') + '?',
             config: {
                 registerTypeToDelete: registerTypeToDelete
             },
-            buttons: Ext.MessageBox.YESNO,
-            fn: me.deleteRegisterTypeInDatabase,
-            icon: Ext.MessageBox.WARNING
+            fn: me.deleteRegisterTypeInDatabase
         });
-
     },
 
     deleteRegisterTypeFromPreview: function (registerTypeToDelete) {
@@ -185,7 +186,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
     },
 
     deleteRegisterTypeInDatabase: function (btn, text, opt) {
-        if (btn === 'yes') {
+        if (btn === 'confirm') {
             var registerTypeToDelete = opt.config.registerTypeToDelete;
             registerTypeToDelete.destroy({
                 callback: function () {
@@ -193,21 +194,6 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                 }
             });
         }
-    },
-
-    deleteRegisterTypeFromDetails: function () {
-        var me = this;
-        var registerTypeToDelete = this.getRegisterTypeDetailForm().getRecord();
-        Ext.MessageBox.show({
-            msg: Uni.I18n.translate('registerType.deleteRegisterType', 'MDC', 'The register type will no longer be available.'),
-            title: Uni.I18n.translate('general.delete', 'MDC', 'Delete') + ' ' + registerTypeToDelete.get('name') + '?',
-            config: {
-                registerTypeToDelete: registerTypeToDelete
-            },
-            buttons: Ext.MessageBox.YESNO,
-            fn: me.deleteRegisterTypeFromDetailsInDatabase,
-            icon: Ext.MessageBox.WARNING
-        });
     },
 
     showRegisterTypeEditView: function (registerMapping) {
@@ -224,6 +210,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         widget.setLoading(true);
         Ext.ModelManager.getModel('Mdc.model.RegisterType').load(registerMapping, {
             success: function (registerType) {
+                me.getApplication().fireEvent('loadRegisterType', registerType);
                 timeOfUseStore.load({
                     callback: function (store) {
                         unitOfMeasureStore.load({
@@ -236,8 +223,9 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                                     widget.down('#measurementUnitComboBox').disable();
                                     widget.down('#timeOfUseComboBox').disable();
                                     widget.down('#editMrIdField').disable();
-                                    widget.down('#editRegisterTypeNameField').disable();
+                                   // widget.down('#editRegisterTypeNameField').disable();
                                     widget.down('#registerTypeEditCreateInformation').update(Uni.I18n.translate('registertype.warningLinkedTodeviceType', 'MDC', 'The register type has been added to a device type.  Only the name is editable.'));
+                                    widget.down('#registerTypeEditCreateInformation').show();
                                 } else {
                                     widget.down('#editMrIdField').enable();
 
@@ -366,8 +354,6 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                 {property: 'unit', value: measurementUnit}
             ]);
         }
-        widget.down('#editMrIdField').setDisabled(false);
-        widget.down('#editMrIdField').setReadOnly(false);
     }
 
 

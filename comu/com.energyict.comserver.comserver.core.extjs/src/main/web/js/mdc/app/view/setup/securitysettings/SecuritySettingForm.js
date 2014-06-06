@@ -22,7 +22,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingForm', {
                     xtype: 'form',
                     width: '50%',
                     defaults: {
-                        labelWidth: 150,
+                        labelWidth: 250,
                         validateOnChange: false,
                         validateOnBlur: false,
                         anchor: '100%'
@@ -30,8 +30,9 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingForm', {
                     items: [
                         {
                             name: 'errors',
+                            ui: 'form-error-framed',
                             layout: 'hbox',
-                            margin: '0 0 20 100',
+                            margin: '0 0 10 0',
                             hidden: true,
                             defaults: {
                                 xtype: 'container'
@@ -48,7 +49,8 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingForm', {
                         },
                         {
                             xtype: 'combobox',
-                            labelSeparator: ' ',
+                            required: true,
+                            editable: false,
                             allowBlank: false,
                             fieldLabel: 'Authentication level',
                             emptyText: 'Select authentication level',
@@ -59,7 +61,8 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingForm', {
                         },
                         {
                             xtype: 'combobox',
-                            labelSeparator: ' ',
+                            required: true,
+                            editable: false,
                             allowBlank: false,
                             fieldLabel: 'Encryption level',
                             emptyText: 'Select encryption level',

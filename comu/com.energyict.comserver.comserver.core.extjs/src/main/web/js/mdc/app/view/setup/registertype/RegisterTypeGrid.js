@@ -9,7 +9,8 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Mdc.store.RegisterTypes'
+        'Mdc.store.RegisterTypes',
+        'Mdc.view.setup.registertype.RegisterTypeActionMenu'
     ],
     store: 'RegisterTypes',
     withPaging: true,
@@ -55,17 +56,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
             this.columns.push(
                 {
                     xtype: 'uni-actioncolumn',
-                    items: [
-                        {
-                            text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                            action: 'editItem'
-                        },
-                        {
-                            text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-                            action: 'deleteItem'
-                        }
-
-                    ]
+                    items: 'Mdc.view.setup.registertype.RegisterTypeActionMenu'
                 }
             );
         }

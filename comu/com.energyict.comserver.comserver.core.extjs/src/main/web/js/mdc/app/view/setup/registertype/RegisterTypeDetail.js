@@ -33,22 +33,11 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeDetail', {
                     },
                     '->',
                     {
-                        // TODO Replace this icon below with an 'actions' ui.
-                        icon: '../mdc/resources/images/actionsDetail.png',
-                        text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                        xtype: 'button',
+                        text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
+                        iconCls: 'x-uni-action-iconA',
                         menu: {
-                            items: [
-                                {
-                                    text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                                    itemId: 'editRegisterType',
-                                    action: 'editRegisterType'
-                                },
-                                {
-                                    text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-                                    itemId: 'deleteRegisterType',
-                                    action: 'deleteRegisterType'
-                                }
-                            ]
+                            xtype: 'register-type-action-menu'
                         }
                     }
                 ],

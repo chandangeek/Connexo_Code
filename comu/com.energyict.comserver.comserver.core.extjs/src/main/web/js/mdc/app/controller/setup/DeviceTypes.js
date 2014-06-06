@@ -51,8 +51,8 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 selectionchange: this.previewDeviceType
             },
             '#devicetypegrid actioncolumn': {
-                editItem: this.editDeviceTypeHistory,
-                deleteItem: this.deleteDeviceType
+                editDeviceType: this.editDeviceTypeHistory,
+                deleteDeviceType: this.deleteDeviceType
             },
             '#deviceTypeSetup button[action = createDeviceType]': {
                 click: this.createDeviceTypeHistory
@@ -145,42 +145,31 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     },
 
     editDeviceTypeHistoryFromPreview: function () {
-           location.href = '#/administration/devicetypes/' + this.getDeviceTypeGrid().getSelectionModel().getSelection()[0].get("id") + '/edit';
-       },
+        location.href = '#/administration/devicetypes/' + this.getDeviceTypeGrid().getSelectionModel().getSelection()[0].get("id") + '/edit';
+    },
 
     deleteDeviceType: function (deviceTypeToDelete) {
-        var me = this;
-        if (deviceTypeToDelete.get('deviceConfigurationCount') === 0) {
-            Ext.MessageBox.show({
-                msg: Uni.I18n.translate('deviceType.deleteDeviceType', 'MDC', 'The device type will no longer be available.'),
-                title: Uni.I18n.translate('general.delete', 'MDC', 'Delete') + ' ' + deviceTypeToDelete.get('name') + '?',
-                config: {
-                    deviceTypeToDelete: deviceTypeToDelete,
-                    me: me
-                },
-                buttons: Ext.MessageBox.YESNO,
-                fn: me.removeDeviceType,
-                icon: Ext.MessageBox.WARNING
-            });
-        } else {
-            Ext.MessageBox.show({
-                msg: Uni.I18n.translate('deviceType.deleteDeviceTypeWithConfig', 'MDC', 'The device type and its configurations will no longer be available.'),
-                title: Uni.I18n.translate('general.delete', 'MDC', 'Delete') + ' ' + deviceTypeToDelete.get('name') + '?',
-                config: {
-                    deviceTypeToDelete: deviceTypeToDelete,
-                    me: me
-                },
-                buttons: Ext.MessageBox.YESNO,
-                fn: me.removeDeviceType,
-                icon: Ext.MessageBox.WARNING
-            });
+        var me = this,
+            msg = Uni.I18n.translate('deviceType.deleteDeviceTypeWithConfig', 'MDC', 'The device type and its configurations will no longer be available.');
 
+        if (deviceTypeToDelete.get('deviceConfigurationCount') === 0) {
+            msg = Uni.I18n.translate('deviceType.deleteDeviceType', 'MDC', 'The device type will no longer be available.');
         }
+
+        Ext.create('Uni.view.window.Confirmation').show({
+            msg: msg,
+            title: Uni.I18n.translate('general.delete', 'MDC', 'Delete') + ' ' + deviceTypeToDelete.get('name') + '?',
+            config: {
+                deviceTypeToDelete: deviceTypeToDelete,
+                me: me
+            },
+            fn: me.removeDeviceType
+        });
     },
 
     deleteDeviceTypeFromPreview: function () {
-            this.deleteDeviceType(this.getDeviceTypeGrid().getSelectionModel().getSelection()[0]);
-        },
+        this.deleteDeviceType(this.getDeviceTypeGrid().getSelectionModel().getSelection()[0]);
+    },
 
     deleteDeviceTypeFromDetails: function () {
         var deviceTypeToDelete = this.getDeviceTypeDetailForm().getRecord();
@@ -201,13 +190,14 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
 
         var when = new Uni.util.When();
         when.when([
-                {action: Ext.ModelManager.getModel('Mdc.model.DeviceType').load, context: Ext.ModelManager.getModel('Mdc.model.DeviceType'), args: [deviceTypeId]},
-                {action: protocolStore.load, context: protocolStore, simple: true}
+            {action: Ext.ModelManager.getModel('Mdc.model.DeviceType').load, context: Ext.ModelManager.getModel('Mdc.model.DeviceType'), args: [deviceTypeId]},
+            {action: protocolStore.load, context: protocolStore, simple: true}
 
-            ]).then(
+        ]).then(
             {
                 success: function (results) {
                     var deviceType = results[0][0];
+                    me.getApplication().fireEvent('loadDeviceType', deviceType);
                     me.getDeviceTypeEditForm().loadRecord(deviceType);
                     me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + deviceType.get('name') + '"');
                     widget.setLoading(false);
@@ -248,7 +238,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         widget.setLoading(true);
         protocolStore.load({
             callback: function (store) {
-                me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.add', 'MDC', 'Add') + ' ' + 'device type' );
+                me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.add', 'MDC', 'Add') + ' ' + 'device type');
                 widget.setLoading(false);
             }
         });
@@ -309,7 +299,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     },
 
     removeDeviceType: function (btn, text, opt) {
-        if (btn === 'yes') {
+        if (btn === 'confirm') {
             var deviceTypeToDelete = opt.config.deviceTypeToDelete;
 
             deviceTypeToDelete.destroy({
@@ -336,6 +326,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                     widget.setLoading(true);
                     model.load(deviceTypeId, {
                         success: function (deviceType) {
+                            me.getApplication().fireEvent('loadDeviceType', deviceType);
                             me.getDeviceTypeLogbookPanel().setTitle('<b>' + deviceType.get('name') + '</b>' + ' > ' + 'Logbook types');
                             widget.setLoading(false);
                         }
@@ -376,7 +367,8 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                     widget.setLoading(true);
                     model.load(deviceTypeId, {
                         success: function (deviceType) {
-                            me.getAddLogbookPanel().setTitle('<b>' + deviceType.get('name') + '</b>' + ' > ' + 'Add logbook type');
+                            me.getApplication().fireEvent('loadDeviceType', deviceType);
+                            me.getAddLogbookPanel().setTitle(Uni.I18n.translate('general.add', 'MDC', 'Add') + ' ' + 'logbook type');
                             widget.setLoading(false);
                         }
                     });

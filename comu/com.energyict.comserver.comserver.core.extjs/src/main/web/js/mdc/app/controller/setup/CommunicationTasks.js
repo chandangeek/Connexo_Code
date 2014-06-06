@@ -193,10 +193,12 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
 
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
+                me.getApplication().fireEvent('loadDeviceType', deviceType);
                 var model = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
                 model.getProxy().setExtraParam('deviceType', deviceTypeId);
                 model.load(deviceConfigurationId, {
                     success: function (deviceConfig) {
+                        me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
                         me.getApplication().fireEvent('changecontentevent', widget);
                     }
                 });
@@ -224,10 +226,12 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         widget.setLoading(true);
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
+                me.getApplication().fireEvent('loadDeviceType', deviceType);
                 var model = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
                 model.getProxy().setExtraParam('deviceType', deviceTypeId);
                 model.load(deviceConfigurationId, {
                     success: function (deviceConfig) {
+                        me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
                         comTasksStore.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigurationId, available: true});
                         comTasksStore.load({
                             callback: function(){
@@ -307,10 +311,12 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                 widget.setLoading(true);
                 Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
                     success: function (deviceType) {
+                        me.getApplication().fireEvent('loadDeviceType', deviceType);
                         var model = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
                         model.getProxy().setExtraParam('deviceType', deviceTypeId);
                         model.load(deviceConfigurationId, {
                             success: function (deviceConfig) {
+                                me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
                                 securityPropertySetsStore.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigurationId});
                                 securityPropertySetsStore.load({
                                     callback: function(){
@@ -367,7 +373,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                     text: 'Remove',
                     action: 'remove',
                     name: 'remove',
-                    ui: 'delete',
+                    ui: 'remove',
                     handler: function () {
                         confirmMessage.close();
                         me.removeCommunicationTaskRecord({
@@ -432,7 +438,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                             {
                                 text: 'Retry',
                                 action: 'retry',
-                                ui: 'delete',
+                                ui: 'remove',
                                 handler: function () {
                                     errorMessage.close();
                                     me.activateCommunicationTask();
@@ -521,7 +527,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                                 {
                                     text: 'Retry',
                                     action: 'retry',
-                                    ui: 'delete',
+                                    ui: 'remove',
                                     handler: function () {
                                         errorMessage.close();
                                         me.removeCommunicationTaskRecord({
@@ -584,7 +590,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                             {
                                 text: 'Retry',
                                 action: 'retry',
-                                ui: 'delete',
+                                ui: 'remove',
                                 handler: function () {
                                     errorMessage.close();
                                     me[cfg.operation + 'CommunicationTask']();

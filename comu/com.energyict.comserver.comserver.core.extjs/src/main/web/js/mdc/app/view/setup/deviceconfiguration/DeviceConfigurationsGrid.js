@@ -7,33 +7,12 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsGrid', {
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Mdc.store.DeviceConfigurations'
+        'Mdc.store.DeviceConfigurations',
+        'Mdc.view.setup.deviceconfiguration.DeviceConfigurationActionMenu'
     ],
-//    controllers: [
-//        'Mdc.controller.setup.DeviceTypes'
-//    ],
-    store: 'DeviceConfigurations',
-    /*listeners: {
-     'render': function(component) {
-     // Get sure that the store is not loading and that it
-     // has at least a record on it
-     if (this.store.isLoading() || this.store.getCount() == 0) {
-     // If it is still pending attach a listener to load
-     // event for a single time to handle the selection
-     // after the store has been loaded
-     this.store.on('load', function() {
-     this.getView().getSelectionModel().select(0);
-     this.getView().focusRow(0);
-     }, this, {
-     single: true
-     });
-     } else {
-     this.getView().getSelectionModel().select(0);
-     this.getView().focusRow(0);
-     }
 
-     }
-     },  */
+    store: 'DeviceConfigurations',
+
 
 
     initComponent: function () {
@@ -58,22 +37,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsGrid', {
 
             {
                 xtype: 'uni-actioncolumn',
-                items: [
-                    {
-                        itemId: 'actionStatusMenuItem',
-                        text: "test",
-                        action: 'activateItem'
-                    },
-                    {
-                        text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                        action: 'editItem'
-                    },
-                    {
-                        text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-                        action: 'deleteItem'
-                    }
-
-                ]
+                items: 'Mdc.view.setup.deviceconfiguration.DeviceConfigurationActionMenu'
             }
         ];
 

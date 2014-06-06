@@ -38,21 +38,11 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                         },
                         '->',
                         {
-                            icon: '../mdc/resources/images/actionsDetail.png',
-                            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                            xtype: 'button',
+                            text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
+                            iconCls: 'x-uni-action-iconD',
                             menu: {
-                                items: [
-                                    {
-                                        text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                                        itemId: 'editDeviceType',
-                                        action: 'editDeviceType'
-                                    },
-                                    {
-                                        text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-                                        itemId: 'deleteDeviceType',
-                                        action: 'deleteDeviceType'
-                                    }
-                                ]
+                                xtype: 'device-type-action-menu'
                             }
                         }
                     ],

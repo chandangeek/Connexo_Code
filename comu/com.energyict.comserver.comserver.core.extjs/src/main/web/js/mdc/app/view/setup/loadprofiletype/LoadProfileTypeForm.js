@@ -62,7 +62,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeForm', {
                             name: 'obisCode',
                             maskRe: /[\d.]+/,
                             vtype: 'obisCode',
-                            afterSubTpl: 'Provide the value for the 6 attributes of the OBIS code. Separate each value with a "."',
+                            afterSubTpl: '<div class="x-form-display-field"><i>' + 'Provide the value for the 6 attributes of the OBIS code. Separate each value with a "."' + '</i></div>',
                             msgTarget: 'under'
                         },
                         {
