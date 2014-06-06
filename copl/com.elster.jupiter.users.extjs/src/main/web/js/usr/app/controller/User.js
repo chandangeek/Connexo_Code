@@ -24,7 +24,7 @@ Ext.define('Usr.controller.User', {
             'userBrowse userList': {
                 selectionchange: this.selectUser
             },
-            'userBrowse userDetails menuitem[action=editUser]': {
+            'userBrowse userDetails menuitem[action=edit]': {
                 click: this.editUserMenu
             },
             'userBrowse userList uni-actioncolumn': {
