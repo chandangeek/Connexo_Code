@@ -7,12 +7,16 @@ import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.datacollection.impl.IssueDataCollectionModule;
 import com.elster.jupiter.issue.datacollection.impl.install.InstallServiceImpl;
 import com.elster.jupiter.issue.impl.module.IssueModule;
+import com.elster.jupiter.issue.impl.service.IssueCreationServiceImpl;
+import com.elster.jupiter.issue.share.cep.IssueEvent;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueMappingService;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
@@ -27,17 +31,23 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.util.json.JsonService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import oracle.jdbc.aq.AQMessage;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.kie.api.io.KieResources;
 import org.kie.internal.KnowledgeBaseFactoryService;
 import org.kie.internal.builder.KnowledgeBuilderFactoryService;
+import org.mockito.Matchers;
+import org.mockito.internal.matchers.Matches;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+
+import java.sql.SQLException;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -120,5 +130,28 @@ public class BaseTest {
     }
     protected IssueActionService getIssueActionService(){
         return injector.getInstance(IssueActionService.class);
+    }
+    protected JsonService getJsonService() {
+        return injector.getInstance(JsonService.class);
+    }
+    protected MeteringService getMeteringService() {
+        return injector.getInstance(MeteringService.class);
+    }
+
+    protected Message getMockMessage(String payload) {
+        Message message = mock(Message.class);
+        when(message.getPayload()).thenReturn(payload.getBytes());
+        return message;
+    }
+
+    protected IssueCreationService getMockIssueCreationService() {
+        return new MockIssueCreationService();
+    }
+
+    protected class MockIssueCreationService extends IssueCreationServiceImpl {
+        @Override
+        public void dispatchCreationEvent(IssueEvent event) {
+            throw new RuntimeException("processed!");
+        }
     }
 }
