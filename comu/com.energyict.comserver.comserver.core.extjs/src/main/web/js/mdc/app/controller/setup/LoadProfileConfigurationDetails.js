@@ -381,7 +381,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                             method: 'GET',
                             success: function (response) {
                                 var loadProfileConfiguration = Ext.JSON.decode(response.responseText).data[0],
-                                    widget = Ext.widget('loadProfileConfigurationDetailForm', {loadProfileConfigurationChannelHeader: Uni.I18n.translate('loadprofiles.loadporfileaddChannelConfiguration', 'MDC', 'Add channel Configuration'), loadProfileConfigurationChannelAction: 'Add'}),
+                                    widget = Ext.widget('loadProfileConfigurationDetailForm', {loadProfileConfigurationChannelHeader: Uni.I18n.translate('loadprofiles.loadporfileaddChannelConfiguration', 'MDC', 'Add channel configuration'), loadProfileConfigurationChannelAction: 'Add'}),
                                     measurementTypeCombobox = widget.down('combobox[name=measurementType]'),
                                     unitOfMeasureCombobox = widget.down('combobox[name=unitOfMeasure]');
                                 me.availableMeasurementTypesStore.load();
@@ -426,7 +426,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                     method: 'GET',
                                     success: function (response) {
                                         var channel = Ext.JSON.decode(response.responseText).data[0],
-                                            widget = Ext.widget('loadProfileConfigurationDetailForm', {loadProfileConfigurationChannelHeader: Uni.I18n.translate('loadprofiles.loadprofileEditChannelConfiguration', 'MDC', 'Edit channel Configuration'), loadProfileConfigurationChannelAction: 'Save'}),
+                                            widget = Ext.widget('loadProfileConfigurationDetailForm', {loadProfileConfigurationChannelHeader: Uni.I18n.translate('loadprofiles.loadprofileEditChannelConfiguration', 'MDC', 'Edit channel configuration'), loadProfileConfigurationChannelAction: 'Save'}),
                                             measurementTypeCombobox = widget.down('combobox[name=measurementType]'),
                                             cimdisplayfield = widget.down('displayfield[name=cimreadingtype]'),
                                             obiscodedisplayfield = widget.down('displayfield[name=obiscode]'),
