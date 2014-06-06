@@ -117,6 +117,7 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
                             var deviceTypeName = deviceType.get('name');
                             //widget.down('#registerTypeAddTitle').html = '<h1>' + deviceTypeName + ' > ' + Uni.I18n.translate('registerMappingAdd.addRegisterTypes', 'MDC', 'Add register types') + '</h1>';
                             me.getApplication().fireEvent('changecontentevent', widget);
+                            me.getRegisterMappingGrid().getSelectionModel().doSelect(0);
                         }
                     });
                 }
@@ -191,7 +192,7 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
 
                 Ext.create('Uni.view.window.Confirmation').show({
                     msg: msg,
-                    title: Uni.I18n.translate('general.delete', 'MDC', 'Delete') + ' ' + registerMappingToDelete.get('name') + '?',
+                    title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' ' + registerMappingToDelete.get('name') + '?',
                     config: {
                         registerMappingToDelete: registerMappingToDelete,
                         deviceType: deviceType,

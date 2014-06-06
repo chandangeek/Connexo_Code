@@ -7,19 +7,6 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
         return this.edit
     },
 
-    setEdit: function (edit, returnLink) {
-        if (edit) {
-            this.edit = edit;
-            this.down('#createEditButton').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
-            this.down('#createEditButton').action = 'editDeviceConfiguration';
-        } else {
-            this.edit = edit;
-            this.down('#createEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
-            this.down('#createEditButton').action = 'createDeviceConfiguration';
-        }
-        this.down('#cancelLink').href = returnLink;
-    },
-
     initComponent: function () {
         this.content = [
             {
@@ -61,12 +48,6 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                             {
                                                 xtype: 'textfield',
                                                 name: 'name',
-                                                validator: function (text) {
-                                                    if (Ext.util.Format.trim(text).length == 0)
-                                                        return Uni.I18n.translate('deviceconfiguration.emptyName', 'MDC', 'The name of a device configuration can not be empty.')
-                                                    else
-                                                        return true;
-                                                },
                                                 msgTarget: 'under',
                                                 required: true,
                                                 fieldLabel: Uni.I18n.translate('deviceconfiguration.name', 'MDC', 'Name'),
@@ -96,7 +77,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                                 columnWidth: 0.5,
                                                 fieldLabel: ' ',
                                                 layout: {
-                                                    type: 'vbox'
+                                                    type: 'hbox'
                                                 },
                                                 hidden: true,
                                                 itemId: 'gatewayMessage',
@@ -104,7 +85,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                                     {
                                                         xtype: 'component',
                                                         cls: 'x-form-display-field',
-                                                        html: '<i>' + Uni.I18n.translate('deviceconfiguration.gatewayMessage', 'MDC', 'The device cannot act as a gateway') + '</i>'
+                                                        html: '<span style="color: grey"><i>' + Uni.I18n.translate('deviceconfiguration.gatewayMessage', 'MDC', 'The device can not act as a gateway') + '</i>'
                                                     }
                                                 ]
                                             },
@@ -122,7 +103,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                                 columnWidth: 0.5,
                                                 fieldLabel: ' ',
                                                 layout: {
-                                                    type: 'vbox'
+                                                    type: 'hbox'
                                                 },
                                                 hidden: true,
                                                 itemId: 'addressableMessage',
@@ -130,7 +111,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                                     {
                                                         xtype: 'component',
                                                         cls: 'x-form-display-field',
-                                                        html: '<i>' + Uni.I18n.translate('deviceconfiguration.directlyAddressableMessage', 'MDC', 'The device cannot be directly addressed') + '</i>'
+                                                        html: '<span style="color: grey"><i>' + Uni.I18n.translate('deviceconfiguration.directlyAddressableMessage', 'MDC', 'The device cannot be directly addressed') + '</i>'
                                                     }
                                                 ]
                                             },
@@ -139,8 +120,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                                 ui: 'actions',
                                                 fieldLabel: '&nbsp',
                                                 layout: {
-                                                    type: 'hbox',
-                                                    align: 'stretch'
+                                                    type: 'hbox'
                                                 },
                                                 items: [
                                                     {

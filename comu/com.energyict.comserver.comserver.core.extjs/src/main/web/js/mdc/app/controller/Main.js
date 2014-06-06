@@ -114,11 +114,6 @@ Ext.define('Mdc.controller.Main', {
                     route: 'registergroups'
                 },
                 {
-                    text: Uni.I18n.translate('searchItems.searchItems', 'MDC', 'Search items'),
-                    href: '#/administration/searchitems',
-                    route: 'searchitems'
-                },
-                {
                     text: Uni.I18n.translate('general.logbookTypes', 'MDC', 'Logbook types'),
                     href: '#/administration/logbooktypes',
                     route: 'logbooktypes'

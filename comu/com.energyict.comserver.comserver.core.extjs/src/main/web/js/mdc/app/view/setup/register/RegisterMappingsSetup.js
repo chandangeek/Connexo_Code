@@ -12,7 +12,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsSetup', {
         'Mdc.view.setup.devicetype.DeviceTypeMenu'
     ],
 
-    content: [
+   /* content: [
             {
                 ui: 'large',
                 xtype: 'panel',
@@ -30,26 +30,14 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsSetup', {
                     }
                 ]
             }
-    ],
+    ],*/
 
-    side: [
 
-        {
-            xtype: 'panel',
-            ui: 'medium',
-            items: [
-                {
-                    xtype: 'navigationSubMenu',
-                    itemId: 'stepsMenu'
-                }
-            ]
-        }
 /*,
          {
          xtype: 'registerMappingFilter',
          name: 'filter'
          }*/
-    ],
 
     initComponent: function () {
         this.side = [
@@ -66,19 +54,65 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsSetup', {
                 ]
             }
         ];
+        this.content= [
+            {
+                ui: 'large',
+                xtype: 'panel',
+                itemId: 'registerMappingsSetupPanel',
+                title: Uni.I18n.translate('registerMapping.registerTypes', 'MDC', 'Register types'),
+
+                items: [
+                    {
+                        xtype: 'preview-container',
+                        itemId: 'previewContainer',
+                        grid: {
+                            xtype: 'registerMappingsGrid',
+                            deviceTypeId: this.deviceTypeId
+                        },
+                        emptyComponent: {
+                            xtype: 'container',
+                            layout: {
+                                type: 'hbox',
+                                align: 'left'
+                            },
+                            minHeight: 20,
+                            items: [
+                                {
+                                    xtype: 'image',
+                                    margin: '0 10 0 0',
+                                    src: "../mdc/resources/images/information.png",
+                                    height: 20,
+                                    width: 20
+                                },
+                                {
+                                    xtype: 'container',
+                                    items: [
+                                        {
+                                            xtype: 'component',
+                                            html: '<h4>' + Uni.I18n.translate('registerMapping.empty.title', 'MDC', 'No register type found') + '</h4><br>' +
+                                                Uni.I18n.translate('registerMapping.empty.detail', 'MDC', 'There are no register types. This could be because:') + '<lv><li>&nbsp&nbsp' +
+                                                Uni.I18n.translate('registerMapping.empty.list.item1', 'MDC', 'No register types have been defined yet.') + '</li></lv><br>' +
+                                                Uni.I18n.translate('registerMapping.empty.steps', 'MDC', 'Possible steps:')
+                                        },
+                                        {
+                                            text: Uni.I18n.translate('registerMapping.addRegisterMapping', 'MDC', 'Add register types'),
+                                            itemId: 'addRegisterMappingBtn',
+                                            xtype: 'button',
+                                            action: 'addRegisterMapping'
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        previewComponent: {
+                            xtype: 'registerMappingPreview',
+                            deviceTypeId: this.deviceTypeId
+                        }
+                    }
+                ]
+            }
+        ];
         this.callParent(arguments);
-        this.down('#registerMappingGridContainer').add(
-            {
-                xtype: 'registerMappingsGrid',
-                deviceTypeId: this.deviceTypeId
-            }
-        );
-        this.down('#registerMappingPreviewContainer').add(
-            {
-                xtype: 'registerMappingPreview',
-                deviceTypeId: this.deviceTypeId
-            }
-        );
     }
 });
 

@@ -30,7 +30,8 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationGrid
             },
             {
                 header: 'OBIS code',
-                dataIndex: 'obisCode',
+                xtype: 'templatecolumn',
+                tpl: '<tpl if="overruledObisCode">{overruledObisCode}</tpl>',
                 flex: 3
             },
             {
