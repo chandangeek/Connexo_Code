@@ -19,7 +19,7 @@ Ext.define('Cfg.view.validation.RulePreview', {
         {
             xtype: 'button',
             text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
-            iconCls: 'x-uni-action-iconA',
+            iconCls: 'x-uni-action-iconD',
             menu: {
                 xtype: 'rule-action-menu'
             }
