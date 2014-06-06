@@ -12,7 +12,8 @@ Ext.define('Isu.view.workspace.issues.IssueGroup', {
             xtype: 'issue-group-grid'
         },
         {
-            alias: 'widget.issue-group-info'
+            name: 'issue-group-info',
+            hidden: true
         }
     ]
 });
