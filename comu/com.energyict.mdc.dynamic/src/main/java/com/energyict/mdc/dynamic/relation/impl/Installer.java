@@ -11,6 +11,8 @@ import com.energyict.mdc.dynamic.relation.exceptions.MessageSeeds;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Insert your comments here.
@@ -22,6 +24,7 @@ public class Installer {
 
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
+    private final Logger logger = Logger.getLogger(Installer.class.getName());
 
     public Installer(DataModel dataModel, Thesaurus thesaurus) {
         super();
@@ -37,7 +40,7 @@ public class Installer {
             }
         }
         catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, e.getMessage(), e);
         }
         this.createEventTypes();
         this.createTranslations();

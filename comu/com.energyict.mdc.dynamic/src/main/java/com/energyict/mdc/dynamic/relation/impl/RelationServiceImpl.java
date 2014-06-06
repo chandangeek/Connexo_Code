@@ -49,7 +49,7 @@ public class RelationServiceImpl implements RelationService, ServiceLocator, Ins
         this.setPropertySpecService(propertySpecService);
         this.activate();
         if (!this.dataModel.isInstalled()) {
-            this.install(true);
+            this.install();
         }
     }
 
@@ -91,11 +91,7 @@ public class RelationServiceImpl implements RelationService, ServiceLocator, Ins
 
     @Override
     public void install() {
-        this.install(false);
-    }
-
-    private void install(boolean executeDdl) {
-        new Installer(this.dataModel, this.thesaurus).install(executeDdl, true);
+        new Installer(this.dataModel, this.thesaurus).install(true, true);
     }
 
     @Deactivate

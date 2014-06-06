@@ -1,9 +1,7 @@
 package com.energyict.mdc.dynamic.relation;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
-import java.sql.SQLException;
 import java.util.List;
 
 /**

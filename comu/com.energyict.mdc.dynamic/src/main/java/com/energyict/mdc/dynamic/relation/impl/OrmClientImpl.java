@@ -122,22 +122,22 @@ public class OrmClientImpl implements OrmClient {
 
     @Override
     public DataMapper<RelationType> getRelationTypeFactory() {
-        return this.dataModel.getDataMapper(RelationType.class, TableSpecs.EISRELATIONTYPE.name());
+        return this.dataModel.getDataMapper(RelationType.class, TableSpecs.CDR_RELATIONTYPE.name());
     }
 
     @Override
     public DataMapper<RelationAttributeType> getRelationAttributeTypeFactory() {
-        return this.dataModel.getDataMapper(RelationAttributeType.class, TableSpecs.EISRELATIONATTRIBUTETYPE.name());
+        return this.dataModel.getDataMapper(RelationAttributeType.class, TableSpecs.CDR_RELATIONATTRIBUTETYPE.name());
     }
 
     @Override
     public DataMapper<Constraint> getConstraintFactory() {
-        return this.dataModel.getDataMapper(Constraint.class, TableSpecs.EISCONSTRAINT.name());
+        return this.dataModel.getDataMapper(Constraint.class, TableSpecs.CDR_CONSTRAINT.name());
     }
 
     @Override
     public DataMapper<ConstraintMember> getConstraintMemberFactory() {
-        return this.dataModel.getDataMapper(ConstraintMember.class, TableSpecs.EISCONSTRAINTMEMBER.name());
+        return this.dataModel.getDataMapper(ConstraintMember.class, TableSpecs.CDR_CONSTRAINTMEMBER.name());
     }
 
     @Override
