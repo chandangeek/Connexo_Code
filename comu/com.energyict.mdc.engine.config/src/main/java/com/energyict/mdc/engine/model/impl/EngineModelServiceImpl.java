@@ -70,20 +70,18 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
 
     @Inject
     public EngineModelServiceImpl(OrmService ormService, NlsService nlsService, ProtocolPluggableService protocolPluggableService) {
+        this();
         this.setOrmService(ormService);
         this.setNlsService(nlsService);
         this.setProtocolPluggableService(protocolPluggableService);
-        activate();
-        createTranslations();
-        if (!dataModel.isInstalled()) {
-            dataModel.install(true, true);
-        }
+        this.activate();
+        this.install();
     }
 
     @Override
     public void install() {
-        createTranslations();
-        if(!dataModel.isInstalled()){
+        this.createTranslations();
+        if (!dataModel.isInstalled()) {
             dataModel.install(true, true);
         }
     }
