@@ -17,6 +17,7 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -51,7 +52,7 @@ public class Installer {
             this.dataModel.install(executeDdl, true);
         }
         catch (Exception e) {
-            logger.severe(e.getMessage());
+            this.logger.log(Level.SEVERE, e.getMessage(), e);
         }
         createEventTypes();
         createTranslations();
@@ -95,7 +96,7 @@ public class Installer {
             }
         }
 
-        if(translations.size() > 0){
+        if (!translations.isEmpty()) {
             thesaurus.addTranslations(translations);
         }
     }
@@ -110,7 +111,7 @@ public class Installer {
                 eventType.install(this.eventService);
             }
             catch (Exception e) {
-                logger.severe(e.getMessage());
+                this.logger.log(Level.SEVERE, e.getMessage(), e);
             }
         }
     }

@@ -21,7 +21,7 @@ import static com.elster.jupiter.orm.DeleteRule.CASCADE;
  */
 public enum TableSpecs {
 
-    EISPHENOMENON {
+    MDS_PHENOMENON {
         @Override
         public void addTo(DataModel dataModel) {
             Table<Phenomenon> table = dataModel.addTable(name(), Phenomenon.class);
@@ -32,12 +32,12 @@ public enum TableSpecs {
             table.column("MEASUREMENTCODE").varChar(80).map(PhenomenonImpl.Fields.MEASUREMENT_CODE.fieldName()).add();
             table.column("EDICODE").varChar(80).map(PhenomenonImpl.Fields.EDI_CODE.fieldName()).add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map(PhenomenonImpl.Fields.MODIFICATION_DATE.fieldName()).insert("sysdate").update("sysdate").add();
-            table.primaryKey("PK_PHENOMENON").on(id).add();
-            table.unique("UK_EISPHENOMENON").on(unit).add(); // Done so phenomenon can be identified solely by unit, cfr gna
+            table.primaryKey("PK_MDS_PHENOMENON").on(id).add();
+            table.unique("UK_MDS_PHENOMENON").on(unit).add(); // Done so phenomenon can be identified solely by unit, cfr gna
         }
     },
 
-    EISLOADPROFILETYPE {
+    MDS_LOADPROFILETYPE {
         @Override
         public void addTo(DataModel dataModel) {
             Table<LoadProfileType> table = dataModel.addTable(this.name(), LoadProfileType.class);
@@ -49,12 +49,12 @@ public enum TableSpecs {
             table.column("INTERVALCOUNT").number().notNull().conversion(ColumnConversion.NUMBER2INT).map("interval.count").add();
             table.column("INTERVALUNIT").number().notNull().conversion(ColumnConversion.NUMBER2INT).map("interval.timeUnitCode").add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
-            table.unique("UK_LOADPROFILETYPE").on(name).add();
-            table.primaryKey("PK_LOADPROFILETYPE").on(id).add();
+            table.unique("UK_MDS_LOADPROFILETYPE").on(name).add();
+            table.primaryKey("PK_MDS_LOADPROFILETYPE").on(id).add();
         }
     },
 
-    EISRTUREGISTERGROUP {
+    MDS_REGISTERGROUP {
         @Override
         public void addTo(DataModel dataModel) {
             Table<RegisterGroup> table = dataModel.addTable(this.name(), RegisterGroup.class);
@@ -62,12 +62,12 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             Column name = table.column("NAME").varChar(256).notNull().map("name").add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
-            table.unique("UK_RTUREGISTERGROUP").on(name).add();
-            table.primaryKey("PK_RTUREGISTERGROUP").on(id).add();
+            table.unique("UK_MDS_REGISTERGROUP").on(name).add();
+            table.primaryKey("PK_MDS_REGISTERGROUP").on(id).add();
         }
     },
 
-    EISRTUREGISTERMAPPING {
+    MDS_REGISTERMAPPING {
         @Override
         public void addTo(DataModel dataModel) {
             Table<RegisterMapping> table = dataModel.addTable(this.name(), RegisterMapping.class);
@@ -79,19 +79,17 @@ public enum TableSpecs {
             Column readingType = table.column("READINGTYPE").varChar(100).add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
             table.column("CUMULATIVE").number().conversion(NUMBER2BOOLEAN).notNull().map("cumulative").add();
-            //Column registerGroup = table.column("REGISTERGROUPID").number().add();
             table.column("DESCRIPTION").varChar(255).map("description").add();
             table.column("TIMEOFUSE").number().map("timeOfUse").conversion(ColumnConversion.NUMBER2INT).add();
-            //table.foreignKey("FK_EISREGMAP_REGGROUP").on(registerGroup).references(EISRTUREGISTERGROUP.name()).map("registerGroup").add();
-            table.foreignKey("FK_EISREGMAP_PHENOMENON").on(phenomenon).references(EISPHENOMENON.name()).map("phenomenon").add();
-            table.foreignKey("FK_EISREGMAP_READINGTYPE").on(readingType).references(MeteringService.COMPONENTNAME, "MTR_READINGTYPE").map("readingType").add();
-            table.unique("UK_RTUREGMAPPINGNAME").on(name).add();
-            table.unique("UK_RTUREGMREADINGTYPE").on(readingType).add();
-            table.primaryKey("PK_RTUREGISTERMAPPING").on(id).add();
+            table.foreignKey("FK_MDS_REGMAP_PHENOMENON").on(phenomenon).references(MDS_PHENOMENON.name()).map("phenomenon").add();
+            table.foreignKey("FK_MDS_REGMAP_READINGTYPE").on(readingType).references(MeteringService.COMPONENTNAME, "MTR_READINGTYPE").map("readingType").add();
+            table.unique("UK_MDS_REGMAPPINGNAME").on(name).add();
+            table.unique("UK_MDS_REGMREADINGTYPE").on(readingType).add();
+            table.primaryKey("PK_MDS_REGISTERMAPPING").on(id).add();
         }
     },
 
-    EISRTUREGISTERMAPPINGINGROUP {
+    MDS_REGISTERMAPPINGINGROUP {
         @Override
         public void addTo(DataModel dataModel) {
             Table<RegisterMappingInGroup> table = dataModel.addTable(this.name(), RegisterMappingInGroup.class);
@@ -100,13 +98,13 @@ public enum TableSpecs {
             Column groupIdColumn = table.column("REGISTERGROUPID").number().notNull().conversion(NUMBER2LONG).map("registerGroupId").add();
             table.addCreateTimeColumn("CREATETIME", "createTime");
             table.primaryKey("USR_PK_REGISTERMAPPINGINGROUP").on(mappingIdColumn , groupIdColumn).add();
-            table.foreignKey("FK_REGMAPPINGINGROUP2MAPPING").references(EISRTUREGISTERMAPPING.name()).onDelete(CASCADE).map("registerMapping").on(mappingIdColumn).add();
-            table.foreignKey("FK_REGMAPPINGINGROUP2GROUP").references(EISRTUREGISTERGROUP.name()).onDelete(CASCADE).map("registerGroup").reverseMap("mappingsInGroup").on(groupIdColumn).add();
+            table.foreignKey("FK_REGMAPPINGINGROUP2MAPPING").references(MDS_REGISTERMAPPING.name()).onDelete(CASCADE).map("registerMapping").on(mappingIdColumn).add();
+            table.foreignKey("FK_REGMAPPINGINGROUP2GROUP").references(MDS_REGISTERGROUP.name()).onDelete(CASCADE).map("registerGroup").reverseMap("mappingsInGroup").on(groupIdColumn).add();
 
         }
     },
 
-    EISREGMAPPINGINLOADPROFILETYPE {
+    MDS_REGMAPINLOADPROFILETYPE {
         @Override
         public void addTo(DataModel dataModel) {
             Table<LoadProfileTypeRegisterMappingUsage> table = dataModel.addTable(name(), LoadProfileTypeRegisterMappingUsage.class);
@@ -114,12 +112,12 @@ public enum TableSpecs {
             Column loadProfileType = table.column("LOADPROFILETYPEID").number().notNull().add();
             Column registerMapping = table.column("REGMAPPINGID").number().notNull().add();
             table.primaryKey("PK_REGMAPPINGINLOADPROFILETYPE").on(loadProfileType, registerMapping).add();
-            table.foreignKey("FK_REGMAPLPT_LOADPROFILETYPEID").on(loadProfileType).references(EISLOADPROFILETYPE.name()).map("loadProfileType").reverseMap("registerMappingUsages").composition().add();
-            table.foreignKey("FK_REGMAPLPT_REGMAPPINGID").on(registerMapping).references(EISRTUREGISTERMAPPING.name()).map("registerMapping").add();
+            table.foreignKey("FK_REGMAPLPT_LOADPROFILETYPEID").on(loadProfileType).references(MDS_LOADPROFILETYPE.name()).map("loadProfileType").reverseMap("registerMappingUsages").composition().add();
+            table.foreignKey("FK_REGMAPLPT_REGMAPPINGID").on(registerMapping).references(MDS_REGISTERMAPPING.name()).map("registerMapping").add();
         }
     },
 
-    EISLOGBOOKTYPE {
+    MDS_LOGBOOKTYPE {
         @Override
         public void addTo(DataModel dataModel) {
             Table<LogBookType> table = dataModel.addTable(this.name(), LogBookType.class);
@@ -128,8 +126,8 @@ public enum TableSpecs {
             Column name = table.column("NAME").varChar(80).notNull().map("name").add();
             table.column("DESCRIPTION").varChar(255).map("description").add();
             table.column("OBISCODE").varChar(80).notNull().map(LogBookTypeImpl.Fields.OBIS_CODE.fieldName()).add();
-            table.unique("UK_EISLOGBOOKTYPE").on(name).add();
-            table.primaryKey("PK_EISLOGBOOKTYPE").on(id).add();
+            table.unique("UK_MDS_LOGBOOKTYPE").on(name).add();
+            table.primaryKey("PK_MDS_LOGBOOKTYPE").on(id).add();
         }
     };
 

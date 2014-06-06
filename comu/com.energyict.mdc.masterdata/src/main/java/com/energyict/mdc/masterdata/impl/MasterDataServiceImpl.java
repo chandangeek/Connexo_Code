@@ -290,7 +290,7 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
 
     @Override
     public void install() {
-        this.install(false, true);
+        this.install(true, true);
     }
 
     private void install(boolean exeuteDdl, boolean createDefaults) {
