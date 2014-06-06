@@ -113,6 +113,16 @@ Ext.define('Uni.controller.Error', {
             case 403: // Forbidden.
             // Fallthrough.
             case 404: // Not found.
+                title = Uni.I18n.translate(
+                    'error.requestFailed',
+                    'UNI',
+                    'Request failed'
+                );
+                message = Uni.I18n.translate(
+                    'error.notFoundErrorMessage',
+                    'UNI',
+                    'Please contact your system administrator.'
+                );
             // Fallthrough.
             case 418: // I'm a teapot.
             // Fallthrough.
