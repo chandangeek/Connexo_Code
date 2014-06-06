@@ -5,21 +5,31 @@ import com.elster.jupiter.util.exception.MessageSeed;
 /**
  * LocalizedException that can be linked to a specific field of an Impl
  */
-public class LocalizedFieldValidationException extends LocalizedException {
-    public static final String VIOLATING_PROPERTY_NAME = "violatingPropertyName";
+public class LocalizedFieldValidationException extends RuntimeException{
+    private final MessageSeed messageSeed;
+    private final String javaFieldName;
+    private final Object[] args;
 
-    public LocalizedFieldValidationException(Thesaurus thesaurus, MessageSeed messageSeed, String javaFieldName) {
-        super(thesaurus, messageSeed);
-        this.set(VIOLATING_PROPERTY_NAME, javaFieldName);
+
+    public LocalizedFieldValidationException(MessageSeed messageSeed, String javaFieldName) {
+        this(messageSeed, javaFieldName, new Object[0]);
     }
 
-    public LocalizedFieldValidationException(Thesaurus thesaurus, MessageSeed messageSeed, String javaFieldName, Object... args) {
-        super(thesaurus, messageSeed, args);
-        this.set(VIOLATING_PROPERTY_NAME, javaFieldName);
+    public LocalizedFieldValidationException(MessageSeed messageSeed, String javaFieldName, Object... args) {
+        this.messageSeed = messageSeed;
+        this.javaFieldName = javaFieldName;
+        this.args = args;
     }
 
     public String getViolatingProperty(){
-        return (String)this.get(VIOLATING_PROPERTY_NAME);
+        return javaFieldName;
     }
 
+    public MessageSeed getMessageSeed() {
+        return messageSeed;
+    }
+
+    public Object[] getArgs() {
+        return args;
+    }
 }
