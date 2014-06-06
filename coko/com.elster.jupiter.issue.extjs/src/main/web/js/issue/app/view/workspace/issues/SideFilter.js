@@ -30,6 +30,12 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
                     vertical: true
                 },
                 {
+                    xtype: 'button',
+                    ui: 'link',
+                    text: 'Assigned to me',
+                    action: 'assignedToMe'
+                },
+                {
                     itemId: 'AssigneeFilter',
                     xtype: 'issues-assignee-combo',
                     name: 'assignee',
@@ -102,7 +108,7 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
 
     buttons: [
         {
-            itemId : 'fApply',
+            itemId: 'fApply',
             text: 'Apply',
             action: 'filter'
         },
