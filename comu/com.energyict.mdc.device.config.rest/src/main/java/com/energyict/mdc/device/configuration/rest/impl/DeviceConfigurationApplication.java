@@ -31,7 +31,7 @@ import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-@Component(name = "com.energyict.dtc.rest", service = { Application.class, InstallService.class }, immediate = true, property = {"alias=/dtc"})
+@Component(name = "com.energyict.dtc.rest", service = { Application.class, InstallService.class }, immediate = true, property = {"alias=/dtc", "name=" + DeviceConfigurationApplication.COMPONENT_NAME})
 public class DeviceConfigurationApplication extends Application implements InstallService {
 
     public static final String COMPONENT_NAME = "DCR";
@@ -164,6 +164,7 @@ public class DeviceConfigurationApplication extends Application implements Insta
             bind(thesaurus).to(Thesaurus.class);
             bind(engineModelService).to(EngineModelService.class);
             bind(userFileService).to(UserFileService.class);
+            bind(ExceptionFactory.class).to(ExceptionFactory.class);
         }
     }
 

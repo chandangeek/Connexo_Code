@@ -139,6 +139,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
                 bind(ResourceHelper.class).to(ResourceHelper.class);
                 bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
                 bind(thesaurus).to(Thesaurus.class);
+                bind(new ExceptionFactory(thesaurus)).to(ExceptionFactory.class);
             }
         });
         return resourceConfig;
@@ -986,7 +987,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
 
         Entity<RegisterConfigInfo> json = Entity.json(registerConfigInfo);
         Response response = target("/devicetypes/41/deviceconfigurations/51/registerconfigurations/").request().post(json);
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
         ArgumentCaptor<RegisterMapping> registerMappingArgumentCaptor = ArgumentCaptor.forClass(RegisterMapping.class);
         verify(registerSpecBuilder).setMultiplier(BigDecimal.TEN);
         verify(registerSpecBuilder).setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT);
@@ -1174,6 +1175,8 @@ public class DeviceTypeResourceTest extends JerseyTest {
         RegisterSpec registerSpec = mock(RegisterSpec.class);
         when(registerSpec.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(deviceConfiguration.getRegisterSpecs()).thenReturn(Arrays.asList(registerSpec));
+        NlsMessageFormat nlsMessageFormat = mock(NlsMessageFormat.class);
+        when(thesaurus.getFormat(Matchers.<MessageSeed>anyObject())).thenReturn(nlsMessageFormat);
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
         when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(deviceType);

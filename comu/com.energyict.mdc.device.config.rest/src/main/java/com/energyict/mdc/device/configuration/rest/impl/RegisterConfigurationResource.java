@@ -28,12 +28,14 @@ public class RegisterConfigurationResource {
 
     private final ResourceHelper resourceHelper;
     private final MasterDataService masterDataService;
+    private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public RegisterConfigurationResource(ResourceHelper resourceHelper, MasterDataService masterDataService) {
+    public RegisterConfigurationResource(ResourceHelper resourceHelper, MasterDataService masterDataService, ExceptionFactory exceptionFactory) {
         super();
         this.resourceHelper = resourceHelper;
         this.masterDataService = masterDataService;
+        this.exceptionFactory = exceptionFactory;
     }
 
     @GET
@@ -55,7 +57,7 @@ public class RegisterConfigurationResource {
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    public RegisterConfigInfo createRegisterConfig(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, RegisterConfigInfo registerConfigInfo) {
+    public Response createRegisterConfig(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, RegisterConfigInfo registerConfigInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         RegisterMapping registerMapping = registerConfigInfo.registerMapping ==null?null:findRegisterMappingOrThrowException(registerConfigInfo.registerMapping);
@@ -67,7 +69,7 @@ public class RegisterConfigurationResource {
                 .setOverflow(registerConfigInfo.overflowValue)
                 .setOverruledObisCode(registerConfigInfo.overruledObisCode)
                 .add();
-        return RegisterConfigInfo.from(registerSpec);
+        return Response.status(Response.Status.CREATED).entity(RegisterConfigInfo.from(registerSpec)).build();
     }
 
     @PUT
@@ -93,7 +95,7 @@ public class RegisterConfigurationResource {
     private RegisterMapping findRegisterMappingOrThrowException(Long registerTypeId) {
         Optional<RegisterMapping> registerMapping = masterDataService.findRegisterMapping(registerTypeId);
         if (!registerMapping.isPresent()) {
-            throw new WebApplicationException("No register type with id " + registerTypeId, Response.status(Response.Status.BAD_REQUEST).entity("No register type with id " + registerTypeId).build());
+            throw exceptionFactory.illegalRegisterMappingReference();
         }
         return registerMapping.get();
     }
