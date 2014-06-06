@@ -268,7 +268,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                             type: 'vbox',
                             align: 'stretch'
                         },
-                        width: '100%',
+//                        width: '100%',
                         defaults: {
                             labelWidth: 250
                         },

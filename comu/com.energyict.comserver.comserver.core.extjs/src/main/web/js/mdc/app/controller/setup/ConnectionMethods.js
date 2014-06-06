@@ -89,10 +89,12 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         var widget = Ext.widget('connectionMethodSetup', {deviceTypeId: deviceTypeId, deviceConfigId: deviceConfigurationId});
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
+                me.getApplication().fireEvent('loadDeviceType', deviceType);
                 var model = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
                 model.getProxy().setExtraParam('deviceType', deviceTypeId);
                 model.load(deviceConfigurationId, {
                     success: function (deviceConfig) {
+                        me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
                         var deviceTypeName = deviceType.get('name');
                         widget.down('#connectionMethodSetupPanel').setTitle(Uni.I18n.translate('connectionmethod.connectionmethods', 'MDC', 'Connection methods'));
                         var deviceConfigName = deviceConfig.get('name');
@@ -166,10 +168,12 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         widget.setLoading(true);
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
+                me.getApplication().fireEvent('loadDeviceType', deviceType);
                 var model = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
                 model.getProxy().setExtraParam('deviceType', deviceTypeId);
                 model.load(deviceConfigId, {
                     success: function (deviceConfig) {
+                        me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
                         comPortPoolStore.filter('direction', direction);
                         comPortPoolStore.load({
                             callback: function () {
@@ -333,10 +337,12 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
 
                 Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
                     success: function (deviceType) {
+                        me.getApplication().fireEvent('loadDeviceType', deviceType);
                         var model = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
                         model.getProxy().setExtraParam('deviceType', deviceTypeId);
                         model.load(deviceConfigId, {
                             success: function (deviceConfig) {
+                                me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
                                 comPortPoolStore.filter('direction', connectionMethod.get('direction'));
                                 comPortPoolStore.load({
                                     callback: function () {

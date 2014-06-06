@@ -51,7 +51,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     name: 'properties.' + key,
                     itemId: key,
                     value: text,
-                    width: 395,
+                    width: 320,
                     msgTarget: 'under',
                     margin: '0 0 5 0 '
                 },
@@ -78,9 +78,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     itemId: key,
                     value: text,
                     inputType: 'password',
-                    size: 200,
                     margin: '0 5 5 0',
-                    width: 395,
+                    width: 320,
                     msgTarget: 'under'
                 },
                 {
@@ -105,9 +104,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     name: 'properties.' + key,
                     itemId: key,
                     value: text,
-                    size: 200,
                     margin: '0 5 5 0',
-                    width: 395,
+                    width: 320,
                     vtype: 'hexstring',
                     msgTarget: 'under'
                 },
@@ -133,9 +131,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     name: 'properties.' + key,
                     itemId: key,
                     value: text,
-                    size: 200,
                     margin: '0 5 5 0',
-                    width: 395,
+                    width: 320,
                     grow: true,
                     anchor: '100%',
                     msgTarget: 'under'
@@ -162,9 +159,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     name: 'properties.' + key,
                     itemId: key,
                     value: value,
-                    size: 15,
                     margin: '0 0 5 0',
-                    width: 200,
+                    width: 128,
                     hideTrigger: true,
                     keyNavEnabled: false,
                     mouseWheelEnabled: false,
@@ -278,7 +274,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     value: value,
                     format: 'd/m/Y',
                     altFormats: 'd.m.Y|d m Y',
-                    margin: '0 5 5 0'
+                    margin: '0 5 5 0',
+                    width: 128
                 },
                 {
                     xtype: 'defaultButton',
@@ -304,7 +301,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     itemId: 'time' + key,
                     value: value,
                     format: 'H:i:s',
-                    margin: '0 5 5 0'
+                    margin: '0 5 5 0',
+                    width: 128
                 },
                 {
                     xtype: 'defaultButton',
@@ -332,6 +330,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     format: 'd/m/Y',
                     altFormats: 'd.m.Y|d m Y',
                     margin: '0 5 5 0',
+                    width: 128,
                     required: required
                 },
                 {
@@ -341,6 +340,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     value: timeValue,
                     format: 'H:i:s',
                     margin: '0 5 5 0',
+                    width: 128,
                     required: required
                 },
                 {
@@ -366,9 +366,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     name: 'properties.' + key,
                     itemId: key,
                     value: count,
-                    size: 200,
                     margin: '0 5 5 0',
-                    width: 200,
+                    width: 128,
                     required: required
                 },
                 {
@@ -380,9 +379,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     displayField: 'timeUnit',
                     valueField: 'timeUnit',
                     value: unit,
-                    size: 50,
                     margin: '0 0 5 0',
-                    width: 190,
+                    width: 128,
                     forceSelection: false,
                     required: required
 
@@ -410,9 +408,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     name: 'properties.' + key,
                     value: value,
                     itemId: key,
-                    size: 75,
                     margin: '0 5 5 0',
-                    width: 395,
+                    width: 320,
                     readOnly: true
                 },
                 {
@@ -447,9 +444,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     name: 'properties.' + key,
                     value: value,
                     itemId: key,
-                    size: 75,
                     margin: '0 5 5 0',
-                    width: 395,
+                    width: 320,
                     readOnly: true
                 },
                 {
@@ -484,9 +480,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     name: 'properties.' + key,
                     value: value,
                     itemId: key,
-                    size: 200,
                     margin: '0 5 5 0',
-                    width: 395,
+                    width: 320,
                     readOnly: true
                 },
                 {
@@ -525,9 +520,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     displayField: 'value',
                     valueField: 'key',
                     value: selectedValue,
-                    size: 50,
                     margin: '0 0 5 0',
-                    width: 395,
+                    width: 320,
                     forceSelection: exhaustive
                 },
                 {
@@ -557,9 +551,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     displayField: 'value',
                     valueField: 'value',
                     value: selectedValue,
-                    size: 50,
                     margin: '0 0 5 0',
-                    width: 200,
+                    width: 128,
                     fieldStyle: 'text-align:right;',
                     forceSelection: exhaustive
                 },
@@ -586,9 +579,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     name: 'properties.' + key,
                     itemId: key,
                     value: text,
-                    size: 200,
                     margin: '0 5 5 0',
-                    width: 395
+                    width: 320
                    // vtype: 'ean18'
                 },
                 {
@@ -614,9 +606,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     name: 'properties.' + key,
                     itemId: key,
                     value: text,
-                    size: 200,
                     margin: '0 5 5 0',
-                    width: 395
+                    width: 320
                //     vtype: 'ean13',
                 },
                 {

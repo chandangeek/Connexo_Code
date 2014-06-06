@@ -130,7 +130,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 widget.down('form').loadRecord(deviceType);
                 me.getApplication().fireEvent('loadDeviceType', deviceType);
 
-                me.getDeviceTypePreviewTitle().update('<h1>' + deviceType.get('name') + ' - ' + Uni.I18n.translate('general.overview', 'MDC', 'Overview') + '</h1>');
+                me.getDeviceTypePreviewTitle().update('<h1>' + Uni.I18n.translate('general.overview', 'MDC', 'Overview') + '</h1>');
             }
         });
 
@@ -197,13 +197,14 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             {
                 success: function (results) {
                     var deviceType = results[0][0];
+                    me.getApplication().fireEvent('loadDeviceType', deviceType);
                     me.getDeviceTypeEditForm().loadRecord(deviceType);
-                    me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + deviceType.get('name') + '"');
+                    me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + deviceType.get('name'));
                     widget.setLoading(false);
                 },
                 failure: function () {
                     me.getDeviceTypeEditForm().loadRecord(deviceType);
-                    me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + deviceType.get('name') + '"');
+                    me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + deviceType.get('name'));
                     widget.setLoading(false);
                 }
             }
@@ -325,6 +326,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                     widget.setLoading(true);
                     model.load(deviceTypeId, {
                         success: function (deviceType) {
+                            me.getApplication().fireEvent('loadDeviceType', deviceType);
                             me.getDeviceTypeLogbookPanel().setTitle('<b>' + deviceType.get('name') + '</b>' + ' > ' + 'Logbook types');
                             widget.setLoading(false);
                         }
@@ -365,7 +367,8 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                     widget.setLoading(true);
                     model.load(deviceTypeId, {
                         success: function (deviceType) {
-                            me.getAddLogbookPanel().setTitle('<b>' + deviceType.get('name') + '</b>' + ' > ' + 'Add logbook type');
+                            me.getApplication().fireEvent('loadDeviceType', deviceType);
+                            me.getAddLogbookPanel().setTitle(Uni.I18n.translate('general.add', 'MDC', 'Add') + ' ' + 'logbook type');
                             widget.setLoading(false);
                         }
                     });

@@ -6,6 +6,9 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskGrid', {
     deviceConfigId: null,
     store: 'CommunicationTaskConfigsOfDeviceConfiguration',
     scroll: false,
+    requires: [
+        'Mdc.view.setup.communicationtask.CommunicationTaskActionMenu'
+    ],
     viewConfig: {
         style: { overflow: 'auto', overflowX: 'hidden' }
     },
@@ -44,21 +47,7 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
-                items: [
-                    {
-                        text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                        action: 'editcommunicationtask'
-                    },
-                    {
-                        text: Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
-                        action: 'activatecommunicationtask'
-                    },
-                    {
-                        text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-                        action: 'removecommunicationtask'
-                    }
-
-                ]
+                items:'Mdc.view.setup.communicationtask.CommunicationTaskActionMenu'
             }
         ];
         this.callParent(arguments);

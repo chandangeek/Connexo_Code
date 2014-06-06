@@ -114,10 +114,12 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         me.getCreateRegisterConfigBtn().href = '#/administration/devicetypes/' + deviceTypeId + '/deviceconfigurations/' + deviceConfigId + '/registerconfigurations/create';
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
+                me.getApplication().fireEvent('loadDeviceType', deviceType);
                 var model = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
                 model.getProxy().setExtraParam('deviceType', deviceTypeId);
                 model.load(deviceConfigId, {
                     success: function (deviceConfig) {
+                        me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
                         var deviceTypeName = deviceType.get('name');
                         var deviceConfigName = deviceConfig.get('name');
                         me.getApplication().fireEvent('changecontentevent', widget);
@@ -149,10 +151,12 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             callback: function (store) {
                 Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
                     success: function (deviceType) {
+                        me.getApplication().fireEvent('loadDeviceType', deviceType);
                         var model = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
                         model.getProxy().setExtraParam('deviceType', deviceTypeId);
                         model.load(deviceConfigId, {
                             success: function (deviceConfig) {
+                                me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
                                 var deviceTypeName = deviceType.get('name');
                                 var deviceConfigName = deviceConfig.get('name');
                                 var widget = Ext.widget('registerConfigEdit', {
@@ -288,10 +292,12 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                     success: function (registerConfiguration) {
                         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
                             success: function (deviceType) {
+                                me.getApplication().fireEvent('loadDeviceType', deviceType);
                                 var deviceConfigModel = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
                                 deviceConfigModel.getProxy().setExtraParam('deviceType', deviceTypeId);
                                 deviceConfigModel.load(deviceConfigurationId, {
                                     success: function (deviceConfiguration) {
+                                        me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfiguration);
                                         widget.down('form').loadRecord(registerConfiguration);
                                         me.getRegisterConfigEditForm().setTitle(Uni.I18n.translate('registerConfigs.editRegisterConfig', 'MDC', 'Edit register configuration'));
                                         widget.down('#registerTypeComboBox').setValue(registerConfiguration.get('registerMapping'));

@@ -7,10 +7,10 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupGrid', {
         mode: 'SINGLE'
     },
     requires: [
-        'Mdc.store.RegisterGroups'
+        'Mdc.store.RegisterGroups',
+        'Mdc.view.setup.registergroup.RegisterGroupActionMenu'
     ],
     store: 'RegisterGroups',
-    //padding: '10 10 10 10',
     initComponent: function () {
         var me = this;
         this.columns = [
@@ -23,12 +23,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupGrid', {
 
             {
                 xtype: 'uni-actioncolumn',
-                items: [
-                    {
-                        text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                        action: 'editItem'
-                    }
-                ]
+                items: 'Mdc.view.setup.registergroup.RegisterGroupActionMenu'
             }
         ];
 

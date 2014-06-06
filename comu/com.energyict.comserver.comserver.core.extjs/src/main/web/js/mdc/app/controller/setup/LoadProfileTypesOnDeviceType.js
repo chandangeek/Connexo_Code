@@ -341,6 +341,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
         me.store.getProxy().extraParams = ({deviceType: deviceTypeId});
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
+                me.getApplication().fireEvent('loadDeviceType', deviceType);
                 me.deviceTypeName = deviceType.get('name');
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.store.load({ params: {sort: 'name' }});
@@ -356,6 +357,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
         me.store.getProxy().extraParams = ({deviceType: deviceTypeId});
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
+                me.getApplication().fireEvent('loadDeviceType', deviceType);
                 me.deviceTypeName = deviceType.get('name');
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.store.load({ params: { available: true }});

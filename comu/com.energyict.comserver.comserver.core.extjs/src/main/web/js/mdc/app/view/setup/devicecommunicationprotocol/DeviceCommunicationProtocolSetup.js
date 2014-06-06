@@ -5,48 +5,57 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
     requires: [
         'Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtocolGrid',
         'Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtocolPreview',
-        'Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtocolFilter'
+        'Uni.view.container.PreviewContainer'
     ],
 
     content: [
         {
-            xtype: 'container',
-            layout: {
-                type: 'vbox',
-                align: 'stretch'
-            },
+            xtype: 'panel',
+            ui: 'large',
+            title: Uni.I18n.translate('deviceCommunicationProtocol.protocols', 'MDC', 'Communication protocols'),
             items: [
                 {
-                    xtype: 'component',
-                    html: '<h1>' + Uni.I18n.translate('deviceCommunicationProtocol.protocols', 'MDC', 'Communication protocols') + '</h1>',
-                    itemId: 'protocolTitle'
-                },
-                {
-                    xtype: 'container',
-                    items: [],
-                    itemId: 'deviceCommunicationProtocolGridContainer'
-                },
-                {
-                    xtype: 'deviceCommunicationProtocolPreview'
+                    xtype: 'preview-container',
+                    grid: {
+                        xtype: 'deviceCommunicationProtocolGrid'
+                    },
+                    emptyComponent: {
+                        xtype: 'container',
+                        layout: {
+                            type: 'hbox',
+                            align: 'left'
+                        },
+                        minHeight: 20,
+                        items: [
+                            {
+                                xtype: 'image',
+                                margin: '0 10 0 0',
+                                src: '../ext/packages/uni-theme-skyline/build/resources/images/shared/icon-info-small.png',
+                                height: 20,
+                                width: 20
+                            },
+                            {
+                                xtype: 'container',
+                                items: [
+                                    {
+                                        xtype: 'component',
+                                        html: '<b>' + Uni.I18n.translate('deviceCommunicationProtocol.empty.title', 'MDC', 'No communication protocols found') + '</b><br>' +
+                                            Uni.I18n.translate('deviceCommunicationProtocol.empty.detail', 'MDC', 'There are no communication protocols. This could be because:') + '<lv><li>&nbsp&nbsp' +
+                                            Uni.I18n.translate('deviceCommunicationProtocol.empty.list.item1', 'MDC', 'No license.') + '</li></lv><br>'
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    previewComponent: {
+                        xtype: 'deviceCommunicationProtocolPreview'
+                    }
                 }
             ]}
     ],
 
-    /*   side: [
-     {
-     xtype: 'deviceCommunicationProtocolFilter',
-     name: 'filter'
-     }
-     ],
-     */
-
     initComponent: function () {
         this.callParent(arguments);
-        this.down('#deviceCommunicationProtocolGridContainer').add(
-            {
-                xtype: 'deviceCommunicationProtocolGrid'
-            }
-        );
     }
 });
 

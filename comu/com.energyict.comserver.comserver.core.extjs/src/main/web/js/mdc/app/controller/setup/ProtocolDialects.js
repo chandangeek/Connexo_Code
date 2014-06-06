@@ -34,7 +34,7 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
                 selectionchange: this.previewProtocolDialect
             },
             '#protocoldialectsgrid actioncolumn': {
-                editItem: this.editProtocolDialectHistory
+                editProtocolDialect: this.editProtocolDialectHistory
             },
             '#protocolDialectPreview menuitem[action=editProtocolDialect]': {
                 click: this.editProtocolDialectHistoryFromPreview
@@ -56,10 +56,12 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
         var widget = Ext.widget('protocolDialectSetup', {deviceTypeId: deviceTypeId, deviceConfigId: deviceConfigurationId});
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
+                me.getApplication().fireEvent('loadDeviceType', deviceType);
                 var model = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
                 model.getProxy().setExtraParam('deviceType', deviceTypeId);
                 model.load(deviceConfigurationId, {
                     success: function (deviceConfig) {
+                        me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
                         var deviceTypeName = deviceType.get('name');
                         var deviceConfigName = deviceConfig.get('name');
                         //widget.down('#registerConfigTitle').html = '<h1>' + deviceConfigName + ' > ' + Uni.I18n.translate('registerConfig.registerConfigurations', 'MDC', 'Register configurations') + '</h1>';
@@ -76,9 +78,9 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
             this.getProtocolDialectPreviewForm().loadRecord(protocolDialect[0]);
             var protocolDialectName = protocolDialect[0].get('name');
             this.getProtocolDialectPreview().getLayout().setActiveItem(1);
-            this.getProtocolDialectPreviewTitle().update('<h4>' + protocolDialectName + '</h4>');
             this.getProtocolDialectPreviewForm().loadRecord(protocolDialect[0]);
             this.getPropertiesViewController().showProperties(protocolDialect[0], this.getProtocolDialectPreview());
+            this.getProtocolDialectPreview().setTitle(protocolDialectName);
         } else {
             this.getProtocolDialectPreview().getLayout().setActiveItem(0);
         }
@@ -118,10 +120,12 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
             success: function (protocolDialect) {
                 Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
                     success: function (deviceType) {
+                        me.getApplication().fireEvent('loadDeviceType', deviceType);
                         var deviceConfigModel = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
                         deviceConfigModel.getProxy().setExtraParam('deviceType', deviceTypeId);
                         deviceConfigModel.load(deviceConfigId, {
                             success: function (deviceConfiguration) {
+                                me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfiguration);
                                 widget.down('form').loadRecord(protocolDialect);
                                 me.getPropertiesController().showProperties(protocolDialect, widget);
                                 widget.down('#protocolDialectEditAddTitle').update('<h1>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + protocolDialect.get('name') + '"</h1>');
