@@ -119,6 +119,9 @@ Ext.define('Isu.controller.Issues', {
             'issues-side-filter filter-form combobox[name=meter]': {
                 render: this.setComboTooltip,
                 expand: this.limitNotification
+            },
+            'issues-side-filter button[action=assignedToMe]': {
+                click: this.assignedToMe
             }
         });
 
@@ -446,5 +449,24 @@ Ext.define('Isu.controller.Issues', {
         if (!(grouping && grouping != 'none' && !groupingField)) {
             this.selectFirstGridRow(grid);
         }
+    },
+
+    assignedToMe: function () {
+        var self = this,
+            assignCombo = self.getIssueFilter().down('combobox[name=assignee]'),
+            assignStore = assignCombo.getStore(),
+            currentUser,
+            currentUserIndex;
+
+        assignStore.load(function () {
+            currentUserIndex = assignStore.find('name', 'Me');
+
+            if (currentUserIndex != -1) {
+                currentUser = assignStore.getAt(currentUserIndex);
+
+                assignCombo.setValue(currentUser.get('idx'));
+                self.applyFilter();
+            }
+        });
     }
 });
