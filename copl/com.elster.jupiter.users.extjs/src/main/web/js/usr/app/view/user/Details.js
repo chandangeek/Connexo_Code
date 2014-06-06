@@ -7,25 +7,23 @@ Ext.define('Usr.view.user.Details', {
     requires: [
         'Usr.store.Users',
         'Usr.model.User',
-        'Ext.button.Button'
+        'Ext.button.Button',
+        'Usr.view.user.UserActionMenu'
     ],
     title: 'user',
+
+
     tools: [
         {
             xtype: 'button',
-            iconCls: 'x-uni-action-iconA',
-            text: Uni.I18n.translate('general.actions', 'USM', 'Actions'),
+            text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
+            iconCls: 'x-uni-action-iconD',
             menu: {
-                items: [
-                    {
-                        text: Uni.I18n.translate('general.edit', 'USM', 'Edit'),
-                        itemId: 'editUser',
-                        action: 'editUser'
-                    }
-                ]
+                xtype: 'user-action-menu'
             }
         }
     ],
+
     items: [
         {
             xtype: 'form',

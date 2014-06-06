@@ -21,7 +21,7 @@ Ext.define('Usr.controller.Group', {
             'groupBrowse groupList': {
                 selectionchange: this.selectGroup
             },
-            'groupBrowse groupDetails menuitem[action=editGroup]': {
+            'groupBrowse groupDetails menuitem[action=edit]': {
                 click: this.editGroupMenu
             },
             'groupBrowse groupList uni-actioncolumn': {

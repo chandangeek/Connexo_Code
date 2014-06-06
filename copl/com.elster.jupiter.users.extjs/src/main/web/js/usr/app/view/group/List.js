@@ -6,7 +6,8 @@ Ext.define('Usr.view.group.List', {
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Usr.store.Groups'
+        'Usr.store.Groups',
+        'Usr.view.group.GroupActionMenu'
     ],
 
     store: 'Usr.store.Groups',
@@ -32,13 +33,7 @@ Ext.define('Usr.view.group.List', {
                 },
                 {
                     xtype: 'uni-actioncolumn',
-                    items: [
-                        {
-                            text: Uni.I18n.translate('general.edit', 'USM', 'Edit'),
-                            itemId: 'editGroup',
-                            action: 'edit'
-                        }
-                    ]
+                    items: 'Usr.view.group.GroupActionMenu'
                 }
             ]
         };

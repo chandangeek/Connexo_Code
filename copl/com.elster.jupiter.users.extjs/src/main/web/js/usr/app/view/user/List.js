@@ -6,7 +6,8 @@ Ext.define('Usr.view.user.List', {
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Usr.store.Users'
+        'Usr.store.Users',
+        'Usr.view.user.UserActionMenu'
     ],
 
     store: 'Usr.store.Users',
@@ -37,13 +38,7 @@ Ext.define('Usr.view.user.List', {
                 },
                 {
                     xtype: 'uni-actioncolumn',
-                    items: [
-                        {
-                            text: Uni.I18n.translate('general.edit', 'USM', 'Edit'),
-                            itemId: 'editUser',
-                            action: 'edit'
-                        }
-                    ]
+                    items: 'Usr.view.user.UserActionMenu'
                 }
             ]
         };
