@@ -24,6 +24,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 import javax.inject.Inject;
 import javax.inject.Provider;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.Range;
 
@@ -53,10 +54,13 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
     @Range(min = 1, max = 20, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS + "}")
     private int numberOfDigits;
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS + "}")
+    @Min(value=0, groups = { Save.Create.class, Save.Update.class }, message = "{"+MessageSeeds.Keys.REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS + "}")
     private Integer numberOfFractionDigits;
     private String overruledObisCodeString;
     private ObisCode overruledObisCode;
+    @Min(value=1, groups = { Save.Create.class, Save.Update.class }, message = "{"+MessageSeeds.Keys.REGISTER_SPEC_INVALID_OVERFLOW_VALUE + "}") //
     private BigDecimal overflow;
+    @Min(value=1, groups = { Save.Create.class, Save.Update.class }, message = "{"+MessageSeeds.Keys.REGISTER_SPEC_INVALID_MULTIPLIER_VALUE + "}") //
     private BigDecimal multiplier = BigDecimal.ONE;
     private MultiplierMode multiplierMode = MultiplierMode.CONFIGURED_ON_OBJECT;
 
@@ -326,7 +330,7 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
             if (this.registerSpec.getMultiplier()==null) {
                 registerSpec.setMultiplier(DEFAULT_MULTIPLIER);
             }
-            if (this.registerSpec.getOverflowValue()==null) {
+            if (this.registerSpec.getOverflowValue()==null && registerSpec.getNumberOfDigits()>0) {
                 registerSpec.setOverflow(BigDecimal.TEN.pow(registerSpec.getNumberOfDigits()));
             }
         }

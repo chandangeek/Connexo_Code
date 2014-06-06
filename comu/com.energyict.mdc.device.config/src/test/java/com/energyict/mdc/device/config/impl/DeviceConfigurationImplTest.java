@@ -19,7 +19,6 @@ import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotAddToActiveDeviceConfigurationException;
-import com.energyict.mdc.device.config.exceptions.DeviceConfigurationIsActiveException;
 import com.energyict.mdc.device.config.exceptions.DuplicateLoadProfileTypeException;
 import com.energyict.mdc.device.config.exceptions.DuplicateLogBookTypeException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
@@ -108,7 +107,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.INCORRECT_SIZE + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     public void createWithoutNameTest() {
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = this.deviceType.newConfiguration("");
         deviceConfigurationBuilder.add();
@@ -117,7 +116,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.INCORRECT_SIZE + "}",property = "name")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}",property = "name")
     public void createWithWhiteSpaceNameTest() {
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = this.deviceType.newConfiguration(" ");
         deviceConfigurationBuilder.add();
@@ -364,13 +363,45 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
         deviceConfiguration.save();
     }
 
-    @Test(expected = DeviceConfigurationIsActiveException.class)
+    @Test
     @Transactional
-    public void testCanNotRemoveDeviceConfigIfInUse() throws Exception {
+    public void testCanUpdateNameWhenDeviceConfigIfInUse() throws Exception {
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("first").description("this is it!").add();
         deviceConfiguration.activate();
 
         deviceConfiguration.setName("updated");
+        deviceConfiguration.save();
+    }
+
+    @Test
+    @Transactional
+    public void testCanUpdateDescriptionWhenDeviceConfigIfInUse() throws Exception {
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("first").description("this is it!").add();
+        deviceConfiguration.activate();
+
+        deviceConfiguration.setDescription("updated");
+        deviceConfiguration.save();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.DEVICE_CONFIG_ACTIVE_FIELD_IMMUTABLE+"}", property = "canActAsGateway", strict = false)
+    public void testCanNotUpdateGatewayWhenDeviceConfigIfInUse() throws Exception {
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("first").description("this is it!").canActAsGateway(false).add();
+        deviceConfiguration.activate();
+
+        deviceConfiguration.setCanActAsGateway(true);
+        deviceConfiguration.save();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.DEVICE_CONFIG_ACTIVE_FIELD_IMMUTABLE+"}", property = "isDirectlyAddressable", strict = false)
+    public void testCanNotUpdateDirectAddressWhenDeviceConfigIfInUse() throws Exception {
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("first").description("this is it!").isDirectlyAddressable(false).add();
+        deviceConfiguration.activate();
+
+        deviceConfiguration.setCanBeDirectlyAddressed(true);
         deviceConfiguration.save();
     }
 }

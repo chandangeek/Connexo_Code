@@ -55,9 +55,13 @@ public class LoadProfileSpecImplTest extends DeviceTypeProvidingPersistenceTest 
         deviceType.save();
     }
 
+    private DeviceConfiguration getReloadedDeviceConfiguration(){
+        return inMemoryPersistence.getDeviceConfigurationService().findDeviceConfiguration(this.deviceConfiguration.getId());
+    }
+    
     private LoadProfileSpec createDefaultTestingLoadProfileSpecWithOverruledObisCode() {
         LoadProfileSpec loadProfileSpec;
-        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = deviceConfiguration.createLoadProfileSpec(this.loadProfileType);
+        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = getReloadedDeviceConfiguration().createLoadProfileSpec(this.loadProfileType);
         loadProfileSpecBuilder.setOverruledObisCode(overruledLoadProfileSpecObisCode);
         loadProfileSpec = loadProfileSpecBuilder.add();
         return loadProfileSpec;
@@ -68,8 +72,8 @@ public class LoadProfileSpecImplTest extends DeviceTypeProvidingPersistenceTest 
     public void createLoadProfileSpecTest() {
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
 
-        assertThat(loadProfileSpec.getLoadProfileType()).isEqualTo(this.loadProfileType);
-        assertThat(loadProfileSpec.getDeviceConfiguration()).isEqualTo(this.deviceConfiguration);
+        assertThat(loadProfileSpec.getLoadProfileType().getId()).isEqualTo(this.loadProfileType.getId());
+        assertThat(loadProfileSpec.getDeviceConfiguration().getId()).isEqualTo(getReloadedDeviceConfiguration().getId());
         assertThat(loadProfileSpec.getDeviceObisCode()).isEqualTo(this.overruledLoadProfileSpecObisCode);
         assertThat(loadProfileSpec.getObisCode()).isEqualTo(this.loadProfileTypeObisCode);
         assertThat(loadProfileSpec.getInterval()).isEqualTo(this.interval);
@@ -80,12 +84,12 @@ public class LoadProfileSpecImplTest extends DeviceTypeProvidingPersistenceTest 
     public void updateLoadProfileSpecTest() {
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
 
-        LoadProfileSpec.LoadProfileSpecUpdater loadProfileSpecUpdater = this.deviceConfiguration.getLoadProfileSpecUpdaterFor(loadProfileSpec);
+        LoadProfileSpec.LoadProfileSpecUpdater loadProfileSpecUpdater = this.getReloadedDeviceConfiguration().getLoadProfileSpecUpdaterFor(loadProfileSpec);
         loadProfileSpec.setOverruledObisCode(null);
         loadProfileSpecUpdater.update();
 
-        assertThat(loadProfileSpec.getLoadProfileType()).isEqualTo(this.loadProfileType);
-        assertThat(loadProfileSpec.getDeviceConfiguration()).isEqualTo(this.deviceConfiguration);
+        assertThat(loadProfileSpec.getLoadProfileType().getId()).isEqualTo(this.loadProfileType.getId());
+        assertThat(loadProfileSpec.getDeviceConfiguration().getId()).isEqualTo(getReloadedDeviceConfiguration().getId());
         assertThat(loadProfileSpec.getDeviceObisCode()).isEqualTo(this.loadProfileTypeObisCode);
         assertThat(loadProfileSpec.getObisCode()).isEqualTo(this.loadProfileTypeObisCode);
         assertThat(loadProfileSpec.getInterval()).isEqualTo(this.interval);
@@ -97,15 +101,15 @@ public class LoadProfileSpecImplTest extends DeviceTypeProvidingPersistenceTest 
         LoadProfileType loadProfileType = inMemoryPersistence.getMasterDataService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME + "Incorrect", loadProfileTypeObisCode, interval);
         loadProfileType.save();
 
-        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = this.deviceConfiguration.createLoadProfileSpec(loadProfileType);
+        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = this.getReloadedDeviceConfiguration().createLoadProfileSpec(loadProfileType);
         loadProfileSpecBuilder.add();
     }
 
     @Test(expected = CannotAddToActiveDeviceConfigurationException.class)
     @Transactional
     public void addWithActiveDeviceConfigurationTest() {
-        this.deviceConfiguration.activate();
-        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpec = this.deviceConfiguration.createLoadProfileSpec(loadProfileType);
+        this.getReloadedDeviceConfiguration().activate();
+        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpec = this.getReloadedDeviceConfiguration().createLoadProfileSpec(loadProfileType);
         loadProfileSpec.add();
     }
 
@@ -115,9 +119,9 @@ public class LoadProfileSpecImplTest extends DeviceTypeProvidingPersistenceTest 
         LoadProfileType loadProfileType2 = inMemoryPersistence.getMasterDataService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME + "other", loadProfileTypeObisCode, interval);
         loadProfileType2.save();
         this.deviceType.addLoadProfileType(loadProfileType2);
-        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpec1 = this.deviceConfiguration.createLoadProfileSpec(loadProfileType);
+        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpec1 = this.getReloadedDeviceConfiguration().createLoadProfileSpec(loadProfileType);
         loadProfileSpec1.add();
-        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpec2 = this.deviceConfiguration.createLoadProfileSpec(loadProfileType2);
+        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpec2 = this.getReloadedDeviceConfiguration().createLoadProfileSpec(loadProfileType2);
         loadProfileSpec2.add();
     }
 
@@ -127,9 +131,9 @@ public class LoadProfileSpecImplTest extends DeviceTypeProvidingPersistenceTest 
         LoadProfileType loadProfileType2 = inMemoryPersistence.getMasterDataService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME + "other", ObisCode.fromString("1.0.99.98.0.255"), interval);
         loadProfileType2.save();
         this.deviceType.addLoadProfileType(loadProfileType2);
-        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpec1 = this.deviceConfiguration.createLoadProfileSpec(loadProfileType);
+        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpec1 = this.getReloadedDeviceConfiguration().createLoadProfileSpec(loadProfileType);
         loadProfileSpec1.add();
-        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpec2 = this.deviceConfiguration.createLoadProfileSpec(loadProfileType2);
+        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpec2 = this.getReloadedDeviceConfiguration().createLoadProfileSpec(loadProfileType2);
         loadProfileSpec2.setOverruledObisCode(loadProfileTypeObisCode);
         loadProfileSpec2.add();
     }
@@ -140,11 +144,11 @@ public class LoadProfileSpecImplTest extends DeviceTypeProvidingPersistenceTest 
         LoadProfileType loadProfileType2 = inMemoryPersistence.getMasterDataService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME + "other", ObisCode.fromString("1.0.99.98.0.255"), interval);
         loadProfileType2.save();
         this.deviceType.addLoadProfileType(loadProfileType2);
-        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder1 = this.deviceConfiguration.createLoadProfileSpec(loadProfileType);
+        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder1 = this.getReloadedDeviceConfiguration().createLoadProfileSpec(loadProfileType);
         loadProfileSpecBuilder1.add();
-        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder2 = this.deviceConfiguration.createLoadProfileSpec(loadProfileType2);
+        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder2 = this.getReloadedDeviceConfiguration().createLoadProfileSpec(loadProfileType2);
         LoadProfileSpec loadProfileSpec = loadProfileSpecBuilder2.add();
-        LoadProfileSpec.LoadProfileSpecUpdater loadProfileSpecUpdater = this.deviceConfiguration.getLoadProfileSpecUpdaterFor(loadProfileSpec);
+        LoadProfileSpec.LoadProfileSpecUpdater loadProfileSpecUpdater = this.getReloadedDeviceConfiguration().getLoadProfileSpecUpdaterFor(loadProfileSpec);
         loadProfileSpecUpdater.setOverruledObisCode(loadProfileTypeObisCode);
         loadProfileSpecUpdater.update();
     }
@@ -154,7 +158,7 @@ public class LoadProfileSpecImplTest extends DeviceTypeProvidingPersistenceTest 
     public void successfulDeleteTest() {
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
 
-        this.deviceConfiguration.deleteLoadProfileSpec(loadProfileSpec);
+        this.getReloadedDeviceConfiguration().deleteLoadProfileSpec(loadProfileSpec);
     }
 
     @Test(expected = CannotDeleteFromActiveDeviceConfigurationException.class)
@@ -162,8 +166,8 @@ public class LoadProfileSpecImplTest extends DeviceTypeProvidingPersistenceTest 
     public void deleteFromActiveDeviceConfigurationTest() {
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
 
-        this.deviceConfiguration.activate();
-        this.deviceConfiguration.deleteLoadProfileSpec(loadProfileSpec);
+        this.getReloadedDeviceConfiguration().activate();
+        this.getReloadedDeviceConfiguration().deleteLoadProfileSpec(loadProfileSpec);
     }
 
     @Test
@@ -171,7 +175,7 @@ public class LoadProfileSpecImplTest extends DeviceTypeProvidingPersistenceTest 
     public void buildingCompletionListenerTest() {
         LoadProfileSpec.BuildingCompletionListener buildingCompletionListener = mock(LoadProfileSpec.BuildingCompletionListener.class);
         LoadProfileSpec loadProfileSpec;
-        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = deviceConfiguration.createLoadProfileSpec(this.loadProfileType);
+        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = getReloadedDeviceConfiguration().createLoadProfileSpec(this.loadProfileType);
         loadProfileSpecBuilder.setOverruledObisCode(overruledLoadProfileSpecObisCode);
         loadProfileSpecBuilder.notifyOnAdd(buildingCompletionListener);
         loadProfileSpec = loadProfileSpecBuilder.add();

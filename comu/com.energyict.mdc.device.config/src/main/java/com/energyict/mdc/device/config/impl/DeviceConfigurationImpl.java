@@ -68,7 +68,8 @@ import javax.validation.constraints.Size;
  * User: gde
  * Date: 5/11/12
  */
-@DeviceFunctionsAreSupportedByProtocol
+@DeviceFunctionsAreSupportedByProtocol(groups = {Save.Update.class, Save.Create.class})
+@ImmutablePropertiesCanNotChangeForActiveConfiguration(groups = {Save.Update.class, Save.Create.class})
 public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfiguration> implements DeviceConfiguration, ServerDeviceConfiguration {
 
     private static final DeviceCommunicationFunctionSetPersister deviceCommunicationFunctionSetPersister = new DeviceCommunicationFunctionSetPersister();
@@ -87,7 +88,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         }
     }
 
-    @Size(min=0, max=4000, groups = {Save.Update.class, Save.Create.class}, message = "{"+ MessageSeeds.Keys.INCORRECT_SIZE+"}")
+    @Size(max=4000, groups = {Save.Update.class, Save.Create.class}, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG +"}")
     private String description;
 
     private boolean active;
@@ -410,7 +411,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
             throw CannotDeleteFromActiveDeviceConfigurationException.canNotDeleteRegisterSpec(this.thesaurus, this, registerSpec);
         }
         registerSpec.validateDelete();
-        this.registerSpecs.remove(registerSpec);
+        removeFromHasIdList(this.registerSpecs,registerSpec);
         this.eventService.postEvent(EventType.DEVICETYPE_DELETED.topic(),registerSpec);
     }
 
@@ -488,7 +489,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
             throw CannotDeleteFromActiveDeviceConfigurationException.forChannelSpec(this.thesaurus, channelSpec, this);
         }
         channelSpec.validateDelete();
-        this.channelSpecs.remove(channelSpec);
+        removeFromHasIdList(this.channelSpecs, channelSpec);
         this.eventService.postEvent(EventType.DEVICETYPE_DELETED.topic(),channelSpec);
     }
 
@@ -559,7 +560,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
             throw CannotDeleteFromActiveDeviceConfigurationException.forLoadProfileSpec(this.thesaurus, loadProfileSpec, this);
         }
         loadProfileSpec.validateDelete();
-        this.loadProfileSpecs.remove(loadProfileSpec);
+        removeFromHasIdList(this.loadProfileSpecs,loadProfileSpec);
         this.eventService.postEvent(EventType.DEVICETYPE_DELETED.topic(),loadProfileSpec);
     }
 
@@ -631,16 +632,12 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         }
     }
 
-    private boolean isSameIdObject(HasId first, HasId second) {
-        return first.getId() == second.getId();
-    }
-
     public void deleteLogBookSpec(LogBookSpec logBookSpec) {
         if (isActive()) {
             throw CannotDeleteFromActiveDeviceConfigurationException.forLogbookSpec(this.thesaurus, logBookSpec, this);
         }
         logBookSpec.validateDelete();
-        this.logBookSpecs.remove(logBookSpec);
+        removeFromHasIdList(this.logBookSpecs,logBookSpec);
         this.eventService.postEvent(EventType.DEVICETYPE_DELETED.topic(),logBookSpec);
     }
 
@@ -668,9 +665,6 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     @Override
     public void save() {
-        if (isActive()) {
-            throw new DeviceConfigurationIsActiveException(this.thesaurus, this);
-        }
         this.modificationDate = this.clock.now();
         super.save();
     }
