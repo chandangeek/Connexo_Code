@@ -4,6 +4,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.impl.MessageSeeds;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
@@ -82,7 +83,9 @@ public class ConstraintViolationInfo {
     }
 
     public ConstraintViolationInfo from(LocalizedFieldValidationException fieldException) {
-        addFieldError(fieldException.getViolatingProperty(), thesaurus.getString(fieldException.getMessageSeed().getKey(), fieldException.getMessageSeed().getDefaultFormat()));
+        String messageTemplate = thesaurus.getString(fieldException.getMessageSeed().getKey(), fieldException.getMessageSeed().getDefaultFormat());
+        StringBuffer formattedMessage = new MessageFormat(messageTemplate).format(fieldException.getArgs(), new StringBuffer(), null);
+        addFieldError(fieldException.getViolatingProperty(), formattedMessage.toString());
         return this;
     }
 
