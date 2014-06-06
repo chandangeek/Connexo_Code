@@ -1,7 +1,7 @@
 package com.elster.jupiter.rest.util;
 
-import com.elster.jupiter.nls.NlsService;
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import org.codehaus.jackson.map.JsonMappingException;
@@ -13,15 +13,16 @@ import org.codehaus.jackson.map.JsonMappingException;
  */
 public  class JsonMappingExceptionMapper implements ExceptionMapper<JsonMappingException> {
 
-    private final NlsService nlsService;
+
+    private final Provider<ConstraintViolationInfo> infoProvider;
 
     @Inject
-    public JsonMappingExceptionMapper(NlsService nlsService) {
-        this.nlsService = nlsService;
+    public JsonMappingExceptionMapper(Provider<ConstraintViolationInfo> infoProvider) {
+        this.infoProvider = infoProvider;
     }
 
     @Override
     public Response toResponse(JsonMappingException exception) {
-        return Response.status(Response.Status.BAD_REQUEST).entity(new ConstraintViolationInfo(nlsService).from(exception)).build();
+        return Response.status(Response.Status.BAD_REQUEST).entity(infoProvider.get().from(exception)).build();
     }
 }

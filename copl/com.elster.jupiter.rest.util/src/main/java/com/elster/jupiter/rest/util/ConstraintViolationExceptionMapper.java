@@ -1,11 +1,10 @@
 package com.elster.jupiter.rest.util;
 
-import com.elster.jupiter.nls.NlsService;
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.validation.ConstraintViolationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
-import javax.ws.rs.ext.Provider;
 
 /**
  * Whenever a REST call results in a ConstraintViolationException, this mapper will convert the exception in a Result understood by our
@@ -25,19 +24,19 @@ import javax.ws.rs.ext.Provider;
  *      ]
  * }
  */
-@Provider
 public class ConstraintViolationExceptionMapper implements ExceptionMapper<ConstraintViolationException>{
 
-    private final NlsService nlsService;
+
+    private final Provider<ConstraintViolationInfo> infoProvider;
 
     @Inject
-    public ConstraintViolationExceptionMapper(NlsService nlsService) {
-        this.nlsService = nlsService;
+    public ConstraintViolationExceptionMapper(Provider<ConstraintViolationInfo> infoProvider) {
+        this.infoProvider = infoProvider;
     }
 
     @Override
     public Response toResponse(ConstraintViolationException exception) {
-        return Response.status(Response.Status.BAD_REQUEST).entity(new ConstraintViolationInfo(nlsService).from(exception)).build();
+        return Response.status(Response.Status.BAD_REQUEST).entity(infoProvider.get().from(exception)).build();
     }
 
 }

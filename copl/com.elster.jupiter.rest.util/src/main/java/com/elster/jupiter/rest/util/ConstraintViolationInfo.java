@@ -1,7 +1,8 @@
 package com.elster.jupiter.rest.util;
 
-import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.impl.MessageSeeds;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +34,7 @@ import org.codehaus.jackson.map.JsonMappingException;
 public class ConstraintViolationInfo {
     @JsonIgnore
     private final NlsService nlsService;
+    private final Thesaurus thesaurus;
     @JsonProperty("success")
     public final boolean success = false;
     @JsonProperty("message")
@@ -43,8 +45,9 @@ public class ConstraintViolationInfo {
     public List<FieldError> errors = new ArrayList<>();
 
     @Inject
-    public ConstraintViolationInfo(NlsService nlsService) {
+    public ConstraintViolationInfo(NlsService nlsService, Thesaurus thesaurus) {
         this.nlsService = nlsService;
+        this.thesaurus = thesaurus;
     }
 
     public ConstraintViolationInfo from(ConstraintViolationException exception) {
@@ -57,16 +60,13 @@ public class ConstraintViolationInfo {
         return this;
     }
 
-    public void addFieldError(String fieldIdentifier, String fieldLevelMessage) {
+    private void addFieldError(String fieldIdentifier, String fieldLevelMessage) {
         errors.add(new FieldError(fieldIdentifier, fieldLevelMessage));
     }
 
     public ConstraintViolationInfo from(JsonMappingException exception) {
         String property = getPathAsSingleProperty(exception);
-
-        errors.add(new FieldError(property,
-                nlsService.getThesaurus(MessageSeeds.COMPONENT_NAME, Layer.REST).getString(MessageSeeds.INVALID_VALUE.getKey(), "Invalid value")));
-
+        addFieldError(property, thesaurus.getString(MessageSeeds.INVALID_VALUE.getKey(), "Invalid value"));
         return this;
     }
 
@@ -79,6 +79,11 @@ public class ConstraintViolationInfo {
             property+=reference.getFieldName();
         }
         return property;
+    }
+
+    public ConstraintViolationInfo from(LocalizedFieldValidationException fieldException) {
+        addFieldError(fieldException.getViolatingProperty(), thesaurus.getString(fieldException.getMessageSeed().getKey(), fieldException.getMessageSeed().getDefaultFormat()));
+        return this;
     }
 
     class FieldError {

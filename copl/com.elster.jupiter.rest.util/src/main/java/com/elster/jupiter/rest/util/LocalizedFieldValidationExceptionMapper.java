@@ -19,10 +19,7 @@ public class LocalizedFieldValidationExceptionMapper implements ExceptionMapper<
 
     @Override
     public Response toResponse(LocalizedFieldValidationException fieldException) {
-        ConstraintViolationInfo constraintViolationInfo = infoProvider.get();
-        constraintViolationInfo.addFieldError(fieldException.getViolatingProperty(), fieldException.getLocalizedMessage());
-
-        return Response.status(Response.Status.BAD_REQUEST).entity(constraintViolationInfo).build();
+        return Response.status(Response.Status.BAD_REQUEST).entity(infoProvider.get().from(fieldException)).build();
     }
 
 }
