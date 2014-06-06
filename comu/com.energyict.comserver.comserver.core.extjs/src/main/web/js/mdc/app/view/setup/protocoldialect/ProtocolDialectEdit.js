@@ -22,102 +22,81 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectEdit', {
     },
 
     initComponent: function () {
+        var me = this;
         this.content = [
             {
                 xtype: 'container',
-                cls: 'content-container',
-                width: '100%',
-                overflowY: true,
                 layout: {
-                    type: 'vbox',
-                    align: 'stretch'
+                    type: 'vbox'
+                    //align: 'stretch'
                 },
 
                 items: [
                     {
                         xtype: 'component',
                         html: '',
-                        itemId: 'protocolDialectEditAddTitle',
-                        margins: '10 10 10 10'
+                        itemId: 'protocolDialectEditAddTitle'
                     },
                     {
-                        xtype: 'container',
+                        //   xtype: 'container',
+                        //   items: [
+                        //      {
+                        xtype: 'form',
+                        border: false,
+                        itemId: 'protocolDialectEditForm',
+                        layout: {
+                            type: 'vbox',
+                            align: 'stretch'
+                        },
+                        defaults: {
+                            labelWidth: 250
+                        },
                         items: [
                             {
-                                xtype: 'form',
-                                border: false,
-                                itemId: 'protocolDialectEditForm',
-                                padding: '10 10 0 10',
-                                width: ' 100%',
-                                layout: {
-                                    type: 'vbox'
-                                },
-                                defaults: {
-                                    labelWidth: 250
-                                },
-
-                                items: [
-                                    {
-                                        xtype: 'displayfield',
-                                        name: 'name',
-                                        fieldLabel: Uni.I18n.translate('protocolDialect.name', 'MDC', 'Name'),
-                                        itemId: 'editProtocolDialectNameField',
-                                        width: 650
-
-                                    }
-                                ]
-                            },
-                            {
-                                xtype: 'propertyEdit',
-                                width: '100%',
-                                padding: '10 10 0 10'
+                                xtype: 'displayfield',
+                                name: 'name',
+                                fieldLabel: Uni.I18n.translate('protocolDialect.name', 'MDC', 'Name'),
+                                itemId: 'editProtocolDialectNameField',
+                                width: 650
                             }
-                        ]},
+                        ]
+                    },
                     {
-                        xtype: 'container',
-                        margins: '10 10 10 10',
+                        xtype: 'propertyEdit',
+                        width: '100%'
+                    },
+                    {
+                        xtype: 'form',
+                        border: false,
+                        itemId: 'protocolDialectEditButtonsForm',
+                        layout: {
+                            type: 'vbox',
+                            align: 'stretch'
+                        },
                         width: '100%',
+                        defaults: {
+                            labelWidth: 250
+                        },
                         items: [
-
                             {
-                                xtype: 'form',
-                                border: false,
-                                itemId: 'protocolDialectEditButtonsForm',
-
-                                width: '100%',
-                                layout: {
-                                    type: 'vbox'
-                                },
-                                defaults: {
-                                    labelWidth: 250
-                                },
+                                xtype: 'fieldcontainer',
+                                ui: 'actions',
+                                fieldLabel: '&nbsp',
                                 items: [
                                     {
-                                        xtype: 'fieldcontainer',
-                                        fieldLabel: '&nbsp',
-                                        layout: {
-                                            type: 'hbox',
-                                            align: 'stretch'
-                                        },
-                                        width: '100%',
-                                        items: [
-                                            {
-                                                text: Uni.I18n.translate('general.create', 'MDC', 'Create'),
-                                                xtype: 'button',
-                                                action: 'createAction',
-                                                itemId: 'addEditButton'
-                                            },
-                                            {
-                                                xtype: 'component',
-                                                padding: '3 0 0 10',
-                                                itemId: 'cancelLink',
-                                                autoEl: {
-                                                    tag: 'a',
-                                                    href: '#/administration/devicetypes/',
-                                                    html: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel')
-                                                }
-                                            }
-                                        ]
+                                        text: Uni.I18n.translate('general.save', 'MDC', 'Save'),
+                                        xtype: 'button',
+                                        ui: 'action',
+                                        action: 'createAction',
+                                        itemId: 'addEditButton'
+                                    },
+                                    {
+                                        text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                                        xtype: 'button',
+                                        ui: 'link',
+                                        itemId: 'cancelLink',
+                                        href: '#/administration/devicetypes/'
+
                                     }
                                 ]
                             }
@@ -125,7 +104,8 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectEdit', {
                     }
                 ]
             }
-        ];
+        ]
+        ;
         this.callParent(arguments);
         if (this.isEdit()) {
             this.down('#addEditButton').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
@@ -138,7 +118,8 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectEdit', {
 
     }
 
-});
+})
+;
 
 
 
