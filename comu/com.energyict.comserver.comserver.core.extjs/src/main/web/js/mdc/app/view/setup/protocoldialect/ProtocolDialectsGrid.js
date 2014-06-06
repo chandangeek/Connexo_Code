@@ -8,34 +8,14 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectsGrid', {
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Mdc.store.ProtocolDialectsOfDeviceConfiguration'
+        'Mdc.store.ProtocolDialectsOfDeviceConfiguration',
+        'Mdc.view.setup.protocoldialect.ProtocolDialectActionMenu'
     ],
     selModel: {
         mode: 'SINGLE'
     },
     store: 'ProtocolDialectsOfDeviceConfiguration',
-    listeners: {
-        'render': function (component) {
-            // Get sure that the store is not loading and that it
-            // has at least a record on it
-            if (this.store.isLoading() || this.store.getCount() == 0) {
-                // If it is still pending attach a listener to load
-                // event for a single time to handle the selection
-                // after the store has been loaded
-                this.store.on('load', function () {
-                    this.getView().getSelectionModel().select(0);
-                    this.getView().focusRow(0);
-                }, this, {
-                    single: true
-                });
-            } else {
-                this.getView().getSelectionModel().select(0);
-                this.getView().focusRow(0);
-            }
 
-        }
-    },
-    padding: '10 10 10 10',
     initComponent: function () {
         var me = this;
         this.columns = [
@@ -46,12 +26,7 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectsGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
-                items: [
-                    {
-                        text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                        action: 'editItem'
-                    }
-                ]
+                items: 'Mdc.view.setup.protocoldialect.ProtocolDialectActionMenu'
             }
 
         ];
