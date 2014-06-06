@@ -1,12 +1,12 @@
 package com.energyict.mdc.scheduling.rest.impl;
 
 import com.elster.jupiter.devtools.ExtjsFilter;
-import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
+import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
@@ -42,6 +42,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
@@ -84,6 +85,7 @@ public class SchedulingResourceTest extends JerseyTest {
         ResourceConfig resourceConfig = new ResourceConfig(
                 SchedulingResource.class,
                 ConstraintViolationExceptionMapper.class,
+                LocalizedFieldValidationExceptionMapper.class,
                 LocalizedExceptionMapper.class);
         resourceConfig.register(JacksonFeature.class); // Server side JSON processing
         resourceConfig.register(new AbstractBinder() {
@@ -396,9 +398,7 @@ public class SchedulingResourceTest extends JerseyTest {
 
     @Test
     public void testGetAvailableComTasksOfScheduleWithFaultyFilter() throws Exception {
-        NlsMessageFormat nlsMessageFormat = mock(NlsMessageFormat.class);
-        when(thesaurus.getFormat(com.energyict.mdc.common.impl.MessageSeeds.INVALID_VALUE)).thenReturn(nlsMessageFormat);
-        when(nlsMessageFormat.format(any())).thenReturn("");
+        when(thesaurus.getString(anyString(), anyString())).thenReturn("");
         ComSchedule mockedSchedule = mock(ComSchedule.class);
         when(schedulingService.findSchedule(1L)).thenReturn(mockedSchedule);
 
