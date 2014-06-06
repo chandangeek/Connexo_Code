@@ -278,12 +278,16 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         });
     },
 
-    setCheckBoxes: function (deviceType) {
-        if (!deviceType.get('canBeGateway')) {
+    setCheckBoxes: function (deviceType,deviceConfiguration) {
+        if(deviceConfiguration.get('active')){
+            this.getGatewayCheckbox().setDisabled(true);
+            this.getAddressableCheckbox().setDisabled(true);
+        }
+        else if (!deviceType.get('canBeGateway')) {
             this.getGatewayCheckbox().setDisabled(!deviceType.get('canBeGateway'));
             this.getGatewayMessage().show();
         }
-        if (!deviceType.get('canBeDirectlyAddressed')) {
+        else if (!deviceType.get('canBeDirectlyAddressed')) {
             this.getAddressableCheckbox().setDisabled(!deviceType.get('canBeDirectlyAddressed'));
             this.getAddressableMessage().show();
         }
@@ -315,7 +319,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                         me.getApplication().fireEvent('loadDeviceType', deviceType);
                         widget.down('form').loadRecord(deviceConfiguration);
                         widget.down('#deviceConfigurationEditCreateTitle').update('<h1>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + deviceConfiguration.get('name') + '"</h1>');
-                        me.setCheckBoxes(deviceType);
+                        me.setCheckBoxes(deviceType,deviceConfiguration);
                         widget.setLoading(false);
                     }
                 });
