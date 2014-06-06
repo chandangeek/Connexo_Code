@@ -69,13 +69,13 @@ public class OfflineDeviceImplTest {
     private static final String cp_propValue2 = "CP_PropValue2";
     private static final String cp_propValue3 = "CP_PropValue3";
 
-    private static final String rtu_prop1 = "RTU_Prop1";
-    private static final String rtu_prop2 = "RTU_Prop2";
-    private static final String rtu_prop3 = "RTU_Prop3";
+    private static final String device_prop1 = "DEVICE_Prop1";
+    private static final String device_prop2 = "DEVICE_Prop2";
+    private static final String device_prop3 = "DEVICE_Prop3";
     private static final String DEVICE_TIMEZONE_PROPERTY = "deviceTimeZone";
-    private static final String rtu_propValue1 = "RTU_PropValue1";
-    private static final String rtu_propValue2 = "RTU_PropValue2";
-    private static final String rtu_propValue3 = "RTU_PropValue3";
+    private static final String device_propValue1 = "DEVICE_PropValue1";
+    private static final String device_propValue2 = "DEVICE_PropValue2";
+    private static final String device_propValue3 = "DEVICE_PropValue3";
 
     private static final String meterSerialNumber = "MeterSerialNumber";
     private static final int DEVICE_ID = 93;
@@ -106,9 +106,9 @@ public class OfflineDeviceImplTest {
 
     private TypedProperties getDeviceProperties() {
         TypedProperties properties = TypedProperties.empty();
-        properties.setProperty(rtu_prop1, rtu_propValue1);
-        properties.setProperty(rtu_prop2, rtu_propValue2);
-        properties.setProperty(rtu_prop3, rtu_propValue3);
+        properties.setProperty(device_prop1, device_propValue1);
+        properties.setProperty(device_prop2, device_propValue2);
+        properties.setProperty(device_prop3, device_propValue3);
         return properties;
     }
 
@@ -167,10 +167,10 @@ public class OfflineDeviceImplTest {
         assertEquals(cp_propValue1, offlineRtu.getAllProperties().getProperty(cp_prop1));
         assertEquals(cp_propValue2, offlineRtu.getAllProperties().getProperty(cp_prop2));
         assertEquals(cp_propValue3, offlineRtu.getAllProperties().getProperty(cp_prop3));
-        assertEquals(rtu_propValue1, offlineRtu.getAllProperties().getProperty(rtu_prop1));
-        assertEquals(rtu_propValue2, offlineRtu.getAllProperties().getProperty(rtu_prop2));
-        assertEquals(rtu_propValue3, offlineRtu.getAllProperties().getProperty(rtu_prop3));
-        assertEquals(rtu_propValue3, offlineRtu.getAllProperties().getProperty(rtu_prop3));
+        assertEquals(device_propValue1, offlineRtu.getAllProperties().getProperty(device_prop1));
+        assertEquals(device_propValue2, offlineRtu.getAllProperties().getProperty(device_prop2));
+        assertEquals(device_propValue3, offlineRtu.getAllProperties().getProperty(device_prop3));
+        assertEquals(device_propValue3, offlineRtu.getAllProperties().getProperty(device_prop3));
         assertEquals(offlineRtu.getSerialNumber(), offlineRtu.getAllProperties().getProperty(MeterProtocol.SERIALNUMBER));
     }
 

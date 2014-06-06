@@ -285,7 +285,7 @@ public class WebSocketQueryApiServiceTest {
 
     private void updateComPortModificationDate (ComPort comPort, Date modificationDate) throws SQLException {
         SqlBuilder sqlBuilder = new SqlBuilder();
-        sqlBuilder.append("update mdccomport set mod_date = ?");
+        sqlBuilder.append("update mdc_comport set mod_date = ?");
         sqlBuilder.bindDate(modificationDate);
         sqlBuilder.append(" where id = ?");
         sqlBuilder.bindLong(comPort.getId());

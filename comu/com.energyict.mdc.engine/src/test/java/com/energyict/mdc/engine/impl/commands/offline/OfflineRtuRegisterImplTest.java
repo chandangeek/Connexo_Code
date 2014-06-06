@@ -69,11 +69,11 @@ public class OfflineRtuRegisterImplTest {
 
         // asserts
         assertThat(offlineRegister).isNotNull();
-        assertEquals("Expected the correct RtuRegisterID", REGISTER_SPEC_ID, offlineRegister.getRegisterId());
-        assertEquals("Expected the correct obiscode", RTU_REGISTER_MAPPING_OBISCODE, offlineRegister.getObisCode());
-        assertEquals("Expected the correct unit", REGISTER_UNIT, offlineRegister.getUnit());
-        assertEquals("Expected the correct registerGroupId", RTU_REGISTER_GROUP_ID, offlineRegister.getRegisterGroupId());
-        assertEquals("Expected the correct SerialNumber", METER_SERIAL_NUMBER, offlineRegister.getSerialNumber());
+        assertEquals(REGISTER_SPEC_ID, offlineRegister.getRegisterId());
+        assertEquals(RTU_REGISTER_MAPPING_OBISCODE, offlineRegister.getObisCode());
+        assertEquals(REGISTER_UNIT, offlineRegister.getUnit());
+        assertEquals(RTU_REGISTER_GROUP_ID, offlineRegister.getRegisterGroupId());
+        assertEquals(METER_SERIAL_NUMBER, offlineRegister.getSerialNumber());
     }
 
     @Test
@@ -90,10 +90,10 @@ public class OfflineRtuRegisterImplTest {
 
         // asserts
         assertThat(offlineRegister).isNotNull();
-        assertEquals("Expected the correct RtuRegisterID", REGISTER_SPEC_ID, offlineRegister.getRegisterId());
-        assertEquals("Expected the correct obiscode", RTU_REGISTER_MAPPING_OBISCODE, offlineRegister.getObisCode());
-        assertEquals("Expected the correct unit", REGISTER_UNIT, offlineRegister.getUnit());
-        assertEquals("Expected the correct registerGroupId", DEFAULT_RTU_REGISTER_GROUP_ID, offlineRegister.getRegisterGroupId());
-        assertEquals("Expected the correct SerialNumber", METER_SERIAL_NUMBER, offlineRegister.getSerialNumber());
+        assertEquals(REGISTER_SPEC_ID, offlineRegister.getRegisterId());
+        assertEquals(RTU_REGISTER_MAPPING_OBISCODE, offlineRegister.getObisCode());
+        assertEquals(REGISTER_UNIT, offlineRegister.getUnit());
+        assertEquals(DEFAULT_RTU_REGISTER_GROUP_ID, offlineRegister.getRegisterGroupId());
+        assertEquals(METER_SERIAL_NUMBER, offlineRegister.getSerialNumber());
     }
 }

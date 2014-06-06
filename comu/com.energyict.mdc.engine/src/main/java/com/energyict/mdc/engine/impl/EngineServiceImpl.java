@@ -75,7 +75,7 @@ public class EngineServiceImpl implements EngineService, InstallService {
                              ProtocolPluggableService protocolPluggableService,
                              SocketService socketService,
                              SerialComponentService serialComponentService) {
-        super();
+        this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
         this.setNlsService(nlsService);
@@ -94,7 +94,7 @@ public class EngineServiceImpl implements EngineService, InstallService {
         setSocketService(socketService);
         setSerialComponentService(serialComponentService);
         if (!this.dataModel.isInstalled()) {
-            this.install(true);
+            this.install();
         }
         activate();
     }
@@ -114,11 +114,6 @@ public class EngineServiceImpl implements EngineService, InstallService {
     @Override
     public Optional<DeviceCache> findDeviceCacheByDevice(Device device) {
         return dataModel.mapper(DeviceCache.class).getUnique("device", device);
-    }
-
-    @Override
-    public void install() {
-        this.install(false);
     }
 
     @Override
@@ -234,8 +229,9 @@ public class EngineServiceImpl implements EngineService, InstallService {
         };
     }
 
-    private void install(boolean exeuteDdl) {
-        new Installer(this.dataModel, this.thesaurus, this.eventService).install(exeuteDdl);
+    @Override
+    public void install() {
+        new Installer(this.dataModel, this.thesaurus, this.eventService).install(true);
     }
 
     private class ServiceProviderImpl implements ServiceProvider {

@@ -15,19 +15,20 @@ import com.energyict.mdc.engine.impl.cache.DeviceCacheImpl;
  */
 public enum TableSpecs {
 
-    EISDEVICECACHE {
+    CES_DEVICECACHE {
         @Override
         public void addTo(DataModel dataModel) {
             Table<DeviceCache> table = dataModel.addTable(name(), DeviceCache.class);
             table.map(DeviceCacheImpl.class);
-            Column device = table.column("RTUID").number().notNull().add();
+            Column device = table.column("DEVICEID").number().notNull().add();
             table.column("CONTENT").type("BLOB(4000)").conversion(ColumnConversion.BLOB2BYTE).map("simpleCache").add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
-            table.primaryKey("PK_EISDEVICECACHE").on(device).add();
-            table.foreignKey("FK_EISDEVICECACHE_RTU").on(device).references(DeviceDataService.COMPONENTNAME, "EISRTU").map("device").add();
+            table.primaryKey("PK_CES_DEVICECACHE").on(device).add();
+            table.foreignKey("FK_CES_DEVICECACHE_DEVICE").on(device).references(DeviceDataService.COMPONENTNAME, "DDC_DEVICE").map("device").add();
         }
     },
     ;
 
     abstract void addTo(DataModel component);
+
 }

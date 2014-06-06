@@ -14,6 +14,7 @@ import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -42,7 +43,7 @@ public class Installer {
             this.dataModel.install(executeDdl, true);
         }
         catch (Exception e) {
-            logger.severe(e.getMessage());
+            logger.log(Level.SEVERE, e.getMessage(), e);
         }
         createEventTypes();
         createTranslations();
@@ -56,7 +57,7 @@ public class Installer {
                 translations.add(toTranslation(nlsKey, Locale.ENGLISH, messageSeed.getDefaultFormat()));
             }
             catch (Exception e) {
-                logger.severe(e.getMessage());
+                logger.log(Level.SEVERE, e.getMessage(), e);
             }
         }
         if (!translations.isEmpty()) {
@@ -74,7 +75,7 @@ public class Installer {
                 eventType.install(this.eventService);
             }
             catch (Exception e) {
-                logger.severe(e.getMessage());
+                logger.log(Level.SEVERE, e.getMessage(), e);
             }
         }
     }
