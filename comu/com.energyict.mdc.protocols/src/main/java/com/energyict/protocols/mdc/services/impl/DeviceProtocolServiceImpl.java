@@ -52,7 +52,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
         this.setClock(clock);
         this.activate();
         if (!this.dataModel.isInstalled()) {
-            this.install(true);
+            this.install();
         }
     }
 
@@ -112,10 +112,6 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
 
     @Override
     public void install() {
-        this.install(true);
-    }
-
-    private void install(boolean exeuteDdl) {
-        new Installer(this.dataModel, this.thesaurus).install(exeuteDdl);
+        new Installer(this.dataModel, this.thesaurus).install(true);
     }
 }
