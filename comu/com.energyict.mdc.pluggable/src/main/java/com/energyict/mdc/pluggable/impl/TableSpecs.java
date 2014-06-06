@@ -14,13 +14,13 @@ import com.energyict.mdc.pluggable.PluggableClass;
  */
 public enum TableSpecs {
 
-    EISPLUGGABLECLASS {
+    CPC_PLUGGABLECLASS {
         @Override
         void addTo(DataModel dataModel) {
             Table<PluggableClass> table = dataModel.addTable(name(), PluggableClass.class);
             table.map(PluggableClassImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            table.primaryKey("CPC_PK_PLUGGABLE").on(idColumn).add();
+            table.primaryKey("PK_CPC_PLUGGABLE").on(idColumn).add();
             table.column("NAME").type("varchar2(80)").notNull().map("name").add();
             table.column("JAVACLASSNAME").type("varchar2(512)").map("javaClassName").add();
             table.column("PLUGGABLETYPE").number().notNull().conversion(ColumnConversion.NUMBER2ENUMPLUSONE).map("pluggableType").add();
@@ -28,17 +28,23 @@ public enum TableSpecs {
         }
     },
 
-    EISPLUGGABLECLASSPROPERTIES {
+    CPC_PLUGGABLECLASSPROPERTIES {
         @Override
         void addTo(DataModel dataModel) {
             Table<PluggableClassProperty> table = dataModel.addTable(name(), PluggableClassProperty.class);
             table.map(PluggableClassProperty.class);
             Column pluggableClassColumn = table.column("PLUGGABLECLASSID").number().notNull().add();
             Column nameColumn = table.column("NAME").type("varchar2(256)").notNull().map("name").add();
-            table.primaryKey("PK_PLUGGABLECLASS_PROPS").on(pluggableClassColumn, nameColumn).add();
+            table.primaryKey("PK_CPC_PLUGGABLECLASS_PROPS").on(pluggableClassColumn, nameColumn).add();
             table.column("VALUE").type("varchar2(256)").notNull().map("value").add();
-            table.foreignKey("FK_PLUGGABLEPROP_PLUGGABLE").on(pluggableClassColumn).references(EISPLUGGABLECLASS.name()).
-                    map("pluggableClass").reverseMap("properties").composition().add();
+            table.
+                foreignKey("FK_CPC_PLUGGABLEPROP_PLUGGABLE").
+                on(pluggableClassColumn).
+                references(CPC_PLUGGABLECLASS.name()).
+                map("pluggableClass").
+                reverseMap("properties").
+                composition().
+                add();
         }
     };
 

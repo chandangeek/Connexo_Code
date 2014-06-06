@@ -1,5 +1,8 @@
 package com.energyict.mdc.pluggable.impl;
 
+import com.energyict.mdc.pluggable.PluggableService;
+import com.energyict.mdc.pluggable.exceptions.MessageSeeds;
+
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
@@ -7,11 +10,12 @@ import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.pluggable.PluggableService;
-import com.energyict.mdc.pluggable.exceptions.MessageSeeds;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Installs the pluggable bundle.
@@ -20,6 +24,8 @@ import java.util.Locale;
  * @since 2013-12-23 (15:08)
  */
 public class Installer {
+
+    private final Logger logger = Logger.getLogger(Installer.class.getName());
 
     private final DataModel dataModel;
     private final EventService eventService;
@@ -40,7 +46,7 @@ public class Installer {
             }
         }
         catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, e.getMessage(), e);
         }
         createEventTypes();
         createTranslations();
@@ -59,13 +65,17 @@ public class Installer {
         return new SimpleTranslation(nlsKey, locale, translation);
     }
 
-
     private void createMasterData() {
     }
 
     private void createEventTypes() {
         for (EventType eventType : EventType.values()) {
-            eventType.install(this.eventService);
+            try {
+                eventType.install(this.eventService);
+            }
+            catch (Exception e) {
+                logger.log(Level.SEVERE, e.getMessage(), e);
+            }
         }
     }
 
