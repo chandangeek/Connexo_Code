@@ -208,7 +208,7 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     public void testDeviceTypeCreationWithEmptyName() {
         DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType("", this.deviceProtocolPluggableClass);
 
@@ -912,7 +912,7 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Keys.FIELD_TOO_LONG +"}", property = "name")
+    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Keys.NAME_REQUIRED +"}", property = "name")
     public void testCanNotAddDeviceConfigurationWithEmptyName() throws Exception {
         deviceType.newConfiguration("").description("this is it!").add();
     }
