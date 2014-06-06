@@ -489,8 +489,6 @@ Ext.define('Skyline.window.MessageBox', {
     override: 'Ext.window.MessageBox',
     shadow: false,
 
-    buttonAlign: 'left',
-
     reconfigure: function (cfg) {
         if (((typeof cfg) != 'undefined') && cfg.ui) {
             this.ui = cfg.ui;

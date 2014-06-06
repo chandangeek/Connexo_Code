@@ -14106,20 +14106,20 @@ a.x-tab {
 /* line 189, ../../../ext-theme-neutral/sass/src/window/Window.scss */
 .x-window-default {
   border-color: #86b9cf;
-  -webkit-border-radius: 4px;
-  -moz-border-radius: 4px;
-  -ms-border-radius: 4px;
-  -o-border-radius: 4px;
-  border-radius: 4px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  -ms-border-radius: 3px;
+  -o-border-radius: 3px;
+  border-radius: 3px;
 }
 
 /* line 137, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-default {
-  -webkit-border-radius: 4px;
-  -moz-border-radius: 4px;
-  -ms-border-radius: 4px;
-  -o-border-radius: 4px;
-  border-radius: 4px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  -ms-border-radius: 3px;
+  -o-border-radius: 3px;
+  border-radius: 3px;
   padding: 16px 32px 24px 32px;
   border-width: 0;
   border-style: solid;
@@ -14145,27 +14145,27 @@ a.x-tab {
 
 /* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-default-frameInfo {
-  font-family: dh-4-4-4-4-0-0-0-0-16-32-24-32;
+  font-family: dh-3-3-3-3-0-0-0-0-16-32-24-32;
 }
 
 /* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-default-tl {
-  background-position: 0 -8px;
+  background-position: 0 -6px;
 }
 
 /* line 319, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-default-tr {
-  background-position: right -12px;
+  background-position: right -9px;
 }
 
 /* line 323, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-default-bl {
-  background-position: 0 -16px;
+  background-position: 0 -12px;
 }
 
 /* line 327, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-default-br {
-  background-position: right -20px;
+  background-position: right -15px;
 }
 
 /* line 331, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -14185,31 +14185,31 @@ a.x-tab {
 
 /* line 343, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-default-bc {
-  background-position: 0 -4px;
+  background-position: 0 -3px;
 }
 
 /* line 350, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-default-tr,
 .x-window-default-br,
 .x-window-default-mr {
-  padding-right: 4px;
+  padding-right: 3px;
 }
 
 /* line 356, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-default-tl,
 .x-window-default-bl,
 .x-window-default-ml {
-  padding-left: 4px;
+  padding-left: 3px;
 }
 
 /* line 360, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-default-tc {
-  height: 4px;
+  height: 3px;
 }
 
 /* line 363, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-default-bc {
-  height: 4px;
+  height: 3px;
 }
 
 /* line 374, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -14235,7 +14235,7 @@ a.x-tab {
 
 /* line 430, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-default-mc {
-  padding: 12px 28px 20px 28px;
+  padding: 13px 29px 21px 29px;
 }
 
 /* line 439, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -14326,19 +14326,19 @@ a.x-tab {
 
 /* line 137, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-top {
-  -moz-border-radius-topleft: 4px;
-  -webkit-border-top-left-radius: 4px;
-  border-top-left-radius: 4px;
-  -moz-border-radius-topright: 4px;
-  -webkit-border-top-right-radius: 4px;
-  border-top-right-radius: 4px;
+  -moz-border-radius-topleft: 3px;
+  -webkit-border-top-left-radius: 3px;
+  border-top-left-radius: 3px;
+  -moz-border-radius-topright: 3px;
+  -webkit-border-top-right-radius: 3px;
+  border-top-right-radius: 3px;
   -moz-border-radius-bottomright: 0;
   -webkit-border-bottom-right-radius: 0;
   border-bottom-right-radius: 0;
   -moz-border-radius-bottomleft: 0;
   -webkit-border-bottom-left-radius: 0;
   border-bottom-left-radius: 0;
-  padding: 6px 6px 2px 6px;
+  padding: 6px 6px 3px 6px;
   border-width: 0 0 0 0;
   border-style: solid;
   background-color: white;
@@ -14363,27 +14363,27 @@ a.x-tab {
 
 /* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-top-frameInfo {
-  font-family: dh-4-4-0-0-0-0-0-0-6-6-2-6;
+  font-family: dh-3-3-0-0-0-0-0-0-6-6-3-6;
 }
 
 /* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-top-tl {
-  background-position: 0 -8px;
+  background-position: 0 -6px;
 }
 
 /* line 319, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-top-tr {
-  background-position: right -12px;
+  background-position: right -9px;
 }
 
 /* line 323, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-top-bl {
-  background-position: 0 -16px;
+  background-position: 0 -12px;
 }
 
 /* line 327, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-top-br {
-  background-position: right -20px;
+  background-position: right -15px;
 }
 
 /* line 331, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -14403,26 +14403,26 @@ a.x-tab {
 
 /* line 343, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-top-bc {
-  background-position: 0 -4px;
+  background-position: 0 -3px;
 }
 
 /* line 350, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-top-tr,
 .x-window-header-default-top-br,
 .x-window-header-default-top-mr {
-  padding-right: 4px;
+  padding-right: 3px;
 }
 
 /* line 356, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-top-tl,
 .x-window-header-default-top-bl,
 .x-window-header-default-top-ml {
-  padding-left: 4px;
+  padding-left: 3px;
 }
 
 /* line 360, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-top-tc {
-  height: 4px;
+  height: 3px;
 }
 
 /* line 363, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -14453,7 +14453,7 @@ a.x-tab {
 
 /* line 430, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-top-mc {
-  padding: 2px 2px 2px 2px;
+  padding: 3px 3px 3px 3px;
 }
 
 /* line 439, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -14477,16 +14477,16 @@ a.x-tab {
   -moz-border-radius-topleft: 0;
   -webkit-border-top-left-radius: 0;
   border-top-left-radius: 0;
-  -moz-border-radius-topright: 4px;
-  -webkit-border-top-right-radius: 4px;
-  border-top-right-radius: 4px;
-  -moz-border-radius-bottomright: 4px;
-  -webkit-border-bottom-right-radius: 4px;
-  border-bottom-right-radius: 4px;
+  -moz-border-radius-topright: 3px;
+  -webkit-border-top-right-radius: 3px;
+  border-top-right-radius: 3px;
+  -moz-border-radius-bottomright: 3px;
+  -webkit-border-bottom-right-radius: 3px;
+  border-bottom-right-radius: 3px;
   -moz-border-radius-bottomleft: 0;
   -webkit-border-bottom-left-radius: 0;
   border-bottom-left-radius: 0;
-  padding: 6px 6px 6px 2px;
+  padding: 6px 6px 6px 3px;
   border-width: 0 0 0 0;
   border-style: solid;
   background-color: white;
@@ -14511,27 +14511,27 @@ a.x-tab {
 
 /* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-right-frameInfo {
-  font-family: dh-0-4-4-0-0-0-0-0-6-6-6-2;
+  font-family: dh-0-3-3-0-0-0-0-0-6-6-6-3;
 }
 
 /* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-right-tl {
-  background-position: 0 -8px;
+  background-position: 0 -6px;
 }
 
 /* line 319, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-right-tr {
-  background-position: right -12px;
+  background-position: right -9px;
 }
 
 /* line 323, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-right-bl {
-  background-position: 0 -16px;
+  background-position: 0 -12px;
 }
 
 /* line 327, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-right-br {
-  background-position: right -20px;
+  background-position: right -15px;
 }
 
 /* line 331, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -14551,14 +14551,14 @@ a.x-tab {
 
 /* line 343, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-right-bc {
-  background-position: 0 -4px;
+  background-position: 0 -3px;
 }
 
 /* line 350, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-right-tr,
 .x-window-header-default-right-br,
 .x-window-header-default-right-mr {
-  padding-right: 4px;
+  padding-right: 3px;
 }
 
 /* line 356, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -14570,12 +14570,12 @@ a.x-tab {
 
 /* line 360, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-right-tc {
-  height: 4px;
+  height: 3px;
 }
 
 /* line 363, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-right-bc {
-  height: 4px;
+  height: 3px;
 }
 
 /* line 374, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -14606,7 +14606,7 @@ a.x-tab {
 
 /* line 430, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-right-mc {
-  padding: 2px 2px 2px 2px;
+  padding: 3px 3px 3px 3px;
 }
 
 /* line 439, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -14633,13 +14633,13 @@ a.x-tab {
   -moz-border-radius-topright: 0;
   -webkit-border-top-right-radius: 0;
   border-top-right-radius: 0;
-  -moz-border-radius-bottomright: 4px;
-  -webkit-border-bottom-right-radius: 4px;
-  border-bottom-right-radius: 4px;
-  -moz-border-radius-bottomleft: 4px;
-  -webkit-border-bottom-left-radius: 4px;
-  border-bottom-left-radius: 4px;
-  padding: 2px 6px 6px 6px;
+  -moz-border-radius-bottomright: 3px;
+  -webkit-border-bottom-right-radius: 3px;
+  border-bottom-right-radius: 3px;
+  -moz-border-radius-bottomleft: 3px;
+  -webkit-border-bottom-left-radius: 3px;
+  border-bottom-left-radius: 3px;
+  padding: 3px 6px 6px 6px;
   border-width: 0 0 0 0;
   border-style: solid;
   background-color: white;
@@ -14664,27 +14664,27 @@ a.x-tab {
 
 /* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-bottom-frameInfo {
-  font-family: dh-0-0-4-4-0-0-0-0-2-6-6-6;
+  font-family: dh-0-0-3-3-0-0-0-0-3-6-6-6;
 }
 
 /* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-bottom-tl {
-  background-position: 0 -8px;
+  background-position: 0 -6px;
 }
 
 /* line 319, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-bottom-tr {
-  background-position: right -12px;
+  background-position: right -9px;
 }
 
 /* line 323, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-bottom-bl {
-  background-position: 0 -16px;
+  background-position: 0 -12px;
 }
 
 /* line 327, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-bottom-br {
-  background-position: right -20px;
+  background-position: right -15px;
 }
 
 /* line 331, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -14704,21 +14704,21 @@ a.x-tab {
 
 /* line 343, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-bottom-bc {
-  background-position: 0 -4px;
+  background-position: 0 -3px;
 }
 
 /* line 350, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-bottom-tr,
 .x-window-header-default-bottom-br,
 .x-window-header-default-bottom-mr {
-  padding-right: 4px;
+  padding-right: 3px;
 }
 
 /* line 356, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-bottom-tl,
 .x-window-header-default-bottom-bl,
 .x-window-header-default-bottom-ml {
-  padding-left: 4px;
+  padding-left: 3px;
 }
 
 /* line 360, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -14728,7 +14728,7 @@ a.x-tab {
 
 /* line 363, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-bottom-bc {
-  height: 4px;
+  height: 3px;
 }
 
 /* line 374, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -14754,7 +14754,7 @@ a.x-tab {
 
 /* line 430, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-bottom-mc {
-  padding: 2px 2px 2px 2px;
+  padding: 3px 3px 3px 3px;
 }
 
 /* line 439, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -14775,19 +14775,19 @@ a.x-tab {
 /* */
 /* line 137, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-left {
-  -moz-border-radius-topleft: 4px;
-  -webkit-border-top-left-radius: 4px;
-  border-top-left-radius: 4px;
+  -moz-border-radius-topleft: 3px;
+  -webkit-border-top-left-radius: 3px;
+  border-top-left-radius: 3px;
   -moz-border-radius-topright: 0;
   -webkit-border-top-right-radius: 0;
   border-top-right-radius: 0;
   -moz-border-radius-bottomright: 0;
   -webkit-border-bottom-right-radius: 0;
   border-bottom-right-radius: 0;
-  -moz-border-radius-bottomleft: 4px;
-  -webkit-border-bottom-left-radius: 4px;
-  border-bottom-left-radius: 4px;
-  padding: 6px 2px 6px 6px;
+  -moz-border-radius-bottomleft: 3px;
+  -webkit-border-bottom-left-radius: 3px;
+  border-bottom-left-radius: 3px;
+  padding: 6px 3px 6px 6px;
   border-width: 0 0 0 0;
   border-style: solid;
   background-color: white;
@@ -14812,27 +14812,27 @@ a.x-tab {
 
 /* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-left-frameInfo {
-  font-family: dh-4-0-0-4-0-0-0-0-6-2-6-6;
+  font-family: dh-3-0-0-3-0-0-0-0-6-3-6-6;
 }
 
 /* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-left-tl {
-  background-position: 0 -8px;
+  background-position: 0 -6px;
 }
 
 /* line 319, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-left-tr {
-  background-position: right -12px;
+  background-position: right -9px;
 }
 
 /* line 323, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-left-bl {
-  background-position: 0 -16px;
+  background-position: 0 -12px;
 }
 
 /* line 327, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-left-br {
-  background-position: right -20px;
+  background-position: right -15px;
 }
 
 /* line 331, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -14852,7 +14852,7 @@ a.x-tab {
 
 /* line 343, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-left-bc {
-  background-position: 0 -4px;
+  background-position: 0 -3px;
 }
 
 /* line 350, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -14866,17 +14866,17 @@ a.x-tab {
 .x-window-header-default-left-tl,
 .x-window-header-default-left-bl,
 .x-window-header-default-left-ml {
-  padding-left: 4px;
+  padding-left: 3px;
 }
 
 /* line 360, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-left-tc {
-  height: 4px;
+  height: 3px;
 }
 
 /* line 363, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-left-bc {
-  height: 4px;
+  height: 3px;
 }
 
 /* line 374, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -14907,7 +14907,7 @@ a.x-tab {
 
 /* line 430, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-left-mc {
-  padding: 2px 2px 2px 2px;
+  padding: 3px 3px 3px 3px;
 }
 
 /* line 439, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -14928,11 +14928,11 @@ a.x-tab {
 /* */
 /* line 137, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-top {
-  -webkit-border-radius: 4px;
-  -moz-border-radius: 4px;
-  -ms-border-radius: 4px;
-  -o-border-radius: 4px;
-  border-radius: 4px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  -ms-border-radius: 3px;
+  -o-border-radius: 3px;
+  border-radius: 3px;
   padding: 6px 6px 6px 6px;
   border-width: 0;
   border-style: solid;
@@ -14958,27 +14958,27 @@ a.x-tab {
 
 /* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-top-frameInfo {
-  font-family: dh-4-4-4-4-0-0-0-0-6-6-6-6;
+  font-family: dh-3-3-3-3-0-0-0-0-6-6-6-6;
 }
 
 /* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-top-tl {
-  background-position: 0 -8px;
+  background-position: 0 -6px;
 }
 
 /* line 319, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-top-tr {
-  background-position: right -12px;
+  background-position: right -9px;
 }
 
 /* line 323, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-top-bl {
-  background-position: 0 -16px;
+  background-position: 0 -12px;
 }
 
 /* line 327, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-top-br {
-  background-position: right -20px;
+  background-position: right -15px;
 }
 
 /* line 331, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -14998,31 +14998,31 @@ a.x-tab {
 
 /* line 343, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-top-bc {
-  background-position: 0 -4px;
+  background-position: 0 -3px;
 }
 
 /* line 350, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-top-tr,
 .x-window-header-default-collapsed-top-br,
 .x-window-header-default-collapsed-top-mr {
-  padding-right: 4px;
+  padding-right: 3px;
 }
 
 /* line 356, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-top-tl,
 .x-window-header-default-collapsed-top-bl,
 .x-window-header-default-collapsed-top-ml {
-  padding-left: 4px;
+  padding-left: 3px;
 }
 
 /* line 360, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-top-tc {
-  height: 4px;
+  height: 3px;
 }
 
 /* line 363, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-top-bc {
-  height: 4px;
+  height: 3px;
 }
 
 /* line 374, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -15048,7 +15048,7 @@ a.x-tab {
 
 /* line 430, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-top-mc {
-  padding: 2px 2px 2px 2px;
+  padding: 3px 3px 3px 3px;
 }
 
 /* line 439, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -15069,11 +15069,11 @@ a.x-tab {
 /* */
 /* line 137, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-right {
-  -webkit-border-radius: 4px;
-  -moz-border-radius: 4px;
-  -ms-border-radius: 4px;
-  -o-border-radius: 4px;
-  border-radius: 4px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  -ms-border-radius: 3px;
+  -o-border-radius: 3px;
+  border-radius: 3px;
   padding: 6px 6px 6px 6px;
   border-width: 0;
   border-style: solid;
@@ -15099,27 +15099,27 @@ a.x-tab {
 
 /* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-right-frameInfo {
-  font-family: dh-4-4-4-4-0-0-0-0-6-6-6-6;
+  font-family: dh-3-3-3-3-0-0-0-0-6-6-6-6;
 }
 
 /* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-right-tl {
-  background-position: 0 -8px;
+  background-position: 0 -6px;
 }
 
 /* line 319, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-right-tr {
-  background-position: right -12px;
+  background-position: right -9px;
 }
 
 /* line 323, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-right-bl {
-  background-position: 0 -16px;
+  background-position: 0 -12px;
 }
 
 /* line 327, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-right-br {
-  background-position: right -20px;
+  background-position: right -15px;
 }
 
 /* line 331, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -15139,31 +15139,31 @@ a.x-tab {
 
 /* line 343, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-right-bc {
-  background-position: 0 -4px;
+  background-position: 0 -3px;
 }
 
 /* line 350, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-right-tr,
 .x-window-header-default-collapsed-right-br,
 .x-window-header-default-collapsed-right-mr {
-  padding-right: 4px;
+  padding-right: 3px;
 }
 
 /* line 356, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-right-tl,
 .x-window-header-default-collapsed-right-bl,
 .x-window-header-default-collapsed-right-ml {
-  padding-left: 4px;
+  padding-left: 3px;
 }
 
 /* line 360, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-right-tc {
-  height: 4px;
+  height: 3px;
 }
 
 /* line 363, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-right-bc {
-  height: 4px;
+  height: 3px;
 }
 
 /* line 374, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -15194,7 +15194,7 @@ a.x-tab {
 
 /* line 430, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-right-mc {
-  padding: 2px 2px 2px 2px;
+  padding: 3px 3px 3px 3px;
 }
 
 /* line 439, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -15215,11 +15215,11 @@ a.x-tab {
 /* */
 /* line 137, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-bottom {
-  -webkit-border-radius: 4px;
-  -moz-border-radius: 4px;
-  -ms-border-radius: 4px;
-  -o-border-radius: 4px;
-  border-radius: 4px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  -ms-border-radius: 3px;
+  -o-border-radius: 3px;
+  border-radius: 3px;
   padding: 6px 6px 6px 6px;
   border-width: 0;
   border-style: solid;
@@ -15245,27 +15245,27 @@ a.x-tab {
 
 /* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-bottom-frameInfo {
-  font-family: dh-4-4-4-4-0-0-0-0-6-6-6-6;
+  font-family: dh-3-3-3-3-0-0-0-0-6-6-6-6;
 }
 
 /* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-bottom-tl {
-  background-position: 0 -8px;
+  background-position: 0 -6px;
 }
 
 /* line 319, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-bottom-tr {
-  background-position: right -12px;
+  background-position: right -9px;
 }
 
 /* line 323, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-bottom-bl {
-  background-position: 0 -16px;
+  background-position: 0 -12px;
 }
 
 /* line 327, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-bottom-br {
-  background-position: right -20px;
+  background-position: right -15px;
 }
 
 /* line 331, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -15285,31 +15285,31 @@ a.x-tab {
 
 /* line 343, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-bottom-bc {
-  background-position: 0 -4px;
+  background-position: 0 -3px;
 }
 
 /* line 350, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-bottom-tr,
 .x-window-header-default-collapsed-bottom-br,
 .x-window-header-default-collapsed-bottom-mr {
-  padding-right: 4px;
+  padding-right: 3px;
 }
 
 /* line 356, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-bottom-tl,
 .x-window-header-default-collapsed-bottom-bl,
 .x-window-header-default-collapsed-bottom-ml {
-  padding-left: 4px;
+  padding-left: 3px;
 }
 
 /* line 360, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-bottom-tc {
-  height: 4px;
+  height: 3px;
 }
 
 /* line 363, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-bottom-bc {
-  height: 4px;
+  height: 3px;
 }
 
 /* line 374, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -15335,7 +15335,7 @@ a.x-tab {
 
 /* line 430, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-bottom-mc {
-  padding: 2px 2px 2px 2px;
+  padding: 3px 3px 3px 3px;
 }
 
 /* line 439, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -15356,11 +15356,11 @@ a.x-tab {
 /* */
 /* line 137, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-left {
-  -webkit-border-radius: 4px;
-  -moz-border-radius: 4px;
-  -ms-border-radius: 4px;
-  -o-border-radius: 4px;
-  border-radius: 4px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  -ms-border-radius: 3px;
+  -o-border-radius: 3px;
+  border-radius: 3px;
   padding: 6px 6px 6px 6px;
   border-width: 0;
   border-style: solid;
@@ -15386,27 +15386,27 @@ a.x-tab {
 
 /* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-left-frameInfo {
-  font-family: dh-4-4-4-4-0-0-0-0-6-6-6-6;
+  font-family: dh-3-3-3-3-0-0-0-0-6-6-6-6;
 }
 
 /* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-left-tl {
-  background-position: 0 -8px;
+  background-position: 0 -6px;
 }
 
 /* line 319, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-left-tr {
-  background-position: right -12px;
+  background-position: right -9px;
 }
 
 /* line 323, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-left-bl {
-  background-position: 0 -16px;
+  background-position: 0 -12px;
 }
 
 /* line 327, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-left-br {
-  background-position: right -20px;
+  background-position: right -15px;
 }
 
 /* line 331, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -15426,31 +15426,31 @@ a.x-tab {
 
 /* line 343, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-left-bc {
-  background-position: 0 -4px;
+  background-position: 0 -3px;
 }
 
 /* line 350, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-left-tr,
 .x-window-header-default-collapsed-left-br,
 .x-window-header-default-collapsed-left-mr {
-  padding-right: 4px;
+  padding-right: 3px;
 }
 
 /* line 356, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-left-tl,
 .x-window-header-default-collapsed-left-bl,
 .x-window-header-default-collapsed-left-ml {
-  padding-left: 4px;
+  padding-left: 3px;
 }
 
 /* line 360, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-left-tc {
-  height: 4px;
+  height: 3px;
 }
 
 /* line 363, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-left-bc {
-  height: 4px;
+  height: 3px;
 }
 
 /* line 374, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -15481,7 +15481,7 @@ a.x-tab {
 
 /* line 430, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-default-collapsed-left-mc {
-  padding: 2px 2px 2px 2px;
+  padding: 3px 3px 3px 3px;
 }
 
 /* line 439, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -15773,7 +15773,7 @@ div.x-lbl-top-err-icon {
 /* line 6, ../../../ext-theme-neutral/sass/src/form/field/Base.scss */
 .x-form-item,
 .x-form-field {
-  font: normal 13px Lato;
+  font: normal 13px "Lato", helvetica, arial, verdana, sans-serif;
 }
 
 /* line 21, ../../../ext-theme-neutral/sass/src/form/field/Base.scss */
@@ -15853,7 +15853,7 @@ textarea.x-form-empty-field {
 
 /* line 11, ../../../ext-theme-neutral/sass/src/form/field/Display.scss */
 .x-form-display-field {
-  font: normal 13px/17px Lato;
+  font: normal 13px/17px "Lato", helvetica, arial, verdana, sans-serif;
   color: #686868;
   margin-top: 6px;
 }
@@ -16878,7 +16878,7 @@ a.x-color-picker-item:hover {
 
 /* line 100, ../../../ext-theme-neutral/sass/src/form/field/HtmlEditor.scss */
 .x-html-editor-wrap textarea {
-  font: normal 13px Lato;
+  font: normal 13px "Lato", helvetica, arial, verdana, sans-serif;
   background-color: white;
   resize: none;
 }

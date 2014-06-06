@@ -10,7 +10,48 @@
 }
 
 $include-ie: false;
-// default
+
+// Default.
+@include extjs-window-ui(
+    $ui: 'default',
+
+    $ui-padding: 0 24px 16px 16px,
+    $ui-border-color: transparent,
+    $ui-border-width: 1px,
+    $ui-border-radius: 3px,
+
+    $ui-header-color: #70bb51,
+    $ui-header-background-color: transparent,
+    $ui-header-padding: 0 8px 0 0,
+    $ui-header-text-padding: 6px 0 0 0,
+    $ui-body-background-color: transparent,
+    $ui-body-color: #686868,
+
+    $ui-background-color: #ffffff
+);
+
+*[class*='#{$prefix}window-'] {
+    .#{$prefix}window-body {
+        .#{$prefix}header {
+            .#{$prefix}header-text {
+                font-weight: bold;
+                font-size: 16px;
+                color: #70bb51;
+            }
+        }
+    }
+
+    .#{$prefix}form-display-field {
+        margin-top: 16px;
+        color: #686868;
+    }
+
+    *[class*='#{$prefix}message-box-'] {
+        background-position: 12px 4px;
+    }
+}
+
+// Notification.
 @include extjs-window-ui(
   $ui: 'notification',
 
@@ -29,7 +70,7 @@ $include-ie: false;
   $ui-background-color: transparentize($color-grey-5, 0.5)
 );
 
-// error
+// Error.
 @include extjs-window-ui(
     $ui: 'notification-error',
 
@@ -51,7 +92,7 @@ $include-ie: false;
   .#{$prefix}window-body {
     .#{$prefix}header {
       .#{$prefix}header-text {
-        color: $color-red
+        color: $color-red;
       }
     }
   }
@@ -79,7 +120,7 @@ $include-ie: false;
   .#{$prefix}window-body {
     .#{$prefix}header {
       .#{$prefix}header-text {
-        color: $color-green
+        color: $color-green;
       }
     }
   }
@@ -105,22 +146,9 @@ $include-ie: false;
 );
 
 .#{$prefix}window-message-error {
-    .#{$prefix}window-body {
-        margin-top: -16px;
-
-        .#{$prefix}header {
-            .#{$prefix}header-text {
-                color: #70bb51
-            }
-        }
-    }
-
-    .#{$prefix}form-display-field {
-        margin-top: 16px;
-        color: #70bb51
-    }
-
     .#{$prefix}message-box-error {
         background-position: 12px 4px;
     }
 }
+
+@import 'Confirmation';
