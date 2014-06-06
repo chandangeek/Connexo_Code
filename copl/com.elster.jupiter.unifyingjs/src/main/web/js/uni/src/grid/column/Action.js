@@ -65,10 +65,10 @@ Ext.define('Uni.grid.column.Action', {
             me.menu.showBy(cell);
             me.menu.cell = cell;
         }
-
         me.menu.on('hide', function() {
             // this is for menu toggling, change the code below with accuracy!
-            var e = window.event;
+            var e = window.event || e;
+            //var e = window.event;
             var actions = grid.getEl().query('.' + me.iconCls); //.x-action-col-cell:not(.active)
             if (!_.contains(actions, document.elementFromPoint(e.clientX, e.clientY))) {
                 me.menu.cell = null;
