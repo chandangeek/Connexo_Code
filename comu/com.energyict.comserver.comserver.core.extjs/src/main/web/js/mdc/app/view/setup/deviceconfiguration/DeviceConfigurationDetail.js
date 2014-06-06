@@ -39,8 +39,9 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                         },
                         '->',
                         {
-                            icon: '../mdc/resources/images/actionsDetail.png',
+                            xtype: 'button',
                             text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
+                            iconCls: 'x-uni-action-iconD',
                             menu: {
                                 xtype: 'device-configuration-action-menu'
                             }
