@@ -332,6 +332,16 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                             success: function (response) {
                                 var loadProfileConfiguration = Ext.JSON.decode(response.responseText).data[0],
                                     widget = Ext.widget('loadProfileConfigurationDetailSetup', {intervalStore: me.intervalStore, deviceTypeId: deviceTypeId, deviceConfigId: deviceConfigurationId, loadProfileConfigurationId: loadProfileConfigurationId });
+                                widget.down('loadProfileConfigurationDetailChannelGrid').getStore().load({
+                                    callback: function() {
+                                        if (this.getTotalCount() < 1) {
+                                            widget.down('#emptyPanel').show();
+                                            widget.down('#loadProfileConfigurationDetailChannelGridContainer').hide();
+                                            widget.down('#loadProfileConfigurationDetailChannelPreviewContainer').hide();
+                                            widget.down('#separator').hide();
+                                        }
+                                    }
+                                });
                                 widget.down('#loadProfileConfigurationDetailTitle').html = '<h1>' + loadProfileConfiguration.name + '</h1>';
                                 widget.down('#loadProfileConfigurationDetailChannelConfigurationTitle').html = '<h3>' + Uni.I18n.translate('loadprofileconfiguration.loadprofilechannelconfiguation', 'MDC', 'Channel configurations') + '</h3>';
                                 me.deviceTypeName = deviceType.get('name');
@@ -342,8 +352,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                 detailedForm.down('[name=deviceConfigurationName]').setValue(Ext.String.format('<a href="#/administration/devicetypes/{0}/deviceconfigurations/{1}">{2}</a>', deviceTypeId, deviceConfigurationId, me.deviceConfigName));
                             }
                         });
-
-
                     }
                 });
             }
