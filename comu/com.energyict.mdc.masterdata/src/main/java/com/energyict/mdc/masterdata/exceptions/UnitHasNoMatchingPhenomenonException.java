@@ -13,8 +13,7 @@ import com.energyict.mdc.common.Unit;
 public class UnitHasNoMatchingPhenomenonException extends LocalizedFieldValidationException {
 
     public UnitHasNoMatchingPhenomenonException(Thesaurus thesaurus, Unit unit) {
-        super(thesaurus, MessageSeeds.REGISTER_MAPPING_UNIT_DOES_NOT_MATCH_PHENOMENON, "unit",unit);
-        this.set("unit", unit);
+        super(MessageSeeds.REGISTER_MAPPING_UNIT_DOES_NOT_MATCH_PHENOMENON, "unit", unit);
     }
 
 }

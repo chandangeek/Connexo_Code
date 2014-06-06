@@ -12,6 +12,6 @@ import com.elster.jupiter.nls.Thesaurus;
 public class RegisterTypesRequiredException extends LocalizedFieldValidationException {
 
     public RegisterTypesRequiredException(Thesaurus thesaurus) {
-        super(thesaurus, MessageSeeds.REGISTER_GROUP_REQUIRES_REGISTER_TYPES, "selectedRegisterTypes");
+        super(MessageSeeds.REGISTER_GROUP_REQUIRES_REGISTER_TYPES, "selectedRegisterTypes");
     }
 }
