@@ -18,7 +18,7 @@ Ext.define('Usr.view.group.Details', {
     tools: [
         {
             xtype: 'button',
-            iconCls: 'x-uni-action-iconA',
+            iconCls: 'x-uni-action-iconD',
             text: Uni.I18n.translate('general.actions', 'USM', 'Actions'),
             menu: {
                 items: [
