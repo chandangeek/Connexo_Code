@@ -43,7 +43,7 @@ public class JsonQueryFilter {
         try {
             return adapter.unmarshal(stringProperty);
         } catch (Exception e) {
-            throw new LocalizedFieldValidationException(thesaurus, MessageSeeds.INVALID_VALUE, name);
+            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, name);
         }
     }
 }
