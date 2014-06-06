@@ -5,6 +5,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
@@ -38,6 +39,7 @@ public class ProtocolsModule extends AbstractModule {
         bind(LicensedProtocolService.class).to(LicensedProtocolServiceImpl.class).in(Scopes.SINGLETON);
         bind(SocketService.class).to(SocketServiceImpl.class).in(Scopes.SINGLETON);
         bind(HexService.class).to(HexServiceImpl.class).in(Scopes.SINGLETON);
+        bind(DeviceCacheMarshallingService.class).to(DeviceCacheMarshallingServiceImpl.class).in(Scopes.SINGLETON);
     }
 
 }
