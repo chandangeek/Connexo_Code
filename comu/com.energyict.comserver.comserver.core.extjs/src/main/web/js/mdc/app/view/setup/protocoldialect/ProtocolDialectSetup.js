@@ -7,39 +7,8 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectSetup', {
 
     requires: [
         'Uni.view.navigation.SubMenu',
-        'Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu'
-    ],
-
-    content: [
-        {
-            xtype: 'container',
-            itemId: 'stepsContainer',
-            layout: {
-                type: 'vbox',
-                align: 'stretch'
-            },
-            items: [
-                {
-                    xtype: 'component',
-                    html: '<h1>' + Uni.I18n.translate('protocoldialect.protocolDialects', 'MDC', 'Protocol dialects') + '</h1>',
-                    margins: '10 10 10 10',
-                    itemId: 'protocolDialectTitle'
-                },
-                {
-                    xtype: 'container',
-                    items: [],
-                    itemId: 'protocolDialectsGridContainer'
-                },
-                {
-                    xtype: 'component',
-                    height: 25
-                },
-                {
-                    xtype: 'container',
-                    items: [],
-                    itemId: 'protocolDialectPreviewContainer'
-                }
-            ]}
+        'Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu',
+        'Uni.view.container.PreviewContainer'
     ],
 
     side: [
@@ -71,21 +40,60 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectSetup', {
                 ]
             }
         ];
+        this.content = [
+            {
+                ui: 'large',
+                xtype: 'panel',
+                itemId: 'protocolDialectsSetupPanel',
+                title: Uni.I18n.translate('protocoldialect.protocolDialects', 'MDC', 'Protocol dialects'),
+                items: [
+                    {
+                        xtype: 'preview-container',
+                        itemId: 'protocolDialectsGridContainer',
+                        grid: {
+                            xtype: 'protocolDialectsGrid',
+                            deviceTypeId: this.deviceTypeId,
+                            deviceConfigId: this.deviceConfigId
+                        },
+                        emptyComponent: {
+                            xtype: 'container',
+                            layout: {
+                                type: 'hbox',
+                                align: 'left'
+                            },
+                            minHeight: 20,
+                            items: [
+                                {
+                                    xtype: 'image',
+                                    margin: '0 10 0 0',
+                                    src: "../mdc/resources/images/information.png",
+                                    height: 20,
+                                    width: 20
+                                },
+                                {
+                                    xtype: 'container',
+                                    items: [
+                                        {
+                                            xtype: 'component',
+                                            html: '<h4>' + Uni.I18n.translate('protocolDialects.empty.title', 'MDC', 'No protocol dialects found') + '</h4><br>' +
+                                                Uni.I18n.translate('protocolDialects.empty.detail', 'MDC', 'There are no protocol dialects. This could be because:') + '<lv><li>&nbsp&nbsp' +
+                                                Uni.I18n.translate('protocolDialects.empty.list.item1', 'MDC', 'No protocol dialects have been defined yet.') + '</li></lv><br>' +
+                                                Uni.I18n.translate('protocolDialects.empty.steps', 'MDC', 'Possible steps:')
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        previewComponent: {
+                            xtype: 'protocolDialectPreview',
+                            deviceTypeId: this.deviceTypeId,
+                            deviceConfigId: this.deviceConfigId
+                        }
+                    }
+                ]
+            }
+        ];
         this.callParent(arguments);
-        this.down('#protocolDialectsGridContainer').add(
-            {
-                xtype: 'protocolDialectsGrid',
-                deviceTypeId: this.deviceTypeId,
-                deviceConfigId: this.deviceConfigId
-            }
-        );
-        this.down('#protocolDialectPreviewContainer').add(
-            {
-                xtype: 'protocolDialectPreview',
-                deviceTypeId: this.deviceTypeId,
-                deviceConfigId: this.deviceConfigId
-            }
-        );
     }
 });
 
