@@ -61,7 +61,7 @@ public class ConstraintViolationInfo {
         return this;
     }
 
-    private void addFieldError(String fieldIdentifier, String fieldLevelMessage) {
+    public void addFieldError(String fieldIdentifier, String fieldLevelMessage) {
         errors.add(new FieldError(fieldIdentifier, fieldLevelMessage));
     }
 
