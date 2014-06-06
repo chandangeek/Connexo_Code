@@ -53,6 +53,15 @@ Ext.define('Uni.view.navigation.Header', {
 //            xtype: 'navigationHelp'
 //        },
         {
+            xtype: 'button',
+            itemId: 'globalSearch',
+            text: 'Search',
+            cls: 'search-button',
+            glyph: 'xe021@icomoon',
+            scale: 'small',
+            action: 'search'
+        },
+        {
             xtype: 'userMenu'
         }
     ],
