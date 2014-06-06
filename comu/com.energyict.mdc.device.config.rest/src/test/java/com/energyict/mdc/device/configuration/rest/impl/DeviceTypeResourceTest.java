@@ -982,7 +982,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
         registerConfigInfo.multiplier= BigDecimal.TEN;
         registerConfigInfo.numberOfFractionDigits= 6;
         registerConfigInfo.numberOfDigits= 4;
-        registerConfigInfo.overflowValue= BigDecimal.TEN;
+        registerConfigInfo.overflow = BigDecimal.TEN;
         registerConfigInfo.overruledObisCode= null;
 
         Entity<RegisterConfigInfo> json = Entity.json(registerConfigInfo);
@@ -1026,7 +1026,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
         registerConfigInfo.multiplier= BigDecimal.TEN;
         registerConfigInfo.numberOfFractionDigits= 6;
         registerConfigInfo.numberOfDigits= 4;
-        registerConfigInfo.overflowValue= BigDecimal.valueOf(123);
+        registerConfigInfo.overflow = BigDecimal.valueOf(123);
         registerConfigInfo.overruledObisCode= obisCode;
 
         Entity<RegisterConfigInfo> json = Entity.json(registerConfigInfo);

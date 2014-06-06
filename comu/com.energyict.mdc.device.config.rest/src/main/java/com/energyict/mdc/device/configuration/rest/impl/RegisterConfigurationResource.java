@@ -66,7 +66,7 @@ public class RegisterConfigurationResource {
                 .setMultiplier(registerConfigInfo.multiplier)
                 .setNumberOfDigits(registerConfigInfo.numberOfDigits)
                 .setNumberOfFractionDigits(registerConfigInfo.numberOfFractionDigits)
-                .setOverflow(registerConfigInfo.overflowValue)
+                .setOverflow(registerConfigInfo.overflow)
                 .setOverruledObisCode(registerConfigInfo.overruledObisCode)
                 .add();
         return Response.status(Response.Status.CREATED).entity(RegisterConfigInfo.from(registerSpec)).build();

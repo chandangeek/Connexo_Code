@@ -28,7 +28,7 @@ public class RegisterConfigInfo {
     public int numberOfDigits;
     public int numberOfFractionDigits;
     public BigDecimal multiplier;
-    public BigDecimal overflowValue;
+    public BigDecimal overflow;
     public int timeOfUse;
 
     public RegisterConfigInfo() {
@@ -46,7 +46,7 @@ public class RegisterConfigInfo {
         registerConfigInfo.numberOfDigits = registerSpec.getNumberOfDigits();
         registerConfigInfo.numberOfFractionDigits = registerSpec.getNumberOfFractionDigits();
         registerConfigInfo.multiplier = registerSpec.getMultiplier();
-        registerConfigInfo.overflowValue = registerSpec.getOverflowValue();
+        registerConfigInfo.overflow = registerSpec.getOverflowValue();
         registerConfigInfo.registerMapping = registerSpec.getRegisterMapping().getId();
         registerConfigInfo.timeOfUse = registerSpec.getRegisterMapping().getTimeOfUse();
         return registerConfigInfo;
@@ -63,7 +63,7 @@ public class RegisterConfigInfo {
     public void writeTo(RegisterSpec registerSpec, RegisterMapping registerMapping) {
         registerSpec.setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT);
         registerSpec.setMultiplier(this.multiplier);
-        registerSpec.setOverflow(this.overflowValue);
+        registerSpec.setOverflow(this.overflow);
         registerSpec.setNumberOfDigits(this.numberOfDigits);
         registerSpec.setNumberOfFractionDigits(this.numberOfFractionDigits);
         registerSpec.setOverruledObisCode(this.overruledObisCode);
