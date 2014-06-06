@@ -2,6 +2,9 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.securitySettingGrid',
     itemId: 'securitySettingGrid',
+    requires: [
+        'Mdc.view.setup.securitysettings.SecuritySettingsActionMenu'
+    ],
     deviceTypeId: null,
     deviceConfigId: null,
     store: 'Mdc.store.SecuritySettingsOfDeviceConfiguration',
@@ -35,17 +38,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
-                items: [
-                    {
-                        text: 'Edit',
-                        action: 'editsecuritysetting'
-                    },
-                    {
-                        text: 'Remove',
-                        action: 'deletesecuritysetting'
-                    }
-
-                ]
+                items: 'Mdc.view.setup.securitysettings.SecuritySettingsActionMenu'
             }
         ]
     }

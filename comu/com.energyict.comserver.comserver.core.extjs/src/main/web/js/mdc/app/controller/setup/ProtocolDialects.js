@@ -34,7 +34,7 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
                 selectionchange: this.previewProtocolDialect
             },
             '#protocoldialectsgrid actioncolumn': {
-                editItem: this.editProtocolDialectHistory
+                editProtocolDialect: this.editProtocolDialectHistory
             },
             '#protocolDialectPreview menuitem[action=editProtocolDialect]': {
                 click: this.editProtocolDialectHistoryFromPreview
@@ -78,9 +78,9 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
             this.getProtocolDialectPreviewForm().loadRecord(protocolDialect[0]);
             var protocolDialectName = protocolDialect[0].get('name');
             this.getProtocolDialectPreview().getLayout().setActiveItem(1);
-            this.getProtocolDialectPreviewTitle().update('<h4>' + protocolDialectName + '</h4>');
             this.getProtocolDialectPreviewForm().loadRecord(protocolDialect[0]);
             this.getPropertiesViewController().showProperties(protocolDialect[0], this.getProtocolDialectPreview());
+            this.getProtocolDialectPreview().setTitle(protocolDialectName);
         } else {
             this.getProtocolDialectPreview().getLayout().setActiveItem(0);
         }

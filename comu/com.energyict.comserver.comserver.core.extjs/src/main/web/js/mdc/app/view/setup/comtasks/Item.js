@@ -13,7 +13,7 @@ Ext.define('Mdc.view.setup.comtasks.Item', {
         {
             xtype: 'button',
             text: 'Actions',
-            iconCls: 'x-uni-action-iconA',
+            iconCls: 'x-uni-action-iconD',
             menu: {
                 xtype: 'communication-tasks-action-menu'
             }
