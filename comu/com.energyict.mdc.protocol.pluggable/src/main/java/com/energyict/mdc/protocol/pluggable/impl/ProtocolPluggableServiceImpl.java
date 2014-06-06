@@ -109,7 +109,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         this.setConnectionTypeService(connectionTypeService);
         this.activate();
         if (!this.dataModel.isInstalled()) {
-            this.install(true);
+            this.install();
         }
     }
 
@@ -545,11 +545,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
 
     @Override
     public void install() {
-        this.install(false);
-    }
-
-    private void install(boolean executeDdl) {
-        new Installer(this.dataModel, this.eventService, this.thesaurus).install(executeDdl, true);
+        new Installer(this.dataModel, this.eventService, this.thesaurus).install(true, true);
     }
 
 }

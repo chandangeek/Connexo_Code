@@ -14,7 +14,7 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.*;
  */
 public enum TableSpecs {
 
-    MDCPCRATUSAGE {
+    PPC_PCRATUSAGE {
         @Override
         void addTo(DataModel dataModel) {
             Table<PluggableClassRelationAttributeTypeUsage> table = dataModel.addTable(name(), PluggableClassRelationAttributeTypeUsage.class);
@@ -25,11 +25,11 @@ public enum TableSpecs {
                                                     notNull().
                                                     map("relationAttributeTypeId").
                                                     add();
-            table.primaryKey("PK_PCRATUSAGE").on(pluggableClassColumn, relationAttributeTypeColumn).add();
+            table.primaryKey("PK_PPC_PCRATUSAGE").on(pluggableClassColumn, relationAttributeTypeColumn).add();
         }
     },
 
-    MDCSSADAPTERMAPPING {
+    PPC_SECSUPPORTADAPTERMAPPING {
         @Override
         void addTo(DataModel dataModel) {
             Table<SecuritySupportAdapterMapping> table = dataModel.addTable(name(), SecuritySupportAdapterMapping.class);
@@ -37,11 +37,11 @@ public enum TableSpecs {
             table.cache();
             Column deviceProtocolClassNameColumn = table.column("deviceprotocoljavaclassname").type("varchar2(255)").notNull().map("deviceProtocolJavaClassName").add();
             Column securitySupportClassNameColumn = table.column("securitysupportclassname").type("varchar2(255)").notNull().map("securitySupportJavaClassName").add();
-            table.primaryKey("PK_MDCSSADAPTERMAPPING").on(deviceProtocolClassNameColumn, securitySupportClassNameColumn).add();
+            table.primaryKey("PK_PPC_SECSUPPORTADAPTRMAPPING").on(deviceProtocolClassNameColumn, securitySupportClassNameColumn).add();
         }
     },
 
-    MDCMESSAGEADAPTERMAPPING {
+    PPC_MESSAGEADAPTERMAPPING {
         @Override
         void addTo(DataModel dataModel) {
             Table<MessageAdapterMapping> table = dataModel.addTable(name(), MessageAdapterMapping.class);
@@ -49,11 +49,11 @@ public enum TableSpecs {
             table.cache();
             Column deviceProtocolClassNameColumn = table.column("deviceprotocoljavaclassname").type("varchar2(255)").notNull().map("deviceProtocolJavaClassName").add();
             Column securitySupportClassNameColumn = table.column("messageadapterjavaclassname").type("varchar2(255)").notNull().map("messageAdapterJavaClassName").add();
-            table.primaryKey("PK_MDCMSGADAPTERMAPPING").on(deviceProtocolClassNameColumn, securitySupportClassNameColumn).add();
+            table.primaryKey("PK_PPC_MSGADAPTERMAPPING").on(deviceProtocolClassNameColumn, securitySupportClassNameColumn).add();
         }
     },
 
-    MDCCAPABILITIESADAPTERMAPPING {
+    PPC_CAPABILITIESADAPTERMAPPING {
         @Override
         void addTo(DataModel dataModel) {
             Table<DeviceCapabilityMapping> table = dataModel.addTable(name(), DeviceCapabilityMapping.class);
@@ -61,7 +61,7 @@ public enum TableSpecs {
             table.cache();
             Column deviceProtocolClassNameColumn = table.column("deviceprotocoljavaclassname").type("varchar2(255)").notNull().map("deviceProtocolJavaClassName").add();
             Column capabilitiesColumn = table.column("deviceprotocolcapabilities").number().notNull().map("deviceProtocolCapabilities").conversion(ColumnConversion.NUMBER2INT).add();
-            table.primaryKey("PK_MDCCAPADAPTERMAPPING").on(deviceProtocolClassNameColumn, capabilitiesColumn).add();
+            table.primaryKey("PK_PPC_CAPADAPTERMAPPING").on(deviceProtocolClassNameColumn, capabilitiesColumn).add();
         }
     };
 
