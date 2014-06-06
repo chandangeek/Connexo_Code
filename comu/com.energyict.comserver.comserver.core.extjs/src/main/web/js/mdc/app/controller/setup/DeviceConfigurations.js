@@ -106,6 +106,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
     },
 
     previewDeviceConfiguration: function (grid, record) {
+        debugger;
         var deviceConfigurations = this.getDeviceConfigurationsGrid().getSelectionModel().getSelection();
         if (deviceConfigurations.length == 1) {
             var deviceConfigurationId = deviceConfigurations[0].get('id');
@@ -225,7 +226,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         var me = this;
 
         Ext.create('Uni.view.window.Confirmation').show({
-            msg: Uni.I18n.translate('deviceconfiguration.deleteDeviceConfiguration', 'MDC', 'The item will no longer be available.'),
+            msg: Uni.I18n.translate('deviceconfiguration.deleteDeviceConfiguration', 'MDC', 'The device configuration will no longer be available.'),
             title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' ' + deviceConfigurationToDelete.get('name') + '?',
             config: {
                 registerConfigurationToDelete: deviceConfigurationToDelete,
@@ -277,14 +278,18 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         });
     },
 
-    setCheckBoxes: function (deviceType) {
-        if (!deviceType.get('canBeGateway')) {
+    setCheckBoxes: function (deviceType,deviceConfiguration) {
+        if(deviceConfiguration.get('active')){
+            this.getGatewayCheckbox().setDisabled(true);
+            this.getAddressableCheckbox().setDisabled(true);
+        }
+        else if (!deviceType.get('canBeGateway')) {
             this.getGatewayCheckbox().setDisabled(!deviceType.get('canBeGateway'));
             this.getGatewayMessage().show();
         }
-        if (!deviceType.get('canBeDirectlyAddressed')) {
+        else if (!deviceType.get('canBeDirectlyAddressed')) {
             this.getAddressableCheckbox().setDisabled(!deviceType.get('canBeDirectlyAddressed'));
-            this.getAddressableMessageMessage().show();
+            this.getAddressableMessage().show();
         }
     },
 
@@ -314,7 +319,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                         me.getApplication().fireEvent('loadDeviceType', deviceType);
                         widget.down('form').loadRecord(deviceConfiguration);
                         widget.down('#deviceConfigurationEditCreateTitle').update('<h1>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + deviceConfiguration.get('name') + '"</h1>');
-                        me.setCheckBoxes(deviceType);
+                        me.setCheckBoxes(deviceType,deviceConfiguration);
                         widget.setLoading(false);
                     }
                 });

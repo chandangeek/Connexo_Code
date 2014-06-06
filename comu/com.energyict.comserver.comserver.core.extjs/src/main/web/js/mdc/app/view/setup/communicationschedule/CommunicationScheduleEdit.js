@@ -5,25 +5,12 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
 
     edit: false,
     requires: [
-//        'Mdc.store.ConnectionTypes',
         'Mdc.widget.ScheduleField',
         'Mdc.widget.DateTimeField'
     ],
     isEdit: function () {
         return this.edit;
     },
-//    setEdit: function(edit,returnLink){
-//        if(edit){
-//            this.edit = edit;
-//            this.down('#addEditButton').setText(Uni.I18n.translate('general.edit', 'MDC', 'Edit'));
-//            this.down('#addEditButton').action = 'editConnectionMethod';
-//        } else {
-//            this.edit = edit;
-//            this.down('#addEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
-//            this.down('#addEditButton').action = 'addConnectionMethod';
-//        }
-//        this.down('#cancelLink').autoEl.href=returnLink;
-//    },
 
     initComponent: function () {
         this.content = [
@@ -41,18 +28,11 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                         itemId: 'communicationScheduleEditCreateTitle',
                         margins: '10 10 10 10'
                     },
-//                    {
-//                        xtype: 'container',
-//                        layout: {
-//                            type: 'column'
-//                        },
-//                        items: [
                     {
                         xtype: 'form',
                         border: false,
                         itemId: 'communicationScheduleEditForm',
                         width: 900,
-//                                padding: '10 10 0 10',
                         layout: {
                             type: 'vbox',
                             align: 'stretch'
@@ -64,12 +44,6 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                             {
                                 xtype: 'textfield',
                                 name: 'name',
-                                validator: function (text) {
-                                    if (Ext.util.Format.trim(text).length == 0)
-                                        return Uni.I18n.translate('communicationschedule.emptyName', 'MDC', 'The name of a communication schedule can not be empty.')
-                                    else
-                                        return true;
-                                },
                                 msgTarget: 'under',
                                 required: true,
                                 fieldLabel: Uni.I18n.translate('communicationschedule.name', 'MDC', 'Name'),
@@ -146,7 +120,6 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                                         iconCls: 'uni-actioncolumn-gear',
                                                         columnWidth: 32,
                                                         fixed: true,
-//                                                header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                                                         sortable: false,
                                                         hideable: false,
                                                         items: [
@@ -187,7 +160,10 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                             {
                                 xtype: 'fieldcontainer',
                                 fieldLabel: Uni.I18n.translate('communicationschedule.schedule', 'MDC', 'Schedule'),
-                                layout: 'hbox',
+                                layout: {
+                                    type: 'hbox',
+                                    align: 'stretch'
+                                },
                                 msgTarget: 'under',
                                 required: true,
                                 items: [
@@ -231,35 +207,6 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                             }
                         ]
                     },
-//                    {
-//                        xtype: 'menuseparator',
-//                        width: '50%',
-//                        margin: '20 0 20 80'
-//                    },
-//                    {
-//                        xtype: 'form',
-//                        border: false,
-//                        itemId: 'communicationSchedulePreviewForm',
-//                        layout: {
-//                            type: 'vbox',
-//                            align: 'stretch'
-//                        },
-//                        width: '100%',
-//                        defaults: {
-//                            labelWidth: 250
-//                        },
-//                        items: [
-//                            {
-//                                xtype: 'displayfield',
-//                                fieldLabel: Uni.I18n.translate('communicationschedule.summary', 'MDC', 'Summary')
-//                            },
-//                            {
-//                                xtype: 'fieldcontainer',
-//                                layout: 'hbox',
-//                                fieldLabel: Uni.I18n.translate('communicationschedule.preview', 'MDC', 'Preview')
-//                            }
-//                        ]
-//                    },
                     {
                         xtype: 'form',
                         border: false,
@@ -287,7 +234,6 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                         xtype: 'button',
                                         action: 'createAction',
                                         itemId: 'createEditButton'
-//                                                        formBind: true
                                     },
                                     {
                                         xtype: 'component',
@@ -307,8 +253,6 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                         xtype: 'component',
                         height: 100
                     }
-//                        ]
-//                    }
 
 
                 ]
