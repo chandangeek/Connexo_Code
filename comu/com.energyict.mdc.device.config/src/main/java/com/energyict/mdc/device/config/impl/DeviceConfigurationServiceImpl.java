@@ -114,7 +114,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.setSchedulingService(schedulingService);
         this.activate();
         if (!this.dataModel.isInstalled()) {
-            this.install(true);
+            this.install();
         }
     }
 
@@ -441,11 +441,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public void install() {
-        this.install(false);
-    }
-
-    private void install(boolean exeuteDdl) {
-        new Installer(this.dataModel, this.eventService, this.thesaurus, userService).install(exeuteDdl);
+        new Installer(this.dataModel, this.eventService, this.thesaurus, userService).install(true);
         initPrivileges();
     }
 
@@ -518,7 +514,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     private List<DeviceConfiguration> getDeviceConfigurationsFromComSchedule(ComSchedule comSchedule, Connection connection) throws SQLException {
         List<DeviceConfiguration> deviceConfigurations = new ArrayList<>();
-        try (PreparedStatement preparedStatement = connection.prepareStatement("select distinct deviceConfigId from EISRTU inner join EISRTUINCOMSCHEDULE on EISRTUINCOMSCHEDULE.RTUID = EISRTU.ID where EISRTUINCOMSCHEDULE.COMSCHEDULEID = ?")) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("select distinct deviceConfigId from DDC_DEVICE inner join DDC_DEVICEINCOMSCHEDULE on DDC_DEVICEINCOMSCHEDULE.DEVICEID = DDC_DEVICE.ID where DDC_DEVICEINCOMSCHEDULE.COMSCHEDULEID = ?")) {
             preparedStatement.setLong(1, comSchedule.getId());
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while(resultSet.next()) {

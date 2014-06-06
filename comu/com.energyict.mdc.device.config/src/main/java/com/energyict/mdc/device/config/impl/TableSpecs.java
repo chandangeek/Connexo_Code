@@ -34,7 +34,7 @@ import static com.elster.jupiter.orm.DeleteRule.CASCADE;
  */
 public enum TableSpecs {
 
-    EISSYSRTUTYPE {
+    DTC_DEVICETYPE {
         @Override
         public void addTo(DataModel dataModel) {
             Table<DeviceType> table = dataModel.addTable(this.name(), DeviceType.class);
@@ -45,51 +45,81 @@ public enum TableSpecs {
             table.column("USECHANNELJOURNAL").number().conversion(ColumnConversion.NUMBER2BOOLEAN).notNull().map("useChannelJournal").add();
             table.column("DEVICEPROTOCOLPLUGGABLEID").number().conversion(ColumnConversion.NUMBER2LONG).map(DeviceTypeFields.DEVICE_PROTOCOL_PLUGGABLE_CLASS.fieldName()).add();
             table.column("DEVICEUSAGETYPE").number().conversion(ColumnConversion.NUMBER2INT).map("deviceUsageTypeId").add();
-            table.unique("UK_SYSRTUTYPE").on(name).add();
-            table.primaryKey("PK_SYSRTUTYPE").on(id).add();
+            table.unique("UK_DTC_DEVICETYPE").on(name).add();
+            table.primaryKey("PK_DTC_DEVICETYPE").on(id).add();
         }
     },
 
-    EISLOADPRFTYPEFORRTUTYPE {
+    DTC_LOADPRFTYPEFORDEVICETYPE {
         @Override
         public void addTo(DataModel dataModel) {
             Table<DeviceTypeLoadProfileTypeUsage> table = dataModel.addTable(name(), DeviceTypeLoadProfileTypeUsage.class);
             table.map(DeviceTypeLoadProfileTypeUsage.class);
             Column loadProfileType = table.column("LOADPROFILETYPEID").number().notNull().add();
-            Column deviceType = table.column("RTUTYPEID").number().notNull().add();
-            table.primaryKey("PK_LOADPRFTYPEFORRTUTYPE").on(loadProfileType, deviceType).add();
-            table.foreignKey("FK_RTUTYPEID_LPT_RTUTYPE_JOIN").on(deviceType).references(EISSYSRTUTYPE.name()).map("deviceType").reverseMap("loadProfileTypeUsages").composition().add();
-            table.foreignKey("FK_LPTID_LPT_RTUTYPE_JOIN").on(loadProfileType).references(MasterDataService.COMPONENTNAME, "EISLOADPROFILETYPE").map("loadProfileType").add();
+            Column deviceType = table.column("DEVICETYPEID").number().notNull().add();
+            table.primaryKey("PK_DTC_LOADPRFTYPEFORDEVTYPE").on(loadProfileType, deviceType).add();
+            table.foreignKey("FK_DTC_DEVTYPE_LPT_DEVTYPE").
+                    on(deviceType).
+                    references(DTC_DEVICETYPE.name())
+                    .map("deviceType").
+                    reverseMap("loadProfileTypeUsages").
+                    composition().
+                    add();
+            table.foreignKey("FK_DTC_LPT_LPT_DEVTYPE").
+                    on(loadProfileType).
+                    references(MasterDataService.COMPONENTNAME, "MDS_LOADPROFILETYPE").
+                    map("loadProfileType").
+                    add();
         }
     },
 
-    EISREGMAPFORRTUTYPE {
+    DTC_REGMAPFORDEVICETYPE {
         @Override
         public void addTo(DataModel dataModel) {
             Table<DeviceTypeRegisterMappingUsage> table = dataModel.addTable(name(), DeviceTypeRegisterMappingUsage.class);
             table.map(DeviceTypeRegisterMappingUsage.class);
             Column registermapping = table.column("REGISTERMAPPINGID").number().notNull().add();
-            Column deviceType = table.column("RTUTYPEID").number().notNull().add();
-            table.primaryKey("PK_REGMAPFORRTUTYPE").on(registermapping, deviceType).add();
-            table.foreignKey("FK_RTUTPID_REGMAP_RTUTYPE_JOIN").on(deviceType).references(EISSYSRTUTYPE.name()).map("deviceType").reverseMap("registerMappingUsages").composition().add();
-            table.foreignKey("FK_MAPID_REGMAP_RTUTYPE_JOIN").on(registermapping).references(MasterDataService.COMPONENTNAME, "EISRTUREGISTERMAPPING").map("registerMapping").add();
+            Column deviceType = table.column("DEVICETYPEID").number().notNull().add();
+            table.primaryKey("PK_DTC_REGMAPFORDEVICETYPE").on(registermapping, deviceType).add();
+            table.foreignKey("FK_DTC_DEVTYPE_REGMAP_DEVTYPE").
+                    on(deviceType).
+                    references(DTC_DEVICETYPE.name()).
+                    map("deviceType").
+                    reverseMap("registerMappingUsages").
+                    composition().
+                    add();
+            table.foreignKey("FK_DTC_MAPID_REGMAP_DEVTYPE").
+                    on(registermapping).
+                    references(MasterDataService.COMPONENTNAME, "MDS_REGISTERMAPPING")
+                    .map("registerMapping").
+                    add();
         }
     },
 
-    EISLOGBOOKTYPEFORRTUTYPE {
+    DTC_LOGBOOKTYPEFORDEVICETYPE {
         @Override
         public void addTo(DataModel dataModel) {
             Table<DeviceTypeLogBookTypeUsage> table = dataModel.addTable(name(), DeviceTypeLogBookTypeUsage.class);
             table.map(DeviceTypeLogBookTypeUsage.class);
             Column logBookType = table.column("LOGBOOKTYPEID").number().notNull().add();
-            Column deviceType = table.column("RTUTYPEID").number().notNull().add();
-            table.primaryKey("PK_LOGBOOKTYPEFORRTUTYPE").on(logBookType, deviceType).add();
-            table.foreignKey("FK_RTUTYPEID_LBT_RTUTYPE_JOIN").on(deviceType).references(EISSYSRTUTYPE.name()).map("deviceType").reverseMap("logBookTypeUsages").composition().add();
-            table.foreignKey("FK_LBTYPEID_LBTT_RTUTYPE_JOIN").on(logBookType).references(MasterDataService.COMPONENTNAME, "EISLOGBOOKTYPE").map("logBookType").add();
+            Column deviceType = table.column("DEVICETYPEID").number().notNull().add();
+            table.primaryKey("PK_DTC_LOGBOOKTYPEFORDEVTYPE").on(logBookType, deviceType).add();
+            table.foreignKey("FK_DTC_DEVTYPE_LOGBT_DEVTYPE").
+                    on(deviceType).
+                    references(DTC_DEVICETYPE.name()).
+                    map("deviceType").
+                    reverseMap("logBookTypeUsages").
+                    composition().
+                    add();
+            table.foreignKey("FK_DTC_LBTYPE_LBTT_DEVTYPE").
+                    on(logBookType).
+                    references(MasterDataService.COMPONENTNAME, "MDS_LOGBOOKTYPE").
+                    map("logBookType").
+                    add();
         }
     },
 
-    EISDEVICECONFIG {
+    DTC_DEVICECONFIG {
         @Override
         public void addTo(DataModel dataModel) {
             Table<DeviceConfiguration> table = dataModel.addTable(name(), DeviceConfiguration.class);
@@ -101,12 +131,19 @@ public enum TableSpecs {
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").insert("sysdate").update("sysdate").add();
             table.column("ACTIVE").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("active").add();
             table.column("COMMUNICATIONFUNCTIONMASK").number().conversion(ColumnConversion.NUMBER2INT).map("communicationFunctionMask").add();
-            table.primaryKey("PK_EISDEVICECONFIG").on(id).add();
-            table.foreignKey("FK_EISDEVCFG_DEVTYPE").on(deviceTypeId).references(EISSYSRTUTYPE.name()).map("deviceType").reverseMap("deviceConfigurations").composition().onDelete(CASCADE).add();
+            table.primaryKey("PK_DTC_DEVICECONFIG").on(id).add();
+            table.foreignKey("FK_DTC_DEVCONFIG_DEVTYPE").
+                    on(deviceTypeId).
+                    references(DTC_DEVICETYPE.name()).
+                    map("deviceType").
+                    reverseMap("deviceConfigurations").
+                    composition().
+                    onDelete(CASCADE).
+                    add();
         }
     },
 
-    EISLOADPROFILESPEC {
+    DTC_LOADPROFILESPEC {
         @Override
         public void addTo(DataModel dataModel) {
             Table<LoadProfileSpec> table = dataModel.addTable(name(), LoadProfileSpec.class);
@@ -115,41 +152,71 @@ public enum TableSpecs {
             Column deviceconfigid = table.column("DEVICECONFIGID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             Column loadprofiletypeid = table.column("LOADPROFILETYPEID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             table.column("OBISCODE").varChar(80).map("overruledObisCodeString").add();
-            table.primaryKey("PK_EISLOADPROFILESPECID").on(id).add();
-            table.foreignKey("FK_EISLPRFSPEC_LOADPROFTYPE").on(loadprofiletypeid).references(MasterDataService.COMPONENTNAME, "EISLOADPROFILETYPE").map("loadProfileType").add();
-            table.foreignKey("FK_EISLPRFSPEC_DEVCONFIG").on(deviceconfigid).references(EISDEVICECONFIG.name()).map("deviceConfiguration").reverseMap("loadProfileSpecs").composition().onDelete(CASCADE).add();
+            table.primaryKey("PK_DTC_LOADPROFILESPECID").on(id).add();
+            table.foreignKey("FK_DTC_LPRFSPEC_LOADPROFTYPE").
+                    on(loadprofiletypeid).
+                    references(MasterDataService.COMPONENTNAME, "MDS_LOADPROFILETYPE").
+                    map("loadProfileType").
+                    add();
+            table.foreignKey("FK_DTC_LPRFSPEC_DEVCONFIG").
+                    on(deviceconfigid).
+                    references(DTC_DEVICECONFIG.name()).
+                    map("deviceConfiguration").
+                    reverseMap("loadProfileSpecs").
+                    composition().
+                    onDelete(CASCADE).
+                    add();
         }
     },
 
-    EISCHANNELSPEC {
+    DTC_CHANNELSPEC {
         @Override
         public void addTo(DataModel dataModel) {
             Table<ChannelSpec> table = dataModel.addTable(name(), ChannelSpec.class);
             table.map(ChannelSpecImpl.class);
             Column id = table.addAutoIdColumn();
             table.column("NAME").varChar(80).notNull().map("name").add();
-            Column deviceconfigid = table.column("DEVICECONFIGID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
-            Column rturegistermappingid = table.column("RTUREGISTERMAPPINGID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
+            Column deviceConfiguration = table.column("DEVICECONFIGID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
+            Column registerMapping = table.column("REGISTERMAPPINGID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             table.column("OBISCODE").varChar(80).map("overruledObisCodeString").add();
             table.column("FRACTIONDIGITS").number().conversion(ColumnConversion.NUMBER2INT).map("nbrOfFractionDigits").add();
             table.column("OVERFLOWVALUE").number().map("overflow").add();
-            Column phenomenonid = table.column("PHENOMENONID").number().notNull().add();
+            Column phenomenon = table.column("PHENOMENONID").number().notNull().add();
             table.column("READINGMETHOD").number().conversion(ColumnConversion.NUMBER2ENUM).notNull().map("readingMethod").add();
             table.column("MULTIPLIERMODE").number().conversion(ColumnConversion.NUMBER2ENUM).notNull().map("multiplierMode").add();
             table.column("MULTIPLIER").number().notNull().map("multiplier").add();
             table.column("VALUECALCULATIONMETHOD").number().conversion(ColumnConversion.NUMBER2ENUM).notNull().map("valueCalculationMethod").add();
-            Column loadprofilespecid = table.column("LOADPROFILESPECID").number().conversion(ColumnConversion.NUMBER2LONG).add();
+            Column loadProfileSpec = table.column("LOADPROFILESPECID").number().conversion(ColumnConversion.NUMBER2LONG).add();
             table.column("INTERVAL").number().notNull().conversion(ColumnConversion.NUMBER2INT).map("interval.count").add();
             table.column("INTERVALCODE").number().notNull().conversion(ColumnConversion.NUMBER2INT).map("interval.timeUnitCode").add();
-            table.primaryKey("PK_EISCHANNELSPECID").on(id).add();
-            table.foreignKey("FK_EISCHNSPEC_DEVCONFIG").on(deviceconfigid).references(EISDEVICECONFIG.name()).map("deviceConfiguration").reverseMap("channelSpecs").composition().onDelete(CASCADE).add();
-            table.foreignKey("FK_EISCHNSPEC_REGMAP").on(rturegistermappingid).references(MasterDataService.COMPONENTNAME, "EISRTUREGISTERMAPPING").map("registerMapping").add();
-            table.foreignKey("FK_EISCHNSPEC_PHENOM").on(phenomenonid).references(MasterDataService.COMPONENTNAME, "EISPHENOMENON").map("phenomenon").add();
-            table.foreignKey("FK_EISCHNSPEC_LPROFSPEC").on(loadprofilespecid).references(EISLOADPROFILESPEC.name()).map("loadProfileSpec").add();
+            table.primaryKey("PK_DTC_CHANNELSPEC").on(id).add();
+            table.foreignKey("FK_DTC_CHANNELSPEC_DEVCONFIG").
+                    on(deviceConfiguration).
+                    references(DTC_DEVICECONFIG.name()).
+                    map("deviceConfiguration").
+                    reverseMap("channelSpecs").
+                    composition().
+                    onDelete(CASCADE).
+                    add();
+            table.foreignKey("FK_DTC_CHANNELSPEC_REGMAP").
+                    on(registerMapping).
+                    references(MasterDataService.COMPONENTNAME, "MDS_REGISTERMAPPING").
+                    map("registerMapping").
+                    add();
+            table.foreignKey("FK_DTC_CHANNELSPEC_PHENOM").
+                    on(phenomenon).
+                    references(MasterDataService.COMPONENTNAME, "MDS_PHENOMENON").
+                    map("phenomenon").
+                    add();
+            table.foreignKey("FK_DTC_CHANNELSPEC_LPRFSPEC").
+                    on(loadProfileSpec).
+                    references(DTC_LOADPROFILESPEC.name()).
+                    map("loadProfileSpec").
+                    add();
         }
     },
 
-    EISRTUREGISTERSPEC {
+    DTC_REGISTERSPEC {
         @Override
         public void addTo(DataModel dataModel) {
             Table<RegisterSpec> table = dataModel.addTable(name(), RegisterSpec.class);
@@ -164,13 +231,24 @@ public enum TableSpecs {
             Column deviceConfiguration = table.column("DEVICECONFIGID").number().conversion(ColumnConversion.NUMBER2LONG).add();
             table.column("MULTIPLIER").number().map(RegisterSpecImpl.Fields.MULTIPLIER.fieldName()).add();
             table.column("MULTIPLIERMODE").number().conversion(ColumnConversion.NUMBER2ENUM).notNull().map("multiplierMode").add();
-            table.primaryKey("PK_RTUREGISTERSPEC").on(id).add();
-            table.foreignKey("FK_EISRTUREGSPEC_REGMAP").on(registerMapping).references(MasterDataService.COMPONENTNAME, "EISRTUREGISTERMAPPING").map(RegisterSpecImpl.Fields.REGISTER_MAPPING.fieldName()).add();
-            table.foreignKey("FK_EISRTUREGSPEC_DEVCFG").on(deviceConfiguration).references(EISDEVICECONFIG.name()).map("deviceConfig").reverseMap("registerSpecs").composition().onDelete(CASCADE).add();
+            table.primaryKey("PK_DTC_REGISTERSPEC").on(id).add();
+            table.foreignKey("FK_DTC_REGISTERSPEC_REGMAP").
+                    on(registerMapping).
+                    references(MasterDataService.COMPONENTNAME, "MDS_REGISTERMAPPING").
+                    map(RegisterSpecImpl.Fields.REGISTER_MAPPING.fieldName()).
+                    add();
+            table.foreignKey("FK_DTC_REGISTERSPEC_DEVCONFIG").
+                    on(deviceConfiguration).
+                    references(DTC_DEVICECONFIG.name()).
+                    map("deviceConfig").
+                    reverseMap("registerSpecs").
+                    composition().
+                    onDelete(CASCADE).
+                    add();
         }
     },
 
-    EISLOGBOOKSPEC {
+    DTC_LOGBOOKSPEC {
         @Override
         public void addTo(DataModel dataModel) {
             Table<LogBookSpec> table = dataModel.addTable(name(), LogBookSpec.class);
@@ -179,13 +257,24 @@ public enum TableSpecs {
             Column deviceconfigid = table.column("DEVICECONFIGID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             Column logbooktypeid = table.column("LOGBOOKTYPEID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             table.column("OBISCODE").varChar(80).map("overruledObisCodeString").add();
-            table.primaryKey("PK_EISLOGBOOKSPECID").on(id).add();
-            table.foreignKey("FK_EISLGBSPEC_DEVCONFIG").on(deviceconfigid).references(EISDEVICECONFIG.name()).map("deviceConfiguration").reverseMap("logBookSpecs").composition().onDelete(CASCADE).add();
-            table.foreignKey("FK_EISLGBSPEC_LOGBOOKTYPE").on(logbooktypeid).references(MasterDataService.COMPONENTNAME, "EISLOGBOOKTYPE").map("logBookType").add();
+            table.primaryKey("PK_DTC_LOGBOOKSPEC").on(id).add();
+            table.foreignKey("FK_DTC_LOGBOOKSPEC_DEVCONFIG").
+                    on(deviceconfigid).
+                    references(DTC_DEVICECONFIG.name()).
+                    map("deviceConfiguration").
+                    reverseMap("logBookSpecs").
+                    composition().
+                    onDelete(CASCADE).
+                    add();
+            table.foreignKey("FK_DTC_LOGBOOKSPEC_LOGBOOKTYPE").
+                    on(logbooktypeid).
+                    references(MasterDataService.COMPONENTNAME, "MDS_LOGBOOKTYPE")
+                    .map("logBookType").
+                    add();
         }
     },
 
-    MDCDEVICECOMMCONFIG {
+    DTC_DEVICECOMMCONFIG {
         @Override
         public void addTo(DataModel dataModel) {
             Table<DeviceCommunicationConfiguration> table = dataModel.addTable(name(), DeviceCommunicationConfiguration.class);
@@ -194,12 +283,16 @@ public enum TableSpecs {
             Column deviceconfiguration = table.column("DEVICECONFIGURATION").number().add();
             table.column("SUPPORTALLCATEGORIES").number().conversion(NUMBER2BOOLEAN).notNull().map("supportsAllMessageCategories").add();
             table.column("USERACTIONS").number().conversion(NUMBER2LONG).notNull().map("userActions").add();
-            table.foreignKey("FK_MDCDEVICECOMMCONFIG_DCONFIG").on(deviceconfiguration).references(EISDEVICECONFIG.name()).map("deviceConfiguration").add();
+            table.foreignKey("FK_MDCDEVICECOMMCONFIG_DCONFIG").
+                    on(deviceconfiguration).
+                    references(DTC_DEVICECONFIG.name()).
+                    map("deviceConfiguration").
+                    add();
             table.primaryKey("PK_MDCDEVICECOMMCONFIG").on(id).add();
         }
     },
 
-    MDCDIALECTCONFIGPROPERTIES {
+    DTC_DIALECTCONFIGPROPERTIES {
         @Override
         public void addTo(DataModel dataModel) {
             Table<ProtocolDialectConfigurationProperties> table = dataModel.addTable(name(), ProtocolDialectConfigurationProperties.class);
@@ -209,12 +302,19 @@ public enum TableSpecs {
             table.column("DEVICEPROTOCOLDIALECT").varChar(255).notNull().map("protocolDialectName").add();
             table.column("MOD_DATE").type("DATE").map("modDate").add();
             table.column("NAME").varChar(255).notNull().map("name").add();
-            table.foreignKey("FK_MDCDEVICECONFIG_CONFIGID").on(deviceConfiguration).references(MDCDEVICECOMMCONFIG.name()).map("deviceCommunicationConfiguration").reverseMap("configurationPropertiesList").onDelete(CASCADE).composition().add();
-            table.primaryKey("PK_MDCDIALECTCONFIGPROPS").on(id).add();
+            table.foreignKey("FK_DTC_DIALECTCONFPROPS_CONFIG").
+                    on(deviceConfiguration).
+                    references(DTC_DEVICECOMMCONFIG.name()).
+                    map("deviceCommunicationConfiguration").
+                    reverseMap("configurationPropertiesList").
+                    onDelete(CASCADE).
+                    composition().
+                    add();
+            table.primaryKey("PK_DTC_DIALECTCONFIGPROPS").on(id).add();
         }
     },
 
-    MDCDIALECTCONFIGPROPERTIESATTR {
+    DTC_DIALECTCONFIGPROPSATTR {
         @Override
         public void addTo(DataModel dataModel) {
             Table<ProtocolDialectConfigurationProperty> table = dataModel.addTable(name(), ProtocolDialectConfigurationProperty.class);
@@ -222,12 +322,18 @@ public enum TableSpecs {
             Column id = table.column("ID").number().notNull().add();
             Column name = table.column("NAME").varChar(255).notNull().map("name").add();
             table.column("VALUE").varChar(4000).notNull().map("value").add();
-            table.foreignKey("FK_MDCDCONFPROPSATTR_CONFIGID").on(id).references(MDCDIALECTCONFIGPROPERTIES.name()).map("properties").composition().reverseMap("propertyList").add();
-            table.primaryKey("PK_MDCDIALECTCONFIGPROPSATTR").on(id,name).add();
+            table.foreignKey("FK_DTC_CONFPROPSATTR_PROPS").
+                    on(id).
+                    references(DTC_DIALECTCONFIGPROPERTIES.name()).
+                    map("properties").
+                    composition().
+                    reverseMap("propertyList").
+                    add();
+            table.primaryKey("PK_DTC_DIALECTCONFIGPROPSATTR").on(id,name).add();
         }
     },
 
-    MDCPARTIALCONNECTIONTASK {
+    DTC_PARTIALCONNECTIONTASK {
         @Override
         public void addTo(DataModel dataModel) {
             Table<PartialConnectionTask> table = dataModel.addTable(name(), PartialConnectionTask.class);
@@ -248,15 +354,39 @@ public enum TableSpecs {
             table.column("MOD_DATE").type("DATE").map("modDate").insert("sysdate").update("sysdate").add();
             Column comportpool = table.column("COMPORTPOOL").number().add();
             table.column("RESCHEDULERETRYDELAYCODE").number().conversion(NUMBER2INT).map("rescheduleRetryDelay.timeUnitCode").add();
-            table.primaryKey("PK_MDCPARTIALCONNTASK").on(id).add();
-            table.foreignKey("FK_MDCPARTIALCT_PLUGGABLE").on(connectionType).references(PluggableService.COMPONENTNAME, "EISPLUGGABLECLASS").map("pluggableClass").add();
-            table.foreignKey("FK_MDCPARTIALCT_COMPORTPOOL").on(comportpool).references(EngineModelService.COMPONENT_NAME, "MDCCOMPORTPOOL").map("comPortPool").add();
-            table.foreignKey("FK_MDCPARTCONTASK_DCOMCONFIG").on(deviceComConfig).references(MDCDEVICECOMMCONFIG.name()).map("configuration").reverseMap("partialConnectionTasks").onDelete(CASCADE).composition().add();
-            table.foreignKey("FK_MDCPARTIALCONNTASK_NEXTEX").on(nextexecutionspecs).references(SchedulingService.COMPONENT_NAME, "MDCNEXTEXECUTIONSPEC").onDelete(CASCADE).map("nextExecutionSpecs").add();
-            table.foreignKey("FK_MDCPARTIALCONNTASK_INIT").on(initiator).references(MDCPARTIALCONNECTIONTASK.name()).map("initiator").add();
+            table.primaryKey("PK_DTC_PARTIALCONNTASK").on(id).add();
+            table.foreignKey("FK_DTC_PARTIALCT_PLUGGABLE").
+                    on(connectionType).
+                    references(PluggableService.COMPONENTNAME, "CPC_PLUGGABLECLASS").
+                    map("pluggableClass").
+                    add();
+            table.foreignKey("FK_DTC_PARTIALCT_COMPORTPOOL").
+                    on(comportpool).
+                    references(EngineModelService.COMPONENT_NAME, "MDC_COMPORTPOOL").
+                    map("comPortPool").
+                    add();
+            table.foreignKey("FK_DTC_PARTIALCT_DEVCONFIG").
+                    on(deviceComConfig).
+                    references(DTC_DEVICECOMMCONFIG.name()).
+                    map("configuration").
+                    reverseMap("partialConnectionTasks").
+                    onDelete(CASCADE).
+                    composition().
+                    add();
+            table.foreignKey("FK_DTC_PARTIALCT_NEXTEXECSPEC").
+                    on(nextexecutionspecs).
+                    references(SchedulingService.COMPONENT_NAME, "SCH_NEXTEXECUTIONSPEC").
+                    onDelete(CASCADE).
+                    map("nextExecutionSpecs").
+                    add();
+            table.foreignKey("FK_DTC_PARTIALCT_INITIATOR").
+                    on(initiator).
+                    references(DTC_PARTIALCONNECTIONTASK.name()).
+                    map("initiator").
+                    add();
         }
     },
-    MDCPARTIALCONNECTIONTASKPROPS {
+    DTC_PARTIALCONNECTIONTASKPROPS {
         @Override
         public void addTo(DataModel dataModel) {
             Table<PartialConnectionTaskPropertyImpl> table = dataModel.addTable(name(), PartialConnectionTaskPropertyImpl.class);
@@ -264,11 +394,18 @@ public enum TableSpecs {
             Column partialconnectiontask = table.column("PARTIALCONNECTIONTASK").number().notNull().add();
             Column name = table.column("NAME").varChar(255).notNull().map("name").add();
             table.column("VALUE").varChar(4000).notNull().map("value").add();
-            table.foreignKey("FK_MDCPARTIALPROPS_TASK").on(partialconnectiontask).references(MDCPARTIALCONNECTIONTASK.name()).map("partialConnectionTask").reverseMap("properties").onDelete(CASCADE).composition().add();
-            table.primaryKey("PK_MDCPARTIALPROPS").on(partialconnectiontask,name).add();
+            table.foreignKey("FK_DTC_PARTIALCTPROPS_TASK").
+                    on(partialconnectiontask).
+                    references(DTC_PARTIALCONNECTIONTASK.name()).
+                    map("partialConnectionTask").
+                    reverseMap("properties").
+                    onDelete(CASCADE).
+                    composition().
+                    add();
+            table.primaryKey("PK_DTC_PARTIALCONTASKPROPS").on(partialconnectiontask,name).add();
         }
     },
-    MDCSECURITYPROPERTYSET {
+    DTC_SECURITYPROPERTYSET {
         @Override
         public void addTo(DataModel dataModel) {
             Table<SecurityPropertySet> table = dataModel.addTable(name(), SecurityPropertySet.class);
@@ -278,26 +415,36 @@ public enum TableSpecs {
             Column devicecomconfig = table.column("DEVICECOMCONFIG").conversion(NUMBER2LONG).number().notNull().add();
             table.column("AUTHENTICATIONLEVEL").number().conversion(NUMBER2INT).notNull().map("authenticationLevelId").add();
             table.column("ENCRYPTIONLEVEL").number().conversion(NUMBER2INT).notNull().map("encryptionLevelId").add();
-            table.
-                foreignKey("FK_MDCSECPROPSET_DEVCOMCONFIG").
-                on(devicecomconfig).references(MDCDEVICECOMMCONFIG.name()).
+            table.foreignKey("FK_DTC_SECPROPSET_DEVCOMCONFIG").
+                    on(devicecomconfig).
+                    references(DTC_DEVICECOMMCONFIG.name()).
                     map("deviceCommunicationConfiguration").
-                    reverseMap(DeviceCommunicationConfigurationImpl.Fields.SECURITY_PROPERTY_SETS.fieldName()).onDelete(CASCADE).composition().add();
-            table.primaryKey("PK_MDCSECURITYPROPERTYSET").on(id).add();
+                    reverseMap(DeviceCommunicationConfigurationImpl.Fields.SECURITY_PROPERTY_SETS.fieldName()).
+                    onDelete(CASCADE).
+                    composition().
+                    add();
+            table.primaryKey("PK_DTC_SECURITYPROPERTYSET").on(id).add();
         }
     },
-    MDCSECURITYPROPSETUSERACTION {
+    DTC_SECURITYPROPSETUSERACTION {
         @Override
         public void addTo(DataModel dataModel) {
             Table<SecurityPropertySetImpl.UserActionRecord> table = dataModel.addTable(name(), SecurityPropertySetImpl.UserActionRecord.class);
             table.map(SecurityPropertySetImpl.UserActionRecord.class);
             Column useraction = table.column("USERACTION").number().conversion(NUMBER2ENUM).notNull().map("userAction").add();
             Column securitypropertyset = table.column("SECURITYPROPERTYSET").number().notNull().add();
-            table.foreignKey("FK_MDCSECPROPSETUSRACT_SPS").on(securitypropertyset).references(MDCSECURITYPROPERTYSET.name()).reverseMap("userActionRecords").onDelete(CASCADE).composition().map("set").add();
-            table.primaryKey("PK_MDCSECURITYPROPETUSERACTION").on(useraction,securitypropertyset).add();
+            table.foreignKey("FK_DTC_SECPROPSETUSRACT_SPS").
+                    on(securitypropertyset).
+                    references(DTC_SECURITYPROPERTYSET.name()).
+                    reverseMap("userActionRecords").
+                    onDelete(CASCADE).
+                    composition().
+                    map("set").
+                    add();
+            table.primaryKey("PK_DTC_SECPROPSETUSERACTION").on(useraction,securitypropertyset).add();
         }
     },
-    MDCCOMTASKENABLEMENT {
+    DTC_COMTASKENABLEMENT {
         @Override
         public void addTo(DataModel dataModel) {
             Table<ComTaskEnablement> table = dataModel.addTable(name(), ComTaskEnablement.class);
@@ -314,38 +461,38 @@ public enum TableSpecs {
             Column dialectConfigurationProperties = table.column("DIALECTCONFIGPROPERTIES").number().add();
             table.column("IGNORENEXTEXECSPECS").number().notNull().conversion(NUMBER2BOOLEAN).map(ComTaskEnablementImpl.Fields.IGNORE_NEXT_EXECUTION_SPECS_FOR_INBOUND.fieldName()).add();
             table.
-                foreignKey("FK_MDCCOMTASKENABLMNT_OPARTCT").
+                foreignKey("FK_DTC_COMTASKENABLMNT_OPARTCT").
                 on(partialConnectionTask).
-                references(MDCPARTIALCONNECTIONTASK.name()).
-                    map(ComTaskEnablementImpl.Fields.PARTIAL_CONNECTION_TASK.fieldName()).add();
+                references(DTC_PARTIALCONNECTIONTASK.name()).
+                map(ComTaskEnablementImpl.Fields.PARTIAL_CONNECTION_TASK.fieldName()).add();
             table.
-                foreignKey("FK_MDCCOMTASKSEC_SECPROPSET").
+                foreignKey("FK_DTC_COMTASKENABLMNT_SECURPS").
                 on(securityPropertySet).
-                references(MDCSECURITYPROPERTYSET.name()).
-                    map(ComTaskEnablementImpl.Fields.SECURITY_PROPERTY_SET.fieldName()).add();
+                references(DTC_SECURITYPROPERTYSET.name()).
+                map(ComTaskEnablementImpl.Fields.SECURITY_PROPERTY_SET.fieldName()).add();
             table.
-                foreignKey("FK_MDCCOMTASKSEC_COMTASK").
+                foreignKey("FK_DTC_COMTASKENABLMNT_COMTASK").
                 on(comtask).
-                references(TaskService.COMPONENT_NAME, "MDCCOMTASK").
-                    map(ComTaskEnablementImpl.Fields.COM_TASK.fieldName()).add();
+                references(TaskService.COMPONENT_NAME, "CTS_COMTASK").
+                map(ComTaskEnablementImpl.Fields.COM_TASK.fieldName()).add();
             table.
-                foreignKey("FK_MDCCOMTASKENBLMNT_DCOMCONF").
+                foreignKey("FK_DTC_COMTASKENBLMNT_DCOMCONF").
                 on(deviceCommunicationConfigation).
-                references(MDCDEVICECOMMCONFIG.name()).
-                    map(ComTaskEnablementImpl.Fields.CONFIGURATION.fieldName()).
-                    reverseMap(DeviceCommunicationConfigurationImpl.Fields.COM_TASK_ENABLEMENTS.fieldName()).onDelete(CASCADE).composition().add();
+                references(DTC_DEVICECOMMCONFIG.name()).
+                map(ComTaskEnablementImpl.Fields.CONFIGURATION.fieldName()).
+                reverseMap(DeviceCommunicationConfigurationImpl.Fields.COM_TASK_ENABLEMENTS.fieldName()).onDelete(CASCADE).composition().add();
             table.
-                foreignKey("FK_MDCCOMTASKENABLMNT_NEXTEXEC").
+                foreignKey("FK_DTC_COMTASKENABLMNT_NEXTEXC").
                 on(nextExecutionSpecs).
-                references(SchedulingService.COMPONENT_NAME, "MDCNEXTEXECUTIONSPEC").
-                    map(ComTaskEnablementImpl.Fields.NEXT_EXECUTION_SPECS.fieldName()).add();
+                references(SchedulingService.COMPONENT_NAME, "SCH_NEXTEXECUTIONSPEC").
+                map(ComTaskEnablementImpl.Fields.NEXT_EXECUTION_SPECS.fieldName()).add();
             table.
-                foreignKey("FK_MDCCOMTASKENABLMNT_PDCP").
+                foreignKey("FK_DTC_COMTASKENABLMNT_PDCP").
                 on(dialectConfigurationProperties).
-                references(MDCDIALECTCONFIGPROPERTIES.name()).
-                    map(ComTaskEnablementImpl.Fields.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES.fieldName()).add();
-            table.unique("UK_MDCCOMTASKENABLEMENT").on(comtask,deviceCommunicationConfigation).add();
-            table.primaryKey("PK_MDCCOMTASKENABLEMENT").on(id).add();
+                references(DTC_DIALECTCONFIGPROPERTIES.name()).
+                map(ComTaskEnablementImpl.Fields.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES.fieldName()).add();
+            table.unique("UK_DTC_COMTASKENABLEMENT").on(comtask,deviceCommunicationConfigation).add();
+            table.primaryKey("PK_DTC_COMTASKENABLEMENT").on(id).add();
         }
     }
     ;
