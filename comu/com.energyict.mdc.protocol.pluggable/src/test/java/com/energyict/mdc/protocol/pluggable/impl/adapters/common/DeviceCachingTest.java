@@ -6,6 +6,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -17,10 +18,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.withSettings;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests for the {@link DeviceProtocolAdapterImpl} component
@@ -36,6 +34,8 @@ public class DeviceCachingTest {
     private DataModel dataModel;
     @Mock
     private IssueService issueService;
+    @Mock
+    private DeviceCacheMarshallingService deviceCacheMarshallingService;
 
     @Test
     public void getCacheAlwaysChangedTest(){
@@ -45,7 +45,7 @@ public class DeviceCachingTest {
          */
 
         MeterProtocol meterProtocol = getMockedMeterProtocol();
-        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapterImpl(meterProtocol, mock(ProtocolPluggableService.class), mock(SecuritySupportAdapterMappingFactory.class), this.dataModel, issueService);
+        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapterImpl(meterProtocol, mock(ProtocolPluggableService.class), mock(SecuritySupportAdapterMappingFactory.class), this.dataModel, issueService, deviceCacheMarshallingService);
 
         // business method
         DeviceProtocolCache deviceProtocolCache = meterProtocolAdapter.getDeviceCache();
@@ -68,7 +68,7 @@ public class DeviceCachingTest {
     @Test
     public void getCacheAdapterMethodCallTest(){
         MeterProtocol meterProtocol = getMockedMeterProtocol();
-        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapterImpl(meterProtocol, mock(ProtocolPluggableService.class), mock(SecuritySupportAdapterMappingFactory.class), this.dataModel, issueService);
+        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapterImpl(meterProtocol, mock(ProtocolPluggableService.class), mock(SecuritySupportAdapterMappingFactory.class), this.dataModel, issueService, deviceCacheMarshallingService);
 
         // business method
         DeviceProtocolCache deviceProtocolCache = meterProtocolAdapter.getDeviceCache();
@@ -80,11 +80,13 @@ public class DeviceCachingTest {
     @Test
     public void setDeviceCacheTest(){
         MeterProtocol meterProtocol = getMockedMeterProtocol();
-        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapterImpl(meterProtocol, mock(ProtocolPluggableService.class), mock(SecuritySupportAdapterMappingFactory.class), this.dataModel, issueService);
+        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapterImpl(meterProtocol, mock(ProtocolPluggableService.class), mock(SecuritySupportAdapterMappingFactory.class), this.dataModel, issueService, deviceCacheMarshallingService);
         BaseDevice device = mock(BaseDevice.class);
+        String jsonCache = "MyTestJsonCache";
+        when(deviceCacheMarshallingService.unMarshallCache(jsonCache)).thenReturn(device);
         DeviceProtocolCacheAdapter deviceCacheAdapter = new DeviceProtocolCacheAdapter();
         // we set an Device object as cache object so we can validate that this was set to the adapter
-        deviceCacheAdapter.setLegacyCache(device);
+        deviceCacheAdapter.setLegacyJsonCache(jsonCache);
 
         // business method
         meterProtocolAdapter.setDeviceCache(deviceCacheAdapter);
@@ -96,7 +98,7 @@ public class DeviceCachingTest {
     @Test
     public void verifyCacheIsNotCorrectInstanceTest(){
         MeterProtocol meterProtocol = getMockedMeterProtocol();
-        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapterImpl(meterProtocol, mock(ProtocolPluggableService.class), mock(SecuritySupportAdapterMappingFactory.class), this.dataModel, issueService);
+        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapterImpl(meterProtocol, mock(ProtocolPluggableService.class), mock(SecuritySupportAdapterMappingFactory.class), this.dataModel, issueService, deviceCacheMarshallingService);
         NotTheCorrectDeviceProtocolCache deviceCache = new NotTheCorrectDeviceProtocolCache();
 
         // business method

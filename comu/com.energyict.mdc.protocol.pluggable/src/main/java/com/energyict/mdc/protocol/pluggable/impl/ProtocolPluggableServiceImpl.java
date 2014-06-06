@@ -14,11 +14,13 @@ import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassType;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
@@ -49,10 +51,18 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Provides an interface for the {@link ProtocolPluggableService} interface.
@@ -62,6 +72,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 @Component(name="com.energyict.mdc.protocol.pluggable", service = {ProtocolPluggableService.class, InstallService.class}, property = "name=" + ProtocolPluggableService.COMPONENTNAME)
 public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, InstallService {
+
+    private static final Logger LOGGER = Logger.getLogger(ProtocolPluggableServiceImpl.class.getName());
 
     private volatile DataModel dataModel;
     private volatile EventService eventService;
@@ -75,6 +87,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     private volatile InboundDeviceProtocolService inboundDeviceProtocolService;
     private volatile ConnectionTypeService connectionTypeService;
     private volatile IssueService issueService;
+    private volatile DeviceCacheMarshallingService deviceCacheMarshallingService;
 
     public ProtocolPluggableServiceImpl() {
         super();
@@ -93,7 +106,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
             DeviceProtocolMessageService deviceProtocolMessageService,
             DeviceProtocolSecurityService deviceProtocolSecurityService,
             InboundDeviceProtocolService inboundDeviceProtocolService,
-            ConnectionTypeService connectionTypeService) {
+            ConnectionTypeService connectionTypeService, DeviceCacheMarshallingService deviceCacheMarshallingService) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
@@ -107,6 +120,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         this.addDeviceProtocolSecurityService(deviceProtocolSecurityService);
         this.setInboundDeviceProtocolService(inboundDeviceProtocolService);
         this.setConnectionTypeService(connectionTypeService);
+        this.setDeviceCacheMarshallingService(deviceCacheMarshallingService);
         this.activate();
         if (!this.dataModel.isInstalled()) {
             this.install();
@@ -415,6 +429,35 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         return relationTypeSupport.findRelationType();
     }
 
+    @Override
+    public DeviceProtocolCache unMarshalDeviceProtocolCache(String type, String jsonCache) {
+        DeviceProtocolCache deviceProtocolCache = null;
+        try {
+            JAXBContext jc = JAXBContext.newInstance(Class.forName(type));
+            Unmarshaller unmarshaller = jc.createUnmarshaller();
+            deviceProtocolCache = (DeviceProtocolCache) unmarshaller.unmarshal(new StringReader(jsonCache));
+        } catch (JAXBException | ClassNotFoundException e) {
+            // if some unMarshalling exception occurs, then log it and shove it under the rug
+            LOGGER.log(Level.WARNING, "An error occurred during the UnMarshalling of the DeviceProtocolCache: " + e.getMessage(), e);
+        }
+        return deviceProtocolCache;
+    }
+
+    @Override
+    public String marshalDeviceProtocolCache(DeviceProtocolCache deviceProtocolCache) {
+        StringWriter stringWriter = new StringWriter();
+        try {
+            JAXBContext jc = JAXBContext.newInstance(deviceProtocolCache.getClass());
+            Marshaller marshaller = jc.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            marshaller.marshal(deviceProtocolCache, stringWriter);
+        } catch (JAXBException e) {
+            // if some marshalling exception occurs, then log it and shove it under the rug
+            LOGGER.log(Level.WARNING, "An error occurred during the Marshalling of the DeviceProtocolCache: " + e.getMessage(), e);
+        }
+        return stringWriter.toString();
+    }
+
     @Reference
     public void setOrmService(OrmService ormService) {
         DataModel dataModel = ormService.newDataModel(COMPONENTNAME, "Protocol Pluggable Classes");
@@ -519,6 +562,11 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         this.issueService = issueService;
     }
 
+    @Reference
+    public void setDeviceCacheMarshallingService(DeviceCacheMarshallingService deviceCacheMarshallingService) {
+        this.deviceCacheMarshallingService = deviceCacheMarshallingService;
+    }
+
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -534,6 +582,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
                 bind(IssueService.class).toInstance(issueService);
                 bind(ProtocolPluggableService.class).toInstance(ProtocolPluggableServiceImpl.this);
                 bind(SecuritySupportAdapterMappingFactory.class).to(SecuritySupportAdapterMappingFactoryImpl.class);
+                bind(DeviceCacheMarshallingService.class).toInstance(deviceCacheMarshallingService);
             }
         };
     }
