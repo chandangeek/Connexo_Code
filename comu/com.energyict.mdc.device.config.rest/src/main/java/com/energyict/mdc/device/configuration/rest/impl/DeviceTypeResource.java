@@ -97,10 +97,10 @@ public class DeviceTypeResource {
     public DeviceTypeInfo createDeviceType(DeviceTypeInfo deviceTypeInfo) {
         Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = protocolPluggableService.findDeviceProtocolPluggableClassByName(deviceTypeInfo.communicationProtocolName);
         if (Checks.is(deviceTypeInfo.communicationProtocolName).emptyOrOnlyWhiteSpace()) {
-            throw new LocalizedFieldValidationException(thesaurus, MessageSeeds.FIELD_IS_REQUIRED, DeviceTypeInfo.COMMUNICATION_PROTOCOL_NAME,deviceTypeInfo.communicationProtocolName);
+            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, DeviceTypeInfo.COMMUNICATION_PROTOCOL_NAME,deviceTypeInfo.communicationProtocolName);
         }
         if (!deviceProtocolPluggableClass.isPresent()) {
-            throw new LocalizedFieldValidationException(thesaurus, MessageSeeds.PROTOCOL_INVALID_NAME, DeviceTypeInfo.COMMUNICATION_PROTOCOL_NAME, deviceTypeInfo.communicationProtocolName);
+            throw new LocalizedFieldValidationException(MessageSeeds.PROTOCOL_INVALID_NAME, DeviceTypeInfo.COMMUNICATION_PROTOCOL_NAME, deviceTypeInfo.communicationProtocolName);
         }
         DeviceType deviceType = deviceConfigurationService.newDeviceType(deviceTypeInfo.name, deviceProtocolPluggableClass.get());
         deviceType.save();

@@ -14,6 +14,6 @@ public class ExceptionFactory {
     }
 
     public LocalizedFieldValidationException illegalRegisterMappingReference() {
-        return new LocalizedFieldValidationException(thesaurus, MessageSeeds.INVALID_REFERENCE_TO_REGISTER_MAPPING, "registerMapping");
+        return new LocalizedFieldValidationException(MessageSeeds.INVALID_REFERENCE_TO_REGISTER_MAPPING, "registerMapping");
     }
 }
