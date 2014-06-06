@@ -334,6 +334,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                             success: function (response) {
                                 var loadProfileConfiguration = Ext.JSON.decode(response.responseText).data[0],
                                     widget = Ext.widget('loadProfileConfigurationDetailSetup', {intervalStore: me.intervalStore, deviceTypeId: deviceTypeId, deviceConfigId: deviceConfigurationId, loadProfileConfigurationId: loadProfileConfigurationId });
+                                me.getApplication().fireEvent('loadLoadProfile', loadProfileConfiguration);
                                 widget.down('loadProfileConfigurationDetailChannelGrid').getStore().load({
                                     callback: function() {
                                         if (this.getTotalCount() < 1) {

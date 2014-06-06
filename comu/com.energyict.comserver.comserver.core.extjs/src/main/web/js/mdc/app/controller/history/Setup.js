@@ -152,6 +152,14 @@ Ext.define('Mdc.controller.history.Setup', {
                                                             route: '{loadProfileConfigurationId}/channels',
                                                             controller: 'Mdc.controller.setup.LoadProfileConfigurationDetails',
                                                             action: 'showDeviceConfigurationLoadProfilesConfigurationDetailsView',
+                                                            callback: function(route) {
+                                                                this.getApplication().on('loadLoadProfile', function(record) {
+                                                                    route.setTitle(record.name);
+                                                                    return true;
+                                                                }, {single: true});
+
+                                                                return this;
+                                                            },
                                                             items: {
                                                                 add: {
                                                                     title: 'Add channel configuration',
