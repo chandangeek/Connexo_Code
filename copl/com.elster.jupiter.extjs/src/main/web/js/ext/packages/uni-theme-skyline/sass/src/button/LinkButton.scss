@@ -130,3 +130,9 @@ a, a.#{$prefix}btn {
     @include uni-button-link('toolbar-large');
   }
 }
+
+.#{$prefix}form-fieldcontainer {
+  *[class*='#{$prefix}btn-link-']{
+    margin-top: 2px;
+  }
+}
