@@ -154,13 +154,13 @@ Ext.define('Mdc.controller.history.Setup', {
                                                             action: 'showDeviceConfigurationLoadProfilesConfigurationDetailsView',
                                                             items: {
                                                                 add: {
-                                                                    title: 'Add channel',
+                                                                    title: 'Add channel configuration',
                                                                     route: 'add',
                                                                     controller: 'Mdc.controller.setup.LoadProfileConfigurationDetails',
                                                                     action: 'showDeviceConfigurationLoadProfilesConfigurationChannelsAddView'
                                                                 },
                                                                 edit: {
-                                                                    title: 'Edit channel',
+                                                                    title: 'Edit channel configuration',
                                                                     route: '{channelId}/edit',
                                                                     controller: 'Mdc.controller.setup.LoadProfileConfigurationDetails',
                                                                     action: 'showDeviceConfigurationLoadProfilesConfigurationChannelsEditView'
