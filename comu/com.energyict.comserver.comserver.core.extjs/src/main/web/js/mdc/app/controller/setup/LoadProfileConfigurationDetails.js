@@ -26,7 +26,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         {ref: 'channelForm', selector: '#loadProfileConfigurationDetailChannelFormId'},
         {ref: 'readingTypeDetailsForm', selector: '#readingTypeDetailsForm'},
         {ref: 'channelsGrid', selector: '#loadProfileConfigurationDetailChannelGrid'}
-
     ],
 
     deviceTypeId: null,
@@ -44,7 +43,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                 showReadingTypeInfo: this.showReadingType
             },
             'loadProfileConfigurationDetailForm combobox[name=measurementType]': {
-                select: this.changeDisplayedObisCodeAndCIM
+                change: this.changeDisplayedObisCodeAndCIM
             },
             'loadProfileConfigurationDetailForm button[name=loadprofilechannelaction]': {
                 click: this.onSubmit
@@ -132,10 +131,13 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
     },
 
 
-    changeDisplayedObisCodeAndCIM: function (combobox) {
-        var record = this.availableMeasurementTypesStore.findRecord('id', combobox.getValue());
-        combobox.next().setValue(record.getData().readingType.mrid);
-        combobox.next().next().setValue(record.getData().obisCode);
+    changeDisplayedObisCodeAndCIM: function (combobox, newValue) {
+        var record = combobox.getStore().getById(newValue),
+            form = combobox.up('form');
+
+        form.down('[name=cimreadingtype]').setValue(record.get('readingType').mrid);
+        form.down('[name=obiscode]').setValue(record.get('obisCode'));
+        form.down('[name=unitOfMeasure]').setValue(record.get('phenomenon').id);
     },
 
 
@@ -462,5 +464,5 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                 });
             }
         });
-    },
+    }
 });
