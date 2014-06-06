@@ -56,12 +56,6 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                     {
                         xtype: 'textfield',
                         name: 'name',
-                        validator: function (text) {
-                            if (Ext.util.Format.trim(text).length == 0)
-                                return Uni.I18n.translate('devicetype.emptyName', 'MDC', 'The name of a device type can not be empty.')
-                            else
-                                return true;
-                        },
                         msgTarget: 'under',
                         required: true,
                         fieldLabel: Uni.I18n.translate('devicetype.name', 'MDC', 'Name'),

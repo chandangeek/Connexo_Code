@@ -130,7 +130,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 widget.down('form').loadRecord(deviceType);
                 me.getApplication().fireEvent('loadDeviceType', deviceType);
 
-                me.getDeviceTypePreviewTitle().update('<h1>' + deviceType.get('name') + ' - ' + Uni.I18n.translate('general.overview', 'MDC', 'Overview') + '</h1>');
+                me.getDeviceTypePreviewTitle().update('<h1>' + Uni.I18n.translate('general.overview', 'MDC', 'Overview') + '</h1>');
             }
         });
 
