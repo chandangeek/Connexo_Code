@@ -11,8 +11,6 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         'setup.communicationtask.CommunicationTaskSetup',
         'setup.communicationtask.CommunicationTaskPreview',
         'setup.communicationtask.CommunicationTaskGrid',
-        'setup.communicationtask.CommunicationTaskEmptyList',
-        'setup.communicationtask.CommunicationTaskDockedItems',
         'setup.communicationtask.CommunicationTaskEdit'
     ],
 
@@ -151,8 +149,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         var me = this,
             grid = me.getCommunicationTaskGridPanel();
         if (!Ext.isEmpty(grid)) {
-            var numberOfCommunicationTasksContainer = Ext.ComponentQuery.query('communicationTaskSetup communicationTaskDockedItems container[name=CommunicationTasksCount]')[0],
-                emptyMessage = Ext.ComponentQuery.query('communicationTaskSetup')[0].down('#CommunicationTaskEmptyList'),
+            var numberOfCommunicationTasksContainer = Ext.ComponentQuery.query('#communicationTaskGrid #communicationTasksCount')[0],
                 gridView = grid.getView(),
                 selectionModel = gridView.getSelectionModel(),
                 communicationTasksCount = me.getCommunicationTaskConfigsOfDeviceConfigurationStore().getCount(),
@@ -164,18 +161,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
             numberOfCommunicationTasksContainer.removeAll(true);
             numberOfCommunicationTasksContainer.add(widget);
 
-            if (communicationTasksCount < 1) {
-                grid.hide();
-                emptyMessage.removeAll(true);
-                emptyMessage.add(
-                    {
-                        xtype: 'communicationTaskEmptyList',
-                        deviceTypeId: this.deviceTypeId,
-                        deviceConfigurationId: this.deviceConfigurationId
-                    }
-                );
-                me.getCommunicationTaskPreviewPanel().hide();
-            } else {
+            if (communicationTasksCount > 0) {
                 selectionModel.deselectAll(false);
                 selectionModel.select(0);
                 grid.fireEvent('itemclick', gridView, selectionModel.getLastSelected());
@@ -187,7 +173,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         var me = this;
         this.deviceTypeId = deviceTypeId;
         this.deviceConfigurationId = deviceConfigurationId;
-        var widget = Ext.widget('communicationTaskSetup', {deviceTypeId: deviceTypeId, deviceConfigId: deviceConfigurationId});
+        var widget = Ext.widget('communicationTaskSetup', {deviceTypeId: deviceTypeId, deviceConfigurationId: deviceConfigurationId});
 
         me.getCommunicationTaskConfigsOfDeviceConfigurationStore().getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigurationId});
 
@@ -367,37 +353,14 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
             grid = me.getCommunicationTaskGridPanel(),
             lastSelected = grid.getView().getSelectionModel().getLastSelected();
 
-        var confirmMessage = Ext.widget('messagebox', {
-            buttons: [
-                {
-                    xtype: 'button',
-                    text: 'Remove',
-                    action: 'remove',
-                    name: 'remove',
-                    ui: 'remove',
-                    handler: function () {
-                        confirmMessage.close();
-                        me.removeCommunicationTaskRecord({
-                            communicationTaskToDelete: lastSelected,
-                            me: me
-                        });
-                    }
-                },
-                {
-                    xtype: 'button',
-                    text: 'Cancel',
-                    action: 'cancel',
-                    name: 'cancel',
-                    ui: 'link',
-                    handler: function () {
-                        confirmMessage.close();
-                    }
-                }
-            ]
-        }).show({
-                msg: Uni.I18n.translate('communicationtasks.deleteCommunicationTask.message', 'MDC', 'On this device configuration it wont be possible anymore to execute this communication task'),
-                title: Uni.I18n.translate('communicationtasks.deleteCommunicationTask.title', 'MDC', 'Remove') + ' ' + lastSelected.get('comTask').name + '?',
-                icon: Ext.MessageBox.WARNING
+        Ext.create('Uni.view.window.Confirmation').show({
+            msg: Uni.I18n.translate('communicationtasks.deleteCommunicationTask.message', 'MDC', 'On this device configuration it wont be possible anymore to execute this communication task'),
+            title: Uni.I18n.translate('communicationtasks.deleteCommunicationTask.title', 'MDC', 'Remove') + ' ' + lastSelected.get('comTask').name + '?',
+            config: {
+                communicationTaskToDelete: lastSelected,
+                me: me
+            },
+            fn: me.removeCommunicationTaskRecord
         });
     },
 
@@ -499,63 +462,67 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         }, cfg));
     },
 
-    removeCommunicationTaskRecord: function(cfg) {
-        var me = cfg.me,
-            communicationTaskToDelete = cfg.communicationTaskToDelete;
+    removeCommunicationTaskRecord: function(btn, text, cfg) {
+        if (btn === 'confirm') {
+            var me = cfg.config.me,
+                communicationTaskToDelete = cfg.config.communicationTaskToDelete;
 
-            me.setPreLoader(me.getCommunicationTaskSetupPanel(), Uni.I18n.translate('communicationtasks.removing', 'MDC', 'Removing communication task'));
-            communicationTaskToDelete.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigurationId});
-            communicationTaskToDelete.destroy({
-                callback: function (record, operation) {
-                    me.clearPreLoader();
-                    if(operation.wasSuccessful()) {
-                        location.href = '#/administration/devicetypes/'+me.deviceTypeId+'/deviceconfigurations/'+me.deviceConfigurationId+'/comtaskenablements';
-                        me.fireEvent('shownotification', null, Uni.I18n.translate('communicationtasks.removed', 'MDC', 'Communication task successfully removed'), 'notification-success');
-                        me.loadCommunicationTasksStore();
-                    } else {
-                        var errorText = Uni.I18n.translate('communicationtasks.error.unknown', 'MDC', 'Unknown error occurred');
-                        if(!Ext.isEmpty(operation.response.statusText)) {
-                            errorText = operation.response.statusText;
-                        }
-                        if(!Ext.isEmpty(operation.response.responseText)) {
-                            var json = Ext.decode(operation.response.responseText, true);
-                            if (json && json.error) {
-                                errorText = json.error;
+                me.setPreLoader(me.getCommunicationTaskSetupPanel(), Uni.I18n.translate('communicationtasks.removing', 'MDC', 'Removing communication task'));
+                communicationTaskToDelete.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigurationId});
+                communicationTaskToDelete.destroy({
+                    callback: function (record, operation) {
+                        me.clearPreLoader();
+                        if(operation.wasSuccessful()) {
+                            location.href = '#/administration/devicetypes/'+me.deviceTypeId+'/deviceconfigurations/'+me.deviceConfigurationId+'/comtaskenablements';
+                            me.fireEvent('shownotification', null, Uni.I18n.translate('communicationtasks.removed', 'MDC', 'Communication task successfully removed'), 'notification-success');
+                            me.loadCommunicationTasksStore();
+                        } else {
+                            var errorText = Uni.I18n.translate('communicationtasks.error.unknown', 'MDC', 'Unknown error occurred');
+                            if(!Ext.isEmpty(operation.response.statusText)) {
+                                errorText = operation.response.statusText;
                             }
-                        }
-                        var errorMessage = Ext.widget('messagebox', {
-                            buttons: [
-                                {
-                                    text: 'Retry',
-                                    action: 'retry',
-                                    ui: 'remove',
-                                    handler: function () {
-                                        errorMessage.close();
-                                        me.removeCommunicationTaskRecord({
-                                            communicationTaskToDelete: communicationTaskToDelete,
-                                            me: me
-                                        });
-                                    }
-                                },
-                                {
-                                    text: 'Cancel',
-                                    action: 'cancel',
-                                    ui: 'link',
-                                    handler: function () {
-                                        errorMessage.close();
-                                    }
+                            if(!Ext.isEmpty(operation.response.responseText)) {
+                                var json = Ext.decode(operation.response.responseText, true);
+                                if (json && json.error) {
+                                    errorText = json.error;
                                 }
-                            ]
-                        }).show({
-                                ui: 'notification-error',
-                                title: Uni.I18n.translate('communicationtasks.remove.operation.failed', 'MDC', 'Remove operation failed'),
-                                msg: errorText,
-                                icon: Ext.MessageBox.ERROR
-                        });
-                    }
+                            }
+                            var errorMessage = Ext.widget('messagebox', {
+                                buttons: [
+                                    {
+                                        text: 'Retry',
+                                        action: 'retry',
+                                        ui: 'remove',
+                                        handler: function () {
+                                            errorMessage.close();
+                                            me.removeCommunicationTaskRecord('confirm', null, {
+                                                config: {
+                                                    communicationTaskToDelete: communicationTaskToDelete,
+                                                    me: me
+                                                }
+                                            });
+                                        }
+                                    },
+                                    {
+                                        text: 'Cancel',
+                                        action: 'cancel',
+                                        ui: 'link',
+                                        handler: function () {
+                                            errorMessage.close();
+                                        }
+                                    }
+                                ]
+                            }).show({
+                                    ui: 'notification-error',
+                                    title: Uni.I18n.translate('communicationtasks.remove.operation.failed', 'MDC', 'Remove operation failed'),
+                                    msg: errorText,
+                                    icon: Ext.MessageBox.ERROR
+                            });
+                        }
 
-                }
-            });
+                    }
+                });
+        }
     },
 
     updateRecord: function(record, values, cfg) {

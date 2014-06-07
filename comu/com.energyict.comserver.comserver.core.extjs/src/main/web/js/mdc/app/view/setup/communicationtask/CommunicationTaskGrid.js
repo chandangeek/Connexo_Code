@@ -3,7 +3,7 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskGrid', {
     alias: 'widget.communicationTaskGrid',
     itemId: 'communicationTaskGrid',
     deviceTypeId: null,
-    deviceConfigId: null,
+    deviceConfigurationId: null,
     store: 'CommunicationTaskConfigsOfDeviceConfiguration',
     scroll: false,
     requires: [
@@ -50,7 +50,30 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskGrid', {
                 items:'Mdc.view.setup.communicationtask.CommunicationTaskActionMenu'
             }
         ];
-        this.callParent(arguments);
+
+        me.dockedItems = [
+            {
+                xtype: 'toolbar',
+                border: 0,
+                align: 'left',
+                dock: 'top',
+                items: [
+                    {
+                        xtype: 'container',
+                        itemId: 'communicationTasksCount',
+                        flex: 1
+                    },
+                    {
+                        xtype: 'button',
+                        text: Uni.I18n.translate('communicationtasks.add', 'MDC', 'Add communication task'),
+                        margin: '0 5',
+                        hrefTarget: '',
+                        href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/comtaskenablements/create'
+                    }
+                ]
+            }
+        ];
+        me.callParent(arguments);
     }
 });
 
