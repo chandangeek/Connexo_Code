@@ -20,12 +20,12 @@ Ext.define('Mdc.controller.history.Setup', {
                         create: {
                             title: 'Create logbook type',
                             route: 'create',
-                            controller: 'Mdc.controller.setup.LogForm'
+                            controller: 'Mdc.controller.setup.LogbookTypesOverview'
                         },
                         edit: {
                             title: 'Edit logbook type',
                             route: 'edit/{id}',
-                            controller: 'Mdc.controller.setup.LogForm'
+                            controller: 'Mdc.controller.setup.LogbookTypesOverview'
                         }
                     }
                 },

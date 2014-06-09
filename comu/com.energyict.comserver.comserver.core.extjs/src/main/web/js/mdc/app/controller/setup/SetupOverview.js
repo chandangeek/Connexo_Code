@@ -57,7 +57,7 @@ Ext.define('Mdc.controller.setup.SetupOverview', {
         this.getApplication().fireEvent('changecontentevent', widget);
     },
     showLogbookTypes: function () {
-        var widget = Ext.widget('logbook-overview');
+        var widget = Ext.widget('logbookTypeSetup');
         this.getApplication().fireEvent('changecontentevent', widget);
     }
 
