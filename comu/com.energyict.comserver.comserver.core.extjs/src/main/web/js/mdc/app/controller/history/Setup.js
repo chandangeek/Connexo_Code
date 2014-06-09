@@ -258,7 +258,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                                             controller: 'Mdc.controller.setup.CommunicationTasks',
                                                             action: 'showEditCommunicationTaskView',
                                                             callback: function(route) {
-                                                                this.getApplication().on('loadCommunicationTask', function(record) {
+                                                                this.getApplication().on('loadCommunicationTaskModel', function(record) {
                                                                     route.setTitle('Edit "' + record.get('comTask').name + '"');
                                                                     return true;
                                                                 }, {single: true});
