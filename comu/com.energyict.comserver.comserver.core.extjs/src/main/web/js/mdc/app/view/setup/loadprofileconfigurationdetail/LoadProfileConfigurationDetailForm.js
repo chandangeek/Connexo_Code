@@ -58,9 +58,12 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                             value: 'Select a measurement type first'
                         },
                         {
+                            //todo: make a common OBIS code field to reduce code duplicateness
                             xtype: 'textfield',
                             labelSeparator: ' ',
                             fieldLabel: 'Overruled OBIS code',
+                            emptyText: Uni.I18n.translate('registerType.selectObisCode', 'MDC', 'x.x.x.x.x.x'),
+                            afterSubTpl: '<div class="x-form-display-field"><i>' + 'Provide the value for the 6 attributes of the OBIS code. Separate each value with a "."' + '</i></div>',
                             name: 'overruledObisCode',
                             maskRe: /[\d.]+/,
                             vtype: 'overruledObisCode',
