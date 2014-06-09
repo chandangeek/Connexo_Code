@@ -106,7 +106,6 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
     },
 
     previewDeviceConfiguration: function (grid, record) {
-        debugger;
         var deviceConfigurations = this.getDeviceConfigurationsGrid().getSelectionModel().getSelection();
         if (deviceConfigurations.length == 1) {
             var deviceConfigurationId = deviceConfigurations[0].get('id');
@@ -133,7 +132,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         var menuItems = Ext.ComponentQuery.query('#activateDeviceconfigurationMenuItem') ;
         for (var i=0; i < menuItems.length; i++) {
             menuItems[i].setText(activateDeactivateText);
-        };
+        }
     },
 
     showDeviceConfigurationDetailsView: function (devicetype, deviceconfiguration) {
