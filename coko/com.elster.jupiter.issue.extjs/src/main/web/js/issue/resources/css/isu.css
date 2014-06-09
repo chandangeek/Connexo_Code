@@ -525,7 +525,7 @@ span[class^=isu-assignee-] {
     width: 13px;
     background: black url('http://cdn.sencha.io/extjs/4.1.0.b1/resources/themes/images/default/form/checkbox.gif') no-repeat -13px 0;
     float: left;
-    margin: 0 5px 0 0;
+    margin: 5px 5px 0 0;
 }
 
 .x-boundlist-selected .chkbox {
