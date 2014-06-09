@@ -59,7 +59,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationPrev
                     items: [
                         {
                             xtype: 'displayfield',
-                            fieldLabel: 'Channels: ',
+                            fieldLabel: 'Channel configurations: ',
                             name: 'channels',
                             renderer: function (value) {
                                 var typesString = '';
