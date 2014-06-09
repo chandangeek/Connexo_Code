@@ -11,7 +11,7 @@ Ext.define('Isu.view.administration.datacollection.issueassignmentrules.Overview
         itemId: 'title',
         xtype: 'panel',
         ui: 'large',
-        title: Uni.I18n.translate('issue.administration.assignment', 'ISU', 'Issue assignment rules'),
+        title: Uni.I18n.translate('issue.administration.assignment', 'ISE', 'Issue assignment rules'),
         items: {
             itemId: 'issues-rules-list',
             xtype: 'preview-container',
@@ -38,9 +38,9 @@ Ext.define('Isu.view.administration.datacollection.issueassignmentrules.Overview
                         items: [
                             {
                                 xtype: 'component',
-                                html: '<b>' + Uni.I18n.translate('issueAssignment.empty.title', 'ISU', 'No issue assignment rules found') + '</b><br>' +
-                                    Uni.I18n.translate('issueAssignment.empty.detail', 'ISU', 'There are no issue assignment rules. This could be because:') + '<lv><li>&nbsp&nbsp' +
-                                    Uni.I18n.translate('issueAssignment.empty.list.item', 'ISU', 'No issue assignment rules have been defined yet.')
+                                html: '<b>' + Uni.I18n.translate('issueAssignment.empty.title', 'ISE', 'No issue assignment rules found') + '</b><br>' +
+                                    Uni.I18n.translate('issueAssignment.empty.detail', 'ISE', 'There are no issue assignment rules. This could be because:') + '<lv><li>&nbsp&nbsp' +
+                                    Uni.I18n.translate('issueAssignment.empty.list.item', 'ISE', 'No issue assignment rules have been defined yet.')
                             }
                         ]
                     }
