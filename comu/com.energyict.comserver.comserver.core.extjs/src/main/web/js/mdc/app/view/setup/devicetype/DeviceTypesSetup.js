@@ -42,7 +42,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesSetup', {
                                         xtype: 'component',
                                         html: '<b>' + Uni.I18n.translate('deviceType.empty.title', 'MDC', 'No device types found') + '</b><br>' +
                                             Uni.I18n.translate('deviceType.empty.detail', 'MDC', 'There are no device types. This could be because:') + '<lv><li>&nbsp&nbsp' +
-                                            Uni.I18n.translate('deviceType.empty.list.item1', 'MDC', 'No device types have been created yet.') + '</li></lv><br>' +
+                                            Uni.I18n.translate('deviceType.empty.list.item1', 'MDC', 'No device types have been added yet.') + '</li></lv><br>' +
                                             Uni.I18n.translate('deviceType.empty.steps', 'MDC', 'Possible steps:')
                                     },
                                     {

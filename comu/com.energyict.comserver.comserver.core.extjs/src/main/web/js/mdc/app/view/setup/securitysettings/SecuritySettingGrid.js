@@ -8,13 +8,15 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingGrid', {
     deviceTypeId: null,
     deviceConfigId: null,
     store: 'Mdc.store.SecuritySettingsOfDeviceConfiguration',
-    height: 395,
     scroll: false,
     viewConfig: {
         style: { overflow: 'auto', overflowX: 'hidden' }
     },
-    columns: {
-        items: [
+
+    initComponent: function () {
+        var me = this;
+
+        me.columns = [
             {
                 header: 'Name',
                 dataIndex: 'name',
@@ -40,7 +42,33 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingGrid', {
                 xtype: 'uni-actioncolumn',
                 items: 'Mdc.view.setup.securitysettings.SecuritySettingsActionMenu'
             }
-        ]
+        ];
+
+        me.dockedItems = [
+            {
+                xtype: 'toolbar',
+                border: 0,
+                align: 'left',
+                dock: 'top',
+                items: [
+                    {
+                        xtype: 'container',
+                        itemId: 'securityCount',
+                        flex: 1
+                    },
+                    {
+                        xtype: 'button',
+                        text: 'Add security setting',
+                        action: 'addsecurityaction',
+                        margin: '0 5',
+                        hrefTarget: '',
+                        href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigId + '/securitysettings/create'
+                    }
+                ]
+            }
+        ];
+
+        me.callParent(arguments);
     }
 });
 

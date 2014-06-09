@@ -12,11 +12,16 @@ Ext.define('Mdc.widget.ScheduleField', {
     alias: 'widget.scheduleField',
     layout: {
         type: 'hbox',
-        align: 'stretch'
+        flex: 1,
+        defaultMargins : {
+            top: 0,
+            right: 5,
+            bottom: 0,
+            left: 0
+        }
     },
     msgTarget: 'under',
     submitFormat: 'c',
-    flex: 1,
 
     valueCfg: null,
     unitCfg: null,
@@ -158,7 +163,7 @@ Ext.define('Mdc.widget.ScheduleField', {
                 submitValue: false,
                 hidden: true,
                 msgTarget: 'none',
-                margin: '0 5 0 10'
+                margin: '0 5 0 0'
             }),
             Ext.apply({
                 xtype: 'numberfield',

@@ -80,7 +80,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsSetup', {
                                             xtype: 'component',
                                             html: '<h4>' + Uni.I18n.translate('deviceConfiguration.empty.title', 'MDC', 'No device configurations found') + '</h4><br>' +
                                                 Uni.I18n.translate('deviceConfiguration.empty.detail', 'MDC', 'There are no device configurations. This could be because:') + '<lv><li>&nbsp&nbsp' +
-                                                Uni.I18n.translate('deviceConfiguration.empty.list.item1', 'MDC', 'No device configurations have been defined yet.') + '</li></lv><br>' +
+                                                Uni.I18n.translate('deviceConfiguration.empty.list.item1', 'MDC', 'No device configurations have been added yet.') + '</li></lv><br>' +
                                                 Uni.I18n.translate('deviceConfiguration.empty.steps', 'MDC', 'Possible steps:')
                                         },
                                         {

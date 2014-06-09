@@ -48,10 +48,15 @@ Ext.define('Mdc.controller.setup.SearchItems', {
             },
             '#cancelSearching': {
                 click: this.cancelSearching
+            },
+            '#globalSearch[action=search]': {
+                click: this.showSearchByHistory
             }
-
-
         });
+    },
+
+    showSearchByHistory  : function () {
+        location.href = '#/searchitems';
     },
 
     showSearchItems : function () {
