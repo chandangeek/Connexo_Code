@@ -549,7 +549,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showCommunicationTasksCreateEdit',
                             callback: function(route) {
                                 this.getApplication().on('loadCommunicationTask', function(record) {
-                                    route.setTitle('Edit "' + record.get('name') + '"');
+                                    route.setTitle('Edit "' + record.name + '"');
                                     return true;
                                 }, {single: true});
 

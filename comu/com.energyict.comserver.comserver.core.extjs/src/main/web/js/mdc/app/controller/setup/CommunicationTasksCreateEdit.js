@@ -325,7 +325,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
     loadModelToEditForm: function (id) {
         var self = this,
             nameField = self.getTaskEdit().down('textfield'),
-            categoriesStore = self.getStore('Mdc.store.CommuncationTasksCategories');
+            categoriesStore = self.getStore('Mdc.store.CommunicationTasksCategories');
         categoriesStore.load({
             scope: this,
             callback: function () {
