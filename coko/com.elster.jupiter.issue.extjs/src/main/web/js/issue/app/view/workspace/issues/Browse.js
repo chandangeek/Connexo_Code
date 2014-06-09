@@ -12,15 +12,19 @@ Ext.define('Isu.view.workspace.issues.Browse', {
         {   itemId: 'issues-no-group',
             xtype: 'issue-no-group'
         },
-        {   itemId: 'issues-list',
-            xtype: 'issues-list'
-        },
-        {   itemId: 'noIssues',
-            name: 'noIssues',
-            hidden: true
-        },
-        {   itemId: 'issues-item',
-            xtype: 'issues-item'
+        {
+            xtype: 'preview-container',
+            grid: {
+                xtype: 'issues-list'
+            },
+            emptyComponent: {
+                itemId: 'noIssues',
+                name: 'noIssues',
+                hidden: true
+            },
+            previewComponent: {
+                xtype: 'issues-item'
+            }
         }
     ]
 });

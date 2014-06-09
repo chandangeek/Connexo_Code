@@ -58,6 +58,7 @@ Ext.define('Isu.controller.IssueCreationRules', {
     },
 
     chooseAction: function (menu, item) {
+        console.log(arguments);
         var action = item.action;
         var id = menu.record.getId();
         var router = this.getController('Uni.controller.history.Router');
