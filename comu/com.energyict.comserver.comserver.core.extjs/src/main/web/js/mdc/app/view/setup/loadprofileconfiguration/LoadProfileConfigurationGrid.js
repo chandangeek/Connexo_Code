@@ -43,7 +43,6 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationGrid
             {
                 xtype: 'uni-actioncolumn',
                 items: [
-
                     {
                         text: 'Edit',
                         action: this.editActionName

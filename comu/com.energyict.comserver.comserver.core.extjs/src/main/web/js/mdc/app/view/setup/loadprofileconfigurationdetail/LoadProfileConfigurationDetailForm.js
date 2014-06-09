@@ -83,7 +83,8 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                             allowBlank: false,
                             fieldLabel: 'Overflow value',
                             name: 'overflowValue',
-                            msgTarget: 'under'
+                            msgTarget: 'under',
+                            vtype: 'overflowValue'
                         },
                         {
                             xtype: 'textfield',
@@ -91,7 +92,10 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                             allowBlank: false,
                             fieldLabel: 'Multiplier',
                             name: 'multiplier',
-                            msgTarget: 'under'
+                            msgTarget: 'under',
+                            vtype: 'multiplier',
+                            value: 1,
+                            afterSubTpl: '<div class="x-form-display-field"><i>' + 'Multiplies the collected value. The multiplied value will be stored in the channel' + '</i></div>'
                         }
                     ],
                     dockedItems: [
@@ -108,7 +112,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                                 {
                                     xtype: 'button',
                                     text: 'Cancel',
-                                    handler:function(button,event){
+                                    handler: function (button, event) {
                                         Ext.History.back();
                                     },
                                     ui: 'link'
@@ -143,7 +147,33 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                 var obis = /^(0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5]))$/;
                 return obis.test(val);
             },
-            overruledObisCodeText: 'OBIS code is wrong'
+            overflowValue: function (val, field) {
+                var over = /[\d]+/;
+                if (over.test(val)) {
+                    if (val > 0) {
+                        return true
+                    } else {
+                        return false
+                    }
+                } else {
+                    return false
+                }
+            },
+            multiplier: function (val, field) {
+                var mult = /[\d]+/;
+                if (mult.test(val)) {
+                    if (val > 0) {
+                        return true
+                    } else {
+                        return false
+                    }
+                } else {
+                    return false
+                }
+            },
+            overruledObisCodeText: 'OBIS code is wrong',
+            overflowValueText: 'Overflow value is wrong',
+            multiplierText: 'Multiplier is wrong'
         });
     }
 });

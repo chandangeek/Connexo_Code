@@ -112,12 +112,6 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeForm', {
                         {
                             xtype: 'container',
                             itemId: 'LoadProfileTypeAction'
-                        },
-                        {
-                            xtype: 'button',
-                            text: 'Cancel',
-                            href: '#/administration/loadprofiletypes',
-                            ui: 'link'
                         }
                     ]
                 }
@@ -141,6 +135,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeForm', {
                 href: '#/administration/loadprofiletypes/' + this.loadProfileTypeActionHref + '/addmeasurementtypes',
                 ui: 'action'
             }
+
         );
 
         this.down('#LoadProfileTypeAction').add(
@@ -149,6 +144,12 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeForm', {
                 name: 'loadprofiletypeaction',
                 text: this.loadProfileTypeAction,
                 ui: 'action'
+            },
+            {
+                xtype: 'button',
+                text: 'Cancel',
+                href: '#/administration/loadprofiletypes',
+                ui: 'link'
             }
         );
         Ext.apply(Ext.form.VTypes, {

@@ -158,7 +158,7 @@ Ext.define('Mdc.widget.ScheduleField', {
                 submitValue: false,
                 hidden: true,
                 msgTarget: 'none',
-                margin: '0 5 0 0'
+                margin: '0 5 0 10'
             }),
             Ext.apply({
                 xtype: 'numberfield',

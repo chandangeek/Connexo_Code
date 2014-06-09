@@ -61,7 +61,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileConfigurationForm', {
                             maskRe: /[\d.]+/,
                             vtype: 'overruledObisCode',
                             msgTarget: 'under',
-                            afterSubTpl:'<label class="x-form-item-label">Provide the value for the 6 attributes of the OBIS code. Separate each value with a "."</label>'
+                            afterSubTpl:'<div class="x-form-display-field"><i>' + 'Provide the value for the 6 attributes of the OBIS code. Separate each value with a "."' + '</i></div>'
                         }
                     ],
                     dockedItems: [

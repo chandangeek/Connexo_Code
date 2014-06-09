@@ -30,6 +30,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesGri
                 header: Uni.I18n.translate('registerMappings.CIMreadingType', 'MDC', 'CIM Reading type'),
                 dataIndex: 'name',
                 flex: 3,
+                align: 'right',
                 renderer: function (value, metaData, record) {
                     var id = Ext.id();
                     Ext.defer(function () {
@@ -37,6 +38,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesGri
                             renderTo: id,
                             icon: '../mdc/resources/images/information.png',
                             cls: 'uni-btn-transparent',
+                            margin: '0 0 0 32',
                             handler: function (item, test) {
                                 this.fireEvent('showReadingTypeInfo', record);
                             },

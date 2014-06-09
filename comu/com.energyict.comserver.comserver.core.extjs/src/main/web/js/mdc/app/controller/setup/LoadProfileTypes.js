@@ -157,10 +157,10 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                 }
             ]
         }).show({
-                title: 'Remove ' + lastSelected.getData().name + '?',
-                msg: 'This load profile type will no longer be available',
-                icon: Ext.MessageBox.WARNING
-            })
+            title: 'Remove ' + lastSelected.getData().name + '?',
+            msg: 'This load profile type will no longer be available',
+            icon: Ext.MessageBox.WARNING
+        })
     },
 
     deleteRecord: function (btn) {
@@ -287,15 +287,9 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         }).show();
     },
 
-    handleFailureRequest: function (response, headerText, retryAction) {
-        var result = Ext.JSON.decode(response.responseText),
-            errormsgs = '';
-        Ext.each(result.errors, function (error) {
-            errormsgs += error.msg + '<br>'
-        });
-        if (errormsgs == '') {
-            errormsgs = result.message;
-        }
+/*    handleFailureRequest: function (response, headerText, retryAction) {
+        Ext.EventManager.stopPropagation('requestexception');
+        var errormsgs = response.responseText;
         Ext.widget('messagebox', {
             buttons: [
                 {
@@ -314,12 +308,12 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                 }
             ]
         }).show({
-                ui: 'notification-error',
-                title: headerText,
-                msg: errormsgs,
-                icon: Ext.MessageBox.ERROR
-            })
-    },
+            ui: 'notification-error',
+            title: headerText,
+            msg: errormsgs,
+            icon: Ext.MessageBox.ERROR
+        })
+    },*/
 
 
     addMeasurementTypes: function () {
@@ -566,5 +560,5 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
     loadTemporallyValues: function () {
         var form = this.getLoadTypeForm();
         form.getForm().setValues(this.temporallyFormValues);
-    },
+    }
 });
