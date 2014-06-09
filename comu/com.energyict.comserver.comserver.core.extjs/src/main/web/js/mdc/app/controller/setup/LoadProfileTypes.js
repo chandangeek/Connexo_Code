@@ -90,14 +90,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             }
         });
 
-        this.listen({
-            store: {
-                '#LoadProfileTypes': {
-                    load: this.checkLoadProfileTypesCount
-                }
-            }
-        });
-
         this.intervalStore = this.getStore('Intervals');
         this.store = this.getStore('LoadProfileTypes');
         this.measurementTypesStore = this.getStore('MeasurementTypesToAdd');
@@ -469,12 +461,23 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
     },
 
     showLoadProfileTypes: function () {
-        var widget = Ext.widget('loadProfileTypeSetup', { intervalStore: this.intervalStore });
-        widget.down('#loadProfileTypesTitle').html = '<h1>' + Uni.I18n.translate('loadprofiletype.loadprofiletypes', 'MDC', 'Load profile types') + '</h1>';
-        this.getApplication().fireEvent('changecontentevent', widget);
-        this.selectedMeasurementTypesStore.removeAll();
-        this.temporallyFormValues = null;
-        this.loadProfileAction = null;
+        var self = this,
+            loadProfileTypesStore = self.getStore('Mdc.store.LoadProfileTypes'),
+            widget;
+
+        var showPage = function () {
+            widget = Ext.widget('loadProfileTypeSetup');
+            self.getApplication().fireEvent('changecontentevent', widget);
+            self.selectedMeasurementTypesStore.removeAll();
+            self.temporallyFormValues = null;
+            self.loadProfileAction = null;
+        };
+
+        if (loadProfileTypesStore.getCount()) {
+            showPage();
+        } else {
+            loadProfileTypesStore.load(showPage);
+        }
     },
 
     showLoadProfileTypesCreateView: function () {
