@@ -5,6 +5,7 @@ Ext.define('Uni.override.ApplicationOverride', {
     override: 'Ext.app.Application',
 
     unifyingControllers: [
+        'Uni.controller.Acknowledgements',
         'Uni.controller.Configuration',
         'Uni.controller.Error',
         'Uni.controller.Navigation',
