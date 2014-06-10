@@ -1,7 +1,11 @@
 package com.energyict.mdc.rest.impl;
 
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
+import com.elster.jupiter.rest.util.ConstraintViolationInfo;
+import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
+import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
@@ -75,11 +79,13 @@ public class ComServerResourceTest extends JerseyTest {
 
     private static EngineModelService engineModelService;
     private static NlsService nlsService;
+    private static Thesaurus thesaurus;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
         engineModelService = mock(EngineModelService.class);
         nlsService = mock(NlsService.class);
+        thesaurus = mock(Thesaurus.class);
     }
 
     @Override
@@ -93,14 +99,18 @@ public class ComServerResourceTest extends JerseyTest {
     protected Application configure() {
         enable(TestProperties.LOG_TRAFFIC);
         enable(TestProperties.DUMP_ENTITY);
-        ResourceConfig resourceConfig = new ResourceConfig(ComServerResource.class);
+        ResourceConfig resourceConfig = new ResourceConfig(ComServerResource.class,
+                ConstraintViolationExceptionMapper.class,
+                LocalizedFieldValidationExceptionMapper.class,
+                LocalizedExceptionMapper.class);
         resourceConfig.register(JacksonFeature.class); // Server side JSON processing
-        resourceConfig.register(ConstraintViolationExceptionMapper.class);
         resourceConfig.register(new AbstractBinder() {
             @Override
             protected void configure() {
                 bind(engineModelService).to(EngineModelService.class);
                 bind(nlsService).to(NlsService.class);
+                bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
+                bind(thesaurus).to(Thesaurus.class);
             }
         });
         return resourceConfig;
