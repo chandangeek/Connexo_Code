@@ -7,6 +7,12 @@ Ext.define('Uni.override.NumberFieldOverride', {
     /**
      * Changes the default alignment of numberfields.
      */
-    fieldStyle: 'text-align:right;'
+    fieldStyle: 'text-align:right;',
+
+    minText : "The minimum value is {0}",
+
+    maxText : "The maximum value is {0}"
+
+
 
 });
