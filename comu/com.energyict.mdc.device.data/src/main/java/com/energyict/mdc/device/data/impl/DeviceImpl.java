@@ -845,7 +845,7 @@ public class DeviceImpl implements Device {
                 this.newDialectProperties.add(dialectProperties);
             }
             else {
-                throw new ProtocolDialectConfigurationPropertiesIsRequiredException(this.thesaurus);
+                throw new ProtocolDialectConfigurationPropertiesIsRequiredException();
             }
         }
         else {

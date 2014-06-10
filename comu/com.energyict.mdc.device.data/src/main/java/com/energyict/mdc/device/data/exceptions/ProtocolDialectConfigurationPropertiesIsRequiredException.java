@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.data.exceptions;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.nls.Thesaurus;
 
 /**
  * Models the exceptional situation that occurs when an attempt
@@ -14,7 +13,7 @@ import com.elster.jupiter.nls.Thesaurus;
  */
 public class ProtocolDialectConfigurationPropertiesIsRequiredException extends LocalizedFieldValidationException {
 
-    public ProtocolDialectConfigurationPropertiesIsRequiredException(Thesaurus thesaurus) {
+    public ProtocolDialectConfigurationPropertiesIsRequiredException() {
         super(MessageSeeds.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_REQUIRED, "configurationProperties");
     }
 
