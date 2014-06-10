@@ -13,7 +13,7 @@ Ext.define('Mdc.model.RegisterConfiguration', {
         {name: 'numberOfDigits', type: 'number', useNull: true},
         {name: 'numberOfFractionDigits', type: 'number', useNull: true},
         {name: 'multiplier', type: 'number', useNull: true},
-        {name: 'overflowValue', type: 'number', useNull: true},
+        {name: 'overflow', type: 'number', useNull: true},
         {name: 'timeOfUse', type:'number', useNull: true},
         {name: 'registerMapping', type:'number', useNull: true}
     ],

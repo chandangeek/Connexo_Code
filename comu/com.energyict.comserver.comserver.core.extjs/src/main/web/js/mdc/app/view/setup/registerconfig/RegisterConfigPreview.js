@@ -164,7 +164,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
                                 items: [
                                     {
                                         xtype: 'displayfield',
-                                        name: 'overflowValue',
+                                        name: 'overflow',
                                         fieldLabel: Uni.I18n.translate('registerConfig.overflowValue', 'MDC', 'Overflow value'),
                                         labelAlign: 'right',
                                         labelWidth: 250
