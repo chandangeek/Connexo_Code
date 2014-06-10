@@ -1,14 +1,23 @@
 package com.energyict.protocols.mdc.services.impl;
 
+import com.elster.jupiter.license.License;
+import com.elster.jupiter.util.Checks;
 import com.energyict.license.LicensedProtocolRule;
-import com.energyict.mdc.common.license.License;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.ProtocolFamily;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
 import org.osgi.service.component.annotations.Component;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
+import java.util.Set;
+import java.util.StringTokenizer;
 
 /**
  * Copyrights EnergyICT
@@ -22,7 +31,8 @@ public class LicensedProtocolServiceImpl implements LicensedProtocolService {
     public List<LicensedProtocol> getAllLicensedProtocols(License license) {
         List<LicensedProtocol> allLicensedProtocols = new ArrayList<>();
         for (LicensedProtocolRule licensedProtocolRule : LicensedProtocolRule.values()) {
-            if (license.hasProtocol(licensedProtocolRule.getName())){
+            MdcProtocolLicense mdcProtocolLicense = new MdcProtocolLicense(license);
+            if (mdcProtocolLicense.hasProtocol(licensedProtocolRule.getName())) {
                 allLicensedProtocols.add(licensedProtocolRule);
             }
         }
@@ -37,5 +47,203 @@ public class LicensedProtocolServiceImpl implements LicensedProtocolService {
             }
         }
         return null;
+    }
+
+    private class MdcProtocolLicense {
+
+        // Key for licensed protocols
+        static final String PROTOCOL_FAMILIES = "protocolFamilies";
+        static final String PROTOCOLS = "protocols";
+
+        //Key for allowing all protocols
+        static final String ALL = "all";
+
+        private final License jupiterLicense;
+        private final Properties licenseProperties;
+        private final boolean allProtocols;
+        private final Set<Integer> protocolFamilies;
+        private final Set<Integer> protocols;
+
+        private MdcProtocolLicense(License license) {
+            this.jupiterLicense = license;
+            this.licenseProperties = this.jupiterLicense.getLicensedValues();
+            this.allProtocols = !Checks.is(this.licenseProperties.getProperty(ALL)).empty();
+            this.protocols = initializeProtocols();
+            this.protocolFamilies = initProtocolFamilies();
+
+        }
+
+        boolean hasProtocol(String name) {
+            ProtocolCheckComposite checker =
+                    new ProtocolCheckComposite(
+                            new EIWebChecker(),
+                            new AllProtocolsAreCoveredChecker(),
+                            new FamilyChecker(),
+                            new ProtocolClassChecker());
+            return checker.isCovered(name);
+        }
+
+        private Set<Integer> getProtocolFamilies(String className) {
+            LicensedProtocol licensedProtocol = getLicensedProtocol(className);
+            if (licensedProtocol == null) {
+                return new HashSet<>(0);
+            } else {
+                Set<Integer> families = new HashSet<>();
+                for (ProtocolFamily family : licensedProtocol.getFamilies()) {
+                    families.add(family.getCode());
+                }
+                return families;
+            }
+        }
+
+        private LicensedProtocol getLicensedProtocol(String className) {
+            try {
+                Class<?> licensedProtocolRuleClass = Class.forName("com.energyict.license.LicensedProtocolRule");
+                Method fromClassNameMethod = licensedProtocolRuleClass.getMethod("fromClassName", String.class);
+                return (LicensedProtocol) fromClassNameMethod.invoke(null, className);  // receiver is null because fromCode is a static method
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                return new NotAvailableLicensedProtocol(className);
+            }
+        }
+
+        private Set<Integer> initProtocolFamilies() {
+            String protocolFamiliesPropertyValue = this.licenseProperties.getProperty(PROTOCOL_FAMILIES);
+            if (protocolFamiliesPropertyValue == null) {
+                return new HashSet<>(0);
+            } else {
+                return this.parseIntegers(protocolFamiliesPropertyValue);
+            }
+        }
+
+        private Set<Integer> initializeProtocols() {
+            String protocolsPropertyValue = this.licenseProperties.getProperty(PROTOCOLS);
+            if (protocolsPropertyValue == null) {
+                return new HashSet<>(0);
+            } else if (ALL.equals(protocolsPropertyValue)) {
+                return new HashSet<>(0);
+            } else {
+                return this.parseIntegers(protocolsPropertyValue);
+            }
+        }
+
+        private Set<Integer> parseIntegers(String propertyValue) {
+            Set<Integer> parsed = new HashSet<>();
+            StringTokenizer tokenizer = new StringTokenizer(propertyValue, ",");
+            while (tokenizer.hasMoreTokens()) {
+                String value = tokenizer.nextToken();
+                try {
+                    parsed.add(Integer.parseInt(value.trim()));
+                } catch (NumberFormatException x) {
+                /* Not expected but our IT department must have typed in a non integer
+                 * let's NOT warn them about that as it is too late anyway ;-)
+                 */
+                }
+            }
+            return parsed;
+        }
+
+        private class ProtocolCheckComposite implements ProtocolCheck {
+
+            private List<ProtocolCheck> checkers = new ArrayList<>();
+
+            private ProtocolCheckComposite(ProtocolCheck... checkers) {
+                super();
+                this.checkers = Arrays.asList(checkers);
+            }
+
+            @Override
+            public boolean isCovered(String className) {
+                for (ProtocolCheck protocolCheck : this.checkers) {
+                    if (protocolCheck.isCovered(className)) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+
+
+        private class EIWebChecker implements ProtocolCheck {
+
+            @Override
+            public boolean isCovered(String className) {
+                return "com.energyict.rtuprotocol.EIWeb".equals(className);
+            }
+        }
+
+        private class AllProtocolsAreCoveredChecker implements ProtocolCheck {
+
+            @Override
+            public boolean isCovered(String className) {
+                return allProtocols;
+            }
+        }
+
+        private class FamilyChecker implements ProtocolCheck {
+
+            @Override
+            public boolean isCovered(String className) {
+                Set<Integer> protocolFamilies = getProtocolFamilies(className);
+                protocolFamilies.retainAll(protocolFamilies);
+                return !protocolFamilies.isEmpty();
+            }
+        }
+
+        private class ProtocolClassChecker implements ProtocolCheck {
+
+            @Override
+            public boolean isCovered(String className) {
+                LicensedProtocol licensedProtocol = getLicensedProtocol(className);
+                return licensedProtocol != null && protocols.contains(licensedProtocol.getCode());
+            }
+        }
+
+        private class NotAvailableLicensedProtocol implements LicensedProtocol {
+
+            private String className;
+
+            private NotAvailableLicensedProtocol(String className) {
+                super();
+                this.className = className;
+            }
+
+            @Override
+            public int getCode() {
+                return 0;
+            }
+
+            @Override
+            public String getClassName() {
+                return this.className;
+            }
+
+            @Override
+            public Set<ProtocolFamily> getFamilies() {
+                return new HashSet<>(0);
+            }
+
+            @Override
+            public String getName() {
+                return this.className;
+            }
+        }
+    }
+
+
+    /**
+     * Models the behavior of a component that will check if the protocol
+     * with a certain class name is covered by this license or not.
+     */
+    private interface ProtocolCheck {
+
+        /**
+         * Checks if the protocol class with the specified name
+         * is covered by the license.
+         *
+         * @param className The name of the protocol class
+         * @return A flag that indicates of the protocol class is covered by the license
+         */
+        public boolean isCovered(String className);
+
     }
 }
