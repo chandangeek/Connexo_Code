@@ -325,7 +325,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
     loadModelToEditForm: function (id) {
         var self = this,
             nameField = self.getTaskEdit().down('textfield'),
-            categoriesStore = self.getStore('Mdc.store.CommuncationTasksCategories');
+            categoriesStore = self.getStore('Mdc.store.CommunicationTasksCategories');
         categoriesStore.load({
             scope: this,
             callback: function () {
@@ -460,13 +460,16 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
         }
         if (!actionCombo) {
             actionsStore.getProxy().setExtraParam('category', newValue);
-            actionsStore.load(function () {
+            actionsStore.load(function (records) {
                 actionCombo = commandContainer.add({
                     xtype: 'communication-tasks-actioncombo'
                 });
                 combo.on('change', function () {
                     actionCombo.destroy();
                 }, combo, {single: true});
+                if (records.length === 1) {
+                    actionCombo.setValue(records[0]);
+                }
             });
         }
     },

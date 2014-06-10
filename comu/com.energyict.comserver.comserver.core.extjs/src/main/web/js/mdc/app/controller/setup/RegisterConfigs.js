@@ -123,6 +123,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                         var deviceTypeName = deviceType.get('name');
                         var deviceConfigName = deviceConfig.get('name');
                         me.getApplication().fireEvent('changecontentevent', widget);
+                        me.getRegisterConfigGrid().getSelectionModel().doSelect(0);
                     }
                 });
             }

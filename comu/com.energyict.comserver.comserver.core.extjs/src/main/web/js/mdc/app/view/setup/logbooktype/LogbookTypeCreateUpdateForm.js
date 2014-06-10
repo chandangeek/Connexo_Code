@@ -1,16 +1,16 @@
-Ext.define('Mdc.view.setup.logbooktype.LogForm', {
+Ext.define('Mdc.view.setup.logbooktype.LogbookTypeCreateUpdateForm', {
     extend: 'Uni.view.container.ContentContainer',
+    alias: 'widget.logbookTypeCreateUpdateForm',
+    itemId: 'logbookTypeCreateUpdateForm',
     requires: [
         'Uni.view.navigation.SubMenu',
         'Ext.form.field.TextArea',
         'Ext.button.Button'
     ],
-    alias: 'widget.form-logbook',
-
     content: [
         {
-            itemId: 'form',
             xtype: 'form',
+            itemId: 'createUpdateForm',
             ui: 'large',
             width: '50%',
             defaults: {
@@ -20,7 +20,6 @@ Ext.define('Mdc.view.setup.logbooktype.LogForm', {
             items: [
                 {
                     itemId: 'errors',
-                    name: 'errors',
                     layout: 'hbox',
                     margin: '0 0 20 100',
                     hidden: true,
@@ -30,23 +29,23 @@ Ext.define('Mdc.view.setup.logbooktype.LogForm', {
                     }
                 },
                 {
-                    itemId: 'name',
                     xtype: 'textfield',
+                    itemId: 'logbookTypeName',
                     name: 'name',
                     required: true,
                     regex: /[a-zA-Z0-9]+/,
                     allowBlank: false,
-                    fieldLabel: 'Name',
+                    fieldLabel: Uni.I18n.translate('logbooktype.name', 'MDC', 'Name'),
                     msgTarget: 'under'
                 },
                 {
-                    itemId: 'obis',
                     xtype: 'textfield',
+                    itemId: 'logbookTypeObis',
+                    name: 'obis',
                     required: true,
                     disabled: true,
                     allowBlank: false,
-                    fieldLabel: 'OBIS code',
-                    name: 'obis',
+                    fieldLabel: Uni.I18n.translate('logbooktype.obis', 'MDC', 'OBIS code'),
                     maskRe: /[\d.]+/,
                     vtype: 'obisCode',
                     msgTarget: 'under'
@@ -54,32 +53,30 @@ Ext.define('Mdc.view.setup.logbooktype.LogForm', {
             ],
             buttons: [
                 {
-                    itemId: 'logAction',
-                    name: 'logAction',
-                    ui: 'action',
-                    margin: '0 0 0 10'
+                    itemId: 'submit',
+                    margin: '0 0 0 10',
+                    ui: 'action'
                 },
                 {
-                    itemId: 'Cancel',
-                    text: 'Cancel',
-                    name: 'cancel',
+                    itemId: 'cancel',
+                    text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                    ui: 'link',
                     hrefTarget: '',
-                    href: '#/administration/logbooktypes',
-                    ui: 'link'
+                    href: '#/administration/logbooktypes'
                 }
             ]
         }
     ],
 
     initComponent: function () {
-        this.callParent(this);
         Ext.apply(Ext.form.VTypes, {
             obisCode: function (val, field) {
                 var obis = /^(0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5]))$/;
                 return obis.test(val);
             },
-            obisCodeText: 'OBIS code is wrong'
+            obisCodeText: Uni.I18n.translate('logbooktype.obis.wrong', 'MDC', 'OBIS code is wrong')
         });
+        this.callParent(this);
     }
 });
 

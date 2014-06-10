@@ -74,18 +74,23 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodsGrid', {
                     {
                         xtype: 'button',
                         text: Uni.I18n.translate('connectionmethod.addConnectionMethod', 'MDC', 'Add connection method'),
-                        menu: [
-                            {
-                                text: Uni.I18n.translate('connectionmethod.addOutboundConnectionMethod', 'MDC', 'Add outbound connection method'),
-                                itemId: 'createOutboundConnectionButton',
-                                action: 'createOutboundConnectionMethod'
-                            },
-                            {
-                                text: Uni.I18n.translate('connectionmethod.addInboundConnectionMethod', 'MDC', 'Add inbound connection method'),
-                                itemId: 'createInboundConnectionButton',
-                                action: 'createInboundConnectionMethod'
-                            }
-                        ]
+                        iconCls: 'x-uni-action-iconD',
+                        menu: {
+                            plain: true,
+                            items: [
+                                {
+                                    text: Uni.I18n.translate('connectionmethod.addOutboundConnectionMethod', 'MDC', 'Add outbound connection method'),
+                                    itemId: 'createOutboundConnectionButton',
+                                    action: 'createOutboundConnectionMethod'
+                                },
+                                {
+                                    text: Uni.I18n.translate('connectionmethod.addInboundConnectionMethod', 'MDC', 'Add inbound connection method'),
+                                    itemId: 'createInboundConnectionButton',
+                                    action: 'createInboundConnectionMethod'
+                                }
+                            ]
+
+                        }
                     }
                 ]
             },

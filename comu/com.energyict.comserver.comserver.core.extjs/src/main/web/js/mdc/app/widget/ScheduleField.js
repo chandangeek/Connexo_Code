@@ -48,7 +48,7 @@ Ext.define('Mdc.widget.ScheduleField', {
         }
 
         me.buildField();
-        me.callParent();
+        me.callParent(arguments);
         me.valueField = me.down('#valueField');
         me.unitField = me.down('#unitField');
         me.hourField = me.down('#hourField');
@@ -74,7 +74,15 @@ Ext.define('Mdc.widget.ScheduleField', {
                 submitValue: false,
                 width: 70,
                 minValue: 0,
-                margin: '0 5 0 0'
+                listeners: {
+                    blur: {
+                        fn: function(field){
+                            if(Ext.isEmpty(field.getValue())) {
+                                field.setValue(0);
+                            }
+                        }
+                    }
+                }
             }, me.valueCfg),
             Ext.apply({
                 xtype: 'combobox',
@@ -103,16 +111,14 @@ Ext.define('Mdc.widget.ScheduleField', {
                         scope: me
                     }
                 },
-                width: 100,
-                margin: '0 5 0 0'
+                width: 100
             }, me.unitCfg),
             Ext.apply({
                 xtype: 'displayfield',
                 itemId: 'offSetSeparator',
                 submitValue: false,
                 hidden: true,
-                msgTarget: 'none',
-                margin: '0 5 0 0'
+                msgTarget: 'none'
             }),
             Ext.apply({
                 xtype: 'combobox',
@@ -135,7 +141,7 @@ Ext.define('Mdc.widget.ScheduleField', {
                 valueField: 'dayId',
                 submitValue: false,
                 hidden: true,
-                margin: '0 5 0 0'
+                width: 100
             }, me.unitCfg),
             Ext.apply({
                 xtype: 'combobox',
@@ -155,15 +161,14 @@ Ext.define('Mdc.widget.ScheduleField', {
                 valueField: 'dayIndexKey',
                 submitValue: false,
                 hidden: true,
-                margin: '0 5 0 0'
+                width: 100
             }, me.unitCfg),
             Ext.apply({
                 xtype: 'displayfield',
                 itemId: 'dayFieldSeparator',
                 submitValue: false,
                 hidden: true,
-                msgTarget: 'none',
-                margin: '0 5 0 0'
+                msgTarget: 'none'
             }),
             Ext.apply({
                 xtype: 'numberfield',
@@ -180,8 +185,7 @@ Ext.define('Mdc.widget.ScheduleField', {
                     }
                 },
                 submitValue: false,
-                hidden: true,
-                margin: '0 5 0 0'
+                hidden: true
             }, me.hourCfg),
             Ext.apply({
                 xtype: 'numberfield',
@@ -198,8 +202,7 @@ Ext.define('Mdc.widget.ScheduleField', {
                     }
                 },
                 submitValue: false,
-                hidden: true,
-                margin: '0 5 0 0'
+                hidden: true
             }, me.minuteCfg),
             Ext.apply({
                 xtype: 'displayfield',
@@ -207,8 +210,7 @@ Ext.define('Mdc.widget.ScheduleField', {
                 submitValue: false,
                 hidden: true,
                 value: 'minute(s)',
-                msgTarget: 'none',
-                margin: '0 5 0 0'
+                msgTarget: 'none'
             }),
             Ext.apply({
                 xtype: 'numberfield',
@@ -225,8 +227,7 @@ Ext.define('Mdc.widget.ScheduleField', {
                     }
                 },
                 submitValue: false,
-                hidden: true ,
-                margin: '0 5 0 0'
+                hidden: true
             }, me.secondCfg),
             Ext.apply({
                 xtype: 'displayfield',
@@ -234,8 +235,7 @@ Ext.define('Mdc.widget.ScheduleField', {
                 submitValue: false,
                 hidden: true,
                 value: 'second(s)',
-                msgTarget: 'none',
-                margin: '0 5 0 0'
+                msgTarget: 'none'
             })
 
         ]
@@ -285,7 +285,7 @@ Ext.define('Mdc.widget.ScheduleField', {
                 me.hourField.show();
                 me.minuteField.show();
                 me.secondField.show();
-        }
+        };
     },
 
     clear: function(){

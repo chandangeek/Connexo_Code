@@ -47,7 +47,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                 afterrender: this.loadStore
             },
             'loadProfileTypeSetup loadProfileTypeGrid': {
-                itemclick: this.loadGridItemDetail
+                select: this.loadGridItemDetail
             },
             'loadProfileTypeAddMeasurementTypesView': {
                 afterrender: this.measurementTypesLoad
@@ -90,14 +90,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             }
         });
 
-        this.listen({
-            store: {
-                '#LoadProfileTypes': {
-                    load: this.checkLoadProfileTypesCount
-                }
-            }
-        });
-
         this.intervalStore = this.getStore('Intervals');
         this.store = this.getStore('LoadProfileTypes');
         this.measurementTypesStore = this.getStore('MeasurementTypesToAdd');
@@ -136,50 +128,50 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
     },
 
     showConfirmationPanel: function () {
-        var grid = this.getLoadTypeGrid(),
+        var me = this,
+            grid = me.getLoadTypeGrid(),
             lastSelected = grid.getView().getSelectionModel().getLastSelected();
-        Ext.widget('messagebox', {
-            buttons: [
-                {
-                    xtype: 'button',
-                    text: 'Remove',
-                    action: 'removeloadprofiletypeconfirm',
-                    name: 'delete',
-                    ui: 'remove'
-                },
-                {
-                    xtype: 'button',
-                    text: 'Cancel',
-                    handler: function (button, event) {
-                        this.up('messagebox').hide();
-                    },
-                    ui: 'link'
-                }
-            ]
-        }).show({
-            title: 'Remove ' + lastSelected.getData().name + '?',
-            msg: 'This load profile type will no longer be available',
-            icon: Ext.MessageBox.WARNING
-        })
+
+        Ext.create('Uni.view.window.Confirmation').show({
+            msg: Uni.I18n.translate('loadProfileTypes.confirmWindow.removeMsg', 'MDC', 'This load profile type will no longer be available'),
+            title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' ' + lastSelected.get('name') + '?',
+            config: {
+                me: me
+            },
+            fn: me.confirmationPanelHandler
+        });
     },
 
-    deleteRecord: function (btn) {
-        var grid = this.getLoadTypeGrid(),
-            lastSelected = grid.getView().getSelectionModel().getLastSelected(),
-            me = this;
-        btn.up('messagebox').hide();
-        Ext.Ajax.request({
-            url: '/api/mds/loadprofiles/' + lastSelected.getData().id,
-            method: 'DELETE',
-            waitMsg: 'Removing...',
-            success: function () {
-                me.handleSuccessRequest('Load profile type was removed successfully');
-                me.store.load();
-            },
-            failure: function (result, request) {
-                me.handleFailureRequest(result, "Error during removing of load profile", 'retryremoveloadprofiletype');
-            }
-        });
+    confirmationPanelHandler: function (state, text, conf) {
+        var me = conf.config.me,
+            grid = me.getLoadTypeGrid(),
+            lastSelected = grid.getView().getSelectionModel().getLastSelected();
+
+        if (state === 'confirm') {
+            this.close();
+            Ext.Ajax.request({
+                url: '/api/mds/loadprofiles/' + lastSelected.getData().id,
+                method: 'DELETE',
+                waitMsg: 'Removing...',
+                success: function () {
+                    me.handleSuccessRequest(Uni.I18n.translate('loadProfileTypes.removeSuccessMsg', 'MDC', 'Load profile type was removed successfully'));
+                    me.store.loadPage(1);
+                },
+                failure: function (response) {
+                    var errorText,
+                        errorTitle;
+
+                    if (response.status == 400) {
+                        errorText = Ext.decode(response.responseText, true).message;
+                        errorTitle = Uni.I18n.translate('loadProfileTypes.removeErrorMsg', 'MDC', 'Error during removing of load profile');
+
+                        me.getApplication().getController('Uni.controller.Error').showError(errorTitle, errorText);
+                    }
+                }
+            });
+        } else if (state === 'cancel') {
+            this.close();
+        }
     },
 
     retrySubmit: function (btn) {
@@ -287,7 +279,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         }).show();
     },
 
-/*    handleFailureRequest: function (response, headerText, retryAction) {
+    handleFailureRequest: function (response, headerText, retryAction) {
         Ext.EventManager.stopPropagation('requestexception');
         var errormsgs = response.responseText;
         Ext.widget('messagebox', {
@@ -313,7 +305,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             msg: errormsgs,
             icon: Ext.MessageBox.ERROR
         })
-    },*/
+    },
 
 
     addMeasurementTypes: function () {
@@ -453,28 +445,31 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
     loadGridItemDetail: function (grid, record) {
         var form = Ext.ComponentQuery.query('loadProfileTypeSetup loadProfileTypePreview form')[0],
             previewPanel = this.getLoadTypePreview(),
-            recordData = record.getData(),
-            preloader = Ext.create('Ext.LoadMask', {
-                msg: "Loading...",
-                target: form
-            });
-        if (this.displayedItemId != recordData.id) {
-            grid.clearHighlight();
-            preloader.show();
-        }
+            recordData = record.getData();
+
         this.displayedItemId = recordData.id;
         previewPanel.setTitle(recordData.name);
         form.loadRecord(record);
-        preloader.destroy();
     },
 
     showLoadProfileTypes: function () {
-        var widget = Ext.widget('loadProfileTypeSetup', { intervalStore: this.intervalStore });
-        widget.down('#loadProfileTypesTitle').html = '<h1>' + Uni.I18n.translate('loadprofiletype.loadprofiletypes', 'MDC', 'Load profile types') + '</h1>';
-        this.getApplication().fireEvent('changecontentevent', widget);
-        this.selectedMeasurementTypesStore.removeAll();
-        this.temporallyFormValues = null;
-        this.loadProfileAction = null;
+        var self = this,
+            loadProfileTypesStore = self.getStore('Mdc.store.LoadProfileTypes'),
+            widget;
+
+        var showPage = function () {
+            widget = Ext.widget('loadProfileTypeSetup');
+            self.getApplication().fireEvent('changecontentevent', widget);
+            self.selectedMeasurementTypesStore.removeAll();
+            self.temporallyFormValues = null;
+            self.loadProfileAction = null;
+        };
+
+        if (loadProfileTypesStore.getCount()) {
+            showPage();
+        } else {
+            loadProfileTypesStore.load(showPage);
+        }
     },
 
     showLoadProfileTypesCreateView: function () {

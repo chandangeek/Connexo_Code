@@ -36,7 +36,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         var me = this;
         me.control({
             '#communicationTaskGrid': {
-                itemclick: me.communicationTaskGridItemClick
+                select: me.loadCommunicationTaskDetail
             },
             '#communicationTaskSetup': {
                 afterrender: me.loadCommunicationTasksStore
@@ -130,7 +130,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         });
     },
 
-    communicationTaskGridItemClick: function(grid, record) {
+    loadCommunicationTaskDetail: function(rowmodel, record, index) {
         var me = this;
         me.previewConnectionTask(record);
         me.setupMenuItems(record);
@@ -164,7 +164,6 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
             if (communicationTasksCount > 0) {
                 selectionModel.deselectAll(false);
                 selectionModel.select(0);
-                grid.fireEvent('itemclick', gridView, selectionModel.getLastSelected());
             }
         }
     },
@@ -285,7 +284,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         model.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigurationId});
         model.load(comTaskEnablementId, {
             success: function (communicationTask) {
-                me.getApplication().fireEvent('loadCommunicationTask', communicationTask);
+                me.getApplication().fireEvent('loadCommunicationTaskModel', communicationTask);
                 var widget = Ext.widget('communicationTaskEdit', {
                     edit: true,
                     returnLink: '#/administration/devicetypes/'+me.deviceTypeId+'/deviceconfigurations/'+me.deviceConfigurationId+'/comtaskenablements',
