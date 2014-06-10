@@ -30,8 +30,8 @@ public class LicensedProtocolServiceImpl implements LicensedProtocolService {
     @Override
     public List<LicensedProtocol> getAllLicensedProtocols(License license) {
         List<LicensedProtocol> allLicensedProtocols = new ArrayList<>();
+        MdcProtocolLicense mdcProtocolLicense = new MdcProtocolLicense(license);
         for (LicensedProtocolRule licensedProtocolRule : LicensedProtocolRule.values()) {
-            MdcProtocolLicense mdcProtocolLicense = new MdcProtocolLicense(license);
             if (mdcProtocolLicense.hasProtocol(licensedProtocolRule.getName())) {
                 allLicensedProtocols.add(licensedProtocolRule);
             }
@@ -47,6 +47,13 @@ public class LicensedProtocolServiceImpl implements LicensedProtocolService {
             }
         }
         return null;
+    }
+
+    @Override
+    public boolean isValidJavaClassName(String javaClassName, License license) {
+        MdcProtocolLicense mdcProtocolLicense = new MdcProtocolLicense(license);
+        LicensedProtocol licensedProtocol = mdcProtocolLicense.getLicensedProtocol(javaClassName);
+        return licensedProtocol != null && licensedProtocol.getCode() != 0;
     }
 
     private class MdcProtocolLicense {
@@ -67,10 +74,9 @@ public class LicensedProtocolServiceImpl implements LicensedProtocolService {
         private MdcProtocolLicense(License license) {
             this.jupiterLicense = license;
             this.licenseProperties = this.jupiterLicense.getLicensedValues();
-            this.allProtocols = !Checks.is(this.licenseProperties.getProperty(ALL)).empty();
+            this.allProtocols = Checks.is(this.licenseProperties.getProperty(PROTOCOLS)).equalTo(ALL);
             this.protocols = initializeProtocols();
             this.protocolFamilies = initProtocolFamilies();
-
         }
 
         boolean hasProtocol(String name) {
