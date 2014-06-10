@@ -1,6 +1,6 @@
-Ext.define('Mdc.view.setup.comtasks.ActionMenu', {
+Ext.define('Mdc.view.setup.comtasks.ComtaskActionMenu', {
     extend: 'Ext.menu.Menu',
-    alias: 'widget.communication-tasks-action-menu',
+    alias: 'widget.comtaskActionMenu',
     plain: true,
     items: [
         {

@@ -9,23 +9,23 @@ Ext.define('Mdc.controller.setup.CommunicationTasksView', {
     ],
 
     views: [
-        'Mdc.view.setup.comtasks.View',
-        'Mdc.view.setup.comtasks.Form',
-        'Mdc.view.setup.comtasks.List'
+        'Mdc.view.setup.comtasks.ComtaskSetup',
+        'Mdc.view.setup.comtasks.ComtaskGrid',
+        'Mdc.view.setup.comtasks.ComtaskPreview'
     ],
 
     refs: [
         {
             ref: 'tasksView',
-            selector: 'communication-tasks-view'
+            selector: 'comtaskSetup'
         },
         {
             ref: 'itemPanel',
-            selector: 'communication-tasks-item'
+            selector: 'comtaskPreview'
         },
         {
             ref: 'tasksGrid',
-            selector: 'communication-tasks-list'
+            selector: 'comtaskGrid'
         },
 
         {
@@ -42,20 +42,22 @@ Ext.define('Mdc.controller.setup.CommunicationTasksView', {
         },
         {
             ref: 'rulesGridPagingToolbarTop',
-            selector: 'communication-tasks-list pagingtoolbartop'
+            selector: 'comtaskGrid pagingtoolbartop'
         }
     ],
 
     init: function () {
         this.control({
-            'communication-tasks-view communication-tasks-list gridview': {
-                itemclick: this.showTaskDetails,
+            'comtaskSetup comtaskGrid': {
+                select: this.showTaskDetails
+            },
+            'comtaskSetup comtaskGrid gridview': {
                 afterrender: this.onCommunicationTasksGridRefresh
             },
-            'communication-tasks-view communication-tasks-list uni-actioncolumn': {
+            'comtaskSetup comtaskGrid uni-actioncolumn': {
                 menuclick: this.chooseCommunicationTasksAction
             },
-            'communication-tasks-action-menu': {
+            'comtaskActionMenu': {
                 click: this.chooseCommunicationTasksAction
             }
         });
@@ -63,7 +65,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasksView', {
     },
 
     showCommunicationTasksView: function () {
-        var widget = Ext.widget('communication-tasks-view');
+        var widget = Ext.widget('comtaskSetup');
         this.getApplication().fireEvent('changecontentevent', widget);
     },
 
@@ -102,7 +104,6 @@ Ext.define('Mdc.controller.setup.CommunicationTasksView', {
 
     showTaskDetails: function (grid, record) {
         var itemPanel = this.getItemPanel(),
-            form = itemPanel.down('communication-tasks-form'),
             nameField = this.getNameField(),
             commandsField = this.getCommandsField(),
             preloader = Ext.create('Ext.LoadMask', {
@@ -110,7 +111,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasksView', {
                 target: itemPanel
             });
         if (this.displayedItemId != record.id) {
-            grid.clearHighlight();
+            grid.view.clearHighlight();
             preloader.show();
         }
         this.displayedItemId = record.id;
