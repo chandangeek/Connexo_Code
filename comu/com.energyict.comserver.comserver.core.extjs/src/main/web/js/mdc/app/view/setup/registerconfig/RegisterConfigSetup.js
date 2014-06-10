@@ -34,25 +34,6 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigSetup', {
         }
     ],
 
-    side: [
-
-        {
-            xtype: 'panel',
-            ui: 'medium',
-            items: [
-                {
-                    xtype: 'navigationSubMenu',
-                    itemId: 'stepsMenu'
-                }
-            ]
-        }
-        /*,
-         {
-         xtype: 'registerConfigFilter',
-         name: 'filter'
-         }*/
-    ],
-
     initComponent: function () {
         this.side = [
             {
@@ -69,20 +50,67 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigSetup', {
                 ]
             }
         ];
+        this.content = [
+            {
+                ui: 'large',
+                xtype: 'panel',
+                itemId: 'registerConfigSetupPanel',
+                title: Uni.I18n.translate('registerConfig.registerConfigs', 'MDC', 'Register configurations'),
+
+                items: [
+                    {
+                        xtype: 'preview-container',
+                        itemId: 'previewContainer',
+                        grid: {
+                            xtype: 'registerConfigGrid',
+                            deviceTypeId: this.deviceTypeId,
+                            deviceConfigId: this.deviceConfigId
+                        },
+                        emptyComponent: {
+                            xtype: 'container',
+                            layout: {
+                                type: 'hbox',
+                                align: 'left'
+                            },
+                            minHeight: 20,
+                            items: [
+                                {
+                                    xtype: 'image',
+                                    margin: '0 10 0 0',
+                                    src: "../mdc/resources/images/information.png",
+                                    height: 20,
+                                    width: 20
+                                },
+                                {
+                                    xtype: 'container',
+                                    items: [
+                                        {
+                                            xtype: 'component',
+                                            html: '<h4>' + Uni.I18n.translate('registerConfig.empty.title', 'MDC', 'No register configurations found') + '</h4><br>' +
+                                                Uni.I18n.translate('registerConfig.empty.detail', 'MDC', 'There are no register configurations. This could be because:') + '<lv><li>&nbsp&nbsp' +
+                                                Uni.I18n.translate('registerConfig.empty.list.item1', 'MDC', 'No register configurations have been added yet.') + '</li></lv><br>' +
+                                                Uni.I18n.translate('registerConfig.empty.steps', 'MDC', 'Possible steps:')
+                                        },
+                                        {
+                                            text: Uni.I18n.translate('registerConfig.addRegisterConfiguration', 'MDC', 'Add register configuration'),
+                                            itemId: 'createRegisterConfigurationButton',
+                                            xtype: 'button',
+                                            action: 'createRegisterConfig'
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        previewComponent: {
+                            xtype: 'registerConfigPreview',
+                            deviceTypeId: this.deviceTypeId,
+                            deviceConfigId: this.deviceConfigId
+                        }
+                    }
+                ]
+            }
+        ];
         this.callParent(arguments);
-        this.down('#registerConfigGridContainer').add(
-            {
-                xtype: 'registerConfigGrid',
-                deviceTypeId: this.deviceTypeId,
-                deviceConfigId: this.deviceConfigId
-            }
-        );
-        this.down('#registerConfigPreviewContainer').add(
-            {
-                xtype: 'registerConfigPreview',
-                deviceTypeId: this.deviceTypeId,
-                deviceConfigId: this.deviceConfigId
-            }
-        );
     }
-});
+})
+;
