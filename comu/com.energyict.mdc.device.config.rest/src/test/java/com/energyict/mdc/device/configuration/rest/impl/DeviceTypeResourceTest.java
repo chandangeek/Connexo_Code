@@ -90,6 +90,7 @@ import static org.mockito.Mockito.when;
 
 public class DeviceTypeResourceTest extends JerseyTest {
 
+    private static final String DUMMY_THESAURUS_STRING = "";
     private static MasterDataService masterDataService;
     private static DeviceConfigurationService deviceConfigurationService;
     private static ProtocolPluggableService protocolPluggableService;
@@ -112,6 +113,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
     public void setUp() throws Exception {
         super.setUp();
         reset(masterDataService, protocolPluggableService, engineModelService);
+        when(thesaurus.getString(anyString(), anyString())).thenReturn(DUMMY_THESAURUS_STRING);
     }
 
     @Override
