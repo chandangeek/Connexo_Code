@@ -18,7 +18,7 @@ Ext.define('Mdc.view.setup.logbooktype.List', {
                 itemId: 'nameColumn',
                 header: 'Name',
                 xtype: 'templatecolumn',
-                tpl: '<a href="#/administration/logbooktypes/{id}"><tpl if="name">{name}</tpl></a>',
+                tpl: '<tpl if="name">{name}</tpl>',
                 flex: 5
             },
             {
