@@ -45,8 +45,8 @@ public class ReadingTypeResource {
         List<ReadingTypeInfo> readingTypeInfos = new ArrayList<>();
         if (!queryFilter.getFilterProperties().isEmpty()) {
             String unitString = queryFilter.getFilterProperties().get("unit");
-            ObisCode obisCode = queryFilter.getProperty("obisCode", new ObisCodeAdapter(), thesaurus);
-            Unit unit = queryFilter.getProperty("unit", new UnitAdapter(), thesaurus);
+            ObisCode obisCode = queryFilter.getProperty("obisCode", new ObisCodeAdapter());
+            Unit unit = queryFilter.getProperty("unit", new UnitAdapter());
             String mrid = readingTypeUtilService.getReadingTypeFrom(obisCode, unit);
             Optional<ReadingType> readingType = meteringService.getReadingType(mrid);
             if (!readingType.isPresent()) {

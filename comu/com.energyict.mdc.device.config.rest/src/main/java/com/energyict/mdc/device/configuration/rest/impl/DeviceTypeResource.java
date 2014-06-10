@@ -1,8 +1,5 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
@@ -21,13 +18,12 @@ import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.masterdata.rest.RegisterMappingInfo;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.Checks;
 import com.google.common.base.Optional;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
@@ -43,6 +39,12 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 @Path("/devicetypes")
 public class DeviceTypeResource {
