@@ -142,7 +142,8 @@ public class SDKDeviceProtocol implements DeviceProtocol {
         PropertySpecService propertySpecService = Bus.getPropertySpecService();
         List<PropertySpec> optionalProperties = new ArrayList<>();
         optionalProperties.add(propertySpecService.basicPropertySpec(defaultOptionalProperty, false, new BooleanFactory()));
-        optionalProperties.add(propertySpecService.referencePropertySpec("SDKCodeTableProperty", false, FactoryIds.CODE));
+        // codetables not supported
+      //  optionalProperties.add(propertySpecService.referencePropertySpec("SDKCodeTableProperty", false, FactoryIds.CODE));
         optionalProperties.add(
                 propertySpecService.
                         obisCodePropertySpecWithValues(

@@ -17,7 +17,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- * Provides functionality to have access to the EISDEVICECACHE table
+ * Provides functionality to have access to the CES_DEVICECACHE table.
  *
  * Copyrights EnergyICT
  * Date: 20-mei-2010
@@ -41,7 +41,7 @@ public class RTUCache {
      */
     public Object getCacheObject() throws IOException {
 		Object cacheObject = null;
-		SqlBuilder builder = new SqlBuilder("select content from eisdevicecache where rtuid = ? ");
+		SqlBuilder builder = new SqlBuilder("select content from ces_devicecache where deviceid = ? ");
         builder.bindInt(rtuid);
         PreparedStatement stmnt;
 		try (Connection connection = Environment.DEFAULT.get().getConnection()) {
@@ -107,16 +107,16 @@ public class RTUCache {
         }
 
         /**
-         * Select the EISDEVICECACHE from the DB, if it doens't exist, create(an empty) one so later you can do an update
+         * Select the CES_DEVICECACHE from the DB, if it doens't exist, create(an empty) one so later you can do an update
          * @throws SQLException
          */
         private void createOrUpdateDeviceCache() throws SQLException {
-            SqlBuilder builder = new SqlBuilder("select content from eisdevicecache where rtuid = ?");
+            SqlBuilder builder = new SqlBuilder("select content from ces_devicecache where deviceid = ?");
             builder.bindInt(rtuid);
             try (PreparedStatement stmnt = builder.getStatement(Environment.DEFAULT.get().getConnection())) {
                 ResultSet rs = stmnt.executeQuery();
                 if (!rs.next()) {
-                    builder = new SqlBuilder("insert into eisdevicecache (rtuid, content, mod_date) values (?,empty_blob(),sysdate)");
+                    builder = new SqlBuilder("insert into ces_devicecache (deviceid, content, mod_date) values (?,empty_blob(),sysdate)");
                     builder.bindInt(rtuid);
                     try (PreparedStatement insertStmnt = builder.getStatement(Environment.DEFAULT.get().getConnection())) {
                         insertStmnt.executeUpdate();
@@ -126,11 +126,11 @@ public class RTUCache {
         }
 
         /**
-         * Select the EISDEVICECACHE from the DB and update the content
+         * Select the CES_DEVICECACHE from the DB and update the content
          * @throws SQLException
          */
         private void updateCacheContent() throws SQLException {
-            SqlBuilder builder = new SqlBuilder("select content from eisdevicecache where rtuid = ? for update");
+            SqlBuilder builder = new SqlBuilder("select content from ces_devicecache where deviceid = ? for update");
             builder.bindInt(rtuid);
             try (PreparedStatement stmnt = builder.getStatement(Environment.DEFAULT.get().getConnection())) {
                 ResultSet rs = stmnt.executeQuery();
