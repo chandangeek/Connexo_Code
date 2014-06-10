@@ -1,9 +1,10 @@
 package com.energyict.mdc.pluggable.rest.impl;
 
-import com.energyict.mdc.common.license.License;
+import com.elster.jupiter.license.License;
+import com.elster.jupiter.license.LicenseService;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
-import com.energyict.mdc.protocol.pluggable.LicenseServer;
+import com.google.common.base.Optional;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -20,6 +21,8 @@ import javax.ws.rs.core.MediaType;
 public class LicensedProtocolResource {
 
     @Inject
+    private  LicenseService licenseService;
+    @Inject
     private LicensedProtocolService licensedProtocolService;
 
     public LicensedProtocolResource() {
@@ -29,9 +32,11 @@ public class LicensedProtocolResource {
     @Produces(MediaType.APPLICATION_JSON)
     public LicensedProtocolsInfo getLicensedProtocolInfos(){
         LicensedProtocolsInfo licensedProtocolsInfo = new LicensedProtocolsInfo();
-        License license = LicenseServer.licenseHolder.get();
-        for (LicensedProtocol licensedProtocol : this.licensedProtocolService.getAllLicensedProtocols(license)) {
-            licensedProtocolsInfo.licensedProtocolInfos.add(new LicensedProtocolInfo(licensedProtocol));
+        Optional<License> licenseForApplicationMdc = licenseService.getLicenseForApplication("MDC");
+        if(licenseForApplicationMdc.isPresent()){
+            for (LicensedProtocol licensedProtocol : this.licensedProtocolService.getAllLicensedProtocols(licenseForApplicationMdc.get())) {
+                licensedProtocolsInfo.licensedProtocolInfos.add(new LicensedProtocolInfo(licensedProtocol));
+            }
         }
         return licensedProtocolsInfo;
     }
