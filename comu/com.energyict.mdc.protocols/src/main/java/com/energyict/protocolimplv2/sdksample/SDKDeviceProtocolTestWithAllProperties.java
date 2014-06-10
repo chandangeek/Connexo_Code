@@ -182,8 +182,9 @@ public class SDKDeviceProtocolTestWithAllProperties implements DeviceProtocol {
                         ObisCode.fromString("1.0.2.8.1.255"),
                         ObisCode.fromString("1.0.2.8.2.255")));
 
-        optionalProperties.add(propertySpecService.referencePropertySpec("SDKCodeTableProperty", false, FactoryIds.CODE));
-        optionalProperties.add(propertySpecService.referencePropertySpec("SDKUserFileReferenceProperty", false, FactoryIds.USERFILE));
+        // codetable and userfile not supported
+        //optionalProperties.add(propertySpecService.referencePropertySpec("SDKCodeTableProperty", false, FactoryIds.CODE));
+        //optionalProperties.add(propertySpecService.referencePropertySpec("SDKUserFileReferenceProperty", false, FactoryIds.USERFILE));
         optionalProperties.add(propertySpecService.basicPropertySpec("SDKEan13Property", false, new Ean13Factory()));
         optionalProperties.add(propertySpecService.basicPropertySpec("SDKEan18Property", false, new Ean18Factory()));
         optionalProperties.add(propertySpecService.basicPropertySpec("SDKEncryptedStringProperty", false, new EncryptedStringFactory()));
