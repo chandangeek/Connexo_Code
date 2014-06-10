@@ -203,7 +203,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
         this.callParent(arguments);
 
         if (this.isEdit()) {
-            this.down('#createEditButton').setText(Uni.I18n.translate('general.edit', 'MDC', 'Edit'));
+            this.down('#createEditButton').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
             this.down('#createEditButton').action = 'editRegisterConfiguration';
         } else {
             this.down('#createEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
