@@ -117,7 +117,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                     },
                     {
                         xtype: 'numberfield',
-                        name: 'overflowValue',
+                        name: 'overflow',
                         msgTarget: 'under',
                         fieldLabel: Uni.I18n.translate('registerConfig.overflowValue', 'MDC', 'Overflow value'),
                         itemId: 'editOverflowValueField',
