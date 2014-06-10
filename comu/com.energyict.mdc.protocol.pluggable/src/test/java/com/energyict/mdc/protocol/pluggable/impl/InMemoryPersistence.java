@@ -4,6 +4,7 @@ import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -85,6 +86,7 @@ public class InMemoryPersistence {
     private PluggableService pluggableService;
     private RelationService relationService;
     private DeviceCacheMarshallingService deviceCacheMarshallingService;
+    private LicenseService licenseService;
 
     private ProtocolPluggableServiceImpl protocolPluggableService;
 
@@ -174,7 +176,7 @@ public class InMemoryPersistence {
                         this.deviceProtocolSecurityService,
                         this.inboundDeviceProtocolService,
                         this.connectionTypeService,
-                        this.deviceCacheMarshallingService);
+                        this.deviceCacheMarshallingService, licenseService, licensedProtocolService);
         return this.protocolPluggableService.getDataModel();
     }
 
