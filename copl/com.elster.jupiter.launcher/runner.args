@@ -1,7 +1,10 @@
 --vmo=-Dcom.elster.jupiter.datasource.jdbcpassword=stella\
  -Dcom.elster.jupiter.datasource.jdbcuser=jupiter\
  -Dcom.elster.jupiter.datasource.jdbcurl=jdbc:oracle:thin:@vldbdb1.eict.local:1521:EISVLDB1\
- -Dcom.elster.jupiter.appserver.name=appServerDemo
+ -Dcom.elster.jupiter.appserver.name=appServerDemo\
+ -Dcom.elster.jupiter.bpm.url=http://deitvs013.eict.local:8080/jbpm-console\
+ -Dcom.elster.jupiter.bpm.user=admin\
+ -Dcom.elster.jupiter.bpm.password=admin
 --clean
 --systemPackages=javax.activation;version=1.1.1,\
  javax.xml.ws;version=2.2.0,\
@@ -96,6 +99,7 @@ mvn:com.elster.jupiter/issue/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/issue.rest/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/issue.datacollection/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/issue.extjs/1.0.0-SNAPSHOT
+mvn:com.elster.jupiter/bpmissueaction/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/parties/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/cbo/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/metering/1.0.0-SNAPSHOT
@@ -129,8 +133,5 @@ mvn:com.elster.jupiter/bpm/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/bpm.handler/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/systemadmin/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/systemadmin.rest/1.0.0-SNAPSHOT
-mvn:com.elster.jupiter/systemadmin.extjs/1.0.0-SNAPSHOT
-mvn:com.elster.jupiter/issue.datacollection/1.0.0-SNAPSHOT
-mvn:com.elster.jupiter/bpmissueaction/1.0.0-SNAPSHOT
+mvn:com.elster.jupiter/systemadmin.extjs/1.0.0-SNAPSHOT	
 
-	
