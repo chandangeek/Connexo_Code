@@ -1,5 +1,8 @@
-
 .#{$prefix}form-radio {
-  height: 15px !important;
-  width: 15px !important;
+    height: 15px !important;
+    width: 15px !important;
+
+    &:hover {
+        cursor: pointer;
+    }
 }

@@ -40190,10 +40190,13 @@ a, a.x-btn {
   background-color: white;
   border-radius: 5px; }
 
-/* line 2, ../../sass/src/form/field/RadioButton.scss */
+/* line 1, ../../sass/src/form/field/RadioButton.scss */
 .x-form-radio {
   height: 15px !important;
   width: 15px !important; }
+  /* line 5, ../../sass/src/form/field/RadioButton.scss */
+  .x-form-radio:hover {
+    cursor: pointer; }
 
 /* line 1, ../../sass/src/form/field/Trigger.scss */
 .x-trigger-cell {
@@ -46238,15 +46241,33 @@ div.x-form-spinner-down {
 .x-window-message-error .x-message-box-error {
   background-position: 12px 4px; }
 
+/* line 1, ../../sass/src/window/Acknowledgement.scss */
+.uni-window-acknowledgement {
+  background-color: rgba(230, 255, 227, 0.9);
+  border: 1px solid #70bb51;
+  border-radius: 10px;
+  font-size: 13px;
+  color: #70bb51; }
+  /* line 8, ../../sass/src/window/Acknowledgement.scss */
+  .uni-window-acknowledgement .icon {
+    background-image: url("images/shared/icon-confirm.png");
+    background-repeat: no-repeat; }
+
 /* line 1, ../../sass/src/form/field/Checkbox.scss */
 .x-form-cb-label {
   color: #686868;
   font-family: "Lato", helvetica, arial, verdana, sans-serif; }
+  /* line 5, ../../sass/src/form/field/Checkbox.scss */
+  .x-form-cb-label:hover {
+    cursor: pointer; }
 
-/* line 6, ../../sass/src/form/field/Checkbox.scss */
+/* line 10, ../../sass/src/form/field/Checkbox.scss */
 .x-form-checkbox {
   height: 15px !important;
   width: 15px !important; }
+  /* line 14, ../../sass/src/form/field/Checkbox.scss */
+  .x-form-checkbox:hover {
+    cursor: pointer; }
 
 /* line 3, ../../sass/src/form/Label.scss */
 .x-form-item-label {
