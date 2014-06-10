@@ -73,7 +73,7 @@ Ext.define('Usr.controller.Login', {
             window.location.replace(params.page);
         }
         else{
-            window.location.replace("http://localhost:8080/apps/master/index.html");
+            window.location.replace("/apps/master/index.html");
         }
         this.getLoginViewport().destroy();
     },
