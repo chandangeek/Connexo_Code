@@ -15,7 +15,7 @@ import com.elster.jupiter.nls.Thesaurus;
 public class ProtocolDialectConfigurationPropertiesIsRequiredException extends LocalizedFieldValidationException {
 
     public ProtocolDialectConfigurationPropertiesIsRequiredException(Thesaurus thesaurus) {
-        super(thesaurus, MessageSeeds.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_REQUIRED, "configurationProperties");
+        super(MessageSeeds.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_REQUIRED, "configurationProperties");
     }
 
 }
