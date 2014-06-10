@@ -146,7 +146,6 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                         emptyText: Uni.I18n.translate('registerType.selectReadingType', 'MDC', 'x.x.x.x.x.x.x.x.x.x.x.x.x.x.x.x.x.x'),
                                         itemId: 'editMrIdField',
                                         required: true,
-                                        readOnly: true,
                                         disabled: true,
                                         width: 650
                                     },
