@@ -11,7 +11,6 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.impl.MdcCommonModule;
-import com.energyict.mdc.common.license.License;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
@@ -31,12 +30,11 @@ import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
-import com.energyict.mdc.protocol.pluggable.LicenseServer;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.protocol.pluggable.UnknownPluggableClassPropertiesException;
 import com.energyict.mdc.protocol.pluggable.SmartMeterProtocolAdapter;
+import com.energyict.mdc.protocol.pluggable.UnknownPluggableClassPropertiesException;
 import com.energyict.mdc.protocol.pluggable.mocks.DeviceMessageTestSpec;
 import com.energyict.mdc.protocol.pluggable.mocks.MockDeviceProtocol;
 import com.energyict.mdc.protocol.pluggable.mocks.MockDeviceProtocolWithTestPropertySpecs;
@@ -81,7 +79,6 @@ import java.util.List;
 
 import org.junit.*;
 import org.junit.runner.*;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -89,7 +86,6 @@ import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.withSettings;
 
 /**
  * Test the {@link DeviceProtocolPluggableClassImpl} component.
@@ -119,8 +115,6 @@ public class DeviceProtocolPluggableClassImplTest {
     public ExpectedConstraintViolationRule rule = new ExpectedConstraintViolationRule();
 
     private DataModel dataModel;
-    @Mock
-    private License license;
     private InMemoryBootstrapModule bootstrapModule;
     private Connection toClose;
 
@@ -209,12 +203,6 @@ public class DeviceProtocolPluggableClassImplTest {
         when(deviceProtocolService.loadProtocolClass(MOCK_SMART_METER_PROTOCOL)).thenReturn(MockSmartMeterProtocol.class);
         when(deviceProtocolService.loadProtocolClass(MOCK_NOT_A_DEVICE_PROTOCOL)).thenReturn(NotADeviceProtocol.class);
         when(deviceProtocolService.loadProtocolClass(SDK_DEVICE_PROTOCOL_TEST_WITH_MANDATORY_PROPERTY)).thenReturn(SDKDeviceProtocolTestWithMandatoryProperty.class);
-    }
-
-    @Before
-    public void initializeLicense() {
-        when(this.license.hasAllProtocols()).thenReturn(true);
-        LicenseServer.licenseHolder.set(this.license);
     }
 
     @After
