@@ -1,9 +1,5 @@
 package com.energyict.mdc.scheduling.rest.impl;
 
-import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.rest.BooleanAdapter;
 import com.energyict.mdc.common.rest.IdListBuilder;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
@@ -16,13 +12,11 @@ import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.UtcInstant;
+
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -36,6 +30,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Path("/schedules")
 public class SchedulingResource {
@@ -45,16 +46,14 @@ public class SchedulingResource {
     private final Clock clock;
     private final DeviceConfigurationService deviceConfigurationService;
     private final TaskService taskService;
-    private final Thesaurus thesaurus;
 
     @Inject
-    public SchedulingResource(SchedulingService schedulingService, DeviceDataService deviceDataService, Clock clock, DeviceConfigurationService deviceConfigurationService, TaskService taskService, Thesaurus thesaurus) {
+    public SchedulingResource(SchedulingService schedulingService, DeviceDataService deviceDataService, Clock clock, DeviceConfigurationService deviceConfigurationService, TaskService taskService) {
         this.schedulingService = schedulingService;
         this.deviceDataService = deviceDataService;
         this.clock = clock;
         this.deviceConfigurationService = deviceConfigurationService;
         this.taskService = taskService;
-        this.thesaurus = thesaurus;
     }
 
     @GET
@@ -157,7 +156,7 @@ public class SchedulingResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getComTasks(@PathParam("id") long id, @BeanParam JsonQueryFilter queryFilter) {
         ComSchedule comSchedule = findComScheduleOrThrowException(id);
-        if (queryFilter.getFilterProperties().containsKey("available") && queryFilter.getProperty("available", new BooleanAdapter(), thesaurus)) {
+        if (queryFilter.getFilterProperties().containsKey("available") && queryFilter.getProperty("available", new BooleanAdapter())) {
             return Response.ok().entity(ComTaskInfo.from(getAvailableComTasksExcludingAlreadyAssigned(comSchedule))).build();
         } else {
             return Response.ok().entity(ComTaskInfo.from(comSchedule.getComTasks())).build();
