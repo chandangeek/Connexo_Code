@@ -71,8 +71,9 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodSetup', {
                                         {
                                             text: Uni.I18n.translate('connectionmethod.addOutboundConnectionMethod', 'MDC', 'Add outbound connection method'),
                                             itemId: 'createOutboundConnectionButton',
-                                            xtype: 'button',
-                                            action: 'createOutboundConnectionMethod'
+                                            xtype: 'button',                                            
+                                            action: 'createOutboundConnectionMethod',
+                                            margin: '0 5 0 0'
                                         },
                                         {
                                             text: Uni.I18n.translate('connectionmethod.addInboundConnectionMethod', 'MDC', 'Add inbound connection method'),
