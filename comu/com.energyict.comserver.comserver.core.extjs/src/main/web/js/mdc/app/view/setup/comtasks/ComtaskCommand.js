@@ -1,16 +1,16 @@
-Ext.define('Mdc.view.setup.comtasks.Command', {
+Ext.define('Mdc.view.setup.comtasks.ComtaskCommand', {
     extend: 'Ext.panel.Panel',
     requires: [
-        'Mdc.view.setup.comtasks.CategoryCombo',
-        'Mdc.view.setup.comtasks.ActionCombo',
+        'Mdc.view.setup.comtasks.ComtaskCommandCategoryCombo',
+        'Mdc.view.setup.comtasks.ComtaskCommandCategoryActionCombo',
         'Mdc.view.setup.comtasks.parameters.clock.Set',
         'Mdc.view.setup.comtasks.parameters.clock.Synchronize'
     ],
-    alias: 'widget.communication-tasks-command',
+    alias: 'widget.comtaskCommand',
     border: false,
     items: [
         {
-            xtype: 'communication-tasks-categorycombo'
+            xtype: 'comtaskCommandCategoryCombo'
         }
     ],
     margin: '5 0 10 100',
