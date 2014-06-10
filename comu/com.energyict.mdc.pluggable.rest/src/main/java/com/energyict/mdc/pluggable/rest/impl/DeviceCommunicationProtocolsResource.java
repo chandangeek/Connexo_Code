@@ -1,7 +1,5 @@
 package com.energyict.mdc.pluggable.rest.impl;
 
-import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.rest.FieldValidationException;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
@@ -13,8 +11,9 @@ import com.energyict.mdc.protocol.api.LicensedProtocol;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import java.util.ArrayList;
-import java.util.List;
+
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
+
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -30,6 +29,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -42,15 +43,13 @@ public class DeviceCommunicationProtocolsResource {
     private final PropertySpecService propertySpecService;
     private final ProtocolPluggableService protocolPluggableService;
     private final LicensedProtocolService licensedProtocolService;
-    private final Thesaurus thesaurus;
     private final MdcPropertyUtils mdcPropertyUtils;
 
     @Inject
-    public DeviceCommunicationProtocolsResource(PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, LicensedProtocolService licensedProtocolService, Thesaurus thesaurus, MdcPropertyUtils mdcPropertyUtils) {
+    public DeviceCommunicationProtocolsResource(PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, LicensedProtocolService licensedProtocolService, MdcPropertyUtils mdcPropertyUtils) {
         this.propertySpecService = propertySpecService;
         this.protocolPluggableService = protocolPluggableService;
         this.licensedProtocolService = licensedProtocolService;
-        this.thesaurus = thesaurus;
         this.mdcPropertyUtils = mdcPropertyUtils;
     }
 
