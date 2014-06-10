@@ -1,5 +1,5 @@
 Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurationDetailDockedItems', {
-    extend: 'Ext.toolbar.Toolbar',
+    extend: 'Uni.view.toolbar.PagingTop',
     border: 0,
     alias: 'widget.loadProfileConfigurationDetailDockedItems',
     aling: 'left',
@@ -7,13 +7,16 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
     deviceConfigurationId: null,
     loadProfileConfigurationId: null,
 
+    store: 'LoadProfileConfigurationDetailChannels',
+    displayMsg: '{0} - {1} of {2} channel configurations',
+    displayMoreMsg: '{0} - {1} of more than {2} channel configurations',
+    emptyMsg: '0 channel configurations',
+    items: [
+        '->'
+    ],
     initComponent: function () {
         this.callParent(this);
         this.add(
-            {
-                xtype: 'container',
-                flex: 1
-            },
             {
                 xtype: 'button',
                 text: Uni.I18n.translate('loadprofileconfiguration.loadprofilechaneelconfiguationsadd', 'MDC', 'Add channel configuration'),
