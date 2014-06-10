@@ -213,7 +213,6 @@ public class SecurityPropertyServiceImplTest {
         private RelationService relationService;
         private ProtocolPluggableService protocolPluggableService;
         private InMemoryBootstrapModule bootstrapModule;
-        private License license;
         private Environment environment;
         private ApplicationContext applicationContext;
         private PropertySpecService propertySpecService;
@@ -278,7 +277,6 @@ public class SecurityPropertyServiceImplTest {
                 initializeFactoryProviders();
                 ctx.commit();
             }
-            this.initializeLicense();
         }
 
         private void initializeFactoryProviders() {
@@ -327,12 +325,6 @@ public class SecurityPropertyServiceImplTest {
             )) {
                 preparedStatement.execute();
             }
-        }
-
-        private void initializeLicense() {
-            this.license = mock(License.class);
-            when(this.license.hasAllProtocols()).thenReturn(true);
-            LicenseServer.licenseHolder.set(this.license);
         }
 
         public void cleanUpDataBase() throws SQLException {

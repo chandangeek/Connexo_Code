@@ -92,7 +92,6 @@ public class InMemoryIntegrationPersistence {
 
     public static final String JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME = "jupiter.bootstrap.module";
 
-    private License license;
     private BundleContext bundleContext;
     private Principal principal;
     private EventAdmin eventAdmin;
@@ -186,7 +185,6 @@ public class InMemoryIntegrationPersistence {
             ctx.commit();
         }
         createOracleAliases();
-        this.initializeLicense();
     }
 
     private void initializeFactoryProviders() {
@@ -199,12 +197,6 @@ public class InMemoryIntegrationPersistence {
                 return finders;
             }
         });
-    }
-
-    private void initializeLicense() {
-        this.license = mock(License.class);
-        when(this.license.hasAllProtocols()).thenReturn(true);
-        LicenseServer.licenseHolder.set(this.license);
     }
 
     public void run(DataModelInitializer... dataModelInitializers) {
