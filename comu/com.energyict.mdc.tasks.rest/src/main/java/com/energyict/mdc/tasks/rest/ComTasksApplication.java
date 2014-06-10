@@ -1,9 +1,9 @@
 package com.energyict.mdc.tasks.rest;
 
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.rest.util.BinderProvider;
-import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
-import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.*;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -26,13 +26,18 @@ public class ComTasksApplication extends Application implements BinderProvider {
     private volatile TaskService taskService;
     private volatile MasterDataService masterDataService;
     private volatile NlsService nlsService;
+    private volatile Thesaurus thesaurus;
 
     @Override
     public Set<Class<?>> getClasses() {
-        return ImmutableSet.of(ComTaskResource.class,
+        return ImmutableSet.of(
+                ComTaskResource.class,
                 TransactionWrapper.class,
                 ConstraintViolationExceptionMapper.class,
-                LocalizedExceptionMapper.class);
+                LocalizedFieldValidationExceptionMapper.class,
+                JsonMappingExceptionMapper.class,
+                LocalizedExceptionMapper.class
+        );
     }
 
     @Override
@@ -40,20 +45,14 @@ public class ComTasksApplication extends Application implements BinderProvider {
         return new AbstractBinder() {
             @Override
             protected void configure() {
+                bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
                 bind(transactionService).to(TransactionService.class);
                 bind(taskService).to(TaskService.class);
                 bind(masterDataService).to(MasterDataService.class);
                 bind(nlsService).to(NlsService.class);
+                bind(thesaurus).to(Thesaurus.class);
             }
         };
-    }
-
-    @Activate
-    public void activate() {
-    }
-
-    @Deactivate
-    public void deactivate() {
     }
 
     @Reference
@@ -74,5 +73,6 @@ public class ComTasksApplication extends Application implements BinderProvider {
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
+        this.thesaurus = nlsService.getThesaurus("CTS", Layer.REST);
     }
 }
