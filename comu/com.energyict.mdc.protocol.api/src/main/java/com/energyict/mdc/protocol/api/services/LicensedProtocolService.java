@@ -1,6 +1,6 @@
 package com.energyict.mdc.protocol.api.services;
 
-import com.energyict.mdc.common.license.License;
+import com.elster.jupiter.license.License;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
 
