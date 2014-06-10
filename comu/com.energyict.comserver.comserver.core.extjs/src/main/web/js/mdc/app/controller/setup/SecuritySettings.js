@@ -29,7 +29,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
     init: function () {
         this.control({
             'securitySettingSetup securitySettingGrid': {
-                itemclick: this.loadGridItemDetail
+                select: this.loadGridItemDetail
             },
             'securitySettingSetup': {
                 afterrender: this.loadStore
@@ -156,8 +156,6 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 } else {
                     selectionModel.select(0);
                 }
-
-                grid.fireEvent('itemclick', gridView, selectionModel.getLastSelected());
             }
         }
     },
@@ -171,18 +169,15 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
         });
     },
 
-    loadGridItemDetail: function (grid, record) {
+    loadGridItemDetail: function (rowmodel, record, index) {
         var detailPanel = Ext.ComponentQuery.query('securitySettingSetup securitySettingPreview')[0],
             form = detailPanel.down('form'),
             preloader = Ext.create('Ext.LoadMask', {
                 msg: "Loading...",
                 target: form
             });
-        if (this.displayedItemId != record.getData().id) {
-            grid.clearHighlight();
-            preloader.show();
-        }
-        this.displayedItemId = record.getData().id;
+
+        preloader.show();
         detailPanel.setTitle(record.getData().name);
         form.loadRecord(record);
         preloader.destroy();
