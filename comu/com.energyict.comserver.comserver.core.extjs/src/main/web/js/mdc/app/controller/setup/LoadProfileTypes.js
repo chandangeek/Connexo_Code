@@ -133,7 +133,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             lastSelected = grid.getView().getSelectionModel().getLastSelected();
 
         Ext.create('Uni.view.window.Confirmation').show({
-            msg: Uni.I18n.translate('deviceType.confirmWindow.removeMsg', 'MDC', 'This load profile type will no longer be available'),
+            msg: Uni.I18n.translate('loadProfileTypes.confirmWindow.removeMsg', 'MDC', 'This load profile type will no longer be available'),
             title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' ' + lastSelected.get('name') + '?',
             config: {
                 me: me
@@ -154,11 +154,19 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                 method: 'DELETE',
                 waitMsg: 'Removing...',
                 success: function () {
-                    me.handleSuccessRequest('Load profile type was removed successfully');
-                    me.store.load();
+                    me.handleSuccessRequest(Uni.I18n.translate('loadProfileTypes.removeSuccessMsg', 'MDC', 'Load profile type was removed successfully'));
+                    me.store.loadPage(1);
                 },
-                failure: function (result, request) {
-                    me.handleFailureRequest(result, "Error during removing of load profile", 'retryremoveloadprofiletype');
+                failure: function (response) {
+                    var errorText,
+                        errorTitle;
+
+                    if (response.status == 400) {
+                        errorText = Ext.decode(response.responseText, true).message;
+                        errorTitle = Uni.I18n.translate('loadProfileTypes.removeErrorMsg', 'MDC', 'Error during removing of load profile');
+
+                        me.getApplication().getController('Uni.controller.Error').showError(errorTitle, errorText);
+                    }
                 }
             });
         } else if (state === 'cancel') {
@@ -271,33 +279,33 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         }).show();
     },
 
-    /*    handleFailureRequest: function (response, headerText, retryAction) {
-     Ext.EventManager.stopPropagation('requestexception');
-     var errormsgs = response.responseText;
-     Ext.widget('messagebox', {
-     buttons: [
-     {
-     text: 'Retry',
-     action: retryAction,
-     ui: 'remove'
-     },
-     {
-     text: 'Cancel',
-     action: 'cancel',
-     ui: 'link',
-     href: '#/administration/loadprofiletypes/',
-     handler: function (button, event) {
-     this.up('messagebox').hide();
-     }
-     }
-     ]
-     }).show({
-     ui: 'notification-error',
-     title: headerText,
-     msg: errormsgs,
-     icon: Ext.MessageBox.ERROR
-     })
-     },*/
+    handleFailureRequest: function (response, headerText, retryAction) {
+        Ext.EventManager.stopPropagation('requestexception');
+        var errormsgs = response.responseText;
+        Ext.widget('messagebox', {
+            buttons: [
+                {
+                    text: 'Retry',
+                    action: retryAction,
+                    ui: 'remove'
+                },
+                {
+                    text: 'Cancel',
+                    action: 'cancel',
+                    ui: 'link',
+                    href: '#/administration/loadprofiletypes/',
+                    handler: function (button, event) {
+                        this.up('messagebox').hide();
+                    }
+                }
+            ]
+        }).show({
+            ui: 'notification-error',
+            title: headerText,
+            msg: errormsgs,
+            icon: Ext.MessageBox.ERROR
+        })
+    },
 
 
     addMeasurementTypes: function () {
