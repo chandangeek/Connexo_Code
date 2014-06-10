@@ -133,11 +133,13 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
 
     changeDisplayedObisCodeAndCIM: function (combobox, newValue) {
         var record = combobox.getStore().getById(newValue),
-            form = combobox.up('form');
+            form = this.getChannelForm();
 
-        form.down('[name=cimreadingtype]').setValue(record.get('readingType').mrid);
-        form.down('[name=obiscode]').setValue(record.get('obisCode'));
-        form.down('[name=unitOfMeasure]').setValue(record.get('phenomenon').id);
+        if (record) {
+            form.down('[name=cimreadingtype]').setValue(record.get('readingType').mrid);
+            form.down('[name=obiscode]').setValue(record.get('obisCode'));
+            form.down('[name=unitOfMeasure]').setValue(record.get('phenomenon').id);
+        }
     },
 
 
@@ -382,9 +384,13 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                             method: 'GET',
                             success: function (response) {
                                 var loadProfileConfiguration = Ext.JSON.decode(response.responseText).data[0],
-                                    widget = Ext.widget('loadProfileConfigurationDetailForm', {loadProfileConfigurationChannelHeader: Uni.I18n.translate('loadprofiles.loadporfileaddChannelConfiguration', 'MDC', 'Add channel configuration'), loadProfileConfigurationChannelAction: 'Add'}),
+                                    widget = Ext.widget('loadProfileConfigurationDetailForm',
+                                        {loadProfileConfigurationChannelAction: 'Add'}),
                                     measurementTypeCombobox = widget.down('combobox[name=measurementType]'),
-                                    unitOfMeasureCombobox = widget.down('combobox[name=unitOfMeasure]');
+                                    unitOfMeasureCombobox = widget.down('combobox[name=unitOfMeasure]'),
+                                    title =  Uni.I18n.translate('loadprofiles.loadporfileaddChannelConfiguration', 'MDC', 'Add channel configuration');
+
+                                widget.down('form').setTitle(title);
                                 me.availableMeasurementTypesStore.load();
                                 me.phenomenasStore.load();
                                 measurementTypeCombobox.store = me.availableMeasurementTypesStore;
@@ -427,7 +433,10 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                     method: 'GET',
                                     success: function (response) {
                                         var channel = Ext.JSON.decode(response.responseText).data[0],
-                                            widget = Ext.widget('loadProfileConfigurationDetailForm', {loadProfileConfigurationChannelHeader: Uni.I18n.translate('loadprofiles.loadprofileEditChannelConfiguration', 'MDC', 'Edit channel configuration'), loadProfileConfigurationChannelAction: 'Save'}),
+                                            widget = Ext.widget('loadProfileConfigurationDetailForm',
+                                                {loadProfileConfigurationChannelAction: 'Save'}),
+                                            title =  Uni.I18n.translate('loadprofiles.loadprofileEditChannelConfiguration', 'MDC', 'Edit channel configuration');
+
                                             measurementTypeCombobox = widget.down('combobox[name=measurementType]'),
                                             cimdisplayfield = widget.down('displayfield[name=cimreadingtype]'),
                                             obiscodedisplayfield = widget.down('displayfield[name=obiscode]'),
@@ -436,6 +445,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                             overflowValueField =  widget.down('textfield[name=overflowValue]'),
                                             multiplierField =  widget.down('textfield[name=multiplier]');
 
+                                        widget.down('form').setTitle(title);
                                         me.availableMeasurementTypesStore.load({callback: function () {
                                             measurementTypeCombobox.store = me.availableMeasurementTypesStore;
                                             me.availableMeasurementTypesStore.add(channel.measurementType);
