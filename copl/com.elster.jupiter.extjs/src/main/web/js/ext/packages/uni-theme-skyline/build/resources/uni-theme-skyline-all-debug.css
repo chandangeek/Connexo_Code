@@ -46247,11 +46247,32 @@ div.x-form-spinner-down {
   border: 1px solid #70bb51;
   border-radius: 10px;
   font-size: 13px;
-  color: #70bb51; }
-  /* line 8, ../../sass/src/window/Acknowledgement.scss */
+  color: #70bb51;
+  padding-top: 12px;
+  padding-right: 12px;
+  padding-bottom: 12px;
+  padding-left: 16px; }
+  /* line 15, ../../sass/src/window/Acknowledgement.scss */
   .uni-window-acknowledgement .icon {
     background-image: url("images/shared/icon-confirm.png");
-    background-repeat: no-repeat; }
+    background-repeat: no-repeat;
+    height: 26px;
+    width: 26px; }
+  /* line 22, ../../sass/src/window/Acknowledgement.scss */
+  .uni-window-acknowledgement .message {
+    padding-right: 12px;
+    padding-left: 12px; }
+  /* line 29, ../../sass/src/window/Acknowledgement.scss */
+  .uni-window-acknowledgement .message > .x-panel-body {
+    background-color: transparent; }
+  /* line 33, ../../sass/src/window/Acknowledgement.scss */
+  .uni-window-acknowledgement .x-form-item-label {
+    color: #70bb51; }
+  /* line 37, ../../sass/src/window/Acknowledgement.scss */
+  .uni-window-acknowledgement .close {
+    background-image: url("images/shared/icon-close.png");
+    background-repeat: no-repeat;
+    background-position: center; }
 
 /* line 1, ../../sass/src/form/field/Checkbox.scss */
 .x-form-cb-label {

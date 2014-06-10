@@ -5374,6 +5374,12 @@ a:hover, a.x-btn:hover {
   text-decoration: underline;
 }
 
+/* line 135, ../../sass/src/button/LinkButton.scss */
+.x-form-fieldcontainer *[class*='x-btn-link-'] {
+  margin-top: 2px;
+  margin-left: -5px;
+}
+
 /* line 255, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-menuitem-large {
   border-color: #6194ab;
@@ -14697,54 +14703,4 @@ a:hover, a.x-btn:hover {
 /* line 453, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-ie6 .x-btn-step-active-small-icon-text-right .x-btn-icon-el, .x-quirks .x-ie .x-btn-step-active-small-icon-text-right .x-btn-icon-el {
   height: 17px;
-}
-
-/* line 468, ../../../ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-step-active-small-icon-text-top .x-btn-inner {
-  padding-top: 22px;
-}
-/* line 472, ../../../ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-step-active-small-icon-text-top .x-btn-icon-el {
-  height: 17px;
-  bottom: auto;
-}
-/* line 480, ../../../ext-theme-neutral/sass/src/button/Button.scss */
-.x-ie6 .x-btn-step-active-small-icon-text-top .x-btn-icon-el, .x-quirks .x-ie .x-btn-step-active-small-icon-text-top .x-btn-icon-el {
-  width: 100%;
-}
-
-/* line 488, ../../../ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-step-active-small-icon-text-bottom .x-btn-inner {
-  padding-bottom: 22px;
-}
-/* line 492, ../../../ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-step-active-small-icon-text-bottom .x-btn-icon-el {
-  height: 17px;
-  top: auto;
-}
-/* line 500, ../../../ext-theme-neutral/sass/src/button/Button.scss */
-.x-ie6 .x-btn-step-active-small-icon-text-bottom .x-btn-icon-el, .x-quirks .x-ie .x-btn-step-active-small-icon-text-bottom .x-btn-icon-el {
-  width: 100%;
-}
-
-/* line 507, ../../../ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-step-active-small-focus {
-  border-color: #59889d;
-  background-image: none;
-  background-color: #67ac4a;
-}
-
-/* line 531, ../../../ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-step-active-small-over {
-  border-color: #59889d;
-  background-image: none;
-  background-color: #7ec162;
-}
-
-/* line 556, ../../../ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-step-active-small-menu-active,
-.x-btn-step-active-small-pressed {
-  border-color: #486f80;
-  background-image: none;
-  background-color: #64a848;
 }

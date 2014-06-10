@@ -1183,16 +1183,21 @@ h6 {
 }
 
 /* line 5, ../../sass/src/button/Button.scss */
+.x-uni-action-iconD {
+  background-image: url("images/button/ico_actionsD.png");
+}
+
+/* line 9, ../../sass/src/button/Button.scss */
 .x-uni-action-icon {
   background-image: url("images/button/ico_actions.png");
 }
 
-/* line 9, ../../sass/src/button/Button.scss */
+/* line 13, ../../sass/src/button/Button.scss */
 .active .x-uni-action-icon {
   background-image: url("images/button/ico_actionsA.png");
 }
 
-/* line 14, ../../sass/src/button/Button.scss */
+/* line 20, ../../sass/src/button/Button.scss */
 .x-btn-default-toolbar-small .x-btn-arrow {
   background-image: url("images/button/default-small-arrow.png");
 }
@@ -7432,6 +7437,12 @@ a:hover, a.x-btn:hover {
 /* line 11, ../../sass/src/button/LinkButton.scss */
 .x-btn-link-toolbar-large .x-btn-inner {
   text-decoration: underline;
+}
+
+/* line 135, ../../sass/src/button/LinkButton.scss */
+.x-form-fieldcontainer *[class*='x-btn-link-'] {
+  margin-top: 2px;
+  margin-left: -5px;
 }
 
 /* line 255, ../../../ext-theme-neutral/sass/src/button/Button.scss */
