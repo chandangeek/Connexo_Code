@@ -38,7 +38,7 @@ public class JsonQueryFilter {
         return filterProperties;
     }
 
-    public <T> T getProperty(String name, XmlAdapter<String, T> adapter, Thesaurus thesaurus) {
+    public <T> T getProperty(String name, XmlAdapter<String, T> adapter) {
         String stringProperty = getFilterProperties().get(name);
         try {
             return adapter.unmarshal(stringProperty);
