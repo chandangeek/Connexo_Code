@@ -2,10 +2,11 @@ package com.energyict.mdc.protocol.pluggable.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.license.License;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.common.license.License;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.relation.RelationService;
@@ -19,14 +20,16 @@ import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
+import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
-import com.energyict.mdc.protocol.pluggable.LicenseServer;
 import com.energyict.mdc.protocol.pluggable.ProtocolNotAllowedByLicenseException;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.MeterProtocolAdapterImpl;
 import com.energyict.mdc.protocol.pluggable.SmartMeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.relations.SecurityPropertySetRelationTypeSupport;
+import com.google.common.base.Optional;
+
 import java.util.List;
 import javax.inject.Inject;
 
@@ -52,9 +55,11 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
     private DataModel dataModel;
     private IssueService issueService;
     private DeviceCacheMarshallingService deviceCacheMarshallingService;
+    private final LicenseService licenseService;
+    private final LicensedProtocolService licensedProtocolService;
 
     @Inject
-    public DeviceProtocolPluggableClassImpl(EventService eventService, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, RelationService relationService, DataModel dataModel, Thesaurus thesaurus, IssueService issueService, DeviceCacheMarshallingService deviceCacheMarshallingService) {
+    public DeviceProtocolPluggableClassImpl(EventService eventService, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, RelationService relationService, DataModel dataModel, Thesaurus thesaurus, IssueService issueService, DeviceCacheMarshallingService deviceCacheMarshallingService, LicenseService licenseService, LicensedProtocolService licensedProtocolService) {
         super(eventService, thesaurus);
         this.propertySpecService = propertySpecService;
         this.protocolPluggableService = protocolPluggableService;
@@ -63,6 +68,8 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
         this.dataModel = dataModel;
         this.issueService = issueService;
         this.deviceCacheMarshallingService = deviceCacheMarshallingService;
+        this.licenseService = licenseService;
+        this.licensedProtocolService = licensedProtocolService;
     }
 
     static DeviceProtocolPluggableClassImpl from (DataModel dataModel, PluggableClass pluggableClass) {
@@ -128,12 +135,14 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
 
     @Override
     protected void validateLicense() {
-        License license = LicenseServer.licenseHolder.get();
-        this.checkDeviceProtocolForLicense(this.getJavaClassName(), license);
+        Optional<License> licenseForApplicationMdc = this.licenseService.getLicenseForApplication("MDC");
+        if(licenseForApplicationMdc.isPresent()){
+            this.checkDeviceProtocolForLicense(this.getJavaClassName(), licenseForApplicationMdc.get());
+        }
     }
 
     private void checkDeviceProtocolForLicense (String javaClassName, License license) {
-        if (!license.hasAllProtocols() && !license.hasProtocol(javaClassName)) {
+        if (!this.licensedProtocolService.isValidJavaClassName(javaClassName, license)) {
             throw new ProtocolNotAllowedByLicenseException(this.getThesaurus(), javaClassName);
         }
     }

@@ -1,8 +1,9 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
+import com.elster.jupiter.license.License;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
-import com.energyict.mdc.common.license.License;
 import com.energyict.mdc.pluggable.PluggableClassDefinition;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
@@ -13,6 +14,8 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.PluggableClassesRegistrar;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.google.common.base.Optional;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
@@ -27,7 +30,9 @@ import java.util.logging.Logger;
  */
 @Component(name = "com.energyict.mdc.protocol.pluggable.pluggableclassesregistrar")
 public class PluggableClassesRegistrarImpl implements PluggableClassesRegistrar {
+
     private static final Logger LOGGER = Logger.getLogger(PluggableClassesRegistrarImpl.class.getName());
+    private static final String MDC_APPLICATION_KEY = "MDC";
 
     private volatile LicensedProtocolService licensedProtocolService;
     private volatile ConnectionTypeService connectionTypeService;
@@ -64,10 +69,18 @@ public class PluggableClassesRegistrarImpl implements PluggableClassesRegistrar 
         this.transactionService = transactionService;
     }
 
-    public void start(License license) {
+    private volatile LicenseService licenseService;
+
+    @Reference
+    public void setLicenseService(LicenseService licenseService) {
+        this.licenseService = licenseService;
+    }
+
+    //TODO Check if this one should be public and whether or not we need to provide the License
+    public void start(com.energyict.mdc.common.license.License license) {
         LOGGER.info("Registering pluggable classes...");
         registerInboundDeviceProtocolPluggableClasses();
-        registerDeviceProtocolPluggableClasses(license);
+        registerDeviceProtocolPluggableClasses();
         registerConnectionTypePluggableClasses();
         LOGGER.info("Finished registering pluggable classes...");
 
@@ -123,19 +136,24 @@ public class PluggableClassesRegistrarImpl implements PluggableClassesRegistrar 
         });
     }
 
-    private void registerDeviceProtocolPluggableClasses(License license) {
+    private void registerDeviceProtocolPluggableClasses() {
 
-        for (LicensedProtocol licensedProtocolRule : this.licensedProtocolService.getAllLicensedProtocols(license)) {
-            try {
-                if (this.deviceProtocolDoesNotExist(licensedProtocolRule)) {
-                    this.createDeviceProtocol(licensedProtocolRule);
-                    LOGGER.fine("Created pluggable class for " + licensedProtocolRule.getClassName());
-                } else {
-                    LOGGER.fine("Skipping " + licensedProtocolRule.getClassName() + ": already exists");
+        Optional<License> licenseForApplication = licenseService.getLicenseForApplication(MDC_APPLICATION_KEY);
+        if(licenseForApplication.isPresent()){
+            License license = licenseForApplication.get();
+            for (LicensedProtocol licensedProtocolRule : this.licensedProtocolService.getAllLicensedProtocols(license)) {
+                try {
+                    if (this.deviceProtocolDoesNotExist(licensedProtocolRule)) {
+                        this.createDeviceProtocol(licensedProtocolRule);
+                        LOGGER.fine("Created pluggable class for " + licensedProtocolRule.getClassName());
+                    } else {
+                        LOGGER.fine("Skipping " + licensedProtocolRule.getClassName() + ": already exists");
+                    }
+                } catch (Exception e) {
+                    LOGGER.log(Level.SEVERE, "Failed to register any device protocol: " + e, e);
                 }
-            } catch (Exception e) {
-                LOGGER.log(Level.SEVERE, "Failed to register any device protocol: " + e, e);
             }
+
         }
 
     }
@@ -224,6 +242,11 @@ public class PluggableClassesRegistrarImpl implements PluggableClassesRegistrar 
 
     private void handleCreationException(String className, Throwable e) {
         LOGGER.log(Level.SEVERE, "Failed to create pluggable class for " + className + ": " + e, e);
+    }
+
+    @Activate
+    public void setup(){
+        start(null);
     }
 
     @Deactivate

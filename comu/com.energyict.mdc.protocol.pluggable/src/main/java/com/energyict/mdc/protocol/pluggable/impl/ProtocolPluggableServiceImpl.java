@@ -1,5 +1,8 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
+import com.elster.jupiter.license.LicenseService;
+import com.energyict.mdc.common.DataVault;
+import com.energyict.mdc.common.DataVaultProvider;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.services.Finder;
@@ -25,6 +28,7 @@ import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
@@ -55,6 +59,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import java.io.File;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -88,6 +93,8 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     private volatile ConnectionTypeService connectionTypeService;
     private volatile IssueService issueService;
     private volatile DeviceCacheMarshallingService deviceCacheMarshallingService;
+    private volatile LicenseService licenseService;
+    private volatile LicensedProtocolService licensedProtocolService;
 
     public ProtocolPluggableServiceImpl() {
         super();
@@ -106,7 +113,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
             DeviceProtocolMessageService deviceProtocolMessageService,
             DeviceProtocolSecurityService deviceProtocolSecurityService,
             InboundDeviceProtocolService inboundDeviceProtocolService,
-            ConnectionTypeService connectionTypeService, DeviceCacheMarshallingService deviceCacheMarshallingService) {
+            ConnectionTypeService connectionTypeService, DeviceCacheMarshallingService deviceCacheMarshallingService, LicenseService licenseService, LicensedProtocolService licensedProtocolService) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
@@ -121,6 +128,8 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         this.setInboundDeviceProtocolService(inboundDeviceProtocolService);
         this.setConnectionTypeService(connectionTypeService);
         this.setDeviceCacheMarshallingService(deviceCacheMarshallingService);
+        this.setLicenseService(licenseService);
+        this.setLicensedProtocolService(licensedProtocolService);
         this.activate();
         if (!this.dataModel.isInstalled()) {
             this.install();
@@ -567,6 +576,16 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         this.deviceCacheMarshallingService = deviceCacheMarshallingService;
     }
 
+    @Reference
+    public void setLicenseService(LicenseService licenseService) {
+        this.licenseService = licenseService;
+    }
+
+    @Reference
+    public void setLicensedProtocolService(LicensedProtocolService licensedProtocolService) {
+        this.licensedProtocolService = licensedProtocolService;
+    }
+
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -583,12 +602,16 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
                 bind(ProtocolPluggableService.class).toInstance(ProtocolPluggableServiceImpl.this);
                 bind(SecuritySupportAdapterMappingFactory.class).to(SecuritySupportAdapterMappingFactoryImpl.class);
                 bind(DeviceCacheMarshallingService.class).toInstance(deviceCacheMarshallingService);
+                bind(LicenseService.class).toInstance(licenseService);
+                bind(LicensedProtocolService.class).toInstance(licensedProtocolService);
             }
         };
     }
 
     @Activate
     public void activate() {
+        //TODO need a proper implemntation of the DataVault!
+        DataVaultProvider.instance.set(new TemporaryUnSecureDataVaultProvider());
         this.dataModel.register(this.getModule());
     }
 
@@ -597,4 +620,39 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         new Installer(this.dataModel, this.eventService, this.thesaurus).install(true, true);
     }
 
+    private class TemporaryUnSecureDataVaultProvider implements DataVaultProvider {
+
+        private DataVault soleInstance;
+
+        @Override
+        public DataVault getKeyVault() {
+            if (soleInstance ==null) {
+                soleInstance = new StraightForwardUnSecureDataVault();
+            }
+            return soleInstance;
+        }
+    }
+
+    /**
+     * An unsecure DataVault. The encrypt will just make a String from the given bytes and the decrypt will do the reverse!.
+     * <b>NOT SECURE FOR IN PRODUCTION</b>
+     * TODO need Jira ticket
+     */
+    private class StraightForwardUnSecureDataVault implements DataVault{
+
+        @Override
+        public String encrypt(byte[] decrypted) {
+            return new String(decrypted);
+        }
+
+        @Override
+        public byte[] decrypt(String encrypted) {
+            return encrypted.getBytes();
+        }
+
+        @Override
+        public void createVault(File file) {
+
+        }
+    }
 }
