@@ -8,6 +8,7 @@ Ext.define('Isu.view.workspace.issues.IssueNoGroup', {
         {
             itemId : 'NoGroup_text',
             html: '<h3>No group selected</h3><p>Select a group of issues.</p>',
+            bodyPadding: 10,
             border: false
         }
     ]
