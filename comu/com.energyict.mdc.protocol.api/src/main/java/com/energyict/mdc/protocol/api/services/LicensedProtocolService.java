@@ -25,4 +25,5 @@ public interface LicensedProtocolService {
 
     public LicensedProtocol findLicensedProtocolFor(DeviceProtocolPluggableClass deviceProtocolPluggableClass);
 
+    public boolean isValidJavaClassName(String javaClassName, License license);
 }
