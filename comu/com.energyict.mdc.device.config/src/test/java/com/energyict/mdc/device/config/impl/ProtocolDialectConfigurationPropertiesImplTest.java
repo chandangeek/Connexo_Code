@@ -107,7 +107,6 @@ import static org.mockito.Mockito.when;
 public class ProtocolDialectConfigurationPropertiesImplTest {
 
 
-    private static final String NAME = "name";
     private static final String MY_PROPERTY = "myProperty";
     public static final String PROTOCOL_DIALECT = "protocolDialect";
     private SharedData sharedData;
@@ -133,8 +132,6 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
     private DeviceConfigurationServiceImpl deviceConfigurationService;
     @Mock
     private ApplicationContext applicationContext;
-    @Mock
-    private License license;
 
     private class MockModule extends AbstractModule {
 
@@ -142,18 +139,11 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
         protected void configure() {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
-//            bind(DataModel.class).toProvider(new Provider<DataModel>() {
-//                @Override
-//                public DataModel get() {
-//                    return dataModel;
-//                }
-//            });
         }
 
     }
 
     public void initializeDatabase(boolean showSqlLogging) {
-        LicenseServer.licenseHolder.set(license);
         bootstrapModule = new InMemoryBootstrapModule();
         injector = Guice.createInjector(
                 new MockModule(),
@@ -210,9 +200,7 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
     @Before
     public void setUp() {
         sharedData = new SharedData();
-        when(license.hasAllProtocols()).thenReturn(true);
         when(principal.getName()).thenReturn("test");
-//        when(deviceconfiguration.get)
         initializeDatabase(false);
         try (TransactionContext context = transactionService.getContext()) {
             DeviceProtocolPluggableClass protocolPluggableClass = protocolPluggableService.newDeviceProtocolPluggableClass("protocolPluggableClass", MyDeviceProtocolPluggableClass.class.getName());
