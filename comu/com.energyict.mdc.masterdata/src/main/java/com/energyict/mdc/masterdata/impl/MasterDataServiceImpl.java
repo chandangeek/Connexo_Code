@@ -1,15 +1,5 @@
 package com.energyict.mdc.masterdata.impl;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
-
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.HasId;
@@ -29,16 +19,26 @@ import com.energyict.mdc.masterdata.exceptions.RegisterTypesRequiredException;
 import com.energyict.mdc.masterdata.exceptions.UnitHasNoMatchingPhenomenonException;
 import com.energyict.mdc.masterdata.impl.finders.LoadProfileTypeFinder;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.callback.InstallService;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-
-import java.util.ArrayList;
-import java.util.List;
-import javax.inject.Inject;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -167,7 +167,7 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
         if (unit != null) {
             Optional<Phenomenon> xPhenomenon = this.findPhenomenonByUnit(unit);
             if (!xPhenomenon.isPresent()) {
-                throw new UnitHasNoMatchingPhenomenonException(this.thesaurus, unit);
+                throw new UnitHasNoMatchingPhenomenonException(unit);
             }
             else {
                 phenomenon = xPhenomenon.get();
@@ -223,7 +223,7 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
     @Override
     public void validateRegisterGroup(RegisterGroup group) {
         if (group.getRegisterMappings().isEmpty()) {
-            throw new RegisterTypesRequiredException(this.thesaurus);
+            throw new RegisterTypesRequiredException();
         }
     }
 

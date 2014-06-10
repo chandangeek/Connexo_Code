@@ -1,7 +1,6 @@
 package com.energyict.mdc.masterdata.exceptions;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.nls.Thesaurus;
 
 /**
  * Models the exceptional situation that occurs when an attempt
@@ -11,7 +10,8 @@ import com.elster.jupiter.nls.Thesaurus;
  */
 public class RegisterTypesRequiredException extends LocalizedFieldValidationException {
 
-    public RegisterTypesRequiredException(Thesaurus thesaurus) {
+    public RegisterTypesRequiredException() {
         super(MessageSeeds.REGISTER_GROUP_REQUIRES_REGISTER_TYPES, "selectedRegisterTypes");
     }
+
 }
