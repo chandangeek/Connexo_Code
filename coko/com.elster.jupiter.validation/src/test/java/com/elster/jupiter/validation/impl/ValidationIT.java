@@ -132,6 +132,11 @@ public class ValidationIT {
     private ValidatorCreator validatorCreator;
     @Mock
     private Thesaurus thesaurus;
+    @Mock
+    private javax.validation.Validator validator;
+    @Mock
+    private javax.validation.ValidatorFactory validationFactory;
+
 
     @Before
     public void setUp() {
@@ -197,8 +202,10 @@ public class ValidationIT {
                 return new ChannelValidationImpl(dataModel, meteringService);
             }
         });
+        when(dataModel.getValidatorFactory()).thenReturn(validationFactory);
+        when(dataModel.getValidatorFactory().getValidator()).thenReturn(validator);
 
-        doAnswer(new AssignId()).when(ruleSetFactory).persist(isA(ValidationRuleSetImpl.class));
+        doAnswer(new AssignId()).when(dataModel).persist(isA(ValidationRuleSetImpl.class));
 
         when(meterActivation.getId()).thenReturn(METERACTIVATION_ID);
         when(meterActivation.getChannels()).thenReturn(Arrays.asList(channel1, channel2));
@@ -209,9 +216,9 @@ public class ValidationIT {
 
         when(channel1.getMeterActivation()).thenReturn(meterActivation);
         // using doReturn as when().thenReturn stumbles on List<? extends xxx> return type
-        doReturn(Arrays.asList(readingType1,readingType2)).when(channel1).getReadingTypes();
+        doReturn(Arrays.asList(readingType1, readingType2)).when(channel1).getReadingTypes();
         when(channel2.getMeterActivation()).thenReturn(meterActivation);
-        doReturn(Arrays.asList(readingType1,readingType3)).when(channel2).getReadingTypes();
+        doReturn(Arrays.asList(readingType1, readingType3)).when(channel2).getReadingTypes();
 
         when(eventType.getTopic()).thenReturn("com/elster/jupiter/metering/reading/CREATED");
         Map<Channel, Interval> map = new HashMap<>();

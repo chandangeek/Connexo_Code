@@ -25,6 +25,8 @@ import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.Validator;
+import com.elster.jupiter.validation.ValidatorFactory;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -40,13 +42,17 @@ import org.osgi.service.event.EventAdmin;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.util.Arrays;
 
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ValidationRuleSetImplIT {
 
+    public static final String CONSEC_ZEROS_VALIDATOR_CLASS = "com.elster.jupiter.validators.ConsecutiveZerosValidator";
     private Injector injector;
 
     @Mock
@@ -55,6 +61,10 @@ public class ValidationRuleSetImplIT {
     private UserService userService;
     @Mock
     private EventAdmin eventAdmin;
+    @Mock
+    private ValidatorFactory validatorFactory;
+    @Mock
+    private Validator validator;
 
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
@@ -94,10 +104,14 @@ public class ValidationRuleSetImplIT {
                 new ValidationModule(),
                 new NlsModule()
         );
+        when(validatorFactory.available()).thenReturn(Arrays.asList(MIN_MAX, CONSEC_ZEROS_VALIDATOR_CLASS));
+        when(validatorFactory.createTemplate(eq(MIN_MAX))).thenReturn(validator);
+        when(validatorFactory.createTemplate(eq(CONSEC_ZEROS_VALIDATOR_CLASS))).thenReturn(validator);
         injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
             @Override
             public Void perform() {
-                injector.getInstance(ValidationService.class);
+                ValidationServiceImpl instance = (ValidationServiceImpl) injector.getInstance(ValidationService.class);
+                instance.addResource(validatorFactory);
                 return null;
             }
         });
@@ -115,7 +129,7 @@ public class ValidationRuleSetImplIT {
             protected void doPerform() {
                 readingType = injector.getInstance(MeteringService.class).getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
                 ValidationRuleSet validationRuleSet = injector.getInstance(ValidationService.class).createValidationRuleSet("myRuleSet");
-                ValidationRule zeroesRule = validationRuleSet.addRule(ValidationAction.FAIL, "com.elster.jupiter.validators.ConsecutiveZerosValidator", "consecutiveZeroes");
+                ValidationRule zeroesRule = validationRuleSet.addRule(ValidationAction.FAIL, CONSEC_ZEROS_VALIDATOR_CLASS, "consecutiveZeroes");
                 zeroesRule.addReadingType(readingType);
                 zeroesRule.addProperty(MAX_NUMBER_IN_SEQUENCE, Unit.UNITLESS.amount(BigDecimal.valueOf(20)));
                 zeroesRule.activate();
@@ -137,17 +151,17 @@ public class ValidationRuleSetImplIT {
     public void testAddSecondRuleSeeIfReadingTypesArentLost() {
         TransactionService transactionService = injector.getInstance(TransactionService.class);
         ValidationRuleSet validationRuleSet;
-        try(TransactionContext context = transactionService.getContext()) {
+        try (TransactionContext context = transactionService.getContext()) {
             readingType = injector.getInstance(MeteringService.class).getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
             validationRuleSet = injector.getInstance(ValidationService.class).createValidationRuleSet("myRuleSet");
-            ValidationRule zeroesRule = validationRuleSet.addRule(ValidationAction.FAIL, "com.elster.jupiter.validators.ConsecutiveZerosValidator", "consecutiveZeroes");
+            ValidationRule zeroesRule = validationRuleSet.addRule(ValidationAction.FAIL, CONSEC_ZEROS_VALIDATOR_CLASS, "consecutiveZeroes");
             zeroesRule.addReadingType(readingType);
             zeroesRule.addProperty(MAX_NUMBER_IN_SEQUENCE, Unit.UNITLESS.amount(BigDecimal.valueOf(20)));
             zeroesRule.activate();
             validationRuleSet.save();
             context.commit();
         }
-        try(TransactionContext context = transactionService.getContext()) {
+        try (TransactionContext context = transactionService.getContext()) {
             readingType = injector.getInstance(MeteringService.class).getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
             validationRuleSet = injector.getInstance(ValidationService.class).getValidationRuleSet(validationRuleSet.getId()).get();
             ValidationRule minMaxRule = validationRuleSet.addRule(ValidationAction.WARN_ONLY, MIN_MAX, "minmax");
@@ -168,17 +182,17 @@ public class ValidationRuleSetImplIT {
     public void testAddSecondRuleSeeIfPropertiesArentLost() {
         TransactionService transactionService = injector.getInstance(TransactionService.class);
         ValidationRuleSet validationRuleSet;
-        try(TransactionContext context = transactionService.getContext()) {
+        try (TransactionContext context = transactionService.getContext()) {
             readingType = injector.getInstance(MeteringService.class).getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
             validationRuleSet = injector.getInstance(ValidationService.class).createValidationRuleSet("myRuleSet");
-            ValidationRule zeroesRule = validationRuleSet.addRule(ValidationAction.FAIL, "com.elster.jupiter.validators.ConsecutiveZerosValidator", "consecutiveZeroes");
+            ValidationRule zeroesRule = validationRuleSet.addRule(ValidationAction.FAIL, CONSEC_ZEROS_VALIDATOR_CLASS, "consecutiveZeroes");
             zeroesRule.addReadingType(readingType);
             zeroesRule.addProperty(MAX_NUMBER_IN_SEQUENCE, Unit.UNITLESS.amount(BigDecimal.valueOf(20)));
             zeroesRule.activate();
             validationRuleSet.save();
             context.commit();
         }
-        try(TransactionContext context = transactionService.getContext()) {
+        try (TransactionContext context = transactionService.getContext()) {
             readingType = injector.getInstance(MeteringService.class).getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
             validationRuleSet = injector.getInstance(ValidationService.class).getValidationRuleSet(validationRuleSet.getId()).get();
             ValidationRule minMaxRule = validationRuleSet.addRule(ValidationAction.WARN_ONLY, MIN_MAX, "minmax");
