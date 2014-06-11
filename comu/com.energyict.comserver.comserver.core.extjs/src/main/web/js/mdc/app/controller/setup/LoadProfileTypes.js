@@ -76,18 +76,21 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             'menu menuitem[action=deleteloadprofiletype]': {
                 click: this.showConfirmationPanel
             },
-            'button[action=removeloadprofiletypeconfirm]': {
-                click: this.deleteRecord
-            },
+            // TODO Fix the quick fix to make the application load again, 'deleteRecord' does not exist anymore.
+//            'button[action=removeloadprofiletypeconfirm]': {
+//                click: this.deleteRecord
+//            },
             '#loadProfileReadingTypeBtn': {
                 showReadingTypeInfo: this.showReadingType
             },
             'button[action=loadprofiletypenotificationerrorretry]': {
                 click: this.retrySubmit
-            },
-            'button[action=retryremoveloadprofiletype]': {
-                click: this.deleteRecord
             }
+            // TODO Fix the quick fix to make the application load again, 'deleteRecord' does not exist anymore.
+//            ,
+//            'button[action=retryremoveloadprofiletype]': {
+//                click: this.deleteRecord
+//            }
         });
 
         this.intervalStore = this.getStore('Intervals');

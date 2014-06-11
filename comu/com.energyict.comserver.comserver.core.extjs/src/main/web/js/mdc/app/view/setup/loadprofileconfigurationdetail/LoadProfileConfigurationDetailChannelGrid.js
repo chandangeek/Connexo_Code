@@ -20,11 +20,6 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                 flex: 3
             },
             {
-                header: 'OBIS code',
-                dataIndex: 'overruledObisCode',
-                flex: 2
-            },
-            {
                 header: Uni.I18n.translate('registerMappings.CIMreadingType', 'MDC', 'CIM Reading type'),
                 dataIndex: 'name',
                 flex: 3,
@@ -43,6 +38,11 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                     }, 50);
                     return Ext.String.format('<div id="{0}">{1}</div>',  id, record.getMeasurementType().getReadingType().get('mrid'));
                 }
+            },
+            {
+                header: 'OBIS code',
+                dataIndex: 'overruledObisCode',
+                flex: 2
             },
             {
                 xtype: 'uni-actioncolumn',

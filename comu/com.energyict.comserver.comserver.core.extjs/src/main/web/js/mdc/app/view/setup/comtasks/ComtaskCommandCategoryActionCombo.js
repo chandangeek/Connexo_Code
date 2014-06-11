@@ -1,6 +1,6 @@
-Ext.define('Mdc.view.setup.comtasks.ActionCombo', {
+Ext.define('Mdc.view.setup.comtasks.ComtaskCommandCategoryActionCombo', {
     extend: 'Ext.form.field.ComboBox',
-    alias: 'widget.communication-tasks-actioncombo',
+    alias: 'widget.comtaskCommandCategoryActionCombo',
     name: 'action',
     fieldLabel: 'Action',
     labelWidth: 200,

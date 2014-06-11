@@ -49,8 +49,8 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             },
             '#registerconfiggrid actioncolumn': {
                 showReadingTypeInfo: this.showReadingType,
-                editItem: this.editRegisterConfigurationHistory,
-                deleteItem: this.deleteRegisterConfiguration
+                editRegisterConfig: this.editRegisterConfigurationHistory,
+                deleteRegisterConfig: this.deleteRegisterConfiguration
             },
             '#registerConfigPreviewForm button[action = showReadingTypeInfo]': {
                 showReadingTypeInfo: this.showReadingType

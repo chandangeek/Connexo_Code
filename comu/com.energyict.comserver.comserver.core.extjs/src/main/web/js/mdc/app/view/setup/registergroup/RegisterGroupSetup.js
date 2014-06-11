@@ -12,83 +12,61 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupSetup', {
 
     content: [
         {
-            xtype: 'container',
+            xtype: 'panel',
+            ui: 'large',
+            title: Uni.I18n.translate('registerGroup.registerGroups', 'USM', 'Register groups'),
             layout: {
                 type: 'vbox',
                 align: 'stretch'
             },
             items: [
                 {
-                    xtype: 'component',
-                    html: '<h1>' + Uni.I18n.translate('registerGroup.registerGroups', 'MDC', 'Register groups') + '</h1>',
-                    itemId: 'registerGroupTitle'
-                },
-                {
-                    xtype: 'container',
-                    items: [],
-                    itemId: 'registerGroupGridContainer'
-                },
-                {
-                    xtype: 'registerGroupPreview'
-                }
-            ]}
-    ],
-
-    /*   side: [
-     {
-     xtype: 'registerGroupFilter',
-     name: 'filter'
-     }
-     ],
-     */
-
-    initComponent: function () {
-        this.callParent(arguments);
-        this.down('#registerGroupGridContainer').add(
-            {
-                xtype: 'emptygridcontainer',
-                itemId: 'registerGroupEmptyGrid',
-                grid: {
-                    xtype: 'registerGroupGrid'
-                },
-                emptyComponent: {
-                    xtype: 'container',
-                    layout: {
-                        type: 'hbox',
-                        align: 'left'
+                    xtype: 'preview-container',
+                    grid: {
+                        xtype: 'registerGroupGrid'
                     },
-                    minHeight: 20,
-                    items: [
-                        {
-                            xtype: 'image',
-                            margin: '0 10 0 0',
-                            src: "../mdc/resources/images/information.png",
-                            height: 20,
-                            width: 20
+                    emptyComponent: {
+                        xtype: 'container',
+                        layout: {
+                            type: 'hbox',
+                            align: 'left'
                         },
-                        {
-                            xtype: 'container',
-                            items: [
-                                {
-                                    xtype: 'component',
-                                    html: '<b>' + Uni.I18n.translate('registerGroup.empty.title', 'MDC', 'No register groups found') + '</b><br>' +
-                                        Uni.I18n.translate('registerGroup.empty.detail', 'MDC', 'There are no register groups. This could be because:') + '<lv><li>&nbsp&nbsp' +
-                                        Uni.I18n.translate('registerGroup.empty.list.item1', 'MDC', 'No register groups have been defined yet.') + '</li></lv><br>' +
-                                        Uni.I18n.translate('registerGroup.empty.steps', 'MDC', 'Possible steps:')
-                                },
-                                {
-                                    xtype: 'button',
-                                    margin: '10 0 0 0',
-                                    text: Uni.I18n.translate('registerGroup.add', 'MDC', 'Add register group'),
-                                    action: 'createRegisterGroup'
-                                }
-                            ]
-                        }
-                    ]
+                        minHeight: 20,
+                        items: [
+                            {
+                                xtype: 'image',
+                                margin: '0 10 0 0',
+                                src: "../mdc/resources/images/information.png",
+                                height: 20,
+                                width: 20
+                            },
+                            {
+                                xtype: 'container',
+                                items: [
+                                    {
+                                        xtype: 'component',
+                                        html: '<b>' + Uni.I18n.translate('registerGroup.empty.title', 'MDC', 'No register groups found') + '</b><br>' +
+                                            Uni.I18n.translate('registerGroup.empty.detail', 'MDC', 'There are no register groups. This could be because:') + '<lv><li>&nbsp&nbsp' +
+                                            Uni.I18n.translate('registerGroup.empty.list.item1', 'MDC', 'No register groups have been defined yet.') + '</li></lv><br>' +
+                                            Uni.I18n.translate('registerGroup.empty.steps', 'MDC', 'Possible steps:')
+                                    },
+                                    {
+                                        xtype: 'button',
+                                        margin: '10 0 0 0',
+                                        text: Uni.I18n.translate('registerGroup.add', 'MDC', 'Add register group'),
+                                        action: 'createRegisterGroup'
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    previewComponent: {
+                        xtype: 'registerGroupPreview'
+                    }
                 }
-            }
-        );
-    }
+            ]
+        }
+    ]
 });
 
 

@@ -10,10 +10,10 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Mdc.store.RegisterTypesOfDevicetype'
+        'Mdc.store.RegisterTypesOfDevicetype',
+        'Mdc.view.setup.register.RegisterMappingActionMenu'
     ],
     store: 'RegisterTypesOfDevicetype',
-    //padding: '10 10 10 10',
     initComponent: function () {
         var me = this;
         this.columns = [
@@ -53,13 +53,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
 
             {
                 xtype: 'uni-actioncolumn',
-                items: [
-                    {
-                        text: Uni.I18n.translate('registerMappings.remove', 'MDC', 'Remove'),
-                        action: 'removeItem'
-                    }
-
-                ]
+                items: 'Mdc.view.setup.register.RegisterMappingActionMenu'
             }
         ];
         this.dockedItems = [

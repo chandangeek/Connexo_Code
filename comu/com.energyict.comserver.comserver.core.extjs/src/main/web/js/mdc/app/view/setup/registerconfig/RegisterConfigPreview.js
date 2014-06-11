@@ -4,7 +4,8 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
     alias: 'widget.registerConfigPreview',
     itemId: 'registerConfigPreview',
     requires: [
-        'Mdc.model.RegisterConfiguration'
+        'Mdc.model.RegisterConfiguration',
+        'Mdc.view.setup.registerconfig.RegisterConfigActionMenu'
     ],
     layout: {
         type: 'card',
@@ -12,27 +13,16 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
     },
 
     title: 'Details',
+
     tools: [
         {
             xtype: 'button',
-            icon: '../mdc/resources/images/actionsDetail.png',
-            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-            menu: [
-                {
-                    text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                    itemId: 'editRegisterConfig',
-                    action: 'editRegisterConfig'
-
-                },
-                {
-                    text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-                    itemId: 'deleteRegisterConfig',
-                    action: 'deleteRegisterConfig'
-
-                }
-            ]
+            text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
+            iconCls: 'x-uni-action-iconD',
+            menu: {
+                xtype: 'register-config-action-menu'
+            }
         }
-
     ],
 
     deviceTypeId: null,

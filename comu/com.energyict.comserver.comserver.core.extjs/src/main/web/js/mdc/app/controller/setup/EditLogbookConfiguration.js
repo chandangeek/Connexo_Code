@@ -84,46 +84,17 @@ Ext.define('Mdc.controller.setup.EditLogbookConfiguration', {
                     }).show();
                 },
                 failure: function (response) {
-                    preloader.destroy();
-                    var result;
-                    if (response != null) {
-                        result = Ext.decode(response.responseText, true);
-                    }
-                    if (result !== null) {
-                        Ext.widget('messagebox', {
-                            buttons: [
-                                {
-                                    text: 'Close',
-                                    action: 'cancel',
-                                    handler: function(btn){
-                                        btn.up('messagebox').hide()
-                                    }
-                                }
-                            ]
-                        }).show({
-                            ui: 'notification-error',
-                            title: result.error,
-                            msg: result.message,
-                            icon: Ext.MessageBox.ERROR
-                        })
+                    if(response.status == 400) {
+                        var result = Ext.decode(response.responseText, true),
+                            errorTitle = 'Failed to update ' + record.data.name,
+                            errorText = 'Logbook configuration could not be updated. There was a problem accessing the database';
 
-                    } else {
-                        Ext.widget('messagebox', {
-                            buttons: [
-                                {
-                                    text: 'Close',
-                                    action: 'cancel',
-                                    handler: function(btn){
-                                        btn.up('messagebox').hide()
-                                    }
-                                }
-                            ]
-                        }).show({
-                            ui: 'notification-error',
-                            title: 'Failed to update ' + record.data.name,
-                            msg: 'Logbook configuration could not be updated. There was a problem accessing the database',
-                            icon: Ext.MessageBox.ERROR
-                        })
+                        if (result !== null) {
+                            errorTitle = result.error;
+                            errorText = result.message;
+                        }
+
+                        self.getApplication().getController('Uni.controller.Error').showError(errorTitle, errorText);
                     }
                 },
                 callback: function () {
