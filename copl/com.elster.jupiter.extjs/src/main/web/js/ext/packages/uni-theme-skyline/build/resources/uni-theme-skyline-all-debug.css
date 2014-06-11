@@ -20935,7 +20935,7 @@ h6 {
   top: 0;
   bottom: 0;
   width: 48px !important;
-  z-index: 20000;
+  z-index: 20001;
   transition: width 400ms;
   -moz-transition: width 400ms;
   /* Firefox 4 */
