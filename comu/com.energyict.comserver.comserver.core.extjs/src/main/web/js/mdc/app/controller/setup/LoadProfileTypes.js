@@ -43,9 +43,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
 
     init: function () {
         this.control({
-            'loadProfileTypeSetup': {
-                afterrender: this.loadStore
-            },
             'loadProfileTypeSetup loadProfileTypeGrid': {
                 select: this.loadGridItemDetail
             },
@@ -70,41 +67,18 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             '#LoadProfileTypeFormId #MeasurementTypesGrid actioncolumn': {
                 click: this.removeMeasurementType
             },
-            'menu menuitem[action=editloadprofiletype]': {
-                click: this.editRecord
-            },
-            'menu menuitem[action=deleteloadprofiletype]': {
-                click: this.showConfirmationPanel
-            },
-            // TODO Fix the quick fix to make the application load again, 'deleteRecord' does not exist anymore.
-//            'button[action=removeloadprofiletypeconfirm]': {
-//                click: this.deleteRecord
-//            },
             '#loadProfileReadingTypeBtn': {
                 showReadingTypeInfo: this.showReadingType
             },
             'button[action=loadprofiletypenotificationerrorretry]': {
                 click: this.retrySubmit
             }
-            // TODO Fix the quick fix to make the application load again, 'deleteRecord' does not exist anymore.
-//            ,
-//            'button[action=retryremoveloadprofiletype]': {
-//                click: this.deleteRecord
-//            }
         });
 
         this.intervalStore = this.getStore('Intervals');
         this.store = this.getStore('LoadProfileTypes');
         this.measurementTypesStore = this.getStore('MeasurementTypesToAdd');
         this.selectedMeasurementTypesStore = this.getStore('SelectedMeasurementTypesForLoadProfileType');
-    },
-
-    loadStore: function () {
-        this.store.load({
-            params: {
-                sort: 'name'
-            }
-        });
     },
 
     measurementTypesLoad: function () {
@@ -461,11 +435,27 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             widget;
 
         var showPage = function () {
-            widget = Ext.widget('loadProfileTypeSetup');
+            widget = Ext.widget('loadProfileTypeSetup', {
+                config: {
+                    gridStore: self.store
+                }
+            });
             self.getApplication().fireEvent('changecontentevent', widget);
             self.selectedMeasurementTypesStore.removeAll();
             self.temporallyFormValues = null;
             self.loadProfileAction = null;
+            Ext.Array.each(Ext.ComponentQuery.query('[action=editloadprofiletype]'), function (item) {
+                item.clearListeners();
+                item.on('click', function () {
+                    self.editRecord();
+                });
+            });
+            Ext.Array.each(Ext.ComponentQuery.query('[action=deleteloadprofiletype]'), function (item) {
+                item.clearListeners();
+                item.on('click', function () {
+                    self.showConfirmationPanel();
+                });
+            });
         };
 
         if (loadProfileTypesStore.getCount()) {

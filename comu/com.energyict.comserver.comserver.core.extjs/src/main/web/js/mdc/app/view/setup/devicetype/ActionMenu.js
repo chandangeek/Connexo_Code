@@ -6,7 +6,7 @@ Ext.define('Mdc.view.setup.devicetype.ActionMenu', {
     shadow: false,
     items: [
         {
-            text: 'Remove',
+            text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
             action: 'remove'
         }
     ]

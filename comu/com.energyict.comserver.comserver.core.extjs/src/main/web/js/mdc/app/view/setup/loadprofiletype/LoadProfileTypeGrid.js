@@ -8,7 +8,6 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeGrid', {
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom'
     ],
-    store: 'Mdc.store.LoadProfileTypes',
     columns: {
         items: [
             {
@@ -40,7 +39,6 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeGrid', {
     dockedItems: [
         {
             xtype: 'pagingtoolbartop',
-            store: 'Mdc.store.LoadProfileTypes',
             dock: 'top',
             displayMsg: Uni.I18n.translate('loadProfileTypes.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} load profile types'),
             displayMoreMsg: Uni.I18n.translate('loadProfileTypes.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} load profile types'),
@@ -59,9 +57,23 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeGrid', {
         },
         {
             xtype: 'pagingtoolbarbottom',
-            store: 'Mdc.store.LoadProfileTypes',
             dock: 'bottom',
             itemsPerPageMsg: Uni.I18n.translate('loadProfileTypes.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Load profile types per page')
         }
-    ]
+    ],
+
+    initComponent: function () {
+        var store = this.store,
+            pagingToolbarTop = Ext.Array.findBy(this.dockedItems, function (item) {
+                return item.xtype == 'pagingtoolbartop';
+            }),
+            pagingToolbarBottom = Ext.Array.findBy(this.dockedItems, function (item) {
+                return item.xtype == 'pagingtoolbarbottom';
+            });
+
+        pagingToolbarTop && (pagingToolbarTop.store = store);
+        pagingToolbarBottom && (pagingToolbarBottom.store = store);
+
+        this.callParent(arguments);
+    }
 });

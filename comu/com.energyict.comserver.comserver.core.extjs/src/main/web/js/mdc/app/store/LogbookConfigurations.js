@@ -6,5 +6,4 @@ Ext.define('Mdc.store.LogbookConfigurations', {
     ],
     model: 'Mdc.model.LogbookConfigurations',
     storeId: 'LogbookConfigurations',
-    autoLoad: false
 });
