@@ -99,6 +99,7 @@ Ext.define('Mdc.widget.ScheduleField', {
                     fields : ['timeUnitKey','translation']
                 }),
                 queryMode: 'local',
+                editable: false,
                 displayField: 'translation',
                 valueField: 'timeUnitKey',
                 submitValue: false,
@@ -138,6 +139,7 @@ Ext.define('Mdc.widget.ScheduleField', {
                 }),
                 queryMode: 'local',
                 displayField: 'translation',
+                editable: false,
                 valueField: 'dayId',
                 submitValue: false,
                 hidden: true,
