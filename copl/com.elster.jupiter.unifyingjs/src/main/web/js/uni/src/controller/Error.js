@@ -42,15 +42,9 @@ Ext.define('Uni.controller.Error', {
     handleRequestError: function (conn, response, options) {
         var title = Uni.I18n.translate('error.requestFailed', 'UNI', 'Request failed'),
             message = response.responseText || response.statusText,
-            decoded;
+            decoded = Ext.decode(message, true);
 
-        try {
-            decoded = Ext.decode(message);
-        } catch (e) {
-            // Ignore invalid JSON.
-        }
-
-        if (Ext.isDefined(decoded)) {
+        if (Ext.isDefined(decoded) && decoded !== null) {
             if (!Ext.isEmpty(decoded.message)) {
                 message = decoded.message;
             } else if (Ext.isDefined(decoded.errors) && Ext.isArray(decoded.errors)) {
@@ -94,7 +88,7 @@ Ext.define('Uni.controller.Error', {
 
         switch (response.status) {
             case 400: // Bad request.
-                if(!Ext.isEmpty(decoded.message)){
+                if (!Ext.isEmpty(decoded.message)) {
                     title = Uni.I18n.translate(
                         'error.requestFailed',
                         'UNI',
