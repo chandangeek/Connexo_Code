@@ -137,7 +137,6 @@ public class PropertySpecServiceImpl implements PropertySpecService {
                     return finder;
                 }
             }
-
         }
         throw new RuntimeException("No finder component registered for factory " + factoryId.name());
     }
