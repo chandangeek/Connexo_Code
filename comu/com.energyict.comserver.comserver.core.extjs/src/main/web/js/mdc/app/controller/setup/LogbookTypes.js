@@ -16,7 +16,7 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
         this.control({
             'logbookTypeSetup logbookTypeGrid': {
                 afterrender: this.loadStore,
-                itemclick: this.loadGridItemDetail
+                select: this.loadGridItemDetail
             },
             'logbookTypeSetup logbookTypeGrid uni-actioncolumn': {
                 menuclick: this.chooseAction
@@ -52,7 +52,7 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
                 target: itemPanel
             });
         if (this.displayedItemId != record.getData().id) {
-            grid.clearHighlight();
+            grid.view.clearHighlight();
             preloader.show();
         }
         this.displayedItemId = record.getData().id;

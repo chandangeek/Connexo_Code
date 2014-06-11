@@ -22,7 +22,7 @@ Ext.define('Mdc.controller.setup.DeviceTypeLogbooks', {
         var me = this;
         me.control({
             'device-type-logbooks grid': {
-                itemclick: me.loadGridItemDetail
+                select: me.loadGridItemDetail
             },
             'device-type-logbooks grid uni-actioncolumn': {
                 menuclick : me.deleteLogbookType
@@ -39,7 +39,7 @@ Ext.define('Mdc.controller.setup.DeviceTypeLogbooks', {
                 target: itemPanel
             });
         if (this.displayedItemId != record.id) {
-            grid.clearHighlight();
+            grid.view.clearHighlight();
             preloader.show();
         }
         this.displayedItemId = record.id;
