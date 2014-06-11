@@ -249,14 +249,8 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
     },
 
     deleteDeviceConfigurationFromDetails: function () {
-        var me = this;
         var deviceConfigurationToDelete = this.getDeviceConfigurationDetailForm().getRecord();
-        deviceConfigurationToDelete.getProxy().setExtraParam('deviceType', this.deviceTypeId);
-        deviceConfigurationToDelete.destroy({
-            callback: function () {
-                location.href = '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations';
-            }
-        });
+        this.deleteTheDeviceConfiguration(deviceConfigurationToDelete);
     },
 
     showDeviceConfigurationCreateView: function (deviceTypeId) {
