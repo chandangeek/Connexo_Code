@@ -70,7 +70,12 @@ Ext.define('Usr.view.Login', {
                             fieldLabel: 'User name',
                             name: 'username',
                             itemId: 'username',
-                            allowBlank: true
+                            allowBlank: true,
+                            listeners: {
+                                afterrender: function(field) {
+                                    field.focus(false, 200);
+                                }
+                            }
                         },
                         {
                             xtype: 'textfield',

@@ -63,8 +63,8 @@ Ext.define('Usr.controller.UserEdit', {
         var me = this;
         Ext.ModelManager.getModel('Usr.model.User').load(userId, {
             success: function (user) {
-                var title = Uni.I18n.translate('user.edit.with.name', 'USM', 'Edit user');
-                panel.setTitle(title + ' "' + user.get('authenticationName') + '"');
+                var title = Uni.I18n.translate('user.edit', 'USM', 'Edit');
+                panel.setTitle(title + ' \'' + user.get('authenticationName') + '\'');
 
                 panel.down('[name=authenticationName]').disable();
                 panel.down('[name=domain]').disable();

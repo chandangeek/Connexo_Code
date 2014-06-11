@@ -58,7 +58,7 @@ Ext.define('Usr.controller.Group', {
             var panel = grid.view.up('#groupBrowse').down('#groupDetails'),
                 form = panel.down('form');
 
-            var title = Uni.I18n.translate('group.group', 'USM', 'Role') + ' "' + record[0].get('name') + '"';
+            var title = Uni.I18n.translate('group.group', 'USM', 'Role') + ' \'' + record[0].get('name') + '\'';
             panel.setTitle(title);
             form.loadRecord(record[0]);
 

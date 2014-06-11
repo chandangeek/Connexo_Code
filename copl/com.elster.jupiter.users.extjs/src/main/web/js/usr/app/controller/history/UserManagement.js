@@ -23,16 +23,16 @@ Ext.define('Usr.controller.history.UserManagement', {
                             action: 'showEditOverview',
                             callback: function(route) {
                                 this.getApplication().on('editRole', function(record) {
-                                    route.setTitle(Uni.I18n.translate('general.edit', 'USM', 'Edit') + ' "' + record.get('name') + '"');
+                                    route.setTitle(Uni.I18n.translate('general.edit', 'USM', 'Edit') + ' \'' + record.get('name') + '\'');
                                     return true;
                                 }, {single: true});
 
                                 return this;
                             }
                         },
-                        create: {
-                            title: Uni.I18n.translate('general.create', 'USM', 'Create'),
-                            route: 'create',
+                        add: {
+                            title: Uni.I18n.translate('general.add', 'USM', 'Add'),
+                            route: 'add',
                             controller: 'Usr.controller.GroupEdit',
                             action: 'showCreateOverview'
                         }
@@ -50,7 +50,7 @@ Ext.define('Usr.controller.history.UserManagement', {
                             action: 'showEditOverview',
                             callback: function(route) {
                                 this.getApplication().on('editUser', function(record) {
-                                    route.setTitle(Uni.I18n.translate('general.edit', 'USM', 'Edit') + ' "' + record.get('name') + '"');
+                                    route.setTitle(Uni.I18n.translate('general.edit', 'USM', 'Edit') + ' \'' + record.get('authenticationName') + '\'');
                                     return true;
                                 }, {single: true});
 

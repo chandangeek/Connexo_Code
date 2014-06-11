@@ -45,17 +45,17 @@ Ext.define('Usr.controller.GroupEdit', {
         var me = this;
         Ext.ModelManager.getModel('Usr.model.Group').load(groupId, {
             success: function (group) {
-                me.showOverview(group, Uni.I18n.translate('group.edit', 'USM', 'Edit role') + ' "' + group.get('name') + '"');
+                me.showOverview(group, Uni.I18n.translate('group.edit', 'USM', 'Edit') + ' \'' + group.get('name') + '\'');
             }
         });
     },
 
     showCreateOverviewWithHistory: function (groupId) {
-        location.href = '#usermanagement/roles/create';
+        location.href = '#usermanagement/roles/add';
     },
 
     showCreateOverview: function () {
-        this.showOverview(Ext.create('Usr.model.Group'), Uni.I18n.translate('group.create', 'USM', 'Create role'));
+        this.showOverview(Ext.create('Usr.model.Group'), Uni.I18n.translate('group.create', 'USM', 'Add role'));
     },
 
     showOverview: function (record, title) {

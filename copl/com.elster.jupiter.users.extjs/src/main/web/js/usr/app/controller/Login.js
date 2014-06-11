@@ -22,17 +22,35 @@ Ext.define('Usr.controller.Login', {
 
     init: function(application) {
         this.control({
-            "login #login-form [action=login]": {
+            'login #login-form [action=login]': {
                 click: this.signinuser
             },
             'viewport menuitem[action=logout]': {
                 click: this.signout
+            },
+            'login #login-form #password': {
+                specialkey: this.onPasswordKey
+            },
+            'login #login-form #username': {
+                specialkey: this.onUsernameKey
             }
         });
     },
 
     showOverview: function() {
         var widget = Ext.widget("login");
+    },
+
+    onPasswordKey: function (field, event, options) {
+        if (event.getKey() == event.ENTER) {
+            this.signinuser();
+        }
+    },
+
+    onUsernameKey: function (field, event, options) {
+        if (event.getKey() == event.ENTER) {
+            field.nextSibling().focus(false, 200);
+        }
     },
 
     signinuser : function()    {
@@ -70,7 +88,7 @@ Ext.define('Usr.controller.Login', {
     loginOK : function(){
         var params = Ext.urlDecode(location.search.substring(1));
         if(params.page){
-            window.location.replace(params.page);
+            window.location.replace(params.page+location.hash);
         }
         else{
             window.location.replace("/apps/master/index.html");
