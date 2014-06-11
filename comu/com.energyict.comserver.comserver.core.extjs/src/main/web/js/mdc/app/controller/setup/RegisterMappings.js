@@ -152,7 +152,16 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
         });
     },
 
+    getDeviceTypeIdFromHref: function () {
+        var urlPart = 'administration/devicetypes/';
+        var index = location.href.indexOf(urlPart);
+        return parseInt(location.href.substring(index + urlPart.length));
+    },
+
     removeRegisterMapping: function (registerMappingToDelete, id) {
+        if (id === undefined) {
+            id = this.getDeviceTypeIdFromHref();
+        }
         var me = this;
 
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(id, {
