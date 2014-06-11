@@ -35,60 +35,62 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
         {ref: 'registerGroupGridContainer', selector: '#registerGroupGridContainer'},
         {ref: 'registerGroupEmptyGrid', selector: '#registerGroupEmptyGrid'},
         {ref: 'registerTypeEmptyGrid', selector: '#registerTypeEmptyGrid'},
+        {ref: 'previewMrId', selector: '#preview_mrid'},
         {ref: 'contentPanel', selector: 'viewport > #contentPanel'}
     ],
 
     init: function () {
-        this.getRegisterGroupsStore().on('load', this.onStoreLoad, this);
-
         this.control({
-            '#editRegisterGroupGridField': {
+            '#registerGroupEdit #editRegisterGroupGridField': {
                 selectionchange: this.checkboxChanged
             },
-            '#editRegisterGroupGridField actioncolumn': {
+            '#registerGroupEdit #editRegisterGroupGridField actioncolumn': {
                 showReadingTypeInfo: this.showReadingType
             },
             '#registerGroupSetup #registertypegrid': {
                 selectionchange: this.previewRegisterType
             },
-            '#registerGroupGrid': {
+            '#registerGroupSetup #registerGroupGrid': {
                 selectionchange: this.previewRegisterGroup
             },
-            '#registerGroupGrid actioncolumn': {
-                editRegisterGroup: this.editRegisterGroupHistory
+            '#registerGroupSetup #registerGroupGrid actioncolumn': {
+                editRegisterGroup: this.editRegisterGroupHistory,
+                removeRegisterGroup: this.removeRegisterGroup
             },
             '#registerGroupSetup button[action = createRegisterGroup]': {
                 click: this.createRegisterGroupHistory
             },
-            '#registerGroupPreview menuitem[action=editRegisterGroup]': {
+            '#registerGroupSetup #registerGroupPreview menuitem[action=editRegisterGroup]': {
                 click: this.editRegisterGroupHistoryFromPreview
+            },
+            '#registerGroupSetup #registerGroupPreview menuitem[action=removeRegisterGroup]': {
+                click: this.removeRegisterGroupFromPreview
             },
             '#registerGroupEdit button[action = createRegisterType]': {
                 click: this.createRegisterTypeHistory
             },
-            '#createEditButton[action=createRegisterGroup]': {
+            '#registerGroupEdit button[action=save]': {
                 click: this.saveRegisterGroup
             },
-            '#createEditButton[action=saveRegisterGroup]': {
-                click: this.saveRegisterGroup
+            '#registerGroupEdit button[action=cancel]': {
+                click: this.back
             },
-            '#editEmptyPreviewButton[action=editRegisterGroup]': {
+            '#registerGroupPreview #editEmptyPreviewButton[action=editRegisterGroup]': {
                 click: this.editRegisterGroupHistoryFromPreview
             }
 
         });
     },
 
+    backUrl: null,
+
+    back: function () {
+        location.href = this.backUrl;
+    },
+
     showRegisterGroups: function (grid, record) {
         var widget = Ext.widget('registerGroupSetup');
         this.getApplication().fireEvent('changecontentevent', widget);
-    },
-
-    onStoreLoad: function () {
-        if(this.getRegisterGroupsStore().data.items.length > 0){
-            this.getRegisterGroupSetup().show();
-            this.getRegisterGroupGrid().getSelectionModel().doSelect(0);
-        }
     },
 
     previewRegisterGroup: function (grid, record) {
@@ -120,6 +122,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
         if (registerTypes.length == 1) {
             this.getRegisterTypePreviewForm().loadRecord(registerTypes[0]);
             this.getRegisterTypePreview().setTitle(registerTypes[0].get('name'));
+            this.getPreviewMrId().setValue(registerTypes[0].getReadingType().get('mrid'));
         }
     },
 
@@ -140,9 +143,8 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
     },
 
     showRegisterGroupEditView: function (registerGroupId) {
-        var widget = Ext.widget('registerGroupEdit', {
-            edit: true
-        });
+        var widget = Ext.widget('registerGroupEdit');
+        this.backUrl = this.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens();
 
         var me = this;
 
@@ -154,20 +156,18 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
                     limit: 500,
                     callback: function (registerTypes) {
                         widget.down('form').loadRecord(registerGroup);
-                        widget.down('panel').setTitle(registerGroup.get('name') + ' > ' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + Uni.I18n.translate('registerGroup.registerGroup', 'MDC', 'Register group'));
+                        widget.down('panel').setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' \'' + registerGroup.get('name') + '\'');
                         if(this.data.items.length > 0){
-                            me.getRegisterEditEmptyGrid().getLayout().setActiveItem('gridContainer');
+                            widget.down('#registerGroupEditCard').getLayout().setActiveItem(0);
                             widget.down('#editRegisterGroupGridField').getSelectionModel().doSelect(registerGroup.registerTypes().data.items);
                             widget.down('#editRegisterGroupGridField').store.add(registerTypes);
+                            me.getRegisterEditEmptyGrid().setVisible(true);
+                            me.getRegisterEditEmptyGrid().getLayout().setActiveItem('gridContainer');
                         }
                         else{
-                            widget.down('#editRegisterGroupSelectedField').hide();
-                            widget.down('#editRegisterGroupNameField').hide();
-                            //widget.down('#btnsContainer').hide();
-                            widget.down('#separator').hide();
-                            me.getRegisterEditEmptyGrid().getLayout().setActiveItem('emptyContainer');
+                            widget.down('#registerGroupEditCard').getLayout().setActiveItem(1);
                         }
-                        me.getRegisterEditEmptyGrid().setVisible(true);
+
                         widget.setLoading(false);
                     }
                 });
@@ -179,9 +179,8 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
     },
 
     showRegisterGroupCreateView: function () {
-        var widget = Ext.widget('registerGroupEdit', {
-            edit: false
-        });
+        var widget = Ext.widget('registerGroupEdit');
+        this.backUrl = this.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens();
 
         var me = this;
 
@@ -194,19 +193,16 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
                 widget.down('form').loadRecord(registerGroup);
                 widget.down('panel').setTitle(Uni.I18n.translate('registerGroup.create', 'MDC', 'Add register group'));
                 if(this.totalCount > 0){
-                    me.getRegisterEditEmptyGrid().getLayout().setActiveItem('gridContainer');
+                    widget.down('#registerGroupEditCard').getLayout().setActiveItem(0);
                     widget.down('#editRegisterGroupSelectedField').setValue(Ext.String.format(Uni.I18n.translate('registerGroup.selectedRegisterTypes', 'MDC', '{0} register types selected'), 0));
                     widget.down('#editRegisterGroupGridField').store.add(registerTypes);
+                    me.getRegisterEditEmptyGrid().setVisible(true);
+                    me.getRegisterEditEmptyGrid().getLayout().setActiveItem('gridContainer');
                 }
                 else{
-                    widget.down('#editRegisterGroupSelectedField').hide();
-                    widget.down('#editRegisterGroupNameField').hide();
-                    //widget.down('#btnsContainer').hide();
-                    widget.down('#separator').hide();
-                    me.getRegisterEditEmptyGrid().getLayout().setActiveItem('emptyContainer');
-                    //me.getRegisterEditEmptyGrid().setMargin('0 0 0 10');
+                    widget.down('#registerGroupEditCard').getLayout().setActiveItem(1);
                 }
-                me.getRegisterEditEmptyGrid().setVisible(true);
+
                 widget.show();
                 widget.setLoading(false);
             }
@@ -262,5 +258,33 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
         var widget = Ext.widget('readingTypeDetails');
         this.getReadingTypeDetailsForm().loadRecord(record.getReadingType());
         widget.show();
+    },
+
+    removeRegisterGroup: function (itemToRemove) {
+        var me = this;
+
+        Ext.create('Uni.view.window.Confirmation').show({
+            msg: Uni.I18n.translate('registerGroup.deleteRegisterGroup', 'MDC', 'The register group will no longer be available.'),
+            title: Uni.I18n.translate('general.delete', 'MDC', 'Delete') + ' ' + itemToRemove.get('name') + '?',
+            config: {
+                registerGroupToDelete: itemToRemove
+            },
+            fn: me.removeRegisterGroupInDatabase
+        });
+    },
+
+    removeRegisterGroupFromPreview: function () {
+        this.removeRegisterGroup(this.getRegisterGroupGrid().getSelectionModel().getSelection()[0]);
+    },
+
+    removeRegisterGroupInDatabase: function (btn, text, opt) {
+        if (btn === 'confirm') {
+            var registerTypeToDelete = opt.config.registerGroupToDelete;
+            registerTypeToDelete.destroy({
+                callback: function () {
+                    location.href = '#/administration/registergroups/';
+                }
+            });
+        }
     }
 });

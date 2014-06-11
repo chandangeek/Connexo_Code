@@ -476,7 +476,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showRegisterGroupEditView',
                             callback: function(route) {
                                 this.getApplication().on('loadRegisterGroup', function(record) {
-                                    route.setTitle('Edit "' + record.get('name') + '"');
+                                    route.setTitle('Edit \'' + record.get('name') + '\'');
                                     return true;
                                 }, {single: true});
 
