@@ -94,6 +94,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         this.logBookTypeUsages.clear();
         for (DeviceConfiguration deviceConfiguration : this.deviceConfigurations) {
             this.notifyDelete((ServerDeviceConfiguration) deviceConfiguration);
+            removeConfiguration(deviceConfiguration);
         }
         this.getDataMapper().remove(this);
     }
