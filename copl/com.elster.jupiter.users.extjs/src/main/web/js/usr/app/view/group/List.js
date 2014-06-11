@@ -47,7 +47,7 @@ Ext.define('Usr.view.group.List', {
                 items: [
                     '->',
                     {
-                        text: Uni.I18n.translate('group.create', 'USM', 'Create role'),
+                        text: Uni.I18n.translate('group.add', 'USM', 'Add role'),
                         action: 'createGroup'
                     }
                 ]
