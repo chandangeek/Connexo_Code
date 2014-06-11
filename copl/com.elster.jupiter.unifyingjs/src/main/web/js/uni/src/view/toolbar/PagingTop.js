@@ -42,17 +42,17 @@ Ext.define('Uni.view.toolbar.PagingTop', {
      *
      *
      */
-    displayMsg: '{0} - {1} of {2} items',
+    displayMsg: Uni.I18n.translate('general.displayMsgItems', 'UNI', '{0} - {1} of {2} items'),
 
     /**
      * @cfg {String}
      */
-    displayMoreMsg: '{0} - {1} of more than {2} items',
+    displayMoreMsg: Uni.I18n.translate('general.displayMsgMoreItems', 'UNI', '{0} - {1} of more than {2} items'),
 
     /**
      * @cfg {String}
      */
-    emptyMsg: 'There are no items to display',
+    emptyMsg: Uni.I18n.translate('general.noItemsToDisplay', 'UNI', 'There are no items to display'),
 
     isFullTotalCount: false,
     totalCount: -1,
