@@ -14,7 +14,7 @@
     <artifactId>comserver-core-extjs</artifactId>
     <packaging>bundle</packaging>
     <version>${comserver.version}</version>
-    <name>EIServer - ComServer - Core ExtJS</name>
+    <name>[MDC] ComServer core ExtJS</name>
     <description>
         Contains ExtJS code for visualizing ComServer objects
     </description>
