@@ -61,5 +61,12 @@ Ext.define('Uni.view.navigation.Menu', {
                 item.toggle(true, false);
             }
         });
+    },
+
+    deselectAllMenuItems: function() {
+        this.items.items.forEach(function (item) {
+            item.toggle(false, false);
+        });
     }
+
 });
