@@ -312,7 +312,6 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
         Ext.resumeLayouts(true);
 
         me.fireEvent('change', me, pageData);
-        me.resetQueryString();
     },
 
     moveLast: function () {
@@ -322,10 +321,12 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
 
         if (me.fireEvent('beforechange', me, last) !== false) {
             me.initExtraParams();
+
             me.store.loadPage(last, {
                 params: me.params
             });
 
+            me.resetQueryString();
             return true;
         }
         return false;
@@ -333,11 +334,15 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
 
     moveFirst: function () {
         var me = this;
+
         if (this.fireEvent('beforechange', this, 1) !== false) {
             me.initExtraParams();
-            this.store.loadPage(1, {
+
+            me.store.loadPage(1, {
                 params: me.params
             });
+
+            me.resetQueryString();
             return true;
         }
         return false;
@@ -351,9 +356,12 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
         if (prev > 0) {
             if (me.fireEvent('beforechange', me, prev) !== false) {
                 me.initExtraParams();
+
                 store.loadPage(store.currentPage - 1, {
                     params: me.params
                 });
+
+                me.resetQueryString();
                 return true;
             }
         }
@@ -369,9 +377,12 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
         if (next <= total) {
             if (me.fireEvent('beforechange', me, next) !== false) {
                 me.initExtraParams();
+
                 store.loadPage(store.currentPage + 1, {
                     params: me.params
                 });
+
+                me.resetQueryString();
                 return true;
             }
         }
