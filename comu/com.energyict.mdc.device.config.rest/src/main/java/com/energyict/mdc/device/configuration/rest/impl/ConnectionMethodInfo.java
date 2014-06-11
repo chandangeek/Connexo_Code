@@ -33,7 +33,7 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
 public abstract class ConnectionMethodInfo<T extends PartialConnectionTask> {
 
     @JsonIgnore
-    private MdcPropertyUtils mdcPropertyUtils;
+    protected MdcPropertyUtils mdcPropertyUtils;
 
     public long id;
     public String name;
@@ -89,5 +89,5 @@ public abstract class ConnectionMethodInfo<T extends PartialConnectionTask> {
     }
 
 
-    public abstract PartialConnectionTask createPartialTask(DeviceConfiguration deviceConfiguration, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService);
+    public abstract PartialConnectionTask createPartialTask(DeviceConfiguration deviceConfiguration, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService, MdcPropertyUtils mdcPropertyUtils);
 }
