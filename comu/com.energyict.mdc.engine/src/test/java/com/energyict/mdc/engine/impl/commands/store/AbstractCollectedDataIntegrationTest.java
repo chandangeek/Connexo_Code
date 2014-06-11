@@ -1,10 +1,30 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.energyict.mdc.common.impl.MdcCommonModule;
+import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
+import com.energyict.mdc.device.data.impl.DeviceDataModule;
+import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
+import com.energyict.mdc.engine.EngineService;
+import com.energyict.mdc.engine.impl.EngineModule;
+import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
+import com.energyict.mdc.engine.model.impl.EngineModelModule;
+import com.energyict.mdc.issues.impl.IssuesModule;
+import com.energyict.mdc.masterdata.impl.MasterDataModule;
+import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
+import com.energyict.mdc.pluggable.impl.PluggableModule;
+import com.energyict.mdc.protocol.api.device.DeviceFactory;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
+import com.energyict.mdc.scheduling.SchedulingModule;
+import com.energyict.mdc.tasks.history.impl.TaskHistoryModule;
+import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.impl.MeteringModule;
@@ -25,38 +45,11 @@ import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.json.impl.JsonServiceImpl;
 import com.elster.jupiter.util.time.Clock;
-import com.energyict.mdc.common.impl.MdcCommonModule;
-import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
-import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.device.data.impl.DeviceDataModule;
-import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
-import com.energyict.mdc.engine.EngineService;
-import com.energyict.mdc.engine.impl.EngineModule;
-import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
-import com.energyict.mdc.engine.model.impl.EngineModelModule;
-import com.energyict.mdc.issues.impl.IssuesModule;
-import com.energyict.mdc.masterdata.impl.MasterDataModule;
-import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
-import com.energyict.mdc.pluggable.impl.PluggableModule;
-import com.energyict.mdc.protocol.api.device.DeviceFactory;
-import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
-import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
-import com.energyict.mdc.scheduling.SchedulingModule;
-import com.energyict.mdc.tasks.history.impl.TaskHistoryModule;
-import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.protocols.mdc.channels.serial.SerialComponentService;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -65,8 +58,17 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
+
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Copyrights EnergyICT
@@ -93,10 +95,11 @@ public abstract class AbstractCollectedDataIntegrationTest {
         BundleContext bundleContext = mock(BundleContext.class);
         Principal principal = mock(Principal.class);
         when(principal.getName()).thenReturn("InMemoryPersistence");
+        LicenseService licenseService = mock(LicenseService.class);
         bootstrapModule = new InMemoryBootstrapModule();
         EventAdmin eventAdmin = mock(EventAdmin.class);
         injector = Guice.createInjector(
-                new MockModule(bundleContext, eventAdmin),
+                new MockModule(bundleContext, eventAdmin, licenseService),
                 bootstrapModule,
                 new ThreadSecurityModule(principal),
                 new PubSubModule(),
@@ -225,11 +228,13 @@ public abstract class AbstractCollectedDataIntegrationTest {
 
         private final BundleContext bundleContext;
         private final EventAdmin eventAdmin;
+        private final LicenseService licenseService;
 
-        private MockModule(BundleContext bundleContext, EventAdmin eventAdmin) {
+        private MockModule(BundleContext bundleContext, EventAdmin eventAdmin, LicenseService licenseService) {
             super();
             this.bundleContext = bundleContext;
             this.eventAdmin = eventAdmin;
+            this.licenseService = licenseService;
         }
 
         @Override
@@ -241,7 +246,9 @@ public abstract class AbstractCollectedDataIntegrationTest {
             bind(Clock.class).toInstance(clock);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
+            bind(LicenseService.class).toInstance(licenseService);
         }
 
     }
+
 }
