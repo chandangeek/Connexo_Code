@@ -40,7 +40,7 @@ Ext.define('Mdc.view.setup.logbooktype.LogbookTypeGrid', {
                 itemId: 'nameColumn',
                 header: Uni.I18n.translate('logbooktype.name', 'MDC', 'Name'),
                 xtype: 'templatecolumn',
-                tpl: '<a href="#/administration/logbooktypes/{id}"><tpl if="name">{name}</tpl></a>',
+                tpl: '<tpl if="name">{name}</tpl>',
                 flex: 5
             },
             {
