@@ -68,7 +68,9 @@ public class RegisterGroupResource {
     @DELETE
     @Path("/{id}")
     public Response deleteRegisterGroup(@PathParam("id") long id) {
-        resourceHelper.findRegisterGroupByIdOrThrowException(id).delete();
+        RegisterGroup group = resourceHelper.findRegisterGroupByIdOrThrowException(id);
+        group.removeRegisterMappings();
+        group.delete();
         return Response.ok().build();
     }
 
