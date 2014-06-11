@@ -43,7 +43,6 @@ Ext.define('Uni.view.window.Acknowledgement', {
                 xtype: 'panel',
                 itemId: 'msgmessage',
                 cls: 'message',
-//                bodyCls: 'message',
                 layout: {
                     type: 'vbox',
                     align: 'left'
