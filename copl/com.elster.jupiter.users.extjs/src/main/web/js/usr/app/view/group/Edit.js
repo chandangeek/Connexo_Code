@@ -59,15 +59,14 @@ Ext.define('Usr.view.group.Edit', {
                         {
                             ui: 'action',
                             action: 'save',
-                            text: Uni.I18n.translate('general.save', 'USM', 'Save')
-                            //margin: '10 10 10 255'
+                            text: Uni.I18n.translate('general.save', 'USM', 'Save'),
+                            margin: '0 0 0 10'
                         },
                         {
                             ui: 'link',
                             action: 'cancel',
                             itemId: 'cancelLink',
                             text: Uni.I18n.translate('general.cancel', 'USM', 'Cancel')
-                            //margin: '10 10 10 0'
                         }
                     ]
                 }
