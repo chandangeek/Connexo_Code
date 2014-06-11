@@ -35,6 +35,7 @@ Ext.define('Uni.view.container.PreviewContainer', {
     xtype: 'preview-container',
 
     layout: 'card',
+    activeItem: 1,
 
     /**
      * @cfg {Object/Ext.grid.Panel}
@@ -73,26 +74,30 @@ Ext.define('Uni.view.container.PreviewContainer', {
         }
     ],
 
-    loaded: false,
-
     initComponent: function () {
-        this.loaded = false;
         var me = this,
             grid = me.grid,
             emptyCmp = me.emptyComponent,
             previewCmp = me.previewComponent;
+
+        // Empty component.
 
         if (!(emptyCmp instanceof Ext.Component)) {
             emptyCmp = Ext.clone(emptyCmp);
         }
         me.items[0] = emptyCmp;
 
+        // Grid and preview component.
+
         me.items[1].items = [];
 
         if (!(grid instanceof Ext.Component)) {
             grid = Ext.clone(grid);
         }
-        grid.height = 450;
+
+        // TODO Hardcoded height until [JP-2852] is implemented.
+        grid.maxHeight = 450;
+
         me.items[1].items.push(grid);
 
         if (!(previewCmp instanceof Ext.Component)) {
@@ -101,20 +106,14 @@ Ext.define('Uni.view.container.PreviewContainer', {
 
         me.items[1].items.push(previewCmp);
 
+        // Continue.
+
         me.callParent(arguments);
-        me.setVisible(false);
 
         me.grid = me.getWrapperCt().items.items[0];
         me.bindStore(me.grid.store || 'ext-empty-store', true);
 
         me.on('beforedestroy', this.onBeforeDestroy, this);
-        me.on('afterrender', this.onAfterRender, this);
-    },
-
-    onAfterRender: function () {
-        if(!this.loaded){
-            this.setLoading(true);
-        }
     },
 
     getStoreListeners: function () {
@@ -140,11 +139,8 @@ Ext.define('Uni.view.container.PreviewContainer', {
             isEmpty = count === 0;
 
         me.getLayout().setActiveItem(isEmpty ? 0 : 1);
-        me.loaded = true;
-        me.setVisible(true);
-        me.setLoading(false);
 
-        if(!isEmpty){
+        if (!isEmpty) {
             me.grid.getSelectionModel().doSelect(0);
         }
     },

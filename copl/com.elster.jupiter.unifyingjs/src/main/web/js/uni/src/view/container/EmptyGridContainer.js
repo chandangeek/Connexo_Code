@@ -10,8 +10,7 @@
  *
  * # How to use
  *
- * @Example
- *
+ *     @example
  *     {
  *         xtype: 'emptygridcontainer',
  *         grid: {
@@ -31,6 +30,7 @@ Ext.define('Uni.view.container.EmptyGridContainer', {
     xtype: 'emptygridcontainer',
 
     layout: 'card',
+    activeItem: 1,
 
     /**
      * @cfg {Object/Ext.grid.Panel}
@@ -66,7 +66,6 @@ Ext.define('Uni.view.container.EmptyGridContainer', {
             grid = me.grid,
             emptyCmp = me.emptyComponent;
 
-        me.setVisible(false);
         if (!(grid instanceof Ext.Component)) {
             grid = Ext.clone(grid);
         }
@@ -102,7 +101,6 @@ Ext.define('Uni.view.container.EmptyGridContainer', {
         var me = this;
 
         me.getLayout().setActiveItem(me.getGridCt());
-        me.setVisible(true);
     },
 
     onLoad: function () {
@@ -111,7 +109,6 @@ Ext.define('Uni.view.container.EmptyGridContainer', {
             isEmpty = count === 0;
 
         me.getLayout().setActiveItem(isEmpty ? me.getEmptyCt() : me.getGridCt());
-        me.setVisible(true);
     },
 
     getGridCt: function () {
