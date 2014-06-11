@@ -166,6 +166,8 @@ Ext.define('Uni.controller.Navigation', {
             token = Ext.util.History.getToken(),
             tokens = me.stripAndSplitToken(token);
 
+        me.getNavigationMenu().deselectAllMenuItems();
+
         Uni.store.MenuItems.each(function (model) {
             modelTokens = me.stripAndSplitToken(model.get('href'));
             if (tokens[0] === modelTokens[0] || tokens[0] === model.get('portal')) {
