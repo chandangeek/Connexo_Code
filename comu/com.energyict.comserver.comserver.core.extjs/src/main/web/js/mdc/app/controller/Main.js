@@ -30,8 +30,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.LoadProfileConfigurations',
         'Mdc.controller.setup.LoadProfileConfigurationDetails',
         'Mdc.controller.setup.CommunicationTasks',
-        'Mdc.controller.setup.CommunicationTasksView',
-        'Mdc.controller.setup.CommunicationTasksCreateEdit'
+        'Mdc.controller.setup.Comtasks'
     ],
 
     controllers: [
@@ -61,8 +60,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.LoadProfileConfigurations',
         'Mdc.controller.setup.LoadProfileConfigurationDetails',
         'Mdc.controller.setup.CommunicationTasks',
-        'Mdc.controller.setup.CommunicationTasksView',
-        'Mdc.controller.setup.CommunicationTasksCreateEdit'
+        'Mdc.controller.setup.Comtasks'
     ],
 
     config: {
