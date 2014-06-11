@@ -19,10 +19,6 @@ Ext.define('Uni.view.window.Acknowledgement', {
         align: 'center'
     },
 
-    requires: [
-        'Uni.view.window.AcknowledgementPanel'
-    ],
-
     setMessage: function (message) {
         var msgPanel = this.down('#msgmessage');
 
