@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Calendar;
 
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
