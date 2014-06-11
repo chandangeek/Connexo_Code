@@ -45,7 +45,7 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
             },
             '#registermappinggrid actioncolumn': {
                 showReadingTypeInfo: this.showReadingType,
-                removeItem: this.removeRegisterMapping
+                removeTheRegisterMapping: this.removeRegisterMapping
             },
             '#loadProfileTypeAddMeasurementTypesGrid actioncolumn': {
                 showReadingTypeInfo: this.showReadingType
@@ -59,7 +59,7 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
             '#registermappingaddgrid actioncolumn': {
                 showReadingTypeInfo: this.showReadingType
             },
-            '#registerMappingPreview menuitem[action=removeRegisterMapping]': {
+            '#registerMappingPreview menuitem[action=removeTheRegisterMapping]': {
                 click: this.removeRegisterMappingFromPreview
             }
         });
