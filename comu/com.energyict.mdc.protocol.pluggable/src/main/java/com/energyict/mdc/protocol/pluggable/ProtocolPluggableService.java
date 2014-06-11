@@ -8,6 +8,9 @@ import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.LicensedProtocol;
+
+import com.elster.jupiter.license.License;
 import com.google.common.base.Optional;
 import java.util.List;
 
@@ -62,12 +65,29 @@ public interface ProtocolPluggableService {
     public Object createDeviceProtocolSecurityFor(String javaClassName);
 
     /**
+     * Finds all device protocols that are covered by the license.
+     *
+     * @return a list of all available licensed protocols.
+     */
+    public List<LicensedProtocol> getAllLicensedProtocols();
+
+    /**
+     * Tests if the specified java class name is covered by the license.
+     *
+     * @param javaClassName The name of the java class
+     * @return A flag that indicates if the java class is covered by the license
+     */
+    public boolean isLicensedProtocolClassName (String javaClassName);
+
+    /**
      * Finds all {@link DeviceProtocolPluggableClass}es that are defined
      * and active in the system.
      *
      * @return The List of all DeviceProtocolPluggableClasses
      */
     public Finder<DeviceProtocolPluggableClass> findAllDeviceProtocolPluggableClasses();
+
+    public LicensedProtocol findLicensedProtocolFor(DeviceProtocolPluggableClass deviceProtocolPluggableClass);
 
     public DeviceProtocolPluggableClass findDeviceProtocolPluggableClass(long id);
 

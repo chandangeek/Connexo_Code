@@ -1,6 +1,5 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
-import com.elster.jupiter.license.LicenseService;
 import com.energyict.mdc.common.DataVault;
 import com.energyict.mdc.common.DataVaultProvider;
 import com.energyict.mdc.common.NotFoundException;
@@ -20,6 +19,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.LicensedProtocol;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
@@ -39,6 +39,8 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupport
 import com.energyict.mdc.protocol.pluggable.impl.relations.SecurityPropertySetRelationTypeSupport;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.license.License;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -63,6 +65,7 @@ import java.io.File;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -79,6 +82,7 @@ import java.util.logging.Logger;
 public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, InstallService {
 
     private static final Logger LOGGER = Logger.getLogger(ProtocolPluggableServiceImpl.class.getName());
+    private static final String MDC_APPLICATION_KEY = "MDC";
 
     private volatile DataModel dataModel;
     private volatile EventService eventService;
@@ -89,12 +93,12 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     private volatile List<DeviceProtocolService> deviceProtocolServices = new CopyOnWriteArrayList<>();
     private volatile List<DeviceProtocolMessageService> deviceProtocolMessageServices = new CopyOnWriteArrayList<>();
     private volatile List<DeviceProtocolSecurityService> deviceProtocolSecurityServices = new CopyOnWriteArrayList<>();
+    private volatile List<LicensedProtocolService> licensedProtocolServices = new CopyOnWriteArrayList<>();
     private volatile InboundDeviceProtocolService inboundDeviceProtocolService;
     private volatile ConnectionTypeService connectionTypeService;
     private volatile IssueService issueService;
     private volatile DeviceCacheMarshallingService deviceCacheMarshallingService;
     private volatile LicenseService licenseService;
-    private volatile LicensedProtocolService licensedProtocolService;
 
     public ProtocolPluggableServiceImpl() {
         super();
@@ -129,7 +133,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         this.setConnectionTypeService(connectionTypeService);
         this.setDeviceCacheMarshallingService(deviceCacheMarshallingService);
         this.setLicenseService(licenseService);
-        this.setLicensedProtocolService(licensedProtocolService);
+        this.addLicensedProtocolService(licensedProtocolService);
         this.activate();
         if (!this.dataModel.isInstalled()) {
             this.install();
@@ -206,6 +210,38 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     }
 
     @Override
+    public List<LicensedProtocol> getAllLicensedProtocols() {
+        Optional<License> mdcLicense = this.getMdcLicense();
+        if (mdcLicense.isPresent()) {
+            List<LicensedProtocol> licensedProtocols = new ArrayList<>();
+            for (LicensedProtocolService licensedProtocolService : this.licensedProtocolServices) {
+                licensedProtocols.addAll(licensedProtocolService.getAllLicensedProtocols(mdcLicense.get()));
+            }
+            return licensedProtocols;
+        }
+        else {
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public boolean isLicensedProtocolClassName(String javaClassName) {
+        Optional<License> mdcLicense = this.getMdcLicense();
+        if (mdcLicense.isPresent()) {
+            for (LicensedProtocolService licensedProtocolService : this.licensedProtocolServices) {
+                if (licensedProtocolService.isValidJavaClassName(javaClassName, mdcLicense.get())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private Optional<License> getMdcLicense() {
+        return this.licenseService.getLicenseForApplication(MDC_APPLICATION_KEY);
+    }
+
+    @Override
     public Finder<DeviceProtocolPluggableClass> findAllDeviceProtocolPluggableClasses() {
         return new WrappingFinder<DeviceProtocolPluggableClass, PluggableClass>(this.pluggableService.findAllByType(PluggableClassType.DeviceProtocol).defaultSortColumn("name")) {
             @Override
@@ -217,6 +253,17 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
                 return deviceProtocolPluggableClasses;
             }
         };
+    }
+
+    @Override
+    public LicensedProtocol findLicensedProtocolFor(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
+        for (LicensedProtocolService licensedProtocolService : this.licensedProtocolServices) {
+            LicensedProtocol licensedProtocol = licensedProtocolService.findLicensedProtocolFor(deviceProtocolPluggableClass);
+            if (licensedProtocol != null) {
+                return licensedProtocol;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -530,6 +577,15 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         this.deviceProtocolSecurityServices.remove(deviceProtocolSecurityService);
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addLicensedProtocolService(LicensedProtocolService licensedProtocolService) {
+        this.licensedProtocolServices.add(licensedProtocolService);
+    }
+
+    public void removeLicensedProtocolService (LicensedProtocolService licensedProtocolService) {
+        this.licensedProtocolServices.remove(licensedProtocolService);
+    }
+
     public InboundDeviceProtocolService getInboundDeviceProtocolService() {
         return inboundDeviceProtocolService;
     }
@@ -581,11 +637,6 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         this.licenseService = licenseService;
     }
 
-    @Reference
-    public void setLicensedProtocolService(LicensedProtocolService licensedProtocolService) {
-        this.licensedProtocolService = licensedProtocolService;
-    }
-
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -603,7 +654,6 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
                 bind(SecuritySupportAdapterMappingFactory.class).to(SecuritySupportAdapterMappingFactoryImpl.class);
                 bind(DeviceCacheMarshallingService.class).toInstance(deviceCacheMarshallingService);
                 bind(LicenseService.class).toInstance(licenseService);
-                bind(LicensedProtocolService.class).toInstance(licensedProtocolService);
             }
         };
     }
