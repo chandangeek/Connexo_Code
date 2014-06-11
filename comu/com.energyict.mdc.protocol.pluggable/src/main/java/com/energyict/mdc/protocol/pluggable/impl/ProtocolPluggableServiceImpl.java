@@ -179,9 +179,8 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     public DeviceProtocolPluggableClass newDeviceProtocolPluggableClass(String name, String className) {
         final PluggableClass pluggableClass = this.pluggableService.newPluggableClass(PluggableClassType.DeviceProtocol, name, className);
         final DeviceProtocolPluggableClassImpl deviceProtocolPluggableClass = DeviceProtocolPluggableClassImpl.from(this.dataModel, pluggableClass);
-        deviceProtocolPluggableClass.newInstance();
-        pluggableClass.save();
         deviceProtocolPluggableClass.save();
+        pluggableClass.save();
         return deviceProtocolPluggableClass;
     }
 

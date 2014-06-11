@@ -3,6 +3,7 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
@@ -75,6 +76,8 @@ public class AdapterDeviceProtocolDialectTest {
     private Principal principal;
     @Mock
     private EventAdmin eventAdmin;
+    @Mock
+    private LicenseService licenseService;
 
     private PropertySpecService propertySpecService;
     private ProtocolPluggableService protocolPluggableService;
@@ -240,6 +243,7 @@ public class AdapterDeviceProtocolDialectTest {
         protected void configure() {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
+            bind(LicenseService.class).toInstance(licenseService);
             bind(DataModel.class).toProvider(new Provider<DataModel>() {
                 @Override
                 public DataModel get() {

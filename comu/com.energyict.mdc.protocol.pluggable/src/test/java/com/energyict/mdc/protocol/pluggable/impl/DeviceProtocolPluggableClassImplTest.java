@@ -1,5 +1,7 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
+import com.elster.jupiter.license.License;
+import com.elster.jupiter.license.LicenseService;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
@@ -66,6 +68,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
 import org.joda.time.DateMidnight;
+import org.mockito.Mock;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -114,6 +117,9 @@ public class DeviceProtocolPluggableClassImplTest {
     @Rule
     public ExpectedConstraintViolationRule rule = new ExpectedConstraintViolationRule();
 
+    @Mock
+    private LicenseService licenseService;
+
     private DataModel dataModel;
     private InMemoryBootstrapModule bootstrapModule;
     private Connection toClose;
@@ -124,6 +130,7 @@ public class DeviceProtocolPluggableClassImplTest {
         EventAdmin eventAdmin = mock(EventAdmin.class);
         Principal principal = mock(Principal.class);
         when(principal.getName()).thenReturn("InMemoryPersistence.mdc.protocol.pluggable");
+        when(licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>absent());
         bootstrapModule = new InMemoryBootstrapModule();
         Injector injector = Guice.createInjector(
                 new MockModule(bundleContext, eventAdmin, deviceProtocolService),
@@ -442,6 +449,7 @@ public class DeviceProtocolPluggableClassImplTest {
         protected void configure() {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
+            bind(LicenseService.class).toInstance(licenseService);
             bind(InboundDeviceProtocolService.class).toInstance(mock(InboundDeviceProtocolService.class));
             bind(LicensedProtocolService.class).toInstance(mock(LicensedProtocolService.class));
             bind(ConnectionTypeService.class).toInstance(mock(ConnectionTypeService.class));
