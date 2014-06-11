@@ -58,6 +58,14 @@ public class LimitTriggerLogReader extends AbstractLogReader {
 					offset = recNum * recSize;
 					continue;
 				}
+				
+				Calendar cal = Calendar.getInstance();
+				cal.add(Calendar.DATE, 1);
+				if (recDate.after(cal.getTime())) {
+					recNum++;
+					offset = recNum * recSize;
+					continue;
+				} 
 				offset+= length;
 
 				processComparisonBitmap(limitTriggerLogData, offset);
