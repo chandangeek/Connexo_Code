@@ -5,6 +5,8 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.license.License;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.impl.MeteringModule;
@@ -120,12 +122,15 @@ public class PartialConnectionInitiationTaskCrudIT {
     private InboundDeviceProtocolPluggableClass discoveryPluggable;
     @Mock
     private IdBusinessObjectFactory businessObjectFactory;
+    @Mock
+    private LicenseService licenseService;
 
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
+            bind(LicenseService.class).toInstance(licenseService);
             bind(DataModel.class).toProvider(new Provider<DataModel>() {
                 @Override
                 public DataModel get() {
@@ -197,7 +202,7 @@ public class PartialConnectionInitiationTaskCrudIT {
         when(applicationContext.getTranslator()).thenReturn(translator);
         when(applicationContext.findFactory(5011)).thenReturn(businessObjectFactory);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-
+        when(licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>absent());
         initializeDatabase(false, false);
         protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
         engineModelService = injector.getInstance(EngineModelService.class);

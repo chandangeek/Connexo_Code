@@ -6,6 +6,8 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.license.License;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.impl.MeteringModule;
@@ -46,6 +48,7 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
+import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -110,6 +113,7 @@ public class InMemoryPersistence {
     private RegisterMappingDeletionEventHandler registerMappingDeletionEventHandler;
     private RegisterMappingDeleteFromLoadProfileTypeEventHandler registerMappingDeleteFromLoadProfileTypeEventHandler;
     private OrmService ormService;
+    private LicenseService licenseService;
 
     public void initializeDatabaseWithMockedProtocolPluggableService(String testName, boolean showSqlLogging) {
         this.initializeDatabase(testName, showSqlLogging, true);
@@ -211,6 +215,8 @@ public class InMemoryPersistence {
         when(translator.getTranslation(anyString())).thenReturn("Translation missing in unit testing");
         when(translator.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
         when(this.applicationContext.getTranslator()).thenReturn(translator);
+        this.licenseService = mock(LicenseService.class);
+        when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>absent());
     }
 
     public void cleanUpDataBase() throws SQLException {
@@ -325,6 +331,7 @@ public class InMemoryPersistence {
         protected void configure() {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
+            bind(LicenseService.class).toInstance(licenseService);
             if (mockProtocolPluggableService) {
                 bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
             }

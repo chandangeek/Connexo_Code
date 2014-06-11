@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.license.License;
+import com.elster.jupiter.license.LicenseService;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
@@ -99,6 +101,8 @@ public class PartialInboundConnectiontaskCrudIT {
     MyDeviceProtocolPluggableClass deviceProtocolPluggableClass;
     @Mock
     DeviceProtocol deviceProtocol;
+    @Mock
+    private LicenseService licenseService;
 
     public static final String JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME = "jupiter.bootstrap.module";
 
@@ -132,6 +136,7 @@ public class PartialInboundConnectiontaskCrudIT {
         protected void configure() {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
+            bind(LicenseService.class).toInstance(licenseService);
             bind(DataModel.class).toProvider(new Provider<DataModel>() {
                 @Override
                 public DataModel get() {
@@ -204,7 +209,7 @@ public class PartialInboundConnectiontaskCrudIT {
         when(applicationContext.findFactory(5011)).thenReturn(businessObjectFactory);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Collections.<DeviceProtocolCapabilities>emptyList());
-
+        when(licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>absent());
         initializeDatabase(false, false);
         protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
         engineModelService = injector.getInstance(EngineModelService.class);
