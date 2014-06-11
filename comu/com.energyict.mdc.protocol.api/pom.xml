@@ -10,10 +10,10 @@
     <relativePath>../com.energyict.comserver.parent/pom.xml</relativePath>
   </parent>
 
-  <artifactId>mdc-protocols-api</artifactId>
+  <artifactId>mdc.protocols.api</artifactId>
   <packaging>bundle</packaging>
   <version>${comserver.version}</version>
-  <name>[MDC] mdc-protocols-api</name>
+  <name>[MDC] mdc.protocols.api</name>
   <description>
     Defines the behavior of device protocols as required by the data collection engine.
   </description>
@@ -31,7 +31,7 @@
     </dependency>
     <dependency>
       <groupId>com.energyict</groupId>
-      <artifactId>mdc-issues</artifactId>
+      <artifactId>mdc.issues</artifactId>
       <version>${comserver.version}</version>
     </dependency>
     <dependency>

@@ -7,7 +7,8 @@ import com.energyict.mdc.protocol.api.LicensedProtocol;
 import java.util.List;
 
 /**
- * OSGI Service wrapper for {@link LicensedProtocol}s.
+ * Models the behavior of a component that will provide licensing
+ * information about the protocols contained in the same bundle.
  *
  * Copyrights EnergyICT
  * Date: 19/11/13
@@ -26,4 +27,5 @@ public interface LicensedProtocolService {
     public LicensedProtocol findLicensedProtocolFor(DeviceProtocolPluggableClass deviceProtocolPluggableClass);
 
     public boolean isValidJavaClassName(String javaClassName, License license);
+
 }
