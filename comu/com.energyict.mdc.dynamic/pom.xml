@@ -13,7 +13,7 @@
   <artifactId>mdc.dynamic</artifactId>
   <packaging>bundle</packaging>
   <version>${comserver.version}</version>
-  <name>[MDC] mdc.dynamic</name>
+  <name>[MDC] mdc.dynamic [init CDR]</name>
   <description>
     Provides support for dynamic attributes of business objects and relations between business objects.
   </description>
