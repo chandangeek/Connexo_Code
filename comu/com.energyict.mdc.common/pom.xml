@@ -13,7 +13,7 @@
   <artifactId>mdc-common</artifactId>
   <packaging>bundle</packaging>
   <version>${comserver.version}</version>
-  <name>[MDC] mdc-common</name>
+  <name>[MDC] mdc.common</name>
   <description>
     Contains common components for MDC.
   </description>
