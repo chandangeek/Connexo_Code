@@ -3,9 +3,7 @@ Ext.define('Mdc.view.setup.searchitems.ContentLayout', {
     alias: 'widget.contentLayout',
     itemId: 'contentLayout',
     layout: {
-        type: 'card',
-        align: 'stretch',
-        pack: 'center'
+        type: 'card'
     },
     requires: [
         'Mdc.view.setup.searchitems.SearchResults'
@@ -13,21 +11,14 @@ Ext.define('Mdc.view.setup.searchitems.ContentLayout', {
 
     initComponent: function () {
         var me = this;
-        this.items = [
+        me.items = [
             {
-                xtype: 'panel',
-                itemId: 'infoPanel',
+                xtype: 'label',
                 layout: {
-                    type: 'vbox',
-                    align: 'center',
-                    pack: 'center'
+                    type: 'hbox',
+                    align: 'left'
                 },
-                items: [
-                    {
-                        xtype: 'label',
-                        html: '<H3>' + Uni.I18n.translate('searchItems.selectText', 'MDC', 'Enter one or more search criteria on the left and click \'Search\'.') + '</H3>'
-                    }
-                ]
+                html: '<H3>' + Uni.I18n.translate('searchItems.selectText', 'MDC', 'Enter one or more search criteria on the left and click \'Search\'.') + '</H3>'
             },
             {
                 xtype: 'container',
