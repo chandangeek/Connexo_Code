@@ -87,6 +87,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -119,6 +120,10 @@ public class DeviceProtocolPluggableClassImplTest {
 
     @Mock
     private LicenseService licenseService;
+    @Mock
+    private LicensedProtocolService licensedProtocolService;
+    @Mock
+    private License license;
 
     private DataModel dataModel;
     private InMemoryBootstrapModule bootstrapModule;
@@ -200,6 +205,12 @@ public class DeviceProtocolPluggableClassImplTest {
         try (PreparedStatement preparedStatement = connection.prepareStatement(ddl)) {
             preparedStatement.execute();
         }
+    }
+
+    @Before
+    public void initializeLicenseService () {
+        when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.of(this.license));
+        when(this.licensedProtocolService.isValidJavaClassName(anyString(), eq(this.license))).thenReturn(true);
     }
 
     @Before
@@ -451,7 +462,7 @@ public class DeviceProtocolPluggableClassImplTest {
             bind(BundleContext.class).toInstance(bundleContext);
             bind(LicenseService.class).toInstance(licenseService);
             bind(InboundDeviceProtocolService.class).toInstance(mock(InboundDeviceProtocolService.class));
-            bind(LicensedProtocolService.class).toInstance(mock(LicensedProtocolService.class));
+            bind(LicensedProtocolService.class).toInstance(licensedProtocolService);
             bind(ConnectionTypeService.class).toInstance(mock(ConnectionTypeService.class));
             bind(DeviceProtocolService.class).toInstance(deviceProtocolService);
             bind(DeviceProtocolMessageService.class).toInstance(mock(DeviceProtocolMessageService.class));
