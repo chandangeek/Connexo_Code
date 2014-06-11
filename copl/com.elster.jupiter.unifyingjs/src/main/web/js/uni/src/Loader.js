@@ -8,20 +8,22 @@ Ext.define('Uni.Loader', {
     scriptLoadingCount: 0,
 
     requires: [
-        'Uni.About',
-
         'Ext.tip.QuickTipManager',
         'Ext.layout.container.Absolute',
         'Ext.data.proxy.Rest',
-        'Uni.I18n',
         'Ext.state.CookieProvider',
 
+        'Uni.About',
+        'Uni.I18n',
+
+        'Uni.controller.Acknowledgements',
         'Uni.controller.Configuration',
         'Uni.controller.Error',
         'Uni.controller.Navigation',
         'Uni.controller.Notifications',
         'Uni.controller.Portal',
         'Uni.controller.Search',
+
         'Uni.view.form.field.Vtypes',
 
         'Uni.override.ServerOverride',
