@@ -112,6 +112,17 @@ public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> impl
     }
 
     @Override
+    public void removeRegisterMappings() {
+        Iterator<RegisterMappingInGroup> it = getRegisterMappingInGroup().iterator();
+        while (it.hasNext()) {
+            RegisterMappingInGroup each = it.next();
+            each.delete();
+        }
+
+        mappingsInGroup = null;
+    }
+
+    @Override
     public boolean updateRegisterMappings(HashMap<Long, RegisterMapping> registerMappings){
         HashMap<Long, RegisterMapping> existing = new HashMap<>();
         for(RegisterMappingInGroup mappingInGroup : getRegisterMappingInGroup()){

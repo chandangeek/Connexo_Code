@@ -38,5 +38,7 @@ public interface RegisterGroup extends HasId {
 
     public void removeRegisterMapping (RegisterMapping registerMapping);
 
+    public void removeRegisterMappings ();
+
     public boolean updateRegisterMappings(HashMap<Long, RegisterMapping> registerMappings);
 }
