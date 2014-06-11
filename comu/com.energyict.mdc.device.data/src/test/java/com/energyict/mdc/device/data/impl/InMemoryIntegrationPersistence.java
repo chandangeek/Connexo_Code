@@ -239,6 +239,7 @@ public class InMemoryIntegrationPersistence {
         when(translator.getTranslation(anyString())).thenReturn("Translation missing in unit testing");
         when(translator.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
         when(this.applicationContext.getTranslator()).thenReturn(translator);
+        this.licenseService = mock(LicenseService.class);
         when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>absent());
     }
 

@@ -1,5 +1,27 @@
 package com.energyict.mdc.device.data.impl.security;
 
+import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.license.License;
+import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.orm.impl.OrmServiceImpl;
+import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.util.beans.BeanService;
+import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
+import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.util.json.impl.JsonServiceImpl;
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.BusinessEventManager;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
@@ -10,7 +32,6 @@ import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.impl.MdcCommonModule;
-import com.energyict.mdc.common.license.License;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
@@ -37,35 +58,17 @@ import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
-import com.energyict.mdc.protocol.pluggable.LicenseServer;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
-
-import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.domain.util.impl.DomainUtilModule;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.events.impl.EventsModule;
-import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.impl.OrmModule;
-import com.elster.jupiter.orm.impl.OrmServiceImpl;
-import com.elster.jupiter.pubsub.impl.PubSubModule;
-import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.util.beans.BeanService;
-import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
-import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.util.json.impl.JsonServiceImpl;
-import com.elster.jupiter.util.time.Clock;
-import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
+import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.joda.time.DateTime;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -76,18 +79,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link SecurityPropertyServiceImpl} component.
@@ -216,6 +211,7 @@ public class SecurityPropertyServiceImplTest {
         private Environment environment;
         private ApplicationContext applicationContext;
         private PropertySpecService propertySpecService;
+        private LicenseService licenseService;
 
         public RelationService getRelationService() {
             return relationService;
@@ -236,6 +232,7 @@ public class SecurityPropertyServiceImplTest {
                             bind(BeanService.class).toInstance(new BeanServiceImpl());
                             bind(Clock.class).toInstance(clock);
                             bind(EventAdmin.class).toInstance(eventAdmin);
+                            bind(LicenseService.class).toInstance(licenseService);
                             bind(BundleContext.class).toInstance(bundleContext);
                             bind(PluggableService.class).toInstance(pluggableService);
                             bind(PluggableService.class).toInstance(pluggableService);
@@ -306,6 +303,8 @@ public class SecurityPropertyServiceImplTest {
             this.eventAdmin = mock(EventAdmin.class);
             this.principal = mock(Principal.class);
             when(this.principal.getName()).thenReturn("SecurityPropertyServiceImplTest");
+            this.licenseService = mock(LicenseService.class);
+            when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>absent());
             when(deviceProtocolService.loadProtocolClass(TestProtocolWithOnlySecurityProperties.class.getName())).thenReturn(TestProtocolWithOnlySecurityProperties.class);
         }
 

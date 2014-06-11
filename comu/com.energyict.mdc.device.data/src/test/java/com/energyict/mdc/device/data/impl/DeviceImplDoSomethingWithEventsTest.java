@@ -9,6 +9,8 @@ import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.events.EventTypeBuilder;
 import com.elster.jupiter.events.impl.EventServiceImpl;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.license.License;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
@@ -230,6 +232,7 @@ public class DeviceImplDoSomethingWithEventsTest {
         private Environment environment;
         private TaskService taskService;
         private SchedulingService schedulingService;
+        private LicenseService licenseService;
 
         public void initializeDatabase(String testName, boolean showSqlLogging) {
             this.initializeMocks(testName);
@@ -307,6 +310,8 @@ public class DeviceImplDoSomethingWithEventsTest {
             when(translator.getTranslation(anyString())).thenReturn("Translation missing in unit testing");
             when(translator.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
             when(this.applicationContext.getTranslator()).thenReturn(translator);
+            this.licenseService = mock(LicenseService.class);
+            when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>absent());
         }
 
         public void cleanUpDataBase() throws SQLException {
@@ -354,6 +359,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                 bind(Clock.class).toInstance(clock);
                 bind(EventAdmin.class).toInstance(eventAdmin);
                 bind(BundleContext.class).toInstance(bundleContext);
+                bind(LicenseService.class).toInstance(licenseService);
 //                bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
                 bind(EventService.class).to(SpyEventService.class).in(Scopes.SINGLETON);
                 bind(DataModel.class).toProvider(new Provider<DataModel>() {
