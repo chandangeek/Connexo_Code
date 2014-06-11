@@ -155,6 +155,7 @@ public class InMemoryPersistence {
         this.legacySecurityPropertyConverter = mock(LegacySecurityPropertyConverter.class);
         this.applicationContext = mock(ApplicationContext.class);
         this.deviceCacheMarshallingService = mock(DeviceCacheMarshallingService.class);
+        this.licenseService = mock(LicenseService.class);
         Translator translator = mock(Translator.class);
         when(translator.getTranslation(anyString())).thenReturn("Translation missing in unit testing");
         when(translator.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
@@ -231,6 +232,7 @@ public class InMemoryPersistence {
         protected void configure() {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
+            bind(LicenseService.class).toInstance(licenseService);
             bind(DeviceProtocolMessageService.class).toInstance(deviceProtocolMessageService);
             bind(ConnectionTypeService.class).toInstance(connectionTypeService);
             bind(DeviceProtocolSecurityService.class).toInstance(deviceProtocolSecurityService);
