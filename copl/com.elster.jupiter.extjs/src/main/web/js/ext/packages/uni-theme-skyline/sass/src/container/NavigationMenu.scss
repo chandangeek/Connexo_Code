@@ -15,7 +15,7 @@ $menu-width-collapsed: 48px;
     top: 0;
     bottom: 0;
     width: $menu-width-collapsed !important;
-    z-index: 1000;
+    z-index: 20000;
 
     // Animation
     $transition-length: 400ms;
