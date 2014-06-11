@@ -13,18 +13,15 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeOnDeviceTypeSetup', {
 
     content: [
         {
-            xtype: 'container',
+            xtype: 'panel',
+            ui: 'large',
+            itemId: 'loadProfileTypes',
+            title: Uni.I18n.translate('loadprofiletype.loadprofiletypes', 'MDC', 'Load profile types'),
             layout: {
                 type: 'vbox',
                 align: 'stretch'
             },
-            padding: '0 10 0 10',
             items: [
-                {
-                    xtype: 'component',
-                    margins: '10 10 10 10',
-                    itemId: 'loadProfileTypesTitle'
-                },
                 {
                     xtype: 'loadProfileTypeFiltering'
                 },
@@ -62,9 +59,15 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeOnDeviceTypeSetup', {
     initComponent: function () {
         this.side = [
             {
-                xtype: 'deviceTypeMenu',
-                deviceTypeId: this.deviceTypeId,
-                toggle: 2
+                xtype: 'panel',
+                ui: 'medium',
+                items: [
+                    {
+                        xtype: 'deviceTypeMenu',
+                        deviceTypeId: this.deviceTypeId,
+                        toggle: 2
+                    }
+                ]
             }
         ];
         this.callParent(arguments);
