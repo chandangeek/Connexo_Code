@@ -14,7 +14,7 @@
     <artifactId>mdc-protocols</artifactId>
     <packaging>bundle</packaging>
     <version>${comserver.version}</version>
-    <name>[MDC] Protocols</name>
+    <name>[MDC] Protocols [init PR1]</name>
     <description>
         Contains all the protocol implementations into one bundle
     </description>
