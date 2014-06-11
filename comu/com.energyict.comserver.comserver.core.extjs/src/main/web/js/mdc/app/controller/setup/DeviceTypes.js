@@ -327,7 +327,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                     model.load(deviceTypeId, {
                         success: function (deviceType) {
                             me.getApplication().fireEvent('loadDeviceType', deviceType);
-                            me.getDeviceTypeLogbookPanel().setTitle('<b>' + deviceType.get('name') + '</b>' + ' > ' + 'Logbook types');
+                            me.getDeviceTypeLogbookPanel().setTitle(Uni.I18n.translate('logbooktype.logbookTypes', 'MDC', 'Logbook types'));
                             widget.setLoading(false);
                         }
                     });

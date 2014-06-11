@@ -1,4 +1,4 @@
-Ext.define('Mdc.controller.setup.LogbookConfigurations', {
+Ext.define('Mdc.controller.setup.DeviceConfigurationLogbooks', {
     extend: 'Ext.app.Controller',
 
     stores: [
@@ -21,7 +21,7 @@ Ext.define('Mdc.controller.setup.LogbookConfigurations', {
     init: function () {
         this.control({
             'device-configuration-logbooks grid': {
-                itemclick: this.loadGridItemDetail
+                select: this.loadGridItemDetail
             },
             'device-configuration-logbooks grid uni-actioncolumn': {
                 menuclick: this.chooseAction
@@ -43,7 +43,7 @@ Ext.define('Mdc.controller.setup.LogbookConfigurations', {
                 target: itemPanel
             });
         if (this.displayedItemId != record.id) {
-            grid.clearHighlight();
+            grid.view.clearHighlight();
             preloader.show();
         }
         this.displayedItemId = record.id;
