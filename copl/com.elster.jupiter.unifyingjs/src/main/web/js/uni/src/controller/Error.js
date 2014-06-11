@@ -94,7 +94,14 @@ Ext.define('Uni.controller.Error', {
 
         switch (response.status) {
             case 400: // Bad request.
-                // Do nothing, handled by each specific failure callback.
+                if(!Ext.isEmpty(decoded.message)){
+                    title = Uni.I18n.translate(
+                        'error.requestFailed',
+                        'UNI',
+                        'Request failed'
+                    );
+                    this.showError(title, message);
+                }
                 break;
             case 500: // Internal server error.
                 title = Uni.I18n.translate(
