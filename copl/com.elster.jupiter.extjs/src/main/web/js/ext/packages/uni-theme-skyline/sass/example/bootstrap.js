@@ -38,6 +38,7 @@ Ext.ClassManager.addNameAlternateMappings({
   "Skyline.form.Label": [],
   "Skyline.form.Panel": [],
   "Skyline.form.field.Base": [],
+  "Skyline.form.field.ComboBox": [],
   "Skyline.form.field.FieldContainer": [],
   "Skyline.form.field.Text": [],
   "Skyline.grid.Panel": [],
@@ -80,6 +81,7 @@ Ext.ClassManager.addNameAliasMappings({
   "Skyline.form.Label": [],
   "Skyline.form.Panel": [],
   "Skyline.form.field.Base": [],
+  "Skyline.form.field.ComboBox": [],
   "Skyline.form.field.FieldContainer": [],
   "Skyline.form.field.Text": [],
   "Skyline.grid.Panel": [],
@@ -114,6 +116,7 @@ Ext.Loader.loadScript("../../overrides/form/field/Base.js");
 Ext.Loader.loadScript("../../overrides/form/field/FieldContainer.js");
 Ext.Loader.loadScript("../../overrides/form/Label.js");
 Ext.Loader.loadScript("../../overrides/form/Panel.js");
+Ext.Loader.loadScript("../../overrides/form/field/ComboBox.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/toolbar/Paging.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/picker/Month.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/form/field/HtmlEditor.js");

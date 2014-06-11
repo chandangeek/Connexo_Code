@@ -577,6 +577,7 @@ Ext.define('Skyline.form.field.Base', {
 
 Ext.define('Skyline.form.field.FieldContainer', {
     override: "Ext.form.FieldContainer",
+    labelPad: 15,
     getLabelCls: function () {
         var labelCls = this.labelCls;
         if (this.required) {
@@ -621,6 +622,18 @@ Ext.define('Skyline.form.Panel', {
         me.callParent(arguments);
     }
 });
+
+Ext.define('Skyline.form.field.ComboBox', {
+    override: 'Ext.form.field.ComboBox',
+
+    anyMatch: true,
+
+    initComponent: function() {
+        this.callParent(arguments);
+    }
+});
+
+
 
 /*
 This file is part of Ext JS 4.2
