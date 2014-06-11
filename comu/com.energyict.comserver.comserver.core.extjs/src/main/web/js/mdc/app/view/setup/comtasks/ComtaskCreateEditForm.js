@@ -1,9 +1,9 @@
-Ext.define('Mdc.view.setup.comtasks.Edit', {
+Ext.define('Mdc.view.setup.comtasks.ComtaskCreateEditForm', {
     extend: 'Uni.view.container.ContentContainer',
+    alias: 'widget.comtaskCreateEdit',
     requires: [
-        'Mdc.view.setup.comtasks.Command'
+        'Mdc.view.setup.comtasks.ComtaskCommand'
     ],
-    alias: 'widget.communication-tasks-edit',
     content: [
         {
             xtype: 'form',
@@ -23,7 +23,7 @@ Ext.define('Mdc.view.setup.comtasks.Edit', {
                 {
                     xtype: 'textfield',
                     name: 'name',
-                    fieldLabel: 'Name',
+                    fieldLabel: Uni.I18n.translate('comtask.name', 'MDC', 'Name'),
                     labelWidth: 200,
                     labelSeparator: ' *',
                     allowBlank: false,
@@ -36,7 +36,7 @@ Ext.define('Mdc.view.setup.comtasks.Edit', {
                     items: [
                         {
                             xtype: 'label',
-                            html: 'Commands*',
+                            html: Uni.I18n.translate('comtask.commands', 'MDC', 'Commands') + ' *',
                             width: 200,
                             margin: '10 0 0 5'
                         },

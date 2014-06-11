@@ -53,6 +53,9 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             '#registerTypeSetup button[action = createRegisterType]': {
                 click: this.createRegisterTypeHistory
             },
+            '#registerGroupEdit button[action = createRegisterType]': {
+                click: this.createRegisterTypeHistory
+            },
             '#registerTypePreview menuitem[action=editRegisterType]': {
                 click: this.editRegisterTypeHistoryFromPreview
             },
@@ -344,7 +347,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         var measurementUnit = widget.down('#measurementUnitComboBox').getValue();
         //var mrId = widget.down('#editMrIdField').getValue();
 
-        if (obisCode !== '' && measurementUnit !== null) {
+        if (obisCode !== '' && measurementUnit !== null && obisCode != null && measurementUnit != '') {
             this.getReadingTypesStore().clearFilter();
             this.getReadingTypesStore().filter([
                 {property: 'obisCode', value: obisCode},

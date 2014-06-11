@@ -45,7 +45,7 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
             },
             '#registermappinggrid actioncolumn': {
                 showReadingTypeInfo: this.showReadingType,
-                removeItem: this.removeRegisterMapping
+                removeTheRegisterMapping: this.removeRegisterMapping
             },
             '#loadProfileTypeAddMeasurementTypesGrid actioncolumn': {
                 showReadingTypeInfo: this.showReadingType
@@ -59,7 +59,7 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
             '#registermappingaddgrid actioncolumn': {
                 showReadingTypeInfo: this.showReadingType
             },
-            '#registerMappingPreview menuitem[action=removeRegisterMapping]': {
+            '#registerMappingPreview menuitem[action=removeTheRegisterMapping]': {
                 click: this.removeRegisterMappingFromPreview
             }
         });
@@ -99,6 +99,7 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
                 var deviceTypeName = deviceType.get('name');
                 // widget.down('#registerTypeTitle').html = '<h1>' + deviceTypeName + ' > ' + Uni.I18n.translate('registerMapping.registerTypes', 'MDC', 'Register types') + '</h1>';
                 me.getApplication().fireEvent('changecontentevent', widget);
+                me.getRegisterMappingGrid().getSelectionModel().doSelect(0);
             }
         });
     },
@@ -151,7 +152,16 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
         });
     },
 
+    getDeviceTypeIdFromHref: function () {
+        var urlPart = 'administration/devicetypes/';
+        var index = location.href.indexOf(urlPart);
+        return parseInt(location.href.substring(index + urlPart.length));
+    },
+
     removeRegisterMapping: function (registerMappingToDelete, id) {
+        if (id === undefined) {
+            id = this.getDeviceTypeIdFromHref();
+        }
         var me = this;
 
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(id, {

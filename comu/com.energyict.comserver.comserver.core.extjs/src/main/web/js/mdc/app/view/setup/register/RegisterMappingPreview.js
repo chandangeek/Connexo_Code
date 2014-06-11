@@ -4,7 +4,8 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
     alias: 'widget.registerMappingPreview',
     itemId: 'registerMappingPreview',
     requires: [
-        'Mdc.model.RegisterType'
+        'Mdc.model.RegisterType',
+        'Mdc.view.setup.register.RegisterMappingActionMenu'
     ],
     layout: {
         type: 'card',
@@ -12,21 +13,16 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
     },
 
     title: 'Details',
+
     tools: [
         {
             xtype: 'button',
-            icon: '../mdc/resources/images/actionsDetail.png',
-            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-            menu: [
-                {
-                    text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-                    itemId: 'removeRegisterMapping',
-                    action: 'removeRegisterMapping'
-
-                }
-            ]
+            text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
+            iconCls: 'x-uni-action-iconD',
+            menu: {
+                xtype: 'register-mapping-action-menu'
+            }
         }
-
     ],
 
     deviceTypeId: null,

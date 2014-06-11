@@ -241,11 +241,11 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
         }
         Ext.widget('messagebox', {
             buttons: [
-                {
-                    text: 'Retry',
-                    action: retryAction,
-                    ui: 'remove'
-                },
+//                {
+//                    text: 'Retry',
+//                    action: retryAction,
+//                    ui: 'remove'
+//                },
                 {
                     text: 'Cancel',
                     action: 'cancel',

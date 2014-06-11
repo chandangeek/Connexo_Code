@@ -226,7 +226,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
 
 
     handleSuccessRequest: function (headerText) {
-        window.location.href = '#/administration/loadprofiletypes';
+//        window.location.href = '#/administration/loadprofiletypes';
         Ext.create('widget.uxNotification', {
             html: headerText,
             ui: 'notification-success'

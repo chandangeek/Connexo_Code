@@ -236,6 +236,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                     deviceConfigurationToDelete.getProxy().setExtraParam('deviceType', me.deviceTypeId);
                     deviceConfigurationToDelete.destroy({
                         callback: function () {
+                            // TODO Show a notification.
                             location.href = '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations';
                         }
                     });
@@ -249,14 +250,8 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
     },
 
     deleteDeviceConfigurationFromDetails: function () {
-        var me = this;
         var deviceConfigurationToDelete = this.getDeviceConfigurationDetailForm().getRecord();
-        deviceConfigurationToDelete.getProxy().setExtraParam('deviceType', this.deviceTypeId);
-        deviceConfigurationToDelete.destroy({
-            callback: function () {
-                location.href = '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations';
-            }
-        });
+        this.deleteTheDeviceConfiguration(deviceConfigurationToDelete);
     },
 
     showDeviceConfigurationCreateView: function (deviceTypeId) {
