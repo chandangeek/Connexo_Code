@@ -13,7 +13,7 @@
     <artifactId>mdc.scheduling</artifactId>
     <packaging>bundle</packaging>
     <version>${comserver.version}</version>
-    <name>[MDC] mdc.scheduling</name>
+    <name>[MDC] mdc.scheduling [init SCH]</name>
     <description>
         Bundle providing SchedulingService to handle all scheduling related functionality
     </description>
