@@ -137,7 +137,6 @@ public class PluggableClassesRegistrarImpl implements PluggableClassesRegistrar 
     }
 
     private void registerDeviceProtocolPluggableClasses() {
-
         Optional<License> licenseForApplication = licenseService.getLicenseForApplication(MDC_APPLICATION_KEY);
         if(licenseForApplication.isPresent()){
             License license = licenseForApplication.get();
