@@ -12,19 +12,6 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
         return this.edit;
     },
 
-    setEdit: function (edit, returnLink) {
-        if (edit) {
-            this.edit = edit;
-            this.down('#createEditButton').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
-            this.down('#createEditButton').action = 'editDeviceType';
-        } else {
-            this.edit = edit;
-            this.down('#createEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
-            this.down('#createEditButton').action = 'createDeviceType';
-        }
-        this.down('#cancelLink').href = returnLink;
-    },
-
     initComponent: function () {
         this.content = [
             {

@@ -141,16 +141,16 @@ Ext.define('Mdc.controller.setup.LogbookTypesOverview', {
                             result = Ext.decode(response.responseText, true),
                             title = Ext.String.format(Uni.I18n.translate('logbooktype.remove.failed', 'MDC', 'Failed to remove {0}'), record.data.name),
                             message = Uni.I18n.translate('general.server.error', 'MDC', 'Server error');
-
                         if(!Ext.isEmpty(response.statusText)) {
                             message = response.statusText;
                         }
-                        if(result && result.error) {
+                        if (result && result.message) {
+                            message = result.message;
+                        } else if (result && result.error) {
                             message = result.error;
                         }
                         self.getApplication().getController('Uni.controller.Error').showError(title, message);
                     }
-
                 },
                 callback: function () {
                     preloader.destroy();

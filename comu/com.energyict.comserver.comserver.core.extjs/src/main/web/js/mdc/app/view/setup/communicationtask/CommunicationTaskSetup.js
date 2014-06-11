@@ -15,11 +15,17 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskSetup', {
         var me = this;
         me.side = [
             {
-                xtype: 'deviceConfigurationMenu',
-                itemId: 'stepsMenu',
-                deviceTypeId: me.deviceTypeId,
-                deviceConfigurationId: me.deviceConfigurationId,
-                toggle: 7
+                xtype: 'panel',
+                ui: 'medium',
+                items: [
+                    {
+                        xtype: 'deviceConfigurationMenu',
+                        itemId: 'stepsMenu',
+                        deviceTypeId: me.deviceTypeId,
+                        deviceConfigurationId: me.deviceConfigurationId,
+                        toggle: 7
+                    }
+                ]
             }
         ];
         me.content = [

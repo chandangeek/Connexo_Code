@@ -11,10 +11,10 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigGrid', {
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Mdc.store.RegisterConfigsOfDeviceConfig'
+        'Mdc.store.RegisterConfigsOfDeviceConfig',
+        'Mdc.view.setup.registerconfig.RegisterConfigActionMenu'
     ],
     store: 'RegisterConfigsOfDeviceConfig',
-    //padding: '10 10 10 10',
     initComponent: function () {
         var me = this;
         this.columns = [
@@ -53,17 +53,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigGrid', {
 
             {
                 xtype: 'uni-actioncolumn',
-                items: [
-                    {
-                        text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                        action: 'editItem'
-                    },
-                    {
-                        text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-                        action: 'deleteItem'
-                    }
-
-                ]
+                items: 'Mdc.view.setup.registerconfig.RegisterConfigActionMenu'
             }
 
         ];
