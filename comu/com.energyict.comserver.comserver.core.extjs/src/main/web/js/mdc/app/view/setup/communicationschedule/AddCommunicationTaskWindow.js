@@ -5,7 +5,7 @@ Ext.define('Mdc.view.setup.communicationschedule.AddCommunicationTaskWindow', {
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'CommunicationTasks'
+        'Mdc.store.CommunicationTasks'
     ],
     closable: true,
     width: 700,
