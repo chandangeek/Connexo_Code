@@ -132,7 +132,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         var menuItems = Ext.ComponentQuery.query('#activateDeviceconfigurationMenuItem') ;
         for (var i=0; i < menuItems.length; i++) {
             menuItems[i].setText(activateDeactivateText);
-        };
+        }
     },
 
     showDeviceConfigurationDetailsView: function (devicetype, deviceconfiguration) {

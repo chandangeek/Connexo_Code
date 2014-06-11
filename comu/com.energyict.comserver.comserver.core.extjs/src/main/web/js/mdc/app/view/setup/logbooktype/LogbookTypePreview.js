@@ -1,25 +1,22 @@
-Ext.define('Mdc.view.setup.logbooktype.Item', {
+Ext.define('Mdc.view.setup.logbooktype.LogbookTypePreview', {
     extend: 'Ext.panel.Panel',
-    alias: 'widget.logbook-item',
+    alias: 'widget.logbookTypePreview',
+    itemId: 'logbookTypePreview',
     frame: true,
-
     tools: [
         {
-            itemId: 'actions',
             xtype: 'button',
-            text: 'Actions',
+            itemId: 'logbookTypePreviewActionsButton',
+            text: Uni.I18n.translate('logbooktype.actions', 'MDC', 'Actions'),
             iconCls: 'x-uni-action-iconD',
-            menu: {
-                xtype: 'logbook-action-menu'
-            }
+            menu: { xtype: 'logbookTypeActionMenu' }
         }
     ],
-
     items: [
         {
-            itemId: 'loogbookDetails',
             xtype: 'form',
-            name: 'logbookDetails',
+            itemId: 'logbookTypeDetails',
+            name: 'logbookTypeDetails',
             layout: 'column',
             defaults: {
                 xtype: 'container',
@@ -30,20 +27,20 @@ Ext.define('Mdc.view.setup.logbooktype.Item', {
                 {
                     items: [
                         {
-                            itemId: 'name',
                             xtype: 'displayfield',
-                            fieldLabel: 'Name',
-                            name: 'name'
+                            itemId: 'logbookTypeDetailsName',
+                            name: 'name',
+                            fieldLabel: Uni.I18n.translate('logbooktype.name', 'MDC', 'Name')
                         }
                     ]
                 },
                 {
                     items: [
                         {
-                            itemId: 'obis',
                             xtype: 'displayfield',
-                            fieldLabel: 'OBIS code',
-                            name: 'obis'
+                            itemId: 'logbookTypeDetailsObis',
+                            name: 'obis',
+                            fieldLabel: Uni.I18n.translate('logbooktype.obis', 'MDC', 'OBIS code')
                         }
                     ]
                 }

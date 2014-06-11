@@ -47,9 +47,15 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
             '#connectionmethodsgrid menuitem[action = createInboundConnectionMethod]': {
                 click: this.addInboundConnectionMethodHistory
             },
+            'button[action = createOutboundConnectionMethod]': {
+                click: this.addOutboundConnectionMethodHistory
+            },
+            'button[action = createInboundConnectionMethod]': {
+                click: this.addInboundConnectionMethodHistory
+            },
             '#connectionmethodsgrid actioncolumn': {
-                editItem: this.editConnectionMethodHistory,
-                deleteItem: this.deleteConnectionMethod,
+                editConnectionMethod: this.editConnectionMethodHistory,
+                deleteConnectionMethod: this.deleteConnectionMethod,
                 toggleDefault: this.toggleDefaultConnectionMethod
             },
             '#connectionMethodPreview menuitem[action=editConnectionMethod]': {
@@ -121,7 +127,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
             this.getConnectionMethodPreview().getLayout().setActiveItem(1);
             this.getConnectionMethodPreview().setTitle(connectionMethodName);
             this.getConnectionMethodPreviewForm().loadRecord(connectionMethod[0]);
-            this.getConnectionMethodPreview().down('#toggleDefault').setText(connectionMethod[0].get('isDefault') === true ? Uni.I18n.translate('connectionmethod.unsetAsDefault', 'MDC', 'Remove as default') : Uni.I18n.translate('connectionmethod.setAsDefault', 'MDC', 'Set as default'));
+            this.getConnectionMethodPreview().down('#toggleDefaultMenuItem').setText(connectionMethod[0].get('isDefault') === true ? Uni.I18n.translate('connectionmethod.unsetAsDefault', 'MDC', 'Remove as default') : Uni.I18n.translate('connectionmethod.setAsDefault', 'MDC', 'Set as default'));
             this.getPropertiesViewController().showProperties(connectionMethod[0], this.getConnectionMethodPreview());
         } else {
             this.getConnectionMethodPreview().getLayout().setActiveItem(0);
@@ -323,6 +329,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         model.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigId});
         model.load(connectionMethodId, {
             success: function (connectionMethod) {
+                me.getApplication().fireEvent('loadConnectionMethod', connectionMethod);
                 var widget = Ext.widget('connectionMethodEdit', {
                     edit: true,
                     returnLink: me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens(),
@@ -399,5 +406,5 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                 me.previewConnectionMethod();
             }
         });
-    },
+    }
 });

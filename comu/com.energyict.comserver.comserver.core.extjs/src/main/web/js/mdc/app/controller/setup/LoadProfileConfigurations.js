@@ -241,11 +241,11 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
         }
         Ext.widget('messagebox', {
             buttons: [
-                {
-                    text: 'Retry',
-                    action: retryAction,
-                    ui: 'remove'
-                },
+//                {
+//                    text: 'Retry',
+//                    action: retryAction,
+//                    ui: 'remove'
+//                },
                 {
                     text: 'Cancel',
                     action: 'cancel',
@@ -393,7 +393,8 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
                             params: {},
                             method: 'GET',
                             success: function (response) {
-                                var record = Ext.JSON.decode(response.responseText).data[0];
+                                var record = Ext.JSON.decode(response.responseText).data[0],
+                                    overruledObisCode = (record.obisCode == record.overruledObisCode) ? '' : record.overruledObisCode;
                                 me.getApplication().fireEvent('loadLoadProfile', record);
                                 me.deviceTypeName = deviceType.get('name');
                                 me.deviceConfigName = deviceConfig.get('name');
@@ -403,11 +404,12 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
                                 widget.down('combobox[name=id]').setValue(record.id);
                                 widget.down('combobox[name=id]').disable();
                                 widget.down('displayfield[name=obisCode]').setValue(record.obisCode);
+                                widget.down('textfield[name=overruledObisCode]').setValue(overruledObisCode);
                             }
                         });
                     }
                 });
             }
         });
-    },
+    }
 });

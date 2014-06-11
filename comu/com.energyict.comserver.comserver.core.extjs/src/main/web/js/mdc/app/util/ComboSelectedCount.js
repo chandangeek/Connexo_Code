@@ -40,8 +40,8 @@ Ext.define('Mdc.util.ComboSelectedCount', {
                 combo.setSelectedCount(len);
             },
             change: function (me) {
-                var addBtn = Ext.ComponentQuery.query('communication-tasks-edit communication-tasks-command button[action=addCommand]')[0],
-                    saveBtn = Ext.ComponentQuery.query('communication-tasks-edit communication-tasks-command button[action=saveCommand]')[0],
+                var addBtn = Ext.ComponentQuery.query('comtaskCreateEdit comtaskCommand button[action=addCommand]')[0],
+                    saveBtn = Ext.ComponentQuery.query('comtaskCreateEdit comtaskCommand button[action=saveCommand]')[0],
                     toolbarBtns = Ext.ComponentQuery.query('#selectAll'),
                     toolbarBtn;
                 if (toolbarBtns.length > 1) {

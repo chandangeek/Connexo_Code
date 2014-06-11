@@ -2,6 +2,9 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationPrev
     extend: 'Ext.panel.Panel',
     alias: 'widget.loadProfileConfigurationPreview',
     itemId: 'loadProfileConfigurationPreview',
+    requires: [
+        'Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationActionMenu'
+    ],
     height: 310,
     frame: true,
     intervalStore: null,
@@ -56,7 +59,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationPrev
                     items: [
                         {
                             xtype: 'displayfield',
-                            fieldLabel: 'Channels: ',
+                            fieldLabel: 'Channel configurations: ',
                             name: 'channels',
                             renderer: function (value) {
                                 var typesString = '';
@@ -78,23 +81,10 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationPrev
         this.tools = [
             {
                 xtype: 'button',
-                text: 'Actions',
+                text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
                 iconCls: 'x-uni-action-iconD',
                 menu: {
-                    xtype: 'menu',
-                    plain: true,
-                    border: false,
-                    shadow: false,
-                    items: [
-                        {
-                            text: 'Edit',
-                            action: this.editActionName
-                        },
-                        {
-                            text: 'Remove',
-                            action: this.deleteActionName
-                        }
-                    ]
+                    xtype: 'load-profile-configuration-action-menu'
                 }
             }
         ];

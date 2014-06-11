@@ -5,13 +5,9 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
         'setup.securitysettings.SecuritySettingSetup',
         'setup.securitysettings.SecuritySettingGrid',
         'setup.securitysettings.SecuritySettingPreview',
-        'setup.securitysettings.SecuritySettingEdit',
         'setup.securitysettings.SecuritySettingFiltering',
         'setup.securitysettings.SecuritySettingSorting',
-        'setup.securitysettings.SecuritySettingDockedItems',
-        'setup.securitysettings.SecuritySettingEmptyList',
         'setup.securitysettings.SecuritySettingSideFilter',
-        'setup.securitysettings.SecuritySettingFloatingPanel',
         'setup.securitysettings.SecuritySettingForm'
     ],
 
@@ -23,8 +19,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
 
     refs: [
         {ref: 'formPanel', selector: 'securitySettingForm'},
-        {ref: 'securityGridPanel', selector: 'securitySettingGrid'},
-        {ref: 'securityPreviewPanel', selector: 'securitySettingPreview'}
+        {ref: 'securityGridPanel', selector: 'securitySettingGrid'}
     ],
 
     deviceTypeName: null,
@@ -34,7 +29,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
     init: function () {
         this.control({
             'securitySettingSetup securitySettingGrid': {
-                itemclick: this.loadGridItemDetail
+                select: this.loadGridItemDetail
             },
             'securitySettingSetup': {
                 afterrender: this.loadStore
@@ -49,13 +44,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 click: this.editRecord
             },
             'menu menuitem[action=deletesecuritysetting]': {
-                click: this.showConfirmationPanel
-            },
-            'securitySettingFloatingPanel button[action=cancel]': {
-                click: this.closeFloatingMessage
-            },
-            'securitySettingFloatingPanel button[action=delete]': {
-                click: this.deleteRecord
+                click: this.removeSecuritySetting
             }
         });
 
@@ -78,70 +67,52 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
         window.location.href = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/securitysettings/' + lastSelected.getData().id + '/edit';
     },
 
-    showConfirmationPanel: function () {
-        var grid = this.getSecurityGridPanel(),
-            lastSelected = grid.getView().getSelectionModel().getLastSelected(),
-            overview = Ext.ComponentQuery.query('securitySettingSetup')[0],
-            confirmationMessage = Ext.widget('securitySettingFloatingPanel');
-        overview.disable();
-        confirmationMessage.show({
-            width: overview.getWidth() / 3,
-            title: "Remove " + lastSelected.getData().name + "?",
+    removeSecuritySetting: function() {
+        var me = this,
+            grid = me.getSecurityGridPanel(),
+            lastSelected = grid.getView().getSelectionModel().getLastSelected();
+
+        Ext.create('Uni.view.window.Confirmation').show({
             msg: "This security setting configuration will no longer be available",
-            icon: Ext.MessageBox.WARNING
-        });
-    },
-
-
-    enableOverviewPanel: function () {
-        var overviewPanel = Ext.ComponentQuery.query('securitySettingSetup')[0];
-        if (!Ext.isEmpty(overviewPanel)) {
-            overviewPanel.enable();
-        }
-    },
-
-    closeFloatingMessage: function (btn) {
-        this.enableOverviewPanel();
-        btn.up('securitySettingFloatingPanel').hide();
-    },
-
-
-    deleteRecord: function (btn) {
-        var grid = this.getSecurityGridPanel(),
-            lastSelected = grid.getView().getSelectionModel().getLastSelected(),
-            me = this;
-        btn.up('securitySettingFloatingPanel').hide();
-        this.enableOverviewPanel();
-        Ext.Ajax.request({
-            url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/securityproperties/' + lastSelected.getData().id,
-            method: 'DELETE',
-            waitMsg: 'Removing...',
-            success: function () {
-                Ext.create('widget.uxNotification', {
-                    html: 'Security setting was removed successfully',
-                    ui: 'notification-success'
-                }).show();
-                me.store.load();
+            title: "Remove " + ' ' + lastSelected.getData().name + '?',
+            config: {
+                securitySettingToDelete: lastSelected,
+                me: me
             },
-            failure: function (result, request) {
-                var data = Ext.JSON.decode(result.responseText);
-                Ext.widget('messagebox', {
-                    buttons: [
-                        {
-                            text: 'Close',
-                            handler: function (button, event) {
-                                this.up('messagebox').hide();
-                            }
-                        }
-                    ]
-                }).show({
-                        ui: 'notification-error',
-                        title: 'Error during removing of security setting',
-                        msg: data.message,
-                        icon: Ext.MessageBox.ERROR
-                    })
-            }
+            fn: me.removeSecuritySettingRecord
         });
+    },
+
+    removeSecuritySettingRecord: function(btn, text, cfg) {
+        if (btn === 'confirm') {
+            var me = cfg.config.me,
+                securitySettingToDelete = cfg.config.securitySettingToDelete;
+
+            Ext.Ajax.request({
+                url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/securityproperties/' + securitySettingToDelete.getData().id,
+                method: 'DELETE',
+                waitMsg: 'Removing...',
+                success: function () {
+                    Ext.create('widget.uxNotification', {
+                        html: 'Security setting was removed successfully',
+                        ui: 'notification-success'
+                    }).show();
+                    me.store.load();
+                },
+                failure: function (response, request) {
+                    var errorText = "Unknown error occurred";
+
+                    if(response.status == 400) {
+                        var result = Ext.JSON.decode(response.responseText, true);
+                        if(result && result.message) {
+                            errorText = result.message;
+                        }
+
+                        me.getApplication().getController('Uni.controller.Error').showError("Error during removing of security setting", errorText);
+                    }
+                }
+            });
+        }
     },
 
     addAuthAndEncrStores: function (form) {
@@ -154,8 +125,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
     onStoreLoad: function (store) {
         var grid = this.getSecurityGridPanel();
         if (!Ext.isEmpty(grid)) {
-            var numberOfSecuritiesContainer = Ext.ComponentQuery.query('securitySettingSetup securitySettingDockedItems container[name=SecurityCount]')[0],
-                emptyMessage = Ext.ComponentQuery.query('securitySettingSetup')[0].down('#SecuritySettingEmptyList'),
+            var numberOfSecuritiesContainer = Ext.ComponentQuery.query('#securitySettingGrid #securityCount')[0],
                 gridView = grid.getView(),
                 selectionModel = gridView.getSelectionModel(),
                 securityCount = store.getCount(),
@@ -174,17 +144,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
             numberOfSecuritiesContainer.removeAll(true);
             numberOfSecuritiesContainer.add(widget);
 
-            if (securityCount < 1) {
-                grid.hide();
-                emptyMessage.add(
-                    {
-                        xtype: 'securitySettingEmptyList',
-                        deviceTypeId: this.deviceTypeId,
-                        deviceConfigurationId: this.deviceConfigurationId
-                    }
-                );
-                this.getSecurityPreviewPanel().hide();
-            } else {
+            if (securityCount > 0) {
                 if(securityCount > 1) {
                     var index = store.find("id", this.secId);
                     if(index == -1) {
@@ -196,8 +156,6 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 } else {
                     selectionModel.select(0);
                 }
-
-                grid.fireEvent('itemclick', gridView, selectionModel.getLastSelected());
             }
         }
     },
@@ -211,18 +169,15 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
         });
     },
 
-    loadGridItemDetail: function (grid, record) {
+    loadGridItemDetail: function (rowmodel, record, index) {
         var detailPanel = Ext.ComponentQuery.query('securitySettingSetup securitySettingPreview')[0],
             form = detailPanel.down('form'),
             preloader = Ext.create('Ext.LoadMask', {
                 msg: "Loading...",
                 target: form
             });
-        if (this.displayedItemId != record.getData().id) {
-            grid.clearHighlight();
-            preloader.show();
-        }
-        this.displayedItemId = record.getData().id;
+
+        preloader.show();
         detailPanel.setTitle(record.getData().name);
         form.loadRecord(record);
         preloader.destroy();
@@ -431,29 +386,22 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
 
     handleFailureRequest: function (response, headerText) {
         var me = this,
-            result = Ext.JSON.decode(response.responseText, true),
             form = me.getFormPanel().down('form').getForm(),
             errorText = "Unknown error occurred";
 
-        if(result && result.errors) {
-            form.markInvalid(result.errors);
-            me.showErrorPanel();
-            return;
-        }
-        if(!Ext.isEmpty(response.statusText)) {
-            errorText = response.statusText;
-        }
-        if(result && result.message) {
-            errorText = result.message;
-        }
+        if(response.status == 400) {
+            var result = Ext.JSON.decode(response.responseText, true);
+            if(result && result.errors) {
+                form.markInvalid(result.errors);
+                me.showErrorPanel();
+                return;
+            }
+            if(result && result.message) {
+                errorText = result.message;
+            }
 
-        Ext.Msg.show({
-            title: headerText,
-            msg: errorText,
-            icon: Ext.MessageBox.WARNING,
-            buttons: Ext.MessageBox.CANCEL,
-            ui: 'notification-error'
-        });
+            me.getApplication().getController('Uni.controller.Error').showError(headerText, errorText);
+        }
     }
 
 });

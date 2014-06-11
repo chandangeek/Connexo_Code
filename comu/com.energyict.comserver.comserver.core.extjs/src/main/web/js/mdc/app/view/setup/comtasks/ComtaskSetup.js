@@ -1,24 +1,21 @@
-Ext.define('Mdc.view.setup.devicetype.DeviceTypesSetup', {
+Ext.define('Mdc.view.setup.comtasks.ComtaskSetup', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.deviceTypesSetup',
-    itemId: 'deviceTypeSetup',
-
+    alias: 'widget.comtaskSetup',
+    itemId: 'comtaskSetup',
     requires: [
-        'Mdc.view.setup.devicetype.DeviceTypesGrid',
-        'Mdc.view.setup.devicetype.DeviceTypePreview',
-        'Uni.view.container.PreviewContainer'
+        'Mdc.view.setup.comtasks.ComtaskGrid',
+        'Mdc.view.setup.comtasks.ComtaskPreview'
     ],
-
     content: [
         {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate('devicetype.deviceTypes', 'MDC', 'Device types'),
+            title: Uni.I18n.translate('comtask.comtasks', 'MDC', 'Communication tasks'),
             items: [
                 {
                     xtype: 'preview-container',
                     grid: {
-                        xtype: 'deviceTypesGrid'
+                        xtype: 'comtaskGrid'
                     },
                     emptyComponent: {
                         xtype: 'container',
@@ -40,29 +37,32 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesSetup', {
                                 items: [
                                     {
                                         xtype: 'component',
-                                        html: '<b>' + Uni.I18n.translate('deviceType.empty.title', 'MDC', 'No device types found') + '</b><br>' +
-                                            Uni.I18n.translate('deviceType.empty.detail', 'MDC', 'There are no device types. This could be because:') + '<lv><li>&nbsp&nbsp' +
-                                            Uni.I18n.translate('deviceType.empty.list.item1', 'MDC', 'No device types have been added yet.') + '</li></lv><br>' +
-                                            Uni.I18n.translate('deviceType.empty.steps', 'MDC', 'Possible steps:')
+                                        itemId: 'comtaskEmptyCollectionComponent',
+                                        html: '<b>' + Uni.I18n.translate('comtask.empty.title', 'MDC', 'No communication tasks found') + '</b><br>' +
+                                            Uni.I18n.translate('comtask.empty.detail', 'MDC', 'There are no communication tasks. This could be because:') + '<lv><li>&nbsp&nbsp' +
+                                            Uni.I18n.translate('comtask.empty.list.item1', 'MDC', 'No communication tasks have been added yet') + '</li>' +
+                                            Uni.I18n.translate('comtask.empty.list.item2', 'MDC', 'No communication tasks comply to the filter') + '</li></lv><br>' +
+                                            Uni.I18n.translate('comtask.empty.steps', 'MDC', 'Possible steps:')
                                     },
                                     {
                                         xtype: 'button',
+                                        itemId: 'comtaskCreateActionButton',
                                         margin: '10 0 0 0',
-                                        text: Uni.I18n.translate('deviceType.add', 'MDC', 'Add device type'),
-                                        action: 'createDeviceType'
+                                        text: Uni.I18n.translate('comtask.create', 'MDC', 'Create communication task'),
+                                        hrefTarget: '',
+                                        href: '#/administration/communicationtasks/create'
                                     }
                                 ]
                             }
                         ]
                     },
                     previewComponent: {
-                        xtype: 'deviceTypePreview'
+                        xtype: 'comtaskPreview'
                     }
                 }
             ]
         }
     ],
-
     initComponent: function () {
         this.callParent(arguments);
     }

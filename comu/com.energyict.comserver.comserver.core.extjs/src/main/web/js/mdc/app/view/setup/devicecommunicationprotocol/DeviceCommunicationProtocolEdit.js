@@ -110,7 +110,6 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
         this.callParent(arguments);
 
         if (this.isEdit()) {
-            console.log(this.down("#createEditButton"));
             this.down('#createEditButton').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
             this.down('#createEditButton').action = 'editDeviceCommunicationProtocol';
         } else {

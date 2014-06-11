@@ -99,6 +99,7 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
                 var deviceTypeName = deviceType.get('name');
                 // widget.down('#registerTypeTitle').html = '<h1>' + deviceTypeName + ' > ' + Uni.I18n.translate('registerMapping.registerTypes', 'MDC', 'Register types') + '</h1>';
                 me.getApplication().fireEvent('changecontentevent', widget);
+                me.getRegisterMappingGrid().getSelectionModel().doSelect(0);
             }
         });
     },
