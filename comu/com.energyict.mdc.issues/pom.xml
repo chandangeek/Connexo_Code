@@ -10,10 +10,10 @@
     <relativePath>../com.energyict.comserver.parent/pom.xml</relativePath>
   </parent>
 
-  <artifactId>mdc-issues</artifactId>
+  <artifactId>mdc.issues</artifactId>
   <packaging>bundle</packaging>
   <version>${comserver.version}</version>
-  <name>[MDC] mdc-issues</name>
+  <name>[MDC] mdc.issues</name>
   <description>
     Provides support to collect issues that are found while collecting data from physical devices.
   </description>
