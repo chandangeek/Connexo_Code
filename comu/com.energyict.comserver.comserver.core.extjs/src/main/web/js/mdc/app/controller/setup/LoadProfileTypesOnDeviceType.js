@@ -336,7 +336,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
     showDeviceTypeLoadProfileTypesView: function (deviceTypeId) {
         var me = this,
             widget = Ext.widget('loadProfileTypeOnDeviceTypeSetup', {deviceTypeId: deviceTypeId, intervalStore: this.intervalStore });
-        widget.down('#loadProfileTypesTitle').html = '<h1>' + Uni.I18n.translate('loadprofiletype.loadprofiletypes', 'MDC', 'Load profile types') + '</h1>';
+
         me.deviceTypeId = deviceTypeId;
         me.store.getProxy().extraParams = ({deviceType: deviceTypeId});
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {

@@ -236,6 +236,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                     deviceConfigurationToDelete.getProxy().setExtraParam('deviceType', me.deviceTypeId);
                     deviceConfigurationToDelete.destroy({
                         callback: function () {
+                            // TODO Show a notification.
                             location.href = '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations';
                         }
                     });
