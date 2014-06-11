@@ -2,23 +2,17 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.exceptions.DuplicateObisCodeException;
 import com.energyict.mdc.masterdata.rest.RegisterMappingInfo;
 
 import javax.inject.Inject;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
@@ -88,7 +82,13 @@ public class RegisterTypeResource {
     public RegisterMappingInfo updateRegisterMapping(@PathParam("id") long id, RegisterMappingInfo registerMappingInfo) {
         RegisterMapping registerMapping = this.resourceHelper.findRegisterMappingByIdOrThrowException(id);
         registerMappingInfo.writeTo(registerMapping, findReadingType(registerMappingInfo));
-        registerMapping.save();
+        try {
+            registerMapping.save();
+        } catch (DuplicateObisCodeException e) {
+            throw new LocalizedFieldValidationException(
+                    MessageSeeds.DUPLICATE_OBISCODE, "obisCode", registerMapping.getObisCode().toString(), registerMapping.getPhenomenon().toString(), registerMapping.getTimeOfUse());
+
+        }
         return new RegisterMappingInfo(registerMapping, this.deviceConfigurationService.isRegisterMappingUsedByDeviceType(registerMapping));
     }
 
