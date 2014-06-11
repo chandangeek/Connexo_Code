@@ -1,43 +1,39 @@
-Ext.define('Mdc.controller.setup.LogbookConfigurations', {
+Ext.define('Mdc.controller.setup.DeviceTypeLogbooks', {
     extend: 'Ext.app.Controller',
 
     stores: [
-        'Mdc.store.LogbookConfigurations'
+        'Mdc.store.LogbookTypes'
     ],
 
     views: [
-        'setup.deviceconfiguration.DeviceConfigurationLogbooks',
-        'setup.deviceconfiguration.EditLogbookConfiguration',
-        'setup.deviceconfiguration.ActionMenu'
+        'setup.devicetype.DeviceTypeLogbooks',
+        'setup.devicetype.ActionMenu',
+        'Isu.view.ext.button.GridAction'
     ],
 
     refs: [
         {
-            ref: 'deviceConfigurationLogbooks',
-            selector: 'device-configuration-logbooks'
+            ref: 'deviceTypeLogbooks',
+            selector: 'device-type-logbooks'
         }
     ],
 
     init: function () {
-        this.control({
-            'device-configuration-logbooks grid': {
-                itemclick: this.loadGridItemDetail
+        var me = this;
+        me.control({
+            'device-type-logbooks grid': {
+                itemclick: me.loadGridItemDetail
             },
-            'device-configuration-logbooks grid uni-actioncolumn': {
-                menuclick: this.chooseAction
-            },
-            'device-logbook-action-menu': {
-                click: this.chooseAction
+            'device-type-logbooks grid uni-actioncolumn': {
+                menuclick : me.deleteLogbookType
             }
-
         });
-        this.store = this.getStore('Mdc.store.LogbookConfigurations');
+        me.store = me.getStore('Mdc.store.LogbookTypes');
     },
 
     loadGridItemDetail: function (grid, record) {
-        var itemPanel = Ext.ComponentQuery.query('device-configuration-logbooks panel[name=details]')[0],
-            itemForm = Ext.ComponentQuery.query('device-configuration-logbooks form[name=logbookConfigurationDetails]')[0],
-            overruledField = itemForm.down('[name=overruledObisCode]'),
+        var itemPanel = Ext.ComponentQuery.query('device-type-logbooks panel[name=details]')[0],
+            itemForm = Ext.ComponentQuery.query('device-type-logbooks form[name=logbookTypeDetails]')[0],
             preloader = Ext.create('Ext.LoadMask', {
                 msg: "Loading...",
                 target: itemPanel
@@ -47,38 +43,21 @@ Ext.define('Mdc.controller.setup.LogbookConfigurations', {
             preloader.show();
         }
         this.displayedItemId = record.id;
-        this.logbookConfigId = record.internalId;
         itemForm.loadRecord(record);
-        if (record.data.overruledObisCode == record.data.obisCode) {
-            overruledField.setValue('-');
-        }
         itemPanel.setTitle(record.get('name'));
         itemPanel.show();
         preloader.destroy();
     },
 
-    chooseAction: function (menu, item) {
-        var action = item.action,
-            logbooksView = this.getDeviceConfigurationLogbooks();
-        switch (action) {
-            case 'edit':
-                window.location.href = '#/administration/devicetypes/' + logbooksView.deviceTypeId + '/deviceconfigurations/' + logbooksView.deviceConfigurationId + '/logbookconfigurations/' + this.logbookConfigId + '/edit';
-                break;
-            case 'delete':
-                this.deleteLogbookType();
-                break;
-        }
-    },
-
     deleteLogbookType: function () {
         var self = this,
-            logbooksView = self.getDeviceConfigurationLogbooks(),
+            logbooksView = self.getDeviceTypeLogbooks(),
             grid = logbooksView.down('grid'),
             record = grid.getSelectionModel().getLastSelected(),
-            url = '/api/dtc/devicetypes/' + logbooksView.deviceTypeId + '/deviceconfigurations/' + logbooksView.deviceConfigurationId + '/logbookconfigurations/' + record.data.id;
+            url = '/api/dtc/devicetypes/' + logbooksView.deviceTypeId + '/logbooktypes/' + record.data.id;
         Ext.create('Uni.view.window.Confirmation').show({
-            msg: 'The logbook configuration will no longer be available on this device type.',
-            title: 'Remove logbook configuration ' + record.data.name + ' ?',
+            msg: 'The logbook type will no longer be available on this device type.',
+            title: 'Remove logbook type ' + record.data.name + ' ?',
             config: {
             },
             fn: function (state) {
@@ -131,5 +110,6 @@ Ext.define('Mdc.controller.setup.LogbookConfigurations', {
             }
         });
     }
-})
-;
+});
+
+
