@@ -26,6 +26,15 @@ public class HttpContextImpl implements HttpContext {
     static final String USERPRINCIPAL = "com.elster.jupiter.userprincipal";
     static final String LOGIN_URI = "/apps/usr/login.html";
 
+    static final String[] UNSECURED_RESOURCES = {
+                        "/apps/usr/login.html",
+                        "/apps/usr/app/controller/Login.js",
+                        "/apps/usr/app/controller/Base64.js",
+                        "/apps/usr/app/view/Login.js",
+                        "/apps/ext/packages/uni-theme-skyline/build/resources",
+                        "/apps/uni/resources/css/etc/all.css",
+                        "/apps/usr/resources/images/connexo.png"};
+
 	private final Resolver resolver;
     private final UserService userService;
     private final TransactionService transactionService;
@@ -66,21 +75,24 @@ public class HttpContextImpl implements HttpContext {
         String authentication = request.getHeader("Authorization");
         if (authentication == null) {
             if(request.getSession(true).getAttribute("user") == null) {
-                String referer = request.getHeader("referer");
                 String server = request.getRequestURL().substring(0, request.getRequestURL().indexOf(request.getRequestURI()));
 
-                if(request.getRequestURI().startsWith(LOGIN_URI) || (referer != null && referer.startsWith(server + LOGIN_URI))){
+                if(unsecureAllowed(request.getRequestURI())){
                     // Allow access to resources used by the login page
                     response.setStatus(HttpServletResponse.SC_ACCEPTED);
                 }
                 else{
-                    if(!request.getRequestURI().startsWith(LOGIN_URI)){
-                        response.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
-                        response.sendRedirect(server + LOGIN_URI + "?" + "page=" + request.getRequestURI());
-                    }
+                    response.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
+                    response.sendRedirect(server + LOGIN_URI + "?" + "page=" + request.getRequestURI());
                 }
             }
-            response.setHeader("Cache-Control", "max-age=86400");
+            if(request.getRequestURL().toString().endsWith("index.html") || request.getRequestURL().toString().endsWith("index-dev.html")){
+                // No caching for index.html files, so that authentication will be verified first
+                response.setHeader("Cache-Control", "no-cache");
+            }
+            else{
+                response.setHeader("Cache-Control", "max-age=86400");
+            }
             return true;
         }
         Optional<User> user = Optional.absent();
@@ -118,4 +130,12 @@ public class HttpContextImpl implements HttpContext {
         return result;
     }
 
+    private boolean unsecureAllowed(String uri){
+        for(String resource : UNSECURED_RESOURCES){
+            if(uri.contains(resource)){
+                return true;
+            }
+        }
+        return false;
+    }
 }
