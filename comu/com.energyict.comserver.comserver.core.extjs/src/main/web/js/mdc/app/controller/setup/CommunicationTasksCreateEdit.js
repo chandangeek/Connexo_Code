@@ -272,21 +272,12 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
                 }
             ]
         });
-        if (btn.text === 'Create') {
-            msgWindow.show({
-                ui: 'notification-error',
-                title: 'Error during creating',
-                msg: 'The communication task could not be created because of an error in the database.',
-                icon: Ext.MessageBox.ERROR
-            });
-        } else {
-            msgWindow.show({
-                ui: 'notification-error',
-                title: 'Error during editing',
-                msg: 'The communication task could not be edited because of an error in the database.',
-                icon: Ext.MessageBox.ERROR
-            });
-        }
+        msgWindow.show({
+            ui: 'notification-error',
+            title: 'Error during creating',
+            msg: 'The communication task could not be created because of an error in the database.',
+            icon: Ext.MessageBox.ERROR
+        });
     },
 
     setTooltip: function () {
