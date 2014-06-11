@@ -89,7 +89,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasksView', {
             itemPanel = self.getItemPanel(),
             selectionModel = tasksGrid.getView().getSelectionModel();
         self.store.load({
-            callback: function() {
+            callback: function () {
                 if (this.getTotalCount() < 1) {
                     tasksGrid.hide();
                     itemPanel.hide();

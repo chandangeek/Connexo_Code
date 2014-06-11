@@ -47,7 +47,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulesSetup', {
                                         xtype: 'button',
                                         margin: '10 0 0 0',
                                         text: Uni.I18n.translate('communicationschedule.add', 'MDC', 'Add communication schedule'),
-                                        action: 'createDeviceType'
+                                        action: 'createCommunicationSchedule'
                                     }
                                 ]
                             }

@@ -38,7 +38,6 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                         typeAhead: true,
                         msgTarget: 'under',
                         width: 600
-
                     },
                     {
                         xtype: 'textfield',
