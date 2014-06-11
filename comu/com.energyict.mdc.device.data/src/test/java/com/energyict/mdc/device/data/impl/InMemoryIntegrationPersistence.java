@@ -53,8 +53,10 @@ import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
+import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
+import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
@@ -79,8 +81,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -110,7 +114,7 @@ public class InMemoryIntegrationPersistence {
     private MeteringService meteringService;
     private DataModel dataModel;
     private ApplicationContext applicationContext;
-    private ProtocolPluggableService protocolPluggableService;
+    private ProtocolPluggableServiceImpl protocolPluggableService;
     private MdcReadingTypeUtilService readingTypeUtilService;
     private TaskService taskService;
     private DeviceDataServiceImpl deviceDataService;
@@ -118,6 +122,7 @@ public class InMemoryIntegrationPersistence {
     private InMemoryBootstrapModule bootstrapModule;
     private PropertySpecService propertySpecService;
     private LicenseService licenseService;
+    private LicensedProtocolService licensedProtocolService;
 
     public InMemoryIntegrationPersistence() {
         this(new DefaultClock());
@@ -128,9 +133,16 @@ public class InMemoryIntegrationPersistence {
         this.clock = clock;
     }
 
-    public void initializeDatabase(String testName, boolean showSqlLogging, boolean createMasterData) throws SQLException {
+    public void initializeDatabase(String testName, boolean showSqlLogging) throws SQLException {
         this.initializeMocks(testName);
         bootstrapModule = new InMemoryBootstrapModule();
+        licensedProtocolService = mock(LicensedProtocolService.class);
+        License license = mock(License.class);
+        when(licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.of(license));
+        when(licensedProtocolService.isValidJavaClassName(anyString(), eq(license))).thenReturn(true);
+        Properties properties = new Properties();
+        properties.put("protocols", "all");
+        when(license.getLicensedValues()).thenReturn(properties);
         Injector injector = Guice.createInjector(
                 new MockModule(),
                 bootstrapModule,
@@ -178,7 +190,8 @@ public class InMemoryIntegrationPersistence {
             this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
             this.engineModelService = injector.getInstance(EngineModelService.class);
             this.relationService = injector.getInstance(RelationService.class);
-            this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
+            this.protocolPluggableService = (ProtocolPluggableServiceImpl) injector.getInstance(ProtocolPluggableService.class);
+            this.protocolPluggableService.addLicensedProtocolService(this.licensedProtocolService);
             this.schedulingService = injector.getInstance(SchedulingService.class);
             this.deviceDataService = injector.getInstance(DeviceDataServiceImpl.class);
             this.propertySpecService = injector.getInstance(PropertySpecService.class);
