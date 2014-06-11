@@ -137,3 +137,10 @@ a, a.#{$prefix}btn {
     margin-left: -5px;
   }
 }
+
+.#{$prefix}form-fieldcontainer.#{$prefix}container-actions {
+    *[class*='#{$prefix}btn-link-']{
+        margin-top: 0;
+        margin-left: 0;
+    }
+}
