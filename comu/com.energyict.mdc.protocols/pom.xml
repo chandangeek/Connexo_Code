@@ -39,7 +39,7 @@
         </dependency>
         <dependency>
           <groupId>com.energyict</groupId>
-          <artifactId>mdc-protocols-api</artifactId>
+          <artifactId>mdc.protocols.api</artifactId>
           <version>${project.version}</version>
         </dependency>
         <dependency>
