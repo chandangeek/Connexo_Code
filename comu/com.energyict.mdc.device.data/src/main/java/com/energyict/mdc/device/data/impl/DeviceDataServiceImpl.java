@@ -109,7 +109,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-03-10 (16:27)
  */
-@Component(name="com.energyict.mdc.device.data", service = {DeviceDataService.class, ReferencePropertySpecFinderProvider.class, InstallService.class}, property = "name=" + DeviceDataService.COMPONENTNAME)
+@Component(name="com.energyict.mdc.device.data", service = {DeviceDataService.class, ReferencePropertySpecFinderProvider.class, InstallService.class}, property = "name=" + DeviceDataService.COMPONENTNAME, immediate = true)
 public class DeviceDataServiceImpl implements ServerDeviceDataService, ReferencePropertySpecFinderProvider, InstallService {
 
     private volatile DataModel dataModel;
