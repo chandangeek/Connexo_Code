@@ -112,8 +112,8 @@ mvn:com.energyict/mdc-all/1.0.0-SNAPSHOT
 mvn:com.energyict/mdc-common/1.0.0-SNAPSHOT
 mvn:com.energyict/mdc-engine-config/1.0.0-SNAPSHOT
 mvn:com.energyict/mdc.engine/1.0.0-SNAPSHOT
-mvn:com.energyict/mdc-issues/1.0.0-SNAPSHOT
-mvn:com.energyict/mdc-protocols-api/1.0.0-SNAPSHOT
+mvn:com.energyict/mdc.issues/1.0.0-SNAPSHOT
+mvn:com.energyict/mdc.protocols.api/1.0.0-SNAPSHOT
 mvn:com.energyict/mdc-protocols/1.0.0-SNAPSHOT
 mvn:com.energyict/mdc.dynamic/1.0.0-SNAPSHOT
 mvn:com.energyict/mdc.pluggable/1.0.0-SNAPSHOT
@@ -130,6 +130,7 @@ mvn:com.energyict/mdc.tasks/1.0.0-SNAPSHOT
 mvn:com.energyict/mdc.tasks.rest/1.0.0-SNAPSHOT
 mvn:com.energyict/mdc.tasks.history/1.0.0-SNAPSHOT
 mvn:com.energyict/mdc.protocol.pluggable/1.0.0-SNAPSHOT
+mvn:com.energyict/mdc.protocol.registrar/1.0.0-SNAPSHOT
 mvn:com.energyict/mdc.device.data.imp/1.0.0-SNAPSHOT
 mvn:com.energyict/mdc.device.data.imp.rest/1.0.0-SNAPSHOT
 mvn:com.energyict/mdc.device.data.imp.extjs/1.0.0-SNAPSHOT
