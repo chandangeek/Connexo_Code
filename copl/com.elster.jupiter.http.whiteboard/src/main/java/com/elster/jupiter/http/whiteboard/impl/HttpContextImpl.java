@@ -1,25 +1,22 @@
 package com.elster.jupiter.http.whiteboard.impl;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.concurrent.atomic.AtomicReference;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
+import com.elster.jupiter.http.whiteboard.Resolver;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
-
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.http.HttpContext;
 
-import com.elster.jupiter.http.whiteboard.Resolver;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.net.URL;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class HttpContextImpl implements HttpContext {
 
@@ -27,15 +24,20 @@ public class HttpContextImpl implements HttpContext {
     static final String LOGIN_URI = "/apps/usr/login.html";
 
     static final String[] UNSECURED_RESOURCES = {
-                        "/apps/usr/login.html",
-                        "/apps/usr/app/controller/Login.js",
-                        "/apps/usr/app/controller/Base64.js",
-                        "/apps/usr/app/view/Login.js",
-                        "/apps/ext/packages/uni-theme-skyline/build/resources",
-                        "/apps/uni/resources/css/etc/all.css",
-                        "/apps/usr/resources/images/connexo.png"};
+            "/apps/usr/login.html",
+            "/apps/usr/login.js",
+            "/apps/ext/ext-all-dev.js",
+            "/apps/ext/ext-all.js",
+            "/apps/uni/uni-dev.js",
+            "/apps/usr/app/controller/Login.js",
+            "/apps/usr/app/controller/Base64.js",
+            "/apps/usr/app/view/Login.js",
+            "/apps/ext/packages/uni-theme-skyline/build/resources",
+            "/apps/ext/packages/uni-theme-skyline/build/uni-theme-skyline.js",
+            "/apps/uni/resources/css/etc/all.css",
+            "/apps/usr/resources/images/connexo.png"};
 
-	private final Resolver resolver;
+    private final Resolver resolver;
     private final UserService userService;
     private final TransactionService transactionService;
     private final AtomicReference<EventAdmin> eventAdminHolder;
@@ -59,38 +61,36 @@ public class HttpContextImpl implements HttpContext {
 
     @Override
     public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException {
-       	EventAdmin eventAdmin = eventAdminHolder.get();
-    	if (eventAdmin != null) {
-    		StringBuffer requestUrl = request.getRequestURL();
-        	String queryString = request.getQueryString();
-        	if (queryString != null) {
-        		requestUrl.append("?").append(queryString);
-        	}
-    		Event event = new Event("com/elster/jupiter/http/GET",ImmutableMap.of("resource",requestUrl.toString()));
-    		eventAdmin.postEvent(event);
-    	}
-        if (isClearSessionRequested(request)){
+        EventAdmin eventAdmin = eventAdminHolder.get();
+        if (eventAdmin != null) {
+            StringBuffer requestUrl = request.getRequestURL();
+            String queryString = request.getQueryString();
+            if (queryString != null) {
+                requestUrl.append("?").append(queryString);
+            }
+            Event event = new Event("com/elster/jupiter/http/GET", ImmutableMap.of("resource", requestUrl.toString()));
+            eventAdmin.postEvent(event);
+        }
+        if (isClearSessionRequested(request)) {
             return true;
         }
         String authentication = request.getHeader("Authorization");
         if (authentication == null) {
-            if(request.getSession(true).getAttribute("user") == null) {
+            if (request.getSession(true).getAttribute("user") == null) {
                 String server = request.getRequestURL().substring(0, request.getRequestURL().indexOf(request.getRequestURI()));
 
-                if(unsecureAllowed(request.getRequestURI())){
+                if (unsecureAllowed(request.getRequestURI())) {
                     // Allow access to resources used by the login page
                     response.setStatus(HttpServletResponse.SC_ACCEPTED);
-                }
-                else{
+                } else {
                     response.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
                     response.sendRedirect(server + LOGIN_URI + "?" + "page=" + request.getRequestURI());
                 }
             }
-            if(request.getRequestURL().toString().endsWith("index.html") || request.getRequestURL().toString().endsWith("index-dev.html")){
+            if (request.getRequestURL().toString().endsWith("index.html") || request.getRequestURL().toString().endsWith("index-dev.html")) {
                 // No caching for index.html files, so that authentication will be verified first
                 response.setHeader("Cache-Control", "no-cache");
-            }
-            else{
+            } else {
                 response.setHeader("Cache-Control", "max-age=86400");
             }
             return true;
@@ -120,7 +120,7 @@ public class HttpContextImpl implements HttpContext {
 
     private boolean isClearSessionRequested(HttpServletRequest request) {
         boolean result = false;
-        if (request.getParameter("logout") != null && request.getParameter("logout").equals("true")){
+        if (request.getParameter("logout") != null && request.getParameter("logout").equals("true")) {
             HttpSession session = request.getSession();
             if (session != null) {
                 session.invalidate();
@@ -130,9 +130,9 @@ public class HttpContextImpl implements HttpContext {
         return result;
     }
 
-    private boolean unsecureAllowed(String uri){
-        for(String resource : UNSECURED_RESOURCES){
-            if(uri.contains(resource)){
+    private boolean unsecureAllowed(String uri) {
+        for (String resource : UNSECURED_RESOURCES) {
+            if (uri.contains(resource)) {
                 return true;
             }
         }
