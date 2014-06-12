@@ -180,6 +180,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                 model.load(deviceConfigId, {
                     success: function (deviceConfig) {
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
+                        comPortPoolStore.clearFilter(true);
                         comPortPoolStore.filter('direction', direction);
                         comPortPoolStore.load({
                             callback: function () {

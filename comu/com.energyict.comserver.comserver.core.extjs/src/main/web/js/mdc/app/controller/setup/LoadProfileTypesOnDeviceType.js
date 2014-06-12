@@ -16,7 +16,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
     ],
 
     refs: [
-        {ref: 'loadTypeGrid', selector: 'loadProfileTypeOnDeviceTypeSetup #loadProfileTypeGrid'},
+        {ref: 'loadTypeGrid', selector: 'loadProfileTypeSetup loadProfileTypeGrid'},
         {ref: 'loadTypePreview', selector: 'loadProfileTypeOnDeviceTypeSetup #loadProfileTypePreview'},
         {ref: 'loadTypeCountContainer', selector: 'loadProfileTypeOnDeviceTypeSetup #loadProfileTypesCountContainer'},
         {ref: 'loadTypeEmptyListContainer', selector: 'loadProfileTypeOnDeviceTypeSetup #loadProfileTypeEmptyListContainer'},
@@ -51,22 +51,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
             },
             'button[action=loadprofiletypeondevicetypenotificationerrorretry]': {
                 click: this.retrySubmit
-            },
-            'menu menuitem[action=deleteloadprofiletypeondevicetype]': {
-                click: this.showConfirmationPanel
-            },
-            'messagebox button[action=removeloadprofiletypeondevicetypeconfirm]': {
-                click: this.deleteRecord
-            },
-            'button[action=retryremoveloadprofiletypeondevicetype]': {
-                click: this.deleteRecord
-            }
-        });
-        this.listen({
-            store: {
-                '#LoadProfileTypesOnDeviceType': {
-                    load: this.checkLoadProfileTypesOnDeviceTypesCount
-                }
             }
         });
 
@@ -75,50 +59,50 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
     },
 
     showConfirmationPanel: function () {
-        var grid = this.getLoadTypeGrid(),
+        var me = this,
+            grid = me.getLoadTypeGrid(),
             lastSelected = grid.getView().getSelectionModel().getLastSelected();
-        Ext.widget('messagebox', {
-            buttons: [
-                {
-                    xtype: 'button',
-                    text: 'Remove',
-                    action: 'removeloadprofiletypeondevicetypeconfirm',
-                    name: 'delete',
-                    ui: 'remove'
-                },
-                {
-                    xtype: 'button',
-                    text: 'Cancel',
-                    handler: function (button, event) {
-                        this.up('messagebox').hide();
-                    },
-                    ui: 'link'
-                }
-            ]
-        }).show({
-                title: 'Remove ' + lastSelected.getData().name + '?',
-                msg: 'This load profile type will no longer be available',
-                icon: Ext.MessageBox.WARNING
-            })
+
+        Ext.create('Uni.view.window.Confirmation').show({
+            msg: Uni.I18n.translate('loadProfileTypes.confirmWindow.removeMsg', 'MDC', 'This load profile type will no longer be available'),
+            title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' ' + lastSelected.get('name') + '?',
+            config: {
+                me: me
+            },
+            fn: me.confirmationPanelHandler
+        });
     },
 
-    deleteRecord: function (btn) {
-        var grid = this.getLoadTypeGrid(),
-            lastSelected = grid.getView().getSelectionModel().getLastSelected(),
-            me = this;
-        btn.up('messagebox').hide();
-        Ext.Ajax.request({
-            url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/loadprofiletypes/' + lastSelected.getData().id,
-            method: 'DELETE',
-            waitMsg: 'Removing...',
-            success: function () {
-                me.handleSuccessRequest('Load profile type was removed successfully');
-                me.store.load();
-            },
-            failure: function (result, request) {
-                me.handleFailureRequest(result, "Error during removing of load profile", 'retryremoveloadprofiletypeondevicetype');
-            }
-        });
+    confirmationPanelHandler: function (state, text, conf) {
+        var me = conf.config.me,
+            grid = me.getLoadTypeGrid(),
+            lastSelected = grid.getView().getSelectionModel().getLastSelected();
+
+        if (state === 'confirm') {
+            this.close();
+            Ext.Ajax.request({
+                url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/loadprofiletypes/' + lastSelected.getData().id,
+                method: 'DELETE',
+                waitMsg: 'Removing...',
+                success: function () {
+                    me.handleSuccessRequest(Uni.I18n.translate('loadProfileTypes.removeSuccessMsg', 'MDC', 'Load profile type was removed successfully'));
+                    me.store.loadPage(1);
+                },
+                failure: function (response) {
+                    var errorText,
+                        errorTitle;
+
+                    if (response.status == 400) {
+                        errorText = Ext.decode(response.responseText, true).message;
+                        errorTitle = Uni.I18n.translate('loadProfileTypes.removeErrorMsg', 'MDC', 'Error during removing of load profile');
+
+                        me.getApplication().getController('Uni.controller.Error').showError(errorTitle, errorText);
+                    }
+                }
+            });
+        } else if (state === 'cancel') {
+            this.close();
+        }
     },
 
     unCheckAllLoadProfileTypes: function () {
@@ -285,56 +269,8 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
         preloader.destroy();
     },
 
-    checkLoadProfileTypesOnDeviceTypesCount: function () {
-        var grid = this.getLoadTypeGrid();
-        if (!Ext.isEmpty(grid)) {
-            var numberOfLoadTypesContainer = this.getLoadTypeCountContainer(),
-                emptyMessage = this.getLoadTypeEmptyListContainer(),
-                gridView = grid.getView(),
-                selectionModel = gridView.getSelectionModel(),
-                loadTypeCount = this.store.getCount(),
-                loadTypesWord;
-
-            if (loadTypeCount == 1) {
-                loadTypesWord = ' load profile type'
-            } else {
-                loadTypesWord = ' load profile types'
-            }
-            var widget = Ext.widget('container', {
-                html: loadTypeCount + loadTypesWord
-            });
-
-            numberOfLoadTypesContainer.removeAll(true);
-            numberOfLoadTypesContainer.add(widget);
-
-            if (loadTypeCount < 1) {
-                grid.hide();
-                emptyMessage.add(
-                    {
-                        xtype: 'loadProfileTypeEmptyList',
-                        actionHref: '#/administration/devicetypes/' + this.deviceTypeId + '/loadprofiles/add'
-                    }
-                );
-                this.getLoadTypePreview().hide();
-            } else {
-                selectionModel.select(0);
-                grid.fireEvent('itemclick', gridView, selectionModel.getLastSelected());
-            }
-        }
-        var grid = this.getAddLoadProfileTypesGrid(),
-            view = this.getAddLoadProfileTypesSetup(),
-            uncheckMeasurement = this.getUncheckLoadProfileButton();
-        if (!Ext.isEmpty(grid) && !Ext.isEmpty(view)) {
-            var selectionModel = grid.getView().getSelectionModel();
-            selectionModel.selectAll();
-            grid.disable();
-            uncheckMeasurement.disable();
-        }
-    },
-
-
     showDeviceTypeLoadProfileTypesView: function (deviceTypeId) {
-        var me = this,
+        /*var me = this,
             widget = Ext.widget('loadProfileTypeOnDeviceTypeSetup', {deviceTypeId: deviceTypeId, intervalStore: this.intervalStore });
 
         me.deviceTypeId = deviceTypeId;
@@ -346,7 +282,45 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.store.load({ params: {sort: 'name' }});
             }
-        });
+        });*/
+
+        var self = this,
+            loadProfileTypesStore = self.getStore('Mdc.store.LoadProfileTypes'),
+            widget;
+
+        var showPage = function () {
+            Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
+                success: function (deviceType) {
+                    widget = Ext.widget('loadProfileTypeSetup', {
+                        config: {
+                            deviceTypeId: deviceTypeId,
+                            gridStore: self.store
+                        }
+                    });
+                    self.getApplication().fireEvent('loadDeviceType', deviceType);
+                    self.deviceTypeName = deviceType.get('name');
+                    self.getApplication().fireEvent('changecontentevent', widget);
+                    Ext.Array.each(Ext.ComponentQuery.query('[action=editloadprofiletype]'), function (item) {
+                        item.hide();
+                    });
+                    Ext.Array.each(Ext.ComponentQuery.query('[action=deleteloadprofiletype]'), function (item) {
+                        item.clearListeners();
+                        item.on('click', function () {
+                            self.showConfirmationPanel();
+                        });
+                    });
+                }
+            });
+        };
+
+        self.deviceTypeId = deviceTypeId;
+        self.store.getProxy().extraParams = ({deviceType: deviceTypeId});
+
+        if (loadProfileTypesStore.getCount()) {
+            showPage();
+        } else {
+            loadProfileTypesStore.load(showPage);
+        }
     },
 
     showDeviceTypeLoadProfileTypesAddView: function (deviceTypeId) {

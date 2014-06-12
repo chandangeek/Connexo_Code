@@ -199,12 +199,12 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                     var deviceType = results[0][0];
                     me.getApplication().fireEvent('loadDeviceType', deviceType);
                     me.getDeviceTypeEditForm().loadRecord(deviceType);
-                    me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + deviceType.get('name'));
+                    me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + deviceType.get('name') + "'");
                     widget.setLoading(false);
                 },
                 failure: function () {
                     me.getDeviceTypeEditForm().loadRecord(deviceType);
-                    me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + deviceType.get('name'));
+                    me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + deviceType.get('name') + "'");
                     widget.setLoading(false);
                 }
             }
@@ -327,23 +327,14 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                     model.load(deviceTypeId, {
                         success: function (deviceType) {
                             me.getApplication().fireEvent('loadDeviceType', deviceType);
-                            me.getDeviceTypeLogbookPanel().setTitle('<b>' + deviceType.get('name') + '</b>' + ' > ' + 'Logbook types');
+                            me.getDeviceTypeLogbookPanel().setTitle(Uni.I18n.translate('logbooktype.logbookTypes', 'MDC', 'Logbook types'));
                             widget.setLoading(false);
                         }
                     });
-                    var numberOfLogbooksContainer = Ext.ComponentQuery.query('device-type-logbooks toolbar container[name=LogBookCount]')[0],
-                        grid = Ext.ComponentQuery.query('device-type-logbooks grid')[0],
+                    var grid = Ext.ComponentQuery.query('device-type-logbooks grid')[0],
                         gridView = grid.getView(),
-                        selectionModel = gridView.getSelectionModel(),
-                        count = Ext.widget('container', {
-                            html: self.getCount() + ' logbook type(s)'
-                        });
-                    numberOfLogbooksContainer.removeAll(true);
-                    numberOfLogbooksContainer.add(count);
-                    if (self.getCount() < 1) {
-                        grid.hide();
-                        grid.next().show();
-                    } else {
+                        selectionModel = gridView.getSelectionModel();
+                    if (self.getCount() > 0) {
                         selectionModel.select(0);
                         grid.fireEvent('itemclick', gridView, selectionModel.getLastSelected());
                     }

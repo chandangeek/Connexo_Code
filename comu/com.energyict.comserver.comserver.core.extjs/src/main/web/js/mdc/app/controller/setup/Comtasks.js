@@ -1,9 +1,5 @@
-Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
+Ext.define('Mdc.controller.setup.Comtasks', {
     extend: 'Ext.app.Controller',
-
-    requires: [
-    ],
-
     stores: [
         'Mdc.store.CommunicationTasks',
         'Mdc.store.CommunicationTasksCategories',
@@ -13,32 +9,38 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
         'Mdc.store.LoadProfileTypes',
         'Mdc.store.RegisterGroups'
     ],
-
     views: [
+        'Mdc.view.setup.comtasks.ComtaskSetup',
+        'Mdc.view.setup.comtasks.ComtaskGrid',
+        'Mdc.view.setup.comtasks.ComtaskPreview',
         'Mdc.view.setup.comtasks.ComtaskCreateEditForm',
         'Mdc.view.setup.comtasks.ComtaskCommand',
         'Mdc.view.setup.comtasks.parameters.Logbooks',
         'Mdc.view.setup.comtasks.parameters.Profiles',
         'Mdc.view.setup.comtasks.parameters.Registers'
     ],
-
     refs: [
-        {
-            ref: 'taskEdit',
-            selector: 'comtaskCreateEdit'
-        },
-        {
-            ref: 'commandNames',
-            selector: 'comtaskCreateEdit [name=commandnames]'
-        },
-        {
-            ref: 'commandFields',
-            selector: 'comtaskCreateEdit [name=commandfields]'
-        }
+        { ref: 'tasksView', selector: 'comtaskSetup' },
+        { ref: 'itemPanel', selector: 'comtaskPreview' },
+        { ref: 'tasksGrid', selector: 'comtaskGrid' },
+        { ref: 'nameField', selector: '#comtaskName' },
+        { ref: 'commandsField', selector: '#comtaskCommands' },
+        { ref: 'gridPagingToolbarTop', selector: 'comtaskGrid pagingtoolbartop' },
+        { ref: 'taskEdit', selector: 'comtaskCreateEdit' },
+        { ref: 'commandNames', selector: 'comtaskCreateEdit [name=commandnames]' },
+        { ref: 'commandFields', selector: 'comtaskCreateEdit [name=commandfields]' }
     ],
-
     init: function () {
         this.control({
+            'comtaskSetup comtaskGrid': {
+                select: this.showTaskDetails
+            },
+            'comtaskSetup comtaskGrid uni-actioncolumn': {
+                menuclick: this.chooseCommunicationTasksAction
+            },
+            'comtaskActionMenu': {
+                click: this.chooseCommunicationTasksAction
+            },
             'comtaskCreateEdit comtaskCommandCategoryCombo': {
                 change: this.addActionCombo
             },
@@ -65,28 +67,123 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
                 afterrender: this.setTooltip
             }
         });
+        this.store = this.getStore('Mdc.store.CommunicationTasks');
         this.commands = [];
     },
 
-    showCommunicationTasksCreateEdit: function (id) {
+    showCommunicationTasksView: function () {
+        var widget = Ext.widget('comtaskSetup');
+        this.getApplication().fireEvent('changecontentevent', widget);
+    },
+
+    chooseCommunicationTasksAction: function (menu, item) {
+        switch (item.action) {
+            case 'edit':
+                window.location.href = '#/administration/communicationtasks/' + this.taskId;
+                break;
+            case 'delete':
+                this.deleteTask(this.taskId);
+                break;
+        }
+    },
+
+    showTaskDetails: function (grid, record) {
+        var itemPanel = this.getItemPanel(),
+            nameField = this.getNameField(),
+            commandsField = this.getCommandsField();
+
+        if (this.displayedItemId != record.id) {
+            grid.view.clearHighlight();
+        }
+
+        this.displayedItemId = record.id;
+        this.taskId = record.data.id;
+
+        Ext.Ajax.request({
+            url: '/api/cts/comtasks/' + record.data.id,
+            success: function (response) {
+                var rec = Ext.decode(response.responseText),
+                    str = '';
+                itemPanel.setTitle(rec.name);
+                nameField.setValue(rec.name);
+                Ext.Array.each(rec.commands, function (command) {
+                    str += command.action.charAt(0).toUpperCase() + command.action.slice(1) + ' ' + command.category.charAt(0).toUpperCase() + command.category.slice(1) + '<br/>';
+                });
+                commandsField.setValue(str);
+            }
+        });
+    },
+
+    deleteTask: function (id) {
         var self = this,
-            widget = Ext.widget('comtaskCreateEdit');
+            tasksView = self.getTasksView(),
+            grid = tasksView.down('grid'),
+            record = grid.getSelectionModel().getLastSelected(),
+            preloader = Ext.create('Ext.LoadMask', {
+                msg: Uni.I18n.translate('general.loading', 'MDC', 'Loading...'),
+                target: self.getTasksView()
+            });
+
+        Ext.create('Uni.view.window.Confirmation').show({
+            title: Ext.String.format(Uni.I18n.translate('comtask.remove.confirmation.title', 'MDC', 'Remove {0}?'), record.data.name),
+            msg: Uni.I18n.translate('comtask.remove.confirmation.msg', 'MDC', 'This communication task will no longer be available'),
+            fn: function (state) {
+                if (state === 'confirm') {
+                    preloader.show();
+                    Ext.Ajax.request({
+                        url: '/api/cts/comtasks/' + id,
+                        method: 'DELETE',
+                        success: function () {
+                            Ext.create('widget.uxNotification', {
+                                html: Uni.I18n.translate('comtask.remove.successfull', 'MDC', 'Successfully removed'),
+                                ui: 'notification-success'
+                            }).show();
+                            self.store.loadPage(1, {
+                                callback: function () {
+                                    grid.getSelectionModel().select(0);
+                                }
+                            });
+                        },
+                        failure: function (response) {
+                            if (response.status == 400) {
+                                var result = Ext.decode(response.responseText, true),
+                                    title = Ext.String.format(Uni.I18n.translate('comtask.remove.failed', 'MDC', 'Failed to remove {0}'), record.data.name),
+                                    message = Uni.I18n.translate('general.server.error', 'MDC', 'Server error');
+                                if (!Ext.isEmpty(response.statusText)) {
+                                    message = response.statusText;
+                                }
+                                if (result && result.message) {
+                                    message = result.message;
+                                } else if (result && result.error) {
+                                    message = result.error;
+                                }
+                                self.getApplication().getController('Uni.controller.Error').showError(title, message);
+                            }
+                        },
+                        callback: function () {
+                            preloader.destroy();
+                        }
+                    });
+                }
+            }
+        });
+    },
+
+    showCommunicationTasksCreateEdit: function (id) {
+        this.operationType = Ext.isEmpty(id) ? Uni.I18n.translate('general.create', 'MDC', 'Create') : Uni.I18n.translate('general.edit', 'MDC', 'Edit');
+        this.getApplication().fireEvent('changecontentevent', Ext.widget('comtaskCreateEdit'));
+        this.getTaskEdit().getCenterContainer().down().setTitle(this.operationType + ' ' + Uni.I18n.translate('comtask.comtask', 'MDC', 'communication task'));
+        this.getTaskEdit().down('toolbar').getComponent('createEditTask').setText(
+            Ext.isEmpty(id) ? Uni.I18n.translate('general.create', 'MDC', 'Create') : Uni.I18n.translate('general.save', 'MDC', 'Save')
+        );
         if (id) {
-            self.taskEditId = id;
-            this.operationType = 'Edit';
-            this.getApplication().fireEvent('changecontentevent', widget);
-            this.getTaskEdit().getCenterContainer().down().setTitle(this.operationType + ' communication task');
-            this.getTaskEdit().down('toolbar').getComponent('createEditTask').setText('Save');
+            this.taskEditId = id;
             this.getTaskEdit().down('toolbar').getComponent('createEditTask').enable();
-            self.commands = [];
+            this.commands = [];
             this.loadModelToEditForm(id);
         } else {
-            this.operationType = 'Create';
-            this.getApplication().fireEvent('changecontentevent', widget);
-            this.getTaskEdit().getCenterContainer().down().setTitle(this.operationType + ' communication task');
-            this.getTaskEdit().down('toolbar').getComponent('createEditTask').setText('Create');
             this.loadModelToCreateForm();
-            self.commands = [];
+            this.commands = [];
         }
     },
 
@@ -122,7 +219,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
         formErrorsPanel.hide();
         formErrorsPanel.removeAll();
         formErrorsPanel.add({
-            html: 'There are errors on this page that require your attention.'
+            html: Uni.I18n.translate('general.form.errors', 'MDC', 'There are errors on this page that require your attention')
         });
         formErrorsPanel.show();
     },
@@ -142,14 +239,14 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
             formErrorsPanel.hide();
             if (btn.text === 'Create') {
                 preloader = Ext.create('Ext.LoadMask', {
-                    msg: "Creating communication task",
+                    msg: Uni.I18n.translate('comtask.creating', 'MDC', 'Creating communication task'),
                     target: editView
                 });
                 preloader.show();
                 self.createTask(preloader, sendingData, btn);
             } else if (btn.text === 'Save') {
                 preloader = Ext.create('Ext.LoadMask', {
-                    msg: "Editing communication task",
+                    msg: Uni.I18n.translate('comtask.updating', 'MDC', 'Updating communication task'),
                     target: editView
                 });
                 preloader.show();
@@ -169,41 +266,35 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
             success: function () {
                 window.location.href = '#/administration/communicationtasks';
                 Ext.create('widget.uxNotification', {
-                    html: 'Successfully created',
+                    html: Uni.I18n.translate('comtask.create.successfull', 'MDC', 'Successfully created'),
                     ui: 'notification-success'
                 }).show();
                 self.commands = [];
             },
             failure: function (response) {
-                var result = Ext.decode(response.responseText, true);
-                if (result !== null) {
-                    if (result.errors[0].id === 'protocolTasks') {
-                        var msgWindow = Ext.widget('messagebox', {
-                            itemId: 'msgWindow',
-                            buttons: [
-                                {
-                                    text: 'Cancel',
-                                    action: 'cancel',
-                                    ui: 'link',
-                                    handler: function (me) {
-                                        me.up('#msgWindow').close();
-                                        window.location = '#/administration/communicationtasks';
-                                    }
-                                }
-                            ]
-                        });
-                        msgWindow.show({
-                            ui: 'notification-error',
-                            title: 'Error during creation',
-                            msg: 'Requires at least one command',
-                            icon: Ext.MessageBox.ERROR
-                        });
-                    } else {
-                        self.showNameNotUniqueError();
-                        self.showErrorsPanel();
+                if (response.status == 400) {
+                    var result = Ext.decode(response.responseText, true),
+                        title = Uni.I18n.translate('general.during.creation', 'MDC', 'Error during creation'),
+                        message = Uni.I18n.translate('general.server.error', 'MDC', 'Server error');
+                    if (!Ext.isEmpty(response.statusText)) {
+                        message = response.statusText;
                     }
-                } else {
-                    self.showDatabaseError(btn);
+                    if (result) {
+                        if (result.errors[0].id === 'name') {
+                            var nameField = self.getTaskEdit().down('form').down('[name=name]');
+                            nameField.markInvalid(Uni.I18n.translate('comtask.name.not.unique', 'MDC', 'The name is not unique'));
+                            self.showErrorsPanel();
+                            return;
+                        }
+                        if (result.message) {
+                            message = result.message;
+                        } else if (result.error) {
+                            message = result.error;
+                        } else if (result.errors[0].id === 'protocolTasks') {
+                            message = Uni.I18n.translate('comtask.requires.at.least.one.command', 'MDC', 'Requires at least one command');
+                        }
+                    }
+                    self.getApplication().getController('Uni.controller.Error').showError(title, message);
                 }
             },
             callback: function () {
@@ -221,20 +312,35 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
             success: function () {
                 window.location.href = '#/administration/communicationtasks';
                 Ext.create('widget.uxNotification', {
-                    html: 'Successfully edited',
+                    html: Uni.I18n.translate('comtask.update.successfull', 'MDC', 'Successfully updated'),
                     ui: 'notification-success'
                 }).show();
                 self.commands = [];
             },
             failure: function (response) {
-                var result = Ext.decode(response.responseText, true);
-                if (result !== null) {
-                    if (result.errors[0].id === 'name') {
-                        self.showNameNotUniqueError();
-                        self.showErrorsPanel();
+                if (response.status == 400) {
+                    var result = Ext.decode(response.responseText, true),
+                        title = Uni.I18n.translate('general.during.editing', 'MDC', 'Error during editing'),
+                        message = Uni.I18n.translate('general.server.error', 'MDC', 'Server error');
+                    if (!Ext.isEmpty(response.statusText)) {
+                        message = response.statusText;
                     }
-                } else {
-                    self.showDatabaseError(btn);
+                    if (result) {
+                        if (result.errors[0].id === 'name') {
+                            var nameField = self.getTaskEdit().down('form').down('[name=name]');
+                            nameField.markInvalid(Uni.I18n.translate('comtask.name.not.unique', 'MDC', 'The name is not unique'));
+                            self.showErrorsPanel();
+                            return;
+                        }
+                        if (result.message) {
+                            message = result.message;
+                        } else if (result.error) {
+                            message = result.error;
+                        } else if (result.errors[0].id === 'protocolTasks') {
+                            message = Uni.I18n.translate('comtask.requires.at.least.one.command', 'MDC', 'Requires at least one command');
+                        }
+                    }
+                    self.getApplication().getController('Uni.controller.Error').showError(title, message);
                 }
             },
             callback: function () {
@@ -243,73 +349,24 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
         });
     },
 
-    showNameNotUniqueError: function () {
-        var self = this,
-            editView = self.getTaskEdit(),
-            nameField = editView.down('form').down('[name=name]'),
-            nameText = 'The name is not unique';
-        nameField.markInvalid(nameText);
-    },
-
     trimFields: function () {
         var nameField = this.getTaskEdit().down('form').down('[name=name]'),
             nameValue = Ext.util.Format.trim(nameField.value);
         nameField.setValue(nameValue);
     },
 
-    showDatabaseError: function (btn) {
-        var msgWindow = Ext.widget('messagebox', {
-            itemId: 'msgWindowDb',
-            buttons: [
-                {
-                    text: 'Cancel',
-                    action: 'cancel',
-                    ui: 'link',
-                    handler: function (me) {
-                        me.up('#msgWindowDb').close();
-                        window.location = '#/administration/communicationtasks';
-                    }
-                }
-            ]
-        });
-        if (btn.text === 'Create') {
-            msgWindow.show({
-                ui: 'notification-error',
-                title: 'Error during creating',
-                msg: 'The communication task could not be created because of an error in the database.',
-                icon: Ext.MessageBox.ERROR
-            });
-        } else {
-            msgWindow.show({
-                ui: 'notification-error',
-                title: 'Error during editing',
-                msg: 'The communication task could not be edited because of an error in the database.',
-                icon: Ext.MessageBox.ERROR
-            });
-        }
-    },
-
     setTooltip: function () {
         var iconIntervals = Ext.ComponentQuery.query('#radioIntervals')[0].getEl().down('img'),
-            textIntervals = 'If the clock difference between the clock in the meter and the clock of the communication server is equal to or bigger than the minimum clock difference, the intervals will be marked as bad time',
+            textIntervals = Uni.I18n.translate('comtask.tooltip.textIntervals', 'MDC', 'If the clock difference between the clock in the meter and the clock of the communication server is equal to or bigger than the minimum clock difference, the intervals will be marked as bad time'),
             iconEvents = Ext.ComponentQuery.query('#radioEvents')[0].getEl().down('img'),
-            textEvents = 'When data with a status flag comes in, meter events will be created',
+            textEvents = Uni.I18n.translate('comtask.tooltip.textEvents', 'MDC', 'When data with a status flag comes in, meter events will be created'),
             iconFail = Ext.ComponentQuery.query('#radioFail')[0].getEl().down('img'),
-            textFail = "A profile configuration defines how a load profile of that configuration looks like. When the profile configuration doesn't match the load profile, a failure occurs.";
-        iconIntervals.tooltip = Ext.create('Ext.tip.ToolTip', {
-            target: iconIntervals,
-            html: textIntervals
-        });
-        iconEvents.tooltip = Ext.create('Ext.tip.ToolTip', {
-            target: iconEvents,
-            html: textEvents
-        });
-        iconFail.tooltip = Ext.create('Ext.tip.ToolTip', {
-            target: iconFail,
-            html: textFail
-        });
-    },
+            textFail = Uni.I18n.translate('comtask.tooltip.textFail', 'MDC', 'A profile configuration defines how a load profile of that configuration looks like. When the profile configuration doesn\'t match the load profile, a failure occurs');
 
+        iconIntervals.tooltip = Ext.create('Ext.tip.ToolTip', { target: iconIntervals, html: textIntervals });
+        iconEvents.tooltip = Ext.create('Ext.tip.ToolTip', { target: iconEvents, html: textEvents });
+        iconFail.tooltip = Ext.create('Ext.tip.ToolTip', { target: iconFail, html: textFail });
+    },
 
     loadModelToCreateForm: function () {
         var self = this,
@@ -439,7 +496,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
             newCommand.show();
         } else {
             commandNames.add({
-                html: 'New command',
+                html: Uni.I18n.translate('comtask.new.command', 'MDC', 'New command'),
                 style: 'margin: 0 0 0 0px; padding: 8px 0 0 0;',
                 itemId: 'newCommand',
                 width: 151
@@ -506,7 +563,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
                         break;
                     case 'communication-tasks-profilescombo':
                         var preloader = Ext.create('Ext.LoadMask', {
-                            msg: "Loading load profile types",
+                            msg: Uni.I18n.translate('comtask.loading.load.profile.types', 'MDC', 'Loading load profile types'),
                             target: self.getTaskEdit()
                         });
                         preloader.show();
@@ -591,7 +648,9 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
             protocol = {};
         Ext.Array.each(btns, function (btn) {
             if (button.action === 'addCommand' && btn.category === category) {
-                commandContainer.down('comtaskCommandCategoryCombo').markInvalid('The communication task already has this category');
+                commandContainer.down('comtaskCommandCategoryCombo').markInvalid(
+                    Uni.I18n.translate('comtask.already.has.this.category', 'MDC', 'The communication task already has this category')
+                );
                 button.disable();
             }
         });
@@ -611,7 +670,9 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
             switch (parametersContainer.xtype) {
                 case 'communication-tasks-logbookscombo':
                     if (parametersContainer.value.length < 1) {
-                        parametersContainer.markInvalid('This is a required field');
+                        parametersContainer.markInvalid(
+                            Uni.I18n.translate('general.required.field', 'MDC', 'This is a required field')
+                        );
                         button.disable();
                         couldAdd = false;
                     }
@@ -619,7 +680,9 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
                     break;
                 case 'communication-tasks-registerscombo':
                     if (parametersContainer.value.length < 1) {
-                        parametersContainer.markInvalid('This is a required field');
+                        parametersContainer.markInvalid(
+                            Uni.I18n.translate('general.required.field', 'MDC', 'This is a required field')
+                        );
                         button.disable();
                         couldAdd = false;
                     }
@@ -862,7 +925,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasksCreateEdit', {
         self.getCommandNames().add({
             xtype: 'button',
             itemId: 'addAnotherButton',
-            text: '+ Add another',
+            text: Uni.I18n.translate('comtask.add.another', 'MDC', '+ Add another'),
             margin: '5 0 5 0',
             handler: function () {
                 this.destroy();

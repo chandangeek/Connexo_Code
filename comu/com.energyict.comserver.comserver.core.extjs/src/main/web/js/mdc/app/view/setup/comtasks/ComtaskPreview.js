@@ -31,14 +31,14 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskPreview', {
         items: [
             {
                 xtype: 'displayfield',
+                itemId: 'comtaskName',
                 fieldLabel: Uni.I18n.translate('comtask.name', 'MDC', 'Name'),
-                itemId: 'tasksName',
                 name: 'name'
             },
             {
                 xtype: 'displayfield',
+                itemId: 'comtaskCommands',
                 fieldLabel: Uni.I18n.translate('comtask.commands', 'MDC', 'Commands'),
-                itemId: 'tasksCommands',
                 name: 'commandsString'
             }
         ]

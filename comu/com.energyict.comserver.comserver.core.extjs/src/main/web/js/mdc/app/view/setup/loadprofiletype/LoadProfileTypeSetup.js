@@ -39,7 +39,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSetup', {
                                     {
                                         xtype: 'component',
                                         html: '<b>' + Uni.I18n.translate('loadProfileTypes.empty.title', 'MDC', 'No load profile types found') + '</b><br>' +
-                                            Uni.I18n.translate('loadProfileTypes.empty.detail', 'MDC', 'There are no load profile types. This could be because:') + '<lv><li>&nbsp&nbsp' +
+                                            Uni.I18n.translate('loadProfileTypes.empty.detail', 'MDC', 'There are no load profile types. This could be because:') + '<lv><li>' +
                                             Uni.I18n.translate('deviceType.empty.list.item1', 'MDC', 'No load profile types have been defined yet.') + '</li><li>' +
                                             Uni.I18n.translate('deviceType.empty.list.item2', 'MDC', 'No load profile types comply to the filter.') + '</li></lv><br>' +
                                             Uni.I18n.translate('loadProfileTypes.empty.steps', 'MDC', 'Possible steps:')
@@ -48,7 +48,9 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSetup', {
                                         xtype: 'button',
                                         margin: '10 0 0 0',
                                         text: Uni.I18n.translate('loadProfileTypes.add', 'MDC', 'Add load profile type'),
-                                        action: 'addloadprofiletypeaction'
+                                        action: 'addloadprofiletypeaction',
+                                        hrefTarget: '',
+                                        href: '#/administration/loadprofiletypes/create'
                                     }
                                 ]
                             }
@@ -60,5 +62,30 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSetup', {
                 }
             ]
         }
-    ]
+    ],
+
+    initComponent: function () {
+        var config = this.config,
+            previewContainer = this.content[0].items[0],
+            addButtons;
+
+        config && config.gridStore && (previewContainer.grid.store = config.gridStore);
+
+        this.callParent(arguments);
+
+        addButtons = this.query('button[action=addloadprofiletypeaction]');
+
+        if (config) {
+            if (config.deviceTypeId) {
+                this.getWestContainer().add({
+                    xtype: 'deviceTypeMenu',
+                    deviceTypeId: 2,
+                    toggle: 2
+                });
+                Ext.Array.each(addButtons, function (button) {
+                    button.href = '#/administration/devicetypes/' + config.deviceTypeId + '/loadprofiles/add';
+                });
+            }
+        }
+    }
 });

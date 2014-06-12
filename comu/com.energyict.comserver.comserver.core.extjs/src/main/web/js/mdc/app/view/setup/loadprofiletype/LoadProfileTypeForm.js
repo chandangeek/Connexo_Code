@@ -44,7 +44,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeForm', {
                             xtype: 'combobox',
                             allowBlank: false,
                             fieldLabel: 'Interval',
-                            emptyText: '1 minute',
+                            emptyText: '0 minutes',
                             name: 'timeDuration',
                             displayField: 'name',
                             valueField: 'id',

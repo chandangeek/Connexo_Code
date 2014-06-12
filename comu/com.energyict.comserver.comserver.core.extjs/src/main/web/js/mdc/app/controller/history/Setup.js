@@ -20,12 +20,12 @@ Ext.define('Mdc.controller.history.Setup', {
                         create: {
                             title: 'Create logbook type',
                             route: 'create',
-                            controller: 'Mdc.controller.setup.LogbookTypesOverview'
+                            controller: 'Mdc.controller.setup.LogbookTypes'
                         },
                         edit: {
                             title: 'Edit logbook type',
                             route: 'edit/{id}',
-                            controller: 'Mdc.controller.setup.LogbookTypesOverview'
+                            controller: 'Mdc.controller.setup.LogbookTypes'
                         }
                     }
                 },
@@ -509,19 +509,19 @@ Ext.define('Mdc.controller.history.Setup', {
                     action: 'showRegisterGroups',
                     items: {
                         create: {
-                            title: 'Create register group',
-                            route: 'create',
+                            title: Uni.I18n.translate('registerGroup.create', 'USM', 'Add register group'),
+                            route: 'add',
                             controller: 'Mdc.controller.setup.RegisterGroups',
                             action: 'showRegisterGroupCreateView'
                         },
                         edit: {
-                            title: 'Edit register group',
+                            title: Uni.I18n.translate('registerGroup.edit', 'USM', 'Edit register group'),
                             route: '{id}/edit',
                             controller: 'Mdc.controller.setup.RegisterGroups',
                             action: 'showRegisterGroupEditView',
                             callback: function(route) {
                                 this.getApplication().on('loadRegisterGroup', function(record) {
-                                    route.setTitle('Edit "' + record.get('name') + '"');
+                                    route.setTitle('Edit \'' + record.get('name') + '\'');
                                     return true;
                                 }, {single: true});
 
@@ -533,19 +533,19 @@ Ext.define('Mdc.controller.history.Setup', {
                 communicationtasks: {
                     title: 'Communication tasks',
                     route: 'communicationtasks',
-                    controller: 'Mdc.controller.setup.CommunicationTasksView',
+                    controller: 'Mdc.controller.setup.Comtasks',
                     action: 'showCommunicationTasksView',
                     items: {
                         create: {
                             title: 'Create communication task',
                             route: 'create',
-                            controller: 'Mdc.controller.setup.CommunicationTasksCreateEdit',
+                            controller: 'Mdc.controller.setup.Comtasks',
                             action: 'showCommunicationTasksCreateEdit'
                         },
                         edit: {
                             title: 'Edit communication task',
                             route: '{id}',
-                            controller: 'Mdc.controller.setup.CommunicationTasksCreateEdit',
+                            controller: 'Mdc.controller.setup.Comtasks',
                             action: 'showCommunicationTasksCreateEdit',
                             callback: function(route) {
                                 this.getApplication().on('loadCommunicationTask', function(record) {
