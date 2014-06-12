@@ -169,6 +169,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
                             widget.down('#registerGroupEditCard').getLayout().setActiveItem(1);
                         }
 
+                        widget.show();
                         widget.setLoading(false);
                     }
                 });
@@ -177,6 +178,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
 
         this.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);
+        widget.hide();
     },
 
     showRegisterGroupCreateView: function () {
