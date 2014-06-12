@@ -1,5 +1,6 @@
 package com.energyict.mdc.masterdata.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -7,8 +8,13 @@ import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.masterdata.exceptions.CannotDeleteBecauseStillInUseException;
+import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
+import com.google.common.base.Optional;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.*;
 
 public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> implements RegisterGroup {
@@ -17,6 +23,10 @@ public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> impl
     private List<RegisterMappingInGroup> mappingsInGroup = new ArrayList<>();
 
     private final Clock clock;
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
+    @Size(max=256, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String name;
 
     @Inject
     public RegisterGroupImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock) {
@@ -165,4 +175,16 @@ public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> impl
 
         return modified;
     }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        if (name != null) {
+            name = name.trim();
+        }
+        this.name = name;
+    }
+
 }

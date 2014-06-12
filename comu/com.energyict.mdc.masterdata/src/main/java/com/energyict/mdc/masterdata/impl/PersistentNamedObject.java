@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
 import com.google.common.base.Optional;
 
@@ -20,27 +21,16 @@ import javax.validation.constraints.Size;
 @HasUniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_UNIQUE + "}")
 public abstract class PersistentNamedObject<T> extends PersistentIdObject<T> {
 
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
-    @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
-    private String name;
-
     protected PersistentNamedObject(Class<T> domainClass, DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
         super(domainClass, dataModel, eventService, thesaurus);
     }
 
-    public String getName() {
-        return name;
-    }
+    public abstract String getName();
 
-    public void setName(String name) {
-        if (name != null) {
-            name = name.trim();
-        }
-        this.name = name;
-    }
+    public abstract void setName(String name);
 
     protected boolean validateUniqueName() {
-        return this.findOtherByName(this.name) == null;
+        return this.findOtherByName(this.getName()) == null;
     }
 
     private T findOtherByName(String name) {

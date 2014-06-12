@@ -123,7 +123,7 @@ public class RegisterMappingImplTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}", strict = false)
     public void testCreateWithoutName() {
         this.setupProductSpecsInExistingTransaction();
 

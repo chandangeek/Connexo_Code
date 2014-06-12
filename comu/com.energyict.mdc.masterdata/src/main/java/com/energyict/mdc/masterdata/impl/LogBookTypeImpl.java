@@ -7,16 +7,35 @@ import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 /**
  * Copyrights EnergyICT
  * Date: 24/10/12
  * Time: 10:35
  */
+
 public class LogBookTypeImpl extends PersistentNamedObject<LogBookType> implements LogBookType {
+
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
+    @Size(max = 80, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String name;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        if (name != null) {
+            name = name.trim();
+        }
+        this.name = name;
+    }
 
     enum Fields {
         OBIS_CODE("obisCode");
@@ -91,8 +110,7 @@ public class LogBookTypeImpl extends PersistentNamedObject<LogBookType> implemen
             // javax.validation will throw ConstraintValidationException in the end
             this.obisCode = null;
             this.obisCodeCached = null;
-        }
-        else {
+        } else {
             this.oldObisCode = this.obisCode;
             this.obisCode = obisCode.toString();
             this.obisCodeCached = obisCode;

@@ -23,10 +23,12 @@ import com.energyict.mdc.masterdata.exceptions.CannotDeleteBecauseStillInUseExce
 import com.energyict.mdc.masterdata.exceptions.DuplicateObisCodeException;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
 import com.google.common.base.Optional;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -38,6 +40,17 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 @UniqueReadingType(groups = { Save.Create.class, Save.Update.class })
 public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> implements RegisterMapping, PersistenceAware {
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        if (name != null) {
+            name = name.trim();
+        }
+        this.name = name;
+    }
 
     enum Fields {
         READING_TYPE("readingType"),
@@ -57,6 +70,11 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
     }
 
     private final MasterDataService masterDataService;
+
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
+    @Size(max=128, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String name;
 
     private ObisCode obisCodeCached;
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.REGISTER_MAPPING_OBIS_CODE_IS_REQUIRED + "}")

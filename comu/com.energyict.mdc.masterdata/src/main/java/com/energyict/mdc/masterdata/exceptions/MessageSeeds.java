@@ -110,6 +110,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String REGISTER_MAPPING_DUPLICATE_READING_TYPE = "MDS.registerMapping.duplicateReadingType";
         public static final String REGISTER_MAPPING_TIMEOFUSE_TOO_SMALL = "MDS.timeOfUse.tooSmall";
         public static final String LOAD_PROFILE_TYPE_OBIS_CODE_IS_REQUIRED = "MDS.loadProfileType.obisCode.required";
+        public static final String FIELD_TOO_LONG = "MDS.incorrect.field.size";
     }
 
 }

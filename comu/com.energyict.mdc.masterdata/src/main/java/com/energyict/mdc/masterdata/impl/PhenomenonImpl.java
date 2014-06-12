@@ -1,13 +1,19 @@
 package com.energyict.mdc.masterdata.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
+import com.google.common.base.Optional;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.Date;
 
 import static com.elster.jupiter.util.Checks.is;
@@ -17,6 +23,42 @@ import static com.elster.jupiter.util.Checks.is;
  */
 
 public class PhenomenonImpl extends PersistentNamedObject<Phenomenon> implements Phenomenon {
+
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
+    @Size(max=80, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String name;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        if (name != null) {
+            name = name.trim();
+        }
+        this.name = name;
+    }
+
+    protected boolean validateUniqueName() {
+        return this.findOtherByName(this.name) == null;
+    }
+
+    private Phenomenon findOtherByName(String name) {
+        Optional<Phenomenon> other = this.getDataMapper().getUnique("name", name);
+        if (other.isPresent()) {
+            PersistentIdObject otherPersistent = (PersistentIdObject) other.get();
+            if (otherPersistent.getId() == this.getId()) {
+                return null;
+            }
+            else {
+                return other.get();
+            }
+        }
+        else {
+            return null;
+        }
+    }
 
     enum Fields {
         NAME("name"),
