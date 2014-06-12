@@ -71,7 +71,13 @@ public class RegisterTypeResource {
 
         RegisterMapping registerMapping = this.masterDataService.newRegisterMapping(registerMappingInfo.name, registerMappingInfo.obisCode, registerMappingInfo.unit, readingType, registerMappingInfo.timeOfUse);
         registerMappingInfo.writeTo(registerMapping, findReadingType(registerMappingInfo));
-        registerMapping.save();
+        try {
+            registerMapping.save();
+        } catch (DuplicateObisCodeException e) {
+            throw new LocalizedFieldValidationException(
+                    MessageSeeds.DUPLICATE_OBISCODE, "obisCode", registerMapping.getObisCode().toString(), registerMapping.getPhenomenon().toString(), registerMapping.getTimeOfUse());
+
+        }
         return new RegisterMappingInfo(registerMapping, false); // It's a new one so cannot be used yet in a DeviceType right
     }
 
