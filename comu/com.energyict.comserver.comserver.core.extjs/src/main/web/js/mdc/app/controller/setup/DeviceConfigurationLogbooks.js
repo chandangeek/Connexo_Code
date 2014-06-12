@@ -88,12 +88,12 @@ Ext.define('Mdc.controller.setup.DeviceConfigurationLogbooks', {
                         method: 'DELETE',
                         success: function () {
                             self.getApplication().fireEvent('acknowledge', 'Successfully removed');
-                            self.store.load({
+                            grid.getStore().load({
                                     callback: function () {
                                         var gridView = grid.getView(),
                                             selectionModel = gridView.getSelectionModel();
                                         logbooksView.down('pagingtoolbartop').totalCount = 0;
-                                        if (self.store.getCount() > 0) {
+                                        if (grid.getStore().getCount() > 0) {
                                             grid.getStore().load({
                                                 callback: function () {
                                                     selectionModel.select(0);
