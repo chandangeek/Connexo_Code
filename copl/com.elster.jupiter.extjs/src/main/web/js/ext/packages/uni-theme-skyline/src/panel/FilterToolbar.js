@@ -17,13 +17,17 @@ Ext.define('Skyline.panel.FilterToolbar', {
 			defaults: {
 				margin: '0 8 0 0'
 			},
-			flex:1,
             items: []
         },
         {
             xtype: 'label',
             itemId: 'emptyLabel',
             hidden: true
+        },
+        {
+            xtype: 'component',
+            flex: 1,
+            html: '&nbsp;'
         },
         {
             xtype: 'container',
@@ -68,7 +72,7 @@ Ext.define('Skyline.panel.FilterToolbar', {
         this.dockedItems[0].title = me.title;
         this.items[0].items =  me.content;
         this.items[1].text = me.emptyText;
-        this.items[2].items = me.tools;
+        this.items[3].items = me.tools;
 
         this.callParent(arguments);
 
