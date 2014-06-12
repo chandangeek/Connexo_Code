@@ -32,7 +32,7 @@ public class LicensedProtocolServiceImpl implements LicensedProtocolService {
         List<LicensedProtocol> allLicensedProtocols = new ArrayList<>();
         MdcProtocolLicense mdcProtocolLicense = new MdcProtocolLicense(license);
         for (LicensedProtocolRule licensedProtocolRule : LicensedProtocolRule.values()) {
-            if (mdcProtocolLicense.hasProtocol(licensedProtocolRule.getName())) {
+            if (mdcProtocolLicense.hasProtocol(licensedProtocolRule.getClassName())) {
                 allLicensedProtocols.add(licensedProtocolRule);
             }
         }
@@ -103,13 +103,7 @@ public class LicensedProtocolServiceImpl implements LicensedProtocolService {
         }
 
         private LicensedProtocol getLicensedProtocol(String className) {
-            try {
-                Class<?> licensedProtocolRuleClass = Class.forName("com.energyict.license.LicensedProtocolRule");
-                Method fromClassNameMethod = licensedProtocolRuleClass.getMethod("fromClassName", String.class);
-                return (LicensedProtocol) fromClassNameMethod.invoke(null, className);  // receiver is null because fromCode is a static method
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                return new NotAvailableLicensedProtocol(className);
-            }
+            return LicensedProtocolRule.fromClassName(className);
         }
 
         private Set<Integer> initProtocolFamilies() {
