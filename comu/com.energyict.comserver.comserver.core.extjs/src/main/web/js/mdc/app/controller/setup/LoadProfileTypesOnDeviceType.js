@@ -8,8 +8,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
         'setup.loadprofiletype.LoadProfileTypeFiltering',
         'setup.loadprofiletype.LoadProfileTypeGrid',
         'setup.loadprofiletype.LoadProfileTypePreview',
-        'setup.loadprofiletype.LoadProfileTypeDockedItems',
-        'setup.loadprofiletype.LoadProfileTypeEmptyList',
         'setup.loadprofiletype.LoadProfileTypesAddToDeviceTypeSetup',
         'setup.loadprofiletype.LoadProfileTypesAddToDeviceTypeDockedItems',
         'setup.loadprofiletype.LoadProfileTypesAddToDeviceTypeGrid'
@@ -270,20 +268,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
     },
 
     showDeviceTypeLoadProfileTypesView: function (deviceTypeId) {
-        /*var me = this,
-            widget = Ext.widget('loadProfileTypeOnDeviceTypeSetup', {deviceTypeId: deviceTypeId, intervalStore: this.intervalStore });
-
-        me.deviceTypeId = deviceTypeId;
-        me.store.getProxy().extraParams = ({deviceType: deviceTypeId});
-        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
-            success: function (deviceType) {
-                me.getApplication().fireEvent('loadDeviceType', deviceType);
-                me.deviceTypeName = deviceType.get('name');
-                me.getApplication().fireEvent('changecontentevent', widget);
-                me.store.load({ params: {sort: 'name' }});
-            }
-        });*/
-
         var self = this,
             loadProfileTypesStore = self.getStore('Mdc.store.LoadProfileTypes'),
             widget;

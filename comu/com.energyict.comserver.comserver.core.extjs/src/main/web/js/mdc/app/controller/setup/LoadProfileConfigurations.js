@@ -5,10 +5,8 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
         'setup.loadprofileconfiguration.LoadProfileConfigurationSetup',
         'setup.loadprofileconfiguration.LoadProfileConfigurationSorting',
         'setup.loadprofileconfiguration.LoadProfileConfigurationFiltering',
-        'setup.loadprofileconfiguration.LoadProfileConfigurationDockedItems',
         'setup.loadprofileconfiguration.LoadProfileConfigurationGrid',
         'setup.loadprofileconfiguration.LoadProfileConfigurationPreview',
-        'setup.loadprofileconfiguration.LoadProfileConfigurationEmptyList',
         'setup.loadprofileconfiguration.LoadProfileConfigurationForm'
     ],
 
@@ -40,7 +38,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
                 afterrender: this.loadStore
             },
             'loadProfileConfigurationSetup loadProfileConfigurationGrid': {
-                itemclick: this.loadGridItemDetail
+                select: this.loadGridItemDetail
             },
             'loadProfileConfigurationForm combobox[name=id]': {
                 select: this.changeDisplayedObisCode
@@ -56,17 +54,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
             },
             'menu menuitem[action=deleteloadprofileconfigurationondeviceonfiguration]': {
                 click: this.showConfirmationPanel
-            },
-            'button[action=removeloadprofileconfigurationondeviceconfigurationconfirm]': {
-                click: this.deleteRecord
-            }
-        });
-
-        this.listen({
-            store: {
-                '#LoadProfileConfigurationsOnDeviceConfiguration': {
-                    load: this.checkLoadProfileConfigurationsCount
-                }
             }
         });
 
@@ -82,64 +69,55 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
     },
 
     showConfirmationPanel: function () {
-        var grid = this.getLoadConfigurationGrid(),
+        var me = this,
+            grid = me.getLoadConfigurationGrid(),
             lastSelected = grid.getView().getSelectionModel().getLastSelected();
-        Ext.widget('messagebox', {
-            buttons: [
-                {
-                    xtype: 'button',
-                    text: 'Remove',
-                    action: 'removeloadprofileconfigurationondeviceconfigurationconfirm',
-                    name: 'delete',
-                    ui: 'remove'
-                },
-                {
-                    xtype: 'button',
-                    text: 'Cancel',
-                    handler: function (button, event) {
-                        this.up('messagebox').hide();
-                    },
-                    ui: 'link'
-                }
-            ]
-        }).show({
-                title: 'Remove ' + lastSelected.getData().name + '?',
-                msg: 'This load profile configuration will be removed from the list',
-                icon: Ext.MessageBox.WARNING
-            })
+
+        Ext.create('Uni.view.window.Confirmation').show({
+            msg: Uni.I18n.translate('loadProfileConfigurations.confirmWindow.removeMsg', 'MDC', 'This load profile configuration will be removed from the list'),
+            title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' ' + lastSelected.get('name') + '?',
+            config: {
+                me: me
+            },
+            fn: me.confirmationPanelHandler
+        });
     },
 
-    deleteRecord: function (btn) {
-        var grid = this.getLoadConfigurationGrid(),
-            lastSelected = grid.getView().getSelectionModel().getLastSelected(),
-            me = this;
-        btn.up('messagebox').hide();
-        Ext.Ajax.request({
-            url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofileconfigurations/' + lastSelected.getData().id,
-            method: 'DELETE',
-            waitMsg: 'Removing...',
-            success: function () {
-                me.handleSuccessRequest('Load profile configuration was removed successfully');
-                me.store.load();
-            },
-            failure: function (result, request) {
-                me.handleFailureRequest(result, "Error during removing of load profile configuration", 'removeloadprofileconfigurationondeviceconfigurationconfirm');
-            }
-        });
+    confirmationPanelHandler: function (state, text, conf) {
+        var me = conf.config.me,
+            grid = me.getLoadConfigurationGrid(),
+            lastSelected = grid.getView().getSelectionModel().getLastSelected();
+
+        if (state === 'confirm') {
+            this.close();
+            Ext.Ajax.request({
+                url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofileconfigurations/' + lastSelected.getData().id,
+                method: 'DELETE',
+                waitMsg: 'Removing...',
+                success: function () {
+                    me.handleSuccessRequest(Uni.I18n.translate('loadProfileConfigurations.removeSuccessMsg', 'MDC', 'Load profile configuration was removed successfully'));
+                    me.store.loadPage(1);
+                },
+                failure: function (response) {
+                    var errorText,
+                        errorTitle;
+
+                    if (response.status == 400) {
+                        errorText = Ext.decode(response.responseText, true).message;
+                        errorTitle = Uni.I18n.translate('loadProfileConfigurations.removeErrorMsg', 'MDC', 'Error during removing of load profile configuration');
+
+                        me.getApplication().getController('Uni.controller.Error').showError(errorTitle, errorText);
+                    }
+                }
+            });
+        } else if (state === 'cancel') {
+            this.close();
+        }
     },
 
     changeDisplayedObisCode: function (combobox) {
         var record = this.availableLoadProfileTypesStore.findRecord('id', combobox.getValue());
         combobox.next().setValue(record.getData().obisCode);
-    },
-
-
-    loadStore: function () {
-        this.store.load({
-            params: {
-                sort: 'name'
-            }
-        });
     },
 
     retrySubmit: function (btn) {
@@ -257,76 +235,45 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
                 }
             ]
         }).show({
-                ui: 'notification-error',
-                title: headerText,
-                msg: errormsgs,
-                icon: Ext.MessageBox.ERROR
-            })
+            ui: 'notification-error',
+            title: headerText,
+            msg: errormsgs,
+            icon: Ext.MessageBox.ERROR
+        })
     },
 
-    checkLoadProfileConfigurationsCount: function () {
-        var grid = this.getLoadConfigurationGrid();
-        if (!Ext.isEmpty(grid)) {
-            var numberOfLoadConfigurationsContainer = this.getLoadConfigurationCountContainer(),
-                emptyMessage = this.getLoadConfigurationEmptyListContainer(),
-                gridView = grid.getView(),
-                selectionModel = gridView.getSelectionModel(),
-                loadConfigurationCount = this.store.getCount(),
-                loadConfigurationWord;
-
-            if (loadConfigurationCount == 1) {
-                loadConfigurationWord = ' load profile configuration'
-            } else {
-                loadConfigurationWord = ' load profile configurations'
+    loadStore: function () {
+        this.store.load({
+            params: {
+                sort: 'name'
             }
-            var widget = Ext.widget('container', {
-                html: loadConfigurationCount + loadConfigurationWord
-            });
-
-            numberOfLoadConfigurationsContainer.removeAll(true);
-            numberOfLoadConfigurationsContainer.add(widget);
-
-            if (loadConfigurationCount < 1) {
-                grid.hide();
-                emptyMessage.add(
-                    {
-                        xtype: 'loadProfileConfigurationEmptyList',
-                        actionHref: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/loadprofiles/add'
-                    }
-                );
-                this.getLoadConfigurationPreview().hide();
-            } else {
-                selectionModel.select(0);
-                grid.fireEvent('itemclick', gridView, selectionModel.getLastSelected());
-            }
-        }
+        });
     },
 
-    loadGridItemDetail: function (grid, record) {
-        var form = this.getLoadProfileConfigurationDetailForm(),
-            preview = this.getLoadConfigurationPreview(),
-            recordData = record.getData(),
-            preloader = Ext.create('Ext.LoadMask', {
-                msg: "Loading...",
-                target: form
-            });
-        if (this.displayedItemId != recordData.id) {
-            grid.clearHighlight();
-            preloader.show();
-        }
+    loadGridItemDetail: function (selectionModel, record) {
+        var previewPanel = this.getLoadConfigurationPreview(),
+            form = previewPanel.down('form'),
+            recordData = record.getData();
+
         this.displayedItemId = recordData.id;
-        preview.setTitle(recordData.name);
+        previewPanel.setTitle(recordData.name);
         form.loadRecord(record);
-        preloader.destroy();
     },
 
     showDeviceConfigurationLoadProfilesView: function (deviceTypeId, deviceConfigurationId) {
         var me = this,
-            widget = Ext.widget('loadProfileConfigurationSetup', {intervalStore: this.intervalStore, deviceTypeId: deviceTypeId, deviceConfigId: deviceConfigurationId});
-        widget.down('#loadProfileConfigurationTitle').html = '<h1>' + Uni.I18n.translate('loadprofileconfigurations.loadprofileconfigurations', 'MDC', 'Load profile configurations') + '</h1>';
+            widget;
+
         me.deviceTypeId = deviceTypeId;
         me.deviceConfigurationId = deviceConfigurationId;
         me.store.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigurationId});
+        widget = Ext.widget('loadProfileConfigurationSetup', {
+            config: {
+                gridStore: me.store,
+                deviceTypeId: deviceTypeId,
+                deviceConfigurationId: deviceConfigurationId
+            }
+        });
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
                 me.getApplication().fireEvent('loadDeviceType', deviceType);
