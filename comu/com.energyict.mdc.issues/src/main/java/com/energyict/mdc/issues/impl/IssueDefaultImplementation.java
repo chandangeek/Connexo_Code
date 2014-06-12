@@ -8,22 +8,20 @@ import java.util.Date;
 /**
  * Provides a default implementation for the {@link Issue} interface.
  *
- * @param <S> The type of source object
- *
  * @author Rudi Vankeirsbilck (rudi)
  * @since March 27, 2012 (11:35:36)
  */
-public abstract class IssueDefaultImplementation<S> implements Issue<S> {
+public abstract class IssueDefaultImplementation implements Issue {
 
     private String description;
-    private S source;
+    private Object source;
     private Date timestamp;
 
     public IssueDefaultImplementation (Date timestamp, String description) {
         this(timestamp, null, description);
     }
 
-    public IssueDefaultImplementation(Date timestamp, S source, String description, Object... arguments) {
+    public IssueDefaultImplementation(Date timestamp, Object source, String description, Object... arguments) {
         super();
         this.timestamp = timestamp;
         this.source = source;
@@ -50,7 +48,7 @@ public abstract class IssueDefaultImplementation<S> implements Issue<S> {
      * {@inheritDoc}
      */
     @Override
-    public S getSource () {
+    public Object getSource () {
         return this.source;
     }
 

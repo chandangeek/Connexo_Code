@@ -7,18 +7,16 @@ import java.util.Date;
 /**
  * Models an {@link com.energyict.mdc.issues.Issue Issue} that can be worked around.
  *
- * @param <S> The type of source object
- *
  * @author Rudi Vankeirsbilck (rudi)
  * @since March 27, 2012 (11:35:36)
  */
-public class WarningImpl<S> extends IssueDefaultImplementation<S> implements Warning<S> {
+public class WarningImpl extends IssueDefaultImplementation implements Warning {
 
     public WarningImpl (Date timestamp, String description) {
         super(timestamp, description);
     }
 
-    public WarningImpl (Date timestamp, S source, String description, Object... arguments) {
+    public WarningImpl (Date timestamp, Object source, String description, Object... arguments) {
         super(timestamp, source, description, arguments);
     }
 

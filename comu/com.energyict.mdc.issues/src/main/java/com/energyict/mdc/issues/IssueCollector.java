@@ -5,12 +5,10 @@ import java.util.Collection;
 /**
  * IssueCollector is responsible for collecting {@link Issue}s that are found by a process.
  *
- * @param <S> The type of source object that Issues are reported against
- *
  * @author Rudi Vankeirsbilck (rudi)
  * @since March 27, 2012 (11:35:36)
  */
-public interface IssueCollector<S> {
+public interface IssueCollector {
 
     /**
      * Clears the {@link Issue}s that have already been collected so far.
@@ -23,19 +21,18 @@ public interface IssueCollector<S> {
      * @param description The translatable description of the Warning
      * @return The Warning that was created and added
      */
-    public Issue<S> addWarning (String description);
+    public Issue addWarning (String description);
 
     /**
      * Add a new {@link Warning} caused by the source object
      * with the specified description.
-     *
      *
      * @param source The cause of the warning
      * @param description The translatable description of the Warning (can contain a default pattern to put in the arguments)
      * @param arguments   additional arguments to put into the description
      * @return The Warning that was created and added
      */
-    public Issue<S> addWarning(S source, String description, Object... arguments);
+    public Issue addWarning(Object source, String description, Object... arguments);
 
     /**
      * Add a new {@link Problem} with the specified description.
@@ -43,19 +40,18 @@ public interface IssueCollector<S> {
      * @param description The translatable description of the Problem
      * @return The Problem that was created and added
      */
-    public Issue<S> addProblem (String description);
+    public Issue addProblem (String description);
 
     /**
      * Add a new {@link Problem} caused by the source object
      * with the specified human readable description.
-     *
      *
      * @param source The cause of the problem
      * @param description The translatable description of the Problem (can contain a default pattern to put in the arguments)
      * @param arguments   additional arguments to put into the description
      * @return The Problem that was created and added
      */
-    public Issue<S> addProblem(S source, String description, Object... arguments);
+    public Issue addProblem(Object source, String description, Object... arguments);
 
     /**
      * Tests if {@link Issue}s were reported to this IssueCollector.
@@ -71,7 +67,7 @@ public interface IssueCollector<S> {
      * @param source The source object
      * @return A flag that indicates if Issues were reported
      */
-    public boolean hasIssues (S source);
+    public boolean hasIssues (Object source);
 
     /**
      * Tests if {@link Warning}s were reported to this IssueCollector.
@@ -87,7 +83,7 @@ public interface IssueCollector<S> {
      * @param source The source object
      * @return A flag that indicates if Warnings were reported
      */
-    public boolean hasWarnings (S source);
+    public boolean hasWarnings (Object source);
 
     /**
      * Tests if {@link Problem}s were reported to this IssueCollector.
@@ -103,14 +99,14 @@ public interface IssueCollector<S> {
      * @param source The source object
      * @return A flag that indicates if Problems were reported
      */
-    public boolean hasProblems (S source);
+    public boolean hasProblems (Object source);
 
     /**
      * Gets the List of {@link Issue}s that were collected.
      *
      * @return The List of Issue objects that were collected
      */
-    public Collection<? extends Issue<S>> getIssues ();
+    public Collection<? extends Issue> getIssues ();
 
     /**
      * Gets the List of {@link Issue}s that were collected
@@ -119,14 +115,14 @@ public interface IssueCollector<S> {
      * @param source The source object
      * @return The List of Issue objects that were collected
      */
-    public Collection<? extends Issue<S>> getIssues (S source);
+    public Collection<? extends Issue> getIssues (Object source);
 
     /**
      * Gets the List of {@link Warning}s that were collected.
      *
      * @return The List of Warning objects that were collected
      */
-    public Collection<? extends Warning<S>> getWarnings ();
+    public Collection<? extends Warning> getWarnings ();
 
     /**
      * Gets the List of {@link Warning}s that were collected
@@ -135,14 +131,14 @@ public interface IssueCollector<S> {
      * @param source The source object
      * @return The List of Warning objects that were collected
      */
-    public Collection<? extends Warning<S>> getWarnings (S source);
+    public Collection<? extends Warning> getWarnings (Object source);
 
     /**
      * Gets the List of {@link Problem}s that were collected.
      *
      * @return The List of Problem objects that were collected
      */
-    public Collection<? extends Problem<S>> getProblems ();
+    public Collection<? extends Problem> getProblems ();
 
     /**
      * Gets the List of {@link Problem}s that were collected
@@ -151,6 +147,6 @@ public interface IssueCollector<S> {
      * @param source The source object
      * @return The List of Problem objects that were collected
      */
-    public Collection<? extends Problem<S>> getProblems (S source);
+    public Collection<? extends Problem> getProblems (Object source);
 
 }

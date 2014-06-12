@@ -10,12 +10,11 @@ import java.util.Date;
  * This could be useful when the process is e.g. a validation process, in which case the source
  * will most likely be the object that has a validation issue.
  *
- * @param <S> The type of source object
  * @author Rudi Vankeirsbilck (rudi)
  * @since March 27, 2012 (11:35:36)
  */
 
-public interface Issue<S> {
+public interface Issue {
 
     /**
      * Gets the timestamp on which this Issue was created.
@@ -37,7 +36,7 @@ public interface Issue<S> {
      *
      * @return The object that caused this Issue or <code>null</code>
      */
-    public S getSource();
+    public Object getSource();
 
     /**
      * Tests if this Issue is fixable or can be worked around.

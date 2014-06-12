@@ -42,13 +42,13 @@ public class IssueServiceImpl implements IssueService {
     }
 
     @Override
-    public <S> Problem<S> newProblem (S source, String description, Object... arguments) {
-        return new ProblemImpl<>(this.clock.now(), source, description, arguments);
+    public  Problem newProblem (Object source, String description, Object... arguments) {
+        return new ProblemImpl(this.clock.now(), source, description, arguments);
     }
 
     @Override
-    public <S> Warning<S> newWarning (S source, String description, Object... arguments) {
-        return new WarningImpl<>(this.clock.now(), source, description, arguments);
+    public  Warning newWarning (Object source, String description, Object... arguments) {
+        return new WarningImpl(this.clock.now(), source, description, arguments);
     }
 
     @Override
@@ -57,8 +57,8 @@ public class IssueServiceImpl implements IssueService {
     }
 
     @Override
-    public <S> IssueCollector<S> newIssueCollector (Class<S> sourceType) {
-        return new IssueCollectorDefaultImplementation<>(this.clock);
+    public  IssueCollector newIssueCollector (Class sourceType) {
+        return new IssueCollectorDefaultImplementation(this.clock);
     }
 
 }

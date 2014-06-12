@@ -20,10 +20,10 @@ public interface IssueService {
      * Creates a new {@link IssueCollector} that is ready
      * to start collecting {@link Issue}s for the specified type.
      *
-     * @param <S> The type against which Issues will be created
+     * @param sourceType The type against which Issues will be created
      * @return The new IssueCollector
      */
-    public <S> IssueCollector<S> newIssueCollector (Class<S> sourceType);
+    public  IssueCollector newIssueCollector (Class sourceType);
 
     /**
      * Creates a new {@link Problem} with the specified description
@@ -32,9 +32,8 @@ public interface IssueService {
      * @param source The object that caused the problem
      * @param description A description that can be translated (can contain an optional pattern to put in some arguments)
      * @param arguments Additional arguments to put into the description
-     * @param <S> The type of the source object that caused the problem
      */
-    public <S> Problem<S> newProblem (S source, String description, Object... arguments);
+    public  Problem newProblem (Object source, String description, Object... arguments);
 
     /**
      * Creates a new {@link Warning} with the specified description
@@ -43,8 +42,7 @@ public interface IssueService {
      * @param source The object that caused the warning
      * @param description A description that can be translated (can contain an optional pattern to put in some arguments)
      * @param arguments Additional arguments to put into the description
-     * @param <S> The type of the source object that caused the warning
      */
-    public <S> Warning<S> newWarning (S source, String description, Object... arguments);
+    public  Warning newWarning (Object source, String description, Object... arguments);
 
 }
