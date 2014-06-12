@@ -26,7 +26,6 @@ public class Installer {
         IssueType issueType = setSupportedIssueType();
         setDataCollectionReasons(issueType);
         setAQSubscriber();
-        setEventTopics();
     }
 
     private IssueType setSupportedIssueType(){
@@ -47,17 +46,5 @@ public class Installer {
         issueService.createReason("Power outage", issueType);
         issueService.createReason("Time sync failed", issueType);
         issueService.createReason("Slope detection", issueType);
-    }
-
-    // TODO remove it when MDC will register topics
-    @Deprecated
-    private void setEventTopics() {
-        for (IssueEventType eventType : IssueEventType.values()) {
-            try {
-                eventType.install(eventService);
-            } catch (Exception e) {
-                System.out.println("Could not create event type : " + eventType.name());
-            }
-        }
     }
 }
