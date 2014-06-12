@@ -77,6 +77,10 @@ public abstract class AbstractPartialConnectionTaskBuilder<S, T extends ComPortP
         return instance;
     }
 
+    DeviceCommunicationConfigurationImpl getConfiguration() {
+        return configuration;
+    }
+
     abstract void populate(U instance);
 
     abstract U newInstance();

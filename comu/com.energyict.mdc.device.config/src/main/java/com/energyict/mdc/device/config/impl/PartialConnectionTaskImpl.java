@@ -20,6 +20,7 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
@@ -166,6 +167,12 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
         return this.isDefault;
     }
 
+    // only to be used in the setDefault
+    public void clearDefault() {
+        this.isDefault = false;
+        this.post();
+    }
+
     String getInvalidCharacters() {
         return "./";
     }
@@ -180,8 +187,21 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
         this.pluggableClassId = connectionTypePluggableClass == null ? 0 : connectionTypePluggableClass.getId();
     }
 
-    void setDefault(boolean asDefault) {
+    public void setDefault(boolean asDefault) {
+        if(asDefault){
+            for (PartialConnectionTaskImpl partialConnectionTask : getPartialConnectionTasksImpls()) {
+                partialConnectionTask.clearDefault();
+            }
+        }
         this.isDefault = asDefault;
+    }
+
+    private List<PartialConnectionTaskImpl> getPartialConnectionTasksImpls() {
+        List<PartialConnectionTaskImpl> connectionTaskImpls = new ArrayList<>();
+        for (PartialConnectionTask partialConnectionTask : getConfiguration().getPartialConnectionTasks()) {
+            connectionTaskImpls.add((PartialConnectionTaskImpl) partialConnectionTask);
+        }
+        return connectionTaskImpls;
     }
 
     public static class HasSpecValidator implements ConstraintValidator<PartialConnectionTaskPropertyMustHaveSpec, PartialConnectionTaskPropertyImpl> {

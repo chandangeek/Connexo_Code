@@ -23,6 +23,8 @@ import java.util.Set;
  */
 public interface SecurityPropertySet extends HasName, HasId, RelationParticipant {
 
+    public void setName (String name);
+
     public AuthenticationDeviceAccessLevel getAuthenticationDeviceAccessLevel();
 
     public EncryptionDeviceAccessLevel getEncryptionDeviceAccessLevel();

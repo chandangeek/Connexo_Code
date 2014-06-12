@@ -68,6 +68,12 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     private final UserService userService;
     private final DeviceConfigurationService deviceConfigurationService;
 
+    // Redefine to be able to add @Override
+    @Override
+    public void setName(String name) {
+        super.setName(name);
+    }
+
     @Override
     protected CreateEventType createEventType() {
         return CreateEventType.SECURITY_PROPERTY_SET;

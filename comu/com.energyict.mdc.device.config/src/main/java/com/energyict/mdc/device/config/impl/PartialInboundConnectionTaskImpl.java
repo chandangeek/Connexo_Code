@@ -34,11 +34,6 @@ public class PartialInboundConnectionTaskImpl extends PartialConnectionTaskImpl 
     }
 
     @Override
-    public void setDefault(boolean asDefault) {
-        super.setDefault(asDefault);
-    }
-
-    @Override
     protected final CreateEventType createEventType() {
         return CreateEventType.PARTIAL_INBOUND_CONNECTION_TASK;
     }
