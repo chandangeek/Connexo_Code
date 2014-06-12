@@ -18,7 +18,7 @@ import java.util.List;
 public class MockCollectedMessageList implements CollectedMessageList {
 
     private ResultType resultType = ResultType.Supported;
-    private List<Issue<?>> issues = new ArrayList<>();
+    private List<Issue> issues = new ArrayList<>();
     private List<CollectedMessage> collectedMessages = new ArrayList<>();
 
     @Override
@@ -31,7 +31,7 @@ public class MockCollectedMessageList implements CollectedMessageList {
     }
 
     @Override
-    public List<Issue<?>> getIssues() {
+    public List<Issue> getIssues() {
         return this.issues;
     }
 

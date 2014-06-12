@@ -22,7 +22,7 @@ public class MockCollectedMessage implements CollectedMessage {
     private DeviceMessageStatus deviceMessageStatus;
     private String deviceProtocolInformation;
     private ResultType resultType = ResultType.Supported;
-    private List<Issue<?>> issues = new ArrayList<>();
+    private List<Issue> issues = new ArrayList<>();
 
     public MockCollectedMessage(MessageIdentifier messageIdentifier) {
         super();
@@ -54,7 +54,7 @@ public class MockCollectedMessage implements CollectedMessage {
     }
 
     @Override
-    public List<Issue<?>> getIssues() {
+    public List<Issue> getIssues() {
         return this.issues;
     }
 

@@ -23,7 +23,7 @@ public class MockCollectedLoadProfileConfiguration implements CollectedLoadProfi
     private String meterSerialNumber;
     private boolean supported;
     private ResultType resultType;
-    private List<Issue<?>> issues = new ArrayList<>();
+    private List<Issue> issues = new ArrayList<>();
     private List<ChannelInfo> deviceChannelInfo = Collections.emptyList();
 
     public MockCollectedLoadProfileConfiguration(ObisCode obisCode, String meterSerialNumber) {
@@ -77,12 +77,12 @@ public class MockCollectedLoadProfileConfiguration implements CollectedLoadProfi
     }
 
     @Override
-    public List<Issue<?>> getIssues() {
+    public List<Issue> getIssues() {
         return this.issues;
     }
 
     @Override
-    public void setFailureInformation(ResultType resultType, Issue<?> issue) {
+    public void setFailureInformation(ResultType resultType, Issue issue) {
         this.setResultType(resultType);
         this.issues.add(issue);
     }
