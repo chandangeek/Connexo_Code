@@ -94,6 +94,7 @@ Ext.define('Usr.controller.UserEdit', {
         form.updateRecord();
         form.getRecord().save({
             success: function (record) {
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translatePlural('user.saved', record.get('authenticationName'), 'USM', 'User \'{0}\' saved.'));
                 me.back();
             },
             failure: function(record,operation){
