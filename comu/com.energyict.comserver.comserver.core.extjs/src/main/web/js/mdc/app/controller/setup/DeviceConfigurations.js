@@ -273,9 +273,11 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
     },
 
     setCheckBoxes: function (deviceType,deviceConfiguration) {
-        if(deviceConfiguration.get('active')){
-            this.getGatewayCheckbox().setDisabled(true);
-            this.getAddressableCheckbox().setDisabled(true);
+        if(deviceConfiguration !== undefined){
+            if(deviceConfiguration.get('active')){
+                this.getGatewayCheckbox().setDisabled(true);
+                this.getAddressableCheckbox().setDisabled(true);
+            }
         }
         else if (!deviceType.get('canBeGateway')) {
             this.getGatewayCheckbox().setDisabled(!deviceType.get('canBeGateway'));
