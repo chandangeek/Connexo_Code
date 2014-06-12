@@ -299,7 +299,7 @@ public class PartialInboundConnectiontaskCrudIT {
             notTheDefault = deviceConfiguration.newPartialInboundConnectionTask("MyInbound", connectionTypePluggableClass)
                     .comPortPool(inboundComPortPool)
                     .asDefault(false).build();
-            theDefault = deviceConfiguration.newPartialInboundConnectionTask("MyDefault", connectionTypePluggableClass)
+            theDefault = deviceConfiguration.newPartialInboundConnectionTask("MyDefault", connectionTypePluggableClass2)
                     .comPortPool(inboundComPortPool)
                     .asDefault(true).build();
             deviceConfiguration.save();
@@ -330,7 +330,7 @@ public class PartialInboundConnectiontaskCrudIT {
             notTheDefault = deviceConfiguration.newPartialInboundConnectionTask("MyInbound", connectionTypePluggableClass)
                     .comPortPool(inboundComPortPool)
                     .asDefault(true).build();
-            theDefault = deviceConfiguration.newPartialInboundConnectionTask("MyDefault", connectionTypePluggableClass)
+            theDefault = deviceConfiguration.newPartialInboundConnectionTask("MyDefault", connectionTypePluggableClass2)
                     .comPortPool(inboundComPortPool)
                     .asDefault(true).build();
             deviceConfiguration.save();
@@ -412,7 +412,7 @@ public class PartialInboundConnectiontaskCrudIT {
             notTheDefault = deviceConfiguration.newPartialInboundConnectionTask(connectionTaskName1, connectionTypePluggableClass)
                     .comPortPool(inboundComPortPool)
                     .asDefault(false).build();
-            theToBeDefault = deviceConfiguration.newPartialInboundConnectionTask(connectionTaskName2, connectionTypePluggableClass)
+            theToBeDefault = deviceConfiguration.newPartialInboundConnectionTask(connectionTaskName2, connectionTypePluggableClass2)
                     .comPortPool(inboundComPortPool)
                     .asDefault(false).build();
             deviceConfiguration.save();
@@ -453,7 +453,7 @@ public class PartialInboundConnectiontaskCrudIT {
             temporaryDefault = deviceConfiguration.newPartialInboundConnectionTask(connectionTaskName1, connectionTypePluggableClass)
                     .comPortPool(inboundComPortPool)
                     .asDefault(true).build();
-            theToBeDefault = deviceConfiguration.newPartialInboundConnectionTask(connectionTaskName1, connectionTypePluggableClass)
+            theToBeDefault = deviceConfiguration.newPartialInboundConnectionTask(connectionTaskName2, connectionTypePluggableClass2)
                     .comPortPool(inboundComPortPool)
                     .asDefault(false).build();
             deviceConfiguration.save();
