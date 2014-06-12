@@ -70,23 +70,20 @@ Ext.define('Isu.util.IsuGrid', {
     },
 
     /**
-     * Handle 'itemclick' event.
+     * Handle 'select' event.
      * Load item model and fire event for item panel view.
      */
-    loadGridItemDetail: function (grid, record) {
+    loadGridItemDetail: function (selectionModel, record) {
         var itemPanel = this.getItemPanel(),
             form = itemPanel.down('form');
 
-        if (this.displayedItemId != record.id) {
-            grid.clearHighlight();
-            itemPanel.setLoading(true);
-        }
-        this.displayedItemId = record.id;
+        itemPanel.setLoading(true);
+
         this.gridItemModel.load(record.data.id, {
             success: function (record) {
                 if (!form.isDestroyed) {
                     form.loadRecord(record);
-                    form.up('panel').down('item-action').menu.record = record;
+                    form.up('panel').down('menu').record = record;
                     itemPanel.setLoading(false);
                     itemPanel.fireEvent('afterChange',itemPanel);
                     itemPanel.setTitle(record.data.title);

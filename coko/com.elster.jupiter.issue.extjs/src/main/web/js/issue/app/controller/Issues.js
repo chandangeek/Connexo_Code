@@ -73,9 +73,11 @@ Ext.define('Isu.controller.Issues', {
 
     init: function () {
         this.control({
+            'issues-overview issues-list': {
+                select: this.loadGridItemDetail
+            },
             'issues-overview issues-list gridview': {
-                itemclick: this.loadGridItemDetail,
-                refresh: this.onIssuesGridRefresh
+                refresh: this.setAssigneeTypeIconTooltip
             },
             'issues-list uni-actioncolumn': {
                 menuclick: this.chooseIssuesAction
@@ -422,33 +424,6 @@ Ext.define('Isu.controller.Issues', {
             combo.setValue(filterValue);
             self.applyFilter();
         });
-    },
-
-    onIssuesGridRefresh: function (grid) {
-        var store = grid.getStore(),
-            grouping = this.extraParamsModel.get('group').get('value'),
-            groupingField = this.extraParamsModel.get('filter').get(grouping) || this.extraParamsModel.get('groupValue'),
-            extraParams = store.getProxy().extraParams,
-            emptyText;
-
-        if (!store.getCount()) {
-            if (extraParams.status || extraParams.assigneeId || extraParams.reason || extraParams.meter) {
-                emptyText = '<h3>No issues found</h3><p>There are no data collection issues. This could be because:<br>&nbsp;&nbsp;- No data collection issues have been created yet.<br>&nbsp;&nbsp;- No data collection issues comply to the filter.</p>';
-            } else {
-                emptyText = '<h3>No issue found</h3><p>No data collection issues have been created yet.</p>';
-            }
-
-            this.getIssuesList().hide();
-            this.getNoIssues().update(emptyText);
-            this.getNoIssues().show();
-            this.getItemPanel().fireEvent('clear');
-        }
-
-        this.setAssigneeTypeIconTooltip(grid);
-
-        if (!(grouping && grouping != 'none' && !groupingField)) {
-            this.selectFirstGridRow(grid);
-        }
     },
 
     assignedToMe: function () {

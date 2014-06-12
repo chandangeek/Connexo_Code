@@ -12,71 +12,69 @@ Ext.define('Isu.view.workspace.issues.FormWithFilters', {
 
     items: [
         {
+            defaults: {
+                xtype: 'displayfield',
+                labelWidth: 200
+            },
             items: [
                 {
                     itemId: '_reason',
-                    xtype: 'displayfield',
-                    fieldLabel: 'Reason',
+                    fieldLabel: Uni.I18n.translate('general.title.reason', 'ISE', 'Reason'),
                     name: 'reason_name_f'
                 },
                 {
                     itemId: '_customer',
-                    xtype: 'displayfield',
-                    fieldLabel: 'Customer',
+                    fieldLabel: Uni.I18n.translate('general.title.customer', 'ISE', 'Customer'),
                     name: 'customer'
                 },
                 {
                     itemId: '_location',
-                    xtype: 'displayfield',
-                    fieldLabel: 'Location',
+                    fieldLabel: Uni.I18n.translate('general.title.location', 'ISE', 'Location'),
                     name: 'service_location'
                 },
                 {
                     itemId: '_usagepoint',
-                    xtype: 'displayfield',
-                    fieldLabel: 'Usage point',
+                    fieldLabel: Uni.I18n.translate('general.title.usagePoint', 'ISE', 'Usage point'),
                     name: 'usage_point'
                 },
                 {
                     itemId: '_devicename',
-                    xtype: 'displayfield',
-                    fieldLabel: 'Device',
+                    fieldLabel: Uni.I18n.translate('general.title.device', 'ISE', 'Device'),
                     name: 'device_f'
                 }
             ]
         },
         {
+            defaults: {
+                xtype: 'displayfield',
+                labelWidth: 200
+            },
             items: [
                 {
                     itemId: '_status',
-                    xtype: 'displayfield',
-                    fieldLabel: 'Status',
+                    fieldLabel: Uni.I18n.translate('general.title.status', 'ISE', 'Status'),
                     name: 'status_name_f'
                 },
                 {
                     itemId: '_dueDate',
-                    xtype: 'displayfield',
-                    fieldLabel: 'Due date',
+                    fieldLabel: Uni.I18n.translate('general.title.dueDate', 'ISE', 'Due date'),
                     name: 'dueDate',
                     renderer: Ext.util.Format.dateRenderer('M d, Y')
                 },
                 {
                     itemId: '_assignee',
-                    xtype: 'displayfield',
-                    fieldLabel: 'Assignee',
+                    fieldLabel: Uni.I18n.translate('general.title.assignee', 'ISE', 'Assignee'),
                     name: 'assignee_name_f'
                 },
                 {
                     itemId: '_creationDate',
-                    xtype: 'displayfield',
-                    fieldLabel: 'Creation date',
+                    fieldLabel: Uni.I18n.translate('general.title.creationDate', 'ISE', 'Creation date'),
                     name: 'creationDate',
                     renderer: Ext.util.Format.dateRenderer('M d, Y H:i')
                 },
                 {
                     itemId: '_serviceCat',
-                    xtype: 'displayfield',
-                    fieldLabel: 'Service category',
+                    fieldLabel: Uni.I18n.translate('general.title.serviceCategory', 'ISE', 'Service category'),
                     name: 'service_category'
                 }
             ]

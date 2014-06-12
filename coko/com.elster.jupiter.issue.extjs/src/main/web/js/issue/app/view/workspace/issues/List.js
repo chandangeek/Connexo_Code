@@ -10,7 +10,6 @@ Ext.define('Isu.view.workspace.issues.List', {
     ],
     alias: 'widget.issues-list',
     store: 'Isu.store.Issues',
-    emptyText: '<h3>No issue found</h3><p>No data collection issues have been created yet.</p>',
     columns: {
         defaults: {
             sortable: false,
@@ -19,14 +18,14 @@ Ext.define('Isu.view.workspace.issues.List', {
         items: [
             {
                 itemId: 'Title',
-                header: 'Title',
+                header: Uni.I18n.translate('general.title.title', 'ISE', 'Title'),
                 xtype: 'templatecolumn',
                 tpl: '<a href="#/workspace/datacollection/issues/{id}">{title}</a>',
                 flex: 2
             },
             {
                 itemId: 'dueDate',
-                header: 'Due date',
+                header: Uni.I18n.translate('general.title.dueDate', 'ISE', 'Due date'),
                 dataIndex: 'dueDate',
                 xtype: 'datecolumn',
                 format: 'M d Y',
@@ -34,13 +33,13 @@ Ext.define('Isu.view.workspace.issues.List', {
             },
             {
                 itemId: 'status',
-                header: 'Status',
+                header: Uni.I18n.translate('general.title.status', 'ISE', 'Status'),
                 dataIndex: 'status_name',
                 width: 100
             },
             {
                 itemId: 'assignee',
-                header: 'Assignee',
+                header: Uni.I18n.translate('general.title.assignee', 'ISE', 'Assignee'),
                 xtype: 'templatecolumn',
                 tpl: '<tpl if="assignee_type"><span class="isu-icon-{assignee_type} isu-assignee-type-icon"></span></tpl> {assignee_name}',
                 flex: 1
@@ -57,16 +56,15 @@ Ext.define('Isu.view.workspace.issues.List', {
             itemId: 'pagingtoolbartop',
             xtype: 'pagingtoolbartop',
             dock: 'top',
-            store: 'Isu.store.Issues',
-            displayMsg: '{0} - {1} of {2} issues',
-            displayMoreMsg: '{0} - {1} of more than {2} issues',
-            emptyMsg: '0 issues',
+            displayMsg: Uni.I18n.translate('workspace.issues.pagingtoolbartop.displayMsg', 'ISE', '{0} - {1} of {2} issues'),
+            displayMoreMsg: Uni.I18n.translate('workspace.issues.pagingtoolbartop.displayMoreMsg', 'ISE', '{0} - {1} of more than {2} issues'),
+            emptyMsg: Uni.I18n.translate('workspace.issues.pagingtoolbartop.emptyMsg', 'ISE', 'There are no issues to display'),
             items: [
                 '->',
                 {
                     itemId: 'bulkAction',
                     xtype: 'button',
-                    text: 'Bulk action',
+                    text: Uni.I18n.translate('general.title.bulkActions', 'ISE', 'Bulk action'),
                     action: 'bulkchangesissues',
                     hrefTarget: '',
                     href: '#/workspace/datacollection/bulkaction'
@@ -76,8 +74,23 @@ Ext.define('Isu.view.workspace.issues.List', {
         {
             itemId: 'pagingtoolbarbottom',
             xtype: 'pagingtoolbarbottom',
-            store: 'Isu.store.Issues',
-            dock: 'bottom'
+            dock: 'bottom',
+            itemsPerPageMsg: Uni.I18n.translate('workspace.issues.pagingtoolbarbottom.itemsPerPage', 'ISE', 'Issues per page')
         }
-    ]
+    ],
+
+    initComponent: function () {
+        var store = this.store,
+            pagingToolbarTop = Ext.Array.findBy(this.dockedItems, function (item) {
+                return item.xtype == 'pagingtoolbartop';
+            }),
+            pagingToolbarBottom = Ext.Array.findBy(this.dockedItems, function (item) {
+                return item.xtype == 'pagingtoolbarbottom';
+            });
+
+        pagingToolbarTop && (pagingToolbarTop.store = store);
+        pagingToolbarBottom && (pagingToolbarBottom.store = store);
+
+        this.callParent(arguments);
+    }
 });
