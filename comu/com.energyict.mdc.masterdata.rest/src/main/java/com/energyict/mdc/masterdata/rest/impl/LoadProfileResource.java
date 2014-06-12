@@ -90,8 +90,7 @@ public class LoadProfileResource {
         if (!isInUse){
             loadProfileType.setInterval(request.timeDuration);
             loadProfileType.setObisCode(request.obisCode);
-            loadProfileType.getRegisterMappings().clear();
-            addRegisterMappingsToLoadProfileType(loadProfileType, request);
+            editRegisterMappingsToLoadProfileType(loadProfileType, request);
         }
         loadProfileType.save();
         return Response.ok(LoadProfileTypeInfo.from(loadProfileType, isInUse)).build();
@@ -128,6 +127,20 @@ public class LoadProfileResource {
         }
     }
 
+    private void editRegisterMappingsToLoadProfileType(LoadProfileType loadProfileType, LoadProfileTypeInfo request) {
+        if (request.registerMappings != null) {
+            List<RegisterMapping> mappingsOnLoadProfile = loadProfileType.getRegisterMappings();
+            for (RegisterMapping registerMapping : mappingsOnLoadProfile) {
+                loadProfileType.removeRegisterMapping(registerMapping);
+            }
+            for (RegisterMappingInfo registerMapping : request.registerMappings) {
+                Optional<RegisterMapping> registerMappingRef = masterDataService.findRegisterMapping(registerMapping.id);
+                if (registerMappingRef.isPresent()) {
+                    loadProfileType.addRegisterMapping(registerMappingRef.get());
+                }
+            }
+        }
+    }
     private boolean isLoadProfileTypeAlreadyInUse(LoadProfileType loadProfileType){
         return !deviceConfigurationService.findDeviceConfigurationsUsingLoadProfileType(loadProfileType).isEmpty()
                 || !deviceConfigurationService.findDeviceTypesUsingLoadProfileType(loadProfileType).isEmpty();
