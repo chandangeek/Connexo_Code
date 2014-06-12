@@ -43,6 +43,7 @@ Ext.define('Usr.controller.GroupEdit', {
 
     showEditOverview: function (groupId) {
         var me = this;
+        me.mode = 'edit';
         Ext.ModelManager.getModel('Usr.model.Group').load(groupId, {
             success: function (group) {
                 me.showOverview(group, Uni.I18n.translate('group.edit', 'USM', 'Edit') + ' \'' + group.get('name') + '\'');
@@ -55,6 +56,7 @@ Ext.define('Usr.controller.GroupEdit', {
     },
 
     showCreateOverview: function () {
+        this.mode = 'create';
         this.showOverview(Ext.create('Usr.model.Group'), Uni.I18n.translate('group.create', 'USM', 'Add role'));
     },
 
@@ -84,6 +86,14 @@ Ext.define('Usr.controller.GroupEdit', {
         form.updateRecord();
         form.getRecord().save({
             success: function (record) {
+                var message;
+                if(me.mode == 'edit'){
+                    message = Uni.I18n.translatePlural('group.saved', record.get('name'), 'USM', 'Role \'{0}\' saved.');
+                }
+                else{
+                    message = Uni.I18n.translatePlural('group.added', record.get('name'), 'USM', 'Role \'{0}\' added.');
+                }
+                me.getApplication().fireEvent('acknowledge', message);
                 me.back();
             },
             failure: function (record, operation) {
