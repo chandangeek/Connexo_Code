@@ -76,7 +76,16 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Overview',
                                         html: '<b>' + Uni.I18n.translate('administration.issueCreationRules.empty.title', 'ISE', 'No issue creation rules found') + '</b><br>' +
                                             Uni.I18n.translate('administration.issueCreationRules.empty.detail', 'ISE', 'There are no issue creation rules. This could be because:') + '<lv><li>' +
                                             Uni.I18n.translate('administration.issueCreationRules.empty.list.item1', 'ISE', 'No issue creation rules have been defined yet.') + '</li><li>' +
-                                            Uni.I18n.translate('administration.issueCreationRules.empty.list.item2', 'ISE', 'No issue creation rules comply to the filter.') + '</li></lv>'
+                                            Uni.I18n.translate('administration.issueCreationRules.empty.list.item2', 'ISE', 'No issue creation rules comply to the filter.') + '</li></lv><br>' +
+                                            Uni.I18n.translate('administration.issueCreationRules.empty.steps', 'ISE', 'Possible steps:')
+                                    },
+                                    {
+                                        itemId: 'createRule',
+                                        xtype: 'button',
+                                        margin: '10 0 0 0',
+                                        text: Uni.I18n.translate('administration.issueCreationRules.add', 'ISE', 'Create rule'),
+                                        href: '#/administration/issue/creationrules/create',
+                                        action: 'create'
                                     }
                                 ]
                             }
