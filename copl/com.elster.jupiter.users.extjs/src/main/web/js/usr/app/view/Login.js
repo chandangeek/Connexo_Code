@@ -50,6 +50,15 @@ Ext.define('Usr.view.Login', {
                     },
                     items: [
                         {
+                            xtype: 'displayfield',
+                            ui: 'error',
+                            cls: 'hidden',
+                            itemId: 'errorLabel',
+                            hidden: true,
+                            value: 'Login failed. Please contact your administrator.',
+                            margin: '0 0 8 116'
+                        },
+                        {
                             fieldLabel: 'Username',
                             name: 'username',
                             itemId: 'username',
@@ -75,16 +84,6 @@ Ext.define('Usr.view.Login', {
                             itemId: 'loginButton',
                             text: 'Login',
                             margin: '0 0 0 10'
-                        },
-                        {
-                            xtype: 'displayfield',
-                            ui: 'error',
-                            cls: 'hidden',
-                            itemId: 'errorLabel',
-                            hidden: true,
-                            value: 'Login failed. Please contact your administrator.',
-                            margin: '16 0 0 16',
-                            width: 164
                         }
                     ]
                 }
