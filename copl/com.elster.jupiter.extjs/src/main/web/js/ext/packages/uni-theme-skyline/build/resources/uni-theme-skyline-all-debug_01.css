@@ -23367,32 +23367,13 @@ h6 {
 }
 
 /* line 8, ../../sass/src/Component.scss */
-.x-panel-login-container {
-  background-image: url("images/container/loginBackground.png") !important;
-  background-repeat: no-repeat;
-  background-position: center center;
-  background-size: 100% auto;
-  z-index: 9999;
-}
-/* line 15, ../../sass/src/Component.scss */
-.x-panel-login-container .x-panel-login-panel {
-  background-color: white;
-  -webkit-border-radius: 10px;
-  -moz-border-radius: 10px;
-  -ms-border-radius: 10px;
-  -o-border-radius: 10px;
-  border-radius: 10px;
-  padding: 65px 82px;
-}
-
-/* line 22, ../../sass/src/Component.scss */
 .icon-delete {
   background-image: url("images/button/ico_delete.png") !important;
   width: 16px !important;
   height: 16px !important;
 }
 
-/* line 28, ../../sass/src/Component.scss */
+/* line 14, ../../sass/src/Component.scss */
 .icon-delete:hover {
   background-image: url("images/button/ico_deleteA.png") !important;
   width: 16px !important;
@@ -23671,6 +23652,48 @@ h6 {
 /* line 10, ../../sass/src/container/ActionsContainer.scss */
 .x-container-actions *[class*='x-btn-link-'] {
   margin-left: 16px;
+}
+
+/* line 1, ../../sass/src/container/Login.scss */
+body.login {
+  background-image: url("images/container/loginBackground.png") !important;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: 100% auto;
+}
+/* line 7, ../../sass/src/container/Login.scss */
+body.login .x-panel-login {
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  -ms-border-radius: 10px;
+  -o-border-radius: 10px;
+  border-radius: 10px;
+  background-color: white;
+  padding-top: 65px;
+  padding-right: 82px;
+  padding-bottom: 65px;
+  padding-left: 50px;
+}
+/* line 18, ../../sass/src/container/Login.scss */
+body.login .x-panel-login .x-container-logo {
+  background-image: url("images/container/logoConnexo.png");
+  background-position: center top;
+  background-repeat: no-repeat;
+  padding-top: 80px;
+}
+/* line 25, ../../sass/src/container/Login.scss */
+body.login .x-panel-login *[class*='x-btn-action-'] {
+  top: 0px !important;
+  margin-left: 5px;
+}
+/* line 30, ../../sass/src/container/Login.scss */
+body.login .x-panel-login .x-field-error {
+  top: -8px !important;
+}
+/* line 33, ../../sass/src/container/Login.scss */
+body.login .x-panel-login .x-field-error .x-form-display-field {
+  font-weight: bold;
+  color: #70bb51;
 }
 
 /* line 3, ../../sass/src/LoadMask.scss */

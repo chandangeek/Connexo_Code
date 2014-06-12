@@ -1,3 +1,13 @@
+/* line 588, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-sort-medium-focus .x-frame-tl,
+.x-btn-sort-medium-focus .x-frame-bl,
+.x-btn-sort-medium-focus .x-frame-tr,
+.x-btn-sort-medium-focus .x-frame-br,
+.x-btn-sort-medium-focus .x-frame-tc,
+.x-btn-sort-medium-focus .x-frame-bc {
+  background-image: url(images/btn/btn-sort-medium-focus-corners.gif);
+}
+/* line 592, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-sort-medium-focus .x-frame-ml,
 .x-btn-sort-medium-focus .x-frame-mr {
   background-image: url(images/btn/btn-sort-medium-focus-sides.gif);
@@ -17264,12 +17274,6 @@ div.x-form-spinner-down {
 .x-window-header-message-error-top-br,
 .x-window-header-message-error-top-tc,
 .x-window-header-message-error-top-bc,
-.x-window-header-message-error-top-ml,
-.x-window-header-message-error-top-mr {
-  zoom: 1;
-}
-
-/* line 418, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-message-error-top-ml,
 .x-window-header-message-error-top-mr {
   zoom: 1;
