@@ -138,6 +138,6 @@ public class GateWayZ3 extends AbstractDlmsProtocol {
 
     @Override
     public String getVersion() {
-        return "$Data$";
+        return "$Date$";
     }
 }
