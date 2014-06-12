@@ -40,8 +40,8 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSetup', {
                                         xtype: 'component',
                                         html: '<b>' + Uni.I18n.translate('loadProfileTypes.empty.title', 'MDC', 'No load profile types found') + '</b><br>' +
                                             Uni.I18n.translate('loadProfileTypes.empty.detail', 'MDC', 'There are no load profile types. This could be because:') + '<lv><li>' +
-                                            Uni.I18n.translate('deviceType.empty.list.item1', 'MDC', 'No load profile types have been defined yet.') + '</li><li>' +
-                                            Uni.I18n.translate('deviceType.empty.list.item2', 'MDC', 'No load profile types comply to the filter.') + '</li></lv><br>' +
+                                            Uni.I18n.translate('loadProfileTypes.empty.list.item1', 'MDC', 'No load profile types have been defined yet.') + '</li><li>' +
+                                            Uni.I18n.translate('loadProfileTypes.empty.list.item2', 'MDC', 'No load profile types comply to the filter.') + '</li></lv><br>' +
                                             Uni.I18n.translate('loadProfileTypes.empty.steps', 'MDC', 'Possible steps:')
                                     },
                                     {

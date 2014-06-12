@@ -46,7 +46,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeGrid', {
             items: [
                 '->',
                 {
-                    text: Uni.I18n.translate('loadProfileTypes.addLoadProfileType', 'MDC', 'Add load profile type'),
+                    text: Uni.I18n.translate('loadProfileTypes.add', 'MDC', 'Add load profile type'),
                     itemId: 'addLoadProfileType',
                     xtype: 'button',
                     action: 'addloadprofiletypeaction',

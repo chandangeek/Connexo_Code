@@ -1,104 +1,90 @@
 Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationSetup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.loadProfileConfigurationSetup',
-    intervalStore: null,
-    deviceTypeId: null,
-    deviceConfigId: null,
-
-//    side: [
-//        {
-//            xtype: 'loadProfileTypeSideFilter'
-//        }
-//    ],
-
-
+    itemId: 'loadProfileConfigurationSetup',
+    requires: [
+        'Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationGrid',
+        'Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationPreview',
+        'Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu',
+        'Uni.view.container.PreviewContainer'
+    ],
+    side: {
+        xtype: 'deviceConfigurationMenu',
+        toggle: 2
+    },
     content: [
         {
-            xtype: 'container',
-            cls: 'content-container',
-            layout: {
-                type: 'vbox',
-                align: 'stretch'
-            },
-            padding: '0 10 0 10',
+            xtype: 'panel',
+            ui: 'large',
+            title: Uni.I18n.translate('loadProfileConfigurations.title', 'MDC', 'Load profile configurations'),
             items: [
                 {
-                    xtype: 'component',
-                    margins: '10 10 10 10',
-                    itemId: 'loadProfileConfigurationTitle'
-                },
-                /*
-                {
-                    xtype: 'loadProfileConfigurationFiltering'
-                },
-                {
-                    xtype: 'menuseparator'
-                },
-                {
-                    xtype: 'loadProfileConfigurationSorting'
-                },
-                */
-                {
-                    xtype: 'container',
-                    itemId: 'loadProfileConfigurationDockedItemsContainer'
-                },
-                {
-                    xtype: 'container',
-                    itemId: 'loadProfileConfigurationEmptyListContainer'
-                },
-                {
-                    xtype: 'container',
-                    itemId: 'loadProfileConfigurationGridContainer'
-                },
-                {
-                    xtype: 'menuseparator'
-                },
-                {
-                    xtype: 'container',
-                    itemId: 'loadProfileConfigurationPreviewContainer'
+                    xtype: 'preview-container',
+                    grid: {
+                        xtype: 'loadProfileConfigurationGrid'
+                    },
+                    emptyComponent: {
+                        xtype: 'container',
+                        layout: {
+                            type: 'hbox',
+                            align: 'left'
+                        },
+                        minHeight: 20,
+                        items: [
+                            {
+                                xtype: 'image',
+                                margin: '0 10 0 0',
+                                src: '../ext/packages/uni-theme-skyline/build/resources/images/shared/icon-info-small.png',
+                                height: 20,
+                                width: 20
+                            },
+                            {
+                                xtype: 'container',
+                                items: [
+                                    {
+                                        xtype: 'component',
+                                        html: '<b>' + Uni.I18n.translate('loadProfileConfigurations.empty.title', 'MDC', 'No load profile configurations found') + '</b><br>' +
+                                            Uni.I18n.translate('loadProfileConfigurations.empty.detail', 'MDC', 'There are no load profile configurations. This could be because:') + '<lv><li>' +
+                                            Uni.I18n.translate('loadProfileConfigurations.empty.list.item1', 'MDC', 'No load profile configurations have been defined yet.') + '</li><li>' +
+                                            Uni.I18n.translate('loadProfileConfigurations.empty.list.item2', 'MDC', 'No load profile configurations comply to the filter.') + '</li></lv><br>' +
+                                            Uni.I18n.translate('loadProfileConfigurations.empty.steps', 'MDC', 'Possible steps:')
+                                    },
+                                    {
+                                        xtype: 'button',
+                                        margin: '10 0 0 0',
+                                        text: Uni.I18n.translate('loadProfileConfigurations.add', 'MDC', 'Add load profile configuration'),
+                                        action: 'addloadprofileconfiguration',
+                                        href: '#',
+                                        hrefTarget: ''
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    previewComponent: {
+                        xtype: 'loadProfileConfigurationPreview'
+                    }
+//                    previewComponent: null
                 }
             ]
         }
     ],
 
-
     initComponent: function () {
-        this.side = [
-            {
-                xtype: 'deviceConfigurationMenu',
-                deviceTypeId: this.deviceTypeId,
-                deviceConfigurationId: this.deviceConfigId,
-                toggle: 2
-            }
-        ];
-        this.callParent(arguments);
-        this.down('#loadProfileConfigurationDockedItemsContainer').add(
-            {
-                xtype: 'loadProfileConfigurationDockedItems',
-                deviceTypeId: this.deviceTypeId,
-                deviceConfigurationId: this.deviceConfigId
-            }
-        );
-        this.down('#loadProfileConfigurationGridContainer').add(
-            {
-                xtype: 'loadProfileConfigurationGrid',
-                intervalStore: this.intervalStore,
-                deviceTypeId: this.deviceTypeId,
-                deviceConfigurationId: this.deviceConfigId,
-                deleteActionName: 'deleteloadprofileconfigurationondeviceonfiguration',
-                editActionName: 'editloadprofileconfigurationondeviceconfiguration'
-            }
-        );
-        this.down('#loadProfileConfigurationPreviewContainer').add(
-            {
-                xtype: 'loadProfileConfigurationPreview',
-                intervalStore: this.intervalStore,
-                deviceTypeId: this.deviceTypeId,
-                deviceConfigurationId: this.deviceConfigId,
-                deleteActionName: 'deleteloadprofileconfigurationondeviceonfiguration',
-                editActionName: 'editloadprofileconfigurationondeviceconfiguration'
-            }
-        );
-    }
+        var config = this.config,
+            previewContainer = this.content[0].items[0],
+            addButtons;
 
+        config && config.gridStore && (previewContainer.grid.store = config.gridStore);
+        config && config.deviceTypeId && (this.side.deviceTypeId = config.deviceTypeId);
+        config && config.deviceConfigurationId && (this.side.deviceConfigurationId = config.deviceConfigurationId);
+
+        this.callParent(arguments);
+
+        addButtons = this.query('button[action=addloadprofileconfiguration]');
+
+        config && config.deviceTypeId && config.deviceConfigurationId && Ext.Array.each(addButtons, function (button) {
+            button.href = '#/administration/devicetypes/' + config.deviceTypeId + '/deviceconfigurations/' + config.deviceConfigurationId + '/loadprofiles/add';
+        });
+    }
 });

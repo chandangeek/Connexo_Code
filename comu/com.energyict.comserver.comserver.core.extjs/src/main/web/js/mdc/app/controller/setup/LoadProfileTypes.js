@@ -9,8 +9,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         'setup.loadprofiletype.LoadProfileTypeFiltering',
         'setup.loadprofiletype.LoadProfileTypeGrid',
         'setup.loadprofiletype.LoadProfileTypePreview',
-        'setup.loadprofiletype.LoadProfileTypeDockedItems',
-        'setup.loadprofiletype.LoadProfileTypeEmptyList',
         'setup.loadprofiletype.LoadProfileTypeForm',
         'setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesView',
         'setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesDockedItems',
@@ -419,9 +417,9 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         }
     },
 
-    loadGridItemDetail: function (grid, record) {
-        var form = Ext.ComponentQuery.query('loadProfileTypeSetup loadProfileTypePreview form')[0],
-            previewPanel = this.getLoadTypePreview(),
+    loadGridItemDetail: function (selectionModel, record) {
+        var previewPanel = this.getLoadTypePreview(),
+            form = previewPanel.down('form'),
             recordData = record.getData();
 
         this.displayedItemId = recordData.id;

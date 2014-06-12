@@ -45,6 +45,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                         html: '',
                         itemId: 'registerTypeEditCreateTitle'
                     },
+
                     {
                         xtype: 'component',
                         html: '',
