@@ -1194,6 +1194,7 @@ body.login .x-panel-login .x-field-error {
 /* line 33, ../../sass/src/container/Login.scss */
 body.login .x-panel-login .x-field-error .x-form-display-field {
   font-weight: bold;
+  font-size: 13px;
   color: #70bb51;
 }
 
