@@ -5,6 +5,5 @@ Ext.define('Mdc.store.LogbookTypes', {
         'Mdc.model.LogbookTypes'
     ],
     model: 'Mdc.model.LogbookTypes',
-    storeId: 'LogbookTypes',
-    autoLoad: false
+    storeId: 'LogbookTypes'
 });

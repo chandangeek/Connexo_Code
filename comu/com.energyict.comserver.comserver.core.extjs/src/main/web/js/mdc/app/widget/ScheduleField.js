@@ -73,7 +73,7 @@ Ext.define('Mdc.widget.ScheduleField', {
                 itemId: 'valueField',
                 submitValue: false,
                 width: 70,
-                minValue: 0,
+                minValue: 1,
                 listeners: {
                     blur: {
                         fn: function(field){
@@ -102,6 +102,8 @@ Ext.define('Mdc.widget.ScheduleField', {
                 displayField: 'translation',
                 valueField: 'timeUnitKey',
                 submitValue: false,
+                forceSelection: true,
+                editable: false,
                 listeners: {
                     change: {
                         fn: function(combo, newValue) {
@@ -140,6 +142,8 @@ Ext.define('Mdc.widget.ScheduleField', {
                 displayField: 'translation',
                 valueField: 'dayId',
                 submitValue: false,
+                forceSelection: true,
+                editable: false,
                 hidden: true,
                 width: 100
             }, me.unitCfg),
@@ -160,6 +164,8 @@ Ext.define('Mdc.widget.ScheduleField', {
                 displayField: 'translation',
                 valueField: 'dayIndexKey',
                 submitValue: false,
+                forceSelection: true,
+                editable: false,
                 hidden: true,
                 width: 100
             }, me.unitCfg),

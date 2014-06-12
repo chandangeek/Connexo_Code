@@ -13,18 +13,18 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
         return this.edit;
     },
 
-    setEdit: function (edit, returnLink) {
-        if (edit) {
-            this.edit = edit;
-            this.down('#addEditButton').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
-            this.down('#addEditButton').action = 'editConnectionMethod';
-        } else {
-            this.edit = edit;
-            this.down('#addEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
-            this.down('#addEditButton').action = 'addConnectionMethod';
-        }
-        this.down('#cancelLink').href = returnLink;
-    },
+//    setEdit: function (edit, returnLink) {
+//        if (edit) {
+//            this.edit = edit;
+//            this.down('#addEditButton').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
+//            this.down('#addEditButton').action = 'editConnectionMethod';
+//        } else {
+//            this.edit = edit;
+//            this.down('#addEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
+//            this.down('#addEditButton').action = 'addConnectionMethod';
+//        }
+//        this.down('#cancelLink').href = returnLink;
+//    },
 
     initComponent: function () {
         this.content = [
@@ -249,14 +249,11 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                         itemId: 'addEditButton'
                                     },
                                     {
-                                        xtype: 'component',
-                                        padding: '3 0 0 10',
+                                        text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                                        xtype: 'button',
+                                        ui: 'link',
                                         itemId: 'cancelLink',
-                                        autoEl: {
-                                            tag: 'a',
-                                            href: '#/administration/devicetypes/',
-                                            html: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel')
-                                        }
+                                        href: '#/administration/devicetypes/'
                                     }
                                 ]
                             }
@@ -266,8 +263,6 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                         xtype: 'component',
                         height: 100
                     }
-//                        ]
-//                    }
 
 
                 ]

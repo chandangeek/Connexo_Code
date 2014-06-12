@@ -389,19 +389,10 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                             });
                         }
                     });
-                    var numberOfLogbooksContainer = Ext.ComponentQuery.query('device-configuration-logbooks toolbar container[name=LogBookCount]')[0],
-                        grid = Ext.ComponentQuery.query('device-configuration-logbooks grid')[0],
+                    var grid = Ext.ComponentQuery.query('device-configuration-logbooks grid')[0],
                         gridView = grid.getView(),
-                        selectionModel = gridView.getSelectionModel(),
-                        count = Ext.widget('container', {
-                            html: self.getCount() + ' logbook configuration(s)'
-                        });
-                    numberOfLogbooksContainer.removeAll(true);
-                    numberOfLogbooksContainer.add(count);
-                    if (self.getCount() < 1) {
-                        grid.hide();
-                        grid.next().show();
-                    } else {
+                        selectionModel = gridView.getSelectionModel();
+                    if (self.getCount() > 0) {
                         selectionModel.select(0);
                         grid.fireEvent('itemclick', gridView, selectionModel.getLastSelected());
                     }

@@ -17,12 +17,12 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.RegisterGroups',
         'Mdc.controller.setup.ProtocolDialects',
         'Mdc.controller.setup.Devices',
-        'Mdc.controller.setup.LogbookTypes',
+        'Mdc.controller.setup.DeviceTypeLogbooks',
         'Mdc.controller.setup.AddLogbookTypes',
-        'Mdc.controller.setup.LogbookConfigurations',
+        'Mdc.controller.setup.DeviceConfigurationLogbooks',
         'Mdc.controller.setup.AddLogbookConfigurations',
         'Mdc.controller.setup.EditLogbookConfiguration',
-        'Mdc.controller.setup.LogbookTypesOverview',
+        'Mdc.controller.setup.LogbookTypes',
         'Mdc.controller.setup.SearchItems',
         'Mdc.controller.setup.SecuritySettings',
         'Mdc.controller.setup.LoadProfileTypes',
@@ -30,8 +30,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.LoadProfileConfigurations',
         'Mdc.controller.setup.LoadProfileConfigurationDetails',
         'Mdc.controller.setup.CommunicationTasks',
-        'Mdc.controller.setup.CommunicationTasksView',
-        'Mdc.controller.setup.CommunicationTasksCreateEdit'
+        'Mdc.controller.setup.Comtasks'
     ],
 
     controllers: [
@@ -48,12 +47,12 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.RegisterGroups',
         'Mdc.controller.setup.ProtocolDialects',
         'Mdc.controller.setup.Devices',
-        'Mdc.controller.setup.LogbookTypes',
+        'Mdc.controller.setup.DeviceTypeLogbooks',
         'Mdc.controller.setup.AddLogbookTypes',
-        'Mdc.controller.setup.LogbookConfigurations',
+        'Mdc.controller.setup.DeviceConfigurationLogbooks',
         'Mdc.controller.setup.AddLogbookConfigurations',
         'Mdc.controller.setup.EditLogbookConfiguration',
-        'Mdc.controller.setup.LogbookTypesOverview',
+        'Mdc.controller.setup.LogbookTypes',
         'Mdc.controller.setup.SecuritySettings',
         'Mdc.controller.setup.SearchItems',
         'Mdc.controller.setup.LoadProfileTypes',
@@ -61,8 +60,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.LoadProfileConfigurations',
         'Mdc.controller.setup.LoadProfileConfigurationDetails',
         'Mdc.controller.setup.CommunicationTasks',
-        'Mdc.controller.setup.CommunicationTasksView',
-        'Mdc.controller.setup.CommunicationTasksCreateEdit'
+        'Mdc.controller.setup.Comtasks'
     ],
 
     config: {
