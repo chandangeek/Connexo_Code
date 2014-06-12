@@ -108,7 +108,7 @@ Ext.define('Mdc.view.setup.searchitems.SideFilter', {
             ],
             buttons: [
                 {
-                    text: Uni.I18n.translate('searchItems.clearAll', 'MDC', 'Search'),
+                    text: Uni.I18n.translate('searchItems.searchAll', 'MDC', 'Search'),
                     itemId: 'searchAllItems',
                     action: 'applyfilter'
                 },
