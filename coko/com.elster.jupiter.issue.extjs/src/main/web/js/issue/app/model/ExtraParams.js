@@ -49,10 +49,10 @@ Ext.define('Isu.model.ExtraParams', {
         return obg;
     },
 
-    setDefaults: function () {
+    getDefaults: function () {
         return {
             sort: 'dueDate',
-            status: 7,
+            status: 1,
             group: 'none'
         };
     },
@@ -75,7 +75,7 @@ Ext.define('Isu.model.ExtraParams', {
         delete queryString.limit;
         delete queryString.start;
         if (_.isEmpty(queryString)) {
-            queryString = me.setDefaults();
+            queryString = me.getDefaults();
         }
 
         filterValues = _.pick(queryString, filterModel.getFields());
