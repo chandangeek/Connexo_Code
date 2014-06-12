@@ -147,6 +147,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
         this.backUrl = this.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens();
 
         var me = this;
+        me.mode = 'edit';
 
         // TODO: change this to activate infinite scrolling when JP-2844 is fixed
         Ext.ModelManager.getModel('Mdc.model.RegisterGroup').load(registerGroupId, {
@@ -183,6 +184,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
         this.backUrl = this.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens();
 
         var me = this;
+        me.mode = 'create';
 
         // TODO: change this to activate infinite scrolling when JP-2844 is fixed
         //widget.down('#editRegisterGroupGridField').store.on('load', function () {
@@ -230,19 +232,14 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
         var me=this;
         record.save({
             success: function (record) {
-                /*Ext.create('widget.uxNotification', {
-                    position: 'tc',
-                    manager: me.getContentPanel(),
-                    cls: 'ux-notification-light',
-                    width: me.getContentPanel().getWidth()-20,
-//                  iconCls: 'ux-notification-icon-information',
-                    html: 'Register group saved',
-                    slideInDuration: 200,
-                    slideBackDuration: 200,
-                    autoCloseDelay: 7000,
-                    slideInAnimation: 'linear',
-                    slideBackAnimation: 'linear'
-                }).show();*/
+                var message;
+                if(me.mode == 'edit'){
+                    message = Uni.I18n.translatePlural('registergroup.saved', record.get('name'), 'USM', 'Register group \'{0}\' saved.');
+                }
+                else{
+                    message = Uni.I18n.translatePlural('registergroup.added', record.get('name'), 'USM', 'Register group \'{0}\' added.');
+                }
+                me.getApplication().fireEvent('acknowledge', message);
                 location.href = '#/administration/registergroups/';
             },
             failure: function(record,operation){
@@ -269,7 +266,8 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
             config: {
                 registerGroupToDelete: itemToRemove
             },
-            fn: me.removeRegisterGroupInDatabase
+            fn: me.removeRegisterGroupInDatabase,
+            app: me.getApplication()
         });
     },
 
@@ -278,9 +276,15 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
     },
 
     removeRegisterGroupInDatabase: function (btn, text, opt) {
+        var me = this;
         if (btn === 'confirm') {
-            var registerTypeToDelete = opt.config.registerGroupToDelete;
+            var registerTypeToDelete = opt.config.registerGroupToDelete,
+                name = registerTypeToDelete.get('name'),
+                app = opt.app;
             registerTypeToDelete.destroy({
+                success: function () {
+                    app.fireEvent('acknowledge', Uni.I18n.translatePlural('registergroup.removed', name, 'USM', 'Register group \'{0}\' removed.'));
+                },
                 callback: function () {
                     location.href = '#/administration/registergroups/';
                 }
