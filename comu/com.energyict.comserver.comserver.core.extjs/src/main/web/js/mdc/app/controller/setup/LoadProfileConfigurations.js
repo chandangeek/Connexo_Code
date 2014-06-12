@@ -201,10 +201,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
 
     handleSuccessRequest: function (headerText) {
         window.location.href = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/loadprofiles';
-        Ext.create('widget.uxNotification', {
-            html: headerText,
-            ui: 'notification-success'
-        }).show();
+        this.getApplication().fireEvent('acknowledge', headerText);
     },
 
     handleFailureRequest: function (response, headerText, retryAction) {
