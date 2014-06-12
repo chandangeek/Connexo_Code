@@ -17278,3 +17278,9 @@ div.x-form-spinner-down {
 .x-window-header-message-error-top-mr {
   zoom: 1;
 }
+
+/* line 418, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-header-message-error-top-ml,
+.x-window-header-message-error-top-mr {
+  zoom: 1;
+}

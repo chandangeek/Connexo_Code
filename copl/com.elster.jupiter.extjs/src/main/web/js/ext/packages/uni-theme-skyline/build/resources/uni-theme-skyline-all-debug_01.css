@@ -23384,7 +23384,7 @@ h6 {
 .x-container-breadcrumbtrailcontainer {
   background-color: #71adc7;
   color: white;
-  z-index: 20000;
+  z-index: 19001;
   background: -webkit-linear-gradient(left, #587b9b, #76b4cd);
   /* For Safari 5.1 to 6.0 */
   background: -o-linear-gradient(right, #587b9b, #76b4cd);
@@ -23658,7 +23658,7 @@ h6 {
 body.login {
   background-image: url("images/container/loginBackground.png") !important;
   background-repeat: no-repeat;
-  background-position: center center;
+  background-position: center top;
   background-size: 100% auto;
 }
 /* line 7, ../../sass/src/container/Login.scss */
@@ -23669,9 +23669,9 @@ body.login .x-panel-login {
   -o-border-radius: 10px;
   border-radius: 10px;
   background-color: white;
-  padding-top: 65px;
-  padding-right: 82px;
-  padding-bottom: 65px;
+  padding-top: 64px;
+  padding-right: 80px;
+  padding-bottom: 64px;
   padding-left: 50px;
 }
 /* line 18, ../../sass/src/container/Login.scss */
@@ -23683,18 +23683,13 @@ body.login .x-panel-login .x-container-logo {
 }
 /* line 25, ../../sass/src/container/Login.scss */
 body.login .x-panel-login *[class*='x-btn-action-'] {
-  top: 0px !important;
   margin-left: 5px;
 }
 /* line 30, ../../sass/src/container/Login.scss */
-body.login .x-panel-login .x-field-error {
-  top: -8px !important;
-}
-/* line 33, ../../sass/src/container/Login.scss */
 body.login .x-panel-login .x-field-error .x-form-display-field {
-  font-weight: bold;
-  font-size: 13px;
-  color: #70bb51;
+  font-style: italic;
+  font-size: 12px;
+  color: #eb5642;
 }
 
 /* line 3, ../../sass/src/LoadMask.scss */
