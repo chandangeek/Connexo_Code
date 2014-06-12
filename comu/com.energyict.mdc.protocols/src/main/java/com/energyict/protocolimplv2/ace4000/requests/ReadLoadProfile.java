@@ -52,7 +52,7 @@ public class ReadLoadProfile extends AbstractRequest<LoadProfileReader, List<Col
             setResult(getAce4000().getObjectFactory().createCollectedLoadProfiles(getInput().getProfileObisCode()));
         } else if (isFailedRequest(RequestType.LoadProfile)) {
             List<CollectedLoadProfile> collectedLoadProfiles = getAce4000().getObjectFactory().createCollectedLoadProfiles(getInput().getProfileObisCode());
-            Issue<LoadProfileReader> problem = Bus.getIssueService()
+            Issue problem = Bus.getIssueService()
                     .newIssueCollector()
                     .addProblem(getInput(), "Requested LP data, meter returned NACK." + getReasonDescription(), getInput().getProfileObisCode());
             collectedLoadProfiles.get(0).setFailureInformation(ResultType.NotSupported, problem);

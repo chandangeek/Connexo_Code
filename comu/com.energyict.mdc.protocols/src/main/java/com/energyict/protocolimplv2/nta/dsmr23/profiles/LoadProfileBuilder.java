@@ -444,11 +444,11 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport{
 
                     collectedLoadProfile.setCollectedData(collectedIntervalData, channelInfos);
                 } catch (IOException e) {
-                    Issue<LoadProfileReader> problem = Bus.getIssueService().newIssueCollector().addProblem(lpr, "loadProfileXIssue", lpr.getProfileObisCode(), e);
+                    Issue problem = Bus.getIssueService().newIssueCollector().addProblem(lpr, "loadProfileXIssue", lpr.getProfileObisCode(), e);
                     collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
                 }
             } else {
-                Issue<LoadProfileReader> problem = Bus.getIssueService().newIssueCollector().addProblem(lpr, "loadProfileXnotsupported", lpr.getProfileObisCode());
+                Issue problem = Bus.getIssueService().newIssueCollector().addProblem(lpr, "loadProfileXnotsupported", lpr.getProfileObisCode());
                 collectedLoadProfile.setFailureInformation(ResultType.NotSupported, problem);
             }
             collectedLoadProfileList.add(collectedLoadProfile);
