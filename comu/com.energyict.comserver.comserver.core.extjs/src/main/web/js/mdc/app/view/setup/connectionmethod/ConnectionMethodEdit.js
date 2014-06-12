@@ -65,12 +65,6 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                             {
                                 xtype: 'textfield',
                                 name: 'name',
-                                validator: function (text) {
-                                    if (Ext.util.Format.trim(text).length == 0)
-                                        return Uni.I18n.translate('connectionmethod.emptyName', 'MDC', 'The name of a connection method can not be empty.')
-                                    else
-                                        return true;
-                                },
                                 msgTarget: 'under',
                                 required: true,
                                 fieldLabel: Uni.I18n.translate('connectionmethod.name', 'MDC', 'Name'),
