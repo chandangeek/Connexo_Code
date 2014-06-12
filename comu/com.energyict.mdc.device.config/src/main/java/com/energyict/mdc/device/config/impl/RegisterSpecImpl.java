@@ -244,9 +244,11 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
         if (this.overflow != null && this.numberOfDigits > 0) {
             if (this.overflow.compareTo(BigDecimal.valueOf(10).pow(numberOfDigits))==1) {
                 throw new OverFlowValueCanNotExceedNumberOfDigitsException(this.thesaurus, this.overflow, Math.pow(10, this.numberOfDigits), this.numberOfDigits);
-            } else if (this.overflow.compareTo(BigDecimal.ZERO) <= 0) {
-                throw InvalidValueException.registerSpecOverFlowValueShouldBeLargerThanZero(this.thesaurus, this.overflow);
             }
+            // should be covered by field validation
+            //else if (this.overflow.compareTo(BigDecimal.ZERO) <= 0) {
+             //   throw InvalidValueException.registerSpecOverFlowValueShouldBeLargerThanZero(this.thesaurus, this.overflow);
+            //}
         }
     }
 

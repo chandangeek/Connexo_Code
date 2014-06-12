@@ -39,7 +39,7 @@ public enum MessageSeeds implements MessageSeed {
     REGISTER_SPEC_REGISTER_MAPPING_IS_REQUIRED(6003, Keys.REGISTER_SPEC_REGISTER_MAPPING_IS_REQUIRED,"The register mapping of a register specification is required", SEVERE),
     REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED(6004, Keys.REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED, "The number of fraction digits can not be decreased", SEVERE),
     REGISTER_SPEC_OVERFLOW_LARGER_THAN_NUMBER_OF_DIGITS(6005, "registerSpec.overflow.exceed","The provided overflow value \"{0}\" may not exceed \"{1}\" (according to the provided number of digits \"{2}\")", SEVERE),
-    REGISTER_SPEC_OVERFLOW_LARGER_THAN_ZERO(6006, "registerSpec.overflow.invalidValue","The provided overflow value \"{0}\" must be larger then zero (0))", SEVERE),
+    REGISTER_SPEC_OVERFLOW_LARGER_THAN_ZERO(6006, "registerSpec.overflow.invalidValue","The provided overflow value must be larger then zero (0))", SEVERE),
     REGISTER_SPEC_OVERFLOW_INCORRECT_FRACTION_DIGITS(6007, "registerSpec.overflow.fractionDigits","The provided overflow value \"{0}\" more fraction digits \"{1}\" than provided \"{2}\")", SEVERE),
     REGISTER_SPEC_CANNOT_DELETE_FOR_ACTIVE_CONFIG(6009, "registerSpec.delete.active.config","It is not allowed to delete a register spec from an active device configuration", SEVERE),
     REGISTER_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIG(6010, "registerSpec.add.active.config","You can not add a register spec to an active device configuration", SEVERE),
