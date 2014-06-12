@@ -5380,6 +5380,12 @@ a:hover, a.x-btn:hover {
   margin-left: -5px;
 }
 
+/* line 142, ../../sass/src/button/LinkButton.scss */
+.x-form-fieldcontainer.x-container-actions *[class*='x-btn-link-'] {
+  margin-top: 0;
+  margin-left: 0;
+}
+
 /* line 255, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-menuitem-large {
   border-color: #6194ab;
@@ -14699,8 +14705,4 @@ a:hover, a.x-btn:hover {
 .x-btn-step-active-small-icon-text-right .x-btn-icon-el {
   width: 17px;
   left: auto;
-}
-/* line 453, ../../../ext-theme-neutral/sass/src/button/Button.scss */
-.x-ie6 .x-btn-step-active-small-icon-text-right .x-btn-icon-el, .x-quirks .x-ie .x-btn-step-active-small-icon-text-right .x-btn-icon-el {
-  height: 17px;
 }

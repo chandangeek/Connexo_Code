@@ -1,0 +1,39 @@
+body.login {
+    background-image: url('images/container/loginBackground.png') !important;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 100% auto;
+
+    .#{$prefix}panel-login {
+        @include border-radius(10px);
+        background-color: white;
+
+        padding: {
+            top: 65px;
+            right: 82px;
+            bottom: 65px;
+            left: 50px;
+        }
+
+        .#{$prefix}container-logo {
+            background-image: url('images/container/logoConnexo.png');
+            background-position: center top;
+            background-repeat: no-repeat;
+            padding-top: 80px;
+        }
+
+        *[class*='#{$prefix}btn-action-'] {
+            top: 0px !important;
+            margin-left: 5px;
+        }
+
+        .#{$prefix}field-error {
+            top: -8px !important;
+
+            .#{$prefix}form-display-field {
+                font-weight: bold;
+                color: #70bb51;
+            }
+        }
+    }
+}

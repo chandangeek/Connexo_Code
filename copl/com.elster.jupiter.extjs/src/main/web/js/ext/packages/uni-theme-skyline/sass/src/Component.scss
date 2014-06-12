@@ -5,20 +5,6 @@
 @import "breadcrumb/BreadcrumbLinkSeparator";
 @import "grid/ActionColumn";
 
-.#{$prefix}panel-login-container {
-  background-image: url('images/container/loginBackground.png') !important;
-  background-repeat: no-repeat;
-  background-position: center center;
-  background-size: 100% auto;
-  z-index: 9999;
-
-  .#{$prefix}panel-login-panel {
-    background-color: white;
-    @include border-radius(10px);
-    padding: 65px 82px;
-  }
-}
-
 .icon-delete {
   background-image: url('images/button/ico_delete.png') !important;
   width: 16px !important;

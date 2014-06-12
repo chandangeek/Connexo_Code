@@ -1,3 +1,7 @@
+.x-ie6 .x-btn-step-active-small-icon-text-right .x-btn-icon-el, .x-quirks .x-ie .x-btn-step-active-small-icon-text-right .x-btn-icon-el {
+  height: 17px;
+}
+
 /* line 468, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-step-active-small-icon-text-top .x-btn-inner {
   padding-top: 22px;
