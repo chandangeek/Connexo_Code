@@ -873,6 +873,32 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
+    public void deleteDeviceTypeWithInActiveDeviceConfigsTest() {
+        String deviceTypeName = "test";
+        DeviceType deviceType;
+
+        deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
+        deviceType.setDescription("For testing purposes only");
+        DeviceConfiguration first = deviceType.newConfiguration("first").description("this is it!").add();
+        DeviceConfiguration second = deviceType.newConfiguration("second").description("this is it!").add();
+        deviceType.save();
+        second.activate();
+        second.createLoadProfileSpec(loadProfileType);
+        second.save();
+        second.deactivate();
+        second.save();
+
+        long firstId = first.getId();
+        long secondId = second.getId();
+
+        deviceType.delete();
+
+        assertThat(inMemoryPersistence.getDeviceConfigurationService().findDeviceConfiguration(firstId)).isNull();
+        assertThat(inMemoryPersistence.getDeviceConfigurationService().findDeviceConfiguration(secondId)).isNull();
+    }
+
+    @Test
+    @Transactional
     public void testDeviceTypeDeletionRemovesRegisterMappings() {
         String deviceTypeName = "testDeviceTypeDeletionRemovesRegisterMappings";
         DeviceType deviceType;
