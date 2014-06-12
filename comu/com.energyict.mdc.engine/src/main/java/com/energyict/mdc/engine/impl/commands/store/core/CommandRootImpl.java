@@ -116,8 +116,8 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
     }
 
     @Override
-    public List<Issue<?>> getIssues () {
-        List<Issue<?>> issues = super.getIssues();
+    public List<Issue> getIssues () {
+        List<Issue> issues = super.getIssues();
         for (ComCommand child : this) {
             issues.addAll(child.getIssues());
         }

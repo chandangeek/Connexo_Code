@@ -66,11 +66,11 @@ public abstract class ExecutionLoggerImpl implements DeviceCommand.ExecutionLogg
     }
 
     @Override
-    public void addIssue(CompletionCode completionCode, Issue<?> issue, ComTaskExecution comTaskExecution){
+    public void addIssue(CompletionCode completionCode, Issue issue, ComTaskExecution comTaskExecution){
         this.logIssue(completionCode, issue, this.findComTaskExecutionSession(comTaskExecution));
     }
 
-    private void logIssue(CompletionCode completionCode, Issue<?> issue, ComTaskExecutionSessionBuilder builder) {
+    private void logIssue(CompletionCode completionCode, Issue issue, ComTaskExecutionSessionBuilder builder) {
         builder.addComCommandJournalEntry(issue.getTimestamp(), completionCode, issue.isProblem() ? issue.getDescription() : "", issue.getDescription());
     }
 

@@ -23,32 +23,32 @@ public class CompositeValidatorTest {
 
     private static class AlwaysOkValidator implements Validator<String> {
 
-        public Set<Issue<String>> validate(String target) {
+        public Set<Issue> validate(String target) {
             return Collections.emptySet();
         }
     }
 
     private static class NeverOkValidator implements Validator<String> {
 
-        public Set<Issue<String>> validate(String target) {
-            return Collections.singleton((Issue<String>) new ProblemImpl<>(new Date(), target, PROBLEM_DESCRIPTION));
+        public Set<Issue> validate(String target) {
+            return Collections.singleton((Issue) new ProblemImpl(new Date(), target, PROBLEM_DESCRIPTION));
         }
     }
 
     private static class StartsWithCapitalValidator implements Validator<String> {
 
-        public Set<Issue<String>> validate(String target) {
+        public Set<Issue> validate(String target) {
             if (! is(target).empty() && Character.isUpperCase(target.charAt(0))) {
                 return Collections.emptySet();
             }
-            return Collections.singleton((Issue<String>) new ProblemImpl<>(new Date(), target, "Not capitalized."));
+            return Collections.singleton((Issue) new ProblemImpl(new Date(), target, "Not capitalized."));
         }
     }
 
     @Test
     public void testValidateAllIssuesCollected() throws Exception {
         CompositeValidator<String> validator = new CompositeValidator<>(new NeverOkValidator(), new StartsWithCapitalValidator());
-        Set<Issue<String>> issues = validator.validate("invalid");
+        Set<Issue> issues = validator.validate("invalid");
         assertThat(issues).isNotNull();
         assertThat(issues).hasSize(2);
     }
@@ -56,7 +56,7 @@ public class CompositeValidatorTest {
     @Test
     public void testAllPassed() throws Exception {
         CompositeValidator<String> validator = new CompositeValidator<>(new AlwaysOkValidator(), new StartsWithCapitalValidator());
-        Set<Issue<String>> issues = validator.validate("Invalid");
+        Set<Issue> issues = validator.validate("Invalid");
         assertThat(issues).isNotNull();
         assertThat(issues).isEmpty();
     }
@@ -65,10 +65,10 @@ public class CompositeValidatorTest {
     public void testValidateFailAtFirst() throws Exception {
         CompositeValidator<String> validator = new CompositeValidator<>(new NeverOkValidator(), new StartsWithCapitalValidator());
         validator.setCollectAll(false);
-        Set<Issue<String>> issues = validator.validate("invalid");
+        Set<Issue> issues = validator.validate("invalid");
         assertThat(issues).isNotNull();
         assertThat(issues).hasSize(1);
-        Issue<String> singleIssue = issues.iterator().next();
+        Issue singleIssue = issues.iterator().next();
         assertThat(singleIssue.isProblem()).isTrue();
         assertThat(singleIssue.getDescription()).isNotEmpty();
     }

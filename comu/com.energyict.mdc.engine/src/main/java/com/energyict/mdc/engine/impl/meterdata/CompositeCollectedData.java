@@ -28,8 +28,8 @@ public abstract class CompositeCollectedData<T extends CollectedData> extends Co
     }
 
     @Override
-    public List<Issue<?>> getIssues() {
-        List<Issue<?>> issues = new ArrayList<>(super.getIssues());
+    public List<Issue> getIssues() {
+        List<Issue> issues = new ArrayList<>(super.getIssues());
         for (T collectedData : this.getElements()) {
             issues.addAll(collectedData.getIssues());
         }

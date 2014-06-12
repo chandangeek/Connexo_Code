@@ -76,7 +76,7 @@ public class VerifySerialNumberCommandImplTest extends CommonCommandImplTests {
         verifySerialNumberCommand.execute(deviceProtocol, newTestExecutionContext());
 
         // asserts
-        List<Issue<?>> issues = verifySerialNumberCommand.getIssues();
+        List<Issue> issues = verifySerialNumberCommand.getIssues();
         assertEquals(
                 "There should be a warning that the SerialNumber could not be checked for an OLD MeterProtocol, we didn't have that interface call yet...",
                 1, issues.size());

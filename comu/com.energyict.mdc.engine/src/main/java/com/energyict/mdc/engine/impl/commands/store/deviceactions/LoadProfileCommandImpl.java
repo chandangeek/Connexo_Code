@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
@@ -14,9 +15,8 @@ import com.energyict.mdc.engine.impl.commands.collect.TimeDifferenceCommand;
 import com.energyict.mdc.engine.impl.commands.collect.VerifyLoadProfilesCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.CompositeComCommandImpl;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.issues.Issue;
+import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
@@ -279,8 +279,8 @@ public class LoadProfileCommandImpl extends CompositeComCommandImpl implements R
     }
 
     @Override
-    public List<Issue<?>> getIssues() {
-        List<Issue<?>> issues = super.getIssues();
+    public List<Issue> getIssues() {
+        List<Issue> issues = super.getIssues();
         if(getVerifyLoadProfilesCommand() != null) {
             issues.addAll(getVerifyLoadProfilesCommand().getIssues());
         }

@@ -82,15 +82,15 @@ public class ComCommandJournalist {
                 append(" problem(s)\n");
     }
 
-    private void appendIssues(StringBuilder builder, String heading, List<? extends Issue<?>> issues) {
+    private void appendIssues(StringBuilder builder, String heading, List<? extends Issue> issues) {
         builder.append(heading).append(':');
         int issueNumber = 1;
-        for (Issue<?> issue : issues) {
+        for (Issue issue : issues) {
             appendIssue(builder, issueNumber++, issue);
         }
     }
 
-    private void appendIssue(StringBuilder builder, int issueNumber, Issue<?> issue) {
+    private void appendIssue(StringBuilder builder, int issueNumber, Issue issue) {
         builder.append('\n').append('\t').append(NUMBER_FORMAT.format(issueNumber)).append('.').append(' ');
         builder.append(issue.getDescription());
         builder.append(' ').append('(').append(DATE_FORMAT.print(issue.getTimestamp().getTime())).append(')');

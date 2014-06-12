@@ -45,7 +45,7 @@ public interface DeviceCommand {
          * @param issue the issue that should be logged
          * @param comTaskExecution The ComTaskExecution
          */
-        public void addIssue (CompletionCode completionCode, Issue<?> issue, ComTaskExecution comTaskExecution);
+        public void addIssue (CompletionCode completionCode, Issue issue, ComTaskExecution comTaskExecution);
 
     }
 

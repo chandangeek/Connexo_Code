@@ -37,8 +37,8 @@ public class CompositeValidator<T> implements Validator<T> {
         this.collectAll = collectAll;
     }
 
-    public Set<Issue<T>> validate(T target) {
-        Set<Issue<T>> issues = new LinkedHashSet<>();
+    public Set<Issue> validate(T target) {
+        Set<Issue> issues = new LinkedHashSet<>();
         for (Validator<T> validator : validators) {
             issues.addAll(validator.validate(target));
             if (!collectAll && !issues.isEmpty()) {

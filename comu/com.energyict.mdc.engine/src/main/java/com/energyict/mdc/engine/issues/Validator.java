@@ -24,6 +24,6 @@ public interface Validator<T> {
      * @param target the object to validate
      * @return a Set of Issues, never null.
      */
-    public Set<Issue<T>> validate (T target);
+    public Set<Issue> validate (T target);
 
 }

@@ -37,7 +37,7 @@ public class SimpleComCommandTest {
         SimpleComCommandForTestingPurposes command = this.newTestCommand();
 
         // Business method
-        List<Issue<?>> issues = command.getIssues();
+        List<Issue> issues = command.getIssues();
 
         // Asserts
         assertThat(issues).isEmpty();
@@ -52,9 +52,9 @@ public class SimpleComCommandTest {
                         this.mockWarning("testGetIssuess-Warning"));
 
         // Business method
-        List<Issue<?>> issues = command.getIssues();
-        List<Problem<?>> problems = command.getProblems();
-        List<Warning<?>> warnings = command.getWarnings();
+        List<Issue> issues = command.getIssues();
+        List<Problem> problems = command.getProblems();
+        List<Warning> warnings = command.getWarnings();
 
         // Asserts
         assertThat(issues).hasSize(3);
@@ -71,9 +71,9 @@ public class SimpleComCommandTest {
                         this.mockCollectedDataWithProblem("testGetIssuesFromCollectedData-Problem"));
 
         // Business method
-        List<Issue<?>> issues = command.getIssues();
-        List<Problem<?>> problems = command.getProblems();
-        List<Warning<?>> warnings = command.getWarnings();
+        List<Issue> issues = command.getIssues();
+        List<Problem> problems = command.getProblems();
+        List<Warning> warnings = command.getWarnings();
 
         // Asserts
         assertThat(issues).hasSize(3);
@@ -92,9 +92,9 @@ public class SimpleComCommandTest {
         command.addIssue(this.mockWarning("testGetIssuesFromCollectedDataAndOthers-Warning"));
 
         // Business method
-        List<Issue<?>> issues = command.getIssues();
-        List<Problem<?>> problems = command.getProblems();
-        List<Warning<?>> warnings = command.getWarnings();
+        List<Issue> issues = command.getIssues();
+        List<Problem> problems = command.getProblems();
+        List<Warning> warnings = command.getWarnings();
 
         // Asserts
         assertThat(issues).hasSize(5);
@@ -141,14 +141,14 @@ public class SimpleComCommandTest {
     private CollectedData mockCollectedDataWithWarning (String description) {
         CollectedData collectedData = mock(CollectedData.class);
         Issue warning = this.mockWarning(description);
-        when(collectedData.getIssues()).thenReturn(Arrays.<Issue<?>>asList(warning));
+        when(collectedData.getIssues()).thenReturn(Arrays.asList(warning));
         return collectedData;
     }
 
     private CollectedData mockCollectedDataWithProblem (String description) {
         CollectedData collectedData = mock(CollectedData.class);
         Issue problem = this.mockProblem(description);
-        when(collectedData.getIssues()).thenReturn(Arrays.<Issue<?>>asList(problem));
+        when(collectedData.getIssues()).thenReturn(Arrays.asList(problem));
         return collectedData;
     }
 
