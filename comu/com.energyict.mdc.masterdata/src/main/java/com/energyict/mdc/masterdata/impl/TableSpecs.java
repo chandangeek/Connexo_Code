@@ -28,7 +28,7 @@ public enum TableSpecs {
             table.map(PhenomenonImpl.class);
             Column id = table.addAutoIdColumn();
             table.column("NAME").varChar(80).notNull().map(PhenomenonImpl.Fields.NAME.fieldName()).add();
-            Column unit = table.column("UNIT").type("CHAR(7)").notNull().map(PhenomenonImpl.Fields.UNIT.fieldName()).add();
+            Column unit = table.column("UNIT").varChar(7).notNull().map(PhenomenonImpl.Fields.UNIT.fieldName()).add();
             table.column("MEASUREMENTCODE").varChar(80).map(PhenomenonImpl.Fields.MEASUREMENT_CODE.fieldName()).add();
             table.column("EDICODE").varChar(80).map(PhenomenonImpl.Fields.EDI_CODE.fieldName()).add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map(PhenomenonImpl.Fields.MODIFICATION_DATE.fieldName()).insert("sysdate").update("sysdate").add();
