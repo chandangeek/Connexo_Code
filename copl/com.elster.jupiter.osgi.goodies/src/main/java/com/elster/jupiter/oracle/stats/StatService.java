@@ -15,7 +15,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 
-@Component(service=StatService.class, property = {"osgi.command.scope=playground", "osgi.command.function=publish" }, immediate = true)
+@Component(service=StatService.class, property = {"osgi.command.scope=playground", "osgi.command.function=publish" }, enabled = false)
 public class StatService {
 	
 	private volatile DataSource dataSource;
