@@ -397,7 +397,7 @@ public class SecurityPropertySetImplCrudIT {
 
     @Test
     @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Keys.NAME_UNIQUE + '}')
-    public void testCreateWithDuplicateName () {
+    public void testCreateWithDuplicateNameInSameConfiguration () {
         DeviceConfiguration deviceConfiguration;
         SecurityPropertySet propertySet = null;
         try (TransactionContext context = transactionService.getContext()) {
@@ -426,6 +426,49 @@ public class SecurityPropertySetImplCrudIT {
 
             context.commit();
         }
+    }
+
+    @Test
+    public void testCreateWithDuplicateNameInOtherConfiguration () {
+        DeviceType deviceType;
+        SecurityPropertySet propertySet;
+        String expectedName = "Name";
+        try (TransactionContext context = transactionService.getContext()) {
+            deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+            deviceType.save();
+
+            DeviceConfiguration deviceConfiguration1 = deviceType.newConfiguration("Normal-1").add();
+            deviceConfiguration1.save();
+            deviceConfiguration1.createSecurityPropertySet(expectedName)
+                    .authenticationLevel(1)
+                    .encryptionLevel(2)
+                    .addUserAction(ALLOWCOMTASKEXECUTION1)
+                    .addUserAction(EDITDEVICESECURITYPROPERTIES2)
+                    .build();
+
+            context.commit();
+        }
+        try (TransactionContext context = transactionService.getContext()) {
+            DeviceConfiguration deviceConfiguration2 = deviceType.newConfiguration("Normal-2").add();
+            deviceConfiguration2.save();
+
+            // Busines method
+            propertySet = deviceConfiguration2.createSecurityPropertySet(expectedName)
+                    .authenticationLevel(1)
+                    .encryptionLevel(2)
+                    .addUserAction(ALLOWCOMTASKEXECUTION1)
+                    .addUserAction(EDITDEVICESECURITYPROPERTIES2)
+                    .build();
+
+            context.commit();
+        }
+
+        // Asserts
+        assertThat(propertySet).isNotNull();
+        Optional<SecurityPropertySet> found = deviceConfigurationService.findSecurityPropertySet(propertySet.getId());
+        assertThat(found).isPresent();
+        SecurityPropertySet reloaded = found.get();
+        assertThat(reloaded.getName()).isEqualTo(expectedName);
     }
 
     @Test
