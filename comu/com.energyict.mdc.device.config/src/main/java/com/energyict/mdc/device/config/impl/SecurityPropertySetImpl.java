@@ -96,6 +96,27 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         }
     }
 
+    @Override
+    protected boolean validateUniqueName() {
+        return this.findOtherByName(this.getName()) == null;
+    }
+
+    private SecurityPropertySet findOtherByName(String name) {
+        Optional<SecurityPropertySet> other = this.getDataMapper().getUnique("name", name, "deviceCommunicationConfiguration", this.deviceCommunicationConfiguration.get());
+        if (other.isPresent()) {
+            SecurityPropertySet otherSet = other.get();
+            if (otherSet.getId() == this.getId()) {
+                return null;
+            }
+            else {
+                return other.get();
+            }
+        }
+        else {
+            return null;
+        }
+    }
+
     static class UserActionRecord {
         private DeviceSecurityUserAction userAction;
         private Reference<SecurityPropertySet> set = ValueReference.absent();
