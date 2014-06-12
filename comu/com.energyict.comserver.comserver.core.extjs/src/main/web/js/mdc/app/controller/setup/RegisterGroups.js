@@ -230,19 +230,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
         var me=this;
         record.save({
             success: function (record) {
-                /*Ext.create('widget.uxNotification', {
-                    position: 'tc',
-                    manager: me.getContentPanel(),
-                    cls: 'ux-notification-light',
-                    width: me.getContentPanel().getWidth()-20,
-//                  iconCls: 'ux-notification-icon-information',
-                    html: 'Register group saved',
-                    slideInDuration: 200,
-                    slideBackDuration: 200,
-                    autoCloseDelay: 7000,
-                    slideInAnimation: 'linear',
-                    slideBackAnimation: 'linear'
-                }).show();*/
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registergroup.saved', 'USM', 'Register group successfully saved.'));
                 location.href = '#/administration/registergroups/';
             },
             failure: function(record,operation){
