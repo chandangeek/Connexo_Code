@@ -49,10 +49,10 @@ public class ReadingTypeResource {
             Unit unit = queryFilter.getProperty("unit", new UnitAdapter());
             String mrid = readingTypeUtilService.getReadingTypeFrom(obisCode, unit);
             Optional<ReadingType> readingType = meteringService.getReadingType(mrid);
-            if (!readingType.isPresent()) {
-                throw new WebApplicationException("No such reading type", Response.status(Response.Status.NOT_FOUND).entity("No reading type for ObisCode "+obisCode+" and unit "+unitString).build());
+            if (readingType.isPresent()) {
+            //    throw new WebApplicationException("No such reading type", Response.status(Response.Status.NOT_FOUND).entity("No reading type for ObisCode "+obisCode+" and unit "+unitString).build());
+                readingTypeInfos.add(new ReadingTypeInfo(readingType.get()));
             }
-            readingTypeInfos.add(new ReadingTypeInfo(readingType.get()));
         } else {
             List<ReadingType> readingTypes = ListPager.of(meteringService.getAvailableReadingTypes(), new ReadingTypeComparator()).from(queryParameters).find();
             for (ReadingType readingType : readingTypes) {
