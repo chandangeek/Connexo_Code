@@ -404,6 +404,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         connectionMethod.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigurationId});
         connectionMethod.save({
             callback: function () {
+                me.getConnectionMethodsOfDeviceConfigurationStore().load();
                 me.previewConnectionMethod();
             }
         });
