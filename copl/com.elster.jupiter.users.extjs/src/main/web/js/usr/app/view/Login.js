@@ -82,7 +82,7 @@ Ext.define('Usr.view.Login', {
                             cls: 'hidden',
                             itemId: 'errorLabel',
                             hidden: true,
-                            value: 'Login failed. Please contact your administrator. contact your administrator. contact your administrator.',
+                            value: 'Login failed. Please contact your administrator.',
                             margin: '16 0 0 16',
                             width: 164
                         }
