@@ -3,7 +3,7 @@ Ext.define('Isu.view.workspace.issues.Close', {
     alias: 'widget.issues-close',
 
     requires: [
-       'Isu.view.workspace.issues.CloseForm'
+        'Isu.view.workspace.issues.CloseForm'
     ],
 
     initComponent: function () {
@@ -13,9 +13,13 @@ Ext.define('Isu.view.workspace.issues.Close', {
     },
 
     addForm: function () {
-        var self = this;
-            self.title = 'Close issue ' + self.record.data.reason_name + ' ' + ' to ' + self.record.data.device_name + ' ' + self.record.raw.device.serialNumber;
-        console.log(self.title);
+        console.info(this.record);
+        var self = this,
+            name = self.record.get('reason_name') || '',
+            deviceName = self.record.get('device_name') || '',
+            deviceSerialNumber = (self.record.get('device') ? self.record.get('device'.serialNumber) : null) || '';
+
+        self.title = 'Close issue ' + name + ((deviceName || deviceSerialNumber) ? ' to' : '') + deviceName + ' ' + deviceSerialNumber;
 
         self.getCenterContainer().add({
             flex: 1,
