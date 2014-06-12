@@ -59,11 +59,6 @@ public class PartialScheduledConnectionTaskImpl extends PartialOutboundConnectio
     }
 
     @Override
-    public void setDefault(boolean asDefault) {
-        super.setDefault(asDefault);
-    }
-
-    @Override
     public ComWindow getCommunicationWindow() {
         if (comWindow == null) {
             comWindow = new ComWindow(PartialTime.fromMilliSeconds(comWindowStart), PartialTime.fromMilliSeconds(comWindowEnd));
