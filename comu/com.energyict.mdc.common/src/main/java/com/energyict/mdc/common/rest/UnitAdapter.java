@@ -8,7 +8,9 @@ public class UnitAdapter extends XmlAdapter<String, Unit> {
 
     @Override
     public Unit unmarshal(String unitString) throws Exception {
-        Unit unit = Unit.get(unitString);
+        int index = unitString.indexOf('(');
+        String unitStringValue = unitString.substring(index + 1, unitString.length() - 1);
+        Unit unit = Unit.get(unitStringValue);
         if (unit==null) {
             throw new IllegalArgumentException("Invalid unit: "+unitString);
         }
