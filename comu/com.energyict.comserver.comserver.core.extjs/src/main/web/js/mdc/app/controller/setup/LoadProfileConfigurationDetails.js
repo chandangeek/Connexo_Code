@@ -161,7 +161,9 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             formErrorsPanel = formPanel.down('panel[name=errors]'),
             formValue = form.getValues(),
             preloader,
-            jsonValues;
+            jsonValues,
+            router = this.getController('Uni.controller.history.Router');
+
         formValue.measurementType = {id: formValue.measurementType };
         formValue.unitOfMeasure = {id: formValue.unitOfMeasure };
         if (form.isValid()) {
@@ -180,6 +182,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                         jsonData: jsonValues,
                         success: function () {
                             me.handleSuccessRequest('Successfully created');
+                            router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').forward(router.routeparams);
                         },
                         failure: function (response) {
                             me.handleFailureRequest(response, 'Error during create', 'channelnotificationerrorretry');
@@ -201,6 +204,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                         jsonData: jsonValues,
                         success: function () {
                             me.handleSuccessRequest('Successfully updated');
+                            router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').forward(router.routeparams);
                         },
                         failure: function (response) {
                             me.handleFailureRequest(response, 'Error during update', 'channelnotificationerrorretry');
@@ -224,13 +228,8 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         }
     },
 
-
     handleSuccessRequest: function (headerText) {
-//        window.location.href = '#/administration/loadprofiletypes';
-        Ext.create('widget.uxNotification', {
-            html: headerText,
-            ui: 'notification-success'
-        }).show();
+        this.getApplication().fireEvent('acknowledge', headerText);
     },
 
     handleFailureRequest: function (response, headerText, retryAction) {
