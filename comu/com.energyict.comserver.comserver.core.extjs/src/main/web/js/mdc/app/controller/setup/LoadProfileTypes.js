@@ -248,10 +248,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
 
     handleSuccessRequest: function (headerText) {
         window.location.href = '#/administration/loadprofiletypes';
-        Ext.create('widget.uxNotification', {
-            html: headerText,
-            ui: 'notification-success'
-        }).show();
+        this.getApplication().fireEvent('acknowledge', headerText);
     },
 
     handleFailureRequest: function (response, headerText, retryAction) {
