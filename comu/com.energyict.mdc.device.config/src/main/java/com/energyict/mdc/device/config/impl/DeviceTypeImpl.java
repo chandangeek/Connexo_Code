@@ -92,9 +92,14 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         this.registerMappingUsages.clear();
         this.loadProfileTypeUsages.clear();
         this.logBookTypeUsages.clear();
-        for (DeviceConfiguration deviceConfiguration : this.deviceConfigurations) {
-            this.notifyDelete((ServerDeviceConfiguration) deviceConfiguration);
-            removeConfiguration(deviceConfiguration);
+        Iterator<DeviceConfiguration> iterator = this.deviceConfigurations.iterator();
+        // do not replace with foreach!! the deviceConfiguration will be removed from the iterator
+        while (iterator.hasNext()) {
+            ServerDeviceConfiguration deviceConfiguration = (ServerDeviceConfiguration) iterator.next();
+            this.notifyDelete(deviceConfiguration);
+            deviceConfiguration.notifyDelete();
+            deviceConfiguration.prepareDelete();
+            iterator.remove();
         }
         this.getDataMapper().remove(this);
     }
