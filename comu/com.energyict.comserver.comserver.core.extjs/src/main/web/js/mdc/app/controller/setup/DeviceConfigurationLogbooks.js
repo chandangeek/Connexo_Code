@@ -87,10 +87,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurationLogbooks', {
                         url: url,
                         method: 'DELETE',
                         success: function () {
-                            Ext.create('widget.uxNotification', {
-                                html: 'Successfully removed',
-                                ui: 'notification-success'
-                            }).show();
+                            self.getApplication().fireEvent('acknowledge', 'Successfully removed');
                             self.store.load({
                                     callback: function () {
                                         var gridView = grid.getView(),

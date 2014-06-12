@@ -134,10 +134,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                         url: '/api/cts/comtasks/' + id,
                         method: 'DELETE',
                         success: function () {
-                            Ext.create('widget.uxNotification', {
-                                html: Uni.I18n.translate('comtask.remove.successfull', 'MDC', 'Successfully removed'),
-                                ui: 'notification-success'
-                            }).show();
+                            this.getApplication().fireEvent('acknowledge', 'Successfully removed');
                             self.store.loadPage(1, {
                                 callback: function () {
                                     grid.getSelectionModel().select(0);
@@ -265,10 +262,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             jsonData: sendingData,
             success: function () {
                 window.location.href = '#/administration/communicationtasks';
-                Ext.create('widget.uxNotification', {
-                    html: Uni.I18n.translate('comtask.create.successfull', 'MDC', 'Successfully created'),
-                    ui: 'notification-success'
-                }).show();
+                this.getApplication().fireEvent('acknowledge', 'Successfully created');
                 self.commands = [];
             },
             failure: function (response) {
@@ -311,10 +305,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             jsonData: sendingData,
             success: function () {
                 window.location.href = '#/administration/communicationtasks';
-                Ext.create('widget.uxNotification', {
-                    html: Uni.I18n.translate('comtask.update.successfull', 'MDC', 'Successfully updated'),
-                    ui: 'notification-success'
-                }).show();
+                self.getApplication().fireEvent('acknowledge', 'Successfully updated');
                 self.commands = [];
             },
             failure: function (response) {
