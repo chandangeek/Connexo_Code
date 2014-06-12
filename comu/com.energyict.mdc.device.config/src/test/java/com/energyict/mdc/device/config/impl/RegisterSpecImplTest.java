@@ -254,7 +254,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     @Transactional
     public void updateNumberOfFractionDigitsRegisterSpecTest() {
         RegisterSpec registerSpec = createDefaultRegisterSpec();
-        int updatedNumberOfFractionDigits = 123;
+        int updatedNumberOfFractionDigits = 6;
 
         RegisterSpec.RegisterSpecUpdater registerSpecUpdater = this.getReloadedDeviceConfiguration().getRegisterSpecUpdaterFor(registerSpec);
         registerSpecUpdater.setNumberOfFractionDigits(updatedNumberOfFractionDigits);
