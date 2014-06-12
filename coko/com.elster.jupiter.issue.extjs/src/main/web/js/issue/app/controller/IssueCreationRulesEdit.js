@@ -176,12 +176,7 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                         formField = templateDetails.down('[name=' + name + ']');
                         value = data.parameters[name];
 
-                        if (formField.isXType('combobox')) {
-                            value = formField.getStore().getById(parseInt(value)).get('title');
-                            formField.setRawValue(value);
-                        } else {
-                            formField.setValue(value);
-                        }
+                        formField.setValue(value);
                     }
                 }
 
@@ -248,6 +243,8 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
 
         ruleModel.set('parameters', parameters);
         this.loadActionsToModel(ruleModel);
+
+        console.info(ruleModel);
 
         return ruleModel;
     },
@@ -364,16 +361,13 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                     if (success) {
                         switch (operation.action) {
                             case 'create':
-                                messageText = 'Issue creation rule created';
+                                messageText = Uni.I18n.translate('administration.issueCreationRules.createSuccess.msg', 'ISE', 'Issue creation rule created');
                                 break;
                             case 'update':
-                                messageText = 'Issue creation rule updated';
+                                messageText = Uni.I18n.translate('administration.issueCreationRules.updateSuccess.msg', 'ISE', 'Issue creation rule updated');
                                 break;
                         }
-                        Ext.create('widget.uxNotification', {
-                            html: messageText,
-                            ui: 'notification-success'
-                        }).show();
+                        self.getApplication().fireEvent('acknowledge', messageText);
                         router.getRoute('administration/issue/creationrules').forward();
                     } else {
                         json = Ext.decode(operation.response.responseText);

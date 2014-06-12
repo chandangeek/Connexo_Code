@@ -1,7 +1,6 @@
 Ext.define('Isu.view.administration.datacollection.issuecreationrules.Item', {
     extend: 'Ext.panel.Panel',
     requires: [
-        'Isu.view.ext.button.ItemAction',
         'Isu.view.administration.datacollection.issuecreationrules.ActionMenu'
     ],
     alias: 'widget.issue-creation-rules-item',
@@ -10,7 +9,9 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Item', {
     frame: true,
     tools: [
         {
-            xtype: 'item-action',
+            xtype: 'button',
+            text: Uni.I18n.translate('general.actions', 'ISE', 'Actions'),
+            iconCls: 'x-uni-action-iconD',
             menu: {
                 xtype: 'creation-rule-action-menu'
             }
@@ -27,44 +28,46 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Item', {
         items: [
             {
                 defaults: {
-                    xtype: 'displayfield'
+                    xtype: 'displayfield',
+                    labelWidth: 200
                 },
                 items: [
                     {
-                        fieldLabel: 'Name',
+                        fieldLabel: Uni.I18n.translate('general.title.name', 'ISE', 'Name'),
                         name: 'name'
                     },
                     {
-                        fieldLabel: 'Rule template',
+                        fieldLabel: Uni.I18n.translate('general.title.ruleTemplate', 'ISE', 'Rule template'),
                         name: 'template_name'
                     },
                     {
-                        fieldLabel: 'Issue type',
+                        fieldLabel: Uni.I18n.translate('general.title.issueType', 'ISE', 'Issue type'),
                         name: 'issueType_name'
                     },
                     {
-                        fieldLabel: 'Issue reason',
+                        fieldLabel: Uni.I18n.translate('general.title.issueReason', 'ISE', 'Issue reason'),
                         name: 'reason_name'
                     },
 
                     {
-                        fieldLabel: 'Due in',
+                        fieldLabel: Uni.I18n.translate('general.title.dueIn', 'ISE', 'Due in'),
                         name: 'due_in'
                     }
                 ]
             },
             {
                 defaults: {
-                    xtype: 'displayfield'
+                    xtype: 'displayfield',
+                    labelWidth: 200
                 },
                 items: [
                     {
-                        fieldLabel: 'Created',
+                        fieldLabel: Uni.I18n.translate('general.title.created', 'ISE', 'Created'),
                         name: 'creationDate',
                         renderer: Ext.util.Format.dateRenderer('M d, Y H:i')
                     },
                     {
-                        fieldLabel: 'Last modified',
+                        fieldLabel: Uni.I18n.translate('general.title.lastModified', 'ISE', 'Last modified'),
                         name: 'modificationDate',
                         renderer: Ext.util.Format.dateRenderer('M d, Y H:i')
                     }

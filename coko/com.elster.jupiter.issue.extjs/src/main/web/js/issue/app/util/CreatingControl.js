@@ -67,7 +67,7 @@ Ext.define('Isu.util.CreatingControl', {
 
     createCombobox: function (obj) {
         var comboboxStore = Ext.create('Ext.data.Store', {
-                fields: [{name: 'title', type: 'auto'}],
+                fields: [{name: 'id', type: 'string'},{name: 'title', type: 'auto'}],
                 data: obj.values
             }),
             combobox = {

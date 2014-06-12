@@ -1,5 +1,5 @@
 Ext.define('Isu.view.administration.datacollection.issuecreationrules.List', {
-    extend: 'Ext.panel.Panel',
+    extend: 'Ext.grid.Panel',
     requires: [
         'Ext.layout.container.Column',
         'Ext.grid.column.Template',
@@ -8,95 +8,52 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.List', {
         'Uni.view.toolbar.PagingBottom'
     ],
     alias: 'widget.issues-creation-rules-list',
-    border: false,
-    items: [
-        {
-            itemId: 'noRuleFound',
-            name: 'empty-text',
-            border: false,
-            hidden: true,
-            html: '<h3>No rule found</h3>',
-
-            items: [
-                {
-                    xtype: 'label',
-                    text: 'No issue creation rules have been created yet.'
-                },
-                {
-                    xtype: 'label',
-                    text: 'Possible steps:'
-                }
-            ],
-            bbar: {
-                padding: 0,
-                items: [
-                    {
-                        itemId: 'createRule',
-                        text: 'Create rule',
-                        action: 'create'
-                    }
-                ]
-            }
+    store: 'Isu.store.CreationRule',
+    columns: {
+        defaults: {
+            sortable: false,
+            menuDisabled: true
         },
-        {
-            itemId: 'createRuleGrid',
-            xtype: 'grid',
-            store: 'Isu.store.CreationRule',
-            columns: {
-                defaults: {
-                    sortable: false,
-                    menuDisabled: true
-                },
-                items: [
-                    {
-                        itemId: 'Name',
-                        header: 'Name',
-                        dataIndex: 'name',
-                        tdCls: 'isu-grid-description',
-                        flex: 1
-                    },
-                    {
-                        itemId: 'templateColumn',
-                        header: 'Rule template',
-                        xtype: 'templatecolumn',
-                        tpl: '<tpl if="template">{template.name}</tpl>',
-                        tdCls: 'isu-grid-description',
-                        flex: 1
-                    },
-                    {
-                        itemId : 'issueType',
-                        header: 'Issue type',
-                        xtype: 'templatecolumn',
-                        tpl: '<tpl if="issueType">{issueType.name}</tpl>',
-                        tdCls: 'isu-grid-description',
-                        flex: 1
-                    },
-                    {   itemId: 'action',
-                        xtype: 'uni-actioncolumn',
-                        items: 'Isu.view.administration.datacollection.issuecreationrules.ActionMenu'
-                    }
-                ]
+        items: [
+            {
+                itemId: 'Name',
+                header: Uni.I18n.translate('general.title.name', 'ISE', 'Name'),
+                dataIndex: 'name',
+                tdCls: 'isu-grid-description',
+                flex: 1
+            },
+            {
+                itemId: 'templateColumn',
+                header: Uni.I18n.translate('general.title.ruleTemplate', 'ISE', 'Rule template'),
+                xtype: 'templatecolumn',
+                tpl: '<tpl if="template">{template.name}</tpl>',
+                tdCls: 'isu-grid-description',
+                flex: 1
+            },
+            {
+                itemId : 'issueType',
+                header: Uni.I18n.translate('general.title.issueType', 'ISE', 'Issue type'),
+                xtype: 'templatecolumn',
+                tpl: '<tpl if="issueType">{issueType.name}</tpl>',
+                tdCls: 'isu-grid-description',
+                flex: 1
+            },
+            {   itemId: 'action',
+                xtype: 'uni-actioncolumn',
+                items: 'Isu.view.administration.datacollection.issuecreationrules.ActionMenu'
             }
-        }
-    ],
-
+        ]
+    },
     dockedItems: [
         {
-            itemId: 'toolbarTop',
-            xtype: 'toolbar',
+            itemId: 'pagingtoolbartop',
+            xtype: 'pagingtoolbartop',
             dock: 'top',
-            layout: 'hbox',
+            displayMsg: Uni.I18n.translate('administration.issueCreationRules.pagingtoolbartop.displayMsg', 'ISE', '{0} - {1} of {2} issue creation rules'),
+            displayMoreMsg: Uni.I18n.translate('administration.issueCreationRules.pagingtoolbartop.displayMoreMsg', 'ISE', '{0} - {1} of more than {2} issue creation rules'),
+            emptyMsg: Uni.I18n.translate('administration.issueCreationRules.pagingtoolbartop.emptyMsg', 'ISE', 'There are no issue creation rules to display'),
             items: [
-                {
-                    itemId: 'pagingtoolbarTop',
-                    xtype: 'pagingtoolbartop',
-                    store: 'Isu.store.CreationRule',
-                    displayMsg: '{0} - {1} of {2} rules',
-                    displayMoreMsg: '{0} - {1} of more than {2} rules',
-                    emptyMsg: '0 rules',
-                    border: false,
-                    flex: 1
-                },
+                '->',
                 {
                     itemId: 'createRule',
                     xtype: 'button',
@@ -107,55 +64,25 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.List', {
             ]
         },
         {
+            itemId: 'pagingtoolbarbottom',
             xtype: 'pagingtoolbarbottom',
-            store: 'Isu.store.CreationRule',
-            dock: 'bottom'
+            dock: 'bottom',
+            itemsPerPageMsg: Uni.I18n.translate('administration.issueCreationRules.pagingtoolbarbottom.itemsPerPage', 'ISE', 'Issue creation rules per page')
         }
     ],
 
     initComponent: function () {
-        var self = this,
-            store;
+        var store = this.store,
+            pagingToolbarTop = Ext.Array.findBy(this.dockedItems, function (item) {
+                return item.xtype == 'pagingtoolbartop';
+            }),
+            pagingToolbarBottom = Ext.Array.findBy(this.dockedItems, function (item) {
+                return item.xtype == 'pagingtoolbarbottom';
+            });
 
-        self.callParent(arguments);
+        pagingToolbarTop && (pagingToolbarTop.store = store);
+        pagingToolbarBottom && (pagingToolbarBottom.store = store);
 
-        store = this.down('grid').getStore();
-
-        store.on({
-            load: {
-                fn: self.onStoreLoad,
-                scope: self
-            }
-        });
-    },
-
-    onStoreLoad: function (store) {
-        var storeTotal = store.getCount();
-
-        if (storeTotal) {
-            this.hideEmptyText();
-        } else {
-            this.showEmptyText();
-        }
-    },
-
-    showEmptyText: function () {
-        var grid = this.down('grid'),
-            emtyText = this.down('panel[name=empty-text]');
-
-        if (grid && emtyText) {
-            grid.hide();
-            emtyText.show();
-        }
-    },
-
-    hideEmptyText: function () {
-        var grid = this.down('grid'),
-            emtyText = this.down('panel[name=empty-text]');
-
-        if (grid && emtyText) {
-            grid.show();
-            emtyText.hide();
-        }
+        this.callParent(arguments);
     }
 });

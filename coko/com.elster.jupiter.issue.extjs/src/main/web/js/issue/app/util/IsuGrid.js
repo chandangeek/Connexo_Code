@@ -79,7 +79,7 @@ Ext.define('Isu.util.IsuGrid', {
 
         itemPanel.setLoading(true);
 
-        this.gridItemModel.load(record.data.id, {
+        this.gridItemModel.load(record.getId(), {
             success: function (record) {
                 if (!form.isDestroyed) {
                     form.loadRecord(record);
