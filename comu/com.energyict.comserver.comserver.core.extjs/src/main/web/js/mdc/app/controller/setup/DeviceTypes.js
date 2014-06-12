@@ -158,7 +158,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
 
         Ext.create('Uni.view.window.Confirmation').show({
             msg: msg,
-            title: Uni.I18n.translate('general.delete', 'MDC', 'Delete') + ' ' + deviceTypeToDelete.get('name') + '?',
+            title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' ' + deviceTypeToDelete.get('name') + '?',
             config: {
                 deviceTypeToDelete: deviceTypeToDelete,
                 me: me
