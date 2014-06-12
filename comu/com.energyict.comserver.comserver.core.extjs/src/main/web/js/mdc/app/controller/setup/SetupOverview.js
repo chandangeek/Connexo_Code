@@ -11,8 +11,7 @@ Ext.define('Mdc.controller.setup.SetupOverview', {
         'setup.devicetype.DeviceTypesSetup',
         'setup.register.RegisterMappingsSetup',
         'setup.registertype.RegisterTypeSetup',
-        'setup.registerconfig.RegisterConfigSetup',
-        'setup.logbooktype.LogbookTypesOverview'
+        'setup.registerconfig.RegisterConfigSetup'
     ],
 
     init: function () {
