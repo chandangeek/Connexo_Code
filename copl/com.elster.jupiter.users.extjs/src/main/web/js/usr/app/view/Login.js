@@ -1,6 +1,6 @@
 Ext.define('Usr.view.Login', {
     extend: 'Ext.container.Viewport',
-    alias: 'widget.login',
+    xtype: 'login',
     itemId: 'login',
 
     requires: [
@@ -11,42 +11,30 @@ Ext.define('Usr.view.Login', {
         'Ext.button.Button'
     ],
 
-    //cls:'uni-content-container uni-content-container-default',
+    layout: {
+        type: 'vbox',
+        align: 'center',
+        pack: 'center'
+    },
 
-    layout: 'fit',
-    items: {
-        xtype: 'panel',
-        ui: 'login-container',
-        layout: {
-            type: 'vbox',
-            align: 'center',
-            pack: 'center'
-        },
-        items: {
+    items: [
+        {
             xtype: 'panel',
-            ui: 'login-panel',
-//            height: 330,
+            ui: 'login',
+            height: 330,
             width: 500,
             itemId: 'contentPanel',
+
             layout: {
                 type: 'vbox',
                 align: 'stretch',
                 pack: 'center'
             },
+
             items: [
                 {
-                    layout: {
-                        type: 'hbox',
-                        pack: 'center'
-                    },
-                    items: {
-                        xtype: 'image',
-                        align: 'center',
-                        src: '/apps/usr/resources/images/connexo.png',
-                        width: 248,
-                        height: 46,
-                        margin: '0 0 24'
-                    }
+                    xtype: 'container',
+                    ui: 'logo'
                 },
                 {
                     xtype: 'form',
@@ -55,35 +43,27 @@ Ext.define('Usr.view.Login', {
                         type: 'vbox',
                         align: 'stretch'
                     },
+                    defaults: {
+                        xtype: 'textfield',
+                        labelSeparator: '',
+                        allowBlank: true
+                    },
                     items: [
                         {
-                            xtype: 'displayfield',
-                            itemId: 'errorLabel',
-                            hidden: true,
-                            fieldStyle: {
-                                color: 'orangered'
-                            },
-                            margin: '0 0 8 116'
-                        },
-                        {
-                            xtype: 'textfield',
-                            fieldLabel: 'User name',
+                            fieldLabel: 'Username',
                             name: 'username',
                             itemId: 'username',
-                            allowBlank: true,
                             listeners: {
-                                afterrender: function(field) {
+                                afterrender: function (field) {
                                     field.focus(false, 200);
                                 }
                             }
                         },
                         {
-                            xtype: 'textfield',
                             fieldLabel: 'Password',
                             name: 'password',
                             itemId: 'password',
-                            inputType: 'password',
-                            allowBlank: true
+                            inputType: 'password'
                         }
                     ],
                     buttons: [
@@ -93,11 +73,22 @@ Ext.define('Usr.view.Login', {
                             type: 'submit',
                             action: 'login',
                             itemId: 'loginButton',
-                            text: 'Login'
+                            text: 'Login',
+                            margin: '0 0 0 10'
+                        },
+                        {
+                            xtype: 'displayfield',
+                            ui: 'error',
+                            cls: 'hidden',
+                            itemId: 'errorLabel',
+                            hidden: true,
+                            value: 'Login failed. Please contact your administrator.',
+                            margin: '16 0 0 16',
+                            width: 164
                         }
                     ]
                 }
             ]
         }
-    }
+    ]
 });

@@ -20,7 +20,7 @@ Ext.define('Usr.controller.Login', {
         }
     ],
 
-    init: function(application) {
+    init: function (application) {
         this.control({
             'login #login-form [action=login]': {
                 click: this.signinuser
@@ -37,7 +37,7 @@ Ext.define('Usr.controller.Login', {
         });
     },
 
-    showOverview: function() {
+    showOverview: function () {
         var widget = Ext.widget("login");
     },
 
@@ -53,7 +53,7 @@ Ext.define('Usr.controller.Login', {
         }
     },
 
-    signinuser : function()    {
+    signinuser: function () {
         var me = this,
             form = this.getLoginForm(),
             data = form.getValues();
@@ -63,51 +63,50 @@ Ext.define('Usr.controller.Login', {
         var unencodedToken = data.username + ":" + data.password;
         var encodedToken = "Basic " + Usr.controller.Base64.encode(unencodedToken);
 
-        var loginMask = new Ext.LoadMask(Ext.getBody(), {msg:"Verifying credentials..."});
+        var loginMask = new Ext.LoadMask(Ext.getBody(), {msg: "Verifying credentials..."});
         loginMask.show();
 
         var request = Ext.Ajax.request({
             url: '/apps/usr/login.html',
             method: 'GET',
             headers: {
-                'Authorization' : encodedToken
+                'Authorization': encodedToken
             },
             scope: this,
-            success: function(response, opt){
+            success: function (response, opt) {
                 me.loginOK();
             },
-            failure: function(response, opt){
+            failure: function (response, opt) {
                 me.loginNOK();
             },
-            callback: function() {
+            callback: function () {
                 loginMask.hide();
             }
         });
     },
 
-    loginOK : function(){
+    loginOK: function () {
         var params = Ext.urlDecode(location.search.substring(1));
-        if(params.page){
-            window.location.replace(params.page+location.hash);
+        if (params.page) {
+            window.location.replace(params.page + location.hash);
         }
-        else{
+        else {
             window.location.replace("/apps/master/index.html");
         }
         this.getLoginViewport().destroy();
     },
 
-    loginNOK : function(){
+    loginNOK: function () {
         this.showLoginError();
     },
 
     hideLoginError: function () {
-        var errorLabel =  this.getLoginForm().down('#errorLabel');
+        var errorLabel = this.getLoginForm().down('#errorLabel');
         errorLabel.hide();
     },
 
     showLoginError: function () {
-        var errorLabel =  this.getLoginForm().down('#errorLabel');
-        errorLabel.setValue('Failed to log in. Please contact your administrator if the problem persists.');
+        var errorLabel = this.getLoginForm().down('#errorLabel');
         errorLabel.show();
     },
 
@@ -119,7 +118,7 @@ Ext.define('Usr.controller.Login', {
                 logout: 'true'
             },
             scope: this,
-            success: function(){
+            success: function () {
                 window.location.replace('/apps/usr/login.html');
             }
         });
