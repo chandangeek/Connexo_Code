@@ -172,6 +172,9 @@ public abstract class PluggableClassWrapper<T extends Pluggable> {
                 if (version.startsWith(prefix)) {
                     return version.substring(prefix.length(), version.length() - 1);
                 }
+                else if ("$Date$".equals(version)) {
+                    return "Initial revision";
+                }
                 else {
                     Matcher matcher = VERSION_DATE_PATTERN.matcher(version);
                     if (matcher.matches()) {
