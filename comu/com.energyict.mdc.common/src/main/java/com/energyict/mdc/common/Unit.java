@@ -240,7 +240,7 @@ public class Unit implements java.io.Serializable {
             case -12:
                 return "p" + basicName;
             default:
-                StringBuffer buffer = new StringBuffer(basicName);
+                StringBuilder buffer = new StringBuilder(basicName);
                 buffer.append("(x");
                 if (scale > 0) {
                     buffer.append("1");
