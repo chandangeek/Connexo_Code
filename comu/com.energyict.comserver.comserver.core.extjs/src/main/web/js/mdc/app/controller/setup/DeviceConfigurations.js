@@ -433,7 +433,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                             });
                         }
                     });
-                    var numberOfLogbooksLabel = Ext.ComponentQuery.query('add-logbook-configurations toolbar label[name=LogBookCount]')[0],
+                    var numberOfLogbooksLabel = Ext.ComponentQuery.query('add-logbook-configurations toolbar #LogBookCount')[0],
                         grid = Ext.ComponentQuery.query('add-logbook-configurations grid')[0];
                     numberOfLogbooksLabel.setText('No logbooks selected');
                     if (self.getCount() < 1) {

@@ -11,31 +11,6 @@ Ext.define('Mdc.view.setup.deviceconfiguration.AddLogbookConfigurations', {
             title: 'Add logbook configuration',
             items: [
                 {
-                    xtype: 'toolbar',
-                    border: 0,
-                    aling: 'left',
-                    items: [
-                        {
-                            xtype: 'label',
-                            name: 'LogBookCount',
-                            flex: 1
-                        },
-                        {
-                            xtype: 'button',
-                            text: 'Manage logbooks',
-                            action: 'manage',
-                            ui: 'link',
-                            listeners: {
-                                click: {
-                                    fn: function () {
-                                        window.location.href = '#/administration/logbooktypes';
-                                    }
-                                }
-                            }
-                        }
-                    ]
-                },
-                {
                     xtype: 'grid',
                     store: 'LogbookConfigurations',
                     height: 395,
@@ -61,6 +36,30 @@ Ext.define('Mdc.view.setup.deviceconfiguration.AddLogbookConfigurations', {
                                 header: 'OBIS code',
                                 dataIndex: 'obisCode',
                                 flex: 5
+                            }
+                        ]
+                    },
+                    tbar: {
+                        border: 0,
+                        aling: 'left',
+                        items: [
+                            {
+                                xtype: 'text',
+                                itemId: 'LogBookCount',
+                                flex: 1
+                            },
+                            {
+                                xtype: 'button',
+                                text: 'Manage logbooks',
+                                action: 'manage',
+                                ui: 'link',
+                                listeners: {
+                                    click: {
+                                        fn: function () {
+                                            window.location.href = '#/administration/logbooktypes';
+                                        }
+                                    }
+                                }
                             }
                         ]
                     }

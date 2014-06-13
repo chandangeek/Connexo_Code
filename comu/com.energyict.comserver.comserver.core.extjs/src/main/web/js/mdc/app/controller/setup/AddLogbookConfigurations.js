@@ -21,7 +21,7 @@ Ext.define('Mdc.controller.setup.AddLogbookConfigurations', {
     },
 
     countSelectedLogbooks: function (grid) {
-        var textLabel = Ext.ComponentQuery.query('add-logbook-configurations label')[0];
+        var textLabel = Ext.ComponentQuery.query('add-logbook-configurations #LogBookCount')[0];
         textLabel.setText(
             grid.view.getSelectionModel().getSelection().length >= 1 ? (grid.view.getSelectionModel().getSelection().length +
                 (grid.view.getSelectionModel().getSelection().length > 1 ? ' logbooks' : ' logbook') + ' selected') : 'No logbooks selected');
