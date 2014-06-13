@@ -2,6 +2,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.TranslatableApplicationException;
+import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -65,13 +66,20 @@ public class DeviceConfigurationResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public PagedInfoList getDeviceConfigurationsForDeviceType(@PathParam("deviceTypeId") long id, @BeanParam QueryParameters queryParameters) {
+    public PagedInfoList getDeviceConfigurationsForDeviceType(@PathParam("deviceTypeId") long id, @BeanParam QueryParameters queryParameters, @BeanParam JsonQueryFilter queryFilter) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
-        List<DeviceConfiguration> deviceConfigurations =
-                deviceConfigurationService.
-                        findDeviceConfigurationsUsingDeviceType(deviceType).
-                        from(queryParameters).
-                        find();
+        List<DeviceConfiguration> deviceConfigurations;
+        if(Boolean.parseBoolean(queryFilter.getFilterProperties().get("active"))){
+            deviceConfigurations = deviceConfigurationService.
+                    findActiveDeviceConfigurationsForDeviceType(deviceType).
+                    from(queryParameters).
+                    find();
+        } else {
+            deviceConfigurations = deviceConfigurationService.
+                    findDeviceConfigurationsUsingDeviceType(deviceType).
+                    from(queryParameters).
+                    find();
+        }
         return PagedInfoList.asJson("deviceConfigurations", DeviceConfigurationInfo.from(deviceConfigurations), queryParameters);
     }
 
