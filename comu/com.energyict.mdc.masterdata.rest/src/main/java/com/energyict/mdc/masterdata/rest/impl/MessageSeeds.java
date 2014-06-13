@@ -11,7 +11,7 @@ public enum MessageSeeds implements MessageSeed {
     TIME_MINUTES(3, "TimeMinutes", "%s minutes",Level.SEVERE),
     TIME_HOUR(4, "TimeHour", "%s hour",Level.SEVERE),
     TIME_DAY(5, "TimeDay", "%s day",Level.SEVERE),
-    TIME_WEEK(6, "TimeWeek", "%s week",Level.SEVERE);
+    TIME_MONTH(6, "TimeMonth", "%s month",Level.SEVERE);
 
     private final int number;
     private final String key;

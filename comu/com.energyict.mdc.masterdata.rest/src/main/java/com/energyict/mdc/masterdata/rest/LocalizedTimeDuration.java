@@ -25,7 +25,7 @@ public class LocalizedTimeDuration {
         intervals.put(i++, new LocalizedTimeDuration(new TimeDuration(30, TimeDuration.MINUTES), MessageSeeds.TIME_MINUTES));
         intervals.put(i++, new LocalizedTimeDuration(new TimeDuration(1, TimeDuration.HOURS), MessageSeeds.TIME_HOUR));
         intervals.put(i++, new LocalizedTimeDuration(new TimeDuration(1, TimeDuration.DAYS), MessageSeeds.TIME_DAY));
-        intervals.put(i++, new LocalizedTimeDuration(new TimeDuration(1, TimeDuration.WEEKS), MessageSeeds.TIME_WEEK));
+        intervals.put(i++, new LocalizedTimeDuration(new TimeDuration(1, TimeDuration.MONTHS), MessageSeeds.TIME_MONTH));
     }
 
     private TimeDuration timeDuration;
