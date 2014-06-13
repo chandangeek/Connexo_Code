@@ -58,10 +58,6 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.ActionsLis
                 xtype: 'uni-actioncolumn',
                 items: [
                     {
-                        text: 'Edit',
-                        action: 'edit'
-                    },
-                    {
                         text: 'Delete',
                         action: 'delete'
                     }

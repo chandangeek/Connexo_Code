@@ -3,17 +3,13 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.List', {
     requires: [
         'Ext.layout.container.Column',
         'Ext.grid.column.Template',
-        'Ext.grid.column.Action',
+        'Uni.grid.column.Action',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom'
     ],
     alias: 'widget.issues-creation-rules-list',
     store: 'Isu.store.CreationRule',
     columns: {
-        defaults: {
-            sortable: false,
-            menuDisabled: true
-        },
         items: [
             {
                 itemId: 'Name',
