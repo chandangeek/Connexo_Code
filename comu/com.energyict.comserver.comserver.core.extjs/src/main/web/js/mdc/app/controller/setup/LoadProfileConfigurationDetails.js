@@ -189,7 +189,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                             router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').forward(router.routeparams);
                         },
                         failure: function (response) {
-                            me.handleFailureRequest(response, 'Error during create', 'channelnotificationerrorretry');
+                            (response.status == 400) && me.handleFailureRequest(response, 'Error during create', 'channelnotificationerrorretry');
                         },
                         callback: function () {
                             preloader.destroy();
@@ -211,7 +211,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                             router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').forward(router.routeparams);
                         },
                         failure: function (response) {
-                            me.handleFailureRequest(response, 'Error during update', 'channelnotificationerrorretry');
+                            (response.status == 400) && me.handleFailureRequest(response, 'Error during update', 'channelnotificationerrorretry');
                         },
                         callback: function () {
                             preloader.destroy();
