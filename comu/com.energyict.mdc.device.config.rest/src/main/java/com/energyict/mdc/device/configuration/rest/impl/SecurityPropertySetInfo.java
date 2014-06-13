@@ -44,7 +44,7 @@ public class SecurityPropertySetInfo {
     }
 
     public void writeTo(SecurityPropertySet securityPropertySet) {
-        //securityPropertySet.setName(this.name); Uncomment when JP-2767 is solved.
+        securityPropertySet.setName(this.name);
         securityPropertySet.setAuthenticationLevel(this.authenticationLevelId);
         securityPropertySet.setEncryptionLevelId(this.encryptionLevelId);
     }
