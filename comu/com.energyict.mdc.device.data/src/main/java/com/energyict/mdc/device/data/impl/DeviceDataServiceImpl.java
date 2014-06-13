@@ -167,6 +167,17 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     }
 
     @Override
+    public boolean hasDevices (DeviceConfiguration deviceConfiguration) {
+        Condition condition = Where.where(DeviceFields.DEVICECONFIGURATION.fieldName()).isEqualTo(deviceConfiguration);
+        Finder<Device> page =
+                DefaultFinder.
+                        of(Device.class, condition, this.dataModel).
+                        paged(1, 1);
+        List<Device> allDevices = page.find();
+        return !allDevices.isEmpty();
+    }
+
+    @Override
     public void releaseInterruptedConnectionTasks(ComServer comServer) {
         SqlBuilder sqlBuilder = new SqlBuilder("UPDATE " + TableSpecs.DDC_CONNECTIONTASK.name() + " SET comserver = NULL WHERE comserver = ?");
         sqlBuilder.bindLong(comServer.getId());

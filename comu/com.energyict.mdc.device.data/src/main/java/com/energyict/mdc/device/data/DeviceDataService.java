@@ -40,6 +40,15 @@ public interface DeviceDataService {
     public static String COMPONENTNAME = "DDC";
 
     /**
+     * Tests if there are {@link Device} that were created
+     * from the specified {@link DeviceConfiguration}.
+     *
+     * @param deviceConfiguration The DeviceConfiguration
+     * @return <code>true</code> iff there is at least one Device created from the DeviceConfiguration
+     */
+    public boolean hasDevices(DeviceConfiguration deviceConfiguration);
+
+    /**
      * Creates a new {@link InboundConnectionTask} with the minimal required properties
      * against the specified Device.
      * Note that the new InboundConnectionTask is not persisted yet as you may want

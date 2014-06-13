@@ -55,8 +55,13 @@ public enum TableSpecs {
             Column externid = table.column("MRID").varChar(255).map(DeviceFields.MRID.fieldName()).add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
             table.column("CERTIF_DATE").type("DATE").conversion(ColumnConversion.DATE2DATE).map("yearOfCertification").add();
-            Column deviceConfigId = table.column("DEVICECONFIGID").number().add();
-            table.foreignKey("FK_DDC_DEVICE_DEVICECONFIG").on(deviceConfigId).references(DeviceConfigurationService.COMPONENTNAME, "DTC_DEVICECONFIG").map(DeviceFields.DEVICECONFIGURATION.fieldName()).add();
+            Column configuration = table.column("DEVICECONFIGID").number().add();
+            table.
+                foreignKey("FK_DDC_DEVICE_DEVICECONFIG").
+                on(configuration).
+                references(DeviceConfigurationService.COMPONENTNAME, "DTC_DEVICECONFIG").
+                map(DeviceFields.DEVICECONFIGURATION.fieldName()).
+                add();
             table.unique("UK_DDC_DEVICE_MRID").on(externid).add();
             table.primaryKey("PK_DDC_DEVICE").on(id).add();
         }
