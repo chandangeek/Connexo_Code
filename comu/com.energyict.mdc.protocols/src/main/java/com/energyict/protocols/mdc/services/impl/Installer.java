@@ -44,7 +44,7 @@ public class Installer {
         try {
             List<Translation> translations = new ArrayList<>(MessageSeeds.values().length);
             for (MessageSeeds messageSeed : MessageSeeds.values()) {
-                SimpleNlsKey nlsKey = SimpleNlsKey.key(DeviceProtocolService.COMPONENT_NAME, Layer.DOMAIN, messageSeed.getKey()).defaultMessage(messageSeed.getDefaultFormat());
+                SimpleNlsKey nlsKey = SimpleNlsKey.key("DCR", Layer.REST, messageSeed.getKey()).defaultMessage(messageSeed.getDefaultFormat());
                 translations.add(toTranslation(nlsKey, Locale.ENGLISH, messageSeed.getDefaultFormat()));
             }
             thesaurus.addTranslations(translations);
