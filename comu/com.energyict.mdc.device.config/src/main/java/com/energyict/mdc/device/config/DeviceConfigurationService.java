@@ -196,4 +196,11 @@ public interface DeviceConfigurationService {
      */
     public List<ComTask> findAvailableComTasks(ComSchedule comSchedule);
 
+    /**
+     * Finds all currently <i>active</i> DeviceConfigurations for the given DeviceType
+     *
+     * @param deviceType the DeviceType
+     * @return the list of <i>active</i> DeviceConfigurations
+     */
+    public Finder<DeviceConfiguration> findActiveDeviceConfigurationsForDeviceType(DeviceType deviceType);
 }

@@ -525,4 +525,8 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         return deviceConfigurations;
     }
 
+    @Override
+    public Finder<DeviceConfiguration> findActiveDeviceConfigurationsForDeviceType(DeviceType deviceType) {
+        return DefaultFinder.of(DeviceConfiguration.class, where("deviceType").isEqualTo(deviceType).and(where("active").isEqualTo(true)), this.getDataModel()).defaultSortColumn("lower(name)");
+    }
 }
