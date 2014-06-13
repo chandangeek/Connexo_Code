@@ -42,14 +42,14 @@ public class DeviceDataGoGoCommands {
     private enum ScheduleFrequency {
         DAILY {
             @Override
-            public void enableOutboundCommunication(String scheduleOption, List<Device> devices) {
-
+            public void enableOutboundCommunication(TransactionService transactionService, DeviceDataService deviceDataService, String scheduleOption, List<Device> devices) {
+                new EnableDailyCommunicationTransaction(transactionService, deviceDataService, devices).execute();
             }
         },
 
         NONE {
             @Override
-            public void enableOutboundCommunication(String scheduleOption, List<Device> deviceMRIDs) {
+            public void enableOutboundCommunication(TransactionService transactionService, DeviceDataService deviceDataService, String scheduleOption, List<Device> deviceMRIDs) {
                 // This enum value represents no scheduling frequency so we will not enable anything on the devices
             }
         };
@@ -63,12 +63,12 @@ public class DeviceDataGoGoCommands {
             }
         }
 
-        public abstract void enableOutboundCommunication(String scheduleOption, List<Device> devices);
+        public abstract void enableOutboundCommunication(TransactionService transactionService, DeviceDataService deviceDataService, String scheduleOption, List<Device> devices);
 
     }
 
     public void enableOutboundCommunication (String scheduleFrequency, String scheduleOption, String... deviceMRIDs) {
-        ScheduleFrequency.fromString(scheduleFrequency).enableOutboundCommunication(scheduleOption, this.findDevices(deviceMRIDs));
+        ScheduleFrequency.fromString(scheduleFrequency).enableOutboundCommunication(this.transactionService, this.deviceDataService, scheduleOption, this.findDevices(deviceMRIDs));
     }
 
     private List<Device> findDevices(String... deviceMRIDs) {
