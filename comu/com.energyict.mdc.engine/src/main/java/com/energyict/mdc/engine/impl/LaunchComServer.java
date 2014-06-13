@@ -75,15 +75,13 @@ public class LaunchComServer {
     }
 
     public void launchComServer() {
-        if(this.launcher == null){
+        if (this.launcher == null) {
             System.out.println("Starting ComServer");
             try {
                 this.launcher = new ComServerLauncher(getServiceProvider());
                 launcher.startComServer();
             } catch (Exception e) {
                 e.printStackTrace(System.out);
-            } finally {
-                Environment.DEFAULT.get().closeConnection();
             }
         } else {
             System.out.println("There is already a ComServer running on this machine.");

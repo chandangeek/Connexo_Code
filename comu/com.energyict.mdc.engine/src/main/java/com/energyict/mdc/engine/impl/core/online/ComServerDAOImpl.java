@@ -432,23 +432,6 @@ public class ComServerDAOImpl implements ComServerDAO {
         return builder.endSession(serviceProvider.clock().now(), successIndicator).create();
     }
 
-    // TODO still required?
-//    private EndDeviceCache createOrUpdateDeviceCache(final int deviceId, final DeviceCacheShadow shadow) {
-//        return this.executeTransaction(new Transaction<EndDeviceCache>() {
-//            @Override
-//            public EndDeviceCache perform() throws SQLException, BusinessException {
-//                DeviceCacheFactory deviceCacheFactory = getManager().getMdwInterface().getDeviceCacheFactory();
-//                EndDeviceCache deviceCache = deviceCacheFactory.findByDeviceId(deviceId);
-//                if (deviceCache == null) {    // create a new one
-//                    deviceCache = deviceCacheFactory.create(shadow);
-//                } else {    // update the existing one
-//                    deviceCache.update(shadow);
-//                }
-//                return deviceCache;
-//            }
-//        });
-//    }
-
     @Override
     public void storeMeterReadings(final DeviceIdentifier<Device> deviceIdentifier, final MeterReading meterReading) {
         this.executeTransaction(new Transaction<Void>() {

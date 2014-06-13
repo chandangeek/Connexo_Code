@@ -35,12 +35,12 @@ public class FakeIssueService implements IssueService {
     }
 
     @Override
-    public <S> IssueCollector<S> newIssueCollector(Class<S> sourceType) {
+    public IssueCollector newIssueCollector(Class sourceType) {
         return this.newIssueCollector();
     }
 
     @Override
-    public <S> Problem<S> newProblem(S source, String description, Object... arguments) {
+    public Problem newProblem(Object source, String description, Object... arguments) {
         Problem problem = mock(Problem.class);
         when(problem.getTimestamp()).thenReturn(new Date());
         when(problem.isProblem()).thenReturn(true);
@@ -50,7 +50,7 @@ public class FakeIssueService implements IssueService {
     }
 
     @Override
-    public <S> Warning<S> newWarning(S source, String description, Object... arguments) {
+    public Warning newWarning(Object source, String description, Object... arguments) {
         Warning warning = mock(Warning.class);
         when(warning.getTimestamp()).thenReturn(new Date());
         when(warning.isWarning()).thenReturn(true);
@@ -58,4 +58,5 @@ public class FakeIssueService implements IssueService {
         when(warning.getDescription()).thenReturn(description);
         return warning;
     }
+
 }
