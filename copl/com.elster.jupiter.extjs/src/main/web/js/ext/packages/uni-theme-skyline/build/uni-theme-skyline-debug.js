@@ -615,7 +615,8 @@ Ext.define('Skyline.form.Panel', {
         if (me.buttons) {
             me.buttons.splice(0, 0, {
                 xtype: 'tbspacer',
-                width: width
+                width: width,
+                cls: 'x-form-item-label-right'
             })
         }
 
