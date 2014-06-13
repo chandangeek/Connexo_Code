@@ -53,7 +53,6 @@ public class TaskServiceImpl implements TaskService, InstallService {
         this.setNlsService(nlsService);
         this.setEventService(eventService);
         this.activate();
-        this.createEventTypes();
         this.install();
     }
 
@@ -62,6 +61,7 @@ public class TaskServiceImpl implements TaskService, InstallService {
         if (!dataModel.isInstalled()) {
             dataModel.install(true, true);
         }
+        this.createEventTypes();
     }
 
     @Reference
