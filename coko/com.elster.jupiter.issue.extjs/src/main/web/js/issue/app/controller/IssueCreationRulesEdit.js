@@ -244,8 +244,6 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
         ruleModel.set('parameters', parameters);
         this.loadActionsToModel(ruleModel);
 
-        console.info(ruleModel);
-
         return ruleModel;
     },
 
