@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.impl.gogo;
 
+import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
@@ -7,9 +9,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -68,7 +67,11 @@ public class DeviceDataGoGoCommands {
     }
 
     public void enableOutboundCommunication (String scheduleFrequency, String scheduleOption, String... deviceMRIDs) {
-        ScheduleFrequency.fromString(scheduleFrequency).enableOutboundCommunication(this.transactionService, this.deviceDataService, scheduleOption, this.findDevices(deviceMRIDs));
+        try {
+            ScheduleFrequency.fromString(scheduleFrequency).enableOutboundCommunication(this.transactionService, this.deviceDataService, scheduleOption, this.findDevices(deviceMRIDs));
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     private List<Device> findDevices(String... deviceMRIDs) {
