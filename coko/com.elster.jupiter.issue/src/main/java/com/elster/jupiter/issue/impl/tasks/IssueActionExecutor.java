@@ -56,7 +56,7 @@ public class IssueActionExecutor implements Runnable {
     }
 
     private void executeAction(CreationRuleAction action) {
-        Optional<IssueActionType> actionTypeRef = issueActionService.findActionType(action.getId());
+        Optional<IssueActionType> actionTypeRef = issueActionService.findActionType(action.getType().getId());
         if (!actionTypeRef.isPresent()) {
             throw new IllegalArgumentException("Rule action type doesn't exist");
         }
