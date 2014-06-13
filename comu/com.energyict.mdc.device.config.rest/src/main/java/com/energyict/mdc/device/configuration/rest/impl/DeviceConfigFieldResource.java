@@ -36,10 +36,7 @@ public class DeviceConfigFieldResource extends FieldResource{
         UnitAdapter unitAdapter = new UnitAdapter();
         for (Phenomenon phenomenon : this.masterDataService.findAllPhenomena()) {
             try {
-                if (!phenomenon.isUndefined()) {
-                    allUnitsWithPhenomena.add(phenomenon.toString());
-                }
-                //allUnitsWithPhenomena.add(phenomenon.toString());
+                allUnitsWithPhenomena.add(unitAdapter.marshal(phenomenon.getUnit()));
             } catch (Exception e) {
                 throw new WebApplicationException("Failed to convert unit into JSON", Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(phenomenon).build());
             }
