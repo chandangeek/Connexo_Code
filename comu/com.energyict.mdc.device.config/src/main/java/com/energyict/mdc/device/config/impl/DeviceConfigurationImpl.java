@@ -653,11 +653,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     public void deactivate() {
-//        if (getBaseFactory().hasAnyForDeviceConfig(this)) {
-//            throw new BusinessException("cannotDeactivateDeviceConfig",
-//                    "Device configuration '{0}' cannot be deactivated since it is still in use", this.getName());
-//        }
-        //TODO need to check if there are devices who are modeled by this DeviceConfiguration (JP-906)
+        this.getEventService().postEvent(EventType.DEVICECONFIGURATION_VALIDATEDEACTIVATE.topic(), this);
         this.active = false;
         this.modificationDate = this.clock.now();
         super.save();
