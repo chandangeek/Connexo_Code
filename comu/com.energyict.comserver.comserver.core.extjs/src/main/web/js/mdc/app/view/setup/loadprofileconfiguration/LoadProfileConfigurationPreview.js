@@ -33,7 +33,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationPrev
                 },
                 items: [
                     {
-                        fieldLabel: 'Load profile type: ',
+                        fieldLabel: 'Load profile type',
                         name: 'name',
                         renderer: function (value) {
                             var record = this.up('form').getRecord(),
@@ -46,11 +46,11 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationPrev
                     },
                     {
                         itemId: 'displayObis',
-                        fieldLabel: 'OBIS code: ',
+                        fieldLabel: 'OBIS code',
                         name: 'overruledObisCode'
                     },
                     {
-                        fieldLabel: 'Interval: ',
+                        fieldLabel: 'Interval',
                         name: 'timeDuration',
                         renderer: function (value) {
                             var intervalRecord = value ? Ext.getStore('Mdc.store.Intervals').getById(value.id) : null;
@@ -67,7 +67,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationPrev
                 },
                 items: [
                     {
-                        fieldLabel: 'Channel configurations: ',
+                        fieldLabel: 'Channel configurations',
                         name: 'channels',
                         renderer: function (value) {
                             var typesString = '';

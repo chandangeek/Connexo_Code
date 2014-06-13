@@ -135,7 +135,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
         var me = this,
             formPanel = me.getLoadConfigurationForm(),
             form = formPanel.getForm(),
-            formErrorsPanel = formPanel.down('panel[name=errors]'),
+            formErrorsPanel = formPanel.down('fieldcontainer[name=errors]'),
             formValue = form.getValues(),
             preloader,
             jsonValues;
@@ -291,7 +291,10 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
     showDeviceConfigurationLoadProfilesAddView: function (deviceTypeId, deviceConfigurationId) {
         var me = this,
             widget = Ext.widget('loadProfileConfigurationForm', {deviceTypeId: deviceTypeId, deviceConfigurationId: deviceConfigurationId, loadProfileConfigurationAction: 'Add'});
-        widget.down('#LoadProfileConfigurationHeader').html = '<h1>' + Uni.I18n.translate('loadprofileconfigurations.addloadprofileconfigurations', 'MDC', 'Add load profile configuration') + '</h1>';
+
+        var title = Uni.I18n.translate('loadprofileconfigurations.addloadprofileconfigurations', 'MDC', 'Add load profile configuration');
+        widget.down('#LoadProfileConfigurationFormId').setTitle(title);
+
         me.deviceTypeId = deviceTypeId;
         me.deviceConfigurationId = deviceConfigurationId;
         me.store.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigurationId});
@@ -318,7 +321,10 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
     showDeviceConfigurationLoadProfilesEditView: function (deviceTypeId, deviceConfigurationId, loadProfileConfigurationId) {
         var me = this,
             widget = Ext.widget('loadProfileConfigurationForm', {deviceTypeId: deviceTypeId, deviceConfigurationId: deviceConfigurationId, loadProfileConfigurationAction: 'Save'});
-        widget.down('#LoadProfileConfigurationHeader').html = '<h1>' + Uni.I18n.translate('loadprofileconfigurations.addloadprofileconfigurations', 'MDC', 'Edit load profile configuration') + '</h1>';
+
+        var title = Uni.I18n.translate('loadprofileconfigurations.addloadprofileconfigurations', 'MDC', 'Edit load profile configuration');
+        widget.down('#LoadProfileConfigurationFormId').setTitle(title);
+
         me.deviceTypeId = deviceTypeId;
         me.deviceConfigurationId = deviceConfigurationId;
         me.loadProfileConfigurationId = loadProfileConfigurationId;

@@ -5,83 +5,65 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileConfigurationForm', {
     deviceTypeId: null,
     deviceConfigurationId: null,
 
-
     content: [
         {
+            xtype: 'form',
+            ui: 'large',
+            width: '100%',
+            itemId: 'LoadProfileConfigurationFormId',
+            defaults: {
+                labelWidth: 150,
+                validateOnChange: false,
+                validateOnBlur: false,
+                anchor: '50%'
+            },
             items: [
                 {
-                    xtype: 'container',
-                    itemId: 'LoadProfileConfigurationHeader'
+                    xtype: 'fieldcontainer',
+                    fieldLabel: ' ',
+                    name: 'errors',
+                    hidden: true,
+                    defaults: {
+                        xtype: 'container'
+                    }
                 },
                 {
-                    xtype: 'form',
-                    width: '50%',
-                    itemId: 'LoadProfileConfigurationFormId',
-                    defaults: {
-                        labelWidth: 150,
-                        labelAlign: 'right',
-                        margin: '0 0 20 0',
-                        validateOnChange: false,
-                        validateOnBlur: false,
-                        anchor: '100%'
-                    },
-                    items: [
-                        {
-                            name: 'errors',
-                            layout: 'hbox',
-                            margin: '0 0 20 100',
-                            hidden: true,
-                            defaults: {
-                                xtype: 'container'
-                            }
-                        },
-                        {
-                            xtype: 'combobox',
-                            labelSeparator: ' *',
-                            allowBlank: false,
-                            fieldLabel: 'Load profile type',
-                            emptyText: 'Select a load profile type',
-                            name: 'id',
-                            displayField: 'name',
-                            valueField: 'id',
-                            queryMode: 'local'
-                        },
-                        {
-                            xtype: 'displayfield',
-                            labelSeparator: ' ',
-                            fieldLabel: 'OBIS code',
-                            name: 'obisCode',
-                            value: 'Select a load profile type first'
-                        },
-                        {
-                            xtype: 'textfield',
-                            labelSeparator: ' ',
-                            fieldLabel: 'Overruled OBIS code',
-                            name: 'overruledObisCode',
-                            maskRe: /[\d.]+/,
-                            vtype: 'overruledObisCode',
-                            msgTarget: 'under',
-                            afterSubTpl:'<div class="x-form-display-field"><i>' + 'Provide the value for the 6 attributes of the OBIS code. Separate each value with a "."' + '</i></div>'
-                        }
-                    ],
-                    dockedItems: [
-                        {
-                            xtype: 'toolbar',
-                            dock: 'bottom',
-                            border: false,
-                            margin: '0 0 0 100',
-                            items: [
-                                {
-                                    xtype: 'container',
-                                    itemId: 'LoadProfileConfigurationActionContainer'
-                                },
-                                {
-                                    xtype: 'container',
-                                    itemId: 'LoadProfileConfigurationCancelContainer'
-                                }
-                            ]
-                        }
-                    ]
+                    xtype: 'combobox',
+                    required: true,
+                    allowBlank: false,
+                    fieldLabel: 'Load profile type',
+                    emptyText: 'Select a load profile type',
+                    name: 'id',
+                    displayField: 'name',
+                    valueField: 'id',
+                    queryMode: 'local'
+                },
+                {
+                    xtype: 'displayfield',
+                    labelSeparator: ' ',
+                    fieldLabel: 'OBIS code',
+                    name: 'obisCode',
+                    value: 'Select a load profile type first'
+                },
+                {
+                    xtype: 'textfield',
+                    labelSeparator: ' ',
+                    fieldLabel: 'Overruled OBIS code',
+                    name: 'overruledObisCode',
+                    maskRe: /[\d.]+/,
+                    vtype: 'overruledObisCode',
+                    msgTarget: 'under',
+                    afterSubTpl:'<div class="x-form-display-field"><i>' + 'Provide the value for the 6 attributes of the OBIS code. Separate each value with a "."' + '</i></div>'
+                }
+            ],
+            buttons: [
+                {
+                    xtype: 'container',
+                    itemId: 'LoadProfileConfigurationActionContainer'
+                },
+                {
+                    xtype: 'container',
+                    itemId: 'LoadProfileConfigurationCancelContainer'
                 }
             ]
         }
