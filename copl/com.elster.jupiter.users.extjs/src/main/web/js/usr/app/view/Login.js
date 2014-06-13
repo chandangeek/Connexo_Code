@@ -82,8 +82,7 @@ Ext.define('Usr.view.Login', {
                             type: 'submit',
                             action: 'login',
                             itemId: 'loginButton',
-                            text: 'Login',
-                            margin: '0 0 0 10'
+                            text: 'Login'
                         }
                     ]
                 }
