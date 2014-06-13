@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.common.TimeDuration;
@@ -124,7 +123,6 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     private volatile EngineModelService engineModelService;
     private volatile MeteringService meteringService;
     private volatile SchedulingService schedulingService;
-    private volatile Environment environment;
     private volatile MessageService messagingService;
     private volatile SecurityPropertyService securityPropertyService;
 
@@ -132,16 +130,15 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     }
 
     @Inject
-    public DeviceDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, Environment environment, RelationService relationService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, SchedulingService schedulingService, MessageService messageService, SecurityPropertyService securityPropertyService) {
-        this(ormService, eventService, nlsService, clock, environment, relationService, protocolPluggableService, engineModelService, deviceConfigurationService, meteringService, false, schedulingService, messageService, securityPropertyService);
+    public DeviceDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, RelationService relationService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, SchedulingService schedulingService, MessageService messageService, SecurityPropertyService securityPropertyService) {
+        this(ormService, eventService, nlsService, clock, relationService, protocolPluggableService, engineModelService, deviceConfigurationService, meteringService, false, schedulingService, messageService, securityPropertyService);
     }
 
-    public DeviceDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, Environment environment, RelationService relationService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, boolean createMasterData, SchedulingService schedulingService, MessageService messageService, SecurityPropertyService securityPropertyService) {
+    public DeviceDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, RelationService relationService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, boolean createMasterData, SchedulingService schedulingService, MessageService messageService, SecurityPropertyService securityPropertyService) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
         this.setNlsService(nlsService);
-        this.setEnvironment(environment);
         this.setRelationService(relationService);
         this.setClock(clock);
         this.setProtocolPluggableService(protocolPluggableService);
@@ -756,11 +753,6 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
-    }
-
-    @Reference
-    public void setEnvironment (Environment environment) {
-        this.environment = environment;
     }
 
     @Reference

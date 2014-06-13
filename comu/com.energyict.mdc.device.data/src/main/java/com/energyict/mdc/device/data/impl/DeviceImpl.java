@@ -21,7 +21,6 @@ import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.CommunicationTopologyEntry;
 import com.energyict.mdc.device.data.DefaultSystemTimeZoneFactory;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceCacheFactory;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.DeviceDependant;
 import com.energyict.mdc.device.data.DeviceInComSchedule;
@@ -283,7 +282,6 @@ public class DeviceImpl implements Device {
 
     private void doDelete() {
         deleteProperties();
-        deleteCache();
         deleteLoadProfiles();
         deleteLogBooks();
         deleteComTaskExecutions();
@@ -310,13 +308,6 @@ public class DeviceImpl implements Device {
 
     private void deleteLoadProfiles() {
         this.loadProfiles.clear();
-    }
-
-    private void deleteCache() {
-        List<DeviceCacheFactory> deviceCacheFactories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceCacheFactory.class);
-        if (!deviceCacheFactories.isEmpty()) {
-            deviceCacheFactories.get(0).removeDeviceCacheFor(getId());
-        }
     }
 
     private void deleteProperties() {

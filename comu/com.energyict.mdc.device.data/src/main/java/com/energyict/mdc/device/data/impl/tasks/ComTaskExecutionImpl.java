@@ -1,12 +1,10 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
-import com.energyict.mdc.device.data.ComTaskExecutionDependant;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.ServerComTaskExecution;
@@ -56,9 +54,6 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
-
-import static com.elster.jupiter.util.Checks.is;
 
 /**
  * Implementation of a ComTaskExecution
@@ -815,15 +810,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
      */
     public void delete() {
         getNextExecutionSpecHolder().delete();
-        this.deleteComTaskSessions();
         super.delete();
-    }
-
-    private void deleteComTaskSessions() {
-        List<ComTaskExecutionDependant> modulesImplementing = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(ComTaskExecutionDependant.class);
-        for (ComTaskExecutionDependant comTaskExecutionDependant : modulesImplementing) {
-            comTaskExecutionDependant.comTaskExecutionDeleted(this);
-        }
     }
 
     protected Date now() {
