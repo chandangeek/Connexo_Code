@@ -1,5 +1,25 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.events.EndDeviceEventRecord;
+import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.TemporalReference;
+import com.elster.jupiter.orm.associations.Temporals;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
@@ -61,27 +81,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
-
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingRecord;
-import com.elster.jupiter.metering.events.EndDeviceEventRecord;
-import com.elster.jupiter.metering.events.EndDeviceEventType;
-import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.TemporalReference;
-import com.elster.jupiter.orm.associations.Temporals;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
 import com.google.inject.Inject;
 
@@ -155,7 +154,7 @@ public class DeviceImpl implements Device {
     @Valid
     private List<DeviceProtocolProperty> deviceProperties = new ArrayList<>();
     @Valid
-    private List<ConnectionTaskImpl<?,?>> connectionTasks;
+    private List<ConnectionTaskImpl<?, ?>> connectionTasks;
     @Valid
     private List<ComTaskExecutionImpl> comTaskExecutions;
     @Valid
@@ -221,7 +220,7 @@ public class DeviceImpl implements Device {
     private void saveAllConnectionTasks() {
         if (this.connectionTasks != null) {
             // No need to call the getConnectionTaskImpls getter because if they have not been loaded before, they cannot be dirty
-            for (ConnectionTaskImpl<?,?> connectionTask : connectionTasks) {
+            for (ConnectionTaskImpl<?, ?> connectionTask : connectionTasks) {
                 connectionTask.save();
             }
         }
@@ -249,7 +248,7 @@ public class DeviceImpl implements Device {
         }
     }
 
-    private void save (ProtocolDialectPropertiesImpl dialectProperties) {
+    private void save(ProtocolDialectPropertiesImpl dialectProperties) {
         dialectProperties.save();
     }
 
@@ -299,7 +298,7 @@ public class DeviceImpl implements Device {
     }
 
     private void deleteConnectionTasks() {
-        for (ConnectionTaskImpl<?,?> connectionTask : this.getConnectionTaskImpls()) {
+        for (ConnectionTaskImpl<?, ?> connectionTask : this.getConnectionTaskImpls()) {
             connectionTask.delete();
         }
     }
@@ -496,11 +495,11 @@ public class DeviceImpl implements Device {
     private void topologyChanged() {
         List<ComTaskExecution> comTasksForDefaultConnectionTask = this.deviceDataService.findComTasksByDefaultConnectionTask(this);
         Device gateway = this.getPhysicalGateway();
-            if (gateway != null) {
-                updateComTasksToUseNewDefaultConnectionTask(comTasksForDefaultConnectionTask);
-            } else {
-                updateComTasksToUseNonExistingDefaultConnectionTask(comTasksForDefaultConnectionTask);
-            }
+        if (gateway != null) {
+            updateComTasksToUseNewDefaultConnectionTask(comTasksForDefaultConnectionTask);
+        } else {
+            updateComTasksToUseNonExistingDefaultConnectionTask(comTasksForDefaultConnectionTask);
+        }
 
     }
 
@@ -513,8 +512,8 @@ public class DeviceImpl implements Device {
         }
     }
 
-    private void updateComTasksToUseNewDefaultConnectionTask(List<ComTaskExecution> comTasksForDefaultConnectionTask){
-        ConnectionTask<?,?> defaultConnectionTaskForGateway = getDefaultConnectionTask();
+    private void updateComTasksToUseNewDefaultConnectionTask(List<ComTaskExecution> comTasksForDefaultConnectionTask) {
+        ConnectionTask<?, ?> defaultConnectionTaskForGateway = getDefaultConnectionTask();
         for (ComTaskExecution comTaskExecution : comTasksForDefaultConnectionTask) {
             ComTaskExecution.ComTaskExecutionUpdater comTaskExecutionUpdater = getComTaskExecutionUpdater(comTaskExecution);
             comTaskExecutionUpdater.setUseDefaultConnectionTask(defaultConnectionTaskForGateway);
@@ -606,7 +605,7 @@ public class DeviceImpl implements Device {
         return new ArrayList<>(allDevicesInTopology.values());
     }
 
-    private void collectAllCommunicationReferencingDevices (Date timestamp, Device topologyRoot, Map<Long, Device> devices) {
+    private void collectAllCommunicationReferencingDevices(Date timestamp, Device topologyRoot, Map<Long, Device> devices) {
         for (Device device : topologyRoot.getCommunicationReferencingDevices(timestamp)) {
             if (!devices.containsKey(device.getId())) {
                 // The device was not encountered yet, recursive call
@@ -626,7 +625,7 @@ public class DeviceImpl implements Device {
      * Collects the {@link CommunicationTopologyEntry CommunicationTopologies} for the specified Interval
      * for the target {@link Device} that is part of the communication topology governed by the root device.
      *
-     * @param root The root of the CommunicationTopology
+     * @param root     The root of the CommunicationTopology
      * @param interval The Interval
      * @return The CommunicationTopology
      */
@@ -651,8 +650,7 @@ public class DeviceImpl implements Device {
     private Date earliestStartDate(List<CommunicationTopologyEntry> topologyEntries) {
         if (!topologyEntries.isEmpty()) {
             return Collections.min(this.startDatesOfAll(topologyEntries), new MinDateComparator());
-        }
-        else {
+        } else {
             return null;
         }
     }
@@ -668,8 +666,7 @@ public class DeviceImpl implements Device {
     private Date latestEndDate(List<CommunicationTopologyEntry> topologyEntries) {
         if (!topologyEntries.isEmpty()) {
             return Collections.max(this.endDatesOfAll(topologyEntries), new MaxDateComparator());
-        }
-        else {
+        } else {
             return null;
         }
     }
@@ -698,8 +695,7 @@ public class DeviceImpl implements Device {
     private void addCommunicationTopologyEntries(CommunicationTopology topology, CommunicationTopologyEntryMerger merger) {
         if (topology.isLeaf()) {
             merger.add(new CompleteCommunicationTopologyEntryImpl(topology.getInterval(), topology.getRoot()));
-        }
-        else {
+        } else {
             CommunicationTopologyEntryMerger nestedMerger = new CommunicationTopologyEntryMerger();
             for (CommunicationTopology childTopology : topology.getChildren()) {
                 this.addCommunicationTopologyEntries(childTopology, nestedMerger);
@@ -818,8 +814,7 @@ public class DeviceImpl implements Device {
         ProtocolDialectProperties dialectProperties = this.getProtocolDialectPropertiesFrom(dialectName, this.dialectPropertiesList);
         if (dialectProperties != null) {
             return dialectProperties;
-        }
-        else {
+        } else {
             // Attempt to find the dialect properties in the list of new ones that have not been saved yet
             return this.getProtocolDialectPropertiesFrom(dialectName, this.newDialectProperties);
         }
@@ -843,12 +838,10 @@ public class DeviceImpl implements Device {
                 dialectProperties = this.dataModel.getInstance(ProtocolDialectPropertiesImpl.class).initialize(this, configurationProperties);
                 dialectProperties.setProperty(propertyName, value);
                 this.newDialectProperties.add(dialectProperties);
-            }
-            else {
+            } else {
                 throw new ProtocolDialectConfigurationPropertiesIsRequiredException();
             }
-        }
-        else {
+        } else {
             dialectProperties.setProperty(propertyName, value);
             this.dirtyDialectProperties.add(dialectProperties);
         }
@@ -881,8 +874,7 @@ public class DeviceImpl implements Device {
         if (dialectProperties.getId() == 0) {
             // Not persistent, must be in the list of new properties
             this.newDialectProperties.remove(dialectProperties);
-        }
-        else {
+        } else {
             // Persistent, remove if from the managed list of properties, which will delete it from the database
             this.dialectPropertiesList.remove(dialectProperties);
         }
@@ -1037,10 +1029,10 @@ public class DeviceImpl implements Device {
 
     @Override
     public List<ConnectionTask<?, ?>> getConnectionTasks() {
-        return new ArrayList<ConnectionTask<?,?>>(this.getConnectionTaskImpls());
+        return new ArrayList<ConnectionTask<?, ?>>(this.getConnectionTaskImpls());
     }
 
-    private List<ConnectionTaskImpl<?,?>> getConnectionTaskImpls() {
+    private List<ConnectionTaskImpl<?, ?>> getConnectionTaskImpls() {
         if (this.connectionTasks == null) {
             this.loadConnectionTasks();
         }
@@ -1048,9 +1040,9 @@ public class DeviceImpl implements Device {
     }
 
     private void loadConnectionTasks() {
-        List<ConnectionTaskImpl<?,?>> connectionTaskImpls = new ArrayList<>();
+        List<ConnectionTaskImpl<?, ?>> connectionTaskImpls = new ArrayList<>();
         for (ConnectionTask connectionTask : this.deviceDataService.findConnectionTasksByDevice(this)) {
-            connectionTaskImpls.add((ConnectionTaskImpl<?,?>) connectionTask);
+            connectionTaskImpls.add((ConnectionTaskImpl<?, ?>) connectionTask);
         }
         this.connectionTasks = connectionTaskImpls;
     }
@@ -1093,17 +1085,17 @@ public class DeviceImpl implements Device {
 
     @Override
     public void removeConnectionTask(ConnectionTask<?, ?> connectionTask) {
-        Iterator<ConnectionTaskImpl<?,?>> connectionTaskIterator = this.getConnectionTaskImpls().iterator();
+        Iterator<ConnectionTaskImpl<?, ?>> connectionTaskIterator = this.getConnectionTaskImpls().iterator();
         boolean removedNone = true;
-        while(connectionTaskIterator.hasNext() && removedNone){
-            ConnectionTaskImpl<?,?> connectionTaskToRemove = connectionTaskIterator.next();
-            if(connectionTaskToRemove.getId() == connectionTask.getId()){
+        while (connectionTaskIterator.hasNext() && removedNone) {
+            ConnectionTaskImpl<?, ?> connectionTaskToRemove = connectionTaskIterator.next();
+            if (connectionTaskToRemove.getId() == connectionTask.getId()) {
                 connectionTask.makeObsolete();
                 connectionTaskIterator.remove();
                 removedNone = false;
             }
         }
-        if(removedNone){
+        if (removedNone) {
             throw new CannotDeleteConnectionTaskWhichIsNotFromThisDevice(this.thesaurus, connectionTask, this);
 
         }
@@ -1143,15 +1135,15 @@ public class DeviceImpl implements Device {
     public void removeComTaskExecution(ComTaskExecution comTaskExecution) {
         Iterator<ComTaskExecutionImpl> comTaskExecutionIterator = this.getComTaskExecutionImpls().iterator();
         boolean removedNone = true;
-        while (comTaskExecutionIterator.hasNext() && removedNone){
+        while (comTaskExecutionIterator.hasNext() && removedNone) {
             ComTaskExecution comTaskExecutionToRemove = comTaskExecutionIterator.next();
-            if(comTaskExecutionToRemove.getId() == comTaskExecution.getId()){
+            if (comTaskExecutionToRemove.getId() == comTaskExecution.getId()) {
                 comTaskExecution.makeObsolete();
                 comTaskExecutionIterator.remove();
                 removedNone = false;
             }
         }
-        if(removedNone){
+        if (removedNone) {
             throw new CannotDeleteComTaskExecutionWhichIsNotFromThisDevice(thesaurus, comTaskExecution, this);
         }
     }
@@ -1293,7 +1285,9 @@ public class DeviceImpl implements Device {
         private ScheduledConnectionTaskBuilderForDevice(Device device, PartialOutboundConnectionTask partialOutboundConnectionTask) {
             this.scheduledConnectionTask = scheduledConnectionTaskProvider.get();
             this.scheduledConnectionTask.initialize(device, (PartialScheduledConnectionTask) partialOutboundConnectionTask, partialOutboundConnectionTask.getComPortPool());
-            this.scheduledConnectionTask.setNextExecutionSpecsFrom(partialOutboundConnectionTask.getNextExecutionSpecs().getTemporalExpression());
+            if (partialOutboundConnectionTask.getNextExecutionSpecs() != null) {
+                this.scheduledConnectionTask.setNextExecutionSpecsFrom(partialOutboundConnectionTask.getNextExecutionSpecs().getTemporalExpression());
+            }
             this.scheduledConnectionTask.setConnectionStrategy(((PartialScheduledConnectionTask) partialOutboundConnectionTask).getConnectionStrategy());
         }
 
@@ -1357,19 +1351,15 @@ public class DeviceImpl implements Device {
                 // Both Intervals start at the same timestamp, which could be the early big bang, i.e. null
                 if (is(topology1.getInterval().getEnd()).equalTo(topology2.getInterval().getEnd())) {
                     return 0;   // Equals start and end
-                }
-                else if (topology1.getInterval().endsBefore(topology2.getInterval().getEnd())) {
+                } else if (topology1.getInterval().endsBefore(topology2.getInterval().getEnd())) {
                     return -1;
-                }
-                else {
+                } else {
                     // Remember that end of other interval is not equal
                     return 1;
                 }
-            }
-            else if (topology1.getInterval().startsBefore(topology2.getInterval().getStart())) {
+            } else if (topology1.getInterval().startsBefore(topology2.getInterval().getStart())) {
                 return -1;
-            }
-            else {
+            } else {
                 // Remember that start of other interval is not equal
                 return 1;
             }
@@ -1385,14 +1375,11 @@ public class DeviceImpl implements Device {
         public int compare(Date date1, Date date2) {
             if (date1 == null && date2 == null) {
                 return 0;
-            }
-            else if (date1 == null) {
+            } else if (date1 == null) {
                 return -1;
-            }
-            else if (date2 == null) {
+            } else if (date2 == null) {
                 return 1;
-            }
-            else {
+            } else {
                 return date1.compareTo(date2);
             }
         }
@@ -1407,14 +1394,11 @@ public class DeviceImpl implements Device {
         public int compare(Date date1, Date date2) {
             if (date1 == null && date2 == null) {
                 return 0;
-            }
-            else if (date1 == null) {
+            } else if (date1 == null) {
                 return 1;
-            }
-            else if (date2 == null) {
+            } else if (date2 == null) {
                 return -1;
-            }
-            else {
+            } else {
                 return date1.compareTo(date2);
             }
         }
