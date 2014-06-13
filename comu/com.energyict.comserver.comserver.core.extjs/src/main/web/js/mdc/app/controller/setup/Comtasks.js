@@ -134,7 +134,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                         url: '/api/cts/comtasks/' + id,
                         method: 'DELETE',
                         success: function () {
-                            this.getApplication().fireEvent('acknowledge', 'Successfully removed');
+                            self.getApplication().fireEvent('acknowledge', 'Successfully removed');
                             self.store.loadPage(1, {
                                 callback: function () {
                                     grid.getSelectionModel().select(0);
