@@ -23,7 +23,7 @@ body.login {
         }
 
         *[class*='#{$prefix}btn-action-'] {
-            margin-left: 5px;
+            margin-left: 0 !important;
         }
 
         .#{$prefix}field-error {

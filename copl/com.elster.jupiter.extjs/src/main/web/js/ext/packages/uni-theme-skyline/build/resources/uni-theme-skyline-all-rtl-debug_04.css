@@ -1,3 +1,9 @@
+/* line 418, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-header-message-error-top-ml,
+.x-window-header-message-error-top-mr {
+  zoom: 1;
+}
+
 /* line 430, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-message-error-top-mc {
   padding: 0px 0px 0 0px;

@@ -3024,37 +3024,45 @@
   background-color: transparent !important;
 }
 
-/* line 6, ../../sass/src/toolbar/Toolbar.scss */
+/* line 7, ../../sass/src/toolbar/Toolbar.scss */
+.filter-form .x-toolbar .x-btn {
+  margin-top: 0 !important;
+  margin-right: 10px !important;
+  margin-bottom: 0 !important;
+  margin-left: 0 !important;
+}
+
+/* line 17, ../../sass/src/toolbar/Toolbar.scss */
 .x-toolbar .x-btn {
   margin: 0 5px !important;
 }
 
-/* line 10, ../../sass/src/toolbar/Toolbar.scss */
+/* line 21, ../../sass/src/toolbar/Toolbar.scss */
 .x-toolbar-text {
   margin: 0 6px 0 0;
 }
 
-/* line 14, ../../sass/src/toolbar/Toolbar.scss */
+/* line 25, ../../sass/src/toolbar/Toolbar.scss */
 .x-toolbar-separator {
   margin: 0 5px !important;
 }
 
-/* line 18, ../../sass/src/toolbar/Toolbar.scss */
+/* line 29, ../../sass/src/toolbar/Toolbar.scss */
 .x-tbar-page-first {
   margin: 4px 0 0 0;
 }
 
-/* line 22, ../../sass/src/toolbar/Toolbar.scss */
+/* line 33, ../../sass/src/toolbar/Toolbar.scss */
 .x-tbar-page-prev {
   margin: 4px 0 0 3px;
 }
 
-/* line 26, ../../sass/src/toolbar/Toolbar.scss */
+/* line 37, ../../sass/src/toolbar/Toolbar.scss */
 .x-tbar-page-next {
   margin: 4px 0 0 6px;
 }
 
-/* line 30, ../../sass/src/toolbar/Toolbar.scss */
+/* line 41, ../../sass/src/toolbar/Toolbar.scss */
 .x-tbar-page-last {
   margin: 4px 0 0 0;
 }
