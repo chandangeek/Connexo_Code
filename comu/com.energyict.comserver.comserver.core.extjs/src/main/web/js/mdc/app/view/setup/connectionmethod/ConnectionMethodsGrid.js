@@ -25,7 +25,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodsGrid', {
                 renderer: function (value, metadata) {
                     if (value === true) {
                         metadata.style = "padding: 6px 16px 6px 16px;";
-                        return '<img src=../mdc/resources/images/1rightarrow.png/>';
+                        return '<img src="../mdc/resources/images/1rightarrow.png">';
                     } else {
                         return '';
                     }
