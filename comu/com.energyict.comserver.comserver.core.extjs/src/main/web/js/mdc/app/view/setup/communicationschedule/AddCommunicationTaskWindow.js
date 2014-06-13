@@ -74,11 +74,13 @@ Ext.define('Mdc.view.setup.communicationschedule.AddCommunicationTaskWindow', {
                             text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
                             xtype: 'button',
                             action: 'addAction',
-                            itemId: 'addButton'
+                            itemId: 'addButton',
+                            ui: 'action'
                         },
                         {
                             xtype: 'button',
                             itemId: 'cancelLink',
+                            ui: 'link',
                             text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
                             handler: function(button){
                                 button.up('.window').close();

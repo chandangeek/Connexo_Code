@@ -42,7 +42,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showDeviceTypeCreateView'
                         },
                         view: {
-                            title: 'Device type',
+                            title: 'Overview',
                             route: '{deviceTypeId}',
                             controller: 'Mdc.controller.setup.DeviceTypes',
                             action: 'showDeviceTypeDetailsView',
