@@ -1,8 +1,8 @@
 package com.energyict.mdc.device.config;
 
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.UserAction;
+
 import com.google.common.base.Optional;
 
 /**
@@ -115,10 +115,6 @@ public enum DeviceSecurityUserAction {
             }
         }
         throw new ApplicationException("Unknown or unsupported DeviceSecurityUserAction " + databaseIdentifier);
-    }
-
-    public String getLocalizedName() {
-        return Environment.DEFAULT.get().getTranslation(userAction.getDisplayNameKey());
     }
 
     public static Optional<DeviceSecurityUserAction> forName(String name) {

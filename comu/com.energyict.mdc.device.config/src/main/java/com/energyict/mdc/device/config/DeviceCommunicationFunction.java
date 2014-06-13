@@ -1,7 +1,5 @@
 package com.energyict.mdc.device.config;
 
-import com.energyict.mdc.common.Environment;
-
 /**
  * User: gde
  * Date: 2/11/12
@@ -29,10 +27,6 @@ public enum DeviceCommunicationFunction {
 
     public String getNameKey() {
         return nameKey;
-    }
-
-    public String getLocalizedName() {
-        return Environment.DEFAULT.get().getTranslation(getNameKey());
     }
 
 }
