@@ -82,17 +82,15 @@ Ext.define('Sam.view.licensing.Details', {
                                 '<table class="isu-item-data-table">',
                                 '<tpl foreach="content">',
                                 '<tr>',
-                                '<td><b><tpl switch="key">',
-                                '<tpl case="licensed.users">Number of users',
-                                '<tpl case="licensed.device">Number of devices',
-                                '<tpl case="licensed.vee.rules">Validation rules',
-                                '<tpl case="licensed.protocols">Communication protocols',
-                                '</tpl></b></td>',
+                                '<td><b>{[this.translateKey(values.key)]}</b></td>',
                                 '<td>{[this.formatValue(values.value)]}</td>',
                                 '</tr>',
                                 '</tpl>',
                                 '</table>',
                                 {
+                                    translateKey: function (value) {
+                                        return Uni.I18n.translate(value, 'SAM', value);
+                                    },
                                     formatValue: function (value) {
                                         var regexp = /,/g;
                                         return value.replace(regexp, '<br>');
