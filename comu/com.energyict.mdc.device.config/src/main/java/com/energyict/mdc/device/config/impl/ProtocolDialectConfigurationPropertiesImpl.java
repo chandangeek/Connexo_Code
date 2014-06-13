@@ -214,9 +214,6 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
     @Override
     public void removeProperty(String name) {
         ProtocolDialectConfigurationProperty found = findProperty(name);
-        if (getId() != 0 && found != null && getPropertySpec(name).isRequired()) {
-            throw new ProtocolDialectConfigurationPropertiesCannotDropRequiredProperty(thesaurus, this, name);
-        }
         propertyList.remove(found);
         typedProperties = null;
     }
