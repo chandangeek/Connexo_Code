@@ -106,16 +106,23 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
         }
     ],
 
-    buttons: [
+    dockedItems: [
         {
-            itemId: 'fApply',
-            text: 'Apply',
-            action: 'filter'
-        },
-        {
-            itemId: 'fReset',
-            text: 'Clear all',
-            action: 'reset'
+            xtype: 'toolbar',
+            dock: 'bottom',
+            items: [
+                {
+                    itemId: 'fApply',
+                    ui: 'action',
+                    text: 'Apply',
+                    action: 'filter'
+                },
+                {
+                    itemId: 'fReset',
+                    text: 'Clear all',
+                    action: 'reset'
+                }
+            ]
         }
     ]
 });
