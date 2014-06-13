@@ -56,8 +56,4 @@ public enum Parities {
         return null;
     }
 
-    @Override
-    public String toString() {
-        return Environment.DEFAULT.get().getTranslation(getParity());
-    }
 }

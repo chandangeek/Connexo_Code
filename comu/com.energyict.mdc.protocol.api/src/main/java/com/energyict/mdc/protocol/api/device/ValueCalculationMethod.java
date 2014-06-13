@@ -1,8 +1,5 @@
 package com.energyict.mdc.protocol.api.device;
 
-import com.energyict.mdc.common.LocalizableEnum;
-import com.energyict.mdc.common.Environment;
-
 import java.math.BigDecimal;
 
 /**
@@ -10,7 +7,7 @@ import java.math.BigDecimal;
  * Date: 7/11/12
  * Time: 13:21
  */
-public enum ValueCalculationMethod implements LocalizableEnum {
+public enum ValueCalculationMethod {
     AUTOMATIC(0, "valueCalculationMethod.automatic") {
         @Override
         public BigDecimal calculateAmount(BigDecimal rawValue, BigDecimal previousRawValue, BigDecimal overflow){
@@ -46,13 +43,9 @@ public enum ValueCalculationMethod implements LocalizableEnum {
         return nameKey;
     }
 
-    public String getLocalizedName() {
-        return Environment.DEFAULT.get().getTranslation(getNameKey());
-    }
-
     @Override // eg. for in Combo boxes
     public String toString() {
-        return getLocalizedName();
+        return getNameKey();
     }
 
     public static ValueCalculationMethod fromDb(int dbCode) {
@@ -66,18 +59,15 @@ public enum ValueCalculationMethod implements LocalizableEnum {
         }
     }
 
-
     public boolean calculatesMeterAdvance() {
         return !RAW_DATA.equals(this);
-
     }
-
 
     protected final BigDecimal calculateAdvance(BigDecimal rawValue, BigDecimal previousRaw, BigDecimal overflow) {
         if (previousRaw == null) {
             return null;
         } else {
-            BigDecimal diff = null;
+            BigDecimal diff;
             if (overflow != null && rawValue.compareTo(previousRaw) < 0) {
                 diff = rawValue.add(overflow).subtract(previousRaw);
             } else {
@@ -88,4 +78,5 @@ public enum ValueCalculationMethod implements LocalizableEnum {
     }
 
     public abstract BigDecimal calculateAmount(BigDecimal rawValue, BigDecimal previousRawValue, BigDecimal overflow);
+
 }

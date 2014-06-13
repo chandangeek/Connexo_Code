@@ -1,8 +1,6 @@
 package com.energyict.mdc.protocol.api.device;
 
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.LocalizableEnum;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,14 +10,11 @@ import java.util.List;
  * Date: 7/11/12
  * Time: 13:20
  */
-public enum MultiplierMode implements LocalizableEnum {
+public enum MultiplierMode {
 
-    NONE(0, "multiplierMode.none") {
-    },
-    VERSIONED(1, "multiplierMode.versioned") {
-    },
-    CONFIGURED_ON_OBJECT(2, "multiplierMode.configuredOnObject") {
-    };
+    NONE(0, "multiplierMode.none"),
+    VERSIONED(1, "multiplierMode.versioned"),
+    CONFIGURED_ON_OBJECT(2, "multiplierMode.configuredOnObject");
 
     private int code;
     private String nameKey;
@@ -37,10 +32,6 @@ public enum MultiplierMode implements LocalizableEnum {
         return nameKey;
     }
 
-    public String getLocalizedName() {
-        return Environment.DEFAULT.get().getTranslation(getNameKey());
-    }
-
     public static MultiplierMode fromDb(int code) throws BusinessException {
         switch (code) {
             case 0:
@@ -56,7 +47,7 @@ public enum MultiplierMode implements LocalizableEnum {
 
     @Override // eg. for in Combo boxes
     public String toString() {
-        return getLocalizedName();
+        return getNameKey();
     }
 
     public static List<MultiplierMode> getAll() {

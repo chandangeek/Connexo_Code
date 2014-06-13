@@ -1,14 +1,11 @@
 package com.energyict.mdc.protocol.api.device;
 
-import com.energyict.mdc.common.LocalizableEnum;
-import com.energyict.mdc.common.Environment;
-
 /**
  * Copyrights EnergyICT
  * Date: 7/11/12
  * Time: 13:19
  */
-public enum ReadingMethod implements LocalizableEnum {
+public enum ReadingMethod {
     ENGINEERING_UNIT(0, "readingMethod.engineering_units"),
     BASIC_DATA(1, "readingMethod.basic_data");
 
@@ -27,13 +24,9 @@ public enum ReadingMethod implements LocalizableEnum {
         return nameKey;
     }
 
-    public String getLocalizedName() {
-        return Environment.DEFAULT.get().getTranslation(getNameKey());
-    }
-
     @Override // eg. for in Combo boxes
     public String toString() {
-        return getLocalizedName();
+        return getNameKey();
     }
 
     public static ReadingMethod fromDb(int dbCode) {
