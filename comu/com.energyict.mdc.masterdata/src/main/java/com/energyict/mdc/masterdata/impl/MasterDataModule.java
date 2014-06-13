@@ -25,7 +25,6 @@ public class MasterDataModule extends AbstractModule {
         requireBinding(NlsService.class);
         requireBinding(MeteringService.class);
         requireBinding(MdcReadingTypeUtilService.class);
-        requireBinding(Environment.class);
 
         bind(MasterDataService.class).to(MasterDataServiceImpl.class).in(Scopes.SINGLETON);
     }

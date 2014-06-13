@@ -113,7 +113,7 @@ public class InMemoryPersistence {
     }
 
     private DataModel createNewMasterDataService(boolean createDefaults) {
-        this.masterDataService = new MasterDataServiceImpl(this.ormService, this.eventService, this.nlsService, this.meteringService, this.mdcReadingTypeUtilService, createDefaults, environment);
+        this.masterDataService = new MasterDataServiceImpl(this.ormService, this.eventService, this.nlsService, this.meteringService, this.mdcReadingTypeUtilService, createDefaults);
         return this.masterDataService.getDataModel();
     }
 

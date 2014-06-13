@@ -1,7 +1,6 @@
 package com.energyict.mdc.masterdata.impl;
 
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
@@ -56,25 +55,23 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
     private volatile EventService eventService;
     private volatile MeteringService meteringService;
     private volatile MdcReadingTypeUtilService mdcReadingTypeUtilService;
-    private volatile Environment environment;
 
     public MasterDataServiceImpl() {
         super();
     }
 
     @Inject
-    public MasterDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, Environment environment) {
-        this(ormService, eventService, nlsService, meteringService, mdcReadingTypeUtilService, true, environment);
+    public MasterDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService) {
+        this(ormService, eventService, nlsService, meteringService, mdcReadingTypeUtilService, true);
     }
 
-    public MasterDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, boolean createDefaults, Environment environment) {
+    public MasterDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, boolean createDefaults) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
         this.setNlsService(nlsService);
         this.setMeteringService(meteringService);
         this.setMdcReadingTypeUtilService(mdcReadingTypeUtilService);
-        this.setEnvironment(environment);
         this.activate();
         if (!this.dataModel.isInstalled()) {
             this.install(true, createDefaults);
@@ -262,11 +259,6 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
     @Reference
     public void setMdcReadingTypeUtilService(MdcReadingTypeUtilService mdcReadingTypeUtilService) {
         this.mdcReadingTypeUtilService = mdcReadingTypeUtilService;
-    }
-
-    @Reference
-    public void setEnvironment (Environment environment) {
-        this.environment = environment;
     }
 
     private Module getModule() {
