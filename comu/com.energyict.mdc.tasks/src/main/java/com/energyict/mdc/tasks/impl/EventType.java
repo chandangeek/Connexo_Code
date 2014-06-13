@@ -1,4 +1,6 @@
-package com.energyict.mdc.tasks;
+package com.energyict.mdc.tasks.impl;
+
+import com.energyict.mdc.tasks.TaskService;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.EventTypeBuilder;
@@ -6,7 +8,7 @@ import com.elster.jupiter.events.ValueType;
 import com.elster.jupiter.orm.TransactionRequired;
 
 /**
- * Models the different event types that are produced by this task bundle
+ * Models the different event types that are produced by this task bundle.
  */
 public enum EventType {
 
