@@ -12,7 +12,6 @@ import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.DefaultSystemTimeZoneFactory;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceCacheFactory;
 import com.energyict.mdc.device.data.DeviceDependant;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.exceptions.StillGatewayException;
@@ -805,7 +804,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void findDownstreamDevicesAfterSettingToOtherPhysicalGatewayTest() {
         Device physicalMaster = createSimpleDeviceWithName("PhysicalMaster","pm");
-        Device otherPhysicalMaster = createSimpleDeviceWithName("OtherPhysicalMaster","opm");
+        Device otherPhysicalMaster = createSimpleDeviceWithName("OtherPhysicalMaster", "opm");
         final Device device1 = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "Origin1", "1");
         device1.setPhysicalGateway(physicalMaster);
         device1.save();
@@ -898,18 +897,6 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         reloadedCommunicationMaster.delete();
 
         assertThat(inMemoryPersistence.getDeviceDataService().findDeviceById(masterId)).isNull();
-    }
-
-    @Test
-    @Transactional
-    public void noDeviceCacheAfterDeviceDeleteTest() {
-        DeviceCacheFactory deviceCacheFactory = mock(DeviceCacheFactory.class);
-        when(Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceCacheFactory.class)).thenReturn(Arrays.asList(deviceCacheFactory));
-        Device simpleDevice = createSimpleDevice();
-        long deviceId = simpleDevice.getId();
-        simpleDevice.delete();
-
-        verify(deviceCacheFactory).removeDeviceCacheFor(deviceId);
     }
 
     @Test

@@ -1,16 +1,12 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
-import com.energyict.mdc.device.data.ComTaskExecutionDependant;
 import com.energyict.mdc.device.data.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.ServerComTaskExecution;
@@ -34,20 +30,23 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.tasks.ComTask;
+
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.google.common.base.Optional;
 import org.fest.assertions.core.Condition;
-import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import org.junit.*;
+
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the ComTaskExecutionImpl component
@@ -1161,26 +1160,6 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
         ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device);
         assertThat(reloadedComTaskExecution.getNextExecutionTimestamp()).isNull();
         assertThat(reloadedComTaskExecution.getPlannedNextExecutionTimestamp()).isNull();
-    }
-
-    @Test
-    @Transactional
-    public void deleteComTaskExecutionDeletesComTaskExecutionSessionsTest() {
-        ComTaskExecutionDependant comTaskExecutionDependant = mock(ComTaskExecutionDependant.class);
-        when(Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(ComTaskExecutionDependant.class)).thenReturn(Arrays.asList(comTaskExecutionDependant));
-
-        ComTaskEnablement comTaskEnablement = createMockedComTaskEnablement(true);
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "DeletionTest", "DeletionTest");
-        ComTaskExecution.ComTaskExecutionBuilder comTaskExecutionBuilder = device.getComTaskExecutionBuilder(comTaskEnablement);
-        comTaskExecutionBuilder.add();
-        device.save();
-
-        ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device);
-        long comTaskExecId = reloadedComTaskExecution.getId();
-
-        device.delete();
-
-        verify(comTaskExecutionDependant).comTaskExecutionDeleted(any(ComTaskExecution.class));
     }
 
     @Test
