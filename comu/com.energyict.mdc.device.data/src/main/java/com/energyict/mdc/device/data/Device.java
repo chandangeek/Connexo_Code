@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.util.time.Interval;
+
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TypedProperties;
@@ -12,6 +13,8 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
+import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.data.impl.DeviceImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -29,6 +32,7 @@ import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.DeviceMultiplier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
+import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import java.util.Date;
 import java.util.List;
@@ -64,6 +68,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     @Override
     public Device getPhysicalGateway();
 
+    public Device getPhysicalGateway(Date timestamp);
+
     /**
      * Get the Device which is used for <i>communication</i><br>
      * <i>Note that this can be another device than the physical gateway</i>
@@ -71,6 +77,14 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      * @return the Device which is used to communicate with the HeadEnd
      */
     public Device getCommunicationGateway();
+
+    /**
+     * Get the Device which was used for <i>communication</i> on the specified Date<br>
+     * <i>Note that this can be another device than the physical gateway</i>
+     *
+     * @return the Device which is used to communicate with the HeadEnd
+     */
+    public Device getCommunicationGateway(Date timestamp);
 
     /**
      * Set the device which will be used to communicate with the HeadEnd.<br>
@@ -84,14 +98,63 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      */
     void clearCommunicationGateway();
 
+    @Override
+    List<Device> getPhysicalConnectedDevices();
+
     /**
-     * Gets the list of Devices which are reference to this Device for Communication.
+     * Gets the list of Devices which are referencing this Device for Communication.
      * This means that for each returned Device, the {@link #getCommunicationGateway()}
      * will return this Device for the current timestamp.
      *
      * @return the list of Devices which are currently linked to this Device for communication
      */
-    List<BaseDevice<Channel, LoadProfile, Register>> getCommunicationReferencingDevices();
+    List<Device> getCommunicationReferencingDevices();
+
+    /**
+     * Gets the list of Devices which are referencing this Device for Communication.
+     * This means that for each returned Device, the {@link #getCommunicationGateway()}
+     * will return this Device for the specified timestamp.
+     *
+     * @param timestamp The timestamp on which the devices were linked for communication to this Device
+     * @return the list of Devices which are currently linked to this Device for communication
+     */
+    List<Device> getCommunicationReferencingDevices(Date timestamp);
+
+    /**
+     * Gets the list of Devices which are, in the end, referencing this Device for Communication.
+     * The reference can be direct or indirect. When direct, the {@link #getCommunicationGateway()}
+     * will return this Device for the current timestamp. When indirect, the communication gateway
+     * for the current timestamp will be another Device that directly or indirectly references
+     * this Device for communication.
+     * In other words, this will return the complete communication topology for the current timestamp
+     * starting from this Device.
+     *
+     * @return the list of Devices which are currently linked to this Device for communication
+     */
+    List<Device> getAllCommunicationReferencingDevices();
+
+    /**
+     * Gets the list of Devices which are, in the end, referencing this Device for Communication.
+     * The reference can be direct or indirect. When direct, the {@link #getCommunicationGateway()}
+     * will return this Device for the current timestamp. When indirect, the communication gateway
+     * for the current timestamp will be another Device that directly or indirectly references
+     * this Device for communication.
+     * In other words, this will return the complete communication topology for the current timestamp
+     * starting from this Device.
+     *
+     * @param timestamp The timestamp on which the devices were linked for communication to this Device
+     * @return the list of Devices which are currently linked to this Device for communication
+     */
+    List<Device> getAllCommunicationReferencingDevices(Date timestamp);
+
+    /**
+     * Gets the {@link CommunicationTopologyEntry CommunicationTopologies} for this Device
+     * during the specified Interval, organized (or sorted) along the timeline.
+     *
+     * @param interval The Interval during which the devices were linked for communication to this Device
+     * @return The CommunicationTopologies
+     */
+    List<CommunicationTopologyEntry> getAllCommunicationTopologies(Interval interval);
 
     List<DeviceMessage> getMessages();
 
@@ -210,10 +273,10 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     /**
      * Provides a builder that allows the creation of a ScheduledConnectionTask for the Device
      *
-     * @param partialConnectionTask the partialConnectionTask that will model the actual ScheduledConnectionTask
+     * @param partialOutboundConnectionTask the partialConnectionTask that will model the actual ScheduledConnectionTask
      * @return the builder
      */
-    ScheduledConnectionTaskBuilder getScheduledConnectionTaskBuilder(PartialScheduledConnectionTask partialConnectionTask);
+    ScheduledConnectionTaskBuilder getScheduledConnectionTaskBuilder(PartialOutboundConnectionTask partialOutboundConnectionTask);
 
     /**
      * Provides a builder that allows the creation of an InboundConnectionTask for the Device
@@ -233,6 +296,12 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
 
     List<ConnectionTask<?, ?>> getConnectionTasks();
+
+    List<ConnectionInitiationTask> getConnectionInitiationTasks();
+
+    List<ScheduledConnectionTask> getScheduledConnectionTasks();
+
+    List<InboundConnectionTask> getInboundConnectionTasks();
 
     void removeConnectionTask(ConnectionTask<?, ?> connectionTask);
 
@@ -263,6 +332,16 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     public DeviceImpl.ScheduledComTaskExecutionBuilderForDevice newScheduledComTaskExecution(ComTaskEnablement comTaskEnablement);
 
     public DeviceImpl.AdHocComTaskExecutionBuilderForDevice newAdHocComTaskExecution(ComTaskEnablement comTaskEnablement);
+
+    List<SecurityProperty> getSecurityProperties(SecurityPropertySet securityPropertySet);
+
+    /**
+     * Indicates if there are properties for the device and the passed securityPropertySet.
+     *
+     * @param securityPropertySet The SecurityPropertySet
+     * @return A flag that indicates if this Device has properties for the SecurityPropertySet
+     */
+    boolean hasSecurityProperties(SecurityPropertySet securityPropertySet);
 
     /**
      * Builder that support basic value setters for a ScheduledConnectionTask

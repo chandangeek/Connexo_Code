@@ -23,6 +23,7 @@ public enum EventType {
     DEVICE_CREATED("device/CREATED"),
     DEVICE_DELETED("device/DELETED"),
     DEVICE_UPDATED("device/UPDATED"),
+    DEVICE_BEFORE_DELETE("device/BEFORE_DELETE"),
     LOADPROFILE_CREATED("loadprofile/CREATED"),
     LOADPROFILE_DELETED("loadprofile/DELETED"),
     LOADPROFILE_UPDATED("loadprofile/UPDATED"),

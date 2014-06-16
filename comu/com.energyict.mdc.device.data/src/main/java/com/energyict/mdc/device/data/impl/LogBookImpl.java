@@ -7,11 +7,9 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.device.data.impl.offline.OfflineLogBookImpl;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
+import com.energyict.mdc.masterdata.LogBookType;
 
 import javax.inject.Inject;
 import java.util.Date;
@@ -78,11 +76,6 @@ public class LogBookImpl implements LogBook {
     @Override
     public LogBookType getLogBookType() {
         return getLogBookSpec().getLogBookType();
-    }
-
-    @Override
-    public OfflineLogBook goOffline() {
-        return new OfflineLogBookImpl(this);
     }
 
     abstract static class LogBookUpdater implements LogBook.LogBookUpdater {

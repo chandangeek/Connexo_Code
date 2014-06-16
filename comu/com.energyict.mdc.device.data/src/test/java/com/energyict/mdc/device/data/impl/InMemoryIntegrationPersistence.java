@@ -6,6 +6,8 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.license.License;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.impl.MeteringModule;
@@ -29,13 +31,19 @@ import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.BusinessEventManager;
+import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.impl.MdcCommonModule;
-import com.energyict.mdc.common.license.License;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
+import com.energyict.mdc.device.data.impl.finders.ConnectionMethodFinder;
+import com.energyict.mdc.device.data.impl.finders.ProtocolDialectPropertiesFinder;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
+import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
@@ -45,18 +53,23 @@ import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
-import com.energyict.mdc.protocol.pluggable.LicenseServer;
+import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
+import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
+import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
@@ -66,10 +79,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -82,7 +97,6 @@ public class InMemoryIntegrationPersistence {
 
     public static final String JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME = "jupiter.bootstrap.module";
 
-    private License license;
     private BundleContext bundleContext;
     private Principal principal;
     private EventAdmin eventAdmin;
@@ -100,11 +114,15 @@ public class InMemoryIntegrationPersistence {
     private MeteringService meteringService;
     private DataModel dataModel;
     private ApplicationContext applicationContext;
-    private ProtocolPluggableService protocolPluggableService;
+    private ProtocolPluggableServiceImpl protocolPluggableService;
     private MdcReadingTypeUtilService readingTypeUtilService;
     private TaskService taskService;
     private DeviceDataServiceImpl deviceDataService;
     private SchedulingService schedulingService;
+    private InMemoryBootstrapModule bootstrapModule;
+    private PropertySpecService propertySpecService;
+    private LicenseService licenseService;
+    private LicensedProtocolService licensedProtocolService;
 
     public InMemoryIntegrationPersistence() {
         this(new DefaultClock());
@@ -115,9 +133,16 @@ public class InMemoryIntegrationPersistence {
         this.clock = clock;
     }
 
-    public void initializeDatabase(String testName, boolean showSqlLogging, boolean createMasterData) throws SQLException {
+    public void initializeDatabase(String testName, boolean showSqlLogging) throws SQLException {
         this.initializeMocks(testName);
-        InMemoryBootstrapModule bootstrapModule = new InMemoryBootstrapModule();
+        bootstrapModule = new InMemoryBootstrapModule();
+        licensedProtocolService = mock(LicensedProtocolService.class);
+        License license = mock(License.class);
+        when(licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.of(license));
+        when(licensedProtocolService.isValidJavaClassName(anyString(), eq(license))).thenReturn(true);
+        Properties properties = new Properties();
+        properties.put("protocols", "all");
+        when(license.getLicensedValues()).thenReturn(properties);
         Injector injector = Guice.createInjector(
                 new MockModule(),
                 bootstrapModule,
@@ -144,8 +169,8 @@ public class InMemoryIntegrationPersistence {
                 new DeviceConfigurationModule(),
                 new MdcCommonModule(),
                 new TasksModule(),
-                new SchedulingModule(),
-                new DeviceDataModule());
+                new DeviceDataModule(),
+                new SchedulingModule());
         BusinessEventManager eventManager = mock(BusinessEventManager.class);
         when(this.applicationContext.createEventManager()).thenReturn(eventManager);
         this.transactionService = injector.getInstance(TransactionService.class);
@@ -165,20 +190,28 @@ public class InMemoryIntegrationPersistence {
             this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
             this.engineModelService = injector.getInstance(EngineModelService.class);
             this.relationService = injector.getInstance(RelationService.class);
-            this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
+            this.protocolPluggableService = (ProtocolPluggableServiceImpl) injector.getInstance(ProtocolPluggableService.class);
+            this.protocolPluggableService.addLicensedProtocolService(this.licensedProtocolService);
             this.schedulingService = injector.getInstance(SchedulingService.class);
             this.deviceDataService = injector.getInstance(DeviceDataServiceImpl.class);
+            this.propertySpecService = injector.getInstance(PropertySpecService.class);
             this.dataModel = this.deviceDataService.getDataModel();
+            initializeFactoryProviders();
             ctx.commit();
         }
         createOracleAliases();
-        this.initializeLicense();
     }
 
-    private void initializeLicense() {
-        this.license = mock(License.class);
-        when(this.license.hasAllProtocols()).thenReturn(true);
-        LicenseServer.licenseHolder.set(this.license);
+    private void initializeFactoryProviders() {
+        ((PropertySpecServiceImpl) getPropertySpecService()).addFactoryProvider(new ReferencePropertySpecFinderProvider() {
+            @Override
+            public List<CanFindByLongPrimaryKey<? extends HasId>> finders() {
+                List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
+                finders.add(new ConnectionMethodFinder(dataModel));
+                finders.add(new ProtocolDialectPropertiesFinder(dataModel));
+                return finders;
+            }
+        });
     }
 
     public void run(DataModelInitializer... dataModelInitializers) {
@@ -219,6 +252,8 @@ public class InMemoryIntegrationPersistence {
         when(translator.getTranslation(anyString())).thenReturn("Translation missing in unit testing");
         when(translator.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
         when(this.applicationContext.getTranslator()).thenReturn(translator);
+        this.licenseService = mock(LicenseService.class);
+        when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>absent());
     }
 
     public void cleanUpDataBase() throws SQLException {
@@ -229,6 +264,7 @@ public class InMemoryIntegrationPersistence {
                 deactivate(bootstrapModule);
             }
         }
+        Environment.DEFAULT.get().close();
     }
 
     private void deactivate(Object bootstrapModule) {
@@ -282,6 +318,10 @@ public class InMemoryIntegrationPersistence {
         return deviceDataService;
     }
 
+    public SchedulingService getSchedulingService() {
+        return schedulingService;
+    }
+
     public Clock getClock() {
         return clock;
     }
@@ -294,8 +334,8 @@ public class InMemoryIntegrationPersistence {
         return taskService;
     }
 
-    public SchedulingService getSchedulingService() {
-        return schedulingService;
+    public PropertySpecService getPropertySpecService() {
+        return propertySpecService;
     }
 
     public static String query(String sql) {
@@ -333,6 +373,7 @@ public class InMemoryIntegrationPersistence {
             bind(BeanService.class).toInstance(new BeanServiceImpl());
             bind(Clock.class).toInstance(clock);
             bind(EventAdmin.class).toInstance(eventAdmin);
+            bind(LicenseService.class).toInstance(licenseService);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(DataModel.class).toProvider(new Provider<DataModel>() {
                 @Override

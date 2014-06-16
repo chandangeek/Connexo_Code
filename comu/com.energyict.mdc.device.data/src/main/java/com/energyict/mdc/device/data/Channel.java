@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data;
 
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 
 /**
  * Copyrights EnergyICT
@@ -9,6 +10,9 @@ import com.energyict.mdc.protocol.api.device.BaseChannel;
  * Time: 11:43 AM
  */
 public interface Channel extends BaseChannel{
+
+    @Override
+    Device getDevice();
 
     /**
      * Returns the configured interval in seconds.

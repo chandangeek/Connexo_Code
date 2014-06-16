@@ -1,7 +1,9 @@
 package com.energyict.mdc.device.data.exceptions;
 
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
+
+import com.energyict.mdc.device.data.DeviceDataService;
+
 import java.util.logging.Level;
 
 import static java.util.logging.Level.SEVERE;
@@ -57,6 +59,7 @@ public enum MessageSeeds implements MessageSeed {
     COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE(2030, Constants.COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE, "You can not make comtaskexecution {0} for device {1} obsolete because it is currently execution on comserver {2}", Level.SEVERE),
     COM_TASK_EXECUTION_CANNOT_DELETE_IF_NOT_FROM_DEVICE(2031, Constants.COM_TASK_EXECUTION_CANNOT_DELETE_IF_NOT_FROM_DEVICE, "You can not delete comtaskexecution {0} because it is not owned by device {1}", Level.SEVERE),
     VETO_COM_TASK_ENABLEMENT_DELETION(2032, Constants.VETO_COM_TASK_ENABLEMENT_DELETION, "The device protocol pluggable class {0} is still used by the following device types: {1}", SEVERE),
+    VETO_DEVICE_CONFIGURATION_DEACTIVATION(2033, Constants.VETO_DEVICE_CONFIGURATION_IN_USE_BY_DEVICES, "The device configuration {0} is still used by at least one device", SEVERE),
     ;
     private final int number;
     private final String key;
@@ -92,7 +95,7 @@ public enum MessageSeeds implements MessageSeed {
 
     @Override
     public String getModule() {
-        return DeviceConfigurationService.COMPONENTNAME;
+        return DeviceDataService.COMPONENTNAME;
     }
 
     public static class Constants {
@@ -142,6 +145,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE = "DDC.comTaskExecutionCannotObsoleteCurrentlyExecuting";
         public static final String COM_TASK_EXECUTION_CANNOT_DELETE_IF_NOT_FROM_DEVICE = "DDC.comTaskExecutionCannotDeleteNotFromDevice";
         public static final String VETO_COM_TASK_ENABLEMENT_DELETION = "DDC.comTaskExecution.comTaskEnablement.inUse";
+        public static final String VETO_DEVICE_CONFIGURATION_IN_USE_BY_DEVICES = "DDC.deviceConfiguration.inUse";
         public static final String CONNECTION_TASK_REQUIRED_WHEN_NOT_USING_DEFAULT = "DDC.connectionTaskRequiredWhenNotUsingDefault";
         public static final String PRIORITY_NOT_IN_RANGE = "DDC.priorityNotInRange";
         public static final String UNIQUE_COMTASKS_PER_DEVICE = "DDC.uniqueComTasksPerDevice";

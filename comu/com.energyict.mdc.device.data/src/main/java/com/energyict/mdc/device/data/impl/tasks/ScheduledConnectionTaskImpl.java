@@ -6,6 +6,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
@@ -54,7 +55,7 @@ import javax.validation.constraints.NotNull;
  * @since 2012-04-16 (11:07)
  */
 @ValidNextExecutionSpecsWithMinimizeConnectionsStrategy(groups = {Save.Create.class, Save.Update.class})
-public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<PartialScheduledConnectionTask> implements ScheduledConnectionTask {
+public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<PartialScheduledConnectionTask> implements ScheduledConnectionTask, PersistenceAware {
 
     private final SchedulingService schedulingService;
     private ComWindow comWindow;
@@ -93,7 +94,6 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
     @Override
     public void postLoad() {
-        super.postLoad();
         this.setCommunicationWindowToNullWhenEmpty();
     }
 
@@ -402,7 +402,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     @Override
-    protected void doExecutionAttemptFailed() throws SQLException, BusinessException {
+    protected void doExecutionAttemptFailed() {
         super.doExecutionAttemptFailed();
         this.schedule(this.calculateNextRetryExecutionTimestamp());
     }
@@ -419,7 +419,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     @Override
-    protected void doExecutionFailed() throws SQLException, BusinessException {
+    protected void doExecutionFailed() {
         super.doExecutionFailed();
         this.resetCurrentRetryCount();
         if(ConnectionStrategy.MINIMIZE_CONNECTIONS.equals(getConnectionStrategy())){

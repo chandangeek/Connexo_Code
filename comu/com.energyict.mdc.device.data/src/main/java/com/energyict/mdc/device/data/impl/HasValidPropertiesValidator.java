@@ -6,13 +6,12 @@ import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
 
 /**
  * Validates the {@link HasValidProperties} constraint against a {@link ProtocolDialectPropertiesImpl}.
@@ -70,15 +69,16 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
 
     @SuppressWarnings("unchecked")
     private void validatePropertyValue(String propertyName, Object propertyValue, DeviceProtocolDialect deviceProtocolDialect, ConstraintValidatorContext context) {
+        PropertySpec propertySpec=null;
         try {
-            PropertySpec propertySpec = deviceProtocolDialect.getPropertySpec(propertyName);
+            propertySpec = deviceProtocolDialect.getPropertySpec(propertyName);
             propertySpec.validateValue(propertyValue);
         }
         catch (InvalidValueException e) {
             context.disableDefaultConstraintViolation();
             context
                 .buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.DEVICE_PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE_KEY + "}")
-                .addPropertyNode("properties").addConstraintViolation();
+                .addPropertyNode("properties").addPropertyNode(propertySpec.getName()).addConstraintViolation();
             this.valid = false;
         }
     }
@@ -90,7 +90,7 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
                 context.disableDefaultConstraintViolation();
                 context
                     .buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.DEVICE_PROTOCOL_DIALECT_REQUIRED_PROPERTY_MISSING_KEY + "}")
-                    .addPropertyNode("properties").addConstraintViolation();
+                    .addPropertyNode("properties").addPropertyNode(propertySpec.getName()).addConstraintViolation();
                 this.valid = false;
             }
         }

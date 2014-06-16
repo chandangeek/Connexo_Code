@@ -1,5 +1,30 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.exceptions.CannotDeleteUsedDefaultConnectionTaskException;
+import com.energyict.mdc.device.data.exceptions.CannotUpdateObsoleteConnectionTaskException;
+import com.energyict.mdc.device.data.exceptions.ConnectionTaskIsAlreadyObsoleteException;
+import com.energyict.mdc.device.data.exceptions.ConnectionTaskIsExecutingAndCannotBecomeObsoleteException;
+import com.energyict.mdc.device.data.exceptions.DuplicateConnectionTaskException;
+import com.energyict.mdc.device.data.exceptions.IncompatiblePartialConnectionTaskException;
+import com.energyict.mdc.device.data.exceptions.MessageSeeds;
+import com.energyict.mdc.device.data.exceptions.PartialConnectionTaskNotPartOfDeviceConfigurationException;
+import com.energyict.mdc.device.data.impl.CreateEventType;
+import com.energyict.mdc.device.data.impl.DeleteEventType;
+import com.energyict.mdc.device.data.impl.PersistentIdObject;
+import com.energyict.mdc.device.data.impl.UpdateEventType;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.dynamic.relation.Relation;
+import com.energyict.mdc.engine.model.ComPortPool;
+import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
+
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -7,54 +32,22 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.device.data.PartialConnectionTaskFactory;
-import com.energyict.mdc.device.data.exceptions.CannotDeleteUsedDefaultConnectionTaskException;
-import com.energyict.mdc.device.data.exceptions.CannotUpdateObsoleteConnectionTaskException;
-import com.energyict.mdc.device.data.exceptions.ConnectionTaskIsAlreadyObsoleteException;
-import com.energyict.mdc.device.data.exceptions.ConnectionTaskIsExecutingAndCannotBecomeObsoleteException;
-import com.energyict.mdc.device.data.exceptions.DuplicateConnectionTaskException;
-import com.energyict.mdc.device.data.exceptions.IncompatiblePartialConnectionTaskException;
-import com.energyict.mdc.device.data.exceptions.LegacyException;
-import com.energyict.mdc.device.data.exceptions.MessageSeeds;
-import com.energyict.mdc.device.data.exceptions.PartialConnectionTaskNotPartOfDeviceConfigurationException;
-import com.energyict.mdc.device.data.impl.CreateEventType;
-import com.energyict.mdc.device.data.impl.DeleteEventType;
-import com.energyict.mdc.device.data.impl.PersistentIdObject;
-import com.energyict.mdc.device.data.impl.UpdateEventType;
-import com.energyict.mdc.device.data.journal.ComSession;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
-import com.energyict.mdc.device.data.tasks.TaskExecutionSummary;
-import com.energyict.mdc.dynamic.relation.Relation;
-import com.energyict.mdc.engine.model.ComPortPool;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
+
 import javax.inject.Provider;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -68,7 +61,7 @@ import static com.elster.jupiter.util.Checks.is;
 @HasValidProperties(groups = {Save.Create.class, Save.Update.class})
 public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPPT extends ComPortPool>
         extends PersistentIdObject<ConnectionTask>
-        implements ConnectionTask<CPPT, PCTT>, PersistenceAware {
+        implements ConnectionTask<CPPT, PCTT> {
 
     public static final String INITIATOR_DISCRIMINATOR = "0";
     public static final String INBOUND_DISCRIMINATOR = "1";
@@ -84,8 +77,6 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     private Device device;
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED_KEY + "}")
     private Reference<PCTT> partialConnectionTask = ValueReference.absent();
-    private List<ComSession> comSessions;
-    private ComSession lastComSession;
     private boolean isDefault = false;
     private boolean paused = false;
     private Date obsoleteDate;
@@ -119,11 +110,6 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         this.partialConnectionTask.set(partialConnectionTask);
         this.comPortPool.set(comPortPool);
         this.connectionMethod.set(this.connectionMethodProvider.get().initialize(this, partialConnectionTask.getPluggableClass(), comPortPool));
-    }
-
-    @Override
-    public void postLoad() {
-//        this.loadDevice();
     }
 
     private void validatePartialConnectionTaskType(PCTT partialConnectionTask) {
@@ -189,18 +175,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     protected void deleteDependents() {
-        try {
-            this.deleteComSessions();
             this.unRegisterConnectionTaskFromComTasks();
-        } catch (SQLException | BusinessException e) {
-            throw new LegacyException(this.getThesaurus(), e);
-        }
-    }
-
-    private void deleteComSessions() throws SQLException, BusinessException {
-        for (ComSession comSession : this.getComSessions()) {
-            comSession.delete();
-        }
     }
 
     /**
@@ -288,19 +263,6 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     protected abstract Class<PCTT> getPartialConnectionTaskType();
 
-    protected PCTT findPartialConnectionTask(long partialConnectionTaskId) {
-        if (partialConnectionTaskId != 0) {
-            List<PartialConnectionTaskFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(PartialConnectionTaskFactory.class);
-            for (PartialConnectionTaskFactory factory : factories) {
-                PartialConnectionTask partialConnectionTask = factory.findPartialConnectionTask(partialConnectionTaskId);
-                if (partialConnectionTask != null) {
-                    return (PCTT) partialConnectionTask;
-                }
-            }
-        }
-        return null;
-    }
-
     @Override
     protected void validateDelete() {
         if (this.isDefault()) {
@@ -331,7 +293,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     // Keep as reference for ConnectionTaskExecutionAspects implementation in the mdc.engine bundle
-    public void executionCompleted() throws SQLException, BusinessException {
+    public void executionCompleted() {
         this.doExecutionCompleted();
         this.post();
     }
@@ -371,21 +333,6 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     @Override
     public PCTT getPartialConnectionTask() {
         return this.partialConnectionTask.get();
-    }
-
-    @Override
-    public List<ComSession> getComSessions() {
-        // Todo: replace with ORM composition when ComSession is being ported
-        if (this.comSessions == null) {
-            this.comSessions = Collections.emptyList();
-        }
-        return comSessions;
-    }
-
-    @Override
-    public ComSession getLastComSession() {
-        // Todo: Search for the last ComSession by date.
-        return null;
     }
 
     @Override
@@ -575,40 +522,6 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     public void setXmlType(String ignore) {
         // For xml unmarshalling purposes only
-    }
-
-    @Override
-    public SuccessIndicator getSuccessIndicator() {
-        ComSession lastComSession = this.getLastComSession();
-        if (lastComSession == null) {
-            return SuccessIndicator.NOT_APPLICABLE;
-        } else {
-            if (lastComSession.wasSuccessful()) {
-                return SuccessIndicator.SUCCESS;
-            } else {
-                return SuccessIndicator.FAILURE;
-            }
-        }
-    }
-
-    @Override
-    public ComSession.SuccessIndicator getLastSuccessIndicator() {
-        ComSession lastComSession = this.getLastComSession();
-        if (lastComSession == null) {
-            return null;
-        } else {
-            return lastComSession.getSuccessIndicator();
-        }
-    }
-
-    @Override
-    public TaskExecutionSummary getLastTaskExecutionSummary() {
-        ComSession lastComSession = this.getLastComSession();
-        if (lastComSession == null) {
-            return null;
-        } else {
-            return lastComSession.getTaskExecutionSummary();
-        }
     }
 
     @Override

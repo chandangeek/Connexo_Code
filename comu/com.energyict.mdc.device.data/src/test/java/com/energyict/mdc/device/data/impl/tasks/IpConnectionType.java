@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.energyict.mdc.common.IdBusinessObjectFactory;
+import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
 import com.energyict.mdc.dynamic.PropertySpec;
@@ -10,8 +10,8 @@ import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
+
 import com.energyict.protocols.mdc.protocoltasks.ServerConnectionType;
 
 import java.util.Arrays;
@@ -30,25 +30,17 @@ public class IpConnectionType implements ServerConnectionType {
 
     public static final String IP_ADDRESS_PROPERTY_NAME = "ipAddress";
     public static final String PORT_PROPERTY_NAME = "port";
-    public static final String CODE_TABLE_PROPERTY_NAME = "codeTable";
     private static final int HASH_CODE = 35809; // Random prime number
-    private static IdBusinessObjectFactory<Code> codeTableFactory;
+
+    private PropertySpecService propertySpecService;
 
     public IpConnectionType () {
         super();
     }
 
-    public static IdBusinessObjectFactory<Code> getCodeTableFactory() {
-        return codeTableFactory;
-    }
-
-    public static void setCodeTableFactory(IdBusinessObjectFactory<Code> codeTableFactory) {
-        IpConnectionType.codeTableFactory = codeTableFactory;
-    }
-
     @Override
     public void setPropertySpecService(PropertySpecService propertySpecService) {
-
+        this.propertySpecService = propertySpecService;
     }
 
     @Override
@@ -74,13 +66,9 @@ public class IpConnectionType implements ServerConnectionType {
         return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(PORT_PROPERTY_NAME);
     }
 
-    private PropertySpec codeTablePropertySpec () {
-        return OptionalPropertySpecFactory.newInstance().referencePropertySpec(CODE_TABLE_PROPERTY_NAME, codeTableFactory);
-    }
-
-    @Override
+     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return Arrays.asList(this.ipAddressPropertySpec(), this.portNumberPropertySpec(), this.codeTablePropertySpec());
+        return Arrays.asList(this.ipAddressPropertySpec(), this.portNumberPropertySpec());
     }
 
     @Override
@@ -90,8 +78,6 @@ public class IpConnectionType implements ServerConnectionType {
                 return this.ipAddressPropertySpec();
             case PORT_PROPERTY_NAME:
                 return this.portNumberPropertySpec();
-            case CODE_TABLE_PROPERTY_NAME:
-                return this.codeTablePropertySpec();
             default:
                 return null;
         }

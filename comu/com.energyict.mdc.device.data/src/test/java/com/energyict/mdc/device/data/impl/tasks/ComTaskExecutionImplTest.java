@@ -1,16 +1,12 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
-import com.energyict.mdc.device.data.ComTaskExecutionDependant;
 import com.energyict.mdc.device.data.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.ServerComTaskExecution;
@@ -21,6 +17,7 @@ import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.impl.DeviceDataServiceImpl;
 import com.energyict.mdc.device.data.impl.InMemoryIntegrationPersistence;
 import com.energyict.mdc.device.data.impl.PersistenceIntegrationTest;
+import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
@@ -35,20 +32,22 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.tasks.ComTask;
+
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.google.common.base.Optional;
-import java.util.Arrays;
+import org.fest.assertions.core.Condition;
+
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
-import org.fest.assertions.core.Condition;
-import org.junit.Test;
+
+import org.junit.*;
 
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -147,9 +146,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
         ConnectionTypePluggableClass connectionTypePluggableClass = inMemoryPersistence.getProtocolPluggableService()
                 .newConnectionTypePluggableClass(NoParamsConnectionType.class.getSimpleName(), NoParamsConnectionType.class.getName());
         connectionTypePluggableClass.save();
-        return deviceConfiguration.getCommunicationConfiguration().
-                newPartialScheduledConnectionTask(
-                        "Outbound (1)", connectionTypePluggableClass, TimeDuration.minutes(5), ConnectionStrategy.AS_SOON_AS_POSSIBLE).
+        return deviceConfiguration.getCommunicationConfiguration().newPartialScheduledConnectionTask("Outbound (1)", connectionTypePluggableClass, TimeDuration.minutes(5), ConnectionStrategy.AS_SOON_AS_POSSIBLE).
                 comWindow(new ComWindow(0, 7200)).
                 build();
     }
@@ -778,7 +775,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
         ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         device.save();
 
-        InMemoryIntegrationPersistence.update("update MDCCOMTASKEXEC set comport = " + outboundComPort.getId() + " where id = " + comTaskExecution.getId());
+        InMemoryIntegrationPersistence.update("update " + TableSpecs.DDC_COMTASKEXEC.name() + " set comport = " + outboundComPort.getId() + " where id = " + comTaskExecution.getId());
 
         comTaskExecution.makeObsolete();
     }
@@ -796,7 +793,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
         ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         device.save();
 
-        InMemoryIntegrationPersistence.update("update mdcconnectiontask set comserver = " + comServer.getId() + " where id = " + connectionTask.getId());
+        InMemoryIntegrationPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set comserver = " + comServer.getId() + " where id = " + connectionTask.getId());
 
         comTaskExecution.makeObsolete();
     }
@@ -815,9 +812,9 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
         ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device);
         inMemoryPersistence.getDeviceDataService().setDefaultConnectionTask(connectionTask);
 
-        InMemoryIntegrationPersistence.update("update mdcconnectiontask set comserver = " + comServer.getId() + " where id = " + connectionTask.getId());
+        InMemoryIntegrationPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set comserver = " + comServer.getId() + "where id = " + connectionTask.getId());
 
-        comTaskExecution.makeObsolete();
+                comTaskExecution.makeObsolete();
     }
 
     @Test
@@ -913,8 +910,8 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
         ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         device.save();
 
-        InMemoryIntegrationPersistence.update("update mdccomtaskexec set " + ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName() + " = 1 where id = " + comTaskExecution.getId());
-        InMemoryIntegrationPersistence.update("update mdcconnectiontask set comserver = " + comServer.getId() + " where id = " + connectionTask.getId());
+        InMemoryIntegrationPersistence.update("update " + TableSpecs.DDC_COMTASKEXEC.name() + " set " + ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName() + " = 1 where id = " + comTaskExecution.getId());
+        InMemoryIntegrationPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set comserver = " + comServer.getId() + " where id = " + connectionTask.getId());
         ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device);
         assertThat(reloadedComTaskExecution.isExecuting()).isTrue();
     }
@@ -933,8 +930,8 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
         device.save();
 
         long future = inMemoryPersistence.getClock().now().getTime() + 1000000000000L;  // let's just hope it won't take that long until this test is finished
-        InMemoryIntegrationPersistence.update("update mdccomtaskexec set " + ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName() + " = " + future + " where id = " + comTaskExecution.getId());
-        InMemoryIntegrationPersistence.update("update mdcconnectiontask set comserver = " + comServer.getId() + " where id = " + connectionTask.getId());
+        InMemoryIntegrationPersistence.update("update " + TableSpecs.DDC_COMTASKEXEC.name() + " set " + ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName() + " = " + future + " where id = " + comTaskExecution.getId());
+        InMemoryIntegrationPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set comserver = " + comServer.getId() + " where id = " + connectionTask.getId());
         ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device);
         assertThat(reloadedComTaskExecution.isExecuting()).isFalse();
     }
@@ -1165,26 +1162,6 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
         ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device);
         assertThat(reloadedComTaskExecution.getNextExecutionTimestamp()).isNull();
         assertThat(reloadedComTaskExecution.getPlannedNextExecutionTimestamp()).isNull();
-    }
-
-    @Test
-    @Transactional
-    public void deleteComTaskExecutionDeletesComTaskExecutionSessionsTest() {
-        ComTaskExecutionDependant comTaskExecutionDependant = mock(ComTaskExecutionDependant.class);
-        when(Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(ComTaskExecutionDependant.class)).thenReturn(Arrays.asList(comTaskExecutionDependant));
-
-        ComTaskEnablement comTaskEnablement = createMockedComTaskEnablement(true);
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "DeletionTest", "DeletionTest");
-        ComTaskExecutionBuilder comTaskExecutionBuilder = device.getComTaskExecutionBuilder(comTaskEnablement);
-        comTaskExecutionBuilder.add();
-        device.save();
-
-        ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device);
-        long comTaskExecId = reloadedComTaskExecution.getId();
-
-        device.delete();
-
-        verify(comTaskExecutionDependant).comTaskExecutionDeleted(any(ComTaskExecution.class));
     }
 
     @Test

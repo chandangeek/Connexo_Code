@@ -69,7 +69,7 @@ public abstract class PersistenceIntegrationTest {
     public static void initialize() throws SQLException {
         initializeClock();
         inMemoryPersistence = new InMemoryIntegrationPersistence(clock);
-        inMemoryPersistence.initializeDatabase("PersistenceIntegrationTest.mdc.device.data", false, false);
+        inMemoryPersistence.initializeDatabase("PersistenceIntegrationTest.mdc.device.data", false);
     }
 
     @AfterClass

@@ -46,7 +46,7 @@ public class ComScheduleUpdatedMessageHandler implements MessageHandler {
         String topic = (String) messageProperties.get(EventConstants.EVENT_TOPIC);
         if (TOPIC.equals(topic)) {
             long comScheduleId = this.getLong("id", messageProperties);
-            try (PreparedStatement preparedStatement = this.dataModel.getConnection(true).prepareStatement("SELECT MIN(id), MAX(id) FROM " + TableSpecs.MDCCOMTASKEXEC.name() + " WHERE comschedule = ?")){
+            try (PreparedStatement preparedStatement = this.dataModel.getConnection(true).prepareStatement("SELECT MIN(id), MAX(id) FROM " + TableSpecs.DDC_COMTASKEXEC.name() + " WHERE comschedule = ?")){
                 ResultSet resultSet = preparedStatement.getResultSet();
                 resultSet.first();
                 long minId = resultSet.getLong(0);

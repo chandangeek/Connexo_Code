@@ -4,7 +4,6 @@ import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.device.data.journal.ComSession;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -32,7 +31,7 @@ import java.util.List;
  * establish a connection when the time is within the ComWindow.
  * This ComWindow is computed against the device's time zone.
  * <p/>
- * Each time a ConnectionTask is executed, a {@link ComSession}
+ * Each time a ConnectionTask is executed, a ComSession
  * is created that captures all the details of the communication with the device.
  * That communication overview is very imported and should not be deleted
  * easily. Therefore, ConnectionTasks are never deleted but made obsolete.
@@ -59,29 +58,6 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
          */
         CONNECTION_INITIATION}
 
-
-    /**
-     * Indicates the overall success of this ConnectionTask,
-     * relating to the overall success of the last {@link ComSession}.
-     *
-     * @see ComSession#wasSuccessful()
-     */
-    public enum SuccessIndicator {
-        /**
-         * Indicates that the last {@link ComSession} was successful.
-         */
-        SUCCESS,
-
-        /**
-         * Indicates that the last {@link ComSession} was <strong>NOT</strong> successful.
-         */
-        FAILURE,
-
-        /**
-         * Indicates that there is not last {@link ComSession}.
-         */
-        NOT_APPLICABLE;
-    }
 
     /**
      * Returns the object's unique identifier.
@@ -218,14 +194,6 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
     public void setComPortPool (CPPT comPortPool);
 
     /**
-     * Gets the List of {@link ComSession} that have already executed
-     * against this ConnectionTask.
-     *
-     * @return The List of CommSessions
-     */
-    public List<ComSession> getComSessions ();
-
-    /**
      * Keeps track of the last time a connection was started for this ConnectionTask.
      *
      * @return the date of the last connection start.
@@ -276,41 +244,6 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
      * This is the reverse operation of {@link #pause()}
      */
     public void resume();
-
-    /**
-     * Gets the {@link SuccessIndicator} of this ConnectionTask.
-     *
-     * @return The SuccessIndicator
-     */
-    public SuccessIndicator getSuccessIndicator ();
-
-    /**
-     * Gets the {@link ComSession.SuccessIndicator} of this ConnectionTask's
-     * last {@link ComSession} or <code>null</code> if this ConnectionTask
-     * has never before been executed and therefore no ComSession exists.
-     *
-     * @return The SuccessIndicator of the last ComSession or <code>null</code>
-     *         if there is no ComSession yet
-     */
-    public ComSession.SuccessIndicator getLastSuccessIndicator ();
-
-    /**
-     * Gets the {@link TaskExecutionSummary} of this ConnectionTask's
-     * last {@link ComSession} or <code>null</code> if this ConnectionTask
-     * has never before been executed and therefore no ComSession exists.
-     *
-     * @return The TaskExecutionSummary of the last ComSession or <code>null</code>
-     *         if there is no ComSession yet
-     */
-    public TaskExecutionSummary getLastTaskExecutionSummary ();
-
-    /**
-     * Gets this ConnectionTask's last {@link ComSession} or <code>null</code>
-     * if there are no ComSessions yet.
-     *
-     * @return The last ComSession or <code>null</code>
-     */
-    public ComSession getLastComSession ();
 
     public void save();
 

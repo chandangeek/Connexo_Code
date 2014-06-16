@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.impl.tasks;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.SqlBuilder;
+import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
@@ -39,11 +40,11 @@ public enum ServerConnectionTaskStatus {
         @Override
         public void completeFindBySqlBuilder(SqlBuilder sqlBuilder) {
             super.completeFindBySqlBuilder(sqlBuilder);
-            sqlBuilder.append("and (not exists (select * from mdccomtaskexec where mdcconnectiontask.id = mdccomtaskexec.connectiontask and comport is not null) ");
-            sqlBuilder.append("and mdcconnectiontask.comserver is null) ");
+            sqlBuilder.append("and (not exists (select * from " + TableSpecs.DDC_COMTASKEXEC.name() + " cte where mdcconnectiontask.id = cte.connectiontask and comport is not null) ");
+            sqlBuilder.append("and " + TableSpecs.DDC_CONNECTIONTASK.name() + ".comserver is null) ");
             sqlBuilder.append("and (   (discriminator = ? and paused = 1)");
             sqlBuilder.bindString(ConnectionTaskImpl.INBOUND_DISCRIMINATOR);
-            sqlBuilder.append("     or (discriminator = ? and (paused = 1 or mdcconnectiontask.nextExecutionTimestamp is null)))");
+            sqlBuilder.append("     or (discriminator = ? and (paused = 1 or " + TableSpecs.DDC_CONNECTIONTASK.name() + ".nextExecutionTimestamp is null)))");
             sqlBuilder.bindString(ConnectionTaskImpl.SCHEDULED_DISCRIMINATOR);
         }
 
@@ -76,8 +77,8 @@ public enum ServerConnectionTaskStatus {
         @Override
         public void completeFindBySqlBuilder(SqlBuilder sqlBuilder) {
             super.completeFindBySqlBuilder(sqlBuilder);
-            sqlBuilder.append("and (exists (select * from mdccomtaskexec where mdcconnectiontask.id = mdccomtaskexec.connectiontask and comport is not null)");
-            sqlBuilder.append("     or mdcconnectiontask.comserver is not null)");
+            sqlBuilder.append("and (exists (select * from " + TableSpecs.DDC_COMTASKEXEC.name() + " cte where mdcconnectiontask.id = cte.connectiontask and comport is not null)");
+            sqlBuilder.append("     or " + TableSpecs.DDC_CONNECTIONTASK.name() + ".comserver is not null)");
         }
 
     },
@@ -100,8 +101,8 @@ public enum ServerConnectionTaskStatus {
         @Override
         public void completeFindBySqlBuilder(SqlBuilder sqlBuilder) {
             super.completeFindBySqlBuilder(sqlBuilder);
-            sqlBuilder.append("and (not exists (select * from mdccomtaskexec where mdcconnectiontask.id = mdccomtaskexec.connectiontask and comport is not null) ");
-            sqlBuilder.append("     and mdcconnectiontask.comserver is null) ");
+            sqlBuilder.append("and (not exists (select * from " + TableSpecs.DDC_COMTASKEXEC.name() + " cte where mdcconnectiontask.id = cte.connectiontask and comport is not null) ");
+            sqlBuilder.append("     and " + TableSpecs.DDC_CONNECTIONTASK.name() + ".comserver is null) ");
             sqlBuilder.append("and paused = 0 ");
             sqlBuilder.append("and nextexecutiontimestamp <= ? ");
             sqlBuilder.bindLong(this.asSeconds(new Date()));
@@ -126,8 +127,8 @@ public enum ServerConnectionTaskStatus {
         @Override
         public void completeFindBySqlBuilder(SqlBuilder sqlBuilder) {
             super.completeFindBySqlBuilder(sqlBuilder);
-            sqlBuilder.append("and (not exists (select * from mdccomtaskexec where mdcconnectiontask.id = mdccomtaskexec.connectiontask and comport is not null)");
-            sqlBuilder.append("     and mdcconnectiontask.comserver is null) ");
+            sqlBuilder.append("and (not exists (select * from " + TableSpecs.DDC_COMTASKEXEC.name() + " cte where mdcconnectiontask.id = cte.connectiontask and comport is not null)");
+            sqlBuilder.append("     and " + TableSpecs.DDC_CONNECTIONTASK.name() + ".comserver is null) ");
             sqlBuilder.append("and paused = 0 ");
             sqlBuilder.append("and currentretrycount = 0 ");
             sqlBuilder.append("and nextexecutiontimestamp > ? ");
@@ -154,7 +155,7 @@ public enum ServerConnectionTaskStatus {
         @Override
         public void completeFindBySqlBuilder(SqlBuilder sqlBuilder) {
             super.completeFindBySqlBuilder(sqlBuilder);
-            sqlBuilder.append("and (not exists (select * from mdccomtaskexec where mdcconnectiontask.id = mdccomtaskexec.connectiontask and comport is not null)");
+            sqlBuilder.append("and (not exists (select * from " + TableSpecs.DDC_COMTASKEXEC.name() + " cte where mdcconnectiontask.id = cte.connectiontask and comport is not null)");
             sqlBuilder.append("     and mdcconnectiontask.comserver is null) ");
             sqlBuilder.append("and paused = 0 ");
             sqlBuilder.append("and currentretrycount > 0 ");
@@ -182,8 +183,8 @@ public enum ServerConnectionTaskStatus {
         @Override
         public void completeFindBySqlBuilder(SqlBuilder sqlBuilder) {
             super.completeFindBySqlBuilder(sqlBuilder);
-            sqlBuilder.append("and (not exists (select * from mdccomtaskexec where mdcconnectiontask.id = mdccomtaskexec.connectiontask and comport is not null)");
-            sqlBuilder.append("     and mdcconnectiontask.comserver is null) ");
+            sqlBuilder.append("and (not exists (select * from " + TableSpecs.DDC_COMTASKEXEC.name() + " cte where mdcconnectiontask.id = cte.connectiontask and comport is not null)");
+            sqlBuilder.append("     and " + TableSpecs.DDC_CONNECTIONTASK.name() + ".comserver is null) ");
             sqlBuilder.append("and paused = 0 ");
             sqlBuilder.append("and currentretrycount = 0 ");
             sqlBuilder.append("and lastExecutionFailed = 1 ");
@@ -212,8 +213,8 @@ public enum ServerConnectionTaskStatus {
         @Override
         public void completeFindBySqlBuilder(SqlBuilder sqlBuilder) {
             super.completeFindBySqlBuilder(sqlBuilder);
-            sqlBuilder.append("and (not exists (select * from mdccomtaskexec where mdcconnectiontask.id = mdccomtaskexec.connectiontask and comport is not null)");
-            sqlBuilder.append("     and mdcconnectiontask.comserver is null) ");
+            sqlBuilder.append("and (not exists (select * from " + TableSpecs.DDC_COMTASKEXEC.name() + " cte where mdcconnectiontask.id = cte.connectiontask and comport is not null)");
+            sqlBuilder.append("     and " + TableSpecs.DDC_CONNECTIONTASK.name() + ".comserver is null) ");
             sqlBuilder.append("and paused = 0 ");
             sqlBuilder.append("and currentretrycount = 0 ");
             sqlBuilder.append("and lastExecutionFailed = 0 ");

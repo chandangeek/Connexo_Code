@@ -17,7 +17,6 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.TemporalReference;
 import com.elster.jupiter.orm.associations.Temporals;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
@@ -37,10 +36,11 @@ import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.CommunicationTopologyEntry;
 import com.energyict.mdc.device.data.DefaultSystemTimeZoneFactory;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceCacheFactory;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.DeviceDependant;
 import com.energyict.mdc.device.data.DeviceInComSchedule;
@@ -56,9 +56,8 @@ import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationPropertiesIsRequiredException;
 import com.energyict.mdc.device.data.exceptions.StillGatewayException;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueMrid;
-import com.energyict.mdc.device.data.impl.offline.DeviceOffline;
-import com.energyict.mdc.device.data.impl.offline.OfflineDeviceImpl;
 import com.energyict.mdc.device.data.impl.tasks.AdHocComTaskExecutionImpl;
+import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
@@ -82,27 +81,34 @@ import com.energyict.mdc.protocol.api.device.BaseLogBook;
 import com.energyict.mdc.protocol.api.device.DeviceMultiplier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
+import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.scheduling.TemporalExpression;
+import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.google.common.base.Optional;
 import com.google.inject.Inject;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.TimeZone;
+
 import javax.inject.Provider;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TimeZone;
+
+import static com.elster.jupiter.util.Checks.is;
 
 @UniqueMrid(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_DEVICE_MRID + "}")
-public class DeviceImpl implements Device, PersistenceAware {
+public class DeviceImpl implements Device {
 
     enum Fields {
         COM_SCHEDULE_USAGES("comScheduleUsages");
@@ -123,6 +129,8 @@ public class DeviceImpl implements Device, PersistenceAware {
     private final Clock clock;
     private final MeteringService meteringService;
     private final DeviceDataService deviceDataService;
+    private final SecurityPropertyService securityPropertyService;
+
     private final List<LoadProfile> loadProfiles = new ArrayList<>();
     private final List<LogBook> logBooks = new ArrayList<>();
     private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
@@ -149,9 +157,9 @@ public class DeviceImpl implements Device, PersistenceAware {
     @Valid
     private List<DeviceProtocolProperty> deviceProperties = new ArrayList<>();
     @Valid
-    private List<ConnectionTaskImpl<?,?>> connectionTasks = new ArrayList<>();
+    private List<ConnectionTaskImpl<?, ?>> connectionTasks;
     @Valid
-    private List<ComTaskExecutionImpl> comTaskExecutions = new ArrayList<>();
+    private List<ComTaskExecutionImpl> comTaskExecutions;
     @Valid
     private List<ProtocolDialectProperties> dialectPropertiesList = new ArrayList<>();
     private List<ProtocolDialectProperties> newDialectProperties = new ArrayList<>();
@@ -171,6 +179,7 @@ public class DeviceImpl implements Device, PersistenceAware {
                       Clock clock,
                       MeteringService meteringService,
                       DeviceDataService deviceDataService,
+                      SecurityPropertyService securityPropertyService,
                       Provider<ScheduledConnectionTaskImpl> scheduledConnectionTaskProvider,
                       Provider<InboundConnectionTaskImpl> inboundConnectionTaskProvider,
                       Provider<ConnectionInitiationTaskImpl> connectionInitiationTaskProvider,
@@ -183,6 +192,7 @@ public class DeviceImpl implements Device, PersistenceAware {
         this.clock = clock;
         this.meteringService = meteringService;
         this.deviceDataService = deviceDataService;
+        this.securityPropertyService = securityPropertyService;
         this.scheduledConnectionTaskProvider = scheduledConnectionTaskProvider;
         this.inboundConnectionTaskProvider = inboundConnectionTaskProvider;
         this.connectionInitiationTaskProvider = connectionInitiationTaskProvider;
@@ -208,14 +218,20 @@ public class DeviceImpl implements Device, PersistenceAware {
     }
 
     private void saveAllComTaskExecutions() {
-        for (ComTaskExecutionImpl comTaskExecution : comTaskExecutions) {
-            comTaskExecution.save();
+        if (this.comTaskExecutions != null) {
+            // No need to call the getComTaskExecutionImpls getter because if they have not been loaded before, they cannot be dirty
+            for (ComTaskExecutionImpl comTaskExecution : comTaskExecutions) {
+                comTaskExecution.save();
+            }
         }
     }
 
     private void saveAllConnectionTasks() {
-        for (ConnectionTaskImpl<?,?> connectionTask : connectionTasks) {
-            connectionTask.save();
+        if (this.connectionTasks != null) {
+            // No need to call the getConnectionTaskImpls getter because if they have not been loaded before, they cannot be dirty
+            for (ConnectionTaskImpl<?, ?> connectionTask : connectionTasks) {
+                connectionTask.save();
+            }
         }
     }
 
@@ -241,7 +257,7 @@ public class DeviceImpl implements Device, PersistenceAware {
         }
     }
 
-    private void save (ProtocolDialectPropertiesImpl dialectProperties) {
+    private void save(ProtocolDialectPropertiesImpl dialectProperties) {
         dialectProperties.save();
     }
 
@@ -275,11 +291,10 @@ public class DeviceImpl implements Device, PersistenceAware {
 
     private void doDelete() {
         deleteProperties();
-        deleteCache();
         deleteLoadProfiles();
         deleteLogBooks();
-        deleteConnectionTasks();
         deleteComTaskExecutions();
+        deleteConnectionTasks();
         // TODO delete messages
         this.getDataMapper().remove(this);
     }
@@ -291,7 +306,7 @@ public class DeviceImpl implements Device, PersistenceAware {
     }
 
     private void deleteConnectionTasks() {
-        for (ConnectionTaskImpl<?,?> connectionTask : connectionTasks) {
+        for (ConnectionTaskImpl<?, ?> connectionTask : this.getConnectionTaskImpls()) {
             connectionTask.delete();
         }
     }
@@ -304,13 +319,6 @@ public class DeviceImpl implements Device, PersistenceAware {
         this.loadProfiles.clear();
     }
 
-    private void deleteCache() {
-        List<DeviceCacheFactory> deviceCacheFactories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceCacheFactory.class);
-        if (!deviceCacheFactories.isEmpty()) {
-            deviceCacheFactories.get(0).removeDeviceCacheFor(getId());
-        }
-    }
-
     private void deleteProperties() {
         this.deviceProperties.clear();
     }
@@ -320,11 +328,11 @@ public class DeviceImpl implements Device, PersistenceAware {
     }
 
     private void validateGatewayUsage() {
-        List<BaseDevice<Channel, LoadProfile, Register>> physicalConnectedDevices = getPhysicalConnectedDevices();
+        List<Device> physicalConnectedDevices = getPhysicalConnectedDevices();
         if (!physicalConnectedDevices.isEmpty()) {
             throw StillGatewayException.forPhysicalGateway(thesaurus, this, physicalConnectedDevices.toArray(new Device[physicalConnectedDevices.size()]));
         }
-        List<BaseDevice<Channel, LoadProfile, Register>> communicationReferencingDevices = getCommunicationReferencingDevices();
+        List<Device> communicationReferencingDevices = getCommunicationReferencingDevices();
         if (!communicationReferencingDevices.isEmpty()) {
             throw StillGatewayException.forCommunicationGateway(thesaurus, this, communicationReferencingDevices.toArray(new Device[communicationReferencingDevices.size()]));
 
@@ -467,13 +475,18 @@ public class DeviceImpl implements Device, PersistenceAware {
     }
 
     @Override
-    public List<BaseDevice<Channel, LoadProfile, Register>> getPhysicalConnectedDevices() {
+    public List<Device> getPhysicalConnectedDevices() {
         return this.deviceDataService.findPhysicalConnectedDevicesFor(this);
     }
 
     @Override
     public Device getPhysicalGateway() {
-        Optional<PhysicalGatewayReference> physicalGatewayReferenceOptional = this.physicalGatewayReferenceDevice.effective(clock.now());
+        return this.getPhysicalGateway(this.clock.now());
+    }
+
+    @Override
+    public Device getPhysicalGateway(Date timestamp) {
+        Optional<PhysicalGatewayReference> physicalGatewayReferenceOptional = this.physicalGatewayReferenceDevice.effective(timestamp);
         if (physicalGatewayReferenceOptional.isPresent()) {
             return physicalGatewayReferenceOptional.get().getPhysicalGateway();
         }
@@ -483,11 +496,11 @@ public class DeviceImpl implements Device, PersistenceAware {
     private void topologyChanged() {
         List<ComTaskExecution> comTasksForDefaultConnectionTask = this.deviceDataService.findComTasksByDefaultConnectionTask(this);
         Device gateway = this.getPhysicalGateway();
-            if (gateway != null) {
-                updateComTasksToUseNewDefaultConnectionTask(comTasksForDefaultConnectionTask);
-            } else {
-                updateComTasksToUseNonExistingDefaultConnectionTask(comTasksForDefaultConnectionTask);
-            }
+        if (gateway != null) {
+            updateComTasksToUseNewDefaultConnectionTask(comTasksForDefaultConnectionTask);
+        } else {
+            updateComTasksToUseNonExistingDefaultConnectionTask(comTasksForDefaultConnectionTask);
+        }
 
     }
 
@@ -500,8 +513,8 @@ public class DeviceImpl implements Device, PersistenceAware {
         }
     }
 
-    private void updateComTasksToUseNewDefaultConnectionTask(List<ComTaskExecution> comTasksForDefaultConnectionTask){
-        ConnectionTask<?,?> defaultConnectionTaskForGateway = getDefaultConnectionTask();
+    private void updateComTasksToUseNewDefaultConnectionTask(List<ComTaskExecution> comTasksForDefaultConnectionTask) {
+        ConnectionTask<?, ?> defaultConnectionTaskForGateway = getDefaultConnectionTask();
         for (ComTaskExecution comTaskExecution : comTasksForDefaultConnectionTask) {
             ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?,?>, ? extends ComTaskExecution> comTaskExecutionUpdater = getComTaskExecutionUpdater(comTaskExecution);
             comTaskExecutionUpdater.setUseDefaultConnectionTask(defaultConnectionTaskForGateway);
@@ -510,8 +523,8 @@ public class DeviceImpl implements Device, PersistenceAware {
     }
 
     private ConnectionTask<?, ?> getDefaultConnectionTask() {
-        for (ConnectionTaskImpl<?, ?> connectionTask : connectionTasks) {
-            if(connectionTask.isDefault()){
+        for (ConnectionTaskImpl<?, ?> connectionTask : this.getConnectionTaskImpls()) {
+            if (connectionTask.isDefault()) {
                 return connectionTask;
             }
         }
@@ -572,13 +585,137 @@ public class DeviceImpl implements Device, PersistenceAware {
     }
 
     @Override
-    public List<BaseDevice<Channel, LoadProfile, Register>> getCommunicationReferencingDevices() {
+    public List<Device> getCommunicationReferencingDevices() {
         return this.deviceDataService.findCommunicationReferencingDevicesFor(this);
     }
 
     @Override
+    public List<Device> getCommunicationReferencingDevices(Date timestamp) {
+        return this.deviceDataService.findCommunicationReferencingDevicesFor(this, timestamp);
+    }
+
+    @Override
+    public List<Device> getAllCommunicationReferencingDevices() {
+        return this.getAllCommunicationReferencingDevices(this.clock.now());
+    }
+
+    @Override
+    public List<Device> getAllCommunicationReferencingDevices(Date timestamp) {
+        Map<Long, Device> allDevicesInTopology = new HashMap<>();
+        this.collectAllCommunicationReferencingDevices(timestamp, this, allDevicesInTopology);
+        return new ArrayList<>(allDevicesInTopology.values());
+    }
+
+    private void collectAllCommunicationReferencingDevices(Date timestamp, Device topologyRoot, Map<Long, Device> devices) {
+        for (Device device : topologyRoot.getCommunicationReferencingDevices(timestamp)) {
+            if (!devices.containsKey(device.getId())) {
+                // The device was not encountered yet, recursive call
+                devices.put(device.getId(), device);
+                this.collectAllCommunicationReferencingDevices(timestamp, device, devices);
+            }
+        }
+    }
+
+    @Override
+    public List<CommunicationTopologyEntry> getAllCommunicationTopologies(Interval interval) {
+        CommunicationTopology communicationTopology = this.buildCommunicationTopology(this, interval);
+        return this.toSortedCommunicationTopologyEntries(communicationTopology);
+    }
+
+    /**
+     * Collects the {@link CommunicationTopologyEntry CommunicationTopologies} for the specified Interval
+     * for the target {@link Device} that is part of the communication topology governed by the root device.
+     *
+     * @param root     The root of the CommunicationTopology
+     * @param interval The Interval
+     * @return The CommunicationTopology
+     */
+    private CommunicationTopology buildCommunicationTopology(Device root, Interval interval) {
+        List<CommunicationTopologyEntry> firstLevelTopologyEntries = this.deviceDataService.findCommunicationReferencingDevicesFor(root, interval);
+        Interval spanningInterval = this.intervalSpanOf(firstLevelTopologyEntries);
+        CommunicationTopology topology = new CommunicationTopologyImpl(root, interval.intersection(spanningInterval));
+        for (CommunicationTopologyEntry firstLevelTopologyEntry : firstLevelTopologyEntries) {
+            for (Device device : firstLevelTopologyEntry.getDevices()) {
+                topology.addChild(this.buildCommunicationTopology(device, interval.intersection(firstLevelTopologyEntry.getInterval())));
+            }
+        }
+        return topology;
+    }
+
+    private Interval intervalSpanOf(List<CommunicationTopologyEntry> topologyEntries) {
+        Date earliestStartDate = this.earliestStartDate(topologyEntries);
+        Date latestEndDate = this.latestEndDate(topologyEntries);
+        return new Interval(earliestStartDate, latestEndDate);
+    }
+
+    private Date earliestStartDate(List<CommunicationTopologyEntry> topologyEntries) {
+        if (!topologyEntries.isEmpty()) {
+            return Collections.min(this.startDatesOfAll(topologyEntries), new MinDateComparator());
+        } else {
+            return null;
+        }
+    }
+
+    private Collection<? extends Date> startDatesOfAll(List<CommunicationTopologyEntry> topologyEntries) {
+        Collection<Date> startDates = new ArrayList<>(topologyEntries.size());
+        for (CommunicationTopologyEntry topologyEntry : topologyEntries) {
+            startDates.add(topologyEntry.getInterval().getStart());
+        }
+        return startDates;
+    }
+
+    private Date latestEndDate(List<CommunicationTopologyEntry> topologyEntries) {
+        if (!topologyEntries.isEmpty()) {
+            return Collections.max(this.endDatesOfAll(topologyEntries), new MaxDateComparator());
+        } else {
+            return null;
+        }
+    }
+
+    private Collection<? extends Date> endDatesOfAll(List<CommunicationTopologyEntry> topologyEntries) {
+        Collection<Date> endDates = new ArrayList<>(topologyEntries.size());
+        for (CommunicationTopologyEntry topologyEntry : topologyEntries) {
+            endDates.add(topologyEntry.getInterval().getEnd());
+        }
+        return endDates;
+    }
+
+    private List<CommunicationTopologyEntry> toSortedCommunicationTopologyEntries(CommunicationTopology communicationTopology) {
+        CommunicationTopologyEntryMerger merger = new CommunicationTopologyEntryMerger();
+        for (CommunicationTopology firstLevelTopology : communicationTopology.getChildren()) {
+            this.addCommunicationTopologyEntries(firstLevelTopology, merger);
+        }
+        List<CommunicationTopologyEntry> entries = new ArrayList<>();
+        for (CompleteCommunicationTopologyEntryImpl entry : merger.getEntries()) {
+            entries.add(entry);
+        }
+        Collections.sort(entries, new CommunicationTopologyEntryComparator());
+        return entries;
+    }
+
+    private void addCommunicationTopologyEntries(CommunicationTopology topology, CommunicationTopologyEntryMerger merger) {
+        if (topology.isLeaf()) {
+            merger.add(new CompleteCommunicationTopologyEntryImpl(topology.getInterval(), topology.getRoot()));
+        } else {
+            CommunicationTopologyEntryMerger nestedMerger = new CommunicationTopologyEntryMerger();
+            for (CommunicationTopology childTopology : topology.getChildren()) {
+                this.addCommunicationTopologyEntries(childTopology, nestedMerger);
+            }
+            for (CompleteCommunicationTopologyEntryImpl childEntry : nestedMerger.getEntries()) {
+                childEntry.add(topology.getRoot());
+                merger.add(childEntry);
+            }
+        }
+    }
+
+    @Override
     public Device getCommunicationGateway() {
-        Optional<CommunicationGatewayReference> communicationGatewayReferenceOptional = this.communicationGatewayReferenceDevice.effective(clock.now());
+        return this.getCommunicationGateway(this.clock.now());
+    }
+
+    @Override
+    public Device getCommunicationGateway(Date timestamp) {
+        Optional<CommunicationGatewayReference> communicationGatewayReferenceOptional = this.communicationGatewayReferenceDevice.effective(timestamp);
         if (communicationGatewayReferenceOptional.isPresent()) {
             return communicationGatewayReferenceOptional.get().getCommunicationGateway();
         }
@@ -613,36 +750,6 @@ public class DeviceImpl implements Device, PersistenceAware {
     @Override
     public LogBook.LogBookUpdater getLogBookUpdaterFor(LogBook logBook) {
         return new LogBookUpdaterForDevice((LogBookImpl) logBook);
-    }
-
-    @Override
-    public void postLoad() {
-        loadConnectionTasks();
-        loadComTaskExecutions();
-    }
-
-    private void loadComTaskExecutions() {
-        this.comTaskExecutions = getComTAskExecutionImpls();
-    }
-
-    private List<ComTaskExecutionImpl> getComTAskExecutionImpls() {
-        List<ComTaskExecutionImpl> comTaskExecutionImpls = new ArrayList<>();
-        for (ComTaskExecution comTaskExecution : this.deviceDataService.findComTaskExecutionsByDevice(this)) {
-            comTaskExecutionImpls.add((ComTaskExecutionImpl) comTaskExecution);
-        }
-        return comTaskExecutionImpls;
-    }
-
-    private void loadConnectionTasks() {
-        this.connectionTasks = getConnectionTaskImpls();
-    }
-
-    private List<ConnectionTaskImpl<?,?>> getConnectionTaskImpls() {
-        List<ConnectionTaskImpl<?,?>> connectionTaskImpls = new ArrayList<>();
-        for (ConnectionTask connectionTask : this.deviceDataService.findConnectionTasksByDevice(this)) {
-            connectionTaskImpls.add((ConnectionTaskImpl<?,?>) connectionTask);
-        }
-        return connectionTaskImpls;
     }
 
     class LogBookUpdaterForDevice extends LogBookImpl.LogBookUpdater {
@@ -708,8 +815,7 @@ public class DeviceImpl implements Device, PersistenceAware {
         ProtocolDialectProperties dialectProperties = this.getProtocolDialectPropertiesFrom(dialectName, this.dialectPropertiesList);
         if (dialectProperties != null) {
             return dialectProperties;
-        }
-        else {
+        } else {
             // Attempt to find the dialect properties in the list of new ones that have not been saved yet
             return this.getProtocolDialectPropertiesFrom(dialectName, this.newDialectProperties);
         }
@@ -733,12 +839,10 @@ public class DeviceImpl implements Device, PersistenceAware {
                 dialectProperties = this.dataModel.getInstance(ProtocolDialectPropertiesImpl.class).initialize(this, configurationProperties);
                 dialectProperties.setProperty(propertyName, value);
                 this.newDialectProperties.add(dialectProperties);
+            } else {
+                throw new ProtocolDialectConfigurationPropertiesIsRequiredException();
             }
-            else {
-                throw new ProtocolDialectConfigurationPropertiesIsRequiredException(this.thesaurus);
-            }
-        }
-        else {
+        } else {
             dialectProperties.setProperty(propertyName, value);
             this.dirtyDialectProperties.add(dialectProperties);
         }
@@ -771,8 +875,7 @@ public class DeviceImpl implements Device, PersistenceAware {
         if (dialectProperties.getId() == 0) {
             // Not persistent, must be in the list of new properties
             this.newDialectProperties.remove(dialectProperties);
-        }
-        else {
+        } else {
             // Persistent, remove if from the managed list of properties, which will delete it from the database
             this.dialectPropertiesList.remove(dialectProperties);
         }
@@ -893,16 +996,6 @@ public class DeviceImpl implements Device, PersistenceAware {
         return null;
     }
 
-    @Override
-    public OfflineDevice goOffline() {
-        return new OfflineDeviceImpl(this, DeviceOffline.needsEverything);
-    }
-
-    @Override
-    public OfflineDevice goOffline(OfflineDeviceContext context) {
-        return new OfflineDeviceImpl(this, context);
-    }
-
     public DataMapper<DeviceImpl> getDataMapper() {
         return this.dataModel.mapper(DeviceImpl.class);
     }
@@ -912,9 +1005,17 @@ public class DeviceImpl implements Device, PersistenceAware {
         return mRID;
     }
 
+    public String getExternalName() {
+        return mRID;
+    }
+
+    public void setExternalName(String externalName) {
+        this.mRID = externalName;
+    }
+
     @Override
-    public ScheduledConnectionTaskBuilder getScheduledConnectionTaskBuilder(PartialScheduledConnectionTask partialScheduledConnectionTask) {
-        return new ScheduledConnectionTaskBuilderForDevice(this, partialScheduledConnectionTask);
+    public ScheduledConnectionTaskBuilder getScheduledConnectionTaskBuilder(PartialOutboundConnectionTask partialOutboundConnectionTask) {
+        return new ScheduledConnectionTaskBuilderForDevice(this, partialOutboundConnectionTask);
     }
 
     @Override
@@ -929,22 +1030,73 @@ public class DeviceImpl implements Device, PersistenceAware {
 
     @Override
     public List<ConnectionTask<?, ?>> getConnectionTasks() {
-        return new ArrayList<ConnectionTask<?,?>>(connectionTasks);
+        return new ArrayList<ConnectionTask<?, ?>>(this.getConnectionTaskImpls());
+    }
+
+    private List<ConnectionTaskImpl<?, ?>> getConnectionTaskImpls() {
+        if (this.connectionTasks == null) {
+            this.loadConnectionTasks();
+        }
+        return this.connectionTasks;
+    }
+
+    private void loadConnectionTasks() {
+        List<ConnectionTaskImpl<?, ?>> connectionTaskImpls = new ArrayList<>();
+        for (ConnectionTask connectionTask : this.deviceDataService.findConnectionTasksByDevice(this)) {
+            connectionTaskImpls.add((ConnectionTaskImpl<?, ?>) connectionTask);
+        }
+        this.connectionTasks = connectionTaskImpls;
+    }
+
+    @Override
+    public List<ScheduledConnectionTask> getScheduledConnectionTasks() {
+        List<ConnectionTask<?, ?>> allConnectionTasks = this.getConnectionTasks();
+        List<ScheduledConnectionTask> outboundConnectionTasks = new ArrayList<>(allConnectionTasks.size());   // Worst case: all connection tasks are scheduled
+        for (ConnectionTask<?, ?> connectionTask : allConnectionTasks) {
+            if (connectionTask instanceof ScheduledConnectionTask) {
+                outboundConnectionTasks.add((ScheduledConnectionTask) connectionTask);
+            }
+        }
+        return outboundConnectionTasks;
+    }
+
+    @Override
+    public List<ConnectionInitiationTask> getConnectionInitiationTasks() {
+        List<ConnectionTask<?, ?>> allConnectionTasks = this.getConnectionTasks();
+        List<ConnectionInitiationTask> initiationTasks = new ArrayList<>(allConnectionTasks.size());   // Worst case: all connection tasks are initiators
+        for (ConnectionTask<?, ?> connectionTask : allConnectionTasks) {
+            if (connectionTask instanceof ConnectionInitiationTask) {
+                initiationTasks.add((ConnectionInitiationTask) connectionTask);
+            }
+        }
+        return initiationTasks;
+    }
+
+    @Override
+    public List<InboundConnectionTask> getInboundConnectionTasks() {
+        List<ConnectionTask<?, ?>> allConnectionTasks = this.getConnectionTasks();
+        List<InboundConnectionTask> inboundConnectionTasks = new ArrayList<>(allConnectionTasks.size());   // Worst case: all connection tasks are inbound
+        for (ConnectionTask<?, ?> connectionTask : allConnectionTasks) {
+            if (connectionTask instanceof InboundConnectionTask) {
+                inboundConnectionTasks.add((InboundConnectionTask) connectionTask);
+            }
+        }
+        return inboundConnectionTasks;
     }
 
     @Override
     public void removeConnectionTask(ConnectionTask<?, ?> connectionTask) {
-        Iterator<ConnectionTaskImpl<?,?>> connectionTaskIterator = this.connectionTasks.iterator();
+        Iterator<ConnectionTaskImpl<?, ?>> connectionTaskIterator = this.getConnectionTaskImpls().iterator();
         boolean removedNone = true;
-        while(connectionTaskIterator.hasNext() && removedNone){
-            ConnectionTaskImpl<?,?> connectionTaskToRemove = connectionTaskIterator.next();
-            if(connectionTaskToRemove.getId() == connectionTask.getId()){
+        while (connectionTaskIterator.hasNext() && removedNone) {
+            ConnectionTaskImpl<?, ?> connectionTaskToRemove = connectionTaskIterator.next();
+            if (connectionTaskToRemove.getId() == connectionTask.getId()) {
                 connectionTask.makeObsolete();
                 connectionTaskIterator.remove();
                 removedNone = false;
             }
         }
-        if(removedNone){
+        if (removedNone) {
             throw new CannotDeleteConnectionTaskWhichIsNotFromThisDevice(this.thesaurus, connectionTask, this);
 
         }
@@ -952,7 +1104,22 @@ public class DeviceImpl implements Device, PersistenceAware {
 
     @Override
     public List<ComTaskExecution> getComTaskExecutions() {
-        return new ArrayList<ComTaskExecution>(this.comTaskExecutions);
+        return new ArrayList<ComTaskExecution>(this.getComTaskExecutionImpls());
+    }
+
+    private List<ComTaskExecutionImpl> getComTaskExecutionImpls() {
+        if (this.comTaskExecutions == null) {
+            this.loadComTaskExecutions();
+        }
+        return this.comTaskExecutions;
+    }
+
+    private void loadComTaskExecutions() {
+        List<ComTaskExecutionImpl> comTaskExecutionImpls = new ArrayList<>();
+        for (ComTaskExecution comTaskExecution : this.deviceDataService.findComTaskExecutionsByDevice(this)) {
+            comTaskExecutionImpls.add((ComTaskExecutionImpl) comTaskExecution);
+        }
+        this.comTaskExecutions = comTaskExecutionImpls;
     }
 
     @Override
@@ -977,17 +1144,17 @@ public class DeviceImpl implements Device, PersistenceAware {
 
     @Override
     public void removeComTaskExecution(ComTaskExecution comTaskExecution) {
-        Iterator<ComTaskExecutionImpl> comTaskExecutionIterator = this.comTaskExecutions.iterator();
+        Iterator<ComTaskExecutionImpl> comTaskExecutionIterator = this.getComTaskExecutionImpls().iterator();
         boolean removedNone = true;
-        while (comTaskExecutionIterator.hasNext() && removedNone){
+        while (comTaskExecutionIterator.hasNext() && removedNone) {
             ComTaskExecution comTaskExecutionToRemove = comTaskExecutionIterator.next();
-            if(comTaskExecutionToRemove.getId() == comTaskExecution.getId()){
+            if (comTaskExecutionToRemove.getId() == comTaskExecution.getId()) {
                 comTaskExecution.makeObsolete();
                 comTaskExecutionIterator.remove();
                 removedNone = false;
             }
         }
-        if(removedNone){
+        if (removedNone) {
             throw new CannotDeleteComTaskExecutionWhichIsNotFromThisDevice(thesaurus, comTaskExecution, this);
         }
     }
@@ -1042,7 +1209,7 @@ public class DeviceImpl implements Device, PersistenceAware {
         int eventCounter = 0;
         Optional<AmrSystem> amrSystem = this.getMdcAmrSystem();
         if (amrSystem.isPresent()) {
-            for (BaseDevice<Channel, LoadProfile, Register> slaveDevice : this.getPhysicalConnectedDevices()) {
+            for (Device slaveDevice : this.getPhysicalConnectedDevices()) {
                 Optional<Meter> slaveMeter = amrSystem.get().findMeter(String.valueOf(slaveDevice.getId()));
                 if (slaveMeter.isPresent()) {
                     eventCounter = eventCounter + this.countUniqueEndDeviceEvents(slaveMeter.get(), eventTypes, interval);
@@ -1050,6 +1217,24 @@ public class DeviceImpl implements Device, PersistenceAware {
             }
         }
         return eventCounter;
+    }
+
+    @Override
+    public List<SecurityProperty> getSecurityProperties(SecurityPropertySet securityPropertySet) {
+        return this.getSecurityProperties(this.clock.now(), securityPropertySet);
+    }
+
+    private List<SecurityProperty> getSecurityProperties(Date when, SecurityPropertySet securityPropertySet) {
+        return this.securityPropertyService.getSecurityProperties(this, when, securityPropertySet);
+    }
+
+    @Override
+    public boolean hasSecurityProperties(SecurityPropertySet securityPropertySet) {
+        return this.hasSecurityProperties(this.clock.now(), securityPropertySet);
+    }
+
+    private boolean hasSecurityProperties(Date when, SecurityPropertySet securityPropertySet) {
+        return this.securityPropertyService.hasSecurityProperties(this, when, securityPropertySet);
     }
 
     private int countUniqueEndDeviceEvents(Meter slaveMeter, List<EndDeviceEventType> eventTypes, Interval interval) {
@@ -1083,7 +1268,7 @@ public class DeviceImpl implements Device, PersistenceAware {
 
         @Override
         public ConnectionInitiationTask add() {
-            DeviceImpl.this.connectionTasks.add(this.connectionInitiationTask);
+            DeviceImpl.this.getConnectionTaskImpls().add(this.connectionInitiationTask);
             return this.connectionInitiationTask;
         }
     }
@@ -1111,7 +1296,7 @@ public class DeviceImpl implements Device, PersistenceAware {
 
         @Override
         public InboundConnectionTask add() {
-            DeviceImpl.this.connectionTasks.add(this.inboundConnectionTask);
+            DeviceImpl.this.getConnectionTaskImpls().add(this.inboundConnectionTask);
             return this.inboundConnectionTask;
         }
     }
@@ -1123,7 +1308,9 @@ public class DeviceImpl implements Device, PersistenceAware {
         private ScheduledConnectionTaskBuilderForDevice(Device device, PartialOutboundConnectionTask partialOutboundConnectionTask) {
             this.scheduledConnectionTask = scheduledConnectionTaskProvider.get();
             this.scheduledConnectionTask.initialize(device, (PartialScheduledConnectionTask) partialOutboundConnectionTask, partialOutboundConnectionTask.getComPortPool());
-            this.scheduledConnectionTask.setNextExecutionSpecsFrom(partialOutboundConnectionTask.getNextExecutionSpecs().getTemporalExpression());
+            if (partialOutboundConnectionTask.getNextExecutionSpecs() != null) {
+                this.scheduledConnectionTask.setNextExecutionSpecsFrom(partialOutboundConnectionTask.getNextExecutionSpecs().getTemporalExpression());
+            }
             this.scheduledConnectionTask.setConnectionStrategy(((PartialScheduledConnectionTask) partialOutboundConnectionTask).getConnectionStrategy());
         }
 
@@ -1171,8 +1358,73 @@ public class DeviceImpl implements Device, PersistenceAware {
 
         @Override
         public ScheduledConnectionTask add() {
-            DeviceImpl.this.connectionTasks.add(this.scheduledConnectionTask);
+            DeviceImpl.this.getConnectionTaskImpls().add(this.scheduledConnectionTask);
             return scheduledConnectionTask;
         }
     }
+
+    /**
+     * Compares {@link CommunicationTopologyEntry} in the context of the {@link #getAllCommunicationTopologies(Interval)} method.
+     */
+    public static class CommunicationTopologyEntryComparator implements Comparator<CommunicationTopologyEntry> {
+
+        @Override
+        public int compare(CommunicationTopologyEntry topology1, CommunicationTopologyEntry topology2) {
+            if (is(topology1.getInterval().getStart()).equalTo(topology2.getInterval().getStart())) {
+                // Both Intervals start at the same timestamp, which could be the early big bang, i.e. null
+                if (is(topology1.getInterval().getEnd()).equalTo(topology2.getInterval().getEnd())) {
+                    return 0;   // Equals start and end
+                } else if (topology1.getInterval().endsBefore(topology2.getInterval().getEnd())) {
+                    return -1;
+                } else {
+                    // Remember that end of other interval is not equal
+                    return 1;
+                }
+            } else if (topology1.getInterval().startsBefore(topology2.getInterval().getStart())) {
+                return -1;
+            } else {
+                // Remember that start of other interval is not equal
+                return 1;
+            }
+        }
+    }
+
+    /**
+     * Compares Dates where <code>null</code> is considered infinity in the past (aka the early big bang)
+     * and is always smaller than anything else (except another <code>null</code> of course).
+     */
+    private class MinDateComparator implements Comparator<Date> {
+        @Override
+        public int compare(Date date1, Date date2) {
+            if (date1 == null && date2 == null) {
+                return 0;
+            } else if (date1 == null) {
+                return -1;
+            } else if (date2 == null) {
+                return 1;
+            } else {
+                return date1.compareTo(date2);
+            }
+        }
+    }
+
+    /**
+     * Compares Dates where <code>null</code> is considered infinity in the future
+     * and is always bigger than anything else (except another <code>null</code> of course).
+     */
+    private class MaxDateComparator implements Comparator<Date> {
+        @Override
+        public int compare(Date date1, Date date2) {
+            if (date1 == null && date2 == null) {
+                return 0;
+            } else if (date1 == null) {
+                return 1;
+            } else if (date2 == null) {
+                return -1;
+            } else {
+                return date1.compareTo(date2);
+            }
+        }
+    }
+
 }

@@ -54,7 +54,7 @@ public abstract class OutboundConnectionTaskImpl<PCTT extends PartialOutboundCon
     }
 
     @Override
-    public void executionFailed () throws SQLException, BusinessException {
+    public void executionFailed () {
         this.setExecutingComServer(null);
         this.incrementCurrentRetryCount();
         if (doWeNeedToRetryTheConnectionTask()) {
@@ -70,11 +70,11 @@ public abstract class OutboundConnectionTaskImpl<PCTT extends PartialOutboundCon
         return currentRetryCount < this.getMaxNumberOfTries();
     }
 
-    protected void doExecutionAttemptFailed () throws SQLException, BusinessException {
+    protected void doExecutionAttemptFailed () {
         this.lastExecutionFailed = true;
     }
 
-    protected void doExecutionFailed () throws SQLException, BusinessException {
+    protected void doExecutionFailed () {
         this.lastExecutionFailed = true;
     }
 
@@ -113,7 +113,7 @@ public abstract class OutboundConnectionTaskImpl<PCTT extends PartialOutboundCon
      * @return the configured rescheduleRetryDelay
      */
     protected TimeDuration getRescheduleRetryDelay() {
-        if (this.getRescheduleDelay() == null) {
+        if (this.getRescheduleDelay() == null || getRescheduleDelay().getSeconds() <= 0) {
             return new TimeDuration(DEFAULT_COMTASK_FAILURE_RESCHEDULE_DELAY_SECONDS, TimeDuration.SECONDS);
         }
         else {

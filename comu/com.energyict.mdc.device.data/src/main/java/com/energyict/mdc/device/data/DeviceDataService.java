@@ -1,26 +1,27 @@
 package com.energyict.mdc.device.data;
 
+import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.elster.jupiter.util.conditions.Condition;
+import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.data.impl.InfoType;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.device.data.tasks.*;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
+
+import com.elster.jupiter.util.sql.Fetcher;
+import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
 
 import java.util.Collection;
@@ -37,6 +38,15 @@ import java.util.TimeZone;
 public interface DeviceDataService {
 
     public static String COMPONENTNAME = "DDC";
+
+    /**
+     * Tests if there are {@link Device} that were created
+     * from the specified {@link DeviceConfiguration}.
+     *
+     * @param deviceConfiguration The DeviceConfiguration
+     * @return <code>true</code> iff there is at least one Device created from the DeviceConfiguration
+     */
+    public boolean hasDevices(DeviceConfiguration deviceConfiguration);
 
     /**
      * Creates a new {@link InboundConnectionTask} with the minimal required properties
@@ -81,6 +91,8 @@ public interface DeviceDataService {
     public ConnectionInitiationTask newConnectionInitiationTask(Device device, PartialConnectionInitiationTask partialConnectionTask, OutboundComPortPool comPortPool);
 
     public Optional<ConnectionTask> findConnectionTask (long id);
+
+    public Optional<OutboundConnectionTask> findOutboundConnectionTask (long id);
 
     public Optional<InboundConnectionTask> findInboundConnectionTask (long id);
 
@@ -174,7 +186,7 @@ public interface DeviceDataService {
      */
     public void clearDefaultConnectionTask (Device device);
 
-    void setOrUpdateDefaultConnectionTaskOnComTaskInDeviceTopology(Device device, ConnectionTask defaultConnectionTask);
+    void setOrUpdateDefaultConnectionTaskOnComTaskInDeviceTopology(Device device, ConnectionTask connectionTask);
 
     /**
      * Attempts to lock the {@link ConnectionTask} that is about to be executed
@@ -218,6 +230,8 @@ public interface DeviceDataService {
      * @param outboundCapableComServer The ComServer
      */
     public void releaseTimedOutConnectionTasks(ComServer outboundCapableComServer);
+
+    public TimeDuration releaseTimedOutComTasks(ComServer comServer);
 
     /**
      * Cleans up any marker flags on {@link ComTaskExecution}s that were not properly
@@ -266,7 +280,7 @@ public interface DeviceDataService {
      * @param device the 'master' device
      * @return a list of physically connected devices to the given device
      */
-    public List<BaseDevice<Channel, LoadProfile, Register>> findPhysicalConnectedDevicesFor(Device device);
+    public List<Device> findPhysicalConnectedDevicesFor(Device device);
 
     /**
      * Finds the devices which are linked to the given device for communication purposes.
@@ -274,7 +288,27 @@ public interface DeviceDataService {
      * @param device the device that arranges the communication
      * @return a list of devices which use the given device for communication purposes
      */
-    public List<BaseDevice<Channel, LoadProfile, Register>> findCommunicationReferencingDevicesFor(Device device);
+    public List<Device> findCommunicationReferencingDevicesFor(Device device);
+
+    /**
+     * Finds the devices which are linked on the specified timestamp
+     * to the specified device for communication purposes.
+     *
+     * @param device the device that arranges the communication
+     * @param timestamp The timestamp on which the devices are linked for communication purposes
+     * @return a list of devices which use the given device for communication purposes
+     */
+    public List<Device> findCommunicationReferencingDevicesFor(Device device, Date timestamp);
+
+    /**
+     * Finds the devices which are linked on the specified timestamp
+     * to the specified device for communication purposes.
+     *
+     * @param device the device that arranges the communication
+     * @param interval The interval during which the devices are linked for communication purposes
+     * @return a list of devices which use the given device for communication purposes
+     */
+    public List<CommunicationTopologyEntry> findCommunicationReferencingDevicesFor(Device device, Interval interval);
 
     /**
      * Finds the LoadProfile based on the given unique ID
@@ -298,6 +332,13 @@ public interface DeviceDataService {
      * @return a list of all devices in the system
      */
     public List<Device> findAllDevices();
+
+    /**
+     * Finds all the devices in the system with the specific condition
+     *
+     * @return a list of all devices with the specific condition in the system
+     */
+    public Finder<Device> findAllDevices(Condition condition);
 
     /**
      * Finds all the devices which use the given TimeZone
@@ -425,7 +466,9 @@ public interface DeviceDataService {
      */
     public boolean isLinkedToDevices(ComSchedule comSchedule);
 
-    List<ComTaskExecution> getPlannedComTaskExecutionsFor(ComPort comPort);
+    Fetcher<ComTaskExecution> getPlannedComTaskExecutionsFor(ComPort comPort);
+
+    List<ComTaskExecution> getPlannedComTaskExecutionsFor(InboundComPort comPort, Device device);
 
     boolean areComTasksStillPending(Collection<Long> comTaskExecutionIds);
 

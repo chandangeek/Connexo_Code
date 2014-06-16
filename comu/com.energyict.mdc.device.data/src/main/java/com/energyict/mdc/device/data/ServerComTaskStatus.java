@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data;
 
 import com.energyict.mdc.common.SqlBuilder;
+import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import java.util.Date;
@@ -53,8 +54,8 @@ public enum ServerComTaskStatus {
         public void completeFindBySqlBuilder (SqlBuilder sqlBuilder, long now) {
             super.completeFindBySqlBuilder(sqlBuilder, now);
             sqlBuilder.append("and ((comport is not null) or " +
-                    "((exists (select * from mdcconnectiontask where mdcconnectiontask.comserver is not null and mdcconnectiontask.id = mdccomtaskexec.connectiontask))" +
-                    " and mdccomtaskexec.nextExecutionTimestamp is not null and mdccomtaskexec.nextexecutiontimestamp <= ?))");
+                    "((exists (select * from " + TableSpecs.DDC_CONNECTIONTASK.name() + " ct where ct.comserver is not null and ct.id = " + TableSpecs.DDC_COMTASKEXEC.name() + ".connectiontask))" +
+                    " and " + TableSpecs.DDC_COMTASKEXEC.name() + ".nextExecutionTimestamp is not null and " + TableSpecs.DDC_COMTASKEXEC.name() + ".nextexecutiontimestamp <= ?))");
             sqlBuilder.bindLong(now);
         }
     },
@@ -79,7 +80,8 @@ public enum ServerComTaskStatus {
         @Override
         public void completeFindBySqlBuilder (SqlBuilder sqlBuilder, long now) {
             super.completeFindBySqlBuilder(sqlBuilder, now);
-            sqlBuilder.append("and comport is null and not exists (select * from mdcconnectiontask where mdcconnectiontask.comserver is not null and mdcconnectiontask.id = mdccomtaskexec.connectiontask)");
+            sqlBuilder.append("and comport is null and not exists (select * from " + TableSpecs.DDC_CONNECTIONTASK.name() + " ct where ct.comserver is not null and ct.id = " + TableSpecs.DDC_COMTASKEXEC
+                    .name() + ".connectiontask)");
             sqlBuilder.append("and nextexecutiontimestamp <= ?");
             sqlBuilder.bindLong(now);
         }

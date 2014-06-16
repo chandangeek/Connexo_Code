@@ -9,13 +9,11 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.time.Clock;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
-import com.energyict.mdc.device.data.ComTaskExecutionDependant;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.ServerComTaskExecution;
@@ -52,7 +50,7 @@ import org.hibernate.validator.constraints.Range;
 
 /**
  * Implementation of a ComTaskExecution
- *
+ * <p/>
  * Copyrights EnergyICT
  * Date: 11/04/14
  * Time: 15:09
@@ -107,10 +105,14 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
      */
     private long nextExecutionSpecId;
     private boolean myNextExecutionSpec;
-    private NextExecutionSpecHolder nextExecutionSpecHolder = new NoNextExecutionSpecHolder();
+    private NextExecutionSpecHolder nextExecutionSpecHolder = null;
 
     @Override
     public void postLoad() {
+//        loadNextExecutionSpec();
+    }
+
+    private void loadNextExecutionSpecHolder() {
         if (this.nextExecutionSpecId > 0) {
             if (myNextExecutionSpec) {
                 this.nextExecutionSpecHolder = new MyNextExecutionSpecHolder(this.nextExecutionSpecId);
@@ -159,7 +161,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     <X extends ComTaskExecutionImpl> X initialize(Device device, ComTaskEnablement comTaskEnablement) {
         this.device.set(device);
         if (comTaskEnablement.getNextExecutionSpecs() != null) {
-            this.nextExecutionSpecHolder = new MyNextExecutionSpecHolder(comTaskEnablement.getNextExecutionSpecs().getTemporalExpression());
+            this.nextXXXExecutionSpecHolder = new MyNextExecutionSpecHolder(comTaskEnablement.getNextExecutionSpecs().getTemporalExpression());
         } else {
             this.nextExecutionSpecHolder = new NoNextExecutionSpecHolder();
         }
@@ -176,6 +178,13 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         return this.device.get();   // we do an explicit get because Device is required and should not be null
     }
 
+    private NextExecutionSpecHolder getNextExecutionSpecHolder() {
+        if (this.nextExecutionSpecHolder == null) {
+            loadNextExecutionSpecHolder();
+        }
+        return this.nextExecutionSpecHolder;
+    }
+    
     @Override
     public ProtocolDialectConfigurationProperties getProtocolDialectConfigurationProperties() {
         return protocolDialectConfigurationProperties.orNull();
@@ -236,8 +245,13 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     void setUseDefaultConnectionTask(boolean useDefaultConnectionTask) {
         this.useDefaultConnectionTask = useDefaultConnectionTask;
         if (this.useDefaultConnectionTask) {
-            this.connectionTask.set(this.deviceDataService.findDefaultConnectionTaskForDevice(getDevice()));
+            this.setConnectionTask(this.deviceDataService.findDefaultConnectionTaskForDevice(getDevice()));
         }
+    }
+
+    private void setDefaultConnectionTask(ConnectionTask<?, ?> defaultConnectionTask) {
+        this.useDefaultConnectionTask = true;
+        setConnectionTask(defaultConnectionTask);
     }
 
     @Override
@@ -262,7 +276,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         if (updatedVersionOfMyself != null) {
             this.comPort.set(updatedVersionOfMyself.getExecutingComPort());
             this.obsoleteDate = updatedVersionOfMyself.getObsoleteDate();
-            this.connectionTask.set(updatedVersionOfMyself.getConnectionTask());
+            this.setConnectionTask(updatedVersionOfMyself.getConnectionTask());
         }
     }
 
@@ -274,7 +288,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         }
 
         if (this.useDefaultConnectionTask) {
-            ConnectionTask<?,?> defaultConnectionTaskForDevice = this.deviceDataService.findDefaultConnectionTaskForDevice(getDevice());
+            ConnectionTask<?, ?> defaultConnectionTaskForDevice = this.deviceDataService.findDefaultConnectionTaskForDevice(getDevice());
             if (defaultConnectionTaskForDevice != null && defaultConnectionTaskForDevice.getExecutingComServer() != null) {
                 throw new ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException(this.getThesaurus(), this, this.deviceDataService.findDefaultConnectionTaskForDevice(getDevice()).getExecutingComServer());
             }
@@ -300,6 +314,23 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
 
     void setConnectionTask(ConnectionTask<?, ?> connectionTask) {
         this.connectionTask.set(connectionTask);
+        if (connectionTask != null) {
+            this.connectionTaskId = connectionTask.getId();
+        }
+        else {
+            this.connectionTaskId = 0;
+        }
+    }
+
+    @Override
+    public boolean usesSameConnectionTaskAs (ComTaskExecution anotherTask) {
+        if (anotherTask instanceof ComTaskExecutionImpl) {
+            ComTaskExecutionImpl comTaskExecution = (ComTaskExecutionImpl) anotherTask;
+            return this.connectionTaskId == comTaskExecution.connectionTaskId;
+        }
+        else {
+            return this.connectionTaskId == anotherTask.getConnectionTask().getId();
+        }
     }
 
     @Override
@@ -314,7 +345,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
 
     @Override
     public NextExecutionSpecs getNextExecutionSpecs() {
-        return this.nextExecutionSpecHolder.getNextExecutionSpec();
+        return getNextExecutionSpecHolder().getNextExecutionSpec();
     }
 
     void createMyNextExecutionSpecs(TemporalExpression temporalExpression) {
@@ -574,7 +605,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
      */
     private TimeDuration getRescheduleRetryDelay() {
         TimeDuration comTaskDefinedRescheduleDelay = this.comTaskRescheduleDelay();
-        if (comTaskDefinedRescheduleDelay == null) {
+        if (comTaskDefinedRescheduleDelay == null || comTaskDefinedRescheduleDelay.getSeconds() <= 0) {
             return this.defaultRescheduleDelay();
         } else {
             return comTaskDefinedRescheduleDelay;
@@ -632,7 +663,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
      *
      * @param connectionTask the connectionTask to set or <code>null</code> to clear the connectionTask
      */
-    protected void assignConnectionTask(ConnectionTask<?,?> connectionTask) {
+    protected void assignConnectionTask(ConnectionTask<?, ?> connectionTask) {
         this.setConnectionTask(connectionTask);
         if (!this.connectionTask.isPresent()) {
             this.setUseDefaultConnectionTask(true);
@@ -698,7 +729,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
      * We don't do our own persistence, our device will take care of that
      */
     public void prepareForSaving() {
-        this.nextExecutionSpecHolder.save();
+        getNextExecutionSpecHolder().save();
         this.modificationDate = this.now();
         validateNotObsolete();
     }
@@ -707,16 +738,8 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
      * Need to delete the nextExecutionSpec as it is not Referenced by the ComTaskExecution
      */
     public void delete() {
-        this.nextExecutionSpecHolder.delete();
-        this.deleteComTaskSessions();
+        getNextExecutionSpecHolder().delete();
         super.delete();
-    }
-
-    private void deleteComTaskSessions() {
-        List<ComTaskExecutionDependant> modulesImplementing = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(ComTaskExecutionDependant.class);
-        for (ComTaskExecutionDependant comTaskExecutionDependant : modulesImplementing) {
-            comTaskExecutionDependant.comTaskExecutionDeleted(this);
-        }
     }
 
     protected Date now() {
@@ -731,18 +754,23 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
 
     private class MasterNextExecutionSpecHolder implements NextExecutionSpecHolder {
 
-        private final NextExecutionSpecs masterScheduleNextExecutionSpec;
+        private final long masterScheduleNextExecutionSpecId;
+        private NextExecutionSpecs masterScheduleNextExecutionSpec;
 
         private MasterNextExecutionSpecHolder(NextExecutionSpecs masterScheduleNextExecutionSpec) {
             this.masterScheduleNextExecutionSpec = masterScheduleNextExecutionSpec;
+            this.masterScheduleNextExecutionSpecId = (masterScheduleNextExecutionSpec != null ? masterScheduleNextExecutionSpec.getId() : 0);
         }
 
-        public MasterNextExecutionSpecHolder(long nextExecutionSpecId) {
-            masterScheduleNextExecutionSpec = ComTaskExecutionImpl.this.schedulingService.findNextExecutionSpecs(nextExecutionSpecId);
+        private MasterNextExecutionSpecHolder(long nextExecutionSpecId) {
+            this.masterScheduleNextExecutionSpecId = nextExecutionSpecId;
         }
 
         @Override
         public NextExecutionSpecs getNextExecutionSpec() {
+            if (masterScheduleNextExecutionSpec == null && masterScheduleNextExecutionSpecId != 0) {
+                masterScheduleNextExecutionSpec = ComTaskExecutionImpl.this.schedulingService.findNextExecutionSpecs(masterScheduleNextExecutionSpecId);
+            }
             return masterScheduleNextExecutionSpec;
         }
 
@@ -775,7 +803,6 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
 
         private MyNextExecutionSpecHolder(long id) {
             this.nextExecutionSpecId = id;
-            this.nextExecutionSpecs = ComTaskExecutionImpl.this.schedulingService.findNextExecutionSpecs(this.nextExecutionSpecId);
         }
 
         private MyNextExecutionSpecHolder(TemporalExpression temporalExpression) {
@@ -784,24 +811,27 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
 
         @Override
         public NextExecutionSpecs getNextExecutionSpec() {
+            if (this.nextExecutionSpecs == null && this.nextExecutionSpecId != 0) {
+                this.nextExecutionSpecs = ComTaskExecutionImpl.this.schedulingService.findNextExecutionSpecs(this.nextExecutionSpecId);
+            }
             return this.nextExecutionSpecs;
         }
 
         @Override
         public void updateTemporalExpression(TemporalExpression temporalExpression) {
-            this.nextExecutionSpecs.setTemporalExpression(temporalExpression);
+            getNextExecutionSpec().setTemporalExpression(temporalExpression);
         }
 
         @Override
         public void save() {
             ComTaskExecutionImpl.this.myNextExecutionSpec = true;
-            this.nextExecutionSpecs.save();
+            getNextExecutionSpec().save();
             ComTaskExecutionImpl.this.nextExecutionSpecId = this.nextExecutionSpecs.getId();
         }
 
         @Override
         public void delete() {
-            this.nextExecutionSpecs.delete();
+            getNextExecutionSpec().delete();
         }
 
         @Override
