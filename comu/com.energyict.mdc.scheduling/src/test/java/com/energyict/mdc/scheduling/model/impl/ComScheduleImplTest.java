@@ -9,6 +9,7 @@ import com.energyict.mdc.common.Global;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
 import com.energyict.mdc.tasks.ComTask;
 import java.util.Date;
 import org.apache.commons.lang3.StringUtils;
@@ -31,10 +32,13 @@ public class ComScheduleImplTest extends PersistenceTest {
     @Test
     @Transactional
     public void testSimpleCreateAndRetrieveSchedule() throws Exception {
-        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule("name", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), new UtcInstant(new Date())).build();
+        ComScheduleBuilder comScheduleBuilder = inMemoryPersistence.getSchedulingService().newComSchedule("name", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), new UtcInstant(new Date()));
+        comScheduleBuilder.mrid("xyz");
+        ComSchedule comSchedule = comScheduleBuilder.build();
         comSchedule.save();
         ComSchedule retrievedSchedule = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
         assertThat(retrievedSchedule.getName()).isEqualTo("name");
+        assertThat(retrievedSchedule.getmRID()).isEqualTo("xyz");
         assertThat(retrievedSchedule.getTemporalExpression().getEvery()).isEqualTo(TEN_MINUTES);
         assertThat(retrievedSchedule.getTemporalExpression().getOffset()).isEqualTo(TWENTY_SECONDS);
     }

@@ -22,6 +22,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import java.util.Calendar;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import javax.inject.Inject;
 import org.osgi.service.component.annotations.Activate;
@@ -41,13 +42,14 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService 
 
     @Inject
     public SchedulingServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, TaskService tasksService) {
+        this();
         setOrmService(ormService);
         setEventService(eventService);
         setNlsService(nlsService);
         setTasksService(tasksService);
         activate();
         if (!this.dataModel.isInstalled()) {
-            this.install(true);
+            this.install();
         }
     }
 
@@ -82,11 +84,7 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService 
 
     @Override
     public void install() {
-        new Installer(dataModel, eventService, thesaurus).install(true);
-    }
-
-    private void install(boolean exeuteDdl) {
-        new Installer(this.dataModel, this.eventService, this.thesaurus).install(exeuteDdl);
+        new Installer(this.dataModel, this.eventService, this.thesaurus).install(true);
     }
 
     private Module getModule() {
@@ -116,6 +114,12 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService 
     }
 
     @Override
+    public NextExecutionSpecs previewNextExecutions(TemporalExpression temporalExpression, Date startDate) {
+
+        return null;
+    }
+
+    @Override
     public List<ComSchedule> findAllSchedules() {
         return this.dataModel.query(ComSchedule.class, NextExecutionSpecs.class).select(Condition.TRUE);
     }
@@ -135,7 +139,7 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService 
                         if (!SchedulingStatus.PAUSED.equals(o1.getSchedulingStatus()) && SchedulingStatus.PAUSED.equals(o2.getSchedulingStatus())) {
                             return -1;
                         }
-                        return o1.getNextTimestamp(calendar).compareTo(o2.getNextTimestamp(calendar));
+                        return o1.getPlannedDate().compareTo(o2.getPlannedDate());
                     }
                 });
     }

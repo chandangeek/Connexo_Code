@@ -27,13 +27,14 @@ import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
+
+import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 @UniqueName(groups = { Save.Update.class, Save.Create.class }, message = "{"+Constants.NOT_UNIQUE+"}")
 @UniqueMRID(groups = { Save.Update.class, Save.Create.class }, message = "{"+Constants.NOT_UNIQUE+"}")
