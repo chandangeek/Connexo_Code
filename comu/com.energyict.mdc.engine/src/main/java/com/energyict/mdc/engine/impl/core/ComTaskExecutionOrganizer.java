@@ -10,21 +10,17 @@ import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.tasks.BasicCheckTask;
+import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
-
-import com.elster.jupiter.util.Checks;
 import com.google.common.base.Optional;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * This class will try to group and organize the ComTaskExecutions for a specific connection.
@@ -184,11 +180,14 @@ public final class ComTaskExecutionOrganizer {
         for (Map.Entry<Device, List<ComTaskExecution>> entry : comTaskExecutionGroupsPerDevice.entrySet()) {
             Device device = entry.getKey();
             for (ComTaskExecution comTaskExecution : entry.getValue()) {
-                Key key = toKey(device, comTaskExecution);
-                if (!result.containsKey(key)) {
-                    result.put(key, new ArrayList<ComTaskExecution>());
+                List<ComTask> comTasks = comTaskExecution.getComTasks();
+                for (ComTask comTask : comTasks) {
+                    Key key = toKey(device, comTaskExecution, comTask);
+                    if (!result.containsKey(key)) {
+                        result.put(key, new ArrayList<ComTaskExecution>());
+                    }
+                    result.get(key).add(comTaskExecution);
                 }
-                result.get(key).add(comTaskExecution);
             }
         }
         return result;
@@ -200,8 +199,8 @@ public final class ComTaskExecutionOrganizer {
         }
     }
 
-    private Key toKey(Device device, ComTaskExecution comTaskExecution) {
-        Optional<ComTaskEnablement> foundComTaskEnablement = deviceConfigurationService.findComTaskEnablement(comTaskExecution.getComTask(), device.getDeviceConfiguration());
+    private Key toKey(Device device, ComTaskExecution comTaskExecution, ComTask comTask) {
+        Optional<ComTaskEnablement> foundComTaskEnablement = deviceConfigurationService.findComTaskEnablement(comTask, device.getDeviceConfiguration());
         SecurityPropertySet securityPropertySet = getProperSecurityPropertySet(foundComTaskEnablement.orNull(), device, comTaskExecution);
         return Key.of(device, securityPropertySet);
     }
@@ -218,7 +217,7 @@ public final class ComTaskExecutionOrganizer {
         }
 
         private boolean hasBasicCheckTask(ComTaskExecution execution) {
-            for (ProtocolTask protocolTask : execution.getComTask().getProtocolTasks()) {
+            for (ProtocolTask protocolTask : execution.getProtocolTasks()) {
                 if (protocolTask instanceof BasicCheckTask) {
                     return true;
                 }

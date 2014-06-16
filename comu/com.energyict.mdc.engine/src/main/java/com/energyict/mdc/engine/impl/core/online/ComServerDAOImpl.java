@@ -1,5 +1,11 @@
 package com.energyict.mdc.engine.impl.core.online;
 
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.VoidTransaction;
+import com.elster.jupiter.util.sql.Fetcher;
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
@@ -46,15 +52,7 @@ import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.tasks.history.ComSession;
 import com.energyict.mdc.tasks.history.ComSessionBuilder;
-
-import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.VoidTransaction;
-import com.elster.jupiter.util.sql.Fetcher;
-import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
-
 import java.text.DateFormat;
 import java.util.Arrays;
 import java.util.Collection;
@@ -589,7 +587,7 @@ public class ComServerDAOImpl implements ComServerDAO {
             return null;
         } else {
             for (ComTaskEnablement comTaskEnablement : enabledComTasks((ServerDeviceCommunicationConfiguration) device.getDeviceConfiguration().getCommunicationConfiguration())) {
-                if (comTaskEnablement.getComTask().equals(first.getComTask())) {
+                if (comTaskEnablement.getComTask().equals(first.getComTasks().get(0))) {
                     securityPropertySet = comTaskEnablement.getSecurityPropertySet();
                 }
             }

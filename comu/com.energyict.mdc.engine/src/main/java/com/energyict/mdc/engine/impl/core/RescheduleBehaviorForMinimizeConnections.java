@@ -112,8 +112,8 @@ public class RescheduleBehaviorForMinimizeConnections extends AbstractReschedule
     private int getMaxConnectionTryAttempts() {
         if (this.maxConnectionTryAttempts == -1) {
             for (ComTaskExecution comTaskExecution : allComTaskExecutions) {
-                if (this.maxConnectionTryAttempts < comTaskExecution.getComTask().getMaxNumberOfTries()) {
-                    this.maxConnectionTryAttempts = comTaskExecution.getComTask().getMaxNumberOfTries();
+                if (this.maxConnectionTryAttempts < comTaskExecution.getMaxNumberOfTries()) {
+                    this.maxConnectionTryAttempts = comTaskExecution.getMaxNumberOfTries();
                 }
             }
         }

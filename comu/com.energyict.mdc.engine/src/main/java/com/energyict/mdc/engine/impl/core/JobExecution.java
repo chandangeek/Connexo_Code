@@ -1,5 +1,8 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
@@ -39,12 +42,7 @@ import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.history.ComSession;
 import com.energyict.mdc.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.tasks.history.TaskHistoryService;
-
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -323,7 +321,7 @@ public abstract class JobExecution implements ScheduledJob {
     }
 
     PreparedComTaskExecution getPreparedComTaskExecution(ComTaskPreparationContext comTaskPreparationContext, ComTaskExecution comTaskExecution, ComTaskExecutionConnectionSteps connectionSteps, BaseDevice<?, ?, ?> masterDevice, DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-        final List<? extends ProtocolTask> protocolTasks = new ArrayList<>(comTaskExecution.getComTask().getProtocolTasks()); // copied the ImmutableList
+        final List<? extends ProtocolTask> protocolTasks = new ArrayList<>(comTaskExecution.getProtocolTasks()); // copied the ImmutableList
         Collections.sort(protocolTasks, BasicCheckTasks.FIRST);
         comTaskPreparationContext.getCommandCreator().
                 createCommands(

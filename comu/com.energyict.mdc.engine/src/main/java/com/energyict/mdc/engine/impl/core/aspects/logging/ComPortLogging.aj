@@ -80,27 +80,27 @@ public aspect ComPortLogging extends AbstractComPortLogging {
 
     @Override
     protected void startingTask (CompositeComPortConnectionLogger logger, JobExecution job, ComTaskExecution comTaskExecution) {
-        logger.startingTask(job.getThreadName(), comTaskExecution.getComTask().getName());
+        logger.startingTask(job.getThreadName(), comTaskExecution.getComTasks().get(0).getName());
     }
 
     @Override
     protected void completingTask (CompositeComPortConnectionLogger logger, JobExecution job, ComTaskExecution comTaskExecution) {
-        logger.completingTask(job.getThreadName(), comTaskExecution.getComTask().getName());
+        logger.completingTask(job.getThreadName(), comTaskExecution.getComTasks().get(0).getName());
     }
 
     @Override
     protected void rescheduleAfterFailure (CompositeComPortConnectionLogger logger, JobExecution job, ComTaskExecution comTaskExecution) {
-        logger.reschedulingTask(job.getThreadName(), comTaskExecution.getComTask().getName());
+        logger.reschedulingTask(job.getThreadName(), comTaskExecution.getComTasks().get(0).getName());
     }
 
     @Override
     protected void executionFailed (CompositeComPortConnectionLogger logger, RuntimeException e, JobExecution job, ComTaskExecution comTaskExecution) {
-        logger.taskExecutionFailed(e, job.getThreadName(), comTaskExecution.getComTask().getName());
+        logger.taskExecutionFailed(e, job.getThreadName(), comTaskExecution.getComTasks().get(0).getName());
     }
 
     @Override
     protected void executionFailedDueToProblems (CompositeComPortConnectionLogger logger, JobExecution job, ComTaskExecution comTaskExecution) {
-        logger.taskExecutionFailedDueToProblems(job.getThreadName(), comTaskExecution.getComTask().getName());
+        logger.taskExecutionFailedDueToProblems(job.getThreadName(), comTaskExecution.getComTasks().get(0).getName());
     }
 
 }

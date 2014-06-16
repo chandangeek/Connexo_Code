@@ -4,6 +4,8 @@ import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.exceptions.CommonExceptionReferences;
 import com.energyict.mdc.common.exceptions.CommonReferenceScope;
+import com.energyict.mdc.common.exceptions.ExceptionCode;
+import com.energyict.mdc.common.exceptions.ExceptionType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
@@ -11,12 +13,9 @@ import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.exceptions.ComServerRuntimeException;
-import com.energyict.mdc.common.exceptions.ExceptionCode;
-import com.energyict.mdc.common.exceptions.ExceptionType;
-
+import java.lang.reflect.Method;
 import javax.management.MalformedObjectNameException;
 import javax.management.openmbean.OpenDataException;
-import java.lang.reflect.Method;
 
 /**
  * Models the exceptional situations that occur when a developer has
@@ -458,7 +457,7 @@ public final class CodingException extends ComServerRuntimeException {
      * @return The CodingException
      */
     public static CodingException comTaskSessionMissing (ComTaskExecution comTaskExecution) {
-        return new CodingException(comTaskSessionMissingExceptionCode(), comTaskExecution.getComTask().getName());
+        return new CodingException(comTaskSessionMissingExceptionCode(), comTaskExecution.getComTasks().get(0).getName());
     }
 
     public static CodingException malformedObjectName (RunningComServer comServer, MalformedObjectNameException e) {

@@ -7,7 +7,7 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
-
+import com.energyict.mdc.tasks.ComTask;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,8 +44,14 @@ public class ComTaskExecutionCollectedData extends CompositeCollectedData<Server
     }
 
     @Override
-    public boolean isConfiguredIn (DataCollectionConfiguration configuration) {
-        return this.comTaskExecution.getComTask().equals(configuration);
+    public boolean isConfiguredIn(DataCollectionConfiguration configuration) {
+        for (ComTask comTask : this.comTaskExecution.getComTasks()) {
+            if (comTask.equals(configuration)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     @Override

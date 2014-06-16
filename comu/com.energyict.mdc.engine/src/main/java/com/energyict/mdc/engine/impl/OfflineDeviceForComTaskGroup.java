@@ -23,7 +23,7 @@ public class OfflineDeviceForComTaskGroup implements OfflineDeviceContext {
         this.comTaskGroup.addAll(comTaskGroup);
         DeviceOfflineFlags flags = new DeviceOfflineFlags();
         for (ComTaskExecution comTaskExecution : comTaskGroup) {
-            for (ProtocolTask protocolTask : comTaskExecution.getComTask().getProtocolTasks()) {
+            for (ProtocolTask protocolTask : comTaskExecution.getProtocolTasks()) {
                 flags = flags.or((OfflineDeviceContext) protocolTask);
             }
         }

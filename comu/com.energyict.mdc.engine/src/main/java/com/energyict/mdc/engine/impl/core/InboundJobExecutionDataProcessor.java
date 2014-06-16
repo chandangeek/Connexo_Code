@@ -10,8 +10,8 @@ import com.energyict.mdc.engine.impl.commands.store.deviceactions.inbound.Inboun
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.inbound.InboundCollectedLogBookCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.inbound.InboundCollectedRegisterCommandImpl;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
-import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
+import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -101,7 +101,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
     }
 
     private ProtocolTask getMessageTask(ComTaskExecution comTaskExecution){
-        for (ProtocolTask protocolTask : comTaskExecution.getComTask().getProtocolTasks()) {
+        for (ProtocolTask protocolTask : comTaskExecution.getProtocolTasks()) {
             //TODO reenable onces messages are ported
 //            if (ComCommandTypes.MESSAGES_COMMAND.equals(ComCommandTypes.forProtocolTask(protocolTask.getClass()))) {
 //                return protocolTask;
@@ -111,7 +111,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
     }
 
     private ProtocolTask getLogBooksTask(ComTaskExecution comTaskExecution){
-        for (ProtocolTask protocolTask : comTaskExecution.getComTask().getProtocolTasks()) {
+        for (ProtocolTask protocolTask : comTaskExecution.getProtocolTasks()) {
             if (ComCommandTypes.LOGBOOKS_COMMAND.equals(ComCommandTypes.forProtocolTask(protocolTask.getClass()))) {
                 return protocolTask;
             }
@@ -121,7 +121,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
 
 
     private ProtocolTask getLoadProfilesTask(ComTaskExecution comTaskExecution){
-        for (ProtocolTask protocolTask : comTaskExecution.getComTask().getProtocolTasks()) {
+        for (ProtocolTask protocolTask : comTaskExecution.getProtocolTasks()) {
             if (ComCommandTypes.LOAD_PROFILE_COMMAND.equals(ComCommandTypes.forProtocolTask(protocolTask.getClass()))) {
                 return protocolTask;
             }
@@ -130,7 +130,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
     }
 
     private ProtocolTask getRegistersTask(ComTaskExecution comTaskExecution){
-        for (ProtocolTask protocolTask : comTaskExecution.getComTask().getProtocolTasks()) {
+        for (ProtocolTask protocolTask : comTaskExecution.getProtocolTasks()) {
             if (ComCommandTypes.REGISTERS_COMMAND.equals(ComCommandTypes.forProtocolTask(protocolTask.getClass()))) {
                 return protocolTask;
             }
