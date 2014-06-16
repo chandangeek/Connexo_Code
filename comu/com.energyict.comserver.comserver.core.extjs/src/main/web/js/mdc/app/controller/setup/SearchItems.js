@@ -76,6 +76,7 @@ Ext.define('Mdc.controller.setup.SearchItems', {
         } else {
             delete store.getProxy().extraParams.mRID;
         }
+
         if(searchItems.down('#sn').getValue() != "") {
             var button = searchItems.down('button[name=serialNumberBtn]');
             button = this.createCriteriaButton(button, criteriaContainer, 'serialNumberBtn', Uni.I18n.translate('searchItems.serialNumber', 'MDC', 'Serial number')+': '+searchItems.down('#sn').getValue());
@@ -83,6 +84,7 @@ Ext.define('Mdc.controller.setup.SearchItems', {
         } else {
             delete store.getProxy().extraParams.serialNumber;
         }
+
         if(searchItems.down('#type').getValue() != "") {
             var button = searchItems.down('button[name=typeBtn]');
             button = this.createCriteriaButton(button, criteriaContainer, 'typeBtn', Uni.I18n.translate('searchItems.type', 'MDC', 'Type')+': '+searchItems.down('#type').getRawValue());
@@ -90,6 +92,7 @@ Ext.define('Mdc.controller.setup.SearchItems', {
         } else {
             delete store.getProxy().extraParams.deviceTypeName;
         }
+
         if(searchItems.down('#configuration').getValue() != "") {
             var button = searchItems.down('button[name=configurationBtn]');
             button = this.createCriteriaButton(button, criteriaContainer, 'configurationBtn', Uni.I18n.translate('searchItems.configuration', 'MDC', 'Configuration')+': '+searchItems.down('#configuration').getRawValue());
@@ -127,6 +130,7 @@ Ext.define('Mdc.controller.setup.SearchItems', {
         var searchItems = this.getSearchItems(),
             sortContainer = searchItems.down('container[name=sortitemspanel]').getContainer(),
             value = item.value;
+
         switch (value) {
             case 'mRID':
                 var button = sortContainer.down('button[name=sortbymridbtn]');
@@ -145,6 +149,7 @@ Ext.define('Mdc.controller.setup.SearchItems', {
                 this.createSortButton(button, sortContainer, 'sortbyconfigurationbtn', item.value, item.text);
                 break;
         }
+
         this.searchAllItems();
     },
 
@@ -237,20 +242,20 @@ Ext.define('Mdc.controller.setup.SearchItems', {
         var searchItems = this.getSearchItems();
         switch (btn.name) {
             case 'mRIDBtn':
-                searchItems.down('#mrid').setValue("");
+                searchItems.down('#mrid').setValue('');
                 break;
             case 'serialNumberBtn':
-                searchItems.down('#sn').setValue("");
+                searchItems.down('#sn').setValue('');
                 break;
             case 'typeBtn':
-                searchItems.down('#type').setValue("");
-                searchItems.down('#configuration').setValue("");
+                searchItems.down('#type').setValue('');
+                searchItems.down('#configuration').setValue('');
                 if (searchItems.down('button[name=configurationBtn]') != null) {
                     searchItems.down('button[name=configurationBtn]').destroy();
                 }
                 break;
             case 'configurationBtn':
-                searchItems.down('#configuration').setValue("");
+                searchItems.down('#configuration').setValue('');
                 break;
         }
         btn.destroy();

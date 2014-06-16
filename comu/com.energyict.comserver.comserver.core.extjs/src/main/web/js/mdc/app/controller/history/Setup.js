@@ -478,26 +478,18 @@ Ext.define('Mdc.controller.history.Setup', {
                             controller: 'Mdc.controller.setup.RegisterTypes',
                             action: 'showRegisterTypeCreateView'
                         },
-                        view: {
-                            title: 'View register type',
-                            route: '{id}',
+                        edit: {
+                            title: 'Edit register type',
+                            route: '{id}/edit',
                             controller: 'Mdc.controller.setup.RegisterTypes',
-                            action: 'showRegisterTypeDetailsView',
+                            action: 'showRegisterTypeEditView',
                             callback: function(route) {
                                 this.getApplication().on('loadRegisterType', function(record) {
-                                    route.setTitle(record.get('name'));
+                                    route.setTitle('Edit ' + record.get('name') + '');
                                     return true;
                                 }, {single: true});
 
                                 return this;
-                            },
-                            items: {
-                                edit: {
-                                    title: 'Edit register type',
-                                    route: 'edit',
-                                    controller: 'Mdc.controller.setup.RegisterTypes',
-                                    action: 'showRegisterTypeEditView'
-                                }
                             }
                         }
                     }
