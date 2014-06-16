@@ -66,17 +66,10 @@ Ext.define('Uni.grid.column.Action', {
             me.menu.cell = cell;
         }
 
+        // this is for menu toggling, change the code below with accuracy!
         me.menu.on('hide', function() {
-            // this is for menu toggling, change the code below with accuracy!
-            var e;
-            if (event) {
-                e = event;
-            } else {
-                e = window.event;
-            }
-            //var e = window.event || e;
-            var actions = grid.getEl().query('.' + me.iconCls); //.x-action-col-cell:not(.active)
-            if (!_.contains(actions, document.elementFromPoint(e.clientX, e.clientY))) {
+            var actions = grid.getEl().query('.' + me.iconCls + ':hover');
+            if (!actions.length) {
                 me.menu.cell = null;
             }
             cell.removeCls('active');
