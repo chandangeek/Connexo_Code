@@ -10,7 +10,6 @@ import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.engine.model.InboundComPortPool;
-
 import javax.inject.Inject;
 import javax.inject.Provider;
 

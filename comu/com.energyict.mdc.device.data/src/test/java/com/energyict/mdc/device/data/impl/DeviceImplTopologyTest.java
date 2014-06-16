@@ -1,19 +1,15 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.energyict.mdc.device.data.CommunicationTopologyEntry;
-import com.energyict.mdc.device.data.Device;
-
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.util.time.Interval;
-import org.joda.time.DateMidnight;
-
-import java.util.Arrays;
+import com.energyict.mdc.device.data.CommunicationTopologyEntry;
+import com.energyict.mdc.device.data.Device;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import org.junit.*;
+import org.joda.time.DateMidnight;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;

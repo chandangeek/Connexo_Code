@@ -28,6 +28,7 @@ import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import javax.inject.Inject;
@@ -60,6 +61,11 @@ public class AdHocComTaskExecutionImpl extends ComTaskExecutionImpl implements A
     @Override
     public ComTask getComTask() {
         return comTask.get();       // we do an explicit get because ComTask is required and should not be null
+    }
+
+    @Override
+    public List<ComTask> getComTasks() {
+        return Arrays.asList(getComTask());
     }
 
     @Override

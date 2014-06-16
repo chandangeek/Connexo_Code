@@ -1,9 +1,7 @@
 package com.energyict.mdc.device.data.exceptions;
 
 import com.elster.jupiter.util.exception.MessageSeed;
-
 import com.energyict.mdc.device.data.DeviceDataService;
-
 import java.util.logging.Level;
 
 import static java.util.logging.Level.SEVERE;

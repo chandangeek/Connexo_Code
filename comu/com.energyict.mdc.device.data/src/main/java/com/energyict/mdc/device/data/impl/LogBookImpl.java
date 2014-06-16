@@ -10,9 +10,8 @@ import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.masterdata.LogBookType;
-
-import javax.inject.Inject;
 import java.util.Date;
+import javax.inject.Inject;
 
 /**
  * Copyrights EnergyICT

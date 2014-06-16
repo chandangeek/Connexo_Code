@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.tasks;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.engine.model.ComServer;
 import java.sql.SQLException;
 

@@ -1,10 +1,8 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.CommunicationTopologyEntry;
 import com.energyict.mdc.device.data.Device;
-
-import com.elster.jupiter.util.time.Interval;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;

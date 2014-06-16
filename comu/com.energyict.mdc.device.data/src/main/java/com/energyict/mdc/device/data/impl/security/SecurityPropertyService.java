@@ -3,7 +3,6 @@ package com.energyict.mdc.device.data.impl.security;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
-
 import java.util.Date;
 import java.util.List;
 

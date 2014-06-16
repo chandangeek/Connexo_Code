@@ -43,7 +43,6 @@ import com.energyict.mdc.tasks.ComTask;
 import com.google.common.collect.ImmutableMap;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
 import org.hibernate.validator.constraints.Range;
@@ -76,6 +75,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_ARE_REQUIRED + "}")
     private Reference<ProtocolDialectConfigurationProperties> protocolDialectConfigurationProperties = ValueReference.absent();
 
+    private long connectionTaskId;  // Required for performance of ComTaskExecution query to avoid loading the ConnectionTask to only get the id
     private Reference<ConnectionTask<?, ?>> connectionTask = ValueReference.absent();
 
     private Reference<ComPort> comPort = ValueReference.absent();
@@ -161,7 +161,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     <X extends ComTaskExecutionImpl> X initialize(Device device, ComTaskEnablement comTaskEnablement) {
         this.device.set(device);
         if (comTaskEnablement.getNextExecutionSpecs() != null) {
-            this.nextXXXExecutionSpecHolder = new MyNextExecutionSpecHolder(comTaskEnablement.getNextExecutionSpecs().getTemporalExpression());
+            this.nextExecutionSpecHolder = new MyNextExecutionSpecHolder(comTaskEnablement.getNextExecutionSpecs().getTemporalExpression());
         } else {
             this.nextExecutionSpecHolder = new NoNextExecutionSpecHolder();
         }
@@ -353,15 +353,15 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     }
 
     void createOrUpdateMyNextExecutionSpecs(TemporalExpression temporalExpression) {
-        if (this.nextExecutionSpecHolder.myNextExecutionSpec()) {
-            this.nextExecutionSpecHolder.updateTemporalExpression(temporalExpression);
+        if (this.getNextExecutionSpecHolder().myNextExecutionSpec()) {
+            this.getNextExecutionSpecHolder().updateTemporalExpression(temporalExpression);
         } else {
             this.nextExecutionSpecHolder = new MyNextExecutionSpecHolder(temporalExpression);
         }
     }
 
     void removeNextExecutionSpec() {
-        this.nextExecutionSpecHolder.delete();
+        this.getNextExecutionSpecHolder().delete();
         this.nextExecutionSpecHolder = new NoNextExecutionSpecHolder();
         this.updateNextExecutionTimestamp();
     }

@@ -105,6 +105,11 @@ public class ScheduledComTaskExecutionImpl extends ComTaskExecutionImpl implemen
     }
 
     @Override
+    public List<ComTask> getComTasks() {
+        return getComSchedule().getComTasks();
+    }
+
+    @Override
     boolean usesComSchedule(ComSchedule comSchedule) {
         return comSchedule != null && this.comScheduleReference.get().getId() == comSchedule.getId();
     }

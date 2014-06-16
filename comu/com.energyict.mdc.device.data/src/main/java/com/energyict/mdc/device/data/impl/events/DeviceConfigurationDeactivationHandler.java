@@ -1,17 +1,15 @@
 package com.energyict.mdc.device.data.impl.events;
 
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.device.data.impl.ServerDeviceDataService;
-
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pubsub.EventHandler;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.impl.ServerDeviceDataService;
+import javax.inject.Inject;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-
-import javax.inject.Inject;
 
 /**
  * Handles delete events that are being sent when a {@link DeviceConfiguration}

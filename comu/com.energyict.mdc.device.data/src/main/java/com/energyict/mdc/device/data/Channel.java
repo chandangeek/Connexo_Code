@@ -2,7 +2,6 @@ package com.energyict.mdc.device.data;
 
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 
 /**
  * Copyrights EnergyICT

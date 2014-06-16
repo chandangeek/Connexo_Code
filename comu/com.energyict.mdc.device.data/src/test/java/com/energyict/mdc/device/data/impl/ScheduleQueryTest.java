@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.util.sql.Fetcher;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.data.ServerComTaskExecution;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImplIT;
@@ -9,15 +11,10 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
-
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.util.sql.Fetcher;
-
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
-
-import org.junit.*;
+import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 

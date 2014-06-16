@@ -1,16 +1,13 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.energyict.mdc.device.data.CommunicationTopologyEntry;
-import com.energyict.mdc.device.data.Device;
-
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.util.time.Interval;
-import org.joda.time.DateMidnight;
-
+import com.energyict.mdc.device.data.CommunicationTopologyEntry;
+import com.energyict.mdc.device.data.Device;
 import java.util.Arrays;
-
-import org.junit.*;
-import org.junit.runner.*;
+import org.joda.time.DateMidnight;
+import org.junit.BeforeClass;
+import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Mockito.mock;

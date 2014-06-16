@@ -1,16 +1,14 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.energyict.mdc.device.data.Device;
-
 import com.elster.jupiter.util.time.Interval;
-import org.joda.time.DateMidnight;
-
+import com.energyict.mdc.device.data.Device;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import org.junit.*;
-import org.junit.runner.*;
+import org.joda.time.DateMidnight;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 

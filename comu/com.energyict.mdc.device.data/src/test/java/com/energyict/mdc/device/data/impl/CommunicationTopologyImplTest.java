@@ -1,11 +1,9 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.energyict.mdc.device.data.Device;
-
 import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.device.data.Device;
 import org.joda.time.DateMidnight;
-
-import org.junit.*;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

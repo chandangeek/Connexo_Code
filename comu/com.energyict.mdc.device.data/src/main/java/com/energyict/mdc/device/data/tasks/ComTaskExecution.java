@@ -7,6 +7,7 @@ import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
+import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import java.util.Date;
 import java.util.List;
@@ -299,4 +300,6 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
     ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?,?>, ? extends ComTaskExecution> getUpdater();
 
     public List<ProtocolTask> getProtocolTasks();
+
+    public List<ComTask> getComTasks();
 }

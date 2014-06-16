@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.data;
 
 import com.elster.jupiter.util.time.Interval;
-
 import java.util.List;
 
 /**
