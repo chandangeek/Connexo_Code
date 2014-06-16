@@ -36,7 +36,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypesAddToDeviceTypeGrid',
                     return intervalRecord.getData().name;
                 },
                 flex: 3
-            },
+            }
         ];
         this.callParent();
     }

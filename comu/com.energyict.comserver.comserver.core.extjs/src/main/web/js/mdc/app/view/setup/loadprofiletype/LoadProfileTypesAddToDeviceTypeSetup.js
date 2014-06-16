@@ -7,19 +7,14 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypesAddToDeviceTypeSetup'
 
     content: [
         {
-            xtype: 'container',
-            cls: 'content-container',
+            xtype: 'panel',
             layout: {
                 type: 'vbox',
                 align: 'stretch'
             },
-            padding: '0 10 0 10',
+            ui: 'large',
+            title: Uni.I18n.translate('loadprofiletype.addloadprofiletypes', 'MDC', 'Add load profile types'),
             items: [
-                {
-                    xtype: 'component',
-                    margins: '10 10 10 10',
-                    html: '<h1>' + Uni.I18n.translate('loadprofiletype.addloadprofiletypes', 'MDC', 'Add load profile types') + '</h1>'
-                },
                 {
                     xtype: 'radiogroup',
                     name: 'allOrSelectedLoadProfileTypes',
@@ -50,31 +45,8 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypesAddToDeviceTypeSetup'
                 {
                     xtype: 'container',
                     itemId: 'loadProfileTypesAddToDeviceTypeGridContainer'
-                },
-                {
-                    xtype: 'toolbar',
-                    border: 0,
-                    items: [
-                        {
-                            xtype: 'button',
-                            name: 'addloadprofiletypestodevicetype',
-                            text: 'Add',
-                            ui: 'action'
-                        },
-                        {
-                            xtype: 'button',
-                            text: 'Cancel',
-                            ui: 'link',
-                            handler:function(button,event){
-                                Ext.History.back();
-                            }
-                        }
-                    ]
                 }
-
-
             ]
-
         }
     ],
 
@@ -83,7 +55,22 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypesAddToDeviceTypeSetup'
         this.down('#loadProfileTypesAddToDeviceTypeGridContainer').add(
             {
                 xtype: 'loadProfileTypesAddToDeviceTypeGrid',
-                intervalStore: this.intervalStore
+                intervalStore: this.intervalStore,
+                buttonAlign: 'left',
+                buttons: [
+                    {
+                        name: 'addloadprofiletypestodevicetype',
+                        text: 'Add',
+                        ui: 'action'
+                    },
+                    {
+                        text: 'Cancel',
+                        ui: 'link',
+                        handler:function(button,event){
+                            Ext.History.back();
+                        }
+                    }
+                ]
             }
         );
     }
