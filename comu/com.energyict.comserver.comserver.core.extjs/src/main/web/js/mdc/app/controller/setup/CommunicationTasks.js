@@ -68,10 +68,6 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                 }
             }
         });
-
-        me.addEvents('shownotification');
-
-        me.on('shownotification', me.showNotification);
     },
 
     setupMenuItems: function(record) {
@@ -89,14 +85,6 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                 });
             }
         }
-    },
-
-    showNotification: function(title, text, notificationType) {
-        Ext.create('widget.uxNotification', {
-            title: title,
-            html: text,
-            ui: notificationType
-        }).show();
     },
 
     enableScheduleFieldItemChanged: function(item, newValue, oldValue, eOpts) {
@@ -378,7 +366,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                 success: function () {
                     var messageKey = ((suspended == true) ? 'communicationtasks.activated' : 'communicationtasks.deactivated');
                     var messageText = ((suspended == true) ? 'Communication task successfully activated' : 'Communication task successfully deactivated');
-                    me.fireEvent('shownotification', null, Uni.I18n.translate(messageKey, 'MDC', messageText), 'notification-success');
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate(messageKey, 'MDC', messageText));
                     me.loadCommunicationTasksStore();
                 },
                 failure: function (response, request) {
@@ -452,7 +440,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                         me.clearPreLoader();
                         if(operation.wasSuccessful()) {
                             location.href = '#/administration/devicetypes/'+me.deviceTypeId+'/deviceconfigurations/'+me.deviceConfigurationId+'/comtaskenablements';
-                            me.fireEvent('shownotification', null, Uni.I18n.translate('communicationtasks.removed', 'MDC', 'Communication task successfully removed'), 'notification-success');
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('communicationtasks.removed', 'MDC', 'Communication task successfully removed'));
                             me.loadCommunicationTasksStore();
                         } else {
                             if(operation.response.status == 400) {
@@ -484,7 +472,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
             record.save({
                 success: function (record) {
                     location.href = '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/comtaskenablements';
-                    me.fireEvent('shownotification', null, cfg.successMessage, 'notification-success');
+                    me.getApplication().fireEvent('acknowledge', cfg.successMessage);
                 },
                 failure: function (record, operation) {
                     if(operation.response.status == 400) {

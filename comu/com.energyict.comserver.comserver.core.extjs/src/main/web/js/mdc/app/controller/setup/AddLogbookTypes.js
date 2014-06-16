@@ -46,16 +46,14 @@ Ext.define('Mdc.controller.setup.AddLogbookTypes', {
         });
         var jsonIds = Ext.encode(ids);
         preloader.show();
+        var router = this.getController('Uni.controller.history.Router');
         Ext.Ajax.request({
             url: url,
             method: 'POST',
             jsonData: jsonIds,
             success: function () {
-                window.location.href = '#/administration/devicetypes/' + addView.deviceTypeId + '/logbooktypes';
-                Ext.create('widget.uxNotification', {
-                    html: 'Successfully added',
-                    ui: 'notification-success'
-                }).show();
+                router.getRoute('administration/devicetypes/view/logbooktypes').forward(router.routeparams);
+                self.getApplication().fireEvent('acknowledge', 'Successfully added');
             },
             failure: function (response) {
                 if(response.status == 400) {

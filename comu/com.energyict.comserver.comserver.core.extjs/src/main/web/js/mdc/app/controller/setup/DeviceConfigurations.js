@@ -91,21 +91,27 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
     },
 
     showDeviceConfigurations: function (id) {
+        debugger;
         var me = this;
         this.deviceTypeId = id;
         this.getDeviceConfigurationsStore().getProxy().setExtraParam('deviceType', id);
-        var widget = Ext.widget('deviceConfigurationsSetup', {deviceTypeId: id});
-        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(id, {
-            success: function (deviceType) {
-                me.getApplication().fireEvent('loadDeviceType', deviceType);
-                me.getApplication().fireEvent('changecontentevent', widget);
-                me.getDeviceConfigurationsGrid().getSelectionModel().doSelect(0);
+        this.getDeviceConfigurationsStore().load({
+            callback: function(){
+                var widget = Ext.widget('deviceConfigurationsSetup', {deviceTypeId: id});
+                Ext.ModelManager.getModel('Mdc.model.DeviceType').load(id, {
+                    success: function (deviceType) {
+                        me.getApplication().fireEvent('loadDeviceType', deviceType);
+                        me.getApplication().fireEvent('changecontentevent', widget);
+                        me.getDeviceConfigurationsGrid().getSelectionModel().doSelect(0);
+                    }
+                });
             }
         });
 
     },
 
     previewDeviceConfiguration: function (grid, record) {
+        debugger;
         var deviceConfigurations = this.getDeviceConfigurationsGrid().getSelectionModel().getSelection();
         if (deviceConfigurations.length == 1) {
             var deviceConfigurationId = deviceConfigurations[0].get('id');
@@ -433,7 +439,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                             });
                         }
                     });
-                    var numberOfLogbooksLabel = Ext.ComponentQuery.query('add-logbook-configurations toolbar label[name=LogBookCount]')[0],
+                    var numberOfLogbooksLabel = Ext.ComponentQuery.query('add-logbook-configurations toolbar #LogBookCount')[0],
                         grid = Ext.ComponentQuery.query('add-logbook-configurations grid')[0];
                     numberOfLogbooksLabel.setText('No logbooks selected');
                     if (self.getCount() < 1) {

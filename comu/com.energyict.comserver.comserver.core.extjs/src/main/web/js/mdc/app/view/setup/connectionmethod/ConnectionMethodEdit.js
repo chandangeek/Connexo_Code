@@ -239,6 +239,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                     {
                                         text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
                                         xtype: 'button',
+                                        ui: 'action',
                                         action: 'addAction',
                                         itemId: 'addEditButton'
                                     },

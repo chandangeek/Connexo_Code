@@ -19,6 +19,10 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
     ],
 
     refs: [
+        {
+            ref: 'page',
+            selector: 'loadProfileConfigurationDetailSetup'
+        },
         {ref: 'breadCrumbs', selector: 'breadcrumbTrail'},
         {ref: 'loadConfigurationDetailForm', selector: '#loadProfileConfigurationDetailInfo'},
         {ref: 'loadProfileConfigurationChannelDetailsForm', selector: '#loadProfileConfigurationChannelDetailsForm'},
@@ -185,7 +189,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                             router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').forward(router.routeparams);
                         },
                         failure: function (response) {
-                            me.handleFailureRequest(response, 'Error during create', 'channelnotificationerrorretry');
+                            (response.status == 400) && me.handleFailureRequest(response, 'Error during create', 'channelnotificationerrorretry');
                         },
                         callback: function () {
                             preloader.destroy();
@@ -207,7 +211,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                             router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').forward(router.routeparams);
                         },
                         failure: function (response) {
-                            me.handleFailureRequest(response, 'Error during update', 'channelnotificationerrorretry');
+                            (response.status == 400) && me.handleFailureRequest(response, 'Error during update', 'channelnotificationerrorretry');
                         },
                         callback: function () {
                             preloader.destroy();
@@ -336,21 +340,19 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                 var loadProfileConfiguration = Ext.JSON.decode(response.responseText).data[0],
                                     widget = Ext.widget('loadProfileConfigurationDetailSetup', {intervalStore: me.intervalStore, deviceTypeId: deviceTypeId, deviceConfigId: deviceConfigurationId, loadProfileConfigurationId: loadProfileConfigurationId });
                                 me.getApplication().fireEvent('loadLoadProfile', loadProfileConfiguration);
-                                widget.down('loadProfileConfigurationDetailChannelGrid').getStore().load({
-                                    callback: function() {
-                                        if (this.getTotalCount() < 1) {
-                                            widget.down('#emptyPanel').show();
-                                            widget.down('#loadProfileConfigurationDetailChannelGridContainer').hide();
-                                            widget.down('#loadProfileConfigurationDetailChannelPreviewContainer').hide();
-                                            widget.down('#separator').hide();
-                                        }
-                                    }
-                                });
                                 widget.down('#loadProfileConfigurationDetailTitle').html = '<h1>' + loadProfileConfiguration.name + '</h1>';
                                 widget.down('#loadProfileConfigurationDetailChannelConfigurationTitle').html = '<h3>' + Uni.I18n.translate('loadprofileconfiguration.loadprofilechannelconfiguation', 'MDC', 'Channel configurations') + '</h3>';
                                 me.deviceTypeName = deviceType.get('name');
                                 me.deviceConfigName = deviceConfig.get('name');
                                 me.getApplication().fireEvent('changecontentevent', widget);
+                                widget.down('loadProfileConfigurationDetailChannelGrid').getStore().on('load', function () {
+                                    if (me.store.getTotalCount() < 1) {
+                                        me.getPage().down('#emptyPanel').show();
+                                        me.getPage().down('#loadProfileConfigurationDetailChannelGridContainer').hide();
+                                        me.getPage().down('#loadProfileConfigurationDetailChannelPreviewContainer').hide();
+                                        me.getPage().down('#separator').hide();
+                                    }
+                                }, me);
                                 var detailedForm = me.getLoadConfigurationDetailForm();
                                 detailedForm.getForm().setValues(loadProfileConfiguration);
                                 detailedForm.down('[name=deviceConfigurationName]').setValue(Ext.String.format('<a href="#/administration/devicetypes/{0}/deviceconfigurations/{1}">{2}</a>', deviceTypeId, deviceConfigurationId, me.deviceConfigName));

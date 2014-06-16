@@ -117,6 +117,7 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
         });
     },
     processRemovingLogbookType: function (state, text, cfg) {
+        var me = this;
         if (state === 'confirm') {
             var self = cfg.config.self,
                 logBookStore = self.store,
@@ -129,10 +130,7 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
                 url: '/api/mds/logbooktypes/' + cfg.config.logBookTypeId,
                 method: 'DELETE',
                 success: function () {
-                    Ext.create('widget.uxNotification', {
-                        html: Uni.I18n.translate('logbooktype.remove.successfull', 'MDC', 'Successfully removed'),
-                        ui: 'notification-success'
-                    }).show();
+                    me.getApplication().fireEvent('acknowledge', 'Successfully removed');
                     logBookStore.load();
                 },
                 failure: function (response) {
@@ -204,11 +202,7 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
             jsonData: jsonValues,
             success: function () {
                 window.location.href = '#/administration/logbooktypes';
-
-                Ext.create('widget.uxNotification', {
-                    html: 'Successfully created',
-                    ui: 'notification-success'
-                }).show();
+                self.getApplication().fireEvent('acknowledge', 'Successfully created');
             },
             failure: function (response) {
                 var result = Ext.decode(response.responseText, true);
@@ -247,11 +241,7 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
             waitMsg: 'Loading...',
             success: function () {
                 window.location.href = '#/administration/logbooktypes';
-
-                Ext.create('widget.uxNotification', {
-                    html: 'Successfully edited',
-                    ui: 'notification-success'
-                }).show();
+                self.getApplication().fireEvent('acknowledge', 'Successfully edited');
             },
             failure: function (response) {
                 confirmMessage.close();

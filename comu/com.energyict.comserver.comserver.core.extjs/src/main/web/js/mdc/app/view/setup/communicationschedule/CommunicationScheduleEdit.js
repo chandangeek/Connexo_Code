@@ -124,7 +124,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                                         hideable: false,
                                                         items: [
                                                             {
-                                                                tooltip: 'Edit',
+                                                                tooltip: 'Remove',
                                                                 handler: function(grid, rowIndex, colIndex, item, e, record, row) {
                                                                     this.fireEvent('deleteComTask', record);
                                                                 }
@@ -232,18 +232,16 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                     {
                                         text: Uni.I18n.translate('general.create', 'MDC', 'Create'),
                                         xtype: 'button',
+                                        ui: 'action',
                                         action: 'createAction',
                                         itemId: 'createEditButton'
                                     },
                                     {
-                                        xtype: 'component',
-                                        padding: '3 0 0 10',
+                                        xtype: 'button',
+                                        text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                                        ui: 'link',
                                         itemId: 'cancelLink',
-                                        autoEl: {
-                                            tag: 'a',
-                                            href: '#/administration/communicationschedules/',
-                                            html: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel')
-                                        }
+                                        href: '#/administration/communicationschedules/'
                                     }
                                 ]
                             }

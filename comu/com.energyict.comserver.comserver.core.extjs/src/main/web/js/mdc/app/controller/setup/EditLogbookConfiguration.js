@@ -78,10 +78,7 @@ Ext.define('Mdc.controller.setup.EditLogbookConfiguration', {
                 jsonData: jsonValues,
                 success: function () {
                     window.location.href = '#/administration/devicetypes/' + editView.deviceTypeId + '/deviceconfigurations/' + editView.deviceConfigurationId + '/logbookconfigurations';
-                    Ext.create('widget.uxNotification', {
-                        html: 'Successfully updated',
-                        ui: 'notification-success'
-                    }).show();
+                    self.getApplication().fireEvent('acknowledge', 'Successfully updated');
                 },
                 failure: function (response) {
                     if(response.status == 400) {
