@@ -512,7 +512,7 @@ public class ABBA230RegisterFactory {
         loadProfileDSTConfig = cr("778", "LoadProfileDSTConfig", ABBA230RegisterData.ABBA_HEX,0,1, null);
         /* ------ */
 
-        systemStatusDataIdentity = cr("724", "SystemStatus", ABBA230RegisterData.ABBA_SYSTEMSTATUS,0,13, null);
+        systemStatusDataIdentity = cr("724", "SystemStatus", ABBA230RegisterData.ABBA_SYSTEMSTATUS,0,21, null);
         
         custDefRegConfig = cr("600", "CustDefRegConfig", ABBA230RegisterData.ABBA_CUSTDEFREGCONFIG,0,4, null);
         
