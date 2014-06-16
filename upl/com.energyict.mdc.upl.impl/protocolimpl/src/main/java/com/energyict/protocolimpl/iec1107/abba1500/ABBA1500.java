@@ -47,7 +47,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
@@ -249,15 +248,7 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
             this.software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
             this.MaxNrOfDaysProfileData = Integer.parseInt(properties.getProperty("MaxNrOfDaysProfileData", "0").trim());
 
-            strDateFormat = properties.getProperty("DateFormat", "yy/MM/dd").trim().toLowerCase();
-            // Check for valid DateFormat
-            StringTokenizer tokenizer = new StringTokenizer(strDateFormat, "/");
-            for (int i = 0; i < 3; i++) {
-                String token = tokenizer.nextToken();
-                if (!token.equals("mm") && !token.equals("yy") && !token.equals("dd")) {
-                    throw new InvalidPropertyException("Invalid format of DateFormat property: " + strDateFormat + "! Valid formats should match pattern 'xx/xx/xx'.");
-                }
-            }
+            strDateFormat = properties.getProperty("DateFormat", "yy/MM/dd").trim();
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, " + e.getMessage());
         }

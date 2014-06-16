@@ -459,13 +459,8 @@ abstract public class VDEWRegisterDataParse {
             ProtocolUtils.arrayCopy(ProtocolUtils.getSubArray2(rawdata, 4, 6), timedate, 6);
             calendar = ProtocolUtils.getCleanCalendar(getProtocolLink().getTimeZone());
         } else {
-            ProtocolUtils.arrayCopy(
-                    dataLength > 12 // This is the case when 0.9.2 contains both date AND time (thus 0.9.1 0.9.2 combination contains time info twice)
-                            ? ProtocolUtils.getSubArray2(rawdata, dataLength - 12, 12) // only copy 0.9.2
-                            : rawdata,
-                    timedate,
-                    0
-            );
+            timedate = new byte[rawdata.length];    // Take over the length of the rawData (and thus not fixed to 12 bytes anymore)
+            ProtocolUtils.arrayCopy(rawdata, timedate, 0);
             calendar = ProtocolUtils.getCleanCalendar(getProtocolLink().getTimeZone());
         }
 
@@ -473,6 +468,7 @@ abstract public class VDEWRegisterDataParse {
 
         if (getDateFormat() != null && getDateFormat().length() > 8) {          //E.g. yyMMddHHmmss (date and time)
             SimpleDateFormat format = new SimpleDateFormat(getDateFormat());
+            format.setTimeZone(getProtocolLink().getTimeZone());
             try {
                 return format.parse(ProtocolTools.getHexStringFromBytes(data, ""));
             } catch (ParseException e) {
