@@ -28,6 +28,14 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileConfigurationForm', {
                     }
                 },
                 {
+                    xtype: 'displayfield',
+                    required: true,
+                    fieldLabel: 'Load profile type',
+                    name: 'loadprofiletype',
+                    value: 'LoadProfileType',
+                    hidden: true
+                },
+                {
                     xtype: 'combobox',
                     required: true,
                     allowBlank: false,
