@@ -40,4 +40,8 @@ public abstract class AbstractInboundSmsConnectionType extends ConnectionTypeImp
         return new VoidComChannel();
     }
 
+    @Override
+    public ConnectionTypeDirection getDirection() {
+        return ConnectionTypeDirection.INBOUND;
+    }
 }

@@ -21,6 +21,7 @@ import com.energyict.mdc.dynamic.TimeZoneFactory;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
+import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 
 import com.energyict.protocols.mdc.protocoltasks.ConnectionTypeImpl;
@@ -50,6 +51,11 @@ public class TestOfRequiredPropertiesConnectionType extends ConnectionTypeImpl {
     @Override
     public ComChannel connect (List<ConnectionProperty> properties) throws ConnectionException {
         return new VoidComChannel();
+    }
+
+    @Override
+    public ConnectionTypeDirection getDirection() {
+        return ConnectionTypeDirection.OUTBOUND;
     }
 
     @Override

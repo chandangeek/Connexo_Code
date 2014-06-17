@@ -88,6 +88,11 @@ public class EIWebConnectionType implements ServerConnectionType {
     }
 
     @Override
+    public ConnectionTypeDirection getDirection() {
+        return ConnectionTypeDirection.INBOUND;
+    }
+
+    @Override
     public PropertySpec getPropertySpec(String name) {
         switch (name) {
             case MAC_ADDRESS_PROPERTY_NAME:

@@ -143,4 +143,8 @@ public class OutboundProximusSmsConnectionType extends ConnectionTypeImpl {
         return "$Date: 2013-06-26 15:15:49 +0200 (Mit, 26 Jun 2013) $";
     }
 
+    @Override
+    public ConnectionTypeDirection getDirection() {
+        return ConnectionTypeDirection.OUTBOUND;
+    }
 }

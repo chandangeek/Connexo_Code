@@ -4,6 +4,7 @@ import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
+import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.protocols.mdc.protocoltasks.ConnectionTypeImpl;
 
@@ -52,4 +53,8 @@ public class EmptyConnectionType extends ConnectionTypeImpl {
         return "$Date: 2013-03-15 15:45:35 +0100 (vr, 15 mrt 2013) $";
     }
 
+    @Override
+    public ConnectionTypeDirection getDirection() {
+        return ConnectionTypeDirection.OUTBOUND;
+    }
 }

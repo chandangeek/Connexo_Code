@@ -6,6 +6,7 @@ import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecBuilder;
 import com.energyict.mdc.dynamic.StringFactory;
 import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.SerialConnectionPropertyNames;
 import com.energyict.mdc.protocol.api.channels.serial.BaudrateValue;
 import com.energyict.mdc.protocol.api.channels.serial.FlowControl;
@@ -188,4 +189,8 @@ public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
         return EnumSet.of(ComPortType.SERIAL);
     }
 
+    @Override
+    public ConnectionTypeDirection getDirection() {
+        return ConnectionTypeDirection.OUTBOUND;
+    }
 }

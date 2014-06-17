@@ -111,4 +111,8 @@ public abstract class DlmsConnectionType extends ConnectionTypeImpl {
         }
     }
 
+    @Override
+    public ConnectionTypeDirection getDirection() {
+        return ConnectionTypeDirection.OUTBOUND;
+    }
 }
