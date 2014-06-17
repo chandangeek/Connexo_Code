@@ -7,6 +7,15 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSetup', {
         'Mdc.view.setup.loadprofiletype.LoadProfileTypePreview',
         'Uni.view.container.PreviewContainer'
     ],
+
+    side: [
+        {
+            xtype: 'panel',
+            ui: 'medium',
+            items: []
+        }
+    ],
+
     content: [
         {
             xtype: 'panel',
@@ -77,19 +86,11 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSetup', {
 
         if (config) {
             if (config.deviceTypeId) {
-                this.getWestContainer().add(
-                    {
-                        xtype: 'panel',
-                        ui: 'meduim',
-                        items: [
-                            {
-                                xtype: 'deviceTypeMenu',
-                                deviceTypeId: 2,
-                                toggle: 2
-                            }
-                        ]
-                    }
-                );
+                this.getWestContainer().down('panel').add({
+                    xtype: 'deviceTypeMenu',
+                    deviceTypeId: config.deviceTypeId,
+                    toggle: 2
+                });
                 Ext.Array.each(addButtons, function (button) {
                     button.href = '#/administration/devicetypes/' + config.deviceTypeId + '/loadprofiles/add';
                 });
