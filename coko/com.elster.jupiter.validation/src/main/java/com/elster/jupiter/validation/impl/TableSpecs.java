@@ -20,10 +20,10 @@ public enum TableSpecs {
             table.map(ValidationRuleSetImpl.class);
             table.setJournalTableName("VAL_VALIDATIONRULESETJRNL");
             Column idColumn = table.addAutoIdColumn();
-            Column mRIDColumn = table.column("MRID").type("varchar2(80)").map("mRID").add();
-            table.column("NAME").type("varchar2(80)").map("name").add();
-            table.column("ALIASNAME").type("varchar2(80)").map("aliasName").add();
-            table.column("DESCRIPTION").type("varchar2(256)").map("description").add();
+            Column mRIDColumn = table.column("MRID").varChar(80).map("mRID").add();
+            table.column("NAME").varChar(80).map("name").add();
+            table.column("ALIASNAME").varChar(80).map("aliasName").add();
+            table.column("DESCRIPTION").varChar(256).map("description").add();
             table.addAuditColumns();
             table.primaryKey("VAL_PK_VALIDATIONRULESET").on(idColumn).add();
             table.unique("VAL_U_VALIDATIONRULESET").on(mRIDColumn).add();
@@ -36,11 +36,11 @@ public enum TableSpecs {
             table.setJournalTableName("VAL_VALIDATIONRULEJRNL");
             Column idColumn = table.addAutoIdColumn();
             table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("active").add();
-            table.column("ACTION").type("number").notNull().conversion(NUMBER2ENUM).map("action").add();
-            table.column("IMPLEMENTATION").type("varchar2(80)").map("implementation").add();
-            Column ruleSetIdColumn = table.column("RULESETID").type("number").notNull().conversion(NUMBER2LONG).map("ruleSetId").add();
-            table.column("POSITION").type("number").notNull().conversion(NUMBER2INT).map("position").add();
-            table.column("NAME").type("varchar2(80)").notNull().map("name").add();
+            table.column("ACTION").number().notNull().conversion(NUMBER2ENUM).map("action").add();
+            table.column("IMPLEMENTATION").varChar(80).map("implementation").add();
+            Column ruleSetIdColumn = table.column("RULESETID").number().notNull().conversion(NUMBER2LONG).map("ruleSetId").add();
+            table.column("POSITION").number().notNull().conversion(NUMBER2INT).map("position").add();
+            table.column("NAME").varChar(80).notNull().map("name").add();
             table.primaryKey("VAL_PK_VALIDATIONRULE").on(idColumn).add();
             table.foreignKey("VAL_FK_RULE").references("VAL_VALIDATIONRULESET").onDelete(RESTRICT).map("ruleSet").reverseMap("rules").reverseMapOrder("position").on(ruleSetIdColumn).add();
         }
@@ -49,8 +49,8 @@ public enum TableSpecs {
         @Override
         void describeTable(Table table) {
             table.map(ValidationRulePropertiesImpl.class);
-            Column ruleIdColumn = table.column("RULEID").type("number").notNull().conversion(NUMBER2LONG).add();
-            Column nameColumn = table.column("NAME").type("varchar2(80)").notNull().map("name").add();
+            Column ruleIdColumn = table.column("RULEID").number().notNull().conversion(NUMBER2LONG).add();
+            Column nameColumn = table.column("NAME").varChar(80).notNull().map("name").add();
             table.addQuantityColumns("VALUE", true, "value");
             table.primaryKey("VAL_PK_VALRULEPROPS").on(ruleIdColumn, nameColumn).add();
             table.foreignKey("VAL_FK_RULEPROPS").references("VAL_VALIDATIONRULE").onDelete(CASCADE).map("rule").reverseMap("properties").composition().on(ruleIdColumn).add();
@@ -61,10 +61,10 @@ public enum TableSpecs {
         void describeTable(Table table) {
             table.map(MeterActivationValidationImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            Column ruleSetIdColumn = table.column("RULESETID").type("number").conversion(NUMBER2LONG).map("ruleSetId").add();
-            Column meterActivationId = table.column("METERACTIVATIONID").type("number").conversion(NUMBER2LONG).add();
-            table.column("LASTRUN").type("number").conversion(NUMBER2UTCINSTANT).map("lastRun").add();
-            table.column("OBSOLETETILE").number().conversion(NUMBER2UTCINSTANT).map("obsoleteTime").add();
+            Column ruleSetIdColumn = table.column("RULESETID").number().conversion(NUMBER2LONG).map("ruleSetId").add();
+            Column meterActivationId = table.column("METERACTIVATIONID").number().conversion(NUMBER2LONG).add();
+            table.column("LASTRUN").number().conversion(NUMBER2UTCINSTANT).map("lastRun").add();
+            table.column("OBSOLETETIME").number().conversion(NUMBER2UTCINSTANT).map("obsoleteTime").add();
             table.primaryKey("VAL_PK_MA_VALIDATION").on(idColumn).add();
             table.foreignKey("VAL_FK_MA_VALIDATION_MA").references("MTR", "MTR_METERACTIVATION").onDelete(RESTRICT).map("meterActivation").on(meterActivationId).add();
             table.foreignKey("VAL_FK_MA_VALIDATION_VRS").references(VAL_VALIDATIONRULESET.name()).onDelete(DeleteRule.RESTRICT).map("ruleSet").on(ruleSetIdColumn).add();
@@ -76,8 +76,8 @@ public enum TableSpecs {
             table.map(ChannelValidationImpl.class);
             Column idColumn = table.addAutoIdColumn();
             Column channelRef = table.column("CHANNELID").number().notNull().conversion(NUMBER2LONG).add();
-            Column meterActivationValidationColumn = table.column("MAV_ID").type("number").conversion(NUMBER2LONG).add();
-            table.column("LASTCHECKED").type("number").conversion(NUMBER2UTCINSTANT).map("lastChecked").add();
+            Column meterActivationValidationColumn = table.column("MAV_ID").number().conversion(NUMBER2LONG).add();
+            table.column("LASTCHECKED").number().conversion(NUMBER2UTCINSTANT).map("lastChecked").add();
             table.primaryKey("VAL_PK_CH_VALIDATION").on(idColumn).add();
             table.foreignKey("VAL_FK_CH_VALIDATION_CH").references("MTR", "MTR_CHANNEL").onDelete(RESTRICT).map("channel").on(channelRef).add();
             table.foreignKey("VAL_FK_CH_VALIDATION_MA_VAL").references(VAL_MA_VALIDATION.name()).onDelete(DeleteRule.CASCADE).map("meterActivationValidation").reverseMap("channelValidations")
@@ -88,8 +88,8 @@ public enum TableSpecs {
     VAL_READINGTYPEINVALRULE(ReadingTypeInValidationRule.class) {
         void describeTable(Table table) {
             table.map(ReadingTypeInValidationRuleImpl.class);
-            Column ruleIdColumn = table.column("RULEID").type("number").notNull().conversion(NUMBER2LONG).add();
-            Column readingTypeMRIDColumn = table.column("READINGTYPEMRID").type("varchar2(80)").notNull().map("readingTypeMRID").add();
+            Column ruleIdColumn = table.column("RULEID").number().notNull().conversion(NUMBER2LONG).add();
+            Column readingTypeMRIDColumn = table.column("READINGTYPEMRID").varChar(80).notNull().map("readingTypeMRID").add();
             table.primaryKey("VAL_PK_RTYPEINVALRULE").on(ruleIdColumn, readingTypeMRIDColumn).add();
             table.foreignKey("VAL_FK_RTYPEINVALRULE_RULE").references(VAL_VALIDATIONRULE.name()).onDelete(DeleteRule.CASCADE).map("rule").reverseMap("readingTypesInRule").composition().on(ruleIdColumn).add();
             table.foreignKey("VAL_FK_RTYPEINVALRULE_RTYPE").references("MTR", "MTR_READINGTYPE").onDelete(RESTRICT).map("readingType").on(readingTypeMRIDColumn).add();
