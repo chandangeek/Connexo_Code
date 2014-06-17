@@ -91,7 +91,6 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
     },
 
     showDeviceConfigurations: function (id) {
-        debugger;
         var me = this;
         this.deviceTypeId = id;
         this.getDeviceConfigurationsStore().getProxy().setExtraParam('deviceType', id);
@@ -111,7 +110,6 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
     },
 
     previewDeviceConfiguration: function (grid, record) {
-        debugger;
         var deviceConfigurations = this.getDeviceConfigurationsGrid().getSelectionModel().getSelection();
         if (deviceConfigurations.length == 1) {
             var deviceConfigurationId = deviceConfigurations[0].get('id');
