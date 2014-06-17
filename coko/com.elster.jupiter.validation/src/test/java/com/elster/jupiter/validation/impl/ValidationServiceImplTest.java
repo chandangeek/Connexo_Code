@@ -24,6 +24,7 @@ import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
 import com.elster.jupiter.validation.ValidatorNotFoundException;
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import org.junit.After;
 import org.junit.Before;
@@ -38,7 +39,6 @@ import org.mockito.stubbing.Answer;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -178,20 +178,22 @@ public class ValidationServiceImplTest {
         ArgumentCaptor<MeterActivationValidation> meterActivationValidationCapture = ArgumentCaptor.forClass(MeterActivationValidation.class);
         verify(meterActivationValidationFactory).persist(meterActivationValidationCapture.capture());
 
-        ArgumentCaptor<List> channelValidationArgumentCaptor = ArgumentCaptor.forClass(List.class);
-        verify(channelValidationFactory, times(2)).persist(channelValidationArgumentCaptor.capture());
+        final MeterActivationValidation meterActivationValidationCaptureValue = meterActivationValidationCapture.getValue();
+        final Set<ChannelValidation> channelValidations = meterActivationValidationCaptureValue.getChannelValidations();
+        assertThat(FluentIterable.from(channelValidations).allMatch(new Predicate<ChannelValidation>() {
+            @Override
+            public boolean apply(ChannelValidation input) {
+                return input.getMeterActivationValidation().equals(meterActivationValidationCaptureValue);
+            }
+        })).isTrue();
+        assertThat(FluentIterable.from(channelValidations).transform(new Function<ChannelValidation, Channel>() {
 
-        List<ChannelValidation> channelValidations = channelValidationArgumentCaptor.getValue();
-        ChannelValidation channelValidation = channelValidations.get(0);
-        Set<Channel> channels = new HashSet<>();
-        channels.add(channelValidation.getChannel());
-        assertThat(channelValidation.getMeterActivationValidation()).isEqualTo(meterActivationValidationCapture.getValue());
+            @Override
+            public Channel apply(ChannelValidation input) {
+                return input.getChannel();
+            }
+        }).toSet()).contains(channel1, channel2);
 
-        channelValidation = channelValidations.get(1);
-        channels.add(channelValidation.getChannel());
-        assertThat(channelValidation.getMeterActivationValidation()).isEqualTo(meterActivationValidationCapture.getValue());
-
-        assertThat(channels).hasSize(2).contains(channel1, channel2);
     }
 
     @Test

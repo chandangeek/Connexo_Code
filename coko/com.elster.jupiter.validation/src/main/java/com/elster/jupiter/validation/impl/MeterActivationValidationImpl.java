@@ -7,19 +7,18 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.collections.ArrayDiffList;
-import com.elster.jupiter.util.collections.DiffList;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.elster.jupiter.validation.ValidationRuleSet;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Ordering;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 class MeterActivationValidationImpl implements MeterActivationValidation {
@@ -29,7 +28,7 @@ class MeterActivationValidationImpl implements MeterActivationValidation {
     private long ruleSetId;
     private transient IValidationRuleSet ruleSet;
     private UtcInstant lastRun;
-    private Set<ChannelValidation> channelValidations;
+    private List<ChannelValidation> channelValidations;
     private transient boolean saved = true;
     private UtcInstant obsoleteTime;
 
@@ -87,15 +86,15 @@ class MeterActivationValidationImpl implements MeterActivationValidation {
         return channelValidation;
     }
 
-    private Set<ChannelValidation> doGetChannelValidations() {
+    private List<ChannelValidation> doGetChannelValidations() {
         if (channelValidations == null) {
             channelValidations = loadChannelValidations();
         }
         return channelValidations;
     }
 
-    private HashSet<ChannelValidation> loadChannelValidations() {
-        return new HashSet<>(dataModel.mapper(ChannelValidation.class).find("meterActivationValidation", this));
+    private List<ChannelValidation> loadChannelValidations() {
+        return new ArrayList<>(dataModel.mapper(ChannelValidation.class).find("meterActivationValidation", this));
     }
 
     @Override
@@ -103,16 +102,16 @@ class MeterActivationValidationImpl implements MeterActivationValidation {
         if (!saved) {
             saved = true;
             meterActivationValidationFactory().persist(this);
-            dataModel.mapper(ChannelValidation.class).persist(FluentIterable.from(getChannelValidations()).toList());
+            //dataModel.mapper(ChannelValidation.class).persist(FluentIterable.from(getChannelValidations()).toList());
         } else {
             meterActivationValidationFactory().update(this);
-            HashSet<ChannelValidation> channelValidations = loadChannelValidations();
+            /*List<ChannelValidation> channelValidations = loadChannelValidations();
             DiffList<ChannelValidation> diffList = ArrayDiffList.fromOriginal(channelValidations);
             diffList.clear();
             diffList.addAll(getChannelValidations());
             dataModel.mapper(ChannelValidation.class).persist(FluentIterable.from(diffList.getAdditions()).toList());
             dataModel.mapper(ChannelValidation.class).update(FluentIterable.from(diffList.getRemaining()).toList());
-            dataModel.mapper(ChannelValidation.class).remove(FluentIterable.from(diffList.getRemovals()).toList());
+            dataModel.mapper(ChannelValidation.class).remove(FluentIterable.from(diffList.getRemovals()).toList());*/
         }
     }
 
@@ -133,7 +132,7 @@ class MeterActivationValidationImpl implements MeterActivationValidation {
 
     @Override
     public Set<ChannelValidation> getChannelValidations() {
-        return Collections.unmodifiableSet(doGetChannelValidations());
+        return Collections.unmodifiableSet(new HashSet<>(doGetChannelValidations()));
     }
 
     @Override
