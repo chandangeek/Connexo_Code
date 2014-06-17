@@ -1,4 +1,4 @@
-package com.energyict.mdc.device.configuration.rest.impl;
+package com.energyict.mdc.device.configuration.rest;
 
 import com.energyict.mdc.common.rest.MapBasedXmlAdapter;
 import com.energyict.mdc.device.config.ConnectionStrategy;
