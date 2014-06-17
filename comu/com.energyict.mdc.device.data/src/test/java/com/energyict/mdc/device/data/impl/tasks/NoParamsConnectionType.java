@@ -71,6 +71,11 @@ public class NoParamsConnectionType implements ServerConnectionType {
     }
 
     @Override
+    public ConnectionTypeDirection getDirection() {
+        return ConnectionTypeDirection.OUTBOUND;
+    }
+
+    @Override
     public String getVersion () {
         return "For testing purposes only";
     }
