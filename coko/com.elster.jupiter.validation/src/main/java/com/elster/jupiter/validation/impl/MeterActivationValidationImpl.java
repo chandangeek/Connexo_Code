@@ -5,6 +5,8 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
 import com.elster.jupiter.util.time.Clock;
@@ -23,12 +25,13 @@ import java.util.Set;
 class MeterActivationValidationImpl implements MeterActivationValidation {
 
     private long id;
-    private transient MeterActivation meterActivation;
+    private Reference<MeterActivation> meterActivation = ValueReference.absent();
     private long ruleSetId;
     private transient IValidationRuleSet ruleSet;
     private UtcInstant lastRun;
     private Set<ChannelValidation> channelValidations;
     private transient boolean saved = true;
+    private UtcInstant obsoleteTime;
 
     private final MeteringService meteringService;
     private final DataModel dataModel;
@@ -42,8 +45,7 @@ class MeterActivationValidationImpl implements MeterActivationValidation {
     }
 
     MeterActivationValidationImpl init(MeterActivation meterActivation) {
-        id = meterActivation.getId();
-        this.meterActivation = meterActivation;
+        this.meterActivation.set(meterActivation);
         return this;
     }
 
@@ -55,10 +57,7 @@ class MeterActivationValidationImpl implements MeterActivationValidation {
 
     @Override
     public MeterActivation getMeterActivation() {
-        if (meterActivation == null) {
-            meterActivation = meteringService.findMeterActivation(id).get();
-        }
-        return meterActivation;
+        return meterActivation.get();
     }
 
     @Override
@@ -115,6 +114,17 @@ class MeterActivationValidationImpl implements MeterActivationValidation {
             dataModel.mapper(ChannelValidation.class).update(FluentIterable.from(diffList.getRemaining()).toList());
             dataModel.mapper(ChannelValidation.class).remove(FluentIterable.from(diffList.getRemovals()).toList());
         }
+    }
+
+    @Override
+    public void makeObsolete() {
+        this.obsoleteTime = new UtcInstant(clock.now());
+        this.save();
+    }
+
+    @Override
+    public boolean isObsolete() {
+        return obsoleteTime != null;
     }
 
     private DataMapper<MeterActivationValidation> meterActivationValidationFactory() {

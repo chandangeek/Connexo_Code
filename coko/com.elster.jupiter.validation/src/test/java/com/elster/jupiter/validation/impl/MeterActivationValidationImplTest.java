@@ -77,6 +77,7 @@ public class MeterActivationValidationImplTest {
 
         meterActivationValidation = new MeterActivationValidationImpl(dataModel, meteringService, clock).init(meterActivation);
         meterActivationValidation.setRuleSet(validationRuleSet);
+        meterActivationValidation.save();
     }
 
     @After

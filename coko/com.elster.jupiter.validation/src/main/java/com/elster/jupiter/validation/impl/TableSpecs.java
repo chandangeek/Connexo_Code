@@ -62,9 +62,11 @@ public enum TableSpecs {
             table.map(MeterActivationValidationImpl.class);
             Column idColumn = table.column("ID").type("number").notNull().conversion(NUMBER2LONG).map("id").add();
             Column ruleSetIdColumn = table.column("RULESETID").type("number").conversion(NUMBER2LONG).map("ruleSetId").add();
+            Column meterActivationId = table.column("METERACTIVATIONID").type("number").conversion(NUMBER2LONG).add();
             table.column("LASTRUN").type("number").conversion(NUMBER2UTCINSTANT).map("lastRun").add();
+            table.column("OBSOLETETILE").number().conversion(NUMBER2UTCINSTANT).map("obsoleteTime").add();
             table.primaryKey("VAL_PK_MA_VALIDATION").on(idColumn).add();
-            table.foreignKey("VAL_FK_MA_VALIDATION_MA").references("MTR", "MTR_METERACTIVATION").onDelete(RESTRICT).map("meterActivation").on(idColumn).add();
+            table.foreignKey("VAL_FK_MA_VALIDATION_MA").references("MTR", "MTR_METERACTIVATION").onDelete(RESTRICT).map("meterActivation").on(meterActivationId).add();
             table.foreignKey("VAL_FK_MA_VALIDATION_VRS").references(VAL_VALIDATIONRULESET.name()).onDelete(DeleteRule.RESTRICT).map("ruleSet").on(ruleSetIdColumn).add();
         }
     },
@@ -72,11 +74,12 @@ public enum TableSpecs {
         @Override
         void describeTable(Table table) {
             table.map(ChannelValidationImpl.class);
-            Column idColumn = table.column("ID").type("number").notNull().conversion(NUMBER2LONG).map("id").add();
-            Column meterActivationValidationColumn = table.column("MAV_ID").type("number").conversion(NUMBER2LONG).map("meterActivationValidationId").add();
+            Column idColumn = table.addAutoIdColumn();
+            Column channelRef = table.column("CHANNELID").number().notNull().conversion(NUMBER2LONG).add();
+            Column meterActivationValidationColumn = table.column("MAV_ID").type("number").conversion(NUMBER2LONG).add();
             table.column("LASTCHECKED").type("number").conversion(NUMBER2UTCINSTANT).map("lastChecked").add();
             table.primaryKey("VAL_PK_CH_VALIDATION").on(idColumn).add();
-            table.foreignKey("VAL_FK_CH_VALIDATION_CH").references("MTR", "MTR_CHANNEL").onDelete(RESTRICT).map("channel").on(idColumn).add();
+            table.foreignKey("VAL_FK_CH_VALIDATION_CH").references("MTR", "MTR_CHANNEL").onDelete(RESTRICT).map("channel").on(channelRef).add();
             table.foreignKey("VAL_FK_CH_VALIDATION_MA_VAL").references(VAL_MA_VALIDATION.name()).onDelete(DeleteRule.CASCADE).map("meterActivationValidation").on(meterActivationValidationColumn).add();
         }
     },

@@ -22,6 +22,10 @@ public interface MeterActivationValidation {
 
     void save();
 
+    void makeObsolete();
+
+    boolean isObsolete();
+
     Set<ChannelValidation> getChannelValidations();
 
     void validate(Interval interval);

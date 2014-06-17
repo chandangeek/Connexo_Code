@@ -3,6 +3,8 @@ package com.elster.jupiter.validation.impl;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.UtcInstant;
 
 import javax.inject.Inject;
@@ -12,9 +14,8 @@ import java.util.Objects;
 final class ChannelValidationImpl implements ChannelValidation {
 
     private long id;
-    private Channel channel;
-    private long meterActivationValidationId;
-    private transient MeterActivationValidation meterActivationValidation;
+    private Reference<Channel> channel = ValueReference.absent();
+    private Reference<MeterActivationValidation> meterActivationValidation = ValueReference.absent();
     private UtcInstant lastChecked;
 
     private final DataModel dataModel;
@@ -31,9 +32,8 @@ final class ChannelValidationImpl implements ChannelValidation {
         if (!channel.getMeterActivation().equals(meterActivationValidation.getMeterActivation())) {
             throw new IllegalArgumentException();
         }
-        id = channel.getId();
-        this.meterActivationValidation = meterActivationValidation;
-        meterActivationValidationId = meterActivationValidation.getId();
+        this.meterActivationValidation.set(meterActivationValidation);
+        this.channel.set(channel);
         return this;
     }
 
@@ -49,10 +49,7 @@ final class ChannelValidationImpl implements ChannelValidation {
 
     @Override
     public MeterActivationValidation getMeterActivationValidation() {
-        if (meterActivationValidation == null) {
-            meterActivationValidation = dataModel.mapper(MeterActivationValidation.class).getOptional(meterActivationValidationId).get();
-        }
-        return meterActivationValidation;
+        return meterActivationValidation.get();
     }
 
     @Override
@@ -66,10 +63,7 @@ final class ChannelValidationImpl implements ChannelValidation {
     }
 
     public Channel getChannel() {
-        if (channel == null) {
-            channel = meteringService.findChannel(id).get();
-        }
-        return channel;
+        return channel.get();
     }
 
     @Override
@@ -80,13 +74,16 @@ final class ChannelValidationImpl implements ChannelValidation {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
-        return id == ((ChannelValidationImpl) o).id;
+        if (id > 0) {
+            return id == ((ChannelValidationImpl) o).id;
+        } else {
+            return channel.equals(((ChannelValidationImpl) o).channel) && meterActivationValidation.equals(((ChannelValidationImpl) o).meterActivationValidation);
+        }
 
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(channel, meterActivationValidation);
     }
 }

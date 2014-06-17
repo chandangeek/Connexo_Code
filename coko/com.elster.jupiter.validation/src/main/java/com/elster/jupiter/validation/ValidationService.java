@@ -17,8 +17,6 @@ public interface ValidationService {
 
     Optional<ValidationRuleSet> getValidationRuleSet(long id);
 
-    void applyRuleSet(ValidationRuleSet ruleSet, MeterActivation meterActivation);
-
     List<ValidationRuleSet> getValidationRuleSets();
 
     List<Validator> getAvailableValidators();

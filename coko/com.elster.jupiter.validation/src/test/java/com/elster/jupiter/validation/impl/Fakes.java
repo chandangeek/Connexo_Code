@@ -3,6 +3,7 @@ package com.elster.jupiter.validation.impl;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.sql.Fetcher;
@@ -222,63 +223,66 @@ public enum Fakes {
             public boolean apply(T input) {
                 String fieldName1 = fieldName;
                 Object fieldValue = getFieldValue(input, fieldName1);
+                if (fieldValue instanceof Reference) {
+                    fieldValue = ((Reference) fieldValue).get();
+                }
                 return Objects.equal(fieldValue, value);
             }
 
         }
 
-		@Override
-		public List<T> select(Condition condition, String order, String... orderBy) {
-			return null;
-		}
+        @Override
+        public List<T> select(Condition condition, String order, String... orderBy) {
+            return null;
+        }
 
-		@Override
-		public Object getAttribute(Object target, String fieldName) {
-			// TODO Auto-generated method stub
-			return null;
-		}
+        @Override
+        public Object getAttribute(Object target, String fieldName) {
+            // TODO Auto-generated method stub
+            return null;
+        }
 
-		@Override
-		public List<T> select(Condition condition, Order... orderings) {
-			return null;
-		}
+        @Override
+        public List<T> select(Condition condition, Order... orderings) {
+            return null;
+        }
 
-		@Override
-		public List<T> find(String fieldName, Object value, Order... orders) {
-			return null;
-		}
+        @Override
+        public List<T> find(String fieldName, Object value, Order... orders) {
+            return null;
+        }
 
-		@Override
-		public List<T> find(String fieldName1, Object value1,String fieldName2, Object value2, Order... orders) {
-			return null;
-		}
+        @Override
+        public List<T> find(String fieldName1, Object value1, String fieldName2, Object value2, Order... orders) {
+            return null;
+        }
 
-		@Override
-		public List<T> find(String[] fieldNames, Object[] values, Order... orders) {
-			return null;
-		}
+        @Override
+        public List<T> find(String[] fieldNames, Object[] values, Order... orders) {
+            return null;
+        }
 
-		@Override
-		public List<T> find(Map<String, Object> valueMap, Order... orders) {
-			return null;
-		}
+        @Override
+        public List<T> find(Map<String, Object> valueMap, Order... orders) {
+            return null;
+        }
 
-		@Override
-		public Optional<T> lockNoWait(Object... values) {
-			return Optional.absent();
-		}
+        @Override
+        public Optional<T> lockNoWait(Object... values) {
+            return Optional.absent();
+        }
 
-		@Override
-		public Fetcher<T> fetcher(SqlBuilder builder) {
-			// TODO Auto-generated method stub
-			return null;
-		}
+        @Override
+        public Fetcher<T> fetcher(SqlBuilder builder) {
+            // TODO Auto-generated method stub
+            return null;
+        }
 
-		@Override
-		public SqlBuilder builder(String alias, String... hints) {
-			// TODO Auto-generated method stub
-			return null;
-		}
+        @Override
+        public SqlBuilder builder(String alias, String... hints) {
+            // TODO Auto-generated method stub
+            return null;
+        }
 
     }
 
@@ -311,7 +315,7 @@ public enum Fakes {
             super(new KeyGetter<ChannelValidation>() {
                 @Override
                 public Key getKey(ChannelValidation entity) {
-                    return new Key(entity.getId());
+                    return new Key(entity.getChannel(), entity.getMeterActivationValidation());
                 }
             });
         }

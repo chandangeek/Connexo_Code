@@ -11,14 +11,20 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.time.ProgrammableClock;
 import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationRuleSetResolver;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
 import com.elster.jupiter.validation.ValidatorNotFoundException;
-import com.google.common.base.Optional;
+import com.google.common.base.Function;
+import com.google.common.collect.FluentIterable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,7 +37,10 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -67,8 +76,7 @@ public class ValidationServiceImplTest {
     private OrmService ormService;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private Table table;
-    @Mock
-    private Clock clock;
+    private Clock clock = new ProgrammableClock();
     @Mock
     private MeteringService meteringService;
     @Mock
@@ -81,6 +89,10 @@ public class ValidationServiceImplTest {
     private javax.validation.ValidatorFactory validatorFactory;
     @Mock
     private javax.validation.Validator javaxValidator;
+    @Mock
+    private ValidationRuleSetResolver validationRuleSetResolver;
+    @Mock
+    private QueryExecutor<MeterActivationValidation> queryExecutor;
 
     @Before
     public void setUp() {
@@ -95,6 +107,7 @@ public class ValidationServiceImplTest {
         validationService = new ValidationServiceImpl();
         validationService.setOrmService(ormService);
         validationService.setNlsService(nlsService);
+        validationService.addValidationRuleSetResolver(validationRuleSetResolver);
 
         when(factory.available()).thenReturn(Arrays.asList(validator.getClass().getName()));
         when(factory.create(validator.getClass().getName(), null)).thenReturn(validator);
@@ -116,6 +129,8 @@ public class ValidationServiceImplTest {
                 return new ChannelValidationImpl(dataModel, meteringService);
             }
         });
+        when(dataModel.query(MeterActivationValidation.class)).thenReturn(queryExecutor);
+        when(queryExecutor.select(any(Condition.class))).thenReturn(Collections.<MeterActivationValidation>emptyList());
         when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(nlsMessageFormat);
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(dataModel.getValidatorFactory().getValidator()).thenReturn(javaxValidator);
@@ -147,40 +162,7 @@ public class ValidationServiceImplTest {
     }
 
     @Test
-    public void testApplyRuleSet() {
-        when(meterActivation.getId()).thenReturn(ID);
-        when(meterActivationValidationFactory.getOptional(ID)).thenReturn(Optional.<MeterActivationValidation>absent());
-
-        ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(NAME);
-        validationRuleSet.save();
-        validationService.applyRuleSet(validationRuleSet, meterActivation);
-
-        ArgumentCaptor<MeterActivationValidation> meterActivationValidationArgumentCaptor = ArgumentCaptor.forClass(MeterActivationValidation.class);
-        verify(meterActivationValidationFactory).persist(meterActivationValidationArgumentCaptor.capture());
-
-        MeterActivationValidation meterActivationValidation = meterActivationValidationArgumentCaptor.getValue();
-        assertThat(meterActivationValidation.getId()).isEqualTo(ID);
-        assertThat(meterActivationValidation.getRuleSet()).isEqualTo(validationRuleSet);
-    }
-
-    @Test
-    public void testApplyRuleSetOnExisting() {
-        MeterActivationValidation meterActivationValidation = mock(MeterActivationValidationImpl.class);
-        when(meterActivationValidationFactory.getOptional(ID)).thenReturn(Optional.of(meterActivationValidation));
-        when(meterActivation.getId()).thenReturn(ID);
-
-        ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(NAME);
-        validationRuleSet.save();
-        validationService.applyRuleSet(validationRuleSet, meterActivation);
-
-        ArgumentCaptor<MeterActivationValidation> meterActivationValidationArgumentCaptor = ArgumentCaptor.forClass(MeterActivationValidation.class);
-        verify(meterActivationValidation).setRuleSet(validationRuleSet);
-        verify(meterActivationValidation).save();
-    }
-
-    @Test
     public void testApplyRuleSetWithChannels() {
-        when(meterActivationValidationFactory.getOptional(ID)).thenReturn(Optional.<MeterActivationValidation>absent());
         when(meterActivation.getId()).thenReturn(ID);
         when(meterActivation.getChannels()).thenReturn(Arrays.asList(channel1, channel2));
         when(channel1.getId()).thenReturn(1001L);
@@ -190,19 +172,71 @@ public class ValidationServiceImplTest {
 
         ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(NAME);
         validationRuleSet.save();
-        validationService.applyRuleSet(validationRuleSet, meterActivation);
+        when(validationRuleSetResolver.resolve(eq(meterActivation), any(Interval.class))).thenReturn(Arrays.asList(validationRuleSet));
+        validationService.validate(meterActivation, Interval.sinceEpoch());
+
+        ArgumentCaptor<MeterActivationValidation> meterActivationValidationCapture = ArgumentCaptor.forClass(MeterActivationValidation.class);
+        verify(meterActivationValidationFactory).persist(meterActivationValidationCapture.capture());
 
         ArgumentCaptor<List> channelValidationArgumentCaptor = ArgumentCaptor.forClass(List.class);
-        verify(channelValidationFactory).persist(channelValidationArgumentCaptor.capture());
+        verify(channelValidationFactory, times(2)).persist(channelValidationArgumentCaptor.capture());
 
         List<ChannelValidation> channelValidations = channelValidationArgumentCaptor.getValue();
         ChannelValidation channelValidation = channelValidations.get(0);
-        assertThat(channelValidation.getId()).isEqualTo(1001L);
-        assertThat(channelValidation.getMeterActivationValidation().getId()).isEqualTo(ID);
+        Set<Channel> channels = new HashSet<>();
+        channels.add(channelValidation.getChannel());
+        assertThat(channelValidation.getMeterActivationValidation()).isEqualTo(meterActivationValidationCapture.getValue());
 
         channelValidation = channelValidations.get(1);
-        assertThat(channelValidation.getId()).isEqualTo(1002L);
-        assertThat(channelValidation.getMeterActivationValidation().getId()).isEqualTo(ID);
+        channels.add(channelValidation.getChannel());
+        assertThat(channelValidation.getMeterActivationValidation()).isEqualTo(meterActivationValidationCapture.getValue());
 
+        assertThat(channels).hasSize(2).contains(channel1, channel2);
+    }
+
+    @Test
+    public void testManageValidationActivations() {
+        when(meterActivation.getId()).thenReturn(ID);
+        when(meterActivation.getChannels()).thenReturn(Arrays.asList(channel1, channel2));
+        when(channel1.getId()).thenReturn(1001L);
+        when(channel2.getId()).thenReturn(1002L);
+        when(channel1.getMeterActivation()).thenReturn(meterActivation);
+        when(channel2.getMeterActivation()).thenReturn(meterActivation);
+
+        ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(NAME);
+        validationRuleSet.save();
+
+        when(validationRuleSetResolver.resolve(eq(meterActivation), any(Interval.class))).thenReturn(Arrays.asList(validationRuleSet));
+        validationService.validate(meterActivation, Interval.sinceEpoch());
+
+        List<MeterActivationValidation> meterActivationValidations = validationService.getMeterActivationValidations(meterActivation, Interval.sinceEpoch());
+        assertThat(meterActivationValidations).hasSize(1);
+        assertThat(meterActivationValidations.get(0).getMeterActivation()).isEqualTo(meterActivation);
+        assertThat(meterActivationValidations.get(0).getRuleSet()).isEqualTo(validationRuleSet);
+        MeterActivationValidation activationRuleSet1 = meterActivationValidations.get(0);
+
+        ValidationRuleSet validationRuleSet2 = validationService.createValidationRuleSet(NAME);
+        validationRuleSet2.save();
+
+        when(validationRuleSetResolver.resolve(eq(meterActivation), any(Interval.class))).thenReturn(Arrays.asList(validationRuleSet, validationRuleSet2));
+        validationService.validate(meterActivation, Interval.sinceEpoch());
+        meterActivationValidations = validationService.getMeterActivationValidations(meterActivation, Interval.sinceEpoch());
+        assertThat(meterActivationValidations).hasSize(2);
+        assertThat(meterActivationValidations.get(0).getMeterActivation()).isEqualTo(meterActivation);
+        assertThat(meterActivationValidations.get(1).getMeterActivation()).isEqualTo(meterActivation);
+        assertThat(FluentIterable.from(meterActivationValidations).transform(new Function<MeterActivationValidation, ValidationRuleSet>() {
+            @Override
+            public ValidationRuleSet apply(MeterActivationValidation input) {
+                return input.getRuleSet();
+            }
+        }).toSet()).contains(validationRuleSet, validationRuleSet2);
+
+        when(validationRuleSetResolver.resolve(eq(meterActivation), any(Interval.class))).thenReturn(Arrays.asList(validationRuleSet2));
+        validationService.validate(meterActivation, Interval.sinceEpoch());
+        meterActivationValidations = validationService.getMeterActivationValidations(meterActivation, Interval.sinceEpoch());
+        assertThat(meterActivationValidations).hasSize(1);
+        assertThat(meterActivationValidations.get(0).getMeterActivation()).isEqualTo(meterActivation);
+        assertThat(meterActivationValidations.get(0).getRuleSet()).isEqualTo(validationRuleSet2);
+        assertThat(activationRuleSet1.isObsolete());
     }
 }

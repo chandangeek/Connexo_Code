@@ -21,6 +21,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationRuleSetResolver;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
@@ -39,11 +40,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.elster.jupiter.util.conditions.Where.where;
+
 @Component(name = "com.elster.jupiter.validation", service = {InstallService.class, ValidationService.class}, property = "name=" + ValidationService.COMPONENTNAME, immediate = true)
 public class ValidationServiceImpl implements ValidationService, InstallService {
 
-    private static final Upcast<IValidationRuleSet,ValidationRuleSet> UPCAST = new Upcast<>();
-    private static final Upcast<IValidationRule,ValidationRule> RULE_UPCAST = new Upcast<>();
+    private static final Upcast<IValidationRuleSet, ValidationRuleSet> UPCAST = new Upcast<>();
+    private static final Upcast<IValidationRule, ValidationRule> RULE_UPCAST = new Upcast<>();
     private volatile EventService eventService;
     private volatile MeteringService meteringService;
     private volatile Clock clock;
@@ -51,6 +54,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
     private volatile QueryService queryService;
+    private volatile List<ValidationRuleSetResolver> ruleSetResolvers = new ArrayList<>();
 
     public ValidationServiceImpl() {
     }
@@ -101,7 +105,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
     }
 
     @Reference
-     public void setEventService(EventService eventService) {
+    public void setEventService(EventService eventService) {
         this.eventService = eventService;
     }
 
@@ -156,11 +160,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
 
     @Override
     public Query<ValidationRuleSet> getRuleSetQuery() {
-        return queryService.wrap(
-                dataModel.query(
-                        ValidationRuleSet.class
-                )
-        );
+        return queryService.wrap(dataModel.query(ValidationRuleSet.class));
     }
 
     @Override
@@ -170,11 +170,63 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
 
     @Override
     public void validate(MeterActivation meterActivation, Interval interval) {
-        Optional<MeterActivationValidation> found = dataModel.mapper(MeterActivationValidation.class).getOptional(meterActivation.getId());
-        if (found.isPresent()) {
-            found.get().validate(interval);
+        List<MeterActivationValidation> meterActivationValidations = getMeterActivationValidations(meterActivation, interval);
+        for (MeterActivationValidation meterActivationValidation : meterActivationValidations) {
+            meterActivationValidation.validate(interval);
+        }
+    }
+
+    public List<MeterActivationValidation> getMeterActivationValidations(MeterActivation meterActivation, Interval interval) {
+        return manageMeterActivationValidations(meterActivation, interval);
+    }
+
+    private List<MeterActivationValidation> manageMeterActivationValidations(MeterActivation meterActivation, Interval interval) {
+        List<ValidationRuleSet> ruleSets = new ArrayList<>();
+        for (ValidationRuleSetResolver ruleSetResolver : ruleSetResolvers) {
+            ruleSets.addAll(ruleSetResolver.resolve(meterActivation, interval));
+        }
+        List<MeterActivationValidation> existingMeterActivationValidations = getMeterActivationValidations(meterActivation);
+        List<MeterActivationValidation> returnList = new ArrayList<>();
+        for (ValidationRuleSet ruleSet : ruleSets) {
+            Optional<MeterActivationValidation> meterActivationValidation = getForRuleSet(existingMeterActivationValidations, ruleSet);
+            if (!meterActivationValidation.isPresent()) {
+                returnList.add(applyRuleSet(ruleSet, meterActivation));
+            } else {
+                returnList.add(meterActivationValidation.get());
+            }
+        }
+        for (MeterActivationValidation existingMeterActivationValidation : existingMeterActivationValidations) {
+            if (!ruleSets.contains(existingMeterActivationValidation.getRuleSet())) {
+                existingMeterActivationValidation.makeObsolete();
+            }
+        }
+        return returnList;
+    }
+
+    private Optional<MeterActivationValidation> getForRuleSet(List<MeterActivationValidation> meterActivations, ValidationRuleSet ruleSet) {
+        for (MeterActivationValidation meterActivation : meterActivations) {
+            if (ruleSet.equals(meterActivation.getRuleSet())) {
+                return Optional.of(meterActivation);
+            }
+        }
+        return Optional.absent();
+    }
+
+    private List<MeterActivationValidation> getMeterActivationValidations(MeterActivation meterActivation) {
+        Condition condition = where("meterActivation").isEqualTo(meterActivation).and(where("obsoleteTime").isNull());
+        return dataModel.query(MeterActivationValidation.class).select(condition);
+    }
+
+    private MeterActivationValidation applyRuleSet(ValidationRuleSet ruleSet, MeterActivation meterActivation) {
+        MeterActivationValidation meterActivationValidation = MeterActivationValidationImpl.from(dataModel, meterActivation);
+        meterActivationValidation.setRuleSet(ruleSet);
+
+        for (Channel channel : meterActivation.getChannels()) {
+            meterActivationValidation.addChannelValidation(channel);
         }
 
+        meterActivationValidation.save();
+        return meterActivationValidation;
     }
 
     @Override
@@ -184,7 +236,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
     }
 
     @Override
-     public List<Validator> getAvailableValidators() {
+    public List<Validator> getAvailableValidators() {
         ValidatorCreator validatorCreator = new DefaultValidatorCreator();
         List<Validator> result = new ArrayList<Validator>();
         for (ValidatorFactory factory : validatorFactories) {
@@ -196,7 +248,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
         return result;
     }
 
-    @Reference(cardinality = ReferenceCardinality.MULTIPLE , policy = ReferencePolicy.DYNAMIC)
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addResource(ValidatorFactory validatorfactory) {
         validatorFactories.add(validatorfactory);
     }
@@ -227,17 +279,13 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
         }
     }
 
-    @Override
-    public void applyRuleSet(ValidationRuleSet ruleSet, MeterActivation meterActivation) {
-        Optional<MeterActivationValidation> found = dataModel.mapper(MeterActivationValidation.class).getOptional(meterActivation.getId());
-        MeterActivationValidation meterActivationValidation = found.or(MeterActivationValidationImpl.from(dataModel, meterActivation));
-        meterActivationValidation.setRuleSet(ruleSet);
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addValidationRuleSetResolver(ValidationRuleSetResolver resolver) {
+        ruleSetResolvers.add(resolver);
+    }
 
-        for (Channel channel : meterActivation.getChannels()) {
-            ChannelValidation channelValidation = meterActivationValidation.addChannelValidation(channel);
-        }
-
-        meterActivationValidation.save();
+    public void removeValidationRuleSetResolver(ValidationRuleSetResolver resolver) {
+        ruleSetResolvers.remove(resolver);
     }
 
     DataModel getDataModel() {

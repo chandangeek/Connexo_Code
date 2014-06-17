@@ -14,7 +14,9 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Unit;
@@ -24,8 +26,8 @@ import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleProperties;
 import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationRuleSetResolver;
 import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.ValidationStats;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
 import com.google.common.base.Optional;
@@ -85,7 +87,6 @@ public class ValidationIT {
 
     private DataMapper<MeterActivationValidation> meterActivationValidationFactory;
     private DataMapper<ChannelValidation> channelValidationFactory;
-    private ValidationStats validationStats;
 
 
     @Mock
@@ -136,13 +137,17 @@ public class ValidationIT {
     private javax.validation.Validator validator;
     @Mock
     private javax.validation.ValidatorFactory validationFactory;
+    @Mock
+    private ValidationRuleSetResolver validationRuleSetResolver;
+    @Mock
+    private QueryExecutor<MeterActivationValidation> meterActivationQuery;
 
 
     @Before
     public void setUp() {
+
         meterActivationValidationFactory = new Fakes.MeterActivationValidationFactory();
         channelValidationFactory = new Fakes.ChannelValidationFactory();
-        validationStats = new ValidationStats(new DateTime(2012, 12, 4, 17, 15, 0, 0).toDate(), 0);
 
         ids = new AtomicLong(0);
 
@@ -202,6 +207,8 @@ public class ValidationIT {
                 return new ChannelValidationImpl(dataModel, meteringService);
             }
         });
+        when(dataModel.query(MeterActivationValidation.class)).thenReturn(meterActivationQuery);
+        when(meterActivationQuery.select(any(Condition.class))).thenReturn(meterActivationValidationFactory.find());
         when(dataModel.getValidatorFactory()).thenReturn(validationFactory);
         when(dataModel.getValidatorFactory().getValidator()).thenReturn(validator);
 
@@ -238,7 +245,6 @@ public class ValidationIT {
 
     @After
     public void tearDown() {
-
     }
 
     @Test
@@ -258,6 +264,7 @@ public class ValidationIT {
 
         validationService.activate();
 
+        validationService.addValidationRuleSetResolver(validationRuleSetResolver);
         validationService.addResource(validatorFactory);
 
         ValidationEventHandler validationEventHandler = new ValidationEventHandler();
@@ -278,8 +285,7 @@ public class ValidationIT {
         validationRuleSet.save();
 
         assertThat(validationRuleSet.getId()).isNotEqualTo(0L);
-
-        validationService.applyRuleSet(validationRuleSet, meterActivation);
+        when(validationRuleSetResolver.resolve(eq(meterActivation), any(Interval.class))).thenReturn(Arrays.asList(validationRuleSet));
 
         validationEventHandler.handle(localEvent);
 
