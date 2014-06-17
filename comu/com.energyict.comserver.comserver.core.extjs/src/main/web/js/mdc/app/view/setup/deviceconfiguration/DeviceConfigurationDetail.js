@@ -199,7 +199,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                 ui: 'medium',
                 items: [
                     {
-                        xtype: 'deviceConfigurationMenu',
+                        xtype: 'device-configuration-menu',
                         itemId: 'stepsMenu',
                         deviceTypeId: this.deviceTypeId,
                         deviceConfigurationId: this.deviceConfigurationId,
