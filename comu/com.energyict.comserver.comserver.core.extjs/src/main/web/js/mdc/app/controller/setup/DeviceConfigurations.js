@@ -279,19 +279,20 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
     },
 
     setCheckBoxes: function (deviceType,deviceConfiguration) {
-        if(deviceConfiguration !== undefined){
-            if(deviceConfiguration.get('active')){
+        debugger;
+        if(deviceConfiguration !== undefined && deviceConfiguration.get('active')){
                 this.getGatewayCheckbox().setDisabled(true);
                 this.getAddressableCheckbox().setDisabled(true);
+        }
+        else {
+            if (!deviceType.get('canBeGateway')) {
+                this.getGatewayCheckbox().setDisabled(!deviceType.get('canBeGateway'));
+                this.getGatewayMessage().show();
             }
-        }
-        else if (!deviceType.get('canBeGateway')) {
-            this.getGatewayCheckbox().setDisabled(!deviceType.get('canBeGateway'));
-            this.getGatewayMessage().show();
-        }
-        else if (!deviceType.get('canBeDirectlyAddressed')) {
-            this.getAddressableCheckbox().setDisabled(!deviceType.get('canBeDirectlyAddressed'));
-            this.getAddressableMessage().show();
+            if (!deviceType.get('canBeDirectlyAddressed')) {
+                this.getAddressableCheckbox().setDisabled(!deviceType.get('canBeDirectlyAddressed'));
+                this.getAddressableMessage().show();
+            }
         }
     },
 
