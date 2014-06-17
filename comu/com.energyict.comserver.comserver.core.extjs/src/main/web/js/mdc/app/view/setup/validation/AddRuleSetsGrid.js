@@ -53,9 +53,9 @@ Ext.define('Mdc.view.setup.validation.AddRuleSetsGrid', {
                 dock: 'top',
                 items: [
                     {
-                        // TODO Selection text.
-                        xtype: 'component',
-                        html: 'Here be dragons.'
+                        xtype: 'text',
+                        itemId: 'selection-counter',
+                        text: Uni.I18n.translate('validation.noValidationRuleSetSelected', 'MDC', 'No validation rule set selected')
                     },
                     {
                         xtype: 'button',

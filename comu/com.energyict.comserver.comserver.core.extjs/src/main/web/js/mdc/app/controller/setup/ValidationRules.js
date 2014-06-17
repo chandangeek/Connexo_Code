@@ -28,6 +28,15 @@ Ext.define('Mdc.controller.setup.ValidationRules', {
 
     init: function () {
         this.callParent(arguments);
+
+        this.control({
+            'validation-add-rulesets validation-add-rulesets-grid': {
+                selectionchange: this.onValidationRuleSetsSelectionChange
+            },
+            'validation-add-rulesets button[action=addValidationRuleSets]': {
+                click: this.onAddValidationRuleSets
+            }
+        });
     },
 
     showValidationRulesOverview: function (deviceTypeId, deviceConfigId) {
@@ -83,5 +92,22 @@ Ext.define('Mdc.controller.setup.ValidationRules', {
                 });
             }
         });
+    },
+
+    onValidationRuleSetsSelectionChange: function (grid) {
+        var count = grid.view.getSelectionModel().getSelection().length,
+            counter = Ext.ComponentQuery.query('validation-add-rulesets #selection-counter')[0],
+            selectionText = Uni.I18n.translatePlural(
+                'validation.validationRuleSetSelection',
+                count,
+                'MDC',
+                '{0} validation rule sets selected'
+            );
+
+        counter.setText(selectionText);
+    },
+
+    onAddValidationRuleSets: function () {
+        // TODO
     }
 });
