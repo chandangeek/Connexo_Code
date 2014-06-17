@@ -60,6 +60,13 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
                 itemId: 'communicationTasksLink',
                 href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId+ '/comtaskenablements',
                 hrefTarget: '_self'
+            },
+            {
+                text: 'Validation rules',
+                pressed: false,
+                itemId: 'validationRulesLink',
+                href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId+ '/validationrules',
+                hrefTarget: '_self'
             }
 
         );
