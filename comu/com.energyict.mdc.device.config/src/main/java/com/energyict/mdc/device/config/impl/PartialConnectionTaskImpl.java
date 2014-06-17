@@ -45,6 +45,20 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
     private final EngineModelService engineModelService;
     private final ProtocolPluggableService protocolPluggableService;
 
+
+    enum Fields {
+        CONNECTION_TYPE_PLUGGABLE_CLASS("pluggableClass");
+        private final String javaFieldName;
+
+        Fields(String javaFieldName) {
+            this.javaFieldName = javaFieldName;
+        }
+
+        String fieldName() {
+            return javaFieldName;
+        }
+    }
+
     private Reference<DeviceCommunicationConfiguration> configuration = ValueReference.absent();
     @NotNull()
     private long pluggableClassId;
