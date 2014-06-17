@@ -17,6 +17,21 @@ import java.util.Set;
 public interface ConnectionType extends Pluggable {
 
     /**
+     * Defines the direction of the ConnectionType.
+     * <ul>
+     *     <li>Outbound means that the Collection system will use the ConnectionType to contact the device.
+     *     This means that some properties will be required in order to uniquely contact a Device.</li>
+     *     <li>Inbound means that the Device itself will contact the Collection system.
+     *     Most of the settings will be done in the Device and not on the ConnectionType.
+     *     (This does not mean that we cannot provide a list of properties)</li>
+     * </ul>
+     */
+    enum ConnectionTypeDirection{
+        OUTBOUND,
+        INBOUND
+    }
+
+    /**
      * Returns if this ConnectionType allows simultaneous
      * connections to be created or not.
      *
@@ -58,4 +73,10 @@ public interface ConnectionType extends Pluggable {
      */
     public void disconnect(ComChannel comChannel) throws ConnectionException;
 
+    /**
+     * Provides meta information for the Collection system to inform whether this ConnectionType
+     * can be used for Inbound communication or for Outbound communication
+     * @return
+     */
+    public ConnectionTypeDirection getDirection();
 }
