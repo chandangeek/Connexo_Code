@@ -1,42 +1,28 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.imp.Batch;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
-
-import com.elster.jupiter.issue.share.service.IssueService;
 import com.google.common.base.Optional;
-import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.annotate.JsonProperty;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class DeviceInfo {
 
-    @JsonIgnore
-    static final String DEVICETYPE_NAME = "deviceTypeName";
-    @JsonIgnore
-    static final String DEVICE_CONFIGURATION_NAME = "deviceConfigurationName";
-    @JsonIgnore
-    static final String MASTER_DEVICE_MRID = "masterDevicemRID";
-
     public long id;
     public String mRID;
     public String serialNumber;
-    @JsonProperty(DEVICETYPE_NAME)
     public String deviceTypeName;
     public Long deviceTypeId;
-    @JsonProperty(DEVICE_CONFIGURATION_NAME)
     public String deviceConfigurationName;
     public Long deviceConfigurationId;
     public String yearOfCertification;
     public String batch;
-    @JsonProperty(MASTER_DEVICE_MRID)
     public String masterDevicemRID;
     public Long masterDeviceId;
     public List<DeviceInfo> slaveDevices;

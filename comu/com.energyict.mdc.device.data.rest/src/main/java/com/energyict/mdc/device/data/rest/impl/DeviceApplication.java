@@ -4,7 +4,11 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.*;
+import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
+import com.elster.jupiter.rest.util.ConstraintViolationInfo;
+import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
+import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
+import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.common.rest.ExceptionLogger;
@@ -12,16 +16,17 @@ import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdw.UserFileService;
 import com.google.common.collect.ImmutableSet;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
-import javax.ws.rs.core.Application;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import javax.ws.rs.core.Application;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 @Component(name = "com.energyict.ddr.rest", service = Application.class, immediate = true, property = {"alias=/ddr"})
 public class DeviceApplication extends Application {
@@ -38,6 +43,7 @@ public class DeviceApplication extends Application {
     private volatile NlsService nlsService;
     private volatile JsonService jsonService;
     private volatile Thesaurus thesaurus;
+    private volatile UserFileService userFileService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -101,6 +107,10 @@ public class DeviceApplication extends Application {
         this.jsonService = jsonService;
     }
 
+    @Reference
+    public void setUserFileService(UserFileService userFileService) {
+        this.userFileService = userFileService;
+    }
 
     class HK2Binder extends AbstractBinder {
 
@@ -113,10 +123,13 @@ public class DeviceApplication extends Application {
             bind(issueService).to(IssueService.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
+            bind(ConnectionMethodInfoFactory.class).to(ConnectionMethodInfoFactory.class);
+            bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class);
             bind(nlsService).to(NlsService.class);
             bind(jsonService).to(JsonService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(deviceImportService).to(DeviceImportService.class);
+            bind(userFileService).to(UserFileService.class);
         }
     }
 
