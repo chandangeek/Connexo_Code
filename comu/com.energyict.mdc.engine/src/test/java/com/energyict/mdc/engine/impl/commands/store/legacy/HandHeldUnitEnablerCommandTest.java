@@ -247,6 +247,11 @@ public class HandHeldUnitEnablerCommandTest extends AbstractComCommandExecuteTes
         }
 
         @Override
+        public ConnectionTypeDirection getDirection() {
+            return ConnectionTypeDirection.OUTBOUND;
+        }
+
+        @Override
         public String getVersion() {
             return "For Unit test purposes only";
         }
