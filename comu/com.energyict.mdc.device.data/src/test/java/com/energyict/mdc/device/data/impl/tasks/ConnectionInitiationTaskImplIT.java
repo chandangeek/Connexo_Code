@@ -10,6 +10,7 @@ import com.energyict.mdc.device.data.exceptions.ConnectionTaskIsAlreadyObsoleteE
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.exceptions.PartialConnectionTaskNotPartOfDeviceConfigurationException;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationParticipant;
@@ -280,7 +281,7 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         long id = connectionInitiationTask.getId();
 
         ComTaskExecution comTaskExecution = createComTaskExecution();
-        ComTaskExecution.ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution);
+        ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?, ?>, ? extends ComTaskExecution> comTaskExecutionUpdater = comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution);
         comTaskExecutionUpdater.setConnectionTask(connectionInitiationTask);
         comTaskExecutionUpdater.update();
 
@@ -305,7 +306,7 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         RelationParticipant connectionMethod = (RelationParticipant) connectionTask.getConnectionMethod();
 
         ComTaskExecution comTaskExecution = createComTaskExecution();
-        ComTaskExecution.ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution);
+        ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?, ?>, ? extends ComTaskExecution> comTaskExecutionUpdater = comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution);
         comTaskExecutionUpdater.setConnectionTask(connectionTask);
         ComTaskExecution update = comTaskExecutionUpdater.update();
         device.removeComTaskExecution(update);
@@ -360,7 +361,7 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         connectionTask.save();
 
         ComTaskExecution comTaskExecution = createComTaskExecution();
-        ComTaskExecution.ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution);
+        ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?, ?>, ? extends ComTaskExecution> comTaskExecutionUpdater = comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution);
         comTaskExecutionUpdater.setConnectionTask(connectionTask);
         ComTaskExecution update = comTaskExecutionUpdater.update();
 

@@ -183,7 +183,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
         assertThat(reloadedComTaskExecution).isNotNull();
         assertThat(reloadedComTaskExecution.getNextExecutionSpecs()).isNull();
         assertThat(reloadedComTaskExecution.getDevice().getId()).isEqualTo(device.getId());
-        assertThat(reloadedComTaskExecution.getComTask().getId()).isEqualTo(comTaskEnablement.getComTask().getId());
+//        assertThat(reloadedComTaskExecution.getComTasks().getId()).isEqualTo(comTaskEnablement.getComTask().getId());
         assertThat(reloadedComTaskExecution.getConnectionTask()).isNull();
         assertThat(reloadedComTaskExecution.useDefaultConnectionTask()).isTrue();
         assertThat(reloadedComTaskExecution.getExecutingComPort()).isNull();

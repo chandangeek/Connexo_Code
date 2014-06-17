@@ -16,6 +16,8 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.DeviceDataServiceImpl;
 import com.energyict.mdc.device.data.impl.PersistenceIntegrationTest;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.dynamic.PropertySpec;
@@ -483,7 +485,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
 
     protected ComTaskExecution createComTaskExecutionAndSetNextExecutionTimeStamp(Date nextExecutionTimeStamp, ComTaskEnablement comTaskEnablement) {
         ComTaskExecution comTaskExecution = createComTaskExecution(comTaskEnablement);
-        ComTaskExecution.ComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
+        ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?, ?>, ? extends ComTaskExecution> comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
         comTaskExecutionUpdater.setNextExecutionTimeStampAndPriority(nextExecutionTimeStamp, 100);
         comTaskExecutionUpdater.update();
         return comTaskExecution;
@@ -494,11 +496,11 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     protected ComTaskExecution createComTaskExecWithConnectionTaskNextDateAndComTaskEnablement(ConnectionTask<?,?> connectionTask, Date nextExecutionTimeStamp, ComTaskEnablement comTaskEnablement){
-        ComTaskExecution.ComTaskExecutionBuilder comTaskExecutionBuilder = device.getComTaskExecutionBuilder(comTaskEnablement);
+        ComTaskExecutionBuilder<? extends ComTaskExecutionBuilder<?, ?>, ? extends ComTaskExecution> comTaskExecutionBuilder = device.getComTaskExecutionBuilder(comTaskEnablement);
         comTaskExecutionBuilder.setConnectionTask(connectionTask);
         ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         device.save();
-        ComTaskExecution.ComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
+        ComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
         comTaskExecutionUpdater.setNextExecutionTimeStampAndPriority(nextExecutionTimeStamp, 100);
         return comTaskExecutionUpdater.update();
     }
@@ -508,7 +510,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     protected ComTaskExecution createComTaskExecution(ComTaskEnablement comTaskEnablement) {
-        ComTaskExecution.ComTaskExecutionBuilder comTaskExecutionBuilder = device.getComTaskExecutionBuilder(comTaskEnablement);
+        ComTaskExecutionBuilder<? extends ComTaskExecutionBuilder<?, ?>, ? extends ComTaskExecution> comTaskExecutionBuilder = device.getComTaskExecutionBuilder(comTaskEnablement);
         ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         device.save();
         return comTaskExecution;

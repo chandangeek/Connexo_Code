@@ -39,7 +39,7 @@ public class ComTaskExecutionCheckWhichTaskTests {
     }
 
     private ComTaskExecutionImpl createComTaskExecution() {
-        return new ComTaskExecutionImpl(null, null, null, null, null, null);
+        return new ScheduledComTaskExecutionImpl(null, null, null, null, null, null, null);
     }
 
     @Test
