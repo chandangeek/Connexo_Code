@@ -7,14 +7,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
-import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
-import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -327,6 +320,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     public int countNumberOfEndDeviceEvents(List<EndDeviceEventType> eventTypes, Interval interval);
 
     List<SecurityProperty> getSecurityProperties(SecurityPropertySet securityPropertySet);
+
+    List<ProtocolDialectConfigurationProperties> getProtocolDialects();
 
     /**
      * Indicates if there are properties for the device and the passed securityPropertySet.
