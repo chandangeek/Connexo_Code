@@ -15,24 +15,22 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
             layout: 'column',
             defaults: {
                 xtype: 'container',
-                layout: 'form',
-                columnWidth: 0.5
+                layout: 'form'
+
             },
             items: [
                 {
+                    columnWidth: 0.6,
                     items: [
                         {
                             xtype: 'displayfield',
-                            fieldLabel: 'Measurement type: ',
+                            labelWidth: 200,
+                            fieldLabel: 'Measurement type',
                             name: 'name'
                         },
                         {
-                            xtype: 'displayfield',
-                            fieldLabel: 'OBIS code: ',
-                            name: 'overruledObisCode'
-                        },
-                        {
                             xtype: 'fieldcontainer',
+                            labelWidth: 200,
                             fieldLabel: 'CIM reading type',
                             layout: 'column',
                             defaults: {
@@ -41,6 +39,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                             items: [
                                 {
                                     xtype: 'displayfield',
+                                    labelWidth: 200,
                                     name: 'measurementType',
                                     renderer: function (value) {
                                         var readingType = value.readingType;
@@ -63,22 +62,32 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                         },
                         {
                             xtype: 'displayfield',
-                            fieldLabel: 'Multiplier: ',
+                            labelWidth: 200,
+                            fieldLabel: 'OBIS code',
+                            name: 'overruledObisCode'
+                        },
+                        {
+                            xtype: 'displayfield',
+                            labelWidth: 200,
+                            fieldLabel: 'Multiplier',
                             name: 'multiplier'
                         }
                     ]
                 },
                 {
+                    columnWidth: 0.4,
                     items: [
                         {
                             xtype: 'displayfield',
-                            fieldLabel: 'Overflow value: ',
+                            labelWidth: 200,
+                            fieldLabel: 'Overflow value',
                             name: 'overflowValue'
 
                         },
                         {
                             xtype: 'displayfield',
-                            fieldLabel: 'Unit of measure: ',
+                            labelWidth: 200,
+                            fieldLabel: 'Unit of measure',
                             name: 'unitOfMeasure',
                             renderer: function (value) {
                                 return value.name;
