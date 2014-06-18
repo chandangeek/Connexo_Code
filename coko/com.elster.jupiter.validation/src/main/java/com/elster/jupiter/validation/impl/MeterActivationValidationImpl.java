@@ -28,7 +28,7 @@ class MeterActivationValidationImpl implements MeterActivationValidation {
     private long ruleSetId;
     private transient IValidationRuleSet ruleSet;
     private UtcInstant lastRun;
-    private List<ChannelValidation> channelValidations;
+    private List<ChannelValidation> channelValidations = new ArrayList<>();
     private transient boolean saved = true;
     private UtcInstant obsoleteTime;
 
