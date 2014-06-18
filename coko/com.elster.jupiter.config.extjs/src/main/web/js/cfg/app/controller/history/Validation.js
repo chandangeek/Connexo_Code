@@ -16,7 +16,7 @@ Ext.define('Cfg.controller.history.Validation', {
                     action: 'showRuleSets',
                     items: {
                         rules: {
-                            title: 'Overview',
+                            title: 'Rules',
                             route: 'rules/{id}',
                             controller: 'Cfg.controller.Validation',
                             action: 'showRules'
@@ -28,13 +28,13 @@ Ext.define('Cfg.controller.history.Validation', {
                             action: 'showRuleSetOverview'
                         },
                         createset: {
-                            title: 'Create rule set',
+                            title: 'Add rule set',
                             route: 'createset',
                             controller: 'Cfg.controller.Validation',
                             action: 'newRuleSet'
                         },
                         addRule: {
-                            title: 'Create rule set',
+                            title: 'Add rule set',
                             route: 'addRule/{id}',
                             controller: 'Cfg.controller.Validation',
                             action: 'addRule'
