@@ -31,6 +31,7 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<?,?>> {
 
     public long id;
     public String name;
+    public boolean paused;
     public String connectionType;
     public String comPortPool;
     public boolean isDefault;
@@ -49,6 +50,7 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<?,?>> {
     protected ConnectionMethodInfo(ConnectionTask<?,?> connectionTask, UriInfo uriInfo, MdcPropertyUtils mdcPropertyUtils) {
         this.id=connectionTask.getId();
         this.name= connectionTask.getName();
+        this.paused = connectionTask.isPaused();
         this.connectionType= connectionTask.getConnectionType().toString();
         this.comPortPool= connectionTask.getComPortPool()!=null?connectionTask.getComPortPool().getName():null;
         this.isDefault= connectionTask.isDefault();

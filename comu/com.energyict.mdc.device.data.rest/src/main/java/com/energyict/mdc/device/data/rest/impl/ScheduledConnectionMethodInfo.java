@@ -90,6 +90,12 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
         }
 
         scheduledConnectionTask.save();
+        if (this.paused) {
+            scheduledConnectionTask.pause();
+        } else {
+            scheduledConnectionTask.resume();
+        }
+
         return scheduledConnectionTask;
     }
 

@@ -5,6 +5,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
+import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
@@ -71,10 +72,10 @@ public class DeviceResource {
     @GET
     @Path("/{mRID}/connectionmethods")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getConnectionMethods(@PathParam("mRID") String mRID, @Context UriInfo uriInfo) {
+    public Response getConnectionMethods(@PathParam("mRID") String mRID, @Context UriInfo uriInfo, @BeanParam QueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
-        List<ConnectionMethodInfo<?>> connectionMethodInfos = connectionMethodInfoFactory.asInfoList(device.getConnectionTasks(), uriInfo);
-        return Response.ok(connectionMethodInfos).build();
+        List<ConnectionMethodInfo<?>> connectionMethodInfos = ListPager.of(connectionMethodInfoFactory.asInfoList(device.getConnectionTasks(), uriInfo), new ConnectionMethodComparator()).from(queryParameters).find();
+        return Response.ok(PagedInfoList.asJson("connectionMethods", connectionMethodInfos, queryParameters)).build();
     }
 	
     @POST

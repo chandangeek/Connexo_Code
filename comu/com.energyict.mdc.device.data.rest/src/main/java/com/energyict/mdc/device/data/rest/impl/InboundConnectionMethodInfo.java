@@ -57,6 +57,12 @@ public class InboundConnectionMethodInfo extends ConnectionMethodInfo<InboundCon
         }
 
         inboundConnectionTask.save();
+        if (this.paused) {
+            inboundConnectionTask.pause();
+        } else {
+            inboundConnectionTask.resume();
+        }
+
         return inboundConnectionTask;
     }
 
