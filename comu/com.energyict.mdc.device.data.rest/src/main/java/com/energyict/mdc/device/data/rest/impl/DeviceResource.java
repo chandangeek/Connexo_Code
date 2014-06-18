@@ -10,6 +10,7 @@ import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.elster.jupiter.issue.share.service.IssueService;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
@@ -22,14 +23,16 @@ public class DeviceResource {
     private final DeviceDataService deviceDataService;
     private final ResourceHelper resourceHelper;
     private final IssueService issueService;
+    private final Provider<ProtocolDialectResource> protocolDialectResourceProvider;
 
 
     @Inject
-    public DeviceResource(ResourceHelper resourceHelper, DeviceImportService deviceImportService, DeviceDataService deviceDataService, IssueService issueService) {
+    public DeviceResource(ResourceHelper resourceHelper, DeviceImportService deviceImportService, DeviceDataService deviceDataService, IssueService issueService, Provider<ProtocolDialectResource> protocolDialectResourceProvider) {
         this.resourceHelper = resourceHelper;
         this.deviceImportService = deviceImportService;
         this.deviceDataService = deviceDataService;
         this.issueService = issueService;
+        this.protocolDialectResourceProvider = protocolDialectResourceProvider;
     }
 	
 	@GET
@@ -43,9 +46,9 @@ public class DeviceResource {
     }
 
     @GET
-    @Path("/{id}")
+    @Path("/{mRID}")
     @Produces(MediaType.APPLICATION_JSON)
-    public DeviceInfo findDeviceType(@PathParam("id") String id) {
+    public DeviceInfo findDeviceType(@PathParam("mRID") String id) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
         return DeviceInfo.from(device, deviceImportService, issueService);
     }
@@ -90,6 +93,11 @@ public class DeviceResource {
             condition = condition.or(where(conditionField).isEqualTo(value.trim()));
         }
         return condition;
+    }
+
+    @Path("/{mRID}/protocoldialects")
+    public ProtocolDialectResource getProtocolDialectsResource() {
+        return protocolDialectResourceProvider.get();
     }
 
 }
