@@ -1,19 +1,21 @@
 package com.elster.jupiter.osgi.goodies;
 
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.associations.RefAny;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.packageadmin.PackageAdmin;
 
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.associations.RefAny;
+import javax.inject.Inject;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriInfo;
+import java.util.HashMap;
+import java.util.Map;
 
 @SuppressWarnings("deprecation")
 @Path("/bundles")
@@ -35,17 +37,47 @@ public class OsgiInfoResource {
 		String result = analyzer.generate(bundleId);
 		return new GraphvizInterface().toSvg(result);
     }
-    
+
+
+    private enum OutputType {
+        SVG {
+            @Override
+            public byte[] produce(String input) {
+                return new GraphvizInterface().toSvg(input);
+            }
+        },
+        PNG {
+            @Override
+            public byte[] produce(String input) {
+                return new GraphvizInterface().toPng(input);
+            }
+        };
+
+        abstract public byte[] produce(String input);
+    }
+
     @GET
     @Path("/jupiter.svg")
     @Produces("image/svg+xml")
-    public byte[] getViz() {
-    	Analyzer analyzer = new Analyzer();
-		analyzer.build(context,admin);
-		String result = analyzer.generateJupiter();
-		return new GraphvizInterface().toSvg(result);
+    public byte[] getViz(@Context UriInfo uriInfo) {
+        return generateGraph(uriInfo, OutputType.SVG);
     }
-    
+
+    @GET
+    @Path("/jupiter.png")
+    @Produces("image/png")
+    public byte[] getVizPng(@Context UriInfo uriInfo) {
+        return generateGraph(uriInfo, OutputType.PNG);
+    }
+
+    private byte[] generateGraph(UriInfo uriInfo, OutputType type) {
+        Analyzer analyzer = new Analyzer();
+        analyzer.build(context, admin);
+        String result = analyzer.generateJupiter();
+        boolean tred = uriInfo.getQueryParameters().containsKey("tred");
+        return type.produce(tred ? new GraphvizInterface().tred(result) : result);
+    }
+
     @GET
     @Path("/jupiter.json")
     @Produces(MediaType.APPLICATION_JSON)
