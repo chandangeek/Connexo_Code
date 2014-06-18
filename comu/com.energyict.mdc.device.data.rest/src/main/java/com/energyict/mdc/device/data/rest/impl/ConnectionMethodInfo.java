@@ -51,7 +51,7 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<?,?>> {
         this.id=connectionTask.getId();
         this.name= connectionTask.getName();
         this.paused = connectionTask.isPaused();
-        this.connectionType= connectionTask.getConnectionType().toString();
+        this.connectionType= connectionTask.getPartialConnectionTask().getPluggableClass().getName();
         this.comPortPool= connectionTask.getComPortPool()!=null?connectionTask.getComPortPool().getName():null;
         this.isDefault= connectionTask.isDefault();
         List<PropertySpec> propertySpecs = connectionTask.getConnectionType().getPropertySpecs();

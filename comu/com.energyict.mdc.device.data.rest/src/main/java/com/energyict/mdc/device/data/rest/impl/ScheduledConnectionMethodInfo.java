@@ -95,6 +95,9 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
         } else {
             scheduledConnectionTask.resume();
         }
+        if (this.isDefault) {
+            deviceDataService.setDefaultConnectionTask(scheduledConnectionTask);
+        }
 
         return scheduledConnectionTask;
     }
