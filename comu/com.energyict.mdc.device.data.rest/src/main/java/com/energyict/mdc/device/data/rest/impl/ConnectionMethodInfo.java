@@ -68,13 +68,13 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
                 Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, this.properties);
                 if (propertyValue!=null) {
                     connectionTask.setProperty(propertySpec.getName(), propertyValue);
+                } else {
+                    connectionTask.removeProperty(propertySpec.getName());
                 }
             }
         }
-
-
     }
 
 
-    public abstract ConnectionTask<?,?> createTask(DeviceDataService deviceDataService, EngineModelService engineModelService, Device device, MdcPropertyUtils mdcPropertyUtils, PartialConnectionTask PartialConnectionTask partialConnectionTask);
+    public abstract ConnectionTask<?,?> createTask(DeviceDataService deviceDataService, EngineModelService engineModelService, Device device, MdcPropertyUtils mdcPropertyUtils, PartialConnectionTask partialConnectionTask);
 }
