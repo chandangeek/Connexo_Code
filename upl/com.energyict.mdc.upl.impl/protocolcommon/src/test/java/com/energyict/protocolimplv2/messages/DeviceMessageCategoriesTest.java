@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class DeviceMessageCategoriesTest extends TestCase {
 
@@ -23,7 +24,12 @@ public class DeviceMessageCategoriesTest extends TestCase {
         for (DeviceMessageCategories categories : DeviceMessageCategories.values()) {
             messageIds = new ArrayList<>();
             for (DeviceMessageSpec deviceMessageSpec : categories.getMessageSpecifications()) {
-                assertFalse(messageIds.contains(deviceMessageSpec.getMessageId()));
+                boolean condition = messageIds.contains(deviceMessageSpec.getMessageId());
+                if (condition) {
+                    Logger logger = Logger.getLogger(DeviceMessageCategoriesTest.class.getSimpleName());
+                    logger.severe("Unique message ID violation: " + deviceMessageSpec.getName());
+                }
+                assertFalse(condition);
                 messageIds.add(deviceMessageSpec.getMessageId());
             }
         }
