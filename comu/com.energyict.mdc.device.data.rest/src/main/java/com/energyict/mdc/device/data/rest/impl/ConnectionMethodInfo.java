@@ -6,6 +6,7 @@ import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.configuration.rest.ConnectionStrategyAdapter;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.engine.model.EngineModelService;
@@ -41,7 +42,6 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<?,?>> {
     public boolean allowSimultaneousConnections;
     public TimeDurationInfo rescheduleRetryDelay;
     public TemporalExpressionInfo temporalExpression;
-    public long partialTaskId;
 
     public ConnectionMethodInfo() {
     }
@@ -61,7 +61,7 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<?,?>> {
 
     protected PartialConnectionTask findMyPartialConnectionTask(Device device) {
         for (PartialConnectionTask partialConnectionTask : device.getDeviceConfiguration().getPartialConnectionTasks()) {
-            if (partialConnectionTask.getId()==this.partialTaskId) {
+            if (partialConnectionTask.getName().equals(this.name)) {
                 return partialConnectionTask;
             }
         }
@@ -73,5 +73,5 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<?,?>> {
     }
 
 
-    public abstract ConnectionTask<?,?> createTask(EngineModelService engineModelService, Device device, MdcPropertyUtils mdcPropertyUtils);
+    public abstract ConnectionTask<?,?> createTask(DeviceDataService deviceDataService, EngineModelService engineModelService, Device device, MdcPropertyUtils mdcPropertyUtils);
 }

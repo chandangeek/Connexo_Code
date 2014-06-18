@@ -82,7 +82,7 @@ public class DeviceResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response createConnectionMethod(@PathParam("mRID") String mrid, @Context UriInfo uriInfo, ConnectionMethodInfo<?> connectionMethodInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        ConnectionTask<?, ?> task = connectionMethodInfo.createTask(engineModelService, device, mdcPropertyUtils);
+        ConnectionTask<?, ?> task = connectionMethodInfo.createTask(deviceDataService, engineModelService, device, mdcPropertyUtils);
         return Response.status(Response.Status.CREATED).entity(connectionMethodInfoFactory.asInfo(task, uriInfo)).build();
     }
 

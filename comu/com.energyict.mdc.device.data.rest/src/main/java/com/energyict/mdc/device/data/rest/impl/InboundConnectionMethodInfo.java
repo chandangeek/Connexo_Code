@@ -4,6 +4,7 @@ import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.dynamic.PropertySpec;
@@ -30,7 +31,7 @@ public class InboundConnectionMethodInfo extends ConnectionMethodInfo<InboundCon
     }
 
     @Override
-    public ConnectionTask<?,?> createTask(EngineModelService engineModelService, Device device, MdcPropertyUtils mdcPropertyUtils) {
+    public ConnectionTask<?,?> createTask(DeviceDataService deviceDataService, EngineModelService engineModelService, Device device, MdcPropertyUtils mdcPropertyUtils) {
         PartialConnectionTask partialConnectionTask = findMyPartialConnectionTask(device);
         if (partialConnectionTask==null) {
             throw new WebApplicationException("No such partial connection task", Response.Status.BAD_REQUEST);
@@ -38,20 +39,25 @@ public class InboundConnectionMethodInfo extends ConnectionMethodInfo<InboundCon
         if (!PartialInboundConnectionTask.class.isAssignableFrom(partialConnectionTask.getClass())) {
             throw new WebApplicationException("Expected partial connection task to be 'Inbound'", Response.Status.BAD_REQUEST);
         }
-        Device.InboundConnectionTaskBuilder builder = device.getInboundConnectionTaskBuilder((PartialInboundConnectionTask) partialConnectionTask);
+        PartialInboundConnectionTask partialInboundConnectionTask = (PartialInboundConnectionTask) partialConnectionTask;
+        InboundComPortPool inboundComPortPool=null;
         if (!Checks.is(comPortPool).emptyOrOnlyWhiteSpace()) {
-            builder.setComPortPool((InboundComPortPool) engineModelService.findComPortPool(this.comPortPool));
+            inboundComPortPool = (InboundComPortPool) engineModelService.findComPortPool(this.comPortPool);
         }
+
+        InboundConnectionTask inboundConnectionTask = deviceDataService.newInboundConnectionTask(device, partialInboundConnectionTask, inboundComPortPool);
+
         if (this.properties !=null) {
             for (PropertySpec<?> propertySpec : partialConnectionTask.getPluggableClass().getPropertySpecs()) {
                 Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, this.properties);
                 if (propertyValue!=null) {
-                    builder.setProperty(propertySpec.getName(), propertyValue);
+                    inboundConnectionTask.setProperty(propertySpec.getName(), propertyValue);
                 }
             }
         }
 
-        return builder.add();
+        inboundConnectionTask.save();
+        return inboundConnectionTask;
     }
 
 }
