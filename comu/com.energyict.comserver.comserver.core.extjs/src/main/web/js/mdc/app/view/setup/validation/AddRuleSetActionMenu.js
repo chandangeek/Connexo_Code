@@ -9,8 +9,7 @@ Ext.define('Mdc.view.setup.validation.AddRuleSetActionMenu', {
     items: [
         {
             text: Uni.I18n.translate('general.view', 'MDC', 'View'),
-            itemId: 'activateDeviceconfigurationMenuItem',
-            action: 'viewRuleSetActionMenu'
+            itemId: 'viewRuleSet'
         }
     ]
 });

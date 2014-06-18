@@ -111,11 +111,8 @@ Ext.define('Mdc.controller.setup.ValidationRules', {
 
         counter.setText(selectionText);
 
-        view.setValidationRuleSetPreviewVisible(selection.length > 0);
-        // TODO Check if it makes sense to show the preview on this screen, and how to handle multiple selections.
         if (selection.length > 0) {
-            // Show the last selected item in the preview screen.
-            view.updateValidationRuleSetPreview(selection[selection.length - 1]);
+            view.updateValidationRuleSetPreview(selection[0]);
         }
     },
 
@@ -124,7 +121,6 @@ Ext.define('Mdc.controller.setup.ValidationRules', {
     },
 
     onUncheckAll: function () {
-        // TODO Is this button required at all? There's the default checkbox model as a column header.
         var grid = this.getAddValidationRuleSetsGrid();
         grid.getView().getSelectionModel().deselectAll();
     }

@@ -5,7 +5,8 @@ Ext.define('Mdc.view.setup.validation.AddRuleSets', {
     requires: [
         'Uni.view.container.PreviewContainer',
         'Mdc.view.setup.validation.AddRuleSetsGrid',
-        'Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu'
+        'Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu',
+        'Cfg.view.validation.RuleSetPreview'
     ],
 
     deviceTypeId: null,
@@ -80,9 +81,17 @@ Ext.define('Mdc.view.setup.validation.AddRuleSets', {
                             ]
                         },
                         previewComponent: {
-                            // TODO Preview component.
-                            xtype: 'component',
-                            html: 'Here be dragons.'
+                            xtype: 'validation-ruleset-preview',
+                            tools: [
+                                {
+                                    xtype: 'button',
+                                    text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                                    iconCls: 'x-uni-action-iconD',
+                                    menu: {
+                                        xtype: 'validation-add-ruleset-actionmenu'
+                                    }
+                                }
+                            ]
                         }
                     }
                 ]
@@ -93,7 +102,8 @@ Ext.define('Mdc.view.setup.validation.AddRuleSets', {
     },
 
     updateValidationRuleSetPreview: function (validationRuleSet) {
-        // TODO
-        console.log(validationRuleSet);
+        var href = '#/administration/validation/overview/' + validationRuleSet.get('id');
+        this.down('validation-ruleset-preview').updateValidationRuleSet(validationRuleSet);
+        this.down('validation-ruleset-preview #viewRuleSet').setHref(href);
     }
 });
