@@ -7,23 +7,23 @@ Ext.define('Cfg.model.ValidationRuleSet', {
         'numberOfInactiveRules',
         'numberOfRules'
     ],
+
     /*associations: [
-        {
-            type: 'hasMany',
-            model: 'Cfg.model.ValidationRule',
-            associationKey: 'rules',
-            name: 'rules'
-        }
-    ], */
+     {
+     type: 'hasMany',
+     model: 'Cfg.model.ValidationRule',
+     associationKey: 'rules',
+     name: 'rules'
+     }
+     ], */
+
     proxy: {
         type: 'rest',
         url: '/api/val/validation',
-        headers: {"Accept": "application/json"},
+        headers: {'Accept': 'application/json'},
         reader: {
             type: 'json',
             root: 'ruleSets'
         }
     }
-
-
 });

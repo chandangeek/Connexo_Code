@@ -3,8 +3,10 @@ Ext.define('Cfg.store.ValidationRuleSets', {
     autoLoad: false,
     model: 'Cfg.model.ValidationRuleSet',
 
+    storeId: 'ValidationRuleSets',
+
     listeners: {
-        "beforeLoad": function() {
+        'beforeLoad': function () {
             var extraParams = this.proxy.extraParams;
 
             // replace filter extra params with new ones
@@ -17,8 +19,6 @@ Ext.define('Cfg.store.ValidationRuleSets', {
         }
     },
 
-
-
     proxy: {
         type: 'rest',
         url: '/api/val/validation',
@@ -28,6 +28,4 @@ Ext.define('Cfg.store.ValidationRuleSets', {
             totalProperty: 'total'
         }
     }
-
-
 });

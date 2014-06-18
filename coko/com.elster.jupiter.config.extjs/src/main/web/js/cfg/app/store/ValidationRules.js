@@ -10,7 +10,7 @@ Ext.define('Cfg.store.ValidationRules', {
         reader: {
             type: 'json',
             root: 'rules'
-        }  ,
+        },
         buildUrl: function (request) {
             var me = this,
                 format = me.format,
