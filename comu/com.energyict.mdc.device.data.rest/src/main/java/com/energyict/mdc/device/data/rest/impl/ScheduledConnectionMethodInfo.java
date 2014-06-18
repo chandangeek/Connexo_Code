@@ -1,13 +1,21 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.util.Checks;
+import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
-import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<ScheduledConnectionTask> {
@@ -45,32 +53,35 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
     }
 
     @Override
-    public ConnectionTask<?,?> createTask(DeviceConfiguration deviceConfiguration, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService, MdcPropertyUtils mdcPropertyUtils) {
-//        this.mdcPropertyUtils = mdcPropertyUtils;
-//        ConnectionTypePluggableClass connectionTypePluggableClass = findConnectionTypeOrThrowException(this.connectionType, protocolPluggableService);
-//        TimeDuration rescheduleDelay = this.rescheduleRetryDelay == null ? null : this.rescheduleRetryDelay.asTimeDuration();
-//        PartialScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder = deviceConfiguration.newPartialScheduledConnectionTask(this.name, connectionTypePluggableClass, rescheduleDelay, this.connectionStrategy)
-//            .comPortPool((OutboundComPortPool) engineModelService.findComPortPool(this.comPortPool))
-//            .comWindow(new ComWindow(this.comWindowStart, this.comWindowEnd))
-//            .asDefault(this.isDefault)
-//            .allowSimultaneousConnections(this.allowSimultaneousConnections);
-//        if (this.temporalExpression!=null) {
-//            if (this.temporalExpression.offset==null) {
-//                scheduledConnectionTaskBuilder
-//                        .nextExecutionSpec()
-//                        .temporalExpression(this.temporalExpression.every.asTimeDuration())
-//                        .set();
-//            } else {
-//                scheduledConnectionTaskBuilder
-//                        .nextExecutionSpec()
-//                        .temporalExpression(this.temporalExpression.every.asTimeDuration(), this.temporalExpression.offset.asTimeDuration())
-//                        .set();
-//            }
-//        }
-//
-//        addPropertiesToPartialConnectionTask(scheduledConnectionTaskBuilder, connectionTypePluggableClass);
-//        return scheduledConnectionTaskBuilder.build();
-        return null;
+    public ConnectionTask<?,?> createTask(EngineModelService engineModelService, Device device, MdcPropertyUtils mdcPropertyUtils) {
+        PartialConnectionTask partialConnectionTask = findMyPartialConnectionTask(device);
+        if (partialConnectionTask==null) {
+            throw new WebApplicationException("No such partial connection task", Response.Status.BAD_REQUEST);
+        }
+        if (!PartialScheduledConnectionTask.class.isAssignableFrom(partialConnectionTask.getClass())) {
+            throw new WebApplicationException("Expected partial connection task to be 'Outbound'", Response.Status.BAD_REQUEST);
+        }
+
+        Device.ScheduledConnectionTaskBuilder builder = device.getScheduledConnectionTaskBuilder((PartialOutboundConnectionTask) partialConnectionTask);
+        if (!Checks.is(this.comPortPool).emptyOrOnlyWhiteSpace()) {
+            builder.setComPortPool((OutboundComPortPool) engineModelService.findComPortPool(this.comPortPool));
+        }
+        builder.setSimultaneousConnectionsAllowed(this.allowSimultaneousConnections);
+        builder.setCommunicationWindow(new ComWindow(this.comWindowStart, this.comWindowEnd));
+        builder.setConnectionStrategy(this.connectionStrategy);
+        if (this.properties !=null) {
+            for (PropertySpec<?> propertySpec : partialConnectionTask.getPluggableClass().getPropertySpecs()) {
+                Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, this.properties);
+                if (propertyValue!=null) {
+                    builder.setProperty(propertySpec.getName(), propertyValue);
+                }
+            }
+        }
+
+        if (this.temporalExpression!=null) {
+            builder.setNextExecutionSpecsFrom(temporalExpression.asTemporalExpression());
+        }
+        return builder.add();
     }
 
 }

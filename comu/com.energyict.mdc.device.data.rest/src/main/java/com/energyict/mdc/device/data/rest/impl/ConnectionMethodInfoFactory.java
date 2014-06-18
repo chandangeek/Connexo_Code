@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
@@ -22,7 +21,7 @@ public class ConnectionMethodInfoFactory {
     public ConnectionMethodInfo<?> asInfo(ConnectionTask<?,?> connectionTask, UriInfo uriInfo) {
         if (InboundConnectionTask.class.isAssignableFrom(connectionTask.getClass())) {
             return new InboundConnectionMethodInfo((InboundConnectionTask) connectionTask, uriInfo, mdcPropertyUtils);
-        } else if (PartialScheduledConnectionTask.class.isAssignableFrom(connectionTask.getClass())) {
+        } else if (ScheduledConnectionTask.class.isAssignableFrom(connectionTask.getClass())) {
             return new ScheduledConnectionMethodInfo((ScheduledConnectionTask) connectionTask, uriInfo, mdcPropertyUtils);
         } else {
             throw new IllegalArgumentException("Unsupported ConnectionMethod type "+connectionTask.getClass().getSimpleName());

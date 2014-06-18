@@ -15,6 +15,7 @@ import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
+import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -44,6 +45,7 @@ public class DeviceApplication extends Application {
     private volatile JsonService jsonService;
     private volatile Thesaurus thesaurus;
     private volatile UserFileService userFileService;
+    private volatile EngineModelService engineModelService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -112,6 +114,11 @@ public class DeviceApplication extends Application {
         this.userFileService = userFileService;
     }
 
+    @Reference
+    public void setEngineModelService(EngineModelService engineModelService) {
+        this.engineModelService = engineModelService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -130,6 +137,7 @@ public class DeviceApplication extends Application {
             bind(thesaurus).to(Thesaurus.class);
             bind(deviceImportService).to(DeviceImportService.class);
             bind(userFileService).to(UserFileService.class);
+            bind(engineModelService).to(EngineModelService.class);
         }
     }
 
