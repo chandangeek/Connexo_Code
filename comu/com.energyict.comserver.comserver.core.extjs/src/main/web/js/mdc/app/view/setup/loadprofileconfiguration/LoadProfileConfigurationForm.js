@@ -19,13 +19,10 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileConfigurationForm', {
             },
             items: [
                 {
-                    xtype: 'fieldcontainer',
-                    fieldLabel: ' ',
-                    name: 'errors',
-                    hidden: true,
-                    defaults: {
-                        xtype: 'container'
-                    }
+                        xtype: 'uni-form-error-message',
+                        name: 'errors',
+                        hidden: true,
+                        margin: '0 0 32 0'
                 },
                 {
                     xtype: 'displayfield',

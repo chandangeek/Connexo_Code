@@ -47,7 +47,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                 items: [{
                     xtype: 'deviceMenu',
                     itemId: 'stepsMenu',
-                    deviceId: this.deviceId,
+                    mRID: this.mRID,
                     toggle: 0
                 }]
             }

@@ -5,7 +5,7 @@ Ext.define('Mdc.view.setup.device.DeviceGeneralInformationPanel', {
     itemId: 'devicegeneralinformationpanel',
     title: Uni.I18n.translate('deviceGeneralInformation.generalInformationTitle', 'MDC', 'General information'),
     ui: 'tile',
-    deviceId: null,
+    mRID: null,
     items: [
         {
             xtype: 'form',

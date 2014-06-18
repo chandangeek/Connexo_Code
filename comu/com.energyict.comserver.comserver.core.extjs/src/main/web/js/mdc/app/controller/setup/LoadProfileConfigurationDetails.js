@@ -386,7 +386,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                             success: function (response) {
                                 var loadProfileConfiguration = Ext.JSON.decode(response.responseText).data[0],
                                     widget = Ext.widget('loadProfileConfigurationDetailForm',
-                                        {loadProfileConfigurationChannelAction: 'Add'}),
+                                        {loadProfileConfigurationChannelAction: 'Add', deviceTypeId: deviceTypeId, deviceConfigurationId: deviceConfigurationId, loadProfileConfigurationId: loadProfileConfigurationId }),
                                     measurementTypeCombobox = widget.down('combobox[name=measurementType]'),
                                     unitOfMeasureCombobox = widget.down('combobox[name=unitOfMeasure]'),
                                     title =  Uni.I18n.translate('loadprofiles.loadporfileaddChannelConfiguration', 'MDC', 'Add channel configuration');
@@ -427,7 +427,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                             params: {},
                             method: 'GET',
                             success: function (response) {
-                                var loadProfileConfiguration = Ext.JSON.decode(response.responseText).data[0];
                                 Ext.Ajax.request({
                                     url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofileconfigurations/' + me.loadProfileConfigurationId + '/channels/' + me.channelId ,
                                     params: {},
@@ -435,32 +434,32 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                     success: function (response) {
                                         var channel = Ext.JSON.decode(response.responseText).data[0],
                                             widget = Ext.widget('loadProfileConfigurationDetailForm',
-                                                {loadProfileConfigurationChannelAction: 'Save'}),
-                                            title =  Uni.I18n.translate('loadprofiles.loadprofileEditChannelConfiguration', 'MDC', 'Edit channel configuration');
-
+                                                {loadProfileConfigurationChannelAction: 'Save', deviceTypeId: deviceTypeId, deviceConfigurationId: deviceConfigurationId, loadProfileConfigurationId: loadProfileConfigurationId }),
+                                            title =  Uni.I18n.translate('loadprofiles.loadprofileEditChannelConfiguration', 'MDC', 'Edit channel configuration'),
                                             measurementTypeCombobox = widget.down('combobox[name=measurementType]'),
-                                            cimdisplayfield = widget.down('displayfield[name=cimreadingtype]'),
-                                            obiscodedisplayfield = widget.down('displayfield[name=obiscode]'),
                                             unitOfMeasureCombobox = widget.down('combobox[name=unitOfMeasure]'),
                                             overruledObisField =  widget.down('textfield[name=overruledObisCode]'),
                                             overflowValueField =  widget.down('textfield[name=overflowValue]'),
-                                            multiplierField =  widget.down('textfield[name=multiplier]');
+                                            multiplierField =  widget.down('textfield[name=multiplier]'),
+                                            measurementTypeDisplayField = widget.down('displayfield[name=measurementtype]');
 
                                         widget.down('form').setTitle(title);
-                                        me.availableMeasurementTypesStore.load({callback: function () {
-                                            measurementTypeCombobox.store = me.availableMeasurementTypesStore;
-                                            me.availableMeasurementTypesStore.add(channel.measurementType);
-                                            measurementTypeCombobox.setValue(channel.measurementType.id);
-                                            cimdisplayfield.setValue(channel.measurementType.readingType.mrid);
-                                            obiscodedisplayfield.setValue(channel.measurementType.obisCode);
-                                        }});
+                                        if (channel.isLinkedByActiveDeviceConfiguration) {
+                                            measurementTypeCombobox.hide();
+                                            measurementTypeDisplayField.setValue(channel.measurementType.name);
+                                            measurementTypeDisplayField.show();
+                                        }
                                         me.phenomenasStore.load({callback: function () {
                                             unitOfMeasureCombobox.store = me.phenomenasStore;
-                                            unitOfMeasureCombobox.setValue(channel.unitOfMeasure.id);
                                         }});
-                                        if (channel.isLinkedByActiveDeviceConfiguration) {
-                                            measurementTypeCombobox.disable();
-                                        }
+
+                                        me.availableMeasurementTypesStore.load({callback: function () {
+                                            measurementTypeCombobox.store = me.availableMeasurementTypesStore;
+                                            channel.measurementType.phenomenon = channel.unitOfMeasure;
+                                            me.availableMeasurementTypesStore.add(channel.measurementType);
+                                            measurementTypeCombobox.setValue(channel.measurementType.id);
+                                        }});
+
                                         overruledObisField.setValue(channel.overruledObisCode);
                                         overflowValueField.setValue(channel.overflowValue);
                                         multiplierField.setValue(channel.multiplier);

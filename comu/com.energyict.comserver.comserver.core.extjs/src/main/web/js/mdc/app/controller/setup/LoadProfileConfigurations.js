@@ -135,7 +135,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
         var me = this,
             formPanel = me.getLoadConfigurationForm(),
             form = formPanel.getForm(),
-            formErrorsPanel = formPanel.down('fieldcontainer[name=errors]'),
+            formErrorsPanel = formPanel.down('uni-form-error-message[name=errors]'),
             formValue = form.getValues(),
             preloader,
             jsonValues;
@@ -187,14 +187,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
                     break;
             }
         } else {
-            formErrorsPanel.hide();
-            formErrorsPanel.removeAll();
-            formErrorsPanel.add({
-                html: 'There are errors on this page that require your attention.',
-                style: {
-                    color: 'red'
-                }
-            });
             formErrorsPanel.show();
         }
     },
