@@ -1213,12 +1213,12 @@ body.login .x-panel-login .x-field-error .x-form-display-field {
   background-image: url("images/button/ico_actions.png");
 }
 
-/* line 13, ../../sass/src/button/Button.scss */
-.active .x-uni-action-icon {
+/* line 14, ../../sass/src/button/Button.scss */
+.x-grid-row-selected .x-uni-action-icon, .active .x-uni-action-icon {
   background-image: url("images/button/ico_actionsA.png");
 }
 
-/* line 20, ../../sass/src/button/Button.scss */
+/* line 19, ../../sass/src/button/Button.scss */
 .x-btn-default-toolbar-small .x-btn-arrow {
   background-image: url("images/button/default-small-arrow.png");
 }

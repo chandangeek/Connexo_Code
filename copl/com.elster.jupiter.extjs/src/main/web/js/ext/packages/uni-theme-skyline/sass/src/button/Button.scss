@@ -9,13 +9,12 @@
 .#{$prefix}uni-action-icon {
     background-image: $button-action-icon;
 }
-.active {
-  .#{$prefix}uni-action-icon {
-    background-image: $button-action-iconA;
-  }
+
+.#{$prefix}grid-row-selected, .active {
+    .#{$prefix}uni-action-icon {
+        background-image: $button-action-iconA;
+    }
 }
-
-
 
 .#{$prefix}btn-default-toolbar-small .#{$prefix}btn-arrow {
     background-image: url('images/button/default-small-arrow.png');
