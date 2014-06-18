@@ -7,7 +7,7 @@ Ext.define('Usr.controller.history.UserManagement', {
 
     routeConfig: {
         usermanagement: {
-            title: 'User Management',
+            title: Uni.I18n.translate('user.root', 'USM', 'User management'),
             route: 'usermanagement',
             disabled: true,
             items: {
