@@ -2,6 +2,10 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.loadProfileConfigurationDetailForm',
     loadProfileConfigurationChannelAction: null,
+    loadProfileConfigurationId: null,
+    deviceConfigurationId: null,
+    deviceTypeId: null,
+
     content: [
         {
             ui: 'large',
@@ -25,6 +29,14 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                         xtype: 'container',
                         cls: 'isu-error-panel'
                     }
+                },
+                {
+                    xtype: 'displayfield',
+                    required: true,
+                    fieldLabel: 'Measurement type',
+                    name: 'measurementtype',
+                    value: 'measurementType',
+                    hidden: true
                 },
                 {
                     xtype: 'combobox',
@@ -105,12 +117,9 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                     itemId: 'LoadProfileChannelAction'
                 },
                 {
-                    text: 'Cancel',
-                    handler: function (button, event) {
-                        Ext.History.back();
-                    },
-                    ui: 'link'
-                }
+                    xtype: 'container',
+                    itemId: 'LoadProfileChannelCancel'
+                },
             ]
         }
     ],
@@ -124,6 +133,14 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                 text: this.loadProfileConfigurationChannelAction,
                 action: this.loadProfileConfigurationChannelAction,
                 ui: 'action'
+            }
+        );
+        this.down('#LoadProfileChannelCancel').add(
+            {
+                xtype: 'button',
+                text: 'Cancel',
+                href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/loadprofiles/' + this.loadProfileConfigurationId + '/channels',
+                ui: 'link'
             }
         );
         Ext.apply(Ext.form.VTypes, {
