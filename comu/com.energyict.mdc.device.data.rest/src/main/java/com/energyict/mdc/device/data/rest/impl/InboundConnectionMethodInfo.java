@@ -25,8 +25,8 @@ public class InboundConnectionMethodInfo extends ConnectionMethodInfo<InboundCon
     }
 
     @Override
-    protected void writeTo(InboundConnectionTask connectionTask, EngineModelService engineModelService) {
-        super.writeTo(connectionTask, engineModelService);
+    protected void writeTo(InboundConnectionTask connectionTask, PartialConnectionTask partialConnectionTask, DeviceDataService deviceDataService, EngineModelService engineModelService, MdcPropertyUtils mdcPropertyUtils) {
+        super.writeTo(connectionTask, partialConnectionTask, deviceDataService, engineModelService, mdcPropertyUtils);
         connectionTask.setComPortPool(Checks.is(this.comPortPool).emptyOrOnlyWhiteSpace() ? null : (InboundComPortPool) engineModelService.findComPortPool(this.comPortPool));
     }
 

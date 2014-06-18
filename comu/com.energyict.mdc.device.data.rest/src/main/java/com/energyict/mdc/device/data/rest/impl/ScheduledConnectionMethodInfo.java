@@ -9,7 +9,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
@@ -37,19 +36,17 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
     }
 
     @Override
-    protected void writeTo(ScheduledConnectionTask connectionTask, EngineModelService engineModelService) {
-        super.writeTo(connectionTask, engineModelService);
-//        connectionTask.isDefault()setDefault(this.isDefault);
-//        connectionTask.setAllowSimultaneousConnections(this.allowSimultaneousConnections);
-//        connectionTask.setComWindow(new ComWindow(this.comWindowStart, this.comWindowEnd));
-//        connectionTask.setConnectionStrategy(this.connectionStrategy);
-//        connectionTask.setComportPool(Checks.is(this.comPortPool).emptyOrOnlyWhiteSpace() ? null : (OutboundComPortPool) engineModelService.findComPortPool(this.comPortPool));
-//        connectionTask.setRescheduleRetryDelay(this.rescheduleRetryDelay != null ? this.rescheduleRetryDelay.asTimeDuration() : null);
-//        if (temporalExpression!=null) {
-//            connectionTask.setTemporalExpression(temporalExpression.asTemporalExpression());
-//        } else {
-//            connectionTask.setNextExecutionSpecs(null);
-//        }
+    protected void writeTo(ScheduledConnectionTask scheduledConnectionTask, PartialConnectionTask partialConnectionTask, DeviceDataService deviceDataService, EngineModelService engineModelService, MdcPropertyUtils mdcPropertyUtils) {
+        super.writeTo(scheduledConnectionTask, partialConnectionTask, deviceDataService, engineModelService, mdcPropertyUtils);
+        scheduledConnectionTask.setSimultaneousConnectionsAllowed(this.allowSimultaneousConnections);
+        scheduledConnectionTask.setCommunicationWindow(new ComWindow(this.comWindowStart, this.comWindowEnd));
+        scheduledConnectionTask.setConnectionStrategy(this.connectionStrategy);
+        if (!Checks.is(this.comPortPool).emptyOrOnlyWhiteSpace()) {
+            scheduledConnectionTask.setComPortPool((OutboundComPortPool) engineModelService.findComPortPool(this.comPortPool));
+        } else {
+            scheduledConnectionTask.setComPortPool(null);
+        }
+        scheduledConnectionTask.setNextExecutionSpecsFrom(this.temporalExpression != null ? temporalExpression.asTemporalExpression() : null);
     }
 
     @Override
@@ -74,21 +71,10 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
                 break;
             case MINIMIZE_CONNECTIONS:
                 scheduledConnectionTask = deviceDataService.newMinimizeConnectionTask(device, partialScheduledConnectionTask, outboundComPortPool,
-                        this.temporalExpression!=null?temporalExpression.asTemporalExpression():null);
+                        this.temporalExpression != null ? temporalExpression.asTemporalExpression() : null);
                 break;
         }
-        scheduledConnectionTask.setSimultaneousConnectionsAllowed(this.allowSimultaneousConnections);
-        scheduledConnectionTask.setCommunicationWindow(new ComWindow(this.comWindowStart, this.comWindowEnd));
-        scheduledConnectionTask.setConnectionStrategy(this.connectionStrategy);
-        if (this.properties !=null) {
-            for (PropertySpec<?> propertySpec : partialConnectionTask.getPluggableClass().getPropertySpecs()) {
-                Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, this.properties);
-                if (propertyValue!=null) {
-                    scheduledConnectionTask.setProperty(propertySpec.getName(), propertyValue);
-                }
-            }
-        }
-
+        writeTo(scheduledConnectionTask, partialConnectionTask, deviceDataService, engineModelService, mdcPropertyUtils);
         scheduledConnectionTask.save();
         if (this.paused) {
             scheduledConnectionTask.pause();

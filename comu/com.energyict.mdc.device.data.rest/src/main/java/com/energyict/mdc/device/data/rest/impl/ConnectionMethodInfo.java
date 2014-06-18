@@ -70,7 +70,16 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<?,?>> {
         return null;
     }
 
-    protected void writeTo(T connectionTask, EngineModelService engineModelService) {
+    protected void writeTo(T connectionTask, PartialConnectionTask partialConnectionTask, DeviceDataService deviceDataService, EngineModelService engineModelService, MdcPropertyUtils mdcPropertyUtils) {
+        if (this.properties !=null) {
+            for (PropertySpec<?> propertySpec : partialConnectionTask.getPluggableClass().getPropertySpecs()) {
+                Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, this.properties);
+                if (propertyValue!=null) {
+                    connectionTask.setProperty(propertySpec.getName(), propertyValue);
+                }
+            }
+        }
+
 
     }
 
