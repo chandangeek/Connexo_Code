@@ -59,7 +59,7 @@ Ext.define('Cfg.view.validation.RuleSetBrowse', {
                         tools: [
                             {
                                 xtype: 'button',
-                                text: Uni.I18n.translate('general.actions', 'CFG', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
+                                text: Uni.I18n.translate('general.actions', 'CFG', 'Actions'),
                                 iconCls: 'x-uni-action-iconD',
                                 menu: {
                                     xtype: 'ruleset-action-menu'
