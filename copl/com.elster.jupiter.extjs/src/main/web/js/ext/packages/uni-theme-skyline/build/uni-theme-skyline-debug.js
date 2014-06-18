@@ -822,6 +822,18 @@ Ext.define('ExtThemeNeptune.grid.column.RowNumberer', {
     width: 25
 });
 
+Ext.define('Skyline.grid.plugin.BufferedRenderer', {
+    override: 'Ext.grid.plugin.BufferedRenderer',
+    rowHeight: 29, // comes from skyline theme
+
+    bindStore: function(store) {
+        var me = this;
+        me.trailingBufferZone = Math.ceil(store.pageSize / 2);
+        me.leadingBufferZone = store.pageSize;
+        this.callParent(arguments);
+    }
+});
+
 /*
 This file is part of Ext JS 4.2
 
