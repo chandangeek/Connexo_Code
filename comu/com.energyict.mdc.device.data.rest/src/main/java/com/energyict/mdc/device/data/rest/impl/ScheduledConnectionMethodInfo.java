@@ -50,15 +50,11 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
     }
 
     @Override
-    public ConnectionTask<?,?> createTask(DeviceDataService deviceDataService, EngineModelService engineModelService, Device device, MdcPropertyUtils mdcPropertyUtils) {
-        PartialConnectionTask partialConnectionTask = findMyPartialConnectionTask(device);
-        if (partialConnectionTask==null) {
-            throw new WebApplicationException("No such partial connection task", Response.Status.BAD_REQUEST);
-        }
+    public ConnectionTask<?,?> createTask(DeviceDataService deviceDataService, EngineModelService engineModelService, Device device, MdcPropertyUtils mdcPropertyUtils, PartialConnectionTask partialConnectionTask) {
+
         if (!PartialScheduledConnectionTask.class.isAssignableFrom(partialConnectionTask.getClass())) {
             throw new WebApplicationException("Expected partial connection task to be 'Outbound'", Response.Status.BAD_REQUEST);
-        }
-        OutboundComPortPool outboundComPortPool=null;
+        }        OutboundComPortPool outboundComPortPool=null;
         if (!Checks.is(this.comPortPool).emptyOrOnlyWhiteSpace()) {
             outboundComPortPool=(OutboundComPortPool) engineModelService.findComPortPool(this.comPortPool);
         }
@@ -76,14 +72,6 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
         }
         writeTo(scheduledConnectionTask, partialConnectionTask, deviceDataService, engineModelService, mdcPropertyUtils);
         scheduledConnectionTask.save();
-        if (this.paused) {
-            scheduledConnectionTask.pause();
-        } else {
-            scheduledConnectionTask.resume();
-        }
-        if (this.isDefault) {
-            deviceDataService.setDefaultConnectionTask(scheduledConnectionTask);
-        }
 
         return scheduledConnectionTask;
     }

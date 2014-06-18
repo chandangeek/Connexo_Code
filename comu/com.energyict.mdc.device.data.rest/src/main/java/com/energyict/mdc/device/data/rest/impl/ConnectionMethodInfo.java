@@ -9,6 +9,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.pluggable.rest.PropertyInfo;
@@ -27,7 +28,7 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
 @JsonSubTypes({
      @JsonSubTypes.Type(value = InboundConnectionMethodInfo.class, name = "Inbound"),
      @JsonSubTypes.Type(value = ScheduledConnectionMethodInfo.class, name = "Outbound") })
-public abstract class ConnectionMethodInfo<T extends ConnectionTask<?,?>> {
+public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends ComPortPool,? extends PartialConnectionTask>> {
 
     public long id;
     public String name;
@@ -61,15 +62,6 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<?,?>> {
     }
 
 
-    protected PartialConnectionTask findMyPartialConnectionTask(Device device) {
-        for (PartialConnectionTask partialConnectionTask : device.getDeviceConfiguration().getPartialConnectionTasks()) {
-            if (partialConnectionTask.getName().equals(this.name)) {
-                return partialConnectionTask;
-            }
-        }
-        return null;
-    }
-
     protected void writeTo(T connectionTask, PartialConnectionTask partialConnectionTask, DeviceDataService deviceDataService, EngineModelService engineModelService, MdcPropertyUtils mdcPropertyUtils) {
         if (this.properties !=null) {
             for (PropertySpec<?> propertySpec : partialConnectionTask.getPluggableClass().getPropertySpecs()) {
@@ -84,5 +76,5 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<?,?>> {
     }
 
 
-    public abstract ConnectionTask<?,?> createTask(DeviceDataService deviceDataService, EngineModelService engineModelService, Device device, MdcPropertyUtils mdcPropertyUtils);
+    public abstract ConnectionTask<?,?> createTask(DeviceDataService deviceDataService, EngineModelService engineModelService, Device device, MdcPropertyUtils mdcPropertyUtils, PartialConnectionTask partialConnectionTask);
 }

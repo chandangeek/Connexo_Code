@@ -6,10 +6,13 @@ import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.common.services.ListPager;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import java.util.List;
@@ -84,22 +87,59 @@ public class DeviceResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response createConnectionMethod(@PathParam("mRID") String mrid, @Context UriInfo uriInfo, ConnectionMethodInfo<?> connectionMethodInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        ConnectionTask<?, ?> task = connectionMethodInfo.createTask(deviceDataService, engineModelService, device, mdcPropertyUtils);
+        PartialConnectionTask partialConnectionTask = findPartialConnectionTaskOrThrowException(device, connectionMethodInfo.name);
+        ConnectionTask<?, ?> task = connectionMethodInfo.createTask(deviceDataService, engineModelService, device, mdcPropertyUtils, partialConnectionTask);
+        pauseOrResumeTask(connectionMethodInfo, task);
+        setTaskAsDefaultIfRequired(connectionMethodInfo, task);
+
         return Response.status(Response.Status.CREATED).entity(connectionMethodInfoFactory.asInfo(task, uriInfo)).build();
+    }
+
+    private void setTaskAsDefaultIfRequired(ConnectionMethodInfo<?> connectionMethodInfo, ConnectionTask<?, ?> task) {
+        if (connectionMethodInfo.isDefault) {
+            deviceDataService.setDefaultConnectionTask(task);
+        }
+    }
+
+    private void pauseOrResumeTask(ConnectionMethodInfo<?> connectionMethodInfo, ConnectionTask<?, ?> task) {
+        if (connectionMethodInfo.paused) {
+            task.pause();
+        } else {
+            task.resume();
+        }
     }
 
     @PUT
     @Path("/{mRID}/connectionmethods/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateConnectionMethod(@PathParam("mRID") String mrid, @PathParam("id") long connectionMethodId, @Context UriInfo uriInfo, ConnectionMethodInfo<?> connectionMethodInfo) {
+    public Response updateConnectionMethod(@PathParam("mRID") String mrid, @PathParam("id") long connectionMethodId, @Context UriInfo uriInfo, ConnectionMethodInfo<ConnectionTask<? extends ComPortPool, ? extends PartialConnectionTask>> connectionMethodInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        ConnectionTask<?, ?> task = findConnectionTaskOrThrowException(device, connectionMethodId);
-        // TODO update task
+        ConnectionTask<? extends ComPortPool, ? extends PartialConnectionTask> task = findConnectionTaskOrThrowException(device, connectionMethodId);
+        PartialConnectionTask partialConnectionTask = findPartialConnectionTaskOrThrowException(device, connectionMethodInfo.name);
+
+        if (!PartialScheduledConnectionTask.class.isAssignableFrom(partialConnectionTask.getClass())) {
+            throw new WebApplicationException("Expected partial connection task to be 'Outbound'", Response.Status.BAD_REQUEST);
+        }
+
+        connectionMethodInfo.writeTo(task, partialConnectionTask, deviceDataService, engineModelService, mdcPropertyUtils);
         task.save();
+        pauseOrResumeTask(connectionMethodInfo, task);
+        setTaskAsDefaultIfRequired(connectionMethodInfo, task);
+
         device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         task = findConnectionTaskOrThrowException(device, connectionMethodId);
         return Response.status(Response.Status.OK).entity(connectionMethodInfoFactory.asInfo(task, uriInfo)).build();
     }
+
+    private PartialConnectionTask findPartialConnectionTaskOrThrowException(Device device, String name) {
+        for (PartialConnectionTask partialConnectionTask : device.getDeviceConfiguration().getPartialConnectionTasks()) {
+            if (partialConnectionTask.getName().equals(name)) {
+                return partialConnectionTask;
+            }
+        }
+        throw new WebApplicationException("No such partial connection task", Response.Status.BAD_REQUEST);
+    }
+
 
     @DELETE
     @Path("/{mRID}/connectionmethods/{id}")
