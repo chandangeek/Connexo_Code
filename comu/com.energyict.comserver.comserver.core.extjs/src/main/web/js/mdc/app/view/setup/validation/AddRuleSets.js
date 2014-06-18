@@ -90,5 +90,10 @@ Ext.define('Mdc.view.setup.validation.AddRuleSets', {
         ];
 
         me.callParent(arguments);
+    },
+
+    updateValidationRuleSetPreview: function (validationRuleSet) {
+        // TODO
+        console.log(validationRuleSet);
     }
 });

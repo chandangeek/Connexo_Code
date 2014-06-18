@@ -3,7 +3,7 @@ Ext.define('Mdc.controller.setup.ValidationRules', {
 
     requires: [
         'Mdc.store.DeviceConfigValidationRuleSets',
-        'Mdc.store.ValidationRuleSets'
+        'Cfg.store.ValidationRuleSets'
     ],
 
     views: [
@@ -12,13 +12,13 @@ Ext.define('Mdc.controller.setup.ValidationRules', {
     ],
 
     stores: [
-        'DeviceConfigValidationRuleSets',
-        'ValidationRuleSets'
+        'DeviceConfigValidationRuleSets'
     ],
 
     refs: [
         {ref: 'validationRuleSetsGrid', selector: 'validation-rules-overview validation-rulesets-grid'},
         {ref: 'validationRulesGrid', selector: 'validation-rules-overview validation-rules-grid'},
+        {ref: 'addValidationRuleSets', selector: 'validation-add-rulesets'},
         {ref: 'addValidationRuleSetsGrid', selector: 'validation-add-rulesets validation-add-rulesets-grid'},
         {ref: 'addValidationRulesGrid', selector: 'validation-add-rulesets validation-add-rules-grid'}
     ],
@@ -35,6 +35,9 @@ Ext.define('Mdc.controller.setup.ValidationRules', {
             },
             'validation-add-rulesets button[action=addValidationRuleSets]': {
                 click: this.onAddValidationRuleSets
+            },
+            'validation-add-rulesets button[action=uncheckAll]': {
+                click: this.onUncheckAll
             }
         });
     },
@@ -81,7 +84,8 @@ Ext.define('Mdc.controller.setup.ValidationRules', {
                 model.getProxy().setExtraParam('deviceType', deviceTypeId);
 
                 // This can be loaded asynchronously with the device configuration model.
-                me.getValidationRuleSetsStore().load();
+                var store = Ext.getStore('ValidationRuleSets') || Ext.create('Cfg.store.ValidationRuleSets');
+                store.load();
 
                 model.load(deviceConfigId, {
                     success: function (deviceConfig) {
@@ -95,19 +99,33 @@ Ext.define('Mdc.controller.setup.ValidationRules', {
     },
 
     onValidationRuleSetsSelectionChange: function (grid) {
-        var count = grid.view.getSelectionModel().getSelection().length,
+        var view = this.getAddValidationRuleSets(),
+            selection = grid.view.getSelectionModel().getSelection(),
             counter = Ext.ComponentQuery.query('validation-add-rulesets #selection-counter')[0],
             selectionText = Uni.I18n.translatePlural(
                 'validation.validationRuleSetSelection',
-                count,
+                selection.length,
                 'MDC',
                 '{0} validation rule sets selected'
             );
 
         counter.setText(selectionText);
+
+        view.setValidationRuleSetPreviewVisible(selection.length > 0);
+        // TODO Check if it makes sense to show the preview on this screen, and how to handle multiple selections.
+        if (selection.length > 0) {
+            // Show the last selected item in the preview screen.
+            view.updateValidationRuleSetPreview(selection[selection.length - 1]);
+        }
     },
 
     onAddValidationRuleSets: function () {
         // TODO
+    },
+
+    onUncheckAll: function () {
+        // TODO Is this button required at all? There's the default checkbox model as a column header.
+        var grid = this.getAddValidationRuleSetsGrid();
+        grid.getView().getSelectionModel().deselectAll();
     }
 });

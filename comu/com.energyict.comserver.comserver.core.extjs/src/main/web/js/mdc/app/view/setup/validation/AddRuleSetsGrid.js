@@ -1,17 +1,15 @@
 Ext.define('Mdc.view.setup.validation.AddRuleSetsGrid', {
     extend: 'Ext.grid.Panel',
     xtype: 'validation-add-rulesets-grid',
-    overflowY: 'auto',
 
     requires: [
-        'Mdc.store.ValidationRuleSets',
         'Mdc.view.setup.validation.AddRuleSetActionMenu'
     ],
 
-    store: 'ValidationRuleSets',
+    store: Ext.getStore('ValidationRuleSets') || Ext.create('Cfg.store.ValidationRuleSets'),
     selType: 'checkboxmodel',
     selModel: {
-        mode: 'SINGLE'
+        mode: 'MULTI'
     },
 
     deviceTypeId: null,
@@ -20,7 +18,7 @@ Ext.define('Mdc.view.setup.validation.AddRuleSetsGrid', {
     initComponent: function () {
         var me = this;
 
-        this.columns = [
+        me.columns = [
             {
                 header: Uni.I18n.translate('validation.ruleSetName', 'MDC', 'Validation rule set'),
                 dataIndex: 'name',

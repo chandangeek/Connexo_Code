@@ -2,10 +2,10 @@ Ext.define('Mdc.store.DeviceConfigValidationRuleSets', {
     extend: 'Ext.data.Store',
 
     requires: [
-        'Mdc.model.ValidationRuleSet'
+        'Cfg.model.ValidationRuleSet'
     ],
 
-    model: 'Mdc.model.ValidationRuleSet',
+    model: 'Cfg.model.ValidationRuleSet',
     storeId: 'DeviceConfigValidationRuleSets',
 
     proxy: {
