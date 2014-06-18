@@ -74,7 +74,8 @@ public class DeviceResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getConnectionMethods(@PathParam("mRID") String mRID, @Context UriInfo uriInfo, @BeanParam QueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
-        List<ConnectionMethodInfo<?>> connectionMethodInfos = ListPager.of(connectionMethodInfoFactory.asInfoList(device.getConnectionTasks(), uriInfo), new ConnectionMethodComparator()).from(queryParameters).find();
+        List<ConnectionTask<?, ?>> connectionTasks = ListPager.of(device.getConnectionTasks(), new ConnectionTaskComparator()).from(queryParameters).find();
+        List<ConnectionMethodInfo<?>> connectionMethodInfos = connectionMethodInfoFactory.asInfoList(connectionTasks, uriInfo);
         return Response.ok(PagedInfoList.asJson("connectionMethods", connectionMethodInfos, queryParameters)).build();
     }
 	
