@@ -3,6 +3,7 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.impl.IdsModule;
@@ -941,6 +942,32 @@ public class PartialOutboundConnectiontaskCrudIT {
 
     }
 
+
+    @Test
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.INCORRECT_CONNECTION_TYPE_FOR_CONNECTION_METHOD + "}")
+    public void createOutboundConnectionMethodWithInboundConnectionTypeTest() {
+        PartialScheduledConnectionTaskImpl outboundConnectionTask;
+        DeviceConfiguration deviceConfiguration;
+        try (TransactionContext context = transactionService.getContext()) {
+            ConnectionTypePluggableClass inboundConnectionTypePluggableClass = protocolPluggableService.newConnectionTypePluggableClass("Inboundtype", InboundNoParamsConnectionTypeImpl.class.getName());
+            inboundConnectionTypePluggableClass.save();
+            DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+            deviceType.save();
+
+            deviceConfiguration = deviceType.newConfiguration("Normal").add();
+            deviceConfiguration.save();
+
+            outboundConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("MyOutboundWhichIsActuallyAnInbound", inboundConnectionTypePluggableClass, TimeDuration.seconds(60), ConnectionStrategy.MINIMIZE_CONNECTIONS)
+                    .comPortPool(outboundComPortPool)
+                    .comWindow(COM_WINDOW)
+                    .nextExecutionSpec().temporalExpression(TimeDuration.days(1), TimeDuration.minutes(90)).set()
+                    .asDefault(true).build();
+            deviceConfiguration.save();
+
+
+            context.commit();
+        }
+    }
 
     public interface MyDeviceProtocolPluggableClass extends DeviceProtocolPluggableClass {
 
