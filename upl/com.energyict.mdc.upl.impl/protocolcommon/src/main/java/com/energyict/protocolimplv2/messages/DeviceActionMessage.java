@@ -77,7 +77,8 @@ public enum DeviceActionMessage implements DeviceMessageSpec {
     FTIONReboot(36),
     FTIONRestart(37),
     FTIONScanBus(38),
-    SyncMasterdata(39);
+    SyncMasterdata(39),
+    RebootApplication(40);
 
     private final int id;
 

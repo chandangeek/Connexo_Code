@@ -3,7 +3,9 @@ package com.energyict.protocolimplv2.messages;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cuo.core.UserEnvironment;
-import com.energyict.mdc.messages.*;
+import com.energyict.mdc.messages.DeviceMessageCategory;
+import com.energyict.mdc.messages.DeviceMessageSpec;
+import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
 
 import java.util.Arrays;
 import java.util.List;
@@ -37,6 +39,10 @@ public enum OutputConfigurationMessage implements DeviceMessageSpec {
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.id),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.duration),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.outputBitMap)
+    ),
+    WriteOutputState(9,
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.outputId),
+            PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.newState)
     ),;
 
     private final int id;

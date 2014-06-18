@@ -13,6 +13,7 @@ import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * Class containing functionality to create the channelInfos for a load profile and cache it.
@@ -34,6 +35,8 @@ public class DLMSProfileHelper {
     private int profileInterval = -1;
     private int clockMask = 1;        //By default, the first captured_object is the clock timestamp
     private int statusMask = 2;       //By default, the second captured_object is the interval status
+    private Logger logger = null;
+    private TimeZone timeZone = null;
 
     protected void setSession(DlmsSession session) {
         this.session = session;
@@ -45,6 +48,14 @@ public class DLMSProfileHelper {
 
     protected void setClockMask(int clockMask) {
         this.clockMask = clockMask;
+    }
+
+    protected void setLogger(Logger logger) {
+        this.logger = logger;
+    }
+
+    protected void setTimeZone(TimeZone timeZone) {
+        this.timeZone = timeZone;
     }
 
     protected DlmsSession getSession() {
@@ -100,7 +111,7 @@ public class DLMSProfileHelper {
         if (channelInfos == null) {
             channelInfos = this.cache.getChannelInfo(obisCode);
             if (channelInfos != null) {
-                session.getLogger().info("Fetched channel info from cache for profile [" + obisCode + "]. No need to fetch them from the meter.");
+                getLogger().info("Fetched channel info from cache for profile [" + obisCode + "]. No need to fetch them from the meter.");
             } else {
                 readChannelInfosFromDevice();
                 if (channelInfos != null) {
@@ -109,6 +120,13 @@ public class DLMSProfileHelper {
             }
         }
         return channelInfos;
+    }
+
+    protected Logger getLogger() {
+        if (logger == null) {
+            logger = getSession().getLogger();
+        }
+        return logger;
     }
 
     public int getNumberOfChannels() throws IOException {
@@ -263,15 +281,26 @@ public class DLMSProfileHelper {
      * @throws java.io.IOException If there was an error while reading the profile buffer from the device
      */
     protected final List<IntervalData> getIntervalDatas(Calendar from, Calendar to) throws IOException {
-        getSession().getLogger().info("Reading interval buffer from device for profile [" + getObisCode() + "].");
+        getLogger().info("Reading interval buffer from device for profile [" + getObisCode() + "].");
         byte[] bufferData = getProfileGeneric().getBufferData(from, to);
+        return parseBuffer(bufferData);
+    }
+
+    public List<IntervalData> parseBuffer(byte[] bufferData) throws IOException {
         setClockAndStatusPosition();
         DLMSProfileIntervals intervals = new DLMSProfileIntervals(bufferData, clockMask, statusMask, -1, new DlmsProfileIntervalStatusBits());
         try {
-            return intervals.parseIntervals(getProfileInterval(), getSession().getTimeZone());
+            return intervals.parseIntervals(getProfileInterval(), getTimeZone());
         } catch (ClassCastException e) {
             throw new IOException(e.getMessage());
         }
+    }
+
+    protected TimeZone getTimeZone() {
+        if (timeZone == null) {
+            timeZone = getSession().getTimeZone();
+        }
+        return timeZone;
     }
 
     protected void setClockAndStatusPosition() {
@@ -285,7 +314,7 @@ public class DLMSProfileHelper {
      * @return The new calendar object, with the given date and device timezone
      */
     protected final Calendar getCalendar(Date date) {
-        Calendar calendar = Calendar.getInstance(getSession().getTimeZone());
+        Calendar calendar = Calendar.getInstance(getTimeZone());
         calendar.setTime(date);
         return calendar;
     }

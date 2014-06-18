@@ -338,7 +338,7 @@ public abstract class AnnotatedMessaging implements MessageProtocol {
         return buf.toString();
     }
 
-    public void applyMessages(List messageEntries) {
+    public void applyMessages(List messageEntries) throws IOException {
         List<AnnotatedMessage> annotatedMessages = new ArrayList<AnnotatedMessage>(messageEntries.size());
         for (Object msgObject : messageEntries) {
             if (msgObject instanceof MessageEntry) {

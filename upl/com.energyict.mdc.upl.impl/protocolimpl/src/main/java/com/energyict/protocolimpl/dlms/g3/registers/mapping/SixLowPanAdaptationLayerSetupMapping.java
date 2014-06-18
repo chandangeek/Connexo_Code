@@ -1,14 +1,20 @@
 package com.energyict.protocolimpl.dlms.g3.registers.mapping;
 
+import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DlmsSession;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.SixLowPanAdaptationLayerSetup;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 
 /**
  * Copyrights EnergyICT
@@ -18,10 +24,14 @@ import java.io.IOException;
 public class SixLowPanAdaptationLayerSetupMapping extends RegisterMapping {
 
     private static final int MIN_ATTR = 1;
-    private static final int MAX_ATTR = 12;
+    private static final int MAX_ATTR = 19;
 
     public SixLowPanAdaptationLayerSetupMapping(final DlmsSession session) {
         super(session);
+    }
+
+    public SixLowPanAdaptationLayerSetupMapping(Logger logger, CosemObjectFactory cosemObjectFactory) {
+        super(logger, cosemObjectFactory);
     }
 
     @Override
@@ -33,63 +43,113 @@ public class SixLowPanAdaptationLayerSetupMapping extends RegisterMapping {
 
     @Override
     protected RegisterValue doReadRegister(final ObisCode obisCode) throws IOException {
-
         final SixLowPanAdaptationLayerSetup sixLowPanSetup = getCosemObjectFactory().getSixLowPanAdaptationLayerSetup();
+        return parse(obisCode, readAttribute(obisCode, sixLowPanSetup));
+    }
+
+    protected AbstractDataType readAttribute(final ObisCode obisCode, SixLowPanAdaptationLayerSetup sixLowPanSetup) throws IOException {
 
         switch (obisCode.getB()) {
 
-            // Logical name
+            case 1:
+                return OctetString.fromObisCode(SixLowPanAdaptationLayerSetup.getDefaultObisCode());
+
+            case 2:
+                return sixLowPanSetup.readAdpMaxHops();
+
+            case 3:
+                return sixLowPanSetup.readAdpWeakLQIValue();
+
+            case 4:
+                return sixLowPanSetup.readSecurityLevel();
+
+            case 5:
+                return sixLowPanSetup.readPrefixTable();
+
+            case 6:
+                return sixLowPanSetup.readAdpRoutingConfiguration();
+
+            case 7:
+                return sixLowPanSetup.readAdpBroadcastLogTableEntryTTL();
+
+            case 8:
+                return sixLowPanSetup.readAdpRoutingTable();
+
+            case 9:
+                return sixLowPanSetup.readContextInformationTable();
+
+            case 10:
+                return sixLowPanSetup.readBlacklistTable();
+
+            case 11:
+                return sixLowPanSetup.readBroadcastLogTable();
+
+            case 12:
+                return sixLowPanSetup.readGroupTable();
+
+            case 13:
+                return sixLowPanSetup.readMaxJoinWaitTime();
+
+            case 14:
+                return sixLowPanSetup.readPathDiscoveryTime();
+
+            case 15:
+                return sixLowPanSetup.readActiveKeyIndex();
+
+            case 16:
+                return sixLowPanSetup.readMetricType();
+
+            case 17:
+                return sixLowPanSetup.readCoordShortAddress();
+
+            case 18:
+                return sixLowPanSetup.readDisableDefaultRouting();
+
+            case 19:
+                return sixLowPanSetup.readDeviceType();
+
+            default:
+                throw new NoSuchRegisterException("SixLowPanAdaptationLayerSetupMapping attribute [" + obisCode.getB() + "] not supported!");
+
+        }
+    }
+
+    @Override
+    public RegisterValue parse(ObisCode obisCode, AbstractDataType abstractDataType) throws IOException {
+
+        switch (obisCode.getB()) {
+
             case 1:
                 return new RegisterValue(obisCode, SixLowPanAdaptationLayerSetup.getDefaultObisCode().toString());
 
-            // Max hops
             case 2:
-                return new RegisterValue(obisCode, new Quantity(sixLowPanSetup.readAdpMaxHops(), Unit.getUndefined()));
-
-            // Weak LQI value
             case 3:
-                return new RegisterValue(obisCode, new Quantity(sixLowPanSetup.readAdpWeakLQIValue(), Unit.getUndefined()));
-
-            // PAN conflict wait
             case 4:
-                return new RegisterValue(obisCode, new Quantity(sixLowPanSetup.readAdpPanConflictWait(), Unit.get("s")));
+            case 15:
+            case 16:
+            case 17:
+            case 18:
+            case 19:
+                return new RegisterValue(obisCode, new Quantity(abstractDataType.intValue(), Unit.getUndefined()));
 
-            // MAX pan conflict count
-            case 5:
-                return new RegisterValue(obisCode, new Quantity(sixLowPanSetup.readAdpMaxPanConflictCount(), Unit.getUndefined()));
-
-            // Active scan duration
-            case 6:
-                return new RegisterValue(obisCode, new Quantity(sixLowPanSetup.readAdpActiveScanDuration(), Unit.get("s")));
-
-            // Tone mask
-            case 7:
-                return new RegisterValue(obisCode, sixLowPanSetup.readAdpToneMask().toString());
-
-            // Discover attempts speed
+            case 5:        //TODO test this description of array of structures
+            case 6:       //TODO test this description of a structure
             case 8:
-                return new RegisterValue(obisCode, new Quantity(sixLowPanSetup.readAdpDiscoveryAttemptsSpeed(), Unit.get("s")));
-
-            // Routing configuration
             case 9:
-                return new RegisterValue(obisCode, sixLowPanSetup.readAdpRoutingConfiguration().toString());
-
-            // Broadcast log table entry TTL
             case 10:
-                return new RegisterValue(obisCode, new Quantity(sixLowPanSetup.readAdpBroadcastLogTableEntryTTL(), Unit.get("s")));
-
-            // Max age time
             case 11:
-                return new RegisterValue(obisCode, new Quantity(sixLowPanSetup.readAdpMaxAgeTime(), Unit.get("s")));
-
-            // Routing table
             case 12:
-                return new RegisterValue(obisCode, getShortDescription(sixLowPanSetup.readAdpRoutingTable()));
+                return new RegisterValue(obisCode, getShortDescription((Array) abstractDataType));
+
+            case 7:
+                return new RegisterValue(obisCode, new Quantity(abstractDataType.intValue(), Unit.get(BaseUnit.MINUTE)));
+
+            case 13:
+            case 14:
+                return new RegisterValue(obisCode, new Quantity(abstractDataType.intValue(), Unit.get(BaseUnit.SECOND)));
 
             default:
-                throw new NoSuchRegisterException("PLCOFDMType2PHYAndMACCounters attribute [" + obisCode.getB() + "] not supported!");
-
+                throw new NoSuchRegisterException("SixLowPanAdaptationLayerSetupMapping attribute [" + obisCode.getB() + "] not supported!");
         }
-
     }
 }

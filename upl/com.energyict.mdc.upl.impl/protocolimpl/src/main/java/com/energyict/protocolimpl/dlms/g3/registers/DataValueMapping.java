@@ -2,14 +2,16 @@ package com.energyict.protocolimpl.dlms.g3.registers;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
+import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocolimpl.dlms.g3.AS330D;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * Copyrights EnergyICT
@@ -30,11 +32,19 @@ public class DataValueMapping extends G3Mapping {
     }
 
     @Override
-    public RegisterValue readRegister(AS330D as330D) throws IOException {
-        final Data data = as330D.getSession().getCosemObjectFactory().getData(getObisCode());
-        final AbstractDataType valueAttr = data.getValueAttr();
-        final BigDecimal value = BigDecimal.valueOf(valueAttr.longValue());
-        final Quantity quantityValue = new Quantity(value, unit);
+    public RegisterValue readRegister(DlmsSession session) throws IOException {
+        final Data data = session.getCosemObjectFactory().getData(getObisCode());
+        return parse(data.getValueAttr(), unit);
+    }
+
+    public RegisterValue parse(AbstractDataType abstractDataType, Unit unit, Date captureTime) throws IOException {
+        final BigDecimal value = BigDecimal.valueOf(abstractDataType.longValue());
+        final Quantity quantityValue = new Quantity(value, this.unit);
         return new RegisterValue(getObisCode(), quantityValue);
+    }
+
+    @Override
+    public int getDLMSClassId() {
+        return DLMSClassId.DATA.getClassId();
     }
 }

@@ -3,12 +3,16 @@ package com.energyict.protocolimpl.dlms.g3.registers.mapping;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DlmsSession;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.PLCOFDMType2PHYAndMACCounters;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 
 /**
  * Copyrights EnergyICT
@@ -24,6 +28,10 @@ public class PLCOFDMType2PHYAndMACCountersMapping extends RegisterMapping {
         super(session);
     }
 
+    public PLCOFDMType2PHYAndMACCountersMapping(Logger logger, CosemObjectFactory cosemObjectFactory) {
+        super(logger, cosemObjectFactory);
+    }
+
     @Override
     public boolean canRead(final ObisCode obisCode) {
         return PLCOFDMType2PHYAndMACCounters.getDefaultObisCode().equalsIgnoreBChannel(obisCode) &&
@@ -33,8 +41,63 @@ public class PLCOFDMType2PHYAndMACCountersMapping extends RegisterMapping {
 
     @Override
     protected RegisterValue doReadRegister(final ObisCode obisCode) throws IOException {
-
         final PLCOFDMType2PHYAndMACCounters macCounters = getCosemObjectFactory().getPLCOFDMType2PHYAndMACCounters();
+        return parse(obisCode, readAttribute(obisCode, macCounters));
+    }
+
+    protected AbstractDataType readAttribute(final ObisCode obisCode, PLCOFDMType2PHYAndMACCounters macCounters) throws IOException {
+
+        switch (obisCode.getB()) {
+
+            // Logical name
+            case 1:
+                return OctetString.fromObisCode(PLCOFDMType2PHYAndMACCounters.getDefaultObisCode());
+
+            // TX data packet count
+            case 2:
+                return macCounters.readMacTxDataPacketCount();
+
+            // RX data packet count
+            case 3:
+                return macCounters.readMacRxDataPacketCount();
+
+            // TX command packet count
+            case 4:
+                return macCounters.readMacTxCmdPacketCount();
+
+            // RX command packet count
+            case 5:
+                return macCounters.readMacRxCmdPacketCount();
+
+            // CSMA fail count
+            case 6:
+                return macCounters.readMacCSMAFailCount();
+
+            // CSMA no ACK count
+            case 7:
+                return macCounters.readMacNoAckCount();
+
+            // Bad CRC count
+            case 8:
+                return macCounters.readMacBadCrcCount();
+
+            // TX data broadcast count
+            case 9:
+                return macCounters.readMacTxDataBroadcastCount();
+
+            // RX data broadcast count
+            case 10:
+                return macCounters.readMacRxDataBroadcastCount();
+
+            default:
+                throw new NoSuchRegisterException("PLCOFDMType2PHYAndMACCounters attribute [" + obisCode.getB() + "] not supported!");
+
+        }
+    }
+
+    @Override
+    public RegisterValue parse(ObisCode obisCode, AbstractDataType abstractDataType) throws IOException {
+
 
         switch (obisCode.getB()) {
 
@@ -42,47 +105,20 @@ public class PLCOFDMType2PHYAndMACCountersMapping extends RegisterMapping {
             case 1:
                 return new RegisterValue(obisCode, PLCOFDMType2PHYAndMACCounters.getDefaultObisCode().toString());
 
-            // TX data packet count
             case 2:
-                return new RegisterValue(obisCode, new Quantity(macCounters.readMacTxDataPacketCount(), Unit.getUndefined()));
-
-            // RX data packet count
             case 3:
-                return new RegisterValue(obisCode, new Quantity(macCounters.readMacRxDataPacketCount(), Unit.getUndefined()));
-
-            // TX command packet count
             case 4:
-                return new RegisterValue(obisCode, new Quantity(macCounters.readMacTxCmdPacketCount(), Unit.getUndefined()));
-
-            // RX command packet count
             case 5:
-                return new RegisterValue(obisCode, new Quantity(macCounters.readMacRxCmdPacketCount(), Unit.getUndefined()));
-
-            // CSMA fail count
             case 6:
-                return new RegisterValue(obisCode, new Quantity(macCounters.readMacCSMAFailCount(), Unit.getUndefined()));
-
-            // CSMA collision count
             case 7:
-                return new RegisterValue(obisCode, new Quantity(macCounters.readMacCSMACollisionCount(), Unit.getUndefined()));
-
-            // Bad CRC count
             case 8:
-                return new RegisterValue(obisCode, new Quantity(macCounters.readMacBadCrcCount(), Unit.getUndefined()));
-
-            // Broadcast count
             case 9:
-                return new RegisterValue(obisCode, new Quantity(macCounters.readMacBroadcastCount(), Unit.getUndefined()));
-
-            // Multicast count
             case 10:
-                return new RegisterValue(obisCode, new Quantity(macCounters.readMacMulticastCount(), Unit.getUndefined()));
+                return new RegisterValue(obisCode, new Quantity(abstractDataType.longValue(), Unit.getUndefined()));
 
             default:
                 throw new NoSuchRegisterException("PLCOFDMType2PHYAndMACCounters attribute [" + obisCode.getB() + "] not supported!");
 
         }
-
     }
-
 }

@@ -6,15 +6,7 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.UserFile;
-import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
-import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
-import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
-import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
-import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadProfileMessage;
-import com.energyict.protocolimplv2.messages.LogBookDeviceMessage;
-import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
-import com.energyict.protocolimplv2.messages.SecurityMessage;
+import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ActivityCalendarMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.SpecialDaysMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
@@ -49,19 +41,34 @@ public class G3MeterMessageConverter extends AbstractMessageConverter {
         registry.put(ContactorDeviceMessage.CONTACTOR_CLOSE, new SimpleTagMessageEntry("CloseMainContactor"));
         registry.put(ContactorDeviceMessage.CONTACTOR_OPEN, new SimpleTagMessageEntry("OpenMainContactor"));
 
-        registry.put(PLCConfigurationDeviceMessage.SetActiveScanDurationAttributeName, new MultipleAttributeMessageEntry("SetActiveScanDuration", "ActiveScanDuration"));
-        registry.put(PLCConfigurationDeviceMessage.SetBroadCastLogTableEntryTTLAttributeName, new MultipleAttributeMessageEntry("SetBroadcastLogTableEntryTTL", "BroadcastLogTableEntryTTL"));
-        registry.put(PLCConfigurationDeviceMessage.SetDiscoveryAttemptsSpeedAttributeName, new MultipleAttributeMessageEntry("SetDiscoveryAttemptsSpeed", "DiscoveryAttemptsSpeed"));
-        registry.put(PLCConfigurationDeviceMessage.SetMaxAgeTimeAttributeName, new MultipleAttributeMessageEntry("SetMaxAgeTime", "MaxAgeTime"));
         registry.put(PLCConfigurationDeviceMessage.SetMaxNumberOfHopsAttributeName, new MultipleAttributeMessageEntry("SetMaxHops", "MaxHops"));
-        registry.put(PLCConfigurationDeviceMessage.SetMaxPANConflictsCountAttributeName, new MultipleAttributeMessageEntry("SetMaxPanConflictCount", "MaxPanConflictCount"));
-        registry.put(PLCConfigurationDeviceMessage.SetPanConflictWaitTimeAttributeName, new MultipleAttributeMessageEntry("SetPanConflictWaitTime", "PanConflictWaitTime"));
-        registry.put(PLCConfigurationDeviceMessage.SetToneMaskAttributeName, new MultipleAttributeMessageEntry("SetToneMask", "ToneMask"));
         registry.put(PLCConfigurationDeviceMessage.SetWeakLQIValueAttributeName, new MultipleAttributeMessageEntry("SetWeakLQIValue", "WeakLQIValue"));
-        registry.put(PLCConfigurationDeviceMessage.WritePlcG3Timeout, new MultipleAttributeMessageEntry("WritePlcG3Timeout", "Timeout_in_minutes"));
+        registry.put(PLCConfigurationDeviceMessage.SetSecurityLevel, new MultipleAttributeMessageEntry("SetSecurityLevel", "SecurityLevel"));
+        registry.put(PLCConfigurationDeviceMessage.SetRoutingConfiguration, new MultipleAttributeMessageEntry("SetRoutingConfiguration", "adp_Kr", "adp_Km", "adp_Kc", "adp_Kq", "adp_Kh", "adp_Krt", "adp_RREQ_retries", "adp_RLC_enabled", "adp_net_traversal_time", "adp_routing_table_entry_TTL", "adp_RREQ_RERR_wait", "adp_Blacklist_table_entry_TTL", "adp_unicast_RREQ_gen_enable", "adp_add_rev_link_cost"));
+        registry.put(PLCConfigurationDeviceMessage.SetBroadCastLogTableEntryTTLAttributeName, new MultipleAttributeMessageEntry("SetBroadcastLogTableEntryTTL", "BroadcastLogTableEntryTTL"));
+        registry.put(PLCConfigurationDeviceMessage.SetMaxJoinWaitTime, new MultipleAttributeMessageEntry("SetMaxJoinWaitTime", "MaxJoinWaitTime"));
+        registry.put(PLCConfigurationDeviceMessage.SetPathDiscoveryTime, new MultipleAttributeMessageEntry("SetPathDiscoveryTime", "PathDiscoveryTime"));
+        registry.put(PLCConfigurationDeviceMessage.SetMetricType, new MultipleAttributeMessageEntry("SetMetricType", "MetricType"));
+        registry.put(PLCConfigurationDeviceMessage.SetCoordShortAddress, new MultipleAttributeMessageEntry("SetCoordShortAddress", "CoordShortAddress"));
+        registry.put(PLCConfigurationDeviceMessage.SetDisableDefaultRouting, new MultipleAttributeMessageEntry("SetDisableDefaultRouting", "DisableDefaultRouting"));
+        registry.put(PLCConfigurationDeviceMessage.SetDeviceType, new MultipleAttributeMessageEntry("SetDeviceType", "DeviceType"));
+
         registry.put(PLCConfigurationDeviceMessage.ResetPlcOfdmMacCounters, new SimpleTagMessageEntry("ResetPlcOfdmMacCounters"));
-        registry.put(PLCConfigurationDeviceMessage.SetPanId, new MultipleAttributeMessageEntry("SetPanId", "panId"));
-        registry.put(PLCConfigurationDeviceMessage.SetMaxOrphanTimer, new MultipleAttributeMessageEntry("SetMaxOrphanTimer", "maxOrphanTimer"));
+        registry.put(PLCConfigurationDeviceMessage.SetToneMaskAttributeName, new MultipleAttributeMessageEntry("SetToneMask", "ToneMask"));
+        registry.put(PLCConfigurationDeviceMessage.SetTMRTTL, new MultipleAttributeMessageEntry("SetTMRTTL", "tmrTTL"));
+        registry.put(PLCConfigurationDeviceMessage.SetMaxFrameRetries, new MultipleAttributeMessageEntry("SetMaxFrameRetries", "maxFrameRetries"));
+        registry.put(PLCConfigurationDeviceMessage.SetNeighbourTableEntryTTL, new MultipleAttributeMessageEntry("SetNeighbourTableEntryTTL", "NeighbourTableEntryTTL"));
+        registry.put(PLCConfigurationDeviceMessage.SetHighPriorityWindowSize, new MultipleAttributeMessageEntry("SetHighPriorityWindowSize", "windowSize"));
+        registry.put(PLCConfigurationDeviceMessage.SetCSMAFairnessLimit, new MultipleAttributeMessageEntry("SetCSMAFairnessLimit", "CSMAFairnessLimit"));
+        registry.put(PLCConfigurationDeviceMessage.SetBeaconRandomizationWindowLength, new MultipleAttributeMessageEntry("SetBeaconRandomizationWindowLength", "WindowLength"));
+        registry.put(PLCConfigurationDeviceMessage.SetMacA, new MultipleAttributeMessageEntry("SetMacA", "MAC_A"));
+        registry.put(PLCConfigurationDeviceMessage.SetMacK, new MultipleAttributeMessageEntry("SetMacK", "MAC_K"));
+        registry.put(PLCConfigurationDeviceMessage.SetMinimumCWAttempts, new MultipleAttributeMessageEntry("SetMinimumCWAttempts", "minimumCWAttempts"));
+        registry.put(PLCConfigurationDeviceMessage.SetMaxBe, new MultipleAttributeMessageEntry("SetMaxBe", "maxBE"));
+        registry.put(PLCConfigurationDeviceMessage.SetMaxCSMABackOff, new MultipleAttributeMessageEntry("SetMaxCSMABackOff", "maxCSMABackOff"));
+        registry.put(PLCConfigurationDeviceMessage.SetMinBe, new MultipleAttributeMessageEntry("SetMinBe", "minBE"));
+        registry.put(PLCConfigurationDeviceMessage.PathRequest, new MultipleAttributeMessageEntry("PathRequest", "groupId"));
+        registry.put(PLCConfigurationDeviceMessage.WritePlcG3Timeout, new MultipleAttributeMessageEntry("WritePlcG3Timeout", "Timeout_in_minutes"));
 
         registry.put(LogBookDeviceMessage.ResetMainLogbook, new SimpleTagMessageEntry("ResetMainLogbook"));
         registry.put(LogBookDeviceMessage.ResetCoverLogbook, new SimpleTagMessageEntry("ResetCoverLogbook"));
@@ -79,6 +86,7 @@ public class G3MeterMessageConverter extends AbstractMessageConverter {
         registry.put(LoadProfileMessage.WriteConsumerProducerMode, new MultipleAttributeMessageEntry("WriteConsumerProducerMode", "Mode"));
 
         registry.put(AdvancedTestMessage.LogObjectList, new SimpleTagMessageEntry("LogObjectList"));
+        registry.put(ClockDeviceMessage.SyncTime, new SimpleTagMessageEntry("ForceSyncClock"));
         registry.put(ClockDeviceMessage.SET_TIME, new MultipleAttributeMessageEntry("WriteClockDateTime", "DateTime"));
 
         registry.put(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL, new MultipleAttributeMessageEntry("ChangeAuthenticationLevel", "Authentication_level"));
@@ -107,12 +115,7 @@ public class G3MeterMessageConverter extends AbstractMessageConverter {
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         if (propertySpec.getName().equals(meterTimeAttributeName)) {
             return europeanDateTimeFormat.format((Date) messageAttribute);
-        } else if (propertySpec.getName().equals(activeScanDurationAttributeName)
-                || propertySpec.getName().equals(discoveryAttemptsSpeedAttributeName)
-                || propertySpec.getName().equals(maxAgeTimeAttributeName)
-                || propertySpec.getName().equals(MaxOrphanTimerAttributeName)
-                || propertySpec.getName().equals(capturePeriodAttributeName)
-                || propertySpec.getName().equals(panConflictWaitTimeAttributeName)
+        } else if (propertySpec.getName().equals(capturePeriodAttributeName)
                 || propertySpec.getName().equals(broadCastLogTableEntryTTLAttributeName)) {
             return String.valueOf(((TimeDuration) messageAttribute).getSeconds());
         } else if (propertySpec.getName().equals(plcG3TimeoutAttributeName)) {
@@ -137,6 +140,11 @@ public class G3MeterMessageConverter extends AbstractMessageConverter {
         } else if (propertySpec.getName().equals(resumeFirmwareUpdateAttributeName)
                 || propertySpec.getName().equals(plcTypeFirmwareUpdateAttributeName)) {
             return ((Boolean) messageAttribute).toString();
+        } else if (propertySpec.getName().equals(disableDefaultRouting)
+                || propertySpec.getName().equals(adp_Blacklist_table_entry_TTL)
+                || propertySpec.getName().equals(adp_unicast_RREQ_gen_enable)
+                ) {
+            return ((Boolean) messageAttribute) ? "1" : "0";
         }
         return messageAttribute.toString();
     }

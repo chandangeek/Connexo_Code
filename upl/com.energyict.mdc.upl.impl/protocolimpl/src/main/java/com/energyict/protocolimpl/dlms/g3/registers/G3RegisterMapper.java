@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.dlms.g3.registers;
 
 import com.energyict.cbo.Unit;
+import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.HistoricalValue;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.obis.ObisCode;
@@ -22,14 +23,25 @@ public class G3RegisterMapper {
 
     private G3StoredValues dailyStoredValues;
     private G3StoredValues monthlyStoredValues;
-    private final List<G3Mapping> mappings = new ArrayList<G3Mapping>();
+    protected final List<G3Mapping> mappings = new ArrayList<G3Mapping>();
     private AS330D as330D;
 
     /**
      * G3 register mapping, used to read ata from the meter as a register value
      */
     public G3RegisterMapper(AS330D as330D) {
+        this();    //Init mappings
         this.as330D = as330D;
+        dailyStoredValues = new G3StoredValues(as330D.getSession(), G3ProfileType.DAILY_PROFILE.getObisCode(), true);
+        monthlyStoredValues = new G3StoredValues(as330D.getSession(), G3ProfileType.MONTHLY_PROFILE.getObisCode(), false);
+    }
+
+    public G3RegisterMapper() {
+        initializeMappings();
+    }
+
+    protected void initializeMappings() {
+        this.mappings.addAll(getClockMappings());
         this.mappings.addAll(getBillingPeriodMappings());
         this.mappings.addAll(getBreakerManagementMappings());
         this.mappings.addAll(getCommunicationMappings());
@@ -39,9 +51,23 @@ public class G3RegisterMapper {
         this.mappings.addAll(getRatedEnergyRegistering());
         this.mappings.addAll(getVoltageQualityMeasurements());
         this.mappings.addAll(getPLCStatisticsMappings());
+    }
 
-        dailyStoredValues = new G3StoredValues(as330D.getSession(), G3ProfileType.DAILY_PROFILE.getObisCode(), true);
-        monthlyStoredValues = new G3StoredValues(as330D.getSession(), G3ProfileType.MONTHLY_PROFILE.getObisCode(), false);
+    /**
+     * Find the proper G3Mapping in the list of supported registers.
+     * If not supported, returns null.
+     */
+    public G3Mapping getG3Mapping(ObisCode obisCode) {
+        for (G3Mapping g3Mapping : getMappings()) {
+            if (g3Mapping.getObisCode().equals(obisCode)) {
+                return g3Mapping;
+            }
+        }
+        return null;
+    }
+
+    public List<G3Mapping> getMappings() {
+        return mappings;
     }
 
     /**
@@ -51,7 +77,7 @@ public class G3RegisterMapper {
      * @return The register value
      * @throws java.io.IOException
      */
-    public final RegisterValue readRegister(ObisCode obisCode) throws IOException {
+    public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         as330D.getSession().getLogger().fine("Attempting to read out register [" + obisCode.toString() + "]");
         if (obisCode.getF() != 255) {
             HistoricalValue historicalValue = getStoredValuesImpl(obisCode).getHistoricalValue(obisCode);
@@ -85,6 +111,12 @@ public class G3RegisterMapper {
 
     private boolean isMonthly(ObisCode obisCode) {
         return obisCode.getF() < 12;
+    }
+
+    private final List<G3Mapping> getClockMappings() {
+        List<G3Mapping> basicChecks = new ArrayList<G3Mapping>();
+        basicChecks.add(new ClockMapping(Clock.getDefaultObisCode()));
+        return basicChecks;
     }
 
     /**
@@ -228,6 +260,7 @@ public class G3RegisterMapper {
     private static final ObisCode TOTAL_REACTIVE_Q3_ENERGY = ObisCode.fromString("1.1.7.8.0.255");
     private static final ObisCode TOTAL_REACTIVE_Q4_ENERGY = ObisCode.fromString("1.1.8.8.0.255");
     private static final ObisCode ACTIVE_E_CONSIST_CHK_THR = ObisCode.fromString("1.0.11.31.0.255");
+    private static final ObisCode DAILY_MAX_POWER = ObisCode.fromString("1.1.9.19.0.255");
 
     private final List<G3Mapping> getTotalEnergyRegistering() {
         final List<G3Mapping> energyMappings = new ArrayList<G3Mapping>();
@@ -238,20 +271,41 @@ public class G3RegisterMapper {
         energyMappings.add(new RegisterMapping(TOTAL_REACTIVE_Q3_ENERGY));
         energyMappings.add(new RegisterMapping(TOTAL_REACTIVE_Q4_ENERGY));
         energyMappings.add(new RegisterMapping(ACTIVE_E_CONSIST_CHK_THR));
+        energyMappings.add(new ExtendedRegisterMapping(DAILY_MAX_POWER));
         return energyMappings;
     }
 
     private static final ObisCode TARIFF1_IMPORT_ACTIVE_ENERGY_PROVIDER = ObisCode.fromString("1.1.1.8.1.255");
     private static final ObisCode TARIFF2_IMPORT_ACTIVE_ENERGY_PROVIDER = ObisCode.fromString("1.1.1.8.2.255");
+    private static final ObisCode TARIFF3_IMPORT_ACTIVE_ENERGY_PROVIDER = ObisCode.fromString("1.1.1.8.3.255");
+    private static final ObisCode TARIFF4_IMPORT_ACTIVE_ENERGY_PROVIDER = ObisCode.fromString("1.1.1.8.4.255");
+    private static final ObisCode TARIFF5_IMPORT_ACTIVE_ENERGY_PROVIDER = ObisCode.fromString("1.1.1.8.5.255");
+    private static final ObisCode TARIFF6_IMPORT_ACTIVE_ENERGY_PROVIDER = ObisCode.fromString("1.1.1.8.6.255");
+    private static final ObisCode TARIFF7_IMPORT_ACTIVE_ENERGY_PROVIDER = ObisCode.fromString("1.1.1.8.7.255");
+    private static final ObisCode TARIFF8_IMPORT_ACTIVE_ENERGY_PROVIDER = ObisCode.fromString("1.1.1.8.8.255");
+    private static final ObisCode TARIFF9_IMPORT_ACTIVE_ENERGY_PROVIDER = ObisCode.fromString("1.1.1.8.9.255");
+    private static final ObisCode TARIFF10_IMPORT_ACTIVE_ENERGY_PROVIDER = ObisCode.fromString("1.1.1.8.10.255");
     private static final ObisCode TARIFF1_IMPORT_ACTIVE_ENERGY_PUBLIC_NETWORK = ObisCode.fromString("1.2.1.8.1.255");
     private static final ObisCode TARIFF2_IMPORT_ACTIVE_ENERGY_PUBLIC_NETWORK = ObisCode.fromString("1.2.1.8.2.255");
+    private static final ObisCode TARIFF3_IMPORT_ACTIVE_ENERGY_PUBLIC_NETWORK = ObisCode.fromString("1.2.1.8.3.255");
+    private static final ObisCode TARIFF4_IMPORT_ACTIVE_ENERGY_PUBLIC_NETWORK = ObisCode.fromString("1.2.1.8.4.255");
 
     private final List<G3Mapping> getRatedEnergyRegistering() {
         final List<G3Mapping> ratedEnergyMappings = new ArrayList<G3Mapping>();
         ratedEnergyMappings.add(new RegisterMapping(TARIFF1_IMPORT_ACTIVE_ENERGY_PROVIDER));
         ratedEnergyMappings.add(new RegisterMapping(TARIFF2_IMPORT_ACTIVE_ENERGY_PROVIDER));
+        ratedEnergyMappings.add(new RegisterMapping(TARIFF3_IMPORT_ACTIVE_ENERGY_PROVIDER));
+        ratedEnergyMappings.add(new RegisterMapping(TARIFF4_IMPORT_ACTIVE_ENERGY_PROVIDER));
+        ratedEnergyMappings.add(new RegisterMapping(TARIFF5_IMPORT_ACTIVE_ENERGY_PROVIDER));
+        ratedEnergyMappings.add(new RegisterMapping(TARIFF6_IMPORT_ACTIVE_ENERGY_PROVIDER));
+        ratedEnergyMappings.add(new RegisterMapping(TARIFF7_IMPORT_ACTIVE_ENERGY_PROVIDER));
+        ratedEnergyMappings.add(new RegisterMapping(TARIFF8_IMPORT_ACTIVE_ENERGY_PROVIDER));
+        ratedEnergyMappings.add(new RegisterMapping(TARIFF9_IMPORT_ACTIVE_ENERGY_PROVIDER));
+        ratedEnergyMappings.add(new RegisterMapping(TARIFF10_IMPORT_ACTIVE_ENERGY_PROVIDER));
         ratedEnergyMappings.add(new RegisterMapping(TARIFF1_IMPORT_ACTIVE_ENERGY_PUBLIC_NETWORK));
         ratedEnergyMappings.add(new RegisterMapping(TARIFF2_IMPORT_ACTIVE_ENERGY_PUBLIC_NETWORK));
+        ratedEnergyMappings.add(new RegisterMapping(TARIFF3_IMPORT_ACTIVE_ENERGY_PUBLIC_NETWORK));
+        ratedEnergyMappings.add(new RegisterMapping(TARIFF4_IMPORT_ACTIVE_ENERGY_PUBLIC_NETWORK));
         return ratedEnergyMappings;
     }
 
@@ -259,9 +313,9 @@ public class G3RegisterMapper {
      * Voltage quality measurement mappings (ERDF-CPT-Linky-SPEC-FONC-CPT-MDD, V1.2, 16)
      */
 
-    private static final ObisCode AVG_ABNORMAL_VOLTAGE_PH1 = ObisCode.fromString("1.1.32.7.0.255");
-    private static final ObisCode AVG_ABNORMAL_VOLTAGE_PH2 = ObisCode.fromString("1.1.52.7.0.255");
-    private static final ObisCode AVG_ABNORMAL_VOLTAGE_PH3 = ObisCode.fromString("1.1.72.7.0.255");
+    private static final ObisCode AVG_ABNORMAL_VOLTAGE_PH1 = ObisCode.fromString("1.1.32.5.0.255");
+    private static final ObisCode AVG_ABNORMAL_VOLTAGE_PH2 = ObisCode.fromString("1.1.52.5.0.255");
+    private static final ObisCode AVG_ABNORMAL_VOLTAGE_PH3 = ObisCode.fromString("1.1.72.5.0.255");
     private static final ObisCode PH_WITH_ABNORMAL_VOLTAGE = ObisCode.fromString("1.0.12.38.0.255");
     private static final ObisCode VOLTAGE_CUT_MINIMUM_DURATION = ObisCode.fromString("1.0.12.45.0.255");
 
@@ -293,11 +347,21 @@ public class G3RegisterMapper {
     private static final ObisCode MAC_SETUP_ATTR2 = ObisCode.fromString("0.2.29.1.0.255");
     private static final ObisCode MAC_SETUP_ATTR3 = ObisCode.fromString("0.3.29.1.0.255");
     private static final ObisCode MAC_SETUP_ATTR4 = ObisCode.fromString("0.4.29.1.0.255");
-    private static final ObisCode MAC_SETUP_ATTR5 = ObisCode.fromString("0.5.29.1.0.255");
-    private static final ObisCode MAC_SETUP_ATTR6 = ObisCode.fromString("0.6.29.1.0.255");
     private static final ObisCode MAC_SETUP_ATTR7 = ObisCode.fromString("0.7.29.1.0.255");
     private static final ObisCode MAC_SETUP_ATTR8 = ObisCode.fromString("0.8.29.1.0.255");
     private static final ObisCode MAC_SETUP_ATTR9 = ObisCode.fromString("0.9.29.1.0.255");
+    private static final ObisCode MAC_SETUP_ATTR10 = ObisCode.fromString("0.10.29.1.0.255");
+    private static final ObisCode MAC_SETUP_ATTR11 = ObisCode.fromString("0.11.29.1.0.255");
+    private static final ObisCode MAC_SETUP_ATTR12 = ObisCode.fromString("0.12.29.1.0.255");
+    private static final ObisCode MAC_SETUP_ATTR13 = ObisCode.fromString("0.13.29.1.0.255");
+    private static final ObisCode MAC_SETUP_ATTR14 = ObisCode.fromString("0.14.29.1.0.255");
+    private static final ObisCode MAC_SETUP_ATTR15 = ObisCode.fromString("0.15.29.1.0.255");
+    private static final ObisCode MAC_SETUP_ATTR16 = ObisCode.fromString("0.16.29.1.0.255");
+    private static final ObisCode MAC_SETUP_ATTR17 = ObisCode.fromString("0.17.29.1.0.255");
+    private static final ObisCode MAC_SETUP_ATTR18 = ObisCode.fromString("0.18.29.1.0.255");
+    private static final ObisCode MAC_SETUP_ATTR20 = ObisCode.fromString("0.20.29.1.0.255");
+    private static final ObisCode MAC_SETUP_ATTR21 = ObisCode.fromString("0.21.29.1.0.255");
+    private static final ObisCode MAC_SETUP_ATTR22 = ObisCode.fromString("0.22.29.1.0.255");
 
     private static final ObisCode SIXLOWPAN_SETUP_ATTR1 = ObisCode.fromString("0.1.29.2.0.255");
     private static final ObisCode SIXLOWPAN_SETUP_ATTR2 = ObisCode.fromString("0.2.29.2.0.255");
@@ -311,8 +375,15 @@ public class G3RegisterMapper {
     private static final ObisCode SIXLOWPAN_SETUP_ATTR10 = ObisCode.fromString("0.10.29.2.0.255");
     private static final ObisCode SIXLOWPAN_SETUP_ATTR11 = ObisCode.fromString("0.11.29.2.0.255");
     private static final ObisCode SIXLOWPAN_SETUP_ATTR12 = ObisCode.fromString("0.12.29.2.0.255");
+    private static final ObisCode SIXLOWPAN_SETUP_ATTR13 = ObisCode.fromString("0.13.29.2.0.255");
+    private static final ObisCode SIXLOWPAN_SETUP_ATTR14 = ObisCode.fromString("0.14.29.2.0.255");
+    private static final ObisCode SIXLOWPAN_SETUP_ATTR15 = ObisCode.fromString("0.15.29.2.0.255");
+    private static final ObisCode SIXLOWPAN_SETUP_ATTR16 = ObisCode.fromString("0.16.29.2.0.255");
+    private static final ObisCode SIXLOWPAN_SETUP_ATTR17 = ObisCode.fromString("0.17.29.2.0.255");
+    private static final ObisCode SIXLOWPAN_SETUP_ATTR18 = ObisCode.fromString("0.18.29.2.0.255");
+    private static final ObisCode SIXLOWPAN_SETUP_ATTR19 = ObisCode.fromString("0.19.29.2.0.255");
 
-    private final List<G3Mapping> getPLCStatisticsMappings() {
+    protected final List<G3Mapping> getPLCStatisticsMappings() {
         final List<G3Mapping> plcStatistics = new ArrayList<G3Mapping>();
         plcStatistics.add(new PlcStatisticsMapping(PHYS_MAC_LAYER_COUNTERS_ATTR1));
         plcStatistics.add(new PlcStatisticsMapping(PHYS_MAC_LAYER_COUNTERS_ATTR2));
@@ -329,11 +400,21 @@ public class G3RegisterMapper {
         plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR2));
         plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR3));
         plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR4));
-        plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR5));
-        plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR6));
         plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR7));
         plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR8));
         plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR9));
+        plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR10));
+        plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR11));
+        plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR12));
+        plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR13));
+        plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR14));
+        plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR15));
+        plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR16));
+        plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR17));
+        plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR18));
+        plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR20));
+        plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR21));
+        plcStatistics.add(new PlcStatisticsMapping(MAC_SETUP_ATTR22));
 
         plcStatistics.add(new PlcStatisticsMapping(SIXLOWPAN_SETUP_ATTR1));
         plcStatistics.add(new PlcStatisticsMapping(SIXLOWPAN_SETUP_ATTR2));
@@ -347,6 +428,13 @@ public class G3RegisterMapper {
         plcStatistics.add(new PlcStatisticsMapping(SIXLOWPAN_SETUP_ATTR10));
         plcStatistics.add(new PlcStatisticsMapping(SIXLOWPAN_SETUP_ATTR11));
         plcStatistics.add(new PlcStatisticsMapping(SIXLOWPAN_SETUP_ATTR12));
+        plcStatistics.add(new PlcStatisticsMapping(SIXLOWPAN_SETUP_ATTR13));
+        plcStatistics.add(new PlcStatisticsMapping(SIXLOWPAN_SETUP_ATTR14));
+        plcStatistics.add(new PlcStatisticsMapping(SIXLOWPAN_SETUP_ATTR15));
+        plcStatistics.add(new PlcStatisticsMapping(SIXLOWPAN_SETUP_ATTR16));
+        plcStatistics.add(new PlcStatisticsMapping(SIXLOWPAN_SETUP_ATTR17));
+        plcStatistics.add(new PlcStatisticsMapping(SIXLOWPAN_SETUP_ATTR18));
+        plcStatistics.add(new PlcStatisticsMapping(SIXLOWPAN_SETUP_ATTR19));
 
         return plcStatistics;
     }

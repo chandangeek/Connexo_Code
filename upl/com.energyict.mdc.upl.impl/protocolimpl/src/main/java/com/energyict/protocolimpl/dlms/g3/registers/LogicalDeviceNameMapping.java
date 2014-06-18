@@ -1,31 +1,45 @@
 package com.energyict.protocolimpl.dlms.g3.registers;
 
+import com.energyict.cbo.Unit;
+import com.energyict.dlms.DlmsSession;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocolimpl.dlms.g3.AS330D;
+import com.energyict.protocolimpl.dlms.g3.SerialNumber;
 
 import java.io.IOException;
+import java.util.Date;
 
 /**
-* Copyrights EnergyICT
-* Date: 22/03/12
-* Time: 9:23
-*/
-class LogicalDeviceNameMapping extends G3Mapping {
+ * Copyrights EnergyICT
+ * Date: 22/03/12
+ * Time: 9:23
+ */
+public class LogicalDeviceNameMapping extends G3Mapping {
 
     public LogicalDeviceNameMapping(ObisCode obisCode) {
         super(obisCode);
     }
 
     @Override
-    public RegisterValue readRegister(AS330D as330D) throws IOException {
-        final CosemObjectFactory cof = as330D.getSession().getCosemObjectFactory();
-        final Data data = cof.getData(getObisCode());
-        final OctetString valueAttr = data.getValueAttr(OctetString.class);
-        final String textValue = valueAttr.stringValue();
-        return new RegisterValue(getObisCode(), textValue);
+    public RegisterValue readRegister(DlmsSession dlmsSession) throws IOException {
+        final CosemObjectFactory cof = dlmsSession.getCosemObjectFactory();
+        Data data = cof.getData(getObisCode());
+        return parse(data.getValueAttr(OctetString.class));
     }
+
+    public RegisterValue parse(AbstractDataType abstractDataType, Unit unit, Date captureTime) throws IOException {
+        SerialNumber serialNumber = SerialNumber.fromBytes(((OctetString) abstractDataType).getOctetStr());
+        return new RegisterValue(getObisCode(), serialNumber.getEuridisADS());
+    }
+
+    @Override
+    public int getDLMSClassId() {
+        return DLMSClassId.DATA.getClassId();
+    }
+
 }

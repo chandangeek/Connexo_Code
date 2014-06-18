@@ -1,12 +1,17 @@
 package com.energyict.protocolimpl.dlms.g3.registers;
 
 import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.dlms.DlmsSession;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.Register;
+import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocolimpl.dlms.g3.AS330D;
 
 import java.io.IOException;
+import java.util.Date;
 
 /**
  * Copyrights EnergyICT
@@ -20,10 +25,22 @@ public class RegisterMapping extends G3Mapping {
     }
 
     @Override
-    public RegisterValue readRegister(AS330D as330D) throws IOException {
-        final Register register = as330D.getSession().getCosemObjectFactory().getRegister(getObisCode());
-        final Quantity quantityValue = register.getQuantityValue();
-        return new RegisterValue(getObisCode(), quantityValue);
+    public RegisterValue readRegister(DlmsSession dlmsSession) throws IOException {
+        final Register register = dlmsSession.getCosemObjectFactory().getRegister(getObisCode());
+        return parse(register.getValueAttr(), register.getScalerUnit().getEisUnit());
     }
 
+    @Override
+    public int[] getAttributeNumbers() {
+        return new int[]{RegisterAttributes.VALUE.getAttributeNumber(), RegisterAttributes.SCALER_UNIT.getAttributeNumber()};
+    }
+
+    public RegisterValue parse(AbstractDataType abstractDataType, Unit unit, Date captureTime) throws IOException {
+        return new RegisterValue(getObisCode(), new Quantity((abstractDataType).longValue(), unit));
+    }
+
+    @Override
+    public int getDLMSClassId() {
+        return DLMSClassId.REGISTER.getClassId();
+    }
 }

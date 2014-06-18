@@ -6,6 +6,7 @@
 
 -- Each new DeviceMessageCategories that is added should have a corresponding translationkey,
 -- something like 'DeviceMessageCategories.FIRMWARE' (keys are case sensitive)
+-- also, add a key for the category description (DeviceMessageCategories.FIRMWARE.description)
 
 -- Each new DeviceMessageSpec that is created or added to a category should have a corresponding translationkey,
 -- something like 'ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND' (keys are case sensitive)

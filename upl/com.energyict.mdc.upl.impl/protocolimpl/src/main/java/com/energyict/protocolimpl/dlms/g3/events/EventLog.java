@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.dlms.g3.events;
 
+import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.protocol.MeterEvent;
 
 import java.io.IOException;
@@ -22,5 +23,10 @@ public interface EventLog {
      * @throws java.io.IOException If there occured an error while reading the events (timeout, parsing error, ...)
      */
     List<MeterEvent> getEvents(Calendar from, Calendar to) throws IOException;
+
+    /**
+     * This method is used to parse the received array of events into EIServer MeterEvents.
+     */
+    List<MeterEvent> parseEvents(AbstractDataType buffer) throws IOException;
 
 }

@@ -10,6 +10,7 @@ import com.energyict.protocolimpl.dlms.DLMSMeterEventMapper;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Copyrights EnergyICT
@@ -22,6 +23,8 @@ public class G3BasicEventLog implements EventLog {
     private final DLMSMeterEventMapper eventMapper;
     private final DlmsSession session;
     private final String name;
+    private Logger logger;
+    private TimeZone timeZone;
 
     public G3BasicEventLog(DlmsSession session, ObisCode obisCode, String name, DLMSMeterEventMapper eventMapper) {
         this.session = session;
@@ -30,16 +33,29 @@ public class G3BasicEventLog implements EventLog {
         this.name = name == null ? "" : name;
     }
 
+    public G3BasicEventLog(ObisCode obisCode, DLMSMeterEventMapper eventMapper, Logger logger, TimeZone timeZone) {
+        this.session = null;
+        this.obisCode = obisCode;
+        this.eventMapper = eventMapper;
+        this.name = "";
+        this.logger = logger;
+        this.timeZone = timeZone;
+    }
+
     public List<MeterEvent> getEvents(Calendar from, Calendar to) throws IOException {
-        session.getLogger().log(Level.INFO, "Fetching EVENTS from [" + obisCode + "], [" + name + "] from [" + from.getTime() + "] to [" + to.getTime() + "]");
-        List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
+        getLogger().log(Level.INFO, "Fetching EVENTS from [" + obisCode + "], [" + name + "] from [" + from.getTime() + "] to [" + to.getTime() + "]");
 
         final Array eventArray = getEventArray(from, to);
+        return parseEvents(eventArray);
+    }
+
+    public List<MeterEvent> parseEvents(AbstractDataType eventArray) throws IOException {
         if (eventArray == null) {
             throw new IOException("Array of AXDR events received from the meter is 'null'!");
         }
 
-        for (final AbstractDataType abstractEventData : eventArray.getAllDataTypes()) {
+        List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
+        for (final AbstractDataType abstractEventData : ((Array) eventArray).getAllDataTypes()) {
             final BasicEvent basicEvent = getBasicEvent(abstractEventData);
             if (basicEvent != null) {
                 meterEvents.add(basicEvent.getMeterEvent(eventMapper));
@@ -52,11 +68,25 @@ public class G3BasicEventLog implements EventLog {
     private BasicEvent getBasicEvent(AbstractDataType abstractEventData) throws IOException {
         if (abstractEventData.isStructure()) {
             Structure structure = abstractEventData.getStructure();
-            return structure != null ? new BasicEvent(structure, session.getTimeZone()) : null;
+            return structure != null ? new BasicEvent(structure, getTimeZone()) : null;
         } else {
-            session.getLogger().severe("Expected Array of Structures but one entry was a [" + abstractEventData.getClass().getName() + "]");
+            getLogger().severe("Expected Array of Structures but one entry was a [" + abstractEventData.getClass().getName() + "]");
         }
         return null;
+    }
+
+    private Logger getLogger() {
+        if (logger == null) {
+            logger = session.getLogger();
+        }
+        return logger;
+    }
+
+    private TimeZone getTimeZone() {
+        if (timeZone == null) {
+            timeZone = session.getTimeZone();
+        }
+        return timeZone;
     }
 
     private Array getEventArray(Calendar from, Calendar to) throws IOException {

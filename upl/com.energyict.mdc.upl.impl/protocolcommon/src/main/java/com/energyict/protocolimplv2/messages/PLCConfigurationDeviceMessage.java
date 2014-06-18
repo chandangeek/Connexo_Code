@@ -3,7 +3,9 @@ package com.energyict.protocolimplv2.messages;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cuo.core.UserEnvironment;
-import com.energyict.mdc.messages.*;
+import com.energyict.mdc.messages.DeviceMessageCategory;
+import com.energyict.mdc.messages.DeviceMessageSpec;
+import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
 
 import java.util.Arrays;
 import java.util.List;
@@ -39,19 +41,49 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpec {
     SetSFSKMaxFrameLength(5,
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.MAX_FRAME_LENGTHAttributeName)),
 
-    SetActiveScanDurationAttributeName(6, PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.activeScanDurationAttributeName)),
     SetBroadCastLogTableEntryTTLAttributeName(7, PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.broadCastLogTableEntryTTLAttributeName)),
-    SetDiscoveryAttemptsSpeedAttributeName(8, PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.discoveryAttemptsSpeedAttributeName)),
-    SetMaxAgeTimeAttributeName(9, PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.maxAgeTimeAttributeName)),
+    SetMaxJoinWaitTime(8, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.maxJoinWaitTime)),
+    SetPathDiscoveryTime(9, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.pathDiscoveryTime)),
     SetMaxNumberOfHopsAttributeName(10, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.maxNumberOfHopsAttributeName)),
-    SetMaxPANConflictsCountAttributeName(11, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.maxPANConflictsCountAttributeName)),
-    SetPanConflictWaitTimeAttributeName(12, PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.panConflictWaitTimeAttributeName)),
+    SetMetricType(11, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.metricType)),
+    SetCoordShortAddress(12, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.coordShortAddress)),
     SetToneMaskAttributeName(13, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.toneMaskAttributeName)),
+    SetTMRTTL(35, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.TMRTTL)),
+    SetMaxFrameRetries(36, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.MaxFrameRetries)),
+    SetNeighbourTableEntryTTL(37, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.NeighbourTableEntryTTL)),
+    SetHighPriorityWindowSize(38, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.HighPriorityWindowSize)),
+    SetCSMAFairnessLimit(39, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CSMAFairnessLimit)),
+    SetBeaconRandomizationWindowLength(40, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.BeaconRandomizationWindowLength)),
+    SetMacA(41, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.MacA)),
+    SetMacK(42, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.MacK)),
+    SetMinimumCWAttempts(43, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.MinimumCWAttempts)),
+    SetMaxBe(44, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.maxBe)),
+    SetMaxCSMABackOff(45, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.maxCSMABackOff)),
+    SetMinBe(46, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.minBe)),
+    PathRequest(47, PropertySpecFactory.groupReferencePropertySpec(DeviceMessageConstants.deviceGroupAttributeName)),
+    SetSecurityLevel(48, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.plcSecurityLevel)),
+    SetRoutingConfiguration(49,
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.adp_Kr),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.adp_Km),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.adp_Kc),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.adp_Kq),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.adp_Kh),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.adp_Krt),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.adp_RREQ_retries),
+            PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.adp_RLC_enabled),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.adp_net_traversal_time),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.adp_routing_table_entry_TTL),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.adp_RREQ_RERR_wait),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.adp_Blacklist_table_entry_TTL),
+            PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.adp_unicast_RREQ_gen_enable),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.adp_add_rev_link_cost)
+    ),
+    SetPanId(50, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.G3PanIdAttributename)),
     SetWeakLQIValueAttributeName(14, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.weakLQIValueAttributeName)),
     WritePlcG3Timeout(15, PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.plcG3TimeoutAttributeName)),
     ResetPlcOfdmMacCounters(16),
-    SetPanId(17, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.G3PanIdAttributename)),
-    SetMaxOrphanTimer(18, PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.MaxOrphanTimerAttributeName)),
+    SetDisableDefaultRouting(17, PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.disableDefaultRouting)),
+    SetDeviceType(18, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.deviceType)),
 
     SetSFSKRepeater(19,
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.REPEATERAttributeName)),
@@ -107,7 +139,25 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpec {
     IDISRepeaterCallConfiguration(34,
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.interval),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.receptionThreshold),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.numberOfTimeSlotsForNewSystems));
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.numberOfTimeSlotsForNewSystems)),
+
+    //Configuration of G3 interface on RTU+Server2
+    SetAutomaticRouteManagement(51,
+            PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.pingEnabled),
+            PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.routeRequestEnabled),
+            PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.pathRequestEnabled)
+    ),
+    EnableSNR(52, PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.EnableSNR)),
+    SetSNRPacketInterval(53, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.SNRPacketInterval)),
+    SetSNRQuietTime(54, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.SNRQuietTime)),
+    SetSNRPayload(55, PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.SNRPayload)),
+    EnableKeepAlive(56, PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.EnableKeepAlive)),
+    SetKeepAliveScheduleInterval(57, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.KeepAliveScheduleInterval)),
+    SetKeepAliveBucketSize(58, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.KeepAliveBucketSize)),
+    SetMinInactiveMeterTime(59, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.minInactiveMeterTime)),
+    SetMaxInactiveMeterTime(60, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.maxInactiveMeterTime)),
+    SetKeepAliveRetries(61, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.KeepAliveRetries)),
+    SetKeepAliveTimeout(62, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.KeepAliveTimeout));
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.PLC_CONFIGURATION;
 

@@ -3,7 +3,9 @@ package com.energyict.protocolimplv2.messages;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cuo.core.UserEnvironment;
-import com.energyict.mdc.messages.*;
+import com.energyict.mdc.messages.DeviceMessageCategory;
+import com.energyict.mdc.messages.DeviceMessageSpec;
+import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,7 +27,9 @@ public enum PPPConfigurationDeviceMessage implements DeviceMessageSpec {
     SetISP2Tries(7, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetISP2TriesAttributeName)),
     SetPPPIdleTimeout(8, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPPPIdleTimeoutAttributeName)),
     SetPPPRetryInterval(9, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPPPRetryIntervalAttributeName)),
-    SetPPPOptions(10, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPPPOptionsAttributeName));
+    SetPPPOptions(10, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPPPOptionsAttributeName)),
+    SetPPPIdleTime(11, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.SetPPPIdleTime)),
+    SetPPPDaemonResetThreshold(12, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.PPPDaemonResetThreshold));
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.PPP_PARAMETERS;
 

@@ -1,6 +1,8 @@
 package com.energyict.protocolimpl.dlms.g3.messaging.messages;
 
-import com.energyict.protocolimpl.messaging.*;
+import com.energyict.protocolimpl.messaging.AnnotatedMessage;
+import com.energyict.protocolimpl.messaging.RtuMessageAttribute;
+import com.energyict.protocolimpl.messaging.RtuMessageDescription;
 
 /**
  * Copyrights EnergyICT
@@ -15,7 +17,7 @@ public interface SecurityConfigurationMessages {
     interface ChangeHLSSecretMessage extends AnnotatedMessage {
 
         @RtuMessageAttribute(tag = "HLS_Secret", required = true)
-        java.lang.String getHLSSecret();
+        String getHLSSecret();
 
     }
 
@@ -24,7 +26,7 @@ public interface SecurityConfigurationMessages {
     interface ChangeLLSSecretMessage extends AnnotatedMessage {
 
         @RtuMessageAttribute(tag = "LLS_Secret", required = true)
-        java.lang.String getLLSSecret();
+        String getLLSSecret();
 
     }
 

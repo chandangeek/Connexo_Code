@@ -59,14 +59,6 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, HHUEnabler
 
     private Logger logger;
 
-    /**
-     * Get the firmware version of the meter
-     *
-     * @return the version of the meter firmware
-     * @throws IOException Thrown in case of an exception
-     */
-    protected abstract String getFirmwareVersion();
-
     protected abstract DlmsSessionProperties getDlmsSessionProperties();
 
     /**

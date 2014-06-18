@@ -43,10 +43,10 @@ public class SixLowPanAdaptationLayerSetup extends AbstractCosemObject {
      * algorithm.
      *
      * @return
-     * @throws java.io.IOException
+     * @throws IOException
      */
-    public int readAdpMaxHops() throws IOException {
-        return readDataType(SixLowPanAdaptationLayerSetupAttribute.ADP_MAX_HOPS).intValue();
+    public AbstractDataType readAdpMaxHops() throws IOException {
+        return readDataType(SixLowPanAdaptationLayerSetupAttribute.ADP_MAX_HOPS);
     }
 
     /**
@@ -55,67 +55,18 @@ public class SixLowPanAdaptationLayerSetup extends AbstractCosemObject {
      * measurement done by the physical layer).
      *
      * @return
-     * @throws java.io.IOException
+     * @throws IOException
      */
-    public int readAdpWeakLQIValue() throws IOException {
-        return readDataType(SixLowPanAdaptationLayerSetupAttribute.ADP_WEAK_LQI_VALUE).intValue();
+    public AbstractDataType readAdpWeakLQIValue() throws IOException {
+        return readDataType(SixLowPanAdaptationLayerSetupAttribute.ADP_WEAK_LQI_VALUE);
     }
 
-    /**
-     * Defines the number of seconds to wait between two consecutive
-     * CONFLICT frames for the same conflicting PAN ID.
-     *
-     * @return
-     * @throws java.io.IOException
-     */
-    public int readAdpPanConflictWait() throws IOException {
-        return readDataType(SixLowPanAdaptationLayerSetupAttribute.ADP_PAN_CONFLICT_WAIT).intValue();
+    public AbstractDataType readSecurityLevel() throws IOException {
+        return readDataType(SixLowPanAdaptationLayerSetupAttribute.ADP_SECURITY_LEVEL);
     }
 
-    /**
-     * Defines the maximum number of CONFLICT frames sent by a device for
-     * the same PAN ID.
-     *
-     * @return
-     * @throws java.io.IOException
-     */
-    public int readAdpMaxPanConflictCount() throws IOException {
-        return readDataType(SixLowPanAdaptationLayerSetupAttribute.ADP_MAX_PAN_CONFLICT_COUNT).intValue();
-    }
-
-    /**
-     * Defines the number of seconds of an active scan (association
-     * procedure).
-     *
-     * @return
-     * @throws java.io.IOException
-     */
-    public int readAdpActiveScanDuration() throws IOException {
-        return readDataType(SixLowPanAdaptationLayerSetupAttribute.ADP_ACTIVE_SCAN_DURATION).intValue();
-    }
-
-    /**
-     * Specifies the list of carriers (one bit = one carrier) to be used during
-     * symbol formation. The use of this mask permits to interwork with other
-     * PLC narrowband technology (e.g. IEC 61334-5-1 S-FSK) or to be
-     * compliant with regulatory laws.
-     *
-     * @return
-     * @throws java.io.IOException
-     */
-    public BitString readAdpToneMask() throws IOException {
-        return readDataType(SixLowPanAdaptationLayerSetupAttribute.ADP_TONE_MASK, BitString.class);
-    }
-
-    /**
-     * Defines the value of the maximum wait time in seconds between two
-     * successive network discoveries.
-     *
-     * @return
-     * @throws java.io.IOException
-     */
-    public int readAdpDiscoveryAttemptsSpeed() throws IOException {
-        return readDataType(SixLowPanAdaptationLayerSetupAttribute.ADP_DISCOVERY_ATTEMPTS_SPEED).intValue();
+    public AbstractDataType readPrefixTable() throws IOException {
+        return readDataType(SixLowPanAdaptationLayerSetupAttribute.ADP_PREFIX_TABLE);
     }
 
     /**
@@ -123,7 +74,7 @@ public class SixLowPanAdaptationLayerSetup extends AbstractCosemObject {
      * routing mechanism.
      *
      * @return
-     * @throws java.io.IOException
+     * @throws IOException
      */
     public Array readAdpRoutingConfiguration() throws IOException {
         return readDataType(SixLowPanAdaptationLayerSetupAttribute.ADP_ROUTING_CONFIGURATION, Array.class);
@@ -135,22 +86,10 @@ public class SixLowPanAdaptationLayerSetup extends AbstractCosemObject {
      * automatically removed.
      *
      * @return
-     * @throws java.io.IOException
+     * @throws IOException
      */
-    public int readAdpBroadcastLogTableEntryTTL() throws IOException {
-        return readDataType(SixLowPanAdaptationLayerSetupAttribute.ADP_BROADCAST_LOG_TABLE_ENTRY_TTL).intValue();
-    }
-
-    /**
-     * Defines the number of seconds from which a new Tone Map Request
-     * procedure must be done to update the neighbour characteristics in the
-     * Neighbour Table.
-     *
-     * @return
-     * @throws java.io.IOException
-     */
-    public int readAdpMaxAgeTime() throws IOException {
-        return readDataType(SixLowPanAdaptationLayerSetupAttribute.ADP_MAXE_AGE_TIME).intValue();
+    public AbstractDataType readAdpBroadcastLogTableEntryTTL() throws IOException {
+        return readDataType(SixLowPanAdaptationLayerSetupAttribute.ADP_BROADCAST_LOG_TABLE_ENTRY_TTL);
     }
 
     /**
@@ -158,15 +97,60 @@ public class SixLowPanAdaptationLayerSetup extends AbstractCosemObject {
      * which the device is implicated.
      *
      * @return
-     * @throws java.io.IOException
+     * @throws IOException
      */
     public Array readAdpRoutingTable() throws IOException {
         return readDataType(SixLowPanAdaptationLayerSetupAttribute.ADP_ROUTING_TABLE, Array.class);
     }
 
+
+    public AbstractDataType readContextInformationTable() throws IOException {
+        return readDataType(SixLowPanAdaptationLayerSetupAttribute.ADP_CONTEXT_INFORMATION_TABLE);
+    }
+
+    public AbstractDataType readBlacklistTable() throws IOException {
+        return readDataType(SixLowPanAdaptationLayerSetupAttribute.ADP_BLACKLIST_TABLE);
+    }
+
+    public AbstractDataType readBroadcastLogTable() throws IOException {
+        return readDataType(SixLowPanAdaptationLayerSetupAttribute.ADP_BROADCAST_LOG_TABLE);
+    }
+
+    public AbstractDataType readGroupTable() throws IOException {
+        return readDataType(SixLowPanAdaptationLayerSetupAttribute.ADP_GROUP_TABLE);
+    }
+
+    public AbstractDataType readMaxJoinWaitTime() throws IOException {
+        return readDataType(SixLowPanAdaptationLayerSetupAttribute.ADP_MAX_JOIN_WAIT_TIME);
+    }
+
+    public AbstractDataType readPathDiscoveryTime() throws IOException {
+        return readDataType(SixLowPanAdaptationLayerSetupAttribute.ADP_PATH_DISCOVERY_TIME);
+    }
+
+    public AbstractDataType readActiveKeyIndex() throws IOException {
+        return readDataType(SixLowPanAdaptationLayerSetupAttribute.ADP_ACTIVE_KEY_INDEX);
+    }
+
+    public AbstractDataType readMetricType() throws IOException {
+        return readDataType(SixLowPanAdaptationLayerSetupAttribute.ADP_METRIC_TYPE);
+    }
+
+    public AbstractDataType readCoordShortAddress() throws IOException {
+        return readDataType(SixLowPanAdaptationLayerSetupAttribute.ADP_COORD_SHORT_ADDRESS);
+    }
+
+    public AbstractDataType readDisableDefaultRouting() throws IOException {
+        return readDataType(SixLowPanAdaptationLayerSetupAttribute.ADP_DISABLE_DEFAULT_ROUTING);
+    }
+
+    public AbstractDataType readDeviceType() throws IOException {
+        return readDataType(SixLowPanAdaptationLayerSetupAttribute.ADP_DEVICE_TYPE);
+    }
+
     /**
      * @param maxHops
-     * @throws java.io.IOException
+     * @throws IOException
      */
     public void writeMaxHops(int maxHops) throws IOException {
         final Unsigned8 value = new Unsigned8(maxHops);
@@ -176,7 +160,7 @@ public class SixLowPanAdaptationLayerSetup extends AbstractCosemObject {
 
     /**
      * @param weakLqiValue
-     * @throws java.io.IOException
+     * @throws IOException
      */
     public void writeWeakLqiValue(int weakLqiValue) throws IOException {
         final Unsigned8 value = new Unsigned8(weakLqiValue);
@@ -184,59 +168,48 @@ public class SixLowPanAdaptationLayerSetup extends AbstractCosemObject {
         write(SixLowPanAdaptationLayerSetupAttribute.ADP_WEAK_LQI_VALUE, rawValue);
     }
 
-    /**
-     * @param panConflictWaitTime
-     * @throws java.io.IOException
-     */
-    public void writePanConflictWaitTime(int panConflictWaitTime) throws IOException {
-        final Unsigned16 value = new Unsigned16(panConflictWaitTime);
-        final byte[] rawValue = value.getBEREncodedByteArray();
-        write(SixLowPanAdaptationLayerSetupAttribute.ADP_PAN_CONFLICT_WAIT, rawValue);
+    public void writeSecurityLevel(int securityLevel) throws IOException {
+        final Unsigned8 value = new Unsigned8(securityLevel);
+        write(SixLowPanAdaptationLayerSetupAttribute.ADP_SECURITY_LEVEL, value.getBEREncodedByteArray());
     }
 
-    /**
-     * @param maxPanConflictCount
-     * @throws java.io.IOException
-     */
-    public void writeMaxPanConflictCount(int maxPanConflictCount) throws IOException {
-        final Unsigned8 value = new Unsigned8(maxPanConflictCount);
-        final byte[] rawValue = value.getBEREncodedByteArray();
-        write(SixLowPanAdaptationLayerSetupAttribute.ADP_MAX_PAN_CONFLICT_COUNT, rawValue);
-    }
+    public void writeRoutingConfiguration(int adp_net_traversal_time,
+                                          int adp_routing_table_entry_TTL,
+                                          int adp_Kr,
+                                          int adp_Km,
+                                          int adp_Kc,
+                                          int adp_Kq,
+                                          int adp_Kh,
+                                          int adp_Krt,
+                                          int adp_RREQ_retries,
+                                          int adp_RREQ_RERR_wait,
+                                          int adp_Blacklist_table_entry_TTL,
+                                          boolean adp_unicast_RREQ_gen_enable,
+                                          boolean adp_RLC_enabled,
+                                          int adp_add_rev_link_cost) throws IOException {
 
-    /**
-     * @param activeScanDuration
-     * @throws java.io.IOException
-     */
-    public void writeActiveScanDuration(int activeScanDuration) throws IOException {
-        final Unsigned8 value = new Unsigned8(activeScanDuration);
-        final byte[] rawValue = value.getBEREncodedByteArray();
-        write(SixLowPanAdaptationLayerSetupAttribute.ADP_ACTIVE_SCAN_DURATION, rawValue);
-    }
+        Structure routingConfiguration = new Structure();
+        routingConfiguration.addDataType(new Unsigned8(adp_net_traversal_time));
+        routingConfiguration.addDataType(new Unsigned16(adp_routing_table_entry_TTL));
+        routingConfiguration.addDataType(new Unsigned8(adp_Kr));
+        routingConfiguration.addDataType(new Unsigned8(adp_Km));
+        routingConfiguration.addDataType(new Unsigned8(adp_Kc));
+        routingConfiguration.addDataType(new Unsigned8(adp_Kq));
+        routingConfiguration.addDataType(new Unsigned8(adp_Kh));
+        routingConfiguration.addDataType(new Unsigned8(adp_Krt));
+        routingConfiguration.addDataType(new Unsigned8(adp_RREQ_retries));
+        routingConfiguration.addDataType(new Unsigned8(adp_RREQ_RERR_wait));
+        routingConfiguration.addDataType(new Unsigned16(adp_Blacklist_table_entry_TTL));
+        routingConfiguration.addDataType(new BooleanObject(adp_unicast_RREQ_gen_enable));
+        routingConfiguration.addDataType(new BooleanObject(adp_RLC_enabled));
+        routingConfiguration.addDataType(new Unsigned8(adp_add_rev_link_cost));
 
-    /**
-     * @param toneMask
-     * @throws java.io.IOException
-     */
-    public void writeToneMask(boolean[] toneMask) throws IOException {
-        final BitString value = new BitString(toneMask);
-        final byte[] rawValue = value.getBEREncodedByteArray();
-        write(SixLowPanAdaptationLayerSetupAttribute.ADP_TONE_MASK, rawValue);
-    }
-
-    /**
-     * @param discoveryAttemptsSpeed
-     * @throws java.io.IOException
-     */
-    public void writeDiscoveryAttemptsSpeed(int discoveryAttemptsSpeed) throws IOException {
-        final Unsigned16 value = new Unsigned16(discoveryAttemptsSpeed);
-        final byte[] rawValue = value.getBEREncodedByteArray();
-        write(SixLowPanAdaptationLayerSetupAttribute.ADP_DISCOVERY_ATTEMPTS_SPEED, rawValue);
+        write(SixLowPanAdaptationLayerSetupAttribute.ADP_ROUTING_CONFIGURATION, routingConfiguration.getBEREncodedByteArray());
     }
 
     /**
      * @param broadcastLogTableTTL
-     * @throws java.io.IOException
+     * @throws IOException
      */
     public void writeBroadcastLogTableTTL(int broadcastLogTableTTL) throws IOException {
         final Unsigned16 value = new Unsigned16(broadcastLogTableTTL);
@@ -244,10 +217,33 @@ public class SixLowPanAdaptationLayerSetup extends AbstractCosemObject {
         write(SixLowPanAdaptationLayerSetupAttribute.ADP_BROADCAST_LOG_TABLE_ENTRY_TTL, rawValue);
     }
 
-    public void writeMaxAgeTime(int maxAgeTime) throws IOException {
-        final Unsigned16 value = new Unsigned16(maxAgeTime);
-        final byte[] rawValue = value.getBEREncodedByteArray();
-        write(SixLowPanAdaptationLayerSetupAttribute.ADP_MAXE_AGE_TIME, rawValue);
+    public void writeMaxJoinWaitTime(int waitTime) throws IOException {
+        final Unsigned16 value = new Unsigned16(waitTime);
+        write(SixLowPanAdaptationLayerSetupAttribute.ADP_MAX_JOIN_WAIT_TIME, value.getBEREncodedByteArray());
     }
 
+    public void writePathDiscoveryTime(int pathDiscoveryTime) throws IOException {
+        final Unsigned8 value = new Unsigned8(pathDiscoveryTime);
+        write(SixLowPanAdaptationLayerSetupAttribute.ADP_PATH_DISCOVERY_TIME, value.getBEREncodedByteArray());
+    }
+
+    public void writeMetricType(int metricType) throws IOException {
+        final Unsigned8 value = new Unsigned8(metricType);
+        write(SixLowPanAdaptationLayerSetupAttribute.ADP_METRIC_TYPE, value.getBEREncodedByteArray());
+    }
+
+    public void writeCoordShortAddress(int coordShortAddress) throws IOException {
+        final Unsigned16 value = new Unsigned16(coordShortAddress);
+        write(SixLowPanAdaptationLayerSetupAttribute.ADP_COORD_SHORT_ADDRESS, value.getBEREncodedByteArray());
+    }
+
+    public void writeDisableDefaultRouting(boolean disableDefaultRouting) throws IOException {
+        final BooleanObject value = new BooleanObject(disableDefaultRouting);
+        write(SixLowPanAdaptationLayerSetupAttribute.ADP_DISABLE_DEFAULT_ROUTING, value.getBEREncodedByteArray());
+    }
+
+    public void writeDeviceType(int deviceType) throws IOException {
+        final Unsigned8 value = new Unsigned8(deviceType);
+        write(SixLowPanAdaptationLayerSetupAttribute.ADP_DEVICE_TYPE, value.getBEREncodedByteArray());
+    }
 }

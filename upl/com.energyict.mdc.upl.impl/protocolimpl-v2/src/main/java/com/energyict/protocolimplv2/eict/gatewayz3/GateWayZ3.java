@@ -29,11 +29,6 @@ import java.util.List;
 public class GateWayZ3 extends AbstractDlmsProtocol {
 
     @Override
-    protected String getFirmwareVersion() {
-        return null;  // nothing to do
-    }
-
-    @Override
     protected DlmsSessionProperties getDlmsSessionProperties() {
         return null;  // nothing to do
     }

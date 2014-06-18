@@ -82,7 +82,7 @@ public enum SecurityMessage implements DeviceMessageSpec {
                     DeviceMessageConstants.authenticationLevelAttributeName,
                     DlmsAuthenticationLevelMessageValues.getNames())
     ),
-    DISABLE_DLMS_AUTHENTICATION_LEVEL_P1(23,
+    DISABLE_DLMS_AUTHENTICATION_LEVEL_P3(23,
             PropertySpecFactory.stringPropertySpecWithValues(
                     DeviceMessageConstants.authenticationLevelAttributeName,
                     DlmsAuthenticationLevelMessageValues.getNames())
@@ -92,7 +92,7 @@ public enum SecurityMessage implements DeviceMessageSpec {
                     DeviceMessageConstants.authenticationLevelAttributeName,
                     DlmsAuthenticationLevelMessageValues.getNames())
     ),
-    ENABLE_DLMS_AUTHENTICATION_LEVEL_P1(25,
+    ENABLE_DLMS_AUTHENTICATION_LEVEL_P3(25,
             PropertySpecFactory.stringPropertySpecWithValues(
                     DeviceMessageConstants.authenticationLevelAttributeName,
                     DlmsAuthenticationLevelMessageValues.getNames())

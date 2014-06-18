@@ -1,6 +1,8 @@
 package com.energyict.protocolimpl.dlms.g3.messaging.messages;
 
-import com.energyict.protocolimpl.messaging.*;
+import com.energyict.protocolimpl.messaging.AnnotatedMessage;
+import com.energyict.protocolimpl.messaging.RtuMessageAttribute;
+import com.energyict.protocolimpl.messaging.RtuMessageDescription;
 
 /**
  * Copyrights EnergyICT
@@ -19,6 +21,6 @@ public interface NetworkInformationMessages {
     @RtuMessageDescription(category = CATEGORY, description = "Path request", tag = "PathRequest")
     interface PathRequestMessage extends AnnotatedMessage {
         @RtuMessageAttribute(tag = "groupId", defaultValue = "", required = false)
-        java.lang.String getGroupId();
+        String getGroupId();
     }
 }

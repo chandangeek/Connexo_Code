@@ -28,9 +28,9 @@ public class Dsmr40MessageConverter extends Dsmr23MessageConverter {
         // Authentication and encryption - remove the DSMR2.3 message & replace by 4 new DSMR4.0 messages
         registry.remove(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL);
         registry.put(SecurityMessage.DISABLE_DLMS_AUTHENTICATION_LEVEL_P0, new MultipleAttributeMessageEntry("Disable_authentication_level_P0", "AuthenticationLevel"));
-        registry.put(SecurityMessage.DISABLE_DLMS_AUTHENTICATION_LEVEL_P1, new MultipleAttributeMessageEntry("Disable_authentication_level_P3", "AuthenticationLevel"));
+        registry.put(SecurityMessage.DISABLE_DLMS_AUTHENTICATION_LEVEL_P3, new MultipleAttributeMessageEntry("Disable_authentication_level_P3", "AuthenticationLevel"));
         registry.put(SecurityMessage.ENABLE_DLMS_AUTHENTICATION_LEVEL_P0, new MultipleAttributeMessageEntry("Enable_authentication_level_P0", "AuthenticationLevel"));
-        registry.put(SecurityMessage.ENABLE_DLMS_AUTHENTICATION_LEVEL_P1, new MultipleAttributeMessageEntry("Enable_authentication_level_P3", "AuthenticationLevel"));
+        registry.put(SecurityMessage.ENABLE_DLMS_AUTHENTICATION_LEVEL_P3, new MultipleAttributeMessageEntry("Enable_authentication_level_P3", "AuthenticationLevel"));
     }
 
     /**

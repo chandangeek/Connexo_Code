@@ -6,7 +6,6 @@ import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.attributes.G3NetworkManagementAttributes;
 import com.energyict.dlms.cosem.methods.G3NetworkManagementMethods;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ProtocolException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -146,6 +145,10 @@ public class G3NetworkManagement extends AbstractCosemObject {
         return readDataType(G3NetworkManagementAttributes.KEEP_ALIVE_BUCKET_SIZE, Unsigned16.class).getValue();
     }
 
+    public final long readKeepAliveServiceMinInactiveMeterTime() throws IOException {
+        return readDataType(G3NetworkManagementAttributes.KEEP_ALIVE_MIN_INACTIVE_METER_TIME, Unsigned32.class).getValue();
+    }
+
     /**
      * @return The keep alive service max inactive meter time in seconds
      * @throws java.io.IOException If there occurred an error while reading the value
@@ -170,42 +173,93 @@ public class G3NetworkManagement extends AbstractCosemObject {
         return readDataType(G3NetworkManagementAttributes.KEEP_ALIVE_TIMEOUT, Unsigned16.class).getValue();
     }
 
-    /**
-     * @return <code>true<code/> if automatic route is enabled
-     * @throws java.io.IOException If there occurred an error while reading the value
-     */
-    public final boolean readAutomaticRouteManagementEnabled() throws IOException {
-        return readDataType(G3NetworkManagementAttributes.AUTOMATIC_ROUTE_MANAGEMENT_ENABLED, BooleanObject.class).getState();
+    public final void setAutomaticRouteManagement(boolean routeRequestEnabled, boolean pingEnabled, boolean pathRequestEnabled) throws IOException {
+        Structure structure = new Structure();
+        structure.addDataType(new BooleanObject(routeRequestEnabled));
+        structure.addDataType(new BooleanObject(pingEnabled));
+        structure.addDataType(new BooleanObject(pathRequestEnabled));
+        write(G3NetworkManagementAttributes.AUTOMATIC_ROUTE_MANAGEMENT_ENABLED, structure);
+    }
+
+    public final void enableSNR(boolean enable) throws IOException {
+        write(G3NetworkManagementAttributes.SNR_ENABLED, new BooleanObject(enable));
+    }
+
+    public final void setSNRPacketInterval(int value) throws IOException {
+        write(G3NetworkManagementAttributes.SNR_INTERVAL, new Unsigned32(value));
+    }
+
+    public final void setSNRQuietTime(int value) throws IOException {
+        write(G3NetworkManagementAttributes.SNR_QUIET_TIME, new Unsigned8(value));
+    }
+
+    public final void setSNRPayload(byte[] value) throws IOException {
+        write(G3NetworkManagementAttributes.SNR_PAYLOAD, OctetString.fromByteArray(value));
+    }
+
+    public final void enableKeepAlive(boolean enable) throws IOException {
+        write(G3NetworkManagementAttributes.KEEP_ALIVE_ENABLED, new BooleanObject(enable));
+    }
+
+    public final void setKeepAliveScheduleInterval(int value) throws IOException {
+        write(G3NetworkManagementAttributes.KEEP_ALIVE_SCHEDULE_INTERVAL, new Unsigned32(value));
+    }
+
+    public final void setKeepAliveBucketSize(int value) throws IOException {
+        write(G3NetworkManagementAttributes.KEEP_ALIVE_BUCKET_SIZE, new Unsigned16(value));
+    }
+
+    public final void setMinInactiveMeterTime(int value) throws IOException {
+        write(G3NetworkManagementAttributes.KEEP_ALIVE_MIN_INACTIVE_METER_TIME, new Unsigned32(value));
+    }
+
+    public final void setMaxInactiveMeterTime(int value) throws IOException {
+        write(G3NetworkManagementAttributes.KEEP_ALIVE_MAX_INACTIVE_METER_TIME, new Unsigned32(value));
+    }
+
+    public final void setKeepAliveRetries(int value) throws IOException {
+        write(G3NetworkManagementAttributes.KEEP_ALIVE_RETRIES, new Unsigned8(value));
+    }
+
+    public final void setKeepAliveTimeout(int value) throws IOException {
+        write(G3NetworkManagementAttributes.KEEP_ALIVE_TIMEOUT, new Unsigned16(value));
     }
 
     /**
-     * Performs a ping to the given node, returns <code>true</code> if the ping was successful, <code>false</code> if it wasn't.
+     * Performs a ping to the given node, returns the round trip time if the ping was successful or -1 if it wasn't.
+     * Older firmware versions of the Rtu+Server return a boolean, in this case the protocol return +1 or -1.
      *
      * @param macAddress Hex string containing the EUI-64 address of the target node.
-     * @return <code>true</code> if the ping request was successful, <code>false</code> if not.
-     * @throws java.io.IOException If an IO error occurs when performing the ping.
+     * @throws IOException If an IO error occurs when performing the ping.
      */
-    public final boolean pingNode(final String macAddress, int timeout) throws IOException {
+    public final int pingNode(final String macAddress, int timeout) throws IOException {
         Structure structure = new Structure(extractEUI64(macAddress), new Unsigned16(timeout));
-        return this.methodInvoke(G3NetworkManagementMethods.PING, structure, BooleanObject.class).getState();
+        AbstractDataType dataType = AXDRDecoder.decode(this.methodInvoke(G3NetworkManagementMethods.PING, structure));
+        if (dataType instanceof BooleanObject) {
+            return ((BooleanObject) dataType).getState() ? 1 : -1;
+        } else if (dataType instanceof Integer32) {
+            return dataType.intValue();
+        } else {
+            throw new IOException("Unexpected result type when pinging a node. Expected a Boolean or an Integer32, received " + dataType.getClass().getSimpleName());
+        }
     }
 
     /**
-     * Extracts the EUI64 address for a node from the MAC hex string. Returns it in the form of an {@link com.energyict.dlms.axrdencoding.OctetString}.
+     * Extracts the EUI64 address for a node from the MAC hex string. Returns it in the form of an {@link OctetString}.
      *
      * @param macAddress Hex string containing the MAC address.
-     * @return An {@link com.energyict.dlms.axrdencoding.OctetString} containing the MAC address.
-     * @throws java.io.IOException In case the passed string has an invalid format or <code>null</code>.
+     * @return An {@link OctetString} containing the MAC address.
+     * @throws IOException In case the passed string has an invalid format or <code>null</code>.
      */
     private static final OctetString extractEUI64(final String macAddress) throws IOException {
         if (macAddress == null) {
-            throw new ProtocolException("MAC address string should not be null !");
+            throw new IOException("MAC address string should not be null !");
         }
 
         final byte[] eui64 = DLMSUtils.getBytesFromHexString(macAddress, null);
 
         if (eui64 == null || eui64.length != 8) {
-            throw new ProtocolException("MAC address passed to this method [" + macAddress + "] is invalid : expected hex string containing exactly 8 bytes, this one contains [" + (eui64 != null ? eui64.length : "UNKNOWN") + "] bytes");
+            throw new IOException("MAC address passed to this method [" + macAddress + "] is invalid : expected hex string containing exactly 8 bytes, this one contains [" + (eui64 != null ? eui64.length : "UNKNOWN") + "] bytes");
         }
 
         return OctetString.fromByteArray(eui64);
@@ -216,7 +270,7 @@ public class G3NetworkManagement extends AbstractCosemObject {
      *
      * @param macAddress Hex string containing the EUI64 address of the path for.
      * @return A list of EUI64 addresses representing the path to the given node.
-     * @throws java.io.IOException In case of an IO error during method execution.
+     * @throws IOException In case of an IO error during method execution.
      */
     public final List<String> requestPath(final String macAddress) throws IOException {
         final Array response = this.methodInvoke(G3NetworkManagementMethods.PATH_REQUEST, extractEUI64(macAddress), Array.class);
@@ -236,7 +290,7 @@ public class G3NetworkManagement extends AbstractCosemObject {
      * @param macAddress Hex string containing the EUI64 address of the node to request a route to.
      * @return <code>true</code> if the route request was successful, <code>false</code> if it failed (possibly because the node
      *         was not known).
-     * @throws java.io.IOException If an IO error occurs during execution of the method.
+     * @throws IOException If an IO error occurs during execution of the method.
      */
     public final boolean requestRoute(final String macAddress) throws IOException {
         return this.methodInvoke(G3NetworkManagementMethods.ROUTE_REQUEST, extractEUI64(macAddress), BooleanObject.class).getState();
@@ -248,7 +302,7 @@ public class G3NetworkManagement extends AbstractCosemObject {
      * @param macAddress Hex string containing the EUI64 address of the node to detach.
      * @return <code>true</code> if the node was detached successfully, <code>false</code> if it failed (possibly because the node
      *         was not known).
-     * @throws java.io.IOException If an IO error occurs during execution of the method.
+     * @throws IOException If an IO error occurs during execution of the method.
      */
     public final boolean detachNode(final String macAddress) throws IOException {
         return this.methodInvoke(G3NetworkManagementMethods.DETACH, extractEUI64(macAddress), BooleanObject.class).getState();

@@ -92,7 +92,11 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
     BootSyncEnable(30, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.enableBootSync)),
     WhitelistedPhoneNumbers(31, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.whiteListPhoneNumbersAttributeName)),
     EnableFW(32),
-    DisableFW(33);
+    DisableFW(33),
+    SetSystemRebootThreshold(34, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.systemRebootThreshold)),
+    EnableSSL(35, PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.enableSSL)),
+    SetDeviceName(36, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.deviceName)),
+    SetNTPAddress(37, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.ntpAddress));
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
     private final int id;

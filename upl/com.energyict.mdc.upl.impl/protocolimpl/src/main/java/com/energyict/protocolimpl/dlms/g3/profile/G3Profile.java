@@ -4,7 +4,9 @@ import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.OctetString;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.LogicalName;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.dlms.common.DLMSProfileHelper;
@@ -14,6 +16,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * Copyrights EnergyICT
@@ -32,6 +35,14 @@ public class G3Profile extends DLMSProfileHelper {
         super.setObisCode(profileType.getObisCode());
         super.setCache(cache);
         this.profileType = profileType;
+    }
+
+    public G3Profile(G3ProfileType profileType, Logger logger, TimeZone timeZone) {
+        super.setObisCode(profileType.getObisCode());
+        super.setCache(new G3Cache());
+        this.profileType = profileType;
+        setLogger(logger);
+        setTimeZone(timeZone);
     }
 
     @Override
@@ -90,16 +101,16 @@ public class G3Profile extends DLMSProfileHelper {
         return new CapturedObject(DLMSClassId.REGISTER.getClassId(), new LogicalName(new OctetString(ObisCode.fromString(obisCode).getLN())), 2, 0);
     }
 
-    private boolean isMonthly() {
+    public boolean isMonthly() {
         return profileType == G3ProfileType.MONTHLY_PROFILE;
     }
 
-    private boolean isDaily() {
+    public boolean isDaily() {
         return profileType == G3ProfileType.DAILY_PROFILE;
     }
 
     public ProfileData getProfileData(Date from, Date to) throws IOException {
-        getSession().getLogger().fine("Reading out profile data from [" + from + "] to [" + to + "] for load profile [" + getObisCode() + "]");
+        getLogger().fine("Reading out profile data from [" + from + "] to [" + to + "] for load profile [" + getObisCode() + "]");
         if (isDaily() || isMonthly()) {
             //This uses the common DLMS way for parsing intervals
             return super.getProfileData(from, to);
@@ -109,13 +120,20 @@ public class G3Profile extends DLMSProfileHelper {
             profileData.setChannelInfos(buildChannelInfos());
 
             byte[] profileRawData = getProfileGeneric().getBufferData(getCalendar(from), getCalendar(to));
-            final G3CompactProfile g3CompactProfile = new G3CompactProfile(profileRawData);
-            final G3LoadProfileEntry[] entries = g3CompactProfile.getEntries();
-            final List<IntervalData> intervalDatas = buildIntervalData(entries);
+            final List<IntervalData> intervalDatas = parseCompactArray(profileRawData);
             profileData.setIntervalDatas(intervalDatas);
 
             return profileData;
         }
+    }
+
+    public List<IntervalData> parseCompactArray(byte[] profileRawData) throws IOException {
+        final G3CompactProfile g3CompactProfile = new G3CompactProfile(profileRawData);
+        final G3LoadProfileEntry[] entries = g3CompactProfile.getEntries();
+        if (entries.length == 0) {
+            return new ArrayList<IntervalData>();
+        }
+        return buildIntervalData(entries);
     }
 
     private final List<IntervalData> buildIntervalData(final G3LoadProfileEntry[] profileEntries) throws IOException {
@@ -170,7 +188,7 @@ public class G3Profile extends DLMSProfileHelper {
                     // change of the interval, only timestamp is received. Adjust time here...
                 } else {
                     // set the calendar
-                    calendar = ProtocolUtils.getCleanCalendar(getSession().getTimeZone());
+                    calendar = ProtocolUtils.getCleanCalendar(getTimeZone());
                     calendar.set(Calendar.YEAR, dateStamp.getYear());
                     calendar.set(Calendar.MONTH, dateStamp.getMonth() - 1);
                     calendar.set(Calendar.DATE, dateStamp.getDay());

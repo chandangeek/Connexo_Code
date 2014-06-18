@@ -13,6 +13,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * The old DlmsSession used by V1 and V11 protocols
+ * <p/>
  * Copyrights EnergyICT
  * Date: 11/02/11
  * Time: 18:18
@@ -31,12 +33,12 @@ public class DlmsSession implements ProtocolLink {
     protected HHUSignOn hhuSignOn = null;
 
     /**
-     * @deprecated it is advised not ot use the input- and outputStream directly, use the ComChannel instead
      * @param in
      * @param out
      * @param logger
      * @param properties
      * @param timeZone
+     * @deprecated it is advised not ot use the input- and outputStream directly, use the ComChannel instead
      */
     public DlmsSession(InputStream in, OutputStream out, Logger logger, DlmsSessionProperties properties, TimeZone timeZone) {
         this.in = in;
@@ -291,7 +293,7 @@ public class DlmsSession implements ProtocolLink {
      *
      * @return
      */
-    protected XdlmsAse buildXDlmsAse()  {
+    protected XdlmsAse buildXDlmsAse() {
         return new XdlmsAse(
                 (getProperties().getCipheringType() == CipheringType.DEDICATED) ? getProperties().getSecurityProvider().getDedicatedKey() : null,
                 getProperties().getInvokeIdAndPriorityHandler().getCurrentInvokeIdAndPriorityObject().needsResponse(),

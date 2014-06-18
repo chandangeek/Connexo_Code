@@ -137,11 +137,11 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
                     if (IOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
                         collectedRegisters.add(createFailureCollectedRegister(register, ResultType.NotSupported));
                     } else {
-                        collectedRegisters.add(createFailureCollectedRegister(register, ResultType.InCompatible));
+                        collectedRegisters.add(createFailureCollectedRegister(register, ResultType.InCompatible, e.getMessage()));
                     }
                 }
             } catch (IndexOutOfBoundsException e) {
-                collectedRegisters.add(createFailureCollectedRegister(register, ResultType.InCompatible, e));
+                collectedRegisters.add(createFailureCollectedRegister(register, ResultType.InCompatible, e.getMessage()));
             }
         }
         return collectedRegisters;

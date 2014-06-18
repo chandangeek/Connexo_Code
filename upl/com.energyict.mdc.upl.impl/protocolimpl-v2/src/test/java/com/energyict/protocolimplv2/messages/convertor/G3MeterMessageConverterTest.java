@@ -76,7 +76,7 @@ public class G3MeterMessageConverterTest extends AbstractMessageConverterTest {
     }
 
     /**
-     * Used to test to actual IDISMessageConverter.
+     * Used to test to actual G3MeterMessageConverter.
      * This class overrides the convertCodeTableToXML method, this way we don't have to mock an entire codetable in order to get a decent XML description.
      */
     public class TestG3MeterMessageConverter extends G3MeterMessageConverter {

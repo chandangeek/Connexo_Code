@@ -55,7 +55,9 @@ public enum ClockDeviceMessage implements DeviceMessageSpec {
     SetNTPServer(11, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetNTPServerAttributeName)),
     SetRefreshClockEvery(12, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetRefreshClockEveryAttributeName)),
     SetNTPOptions(13, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetNTPOptionsAttributeName)),
-    FTIONForceTimeSync(14);
+    FTIONForceTimeSync(14),
+
+    SyncTime(15);
 
     private static final DeviceMessageCategory clockCategory = DeviceMessageCategories.CLOCK;
 

@@ -5,6 +5,8 @@ import com.energyict.mdc.messages.DeviceMessageCategory;
 import com.energyict.mdc.messages.DeviceMessageCategoryPrimaryKey;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -12,6 +14,9 @@ import java.util.List;
 /**
  * Serves as a implementation to summarize <b>all</b> the supported standard
  * {@link DeviceMessageCategory DeviceMessageCategories}
+ * <p/>
+ * When adding new categories, keep in mind to add the proper name translation key (DeviceMessageCategories.enumName)
+ * and the description translation key (DeviceMessageCategories.enumName.description) in the NLS database.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-05-15 (16:12)
@@ -361,17 +366,49 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(LoggingConfigurationDeviceMessage.values());
         }
+    },
+    /**
+     * The category for all messages that relate to configuring the uplink pinging (e.g. on the RTU+Server)
+     */
+    UPLINK_CONFIGURATION(38) {
+        @Override
+        public List<DeviceMessageSpec> getMessageSpecifications() {
+            return Arrays.<DeviceMessageSpec>asList(UplinkConfigurationDeviceMessage.values());
+        }
+    },
+    /**
+     * The category for all messages that relate to configuring the the firewall (e.g of the RTU+Server)
+     */
+    FIREWALL_CONFIGURATION(39) {
+        @Override
+        public List<DeviceMessageSpec> getMessageSpecifications() {
+            return Arrays.<DeviceMessageSpec>asList(FirewallConfigurationMessage.values());
+        }
     };
 
     private final int id;
+    private String name;
 
     private DeviceMessageCategories(int id) {
         this.id = id;
     }
 
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    public void setXmlType(String ignore) {
+        // For xml unmarshalling purposes only
+    }
+
     @Override
+    @XmlAttribute
     public String getName() {
-        return UserEnvironment.getDefault().getTranslation(this.getNameResourceKey());
+        if (name == null) {
+            name = UserEnvironment.getDefault().getTranslation(this.getNameResourceKey());
+        }
+        return name;
     }
 
     /**

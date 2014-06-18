@@ -1,6 +1,8 @@
 package com.energyict.protocolimpl.dlms.g3.messaging.messages;
 
-import com.energyict.protocolimpl.messaging.*;
+import com.energyict.protocolimpl.messaging.AnnotatedMessage;
+import com.energyict.protocolimpl.messaging.RtuMessageAttribute;
+import com.energyict.protocolimpl.messaging.RtuMessageDescription;
 
 /**
  * Copyrights EnergyICT
@@ -11,6 +13,6 @@ import com.energyict.protocolimpl.messaging.*;
 public interface WriteClockMessage extends AnnotatedMessage {
 
     @RtuMessageAttribute(tag = "DateTime", required = true)
-    java.lang.String getDateTime();
+    String getDateTime();
 
 }

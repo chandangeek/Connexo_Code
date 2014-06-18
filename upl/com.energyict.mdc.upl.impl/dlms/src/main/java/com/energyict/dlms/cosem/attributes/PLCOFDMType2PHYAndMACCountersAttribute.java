@@ -23,10 +23,10 @@ public enum PLCOFDMType2PHYAndMACCountersAttribute implements DLMSClassAttribute
     MAC_TX_CMD_PACKET_COUNT(4, 0x0018),
     MAC_RX_CMD_PACKET_COUNT(5, 0x0020),
     MAC_CSMA_FAIL_COUNT(6, 0x0028),
-    MAC_CSMA_COLLISION_COUNT(7, 0x0030),
+    MAC_NO_ACK_COUNT(7, 0x0030),
     MAC_BAD_CRC_COUNT(8, 0x0038),
-    MAC_BROADCAST_COUNT(9, 0x0040),
-    MAC_MULTICAST_COUNT(10, 0x0048);
+    MAC_TX_DATA_BROADCAST_COUNT(9, 0x0040),
+    MAC_RX_DATA_BROADCAST_COUNT(10, 0x0048);
 
     private final int attributeNumber;
     private final int shortName;

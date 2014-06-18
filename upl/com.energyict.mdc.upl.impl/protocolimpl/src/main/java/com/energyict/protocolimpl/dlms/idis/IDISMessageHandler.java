@@ -271,7 +271,7 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
         try {
             idis.getLogger().log(Level.INFO, "Configuration download message received.");
             String xmlData = getIncludedContent(messageEntry.getContent());
-            XMLParser parser = new XMLParser(idis, idis.getCosemObjectFactory());
+            XMLParser parser = new XMLParser(idis.getLogger(), idis.getCosemObjectFactory());
 
             parser.parseXML(xmlData);
             List<Object[]> parsedObjects = parser.getParsedObjects();

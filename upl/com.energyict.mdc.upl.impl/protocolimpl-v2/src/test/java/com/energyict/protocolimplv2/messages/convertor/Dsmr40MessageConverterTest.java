@@ -41,7 +41,7 @@ public class Dsmr40MessageConverterTest extends AbstractMessageConverterTest {
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Disable_authentication_level_P0 AuthenticationLevel=\"1\"> </Disable_authentication_level_P0>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(SecurityMessage.DISABLE_DLMS_AUTHENTICATION_LEVEL_P1);
+        offlineDeviceMessage = createMessage(SecurityMessage.DISABLE_DLMS_AUTHENTICATION_LEVEL_P3);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Disable_authentication_level_P3 AuthenticationLevel=\"1\"> </Disable_authentication_level_P3>", messageEntry.getContent());
 
@@ -49,7 +49,7 @@ public class Dsmr40MessageConverterTest extends AbstractMessageConverterTest {
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Enable_authentication_level_P0 AuthenticationLevel=\"1\"> </Enable_authentication_level_P0>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(SecurityMessage.ENABLE_DLMS_AUTHENTICATION_LEVEL_P1);
+        offlineDeviceMessage = createMessage(SecurityMessage.ENABLE_DLMS_AUTHENTICATION_LEVEL_P3);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Enable_authentication_level_P3 AuthenticationLevel=\"1\"> </Enable_authentication_level_P3>", messageEntry.getContent());
 

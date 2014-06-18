@@ -10,8 +10,12 @@ import com.energyict.protocol.MeterEvent;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Copyrights EnergyICT
@@ -28,15 +32,35 @@ public class G3LqiEventLog implements EventLog {
     private final DlmsSession session;
     private final ObisCode obisCode;
     private final String name;
+    private final Logger logger;
+    private final TimeZone timeZone;
 
     public G3LqiEventLog(final DlmsSession session, final ObisCode obisCode, final String name) {
         this.session = session;
         this.obisCode = obisCode;
         this.name = name;
+        this.logger = session.getLogger();
+        this.timeZone = session.getTimeZone();
+    }
+
+    public G3LqiEventLog(ObisCode obisCode, Logger logger, TimeZone timeZone) {
+        this.session = null;
+        this.obisCode = obisCode;
+        this.name = "";
+        this.logger = logger;
+        this.timeZone = timeZone;
+    }
+
+    public Logger getLogger() {
+        return logger;
+    }
+
+    public TimeZone getTimeZone() {
+        return timeZone;
     }
 
     public final List<MeterEvent> getEvents(final Calendar from, final Calendar to) throws IOException {
-        session.getLogger().log(Level.INFO, "Fetching EVENTS from [" + obisCode + "], [" + name + "] from [" + from.getTime() + "] to [" + to.getTime() + "]");
+        getLogger().log(Level.INFO, "Fetching EVENTS from [" + obisCode + "], [" + name + "] from [" + from.getTime() + "] to [" + to.getTime() + "]");
 
         final CosemObjectFactory cof = this.session.getCosemObjectFactory();
         final ProfileGeneric eventLog = cof.getProfileGeneric(obisCode);
@@ -53,7 +77,7 @@ public class G3LqiEventLog implements EventLog {
         dayOfEvents.set(Calendar.MINUTE, 0);
         dayOfEvents.set(Calendar.HOUR_OF_DAY, 0);
 
-        return createMeterEvents(eventArray);
+        return parseEvents(eventArray);
 
     }
 
@@ -63,9 +87,9 @@ public class G3LqiEventLog implements EventLog {
      * @param eventArray The event array, containing the axdr encoded events from the meter
      * @return The list of events or an empty list if no events found. Should NEVER return 'null'
      */
-    private final List<MeterEvent> createMeterEvents(final Array eventArray) throws IOException {
+    public List<MeterEvent> parseEvents(AbstractDataType eventArray) throws IOException {
         final List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
-        for (final AbstractDataType dataType : eventArray) {
+        for (final AbstractDataType dataType : (Array) eventArray) {
             try {
 
                 final MeterEvent meterEvent = createMeterEvent(dataType);
@@ -76,7 +100,7 @@ public class G3LqiEventLog implements EventLog {
             } catch (IOException e) {
                 final byte[] berArray = dataType.getBEREncodedByteArray();
                 final String hexContent = ProtocolTools.getHexStringFromBytes(berArray, "");
-                session.getLogger().log(Level.WARNING, "Unable to parse event entry [" + hexContent + "]: " + e.getMessage(), e);
+                getLogger().log(Level.WARNING, "Unable to parse event entry [" + hexContent + "]: " + e.getMessage(), e);
             }
         }
         return meterEvents;
@@ -125,7 +149,7 @@ public class G3LqiEventLog implements EventLog {
      */
     private final Calendar buildEventTime(final OctetString dateTime) throws IOException {
         OctetString eventDateString = dateTime.getOctetString();
-        AXDRDateTime timeStamp = new AXDRDateTime(eventDateString.getBEREncodedByteArray(), 0, session.getTimeZone());
+        AXDRDateTime timeStamp = new AXDRDateTime(eventDateString.getBEREncodedByteArray(), 0, getTimeZone());
         return timeStamp.getValue();
     }
 
