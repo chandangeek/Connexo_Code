@@ -582,9 +582,34 @@ Ext.define('Mdc.controller.history.Setup', {
         },
         device: {
             title: 'Device',
-            route: 'devices/{id}',
+            route: 'devices/{mRID}',
             controller: 'Mdc.controller.setup.Devices',
-            action: 'showDeviceDetailsView'
+            action: 'showDeviceDetailsView',
+            callback: function(route) {
+                this.getApplication().on('loadDevice', function(record) {
+                    route.setTitle(record.get('mRID'));
+                    return true;
+                }, {single: true});
+
+                return this;
+            },
+            items: {
+                //protocol dialects routes
+                protocols: {
+                    title: 'Protocol dialects',
+                    route: 'protocols',
+                    controller: 'Mdc.controller.setup.DeviceProtocolDialects',
+                    action: 'showProtocolDialectsView',
+                    items: {
+                        edit: {
+                            title: 'Edit protocol dialect',
+                            route: '{protocolDialectId}/edit',
+                            controller: 'Mdc.controller.setup.DeviceProtocolDialects',
+                            action: 'showProtocolDialectsEditView'
+                        }
+                    }
+                }
+            }
         },
         search: {
             title: 'Search',

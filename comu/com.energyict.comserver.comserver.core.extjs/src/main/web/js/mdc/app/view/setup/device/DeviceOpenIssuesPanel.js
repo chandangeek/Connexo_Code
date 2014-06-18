@@ -3,7 +3,6 @@ Ext.define('Mdc.view.setup.device.DeviceOpenIssuesPanel', {
     alias: 'widget.deviceOpenIssuesPanel',
     overflowY: 'auto',
     itemId: 'deviceopenissuespanel',
-    deviceId: null,
     mRID: null,
     ui: 'tile',
     title: Uni.I18n.translate('deviceOpenIssues.openIssuesTitle', 'MDC', 'Open issues'),
