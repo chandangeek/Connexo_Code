@@ -70,6 +70,15 @@
     public *;
 }
 
+-keepnames class com.energyict.protocolimpl.dlms.g3.registers.mapping.RegisterMapping {
+	public *;
+	protected *;
+}
+-keepnames class com.energyict.protocolimpl.dlms.g3.registers.mapping.*
+-keepnames class com.energyict.protocolimpl.dlms.idis.xml.XMLParser {
+	public *;
+}
+
 # For usage in the cryptoserver project
 -keepnames class com.energyict.protocolimpl.dlms.common.NTASecurityProvider
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40SecurityProvider
