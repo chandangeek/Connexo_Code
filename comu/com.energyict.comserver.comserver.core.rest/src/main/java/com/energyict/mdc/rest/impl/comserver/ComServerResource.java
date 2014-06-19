@@ -5,6 +5,8 @@ import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
+import com.google.common.base.Optional;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -99,9 +101,15 @@ public class ComServerResource {
         comServerInfo.writeTo(comServer,engineModelService);
         comServer.save();
 
+        Optional<List<InboundComPortInfo>> inboundComPorts = Optional.fromNullable(comServerInfo.inboundComPorts);
+        Optional<List<OutboundComPortInfo>> outboundComPorts = Optional.fromNullable(comServerInfo.outboundComPorts);
         List<ComPortInfo> allComPorts = new ArrayList<>();
-        allComPorts.addAll(comServerInfo.inboundComPorts);
-        allComPorts.addAll(comServerInfo.outboundComPorts);
+        if(inboundComPorts.isPresent()) {
+            allComPorts.addAll(comServerInfo.inboundComPorts);
+        }
+        if(outboundComPorts.isPresent()) {
+            allComPorts.addAll(comServerInfo.outboundComPorts);
+        }
 
         for (ComPortInfo<?,?> comPortInfo : allComPorts) {
             comPortInfo.createNew(comServer, engineModelService);

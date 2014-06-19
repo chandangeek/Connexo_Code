@@ -1,8 +1,11 @@
 package com.energyict.mdc.rest.impl;
 
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.*;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.common.rest.AutoCloseDatabaseConnection;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -23,14 +26,15 @@ import org.osgi.service.component.annotations.Reference;
 
 @Component(name = "com.energyict.mdc.rest", service = Application.class, immediate = true, property = {"alias=/mdc"})
 public class MdcApplication extends Application {
-
+    public static final String COMPONENT_NAME = "MDC";
     private static final Logger LOGGER = Logger.getLogger(MdcApplication.class.getSimpleName());
 
     private volatile EngineModelService engineModelService;
     private volatile TransactionService transactionService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile ProtocolPluggableService protocolPluggableService;
-    private NlsService nlsService;
+    private volatile NlsService nlsService;
+    private volatile Thesaurus thesaurus;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -64,6 +68,7 @@ public class MdcApplication extends Application {
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
+        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
     }
 
     @Reference
@@ -84,7 +89,9 @@ public class MdcApplication extends Application {
             bind(transactionService).to(TransactionService.class);
             bind(deviceConfigurationService).to(DeviceConfigurationService.class);
             bind(protocolPluggableService).to(ProtocolPluggableService.class);
+            bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(nlsService).to(NlsService.class);
+            bind(thesaurus).to(Thesaurus.class);
         }
     }
 
