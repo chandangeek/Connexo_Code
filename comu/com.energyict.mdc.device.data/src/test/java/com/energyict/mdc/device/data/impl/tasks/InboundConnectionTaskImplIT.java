@@ -126,7 +126,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         when(partialInboundConnectionTask.getId()).thenReturn((long) PARTIAL_INBOUND_CONNECTION_TASK3_ID);
         when(partialInboundConnectionTask.getName()).thenReturn("testCreateOfDifferentConfig");
         when(partialInboundConnectionTask.getConfiguration()).thenReturn(deviceConfiguration);
-        when(partialInboundConnectionTask.getPluggableClass()).thenReturn(noParamsConnectionTypePluggableClass);
+        when(partialInboundConnectionTask.getPluggableClass()).thenReturn(inboundNoParamsConnectionTypePluggableClass);
 
         // Business method
         this.createSimpleInboundConnectionTask(partialInboundConnectionTask);
@@ -287,7 +287,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testCreateWithAllIpProperties() {
-        partialInboundConnectionTask.setConnectionTypePluggableClass(ipConnectionTypePluggableClass);
+        partialInboundConnectionTask.setConnectionTypePluggableClass(inboundIpConnectionTypePluggableClass);
         partialInboundConnectionTask.save();
         InboundConnectionTaskImpl connectionTask = this.createSimpleInboundConnectionTask(this.partialInboundConnectionTask);
         this.setIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE);
@@ -299,7 +299,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(connectionTask).isNotNull();
         assertThat(connectionTask.getComPortPool()).isNotNull();
         assertThat(connectionTask.getComPortPool().getId()).isEqualTo(INBOUND_COMPORT_POOL1_ID);
-        assertThat(connectionTask.getConnectionType()).isEqualTo(ipConnectionTypePluggableClass.getConnectionType());
+        assertThat(connectionTask.getConnectionType()).isEqualTo(inboundIpConnectionTypePluggableClass.getConnectionType());
         assertThat(connectionTask.getProperties()).hasSize(2);
         TypedProperties typedProperties = connectionTask.getTypedProperties();
         assertThat(typedProperties.size()).isEqualTo(2);
@@ -310,7 +310,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testCreateWithOnlyRequiredIpPropertiesAndNoDefaultsOnPluggableClass () {
-        partialInboundConnectionTask.setConnectionTypePluggableClass(ipConnectionTypePluggableClass);
+        partialInboundConnectionTask.setConnectionTypePluggableClass(inboundIpConnectionTypePluggableClass);
         partialInboundConnectionTask.save();
         InboundConnectionTaskImpl connectionTask = this.createSimpleInboundConnectionTask(this.partialInboundConnectionTask);
         this.setIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, null);
@@ -322,7 +322,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(connectionTask).isNotNull();
         assertThat(connectionTask.getComPortPool()).isNotNull();
         assertThat(connectionTask.getComPortPool().getId()).isEqualTo(INBOUND_COMPORT_POOL1_ID);
-        assertThat(connectionTask.getConnectionType()).isEqualTo(ipConnectionTypePluggableClass.getConnectionType());
+        assertThat(connectionTask.getConnectionType()).isEqualTo(inboundIpConnectionTypePluggableClass.getConnectionType());
         assertThat(connectionTask.getProperties()).hasSize(1);   // Only 1 property is locally defined and higher levels do not specify any property values
         TypedProperties typedProperties = connectionTask.getTypedProperties();
         assertThat(typedProperties.size()).isEqualTo(1);
@@ -334,11 +334,11 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     public void testCreateWithOnlyRequiredIpPropertiesAndSomeDefaultsOnPluggableClass () {
         // First update the properties of the ipConnectionType pluggable class
-        ipConnectionTypePluggableClass.removeProperty(ipConnectionTypePluggableClass.getPropertySpec(IpConnectionType.IP_ADDRESS_PROPERTY_NAME));
-        ipConnectionTypePluggableClass.setProperty(ipConnectionTypePluggableClass.getPropertySpec(IpConnectionType.PORT_PROPERTY_NAME), PORT_PROPERTY_VALUE);
-        ipConnectionTypePluggableClass.save();
+        inboundIpConnectionTypePluggableClass.removeProperty(inboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionType.IP_ADDRESS_PROPERTY_NAME));
+        inboundIpConnectionTypePluggableClass.setProperty(inboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionType.PORT_PROPERTY_NAME), PORT_PROPERTY_VALUE);
+        inboundIpConnectionTypePluggableClass.save();
 
-        partialInboundConnectionTask.setConnectionTypePluggableClass(ipConnectionTypePluggableClass);
+        partialInboundConnectionTask.setConnectionTypePluggableClass(inboundIpConnectionTypePluggableClass);
         partialInboundConnectionTask.save();
         InboundConnectionTaskImpl connectionTask = this.createSimpleInboundConnectionTask(this.partialInboundConnectionTask);
         this.setIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, null);
@@ -350,7 +350,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(connectionTask).isNotNull();
         assertThat(connectionTask.getComPortPool()).isNotNull();
         assertThat(connectionTask.getComPortPool().getId()).isEqualTo(INBOUND_COMPORT_POOL1_ID);
-        assertThat(connectionTask.getConnectionType()).isEqualTo(ipConnectionTypePluggableClass.getConnectionType());
+        assertThat(connectionTask.getConnectionType()).isEqualTo(inboundIpConnectionTypePluggableClass.getConnectionType());
         assertThat(connectionTask.getProperties()).hasSize(2);   // 1 property is locally defined, 1 is inherited and the third is not specified at any level
         TypedProperties typedProperties = connectionTask.getTypedProperties();
         assertThat(typedProperties.size()).isEqualTo(2);
@@ -363,11 +363,11 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     public void testCreateWithAllPropertiesInheritedFromConnectionTypePluggableClass () {
         // First update the properties of the ipConnectionType pluggable class
-        ipConnectionTypePluggableClass.setProperty(ipConnectionTypePluggableClass.getPropertySpec(IpConnectionType.IP_ADDRESS_PROPERTY_NAME), IP_ADDRESS_PROPERTY_VALUE);
-        ipConnectionTypePluggableClass.setProperty(ipConnectionTypePluggableClass.getPropertySpec(IpConnectionType.PORT_PROPERTY_NAME), PORT_PROPERTY_VALUE);
-        ipConnectionTypePluggableClass.save();
+        inboundIpConnectionTypePluggableClass.setProperty(inboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionType.IP_ADDRESS_PROPERTY_NAME), IP_ADDRESS_PROPERTY_VALUE);
+        inboundIpConnectionTypePluggableClass.setProperty(inboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionType.PORT_PROPERTY_NAME), PORT_PROPERTY_VALUE);
+        inboundIpConnectionTypePluggableClass.save();
 
-        partialInboundConnectionTask.setConnectionTypePluggableClass(ipConnectionTypePluggableClass);
+        partialInboundConnectionTask.setConnectionTypePluggableClass(inboundIpConnectionTypePluggableClass);
         partialInboundConnectionTask.save();
         InboundConnectionTaskImpl connectionTask = this.createSimpleInboundConnectionTask(this.partialInboundConnectionTask);
         connectionTask.setComPortPool(inboundTcpipComPortPool);
@@ -380,7 +380,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(connectionTask).isNotNull();
         assertThat(connectionTask.getComPortPool()).isNotNull();
         assertThat(connectionTask.getComPortPool().getId()).isEqualTo(INBOUND_COMPORT_POOL1_ID);
-        assertThat(connectionTask.getConnectionType()).isEqualTo(ipConnectionTypePluggableClass.getConnectionType());
+        assertThat(connectionTask.getConnectionType()).isEqualTo(inboundIpConnectionTypePluggableClass.getConnectionType());
         assertThat(connectionTask.getProperties()).hasSize(2);   // no properties are locally defined, all 2 are inherited from the connection type pluggable class
         TypedProperties typedProperties = connectionTask.getTypedProperties();
         assertThat(typedProperties.size()).isEqualTo(2);
@@ -394,14 +394,14 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     public void testCreateWithAllPropertiesInheritedFromConnectionTypePluggableClassAndPartialConnectionTask () {
         // First update the properties of the ipConnectionType pluggable class
-        ipConnectionTypePluggableClass.setProperty(ipConnectionTypePluggableClass.getPropertySpec(IpConnectionType.IP_ADDRESS_PROPERTY_NAME), IP_ADDRESS_PROPERTY_VALUE);
-        ipConnectionTypePluggableClass.setProperty(ipConnectionTypePluggableClass.getPropertySpec(IpConnectionType.PORT_PROPERTY_NAME), PORT_PROPERTY_VALUE);
-        ipConnectionTypePluggableClass.save();
+        inboundIpConnectionTypePluggableClass.setProperty(inboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionType.IP_ADDRESS_PROPERTY_NAME), IP_ADDRESS_PROPERTY_VALUE);
+        inboundIpConnectionTypePluggableClass.setProperty(inboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionType.PORT_PROPERTY_NAME), PORT_PROPERTY_VALUE);
+        inboundIpConnectionTypePluggableClass.save();
 
-        TypedProperties partialConnectionTaskProperties = TypedProperties.inheritingFrom(ipConnectionTypePluggableClass.getProperties(this.getOutboundIpPropertySpecs()));
+        TypedProperties partialConnectionTaskProperties = TypedProperties.inheritingFrom(inboundIpConnectionTypePluggableClass.getProperties(this.getOutboundIpPropertySpecs()));
         partialConnectionTaskProperties.setProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME, UPDATED_IP_ADDRESS_PROPERTY_VALUE);
         partialConnectionTaskProperties.setProperty(IpConnectionType.PORT_PROPERTY_NAME, UPDATED_PORT_PROPERTY_VALUE);
-        partialInboundConnectionTask.setConnectionTypePluggableClass(ipConnectionTypePluggableClass);
+        partialInboundConnectionTask.setConnectionTypePluggableClass(inboundIpConnectionTypePluggableClass);
         partialInboundConnectionTask.setProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME, UPDATED_IP_ADDRESS_PROPERTY_VALUE);
         partialInboundConnectionTask.setProperty(IpConnectionType.PORT_PROPERTY_NAME, UPDATED_PORT_PROPERTY_VALUE);
         partialInboundConnectionTask.save();
@@ -424,7 +424,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testCreateWithAllPropertiesInheritedFromPartialConnectionTask () {
-        partialInboundConnectionTask.setConnectionTypePluggableClass(ipConnectionTypePluggableClass);
+        partialInboundConnectionTask.setConnectionTypePluggableClass(inboundIpConnectionTypePluggableClass);
         partialInboundConnectionTask.setProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME, IP_ADDRESS_PROPERTY_VALUE);
         partialInboundConnectionTask.setProperty(IpConnectionType.PORT_PROPERTY_NAME, PORT_PROPERTY_VALUE);
         partialInboundConnectionTask.save();
@@ -449,7 +449,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testUpdateIpConnectionTypeProperty() {
-        partialInboundConnectionTask.setConnectionTypePluggableClass(ipConnectionTypePluggableClass);
+        partialInboundConnectionTask.setConnectionTypePluggableClass(inboundIpConnectionTypePluggableClass);
         partialInboundConnectionTask.save();
         InboundConnectionTaskImpl connectionTask = this.createSimpleInboundConnectionTask(this.partialInboundConnectionTask);
         this.setIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE);
@@ -470,7 +470,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testAddIpConnectionTypeProperty() {
-        partialInboundConnectionTask.setConnectionTypePluggableClass(ipConnectionTypePluggableClass);
+        partialInboundConnectionTask.setConnectionTypePluggableClass(inboundIpConnectionTypePluggableClass);
         partialInboundConnectionTask.save();
         InboundConnectionTaskImpl connectionTask = this.createSimpleInboundConnectionTask(this.partialInboundConnectionTask);
         this.setIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, null);
@@ -491,7 +491,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testRemoveIpConnectionTypeProperty() {
-        partialInboundConnectionTask.setConnectionTypePluggableClass(ipConnectionTypePluggableClass);
+        partialInboundConnectionTask.setConnectionTypePluggableClass(inboundIpConnectionTypePluggableClass);
         partialInboundConnectionTask.save();
         InboundConnectionTaskImpl connectionTask = this.createSimpleInboundConnectionTask(this.partialInboundConnectionTask);
         this.setIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE);
@@ -513,11 +513,11 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     public void testReturnToInheritedProperty () {
         // First update the properties of the ipConnectionType pluggable class
-        ipConnectionTypePluggableClass.setProperty(ipConnectionTypePluggableClass.getPropertySpec(IpConnectionType.IP_ADDRESS_PROPERTY_NAME), IP_ADDRESS_PROPERTY_VALUE);
-        ipConnectionTypePluggableClass.setProperty(ipConnectionTypePluggableClass.getPropertySpec(IpConnectionType.PORT_PROPERTY_NAME), UPDATED_PORT_PROPERTY_VALUE);
-        ipConnectionTypePluggableClass.save();
+        inboundIpConnectionTypePluggableClass.setProperty(inboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionType.IP_ADDRESS_PROPERTY_NAME), IP_ADDRESS_PROPERTY_VALUE);
+        inboundIpConnectionTypePluggableClass.setProperty(inboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionType.PORT_PROPERTY_NAME), UPDATED_PORT_PROPERTY_VALUE);
+        inboundIpConnectionTypePluggableClass.save();
 
-        partialInboundConnectionTask.setConnectionTypePluggableClass(ipConnectionTypePluggableClass);
+        partialInboundConnectionTask.setConnectionTypePluggableClass(inboundIpConnectionTypePluggableClass);
         partialInboundConnectionTask.save();
         InboundConnectionTaskImpl connectionTask = this.createSimpleInboundConnectionTask(this.partialInboundConnectionTask);
         this.setIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE);
@@ -540,7 +540,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.CONNECTION_TASK_REQUIRED_PROPERTY_MISSING_KEY + "}")
     public void testCreateWithMissingRequiredProperty() {
-        partialInboundConnectionTask.setConnectionTypePluggableClass(ipConnectionTypePluggableClass);
+        partialInboundConnectionTask.setConnectionTypePluggableClass(inboundIpConnectionTypePluggableClass);
         partialInboundConnectionTask.save();
         InboundConnectionTaskImpl connectionTask = this.createSimpleInboundConnectionTask(this.partialInboundConnectionTask);
         this.setIpConnectionProperties(connectionTask, null, PORT_PROPERTY_VALUE);
@@ -555,7 +555,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.CONNECTION_TASK_PROPERTY_NOT_IN_SPEC_KEY + "}")
     public void testCreateWithNonExistingProperty() {
-        partialInboundConnectionTask.setConnectionTypePluggableClass(ipConnectionTypePluggableClass);
+        partialInboundConnectionTask.setConnectionTypePluggableClass(inboundIpConnectionTypePluggableClass);
         partialInboundConnectionTask.save();
         InboundConnectionTaskImpl connectionTask = this.createSimpleInboundConnectionTask(this.partialInboundConnectionTask);
         this.setIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE);
@@ -593,7 +593,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
 
         // Asserts
         assertFalse(inMemoryPersistence.getDeviceDataService().findConnectionTask(id).isPresent());
-        RelationAttributeType connectionMethodAttributeType = ipConnectionTypePluggableClass.getDefaultAttributeType();
+        RelationAttributeType connectionMethodAttributeType = inboundIpConnectionTypePluggableClass.getDefaultAttributeType();
         assertThat(ipConnectionMethod.getRelations(connectionMethodAttributeType, new Interval(null, null), false)).isEmpty();
         assertThat(ipConnectionMethod.getRelations(connectionMethodAttributeType, new Interval(null, null), true)).isNotEmpty();    // The relations should have been made obsolete
     }
@@ -624,7 +624,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertTrue(connectionTask.isObsolete());
         assertNotNull(connectionTask.getObsoleteDate());
         assertNotNull(connectionTask.getConnectionMethod());
-        RelationAttributeType connectionMethodAttributeType = ipConnectionTypePluggableClass.getDefaultAttributeType();
+        RelationAttributeType connectionMethodAttributeType = inboundIpConnectionTypePluggableClass.getDefaultAttributeType();
         assertThat(ipConnectionMethod.getRelations(connectionMethodAttributeType, new Interval(null, null), false)).isEmpty();
         assertThat(ipConnectionMethod.getRelations(connectionMethodAttributeType, new Interval(null, null), true)).hasSize(1);
     }
@@ -712,7 +712,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     }
 
     protected InboundConnectionTaskImpl createInboundWithIpPropertiesWithoutViolations(boolean defaultState) {
-        partialInboundConnectionTask.setConnectionTypePluggableClass(ipConnectionTypePluggableClass);
+        partialInboundConnectionTask.setConnectionTypePluggableClass(inboundIpConnectionTypePluggableClass);
         partialInboundConnectionTask.save();
         InboundConnectionTaskImpl inboundConnectionTask = this.createSimpleInboundConnectionTask(this.partialInboundConnectionTask);
         this.setIpConnectionProperties(inboundConnectionTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE);

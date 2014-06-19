@@ -19,6 +19,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteConnectionTaskWhichIsNotFromThisDevice;
 import com.energyict.mdc.device.data.impl.tasks.IpConnectionType;
 import com.energyict.mdc.device.data.impl.tasks.NoParamsConnectionType;
+import com.energyict.mdc.device.data.impl.tasks.OutboundNoParamsConnectionTypeImpl;
 import com.energyict.mdc.device.data.impl.tasks.SimpleDiscoveryProtocol;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -172,7 +173,7 @@ public class DeviceTestsForCommunication extends PersistenceIntegrationTest {
 
     @Before
     public void initBefore() {
-        connectionTypePluggableClass = inMemoryPersistence.getProtocolPluggableService().newConnectionTypePluggableClass("NoParamsConnectionType", NoParamsConnectionType.class.getName());
+        connectionTypePluggableClass = inMemoryPersistence.getProtocolPluggableService().newConnectionTypePluggableClass("NoParamsConnectionType", OutboundNoParamsConnectionTypeImpl.class.getName());
         connectionTypePluggableClass.save();
 //        ipConnectionTypePluggableClass = inMemoryPersistence.getProtocolPluggableService().newConnectionTypePluggableClass("IPConnectionType", IpConnectionType.class.getName());
 //        ipConnectionTypePluggableClass.save(); // TODO enable again once JP-1123 is completely finished

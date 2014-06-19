@@ -81,8 +81,10 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     protected static final BigDecimal PORT_PROPERTY_VALUE = new BigDecimal(1521);
     protected static final BigDecimal UPDATED_PORT_PROPERTY_VALUE = new BigDecimal(4049);
 
-    protected static ConnectionTypePluggableClass noParamsConnectionTypePluggableClass;
-    protected static ConnectionTypePluggableClass ipConnectionTypePluggableClass;
+    protected static ConnectionTypePluggableClass inboundNoParamsConnectionTypePluggableClass;
+    protected static ConnectionTypePluggableClass outboundNoParamsConnectionTypePluggableClass;
+    protected static ConnectionTypePluggableClass outboundIpConnectionTypePluggableClass;
+    protected static ConnectionTypePluggableClass inboundIpConnectionTypePluggableClass;
     protected static ConnectionTypePluggableClass modemConnectionTypePluggableClass;
     protected static InboundDeviceProtocolPluggableClass discoveryProtocolPluggableClass;
     protected static OutboundComPortPool outboundTcpipComPortPool;
@@ -125,8 +127,10 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
             Environment.DEFAULT.get().execute(new Transaction<Object>() {
                 @Override
                 public Object doExecute() {
-                    noParamsConnectionTypePluggableClass = registerConnectionTypePluggableClass(NoParamsConnectionType.class);
-                    ipConnectionTypePluggableClass = registerConnectionTypePluggableClass(IpConnectionType.class);
+                    outboundNoParamsConnectionTypePluggableClass = registerConnectionTypePluggableClass(OutboundNoParamsConnectionTypeImpl.class);
+                    inboundNoParamsConnectionTypePluggableClass = registerConnectionTypePluggableClass(InboundNoParamsConnectionTypeImpl.class);
+                    inboundIpConnectionTypePluggableClass = registerConnectionTypePluggableClass(InboundIpConnectionTypeImpl.class);
+                    outboundIpConnectionTypePluggableClass = registerConnectionTypePluggableClass(OutboundIpConnectionTypeImpl.class);
                     modemConnectionTypePluggableClass = registerConnectionTypePluggableClass(ModemConnectionType.class);
                     return null;
                 }
@@ -138,8 +142,10 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     protected void refreshConnectionTypePluggableClasses () {
-        noParamsConnectionTypePluggableClass = refreshConnectionTypePluggableClass(NoParamsConnectionType.class);
-        ipConnectionTypePluggableClass = refreshConnectionTypePluggableClass(IpConnectionType.class);
+        outboundNoParamsConnectionTypePluggableClass = refreshConnectionTypePluggableClass(OutboundNoParamsConnectionTypeImpl.class);
+        inboundNoParamsConnectionTypePluggableClass = refreshConnectionTypePluggableClass(InboundNoParamsConnectionTypeImpl.class);
+        inboundIpConnectionTypePluggableClass = refreshConnectionTypePluggableClass(InboundIpConnectionTypeImpl.class);
+        outboundIpConnectionTypePluggableClass = refreshConnectionTypePluggableClass(OutboundIpConnectionTypeImpl.class);
         modemConnectionTypePluggableClass = refreshConnectionTypePluggableClass(ModemConnectionType.class);
     }
 
@@ -171,8 +177,10 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
             Environment.DEFAULT.get().execute(new Transaction<Object>() {
                 @Override
                 public Object doExecute() {
-                    noParamsConnectionTypePluggableClass.delete();
-                    ipConnectionTypePluggableClass.delete();
+                    outboundNoParamsConnectionTypePluggableClass.delete();
+                    inboundNoParamsConnectionTypePluggableClass.delete();
+                    inboundIpConnectionTypePluggableClass.delete();
+                    outboundIpConnectionTypePluggableClass.delete();
                     modemConnectionTypePluggableClass.delete();
                     return null;
                 }
@@ -336,8 +344,10 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
 
     @Before
     public void reloadConnectionTypePluggableClasses () {
-        noParamsConnectionTypePluggableClass = inMemoryPersistence.getProtocolPluggableService().findConnectionTypePluggableClass(noParamsConnectionTypePluggableClass.getId());
-        ipConnectionTypePluggableClass = inMemoryPersistence.getProtocolPluggableService().findConnectionTypePluggableClass(ipConnectionTypePluggableClass.getId());
+        outboundNoParamsConnectionTypePluggableClass = inMemoryPersistence.getProtocolPluggableService().findConnectionTypePluggableClass(outboundNoParamsConnectionTypePluggableClass.getId());
+        inboundNoParamsConnectionTypePluggableClass = inMemoryPersistence.getProtocolPluggableService().findConnectionTypePluggableClass(inboundNoParamsConnectionTypePluggableClass.getId());
+        inboundIpConnectionTypePluggableClass = inMemoryPersistence.getProtocolPluggableService().findConnectionTypePluggableClass(inboundIpConnectionTypePluggableClass.getId());
+        outboundIpConnectionTypePluggableClass = inMemoryPersistence.getProtocolPluggableService().findConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass.getId());
         modemConnectionTypePluggableClass = inMemoryPersistence.getProtocolPluggableService().findConnectionTypePluggableClass(modemConnectionTypePluggableClass.getId());
     }
 
@@ -357,24 +367,24 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
 
         deviceCommunicationConfiguration = inMemoryPersistence.getDeviceConfigurationService().newDeviceCommunicationConfiguration(deviceConfiguration);
 
-        partialInboundConnectionTask = deviceCommunicationConfiguration.newPartialInboundConnectionTask("Inbound (1)", noParamsConnectionTypePluggableClass).
+        partialInboundConnectionTask = deviceCommunicationConfiguration.newPartialInboundConnectionTask("Inbound (1)", inboundNoParamsConnectionTypePluggableClass).
                 build();
 
-        partialInboundConnectionTask2 = deviceCommunicationConfiguration.newPartialInboundConnectionTask("Inbound (2)", noParamsConnectionTypePluggableClass).
+        partialInboundConnectionTask2 = deviceCommunicationConfiguration.newPartialInboundConnectionTask("Inbound (2)", inboundNoParamsConnectionTypePluggableClass).
                 build();
 
-        partialScheduledConnectionTask = deviceCommunicationConfiguration.newPartialScheduledConnectionTask("Outbound (1)", noParamsConnectionTypePluggableClass, TimeDuration.minutes(5), ConnectionStrategy.AS_SOON_AS_POSSIBLE).
+        partialScheduledConnectionTask = deviceCommunicationConfiguration.newPartialScheduledConnectionTask("Outbound (1)", outboundNoParamsConnectionTypePluggableClass, TimeDuration.minutes(5), ConnectionStrategy.AS_SOON_AS_POSSIBLE).
                 comWindow(new ComWindow(0, 7200)).
                 build();
 
-        partialScheduledConnectionTask2 = deviceCommunicationConfiguration.newPartialScheduledConnectionTask("Outbound (2)", noParamsConnectionTypePluggableClass, TimeDuration.minutes(5), ConnectionStrategy.AS_SOON_AS_POSSIBLE).
+        partialScheduledConnectionTask2 = deviceCommunicationConfiguration.newPartialScheduledConnectionTask("Outbound (2)", outboundNoParamsConnectionTypePluggableClass, TimeDuration.minutes(5), ConnectionStrategy.AS_SOON_AS_POSSIBLE).
                 comWindow(new ComWindow(0, 7200)).
                 build();
 
-        partialConnectionInitiationTask = deviceCommunicationConfiguration.newPartialConnectionInitiationTask("Initiation (1)", ipConnectionTypePluggableClass, TimeDuration.minutes(5)).
+        partialConnectionInitiationTask = deviceCommunicationConfiguration.newPartialConnectionInitiationTask("Initiation (1)", outboundIpConnectionTypePluggableClass, TimeDuration.minutes(5)).
                 build();
 
-        partialConnectionInitiationTask2 = deviceCommunicationConfiguration.newPartialConnectionInitiationTask("Initiation (2)", ipConnectionTypePluggableClass, TimeDuration.minutes(5)).
+        partialConnectionInitiationTask2 = deviceCommunicationConfiguration.newPartialConnectionInitiationTask("Initiation (2)", outboundIpConnectionTypePluggableClass, TimeDuration.minutes(5)).
                 build();
 
         deviceCommunicationConfiguration.save();
@@ -400,7 +410,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
 
     protected ScheduledConnectionTask createOutboundWithIpPropertiesWithoutViolations(String name, ConnectionStrategy connectionStrategy) {
         partialConnectionInitiationTask.setName(name);
-        partialScheduledConnectionTask.setConnectionTypePluggableClass(ipConnectionTypePluggableClass);
+        partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialScheduledConnectionTask.save();
         ScheduledConnectionTask connectionTask;
         if (ConnectionStrategy.MINIMIZE_CONNECTIONS.equals(connectionStrategy)) {
@@ -421,8 +431,8 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
 
     protected List<PropertySpec> getOutboundIpPropertySpecs() {
         return Arrays.asList(
-                ipConnectionTypePluggableClass.getPropertySpec(IpConnectionType.IP_ADDRESS_PROPERTY_NAME),
-                ipConnectionTypePluggableClass.getPropertySpec(IpConnectionType.PORT_PROPERTY_NAME));
+                outboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionType.IP_ADDRESS_PROPERTY_NAME),
+                outboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionType.PORT_PROPERTY_NAME));
     }
 
     protected void setIpConnectionProperties(ConnectionTask connectionTask, String ipAddress, BigDecimal port) {

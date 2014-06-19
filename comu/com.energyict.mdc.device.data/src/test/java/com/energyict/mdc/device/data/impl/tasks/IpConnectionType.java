@@ -24,7 +24,7 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-08-17 (11:19)
  */
-public class IpConnectionType implements ServerConnectionType {
+public abstract class IpConnectionType implements ServerConnectionType {
 
     public static final String IP_ADDRESS_PROPERTY_NAME = "ipAddress";
     public static final String PORT_PROPERTY_NAME = "port";
@@ -98,11 +98,6 @@ public class IpConnectionType implements ServerConnectionType {
 
     @Override
     public void disconnect(ComChannel comChannel) throws ConnectionException {
-    }
-
-    @Override
-    public ConnectionTypeDirection getDirection() {
-        return ConnectionTypeDirection.OUTBOUND;
     }
 
     @Override
