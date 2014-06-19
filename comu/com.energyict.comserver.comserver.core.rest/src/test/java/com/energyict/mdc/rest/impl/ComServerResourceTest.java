@@ -382,6 +382,11 @@ public class ComServerResourceTest extends JerseyTest {
 
     @Test
     public void testCanNotUpdateComServerWithoutInboundComPorts() throws Exception {
+        int comServer_id = 4;
+
+        ComServer serverSideComServer = mock(OnlineComServer.class);
+        when(engineModelService.findComServer(comServer_id)).thenReturn(serverSideComServer);
+
         OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
         onlineComServerInfo.name="new name";
         onlineComServerInfo.inboundComPorts = null;
@@ -394,6 +399,11 @@ public class ComServerResourceTest extends JerseyTest {
 
     @Test
     public void testCanNotUpdateComServerWithoutOutboundComPorts() throws Exception {
+        int comServer_id = 5;
+
+        ComServer serverSideComServer = mock(OnlineComServer.class);
+        when(engineModelService.findComServer(comServer_id)).thenReturn(serverSideComServer);
+
         OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
         onlineComServerInfo.name="new name";
         onlineComServerInfo.inboundComPorts = new ArrayList<>();
