@@ -417,6 +417,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
     onStep3RadiogroupCloseChangeEvent: function (radiogroup, newValue, oldValue) {
         var record = this.getBulkRecord();
         record.set('status', newValue.status);
+        record.set('statusName', radiogroup.getChecked()[0].boxLabel )
         record.commit();
     },
 
@@ -497,7 +498,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
 
                 case 'close':
                     message = '<h3>Close ' + record.get('issues').length + (record.get('issues').length > 1 ? ' issues' : ' issue') + '?</h3><br>'
-                        + 'The selected issue(s) will be closed with status <b>' + record.get('status') + '</b>';
+                        + 'The selected issue(s) will be closed with status "<b>' + record.get('statusName') + '</b>"';
                     break;
             }
 
