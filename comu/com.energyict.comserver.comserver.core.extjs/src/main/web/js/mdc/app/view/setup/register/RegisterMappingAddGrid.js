@@ -21,6 +21,10 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
             this.down('#pagingt').onLoad();
         }
     },
+    plugins: {
+        ptype: 'bufferedrenderer'
+    },
+    height: 400,
     store: 'AvailableRegisterTypes',
     initComponent: function () {
         var me = this;
