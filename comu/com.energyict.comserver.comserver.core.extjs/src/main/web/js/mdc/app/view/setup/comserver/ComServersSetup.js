@@ -44,7 +44,7 @@ Ext.define('Mdc.view.setup.comserver.ComServersSetup', {
                                     margin: '10 0 0 0',
                                     text: Uni.I18n.translate('deviceType.add', 'MDC', 'Add online comunication server'),
                                     action: 'addOnlineComServer',
-                                    href: '#/administration/comservers/add'
+                                    href: '#/administration/comservers/add/online'
                                 }
                             ]
                         }

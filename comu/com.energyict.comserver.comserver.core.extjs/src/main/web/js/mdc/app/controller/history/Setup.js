@@ -396,17 +396,16 @@ Ext.define('Mdc.controller.history.Setup', {
                     controller: 'Mdc.controller.setup.SetupOverview',
                     action: 'showComServers',
                     items: {
-
-                        create: {
-                            title: 'Create communication server',
-                            route: 'create',
-                            controller: 'Mdc.controller.setup.ComServers',
-                            action: 'showEditView'
+                        onlineadd: {
+                            title: 'Add online communication server',
+                            route: 'add/online',
+                            controller: 'Mdc.controller.setup.ComServerEdit',
+                            action: 'showOnlineAddView'
                         },
                         edit: {
                             title: 'Edit communication server',
                             route: '{id}/edit',
-                            controller: 'Mdc.controller.setup.ComServers',
+                            controller: 'Mdc.controller.setup.ComServerEdit',
                             action: 'showEditView',
                             callback: function(route) {
                                 this.getApplication().on('loadComServer', function(record) {
