@@ -1,20 +1,16 @@
 package com.energyict.mdc.rest.impl.comserver;
 
+import com.energyict.mdc.common.rest.PagedInfoList;
+import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.google.common.base.Optional;
+
+import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -34,85 +30,60 @@ public class ComPortPoolResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public ComPortPoolInfo getComPortPool(@PathParam("id") int id) {
-        ComPortPool comPortPool = engineModelService.findComPortPool(id);
-        if (comPortPool!=null) {
-            return ComPortPoolInfoFactory.asInfo(comPortPool);
-        } else {
-            throw new WebApplicationException("No ComPortPool with id "+id, Response.status(Response.Status.NOT_FOUND).build());
+        Optional<ComPortPool> comPortPool = Optional.fromNullable(engineModelService.findComPortPool(id));
+        if (comPortPool.isPresent()) {
+            return ComPortPoolInfoFactory.asInfo(comPortPool.get());
         }
+
+        throw new WebApplicationException("No ComPortPool with id "+id, Response.status(Response.Status.NOT_FOUND).entity("No ComPortPool with id "+id).build());
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Object getAllComPortPools(@QueryParam("limit") Integer limit,@QueryParam("start") Integer start,@QueryParam("sort") String sort) {
-        List<ComPortPool> allComPortPools;
-        final ComPortPoolsInfo infos = new ComPortPoolsInfo();
-        if(limit!=null && start!=null){
-            String[] sortStrings = {sort} ;
-            allComPortPools = engineModelService.findAllComPortPools(start, limit, sortStrings);
-            if(allComPortPools.size()==limit){
-                infos.setCouldHaveNextPage();
-            }
-        } else {
-            allComPortPools = engineModelService.findAllComPortPools();
-        }
+    public PagedInfoList getAllComPortPools(@BeanParam QueryParameters queryParameters) {
+        List<? super ComPortPoolInfo> comPortPoolInfos = new ArrayList<>();
+        List<ComPortPool> allComPortPools = engineModelService.findAllComPortPools();
         for (ComPortPool comPortPool : allComPortPools) {
-            infos.comPortPools.add(ComPortPoolInfoFactory.asInfo(comPortPool));
+            comPortPoolInfos.add(ComPortPoolInfoFactory.asInfo(comPortPool));
         }
-        return infos;
-    }
-
-    @PUT
-    @Path("/{id}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public ComPortPoolInfo updateComPortPool(@PathParam("id") int id, ComPortPoolInfo<ComPortPool> comPortPoolInfo) {
-        try {
-            ComPortPool comPortPool = engineModelService.findComPortPool(id);
-            if (comPortPool == null) {
-                throw new WebApplicationException("No ComPortPool with id " + id, Response.Status.INTERNAL_SERVER_ERROR);
-            }
-            comPortPoolInfo.writeTo(comPortPool, protocolPluggableService);
-            comPortPoolInfo.handlePools(comPortPool, engineModelService);
-            comPortPool.save();
-            return ComPortPoolInfoFactory.asInfo(comPortPool);
-        } catch (Exception e) {
-            throw new WebApplicationException(e.getLocalizedMessage(), e, Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getLocalizedMessage()).build());
-        }
+        return PagedInfoList.asJson("data", comPortPoolInfos, queryParameters);
     }
 
     @DELETE
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response deleteComPortPool(@PathParam("id") int id) {
-       try {
-            ComPortPool comPortPool = engineModelService.findComPortPool(id);
-            if (comPortPool == null) {
-                throw new WebApplicationException("No ComPortPool with id "+id, Response.Status.NOT_FOUND);
-            }
-            comPortPool.delete();
-            return Response.noContent().build();
-        } catch (Exception e) {
-            if (e.getClass().equals(WebApplicationException.class)) {
-               throw e;
-            }
-            throw new WebApplicationException(e.getLocalizedMessage(), e, Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getLocalizedMessage()).build());
+        Optional<ComPortPool> comPortPool = Optional.fromNullable(engineModelService.findComPortPool(id));
+        if (!comPortPool.isPresent()) {
+            return Response.status(Response.Status.NOT_FOUND).entity("No ComPortPool with id " + id).build();
         }
+        comPortPool.get().delete();
+        return Response.noContent().build();
     }
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response createComPortPool(ComPortPoolInfo<ComPortPool> comPortPoolInfo) {
-        try {
-            ComPortPool comPortPool = comPortPoolInfo.writeTo(comPortPoolInfo.createNew(engineModelService), protocolPluggableService);
-            comPortPool.save();
-            comPortPoolInfo.handlePools(comPortPool, engineModelService);
-            return Response.status(Response.Status.CREATED).entity(ComPortPoolInfoFactory.asInfo(comPortPool)).build();
-        } catch (Exception e) {
-            throw new WebApplicationException(e.getLocalizedMessage(), e, Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getLocalizedMessage()).build());
-        }
+    public Response createComPortPool(ComPortPoolInfo<? super ComPortPool> comPortPoolInfo) {
+        ComPortPool comPortPool = comPortPoolInfo.writeTo(comPortPoolInfo.createNew(engineModelService), protocolPluggableService);
+        comPortPool.save();
+        comPortPoolInfo.handlePools(comPortPool, engineModelService);
+        return Response.status(Response.Status.CREATED).entity(ComPortPoolInfoFactory.asInfo(comPortPool)).build();
     }
 
+    @PUT
+    @Path("/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public ComPortPoolInfo updateComPortPool(@PathParam("id") int id, ComPortPoolInfo<? super ComPortPool> comPortPoolInfo) {
+        Optional<ComPortPool> comPortPool = Optional.fromNullable(engineModelService.findComPortPool(id));
+        if (!comPortPool.isPresent()) {
+            throw new WebApplicationException("No ComPortPool with id " + id, Response.status(Response.Status.NOT_FOUND).entity("No ComPortPool with id " + id).build());
+        }
+        comPortPoolInfo.writeTo(comPortPool.get(), protocolPluggableService);
+        comPortPoolInfo.handlePools(comPortPool.get(), engineModelService);
+        comPortPool.get().save();
+        return ComPortPoolInfoFactory.asInfo(comPortPool.get());
+    }
 
 }

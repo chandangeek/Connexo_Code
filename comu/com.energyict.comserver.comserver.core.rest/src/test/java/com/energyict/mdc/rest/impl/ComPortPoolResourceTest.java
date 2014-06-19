@@ -112,8 +112,8 @@ public class ComPortPoolResourceTest extends JerseyTest {
         when(mock.getComPortType()).thenReturn(ComPortType.TCP);
 
         final Map<String, Object> response = target("/comportpools").request().get(Map.class); // Using MAP instead of *Info to resemble JS
-        assertThat(response).describedAs("Should contain field 'comPortPool'").containsKey("comPortPools").containsKey("total").hasSize(2);
-        List<Map<String, Object>> comPortPools1 = (List<Map<String, Object>>) response.get("comPortPools");
+        assertThat(response).describedAs("Should contain field 'data'").containsKey("data").containsKey("total").hasSize(2);
+        List<Map<String, Object>> comPortPools1 = (List<Map<String, Object>>) response.get("data");
         assertThat(comPortPools1).describedAs("Expected only 1 comPortPool").hasSize(1);
         Map<String, Object> comPortPool1 = comPortPools1.get(0);
         assertThat(comPortPool1)
@@ -139,8 +139,8 @@ public class ComPortPoolResourceTest extends JerseyTest {
         when(mock.getTaskExecutionTimeout()).thenReturn(new TimeDuration(5, TimeDuration.MINUTES));
 
         final Map<String, Object> response = target("/comportpools").request().get(Map.class); // Using MAP instead of *Info to resemble JS
-        assertThat(response).describedAs("Should contain field 'comPortPool'").containsKey("comPortPools").containsKey("total").hasSize(2);
-        List<Map<String, Object>> comPortPools1 = (List<Map<String, Object>>) response.get("comPortPools");
+        assertThat(response).describedAs("Should contain field 'data'").containsKey("data").containsKey("total").hasSize(2);
+        List<Map<String, Object>> comPortPools1 = (List<Map<String, Object>>) response.get("data");
         assertThat(comPortPools1).describedAs("Expected only 1 comPortPool").hasSize(1);
         Map<String, Object> comPortPool1 = comPortPools1.get(0);
         assertThat(comPortPool1)
