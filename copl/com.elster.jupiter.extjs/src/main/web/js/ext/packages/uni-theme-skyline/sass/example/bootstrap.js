@@ -43,6 +43,7 @@ Ext.ClassManager.addNameAlternateMappings({
   "Skyline.form.field.FieldContainer": [],
   "Skyline.form.field.Text": [],
   "Skyline.grid.Panel": [],
+  "Skyline.grid.plugin.BufferedRenderer": [],
   "Skyline.menu.Item": [],
   "Skyline.menu.NavigationItem": [],
   "Skyline.menu.NavigationMenu": [],
@@ -87,6 +88,7 @@ Ext.ClassManager.addNameAliasMappings({
   "Skyline.form.field.FieldContainer": [],
   "Skyline.form.field.Text": [],
   "Skyline.grid.Panel": [],
+  "Skyline.grid.plugin.BufferedRenderer": [],
   "Skyline.menu.Item": [],
   "Skyline.menu.NavigationItem": [
     "widget.navigation-item"
@@ -128,6 +130,7 @@ Ext.Loader.loadScript("../../overrides/view/Table.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/panel/Table.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/grid/RowEditor.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/grid/column/RowNumberer.js");
+Ext.Loader.loadScript("../../overrides/grid/plugin/BufferedRenderer.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/resizer/Splitter.js");
 Ext.Loader.loadScript("../../overrides/menu/Item.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/menu/Menu.js");
