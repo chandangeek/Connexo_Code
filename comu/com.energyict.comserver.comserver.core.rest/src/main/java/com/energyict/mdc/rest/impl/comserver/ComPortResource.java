@@ -1,9 +1,14 @@
 package com.energyict.mdc.rest.impl.comserver;
 
 import com.energyict.mdc.common.rest.JsonQueryFilter;
+import com.energyict.mdc.common.rest.PagedInfoList;
+import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
+import com.google.common.base.Optional;
+
+import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -27,40 +32,43 @@ public class ComPortResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public ComPortsInfo getComPorts(@BeanParam JsonQueryFilter comPortFilter) {
-        ComPortsInfo wrapper = new ComPortsInfo();
+    public PagedInfoList getComPorts(@BeanParam JsonQueryFilter comPortFilter, @BeanParam QueryParameters queryParameters) {
+        List<? super ComPortInfo> comPortInfos = new ArrayList<>();
         if (!comPortFilter.getFilterProperties().isEmpty()) {
-            if(comPortFilter.getFilterProperties().get("comserver_id")!=null){
-                ComServer comServer = engineModelService.findComServer(Integer.parseInt(comPortFilter.getFilterProperties().get("comserver_id")));
-                for (ComPort comPort : comServer.getComPorts()) {
-                    wrapper.comPorts.add(ComPortInfoFactory.asInfo(comPort));
+            Optional<String> comserverIdProperty = Optional.fromNullable(comPortFilter.getFilterProperties().get("comserver_id"));
+            Optional<String> directionProperty = Optional.fromNullable(comPortFilter.getFilterProperties().get("direction"));
+            if(comserverIdProperty.isPresent()){
+                Optional<ComServer> comServer = Optional.fromNullable(engineModelService.findComServer(Integer.parseInt(comserverIdProperty.get())));
+                List<ComPort> comPorts = comServer.get().getComPorts();
+                for (ComPort comPort : comPorts) {
+                    comPortInfos.add(ComPortInfoFactory.asInfo(comPort));
                 }
-            } else if (comPortFilter.getFilterProperties().get("direction")!=null){
-                List<? extends ComPort> comPorts = ("inbound".equals(comPortFilter.getFilterProperties().get("direction")))?
+            } else if (directionProperty.isPresent()){
+                List<? extends ComPort> comPorts = ("inbound".equals(directionProperty.get()))?
                         engineModelService.findAllInboundComPorts():
                         engineModelService.findAllOutboundComPorts();
-                for (ComPort comPort :comPorts) {
-                    wrapper.comPorts.add(ComPortInfoFactory.asInfo(comPort));
+                for (ComPort comPort : comPorts) {
+                    comPortInfos.add(ComPortInfoFactory.asInfo(comPort));
                 }
             }
         } else {
             for (ComPort comPort : engineModelService.findAllComPortsWithDeleted()) {
-                wrapper.comPorts.add(ComPortInfoFactory.asInfo(comPort));
+                comPortInfos.add(ComPortInfoFactory.asInfo(comPort));
             }
         }
-        return wrapper;
+        return PagedInfoList.asJson("data", comPortInfos, queryParameters);
     }
 
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public ComPortInfo getComPort(@PathParam("id") long id) {
-        ComPort comPort = engineModelService.findComPort(id);
-        if (comPort==null) {
+        Optional<ComPort> comPort = Optional.fromNullable(engineModelService.findComPort(id));
+        if (!comPort.isPresent()) {
             throw new WebApplicationException("No ComPort with id "+id,
-                Response.status(Response.Status.NOT_FOUND).build());
+                Response.status(Response.Status.NOT_FOUND).entity("No ComPort with id "+id).build());
         }
-        return ComPortInfoFactory.asInfo(comPort);
+        return ComPortInfoFactory.asInfo(comPort.get());
     }
 
 }

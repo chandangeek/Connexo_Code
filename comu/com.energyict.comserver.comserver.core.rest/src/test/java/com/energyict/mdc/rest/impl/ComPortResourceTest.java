@@ -106,8 +106,8 @@ public class ComPortResourceTest extends JerseyTest {
         comPorts.add(tcpBasedInboundComPort);
         when(engineModelService.findAllComPortsWithDeleted()).thenReturn(comPorts);
         final Map<String, Object> response = target(COMPORTS_RESOURCE_URL).request().get(Map.class); // Using MAP instead of *Info to resemble JS
-        assertThat(response).describedAs("Should contain field 'ComPorts'").containsKey("ComPorts").hasSize(1);
-        List<Map<String, Object>> comports = (List<Map<String, Object>>) response.get("ComPorts");
+        assertThat(response).describedAs("Should contain field 'data'").containsKey("data").containsKey("total").hasSize(2);
+        List<Map<String, Object>> comports = (List<Map<String, Object>>) response.get("data");
         Map<String, Object> comport = comports.get(0);
         assertThat(comport).contains(MapEntry.entry("name", "portname"), MapEntry.entry("id", 1));
     }
@@ -329,8 +329,8 @@ public class ComPortResourceTest extends JerseyTest {
         setUpComPortFiltering();
 
         final Map response = target(COMPORTS_RESOURCE_URL).queryParam("filter", ExtjsFilter.filter("direction", "outbound")).request().get(Map.class); // Using MAP instead of *Info to resemble JS
-        assertThat(response).containsKey("ComPorts");
-        List<Map<String, Object>> comPorts = (List) response.get("ComPorts");
+        assertThat(response).containsKey("data");
+        List<Map<String, Object>> comPorts = (List) response.get("data");
         Map<String, Object> foundPort = comPorts.get(0);
         assertThat(foundPort.get("id")).isEqualTo(13);
     }
@@ -340,8 +340,8 @@ public class ComPortResourceTest extends JerseyTest {
         setUpComPortFiltering();
 
         final Map response = target(COMPORTS_RESOURCE_URL).queryParam("filter", ExtjsFilter.filter("direction", "inbound")).request().get(Map.class); // Using MAP instead of *Info to resemble JS
-        assertThat(response).containsKey("ComPorts");
-        List<Map<String, Object>> comPorts = (List) response.get("ComPorts");
+        assertThat(response).containsKey("data");
+        List<Map<String, Object>> comPorts = (List) response.get("data");
         List<Integer> requiredIds = new ArrayList<>(Arrays.asList(10,11,12));
         for (Map<String, Object> comPort : comPorts) {
             assertThat(requiredIds.remove(comPort.get("id")));
@@ -355,8 +355,8 @@ public class ComPortResourceTest extends JerseyTest {
         setUpComPortFiltering();
 
         final Map response = target(COMPORTS_RESOURCE_URL).queryParam("filter", ExtjsFilter.filter("comserver_id", "16")).request().get(Map.class); // Using MAP instead of *Info to resemble JS
-        assertThat(response).containsKey("ComPorts");
-        List<Map<String, Object>> comPorts = (List) response.get("ComPorts");
+        assertThat(response).containsKey("data");
+        List<Map<String, Object>> comPorts = (List) response.get("data");
         List<Integer> requiredIds = new ArrayList<>(Arrays.asList(12,11));
         for (Map<String, Object> comPort : comPorts) {
             assertThat(requiredIds.remove(comPort.get("id")));
@@ -369,8 +369,8 @@ public class ComPortResourceTest extends JerseyTest {
         setUpComPortFiltering();
 
         final Map response = target(COMPORTS_RESOURCE_URL).queryParam("filter", ExtjsFilter.filter("comserver_id", "61")).request().get(Map.class); // Using MAP instead of *Info to resemble JS
-        assertThat(response).containsKey("ComPorts");
-        List<Map<String, Object>> comPorts = (List) response.get("ComPorts");
+        assertThat(response).containsKey("data");
+        List<Map<String, Object>> comPorts = (List) response.get("data");
         List<Integer> requiredIds = new ArrayList<>(Arrays.asList(13,10));
         for (Map<String, Object> comPort : comPorts) {
             assertThat(requiredIds.remove(comPort.get("id")));
