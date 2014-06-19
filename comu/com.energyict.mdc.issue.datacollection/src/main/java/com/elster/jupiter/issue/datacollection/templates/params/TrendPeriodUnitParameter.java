@@ -5,7 +5,6 @@ import com.elster.jupiter.issue.datacollection.impl.i18n.MessageSeeds;
 import com.elster.jupiter.issue.share.cep.NumberParameterConstraint;
 import com.elster.jupiter.issue.share.cep.ParameterConstraint;
 import com.elster.jupiter.issue.share.cep.ParameterControl;
-import com.elster.jupiter.issue.share.cep.StringParameterConstraint;
 import com.elster.jupiter.issue.share.cep.controls.ComboBoxControl;
 import com.elster.jupiter.nls.Thesaurus;
 

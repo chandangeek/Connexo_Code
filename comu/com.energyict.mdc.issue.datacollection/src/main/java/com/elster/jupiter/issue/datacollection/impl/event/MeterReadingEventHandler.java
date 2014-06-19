@@ -10,6 +10,7 @@ import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
@@ -32,17 +33,23 @@ public class MeterReadingEventHandler implements MessageHandler {
     private static final String METER_READING_EVENT_READING_START = "start";
     private static final String METER_READING_EVENT_READING_END = "end";
 
-
     private final JsonService jsonService;
     private final IssueCreationService issueCreationService;
     private final IssueService issueService;
     private final MeteringService meteringService;
+    private final Thesaurus thesaurus;
 
-    public MeterReadingEventHandler(JsonService jsonService, IssueService issueService, IssueCreationService issueCreationService, MeteringService meteringService) {
+    public MeterReadingEventHandler(
+            JsonService jsonService,
+            IssueService issueService,
+            IssueCreationService issueCreationService,
+            MeteringService meteringService,
+            Thesaurus thesaurus) {
         this.jsonService = jsonService;
         this.issueCreationService = issueCreationService;
         this.issueService = issueService;
         this.meteringService = meteringService;
+        this.thesaurus = thesaurus;
     }
 
     @Override

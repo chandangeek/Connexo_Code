@@ -27,6 +27,21 @@ public enum MessageSeeds implements MessageSeed {
     PARAMETER_NAME_TREND_PERIOD_UNIT(15, "ParameterNameTrendPeriodUnit", "Trend period units", Level.INFO),
     PARAMETER_NAME_MAX_SLOPE_SUFFIX(16, "ParameterNameTrendPeriodUnitSuffix", "C/hours", Level.INFO),
     PARAMETER_NAME_READING_TYPE_DESCRIPTION(17, "ParameterNameReadingTypeDescription", "Provide the value for the 18 attributes of the CIM reading type. Separate each value with a \".\"", Level.INFO),
+    TEMPLATE_EVT_AGGREGATION_NAME (18, "TemapleEvtAggregationName", "Event aggregation", Level.INFO),
+    TEMPLATE_EVT_AGGREGATION_DESCRIPTION (19, "TemapleEvtAggregationDescription", "Create an issue based on event aggregation", Level.INFO),
+    PARAMETER_NAME_EVENT_TYPE (20, "ParameterNameEventType", "Event type", Level.INFO),
+    PARAMETER_NAME_THRESHOLD (21, "ParameterNameThreshold", "Threshold", Level.INFO),
+    PARAMETER_NAME_THRESHOLD_SUFFIX (21, "ParameterNameThresholdSuffix", "%", Level.INFO),
+    ISSUE_CREATION_RULE_PARAMETER_INCORRECT(22, "IssueCreationRuleParameterIncorrect", "Parameter has wrong value", Level.SEVERE),
+    EVENT_BAD_DATA_NO_DEVICE(23, "EventBadDataNoDevice", "Unable to process issue creation event because target device (id = {0}) wasn't found", Level.SEVERE),
+    EVENT_BAD_DATA_NO_END_DEVICE(24, "EventBadDataNoEndDevice", "Unable to process issue creation event because target end device (amrId = {0}) wasn't found", Level.SEVERE),
+    EVENT_TITLE_UNKNOWN_INBOUND_DEVICE(25, "EventTitleUnknowInboundDevice", "Unknow Inbound Device", Level.INFO),
+    EVENT_TITLE_UNKNOWN_OUTBOUND_DEVICE(26, "EventTitleUnknownOutboundDevice", "Unknown Outbound Device", Level.INFO),
+    EVENT_TITLE_DEVICE_COMMUNICATION_FAILURE(27, "EventTitleDeviceCommunicationFailure", "Device Communication Failure", Level.INFO),
+    EVENT_TITLE_DEVICE_CONNECTION_SETUP_FAILURE(28, "EventTitleDeviceConnectionSetupFailure", "Device Connection Setup Failure", Level.INFO),
+    EVENT_TITLE_DEVICE_CONNECTION_FAILURE(29, "EventTitleDeviceConnectionFailure", "Device Connection Failure", Level.INFO),
+    EVENT_TITLE_DEVICE_EVENT(30, "EventTitleDeviceCreated", "Device Created", Level.INFO),
+    EVENT_BAD_DATA_NO_EVENT_IDENTIFIER(31, "EventBadDataNoVentIdentifier", "Unable to process issue creation event because target event identifier wasn't found", Level.SEVERE),
     ;
 
     private final int number;

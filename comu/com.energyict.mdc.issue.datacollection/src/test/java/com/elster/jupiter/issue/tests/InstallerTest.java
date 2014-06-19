@@ -16,8 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class InstallerTest extends BaseTest {
     private static final int DEFAULT_REASON_COUNT = 8;
-    private static final int DEFAULT_ISSUE_TYPES_COUNT = 1;
-
+    
     @Test
     public void testDefaultReasons(){
         try (TransactionContext context = getContext()) {
@@ -26,5 +25,4 @@ public class InstallerTest extends BaseTest {
             assertThat(dafaultReasons).hasSize(DEFAULT_REASON_COUNT);
         }
     }
-
 }

@@ -2,9 +2,9 @@ package com.elster.jupiter.issue.datacollection.impl.install;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.datacollection.impl.ModuleConstants;
-import com.elster.jupiter.issue.share.entity.IssueEventType;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Thesaurus;
 
@@ -13,13 +13,11 @@ public class Installer {
     private final MessageService messageService;
     private final IssueService issueService;
     private final EventService eventService;
-    private final Thesaurus thesaurus;
 
     public Installer(IssueService issueService, MessageService messageService, EventService eventService, Thesaurus thesaurus) {
         this.issueService = issueService;
         this.messageService = messageService;
         this.eventService = eventService;
-        this.thesaurus = thesaurus;
     }
 
     public void install() {
@@ -33,8 +31,9 @@ public class Installer {
     }
 
     private void setAQSubscriber() {
-        messageService.getDestinationSpec(EventService.JUPITER_EVENTS).get().subscribe(ModuleConstants.AQ_SUBSCRIBER_DATACOLLECTION);
-        messageService.getDestinationSpec(EventService.JUPITER_EVENTS).get().subscribe(ModuleConstants.AQ_SUBSCRIBER_SLOPE_DETECTION);
+        DestinationSpec destinationSpec = messageService.getDestinationSpec(EventService.JUPITER_EVENTS).get();
+        destinationSpec.subscribe(ModuleConstants.AQ_DATA_COLLECTION_EVENT_SUBSC);
+        destinationSpec.subscribe(ModuleConstants.AQ_METER_READING_EVENT_SUBSC);
     }
 
     private void setDataCollectionReasons(IssueType issueType) {

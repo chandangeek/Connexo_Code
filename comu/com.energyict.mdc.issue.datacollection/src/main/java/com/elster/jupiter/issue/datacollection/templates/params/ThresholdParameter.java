@@ -7,16 +7,16 @@ import com.elster.jupiter.issue.share.cep.ParameterControl;
 import com.elster.jupiter.issue.share.cep.controls.SimpleControl;
 import com.elster.jupiter.nls.Thesaurus;
 
-public class MaxSlopeParameter extends TranslatedParameter{
-    private static final ParameterConstraint CONSTRAINT = new NumberParameterConstraint(false, -100, 100);
+public class ThresholdParameter extends TranslatedParameter {
+    private static final ParameterConstraint CONSTRAINT = new NumberParameterConstraint(false, 1, 100);
 
-    public MaxSlopeParameter(Thesaurus thesaurus) {
+    public ThresholdParameter(Thesaurus thesaurus) {
         super(thesaurus);
     }
 
     @Override
     public String getKey() {
-        return "maxSlope";
+        return "threshold";
     }
 
     @Override
@@ -31,11 +31,11 @@ public class MaxSlopeParameter extends TranslatedParameter{
 
     @Override
     public String getLabel() {
-        return getString(MessageSeeds.PARAMETER_NAME_MAX_SLOPE);
+        return getString(MessageSeeds.PARAMETER_NAME_THRESHOLD);
     }
 
     @Override
     public String getSuffix() {
-        return getString(MessageSeeds.PARAMETER_NAME_MAX_SLOPE_SUFFIX);
+        return getString(MessageSeeds.PARAMETER_NAME_THRESHOLD_SUFFIX);
     }
 }

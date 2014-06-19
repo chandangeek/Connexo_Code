@@ -7,20 +7,28 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.json.JsonService;
+import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.tasks.history.TaskHistoryService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-@Component(name="com.elster.jupiter.issue.datacollection.DataCollectionEventHandlerFactory", service = MessageHandlerFactory.class, property = {"subscriber=" + ModuleConstants.AQ_SUBSCRIBER_DATACOLLECTION, "destination=" + EventService.JUPITER_EVENTS}, immediate = true)
+@Component(name="com.elster.jupiter.issue.datacollection.DataCollectionEventHandlerFactory", service = MessageHandlerFactory.class, property = {"subscriber=" + ModuleConstants.AQ_DATA_COLLECTION_EVENT_SUBSC, "destination=" + EventService.JUPITER_EVENTS}, immediate = true)
 public class DataCollectionEventHandlerFactory implements MessageHandlerFactory {
     private volatile JsonService jsonService;
     private volatile IssueCreationService issueCreationService;
     private volatile IssueService issueService;
     private volatile MeteringService meteringService;
+    private volatile DeviceDataService deviceDataService;
+    private volatile TaskHistoryService taskHistoryService;
+    private volatile Thesaurus thesaurus;
 
     @Override
     public MessageHandler newMessageHandler() {
-        return new DataCollectionEventHandler(jsonService, issueService, issueCreationService, meteringService);
+        return new DataCollectionEventHandler(jsonService, issueService, issueCreationService, meteringService, deviceDataService, taskHistoryService, thesaurus);
     }
 
     @Reference
@@ -41,5 +49,20 @@ public class DataCollectionEventHandlerFactory implements MessageHandlerFactory 
     @Reference
     public final void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
+    }
+    
+    @Reference
+    public final void setDeviceDataService(DeviceDataService deviceDataService) {
+        this.deviceDataService = deviceDataService;
+    }
+    
+    @Reference
+    public void setTaskHistoryService(TaskHistoryService taskHistoryService) {
+        this.taskHistoryService = taskHistoryService;
+    }
+
+    @Reference
+    public final void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(ModuleConstants.COMPONENT_NAME, Layer.DOMAIN);
     }
 }

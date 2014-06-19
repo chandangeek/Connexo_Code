@@ -11,13 +11,13 @@ import com.elster.jupiter.issue.impl.service.IssueCreationServiceImpl;
 import com.elster.jupiter.issue.share.cep.IssueEvent;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
-import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueMappingService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
@@ -32,22 +32,19 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.json.JsonService;
+import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.tasks.history.TaskHistoryService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import oracle.jdbc.aq.AQMessage;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.kie.api.io.KieResources;
 import org.kie.internal.KnowledgeBaseFactoryService;
 import org.kie.internal.builder.KnowledgeBuilderFactoryService;
-import org.mockito.Matchers;
-import org.mockito.internal.matchers.Matches;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
-
-import java.sql.SQLException;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -66,6 +63,11 @@ public class BaseTest {
             bind(KieResources.class).toInstance(mock(KieResources.class));
             bind(KnowledgeBaseFactoryService.class).toInstance(mock(KnowledgeBaseFactoryService.class));
             bind(KnowledgeBuilderFactoryService.class).toInstance(mock(KnowledgeBuilderFactoryService.class));
+            bind(DeviceDataService.class).toInstance(mock(DeviceDataService.class));
+            bind(TaskHistoryService.class).toInstance(mock(TaskHistoryService.class));
+
+            Thesaurus thesaurus = mock(Thesaurus.class);
+            bind(Thesaurus.class).toInstance(thesaurus);
 
             //TODO think about including this lines into IssueModule class
             TaskService taskService = mock(TaskService.class);
@@ -137,7 +139,15 @@ public class BaseTest {
     protected MeteringService getMeteringService() {
         return injector.getInstance(MeteringService.class);
     }
-
+    protected DeviceDataService getDeviceDataService(){
+        return injector.getInstance(DeviceDataService.class);
+    }
+    protected TaskHistoryService getTaskHistoryService(){
+        return injector.getInstance(TaskHistoryService.class);
+    }
+    protected Thesaurus getThesaurus(){
+        return injector.getInstance(Thesaurus.class);
+    }
     protected Message getMockMessage(String payload) {
         Message message = mock(Message.class);
         when(message.getPayload()).thenReturn(payload.getBytes());
@@ -150,8 +160,14 @@ public class BaseTest {
 
     protected class MockIssueCreationService extends IssueCreationServiceImpl {
         @Override
-        public void dispatchCreationEvent(IssueEvent event) {
-            throw new RuntimeException("processed!");
+        public void dispatchCreationEvent(IssueEvent event){
+            throw new DispatchCreationEventException("processed!");
+        }
+    }
+
+    protected static class DispatchCreationEventException extends RuntimeException{
+        public DispatchCreationEventException(String message) {
+            super(message);
         }
     }
 }

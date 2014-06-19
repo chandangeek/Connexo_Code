@@ -32,7 +32,6 @@ public class MeterReadingIssueEvent implements IssueEvent {
 
     @Override
     public String getEventType() {
-        // TODO never used?
         return "MeterReadingIssueEvent";
     }
 
