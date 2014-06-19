@@ -441,4 +441,17 @@ public class TypedProperties {
         return unmodifiableView;
     }
 
+    /**
+     * Gets the value for the property with the specified name
+     * that is defined at this level (no inherited value from
+     * a parent level.)
+     *
+     * @param propertyName The name of the property
+     * @return The value defined at this level
+     */
+    public Object getPropertyValue(String propertyName) {
+        return this.props.get(propertyName);
+    }
+
+
 }
