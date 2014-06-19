@@ -7,8 +7,8 @@ Ext.define('Mdc.controller.setup.DeviceTypeLogbooks', {
 
     views: [
         'setup.devicetype.DeviceTypeLogbooks',
-        'setup.devicetype.ActionMenu',
-        'Isu.view.ext.button.GridAction'
+        'setup.devicetype.ActionMenu'
+//        'Isu.view.ext.button.GridAction'
     ],
 
     refs: [

@@ -5,7 +5,7 @@ Ext.define('Mdc.util.ScheduleToStringConverter',{
             var formattedSchedule = Ext.util.Format.format('Every {0} {1}', temporalExpression.every.count,  Uni.I18n.translate(temporalExpression.every.timeUnit, 'MDC'));
             return formattedSchedule + this.formatOffset(temporalExpression);
         } else {
-            return '';
+            return undefined;
         }
     },
     formatOffset: function (temporalExpression) {
