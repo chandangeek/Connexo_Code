@@ -23,13 +23,10 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeForm', {
                     },
                     items: [
                         {
+                            xtype: 'uni-form-error-message',
                             name: 'errors',
-                            layout: 'hbox',
-                            margin: '0 0 20 100',
                             hidden: true,
-                            defaults: {
-                                xtype: 'container'
-                            }
+                            margin: '0 0 32 0'
                         },
                         {
                             xtype: 'textfield',
@@ -147,7 +144,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeForm', {
             },
             {
                 xtype: 'button',
-                text: 'Cancel',
+                text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
                 href: '#/administration/loadprofiletypes',
                 ui: 'link'
             }

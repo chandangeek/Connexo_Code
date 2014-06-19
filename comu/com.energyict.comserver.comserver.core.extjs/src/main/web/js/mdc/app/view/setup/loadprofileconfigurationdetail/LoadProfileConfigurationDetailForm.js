@@ -21,14 +21,10 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
             },
             items: [
                 {
+                    xtype: 'uni-form-error-message',
                     name: 'errors',
-                    layout: 'hbox',
-                    margin: '0 0 20 150',
                     hidden: true,
-                    defaults: {
-                        xtype: 'container',
-                        cls: 'isu-error-panel'
-                    }
+                    margin: '0 0 32 0'
                 },
                 {
                     xtype: 'displayfield',
@@ -109,17 +105,25 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                     value: 1,
                     maxLength: 80,
                     afterSubTpl: '<div class="x-form-display-field"><i>' + 'Multiplies the collected value. The multiplied value will be stored in the channel' + '</i></div>'
+                },
+                {
+                    xtype: 'fieldcontainer',
+                    ui: 'actions',
+                    fieldLabel: '&nbsp',
+                    layout: {
+                        type: 'hbox'
+                    },
+                    items: [
+                        {
+                            xtype: 'container',
+                            itemId: 'LoadProfileChannelAction'
+                        },
+                        {
+                            xtype: 'container',
+                            itemId: 'LoadProfileChannelCancel'
+                        }
+                    ]
                 }
-            ],
-            buttons: [
-                {
-                    xtype: 'container',
-                    itemId: 'LoadProfileChannelAction'
-                },
-                {
-                    xtype: 'container',
-                    itemId: 'LoadProfileChannelCancel'
-                },
             ]
         }
     ],
