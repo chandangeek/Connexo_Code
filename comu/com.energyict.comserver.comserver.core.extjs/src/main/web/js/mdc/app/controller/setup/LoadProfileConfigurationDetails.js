@@ -346,7 +346,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                     }
                                 }, me);
                                 var detailedForm = me.getLoadConfigurationDetailForm();
-                                console.log(widget);
                                 detailedForm.getForm().setValues(loadProfileConfiguration);
                                 detailedForm.down('[name=deviceConfigurationName]').setValue(Ext.String.format('<a href="#/administration/devicetypes/{0}/deviceconfigurations/{1}">{2}</a>', deviceTypeId, deviceConfigurationId, me.deviceConfigName));
                                 detailedForm.down('#loadProfileConfigLink').setValue(Ext.String.format('<a href="#/administration/devicetypes/{0}/deviceconfigurations/{1}/loadprofiles">{2}</a>', deviceTypeId, deviceConfigurationId, loadProfileConfiguration.name));

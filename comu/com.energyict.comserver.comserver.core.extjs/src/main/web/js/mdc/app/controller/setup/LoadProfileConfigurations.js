@@ -156,9 +156,9 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
                         success: function () {
                             me.handleSuccessRequest('Successfully created');
                         },
-                        failure: function (response) {
-                            me.handleFailureRequest(response, 'Error during create', 'loadprofileconfigurationnotificationerrorretry');
-                        },
+//                        failure: function (response) {
+//                            me.handleFailureRequest(response, 'Error during create', 'loadprofileconfigurationnotificationerrorretry');
+//                        },
                         callback: function () {
                             preloader.destroy();
                         }
@@ -177,9 +177,9 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
                         success: function () {
                             me.handleSuccessRequest('Successfully updated');
                         },
-                        failure: function (response) {
-                            me.handleFailureRequest(response, 'Error during update', 'loadprofileconfigurationnotificationerrorretry');
-                        },
+//                        failure: function (response) {
+//                            me.handleFailureRequest(response, 'Error during update', 'loadprofileconfigurationnotificationerrorretry');
+//                        },
                         callback: function () {
                             preloader.destroy();
                         }

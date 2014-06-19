@@ -144,7 +144,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeForm', {
             },
             {
                 xtype: 'button',
-                text: 'Cancel',
+                text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
                 href: '#/administration/loadprofiletypes',
                 ui: 'link'
             }
