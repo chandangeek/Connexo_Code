@@ -59,16 +59,24 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileConfigurationForm', {
                     vtype: 'overruledObisCode',
                     msgTarget: 'under',
                     afterSubTpl:'<div class="x-form-display-field"><i>' + 'Provide the value for the 6 attributes of the OBIS code. Separate each value with a "."' + '</i></div>'
-                }
-            ],
-            buttons: [
-                {
-                    xtype: 'container',
-                    itemId: 'LoadProfileConfigurationActionContainer'
                 },
                 {
-                    xtype: 'container',
-                    itemId: 'LoadProfileConfigurationCancelContainer'
+                    xtype: 'fieldcontainer',
+                    ui: 'actions',
+                    fieldLabel: '&nbsp',
+                    layout: {
+                        type: 'hbox'
+                    },
+                    items: [
+                        {
+                            xtype: 'container',
+                            itemId: 'LoadProfileConfigurationActionContainer'
+                        },
+                        {
+                            xtype: 'container',
+                            itemId: 'LoadProfileConfigurationCancelContainer'
+                        }
+                    ]
                 }
             ]
         }
@@ -88,7 +96,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileConfigurationForm', {
         this.down('#LoadProfileConfigurationCancelContainer').add(
             {
                 xtype: 'button',
-                text: 'Cancel',
+                text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
                 href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/loadprofiles',
                 ui: 'link'
             }
