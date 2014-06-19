@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
 import com.energyict.mdc.dynamic.PropertySpec;
@@ -11,7 +10,6 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
-
 import com.energyict.protocols.mdc.protocoltasks.ServerConnectionType;
 
 import java.util.Arrays;
@@ -100,6 +98,11 @@ public class IpConnectionType implements ServerConnectionType {
 
     @Override
     public void disconnect(ComChannel comChannel) throws ConnectionException {
+    }
+
+    @Override
+    public ConnectionTypeDirection getDirection() {
+        return ConnectionTypeDirection.OUTBOUND;
     }
 
     @Override
