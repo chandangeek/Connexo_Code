@@ -160,8 +160,8 @@ public class ComServerResourceTest extends JerseyTest {
         when(mock.getSchedulingInterPollDelay()).thenReturn(new TimeDuration("7 minutes"));
 
         final Map<String, Object> response = target("/comservers").request().get(Map.class); // Using MAP instead of *Info to resemble JS
-        assertThat(response).describedAs("Should contain field 'comServers'").containsKey("comServers").containsKey("total").hasSize(2);
-        List<Map<String, Object>> comServers1 = (List<Map<String, Object>>) response.get("comServers");
+        assertThat(response).describedAs("Should contain field 'comServers'").containsKey("data").containsKey("total").hasSize(2);
+        List<Map<String, Object>> comServers1 = (List<Map<String, Object>>) response.get("data");
         assertThat(comServers1).describedAs("Expected only 1 comServer").hasSize(1);
         Map<String, Object> comServer1 = comServers1.get(0);
         assertThat(comServer1)

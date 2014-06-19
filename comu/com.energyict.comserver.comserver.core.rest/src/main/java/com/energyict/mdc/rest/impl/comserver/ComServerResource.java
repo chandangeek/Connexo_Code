@@ -46,35 +46,37 @@ public class ComServerResource {
             comServers.add(ComServerInfoFactory.asInfo(comServer));
         }
 
-        return PagedInfoList.asJson("comServers", comServers, queryParameters);
+        return PagedInfoList.asJson("data", comServers, queryParameters);
     }
 
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public ComServerInfo<?> getComServer(@PathParam("id") int id) {
-        ComServer comServer = engineModelService.findComServer(id);
-        if (comServer == null) {
+        Optional<ComServer> comServer = Optional.fromNullable(engineModelService.findComServer(id));
+        if (!comServer.isPresent()) {
             throw new WebApplicationException("No ComServer with id "+id,
                 Response.status(Response.Status.NOT_FOUND).entity("No ComServer with id "+id).build());
         }
-        return ComServerInfoFactory.asInfo(comServer, comServer.getComPorts());
+        return ComServerInfoFactory.asInfo(comServer.get(), comServer.get().getComPorts());
     }
 
     @GET
     @Path("/{id}/comports")
     @Produces(MediaType.APPLICATION_JSON)
-    public ComPortsInfo getComPortsForComServerServer(@PathParam("id") int id) {
-        ComServer comServer = engineModelService.findComServer(id);
-        if (comServer == null) {
+    public PagedInfoList getComPortsForComServerServer(@PathParam("id") int id, @BeanParam QueryParameters queryParameters) {
+        Optional<ComServer> comServer = Optional.fromNullable(engineModelService.findComServer(id));
+        if (!comServer.isPresent()) {
             throw new WebApplicationException("No ComServer with id "+id,
                 Response.status(Response.Status.NOT_FOUND).entity("No ComServer with id "+id).build());
         }
-        ComPortsInfo wrapper = new ComPortsInfo();
-        for (ComPort comPort : comServer.getComPorts()) {
-            wrapper.comPorts.add(ComPortInfoFactory.asInfo(comPort));
+        List<ComPort> comPorts = comServer.get().getComPorts();
+        List<ComPortInfo> comPortInfos = new ArrayList<>(comPorts.size());
+
+        for (ComPort comPort : comPorts) {
+            comPortInfos.add(ComPortInfoFactory.asInfo(comPort));
         }
-        return wrapper;
+        return PagedInfoList.asJson("data", comPortInfos, queryParameters);
     }
 
     @DELETE
@@ -82,11 +84,11 @@ public class ComServerResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteComServer(@PathParam("id") int id) {
         try {
-            ComServer comServer = engineModelService.findComServer(id);
-            if (comServer == null) {
+            Optional<ComServer> comServer = Optional.fromNullable(engineModelService.findComServer(id));
+            if (!comServer.isPresent()) {
                 return Response.status(Response.Status.NOT_FOUND).entity("No ComServer with id "+id).build();
             }
-            comServer.delete();
+            comServer.get().delete();
             return Response.noContent().build();
         } catch (Exception e) {
             throw new WebApplicationException(e.getLocalizedMessage(), e, Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getLocalizedMessage()).build());
@@ -121,7 +123,7 @@ public class ComServerResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public ComServerInfo updateComServer(@PathParam("id") int id, ComServerInfo<ComServer> comServerInfo) {
+    public ComServerInfo updateComServer(@PathParam("id") int id, ComServerInfo<? super ComServer> comServerInfo) {
         Optional<ComServer> comServer = Optional.fromNullable(engineModelService.findComServer(id));
         if (!comServer.isPresent()) {
             throw new WebApplicationException("No ComServer with id "+id,
