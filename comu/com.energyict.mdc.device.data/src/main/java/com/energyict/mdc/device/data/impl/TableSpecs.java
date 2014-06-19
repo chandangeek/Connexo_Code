@@ -263,7 +263,7 @@ public enum TableSpecs {
             table.column("MOD_DATE").type("DATE").conversion(DATE2DATE).map("modificationDate").add();
             Column configurationProperties = table.column("CONFIGURATIONPROPERTIESID").number().add();
             table.foreignKey("FK_DDC_PROTDIALECTPROPS_PC").on(deviceProtocolId).references(PluggableService.COMPONENTNAME, "CPC_PLUGGABLECLASS").map("deviceProtocolPluggableClass").add();
-            table.foreignKey("FK_DDC_PROTDIALECTPROPS_DEV").on(device).references(DDC_DEVICE.name()).map("device").reverseMap("dialectPropertiesList").add();
+            table.foreignKey("FK_DDC_PROTDIALECTPROPS_DEV").on(device).references(DDC_DEVICE.name()).map("device").reverseMap("dialectPropertiesList").composition().add();
             table.foreignKey("FK_DDC_PROTDIALECTPROPS_PDCP").on(configurationProperties).references(DeviceConfigurationService.COMPONENTNAME, "DTC_DIALECTCONFIGPROPERTIES").map("configurationProperties").add();
             table.primaryKey("PK_DDC_PROTOCOLDIALECTPROPS").on(id).add();
         }
