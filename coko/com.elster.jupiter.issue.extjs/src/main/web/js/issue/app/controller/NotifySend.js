@@ -146,16 +146,13 @@ Ext.define('Isu.controller.NotifySend', {
             jsonData: sendingData,
             success: function () {
                 window.location.href = '#/workspace/datacollection/issues';
-                Ext.create('widget.uxNotification', {
-                    html: 'Operation completed successfully!',
-                    ui: 'notification-success'
-                }).show();
+                this.getApplication().fireEvent('acknowledge', 'Operation completed successfully!');
             },
             failure: function () {
-                Ext.create('widget.uxNotification', {
-                    html: 'Operation Failed!',
-                    ui: 'notification-error'
-                }).show();
+                var title = 'Error',
+                    message = 'Operation Failed!';
+
+                this.getApplication().getController('Uni.controller.Error').showError(title, message);
             },
             callback: function () {
                 preloader.destroy();
