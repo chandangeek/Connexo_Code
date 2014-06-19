@@ -89,15 +89,11 @@ public class DeviceResource {
         PartialConnectionTask partialConnectionTask = findPartialConnectionTaskOrThrowException(device, connectionMethodInfo.name);
         ConnectionTask<?, ?> task = connectionMethodInfo.createTask(deviceDataService, engineModelService, device, mdcPropertyUtils, partialConnectionTask);
         pauseOrResumeTask(connectionMethodInfo, task);
-        setTaskAsDefaultIfRequired(connectionMethodInfo, task);
-
-        return Response.status(Response.Status.CREATED).entity(connectionMethodInfoFactory.asInfo(task, uriInfo)).build();
-    }
-
-    private void setTaskAsDefaultIfRequired(ConnectionMethodInfo<?> connectionMethodInfo, ConnectionTask<?, ?> task) {
         if (connectionMethodInfo.isDefault) {
             deviceDataService.setDefaultConnectionTask(task);
         }
+
+        return Response.status(Response.Status.CREATED).entity(connectionMethodInfoFactory.asInfo(task, uriInfo)).build();
     }
 
     private void pauseOrResumeTask(ConnectionMethodInfo<?> connectionMethodInfo, ConnectionTask<?, ?> task) {
@@ -123,12 +119,17 @@ public class DeviceResource {
     public Response updateConnectionMethod(@PathParam("mRID") String mrid, @PathParam("id") long connectionMethodId, @Context UriInfo uriInfo, ConnectionMethodInfo<ConnectionTask<? extends ComPortPool, ? extends PartialConnectionTask>> connectionMethodInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         ConnectionTask<? extends ComPortPool, ? extends PartialConnectionTask> task = findConnectionTaskOrThrowException(device, connectionMethodId);
+        boolean wasConnectionTaskDefault = task.isDefault();
         PartialConnectionTask partialConnectionTask = findPartialConnectionTaskOrThrowException(device, connectionMethodInfo.name);
 
         connectionMethodInfo.writeTo(task, partialConnectionTask, deviceDataService, engineModelService, mdcPropertyUtils);
         task.save();
         pauseOrResumeTask(connectionMethodInfo, task);
-        setTaskAsDefaultIfRequired(connectionMethodInfo, task);
+        if (connectionMethodInfo.isDefault) {
+            deviceDataService.setDefaultConnectionTask(task);
+        } else if (wasConnectionTaskDefault) {
+            deviceDataService.clearDefaultConnectionTask(device);
+        }
 
         device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         task = findConnectionTaskOrThrowException(device, connectionMethodId);

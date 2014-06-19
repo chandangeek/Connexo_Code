@@ -258,4 +258,76 @@ public class DeviceResourceTest extends JerseyTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
         verify(deviceDataService).setDefaultConnectionTask(connectionTask);
     }
+
+    @Test
+    public void testUpdateAndUndefaultInboundConnectionMethod() throws Exception {
+        InboundConnectionMethodInfo info = new InboundConnectionMethodInfo();
+        info.name="inbConnMethod";
+        info.paused=false;
+        info.isDefault=false;
+        info.comPortPool="cpp";
+
+        Device device = mock(Device.class);
+        ComPortPool comPortPool = mock(InboundComPortPool.class);
+        DeviceConfiguration deviceConfig = mock(DeviceConfiguration.class);
+        PartialInboundConnectionTask partialConnectionTask = mock (PartialInboundConnectionTask.class);
+        when(deviceDataService.findByUniqueMrid("1")).thenReturn(device);
+        InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
+        when(deviceDataService.newInboundConnectionTask(any(Device.class), any(PartialInboundConnectionTask.class),any(InboundComPortPool.class))).thenReturn(connectionTask);
+        when(engineModelService.findComPortPool("cpp")).thenReturn(comPortPool);
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfig);
+        when(device.getConnectionTasks()).thenReturn(Arrays.<ConnectionTask<?,?>>asList(connectionTask));
+        when(deviceConfig.getPartialConnectionTasks()).thenReturn(Arrays.<PartialConnectionTask>asList(partialConnectionTask));
+        when(partialConnectionTask.getName()).thenReturn("inbConnMethod");
+
+        ConnectionTypePluggableClass pluggableClass = mock(ConnectionTypePluggableClass.class);
+        ConnectionType connectionType = mock(ConnectionType.class);
+        when(connectionTask.getPartialConnectionTask()).thenReturn(partialConnectionTask);
+        when(connectionTask.getId()).thenReturn(5L);
+        when(connectionTask.getConnectionType()).thenReturn(connectionType);
+        when(connectionTask.isDefault()).thenReturn(true);
+        when(connectionType.getPropertySpecs()).thenReturn(Collections.<PropertySpec>emptyList());
+        when(pluggableClass.getName()).thenReturn("ctpc");
+        when(partialConnectionTask.getPluggableClass()).thenReturn(pluggableClass);
+
+        Response response = target("/devices/1/connectionmethods/5").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(deviceDataService, times(1)).clearDefaultConnectionTask(device);
+    }
+
+    @Test
+    public void testUpdateOnlyClearsDefaultIfConnectionMethodWasDefaultBeforeUpdate() throws Exception {
+        InboundConnectionMethodInfo info = new InboundConnectionMethodInfo();
+        info.name="inbConnMethod";
+        info.paused=false;
+        info.isDefault=false;
+        info.comPortPool="cpp";
+
+        Device device = mock(Device.class);
+        ComPortPool comPortPool = mock(InboundComPortPool.class);
+        DeviceConfiguration deviceConfig = mock(DeviceConfiguration.class);
+        PartialInboundConnectionTask partialConnectionTask = mock (PartialInboundConnectionTask.class);
+        when(deviceDataService.findByUniqueMrid("1")).thenReturn(device);
+        InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
+        when(deviceDataService.newInboundConnectionTask(any(Device.class), any(PartialInboundConnectionTask.class),any(InboundComPortPool.class))).thenReturn(connectionTask);
+        when(engineModelService.findComPortPool("cpp")).thenReturn(comPortPool);
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfig);
+        when(device.getConnectionTasks()).thenReturn(Arrays.<ConnectionTask<?,?>>asList(connectionTask));
+        when(deviceConfig.getPartialConnectionTasks()).thenReturn(Arrays.<PartialConnectionTask>asList(partialConnectionTask));
+        when(partialConnectionTask.getName()).thenReturn("inbConnMethod");
+
+        ConnectionTypePluggableClass pluggableClass = mock(ConnectionTypePluggableClass.class);
+        ConnectionType connectionType = mock(ConnectionType.class);
+        when(connectionTask.getPartialConnectionTask()).thenReturn(partialConnectionTask);
+        when(connectionTask.getId()).thenReturn(5L);
+        when(connectionTask.getConnectionType()).thenReturn(connectionType);
+        when(connectionTask.isDefault()).thenReturn(false);
+        when(connectionType.getPropertySpecs()).thenReturn(Collections.<PropertySpec>emptyList());
+        when(pluggableClass.getName()).thenReturn("ctpc");
+        when(partialConnectionTask.getPluggableClass()).thenReturn(pluggableClass);
+
+        Response response = target("/devices/1/connectionmethods/5").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(deviceDataService, never()).clearDefaultConnectionTask(device);
+    }
 }
