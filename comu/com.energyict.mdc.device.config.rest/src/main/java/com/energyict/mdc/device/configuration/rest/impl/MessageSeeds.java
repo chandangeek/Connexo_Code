@@ -9,6 +9,7 @@ public enum MessageSeeds implements MessageSeed {
     FIELD_IS_REQUIRED(1, "DCR.RequiredField", "Field is required", Layer.UI),
     PROTOCOL_INVALID_NAME(2,"DCR.deviceType.no.such.protocol", "A protocol with name ''{0}'' does not exist"),
     NO_LOGBOOK_TYPE_ID_FOR_ADDING(3,"DCR.NoLogBookTypeIdForAdding", "User should specify ids of LogBook Type for adding"),
+    NO_VALIDATIONRULESET_ID_FOR_ADDING(3,"DCR.NoValidationRuleSetIdForAdding", "User should specify ids of Validation Ruleset for adding"),
     NO_LOGBOOK_TYPE_FOUND(4, "DCR.NoLogBookTypeFound", "No LogBook type with id {0}"),
     NO_LOGBOOK_SPEC_FOUND(5, "DCR.NoLogBookSpecFound", "No LogBook configuration with id {0}"),
     NO_LOAD_PROFILE_TYPE_ID_FOR_ADDING(6, "DCR.NoLoadProfileTypeIdForAdding", "User should specify ids of Load Profile Type for adding"),

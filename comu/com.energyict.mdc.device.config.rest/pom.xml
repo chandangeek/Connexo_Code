@@ -45,6 +45,14 @@
             <artifactId>mdc.masterdata.rest</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>validation.rest</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.pluggable.rest</artifactId>

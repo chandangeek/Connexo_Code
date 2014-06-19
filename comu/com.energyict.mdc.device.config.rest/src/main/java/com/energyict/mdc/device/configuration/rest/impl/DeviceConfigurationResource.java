@@ -1,6 +1,9 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.rest.impl.ValidationRuleSetInfo;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.PagedInfoList;
@@ -10,6 +13,8 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.masterdata.LogBookType;
+import com.google.common.base.Optional;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -35,6 +40,7 @@ public class DeviceConfigurationResource {
 
     private final ResourceHelper resourceHelper;
     private final DeviceConfigurationService deviceConfigurationService;
+    private final ValidationService validationService;
     private final Provider<RegisterConfigurationResource> registerConfigurationResourceProvider;
     private final Provider<ConnectionMethodResource> connectionMethodResourceProvider;
     private final Provider<ProtocolDialectResource> protocolDialectResourceProvider;
@@ -46,6 +52,7 @@ public class DeviceConfigurationResource {
     @Inject
     public DeviceConfigurationResource(ResourceHelper resourceHelper,
                                        DeviceConfigurationService deviceConfigurationService,
+                                       ValidationService validationService,
                                        Provider<RegisterConfigurationResource> registerConfigurationResourceProvider,
                                        Provider<ConnectionMethodResource> connectionMethodResourceProvider,
                                        Provider<ProtocolDialectResource> protocolDialectResourceProvider,
@@ -55,6 +62,7 @@ public class DeviceConfigurationResource {
                                        Thesaurus thesaurus) {
         this.resourceHelper = resourceHelper;
         this.deviceConfigurationService = deviceConfigurationService;
+        this.validationService = validationService;
         this.registerConfigurationResourceProvider = registerConfigurationResourceProvider;
         this.connectionMethodResourceProvider = connectionMethodResourceProvider;
         this.protocolDialectResourceProvider = protocolDialectResourceProvider;
@@ -276,4 +284,67 @@ public class DeviceConfigurationResource {
     public PagedInfoList getComTasks(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @BeanParam QueryParameters queryParameters, @Context UriInfo uriInfo) {
         return comTaskEnablementResourceProvider.get().getComTasks(deviceTypeId, deviceConfigurationId, queryParameters, uriInfo);
     }
+
+
+
+    @GET
+    @Path("/{deviceConfigurationId}/validationrulesets")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getValidationsRuleSets(
+            @PathParam("deviceTypeId") long deviceTypeId,
+            @PathParam("deviceConfigurationId") long deviceConfigurationId,
+            @BeanParam QueryParameters queryParameters) {
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
+        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
+        List<ValidationRuleSet> ruleSets = deviceConfiguration.getValidationRuleSets();
+        List<ValidationRuleSetInfo> result = new ArrayList<ValidationRuleSetInfo>();
+        for (ValidationRuleSet ruleSet : ruleSets) {
+            result.add(new ValidationRuleSetInfo(ruleSet));
+        }
+        return Response.ok(PagedInfoList.asJson("validationRuleSets", result, queryParameters)).build();
+    }
+
+    @DELETE
+    @Path("/{deviceConfigurationId}/validationrulesets/{validationRuleSetId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteValidationRuleSetFromDeviceConfiguration(
+            @PathParam("deviceTypeId") long deviceTypeId,
+            @PathParam("deviceConfigurationId") long deviceConfigurationId,
+            @PathParam("validationRuleSetId") long validationRuleSetId) {
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
+        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
+        Optional optional = validationService.getValidationRuleSet(validationRuleSetId);
+        if (optional.isPresent()) {
+            ValidationRuleSet ruleSet = (ValidationRuleSet) optional.get();
+            deviceConfiguration.removeValidationRuleSet(ruleSet);
+        }
+        return Response.ok().build();
+    }
+
+    @POST
+    @Path("/{deviceConfigurationId}/validationrulesets")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response AddRuleSetsToDeviceConfiguration(
+            @PathParam("deviceTypeId") long deviceTypeId,
+            @PathParam("deviceConfigurationId") long deviceConfigurationId,
+            List<Long> ids) {
+        if (ids == null || ids.size() == 0) {
+            throw new TranslatableApplicationException(thesaurus, MessageSeeds.NO_VALIDATIONRULESET_ID_FOR_ADDING);
+        }
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
+        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
+        List<ValidationRuleSetInfo> addedValidationRuleSets = new ArrayList<>(ids.size());
+        for (Long id : ids) {
+            Optional optional = validationService.getValidationRule(id);
+            if (optional.isPresent()) {
+                ValidationRuleSet ruleSet = (ValidationRuleSet) optional.get();
+                deviceConfiguration.addValidationRuleSet(ruleSet);
+                addedValidationRuleSets.add(new ValidationRuleSetInfo(ruleSet));
+            }
+        }
+        return Response.ok(addedValidationRuleSets).build();
+    }
+
+
+
 }
