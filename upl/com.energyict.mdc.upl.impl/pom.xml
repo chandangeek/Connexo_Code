@@ -23,8 +23,8 @@
 
     <!-- We try to be in sync with the latest EIServer version ... -->
     <properties>
-        <eiserver.version>9.1.2-BETA-1</eiserver.version>
-        <comserver.version>9.1.2-BETA-1</comserver.version>
+        <eiserver.version>9.1.2-SNAPSHOT</eiserver.version>
+        <comserver.version>9.1.2-SNAPSHOT</comserver.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <proguard.maven.version>2.0.4</proguard.maven.version>
         <proguard.version>4.8</proguard.version>
