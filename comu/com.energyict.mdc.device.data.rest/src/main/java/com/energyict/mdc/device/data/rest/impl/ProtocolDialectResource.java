@@ -43,8 +43,7 @@ public class ProtocolDialectResource {
     public PagedInfoList getProtocolDialects(@PathParam("mRID") String mRID, @BeanParam QueryParameters queryParameters, @Context UriInfo uriInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         List<ProtocolDialectConfigurationProperties> pagedDialectProtocols = ListPager.of(device.getProtocolDialects(), new ProtocolDialectComparator()).from(queryParameters).find();
-        TypedProperties typedProperties = device.getDeviceProtocolProperties();
-        List<ProtocolDialectInfo> protocolDialectInfos = ProtocolDialectInfo.from(pagedDialectProtocols, typedProperties,uriInfo, mdcPropertyUtils);
+        List<ProtocolDialectInfo> protocolDialectInfos = ProtocolDialectInfo.from(device, pagedDialectProtocols, uriInfo, mdcPropertyUtils);
         return PagedInfoList.asJson("protocolDialects", protocolDialectInfos, queryParameters);
     }
 
@@ -53,8 +52,9 @@ public class ProtocolDialectResource {
     @Produces(MediaType.APPLICATION_JSON)
     public ProtocolDialectInfo getProtocolDialects(@PathParam("mRID") String mRID, @PathParam("protocolDialectId") long protocolDialectId, @Context UriInfo uriInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
-        TypedProperties typedProperties = device.getDeviceProtocolProperties();
-        return ProtocolDialectInfo.from(findProtocolDialectOrThrowException(mRID, protocolDialectId),typedProperties , uriInfo, mdcPropertyUtils);
+        ProtocolDialectConfigurationProperties protocolDialect = findProtocolDialectOrThrowException(mRID, protocolDialectId);
+        ProtocolDialectProperties protocolDialectProperties = device.getProtocolDialectProperties(protocolDialect.getDeviceProtocolDialectName());
+        return ProtocolDialectInfo.from(protocolDialect, protocolDialectProperties , uriInfo, mdcPropertyUtils);
     }
 
     @PUT
@@ -68,8 +68,8 @@ public class ProtocolDialectResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         ProtocolDialectConfigurationProperties protocolDialect = findProtocolDialectOrThrowException(mRID, protocolDialectId);
         updateProperties(protocolDialectInfo, protocolDialect, device);
-       // protocolDialect.save();
-        return protocolDialectInfo.from(protocolDialect, device.getDeviceProtocolProperties(), uriInfo, mdcPropertyUtils);
+        device.save();
+        return protocolDialectInfo.from(protocolDialect, device.getProtocolDialectProperties(protocolDialect.getDeviceProtocolDialectName()), uriInfo, mdcPropertyUtils);
     }
 
 
@@ -93,11 +93,9 @@ public class ProtocolDialectResource {
             for (PropertySpec<?> propertySpec : protocolDialectProperties.getPropertySpecs()) {
                 Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, protocolDialectInfo.properties);
                 if (propertyValue != null) {
-                    device.setProperty(propertySpec.getName(), propertyValue);
-                    //protocolDialectProperties.setProperty(propertySpec.getName(), propertyValue);
+                    device.setProtocolDialectProperty(protocolDialectInfo.name, propertySpec.getName(), propertyValue);
                 } else {
-                    device.removeProperty(propertySpec.getName());
-                    //protocolDialectProperties.removeProperty(propertySpec.getName());
+                    device.removeProtocolDialectProperty(protocolDialectInfo.name, propertySpec.getName());
                 }
             }
         }
