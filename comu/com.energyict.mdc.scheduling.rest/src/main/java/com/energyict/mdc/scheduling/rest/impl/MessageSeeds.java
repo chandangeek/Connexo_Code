@@ -6,7 +6,7 @@ import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
     INVALID_VALUE(1, "SCR.InvalidValue", "Invalid value"),
-    CAN_NOT_BE_EMPTY(1, "SCR.CanNotBeEmpty", "Field can not be empty"),
+    CAN_NOT_BE_EMPTY(2, "SCR.CanNotBeEmpty", "Field can not be empty"),
     ;
 
     public static final String COMPONENT_NAME = "SCR";
