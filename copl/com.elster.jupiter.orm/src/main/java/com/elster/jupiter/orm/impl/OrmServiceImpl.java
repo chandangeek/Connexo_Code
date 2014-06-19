@@ -270,7 +270,7 @@ public class OrmServiceImpl implements OrmService, InstallService {
             for (ExistingConstraint existingConstraint : userTable.getConstraints()) {
                 if (existingConstraint.isForeignKey()) {
                     String referencedTableName = existingConstraint.getReferencedTableName();
-                    if (existingModel.getTable(referencedTableName) == null) {
+                    if (!tableName.equalsIgnoreCase(referencedTableName) && existingModel.getTable(referencedTableName) == null) {
                         addTableToExistingModel(existingModel, databaseTablesModel, referencedTableName, null);
                     }
                 }
