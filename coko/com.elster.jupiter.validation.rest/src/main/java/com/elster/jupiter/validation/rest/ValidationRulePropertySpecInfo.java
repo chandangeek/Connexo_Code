@@ -1,4 +1,4 @@
-package com.elster.jupiter.validation.rest.impl;
+package com.elster.jupiter.validation.rest;
 
 public class ValidationRulePropertySpecInfo {
 

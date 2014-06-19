@@ -1,9 +1,10 @@
-package com.elster.jupiter.validation.rest.impl;
+package com.elster.jupiter.validation.rest;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.validation.rest.impl.ServiceLocator;
 
 enum Bus {
     ;

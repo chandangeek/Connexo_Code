@@ -1,8 +1,7 @@
-package com.elster.jupiter.validation.rest.impl;
+package com.elster.jupiter.validation.rest;
 
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
-import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleProperties;
 

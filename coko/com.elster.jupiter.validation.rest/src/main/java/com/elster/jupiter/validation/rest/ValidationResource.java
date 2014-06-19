@@ -1,4 +1,4 @@
-package com.elster.jupiter.validation.rest.impl;
+package com.elster.jupiter.validation.rest;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.ReadingType;

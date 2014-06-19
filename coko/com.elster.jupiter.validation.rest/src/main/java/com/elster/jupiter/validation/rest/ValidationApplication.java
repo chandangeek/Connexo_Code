@@ -1,4 +1,4 @@
-package com.elster.jupiter.validation.rest.impl;
+package com.elster.jupiter.validation.rest;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.NlsService;
@@ -7,6 +7,9 @@ import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.rest.Bus;
+import com.elster.jupiter.validation.rest.ValidationResource;
+import com.elster.jupiter.validation.rest.impl.ServiceLocator;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;

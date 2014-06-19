@@ -1,6 +1,7 @@
-package com.elster.jupiter.validation.rest.impl;
+package com.elster.jupiter.validation.rest;
 
 import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;

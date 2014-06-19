@@ -1,4 +1,6 @@
-package com.elster.jupiter.validation.rest.impl;
+package com.elster.jupiter.validation.rest;
+
+import com.elster.jupiter.validation.rest.ValidationRulePropertySpecInfo;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.elster.jupiter.validation.rest.impl;
+package com.elster.jupiter.validation.rest;
 
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.util.units.Unit;
