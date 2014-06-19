@@ -28,7 +28,22 @@ public interface ConnectionType extends Pluggable {
      */
     enum ConnectionTypeDirection{
         OUTBOUND,
-        INBOUND
+        INBOUND,
+
+        /**
+         * The purpose of NULL is solely that the direction is not defined,
+         * it should not be used as an implementation type
+         */
+        NULL;
+
+        public static ConnectionTypeDirection fromString(String direction) {
+            for (ConnectionTypeDirection connectionTypeDirection : values()) {
+                if(connectionTypeDirection.name().equalsIgnoreCase(direction)){
+                    return connectionTypeDirection;
+                }
+            }
+            return NULL;
+        }
     }
 
     /**
