@@ -160,7 +160,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     public void setNextExecutionSpecsFrom(TemporalExpression temporalExpression) {
         // Ignore the new value in case of ASAP
         if (ConnectionStrategy.MINIMIZE_CONNECTIONS.equals(this.getConnectionStrategy())) {
-            if (this.nextExecutionSpecs.isPresent()) {
+            if (this.nextExecutionSpecs.isPresent() && this.getId()!=0) {
                 this.updateStrategy = this.updateStrategy.schedulingChanged(temporalExpression);
             }
             else {
