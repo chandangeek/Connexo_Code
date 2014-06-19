@@ -91,6 +91,11 @@ public class ModemConnectionType implements ServerConnectionType {
     }
 
     @Override
+    public ConnectionTypeDirection getDirection() {
+        return ConnectionTypeDirection.OUTBOUND;
+    }
+
+    @Override
     public int hashCode () {
         return HASH_CODE;
     }
