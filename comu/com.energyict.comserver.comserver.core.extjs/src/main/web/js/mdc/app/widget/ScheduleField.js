@@ -78,7 +78,7 @@ Ext.define('Mdc.widget.ScheduleField', {
                     blur: {
                         fn: function(field){
                             if(Ext.isEmpty(field.getValue())) {
-                                field.setValue(0);
+                                field.setValue(1);
                             }
                         }
                     }
