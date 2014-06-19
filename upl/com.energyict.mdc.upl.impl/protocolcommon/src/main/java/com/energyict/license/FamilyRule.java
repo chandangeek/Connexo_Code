@@ -46,7 +46,8 @@ public enum FamilyRule implements ProtocolFamily {
     ENERDIS_RECDIGIT(29),   // Enerdis Recdigit Modbus
     KV_ANSI(30),            // General Electric KVx ANSI
     POREG(31),              // Iskraemeco Poreg 2x DIN19244
-    LG_SCTM(32);            // L&G Dataloggers SCTM
+    LG_SCTM(32),            // L&G Dataloggers SCTM
+    ELSTER_GARNET(33);      // Elster GARNET
 
     private int code;
 
