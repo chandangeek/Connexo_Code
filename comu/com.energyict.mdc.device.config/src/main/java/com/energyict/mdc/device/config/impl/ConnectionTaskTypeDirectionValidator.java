@@ -26,7 +26,7 @@ public class ConnectionTaskTypeDirectionValidator implements ConstraintValidator
         if (partialConnectionTask.getConnectionType().getDirection() != direction) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.INCORRECT_CONNECTION_TYPE_FOR_CONNECTION_METHOD + "}")
-                    .addPropertyNode(PartialConnectionTaskImpl.Fields.CONNECTION_TYPE_PLUGGABLE_CLASS.fieldName()).addConstraintViolation();
+                    .addPropertyNode("connectionType").addConstraintViolation();
 
             return false;
         }
