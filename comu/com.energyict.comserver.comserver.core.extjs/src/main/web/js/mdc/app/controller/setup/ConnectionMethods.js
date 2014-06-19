@@ -187,6 +187,13 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                                 connectionStrategiesStore.load({
                                     callback: function () {
                                         connectionTypesStore.getProxy().setExtraParam('protocolId', deviceType.get('communicationProtocolId'));
+                                          connectionTypesStore.getProxy().setExtraParam('filter', Ext.encode([
+                                            {
+                                                property: 'direction',
+                                                value: direction
+                                            }
+                                        ]));
+
                                         connectionTypesStore.load({
                                             callback: function () {
                                                 var deviceTypeName = deviceType.get('name');
@@ -357,6 +364,12 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                                         connectionStrategiesStore.load({
                                             callback: function () {
                                                 connectionTypesStore.getProxy().setExtraParam('protocolId', deviceType.get('communicationProtocolId'));
+                                                connectionTypesStore.getProxy().setExtraParam('filter', Ext.encode([
+                                                    {
+                                                        property: 'direction',
+                                                        value: connectionMethod.get('direction')
+                                                    }
+                                                ]));
                                                 connectionTypesStore.load({
                                                     callback: function () {
                                                         var deviceTypeName = deviceType.get('name');
