@@ -5,6 +5,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationDeta
     deviceTypeId: null,
     deviceConfigId: null,
     loadProfileConfigurationId: null,
+    autoDestroy: false,
 
     content: [
         {

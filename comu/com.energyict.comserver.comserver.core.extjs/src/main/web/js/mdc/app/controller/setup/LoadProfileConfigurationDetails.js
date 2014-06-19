@@ -162,7 +162,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         var me = this,
             formPanel = me.getChannelForm(),
             form = formPanel.getForm(),
-            formErrorsPanel = formPanel.down('panel[name=errors]'),
+            formErrorsPanel = formPanel.down('uni-form-error-message[name=errors]'),
             formValue = form.getValues(),
             preloader,
             jsonValues,
@@ -220,14 +220,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                     break;
             }
         } else {
-            formErrorsPanel.hide();
-            formErrorsPanel.removeAll();
-            formErrorsPanel.add({
-                html: 'There are errors on this page that require your attention.',
-                style: {
-                    color: 'red'
-                }
-            });
             formErrorsPanel.show();
         }
     },
@@ -354,6 +346,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                     }
                                 }, me);
                                 var detailedForm = me.getLoadConfigurationDetailForm();
+                                console.log(widget);
                                 detailedForm.getForm().setValues(loadProfileConfiguration);
                                 detailedForm.down('[name=deviceConfigurationName]').setValue(Ext.String.format('<a href="#/administration/devicetypes/{0}/deviceconfigurations/{1}">{2}</a>', deviceTypeId, deviceConfigurationId, me.deviceConfigName));
                                 detailedForm.down('#loadProfileConfigLink').setValue(Ext.String.format('<a href="#/administration/devicetypes/{0}/deviceconfigurations/{1}/loadprofiles">{2}</a>', deviceTypeId, deviceConfigurationId, loadProfileConfiguration.name));
