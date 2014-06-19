@@ -1,6 +1,7 @@
 package com.energyict.mdc.pluggable.rest.impl;
 
 import com.energyict.mdc.common.rest.FieldValidationException;
+import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -77,15 +78,18 @@ public class DeviceCommunicationProtocolsResource {
     @GET
     @Path("/{deviceProtocolId}/connectiontypes")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<ConnectionTypeInfo> getSupportedConnectionTypes(@PathParam("deviceProtocolId") long deviceProtocolId, @Context UriInfo uriInfo){
+    public List<ConnectionTypeInfo> getSupportedConnectionTypes(@PathParam("deviceProtocolId") long deviceProtocolId, @Context UriInfo uriInfo, @BeanParam JsonQueryFilter queryFilter){
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = this.protocolPluggableService.findDeviceProtocolPluggableClass(deviceProtocolId);
         List<ConnectionType> supportedConnectionTypes = deviceProtocolPluggableClass.getDeviceProtocol().getSupportedConnectionTypes();
         List<ConnectionTypePluggableClass> allConnectionTypePluggableClassesToCheck = this.protocolPluggableService.findAllConnectionTypePluggableClasses();
         List<ConnectionTypeInfo> infos = new ArrayList<>();
+        ConnectionType.ConnectionTypeDirection direction = ConnectionType.ConnectionTypeDirection.fromString(queryFilter.getFilterProperties().get("direction"));
         for(ConnectionType supportedConnectionType: supportedConnectionTypes){
-            for(ConnectionTypePluggableClass registeredConnectionTypePluggableClass:allConnectionTypePluggableClassesToCheck){
-                if(registeredConnectionTypePluggableClass.getJavaClassName().equals(supportedConnectionType.getClass().getCanonicalName())){
-                     infos.add(ConnectionTypeInfo.from(registeredConnectionTypePluggableClass, uriInfo, mdcPropertyUtils));
+            if(ConnectionType.ConnectionTypeDirection.NULL.equals(direction) || supportedConnectionType.getDirection().equals(direction)){
+                for(ConnectionTypePluggableClass registeredConnectionTypePluggableClass:allConnectionTypePluggableClassesToCheck){
+                    if(registeredConnectionTypePluggableClass.getJavaClassName().equals(supportedConnectionType.getClass().getCanonicalName())){
+                        infos.add(ConnectionTypeInfo.from(registeredConnectionTypePluggableClass, uriInfo, mdcPropertyUtils));
+                    }
                 }
             }
         }
