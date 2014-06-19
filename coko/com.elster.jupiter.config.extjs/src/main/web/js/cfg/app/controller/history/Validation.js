@@ -17,9 +17,25 @@ Ext.define('Cfg.controller.history.Validation', {
                     items: {
                         rules: {
                             title: 'Overview',
-                            route: 'rules/{id}',
+                            route: 'rules/{ruleSetId}',
                             controller: 'Cfg.controller.Validation',
-                            action: 'showRules'
+                            action: 'showRules',
+                            callback: function(route) {
+                                this.getApplication().on('loadRuleSet', function(record) {
+                                    route.setTitle(record.get('name'));
+                                    return true;
+                                }, {single: true});
+
+                                return this;
+                            },
+                            items: {
+                                edit: {
+                                    title: 'Edit validation rule',
+                                    route: 'edit/{ruleId}',
+                                    controller: 'Cfg.controller.Validation',
+                                    action: 'showEditRuleOverview'
+                                }
+                            }
                         },
                         overview: {
                             title: 'Overview',
@@ -28,20 +44,31 @@ Ext.define('Cfg.controller.history.Validation', {
                             action: 'showRuleSetOverview'
                         },
                         createset: {
-                            title: 'Create rule set',
+                            title: 'Add validation rule set',
                             route: 'createset',
                             controller: 'Cfg.controller.Validation',
-                            action: 'newRuleSet'
+                            action: 'createEditRuleSet'
                         },
                         addRule: {
                             title: 'Create rule set',
                             route: 'addRule/{id}',
                             controller: 'Cfg.controller.Validation',
                             action: 'addRule'
+                        },
+                        editset: {
+                            title: 'Edit validation rule set',
+                            route: 'editset/{ruleSetId}',
+                            controller: 'Cfg.controller.Validation',
+                            action: 'createEditRuleSet'
                         }
                     }
                 }
             }
         }
+    },
+
+    init: function () {
+        var router = this.getController('Uni.controller.history.Router');
+        router.addConfig(this.routeConfig);
     }
 });

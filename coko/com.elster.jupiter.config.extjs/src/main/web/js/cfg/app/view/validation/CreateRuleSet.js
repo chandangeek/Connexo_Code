@@ -7,47 +7,79 @@ Ext.define('Cfg.view.validation.CreateRuleSet', {
 
     ],
 
+    edit: false,
+
+    setEdit: function (edit, returnLink) {
+        if (edit) {
+            this.edit = edit;
+            this.down('#createEditNewRuleSet').setText(Uni.I18n.translate('general.save', 'CFG', 'Save'));
+            this.down('#createEditNewRuleSet').action = 'editNewRuleSet';
+        } else {
+            this.edit = edit;
+            this.down('#createEditNewRuleSet').setText(Uni.I18n.translate('general.add', 'CFG', 'Add'));
+            this.down('#createEditNewRuleSet').action = 'createNewRuleSet';
+        }
+        this.down('#cancelAddRuleSetLink').href = returnLink;
+    },
+
     content: [
         {
-            xtype: 'form',
-            title: Uni.I18n.translate('validation.createRuleSet', 'CFG', 'Create rule set'),
-            itemId: 'newRuleSetForm',
+            xtype: 'panel',
             ui: 'large',
-            width: '100%',
-            defaults: {
-                labelWidth: 250
-            },
+            itemId: 'editRuleSetTitle',
             items: [
                 {
-                    xtype: 'textfield',
-                    name: 'name',
-                    required: true,
-                    width: 600,
-                    msgTarget: 'under',
-                    fieldLabel: Uni.I18n.translate('validation.name', 'CFG', 'Name'),
-                    enforceMaxLength: true
-                },
-                {
-                    xtype: 'textarea',
-                    name: 'description',
-                    width: 600,
-                    fieldLabel: Uni.I18n.translate('validation.description', 'CFG', 'Description'),
-                    enforceMaxLength: true
-                }
-            ],
-            buttons: [
-                {
-                    text: Uni.I18n.translate('general.add', 'CFG', 'Add'),
-                    xtype: 'button',
-                    ui: 'action',
-                    action: 'createNewRuleSet',
-                    itemId: 'createNewRuleSet'
-                },
-                {
-                    text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
-                    xtype: 'button',
-                    ui: 'link',
-                    href: '#/administration/validation'
+                    xtype: 'form',
+                    itemId: 'newRuleSetForm',
+                    width: '100%',
+                    defaults: {
+                        labelWidth: 250
+                    },
+                    items: [
+                        {
+                            itemId: 'form-errors',
+                            xtype: 'uni-form-error-message',
+                            name: 'form-errors',
+                            width: 400,
+                            margin: '0 0 10 0',
+                            hidden: true
+                        },
+                        {
+                            xtype: 'textfield',
+                            name: 'name',
+                            required: true,
+                            allowBlank: false,
+                            width: 600,
+                            maskRe: /^($|\S.*$)/,
+                            msgTarget: 'under',
+                            fieldLabel: Uni.I18n.translate('validation.name', 'CFG', 'Name'),
+                            enforceMaxLength: true
+                        },
+                        {
+                            xtype: 'textarea',
+                            name: 'description',
+                            width: 600,
+                            height: 150,
+                            fieldLabel: Uni.I18n.translate('validation.description', 'CFG', 'Description'),
+                            enforceMaxLength: true
+                        }
+                    ],
+                    buttons: [
+                        {
+                            text: Uni.I18n.translate('general.add', 'CFG', 'Add'),
+                            xtype: 'button',
+                            ui: 'action',
+                            action: 'createEditNewRuleSet',
+                            itemId: 'createEditNewRuleSet'
+                        },
+                        {
+                            text: Uni.I18n.translate('general.cancel', 'CFG', 'Cancel'),
+                            xtype: 'button',
+                            ui: 'link',
+                            itemId: 'cancelAddRuleSetLink',
+                            href: '#/administration/validation'
+                        }
+                    ]
                 }
             ]
         }
@@ -55,6 +87,7 @@ Ext.define('Cfg.view.validation.CreateRuleSet', {
 
     initComponent: function () {
         this.callParent(arguments);
+        this.setEdit(this.edit, this.returnLink);
     }
 });
 
