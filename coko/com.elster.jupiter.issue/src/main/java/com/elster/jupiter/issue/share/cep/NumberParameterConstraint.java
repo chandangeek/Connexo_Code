@@ -6,8 +6,6 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.elster.jupiter.util.Checks.is;
-
 public class NumberParameterConstraint implements ParameterConstraint {
 
     private boolean optional = true;

@@ -1,6 +1,5 @@
 package com.elster.jupiter.issue.impl.records;
 
-import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.cep.CreationRuleValidationException;

@@ -7,11 +7,11 @@ import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.*;
 import com.elster.jupiter.users.UserService;
-import static com.elster.jupiter.issue.impl.database.DatabaseConst.*;
 
 import java.util.Arrays;
 import java.util.ListIterator;
 
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.*;
 import static com.elster.jupiter.orm.ColumnConversion.*;
 
 public enum TableSpecs {

@@ -2,7 +2,6 @@ package com.elster.jupiter.issue.impl.service;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.impl.records.CreateIssueEventImpl;
-import com.elster.jupiter.issue.share.entity.IssueEventType;
 import com.elster.jupiter.issue.share.service.IssueHelpService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
@@ -46,10 +45,6 @@ public class IssueHelpServiceImpl implements IssueHelpService {
 
     @Override
     public void postEvent(String topic, String eventIdentifier){
-        IssueEventType type = IssueEventType.getEventTypeByTopic(topic);
-        if (type == null) {
-            type = IssueEventType.DEVICE_CONNECTION_FAILURE;
-        }
-        eventService.postEvent(type.topic(), new CreateIssueEventImpl(type.topic(), eventIdentifier));
+        eventService.postEvent(topic, new CreateIssueEventImpl(topic, eventIdentifier));
     }
 }

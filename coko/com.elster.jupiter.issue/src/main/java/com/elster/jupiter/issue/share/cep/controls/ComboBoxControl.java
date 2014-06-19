@@ -8,7 +8,7 @@ public class ComboBoxControl extends SimpleControl{
     }
 
     public static class Values {
-        public int id;
-        public String title;
+        public Object id;
+        public Object title;
     }
 }

@@ -6,7 +6,6 @@ import com.elster.jupiter.issue.share.entity.CreationRuleAction;
 import com.elster.jupiter.issue.share.service.IssueService;
 
 import java.util.*;
-import java.util.logging.Logger;
 
 public abstract class AbstractIssueAction implements IssueAction {
     protected Map<String, ParameterDefinition> parameterDefinitions = new LinkedHashMap<>();

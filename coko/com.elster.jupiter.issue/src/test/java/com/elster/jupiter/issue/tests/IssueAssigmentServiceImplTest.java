@@ -2,10 +2,10 @@ package com.elster.jupiter.issue.tests;
 
 import com.elster.jupiter.issue.impl.records.AssignmentRuleImpl;
 import com.elster.jupiter.issue.impl.records.IssueForAssignImpl;
-import com.elster.jupiter.issue.impl.records.IssueImpl;
-import com.elster.jupiter.issue.share.entity.*;
+import com.elster.jupiter.issue.share.entity.AssignmentRule;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueForAssign;
 import com.elster.jupiter.transaction.TransactionContext;
-
 import com.elster.jupiter.util.conditions.Condition;
 import com.google.common.base.Optional;
 import org.junit.Test;
