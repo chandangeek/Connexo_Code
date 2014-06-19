@@ -3,7 +3,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.rest.impl.ValidationRuleSetInfo;
+import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.PagedInfoList;
@@ -335,7 +335,7 @@ public class DeviceConfigurationResource {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         List<ValidationRuleSetInfo> addedValidationRuleSets = new ArrayList<>(ids.size());
         for (Long id : ids) {
-            Optional optional = validationService.getValidationRule(id);
+            Optional optional = validationService.getValidationRuleSet(id);
             if (optional.isPresent()) {
                 ValidationRuleSet ruleSet = (ValidationRuleSet) optional.get();
                 deviceConfiguration.addValidationRuleSet(ruleSet);

@@ -12,6 +12,7 @@ import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -48,6 +49,7 @@ public class DeviceConfigurationApplication extends Application implements Insta
     private volatile JsonService jsonService;
     private volatile Thesaurus thesaurus;
     private volatile UserFileService userFileService;
+    private volatile ValidationService validationService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -81,6 +83,11 @@ public class DeviceConfigurationApplication extends Application implements Insta
         hashSet.addAll(super.getSingletons());
         hashSet.add(new HK2Binder());
         return Collections.unmodifiableSet(hashSet);
+    }
+
+    @Reference
+    public void setValidationService(ValidationService validationService) {
+        this.validationService = validationService;
     }
 
     @Reference
@@ -164,6 +171,7 @@ public class DeviceConfigurationApplication extends Application implements Insta
             bind(thesaurus).to(Thesaurus.class);
             bind(engineModelService).to(EngineModelService.class);
             bind(userFileService).to(UserFileService.class);
+            bind(validationService).to(ValidationService.class);
         }
     }
 
