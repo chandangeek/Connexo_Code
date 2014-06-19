@@ -1,52 +1,42 @@
 Ext.define('Isu.view.workspace.issues.Item', {
     extend: 'Ext.panel.Panel',
+    alias: 'widget.issues-item',
+    itemId: 'issues-item',
     requires: [
-        'Isu.view.ext.button.ItemAction',
         'Isu.view.workspace.issues.ActionMenu',
         'Isu.view.workspace.issues.FormWithFilters'
     ],
-    alias: 'widget.issues-item',
-    title: 'Details',
-    itemId: 'issues-item',
+    title: '',
     frame: true,
     tools: [
         {
-            text: 'Actions',
-            itemId: 'item-action',
-            xtype: 'item-action',
+            xtype: 'button',
+            text: Uni.I18n.translate('general.actions', 'ISE', 'Actions'),
+            iconCls: 'x-uni-action-iconD',
             menu: {
-                itemId: 'action-menu',
-                xtype: 'issue-action-menu',
-                issueId: this.record ? this.record.getId() : null
+                xtype: 'issue-action-menu'
             }
         }
     ],
     items: {
-
         itemId: 'issue-form-with-filters',
         xtype: 'issue-form-with-filters',
-        // todo: animate button
         bbar: {
             layout: {
                 type: 'vbox',
                 align: 'right'
             },
             items: {
-                text: 'View details',
+                text: Uni.I18n.translate('general.title.viewDetails', 'ISE', 'View details'),
                 itemId: 'viewDetails',
                 ui: 'link',
                 action: 'view',
                 listeners: {
                     click: function () {
-                        window.location.href = "#/workspace/datacollection/issues/" + Ext.ComponentQuery.query('#issue-form-with-filters')[0].getRecord().get('id')
+                        window.location.href = "#/workspace/datacollection/issues/" + this.up('form').getRecord().get('id')
                     }
                 }
             }
         }
-
-    },
-
-// todo: set empty text
-    emptyText: '<h3>No issue selected</h3><p>Select an issue to view its detail.</p>'
-
+    }
 });

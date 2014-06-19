@@ -384,64 +384,64 @@ span[class^=isu-assignee-] {
 }
 
 /* Error*/
-.isu-msg-error {
-    background-color: rgba(255, 0, 0, 0.16);
-    border: 1px solid #FF0000;
-    border-radius: 5px;
-}
+/*.isu-msg-error {*/
+    /*background-color: rgba(255, 0, 0, 0.16);*/
+    /*border: 1px solid #FF0000;*/
+    /*border-radius: 5px;*/
+/*}*/
 
-.isu-msg-error-icon {
-    font-size: 28px;
-    color: #f00;
-}
+/*.isu-msg-error-icon {*/
+    /*font-size: 28px;*/
+    /*color: #f00;*/
+/*}*/
 
 /* Attention*/
-.isu-msg-attention {
-    background-color: rgba(255, 128, 0, 0.4);
-    border: 1px solid #FF8800;
-    border-radius: 5px;
-}
+/*.isu-msg-attention {*/
+    /*background-color: rgba(255, 128, 0, 0.4);*/
+    /*border: 1px solid #FF8800;*/
+    /*border-radius: 5px;*/
+/*}*/
 
-.isu-msg-attention-icon {
-    font-size: 28px;
-    color: #f00;
-}
+/*.isu-msg-attention-icon {*/
+    /*font-size: 28px;*/
+    /*color: #f00;*/
+/*}*/
 
 /* Question*/
-.isu-msg-question {
-    background-color: rgba(255, 255, 0, 0.4);
-    border: 1px solid #FF0000;
-    border-radius: 5px;
-}
+/*.isu-msg-question {*/
+    /*background-color: rgba(255, 255, 0, 0.4);*/
+    /*border: 1px solid #FF0000;*/
+    /*border-radius: 5px;*/
+/*}*/
 
-.isu-msg-question-icon {
-    font-size: 28px;
-    color: #EABA00;
-}
+/*.isu-msg-question-icon {*/
+    /*font-size: 28px;*/
+    /*color: #EABA00;*/
+/*}*/
 
 /* Success*/
-.isu-msg-success {
-    background-color: rgba(0, 255, 0, 0.4);
-    border: 1px solid #00ff00;
-    border-radius: 5px;
-}
+/*.isu-msg-success {*/
+    /*background-color: rgba(0, 255, 0, 0.4);*/
+    /*border: 1px solid #00ff00;*/
+    /*border-radius: 5px;*/
+/*}*/
 
-.isu-msg-success-icon {
-    font-size: 28px;
-    color: #747474;
-}
+/*.isu-msg-success-icon {*/
+    /*font-size: 28px;*/
+    /*color: #747474;*/
+/*}*/
 
 /* Notify*/
-.isu-msg-notify {
-    background-color: rgba(128, 128, 128, 0.4);
-    border: 1px solid #000;
-    border-radius: 5px;
-}
+/*.isu-msg-notify {*/
+    /*background-color: rgba(128, 128, 128, 0.4);*/
+    /*border: 1px solid #000;*/
+    /*border-radius: 5px;*/
+/*}*/
 
-.isu-msg-nitify-icon {
-    font-size: 28px;
-    color: #f00;
-}
+/*.isu-msg-nitify-icon {*/
+    /*font-size: 28px;*/
+    /*color: #f00;*/
+/*}*/
 
 #preloader {
     position: absolute;
@@ -514,6 +514,7 @@ span[class^=isu-assignee-] {
 
 .isu-issues-list-selected-no-highlighted .x-grid-cell {
     background-color: inherit !important;
+    color: inherit !important;
 }
 
 .isu-delete-message .x-message-box-warning {

@@ -78,15 +78,17 @@ Ext.define('Isu.controller.BulkChangeIssues', {
 
 
     showOverview: function () {
-        var issuesStore = this.getStore('Isu.store.Issues'),
+        var self = this,
+            issuesStore = this.getStore('Isu.store.Issues'),
             issuesStoreRoxy = issuesStore.getProxy(),
+            extraParamsModel = new Isu.model.ExtraParams(),
             widget;
 
         issuesStoreRoxy.extraParams = {};
-        issuesStoreRoxy.setExtraParam('status', 1);
+        issuesStoreRoxy.setExtraParam('status', extraParamsModel.getDefaults().status);
 
         widget = Ext.widget('bulk-browse');
-        this.getApplication().fireEvent('changecontentevent', widget);
+        self.getApplication().fireEvent('changecontentevent', widget);
     },
 
     setActivePage: function (index) {
@@ -113,12 +115,14 @@ Ext.define('Isu.controller.BulkChangeIssues', {
 
     onIssuesListAfterRender: function (grid) {
         var step1RadioGroup = Ext.ComponentQuery.query('bulk-browse')[0].down('bulk-wizard').down('bulk-step1').down('radiogroup'),
-            step1SelectedIssuesTxtHolder = Ext.ComponentQuery.query('bulk-browse')[0].down('bulk-wizard').down('bulk-step1').down('[name=selected-issues-txt-holder]');
+            step1SelectedIssuesTxtHolder = Ext.ComponentQuery.query('bulk-browse')[0].down('bulk-wizard').down('bulk-step1').down('[name=selected-issues-txt-holder]'),
+            extraParamsModel = new Isu.model.ExtraParams();
+
         step1RadioGroup.mask();
         step1SelectedIssuesTxtHolder.mask();
         grid.mask();
         grid.store.load({
-            params: {status: 1},
+            params: {status: extraParamsModel.getDefaults().status},
             start: 0,
             limit: 99999,
             callback: function () {
@@ -519,7 +523,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
     step1SelectedIssuesTxtHolderUptade: function (grid) {
         var step1SelectedIssuesTxt = Ext.ComponentQuery.query('bulk-browse')[0].down('bulk-wizard').down('bulk-step1').down('[name=issues-qty-txt]');
         step1SelectedIssuesTxt.setText(
-                grid.view.getSelectionModel().getSelection().length >= 1 ? (grid.view.getSelectionModel().getSelection().length +
+            grid.view.getSelectionModel().getSelection().length >= 1 ? (grid.view.getSelectionModel().getSelection().length +
                 (grid.view.getSelectionModel().getSelection().length > 1 ? ' issues' : ' issue') + ' selected') : 'No issues selected');
     }
 });

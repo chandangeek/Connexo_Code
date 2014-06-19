@@ -4,8 +4,8 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
     itemId: 'issues-side-filter',
     cls: 'filter-form',
     width: 200,
-    title: "Filter",
-    ui: "filter",
+    title: Uni.I18n.translate('general.title.filter', 'ISE', 'Filter'),
+    ui: 'filter',
     requires: [
         'Isu.view.workspace.issues.component.AssigneeCombo',
         'Isu.util.FilterCheckboxgroup',
@@ -24,7 +24,7 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
                     xtype: 'filter-checkboxgroup',
                     store: 'Isu.store.IssueStatus',
                     name: 'status',
-                    fieldLabel: 'Status',
+                    fieldLabel: Uni.I18n.translate('general.title.status', 'ISE', 'Status'),
                     labelAlign: 'top',
                     columns: 1,
                     vertical: true
@@ -32,14 +32,14 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
                 {
                     xtype: 'button',
                     ui: 'link',
-                    text: 'Assigned to me',
+                    text: Uni.I18n.translate('general.title.assignedToMe', 'ISE', 'Assigned to me'),
                     action: 'assignedToMe'
                 },
                 {
                     itemId: 'AssigneeFilter',
                     xtype: 'issues-assignee-combo',
                     name: 'assignee',
-                    fieldLabel: 'Assignee',
+                    fieldLabel: Uni.I18n.translate('general.title.assignee', 'ISE', 'Assignee'),
                     labelAlign: 'top',
                     forceSelection: true,
                     anyMatch: true,
@@ -50,7 +50,7 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
                     itemId: 'ReasonFilter',
                     xtype: 'combobox',
                     name: 'reason',
-                    fieldLabel: 'Reason',
+                    fieldLabel: Uni.I18n.translate('general.title.reason', 'ISE', 'Reason'),
                     labelAlign: 'top',
 
                     displayField: 'name',
@@ -78,7 +78,7 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
                     itemId: 'MeterFilter',
                     xtype: 'combobox',
                     name: 'meter',
-                    fieldLabel: 'Meter',
+                    fieldLabel: Uni.I18n.translate('general.title.meter', 'ISE', 'Meter'),
                     labelAlign: 'top',
 
                     displayField: 'name',
@@ -106,16 +106,23 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
         }
     ],
 
-    buttons: [
+    dockedItems: [
         {
-            itemId: 'fApply',
-            text: 'Apply',
-            action: 'filter'
-        },
-        {
-            itemId: 'fReset',
-            text: 'Clear all',
-            action: 'reset'
+            xtype: 'toolbar',
+            dock: 'bottom',
+            items: [
+                {
+                    itemId: 'fApply',
+                    ui: 'action',
+                    text: 'Apply',
+                    action: 'filter'
+                },
+                {
+                    itemId: 'fReset',
+                    text: 'Clear all',
+                    action: 'reset'
+                }
+            ]
         }
     ]
 });

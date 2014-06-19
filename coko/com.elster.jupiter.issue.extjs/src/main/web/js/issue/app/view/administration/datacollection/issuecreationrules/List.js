@@ -3,39 +3,32 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.List', {
     requires: [
         'Ext.layout.container.Column',
         'Ext.grid.column.Template',
-        'Ext.grid.column.Action',
+        'Uni.grid.column.Action',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom'
     ],
     alias: 'widget.issues-creation-rules-list',
-    border: false,
-    itemId: 'createRuleGrid',
-    xtype: 'grid',
     store: 'Isu.store.CreationRule',
     columns: {
-        defaults: {
-            sortable: false,
-            menuDisabled: true
-        },
         items: [
             {
                 itemId: 'Name',
-                header: 'Name',
+                header: Uni.I18n.translate('general.title.name', 'ISE', 'Name'),
                 dataIndex: 'name',
                 tdCls: 'isu-grid-description',
                 flex: 1
             },
             {
                 itemId: 'templateColumn',
-                header: 'Rule template',
+                header: Uni.I18n.translate('general.title.ruleTemplate', 'ISE', 'Rule template'),
                 xtype: 'templatecolumn',
                 tpl: '<tpl if="template">{template.name}</tpl>',
                 tdCls: 'isu-grid-description',
                 flex: 1
             },
             {
-                itemId: 'issueType',
-                header: 'Issue type',
+                itemId : 'issueType',
+                header: Uni.I18n.translate('general.title.issueType', 'ISE', 'Issue type'),
                 xtype: 'templatecolumn',
                 tpl: '<tpl if="issueType">{issueType.name}</tpl>',
                 tdCls: 'isu-grid-description',
@@ -47,38 +40,45 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.List', {
             }
         ]
     },
-
-
     dockedItems: [
         {
-            itemId: 'toolbarTop',
-            xtype: 'toolbar',
+            itemId: 'pagingtoolbartop',
+            xtype: 'pagingtoolbartop',
             dock: 'top',
-            layout: 'hbox',
+            displayMsg: Uni.I18n.translate('administration.issueCreationRules.pagingtoolbartop.displayMsg', 'ISE', '{0} - {1} of {2} issue creation rules'),
+            displayMoreMsg: Uni.I18n.translate('administration.issueCreationRules.pagingtoolbartop.displayMoreMsg', 'ISE', '{0} - {1} of more than {2} issue creation rules'),
+            emptyMsg: Uni.I18n.translate('administration.issueCreationRules.pagingtoolbartop.emptyMsg', 'ISE', 'There are no issue creation rules to display'),
             items: [
-                {
-                    itemId: 'pagingtoolbarTop',
-                    xtype: 'pagingtoolbartop',
-                    store: 'Isu.store.CreationRule',
-                    displayMsg: '{0} - {1} of {2} rules',
-                    displayMoreMsg: '{0} - {1} of more than {2} rules',
-                    emptyMsg: '0 rules',
-                    border: false,
-                    flex: 1
-                },
+                '->',
                 {
                     itemId: 'createRule',
                     xtype: 'button',
-                    text: 'Create rule',
+                    text: Uni.I18n.translate('administration.issueCreationRules.add', 'ISE', 'Create rule'),
                     href: '#/administration/issue/creationrules/create',
                     action: 'create'
                 }
             ]
         },
         {
+            itemId: 'pagingtoolbarbottom',
             xtype: 'pagingtoolbarbottom',
-            store: 'Isu.store.CreationRule',
-            dock: 'bottom'
+            dock: 'bottom',
+            itemsPerPageMsg: Uni.I18n.translate('administration.issueCreationRules.pagingtoolbarbottom.itemsPerPage', 'ISE', 'Issue creation rules per page')
         }
-    ]
+    ],
+
+    initComponent: function () {
+        var store = this.store,
+            pagingToolbarTop = Ext.Array.findBy(this.dockedItems, function (item) {
+                return item.xtype == 'pagingtoolbartop';
+            }),
+            pagingToolbarBottom = Ext.Array.findBy(this.dockedItems, function (item) {
+                return item.xtype == 'pagingtoolbarbottom';
+            });
+
+        pagingToolbarTop && (pagingToolbarTop.store = store);
+        pagingToolbarBottom && (pagingToolbarBottom.store = store);
+
+        this.callParent(arguments);
+    }
 });
