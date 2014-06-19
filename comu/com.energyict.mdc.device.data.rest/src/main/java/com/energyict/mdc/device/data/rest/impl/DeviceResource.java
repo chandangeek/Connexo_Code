@@ -7,7 +7,6 @@ import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
@@ -109,6 +108,15 @@ public class DeviceResource {
         }
     }
 
+    @GET
+    @Path("/{mRID}/connectionmethods/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getConnectionMethod(@PathParam("mRID") String mrid, @PathParam("id") long connectionMethodId, @Context UriInfo uriInfo) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        ConnectionTask<?, ?> connectionTask = findConnectionTaskOrThrowException(device, connectionMethodId);
+        return Response.status(Response.Status.OK).entity(connectionMethodInfoFactory.asInfo(connectionTask, uriInfo)).build();
+    }
+
     @PUT
     @Path("/{mRID}/connectionmethods/{id}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -116,10 +124,6 @@ public class DeviceResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         ConnectionTask<? extends ComPortPool, ? extends PartialConnectionTask> task = findConnectionTaskOrThrowException(device, connectionMethodId);
         PartialConnectionTask partialConnectionTask = findPartialConnectionTaskOrThrowException(device, connectionMethodInfo.name);
-
-        if (!PartialScheduledConnectionTask.class.isAssignableFrom(partialConnectionTask.getClass())) {
-            throw new WebApplicationException("Expected partial connection task to be 'Outbound'", Response.Status.BAD_REQUEST);
-        }
 
         connectionMethodInfo.writeTo(task, partialConnectionTask, deviceDataService, engineModelService, mdcPropertyUtils);
         task.save();

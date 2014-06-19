@@ -7,7 +7,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
@@ -42,23 +41,8 @@ public class InboundConnectionMethodInfo extends ConnectionMethodInfo<InboundCon
         }
 
         InboundConnectionTask inboundConnectionTask = deviceDataService.newInboundConnectionTask(device, partialInboundConnectionTask, inboundComPortPool);
-
-        if (this.properties !=null) {
-            for (PropertySpec<?> propertySpec : partialConnectionTask.getPluggableClass().getPropertySpecs()) {
-                Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, this.properties);
-                if (propertyValue!=null) {
-                    inboundConnectionTask.setProperty(propertySpec.getName(), propertyValue);
-                }
-            }
-        }
-
+        writeTo(inboundConnectionTask, partialInboundConnectionTask, deviceDataService, engineModelService, mdcPropertyUtils);
         inboundConnectionTask.save();
-        if (this.paused) {
-            inboundConnectionTask.pause();
-        } else {
-            inboundConnectionTask.resume();
-        }
-
         return inboundConnectionTask;
     }
 
