@@ -25,7 +25,8 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
         {ref: 'protocolDialectPreview', selector: '#protocolDialectPreview'},
         {ref: 'protocolDialectPreviewTitle', selector: '#protocolDialectPreviewTitle'},
         {ref: 'protocolDialectEditView', selector: '#protocolDialectEdit'},
-        {ref: 'protocolDialectEditForm', selector: '#protocolDialectEditForm'}
+        {ref: 'protocolDialectEditForm', selector: '#protocolDialectEditForm'},
+        {ref: 'protocolDialectsDetailsTitle', selector: '#protocolDialectsDetailsTitle'}
     ],
 
     init: function () {
@@ -78,7 +79,12 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
         if (protocolDialect.length === 1) {
             this.getProtocolDialectPreviewForm().loadRecord(protocolDialect[0]);
             var protocolDialectName = protocolDialect[0].get('name');
-            this.getProtocolDialectPreview().getLayout().setActiveItem(1);            
+            this.getProtocolDialectPreview().getLayout().setActiveItem(1);
+            if (protocolDialect[0].propertiesStore.data.items.length > 0) {
+                this.getProtocolDialectsDetailsTitle().setVisible(true);
+            } else {
+                this.getProtocolDialectsDetailsTitle().setVisible(false);
+            }
             this.getPropertiesViewController().showProperties(protocolDialect[0], this.getProtocolDialectPreview());
             this.getProtocolDialectPreview().setTitle(protocolDialectName);
         } else {
@@ -134,7 +140,7 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
                                 me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfiguration);
                                 widget.down('form').loadRecord(protocolDialect);
                                 me.getPropertiesController().showProperties(protocolDialect, widget);
-                                widget.down('#protocolDialectEditAddTitle').update('<h1>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + protocolDialect.get('name') + '</h1>');
+                                widget.down('#protocolDialectEditAddTitle').update('<h1>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + protocolDialect.get('name') + '</h1>');
                                 me.getApplication().fireEvent('changecontentevent', widget);
                                 widget.setLoading(false);
                             }
