@@ -4,18 +4,8 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.DeviceTypeFields;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.pluggable.PluggableService;
@@ -28,6 +18,7 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
+import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
 
 /**
  * Models the database tables that hold the data of the
@@ -498,7 +489,25 @@ public enum TableSpecs {
             table.unique("UK_DTC_COMTASKENABLEMENT").on(comtask,deviceCommunicationConfigation).add();
             table.primaryKey("PK_DTC_COMTASKENABLEMENT").on(id).add();
         }
-    }
+    },
+
+
+    //deviceConfValidationRuleSetUsages
+    DTC_DEVICECONFRULESETUSAGE {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<DeviceConfValidationRuleSetUsage> table = dataModel.addTable(name(), DeviceConfValidationRuleSetUsage.class);
+            table.map(DeviceConfValidationRuleSetUsageImpl.class);
+            Column validationRuleSetIdColumn =
+                    table.column("VALIDATIONRULESETID").type("number").notNull().conversion(NUMBER2LONG).map("validationRuleSetId").add();
+            Column deviceConfigurationIdColumn =
+                    table.column("DEVICECONFIGID").type("number").notNull().conversion(NUMBER2LONG).map("deviceConfigurationId").add();
+
+            table.primaryKey("DTC_PK_SETCONFIGUSAGE").on(validationRuleSetIdColumn, deviceConfigurationIdColumn).add();
+            table.foreignKey("DTC_FK_RULESET").references(ValidationService.COMPONENTNAME, "VAL_VALIDATIONRULESET").onDelete(RESTRICT).map("validationRuleSet").on(validationRuleSetIdColumn).add();
+            table.foreignKey("DTC_FK_DEVICECONFIG").references("DTC_DEVICECONFIG").reverseMap("deviceConfValidationRuleSetUsages").onDelete(CASCADE).composition().map("deviceConfiguration").on(deviceConfigurationIdColumn).add();
+        }
+    },
     ;
 
     abstract void addTo(DataModel component);

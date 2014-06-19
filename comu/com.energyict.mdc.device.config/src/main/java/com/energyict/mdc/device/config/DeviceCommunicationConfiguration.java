@@ -82,4 +82,7 @@ public interface DeviceCommunicationConfiguration extends HasId {
      */
     public void  disableComTask (ComTask comTask);
 
+
+
+
 }

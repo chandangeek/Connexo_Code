@@ -12,6 +12,7 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.services.DefaultFinder;
 import com.energyict.mdc.common.services.Finder;
@@ -88,6 +89,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     private volatile UserService userService;
     private volatile TaskService taskService;
     private volatile PluggableService pluggableService;
+    private volatile ValidationService validationService;
 
     private final Map<DeviceSecurityUserAction, Privilege> privileges = new EnumMap<>(DeviceSecurityUserAction.class);
 
@@ -96,11 +98,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Inject
-    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, MasterDataService masterDataService, SchedulingService schedulingService) {
-        this(ormService, eventService, nlsService, meteringService, mdcReadingTypeUtilService, protocolPluggableService, userService, engineModelService, masterDataService, false, schedulingService);
+    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, MasterDataService masterDataService, SchedulingService schedulingService, ValidationService validationService) {
+        this(ormService, eventService, nlsService, meteringService, mdcReadingTypeUtilService, protocolPluggableService, userService, engineModelService, masterDataService, false, schedulingService, validationService);
     }
 
-    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, ProtocolPluggableService protocolPluggableService, UserService userService, EngineModelService engineModelService, MasterDataService masterDataService, boolean createMasterData, SchedulingService schedulingService) {
+    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, ProtocolPluggableService protocolPluggableService, UserService userService, EngineModelService engineModelService, MasterDataService masterDataService, boolean createMasterData, SchedulingService schedulingService, ValidationService validationService) {
         this();
         this.setOrmService(ormService);
         this.setUserService(userService);
@@ -112,6 +114,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.setEngineModelService(engineModelService);
         this.setMasterDataService(this.masterDataService);
         this.setSchedulingService(schedulingService);
+        this.setValidationService(validationService);
         this.activate();
         if (!this.dataModel.isInstalled()) {
             this.install();
@@ -430,6 +433,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                 bind(EngineModelService.class).toInstance(engineModelService);
                 bind(UserService.class).toInstance(userService);
                 bind(SchedulingService.class).toInstance(schedulingService);
+                bind(ValidationService.class).toInstance(validationService);
             }
         };
     }
@@ -454,6 +458,12 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     public void setTaskService(TaskService taskService) {
         // Not actively used but required for foreign keys in TableSpecs
         this.taskService = taskService;
+    }
+
+    @Reference
+    public void setValidationService(ValidationService validationService) {
+        // Not actively used but required for foreign keys in TableSpecs
+        this.validationService = validationService;
     }
 
     @Reference

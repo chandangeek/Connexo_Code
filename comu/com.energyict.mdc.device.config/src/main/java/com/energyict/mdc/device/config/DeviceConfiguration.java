@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.config;
 
+
+import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.masterdata.LoadProfileType;
@@ -115,6 +117,14 @@ public interface DeviceConfiguration extends HasId, DeviceCommunicationConfigura
 
     public boolean canBeDirectlyAddressable();
     public void setCanBeDirectlyAddressed(boolean canBeDirectlyAddressed);
+
+    DeviceConfValidationRuleSetUsage addValidationRuleSet(ValidationRuleSet validationRuleSet);
+
+    public void removeValidationRuleSet(ValidationRuleSet validationRuleSet);
+
+    public List<ValidationRuleSet> getValidationRuleSets();
+
+    public List<DeviceConfValidationRuleSetUsage> getDeviceConfValidationRuleSetUsages();
 
     //TODO we remove 'CreateDeviceTransaction' and 'DeviceConfigurationChanges' from the API, must be included when time comes ...
 

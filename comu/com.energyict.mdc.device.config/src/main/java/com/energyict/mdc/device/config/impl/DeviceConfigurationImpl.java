@@ -7,32 +7,11 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Clock;
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.interval.Phenomenon;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
-import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
-import com.energyict.mdc.device.config.DeviceCommunicationFunction;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
-import com.energyict.mdc.device.config.PartialConnectionInitiationTaskBuilder;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.device.config.PartialInboundConnectionTaskBuilder;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTaskBuilder;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.config.exceptions.CannotAddToActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteFromActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.DeviceConfigurationIsActiveException;
@@ -113,12 +92,16 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     private final Provider<ChannelSpecImpl> channelSpecProvider;
     private final DeviceConfigurationService deviceConfigurationService;
 
+    private List<DeviceConfValidationRuleSetUsage> deviceConfValidationRuleSetUsages = new ArrayList<>();
+    private final Provider<DeviceConfValidationRuleSetUsageImpl> deviceConfValidationRuleSetUsageFactory;
+
     @Inject
     protected DeviceConfigurationImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock,
                                       Provider<LoadProfileSpecImpl> loadProfileSpecProvider,
                                       Provider<RegisterSpecImpl> registerSpecProvider,
                                       Provider<LogBookSpecImpl> logBookSpecProvider,
                                       Provider<ChannelSpecImpl> channelSpecProvider,
+                                      Provider<DeviceConfValidationRuleSetUsageImpl> deviceConfValidationRuleSetUsageFactory,
                                       DeviceConfigurationService deviceConfigurationService) {
         super(DeviceConfiguration.class, dataModel, eventService, thesaurus);
         this.clock = clock;
@@ -127,6 +110,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         this.registerSpecProvider = registerSpecProvider;
         this.logBookSpecProvider = logBookSpecProvider;
         this.channelSpecProvider = channelSpecProvider;
+        this.deviceConfValidationRuleSetUsageFactory = deviceConfValidationRuleSetUsageFactory;
         this.deviceConfigurationService = deviceConfigurationService;
     }
 
@@ -812,6 +796,41 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     @Override
     public List<ComTaskEnablement> getComTaskEnablements() {
         return this.getCommunicationConfiguration().getComTaskEnablements();
+    }
+
+    public List<DeviceConfValidationRuleSetUsage> getDeviceConfValidationRuleSetUsages() {
+        return deviceConfValidationRuleSetUsages;
+    }
+
+    public List<ValidationRuleSet> getValidationRuleSets() {
+        List<ValidationRuleSet> result = new ArrayList<ValidationRuleSet>();
+        for (DeviceConfValidationRuleSetUsage usage : this.deviceConfValidationRuleSetUsages)  {
+            result.add(usage.getValidationRuleSet());
+        }
+        return result;
+    }
+
+    @Override
+    public DeviceConfValidationRuleSetUsage addValidationRuleSet(ValidationRuleSet validationRuleSet) {
+        DeviceConfValidationRuleSetUsage usage =
+                deviceConfValidationRuleSetUsageFactory.get().init(validationRuleSet, this);
+        deviceConfValidationRuleSetUsages.add(usage);
+        return usage;
+    }
+
+    protected DeviceConfValidationRuleSetUsage getUsage(ValidationRuleSet validationRuleSet) {
+        List<DeviceConfValidationRuleSetUsage> usages = this.getDeviceConfValidationRuleSetUsages();
+        for (DeviceConfValidationRuleSetUsage usage : usages) {
+            if (usage.getValidationRuleSet().getId() == validationRuleSet.getId()) {
+                return usage;
+            }
+        }
+        return null;
+    }
+
+    public void removeValidationRuleSet(ValidationRuleSet validationRuleSet) {
+        DeviceConfValidationRuleSetUsage usage = getUsage(validationRuleSet);
+        deviceConfValidationRuleSetUsages.remove(usage);
     }
 
 }

@@ -3,6 +3,7 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.scheduling.SchedulingService;
@@ -24,6 +25,7 @@ public class DeviceConfigurationModule extends AbstractModule {
         requireBinding(MeteringService.class);
         requireBinding(MdcReadingTypeUtilService.class);
         requireBinding(SchedulingService.class);
+        requireBinding(ValidationService.class);
 
         bind(DeviceConfigurationService.class).to(DeviceConfigurationServiceImpl.class).in(Scopes.SINGLETON);
     }
