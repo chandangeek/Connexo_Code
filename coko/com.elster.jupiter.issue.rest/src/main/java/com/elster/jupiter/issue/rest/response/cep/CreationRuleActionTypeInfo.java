@@ -6,14 +6,18 @@ import com.elster.jupiter.issue.share.cep.ParameterDefinition;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+
 public class CreationRuleActionTypeInfo {
     private long id;
     private String name;
     private IssueTypeInfo issueType;
+    @XmlJavaTypeAdapter(ParametersAdapter.class)
     private Map<String, ParameterInfo> parameters;
 
     public CreationRuleActionTypeInfo(){}
@@ -53,4 +57,24 @@ public class CreationRuleActionTypeInfo {
     public Map<String, ParameterInfo> getParameters() {
         return parameters;
     }
+
+    public void setParameters(Map<String, ParameterInfo> parameters) {
+        this.parameters = parameters;
+    }
+
+    /**
+     * Workaround for specific case. We don't want to receive the parameters description from front-end
+     * when user saves a creation rule with actions. @JsonIgnore on setter doesn't work.
+     */
+    public static class ParametersAdapter extends XmlAdapter<Object, Map<String, ParameterInfo>> {
+        @Override
+        public Map<String, ParameterInfo> unmarshal(Object jsonValue) throws Exception {
+            return null;
+        }
+        @Override
+        public Map<String, ParameterInfo> marshal(Map<String, ParameterInfo> parameter) throws Exception {
+            return parameter;
+        }
+    }
+
 }
