@@ -165,7 +165,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         var me = this,
             formPanel = me.getLoadTypeForm(),
             form = formPanel.getForm(),
-            formErrorsPanel = formPanel.down('panel[name=errors]'),
+            formErrorsPanel = formPanel.down('uni-form-error-message[name=errors]'),
             formValue = form.getValues(),
             timeDurationId = formValue.timeDuration,
             measurementTypesErrorPanel = formPanel.down('fieldcontainer').down('panel[name=measurementTypesErrors]'),
@@ -234,14 +234,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                 });
                 measurementTypesErrorPanel.show();
             }
-            formErrorsPanel.hide();
-            formErrorsPanel.removeAll();
-            formErrorsPanel.add({
-                html: 'There are errors on this page that require your attention.',
-                style: {
-                    color: 'red'
-                }
-            });
             formErrorsPanel.show();
         }
     },

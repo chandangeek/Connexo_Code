@@ -20,7 +20,16 @@ Ext.define('Mdc.model.ComServer', {
         'inboundComPorts',
         {name: 'queryAPIUsername', type: 'string', useNull: true},
         {name: 'queryAPIPassword', type: 'string', useNull: true},
-        {name: 'onlineComServerId', type: 'int', useNull: true}
+        {name: 'onlineComServerId', type: 'int', useNull: true},
+        {
+            name: 'comportslink',
+            mapping: function (data) {
+                var inboundComPorts = data.inboundComPorts ? data.inboundComPorts.length : 0,
+                    outboundComPorts = data.outboundComPorts ? data.outboundComPorts.length : 0,
+                    comports = inboundComPorts + outboundComPorts;
+                return '<a href="#/administration/comservers/' + data.id + '/comports">' + comports + ' ' + Uni.I18n.translate('comserver.preview.communicationPorts', 'MDC', 'communication ports') + '</a>';
+            }
+        }
     ],
     associations: [
         {name: 'changesInterPollDelay', type: 'hasOne', model: 'Mdc.model.field.TimeInfo', associationKey: 'changesInterPollDelay'},

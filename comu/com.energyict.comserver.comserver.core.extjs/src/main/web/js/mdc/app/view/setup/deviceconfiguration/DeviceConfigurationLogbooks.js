@@ -66,6 +66,12 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationLogbooks', {
                                         }
                                     }
                                 ]
+                            },
+                            {
+                                xtype: 'pagingtoolbarbottom',
+                                dock: 'bottom',
+                                store: 'LogbookConfigurations',
+                                itemsPerPageMsg: Uni.I18n.translate('logbookconfiguration.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Logbook configurations per page')
                             }
                         ]
                     },
