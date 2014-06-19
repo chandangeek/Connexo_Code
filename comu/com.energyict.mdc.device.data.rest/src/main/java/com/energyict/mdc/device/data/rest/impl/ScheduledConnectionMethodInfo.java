@@ -39,7 +39,9 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
     protected void writeTo(ScheduledConnectionTask scheduledConnectionTask, PartialConnectionTask partialConnectionTask, DeviceDataService deviceDataService, EngineModelService engineModelService, MdcPropertyUtils mdcPropertyUtils) {
         super.writeTo(scheduledConnectionTask, partialConnectionTask, deviceDataService, engineModelService, mdcPropertyUtils);
         scheduledConnectionTask.setSimultaneousConnectionsAllowed(this.allowSimultaneousConnections);
-        scheduledConnectionTask.setCommunicationWindow(new ComWindow(this.comWindowStart, this.comWindowEnd));
+        if (this.comWindowEnd!=null && this.comWindowStart!=null) {
+            scheduledConnectionTask.setCommunicationWindow(new ComWindow(this.comWindowStart, this.comWindowEnd));
+        }
         scheduledConnectionTask.setConnectionStrategy(this.connectionStrategy);
         if (!Checks.is(this.comPortPool).emptyOrOnlyWhiteSpace()) {
             scheduledConnectionTask.setComPortPool((OutboundComPortPool) engineModelService.findComPortPool(this.comPortPool));

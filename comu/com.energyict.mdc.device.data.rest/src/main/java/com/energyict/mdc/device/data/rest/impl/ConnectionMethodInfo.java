@@ -36,8 +36,8 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
     public String connectionType;
     public String comPortPool;
     public boolean isDefault;
-    public int comWindowStart;
-    public int comWindowEnd;
+    public Integer comWindowStart;
+    public Integer comWindowEnd;
     @XmlJavaTypeAdapter(ConnectionStrategyAdapter.class)
     public ConnectionStrategy connectionStrategy;
     public List<PropertyInfo> properties;
