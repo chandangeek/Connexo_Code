@@ -101,7 +101,7 @@ public class MdcPropertyUtils {
     }
 
     private Object getPropertyValue(TypedProperties properties, PropertySpec<?> propertySpec) {
-        return MdcPropertyReferenceInfoFactory.asInfoObject(properties.getProperty(propertySpec.getName()));
+        return MdcPropertyReferenceInfoFactory.asInfoObject(properties.getPropertyValue(propertySpec.getName()));
     }
 
     private PredefinedPropertyValuesInfo<?> getPredefinedPropertyValueInfo(PropertySpec<?> propertySpec) {
