@@ -17,7 +17,7 @@ Ext.define('Isu.view.workspace.issues.CloseForm', {
             border: 0,
             items: [
                 {
-                    itemId: '#radiogroup',
+                    itemId: 'radiogroup',
                     xtype: 'radiogroup',
                     fieldLabel: 'Reason *',
                     name: 'status',

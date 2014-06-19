@@ -14,7 +14,7 @@ Ext.define('Isu.view.workspace.issues.Close', {
 
     addForm: function () {
         var self = this;
-            self.title = 'Close issue ' + self.record.data.reason_name + ' ' + ' to ' + self.record.data.device_name + ' ' + self.record.raw.device.serialNumber;
+            self.title = 'Close issue "' + self.record.data.reason_name + ' to ' + self.record.data.device_name + ' ' + self.record.raw.device.serialNumber+'"';
         console.log(self.title);
 
         self.getCenterContainer().add({
@@ -53,13 +53,13 @@ Ext.define('Isu.view.workspace.issues.Close', {
                     },
                     items: [
                         {
-                            itemId: '#Close',
+                            itemId: 'Close',
                             name: 'close',
                             text: 'Close',
                             formBind: true
                         },
                         {
-                            itemId: '#Cancel',
+                            itemId: 'Cancel',
                             text: 'Cancel',
                             name: 'cancel',
                             ui: 'link',
