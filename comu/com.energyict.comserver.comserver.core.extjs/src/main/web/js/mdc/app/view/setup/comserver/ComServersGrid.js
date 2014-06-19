@@ -4,126 +4,72 @@ Ext.define('Mdc.view.setup.comserver.ComServersGrid', {
     store: 'ComServers',
     overflowY: 'auto',
     itemId: 'comservergrid',
-    padding: 10,
-    selModel: {
-        mode: 'MULTI'
-    },
     requires: [
         'Uni.view.toolbar.PagingTop',
-        'Uni.view.toolbar.PagingBottom'
+        'Uni.view.toolbar.PagingBottom',
+        'Mdc.view.setup.comserver.ActionMenu'
     ],
-    selType: 'checkboxmodel',
-    initComponent: function () {
-        var me = this;
-        this.columns = [
-            {
-                header: Uni.I18n.translate('general.name', 'MDC', 'Name'),
-                dataIndex: 'name',
-                flex: 1
-            },
-            {
-                header: Uni.I18n.translate('general.comserverType', 'MDC', 'Comserver type'),
-                dataIndex: 'comServerType',
-                flex: 1
-            },
-            {
-                dataIndex: 'active',
-                width: 24,
-                renderer: function (value, metadata) {
-                    if (value === true) {
-                        metadata.style = "background-color:lightgreen;";
-                    } else {
-                        metadata.style = "background-color:pink;";
-                    }
+    columns: [
+        {
+            header: Uni.I18n.translate('general.name', 'MDC', 'Name'),
+            flex: 1,
+            xtype: 'templatecolumn',
+            tpl: '<a href="#/administration/comservers/{id}">{name}</a>'
+        },
+        {
+            header: Uni.I18n.translate('general.comserverType', 'MDC', 'Comserver type'),
+            dataIndex: 'comServerType',
+            flex: 1
+        },
+        {
+            header: Uni.I18n.translate('comserver.status', 'MDC', 'Status'),
+            dataIndex: 'active',
+            width: 100,
+            renderer: function (value) {
+                if (value === true) {
+                    return Uni.I18n.translate('general.active', 'MDC', 'Active');
+                } else {
+                    return Uni.I18n.translate('general.inactive', 'MDC', 'Inactive');
                 }
-            },
-            {
-                xtype: 'actioncolumn',
-                iconCls: 'uni-actioncolumn-gear',
-                columnWidth: 32,
-                fixed: true,
-                header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-                sortable: false,
-                hideable: false,
-                items: [
-                    {
-                        handler: function (grid, rowIndex, colIndex, item, e, record, row) {
-                            var menu = Ext.widget('menu', {
-                                items: [
-                                    {
-                                        xtype: 'menuitem',
-                                        text: 'Edit',
-                                        listeners: {
-                                            click: {
-                                                element: 'el',
-                                                fn: function () {
-                                                    this.fireEvent('edit', record);
-                                                },
-                                                scope: this
-                                            }
-                                        }
-                                    },
-                                    {
-                                        xtype: 'menuitem',
-                                        text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-                                        listeners: {
-                                            click: {
-                                                element: 'el',
-                                                fn: function () {
-                                                    this.fireEvent('deleteItem', record);
-                                                },
-                                                scope: this
-                                            }
-                                        }
-                                    }
-                                ]
-                            });
-                            menu.showAt(e.getXY());
-                        }
-                    }
-                ]
             }
-        ];
-
-        this.dockedItems = [
-            {
-                xtype: 'pagingtoolbarbottom',
-                store: this.store,
-                dock: 'bottom'
-            },
-            {
-                xtype: 'toolbar',
-                dock: 'top',
-                ui: 'footer',
-                defaults: {minWidth: this.minButtonWidth},
-                items: [
-                    {
-                        xtype: 'component',
-                        flex: 1
-                    },
-                    {
-                        text: 'Add',
-                        action: 'add',
-                        menu: [
-                            {
-                                text: 'Online'
-                            },
-                            {
-                                text: 'Remote'
-                            },
-                            {
-                                text: 'Mobile'
-                            }
-                        ]
-                    },
-                    {
-                        text: 'Delete',
-                        action: 'delete'
-                    }
-                ]
+        },
+        {
+            xtype: 'uni-actioncolumn',
+            itemId: 'actionColumn',
+            iconCls: 'uni-actioncolumn-gear',
+            columnWidth: 32,
+            fixed: true,
+            header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+            sortable: false,
+            hideable: false,
+            menu: {
+                xtype: 'comserver-actionmenu',
+                defaultAlign: 'tr-br?',
+                plain: true
             }
-        ];
+        }
+    ],
 
-        this.callParent();
-    }
+    dockedItems: [
+        {
+            xtype: 'pagingtoolbartop',
+            store: 'ComServers',
+            dock: 'top',
+            displayMsg: Uni.I18n.translate('comserver.displayMsg', 'MDC', '{0} - {1} of {2} communication servers'),
+            displayMoreMsg: Uni.I18n.translate('comserver.displayMoreMsg', 'MDC', '{0} - {1} of more communication servers'),
+            items: [
+                {
+                    xtype: 'button',
+                    text: Uni.I18n.translate('deviceType.addOnline', 'MDC', 'Add online comunication server'),
+                    href: '#/administration/comservers/add'
+                }
+            ]
+        },
+        {
+            xtype: 'pagingtoolbarbottom',
+            itemsPerPageMsg: Uni.I18n.translate('comserver.itemsPerPageMsg', 'MDC', 'Communication servers per page'),
+            store: 'ComServers',
+            dock: 'bottom'
+        }
+    ]
 });
