@@ -396,6 +396,7 @@ Ext.define('Mdc.controller.history.Setup', {
                     controller: 'Mdc.controller.setup.SetupOverview',
                     action: 'showComServers',
                     items: {
+
                         create: {
                             title: 'Create communication server',
                             route: 'create',

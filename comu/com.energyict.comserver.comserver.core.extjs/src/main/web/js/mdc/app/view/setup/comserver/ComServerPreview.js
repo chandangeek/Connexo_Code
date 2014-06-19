@@ -6,79 +6,103 @@ Ext.define('Mdc.view.setup.comserver.ComServerPreview', {
     ],
     itemId: 'comserverpreview',
     layout: 'fit',
-    initComponent: function () {
-        this.items = [
+    title: Uni.I18n.translate('comserver.details', 'MDC', 'Details'),
+    frame: true,
+    tools: [
+        {
+            xtype: 'button',
+            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+            itemId: 'actionButton',
+            iconCls: 'x-uni-action-iconD',
+            menu: {
+                xtype: 'comserver-actionmenu'
+            }
+        }
+    ],
+    items: {
+        xtype: 'form',
+        itemId: 'comServerDetailsForm',
+        layout: 'column',
+        defaults: {
+            xtype: 'container',
+            layout: 'form',
+            columnWidth: 0.5
+        },
+        items: [
             {
-                xtype: 'panel',
-                border: 1,
-                width: '100%',
-                layout: 'vbox',
-                collapsible: true,
-                title: 'Selected communication server preview',
-                itemId: 'previewpanel',
-                collapsed: true,
                 defaults: {
-                    labelWidth: 200,
-                    padding: 10,
-                    border: 0
+                    xtype: 'displayfield',
+                    labelWidth: 200
                 },
                 items: [
                     {
-                        xtype: 'panel',
-                        width: '100%',
-                        layout: 'hbox',
-                        items:[
-                            {
-                                xtype: 'component',
-                                itemId: 'comserverName',
-                                flex: 3
-                            },
-                            {
-                                xtype: 'component',
-                                itemId: 'comserverActive',
-                                tpl: '<h3><tpl if="active==true"{active}><span style="color:lightgreen">active</span>' +
-                                    '<tpl elseif="active==false"><span style="color:#ff0000">not active</span>' +
-                                    '<tpl else><span style="color:#ff0000"></span></tpl></h3></h3>',
-                                flex: 1
-                            },
-                            {
-                                xtype: 'button',
-                                text: 'Start/Stop',
-                                action: 'startStop',
-                                margins: '0 10 0 0'
-                            },
-                            {
-                                xtype: 'button',
-                                text: 'Edit',
-                                action: 'edit'
-                            }
-                        ]
+                        fieldLabel: Uni.I18n.translate('comserver.preview.type', 'MDC', 'Name'),
+                        name: 'name'
                     },
                     {
-                        xtype: 'form',
-                        width: '100%',
-                        layout: {
-                            type: 'hbox',
-                            align: 'stretchmax'
-                        },
-                        defaults: {
-                            border: false,
-                            xtype: 'panel',
-                            flex: 1,
-                            layout: 'anchor'
-                        },
-                        fieldDefaults: {
-                            labelAlign: 'right',
-                            labelSeparator: ':'
-                        },
-                        items: [
-                                {"xtype": 'outboundComPorts'},
-                                {"xtype": 'inboundComPorts'}
-                        ]
+                        fieldLabel: Uni.I18n.translate('comserver.preview.type', 'MDC', 'Type'),
+                        name: 'comServerType'
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('comserver.preview.serverLogLevel', 'MDC', 'Server log level'),
+                        name: 'communicationLogLevel'
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('comserver.preview.changesInterPollDelay', 'MDC', 'Changes inter poll delay'),
+                        name: 'changesInterPollDelay',
+                        renderer: function (val) {
+                            val ? val = val.count + ' ' + val.timeUnit : null;
+                            return val;
+                        }
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('comserver.preview.storeTaskQueueSize', 'MDC', 'Store task queue size'),
+                        name: 'storeTaskQueueSize'
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('comserver.preview.storeTaskThreadCount', 'MDC', 'Store task thread count'),
+                        name: 'numberOfStoreTaskThreads'
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('comserver.preview.storeTaskQueuePriority', 'MDC', 'Store task queue priority'),
+                        name: 'storeTaskThreadPriority'
+                    }
+                ]
+            },
+            {
+                defaults: {
+                    xtype: 'displayfield',
+                    labelWidth: 200
+                },
+                items: [
+                    {
+                        fieldLabel: Uni.I18n.translate('comserver.preview.status', 'MDC', 'Status'),
+                        name: 'active',
+                        renderer: function (val) {
+                            val ? val = 'Active' : val = 'Inactive';
+                            return val;
+                        }
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('comserver.preview.communicationLogLevel', 'MDC', 'Communication log level'),
+                        name: 'communicationLogLevel'
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('comserver.preview.shedulingInterPollDelay', 'MDC', 'Sheduling inter poll delay'),
+                        name: 'schedulingInterPollDelay',
+                        renderer: function (val) {
+                            val ? val = val.count + ' ' + val.timeUnit : null;
+                            return val;
+                        }
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('comserver.preview.communicationPortsLabel', 'MDC', 'Communication ports'),
+                        name: 'comportslink'
+
                     }
                 ]
             }
         ]
-        this.callParent();
     }
+
 });
