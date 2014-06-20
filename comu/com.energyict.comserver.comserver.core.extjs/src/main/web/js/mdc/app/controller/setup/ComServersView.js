@@ -15,6 +15,10 @@ Ext.define('Mdc.controller.setup.ComServersView', {
 
     refs: [
         {
+            ref: 'comServersView',
+            selector: 'comServersSetup'
+        },
+        {
             ref: 'comServerGrid',
             selector: 'comServersSetup comServersGrid'
         },
@@ -63,7 +67,7 @@ Ext.define('Mdc.controller.setup.ComServersView', {
                 me.editComServer(record);
                 break;
             case 'remove':
-                me.deleteComserver(record);
+                me.showDeleteConfirmation(record);
                 break;
             case 'activate':
                 activeChange = true;
@@ -112,11 +116,38 @@ Ext.define('Mdc.controller.setup.ComServersView', {
         router.getRoute('administration/comservers/edit').forward({id: id});
     },
 
-    deleteComserver: function (record) {
+    showDeleteConfirmation: function (record) {
         var me = this;
+
+        Ext.create('Uni.view.window.Confirmation').show({
+            msg: Uni.I18n.translate('comServer.deleteConfirmation.msg', 'MDC', 'This communication server will disappear from the list.'),
+            title: Ext.String.format(Uni.I18n.translate('comServer.deleteConfirmation.title', 'MDC', 'Delete communication server "{0}"?'), record.get('name')),
+            fn: function (state) {
+                switch (state) {
+                    case 'confirm':
+                        this.close();
+                        me.deleteComserver(record);
+                        break;
+                    case 'cancel':
+                        this.close();
+                        break;
+                }
+            }
+        });
+    },
+
+    deleteComserver: function (record) {
+        var me = this,
+            page = me.getComServersView();
+
+        page.setLoading('Removing...');
         record.destroy({
-            callback: function () {
-                me.getComServerGrid().getStore().loadPage(1);
+            callback: function (model, operation) {
+                page.setLoading(false);
+                if (operation.response.status == 204) {
+                    me.getComServerGrid().getStore().loadPage(1);
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comServer.deleteSuccess.msg', 'MDC', 'Communication server has been deleted'));
+                }
             }
         });
     }
