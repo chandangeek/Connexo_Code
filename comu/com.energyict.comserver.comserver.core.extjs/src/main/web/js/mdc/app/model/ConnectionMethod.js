@@ -10,7 +10,7 @@ Ext.define('Mdc.model.ConnectionMethod', {
         {name: 'connectionType', type: 'string', useNull: true},
         {name: 'connectionStrategy', type: 'string', useNull: true},
         'rescheduleRetryDelay',
-        {name: 'temporalExpression', useNull: true},
+        {name: 'nextExecutionSpecs', useNull: true},
         {name: 'comWindowStart',useNull: true},
         {name: 'comWindowEnd',useNull: true}
     ],

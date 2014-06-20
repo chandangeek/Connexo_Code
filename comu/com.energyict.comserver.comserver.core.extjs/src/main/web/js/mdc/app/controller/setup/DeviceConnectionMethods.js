@@ -97,6 +97,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
             success: function (device) {
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.getApplication().fireEvent('loadDevice', device);
+                me.getDeviceConnectionMethodsGrid().getSelectionModel().doSelect(0);
             }
         });
     },
@@ -299,7 +300,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
             record.set(values);
 
             if (values.connectionStrategy === 'asSoonAsPossible') {
-                record.set('temporalExpression', null);
+                record.set('nextExecutionSpecs', null);
             }
             record.propertiesStore = this.getPropertiesController().updateProperties();
             record.getProxy().extraParams = ({mrid: me.mrid});

@@ -118,7 +118,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                             },
                             {
                                 xtype: 'scheduleField',
-                                name: 'temporalExpression',
+                                name: 'nextExecutionSpecs',
                                 itemId: 'scheduleField',
                                 hidden: true,
                                 fieldLabel: 'Schedule',

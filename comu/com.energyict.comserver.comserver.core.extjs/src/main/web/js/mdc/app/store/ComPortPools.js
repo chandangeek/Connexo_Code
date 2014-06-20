@@ -15,7 +15,7 @@ Ext.define('Mdc.store.ComPortPools',{
         url: '../../api/mdc/comportpools',
         reader: {
             type: 'json',
-            root: 'comPortPools'
+            root: 'data'
         },
         simpleSortMode: true
     }

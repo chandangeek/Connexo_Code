@@ -141,7 +141,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodPreview'
                                 },
                                 {
                                     xtype: 'displayfield',
-                                    name: 'temporalExpression',
+                                    name: 'nextExecutionSpecs',
                                     fieldLabel: Uni.I18n.translate('communicationschedule.schedule', 'MDC', 'Schedule'),
                                     renderer: function(value){
                                         return Mdc.util.ScheduleToStringConverter.convert(value) || Uni.I18n.translate('general.undefined', 'MDC', 'Undefined');
