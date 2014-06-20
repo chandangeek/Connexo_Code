@@ -1,5 +1,5 @@
 Ext.define('Mdc.controller.setup.ComServerOverview', {
-    extend: 'Ext.app.Controller',
+    extend: 'Mdc.controller.setup.ComServersView',
 
     models: [
         'Mdc.model.ComServer'
@@ -31,19 +31,6 @@ Ext.define('Mdc.controller.setup.ComServerOverview', {
                 click: this.chooseAction
             }
         })
-    },
-
-    configureMenu: function (menu) {
-        var activate = menu.down('#activate'),
-            deactivate = menu.down('#deactivate'),
-            active = menu.record.data.active;
-        if (active) {
-            deactivate.show();
-            activate.hide();
-        } else {
-            activate.show();
-            deactivate.hide();
-        }
     },
 
     chooseAction: function (menu, item) {
@@ -94,25 +81,6 @@ Ext.define('Mdc.controller.setup.ComServerOverview', {
             },
             callback: function () {
                 widget.setLoading(false);
-            }
-        });
-    },
-
-    showDeleteConfirmation: function (record) {
-        var me = this;
-        Ext.create('Uni.view.window.Confirmation').show({
-            msg: Uni.I18n.translate('comServer.deleteConfirmation.msg', 'MDC', 'This communication server will disappear from the list.'),
-            title: Ext.String.format(Uni.I18n.translate('comServer.deleteConfirmation.title', 'MDC', 'Delete communication server "{0}"?'), record.get('name')),
-            fn: function (state) {
-                switch (state) {
-                    case 'confirm':
-                        this.close();
-                        me.deleteComserver(record);
-                        break;
-                    case 'cancel':
-                        this.close();
-                        break;
-                }
             }
         });
     },
