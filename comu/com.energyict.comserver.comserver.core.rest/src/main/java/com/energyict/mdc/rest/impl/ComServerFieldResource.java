@@ -1,5 +1,7 @@
 package com.energyict.mdc.rest.impl;
 
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.rest.FieldResource;
 import com.energyict.mdc.rest.impl.comserver.BaudrateAdapter;
@@ -11,6 +13,7 @@ import com.energyict.mdc.rest.impl.comserver.NrOfStopBitsAdapter;
 import com.energyict.mdc.rest.impl.comserver.ParitiesAdapter;
 import java.util.ArrayList;
 import java.util.List;
+import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
@@ -21,6 +24,11 @@ import javax.ws.rs.Path;
 
 @Path("/field")
 public class ComServerFieldResource extends FieldResource {
+
+    @Inject
+    public ComServerFieldResource(NlsService nlsService) {
+        super(nlsService.getThesaurus(MdcApplication.COMPONENT_NAME, Layer.UI));
+    }
 
     @GET
     @Path("/logLevel")
@@ -44,15 +52,10 @@ public class ComServerFieldResource extends FieldResource {
         };
 
         for (final int timeDuration : timeDurations) {
-            timeUnitStrings.add(new Object() {
-                public String timeUnit = TimeDuration.getTimeUnitDescription(timeDuration);
-            });
+            timeUnitStrings.add(TimeDuration.getTimeUnitDescription(timeDuration));
         }
 
-        return new Object() {
-            public List<Object> timeUnits = timeUnitStrings;
-        };
-
+        return asJsonArrayObject("timeUnits", "timeUnit", timeUnitStrings);
     }
 
     @GET
