@@ -100,7 +100,6 @@ Ext.define('Mdc.controller.setup.ComServersView', {
         model.load(id, {
             success: function (record) {
                 if (!form.isDestroyed) {
-                    console.log(record);
                     form.loadRecord(record);
                     form.up('panel').down('menu').record = record;
                     itemPanel.setLoading(false);
