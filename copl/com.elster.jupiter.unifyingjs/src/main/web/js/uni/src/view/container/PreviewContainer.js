@@ -33,6 +33,7 @@
 Ext.define('Uni.view.container.PreviewContainer', {
     extend: 'Ext.container.Container',
     xtype: 'preview-container',
+    itemId: 'preview-container',
 
     layout: 'card',
     activeItem: 1,
