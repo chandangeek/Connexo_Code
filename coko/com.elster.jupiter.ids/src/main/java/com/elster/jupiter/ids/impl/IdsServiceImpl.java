@@ -61,7 +61,7 @@ public class IdsServiceImpl implements IdsService, InstallService {
 
     @Override
     public void install() {
-        new InstallerImpl(this,dataModel).install(true, true, true);
+        new InstallerImpl(this,dataModel).install(true, true);
     }
 
     @Override

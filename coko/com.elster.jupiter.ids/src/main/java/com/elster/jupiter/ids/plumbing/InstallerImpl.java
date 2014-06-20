@@ -20,8 +20,8 @@ public class InstallerImpl {
 
     private static final int DEFAULT_SLOT_COUNT = 8;
 
-    public void install(boolean executeDdl , boolean updateOrm , boolean createMasterData) {
-		dataModel.install(executeDdl,updateOrm);
+    public void install(boolean executeDdl, boolean createMasterData) {
+		dataModel.install(executeDdl,true);
 		if (createMasterData) {
             createMasterData();
         }
