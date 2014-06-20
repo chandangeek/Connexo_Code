@@ -1,0 +1,16 @@
+package com.energyict.mdc.device.data.rest.impl;
+
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.data.ProtocolDialectProperties;
+
+import java.util.Comparator;
+
+
+public class ProtocolDialectComparator implements Comparator<ProtocolDialectConfigurationProperties> {
+
+    @Override
+    public int compare(ProtocolDialectConfigurationProperties o1, ProtocolDialectConfigurationProperties o2) {
+        return o1.getDeviceProtocolDialect().getDisplayName().compareToIgnoreCase(o2.getDeviceProtocolDialect().getDisplayName());
+    }
+}
+

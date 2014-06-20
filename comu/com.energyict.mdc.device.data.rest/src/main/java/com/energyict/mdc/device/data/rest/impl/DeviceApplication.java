@@ -56,7 +56,8 @@ public class DeviceApplication extends Application {
                 ConstraintViolationExceptionMapper.class,
                 LocalizedFieldValidationExceptionMapper.class,
                 JsonMappingExceptionMapper.class,
-                LocalizedExceptionMapper.class
+                LocalizedExceptionMapper.class,
+                ProtocolDialectResource.class
         );
     }
 

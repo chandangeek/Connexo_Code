@@ -26,6 +26,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
+import javax.inject.Provider;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -41,9 +42,10 @@ public class DeviceResource {
     private final ConnectionMethodInfoFactory connectionMethodInfoFactory;
     private final EngineModelService engineModelService;
     private final MdcPropertyUtils mdcPropertyUtils;
+    private final Provider<ProtocolDialectResource> protocolDialectResourceProvider;
 
     @Inject
-    public DeviceResource(ResourceHelper resourceHelper, DeviceImportService deviceImportService, DeviceDataService deviceDataService, IssueService issueService, ConnectionMethodInfoFactory connectionMethodInfoFactory, EngineModelService engineModelService, MdcPropertyUtils mdcPropertyUtils) {
+    public DeviceResource(ResourceHelper resourceHelper, DeviceImportService deviceImportService, DeviceDataService deviceDataService, IssueService issueService, ConnectionMethodInfoFactory connectionMethodInfoFactory, EngineModelService engineModelService, MdcPropertyUtils mdcPropertyUtils, Provider<ProtocolDialectResource> protocolDialectResourceProvider) {
         this.resourceHelper = resourceHelper;
         this.deviceImportService = deviceImportService;
         this.deviceDataService = deviceDataService;
@@ -51,6 +53,7 @@ public class DeviceResource {
         this.connectionMethodInfoFactory = connectionMethodInfoFactory;
         this.engineModelService = engineModelService;
         this.mdcPropertyUtils = mdcPropertyUtils;
+        this.protocolDialectResourceProvider = protocolDialectResourceProvider;
     }
 	
 	@GET
@@ -64,9 +67,9 @@ public class DeviceResource {
     }
 
     @GET
-    @Path("/{id}")
+    @Path("/{mRID}")
     @Produces(MediaType.APPLICATION_JSON)
-    public DeviceInfo findDeviceTypeBymRID(@PathParam("id") String id) {
+    public DeviceInfo findDeviceTypeBymRID(@PathParam("mRID") String id) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
         return DeviceInfo.from(device, deviceImportService, issueService);
     }
@@ -207,6 +210,11 @@ public class DeviceResource {
             condition = condition.or(where(conditionField).isEqualTo(value.trim()));
         }
         return condition;
+    }
+
+    @Path("/{mRID}/protocoldialects")
+    public ProtocolDialectResource getProtocolDialectsResource() {
+        return protocolDialectResourceProvider.get();
     }
 
 }
