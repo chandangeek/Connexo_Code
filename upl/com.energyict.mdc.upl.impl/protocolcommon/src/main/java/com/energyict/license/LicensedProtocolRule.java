@@ -262,7 +262,15 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     ELSTER_A1_THEMISPLUS(10014, "com.elster.genericprotocolimpl.dlms.a1.A1"),
     ELSTER_EK155(10015, "com.energyict.genericprotocolimpl.elster.ek155.EK155"),
     ELSTER_EK280(10016, "com.elster.genericprotocolimpl.dlms.ek280.EK280"),
-    IDIS_RTUPLUSSERVER(10017, "com.energyict.genericprotocolimpl.rtuplusserver.idis.RtuPlusServer", FamilyRule.IDIS_GATEWAY)
+    IDIS_RTUPLUSSERVER(10017, "com.energyict.genericprotocolimpl.rtuplusserver.idis.RtuPlusServer", FamilyRule.IDIS_GATEWAY),
+
+    //Not released, only technical class
+    JEM10(20001, "com.energyict.protocolimpl.ametek.Jem10"),
+    METCOM_3FAF(20002, "com.energyict.protocolimpl.metcom.Metcom3FAF"),
+    METCOM_3FAG(20003, "com.energyict.protocolimpl.metcom.Metcom3FAG"),
+    METCOM_3FBC(20004, "com.energyict.protocolimpl.metcom.Metcom3FBC"),
+    METCOM_3FCL(20005, "com.energyict.protocolimpl.metcom.Metcom3FCL"),
+
     ;
 
     private int code;

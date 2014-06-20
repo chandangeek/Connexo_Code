@@ -22,6 +22,7 @@ import java.util.List;
  *
  * @author  Koen
  */
+@Deprecated //Never released, technical class
 public class Metcom3FCL extends Metcom3 {
     
     private static final int DEBUG=0;

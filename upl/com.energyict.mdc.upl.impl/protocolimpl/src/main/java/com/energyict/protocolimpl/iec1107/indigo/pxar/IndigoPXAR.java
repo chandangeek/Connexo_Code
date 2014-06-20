@@ -41,6 +41,7 @@ import java.util.Properties;
  * @since 5-feb-2010
  *
  */
+@Deprecated
 public class IndigoPXAR extends AbstractIEC1107Protocol {
 	
 	/**

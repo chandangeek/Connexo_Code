@@ -26,6 +26,7 @@ import java.util.List;
 /**
  * @author cju
  */
+@Deprecated     //Protocol was never released, only kept as a technical class
 public abstract class Jem10 extends Jem implements MessageProtocol {
 
     final private static long TIMEOUT = 5000;
