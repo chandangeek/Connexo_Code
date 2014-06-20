@@ -36,6 +36,7 @@ import java.util.logging.Logger;
  *
  * @author Koen
  */
+@Deprecated //Never released, technical class
 public class GenericModbusDiscover extends Modbus {
     
     final int DEBUG=0;

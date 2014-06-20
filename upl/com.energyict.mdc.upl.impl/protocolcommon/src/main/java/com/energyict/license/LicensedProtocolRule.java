@@ -275,7 +275,8 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     METCOM_2(20006, "com.energyict.protocolimpl.metcom.Metcom2"),
     METCOM_3(20007, "com.energyict.protocolimpl.metcom.Metcom3"),
     DSMR40_MBUS_PROTOCOL(20008, "com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.Dsmr40MbusProtocol"),
-    DSMR40_PROTOCOL(20009, "com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.Dsmr40Protocol"),;
+    DSMR40_PROTOCOL(20009, "com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.Dsmr40Protocol"),
+    GENERIC_MODBUS_DISCOVER(20010, "com.energyict.protocolimpl.modbus.core.discover.GenericModbusDiscover"),;
 
     private int code;
     private String className;
