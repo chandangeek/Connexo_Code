@@ -79,7 +79,6 @@ Ext.define('Mdc.controller.setup.ComServerOverview', {
     },
 
     showOverview: function (id) {
-        console.log(id);
         var me = this,
             widget = Ext.widget('comServerOverview'),
             model = this.getModel('Mdc.model.ComServer');
