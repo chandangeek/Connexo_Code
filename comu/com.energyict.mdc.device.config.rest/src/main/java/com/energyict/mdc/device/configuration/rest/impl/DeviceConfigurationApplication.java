@@ -15,6 +15,7 @@ import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -48,6 +49,7 @@ public class DeviceConfigurationApplication extends Application implements Insta
     private volatile JsonService jsonService;
     private volatile Thesaurus thesaurus;
     private volatile UserFileService userFileService;
+    private volatile DeviceDataService deviceDataService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -139,6 +141,11 @@ public class DeviceConfigurationApplication extends Application implements Insta
         this.userFileService = userFileService;
     }
 
+    @Reference
+    public void setDeviceDataService(DeviceDataService deviceDataService) {
+        this.deviceDataService = deviceDataService;
+    }
+
     @Override
     public void install() {
         new Installer(thesaurus).install();
@@ -164,6 +171,7 @@ public class DeviceConfigurationApplication extends Application implements Insta
             bind(thesaurus).to(Thesaurus.class);
             bind(engineModelService).to(EngineModelService.class);
             bind(userFileService).to(UserFileService.class);
+            bind(deviceDataService).to(DeviceDataService.class);
         }
     }
 
