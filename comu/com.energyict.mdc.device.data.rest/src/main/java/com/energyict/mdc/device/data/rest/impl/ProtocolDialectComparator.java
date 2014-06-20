@@ -1,8 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.data.ProtocolDialectProperties;
-
 import java.util.Comparator;
 
 
