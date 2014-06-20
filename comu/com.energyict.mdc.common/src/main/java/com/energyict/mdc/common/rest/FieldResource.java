@@ -1,10 +1,15 @@
 package com.energyict.mdc.common.rest;
 
+import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.Translation;
+import com.elster.jupiter.util.exception.MessageSeed;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -18,6 +23,16 @@ import javax.ws.rs.Path;
 
 @Path("/field")
 public class FieldResource {
+
+    private final Thesaurus thesaurus;
+
+    public FieldResource() {
+        thesaurus = new NullObjectThesaurus();
+    }
+
+    public FieldResource(Thesaurus thesaurus) {
+        this.thesaurus = thesaurus;
+    }
 
     /**
      * This method will return a JSON list of all available field descriptions in this resource
@@ -60,7 +75,8 @@ public class FieldResource {
      * {
      *   "nrOfDataBits": [
      *       {
-     *           "nrOfDataBits": "FIVE"
+     *           "nrOfDataBits": "FIVE",
+     *           "localizedValue": "пять"
      *       },
      *       {
      *           "nrOfDataBits": "SIX"
@@ -86,10 +102,43 @@ public class FieldResource {
         for (final T value: values) {
             HashMap<String, Object> subMap = new HashMap<>();
             subMap.put(valueName, value);
+            subMap.put("localizedValue", thesaurus.getString(value.toString(), value.toString()));
             list.add(subMap);
         }
         return map;
     }
 
 
+    private class NullObjectThesaurus implements Thesaurus {
+
+        @Override
+        public String getString(String key, String defaultMessage) {
+            return key;
+        }
+
+        @Override
+        public String getString(Locale locale, String key, String defaultMessage) {
+            return key;
+        }
+
+        @Override
+        public String getComponent() {
+            return null;
+        }
+
+        @Override
+        public NlsMessageFormat getFormat(MessageSeed seed) {
+            return null;
+        }
+
+        @Override
+        public void addTranslations(Iterable<? extends Translation> translations) {
+
+        }
+
+        @Override
+        public Map<String, String> getTranslations() {
+            return null;
+        }
+    }
 }
