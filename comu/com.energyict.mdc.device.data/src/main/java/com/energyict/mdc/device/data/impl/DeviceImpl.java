@@ -868,7 +868,14 @@ public class DeviceImpl implements Device {
             this.newDialectProperties.remove(dialectProperties);
         } else {
             // Persistent, remove if from the managed list of properties, which will delete it from the database
-            this.dialectPropertiesList.remove(dialectProperties);
+            Iterator<ProtocolDialectProperties> iterator = this.dialectPropertiesList.iterator();
+            while (iterator.hasNext()){
+                ProtocolDialectProperties protocolDialectProperties = iterator.next();
+                if(protocolDialectProperties.getDeviceProtocolDialectName().equals(dialectProperties.getDeviceProtocolDialectName())){
+                    iterator.remove();
+                }
+            }
+//            this.dialectPropertiesList.remove(dialectProperties);
         }
     }
 
