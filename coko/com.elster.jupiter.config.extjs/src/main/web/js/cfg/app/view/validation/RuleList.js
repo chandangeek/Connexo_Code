@@ -5,6 +5,7 @@ Ext.define('Cfg.view.validation.RuleList', {
     itemId: 'validationruleList',
     store: 'ValidationRules',
     overflowY: 'auto',
+
     selModel: {
         mode: 'SINGLE'
     },
@@ -36,12 +37,12 @@ Ext.define('Cfg.view.validation.RuleList', {
         }
     },
 
-
     ruleSetId: null,
+
     initComponent: function () {
         var me = this;
-        this.columns = [
 
+        me.columns = [
             { header: Uni.I18n.translate('validation.name', 'CFG', 'Name'), dataIndex: 'name', flex: 0.3, sortable: false, fixed: true},
             { header: Uni.I18n.translate('validation.rule', 'CFG', 'Rule'), dataIndex: 'displayName', flex: 0.3, sortable: false, fixed: true},
             { header: Uni.I18n.translate('validation.active', 'CFG', 'Active'), dataIndex: 'active', flex: 0.3, sortable: false, fixed: true,
@@ -58,10 +59,11 @@ Ext.define('Cfg.view.validation.RuleList', {
                 items: 'Cfg.view.validation.RuleActionMenu'
             }
         ];
-        this.dockedItems = [
+
+        me.dockedItems = [
             {
                 xtype: 'pagingtoolbartop',
-                store: this.store,
+                store: me.store,
                 dock: 'top',
                 displayMsg: '{0} - {1} of {2} rules',
                 items: [
@@ -73,7 +75,7 @@ Ext.define('Cfg.view.validation.RuleList', {
                         xtype: 'button',
                         text: Uni.I18n.translate('validation.addRule', 'CFG', 'Add rule'),
                         itemId: 'addRuleLink',
-                        href: '#/administration/validation/addRule/' + this.ruleSetId,
+                        href: '#/administration/validation/addRule/' + me.ruleSetId,
                         hrefTarget: '_self'
                     },
                     {
@@ -86,16 +88,14 @@ Ext.define('Cfg.view.validation.RuleList', {
             {
                 xtype: 'pagingtoolbarbottom',
                 margins: '10 10 10 10',
-                store: this.store,
+                store: me.store,
                 dock: 'bottom',
                 itemsPerPageMsg: 'Rules per page',
                 itemId: 'rulesListBottomPagingToolbar',
-                params: {id: this.ruleSetId}
+                params: {id: me.ruleSetId}
             }
         ];
-        this.callParent(arguments);
+
+        me.callParent(arguments);
     }
-
-
-
 });

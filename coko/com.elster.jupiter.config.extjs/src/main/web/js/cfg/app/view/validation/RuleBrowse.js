@@ -3,12 +3,15 @@ Ext.define('Cfg.view.validation.RuleBrowse', {
     //extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.validationruleBrowse',
     itemId: 'validationruleBrowse',
+
     requires: [
         'Cfg.view.validation.RuleList',
         'Cfg.view.validation.RulePreview'
     ],
 
     ruleSetId: null,
+
+    // TODO Refactor this into a preview container cause it is currently broken if scrolling is required.
 
     /*content: [
         {
