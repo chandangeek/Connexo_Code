@@ -3,7 +3,9 @@ package com.energyict.protocolimplv2.messages;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cuo.core.UserEnvironment;
-import com.energyict.mdc.messages.*;
+import com.energyict.mdc.messages.DeviceMessageCategory;
+import com.energyict.mdc.messages.DeviceMessageSpec;
+import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
 
 import java.util.Arrays;
 import java.util.List;
@@ -16,7 +18,8 @@ import java.util.List;
 public enum TotalizersConfigurationDeviceMessage implements DeviceMessageSpec {
 
     SetSumMask(0, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSumMaskAttributeName)),
-    SetSubstractMask(1, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSubstractMaskAttributeName));
+    SetSubstractMask(1, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSubstractMaskAttributeName)),
+    ClearTotalizers(2);
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.TOTALIZER_CONFIGURATION;
 

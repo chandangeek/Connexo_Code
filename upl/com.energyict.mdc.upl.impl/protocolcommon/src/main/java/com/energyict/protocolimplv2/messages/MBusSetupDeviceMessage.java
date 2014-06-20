@@ -29,7 +29,11 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.defaultKeyAttributeName)
     ),
     UseCorrectedValues(6),
-    UseUncorrectedValues(7);
+    UseUncorrectedValues(7),
+    WriteCaptureDefinition(8,
+            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.dib),
+            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.vib)
+    );
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.MBUS_SETUP;
 

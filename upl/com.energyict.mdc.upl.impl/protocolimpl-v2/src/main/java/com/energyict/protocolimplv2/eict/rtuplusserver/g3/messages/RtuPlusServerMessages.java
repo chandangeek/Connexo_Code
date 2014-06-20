@@ -57,7 +57,6 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
         if (supportedMessages == null) {
             supportedMessages = new ArrayList<>();
 
-
             supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxNumberOfHopsAttributeName);
             supportedMessages.add(PLCConfigurationDeviceMessage.SetWeakLQIValueAttributeName);
             supportedMessages.add(PLCConfigurationDeviceMessage.SetSecurityLevel);
@@ -100,8 +99,6 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
             supportedMessages.add(GeneralDeviceMessage.WRITE_FULL_CONFIGURATION);
             supportedMessages.add(OutputConfigurationMessage.WriteOutputState);
 
-
-            //TODO add translation keys in NLS database of the messages below
             supportedMessages.add(UplinkConfigurationDeviceMessage.EnableUplinkPing);
             supportedMessages.add(UplinkConfigurationDeviceMessage.WriteUplinkPingDestinationAddress);
             supportedMessages.add(UplinkConfigurationDeviceMessage.WriteUplinkPingInterval);
