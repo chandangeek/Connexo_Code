@@ -16,11 +16,10 @@ public enum MessageSeeds implements MessageSeed {
     NO_PHENOMENON_FOUND(8, "DCR.NoPhenomenonFound", "No Phenomenon with id {0}"),
     NO_CHANNEL_SPEC_FOUND(9, "DCR.NoChannelSpecFound", "No channel specification with id {0}"),
     INVALID_REFERENCE_TO_REGISTER_MAPPING(10, "DCR.NoSuchRegisterMapping", "Register type could not be found", Layer.UI),
-    DUPLICATE_OBISCODE(11, "DCR.DuplicateObisCode", "A register mapping with obis code ''{0}'', phenomenon ''{1}'' and time of use ''{2}'' already exists", Layer.UI);
-
-
-
-    public static final String COMPONENT_NAME = "DCR";
+    DUPLICATE_OBISCODE(11, "DCR.DuplicateObisCode", "A register mapping with obis code ''{0}'', phenomenon ''{1}'' and time of use ''{2}'' already exists", Layer.UI),
+    AS_SOON_AS_POSSIBLE(12, "DCR.asSoonAsPossible", "As soon a possible", Layer.UI),
+    MINIMIZE_CONNECTIONS(13, "DCR.minimizeConnections", "Minimize connections", Layer.UI),
+    ;
 
     private final int number;
     private final String key;
@@ -33,14 +32,22 @@ public enum MessageSeeds implements MessageSeed {
 
     private MessageSeeds(int number, String key, String format, Layer layer) {
         this.number = number;
-        this.key = key;
+        this.key = stripComponentNameIfPresent(key);
         this.format = format;
         this.layer = layer;
     }
 
+    private String stripComponentNameIfPresent(String key) {
+        if (key.startsWith(DeviceConfigurationApplication.COMPONENT_NAME+".")) {
+            return key.substring(DeviceConfigurationApplication.COMPONENT_NAME.length()+1);
+        } else {
+            return key;
+        }
+    }
+    
     @Override
     public String getModule() {
-        return COMPONENT_NAME;
+        return DeviceConfigurationApplication.COMPONENT_NAME;
     }
 
     @Override
