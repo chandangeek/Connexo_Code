@@ -415,6 +415,27 @@ Ext.define('Mdc.controller.history.Setup', {
 
                                 return this;
                             }
+                        },
+                        detail: {
+                            title: 'Overview',
+                            route: '{id}',
+                            controller: 'Mdc.controller.setup.ComServerOverview',
+                            action: 'showOverview',
+                            callback: function (route) {
+                                this.getApplication().on('comServerOverviewLoad', function (record) {
+                                    route.setTitle(record.get('name'));
+                                    return true;
+                                }, {single: true});
+                                return this;
+                            },
+                            items: [
+                                {
+                                    title: 'Overview',
+                                    route: 'overview',
+                                    controller: 'Mdc.controller.setup.ComServerOverview',
+                                    action: 'showOverview'
+                                }
+                            ]
                         }
                     }
                 },

@@ -4,6 +4,7 @@ Ext.define('Mdc.view.setup.comserver.ActionMenu', {
     plain: true,
     border: false,
     shadow: false,
+    defaultAlign: 'tr-br?',
     items: [
         {
             itemId: 'edit',

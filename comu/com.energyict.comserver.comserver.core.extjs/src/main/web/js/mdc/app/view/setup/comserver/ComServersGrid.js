@@ -15,7 +15,7 @@ Ext.define('Mdc.view.setup.comserver.ComServersGrid', {
             header: Uni.I18n.translate('general.name', 'MDC', 'Name'),
             flex: 1,
             xtype: 'templatecolumn',
-            tpl: '<a href="#/administration/comservers/{id}">{name}</a>'
+            tpl: '<a href="#/administration/comservers/{id}/overview">{name}</a>'
         },
         {
             header: Uni.I18n.translate('general.comserverType', 'MDC', 'Comserver type'),
@@ -38,7 +38,8 @@ Ext.define('Mdc.view.setup.comserver.ComServersGrid', {
             itemId: 'actionColumn',
             xtype: 'uni-actioncolumn',
             menu: {
-                xtype: 'comserver-actionmenu'
+                xtype: 'comserver-actionmenu',
+                itemId: 'comserverViewMenu'
             }
         }
     ],

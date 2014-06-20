@@ -35,7 +35,7 @@ Ext.define('Mdc.controller.setup.ComServersView', {
                 itemdblclick: this.editComServer,
                 select: this.showComServerPreview
             },
-            'comserver-actionmenu': {
+            '#comserverViewMenu': {
                 click: this.chooseAction,
                 show: this.configureMenu
             }
@@ -100,6 +100,7 @@ Ext.define('Mdc.controller.setup.ComServersView', {
         model.load(id, {
             success: function (record) {
                 if (!form.isDestroyed) {
+                    console.log(record);
                     form.loadRecord(record);
                     form.up('panel').down('menu').record = record;
                     itemPanel.setLoading(false);
