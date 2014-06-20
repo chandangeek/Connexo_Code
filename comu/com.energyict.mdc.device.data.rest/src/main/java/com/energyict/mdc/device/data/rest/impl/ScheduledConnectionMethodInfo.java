@@ -22,17 +22,17 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
     public ScheduledConnectionMethodInfo() {
     }
 
-    public ScheduledConnectionMethodInfo(ScheduledConnectionTask partialConnectionTask, UriInfo uriInfo, MdcPropertyUtils mdcPropertyUtils) {
-        super(partialConnectionTask, uriInfo, mdcPropertyUtils);
-        this.connectionStrategy=partialConnectionTask.getConnectionStrategy();
-        this.allowSimultaneousConnections=partialConnectionTask.isSimultaneousConnectionsAllowed();
-        this.rescheduleRetryDelay = partialConnectionTask.getRescheduleDelay()!=null?new TimeDurationInfo(partialConnectionTask.getRescheduleDelay()):null;
-        if (partialConnectionTask.getCommunicationWindow()!=null) {
-            this.comWindowStart=partialConnectionTask.getCommunicationWindow().getStart().getMillis()/1000;
-            this.comWindowEnd=partialConnectionTask.getCommunicationWindow().getEnd().getMillis()/1000;
+    public ScheduledConnectionMethodInfo(ScheduledConnectionTask scheduledConnectionTask, UriInfo uriInfo, MdcPropertyUtils mdcPropertyUtils) {
+        super(scheduledConnectionTask, uriInfo, mdcPropertyUtils);
+        this.connectionStrategy=scheduledConnectionTask.getConnectionStrategy();
+        this.allowSimultaneousConnections=scheduledConnectionTask.isSimultaneousConnectionsAllowed();
+        this.rescheduleRetryDelay = scheduledConnectionTask.getRescheduleDelay()!=null?new TimeDurationInfo(scheduledConnectionTask.getRescheduleDelay()):null;
+        if (scheduledConnectionTask.getCommunicationWindow()!=null) {
+            this.comWindowStart=scheduledConnectionTask.getCommunicationWindow().getStart().getMillis()/1000;
+            this.comWindowEnd=scheduledConnectionTask.getCommunicationWindow().getEnd().getMillis()/1000;
         }
-        this.nextExecutionSpecs =partialConnectionTask.getNextExecutionSpecs()!=null?
-                TemporalExpressionInfo.from(partialConnectionTask.getNextExecutionSpecs().getTemporalExpression()):null;
+        this.nextExecutionSpecs =scheduledConnectionTask.getNextExecutionSpecs()!=null?
+                TemporalExpressionInfo.from(scheduledConnectionTask.getNextExecutionSpecs().getTemporalExpression()):null;
     }
 
     @Override
