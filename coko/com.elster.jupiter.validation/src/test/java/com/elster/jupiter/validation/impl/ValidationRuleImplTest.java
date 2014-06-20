@@ -362,11 +362,13 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         validationRule.activate();
 
         doReturn(Arrays.asList(readingType1,readingType2)).when(channel).getReadingTypes();
-        
+        //
         assertThat(validationRule.validateChannel(channel, INTERVAL)).isEqualTo(DATE1);
         verify(validator).init(channel, readingType2, INTERVAL);
-        verify(channel).createReadingQuality(new ReadingQualityType("3.6."+ID), readingRecord);
-        verify(readingQuality).save();
+
+        // @Todo check with Karel if this is ok.
+        verify(channel, times(2)).createReadingQuality(new ReadingQualityType("3.6." + ID), readingRecord);
+        verify(readingQuality, times(2)).save();
     }
 
 }

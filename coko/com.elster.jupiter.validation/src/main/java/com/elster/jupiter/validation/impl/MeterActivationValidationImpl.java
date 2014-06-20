@@ -146,15 +146,25 @@ class MeterActivationValidationImpl implements MeterActivationValidation {
 
     private void validateChannel(Interval interval, Channel channel) {
         Date earliestLastChecked = null;
+        ChannelValidation channelValidation = findOrAddValidationFor(channel);
+        Date lastChecked = channelValidation.getLastChecked();
+        Interval intervalToValidate = new Interval(getEarliestDate(lastChecked, interval.getStart()), interval.getEnd());
         for (IValidationRule validationRule : getRuleSet().getRules()) {
-            Date lastChecked = validationRule.validateChannel(channel, interval);
             if (lastChecked != null) {
-                earliestLastChecked = earliestLastChecked == null ? lastChecked : Ordering.natural().min(lastChecked, earliestLastChecked);
+                earliestLastChecked = getEarliestDate(earliestLastChecked, lastChecked);
             }
+            lastChecked = validationRule.validateChannel(channel, intervalToValidate);
+        }
+        if (lastChecked != null) {
+            earliestLastChecked = getEarliestDate(earliestLastChecked, lastChecked);
         }
         if (earliestLastChecked != null) {
-            findOrAddValidationFor(channel).setLastChecked(earliestLastChecked);
+            channelValidation.setLastChecked(earliestLastChecked);
         }
+    }
+
+    private Date getEarliestDate(Date first, Date second) {
+        return first == null ? second : Ordering.natural().min(second, first);
     }
 
     private ChannelValidation findOrAddValidationFor(final Channel channel) {

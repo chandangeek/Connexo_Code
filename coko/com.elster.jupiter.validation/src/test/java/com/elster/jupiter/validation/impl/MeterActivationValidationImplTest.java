@@ -8,6 +8,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import org.joda.time.DateMidnight;
 import org.junit.After;
 import org.junit.Before;
@@ -97,7 +99,13 @@ public class MeterActivationValidationImplTest {
     public void testValidateNoRulesApply() throws Exception {
         meterActivationValidation.validate(INTERVAL);
 
-        assertThat(meterActivationValidation.getChannelValidations()).isEmpty();
+        assertThat(meterActivationValidation.getChannelValidations()).hasSize(2);
+        assertThat(Iterables.all(meterActivationValidation.getChannelValidations(), new Predicate<ChannelValidation>() {
+            @Override
+            public boolean apply(ChannelValidation input) {
+                return input.getLastChecked() == null;
+            }
+        })).isTrue();
     }
 
     @Test
@@ -106,9 +114,14 @@ public class MeterActivationValidationImplTest {
 
         meterActivationValidation.validate(INTERVAL);
 
-        assertThat(meterActivationValidation.getChannelValidations()).hasSize(1);
+        assertThat(meterActivationValidation.getChannelValidations()).hasSize(2);
         ChannelValidation channelValidation = meterActivationValidation.getChannelValidations().iterator().next();
-        assertThat(channelValidation.getChannel()).isEqualTo(channel1);
+        if (channel1.equals(channelValidation.getChannel())) {
+            assertThat(channelValidation.getLastChecked()).isEqualTo(DATE4);
+        } else {
+            //channel 2
+            assertThat(channelValidation.getLastChecked()).isNull();
+        }
     }
 
     @Test

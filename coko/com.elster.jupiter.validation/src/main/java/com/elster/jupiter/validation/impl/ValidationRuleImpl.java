@@ -1,16 +1,36 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingQuality;
+import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
-import com.elster.jupiter.validation.*;
+import com.elster.jupiter.validation.InvalidReadingTypeException;
+import com.elster.jupiter.validation.ReadingTypeInValidationRule;
+import com.elster.jupiter.validation.ValidationAction;
+import com.elster.jupiter.validation.ValidationResult;
+import com.elster.jupiter.validation.ValidationRule;
+import com.elster.jupiter.validation.ValidationRuleProperties;
+import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.Validator;
+import com.elster.jupiter.validation.ValidatorNotFoundException;
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Multimaps;
 import com.google.common.collect.Ordering;
 
 import javax.inject.Inject;
@@ -262,10 +282,7 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
         if (!active) {
             return null;
         }
-        if (channel.isRegular()) {
-            return validateIntervalReadings(channel, interval);
-        }
-        return validateRegisterReadings(channel, interval);
+        return validateReadings(channel, interval);
     }
 
     void setRuleSetId(long ruleSetId) {
@@ -337,23 +354,61 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
         this.name = name;
     }
 
-    private Date validateIntervalReadings(Channel channel, Interval interval) {
+    private Date validateReadings(Channel channel, Interval interval) {
         Date earliestLastChecked = null;
+        ListMultimap<Date, ReadingQuality> existingReadingQualities = getExistingReadingQualities(channel, interval);
         for (ReadingType channelReadingType : channel.getReadingTypes()) {
             if (getReadingTypes().contains(channelReadingType)) {
                 Validator validator = newValidator(channel, interval, channelReadingType);
 
                 ReadingQualityType readingQualityType = validator.getReadingQualityTypeCode().or(defaultReadingQualityType());
-                for (IntervalReadingRecord intervalReading : channel.getIntervalReadings(channelReadingType, interval)) {
-                    ValidationResult result = validator.validate(intervalReading);
-                    if (ValidationResult.SUSPECT.equals(result) && !channel.findReadingQuality(readingQualityType, intervalReading.getTimeStamp()).isPresent()) {
-                        saveNewReadingQuality(channel, intervalReading, readingQualityType);
+                if (channel.isRegular()) {
+                    for (IntervalReadingRecord intervalReading : channel.getIntervalReadings(channelReadingType, interval)) {
+                        ValidationResult result = validator.validate(intervalReading);
+                        earliestLastChecked = handleValidationResult(result, channel, earliestLastChecked, existingReadingQualities, readingQualityType, intervalReading);
                     }
-                    earliestLastChecked = earliestLastChecked == null ? intervalReading.getTimeStamp() : Ordering.natural().min(earliestLastChecked, intervalReading.getTimeStamp());
+                } else {
+                    for (ReadingRecord readingRecord : channel.getRegisterReadings(channelReadingType, interval)) {
+                        ValidationResult result = validator.validate(readingRecord);
+                        earliestLastChecked = handleValidationResult(result, channel, earliestLastChecked, existingReadingQualities, readingQualityType, readingRecord);
+                    }
                 }
             }
         }
         return earliestLastChecked;
+    }
+
+    private Date handleValidationResult(ValidationResult result, Channel channel, Date earliestLastChecked, ListMultimap<Date, ReadingQuality> existingReadingQualities,
+                                        ReadingQualityType readingQualityType, BaseReadingRecord readingRecord) {
+        Optional<ReadingQuality> existingQualityForType = getExistingReadingQualitiesForType(existingReadingQualities, readingQualityType, readingRecord.getTimeStamp());
+        if (ValidationResult.SUSPECT.equals(result) && !existingQualityForType.isPresent()) {
+            saveNewReadingQuality(channel, readingRecord, readingQualityType);
+        }
+        if (ValidationResult.PASS.equals(result) && existingQualityForType.isPresent()) {
+            existingQualityForType.get().delete();
+        }
+        earliestLastChecked = earliestLastChecked == null ? readingRecord.getTimeStamp() : Ordering.natural().min(earliestLastChecked, readingRecord.getTimeStamp());
+        return earliestLastChecked;
+    }
+
+    private Optional<ReadingQuality> getExistingReadingQualitiesForType(ListMultimap<Date, ReadingQuality> existingReadingQualities, final ReadingQualityType readingQualityType, Date timeStamp) {
+        List<ReadingQuality> iterable = existingReadingQualities.get(timeStamp);
+        return iterable == null ? Optional.<ReadingQuality>absent() : Iterables.tryFind(iterable, new Predicate<ReadingQuality>() {
+            @Override
+            public boolean apply(ReadingQuality input) {
+                return readingQualityType.equals(input.getType());
+            }
+        });
+    }
+
+    private ListMultimap<Date, ReadingQuality> getExistingReadingQualities(Channel channel, Interval interval) {
+        List<ReadingQuality> readingQualities = channel.findReadingQuality(interval);
+        return Multimaps.index(readingQualities, new Function<ReadingQuality, Date>() {
+            @Override
+            public Date apply(ReadingQuality input) {
+                return input.getReadingTimestamp();
+            }
+        });
     }
 
     private void saveNewReadingQuality(Channel channel, BaseReadingRecord reading, ReadingQualityType readingQualityType) {
@@ -361,22 +416,5 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
         readingQuality.save();
     }
 
-    private Date validateRegisterReadings(Channel channel, Interval interval) {
-        Date earliestLastChecked = null;
-        for (ReadingType channelReadingType : channel.getReadingTypes()) {
-            if (getReadingTypes().contains(channelReadingType)) {
-                Validator validator = newValidator(channel, interval, channelReadingType);
 
-                ReadingQualityType readingQualityType = validator.getReadingQualityTypeCode().or(defaultReadingQualityType());
-                for (ReadingRecord readingRecord : channel.getRegisterReadings(channelReadingType, interval)) {
-                    ValidationResult result = validator.validate(readingRecord);
-                    if (ValidationResult.SUSPECT.equals(result) && !channel.findReadingQuality(readingQualityType, readingRecord.getTimeStamp()).isPresent()) {
-                        saveNewReadingQuality(channel, readingRecord, readingQualityType);
-                    }
-                    earliestLastChecked = earliestLastChecked == null ? readingRecord.getTimeStamp() : Ordering.natural().min(earliestLastChecked, readingRecord.getTimeStamp());
-                }
-            }
-        }
-        return earliestLastChecked;
-    }
 }
