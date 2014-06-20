@@ -87,6 +87,7 @@ import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+@Deprecated
 public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessageProtocol, ProtocolLink, RegisterProtocol, Constant {
 
     /**

@@ -22,6 +22,7 @@ import java.util.Properties;
  * @author gna
  *
  */
+@Deprecated
 public class DLMSZMD_EXT extends DLMSZMD{
 	
 	private int profileInterval;

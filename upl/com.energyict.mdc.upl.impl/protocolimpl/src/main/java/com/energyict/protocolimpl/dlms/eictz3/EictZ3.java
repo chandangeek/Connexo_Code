@@ -123,6 +123,7 @@ import java.util.logging.Logger;
 /**
  * DLMS based {@link MeterProtocol} implementation for the Z3 and EpIO R2. There is also a generic protocol implementation {@link com.energyict.genericprotocolimpl.nta.abstractnta.AbstractNTAProtocol}.
  */
+@Deprecated
 public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol, MessageProtocol {
 
     /**

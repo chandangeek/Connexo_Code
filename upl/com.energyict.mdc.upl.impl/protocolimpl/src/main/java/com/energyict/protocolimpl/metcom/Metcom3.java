@@ -31,6 +31,7 @@ KV|23032005|Changed header to be compatible with protocol version tool
 KV|23092005|Changed intervalstate bits behaviour (EDP)
  @endchanges
  */
+@Deprecated //Never released, technical class
 public class Metcom3 extends Metcom {
     
     private static final int DEBUG = 0;

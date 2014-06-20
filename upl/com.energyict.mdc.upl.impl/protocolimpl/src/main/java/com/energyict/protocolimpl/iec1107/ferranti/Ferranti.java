@@ -55,6 +55,7 @@ import java.util.logging.Logger;
  * @version 1.0
  * @endchanges
  */
+@Deprecated
 public class Ferranti extends PluggableMeterProtocol implements ProtocolLink, MeterExceptionInfo {
 
     private static final byte DEBUG = 0;

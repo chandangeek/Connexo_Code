@@ -1,4 +1,4 @@
-package com.energyict.smartmeterprotocolimpl.sdksample;
+package test.com.energyict.smartmeterprotocolimpl.sdksample;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
@@ -23,7 +23,7 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocolimpl.sdksample.SDKSampleProtocolConnection;
+import test.com.energyict.protocolimpl.sdksample.SDKSampleProtocolConnection;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.AbstractSmartMeterProtocol;
 import org.xml.sax.SAXException;

@@ -8,7 +8,7 @@
  * Open. You can then make changes to the template in the Source Editor.
  */
 
-package com.energyict.protocolimpl.eicttest;
+package test.com.energyict.protocolimpl.eicttest;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
@@ -57,7 +57,7 @@ import java.util.Properties;
 /**
  *
  * @author fde
- * com.energyict.protocolimpl.eicttest.EICTTestProtocol
+ * test.com.energyict.protocolimpl.eicttest.EICTTestProtocol
  */
 public class EICTTestProtocol extends AbstractProtocol implements MessageProtocol  {
 

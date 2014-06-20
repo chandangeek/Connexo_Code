@@ -8,7 +8,7 @@
  * Open. You can then make changes to the template in the Source Editor.
  */
 
-package com.energyict.protocolimpl.eicttest;
+package test.com.energyict.protocolimpl.eicttest;
 
 import com.energyict.cbo.*;
 import com.energyict.dialer.connection.*;

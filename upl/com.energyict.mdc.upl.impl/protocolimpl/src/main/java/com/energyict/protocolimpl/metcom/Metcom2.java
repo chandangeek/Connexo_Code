@@ -35,6 +35,7 @@ KV|23092005|Changed intervalstate bits behaviour (EDP)
 KV|06042006|Add IntervalStatusBehaviour custom property to correct power fail status
  @endchanges
  */
+@Deprecated //Never released, technical class
 public class Metcom2 extends Metcom{
     
     

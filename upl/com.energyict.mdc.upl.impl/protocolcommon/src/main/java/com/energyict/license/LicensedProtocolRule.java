@@ -50,7 +50,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     WAVE_SENSE(22, "com.energyict.protocolimpl.coronis.wavesense.WaveSense", FamilyRule.CORONIS),
     ALPHA_PLUS(23, "com.energyict.protocolimpl.elster.alpha.alphaplus.AlphaPlus"),
     ALPHA_BASIC(24, "com.energyict.protocolimpl.elster.alpha.alphabasic.AlphaBasic"),
-    EICT_TEST(25, "com.energyict.protocolimpl.eicttest.EICTTestProtocol", FamilyRule.TEST),
+    EICT_TEST(25, "test.com.energyict.protocolimpl.eicttest.EICTTestProtocol", FamilyRule.TEST),
     S4_DGCOM(26, "com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.S4"),
     G3B(27, "com.energyict.protocolimpl.dlms.elgama.G3B"),
     JANZC280(28, "com.energyict.protocolimpl.dlms.JanzC280.JanzC280"),
@@ -66,7 +66,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     WAVE_LOG(38, "com.energyict.protocolimpl.coronis.wavelog.WaveLog", FamilyRule.CORONIS),
     CEWE_PROMETER(39, "com.energyict.protocolimpl.iec1107.cewe.ceweprometer.CewePrometer"),
     MK10_STUB(40, "com.energyict.genericprotocolimpl.edmi.mk10.executer.Mk10Stub", FamilyRule.EDMI, FamilyRule.TEST),
-    SDK_SAMPLE_PROTOCOL(41, "com.energyict.protocolimpl.sdksample.SDKSampleProtocol", FamilyRule.TEST),
+    SDK_SAMPLE_PROTOCOL(41, "test.com.energyict.protocolimpl.sdksample.SDKSampleProtocol", FamilyRule.TEST),
     TRIMARAN_CJE(42, "com.energyict.protocolimpl.edf.trimarancje.Trimaran"),
     GEKV2(43, "com.energyict.protocolimpl.ge.kv2.GEKV2"),
     CM32(44, "com.energyict.protocolimpl.CM32.CM32"),
@@ -154,7 +154,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     LGE450(126, "com.energyict.protocolimpl.dlms.prime.LGE450", FamilyRule.PRIME),
     CIRWATT(127, "com.energyict.protocolimpl.dlms.prime.Cirwatt", FamilyRule.PRIME),
     EK2XX(128, "com.energyict.protocolimpl.dlms.elster.ek2xx.EK2xx"),
-    DLMS_SIMPLE(129, "com.energyict.protocolimpl.dlms.SimpleDLMSProtocol", FamilyRule.TEST),
+    DLMS_SIMPLE(129, "test.com.energyict.protocolimpl.dlms.SimpleDLMSProtocol", FamilyRule.TEST),
     DLMS_LNSL7000(130, "com.energyict.protocolimpl.dlms.DLMSLNSL7000"),
     ABBA1350(131, "com.energyict.protocolimpl.iec1107.abba1350.ABBA1350"),
     AS220_DLMS(132, "com.energyict.protocolimpl.dlms.as220.AS220", FamilyRule.ELSTER_MULTI_FREQ),
@@ -221,7 +221,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     WEB_RTU_WAVENIS_GATEWAY(190, "com.energyict.protocolimplv2.coronis.muc.WebRTUWavenisGateway", FamilyRule.CORONIS),
     ACE4000_OUTBOUND(191, "com.energyict.protocolimplv2.ace4000.ACE4000Outbound", FamilyRule.ACTARIS),
     ACE4000_MBUS(192, "com.energyict.protocolimplv2.ace4000.ACE4000MBus", FamilyRule.ACTARIS),
-    SDK_DEVICE_PROTOCOL(193, "com.energyict.protocolimplv2.sdksample.SDKDeviceProtocol", FamilyRule.TEST),
+    SDK_DEVICE_PROTOCOL(193, "test.com.energyict.protocolimplv2.sdksample.SDKDeviceProtocol", FamilyRule.TEST),
     RTU_PLUS_IDIS(194, "com.energyict.protocolimplv2.eict.rtuplusserver.idis.RtuPlusServer", FamilyRule.IDIS_GATEWAY),
     AS220_GAS(195, "com.energyict.protocolimpl.dlms.as220.GasDevice", FamilyRule.ELSTER_MULTI_FREQ),
 
@@ -246,6 +246,8 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     EK280_DLMS(212, "com.elster.protocolimpl.dlms.EK280"),
     CUBE350(213, "com.energyict.protocolimpl.modbus.northerndesign.cube350.Cube350", FamilyRule.EICT_RTU_EMS),
     RTU_PLUS_EIWEBPLUS(214, "com.energyict.protocolimplv2.eict.rtuplusserver.eiwebplus.RtuServer", FamilyRule.EICT_RTU_EMS),
+    SDK_SMART_SAMPLE_PROTOCOL(215, "test.com.energyict.smartmeterprotocolimpl.sdksample.SDKSmartMeterProtocol", FamilyRule.TEST),
+    DSMR40_MBUS_DUMMY(216, "com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.MBusDevice", FamilyRule.DSMR_NTA),
 
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),
@@ -270,8 +272,10 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     METCOM_3FAG(20003, "com.energyict.protocolimpl.metcom.Metcom3FAG"),
     METCOM_3FBC(20004, "com.energyict.protocolimpl.metcom.Metcom3FBC"),
     METCOM_3FCL(20005, "com.energyict.protocolimpl.metcom.Metcom3FCL"),
-
-    ;
+    METCOM_2(20006, "com.energyict.protocolimpl.metcom.Metcom2"),
+    METCOM_3(20007, "com.energyict.protocolimpl.metcom.Metcom3"),
+    DSMR40_MBUS_PROTOCOL(20008, "com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.Dsmr40MbusProtocol"),
+    DSMR40_PROTOCOL(20009, "com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.Dsmr40Protocol"),;
 
     private int code;
     private String className;

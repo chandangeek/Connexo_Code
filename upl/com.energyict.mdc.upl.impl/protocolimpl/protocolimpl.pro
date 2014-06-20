@@ -325,7 +325,7 @@
 # Moved it to the commons package
 #-keepnames class SDKSampleProtocol
 
--keepnames class com.energyict.protocolimpl.eicttest.EICTTestProtocol
+-keepnames class test.com.energyict.protocolimpl.eicttest.EICTTestProtocol
 
 -keepnames class com.energyict.protocolimpl.dlms.Z3.DLMSZ3Messaging
 
@@ -450,7 +450,7 @@
 	*;
 }
 
--keepnames class com.energyict.protocolimpl.dlms.SimpleDLMSProtocol
+-keepnames class test.com.energyict.protocolimpl.dlms.SimpleDLMSProtocol
 
 -keepnames class com.energyict.protocolimpl.coronis.waveflow100mwencoder.severntrent.SM150E
 

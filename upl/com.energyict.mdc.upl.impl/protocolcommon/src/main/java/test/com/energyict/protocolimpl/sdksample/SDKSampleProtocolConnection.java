@@ -8,7 +8,7 @@
  * Open. You can then make changes to the template in the Source Editor.
  */
 
-package com.energyict.protocolimpl.sdksample;
+package test.com.energyict.protocolimpl.sdksample;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.*;

@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.sdksample;
+package test.com.energyict.protocolimplv2.sdksample;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;

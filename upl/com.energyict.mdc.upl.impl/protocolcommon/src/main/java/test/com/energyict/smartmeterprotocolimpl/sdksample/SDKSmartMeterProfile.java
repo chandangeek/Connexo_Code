@@ -1,4 +1,4 @@
-package com.energyict.smartmeterprotocolimpl.sdksample;
+package test.com.energyict.smartmeterprotocolimpl.sdksample;
 
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cbo.Unit;

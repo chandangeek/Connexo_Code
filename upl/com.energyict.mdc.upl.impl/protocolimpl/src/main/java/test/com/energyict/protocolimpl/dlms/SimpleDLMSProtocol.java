@@ -1,4 +1,4 @@
-package com.energyict.protocolimpl.dlms;
+package test.com.energyict.protocolimpl.dlms;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NotFoundException;
@@ -42,6 +42,8 @@ import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
+import com.energyict.protocolimpl.dlms.RtuDLMS;
+import com.energyict.protocolimpl.dlms.RtuDLMSCache;
 import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
 
 import java.io.IOException;
