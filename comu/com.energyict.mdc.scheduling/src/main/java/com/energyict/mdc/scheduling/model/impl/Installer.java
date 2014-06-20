@@ -40,7 +40,7 @@ public class Installer {
 
     public void install(boolean executeDdl) {
         try {
-            this.dataModel.install(executeDdl, false);
+            this.dataModel.install(executeDdl, true);
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }
