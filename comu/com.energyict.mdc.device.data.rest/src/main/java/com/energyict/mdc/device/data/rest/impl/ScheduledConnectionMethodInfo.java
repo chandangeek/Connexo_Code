@@ -31,13 +31,18 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
             this.comWindowStart=partialConnectionTask.getCommunicationWindow().getStart().getMillis()/1000;
             this.comWindowEnd=partialConnectionTask.getCommunicationWindow().getEnd().getMillis()/1000;
         }
-        this.temporalExpression=partialConnectionTask.getNextExecutionSpecs()!=null?
+        this.nextExecutionSpecs =partialConnectionTask.getNextExecutionSpecs()!=null?
                 TemporalExpressionInfo.from(partialConnectionTask.getNextExecutionSpecs().getTemporalExpression()):null;
     }
 
     @Override
     protected void writeTo(ScheduledConnectionTask scheduledConnectionTask, PartialConnectionTask partialConnectionTask, DeviceDataService deviceDataService, EngineModelService engineModelService, MdcPropertyUtils mdcPropertyUtils) {
         super.writeTo(scheduledConnectionTask, partialConnectionTask, deviceDataService, engineModelService, mdcPropertyUtils);
+        writeCommonFields(scheduledConnectionTask, engineModelService);
+        scheduledConnectionTask.setNextExecutionSpecsFrom(this.nextExecutionSpecs != null ? nextExecutionSpecs.asTemporalExpression() : null); // This method is called separately here because
+    }
+
+    private void writeCommonFields(ScheduledConnectionTask scheduledConnectionTask, EngineModelService engineModelService) {
         scheduledConnectionTask.setSimultaneousConnectionsAllowed(this.allowSimultaneousConnections);
         if (this.comWindowEnd!=null && this.comWindowStart!=null) {
             scheduledConnectionTask.setCommunicationWindow(new ComWindow(this.comWindowStart, this.comWindowEnd));
@@ -48,7 +53,6 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
         } else {
             scheduledConnectionTask.setComPortPool(null);
         }
-        scheduledConnectionTask.setNextExecutionSpecsFrom(this.temporalExpression != null ? temporalExpression.asTemporalExpression() : null);
     }
 
     @Override
@@ -69,10 +73,10 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
                 break;
             case MINIMIZE_CONNECTIONS:
                 scheduledConnectionTask = deviceDataService.newMinimizeConnectionTask(device, partialScheduledConnectionTask, outboundComPortPool,
-                        this.temporalExpression != null ? temporalExpression.asTemporalExpression() : null);
+                        this.nextExecutionSpecs != null ? nextExecutionSpecs.asTemporalExpression() : null);
                 break;
         }
-        writeTo(scheduledConnectionTask, partialConnectionTask, deviceDataService, engineModelService, mdcPropertyUtils);
+        writeCommonFields(scheduledConnectionTask, engineModelService);
         scheduledConnectionTask.save();
 
         return scheduledConnectionTask;
