@@ -30,7 +30,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.LoadProfileConfigurations',
         'Mdc.controller.setup.LoadProfileConfigurationDetails',
         'Mdc.controller.setup.CommunicationTasks',
-        'Mdc.controller.setup.ValidationRules',
+        'Mdc.controller.setup.ValidationRuleSets',
         'Mdc.controller.setup.Comtasks'
     ],
 
@@ -61,7 +61,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.LoadProfileConfigurations',
         'Mdc.controller.setup.LoadProfileConfigurationDetails',
         'Mdc.controller.setup.CommunicationTasks',
-        'Mdc.controller.setup.ValidationRules',
+        'Mdc.controller.setup.ValidationRuleSets',
         'Mdc.controller.setup.Comtasks'
     ],
 

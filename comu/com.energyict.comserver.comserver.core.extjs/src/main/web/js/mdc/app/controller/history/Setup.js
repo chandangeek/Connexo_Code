@@ -325,16 +325,16 @@ Ext.define('Mdc.controller.history.Setup', {
                                                     }
                                                 },
                                                 // Validation rule sets
-                                                validationrules: {
-                                                    title: 'Validation rules',
-                                                    route: 'validationrules',
-                                                    controller: 'Mdc.controller.setup.ValidationRules',
-                                                    action: 'showValidationRulesOverview',
+                                                validationrulesets: {
+                                                    title: 'Validation rule sets',
+                                                    route: 'validationrulesets',
+                                                    controller: 'Mdc.controller.setup.ValidationRuleSets',
+                                                    action: 'showValidationRuleSetsOverview',
                                                     items: {
                                                         add: {
                                                             title: 'Add validation rule sets',
                                                             route: 'add',
-                                                            controller: 'Mdc.controller.setup.ValidationRules',
+                                                            controller: 'Mdc.controller.setup.ValidationRuleSets',
                                                             action: 'showAddValidationRuleSets'
                                                         }
                                                     }

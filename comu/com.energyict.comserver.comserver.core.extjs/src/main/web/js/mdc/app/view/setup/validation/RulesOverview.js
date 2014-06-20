@@ -5,8 +5,14 @@ Ext.define('Mdc.view.setup.validation.RulesOverview', {
     requires: [
         'Uni.view.container.PreviewContainer',
         'Mdc.view.setup.validation.RuleSetsGrid',
-        'Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu'
+        'Mdc.view.setup.validation.RulesGrid',
+        'Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu',
+        'Mdc.view.setup.validation.RuleSetView'
     ],
+
+    deviceTypeId: null,
+    deviceConfigId: null,
+    validationRuleSetId: null,
 
     initComponent: function () {
         var me = this;
@@ -30,12 +36,11 @@ Ext.define('Mdc.view.setup.validation.RulesOverview', {
             {
                 ui: 'large',
                 xtype: 'panel',
-                title: Uni.I18n.translate('validation.validationRules', 'MDC', 'Validation rules'),
+                title: Uni.I18n.translate('validation.validationRuleSets', 'MDC', 'Validation rule sets'),
 
                 items: [
                     {
                         xtype: 'preview-container',
-                        itemId: 'previewContainer',
                         grid: {
                             xtype: 'validation-rulesets-grid',
                             deviceTypeId: me.deviceTypeId,
@@ -61,25 +66,23 @@ Ext.define('Mdc.view.setup.validation.RulesOverview', {
                                     items: [
                                         {
                                             xtype: 'component',
-                                            html: '<h4>' + Uni.I18n.translate('validation.empty.title', 'MDC', 'No validation rule sets found') + '</h4><br>' +
-                                                Uni.I18n.translate('validation.empty.detail', 'MDC', 'There are no validation rule sets. This could be because:') + '<lv><li>&nbsp&nbsp' +
-                                                Uni.I18n.translate('validation.empty.list.item1', 'MDC', 'No validation rule sets have been added yet.') + '</li></lv><br>' +
-                                                Uni.I18n.translate('validation.empty.steps', 'MDC', 'Possible steps:')
+                                            html: '<h4>' + Uni.I18n.translate('validation.ruleset.empty.title', 'MDC', 'No validation rule sets found') + '</h4><br>' +
+                                                Uni.I18n.translate('validation.ruleset.empty.detail', 'MDC', 'There are no validation rule sets. This could be because:') + '<lv><li>&nbsp&nbsp' +
+                                                Uni.I18n.translate('validation.ruleset.empty.list.item1', 'MDC', 'No validation rule sets have been added yet.') + '</li></lv><br>' +
+                                                Uni.I18n.translate('validation.ruleset.empty.steps', 'MDC', 'Possible steps:')
                                         },
                                         {
                                             xtype: 'button',
                                             text: Uni.I18n.translate('validation.addValidationRuleSets', 'MDC', 'Add validation rule sets'),
                                             ui: 'action',
-                                            href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigId + '/validationrules/add'
+                                            href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigId + '/validationrulesets/add'
                                         }
                                     ]
                                 }
                             ]
                         },
                         previewComponent: {
-                            // TODO
-                            xtype: 'component',
-                            html: 'Here be dragons.'
+                            xtype: 'validation-ruleset-view'
                         }
                     }
                 ]

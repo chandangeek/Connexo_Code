@@ -6,7 +6,7 @@ Ext.define('Mdc.view.setup.validation.AddRuleSets', {
         'Uni.view.container.PreviewContainer',
         'Mdc.view.setup.validation.AddRuleSetsGrid',
         'Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu',
-        'Cfg.view.validation.RuleSetPreview'
+        'Mdc.view.validation.RuleSetView'
     ],
 
     deviceTypeId: null,
@@ -81,17 +81,7 @@ Ext.define('Mdc.view.setup.validation.AddRuleSets', {
                             ]
                         },
                         previewComponent: {
-                            xtype: 'validation-ruleset-preview',
-                            tools: [
-                                {
-                                    xtype: 'button',
-                                    text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-                                    iconCls: 'x-uni-action-iconD',
-                                    menu: {
-                                        xtype: 'validation-add-ruleset-actionmenu'
-                                    }
-                                }
-                            ]
+                            xtype: 'validation-ruleset-view'
                         }
                     }
                 ]
@@ -101,9 +91,7 @@ Ext.define('Mdc.view.setup.validation.AddRuleSets', {
         me.callParent(arguments);
     },
 
-    updateValidationRuleSetPreview: function (validationRuleSet) {
-        var href = '#/administration/validation/overview/' + validationRuleSet.get('id');
-        this.down('validation-ruleset-preview').updateValidationRuleSet(validationRuleSet);
-        this.down('validation-ruleset-preview #viewRuleSet').setHref(href);
+    updateValidationRuleSet: function (validationRuleSet) {
+        this.down('validation-ruleset-view').updateValidationRuleSet(validationRuleSet);
     }
 });

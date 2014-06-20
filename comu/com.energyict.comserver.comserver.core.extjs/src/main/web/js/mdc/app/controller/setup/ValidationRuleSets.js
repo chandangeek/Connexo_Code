@@ -1,4 +1,4 @@
-Ext.define('Mdc.controller.setup.ValidationRules', {
+Ext.define('Mdc.controller.setup.ValidationRuleSets', {
     extend: 'Ext.app.Controller',
 
     requires: [
@@ -42,7 +42,7 @@ Ext.define('Mdc.controller.setup.ValidationRules', {
         });
     },
 
-    showValidationRulesOverview: function (deviceTypeId, deviceConfigId) {
+    showValidationRuleSetsOverview: function (deviceTypeId, deviceConfigId) {
         var me = this;
         this.deviceTypeId = deviceTypeId;
         this.deviceConfigId = deviceConfigId;
@@ -112,12 +112,67 @@ Ext.define('Mdc.controller.setup.ValidationRules', {
         counter.setText(selectionText);
 
         if (selection.length > 0) {
-            view.updateValidationRuleSetPreview(selection[0]);
+            view.updateValidationRuleSet(selection[0]);
         }
     },
 
     onAddValidationRuleSets: function () {
-        // TODO
+        var me = this,
+            view = me.getAddValidationRuleSets(),
+            grid = me.getAddValidationRuleSetsGrid(),
+            selection = grid.view.getSelectionModel().getSelection(),
+            url = '/api/dtc/device/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigId + '/validationrulesets',
+            loadMask = Ext.create('Ext.LoadMask', {
+                target: view
+            }),
+            ids = [];
+
+        Ext.Array.each(selection, function (item) {
+            ids.push(item.internalId);
+        });
+
+        loadMask.show();
+        Ext.Ajax.request({
+            url: url,
+            method: 'POST',
+            jsonData: Ext.encode(ids),
+            success: function () {
+                location.href = '#/administration/devicetypes/'
+                    + me.deviceTypeId + '/deviceconfigurations/'
+                    + me.deviceConfigId + '/validationrules';
+
+                var message = Uni.I18n.translatePlural(
+                    'validation.ruleSetAdded',
+                    selection.length,
+                    'MDC',
+                    'Succesfully added validation rule sets.'
+                );
+
+                me.getApplication().fireEvent('acknowledge', message);
+            },
+            failure: function (response) {
+                if (response.status === 400) {
+                    var result = Ext.decode(response.responseText, true),
+                        title = Uni.I18n.translate('general.failedToAdd', 'MDC', 'Failed to add'),
+                        message = Uni.I18n.translatePlural(
+                            'validation.failedToAddMessage',
+                            selection.length,
+                            'MDC',
+                            'Validation rule sets could not be added. There was a problem accessing the database'
+                        );
+
+                    if (result !== null) {
+                        title = result.error;
+                        message = result.message;
+                    }
+
+                    me.getApplication().getController('Uni.controller.Error').showError(title, message);
+                }
+            },
+            callback: function () {
+                loadMask.destroy();
+            }
+        });
     },
 
     onUncheckAll: function () {

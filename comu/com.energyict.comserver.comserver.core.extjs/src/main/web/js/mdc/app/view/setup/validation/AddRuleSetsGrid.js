@@ -69,7 +69,7 @@ Ext.define('Mdc.view.setup.validation.AddRuleSetsGrid', {
                     {
                         xtype: 'button',
                         text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
-                        action: 'add',
+                        action: 'addValidationRuleSets',
                         ui: 'action'
                     },
                     {
@@ -77,7 +77,7 @@ Ext.define('Mdc.view.setup.validation.AddRuleSetsGrid', {
                         text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
                         action: 'cancel',
                         ui: 'link',
-                        href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigId + '/validationrules'
+                        href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigId + '/validationrulesets'
                     }
                 ]
             }

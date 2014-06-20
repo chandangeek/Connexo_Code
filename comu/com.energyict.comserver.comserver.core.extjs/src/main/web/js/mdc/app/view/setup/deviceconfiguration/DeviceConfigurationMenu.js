@@ -67,10 +67,10 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
                 hrefTarget: '_self'
             },
             {
-                text: 'Validation rules',
+                text: 'Validation rule sets',
                 pressed: false,
-                itemId: 'validationRulesLink',
-                href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/validationrules',
+                itemId: 'validationRuleSetsLink',
+                href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/validationrulesets',
                 hrefTarget: '_self'
             }
         );
