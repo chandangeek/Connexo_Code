@@ -143,7 +143,7 @@ Ext.define('Cfg.controller.Validation', {
             formErrorsPanel = form.down('[name=form-errors]');
         if (form.isValid()) {
             formErrorsPanel.hide();
-            
+
             var ruleSetId = this.getRuleSetIdFromHref() || me.ruleSetId,
                 record = me.ruleModel || Ext.create(Cfg.model.ValidationRule),
                 values = form.getValues(),
@@ -151,35 +151,35 @@ Ext.define('Cfg.controller.Validation', {
                 rule = values.implementation,
                 name = values.name,
                 properties = this.getPropertiesContainer().items;
-            
+
             if (form.down('#validatorCombo').isDisabled()) {
                 rule = form.down('#validatorCombo').value;
             }
-        
+
             record.set('implementation', rule);
             record.set('name', name);
-        
+
             if (button.action === 'editRuleAction') {
                 record.readingTypes().removeAll();
                 record.properties().removeAll();
             }
-            
+
             for (var i = 0; i < readingTypes.items.length; i++) {
                 var readingType = readingTypes.items[i].items.items[0].value;
                 var readingTypeRecord = Ext.create(Cfg.model.ReadingType);
                 readingTypeRecord.set('mRID', readingType);
                 record.readingTypes().add(readingTypeRecord);
             }
-            
+
             for (var i = 0; i < properties.items.length; i++) {
                 var propertyRecord = Ext.create(Cfg.model.ValidationRuleProperty);
                 propertyRecord.set('value', properties.items[i].value);
                 propertyRecord.set('name', properties.items[i].itemId);
                 record.properties().add(propertyRecord);
             }
-            
+
             me.getAddRule().setLoading('Loading...');
-            
+
             record.save({
                 params: {
                     id: ruleSetId
@@ -323,12 +323,12 @@ Ext.define('Cfg.controller.Validation', {
         });
     },
 
-createEditNewRuleSet: function (button) {
-    var me = this,
-        createEditRuleSetPanel = me.getCreateRuleSet(),
-        form = button.up('form'),
-        formErrorsPanel = form.down('[name=form-errors]');
-    
+    createEditNewRuleSet: function (button) {
+        var me = this,
+            createEditRuleSetPanel = me.getCreateRuleSet(),
+            form = button.up('form'),
+            formErrorsPanel = form.down('[name=form-errors]');
+
         if (form.isValid()) {
             formErrorsPanel.hide();
             var record = me.ruleSetModel || Ext.create(Cfg.model.ValidationRuleSet);
@@ -417,7 +417,7 @@ createEditNewRuleSet: function (button) {
         this.getValidationRulesStore().clearFilter();
         this.getValidationRulesStore().filter('ruleSetId', id);
         me.ruleSetId = id;
-        
+
         ruleSetsStore.load({
             params: {
                 id: id
@@ -729,7 +729,7 @@ createEditNewRuleSet: function (button) {
         var me = this,
             view = me.getRuleSetBrowsePanel(),
             grid = view.down('grid');
-        
+
         view.setLoading('Removing...');
         ruleSet.destroy({
             callback: function () {

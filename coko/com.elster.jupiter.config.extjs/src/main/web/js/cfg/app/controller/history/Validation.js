@@ -20,8 +20,8 @@ Ext.define('Cfg.controller.history.Validation', {
                             route: 'rules/{ruleSetId}',
                             controller: 'Cfg.controller.Validation',
                             action: 'showRules',
-                            callback: function(route) {
-                                this.getApplication().on('loadRuleSet', function(record) {
+                            callback: function (route) {
+                                this.getApplication().on('loadRuleSet', function (record) {
                                     route.setTitle(record.get('name'));
                                     return true;
                                 }, {single: true});
