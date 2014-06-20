@@ -10,6 +10,8 @@ import com.energyict.mdc.protocol.api.channels.serial.FlowControl;
 import com.energyict.mdc.protocol.api.channels.serial.NrOfDataBits;
 import com.energyict.mdc.protocol.api.channels.serial.NrOfStopBits;
 import com.energyict.mdc.protocol.api.channels.serial.Parities;
+import org.codehaus.jackson.annotate.JsonIgnore;
+
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
@@ -27,6 +29,7 @@ public abstract class ComPortInfo<T extends ComPort, B extends ComPort.Builder<B
     public boolean active;
     public boolean bound;
     @XmlJavaTypeAdapter(ComPortTypeAdapter.class)
+    @JsonIgnore
     public ComPortType comPortType;
     public long comServer_id;
     public int numberOfSimultaneousConnections;

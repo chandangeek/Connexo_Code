@@ -3,11 +3,13 @@ package com.energyict.mdc.rest.impl.comserver;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OutboundComPort;
+import com.energyict.mdc.protocol.api.ComPortType;
 
 public class OutboundComPortInfo extends ComPortInfo<OutboundComPort, OutboundComPort.OutboundComPortBuilder> {
 
     public OutboundComPortInfo() {
         this.direction = "outbound";
+        this.comPortType = ComPortType.TCP;
     }
 
     public OutboundComPortInfo(OutboundComPort comPort) {

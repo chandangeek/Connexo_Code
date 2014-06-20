@@ -13,6 +13,7 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.rest.impl.comserver.ComPortPoolResource;
 import com.energyict.mdc.rest.impl.comserver.ComPortResource;
+import com.energyict.mdc.rest.impl.comserver.ComServerComPortResource;
 import com.energyict.mdc.rest.impl.comserver.ComServerResource;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
@@ -42,6 +43,7 @@ public class MdcApplication extends Application {
                 TransactionWrapper.class,
                 ConstraintViolationExceptionMapper.class,
                 ComServerResource.class,
+                ComServerComPortResource.class,
                 ComPortResource.class,
                 ComPortPoolResource.class,
                 ComServerFieldResource.class);

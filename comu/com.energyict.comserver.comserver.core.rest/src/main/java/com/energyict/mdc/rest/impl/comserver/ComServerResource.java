@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -30,10 +31,13 @@ import javax.ws.rs.core.Response;
 public class ComServerResource {
 
     private final EngineModelService engineModelService;
+    private final Provider<ComServerComPortResource> comServerComPortResourceProvider;
 
     @Inject
-    public ComServerResource(EngineModelService engineModelService) {
+    public ComServerResource(EngineModelService engineModelService,
+                             Provider<ComServerComPortResource> comServerComPortResourceProvider) {
         this.engineModelService = engineModelService;
+        this.comServerComPortResourceProvider = comServerComPortResourceProvider;
     }
 
     @GET
@@ -59,24 +63,6 @@ public class ComServerResource {
                 Response.status(Response.Status.NOT_FOUND).entity("No ComServer with id "+id).build());
         }
         return ComServerInfoFactory.asInfo(comServer.get(), comServer.get().getComPorts());
-    }
-
-    @GET
-    @Path("/{id}/comports")
-    @Produces(MediaType.APPLICATION_JSON)
-    public PagedInfoList getComPortsForComServerServer(@PathParam("id") int id, @BeanParam QueryParameters queryParameters) {
-        Optional<ComServer> comServer = Optional.fromNullable(engineModelService.findComServer(id));
-        if (!comServer.isPresent()) {
-            throw new WebApplicationException("No ComServer with id "+id,
-                Response.status(Response.Status.NOT_FOUND).entity("No ComServer with id "+id).build());
-        }
-        List<ComPort> comPorts = comServer.get().getComPorts();
-        List<ComPortInfo> comPortInfos = new ArrayList<>(comPorts.size());
-
-        for (ComPort comPort : comPorts) {
-            comPortInfos.add(ComPortInfoFactory.asInfo(comPort));
-        }
-        return PagedInfoList.asJson("data", comPortInfos, queryParameters);
     }
 
     @DELETE
@@ -150,6 +136,11 @@ public class ComServerResource {
 
         comServer.get().save();
         return ComServerInfoFactory.asInfo(comServer.get());
+    }
+
+    @Path("/{comServerId}/comports")
+    public ComServerComPortResource getComPortResource() {
+        return comServerComPortResourceProvider.get();
     }
 
     private void updateComPorts(ComServer comServer, List<ComPortInfo> newComPorts) {
