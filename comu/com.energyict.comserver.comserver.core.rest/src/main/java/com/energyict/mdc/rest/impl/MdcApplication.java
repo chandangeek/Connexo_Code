@@ -3,9 +3,10 @@ package com.energyict.mdc.rest.impl;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.*;
+import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
+import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.common.rest.AutoCloseDatabaseConnection;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -15,20 +16,19 @@ import com.energyict.mdc.rest.impl.comserver.ComPortPoolResource;
 import com.energyict.mdc.rest.impl.comserver.ComPortResource;
 import com.energyict.mdc.rest.impl.comserver.ComServerComPortResource;
 import com.energyict.mdc.rest.impl.comserver.ComServerResource;
+import com.energyict.mdc.rest.impl.comserver.Installer;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Logger;
 import javax.ws.rs.core.Application;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-@Component(name = "com.energyict.mdc.rest", service = Application.class, immediate = true, property = {"alias=/mdc"})
-public class MdcApplication extends Application {
-    public static final String COMPONENT_NAME = "MDC";
-    private static final Logger LOGGER = Logger.getLogger(MdcApplication.class.getSimpleName());
+@Component(name = "com.energyict.mdc.rest", service = { Application.class, InstallService.class }, immediate = true, property = {"alias=/mdc", "name=" + MdcApplication.COMPONENT_NAME})
+public class MdcApplication extends Application implements InstallService {
+    public static final String COMPONENT_NAME = "MDR";
 
     private volatile EngineModelService engineModelService;
     private volatile TransactionService transactionService;
@@ -81,6 +81,11 @@ public class MdcApplication extends Application {
     @Reference
     public void setProtocolPluggableService(ProtocolPluggableService protocolPluggableService) {
         this.protocolPluggableService = protocolPluggableService;
+    }
+
+    @Override
+    public void install() {
+        new Installer(thesaurus).install();
     }
 
     class HK2Binder extends AbstractBinder {

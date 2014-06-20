@@ -1,24 +1,44 @@
 package com.energyict.mdc.rest.impl;
 
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import java.util.List;
 import java.util.Map;
 import javax.ws.rs.core.Application;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ComServerFieldResourceTest extends JerseyTest {
+
+    private static NlsService nlsService;
+    private static Thesaurus thesaurus;
 
     @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
+        when(nlsService.getThesaurus(anyString(), (Layer) anyObject())).thenReturn(thesaurus);
+        when(thesaurus.getString(anyString(), anyString())).thenReturn("");
+    }
+
+    @BeforeClass
+    public static void setUpClass() throws Exception {
+        thesaurus=mock(Thesaurus.class);
+        nlsService=mock(NlsService.class);
     }
 
     @Override
@@ -27,6 +47,12 @@ public class ComServerFieldResourceTest extends JerseyTest {
         enable(TestProperties.DUMP_ENTITY);
         ResourceConfig resourceConfig = new ResourceConfig(ComServerFieldResource.class);
         resourceConfig.register(JacksonFeature.class); // Server side JSON processing
+        resourceConfig.register(new AbstractBinder() {
+            @Override
+            protected void configure() {
+                bind(nlsService).to(NlsService.class);
+            }
+        });
         return resourceConfig;
     }
 
