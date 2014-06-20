@@ -54,7 +54,7 @@ Ext.define('Cfg.view.validation.RuleBrowse', {
                     itemId: 'validationruleListContainer'
                 },
                 {
-                    xtype: 'rulePreview',
+                    xtype: 'validation-rule-preview',
                     margin: '32 0 0 0'
                 }
             ]

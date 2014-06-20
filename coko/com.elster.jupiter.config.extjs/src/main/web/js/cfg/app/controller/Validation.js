@@ -34,12 +34,12 @@ Ext.define('Cfg.controller.Validation', {
 
     refs: [
         {ref: 'rulesetOverviewForm', selector: 'ruleSetOverview #rulesetOverviewForm'},
-        {ref: 'ruleForm', selector: 'rulePreview #ruleForm'},
+        {ref: 'ruleForm', selector: 'validation-rule-preview #ruleForm'},
         {ref: 'rulesetPreviewTitle', selector: 'validation-ruleset-preview #rulesetPreviewTitle'},
-        {ref: 'rulePreviewTitle', selector: 'rulePreview #rulePreviewTitle'},
-        {ref: 'readingTypesArea', selector: 'rulePreview #readingTypesArea'},
-        {ref: 'propertiesArea', selector: 'rulePreview #propertiesArea'},
-        {ref: 'ruleForm', selector: 'rulePreview #ruleForm'},
+        {ref: 'rulePreviewTitle', selector: 'validation-rule-preview #rulePreviewTitle'},
+        {ref: 'readingTypesArea', selector: 'validation-rule-preview #readingTypesArea'},
+        {ref: 'propertiesArea', selector: 'validation-rule-preview #propertiesArea'},
+        {ref: 'ruleForm', selector: 'validation-rule-preview #ruleForm'},
         {ref: 'rulesetOverviewTitle', selector: 'ruleSetOverview #rulesetOverviewTitle'},
         {ref: 'ruleBrowseTitle', selector: 'validationruleBrowse #ruleBrowseTitle'},
         {ref: 'ruleSetDetailsLink', selector: 'validation-ruleset-preview #ruleSetDetailsLink'},
@@ -55,7 +55,7 @@ Ext.define('Cfg.controller.Validation', {
         {ref: 'rulesGrid', selector: 'validationruleList'},
         {ref: 'ruleSetPreview', selector: 'validation-ruleset-preview'},
         {ref: 'ruleSetOverview', selector: 'ruleSetOverview'},
-        {ref: 'rulePreview', selector: 'rulePreview'},
+        {ref: 'rulePreview', selector: 'validation-rule-preview'},
         {ref: 'ruleSetDetails', selector: 'validation-ruleset-preview #ruleSetDetails'},
         {ref: 'ruleSetEdit', selector: 'validationrulesetEdit'},
 
