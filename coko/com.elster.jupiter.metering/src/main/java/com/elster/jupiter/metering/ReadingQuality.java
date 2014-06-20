@@ -21,4 +21,6 @@ public interface ReadingQuality {
     void save();
 
     Date getReadingTimestamp();
+
+    void delete();
 }

@@ -2,7 +2,9 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.events.impl.LocalEventImpl;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.BaseReadingRecord;
@@ -20,7 +22,10 @@ import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.pubsub.Publisher;
+import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.pubsub.impl.PublisherImpl;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
@@ -31,24 +36,28 @@ import com.elster.jupiter.util.UtilModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
 import org.joda.time.DateMidnight;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.Date;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
+
 
 @RunWith(MockitoJUnitRunner.class)
-public class ReadingQualityImplTest {
+public class ReadingQualityImplIT {
 
     private Injector injector;
 
@@ -58,8 +67,9 @@ public class ReadingQualityImplTest {
     private UserService userService;
     @Mock
     private EventAdmin eventAdmin;
-  
-    
+    @Mock
+    private Subscriber topicHandler;
+
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
 
@@ -76,32 +86,32 @@ public class ReadingQualityImplTest {
     @Before
     public void setUp() throws SQLException {
         injector = Guice.createInjector(
-        			new MockModule(), 
-        			inMemoryBootstrapModule, 
-        			new InMemoryMessagingModule(),
-        			new IdsModule(), 
-        			new MeteringModule(), 
-        			new PartyModule(), 
-        			new EventsModule(), 
-        			new DomainUtilModule(), 
-        			new OrmModule(),
-        			new UtilModule(), 
-        			new ThreadSecurityModule(), 
-        			new PubSubModule(), 
-        			new TransactionModule(),
-                    new NlsModule());
+                new MockModule(),
+                inMemoryBootstrapModule,
+                new InMemoryMessagingModule(),
+                new IdsModule(),
+                new MeteringModule(),
+                new PartyModule(),
+                new EventsModule(),
+                new DomainUtilModule(),
+                new OrmModule(),
+                new UtilModule(),
+                new ThreadSecurityModule(),
+                new PubSubModule(),
+                new TransactionModule(),
+                new NlsModule());
         injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
-			@Override
-			public Void perform() {
-				injector.getInstance(MeteringService.class);
-				return null;
-			}
-		});
+            @Override
+            public Void perform() {
+                injector.getInstance(MeteringService.class);
+                return null;
+            }
+        });
     }
 
     @After
     public void tearDown() throws SQLException {
-       inMemoryBootstrapModule.deactivate();
+        inMemoryBootstrapModule.deactivate();
     }
 
     @Test
@@ -110,12 +120,51 @@ public class ReadingQualityImplTest {
         getTransactionService().execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
+                when(topicHandler.getClasses()).thenReturn(new Class[]{LocalEventImpl.class});
+                ((PublisherImpl) injector.getInstance(Publisher.class)).addHandler(topicHandler);
+
                 Date date = new DateMidnight(2001, 1, 1).toDate();
                 doTest(getMeteringService(), date);
+
+                ArgumentCaptor<LocalEvent> localEventCapture = ArgumentCaptor.forClass(LocalEvent.class);
+                verify(topicHandler, times(4)).handle(localEventCapture.capture());
+
+                LocalEvent localEvent = localEventCapture.getAllValues().get(3);
+                assertThat(localEvent.getType().getTopic()).isEqualTo(EventType.READING_QUALITY_CREATED.topic());
+                Event event = localEvent.toOsgiEvent();
+                assertThat(event.containsProperty("readingTimestamp")).isTrue();
+                assertThat(event.containsProperty("channelId")).isTrue();
+                assertThat(event.containsProperty("readingQualityTypeCode")).isTrue();
 
             }
         });
 
+    }
+
+    public void testDelete() {
+        getTransactionService().execute(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                Date date = new DateMidnight(2001, 1, 1).toDate();
+                ReadingQuality readingQuality = doTest(getMeteringService(), date);
+
+                when(topicHandler.getClasses()).thenReturn(new Class[]{LocalEventImpl.class});
+                ((PublisherImpl) injector.getInstance(Publisher.class)).addHandler(topicHandler);
+
+
+                readingQuality.delete();
+                ArgumentCaptor<LocalEvent> localEventCapture = ArgumentCaptor.forClass(LocalEvent.class);
+                verify(topicHandler).handle(localEventCapture.capture());
+
+                LocalEvent localEvent = localEventCapture.getValue();
+                assertThat(localEvent.getType().getTopic()).isEqualTo(EventType.READING_QUALITY_DELETED.topic());
+                Event event = localEvent.toOsgiEvent();
+                assertThat(event.containsProperty("readingTimestamp")).isTrue();
+                assertThat(event.containsProperty("channelId")).isTrue();
+                assertThat(event.containsProperty("readingQualityTypeCode")).isTrue();
+
+            }
+        });
     }
 
     private MeteringService getMeteringService() {
@@ -126,7 +175,7 @@ public class ReadingQualityImplTest {
         return injector.getInstance(TransactionService.class);
     }
 
-    private void doTest(MeteringService meteringService, Date date) {
+    private ReadingQuality doTest(MeteringService meteringService, Date date) {
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID");
         usagePoint.save();
@@ -139,6 +188,7 @@ public class ReadingQualityImplTest {
         BaseReadingRecord reading = channel.getReading(date).get();
         ReadingQuality readingQuality = channel.createReadingQuality(new ReadingQualityType("6.1"), reading);
         readingQuality.save();
+        return readingQuality;
     }
 
 }

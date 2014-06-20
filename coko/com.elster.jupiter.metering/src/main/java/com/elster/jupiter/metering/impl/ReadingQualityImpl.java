@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeteringService;
@@ -31,12 +32,14 @@ public class ReadingQualityImpl implements ReadingQuality {
 
     private final DataModel dataModel;
     private final MeteringService meteringService;
+    private final EventService eventService;
 
     @Inject
-    ReadingQualityImpl(DataModel dataModel, MeteringService meteringService) {
+    ReadingQualityImpl(DataModel dataModel, MeteringService meteringService, EventService eventService) {
         this.dataModel = dataModel;
         // for persistence
         this.meteringService = meteringService;
+        this.eventService = eventService;
     }
 
     ReadingQualityImpl init(ReadingQualityType type, Channel channel, BaseReadingRecord baseReadingRecord) {
@@ -92,7 +95,7 @@ public class ReadingQualityImpl implements ReadingQuality {
     @Override
     public BaseReadingRecord getBaseReadingRecord() {
         if (baseReadingRecord == null) {
-            baseReadingRecord = getChannel().getReading(getTimestamp()).get();
+            baseReadingRecord = getChannel().getReading(getReadingTimestamp()).get();
         }
         return baseReadingRecord;
     }
@@ -100,13 +103,41 @@ public class ReadingQualityImpl implements ReadingQuality {
     public void save() {
         if (id == 0) {
             dataModel.mapper(ReadingQuality.class).persist(this);
+            eventService.postEvent(EventType.READING_QUALITY_CREATED.topic(), new LocalEventSource(this));
         } else {
             dataModel.mapper(ReadingQuality.class).update(this);
+            eventService.postEvent(EventType.READING_QUALITY_UPDATED.topic(), new LocalEventSource(this));
         }
     }
 
     @Override
     public Date getReadingTimestamp() {
         return readingTimestamp.toDate();
+    }
+
+    @Override
+    public void delete() {
+        dataModel.mapper(ReadingQuality.class).remove(this);
+        eventService.postEvent(EventType.READING_QUALITY_DELETED.topic(), new LocalEventSource(this));
+    }
+
+    public class LocalEventSource {
+        private final ReadingQualityImpl readingQuality;
+
+        public LocalEventSource(ReadingQualityImpl readingQuality) {
+            this.readingQuality = readingQuality;
+        }
+
+        public long getReadingTimestamp() {
+            return readingQuality.readingTimestamp.getTime();
+        }
+
+        public long getChannelId() {
+            return readingQuality.channelId;
+        }
+
+        public String getTypeCode() {
+            return readingQuality.typeCode;
+        }
     }
 }

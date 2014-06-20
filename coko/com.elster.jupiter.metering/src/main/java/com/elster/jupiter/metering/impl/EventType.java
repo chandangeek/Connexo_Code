@@ -44,6 +44,51 @@ public enum EventType {
                     .withProperty("meterId", ValueType.LONG, "meterId")
                     .create().save();
         }
+    },
+    READING_QUALITY_CREATED("readingquality/CREATED") {
+        @Override
+        public void install(EventService eventService) {
+            eventService.buildEventTypeWithTopic(topic())
+                    .name(name())
+                    .component(MeteringService.COMPONENTNAME)
+                    .category("Crud")
+                    .scope("System")
+                    .shouldPublish()
+                    .withProperty("readingTimestamp", ValueType.LONG, "readingTimestamp")
+                    .withProperty("channelId", ValueType.LONG, "channelId")
+                    .withProperty("readingQualityTypeCode", ValueType.STRING, "typeCode")
+                    .create().save();
+        }
+    },
+    READING_QUALITY_UPDATED("readingquality/UPDATED") {
+        @Override
+        public void install(EventService eventService) {
+            eventService.buildEventTypeWithTopic(topic())
+                    .name(name())
+                    .component(MeteringService.COMPONENTNAME)
+                    .category("Crud")
+                    .scope("System")
+                    .shouldPublish()
+                    .withProperty("readingTimestamp", ValueType.LONG, "readingTimestamp")
+                    .withProperty("channelId", ValueType.LONG, "channelId")
+                    .withProperty("readingQualityTypeCode", ValueType.STRING, "typeCode")
+                    .create().save();
+        }
+    },
+    READING_QUALITY_DELETED("readingquality/DELETED") {
+        @Override
+        public void install(EventService eventService) {
+            eventService.buildEventTypeWithTopic(topic())
+                    .name(name())
+                    .component(MeteringService.COMPONENTNAME)
+                    .category("Crud")
+                    .scope("System")
+                    .shouldPublish()
+                    .withProperty("readingTimestamp", ValueType.LONG, "readingTimestamp")
+                    .withProperty("channelId", ValueType.LONG, "channelId")
+                    .withProperty("readingQualityTypeCode", ValueType.STRING, "typeCode")
+                    .create().save();
+        }
     };
 
     private static final String NAMESPACE = "com/elster/jupiter/metering/";
