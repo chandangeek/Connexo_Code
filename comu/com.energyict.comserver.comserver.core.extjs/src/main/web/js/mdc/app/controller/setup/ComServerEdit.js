@@ -31,10 +31,11 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
     },
 
     showEditView: function (id) {
-        var widget = Ext.widget('comServerEdit'),
-            model = this.getModel('Mdc.model.ComServer');
+        var me = this,
+            widget = Ext.widget('comServerEdit'),
+            model = me.getModel('Mdc.model.ComServer');
 
-        this.getApplication().fireEvent('changecontentevent', widget);
+        me.getApplication().fireEvent('changecontentevent', widget);
         widget.setEdit(true, '#/administration/comservers');
 
         widget.setLoading(true);
@@ -45,6 +46,8 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
                     form = widget.down('form'),
                     title;
 
+                me.getApplication().fireEvent('loadComServer', record);
+
                 switch (comServerType) {
                     case 'Online':
                         title = Uni.I18n.translate('comServer.title.editOnline', 'MDC', 'Edit online communication server');
@@ -54,7 +57,7 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
                 form.setTitle(title);
                 form.down('[name=comServerTypeVisual]').setValue(comServerType);
                 form.down('[name=comServerTypeVisual]').show();
-                form.loadRecord(record);
+                me.modelToForm(record, form);
             },
             callback: function () {
                 widget.setLoading(false);
@@ -72,7 +75,7 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
         this.getApplication().fireEvent('changecontentevent', widget);
         form = widget.down('form');
         form.setTitle(Uni.I18n.translate('comServer.title.addOnline', 'MDC', 'Add online communication server'));
-        form.loadRecord(model);
+        this.modelToForm(model, form);
         widget.setEdit(false, '#/administration/comservers');
     },
 
@@ -107,6 +110,24 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
         } else {
             formErrorsPanel.show();
         }
+    },
+
+    modelToForm: function (model, form) {
+        var data = model.getData(),
+            basicForm = form.getForm(),
+            values = {};
+
+        Ext.Object.each(data, function (key, value) {
+            if (Ext.isObject(value)) {
+                Ext.Object.each(value, function (valKey, valValue) {
+                    values[key+ '[' +valKey + ']'] = valValue;
+                });
+            } else {
+                values[key] = value;
+            }
+        });
+
+        basicForm.setValues(values);
     },
 
     formToModel: function () {
