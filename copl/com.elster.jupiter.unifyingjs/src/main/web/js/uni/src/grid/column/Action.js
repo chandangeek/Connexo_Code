@@ -41,8 +41,10 @@ Ext.define('Uni.grid.column.Action', {
      * @private
      */
     initMenu: function () {
-        var me = this;
-        me.menu = Ext.widget('menu', me.menu);
+        var me = this,
+            menuXtype = me.menu.xtype;
+        menuXtype == null ? menuXtype = 'menu' : null;
+        me.menu = Ext.widget(menuXtype, me.menu);
         me.menu.on('click', function(menu, item, e, eOpts) {
             me.fireEvent('menuclick', menu, item, e, eOpts);
             if (item.action) {
