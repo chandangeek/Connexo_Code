@@ -10,9 +10,8 @@ import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.DeviceDataService;
-
+import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
