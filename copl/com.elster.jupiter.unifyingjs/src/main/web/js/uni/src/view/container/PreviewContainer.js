@@ -111,9 +111,25 @@ Ext.define('Uni.view.container.PreviewContainer', {
         me.callParent(arguments);
 
         me.grid = me.getWrapperCt().items.items[0];
+        me.previewComponent = me.getWrapperCt().items.items[1];
+
         me.bindStore(me.grid.store || 'ext-empty-store', true);
+        me.initGridListeners();
 
         me.on('beforedestroy', this.onBeforeDestroy, this);
+    },
+
+    initGridListeners: function () {
+        var me = this;
+
+        me.grid.on('selectionchange', me.onGridSelectionChange, me);
+    },
+
+    onGridSelectionChange: function () {
+        var me = this,
+            selection = me.grid.view.getSelectionModel().getSelection();
+
+        me.previewComponent.setVisible(selection.length === 1);
     },
 
     getStoreListeners: function () {

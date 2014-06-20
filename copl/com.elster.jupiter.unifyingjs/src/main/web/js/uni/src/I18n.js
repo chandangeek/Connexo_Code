@@ -125,6 +125,11 @@ Ext.define('Uni.I18n', {
      */
     thousandsSeparatorKey: 'thousandsSeparator',
 
+    //<debug>
+    // Used to only show missing translation messages once.
+    blacklist: [],
+    //</debug>
+
     /**
      * Initializes the internationalization components that should be used during loading.
      *
@@ -176,11 +181,14 @@ Ext.define('Uni.I18n', {
             translation = translation.data.value;
         } else {
             //<debug>
-            var warning = 'Missing translation for key "' + key + '"';
-            if (component) {
-                warning += ' in component "' + component + '"';
+            if (!this.blacklist[key + component]) {
+                this.blacklist[key + component] = true;
+                var warning = 'Missing translation for key "' + key + '"';
+                if (component) {
+                    warning += ' in component "' + component + '"';
+                }
+                console.log(warning);
             }
-            console.log(warning);
             //</debug>
         }
 
