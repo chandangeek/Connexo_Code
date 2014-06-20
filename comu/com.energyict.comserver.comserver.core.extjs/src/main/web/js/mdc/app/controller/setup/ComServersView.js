@@ -34,9 +34,6 @@ Ext.define('Mdc.controller.setup.ComServersView', {
             'comserver-actionmenu': {
                 click: this.chooseAction,
                 show: this.configureMenu
-            },
-            'comServersGrid button[action=add] menuitem': {
-                click: this.add
             }
         });
     },
@@ -57,10 +54,9 @@ Ext.define('Mdc.controller.setup.ComServersView', {
     chooseAction: function (menu, item) {
         var me = this,
             record = menu.record,
-            activeChange = -1,
-            grid = me.getComServerGrid(),
-            store = grid.getStore(),
-            selectionModel;
+            activeChange = 'notChanged',
+            gridView = me.getComServerGrid().getView(),
+            form = this.getComServerPreview().down('form');
 
         switch (item.action) {
             case 'edit':
@@ -71,22 +67,19 @@ Ext.define('Mdc.controller.setup.ComServersView', {
                 break;
             case 'activate':
                 activeChange = true;
-                record.set('active', true);
                 break;
             case 'deactivate':
                 activeChange = false;
                 break;
         }
 
-        if (activeChange != -1) {
-            selectionModel = grid.getSelectionModel();
+        if (activeChange != 'notChanged') {
             record.set('active', activeChange);
             delete record.data.comportslink;
             record.save({
                 callback: function (model) {
-                    store.load(function () {
-                        grid.fireEvent('select', selectionModel, model);
-                    });
+                    gridView.refresh();
+                    form.loadRecord(model);
                 }
             });
         }
