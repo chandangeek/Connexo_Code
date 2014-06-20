@@ -43,7 +43,7 @@ public class Installer {
         this.messageService = messageService;
     }
 
-    public void install(boolean executeDdl, boolean createMasterData) {
+    public void install(boolean executeDdl) {
         try {
             if (!this.dataModel.isInstalled()) {
                 this.dataModel.install(executeDdl, true);
@@ -54,9 +54,7 @@ public class Installer {
         this.createEventTypes();
         this.createTranslations();
         this.createMessageHandler();
-        if (createMasterData) {
-            this.createMasterData();
-        }
+        this.createMasterData();
     }
 
     private void createMessageHandler() {
@@ -94,7 +92,7 @@ public class Installer {
     private void createEventTypes() {
         for (EventType eventType : EventType.values()) {
             try {
-                eventType.install(this.eventService);
+                eventType.createIfNotExists(this.eventService);
             } catch (Exception e) {
                 this.logger.log(Level.SEVERE, e.getMessage(), e);
             }

@@ -63,6 +63,7 @@ import java.util.Set;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -79,6 +80,7 @@ import static org.mockito.Mockito.when;
  * Time: 16:46
  */
 @RunWith(MockitoJUnitRunner.class)
+@Ignore
 public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest {
 
     private static final int PROTOCOL_DIALECT_PROPERTIES_ID = 6514;
