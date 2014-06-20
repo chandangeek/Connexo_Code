@@ -7,6 +7,7 @@ Ext.define('Mdc.view.setup.comserver.ComServersGrid', {
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
+        'Uni.grid.column.Action',
         'Mdc.view.setup.comserver.ActionMenu'
     ],
     columns: [
@@ -34,18 +35,10 @@ Ext.define('Mdc.view.setup.comserver.ComServersGrid', {
             }
         },
         {
-            xtype: 'uni-actioncolumn',
             itemId: 'actionColumn',
-            iconCls: 'uni-actioncolumn-gear',
-            columnWidth: 32,
-            fixed: true,
-            header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-            sortable: false,
-            hideable: false,
+            xtype: 'uni-actioncolumn',
             menu: {
-                xtype: 'comserver-actionmenu',
-                defaultAlign: 'tr-br?',
-                plain: true
+                xtype: 'comserver-actionmenu'
             }
         }
     ],
