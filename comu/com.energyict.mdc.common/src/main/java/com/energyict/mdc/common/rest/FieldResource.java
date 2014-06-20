@@ -76,7 +76,7 @@ public class FieldResource {
      *   "nrOfDataBits": [
      *       {
      *           "nrOfDataBits": "FIVE",
-     *           "localizedValue": "пять"
+     *           "localizedValue": "vijf"
      *       },
      *       {
      *           "nrOfDataBits": "SIX"
