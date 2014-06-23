@@ -3,6 +3,7 @@ Ext.define('Cfg.view.validation.RuleSetList', {
     border: true,
     alias: 'widget.validationrulesetList',
     itemId: 'validationrulesetList',
+
     store: 'ValidationRuleSets',
 
     requires: [
@@ -34,11 +35,6 @@ Ext.define('Cfg.view.validation.RuleSetList', {
         }
     },
 
-
-
-
-
-
     columns: {
         items: [
             { header: Uni.I18n.translate('general.name', 'CFG', 'Name'), dataIndex: 'name', flex: 0.3, sortable: false, fixed: true,
@@ -48,7 +44,7 @@ Ext.define('Cfg.view.validation.RuleSetList', {
                 }
             },
             { header: Uni.I18n.translate('validation.numberOfRules', 'CFG', 'Number of rules'), dataIndex: 'numberOfRules', flex: 0.3, align: 'right', sortable: false, fixed: true  },
-            { header:Uni.I18n.translate('validation.numberOfInActiveRules', 'CFG', 'Number of inactive rules'), dataIndex: 'numberOfInactiveRules', flex: 0.3, align: 'right', sortable: false, fixed: true },
+            { header: Uni.I18n.translate('validation.numberOfInActiveRules', 'CFG', 'Number of inactive rules'), dataIndex: 'numberOfInactiveRules', flex: 0.3, align: 'right', sortable: false, fixed: true },
             {
                 xtype: 'uni-actioncolumn',
                 items: 'Cfg.view.validation.RuleSetActionMenu'
@@ -56,14 +52,13 @@ Ext.define('Cfg.view.validation.RuleSetList', {
         ]
     },
 
-
-
     initComponent: function () {
+        var me = this;
 
-        this.dockedItems = [
+        me.dockedItems = [
             {
                 xtype: 'pagingtoolbartop',
-                store: this.store,
+                store: me.store,
                 displayMsg: '{0} - {1} of {2} rule sets',
                 dock: 'top',
                 items: [
@@ -79,7 +74,7 @@ Ext.define('Cfg.view.validation.RuleSetList', {
                         hrefTarget: '_self'
                     },
                     {
-                        text:  Uni.I18n.translate('general.bulkAction', 'CFG', 'Bulk action'),
+                        text: Uni.I18n.translate('general.bulkAction', 'CFG', 'Bulk action'),
                         itemId: 'rulesetBulkAction',
                         action: 'rulesetBulkAction'
                     }
@@ -87,11 +82,12 @@ Ext.define('Cfg.view.validation.RuleSetList', {
             },
             {
                 xtype: 'pagingtoolbarbottom',
-                store: this.store,
+                store: me.store,
                 itemsPerPageMsg: 'Rule sets per page',
                 dock: 'bottom'
-            }];
+            }
+        ];
 
-        this.callParent(arguments);
+        me.callParent(arguments);
     }
 });

@@ -1,8 +1,9 @@
 Ext.define('Cfg.view.validation.RulePreview', {
     extend: 'Ext.panel.Panel',
-    frame: true,
-    alias: 'widget.rulePreview',
+    xtype: 'validation-rule-preview',
     itemId: 'rulePreview',
+    frame: true,
+
     requires: [
         'Cfg.model.ValidationRule',
         'Cfg.view.validation.RuleActionMenu'
@@ -13,7 +14,7 @@ Ext.define('Cfg.view.validation.RulePreview', {
         align: 'stretch'
     },
 
-    title: "Details",
+    title: 'Details',
 
     tools: [
         {
@@ -25,7 +26,6 @@ Ext.define('Cfg.view.validation.RulePreview', {
             }
         }
     ],
-
 
     items: [
         {
@@ -62,22 +62,22 @@ Ext.define('Cfg.view.validation.RulePreview', {
                     name: 'name',
                     fieldLabel: Uni.I18n.translate('validation.name', 'CFG', 'Name'),
                     labelAlign: 'right',
-                    labelWidth:	250
+                    labelWidth: 250
                 },
                 {
                     xtype: 'displayfield',
                     name: 'displayName',
                     fieldLabel: Uni.I18n.translate('validation.Rule', 'CFG', 'Rule'),
                     labelAlign: 'right',
-                    labelWidth:	250
+                    labelWidth: 250
                 },
                 {
                     xtype: 'displayfield',
                     name: 'active',
                     fieldLabel: Uni.I18n.translate('validation.active', 'CFG', 'Active'),
                     labelAlign: 'right',
-                    labelWidth:	250,
-                    renderer:function(value){
+                    labelWidth: 250,
+                    renderer: function (value) {
                         if (value) {
                             return Uni.I18n.translate('general.yes', 'CFG', 'Yes')
                         } else {
