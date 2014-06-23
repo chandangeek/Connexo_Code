@@ -2,6 +2,7 @@ package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.collections.ArrayDiffList;
@@ -18,9 +19,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @XmlRootElement
 @UniqueName(groups = { Save.Create.class, Save.Update.class }, message = "{"+ Constants.DUPLICATE_VALIDATION_RULE_SET+"}")
@@ -256,6 +255,20 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
 
     private DataMapper<IValidationRuleSet> validationRuleSetFactory() {
         return dataModel.mapper(IValidationRuleSet.class);
+    }
+
+    public List<ValidationRule> getRules(List<ReadingType> readingTypes) {
+        List<ValidationRule> result = new ArrayList<ValidationRule>();
+        List<IValidationRule> rules = getRules();
+        for (ValidationRule rule : rules) {
+            Set<ReadingType> readingTypesForRule = rule.getReadingTypes();
+            for (ReadingType readingtype : readingTypes) {
+                if (readingTypesForRule.contains(readingtype)) {
+                    result.add(rule);
+                }
+            }
+        }
+        return result;
     }
 
 

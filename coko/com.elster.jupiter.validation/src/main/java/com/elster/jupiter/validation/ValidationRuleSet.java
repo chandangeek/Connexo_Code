@@ -1,6 +1,7 @@
 package com.elster.jupiter.validation;
 
 import com.elster.jupiter.cbo.IdentifiedObject;
+import com.elster.jupiter.metering.ReadingType;
 
 import java.util.List;
 
@@ -29,5 +30,7 @@ public interface ValidationRuleSet extends IdentifiedObject {
     ValidationRule addRule(ValidationAction action, String implementation, String name);
 
     void deleteRule(ValidationRule rule);
+
+    List<ValidationRule> getRules(List<ReadingType> readingTypes);
 }
 
