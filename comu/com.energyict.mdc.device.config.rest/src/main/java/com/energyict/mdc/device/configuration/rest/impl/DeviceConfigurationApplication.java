@@ -12,6 +12,7 @@ import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
+import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -172,6 +173,7 @@ public class DeviceConfigurationApplication extends Application implements Insta
             bind(engineModelService).to(EngineModelService.class);
             bind(userFileService).to(UserFileService.class);
             bind(deviceDataService).to(DeviceDataService.class);
+            bind(ExceptionFactory.class).to(ExceptionFactory.class);
         }
     }
 

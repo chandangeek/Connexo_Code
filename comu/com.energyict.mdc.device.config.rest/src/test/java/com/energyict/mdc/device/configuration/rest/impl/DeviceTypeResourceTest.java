@@ -25,6 +25,7 @@ import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -152,6 +153,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
                 bind(thesaurus).to(Thesaurus.class);
                 bind(deviceDataService).to(DeviceDataService.class);
                 bind(mdcPropertyUtils).to(MdcPropertyUtils.class);
+                bind(ExceptionFactory.class).to(ExceptionFactory.class);
             }
         });
         return resourceConfig;

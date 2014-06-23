@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
@@ -28,7 +29,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -47,9 +47,10 @@ public class ConnectionMethodResource {
     private final ConnectionMethodInfoFactory connectionMethodInfoFactory;
     private final MdcPropertyUtils mdcPropertyUtils;
     private final DeviceDataService deviceDataService;
+    private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public ConnectionMethodResource(ResourceHelper resourceHelper, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, ConnectionMethodInfoFactory connectionMethodInfoFactory, MdcPropertyUtils mdcPropertyUtils, DeviceDataService deviceDataService) {
+    public ConnectionMethodResource(ResourceHelper resourceHelper, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, ConnectionMethodInfoFactory connectionMethodInfoFactory, MdcPropertyUtils mdcPropertyUtils, DeviceDataService deviceDataService, ExceptionFactory exceptionFactory) {
         this.resourceHelper = resourceHelper;
         this.protocolPluggableService = protocolPluggableService;
         this.engineModelService = engineModelService;
@@ -57,6 +58,7 @@ public class ConnectionMethodResource {
         this.connectionMethodInfoFactory = connectionMethodInfoFactory;
         this.mdcPropertyUtils = mdcPropertyUtils;
         this.deviceDataService = deviceDataService;
+        this.exceptionFactory = exceptionFactory;
     }
 
     @GET
@@ -74,10 +76,10 @@ public class ConnectionMethodResource {
         if (available!=null && deviceId!=null) {
             Device device = deviceDataService.findDeviceById(deviceId);
             if (device==null) {
-                throw new WebApplicationException("No such device", Response.Status.BAD_REQUEST);
+                throw exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE);
             }
             if (device.getDeviceConfiguration().getId()!=deviceConfigurationId) {
-                throw new WebApplicationException("Device does not match device configuration", Response.Status.BAD_REQUEST);
+                throw exceptionFactory.newException(MessageSeeds.DEVICE_DOES_NOT_MATCH_CONFIG);
             }
             partialConnectionTasks.addAll(findAvailablePartialConnectionTasksByDevice(device, deviceConfiguration));
         } else {
@@ -100,12 +102,8 @@ public class ConnectionMethodResource {
                                                      @Context UriInfo uriInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        for (PartialConnectionTask partialConnectionTask : deviceConfiguration.getPartialConnectionTasks()) {
-            if (partialConnectionTask.getId()==connectionMethodId) {
-                return connectionMethodInfoFactory.asInfo(partialConnectionTask, uriInfo);
-            }
-        }
-        throw new WebApplicationException(Response.Status.NOT_FOUND);
+        PartialConnectionTask partialConnectionTask = findPartialConnectionTaskOrThrowException(connectionMethodId, deviceConfiguration);
+        return connectionMethodInfoFactory.asInfo(partialConnectionTask, uriInfo);
     }
 
     @DELETE
@@ -176,7 +174,7 @@ public class ConnectionMethodResource {
                 return partialConnectionTask;
             }
         }
-        throw new WebApplicationException("No such connection task", Response.Status.NOT_FOUND);
+        throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CONNECTION_TASK);
     }
 
     /**
