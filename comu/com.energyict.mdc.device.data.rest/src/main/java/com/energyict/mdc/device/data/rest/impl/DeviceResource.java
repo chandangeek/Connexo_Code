@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
@@ -25,7 +26,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -43,9 +43,10 @@ public class DeviceResource {
     private final EngineModelService engineModelService;
     private final MdcPropertyUtils mdcPropertyUtils;
     private final Provider<ProtocolDialectResource> protocolDialectResourceProvider;
+    private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public DeviceResource(ResourceHelper resourceHelper, DeviceImportService deviceImportService, DeviceDataService deviceDataService, IssueService issueService, ConnectionMethodInfoFactory connectionMethodInfoFactory, EngineModelService engineModelService, MdcPropertyUtils mdcPropertyUtils, Provider<ProtocolDialectResource> protocolDialectResourceProvider) {
+    public DeviceResource(ResourceHelper resourceHelper, DeviceImportService deviceImportService, DeviceDataService deviceDataService, IssueService issueService, ConnectionMethodInfoFactory connectionMethodInfoFactory, EngineModelService engineModelService, MdcPropertyUtils mdcPropertyUtils, Provider<ProtocolDialectResource> protocolDialectResourceProvider, ExceptionFactory exceptionFactory) {
         this.resourceHelper = resourceHelper;
         this.deviceImportService = deviceImportService;
         this.deviceDataService = deviceDataService;
@@ -54,6 +55,7 @@ public class DeviceResource {
         this.engineModelService = engineModelService;
         this.mdcPropertyUtils = mdcPropertyUtils;
         this.protocolDialectResourceProvider = protocolDialectResourceProvider;
+        this.exceptionFactory = exceptionFactory;
     }
 	
 	@GET
@@ -145,7 +147,7 @@ public class DeviceResource {
                 return partialConnectionTask;
             }
         }
-        throw new WebApplicationException("No such partial connection task", Response.Status.BAD_REQUEST);
+        throw exceptionFactory.newException(MessageSeeds.NO_SUCH_PARTIAL_CONNECTION_TASK);
     }
 
 
@@ -154,7 +156,7 @@ public class DeviceResource {
     public Response deleteConnectionMethod(@PathParam("mRID") String mrid, @PathParam("id") long connectionMethodId) {
         Device device = deviceDataService.findByUniqueMrid(mrid);
         if (device == null) {
-            throw new WebApplicationException("No device with mRID " + mrid, Response.Status.BAD_REQUEST);
+            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE, mrid);
         }
         ConnectionTask<?,?> targetConnectionTask = findConnectionTaskOrThrowException(device, connectionMethodId);
         device.removeConnectionTask(targetConnectionTask);
@@ -167,7 +169,7 @@ public class DeviceResource {
                  return connectionTask;
             }
         }
-        throw new WebApplicationException("Device " + device.getmRID() + " has no connection method "+connectionMethodId, Response.Status.BAD_REQUEST);
+        throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CONNECTION_METHOD, device.getmRID(), connectionMethodId);
     }
 
     private Condition getQueryCondition(StandardParametersBean params) {

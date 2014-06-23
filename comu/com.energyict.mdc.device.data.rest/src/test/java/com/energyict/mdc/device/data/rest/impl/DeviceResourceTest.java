@@ -7,6 +7,7 @@ import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
+import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.PartialConnectionTask;
@@ -109,6 +110,7 @@ public class DeviceResourceTest extends JerseyTest {
                 bind(issueService).to(IssueService.class);
                 bind(mdcPropertyUtils).to(MdcPropertyUtils.class);
                 bind(ConnectionMethodInfoFactory.class).to(ConnectionMethodInfoFactory.class);
+                bind(ExceptionFactory.class).to(ExceptionFactory.class);
             }
         });
         return resourceConfig;
