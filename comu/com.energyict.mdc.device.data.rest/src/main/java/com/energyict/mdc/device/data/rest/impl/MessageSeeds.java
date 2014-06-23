@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.configuration.rest.impl.DeviceConfigurationApplication;
 import java.util.logging.Level;
@@ -16,17 +15,11 @@ public enum MessageSeeds implements MessageSeed {
     private final int number;
     private final String key;
     private final String format;
-    private final Layer layer;
 
     private MessageSeeds(int number, String key, String format) {
-        this(number, key, format, Layer.REST);
-    }
-
-    private MessageSeeds(int number, String key, String format, Layer layer) {
         this.number = number;
         this.key = stripComponentNameIfPresent(key);
         this.format = format;
-        this.layer = layer;
     }
 
     private String stripComponentNameIfPresent(String key) {
@@ -62,7 +55,4 @@ public enum MessageSeeds implements MessageSeed {
         return Level.SEVERE;
     }
 
-    public Layer getLayer() {
-        return layer;
-    }
 }
