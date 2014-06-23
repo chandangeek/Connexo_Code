@@ -114,7 +114,7 @@ Ext.define('Mdc.controller.setup.Properties', {
         var propertiesForm = view.down('#propertiesform');
         var items = propertiesForm.items.items.slice(0);
         Ext.each(items, function (child, index) {
-                propertiesForm.remove(child);
+            propertiesForm.remove(child);
         });
 
         var properties = objectWithProperties.propertiesStore.data.items;
@@ -365,7 +365,7 @@ Ext.define('Mdc.controller.setup.Properties', {
             } else if (newValue === 'true') {
                 view.down('#' + key).setValue({rb: 1});
             } else {
-                view.down('#' + + key).setValue({rb: null});
+                view.down('#' + key).setValue({rb: null});
             }
         } else if (property.getPropertyType().data.simplePropertyType === 'CLOCK') {
             if (newValue !== null && newValue !== '' && newValue !== undefined) {
@@ -481,7 +481,7 @@ Ext.define('Mdc.controller.setup.Properties', {
                     if (view.down('#' + property.data.key) != null) {
                         var field = view.down('#' + property.data.key);
                         value = field.getValue();
-                        if (property.getPropertyType().data.simplePropertyType === 'CODETABLE'){
+                        if (property.getPropertyType().data.simplePropertyType === 'CODETABLE') {
                             if (value !== '') {
                                 var valueId = value.substr(0, value.indexOf('-'));
                                 value = new Object();
@@ -569,6 +569,12 @@ Ext.define('Mdc.controller.setup.Properties', {
         var properties = model.propertiesStore.data.items;
         if (properties != null) {
             properties.forEach(function (property) {
+                    if (property.data.isInheritedOrDefaultValue === true) {
+                        property.setPropertyValue(null);
+                    } else {
+                        propertyValue.data.value = value;
+                        property.setPropertyValue(propertyValue);
+                    }
                     delete property.data.isInheritedOrDefaultValue;
                     delete property.setPropertyType(null);
                 }
@@ -613,7 +619,7 @@ Ext.define('Mdc.controller.setup.Properties', {
         this.loadProfileTypeSelectionWindow.close();
     },
 
-    showErrors: function(errors) {
+    showErrors: function (errors) {
         this.getPropertiesForm().getForm().markInvalid(errors);
     }
 
