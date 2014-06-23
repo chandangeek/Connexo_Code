@@ -17,6 +17,7 @@ public class ValidationRuleInfo {
     public String name;
     public int position;
     public long ruleSetId;
+    public String ruleSetName;
     public List<ValidationRulePropertyInfo> properties = new ArrayList<ValidationRulePropertyInfo>();
     public List<ReadingTypeInfo> readingTypes = new ArrayList<ReadingTypeInfo>();
 
@@ -27,6 +28,7 @@ public class ValidationRuleInfo {
         displayName = validationRule.getDisplayName();
         name = validationRule.getName();
         ruleSetId = validationRule.getRuleSet().getId();
+        ruleSetName = validationRule.getRuleSet().getName();
         for (ValidationRuleProperties property : validationRule.getProperties()) {
             properties.add(new ValidationRulePropertyInfo(property));
         }
