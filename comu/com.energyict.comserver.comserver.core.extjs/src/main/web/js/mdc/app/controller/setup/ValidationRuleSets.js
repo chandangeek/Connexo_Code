@@ -16,6 +16,7 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
     ],
 
     refs: [
+        {ref: 'validationRuleSetsOverview', selector: 'validation-rules-overview'},
         {ref: 'validationRuleSetsGrid', selector: 'validation-rules-overview validation-rulesets-grid'},
         {ref: 'validationRulesGrid', selector: 'validation-rules-overview validation-rules-grid'},
         {ref: 'addValidationRuleSets', selector: 'validation-add-rulesets'},
@@ -31,13 +32,16 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
 
         this.control({
             'validation-add-rulesets validation-add-rulesets-grid': {
-                selectionchange: this.onValidationRuleSetsSelectionChange
+                selectionchange: this.onAddValidationRuleSetsSelectionChange
             },
             'validation-add-rulesets button[action=addValidationRuleSets]': {
                 click: this.onAddValidationRuleSets
             },
             'validation-add-rulesets button[action=uncheckAll]': {
                 click: this.onUncheckAll
+            },
+            'validation-rules-overview validation-rulesets-grid': {
+                selectionchange: this.onValidationRuleSetsSelectionChange
             }
         });
     },
@@ -56,6 +60,9 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
 
                 var model = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
                 model.getProxy().setExtraParam('deviceType', deviceTypeId);
+
+                // Load the store in asynchronously.
+                me.getDeviceConfigValidationRuleSetsStore().load();
 
                 model.load(deviceConfigId, {
                     success: function (deviceConfig) {
@@ -99,6 +106,15 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
     },
 
     onValidationRuleSetsSelectionChange: function (grid) {
+        var view = this.getValidationRuleSetsOverview(),
+            selection = grid.view.getSelectionModel().getSelection();
+
+        if (selection.length > 0) {
+            view.updateValidationRuleSet(selection[0]);
+        }
+    },
+
+    onAddValidationRuleSetsSelectionChange: function (grid) {
         var view = this.getAddValidationRuleSets(),
             selection = grid.view.getSelectionModel().getSelection(),
             counter = Ext.ComponentQuery.query('validation-add-rulesets #selection-counter')[0],
@@ -121,7 +137,7 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
             view = me.getAddValidationRuleSets(),
             grid = me.getAddValidationRuleSetsGrid(),
             selection = grid.view.getSelectionModel().getSelection(),
-            url = '/api/dtc/device/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigId + '/validationrulesets',
+            url = '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigId + '/validationrulesets',
             loadMask = Ext.create('Ext.LoadMask', {
                 target: view
             }),
@@ -139,7 +155,7 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
             success: function () {
                 location.href = '#/administration/devicetypes/'
                     + me.deviceTypeId + '/deviceconfigurations/'
-                    + me.deviceConfigId + '/validationrules';
+                    + me.deviceConfigId + '/validationrulesets';
 
                 var message = Uni.I18n.translatePlural(
                     'validation.ruleSetAdded',

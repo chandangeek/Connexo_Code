@@ -90,5 +90,10 @@ Ext.define('Mdc.view.setup.validation.RulesOverview', {
         ];
 
         me.callParent(arguments);
+    },
+
+    updateValidationRuleSet: function (validationRuleSet) {
+        var preview = this.down('validation-ruleset-view');
+        preview.updateValidationRuleSet(validationRuleSet);
     }
 });

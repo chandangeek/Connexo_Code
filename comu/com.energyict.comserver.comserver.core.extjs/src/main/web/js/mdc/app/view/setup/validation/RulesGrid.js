@@ -8,7 +8,7 @@ Ext.define('Mdc.view.setup.validation.RulesGrid', {
         'Uni.view.toolbar.PagingTop'
     ],
 
-    store: Ext.getStore('ValidationRules') || Ext.create('Cfg.store.ValidationRules'),
+    store: Ext.create('Cfg.store.ValidationRules'),
     selModel: {
         mode: 'SINGLE'
     },

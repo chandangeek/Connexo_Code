@@ -13,7 +13,7 @@ Ext.define('Mdc.store.DeviceConfigValidationRuleSets', {
         url: '../../api/dtc/devicetypes/{deviceType}/deviceconfigurations/{deviceConfig}/validationrulesets',
         reader: {
             type: 'json',
-            root: 'ruleSets',
+            root: 'validationRuleSets',
             totalProperty: 'total'
         }
     }

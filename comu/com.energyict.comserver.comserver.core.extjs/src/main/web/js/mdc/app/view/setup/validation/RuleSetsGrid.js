@@ -21,19 +21,23 @@ Ext.define('Mdc.view.setup.validation.RuleSetsGrid', {
         this.columns = [
             {
                 header: Uni.I18n.translate('validation.ruleSetName', 'MDC', 'Validation rule set'),
-                dataIndex: 'name'
+                dataIndex: 'name',
+                flex: 1
             },
             {
                 header: Uni.I18n.translate('validation.status', 'MDC', 'Status'),
-                dataIndex: 'active'
+                dataIndex: 'active',
+                flex: 1
             },
             {
                 header: Uni.I18n.translate('validation.activeRules', 'MDC', 'Active rule(s)'),
-                dataIndex: 'numberOfRules'
+                dataIndex: 'numberOfRules',
+                flex: 1
             },
             {
                 header: Uni.I18n.translate('validation.inactiveRules', 'MDC', 'Inactive rule(s)'),
-                dataIndex: 'numberOfInactiveRules'
+                dataIndex: 'numberOfInactiveRules',
+                flex: 1
             },
             {
                 xtype: 'uni-actioncolumn',
