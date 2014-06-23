@@ -11,6 +11,7 @@ import com.energyict.mdc.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -23,6 +24,7 @@ import java.util.Set;
  * @author sva
  * @since 19/06/13 - 9:12
  */
+@XmlRootElement
 public class OutboundProximusSmsConnectionType extends ConnectionTypeImpl {
 
     public static final String PHONE_NUMBER_PROPERTY_NAME = "SMS_phoneNumber";

@@ -3,6 +3,7 @@ package com.energyict.mdc.channels.sms;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.List;
  * @author sva
  * @since 19/06/13 - 9:12
  */
+@XmlRootElement
 public class InboundProximusSmsConnectionType extends AbstractInboundSmsConnectionType {
 
     public static final String DEVICE_PHONE_NUMBER_PROPERTY_NAME = "phoneNumber";

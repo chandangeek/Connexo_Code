@@ -10,6 +10,7 @@ import com.energyict.mdc.protocol.VoidComChannel;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -21,6 +22,7 @@ import java.util.Set;
  * Conform the CTR spec, this connectionType contains a required property for CallHomeId - as knocking devices are unique identified by their CallHomeID.
  * <p/>
  */
+@XmlRootElement
 public class CTRInboundDialHomeIdConnectionType extends ConnectionTypeImpl {
 
     public static final String CALL_HOME_ID_PROPERTY_NAME = "callHomeId";

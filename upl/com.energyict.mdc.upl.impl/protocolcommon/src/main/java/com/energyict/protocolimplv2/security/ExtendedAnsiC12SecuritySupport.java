@@ -61,8 +61,8 @@ public class ExtendedAnsiC12SecuritySupport extends AnsiC12SecuritySupport {
     public DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
         final DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = super.convertFromTypedProperties(typedProperties);
         String encryptionDeviceAccessLevelProperty = typedProperties.getStringProperty("SecurityKey");
-        final int encryptionDeviceAccessLevel=encryptionDeviceAccessLevelProperty!=null?
-                Integer.valueOf(encryptionDeviceAccessLevelProperty):
+        final int encryptionDeviceAccessLevel = encryptionDeviceAccessLevelProperty != null ?
+                Integer.valueOf(encryptionDeviceAccessLevelProperty) :
                 new NoMessageEncryption().getId();
         final TypedProperties securityRelatedTypedProperties = deviceProtocolSecurityPropertySet.getSecurityProperties();
         securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, encryptionDeviceAccessLevel, getEncryptionAccessLevels()));

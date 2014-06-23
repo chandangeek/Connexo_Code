@@ -7,6 +7,7 @@ import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.*;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.*;
 
 /**
@@ -15,6 +16,7 @@ import java.util.*;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-07-24 (14:59)
  */
+@XmlRootElement
 public class OutboundTcpIpConnectionType extends OutboundIpConnectionType {
 
     public OutboundTcpIpConnectionType() {

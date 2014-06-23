@@ -13,6 +13,7 @@ import com.energyict.mdc.channels.serial.direct.serialio.SioSerialPort;
 import com.energyict.mdc.exceptions.SerialPortException;
 import com.energyict.mdc.protocol.*;
 
+import javax.xml.bind.annotation.XmlElement;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -48,6 +49,17 @@ public abstract class ConnectionTypeImpl implements ConnectionType {
 
     protected void setProperty(String propertyName, Object value) {
         this.properties.setProperty(propertyName, value);
+    }
+
+    @Override
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    @Override
+    public void setXmlType(String ignore) {
+        //Ignore, only used for JSON
     }
 
     @Override

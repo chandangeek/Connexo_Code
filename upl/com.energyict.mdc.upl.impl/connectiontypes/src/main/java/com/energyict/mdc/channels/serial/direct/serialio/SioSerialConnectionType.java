@@ -14,6 +14,7 @@ import com.energyict.mdc.protocol.ConnectionException;
 import com.energyict.mdc.protocol.ServerComChannel;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -26,6 +27,7 @@ import java.util.List;
  * Date: 17/08/12
  * Time: 11:39
  */
+@XmlRootElement
 public class SioSerialConnectionType extends AbstractSerialConnectionType {
 
     @Override

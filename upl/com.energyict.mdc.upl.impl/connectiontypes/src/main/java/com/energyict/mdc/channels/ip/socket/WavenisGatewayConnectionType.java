@@ -7,6 +7,7 @@ import com.energyict.mdc.protocol.*;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 import com.energyict.protocolimplv2.comchannels.WavenisStackUtils;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -20,6 +21,7 @@ import java.util.List;
  * Time: 9:35
  * Author: khe
  */
+@XmlRootElement
 public class WavenisGatewayConnectionType extends OutboundTcpIpConnectionType {
 
     @Override

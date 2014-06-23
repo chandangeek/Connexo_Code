@@ -10,6 +10,7 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ConnectionException;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +22,7 @@ import java.util.List;
  * Date: 20/11/12
  * Time: 16:22
  */
+@XmlRootElement
 public class RxTxAtModemConnectionType extends RxTxSerialConnectionType {
 
     private AtModemComponent atModemComponent;

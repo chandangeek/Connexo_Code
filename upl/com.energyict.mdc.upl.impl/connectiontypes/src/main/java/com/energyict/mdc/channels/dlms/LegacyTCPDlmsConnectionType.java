@@ -9,6 +9,7 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ConnectionException;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
@@ -18,6 +19,7 @@ import java.util.Set;
  * Date: 10/10/13
  * Time: 14:48
  */
+@XmlRootElement
 public class LegacyTCPDlmsConnectionType extends DlmsConnectionType {
 
     public LegacyTCPDlmsConnectionType() {

@@ -10,6 +10,7 @@ import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.*;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +21,7 @@ import java.util.List;
  * Date: 13/08/12
  * Time: 11:14
  */
+@XmlRootElement
 public class RxTxSerialConnectionType extends AbstractSerialConnectionType {
 
     @Override

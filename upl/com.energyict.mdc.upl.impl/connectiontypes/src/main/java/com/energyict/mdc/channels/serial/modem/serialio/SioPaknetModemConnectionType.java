@@ -11,6 +11,7 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ConnectionException;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +22,7 @@ import java.util.List;
  * @author sva
  * @since 14/04/2013 - 10:50
  */
+@XmlRootElement
 public class SioPaknetModemConnectionType extends SioSerialConnectionType {
 
     private PaknetModemComponent paknetModemComponent;

@@ -9,6 +9,7 @@ import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.*;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -19,6 +20,7 @@ import java.util.*;
  * Date: 9/11/12
  * Time: 11:20
  */
+@XmlRootElement
 public class OutboundUdpConnectionType extends OutboundIpConnectionType {
 
     public static final String BUFFER_SIZE_NAME = "udpdatagrambuffersize";

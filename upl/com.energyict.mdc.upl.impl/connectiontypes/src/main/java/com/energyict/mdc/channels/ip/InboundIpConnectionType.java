@@ -9,6 +9,7 @@ import com.energyict.mdc.protocol.VoidComChannel;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.Set;
 /**
  * Groups common behavior for inbound IP related connectionTypes
  */
+@XmlRootElement
 public class InboundIpConnectionType extends ConnectionTypeImpl {
 
 

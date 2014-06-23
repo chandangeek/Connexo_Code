@@ -8,6 +8,8 @@ import com.energyict.mdc.protocol.ConnectionException;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.tasks.ConnectionType;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.*;
 
 /**
@@ -17,6 +19,7 @@ import java.util.*;
  * Date: 13/12/12
  * Time: 15:46
  */
+@XmlRootElement
 public class EIWebPlusConnectionType implements ConnectionType {
 
     private TypedProperties properties = TypedProperties.empty();
@@ -33,6 +36,17 @@ public class EIWebPlusConnectionType implements ConnectionType {
 
     protected Object getProperty(String propertyName) {
         return this.getAllProperties().getProperty(propertyName);
+    }
+
+    @Override
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    @Override
+    public void setXmlType(String ignore) {
+        //Ignore, only used for JSON
     }
 
     public String ipAddressValue() {

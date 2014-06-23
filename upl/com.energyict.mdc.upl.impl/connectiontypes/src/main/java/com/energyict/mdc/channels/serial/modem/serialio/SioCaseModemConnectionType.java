@@ -10,6 +10,7 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ConnectionException;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +21,7 @@ import java.util.List;
  * @author sva
  * @since 30/04/13 - 13:45
  */
+@XmlRootElement
 public class SioCaseModemConnectionType extends SioSerialConnectionType {
 
     private CaseModemComponent caseModemComponent;

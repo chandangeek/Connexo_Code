@@ -8,6 +8,7 @@ import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.*;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -15,6 +16,7 @@ import java.util.List;
  * @author sva
  * @since 18/03/13 - 13:25
  */
+@XmlRootElement
 public class TcpIpPostDialConnectionType extends OutboundTcpIpConnectionType {
 
     /**

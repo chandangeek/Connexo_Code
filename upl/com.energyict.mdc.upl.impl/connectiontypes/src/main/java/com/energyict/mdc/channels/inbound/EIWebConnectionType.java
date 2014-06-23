@@ -1,8 +1,6 @@
 package com.energyict.mdc.channels.inbound;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cpo.TypedProperties;
+import com.energyict.cpo.*;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
@@ -10,11 +8,9 @@ import com.energyict.mdc.protocol.ConnectionException;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.tasks.ConnectionType;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import java.util.*;
 
 /**
  * Specific ConnectionType used for the EIWeb Protocol
@@ -23,6 +19,7 @@ import java.util.Set;
  * Date: 13/12/12
  * Time: 15:46
  */
+@XmlRootElement
 public class EIWebConnectionType implements ConnectionType {
 
     private TypedProperties properties = TypedProperties.empty();
@@ -76,6 +73,17 @@ public class EIWebConnectionType implements ConnectionType {
 
     @Override
     public void disconnect(ComChannel comChannel) throws ConnectionException {
+    }
+
+    @Override
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    @Override
+    public void setXmlType(String ignore) {
+        //Ignore, only used for JSON
     }
 
     @Override

@@ -18,6 +18,7 @@ import com.energyict.mdc.protocol.ConnectionException;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 import com.energyict.protocolimplv2.comchannels.WavenisStackUtils;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ import java.util.List;
  * Time: 14:30
  * Author: khe
  */
+@XmlRootElement
 public class WavenisSerialConnectionType extends SioSerialConnectionType {
 
     private static final String RF_ADDRESS = "RFAddress";

@@ -7,12 +7,14 @@ import com.energyict.mdc.protocol.*;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.*;
 
 /**
  * @author sva
  * @since 15/03/13 - 14:52
  */
+@XmlRootElement
 public class EmptyConnectionType extends ConnectionTypeImpl {
 
     @Override

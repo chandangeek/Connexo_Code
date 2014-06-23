@@ -10,6 +10,7 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ConnectionException;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +22,7 @@ import java.util.List;
  * Date: 12/11/12
  * Time: 13:16
  */
+@XmlRootElement
 public class SioAtModemConnectionType extends SioSerialConnectionType {
 
     private AtModemComponent atModemComponent;
