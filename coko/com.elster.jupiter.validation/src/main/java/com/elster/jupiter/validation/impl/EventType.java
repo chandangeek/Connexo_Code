@@ -9,7 +9,10 @@ import com.elster.jupiter.validation.ValidationService;
 public enum EventType {
     VALIDATIONRULESET_CREATED("validationruleset/CREATED", true),
     VALIDATIONRULESET_UPDATED("validationruleset/UPDATED", true),
-    VALIDATIONRULESET_DELETED("validationruleset/DELETED", true);
+    VALIDATIONRULESET_DELETED("validationruleset/DELETED", true),
+    VALIDATIONRULE_CREATED("validationrule/CREATED", false),
+    VALIDATIONRULE_UPDATED("validationrule/UPDATED", false),
+    VALIDATIONRULE_DELETED("validationrule/DELETED", false);
 
     private static final String NAMESPACE = "com/elster/jupiter/validation/";
     private final String topic;

@@ -7,5 +7,7 @@ public interface ValidationRuleProperties {
 
     Quantity getValue();
 
+    void setValue(Quantity value);
+
     ValidationRule getRule();
 }

@@ -8,10 +8,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.*;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -81,6 +78,8 @@ public class ValidationServiceImplTest {
     private javax.validation.ValidatorFactory validatorFactory;
     @Mock
     private javax.validation.Validator javaxValidator;
+    @Mock
+    private QueryExecutor queryExecutor;
 
     @Before
     public void setUp() {
@@ -91,6 +90,7 @@ public class ValidationServiceImplTest {
         when(dataModel.mapper(MeterActivationValidation.class)).thenReturn(meterActivationValidationFactory);
         when(dataModel.mapper(ChannelValidation.class)).thenReturn(channelValidationFactory);
         when(nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(thesaurus);
+        when(dataModel.query(IValidationRule.class)).thenReturn(queryExecutor);
 
         validationService = new ValidationServiceImpl();
         validationService.setOrmService(ormService);

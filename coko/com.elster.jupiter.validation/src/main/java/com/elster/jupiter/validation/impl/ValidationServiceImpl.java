@@ -39,6 +39,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.elster.jupiter.util.conditions.Where.where;
+
 @Component(name = "com.elster.jupiter.validation", service = {InstallService.class, ValidationService.class}, property = "name=" + ValidationService.COMPONENTNAME, immediate = true)
 public class ValidationServiceImpl implements ValidationService, InstallService {
 
@@ -89,7 +91,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
 
     @Override
     public void install() {
-        new InstallerImpl(dataModel, eventService).install(true, true);
+        new InstallerImpl(dataModel, eventService, thesaurus).install(true, true);
     }
 
     @Reference
@@ -139,33 +141,39 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
 
     @Override
     public Optional<ValidationRuleSet> getValidationRuleSet(long id) {
-        return dataModel.mapper(IValidationRuleSet.class).getOptional(id).transform(UPCAST);
+        Optional<ValidationRuleSet> ruleSetRef = dataModel.mapper(IValidationRuleSet.class).getOptional(id).transform(UPCAST);
+        if (ruleSetRef.isPresent() && ruleSetRef.get().getObsoleteDate() != null) {
+            ruleSetRef = Optional.absent();
+        }
+        return ruleSetRef;
     }
 
     @Override
     public Optional<ValidationRuleSet> getValidationRuleSet(String name) {
-        Condition condition = Operator.EQUAL.compare("name", name);
-        List<ValidationRuleSet> ruleSets = dataModel.query(ValidationRuleSet.class).select(condition);
+        Condition condition = Operator.EQUAL.compare("name", name).and(Operator.ISNULL.compare("obsoleteTime"));
+        List<ValidationRuleSet> ruleSets = getRuleSetQuery().select(condition);
         return ruleSets.isEmpty() ? Optional.<ValidationRuleSet>absent() : Optional.of(ruleSets.get(0));
     }
 
     @Override
     public Optional<ValidationRule> getValidationRule(long id) {
-        return dataModel.mapper(ValidationRule.class).getOptional(id);
+        Optional<ValidationRule> ruleRef = dataModel.mapper(ValidationRule.class).getOptional(id);
+        if(ruleRef.isPresent() && ruleRef.get().getObsoleteDate() != null) {
+            ruleRef = Optional.absent();
+        }
+        return ruleRef;
     }
 
     @Override
     public Query<ValidationRuleSet> getRuleSetQuery() {
-        return queryService.wrap(
-                dataModel.query(
-                        ValidationRuleSet.class
-                )
-        );
+        Query<ValidationRuleSet> ruleSetQuery = queryService.wrap(dataModel.query(ValidationRuleSet.class));
+        ruleSetQuery.setRestriction(where("obsoleteTime").isNull());
+        return ruleSetQuery;
     }
 
     @Override
     public List<ValidationRuleSet> getValidationRuleSets() {
-        return new ArrayList<>(dataModel.mapper(ValidationRuleSet.class).find((String[]) null, (Object[]) null, Order.ascending("name")));
+        return getRuleSetQuery().select(Condition.TRUE, Order.ascending("name"));
     }
 
     @Override

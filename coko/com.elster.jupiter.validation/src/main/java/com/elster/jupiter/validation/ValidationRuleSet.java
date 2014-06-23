@@ -2,8 +2,11 @@ package com.elster.jupiter.validation;
 
 import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.util.units.Quantity;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public interface ValidationRuleSet extends IdentifiedObject {
 
@@ -29,8 +32,12 @@ public interface ValidationRuleSet extends IdentifiedObject {
 
     ValidationRule addRule(ValidationAction action, String implementation, String name);
 
+    ValidationRule updateRule(long id, String name, String implementation, List<String> mRIDs, Map<String, Quantity> properties);
+
     void deleteRule(ValidationRule rule);
 
     List<ValidationRule> getRules(List<ReadingType> readingTypes);
+
+    public Date getObsoleteDate();
 }
 

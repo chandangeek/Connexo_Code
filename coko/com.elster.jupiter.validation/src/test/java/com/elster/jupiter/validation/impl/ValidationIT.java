@@ -11,10 +11,7 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.*;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Unit;
@@ -136,6 +133,8 @@ public class ValidationIT {
     private javax.validation.Validator validator;
     @Mock
     private javax.validation.ValidatorFactory validationFactory;
+    @Mock
+    private QueryExecutor queryExecutor;
 
 
     @Before
@@ -175,7 +174,7 @@ public class ValidationIT {
         when(dataModel.getInstance(ValidationRuleImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService);
+                return new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService, eventService);
             }
         });
         when(dataModel.getInstance(ReadingTypeInValidationRuleImpl.class)).thenAnswer(new Answer<Object>() {
@@ -204,6 +203,7 @@ public class ValidationIT {
         });
         when(dataModel.getValidatorFactory()).thenReturn(validationFactory);
         when(dataModel.getValidatorFactory().getValidator()).thenReturn(validator);
+        when(dataModel.query(IValidationRule.class)).thenReturn(queryExecutor);
 
         doAnswer(new AssignId()).when(dataModel).persist(isA(ValidationRuleSetImpl.class));
 
