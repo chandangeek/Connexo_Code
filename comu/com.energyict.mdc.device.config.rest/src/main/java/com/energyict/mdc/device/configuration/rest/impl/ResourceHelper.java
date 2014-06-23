@@ -1,8 +1,6 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterMapping;
@@ -55,6 +53,22 @@ public class ResourceHelper {
             }
         }
         throw new WebApplicationException("No such device configuration for the device type", Response.status(Response.Status.NOT_FOUND).entity("No such device configuration for the device type").build());
+    }
+
+    public RegisterSpec findRegisterSpec(long registerSpecId) {
+        RegisterSpec registerSpec = deviceConfigurationService.findRegisterSpec(registerSpecId);
+        if (registerSpec == null) {
+            throw new WebApplicationException("No register spec with id " + registerSpecId, Response.Status.NOT_FOUND);
+        }
+        return registerSpec;
+    }
+
+    public LoadProfileSpec findLoadProfileSpec(long loadProfileSpecId) {
+        LoadProfileSpec loadProfileSpec = deviceConfigurationService.findLoadProfileSpec((int) loadProfileSpecId);
+        if (loadProfileSpec == null) {
+            throw new WebApplicationException("No load profile spec with id " + loadProfileSpecId, Response.Status.NOT_FOUND);
+        }
+        return loadProfileSpec;
     }
 
 }

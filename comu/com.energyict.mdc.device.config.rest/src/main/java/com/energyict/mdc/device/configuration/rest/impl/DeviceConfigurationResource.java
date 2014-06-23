@@ -1,8 +1,10 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.rest.ValidationRuleInfo;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
@@ -283,6 +285,40 @@ public class DeviceConfigurationResource {
     @Produces(MediaType.APPLICATION_JSON)
     public PagedInfoList getComTasks(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @BeanParam QueryParameters queryParameters, @Context UriInfo uriInfo) {
         return comTaskEnablementResourceProvider.get().getComTasks(deviceTypeId, deviceConfigurationId, queryParameters, uriInfo);
+    }
+
+    @GET
+    @Path("/{deviceConfigurationId}/registers/{registerId}/validationrules")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getValidationRulesForRegister(
+            @PathParam("deviceTypeId") long deviceTypeId,
+            @PathParam("deviceConfigurationId") long deviceConfigurationId,
+            @PathParam("registerId") long registerId,
+            @BeanParam QueryParameters queryParameters) {
+
+        List<ValidationRule> rules = resourceHelper.findRegisterSpec(registerId).getValidationRules();
+        List<ValidationRuleInfo> result = new ArrayList<ValidationRuleInfo>();
+        for (ValidationRule rule : rules) {
+            result.add(new ValidationRuleInfo(rule));
+        }
+        return Response.ok(PagedInfoList.asJson("validationRules", result, queryParameters)).build();
+    }
+
+    @GET
+    @Path("/{deviceConfigurationId}/loadprofiles/{loadProfileId}/validationrules")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getValidationRulesForLoadProfile(
+            @PathParam("deviceTypeId") long deviceTypeId,
+            @PathParam("deviceConfigurationId") long deviceConfigurationId,
+            @PathParam("loadProfileId") long loadProfileId,
+            @BeanParam QueryParameters queryParameters) {
+
+        List<ValidationRule> rules = resourceHelper.findLoadProfileSpec(loadProfileId).getValidationRules();
+        List<ValidationRuleInfo> result = new ArrayList<ValidationRuleInfo>();
+        for (ValidationRule rule : rules) {
+            result.add(new ValidationRuleInfo(rule));
+        }
+        return Response.ok(PagedInfoList.asJson("validationRules", result, queryParameters)).build();
     }
 
 
