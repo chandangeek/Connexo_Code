@@ -473,11 +473,17 @@ Ext.define('Mdc.controller.history.Setup', {
                     controller: 'Mdc.controller.setup.SetupOverview',
                     action: 'showComPortPools',
                     items: {
-                        create: {
-                            title: 'Create communication port pool',
-                            route: 'create',
-                            controller: 'Mdc.controller.setup.ComPortPools',
-                            action: 'showEditView'
+                        addinbound: {
+                            title: Uni.I18n.translate('comPortPool.title.addInbound', 'MDC', 'Add inbound communication port pool'),
+                            route: 'add/inbound',
+                            controller: 'Mdc.controller.setup.ComPortPoolEdit',
+                            action: 'showInboundAddView'
+                        },
+                        addoutbound: {
+                            title: Uni.I18n.translate('comPortPool.title.addOutbound', 'MDC', 'Add outbound communication port pool'),
+                            route: 'add/outbound',
+                            controller: 'Mdc.controller.setup.ComPortPoolEdit',
+                            action: 'showOutboundAddView'
                         },
                         edit: {
                             title: 'Edit communication port pool',
