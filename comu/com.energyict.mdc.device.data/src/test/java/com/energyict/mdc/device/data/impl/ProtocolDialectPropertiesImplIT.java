@@ -80,7 +80,6 @@ import static org.mockito.Mockito.when;
  * Time: 16:46
  */
 @RunWith(MockitoJUnitRunner.class)
-@Ignore
 public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest {
 
     private static final int PROTOCOL_DIALECT_PROPERTIES_ID = 6514;

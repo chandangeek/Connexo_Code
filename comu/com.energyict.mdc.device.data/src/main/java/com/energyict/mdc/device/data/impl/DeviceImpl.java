@@ -875,7 +875,7 @@ public class DeviceImpl implements Device {
                     iterator.remove();
                 }
             }
-//            this.dialectPropertiesList.remove(dialectProperties);
+            ((ProtocolDialectPropertiesImpl) dialectProperties).delete();
         }
     }
 
