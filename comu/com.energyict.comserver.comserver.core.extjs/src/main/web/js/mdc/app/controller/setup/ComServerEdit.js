@@ -120,7 +120,7 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
         Ext.Object.each(data, function (key, value) {
             if (Ext.isObject(value)) {
                 Ext.Object.each(value, function (valKey, valValue) {
-                    values[key+ '[' +valKey + ']'] = valValue;
+                    values[key + '[' + valKey + ']'] = valValue;
                 });
             } else {
                 values[key] = value;
@@ -174,13 +174,10 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
             responseText;
 
         if (response.status == 400) {
-            try {
-                responseText = Ext.decode(response.responseText);
-                if (responseText && responseText.errors) {
-                    basicForm.markInvalid(responseText.errors);
-                    formErrorsPanel.show();
-                }
-            } catch (e) {
+            responseText = Ext.decode(response.responseText, true);
+            if (responseText && responseText.errors) {
+                basicForm.markInvalid(responseText.errors);
+                formErrorsPanel.show();
             }
         }
     }
