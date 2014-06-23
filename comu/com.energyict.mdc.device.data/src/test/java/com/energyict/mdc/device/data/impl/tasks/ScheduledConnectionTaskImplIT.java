@@ -43,12 +43,6 @@ import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.scheduling.TemporalExpression;
-import org.assertj.core.api.Condition;
-import org.joda.time.DateMidnight;
-import org.joda.time.DateTimeConstants;
-import org.junit.After;
-import org.junit.Test;
-
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Calendar;
@@ -57,10 +51,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
+import org.assertj.core.api.Condition;
+import org.joda.time.DateMidnight;
+import org.joda.time.DateTimeConstants;
+import org.junit.After;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -801,12 +799,23 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.OUTBOUND_CONNECTION_TASK_NEXT_EXECUTION_SPECS_REQUIRED_KEY + "}")
     public void testCreateWithMinimizeConnectionsAndNoNextExecutionSpecs() {
+
         ScheduledConnectionTaskImpl connectionTask = this.createWithoutNextExecutionSpecs(ConnectionStrategy.MINIMIZE_CONNECTIONS, "testCreateWithMinimizeConnectionsAndNoNextExecutionSpecs");
 
         // Busines method
         connectionTask.save();
 
         // Asserts: see expected constraint violation rule
+    }
+
+    @Test
+    @Transactional
+    public void testCreateWithMinimizeConnectionsWithNextExecutionSpecs() {
+        ScheduledConnectionTaskImpl connectionTask = ((ScheduledConnectionTaskImpl) inMemoryPersistence.getDeviceDataService().newMinimizeConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool, new TemporalExpression(new TimeDuration("5 minutes"))));
+
+
+        // Business method
+        connectionTask.save();
     }
 
     @Test

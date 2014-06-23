@@ -1,5 +1,23 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.ListOperator;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.sql.Fetcher;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.SqlBuilder;
@@ -60,34 +78,9 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
-
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.ListOperator;
-import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.conditions.Where;
-import com.elster.jupiter.util.sql.Fetcher;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import org.joda.time.DateTimeConstants;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
-import javax.inject.Inject;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -99,6 +92,11 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
+import javax.inject.Inject;
+import org.joda.time.DateTimeConstants;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -285,6 +283,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         NextExecutionSpecs nextExecutionSpecs = null;
         if (temporalExpression != null) {
             nextExecutionSpecs = this.schedulingService.newNextExecutionSpecs(temporalExpression);
+            nextExecutionSpecs.save();
         }
         ScheduledConnectionTaskImpl connectionTask = this.dataModel.getInstance(ScheduledConnectionTaskImpl.class);
         connectionTask.initializeWithMinimizeStrategy(device, partialConnectionTask, comPortPool, nextExecutionSpecs);
