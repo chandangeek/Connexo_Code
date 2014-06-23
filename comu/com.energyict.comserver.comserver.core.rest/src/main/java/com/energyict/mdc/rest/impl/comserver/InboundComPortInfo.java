@@ -7,17 +7,8 @@ import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
-import javax.xml.bind.annotation.XmlRootElement;
-import org.codehaus.jackson.annotate.JsonSubTypes;
-import org.codehaus.jackson.annotate.JsonTypeInfo;
 
-@XmlRootElement
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "comPortType")
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = TcpInboundComPortInfo.class, name = "TCP"),
-        @JsonSubTypes.Type(value = UdpInboundComPortInfo.class, name = "UDP"),
-        @JsonSubTypes.Type(value = ServletInboundComPortInfo.class, name = "SERVLET"),
-        @JsonSubTypes.Type(value = ModemInboundComPortInfo.class, name = "SERIAL") })
+
 public abstract class InboundComPortInfo<T extends InboundComPort, B extends InboundComPort.InboundComPortBuilder<B, T>> extends ComPortInfo<T, B> {
 
     protected InboundComPortInfo() {

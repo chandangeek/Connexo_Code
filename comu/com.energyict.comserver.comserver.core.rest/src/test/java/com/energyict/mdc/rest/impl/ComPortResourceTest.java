@@ -101,6 +101,7 @@ public class ComPortResourceTest extends JerseyTest {
         TCPBasedInboundComPort tcpBasedInboundComPort = mock(TCPBasedInboundComPort.class);
         when(tcpBasedInboundComPort.getId()).thenReturn(1L);
         when(tcpBasedInboundComPort.getName()).thenReturn("portname");
+        when(tcpBasedInboundComPort.getComPortType()).thenReturn(ComPortType.TCP);
 
         List<ComPort> comPorts = new ArrayList<>();
         comPorts.add(tcpBasedInboundComPort);
@@ -249,6 +250,7 @@ public class ComPortResourceTest extends JerseyTest {
     public void testCanSerializeEmptyModemComPort() throws Exception {
         int comPort_id = 666;
         ModemBasedInboundComPort modemBasedInboundComPort = mock(ModemBasedInboundComPort.class);
+        when(modemBasedInboundComPort.getComPortType()).thenReturn(ComPortType.SERIAL);
         when(engineModelService.findComPort(comPort_id)).thenReturn(modemBasedInboundComPort);
         target(COMPORTS_RESOURCE_URL+"/" + comPort_id).request().get(Map.class);
     }
@@ -388,12 +390,15 @@ public class ComPortResourceTest extends JerseyTest {
         TCPBasedInboundComPort tcpBasedInboundComPort = mock(TCPBasedInboundComPort.class);
         when(tcpBasedInboundComPort.getId()).thenReturn(10L);
         when(tcpBasedInboundComPort.getComServer()).thenReturn(comServerA);
+        when(tcpBasedInboundComPort.getComPortType()).thenReturn(ComPortType.TCP);
         UDPBasedInboundComPort udpBasedInboundComPort = mock(UDPBasedInboundComPort.class);
         when(udpBasedInboundComPort.getId()).thenReturn(11L);
         when(udpBasedInboundComPort.getComServer()).thenReturn(comServerB);
+        when(udpBasedInboundComPort.getComPortType()).thenReturn(ComPortType.UDP);
         ModemBasedInboundComPort modemBasedInboundComPort = mock(ModemBasedInboundComPort.class);
         when(modemBasedInboundComPort.getId()).thenReturn(12L);
         when(modemBasedInboundComPort.getComServer()).thenReturn(comServerB);
+        when(modemBasedInboundComPort.getComPortType()).thenReturn(ComPortType.SERIAL);
         OutboundComPort outboundComPort = mock(OutboundComPort.class);
         when(outboundComPort.getId()).thenReturn(13L);
         when(outboundComPort.getComServer()).thenReturn(comServerA);

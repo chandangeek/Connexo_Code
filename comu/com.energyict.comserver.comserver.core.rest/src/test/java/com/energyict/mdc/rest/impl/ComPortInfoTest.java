@@ -43,6 +43,7 @@ public class ComPortInfoTest {
     @Test
     public void testComPortInfoDeserialization() throws Exception {
         String json = "{" +
+                "    'type': 'inbound_SERIAL'," +
                 "    'comPortType': 'SERIAL'," +
                 "    'id': 201," +
                 "    'direction': 'inbound'," +
@@ -57,6 +58,7 @@ public class ComPortInfoTest {
     @Test
     public void testComPortInfoDeserializationWithEmptyString() throws Exception {
         String json = "{" +
+                "    'type': 'inbound_SERIAL'," +
                 "    'comPortType': 'SERIAL'," +
                 "    'id': 201," +
                 "    'direction': 'inbound'," +
@@ -72,6 +74,7 @@ public class ComPortInfoTest {
     @Test(expected = JsonMappingException.class)
     public void testComPortInfoDeserializationWithIllegalValue() throws Exception {
         String json = "{" +
+                "    'type': 'inbound_SERIAL'," +
                 "    'comPortType': 'SERIAL'," +
                 "    'id': 201," +
                 "    'direction': 'inbound'," +

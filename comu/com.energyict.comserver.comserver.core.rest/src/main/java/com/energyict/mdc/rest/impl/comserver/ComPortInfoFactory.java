@@ -19,16 +19,16 @@ public class ComPortInfoFactory {
     }
 
     public static InboundComPortInfo asInboundInfo(ComPort comPort) {
-        if (TCPBasedInboundComPort.class.isAssignableFrom(comPort.getClass())) {
+        if (ComPortType.TCP.equals(comPort.getComPortType())) {
             return new TcpInboundComPortInfo((TCPBasedInboundComPort) comPort);
         }
-        if (ModemBasedInboundComPort.class.isAssignableFrom(comPort.getClass())) {
+        if (ComPortType.SERIAL.equals(comPort.getComPortType())) {
             return new ModemInboundComPortInfo((ModemBasedInboundComPort) comPort);
         }
-        if (UDPBasedInboundComPort.class.isAssignableFrom(comPort.getClass())) {
+        if (ComPortType.UDP.equals(comPort.getComPortType())) {
             return new UdpInboundComPortInfo((UDPBasedInboundComPort) comPort);
         }
-        if (ServletBasedInboundComPort.class.isAssignableFrom(comPort.getClass())) {
+        if (ComPortType.SERVLET.equals(comPort.getComPortType())) {
             return new ServletInboundComPortInfo((ServletBasedInboundComPort) comPort);
         }
         throw new IllegalArgumentException("Unsupported InboundComPort type "+comPort.getClass().getSimpleName());

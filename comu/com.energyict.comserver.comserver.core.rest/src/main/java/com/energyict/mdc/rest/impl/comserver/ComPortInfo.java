@@ -11,6 +11,9 @@ import com.energyict.mdc.protocol.api.channels.serial.NrOfDataBits;
 import com.energyict.mdc.protocol.api.channels.serial.NrOfStopBits;
 import com.energyict.mdc.protocol.api.channels.serial.Parities;
 import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonSubTypes;
+import org.codehaus.jackson.annotate.JsonTypeInfo;
+import org.codehaus.jackson.map.annotate.JsonTypeIdResolver;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -20,6 +23,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 @XmlRootElement
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = TcpInboundComPortInfo.class, name = "inbound_TCP"),
+        @JsonSubTypes.Type(value = UdpInboundComPortInfo.class, name = "inbound_UDP"),
+        @JsonSubTypes.Type(value = ModemInboundComPortInfo.class, name = "inbound_SERIAL"),
+        @JsonSubTypes.Type(value = ServletInboundComPortInfo.class, name = "inbound_SERVLET"),
+        @JsonSubTypes.Type(value = TcpOutboundComPortInfo.class, name = "outbound_TCP"),
+        @JsonSubTypes.Type(value = UdpOutboundComPortInfo.class, name = "outbound_UDP"),
+        @JsonSubTypes.Type(value = ModemOutboundComPortInfo.class, name = "outbound_SERIAL") })
 public abstract class ComPortInfo<T extends ComPort, B extends ComPort.Builder<B,T>> {
 
     public long id;
@@ -29,7 +41,6 @@ public abstract class ComPortInfo<T extends ComPort, B extends ComPort.Builder<B
     public boolean active;
     public boolean bound;
     @XmlJavaTypeAdapter(ComPortTypeAdapter.class)
-    @JsonIgnore
     public ComPortType comPortType;
     public long comServer_id;
     public int numberOfSimultaneousConnections;
