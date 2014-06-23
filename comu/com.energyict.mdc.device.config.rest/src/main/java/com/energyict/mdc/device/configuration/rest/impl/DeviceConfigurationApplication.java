@@ -14,6 +14,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.ExceptionLogger;
+import com.energyict.mdc.common.rest.Installer;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceDataService;
@@ -149,7 +150,8 @@ public class DeviceConfigurationApplication extends Application implements Insta
 
     @Override
     public void install() {
-        new Installer(thesaurus).install();
+        Installer installer = new Installer();
+        installer.createTranslations(COMPONENT_NAME, thesaurus, Layer.REST, MessageSeeds.values());
     }
 
     class HK2Binder extends AbstractBinder {

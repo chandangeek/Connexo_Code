@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.rest.FieldResource;
 import com.energyict.mdc.common.rest.UnitAdapter;
@@ -26,8 +25,8 @@ public class DeviceConfigFieldResource extends FieldResource{
     private final MasterDataService masterDataService;
 
     @Inject
-    public DeviceConfigFieldResource(MasterDataService masterDataService, NlsService nlsService) {
-        super(nlsService.getThesaurus(DeviceConfigurationApplication.COMPONENT_NAME, Layer.UI));
+    public DeviceConfigFieldResource(MasterDataService masterDataService, Thesaurus thesaurus) {
+        super(thesaurus);
         this.masterDataService = masterDataService;
     }
 
