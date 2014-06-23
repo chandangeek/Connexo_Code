@@ -2,12 +2,15 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.validation.ValidationRule;
+import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -18,6 +21,7 @@ import com.energyict.mdc.device.config.exceptions.CannotDeleteLoadProfileSpecLin
 import com.energyict.mdc.device.config.exceptions.LoadProfileTypeIsNotConfiguredOnDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.masterdata.RegisterMapping;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -178,6 +182,16 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
                 buildingCompletionListener.loadProfileSpecBuildingProcessCompleted(this.loadProfileSpec);
             }
         }
+    }
+
+
+    public List<ValidationRule> getValidationRules() {
+        List<ReadingType> readingTypes = new ArrayList<ReadingType>();
+        List<RegisterMapping> mappings = this.getLoadProfileType().getRegisterMappings();
+        for (RegisterMapping mapping : mappings) {
+            readingTypes.add(mapping.getReadingType());
+        }
+        return getDeviceConfiguration().getValidationRules(readingTypes);
     }
 
     abstract static class LoadProfileSpecUpdater implements LoadProfileSpec.LoadProfileSpecUpdater {

@@ -2,12 +2,15 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.validation.ValidationRule;
+import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -21,7 +24,10 @@ import com.energyict.mdc.device.config.exceptions.RegisterMappingIsNotConfigured
 import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.constraints.Min;
@@ -339,6 +345,13 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
         }
     }
 
+    public List<ValidationRule> getValidationRules() {
+        List<ReadingType> readingTypes = new ArrayList<ReadingType>();
+        readingTypes.add(getRegisterMapping().getReadingType());
+        List<ValidationRule> result = new ArrayList<ValidationRule>();
+        return getDeviceConfiguration().getValidationRules(readingTypes);
+    }
+
     abstract static class RegisterSpecUpdater implements RegisterSpec.RegisterSpecUpdater {
 
         final RegisterSpec registerSpec;
@@ -394,5 +407,7 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
             this.registerSpec.validateUpdate();
             this.registerSpec.save();
         }
+
+
     }
 }

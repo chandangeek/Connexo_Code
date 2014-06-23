@@ -7,6 +7,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
@@ -831,6 +832,15 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     public void removeValidationRuleSet(ValidationRuleSet validationRuleSet) {
         DeviceConfValidationRuleSetUsage usage = getUsage(validationRuleSet);
         deviceConfValidationRuleSetUsages.remove(usage);
+    }
+
+    public List<ValidationRule> getValidationRules(List readingTypes) {
+        List<ValidationRule> result = new ArrayList<ValidationRule>();
+        List<ValidationRuleSet> ruleSets = getValidationRuleSets();
+        for (ValidationRuleSet ruleSet : ruleSets) {
+            result.addAll(ruleSet.getRules(readingTypes));
+        }
+        return result;
     }
 
 }

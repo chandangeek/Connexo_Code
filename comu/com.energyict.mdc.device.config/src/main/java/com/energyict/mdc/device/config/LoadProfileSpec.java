@@ -1,9 +1,12 @@
 package com.energyict.mdc.device.config;
 
+import com.elster.jupiter.validation.ValidationRule;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.masterdata.LoadProfileType;
+
+import java.util.List;
 
 /**
  * Represents a LoadProfile specification modeled by a {@link LoadProfileType}
@@ -33,6 +36,8 @@ public interface LoadProfileSpec extends HasId {
     void delete();
 
     void save();
+
+    public List<ValidationRule> getValidationRules();
 
     /**
      * Defines the behavior for a component that is interested

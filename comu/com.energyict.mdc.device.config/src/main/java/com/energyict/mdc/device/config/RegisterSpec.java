@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config;
 
+import com.elster.jupiter.validation.ValidationRule;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
@@ -7,6 +8,7 @@ import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Represents a register specification
@@ -141,6 +143,8 @@ public interface RegisterSpec extends HasId {
 
     void save();
 
+    public List<ValidationRule> getValidationRules();
+
     /**
      * Defines a Builder interface to construct a {@link RegisterSpec}
      */
@@ -221,5 +225,7 @@ public interface RegisterSpec extends HasId {
          * Updates the RegisterSpec, preferably via his DeviceConfiguration
          */
         void update();
+
+
     }
 }
