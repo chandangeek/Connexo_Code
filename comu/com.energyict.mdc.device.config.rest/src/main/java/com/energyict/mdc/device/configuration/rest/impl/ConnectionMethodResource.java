@@ -66,13 +66,13 @@ public class ConnectionMethodResource {
                                               @BeanParam QueryParameters queryParameters,
                                               @Context UriInfo uriInfo,
                                               @QueryParam("available") Boolean available,
-                                              @QueryParam("deviceId") Integer deviceId) {
+                                              @QueryParam("mrId") String mrId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         List<ConnectionMethodInfo<?>> connectionMethodInfos = new ArrayList<>();
         List<PartialConnectionTask> partialConnectionTasks = new ArrayList<>();
-        if (available!=null && deviceId!=null) {
-            Device device = deviceDataService.findDeviceById(deviceId);
+        if (available!=null) {
+            Device device = deviceDataService.findByUniqueMrid(mrId);
             if (device==null) {
                 throw new WebApplicationException("No such device", Response.Status.BAD_REQUEST);
             }
