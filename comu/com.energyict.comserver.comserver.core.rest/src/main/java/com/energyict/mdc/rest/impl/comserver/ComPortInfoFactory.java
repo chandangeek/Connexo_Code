@@ -7,6 +7,7 @@ import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
 import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
+import com.energyict.mdc.protocol.api.ComPortType;
 
 public class ComPortInfoFactory {
     public static ComPortInfo asInfo(ComPort comPort) {
@@ -34,9 +35,15 @@ public class ComPortInfoFactory {
     }
 
     public static OutboundComPortInfo asOutboundInfo(ComPort comPort) {
-        if (OutboundComPort.class.isAssignableFrom(comPort.getClass())) {
-            return new OutboundComPortInfo((OutboundComPort) comPort);
+        if (ComPortType.TCP.equals(comPort.getComPortType())) {
+            return new TcpOutboundComPortInfo((OutboundComPort) comPort);
         }
-        throw new IllegalArgumentException("Unsupported OutboundComPort type "+comPort.getClass().getSimpleName());
+        if (ComPortType.UDP.equals(comPort.getComPortType())) {
+            return new UdpOutboundComPortInfo((OutboundComPort) comPort);
+        }
+        if (ComPortType.SERIAL.equals(comPort.getComPortType())) {
+            return new ModemOutboundComPortInfo((OutboundComPort) comPort);
+        }
+        throw new IllegalArgumentException("Unsupported OutboundComPort type "+comPort.getComPortType());
     }
 }

@@ -397,6 +397,7 @@ public class ComPortResourceTest extends JerseyTest {
         OutboundComPort outboundComPort = mock(OutboundComPort.class);
         when(outboundComPort.getId()).thenReturn(13L);
         when(outboundComPort.getComServer()).thenReturn(comServerA);
+        when(outboundComPort.getComPortType()).thenReturn(ComPortType.TCP);
         List<ComPort> comPorts = new ArrayList<>();
         comPorts.add(tcpBasedInboundComPort);
         comPorts.add(udpBasedInboundComPort);

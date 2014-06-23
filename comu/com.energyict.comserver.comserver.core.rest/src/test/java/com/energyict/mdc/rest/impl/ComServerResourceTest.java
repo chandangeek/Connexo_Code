@@ -19,14 +19,7 @@ import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.RemoteComServer;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.protocol.api.channels.serial.FlowControl;
-import com.energyict.mdc.rest.impl.comserver.ComServerResource;
-import com.energyict.mdc.rest.impl.comserver.InboundComPortInfo;
-import com.energyict.mdc.rest.impl.comserver.ModemInboundComPortInfo;
-import com.energyict.mdc.rest.impl.comserver.OfflineComServerInfo;
-import com.energyict.mdc.rest.impl.comserver.OnlineComServerInfo;
-import com.energyict.mdc.rest.impl.comserver.OutboundComPortInfo;
-import com.energyict.mdc.rest.impl.comserver.RemoteComServerInfo;
-import com.energyict.mdc.rest.impl.comserver.TcpInboundComPortInfo;
+import com.energyict.mdc.rest.impl.comserver.*;
 import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -491,11 +484,11 @@ public class ComServerResourceTest extends JerseyTest {
         tcpInboundComPortInfo.portNumber=1024;
         onlineComServerInfo.inboundComPorts=Arrays.<InboundComPortInfo>asList(tcpInboundComPortInfo);
 
-        OutboundComPortInfo outboundComPortInfoA = new OutboundComPortInfo();
+        OutboundComPortInfo outboundComPortInfoA = new TcpOutboundComPortInfo();
         outboundComPortInfoA.id = outboundComPortA_id;
-        OutboundComPortInfo outboundComPortInfoB = new OutboundComPortInfo();
+        OutboundComPortInfo outboundComPortInfoB = new TcpOutboundComPortInfo();
         outboundComPortInfoB.id = outboundComPortB_id;
-        OutboundComPortInfo outboundComPortInfoC = new OutboundComPortInfo();
+        OutboundComPortInfo outboundComPortInfoC = new TcpOutboundComPortInfo();
         outboundComPortInfoC.id = outboundComPortC_id;
         onlineComServerInfo.outboundComPorts = Arrays.asList(outboundComPortInfoC, outboundComPortInfoA, outboundComPortInfoB);
 
@@ -550,11 +543,11 @@ public class ComServerResourceTest extends JerseyTest {
         tcpInboundComPortInfo.portNumber=1024;
         onlineComServerInfo.inboundComPorts=Arrays.<InboundComPortInfo>asList(tcpInboundComPortInfo);
 
-        OutboundComPortInfo outboundComPortInfoA = new OutboundComPortInfo();
+        OutboundComPortInfo outboundComPortInfoA = new TcpOutboundComPortInfo();
         outboundComPortInfoA.id = outboundComPortA_id;
-        OutboundComPortInfo outboundComPortInfoB = new OutboundComPortInfo();
+        OutboundComPortInfo outboundComPortInfoB = new TcpOutboundComPortInfo();
         outboundComPortInfoB.id = outboundComPortB_id;
-        OutboundComPortInfo outboundComPortInfoC = new OutboundComPortInfo();
+        OutboundComPortInfo outboundComPortInfoC = new TcpOutboundComPortInfo();
         outboundComPortInfoC.id = outboundComPortC_id;
         onlineComServerInfo.outboundComPorts = Arrays.asList(outboundComPortInfoC, outboundComPortInfoB);
 

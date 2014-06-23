@@ -10,10 +10,8 @@ import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.rest.impl.comserver.ComPortPoolResource;
-import com.energyict.mdc.rest.impl.comserver.InboundComPortPoolInfo;
-import com.energyict.mdc.rest.impl.comserver.OutboundComPortInfo;
-import com.energyict.mdc.rest.impl.comserver.OutboundComPortPoolInfo;
+import com.energyict.mdc.rest.impl.comserver.*;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -188,11 +186,11 @@ public class ComPortPoolResourceTest extends JerseyTest {
         outboundComPortPoolInfo.name="Updated";
         outboundComPortPoolInfo.description="description";
         outboundComPortPoolInfo.taskExecutionTimeout=new TimeDurationInfo(new TimeDuration(5, TimeDuration.MINUTES));
-        OutboundComPortInfo tcpOutboundComPortInfo1 = new OutboundComPortInfo();
+        OutboundComPortInfo tcpOutboundComPortInfo1 = new TcpOutboundComPortInfo();
         tcpOutboundComPortInfo1.name="Port 1";
         tcpOutboundComPortInfo1.id=comPort1_id_to_be_kept;
         tcpOutboundComPortInfo1.comPortType=ComPortType.TCP;
-        OutboundComPortInfo tcpOutboundComPortInfo2 = new OutboundComPortInfo();
+        OutboundComPortInfo tcpOutboundComPortInfo2 = new TcpOutboundComPortInfo();
         tcpOutboundComPortInfo2.name="Port 2";
         tcpOutboundComPortInfo2.id=comPort2_id_to_be_added;
         tcpOutboundComPortInfo2.comPortType=ComPortType.TCP;
@@ -202,12 +200,15 @@ public class ComPortPoolResourceTest extends JerseyTest {
         OutboundComPort mockTcpPort1 = mock(OutboundComPort.class);
         when(mockTcpPort1.getName()).thenReturn("Port 1");
         when(mockTcpPort1.getId()).thenReturn(comPort1_id_to_be_kept);
+        when(mockTcpPort1.getComPortType()).thenReturn(ComPortType.TCP);
         OutboundComPort mockTcpPort2 = mock(OutboundComPort.class);
         when(mockTcpPort2.getName()).thenReturn("Port 2");
         when(mockTcpPort2.getId()).thenReturn(comPort2_id_to_be_added);
+        when(mockTcpPort2.getComPortType()).thenReturn(ComPortType.TCP);
         OutboundComPort mockTcpPort3 = mock(OutboundComPort.class);
         when(mockTcpPort3.getName()).thenReturn("Port 3");
         when(mockTcpPort3.getId()).thenReturn(comPort3_id_to_be_removed);
+        when(mockTcpPort3.getComPortType()).thenReturn(ComPortType.TCP);
 
         when(mockOutboundComPortPool.getComPorts()).thenReturn(Arrays.<OutboundComPort>asList(mockTcpPort1, mockTcpPort3));
         when(engineModelService.findComPortPool(comPortPool_id)).thenReturn(mockOutboundComPortPool);
