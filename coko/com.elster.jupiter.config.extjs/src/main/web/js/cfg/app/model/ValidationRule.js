@@ -8,7 +8,8 @@ Ext.define('Cfg.model.ValidationRule', {
         'readingTypes',
         'properties',
         'name',
-        'ruleSetId'
+        'ruleSetId',
+        'ruleSetName'
     ],
     associations: [
         {
