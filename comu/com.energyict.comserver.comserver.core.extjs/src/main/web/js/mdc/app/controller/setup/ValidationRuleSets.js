@@ -76,11 +76,14 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
     },
 
     showAddValidationRuleSets: function (deviceTypeId, deviceConfigId) {
-        var me = this;
+        var me = this,
+            deviceConfigRuleSetsStore = me.getDeviceConfigValidationRuleSetsStore(),
+            ruleSetsStore;
+
         this.deviceTypeId = deviceTypeId;
         this.deviceConfigId = deviceConfigId;
 
-        me.getDeviceConfigValidationRuleSetsStore().getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigId});
+        deviceConfigRuleSetsStore.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigId});
         var widget = Ext.widget('validation-add-rulesets', {deviceTypeId: deviceTypeId, deviceConfigId: deviceConfigId});
 
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
@@ -91,8 +94,18 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
                 model.getProxy().setExtraParam('deviceType', deviceTypeId);
 
                 // This can be loaded asynchronously with the device configuration model.
-                var store = Ext.getStore('ValidationRuleSets') || Ext.create('Cfg.store.ValidationRuleSets');
-                store.load();
+                deviceConfigRuleSetsStore.load({
+                    callback: function () {
+                        ruleSetsStore = me.getAddValidationRuleSetsGrid().getStore();
+                        ruleSetsStore.load(
+                            {
+                                callback: function () {
+                                    ruleSetsStore.remove(deviceConfigRuleSetsStore.data.items);
+                                }
+                            }
+                        );
+                    }
+                });
 
                 model.load(deviceConfigId, {
                     success: function (deviceConfig) {
