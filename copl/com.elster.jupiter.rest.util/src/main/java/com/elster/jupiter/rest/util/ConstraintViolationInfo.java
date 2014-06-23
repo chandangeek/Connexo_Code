@@ -1,5 +1,6 @@
 package com.elster.jupiter.rest.util;
 
+import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -86,6 +87,13 @@ public class ConstraintViolationInfo {
         String messageTemplate = thesaurus.getString(fieldException.getMessageSeed().getKey(), fieldException.getMessageSeed().getDefaultFormat());
         StringBuffer formattedMessage = new MessageFormat(messageTemplate).format(fieldException.getArgs(), new StringBuffer(), null);
         addFieldError(fieldException.getViolatingProperty(), formattedMessage.toString());
+        return this;
+    }
+
+    public ConstraintViolationInfo from(LocalizedException exception) {
+        this.message= exception.getLocalizedMessage();
+        this.error= exception.getMessageSeed().getKey();
+
         return this;
     }
 

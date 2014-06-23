@@ -19,8 +19,7 @@ public class LocalizedExceptionMapper implements ExceptionMapper<LocalizedExcept
     @Override
     public Response toResponse(LocalizedException exception) {
         ConstraintViolationInfo constraintViolationInfo = infoProvider.get();
-        constraintViolationInfo.message= exception.getLocalizedMessage();
-        constraintViolationInfo.error= exception.getMessageSeed().getKey();
+        constraintViolationInfo.from(exception);
 
         return Response.status(Response.Status.BAD_REQUEST).entity(constraintViolationInfo).build();
     }
