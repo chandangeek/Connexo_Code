@@ -1251,7 +1251,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
 
         when(deviceConfigurationService.findDeviceType(31L)).thenReturn(deviceType);
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
-        when(deviceDataService.findDeviceById(666L)).thenReturn(device);
+        when(deviceDataService.findByUniqueMrid("Z666")).thenReturn(device);
         ConnectionTask<?, ?> connectionTask1 = mockConnectionTask(101L);
         ConnectionTask<?, ?> connectionTask2 = mockConnectionTask(102L);
         ConnectionTask<?, ?> connectionTask3 = mockConnectionTask(103L);
@@ -1262,7 +1262,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
         PartialConnectionTask partialConnectionTask3 = mockPartialConnectionTask(103L);
         PartialConnectionTask partialConnectionTask4 = mockPartialConnectionTask(104L);
         when(deviceConfiguration.getPartialConnectionTasks()).thenReturn(Arrays.asList(partialConnectionTask1, partialConnectionTask2, partialConnectionTask4, partialConnectionTask3));
-        Map<String,Object> response = target("/devicetypes/31/deviceconfigurations/32/connectionmethods/").queryParam("available", "true").queryParam("deviceId", 666L).request().get(Map.class);
+        Map<String,Object> response = target("/devicetypes/31/deviceconfigurations/32/connectionmethods/").queryParam("available", "true").queryParam("mrId", "Z666").request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(1);
         List<Map<String, Object>> data = (List<Map<String, Object>>) response.get("data");
         assertThat(data.get(0).get("id")).isEqualTo(104);
