@@ -40,6 +40,7 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
         super.writeTo(scheduledConnectionTask, partialConnectionTask, deviceDataService, engineModelService, mdcPropertyUtils);
         writeCommonFields(scheduledConnectionTask, engineModelService);
         scheduledConnectionTask.setNextExecutionSpecsFrom(this.nextExecutionSpecs != null ? nextExecutionSpecs.asTemporalExpression() : null); // This method is called separately here because
+        scheduledConnectionTask.setConnectionStrategy(this.connectionStrategy);
     }
 
     private void writeCommonFields(ScheduledConnectionTask scheduledConnectionTask, EngineModelService engineModelService) {
@@ -47,7 +48,6 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
         if (this.comWindowEnd!=null && this.comWindowStart!=null) {
             scheduledConnectionTask.setCommunicationWindow(new ComWindow(this.comWindowStart, this.comWindowEnd));
         }
-        scheduledConnectionTask.setConnectionStrategy(this.connectionStrategy);
         if (!Checks.is(this.comPortPool).emptyOrOnlyWhiteSpace()) {
             scheduledConnectionTask.setComPortPool((OutboundComPortPool) engineModelService.findComPortPool(this.comPortPool));
         } else {
