@@ -20,6 +20,11 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodActionMe
             text: 'default',
             itemId: 'toggleDefaultMenuItem',
             action: 'toggleDefault'
+        },
+        {
+            text: 'activate',
+            itemId: 'toggleActiveMenuItem',
+            action: 'toggleActive'
         }
     ]
 });

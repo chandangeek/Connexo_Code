@@ -285,7 +285,9 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
 
     deleteConnectionMethod: function (connectionMethodToDelete) {
         var me = this;
-
+        if (connectionMethodToDelete.hasOwnProperty('action')) {
+            connectionMethodToDelete = this.getConnectionmethodsgrid().getSelectionModel().getSelection()[0];
+        }
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('connectionmethod.deleteConnectionMethod', 'MDC', 'Are you sure you want to delete connection method ' + connectionMethodToDelete.get('name') + '?'),
             title: Uni.I18n.translate('connectionmethod.deleteConnectionMethod.title', 'MDC', 'Delete connection method ') + ' ' + connectionMethodToDelete.get('name') + '?',

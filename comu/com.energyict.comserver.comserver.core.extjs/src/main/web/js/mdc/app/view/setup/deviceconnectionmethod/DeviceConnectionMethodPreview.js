@@ -34,14 +34,14 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodPreview'
             tbar: [
                 {
                     xtype: 'component',
-                    html: '<h4>' + Uni.I18n.translate('connectionmethod.noConnectionMethodSelected', 'MDC', 'No connection method selected') + '</h4>'
+                    html: '<h4>' + Uni.I18n.translate('deviceconnectionmethod.noConnectionMethodSelected', 'MDC', 'No connection method selected') + '</h4>'
                 }
             ],
             items: [
                 {
                     xtype: 'component',
                     height: '100px',
-                    html: '<h5>' + Uni.I18n.translate('connectionmethod.selectConnectionMethod', 'MDC', 'Select a connection method to see its details') + '</h5>'
+                    html: '<h5>' + Uni.I18n.translate('deviceconnectionmethod.selectConnectionMethod', 'MDC', 'Select a connection method to see its details') + '</h5>'
                 }
             ]
 
@@ -76,19 +76,19 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodPreview'
                                 {
                                     xtype: 'displayfield',
                                     name: 'name',
-                                    fieldLabel: Uni.I18n.translate('connectionmethod.name', 'MDC', 'Name'),
+                                    fieldLabel: Uni.I18n.translate('deviceconnectionmethod.name', 'MDC', 'Name'),
                                     itemId: 'deviceName'
 
                                 },
                                 {
                                     xtype: 'displayfield',
                                     name: 'direction',
-                                    fieldLabel: Uni.I18n.translate('connectionmethod.direction', 'MDC', 'Direction')
+                                    fieldLabel: Uni.I18n.translate('deviceconnectionmethod.direction', 'MDC', 'Direction')
                                 },
                                 {
                                     xtype: 'displayfield',
                                     name: 'allowSimultaneousConnections',
-                                    fieldLabel: Uni.I18n.translate('connectionmethod.simultaneousConnectionsAllowed', 'MDC', 'Simultaneous connections allowed'),
+                                    fieldLabel: Uni.I18n.translate('deviceconnectionmethod.simultaneousConnectionsAllowed', 'MDC', 'Simultaneous connections allowed'),
                                     renderer: function(value){
                                         return value? Uni.I18n.translate('general.yes', 'MDC', 'Yes'):Uni.I18n.translate('general.no', 'MDC', 'No');
 
@@ -97,7 +97,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodPreview'
                                 {
                                     xtype: 'displayfield',
                                     name: 'isDefault',
-                                    fieldLabel: Uni.I18n.translate('connectionmethod.default', 'MDC', 'Default'),
+                                    fieldLabel: Uni.I18n.translate('deviceconnectionmethod.default', 'MDC', 'Default'),
                                     renderer: function(value){
                                         return value? Uni.I18n.translate('general.yes', 'MDC', 'Yes'):Uni.I18n.translate('general.no', 'MDC', 'No');
                                     }
@@ -105,7 +105,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodPreview'
                                 {
                                     xtype: 'displayfield',
                                     name: 'paused',
-                                    fieldLabel: Uni.I18n.translate('connectionmethod.status', 'MDC', 'Status'),
+                                    fieldLabel: Uni.I18n.translate('deviceconnectionmethod.status', 'MDC', 'Status'),
                                     renderer: function(value){
                                         return value? Uni.I18n.translate('general.active', 'MDC', 'Active'):Uni.I18n.translate('general.inactive', 'MDC', 'Inactive');
                                     }
@@ -126,18 +126,21 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodPreview'
                                 {
                                     xtype: 'displayfield',
                                     name: 'connectionType',
-                                    fieldLabel: Uni.I18n.translate('connectionmethod.connectionType', 'MDC', 'Connection type')
+                                    fieldLabel: Uni.I18n.translate('deviceconnectionmethod.connectionType', 'MDC', 'Connection type')
                                 },
 
                                 {
                                     xtype: 'displayfield',
                                     name: 'comPortPool',
-                                    fieldLabel: Uni.I18n.translate('connectionmethod.portPool', 'MDC', 'Port pool')
+                                    fieldLabel: Uni.I18n.translate('deviceconnectionmethod.portPool', 'MDC', 'Port pool')
                                 },
                                 {
                                     xtype: 'displayfield',
                                     name: 'connectionStrategy',
-                                    fieldLabel: Uni.I18n.translate('connectionmethod.connectionStrategy', 'MDC', 'Connection strategy')
+                                    fieldLabel: Uni.I18n.translate('deviceconnectionmethod.connectionStrategy', 'MDC', 'Connection strategy'),
+                                    renderer: function(value){
+                                        return value || Uni.I18n.translate('general.undefined', 'MDC', 'Undefined');
+                                    }
                                 },
                                 {
                                     xtype: 'displayfield',
@@ -169,7 +172,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodPreview'
                     items: [
                         {
                             xtype: 'displayfield',
-                            fieldLabel: '<h3>' + Uni.I18n.translate('connectionmethod.connectionDetails', 'MDC', 'Connection details') + '</h3>',
+                            fieldLabel: '<h3>' + Uni.I18n.translate('deviceconnectionmethod.connectionDetails', 'MDC', 'Connection details') + '</h3>',
                             text: ''
                         }
                     ]

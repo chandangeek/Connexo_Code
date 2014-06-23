@@ -81,7 +81,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                                 store: this.connectionStrategies,
                                 queryMode: 'local',
                                 required: true,
-                                displayField: 'connectionStrategy',
+                                displayField: 'localizedValue',
                                 valueField: 'connectionStrategy',
                                 emptyText: Uni.I18n.translate('deviceconnectionmethod.selectconnectionStrategy', 'MDC', 'Select a connection strategy'),
                                 forceSelection: true,
@@ -180,7 +180,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                         items: [
                             {
                                 xtype: 'displayfield',
-                                fieldLabel: '<h3>' + Uni.I18n.translate('connectionmethod.connectionDetails', 'MDC', 'Connection details') + '</h3>',
+                                fieldLabel: '<h3>' + Uni.I18n.translate('deviceconnectionmethod.connectionDetails', 'MDC', 'Connection details') + '</h3>',
                                 text: ''
                             }
                         ]
@@ -248,6 +248,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                 this.down('#addEditButton').action = 'editDeviceInboundConnectionMethod';
                 this.down('#connectionStrategyComboBox').setVisible(false);
                 this.down('#rescheduleRetryDelay').setVisible(false);
+                this.down('#allowSimultaneousConnections').setVisible(false);
 //                this.down('#isDefault').setVisible(false);
             }
         } else {
@@ -258,6 +259,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                 this.down('#addEditButton').action = 'addDeviceInboundConnectionMethod';
                 this.down('#connectionStrategyComboBox').setVisible(false);
                 this.down('#rescheduleRetryDelay').setVisible(false);
+                this.down('#allowSimultaneousConnections').setVisible(false);
 //                this.down('#isDefault').setVisible(false);
             }
         }
