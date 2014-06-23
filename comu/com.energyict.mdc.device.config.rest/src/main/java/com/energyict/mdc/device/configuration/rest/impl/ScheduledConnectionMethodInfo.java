@@ -39,7 +39,11 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialS
         super.writeTo(partialConnectionTask, engineModelService);
         partialConnectionTask.setDefault(this.isDefault);
         partialConnectionTask.setAllowSimultaneousConnections(this.allowSimultaneousConnections);
-        partialConnectionTask.setComWindow(new ComWindow(this.comWindowStart, this.comWindowEnd));
+        if (this.comWindowEnd!=null && this.comWindowStart!=null) {
+            partialConnectionTask.setComWindow(new ComWindow(this.comWindowStart, this.comWindowEnd));
+        } else {
+            partialConnectionTask.setComWindow(null);
+        }
         partialConnectionTask.setConnectionStrategy(this.connectionStrategy);
         partialConnectionTask.setComportPool(Checks.is(this.comPortPool).emptyOrOnlyWhiteSpace() ? null : (OutboundComPortPool) engineModelService.findComPortPool(this.comPortPool));
         partialConnectionTask.setRescheduleRetryDelay(this.rescheduleRetryDelay!=null?this.rescheduleRetryDelay.asTimeDuration():null);
