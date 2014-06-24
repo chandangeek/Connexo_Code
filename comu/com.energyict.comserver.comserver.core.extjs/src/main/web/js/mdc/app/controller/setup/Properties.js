@@ -107,7 +107,26 @@ Ext.define('Mdc.controller.setup.Properties', {
         });
     },
 
+    showPropertiesAsInherited: function(objectWithProperties, view, hidden){
+        var me = this;
+        var properties = objectWithProperties.propertiesStore.data.items;
+        this.propertiesStore = objectWithProperties.propertiesStore;
+        properties.forEach(function(property){
+            var propertyValue = property.getPropertyValue();
+            propertyValue.data.inheritedValue = propertyValue.data.value;
+            propertyValue.data.value = '';
+        });
+        debugger;
+        this.show(properties,view,hidden);
+    },
+
     showProperties: function (objectWithProperties, view, hidden) {
+        var properties = objectWithProperties.propertiesStore.data.items;
+        this.propertiesStore = objectWithProperties.propertiesStore;
+        this.show(properties,view,hidden);
+    },
+
+    show: function(properties,view, hidden){
         var me = this;
         var propertiesView = view.down('#propertyEdit');
         this.hidden = hidden;
@@ -117,8 +136,7 @@ Ext.define('Mdc.controller.setup.Properties', {
             propertiesForm.remove(child);
         });
 
-        var properties = objectWithProperties.propertiesStore.data.items;
-        me.propertiesStore = objectWithProperties.propertiesStore;
+
 
         properties.forEach(function (entry) {
                 var property = entry;
