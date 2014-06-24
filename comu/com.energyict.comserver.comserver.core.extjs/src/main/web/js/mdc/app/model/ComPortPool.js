@@ -11,7 +11,16 @@ Ext.define('Mdc.model.ComPortPool', {
         'taskExecutionTimeout',
         'discoveryProtocolPluggableClassId',
         'inboundComPorts',
-        'outboundComPorts'
+        'outboundComPorts',
+        {
+            name: 'comportslink',
+            mapping: function (data) {
+                var inboundComPorts = data.inboundComPorts ? data.inboundComPorts.length : 0,
+                    outboundComPorts = data.outboundComPorts ? data.outboundComPorts.length : 0,
+                    comports = inboundComPorts + outboundComPorts;
+                return '<a href="#/administration/comportpools/' + data.id + '/comports">' + comports + ' ' + Uni.I18n.translate('comportpool.preview.communicationPorts', 'MDC', 'communication ports') + '</a>';
+            }
+        }
     ],
     associations: [
         {name: 'taskExecutionTimeout',type: 'hasOne',model:'Mdc.model.field.TimeInfo',associationKey: 'taskExecutionTimeout'},

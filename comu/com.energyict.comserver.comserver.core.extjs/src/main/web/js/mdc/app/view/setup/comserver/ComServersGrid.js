@@ -7,6 +7,7 @@ Ext.define('Mdc.view.setup.comserver.ComServersGrid', {
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
+        'Uni.grid.column.Action',
         'Mdc.view.setup.comserver.ActionMenu'
     ],
     columns: [
@@ -14,7 +15,7 @@ Ext.define('Mdc.view.setup.comserver.ComServersGrid', {
             header: Uni.I18n.translate('general.name', 'MDC', 'Name'),
             flex: 1,
             xtype: 'templatecolumn',
-            tpl: '<a href="#/administration/comservers/{id}">{name}</a>'
+            tpl: '<a href="#/administration/comservers/{id}/overview">{name}</a>'
         },
         {
             header: Uni.I18n.translate('general.comserverType', 'MDC', 'Comserver type'),
@@ -34,18 +35,11 @@ Ext.define('Mdc.view.setup.comserver.ComServersGrid', {
             }
         },
         {
-            xtype: 'uni-actioncolumn',
             itemId: 'actionColumn',
-            iconCls: 'uni-actioncolumn-gear',
-            columnWidth: 32,
-            fixed: true,
-            header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-            sortable: false,
-            hideable: false,
+            xtype: 'uni-actioncolumn',
             menu: {
                 xtype: 'comserver-actionmenu',
-                defaultAlign: 'tr-br?',
-                plain: true
+                itemId: 'comserverViewMenu'
             }
         }
     ],
@@ -61,7 +55,7 @@ Ext.define('Mdc.view.setup.comserver.ComServersGrid', {
                 {
                     xtype: 'button',
                     text: Uni.I18n.translate('deviceType.addOnline', 'MDC', 'Add online comunication server'),
-                    href: '#/administration/comservers/add'
+                    href: '#/administration/comservers/add/online'
                 }
             ]
         },

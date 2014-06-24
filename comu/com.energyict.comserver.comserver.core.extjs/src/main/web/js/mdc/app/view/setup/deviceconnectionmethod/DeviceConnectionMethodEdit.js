@@ -1,7 +1,7 @@
-Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
+Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.connectionMethodEdit',
-    itemId: 'connectionMethodEdit',
+    alias: 'widget.deviceConnectionMethodEdit',
+    itemId: 'deviceConnectionMethodEdit',
     edit: false,
 
     requires: [
@@ -12,19 +12,6 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
     isEdit: function () {
         return this.edit;
     },
-
-//    setEdit: function (edit, returnLink) {
-//        if (edit) {
-//            this.edit = edit;
-//            this.down('#addEditButton').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
-//            this.down('#addEditButton').action = 'editConnectionMethod';
-//        } else {
-//            this.edit = edit;
-//            this.down('#addEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
-//            this.down('#addEditButton').action = 'addConnectionMethod';
-//        }
-//        this.down('#cancelLink').href = returnLink;
-//    },
 
     initComponent: function () {
         this.content = [
@@ -39,19 +26,13 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                     {
                         xtype: 'component',
                         html: '',
-                        itemId: 'connectionMethodEditAddTitle',
+                        itemId: 'deviceConnectionMethodEditAddTitle',
                         margins: '10 10 10 10'
                     },
-//                    {
-//                        xtype: 'container',
-//                        layout: {
-//                            type: 'column'
-//                        },
-//                        items: [
                     {
                         xtype: 'form',
                         border: false,
-                        itemId: 'connectionMethodEditForm',
+                        itemId: 'deviceConnectionMethodEditForm',
                         width: 900,
 //                                padding: '10 10 0 10',
                         layout: {
@@ -63,25 +44,15 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                         },
                         items: [
                             {
-                                xtype: 'textfield',
-                                name: 'name',
-                                msgTarget: 'under',
-                                required: true,
-                                fieldLabel: Uni.I18n.translate('connectionmethod.name', 'MDC', 'Name'),
-                                itemId: 'editConnectionMethodNameField',
-                                maxLength: 80,
-                                enforceMaxLength: true
-                            },
-                            {
                                 xtype: 'combobox',
-                                name: 'connectionType',
-                                fieldLabel: Uni.I18n.translate('connectionmethod.connectionType', 'MDC', 'Connection type'),
-                                itemId: 'connectionTypeComboBox',
-                                store: this.connectionTypes,
+                                name: 'name',
+                                fieldLabel: Uni.I18n.translate('deviceconnectionmethod.connectionmethod', 'MDC', 'Connection method'),
+                                itemId: 'deviceConnectionMethodComboBox',
+                                store: this.connectionMethods,
                                 queryMode: 'local',
                                 displayField: 'name',
                                 valueField: 'name',
-                                emptyText: Uni.I18n.translate('connectionmethod.selectConnectionMethod', 'MDC', 'Select a connection type...'),
+                                emptyText: Uni.I18n.translate('deviceconnectionmethod.selectConnectionMethod', 'MDC', 'Select a connection method...'),
                                 required: true,
                                 forceSelection: true,
                                 typeAhead: true,
@@ -90,31 +61,33 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                             {
                                 xtype: 'combobox',
                                 name: 'comPortPool',
-                                fieldLabel: Uni.I18n.translate('connectionmethod.comPortPool', 'MDC', 'Communication port pool'),
+                                fieldLabel: Uni.I18n.translate('deviceconnectionmethod.comPortPool', 'MDC', 'Communication port pool'),
                                 itemId: 'communicationPortPoolComboBox',
                                 store: this.comPortPools,
                                 queryMode: 'local',
                                 displayField: 'name',
                                 valueField: 'name',
-                                emptyText: Uni.I18n.translate('connectionmethod.selectComPortPool', 'MDC', 'Select a communication port pool...'),
+                                emptyText: Uni.I18n.translate('deviceconnectionmethod.selectComPortPool', 'MDC', 'Select a communication port pool...'),
                                 forceSelection: true,
                                 typeAhead: true,
-                                msgTarget: 'under'
+                                msgTarget: 'under',
+                                disabled: true
                             },
                             {
                                 xtype: 'combobox',
                                 name: 'connectionStrategy',
-                                fieldLabel: Uni.I18n.translate('connectionmethod.connectionStrategy', 'MDC', 'Connection strategy'),
+                                fieldLabel: Uni.I18n.translate('deviceconnectionmethod.connectionStrategy', 'MDC', 'Connection strategy'),
                                 itemId: 'connectionStrategyComboBox',
                                 store: this.connectionStrategies,
                                 queryMode: 'local',
                                 required: true,
-                                displayField: 'connectionStrategy',
+                                displayField: 'localizedValue',
                                 valueField: 'connectionStrategy',
-                                emptyText: Uni.I18n.translate('connectionmethod.selectconnectionStrategy', 'MDC', 'Select a connection strategy'),
+                                emptyText: Uni.I18n.translate('deviceconnectionmethod.selectconnectionStrategy', 'MDC', 'Select a connection strategy'),
                                 forceSelection: true,
                                 typeAhead: true,
-                                msgTarget: 'under'
+                                msgTarget: 'under',
+                                disabled: true
                             },
                             {
                                 xtype: 'scheduleField',
@@ -130,14 +103,16 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                 },
                                 secondCfg: {
                                     width: 60
-                                }
+                                },
+                                disabled: true
                             },
                             {
                                 xtype: 'timeInfoField',
                                 name: 'rescheduleRetryDelay',
-                                fieldLabel: Uni.I18n.translate('connectionmethod.rescheduleRetryDelay', 'MDC', 'Retry delay'),
+                                fieldLabel: Uni.I18n.translate('deviceconnectionmethod.rescheduleRetryDelay', 'MDC', 'Retry delay'),
                                 itemId: 'rescheduleRetryDelay',
-                                required: true
+                                required: true,
+                                disabled: true
                             },
 //                                    {
 //                                        xtype: 'radiogroup',
@@ -164,12 +139,13 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
 //                                    },
                             {
                                 xtype: 'radiogroup',
-                                fieldLabel: Uni.I18n.translate('connectionmethod.allowSimultaneousConnections', 'MDC', 'Allow simultaneous connection'),
+                                fieldLabel: Uni.I18n.translate('deviceconnectionmethod.allowSimultaneousConnections', 'MDC', 'Allow simultaneous connection'),
                                 itemId: 'allowSimultaneousConnections',
                                 allowBlank: false,
                                 vertical: true,
                                 required: true,
                                 columns: 1,
+                                disabled: true,
                                 items: [
                                     {
                                         boxLabel: 'yes',
@@ -204,7 +180,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                         items: [
                             {
                                 xtype: 'displayfield',
-                                fieldLabel: '<h3>' + Uni.I18n.translate('connectionmethod.connectionDetails', 'MDC', 'Connection details') + '</h3>',
+                                fieldLabel: '<h3>' + Uni.I18n.translate('deviceconnectionmethod.connectionDetails', 'MDC', 'Connection details') + '</h3>',
                                 text: ''
                             }
                         ]
@@ -267,9 +243,9 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
         if (this.isEdit()) {
             this.down('#addEditButton').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
             if (this.direction === 'Outbound') {
-                this.down('#addEditButton').action = 'editOutboundConnectionMethod';
+                this.down('#addEditButton').action = 'editDeviceOutboundConnectionMethod';
             } else if (this.direction === 'Inbound') {
-                this.down('#addEditButton').action = 'editInboundConnectionMethod';
+                this.down('#addEditButton').action = 'editDeviceInboundConnectionMethod';
                 this.down('#connectionStrategyComboBox').setVisible(false);
                 this.down('#rescheduleRetryDelay').setVisible(false);
                 this.down('#allowSimultaneousConnections').setVisible(false);
@@ -278,9 +254,9 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
         } else {
             this.down('#addEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
             if (this.direction === 'Outbound') {
-                this.down('#addEditButton').action = 'addOutboundConnectionMethod';
+                this.down('#addEditButton').action = 'addDeviceOutboundConnectionMethod';
             } else if (this.direction === 'Inbound') {
-                this.down('#addEditButton').action = 'addInboundConnectionMethod';
+                this.down('#addEditButton').action = 'addDeviceInboundConnectionMethod';
                 this.down('#connectionStrategyComboBox').setVisible(false);
                 this.down('#rescheduleRetryDelay').setVisible(false);
                 this.down('#allowSimultaneousConnections').setVisible(false);

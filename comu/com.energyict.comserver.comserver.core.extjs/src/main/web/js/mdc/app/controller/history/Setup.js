@@ -46,8 +46,8 @@ Ext.define('Mdc.controller.history.Setup', {
                             route: '{deviceTypeId}',
                             controller: 'Mdc.controller.setup.DeviceTypes',
                             action: 'showDeviceTypeDetailsView',
-                            callback: function(route) {
-                                this.getApplication().on('loadDeviceType', function(record) {
+                            callback: function (route) {
+                                this.getApplication().on('loadDeviceType', function (record) {
                                     route.setTitle(record.get('name'));
                                     return true;
                                 }, {single: true});
@@ -106,8 +106,8 @@ Ext.define('Mdc.controller.history.Setup', {
                                             route: '{deviceConfigurationId}',
                                             controller: 'Mdc.controller.setup.DeviceConfigurations',
                                             action: 'showDeviceConfigurationDetailsView',
-                                            callback: function(route) {
-                                                this.getApplication().on('loadDeviceConfiguration', function(record) {
+                                            callback: function (route) {
+                                                this.getApplication().on('loadDeviceConfiguration', function (record) {
                                                     route.setTitle(record.get('name'));
                                                     return true;
                                                 }, {single: true});
@@ -138,8 +138,8 @@ Ext.define('Mdc.controller.history.Setup', {
                                                             route: '{loadProfileConfigurationId}/edit',
                                                             controller: 'Mdc.controller.setup.LoadProfileConfigurations',
                                                             action: 'showDeviceConfigurationLoadProfilesEditView',
-                                                            callback: function(route) {
-                                                                this.getApplication().on('loadLoadProfile', function(record) {
+                                                            callback: function (route) {
+                                                                this.getApplication().on('loadLoadProfile', function (record) {
                                                                     route.setTitle('Edit "' + record.name + '"');
                                                                     return true;
                                                                 }, {single: true});
@@ -152,8 +152,8 @@ Ext.define('Mdc.controller.history.Setup', {
                                                             route: '{loadProfileConfigurationId}/channels',
                                                             controller: 'Mdc.controller.setup.LoadProfileConfigurationDetails',
                                                             action: 'showDeviceConfigurationLoadProfilesConfigurationDetailsView',
-                                                            callback: function(route) {
-                                                                this.getApplication().on('loadLoadProfile', function(record) {
+                                                            callback: function (route) {
+                                                                this.getApplication().on('loadLoadProfile', function (record) {
                                                                     route.setTitle(record.name);
                                                                     return true;
                                                                 }, {single: true});
@@ -257,8 +257,8 @@ Ext.define('Mdc.controller.history.Setup', {
                                                             route: '{comTaskEnablementId}/edit',
                                                             controller: 'Mdc.controller.setup.CommunicationTasks',
                                                             action: 'showEditCommunicationTaskView',
-                                                            callback: function(route) {
-                                                                this.getApplication().on('loadCommunicationTaskModel', function(record) {
+                                                            callback: function (route) {
+                                                                this.getApplication().on('loadCommunicationTaskModel', function (record) {
                                                                     route.setTitle('Edit "' + record.get('comTask').name + '"');
                                                                     return true;
                                                                 }, {single: true});
@@ -298,8 +298,8 @@ Ext.define('Mdc.controller.history.Setup', {
                                                             route: '{connectionMethodId}/edit',
                                                             controller: 'Mdc.controller.setup.ConnectionMethods',
                                                             action: 'showConnectionMethodEditView',
-                                                            callback: function(route) {
-                                                                this.getApplication().on('loadConnectionMethod', function(record) {
+                                                            callback: function (route) {
+                                                                this.getApplication().on('loadConnectionMethod', function (record) {
                                                                     route.setTitle('Edit "' + record.get('name') + '"');
                                                                     return true;
                                                                 }, {single: true});
@@ -371,8 +371,8 @@ Ext.define('Mdc.controller.history.Setup', {
                             route: '{id}/edit',
                             controller: 'Mdc.controller.setup.LoadProfileTypes',
                             action: 'showLoadProfileTypesEditView',
-                            callback: function(route) {
-                                this.getApplication().on('loadProfileType', function(record) {
+                            callback: function (route) {
+                                this.getApplication().on('loadProfileType', function (record) {
                                     route.setTitle('Edit "' + record.name + '"');
                                     return true;
                                 }, {single: true});
@@ -396,25 +396,46 @@ Ext.define('Mdc.controller.history.Setup', {
                     controller: 'Mdc.controller.setup.SetupOverview',
                     action: 'showComServers',
                     items: {
-
-                        create: {
-                            title: 'Create communication server',
-                            route: 'create',
-                            controller: 'Mdc.controller.setup.ComServers',
-                            action: 'showEditView'
+                        onlineadd: {
+                            title: 'Add online communication server',
+                            route: 'add/online',
+                            controller: 'Mdc.controller.setup.ComServerEdit',
+                            action: 'showOnlineAddView'
                         },
                         edit: {
                             title: 'Edit communication server',
                             route: '{id}/edit',
-                            controller: 'Mdc.controller.setup.ComServers',
+                            controller: 'Mdc.controller.setup.ComServerEdit',
                             action: 'showEditView',
-                            callback: function(route) {
-                                this.getApplication().on('loadComServer', function(record) {
+                            callback: function (route) {
+                                this.getApplication().on('loadComServer', function (record) {
                                     route.setTitle('Edit "' + record.get('name') + '"');
                                     return true;
                                 }, {single: true});
 
                                 return this;
+                            }
+                        },
+                        detail: {
+                            title: 'Overview',
+                            route: '{id}',
+                            controller: 'Mdc.controller.setup.ComServerOverview',
+                            action: 'showOverview',
+                            redirect: 'administration/comservers/detail/overview',
+                            callback: function (route) {
+                                this.getApplication().on('comServerOverviewLoad', function (record) {
+                                    route.setTitle(record.get('name'));
+                                    return true;
+                                }, {single: true});
+                                return this;
+                            },
+                            items: {
+                                overview: {
+                                    title: 'Overview',
+                                    route: 'overview',
+                                    controller: 'Mdc.controller.setup.ComServerOverview',
+                                    action: 'showOverview'
+                                }
                             }
                         }
                     }
@@ -430,8 +451,8 @@ Ext.define('Mdc.controller.history.Setup', {
                             route: '{id}/edit',
                             controller: 'Mdc.controller.setup.DeviceCommunicationProtocols',
                             action: 'showDeviceCommunicationProtocolEditView',
-                            callback: function(route) {
-                                this.getApplication().on('loadDeviceCommunicationProtocol', function(record) {
+                            callback: function (route) {
+                                this.getApplication().on('loadDeviceCommunicationProtocol', function (record) {
                                     route.setTitle('Edit "' + record.get('name') + '"');
                                     return true;
                                 }, {single: true});
@@ -453,11 +474,17 @@ Ext.define('Mdc.controller.history.Setup', {
                     controller: 'Mdc.controller.setup.SetupOverview',
                     action: 'showComPortPools',
                     items: {
-                        create: {
-                            title: 'Create communication port pool',
-                            route: 'create',
-                            controller: 'Mdc.controller.setup.ComPortPools',
-                            action: 'showEditView'
+                        addinbound: {
+                            title: Uni.I18n.translate('comPortPool.title.addInbound', 'MDC', 'Add inbound communication port pool'),
+                            route: 'add/inbound',
+                            controller: 'Mdc.controller.setup.ComPortPoolEdit',
+                            action: 'showInboundAddView'
+                        },
+                        addoutbound: {
+                            title: Uni.I18n.translate('comPortPool.title.addOutbound', 'MDC', 'Add outbound communication port pool'),
+                            route: 'add/outbound',
+                            controller: 'Mdc.controller.setup.ComPortPoolEdit',
+                            action: 'showOutboundAddView'
                         },
                         edit: {
                             title: 'Edit communication port pool',
@@ -484,8 +511,8 @@ Ext.define('Mdc.controller.history.Setup', {
                             route: '{id}/edit',
                             controller: 'Mdc.controller.setup.RegisterTypes',
                             action: 'showRegisterTypeEditView',
-                            callback: function(route) {
-                                this.getApplication().on('loadRegisterType', function(record) {
+                            callback: function (route) {
+                                this.getApplication().on('loadRegisterType', function (record) {
                                     route.setTitle('Edit ' + record.get('name') + '');
                                     return true;
                                 }, {single: true});
@@ -512,8 +539,8 @@ Ext.define('Mdc.controller.history.Setup', {
                             route: '{id}/edit',
                             controller: 'Mdc.controller.setup.RegisterGroups',
                             action: 'showRegisterGroupEditView',
-                            callback: function(route) {
-                                this.getApplication().on('loadRegisterGroup', function(record) {
+                            callback: function (route) {
+                                this.getApplication().on('loadRegisterGroup', function (record) {
                                     route.setTitle('Edit \'' + record.get('name') + '\'');
                                     return true;
                                 }, {single: true});
@@ -540,8 +567,8 @@ Ext.define('Mdc.controller.history.Setup', {
                             route: '{id}',
                             controller: 'Mdc.controller.setup.Comtasks',
                             action: 'showCommunicationTasksCreateEdit',
-                            callback: function(route) {
-                                this.getApplication().on('loadCommunicationTask', function(record) {
+                            callback: function (route) {
+                                this.getApplication().on('loadCommunicationTask', function (record) {
                                     route.setTitle('Edit "' + record.name + '"');
                                     return true;
                                 }, {single: true});
@@ -568,8 +595,8 @@ Ext.define('Mdc.controller.history.Setup', {
                             route: '{id}/edit',
                             controller: 'Mdc.controller.setup.CommunicationSchedules',
                             action: 'showCommunicationSchedulesEditView',
-                            callback: function(route) {
-                                this.getApplication().on('loadCommunicationSchedule', function(record) {
+                            callback: function (route) {
+                                this.getApplication().on('loadCommunicationSchedule', function (record) {
                                     route.setTitle('Edit "' + record.get('name') + '"');
                                     return true;
                                 }, {single: true});
@@ -586,8 +613,8 @@ Ext.define('Mdc.controller.history.Setup', {
             route: 'devices/{mRID}',
             controller: 'Mdc.controller.setup.Devices',
             action: 'showDeviceDetailsView',
-            callback: function(route) {
-                this.getApplication().on('loadDevice', function(record) {
+            callback: function (route) {
+                this.getApplication().on('loadDevice', function (record) {
                     route.setTitle(record.get('mRID'));
                     return true;
                 }, {single: true});
@@ -609,6 +636,45 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showProtocolDialectsEditView'
                         }
                     }
+                },
+                connectionmethods: {
+                    title: 'Connection methods',
+                    route: 'connectionmethods',
+                    controller: 'Mdc.controller.setup.DeviceConnectionMethods',
+                    action: 'showDeviceConnectionMethods',
+                    items: {
+                        addoutbound: {
+                            title: 'Add outbound',
+                            route: 'addoutbound',
+                            controller: 'Mdc.controller.setup.DeviceConnectionMethods',
+                            action: 'showAddDeviceConnectionMethodView',
+                            params: {
+                                'type': 'Outbound'
+                            }
+                        },
+                        addinbound: {
+                            title: 'Add inbound',
+                            route: 'addinbound',
+                            controller: 'Mdc.controller.setup.DeviceConnectionMethods',
+                            action: 'showAddDeviceConnectionMethodView',
+                            params: {
+                                'type': 'Inbound'
+                            }
+                        },
+                        edit: {
+                            title: 'Edit connection method',
+                            route: '{connectionMethodId}/edit',
+                            controller: 'Mdc.controller.setup.DeviceConnectionMethods',
+                            action: 'showDeviceConnectionMethodEditView',
+                            callback: function (route) {
+                                this.getApplication().on('loadConnectionMethod', function (record) {
+                                    route.setTitle('Edit "' + record.get('name') + '"');
+                                    return true;
+                                }, {single: true});
+                                return this;
+                            }
+                        }
+                    }
                 }
             }
         },
@@ -619,28 +685,27 @@ Ext.define('Mdc.controller.history.Setup', {
             action: 'showSearchItems'
         }
     },
+        tokenizePreviousTokens: function () {
+            return this.tokenizePath(this.getApplication().getController('Uni.controller.history.EventBus').previousPath);
+        },
 
-    tokenizePreviousTokens: function () {
-        return this.tokenizePath(this.getApplication().getController('Uni.controller.history.EventBus').previousPath);
-    },
+        tokenizeBrowse: function (item, id) {
+            if (id === undefined) {
+                return this.tokenize([this.rootToken, item]);
+            } else {
+                return this.tokenize([this.rootToken, item, id]);
+            }
+        },
 
-    tokenizeBrowse: function (item, id) {
-        if (id === undefined) {
-            return this.tokenize([this.rootToken, item]);
-        } else {
-            return this.tokenize([this.rootToken, item, id]);
+        tokenizeAddComserver: function () {
+            return this.tokenize([this.rootToken, 'comservers', 'create']);
+        },
+
+        tokenizeAddDeviceCommunicationProtocol: function () {
+            return this.tokenize([this.rootToken, 'devicecommunicationprotocols', 'create']);
+        },
+
+        tokenizeAddComPortPool: function () {
+            return this.tokenize([this.rootToken, 'comportpools', 'create']);
         }
-    },
-
-    tokenizeAddComserver: function () {
-        return this.tokenize([this.rootToken, 'comservers', 'create']);
-    },
-
-    tokenizeAddDeviceCommunicationProtocol: function () {
-        return this.tokenize([this.rootToken, 'devicecommunicationprotocols', 'create']);
-    },
-
-    tokenizeAddComPortPool: function () {
-        return this.tokenize([this.rootToken, 'comportpools', 'create']);
-    }
-});
+    });

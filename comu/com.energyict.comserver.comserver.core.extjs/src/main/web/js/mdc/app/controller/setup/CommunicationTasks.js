@@ -478,7 +478,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                             var json = Ext.decode(operation.response.responseText, true);
                             if (json && json.errors) {
                                 Ext.each(json.errors, function(error, index, errors) {
-                                    if(!Ext.isEmpty(error.id) && Ext.String.startsWith(error.id, 'temporalExpression')) {
+                                    if(!Ext.isEmpty(error.id) && Ext.String.startsWith(error.id, 'nextExecutionSpecs')) {
                                         error.id = 'nextExecutionSpecs';
                                     }
                                 });

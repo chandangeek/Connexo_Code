@@ -195,8 +195,8 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
                     var json = Ext.decode(operation.response.responseText);
                     if (json && json.errors) {
                         Ext.each(json.errors, function (error) {
-                            if (error.id === 'temporalExpression.every') {
-                                error.id = 'temporalExpression';
+                            if (error.id === 'nextExecutionSpecs.every') {
+                                error.id = 'nextExecutionSpecs';
                             }
                         });
                         me.getCommunicationScheduleEditForm().getForm().markInvalid(json.errors);

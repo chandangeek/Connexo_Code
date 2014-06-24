@@ -1,8 +1,9 @@
-Ext.define('Mdc.model.ConnectionMethod', {
+Ext.define('Mdc.model.DeviceConnectionMethod', {
     extend: 'Ext.data.Model',
     fields: [
         {name: 'id', type: 'int', useNull: true},
         {name: 'name', type: 'string', useNull: true},
+        {name: 'paused', type: 'boolean'},
         {name: 'direction', type: 'string', useNull: true},
         {name: 'allowSimultaneousConnections', type: 'boolean', useNull: true},
         {name: 'isDefault', type: 'boolean', useNull: true},
@@ -24,6 +25,6 @@ Ext.define('Mdc.model.ConnectionMethod', {
     ],
     proxy: {
         type: 'rest',
-        url: '../../api/dtc/devicetypes/{deviceType}/deviceconfigurations/{deviceConfig}/connectionmethods'
+        url: '../../api/ddr/devices/{mrid}/connectionmethods'
     }
 });

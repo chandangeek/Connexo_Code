@@ -11,7 +11,7 @@ Ext.define('Mdc.store.ConnectionMethodsOfDeviceConfiguration', {
         url: '../../api/dtc/devicetypes/{deviceType}/deviceconfigurations/{deviceConfig}/connectionmethods',
         reader: {
             type: 'json',
-            root: 'connectionMethods'
+            root: 'data'
         }
     }
 });

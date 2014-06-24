@@ -16,7 +16,7 @@ Ext.define('Mdc.store.ComServers',{
         url: '../../api/mdc/comservers',
         reader: {
             type: 'json',
-            root: 'comServers'
+            root: 'data'
         },
         simpleSortMode: true
     }

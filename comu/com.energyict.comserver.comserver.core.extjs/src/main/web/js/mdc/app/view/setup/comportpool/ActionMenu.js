@@ -1,6 +1,6 @@
-Ext.define('Mdc.view.setup.comserver.ActionMenu', {
+Ext.define('Mdc.view.setup.comportpool.ActionMenu', {
     extend: 'Ext.menu.Menu',
-    alias: 'widget.comserver-actionmenu',
+    alias: 'widget.comportpool-actionmenu',
     plain: true,
     border: false,
     shadow: false,
@@ -10,16 +10,6 @@ Ext.define('Mdc.view.setup.comserver.ActionMenu', {
             itemId: 'edit',
             text: 'Edit',
             action: 'edit'
-        },
-        {
-            itemId: 'activate',
-            text: 'Activate',
-            action: 'activate'
-        },
-        {
-            itemId: 'deactivate',
-            text: 'Deactivate',
-            action: 'deactivate'
         },
         {
             itemId: 'remove',

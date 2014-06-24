@@ -15,7 +15,8 @@ Ext.define('Mdc.view.setup.comserver.ComServerPreview', {
             itemId: 'actionButton',
             iconCls: 'x-uni-action-iconD',
             menu: {
-                xtype: 'comserver-actionmenu'
+                xtype: 'comserver-actionmenu',
+                itemId: 'comserverViewMenu'
             }
         }
     ],
@@ -45,7 +46,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerPreview', {
                     },
                     {
                         fieldLabel: Uni.I18n.translate('comserver.preview.serverLogLevel', 'MDC', 'Server log level'),
-                        name: 'communicationLogLevel'
+                        name: 'serverLogLevel'
                     },
                     {
                         fieldLabel: Uni.I18n.translate('comserver.preview.changesInterPollDelay', 'MDC', 'Changes inter poll delay'),
@@ -98,7 +99,6 @@ Ext.define('Mdc.view.setup.comserver.ComServerPreview', {
                     {
                         fieldLabel: Uni.I18n.translate('comserver.preview.communicationPortsLabel', 'MDC', 'Communication ports'),
                         name: 'comportslink'
-
                     }
                 ]
             }
