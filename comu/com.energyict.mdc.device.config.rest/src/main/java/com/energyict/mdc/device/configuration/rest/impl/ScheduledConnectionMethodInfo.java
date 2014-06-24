@@ -29,6 +29,9 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialS
         if (partialConnectionTask.getCommunicationWindow()!=null) {
             this.comWindowStart=partialConnectionTask.getCommunicationWindow().getStart().getMillis()/1000;
             this.comWindowEnd=partialConnectionTask.getCommunicationWindow().getEnd().getMillis()/1000;
+        } else {
+            this.comWindowStart=0;
+            this.comWindowEnd=0;
         }
         this.nextExecutionSpecs =partialConnectionTask.getNextExecutionSpecs()!=null?
                 TemporalExpressionInfo.from(partialConnectionTask.getNextExecutionSpecs().getTemporalExpression()):null;
@@ -61,7 +64,6 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialS
         TimeDuration rescheduleDelay = this.rescheduleRetryDelay == null ? null : this.rescheduleRetryDelay.asTimeDuration();
         PartialScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder = deviceConfiguration.newPartialScheduledConnectionTask(this.name, connectionTypePluggableClass, rescheduleDelay, this.connectionStrategy)
             .comPortPool((OutboundComPortPool) engineModelService.findComPortPool(this.comPortPool))
-            .comWindow(new ComWindow(this.comWindowStart, this.comWindowEnd))
             .asDefault(this.isDefault)
             .allowSimultaneousConnections(this.allowSimultaneousConnections);
         if (this.nextExecutionSpecs !=null) {
@@ -76,6 +78,9 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialS
                         .temporalExpression(this.nextExecutionSpecs.every.asTimeDuration(), this.nextExecutionSpecs.offset.asTimeDuration())
                         .set();
             }
+        }
+        if(this.comWindowStart!=null && this.comWindowEnd!=null){
+            scheduledConnectionTaskBuilder.comWindow(new ComWindow(this.comWindowStart, this.comWindowEnd));
         }
 
         addPropertiesToPartialConnectionTask(scheduledConnectionTaskBuilder, connectionTypePluggableClass);
