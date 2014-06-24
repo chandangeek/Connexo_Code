@@ -39,8 +39,8 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
     protected void writeTo(ScheduledConnectionTask scheduledConnectionTask, PartialConnectionTask partialConnectionTask, DeviceDataService deviceDataService, EngineModelService engineModelService, MdcPropertyUtils mdcPropertyUtils) {
         super.writeTo(scheduledConnectionTask, partialConnectionTask, deviceDataService, engineModelService, mdcPropertyUtils);
         writeCommonFields(scheduledConnectionTask, engineModelService);
-        scheduledConnectionTask.setNextExecutionSpecsFrom(this.nextExecutionSpecs != null ? nextExecutionSpecs.asTemporalExpression() : null); // This method is called separately here because
         scheduledConnectionTask.setConnectionStrategy(this.connectionStrategy);
+        scheduledConnectionTask.setNextExecutionSpecsFrom(this.nextExecutionSpecs != null ? nextExecutionSpecs.asTemporalExpression() : null); // This method is called separately here because
     }
 
     private void writeCommonFields(ScheduledConnectionTask scheduledConnectionTask, EngineModelService engineModelService) {
