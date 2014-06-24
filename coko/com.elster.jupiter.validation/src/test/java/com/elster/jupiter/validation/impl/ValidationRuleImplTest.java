@@ -4,6 +4,7 @@ import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ProcesStatus;
 import com.elster.jupiter.metering.ReadingQuality;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
@@ -65,7 +66,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
     @Mock
     private DataMapper<IValidationRule> ruleFactory;
     @Mock
-    private DataMapper<ValidationRuleProperties>  rulePropertiesFactory;
+    private DataMapper<ValidationRuleProperties> rulePropertiesFactory;
     @Mock
     private DataMapper<ReadingTypeInValidationRule> readingTypesInRuleFactory;
     @Mock
@@ -277,7 +278,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         validationRule.addReadingType(readingType2);
 
         doReturn(Arrays.asList(readingType3)).when(channel).getReadingTypes();
-        
+
         assertThat(validationRule.validateChannel(channel, INTERVAL)).isNull();
     }
 
@@ -288,20 +289,21 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         when(intervalReadingRecord.getTimeStamp()).thenReturn(DATE1);
         when(readingRecord.getTimeStamp()).thenReturn(DATE1);
         when(validator.validate(intervalReadingRecord)).thenReturn(ValidationResult.SUSPECT);
-        
-        when(channel.createReadingQuality(new ReadingQualityType("3.6."+ID), intervalReadingRecord)).thenReturn(readingQuality);
+
+        when(channel.createReadingQuality(new ReadingQualityType("3.6." + ID), intervalReadingRecord)).thenReturn(readingQuality);
         when(channel.isRegular()).thenReturn(true);
         validationRule.addReadingType(readingType1);
         validationRule.addReadingType(readingType2);
         validationRule.activate();
 
         doReturn(Arrays.asList(readingType2, readingType3)).when(channel).getReadingTypes();
-       
+
         assertThat(validationRule.validateChannel(channel, INTERVAL)).isEqualTo(DATE1);
 
         verify(validator).init(channel, readingType2, INTERVAL);
-        verify(channel).createReadingQuality(new ReadingQualityType("3.6."+ID), intervalReadingRecord);
+        verify(channel).createReadingQuality(new ReadingQualityType("3.6." + ID), intervalReadingRecord);
         verify(readingQuality).save();
+        verify(intervalReadingRecord).setProcessingFlags(ProcesStatus.Flag.SUSPECT);
     }
 
     @Test
@@ -310,21 +312,23 @@ public class ValidationRuleImplTest extends EqualsContractTest {
 
         when(channel.getIntervalReadings(readingType2, INTERVAL)).thenReturn(Collections.<IntervalReadingRecord>emptyList());
         when(channel.getRegisterReadings(readingType2, INTERVAL)).thenReturn(Arrays.asList(readingRecord));
+        when(channel.isRegular()).thenReturn(false);
         when(intervalReadingRecord.getTimeStamp()).thenReturn(DATE1);
         when(readingRecord.getTimeStamp()).thenReturn(DATE1);
         when(validator.validate(readingRecord)).thenReturn(ValidationResult.SUSPECT);
-        when(channel.createReadingQuality(new ReadingQualityType("3.6."+ID), readingRecord)).thenReturn(readingQuality);
+        when(channel.createReadingQuality(new ReadingQualityType("3.6." + ID), readingRecord)).thenReturn(readingQuality);
         validationRule.addReadingType(readingType1);
         validationRule.addReadingType(readingType2);
         validationRule.activate();
 
-        doReturn(Arrays.asList(readingType2,readingType3)).when(channel).getReadingTypes();
- 
+        doReturn(Arrays.asList(readingType2, readingType3)).when(channel).getReadingTypes();
+
         assertThat(validationRule.validateChannel(channel, INTERVAL)).isEqualTo(DATE1);
 
         verify(validator).init(channel, readingType2, INTERVAL);
-        verify(channel).createReadingQuality(new ReadingQualityType("3.6."+ID), readingRecord);
+        verify(channel).createReadingQuality(new ReadingQualityType("3.6." + ID), readingRecord);
         verify(readingQuality).save();
+        verify(readingRecord).setProcessingFlags(ProcesStatus.Flag.SUSPECT);
     }
 
     @Test
@@ -333,16 +337,18 @@ public class ValidationRuleImplTest extends EqualsContractTest {
 
         when(intervalReadingRecord.getTimeStamp()).thenReturn(DATE1);
         when(validator.validate(intervalReadingRecord)).thenReturn(ValidationResult.SUSPECT);
-        when(channel.createReadingQuality(new ReadingQualityType("3.6."+ID), intervalReadingRecord)).thenReturn(readingQuality);
+        when(channel.createReadingQuality(new ReadingQualityType("3.6." + ID), intervalReadingRecord)).thenReturn(readingQuality);
+        when(channel.isRegular()).thenReturn(true);
         validationRule.addReadingType(readingType1);
         validationRule.addReadingType(readingType2);
 
-        doReturn(Arrays.asList(readingType2,readingType3)).when(channel).getReadingTypes();
+        doReturn(Arrays.asList(readingType2, readingType3)).when(channel).getReadingTypes();
 
         assertThat(validationRule.validateChannel(channel, INTERVAL)).isNull();
 
         verify(validator, never()).init(channel, readingType2, INTERVAL);
-        verify(channel, never()).createReadingQuality(new ReadingQualityType("3.6."+ID), intervalReadingRecord);
+        verify(channel, never()).createReadingQuality(new ReadingQualityType("3.6." + ID), intervalReadingRecord);
+        verify(intervalReadingRecord, never()).setProcessingFlags(any(ProcesStatus.Flag.class));
     }
 
     @Test
@@ -353,6 +359,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         when(channel.getRegisterReadings(readingType1, INTERVAL)).thenReturn(Arrays.asList(readingRecord));
         when(channel.getIntervalReadings(readingType2, INTERVAL)).thenReturn(Collections.<IntervalReadingRecord>emptyList());
         when(channel.getRegisterReadings(readingType2, INTERVAL)).thenReturn(Arrays.asList(readingRecord));
+        when(channel.isRegular()).thenReturn(false);
         when(intervalReadingRecord.getTimeStamp()).thenReturn(DATE1);
         when(readingRecord.getTimeStamp()).thenReturn(DATE1);
         when(validator.validate(readingRecord)).thenReturn(ValidationResult.SUSPECT);
@@ -361,7 +368,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         validationRule.addReadingType(readingType2);
         validationRule.activate();
 
-        doReturn(Arrays.asList(readingType1,readingType2)).when(channel).getReadingTypes();
+        doReturn(Arrays.asList(readingType1, readingType2)).when(channel).getReadingTypes();
         //
         assertThat(validationRule.validateChannel(channel, INTERVAL)).isEqualTo(DATE1);
         verify(validator).init(channel, readingType2, INTERVAL);
@@ -369,6 +376,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         // @Todo check with Karel if this is ok.
         verify(channel, times(2)).createReadingQuality(new ReadingQualityType("3.6." + ID), readingRecord);
         verify(readingQuality, times(2)).save();
+        verify(readingRecord, times(2)).setProcessingFlags(ProcesStatus.Flag.SUSPECT);
     }
 
 }

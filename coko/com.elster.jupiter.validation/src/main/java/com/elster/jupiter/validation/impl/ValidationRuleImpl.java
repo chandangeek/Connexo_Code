@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ProcesStatus;
 import com.elster.jupiter.metering.ReadingQuality;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
@@ -48,19 +49,19 @@ import java.util.Objects;
 import java.util.Set;
 
 @XmlRootElement
-@UniqueName(groups = { Save.Create.class, Save.Update.class }, message = "{"+ Constants.DUPLICATE_VALIDATION_RULE+"}")
+@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.DUPLICATE_VALIDATION_RULE + "}")
 //@ValidValidationRule(groups = { Save.Create.class, Save.Update.class })
 final class ValidationRuleImpl implements ValidationRule, IValidationRule {
     private long id;
 
     @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.NAME_REQUIRED_KEY+"}")
-    @Pattern(regexp="[a-zA-Z0-9\\.\\-]+", groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.INVALID_CHARS+"}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")
+    @Pattern(regexp = "[a-zA-Z0-9\\.\\-]+", groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.INVALID_CHARS + "}")
     private String name;
     private boolean active;
     private ValidationAction action;
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.NAME_REQUIRED_KEY+"}")
-    @ExistingValidator(groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.NO_SUCH_VALIDATOR+"}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")
+    @ExistingValidator(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NO_SUCH_VALIDATOR + "}")
     private String implementation; //validator classname
 
     // associations
@@ -123,7 +124,7 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
     @Override
     public ReadingTypeInValidationRule addReadingType(String mRID) {
         Optional optional = meteringService.getReadingType(mRID);
-        if (!optional.isPresent())  {
+        if (!optional.isPresent()) {
             throw new InvalidReadingTypeException(this.thesaurus, mRID);
         }
         return addReadingType((ReadingType) optional.get());
@@ -204,7 +205,7 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
         return builder.build();
     }
 
-    public ReadingTypeInValidationRule getReadingTypeInRule(ReadingType readingType){
+    public ReadingTypeInValidationRule getReadingTypeInRule(ReadingType readingType) {
         for (ReadingTypeInValidationRule readingTypeInValidationRule : readingTypesInRule) {
             if (readingTypeInValidationRule.getReadingType().equals(readingType)) {
                 return readingTypeInValidationRule;
@@ -320,7 +321,7 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
     }
 
     private List<ReadingTypeInValidationRule> loadReadingTypesInValidationRule() {
-        return readingTypesInRuleFactory().find("ruleId",this.getId());
+        return readingTypesInRuleFactory().find("ruleId", this.getId());
     }
 
     private Validator newValidator(Channel channel, Interval interval, ReadingType channelReadingType) {
@@ -383,6 +384,7 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
         Optional<ReadingQuality> existingQualityForType = getExistingReadingQualitiesForType(existingReadingQualities, readingQualityType, readingRecord.getTimeStamp());
         if (ValidationResult.SUSPECT.equals(result) && !existingQualityForType.isPresent()) {
             saveNewReadingQuality(channel, readingRecord, readingQualityType);
+            readingRecord.setProcessingFlags(ProcesStatus.Flag.SUSPECT);
         }
         if (ValidationResult.PASS.equals(result) && existingQualityForType.isPresent()) {
             existingQualityForType.get().delete();
