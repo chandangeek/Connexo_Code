@@ -9,9 +9,9 @@ Ext.define('Uni.override.JsonWriterOverride', {
      * @param record
      * @returns {*}
      */
-    getRecordData: function (record) {
-        Ext.apply(record.data, record.getAssociatedData());
-        return record.data;
+    getRecordData: function (record, operation) {
+     //   Ext.apply(record.data, record.getAssociatedData());
+        return record.getWriteData(true, true);
     }
 
 });
