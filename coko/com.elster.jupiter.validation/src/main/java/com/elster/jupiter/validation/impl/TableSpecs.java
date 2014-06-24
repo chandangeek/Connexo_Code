@@ -10,7 +10,6 @@ import com.elster.jupiter.validation.ValidationRuleProperties;
 import com.elster.jupiter.validation.ValidationRuleSet;
 
 import static com.elster.jupiter.orm.ColumnConversion.*;
-import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
 
 public enum TableSpecs {
@@ -37,12 +36,12 @@ public enum TableSpecs {
             table.setJournalTableName("VAL_VALIDATIONRULEJRNL");
             Column idColumn = table.addAutoIdColumn();
             table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("active").add();
-            table.column("ACTION").type("number").notNull().conversion(NUMBER2ENUM).map("action").add();
-            table.column("IMPLEMENTATION").type("varchar2(80)").map("implementation").add();
-            Column ruleSetIdColumn = table.column("RULESETID").type("number").notNull().conversion(NUMBER2LONG).map("ruleSetId").add();
-            table.column("POSITION").type("number").notNull().conversion(NUMBER2INT).map("position").add();
-            table.column("NAME").type("varchar2(80)").notNull().map("name").add();
-            table.column("OBSOLETE_TIME").map("obsoleteTime").type("number").conversion(NUMBER2UTCINSTANT).add();
+            table.column("ACTION").number().notNull().conversion(NUMBER2ENUM).map("action").add();
+            table.column("IMPLEMENTATION").varChar(80).map("implementation").add();
+            Column ruleSetIdColumn = table.column("RULESETID").number().notNull().conversion(NUMBER2LONG).map("ruleSetId").add();
+            table.column("POSITION").number().notNull().conversion(NUMBER2INT).map("position").add();
+            table.column("NAME").varChar(80).notNull().map("name").add();
+            table.column("OBSOLETE_TIME").map("obsoleteTime").number().conversion(NUMBER2UTCINSTANT).add();
             table.addAuditColumns();
             table.primaryKey("VAL_PK_VALIDATIONRULE").on(idColumn).add();
             table.foreignKey("VAL_FK_RULE").references("VAL_VALIDATIONRULESET").onDelete(RESTRICT).map("ruleSet").on(ruleSetIdColumn).add();
@@ -53,8 +52,8 @@ public enum TableSpecs {
         void describeTable(Table table) {
             table.map(ValidationRulePropertiesImpl.class);
             table.setJournalTableName("VAL_VALIDATIONRULEPROPSJRNL");
-            Column ruleIdColumn = table.column("RULEID").type("number").notNull().conversion(NUMBER2LONG).add();
-            Column nameColumn = table.column("NAME").type("varchar2(80)").notNull().map("name").add();
+            Column ruleIdColumn = table.column("RULEID").number().notNull().conversion(NUMBER2LONG).add();
+            Column nameColumn = table.column("NAME").varChar(80).notNull().map("name").add();
             table.addQuantityColumns("VALUE", true, "value");
             table.primaryKey("VAL_PK_VALRULEPROPS").on(ruleIdColumn, nameColumn).add();
             table.foreignKey("VAL_FK_RULEPROPS").references("VAL_VALIDATIONRULE").onDelete(RESTRICT).map("rule").reverseMap("properties").composition().on(ruleIdColumn).add();

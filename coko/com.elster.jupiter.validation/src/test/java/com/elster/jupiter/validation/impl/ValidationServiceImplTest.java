@@ -11,7 +11,9 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
@@ -88,7 +90,7 @@ public class ValidationServiceImplTest {
     @Mock
     private javax.validation.Validator javaxValidator;
     @Mock
-    private QueryExecutor queryExecutor;
+    private QueryExecutor<IValidationRule> validationRuleQueryExecutor;
     @Mock
     private ValidationRuleSetResolver validationRuleSetResolver;
     @Mock
@@ -103,7 +105,7 @@ public class ValidationServiceImplTest {
         when(dataModel.mapper(MeterActivationValidation.class)).thenReturn(meterActivationValidationFactory);
         when(dataModel.mapper(ChannelValidation.class)).thenReturn(channelValidationFactory);
         when(nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(thesaurus);
-        when(dataModel.query(IValidationRule.class)).thenReturn(queryExecutor);
+        when(dataModel.query(IValidationRule.class)).thenReturn(validationRuleQueryExecutor);
 
         validationService = new ValidationServiceImpl();
         validationService.setOrmService(ormService);

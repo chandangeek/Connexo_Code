@@ -1,6 +1,5 @@
 package com.elster.jupiter.validation.impl;
 
-import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ReadingType;
@@ -22,20 +21,26 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @XmlRootElement
-@UniqueName(groups = { Save.Create.class, Save.Update.class }, message = "{"+ Constants.DUPLICATE_VALIDATION_RULE_SET+"}")
+@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.DUPLICATE_VALIDATION_RULE_SET + "}")
 public final class ValidationRuleSetImpl implements IValidationRuleSet {
 
     private long id;
     private String mRID;
 
     @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")
-    @Pattern(regexp="[a-zA-Z0-9\\.\\-]+", groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.INVALID_CHARS+"}")
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+Constants.NAME_REQUIRED_KEY+"}")
+    @Pattern(regexp = "[a-zA-Z0-9\\.\\-]+", groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.INVALID_CHARS + "}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")
     private String name;
     private String aliasName;
     private String description;
@@ -221,16 +226,16 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     }
 
     private List<IValidationRule> doGetRules() {
-        if(rules == null) {
+        if (rules == null) {
             rules = loadRules();
         }
-        return  rules;
+        return rules;
     }
 
     private IValidationRule doGetRule(long id) {
         IValidationRule rule = null;
         doGetRules();
-        for(IValidationRule singleRule : rules) {
+        for (IValidationRule singleRule : rules) {
             if (singleRule.getId() == id) {
                 return singleRule;
             }
@@ -267,10 +272,10 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
         rule.rename(name);
         rule.setImplementation(implementation);
         Set<ReadingType> readingTypeList = rule.getReadingTypes();
-        for(ReadingType type : readingTypeList) {
+        for (ReadingType type : readingTypeList) {
             rule.deleteReadingType(type);
         }
-        for(String mRID : mRIDs) {
+        for (String mRID : mRIDs) {
             rule.addReadingType(mRID);
         }
         rule.setProperties(properties);
@@ -280,8 +285,8 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
 
     @Override
     public void deleteRule(ValidationRule rule) {
-        IValidationRule iRule = (IValidationRule)rule;
-        if(doGetRules().contains(iRule)) {
+        IValidationRule iRule = (IValidationRule) rule;
+        if (doGetRules().contains(iRule)) {
             iRule.delete();
         } else {
             throw new IllegalArgumentException("The rulset " + this.getId() + " doesn't contain provided ruleId: " + rule.getId());
@@ -327,7 +332,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
         return getObsoleteTime() != null ? getObsoleteTime().toDate() : null;
     }
 
-    private  UtcInstant getObsoleteTime() {
+    private UtcInstant getObsoleteTime() {
         return this.obsoleteTime;
     }
 

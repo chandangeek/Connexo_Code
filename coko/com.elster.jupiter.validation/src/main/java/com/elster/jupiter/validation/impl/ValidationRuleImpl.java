@@ -1,6 +1,7 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
@@ -10,9 +11,6 @@ import com.elster.jupiter.metering.ReadingQuality;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.*;
-import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
@@ -46,7 +44,6 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -132,7 +129,7 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
         DiffList<ValidationRuleProperties> entryDiff = ArrayDiffList.fromOriginal(getProperties());
         entryDiff.clear();
         List<ValidationRuleProperties> newProperties = new ArrayList<>();
-        for(Map.Entry<String, Quantity> property : propertyMap.entrySet()) {
+        for (Map.Entry<String, Quantity> property : propertyMap.entrySet()) {
             ValidationRulePropertiesImpl newProperty = ValidationRulePropertiesImpl.from(dataModel, this, property.getKey(), property.getValue());
             newProperties.add(newProperty);
         }
@@ -402,7 +399,7 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
     }
 
     private List<ReadingTypeInValidationRule> loadReadingTypesInValidationRule() {
-        return readingTypesInRuleFactory().find("ruleId",this.getId());
+        return readingTypesInRuleFactory().find("ruleId", this.getId());
     }
 
     private Validator newValidator(Channel channel, Interval interval, ReadingType channelReadingType) {
