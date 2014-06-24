@@ -4,7 +4,6 @@ import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.RemoteComServer;
-import org.codehaus.jackson.annotate.JsonTypeInfo;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
@@ -18,8 +17,8 @@ public class RemoteComServerInfo extends ComServerInfo<RemoteComServer> {
     /**
      * Create Info based on comserver properties and comports
      */
-    public RemoteComServerInfo(final RemoteComServer remoteComServer, List<ComPort> comPorts) {
-        super(remoteComServer, comPorts);
+    public RemoteComServerInfo(final RemoteComServer remoteComServer, List<ComPort> comPorts, EngineModelService engineModelService) {
+        super(remoteComServer, comPorts, engineModelService);
         readFrom(remoteComServer);
     }
 

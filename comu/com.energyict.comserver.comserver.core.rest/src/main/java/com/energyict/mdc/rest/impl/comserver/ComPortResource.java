@@ -41,19 +41,19 @@ public class ComPortResource {
                 Optional<ComServer> comServer = Optional.fromNullable(engineModelService.findComServer(Integer.parseInt(comserverIdProperty.get())));
                 List<ComPort> comPorts = comServer.get().getComPorts();
                 for (ComPort comPort : comPorts) {
-                    comPortInfos.add(ComPortInfoFactory.asInfo(comPort));
+                    comPortInfos.add(ComPortInfoFactory.asInfo(comPort, engineModelService));
                 }
             } else if (directionProperty.isPresent()){
                 List<? extends ComPort> comPorts = ("inbound".equals(directionProperty.get()))?
                         engineModelService.findAllInboundComPorts():
                         engineModelService.findAllOutboundComPorts();
                 for (ComPort comPort : comPorts) {
-                    comPortInfos.add(ComPortInfoFactory.asInfo(comPort));
+                    comPortInfos.add(ComPortInfoFactory.asInfo(comPort, engineModelService));
                 }
             }
         } else {
             for (ComPort comPort : engineModelService.findAllComPortsWithDeleted()) {
-                comPortInfos.add(ComPortInfoFactory.asInfo(comPort));
+                comPortInfos.add(ComPortInfoFactory.asInfo(comPort, engineModelService));
             }
         }
         return PagedInfoList.asJson("data", comPortInfos, queryParameters);
@@ -68,7 +68,7 @@ public class ComPortResource {
             throw new WebApplicationException("No ComPort with id "+id,
                 Response.status(Response.Status.NOT_FOUND).entity("No ComPort with id "+id).build());
         }
-        return ComPortInfoFactory.asInfo(comPort.get());
+        return ComPortInfoFactory.asInfo(comPort.get(), engineModelService);
     }
 
 }

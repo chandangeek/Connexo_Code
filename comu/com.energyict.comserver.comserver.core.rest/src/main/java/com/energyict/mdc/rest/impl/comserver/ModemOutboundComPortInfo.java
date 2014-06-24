@@ -1,5 +1,6 @@
 package com.energyict.mdc.rest.impl.comserver;
 
+import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 
@@ -9,7 +10,7 @@ public class ModemOutboundComPortInfo extends OutboundComPortInfo {
         this.comPortType = ComPortType.SERIAL;
     }
 
-    public ModemOutboundComPortInfo(OutboundComPort comPort) {
-        super(comPort);
+    public ModemOutboundComPortInfo(OutboundComPort comPort, EngineModelService engineModelService) {
+        super(comPort, engineModelService);
     }
 }

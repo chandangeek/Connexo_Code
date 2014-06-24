@@ -32,7 +32,7 @@ public class ComPortPoolResource {
     public ComPortPoolInfo getComPortPool(@PathParam("id") int id) {
         Optional<ComPortPool> comPortPool = Optional.fromNullable(engineModelService.findComPortPool(id));
         if (comPortPool.isPresent()) {
-            return ComPortPoolInfoFactory.asInfo(comPortPool.get());
+            return ComPortPoolInfoFactory.asInfo(comPortPool.get(), engineModelService);
         }
 
         throw new WebApplicationException("No ComPortPool with id "+id, Response.status(Response.Status.NOT_FOUND).entity("No ComPortPool with id "+id).build());
@@ -44,7 +44,7 @@ public class ComPortPoolResource {
         List<? super ComPortPoolInfo> comPortPoolInfos = new ArrayList<>();
         List<ComPortPool> allComPortPools = engineModelService.findAllComPortPools();
         for (ComPortPool comPortPool : allComPortPools) {
-            comPortPoolInfos.add(ComPortPoolInfoFactory.asInfo(comPortPool));
+            comPortPoolInfos.add(ComPortPoolInfoFactory.asInfo(comPortPool, engineModelService));
         }
         return PagedInfoList.asJson("data", comPortPoolInfos, queryParameters);
     }
@@ -68,7 +68,7 @@ public class ComPortPoolResource {
         ComPortPool comPortPool = comPortPoolInfo.writeTo(comPortPoolInfo.createNew(engineModelService), protocolPluggableService);
         comPortPool.save();
         comPortPoolInfo.handlePools(comPortPool, engineModelService);
-        return Response.status(Response.Status.CREATED).entity(ComPortPoolInfoFactory.asInfo(comPortPool)).build();
+        return Response.status(Response.Status.CREATED).entity(ComPortPoolInfoFactory.asInfo(comPortPool, engineModelService)).build();
     }
 
     @PUT
@@ -83,7 +83,7 @@ public class ComPortPoolResource {
         comPortPoolInfo.writeTo(comPortPool.get(), protocolPluggableService);
         comPortPoolInfo.handlePools(comPortPool.get(), engineModelService);
         comPortPool.get().save();
-        return ComPortPoolInfoFactory.asInfo(comPortPool.get());
+        return ComPortPoolInfoFactory.asInfo(comPortPool.get(), engineModelService);
     }
 
 }

@@ -17,8 +17,8 @@ public class OfflineComServerInfo extends ComServerInfo<OfflineComServer> {
         super(comServer);
     }
 
-    public OfflineComServerInfo(OfflineComServer comServer, List<ComPort> comPorts) {
-        super(comServer, comPorts);
+    public OfflineComServerInfo(OfflineComServer comServer, List<ComPort> comPorts, EngineModelService engineModelService) {
+        super(comServer, comPorts, engineModelService);
     }
 
     @Override
