@@ -127,10 +127,10 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             success: function () {
                 me.handleSuccessRequest('Channel was removed successfully');
                 me.store.load();
-            },
-            failure: function (result, request) {
-                me.handleFailureRequest(result, "Error during removing of channel", 'removeloadprofileconfigurationdetailchannelconfirm');
             }
+//            failure: function (result, request) {
+//                me.handleFailureRequest(result, "Error during removing of channel", 'removeloadprofileconfigurationdetailchannelconfirm');
+//            }
         });
     },
 
