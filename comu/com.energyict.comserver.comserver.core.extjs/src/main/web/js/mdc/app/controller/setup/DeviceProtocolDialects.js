@@ -42,6 +42,9 @@ Ext.define('Mdc.controller.setup.DeviceProtocolDialects', {
             },
             '#addEditButton[action=editDeviceProtocolDialect]': {
                 click: this.editProtocolDialect
+            },
+            '#restoreAllButton[action=restoreAll]': {
+                click: this.restoreAllDefaults
             }
         });
     },
@@ -65,20 +68,29 @@ Ext.define('Mdc.controller.setup.DeviceProtocolDialects', {
     },
 
     previewProtocolDialect: function (grid, record) {
+        var me = this;
         var protocolDialect = this.getDeviceProtocolDialectsGrid().getSelectionModel().getSelection();
         if (protocolDialect.length === 1) {
-            this.getDeviceProtocolDialectPreviewForm().loadRecord(protocolDialect[0]);
-            var protocolDialectName = protocolDialect[0].get('name');
-            this.getDeviceProtocolDialectPreview().getLayout().setActiveItem(1);
-            if (protocolDialect[0].propertiesStore.data.items.length > 0) {
-                this.getProtocolDialectsDetailsTitle().setVisible(true);
-            } else {
-                this.getProtocolDialectsDetailsTitle().setVisible(false);
-            }
-            this.getPropertiesViewController().showProperties(protocolDialect[0], this.getDeviceProtocolDialectPreview());
-            this.getDeviceProtocolDialectPreview().setTitle(protocolDialectName);
+            var protocolDialectId = protocolDialect[0].get('id');
+            var model = Ext.ModelManager.getModel('Mdc.model.DeviceProtocolDialect');
+            model.getProxy().extraParams = ({mRID: me.mRID});
+            model.load(protocolDialectId, {
+                    success: function (deviceProtocolDialect) {
+                        me.getDeviceProtocolDialectPreviewForm().loadRecord(deviceProtocolDialect);
+                        var protocolDialectName = deviceProtocolDialect.get('name');
+                        me.getDeviceProtocolDialectPreview().getLayout().setActiveItem(1);
+                        if (deviceProtocolDialect.propertiesStore.data.items.length > 0) {
+                            me.getProtocolDialectsDetailsTitle().setVisible(true);
+                        } else {
+                            me.getProtocolDialectsDetailsTitle().setVisible(false);
+                        }
+                        me.getPropertiesViewController().showProperties(deviceProtocolDialect, me.getDeviceProtocolDialectPreview());
+                        me.getDeviceProtocolDialectPreview().setTitle(protocolDialectName);
+                    }
+                }
+            );
         } else {
-            this.getDeviceProtocolDialectPreview().getLayout().setActiveItem(0);
+            me.getDeviceProtocolDialectPreview().getLayout().setActiveItem(0);
         }
     },
 
@@ -150,6 +162,10 @@ Ext.define('Mdc.controller.setup.DeviceProtocolDialects', {
                 }
             });
         }
+    },
+
+    restoreAllDefaults: function () {
+        this.getPropertiesController().restoreAllDefaults();
     }
 
 });

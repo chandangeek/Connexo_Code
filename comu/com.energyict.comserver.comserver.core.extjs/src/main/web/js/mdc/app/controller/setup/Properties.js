@@ -574,8 +574,6 @@ Ext.define('Mdc.controller.setup.Properties', {
                         propertyValue.set('value', value);
                         property.setPropertyValue(propertyValue);
                     }
-                    //delete property.data.isInheritedOrDefaultValue;
-                    //delete property.setPropertyType(null);
                 }
             );
         }
@@ -592,8 +590,6 @@ Ext.define('Mdc.controller.setup.Properties', {
                         propertyValue.data.value = value;
                         property.setPropertyValue(propertyValue);
                     }
-                  //  delete property.data.isInheritedOrDefaultValue;
-                  //  delete property.setPropertyType(null);
                 }
             );
         }
@@ -638,8 +634,18 @@ Ext.define('Mdc.controller.setup.Properties', {
 
     showErrors: function (errors) {
         this.getPropertiesForm().getForm().markInvalid(errors);
-    }
+    },
 
-})
-;
+    restoreAllDefaults: function () {
+        var me = this;
+        var restoreAllButtons = Ext.ComponentQuery.query('defaultButton');
+        if (restoreAllButtons != null) {
+            restoreAllButtons.forEach(function (restoreButton) {
+                if (restoreButton.isVisible()) {
+                    me.restoreDefaultProperty(restoreButton);
+                }
+            })
+        }
+    }
+});
 
