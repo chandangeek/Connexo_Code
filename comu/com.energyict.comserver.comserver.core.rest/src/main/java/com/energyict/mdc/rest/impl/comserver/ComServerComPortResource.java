@@ -65,28 +65,6 @@ public class ComServerComPortResource {
         return ComPortInfoFactory.asInfo(comPort, engineModelService);
     }
 
-    @POST
-    @Path("/outbound")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public ComPortInfo createOutboundComPort(@PathParam("comServerId") long comServerId, OutboundComPortInfo comPortInfo) {
-        ComServer comServer = findComServerOrThrowException(comServerId);
-        ComPort newComPort = comPortInfo.createNew(comServer, engineModelService);
-        return ComPortInfoFactory.asInfo(newComPort, engineModelService);
-    }
-
-    @PUT
-    @Path("/outbound/{id}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public ComPortInfo updateOutboundComPort(@PathParam("comServerId") long comServerId, @PathParam("id") long id, OutboundComPortInfo comPortInfo) {
-        ComServer comServer = findComServerOrThrowException(comServerId);
-        ComPort comPort = findComPortOrThrowException(comServer, id);
-        comPortInfo.writeTo((OutboundComPort) comPort, engineModelService);
-        comPort.save();
-        return ComPortInfoFactory.asInfo(comPort, engineModelService);
-    }
-
     @DELETE
     @Path("/{id}")
     public Response removeComPort(@PathParam("comServerId") long comServerId, @PathParam("id") long id) {

@@ -117,7 +117,7 @@ public class ComPortPoolResourceTest extends JerseyTest {
         assertThat(comPortPool1)
                 .contains(MapEntry.entry("id", 1))
                 .contains(MapEntry.entry("name", "Test"))
-                .contains(MapEntry.entry("direction", "inbound"))
+                .contains(MapEntry.entry("direction", "Inbound"))
                 .contains(MapEntry.entry("active", false))
                 .contains(MapEntry.entry("obsoleteFlag", false))
                 .contains(MapEntry.entry("type", "TCP"))
@@ -144,7 +144,7 @@ public class ComPortPoolResourceTest extends JerseyTest {
         assertThat(comPortPool1)
                 .contains(MapEntry.entry("id", 1))
                 .contains(MapEntry.entry("name", "Test"))
-                .contains(MapEntry.entry("direction", "outbound"))
+                .contains(MapEntry.entry("direction", "Outbound"))
                 .contains(MapEntry.entry("active", false))
                 .contains(MapEntry.entry("obsoleteFlag", false))
                 .contains(MapEntry.entry("type", "TCP"));
@@ -161,7 +161,7 @@ public class ComPortPoolResourceTest extends JerseyTest {
         inboundComPortPoolInfo.name="new";
         ObjectMapper objectMapper = new ObjectMapper();
         String response = objectMapper.writeValueAsString(inboundComPortPoolInfo);
-        assertThat(response).contains("\"direction\"", "\"inbound\"");
+        assertThat(response).contains("\"direction\"", "\"Inbound\"");
     }
 
     @Test
@@ -170,7 +170,7 @@ public class ComPortPoolResourceTest extends JerseyTest {
         outboundComPortPoolInfo.name="new";
         ObjectMapper objectMapper = new ObjectMapper();
         String response = objectMapper.writeValueAsString(outboundComPortPoolInfo);
-        assertThat(response).contains("\"direction\"", "\"outbound\"");
+        assertThat(response).contains("\"direction\"", "\"Outbound\"");
     }
 
     @Test
