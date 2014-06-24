@@ -15,8 +15,8 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
 @XmlRootElement
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "direction")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = InboundComPortPoolInfo.class, name = "inbound"),
-        @JsonSubTypes.Type(value = OutboundComPortPoolInfo.class, name = "outbound")})
+        @JsonSubTypes.Type(value = InboundComPortPoolInfo.class, name = "Inbound"),
+        @JsonSubTypes.Type(value = OutboundComPortPoolInfo.class, name = "Outbound")})
 public abstract class ComPortPoolInfo<S extends ComPortPool> {
     public long id;
     public String name;
