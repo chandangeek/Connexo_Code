@@ -1,5 +1,5 @@
 Ext.define('Cfg.view.validation.RulePreview', {
-    extend: 'Ext.panel.Panel',
+    extend: 'Ext.form.Panel',
     xtype: 'validation-rule-preview',
     itemId: 'rulePreview',
     frame: true,
@@ -9,12 +9,11 @@ Ext.define('Cfg.view.validation.RulePreview', {
         'Cfg.view.validation.RuleActionMenu'
     ],
 
-    layout: {
-        type: 'card',
-        align: 'stretch'
-    },
-
     title: 'Details',
+
+    layout: {
+        type: 'vbox'
+    },
 
     tools: [
         {
@@ -27,73 +26,52 @@ Ext.define('Cfg.view.validation.RulePreview', {
         }
     ],
 
+    defaults: {
+        xtype: 'displayfield',
+        labelWidth: 250
+    },
+
     items: [
         {
-            xtype: 'panel',
-            border: false,
-            tbar: [
-                {
-                    xtype: 'component',
-                    html: '<H4>' + Uni.I18n.translate('validation.noRuleSelected', 'MDC', 'No rule selected') + '</H4>'
-                }
-            ],
-            items: [
-                {
-                    xtype: 'component',
-                    height: '100px',
-                    html: '<H5>' + Uni.I18n.translate('validation.selectRule', 'MDC', 'Select a rule to see its details') + '</H5>'
-                }
-            ]
+            name: 'name',
+            fieldLabel: Uni.I18n.translate('validation.name', 'CFG', 'Name')
         },
         {
-            xtype: 'form',
-            border: false,
-            itemId: 'ruleForm',
-            layout: {
-                type: 'vbox'
-            },
-
-            defaults: {
-                xtype: 'displayfield',
-                labelWidth: 250
-            },
-
-            items: [
-                {
-                    name: 'name',
-                    fieldLabel: Uni.I18n.translate('validation.name', 'CFG', 'Name')
-                },
-                {
-                    name: 'displayName',
-                    fieldLabel: Uni.I18n.translate('validation.Rule', 'CFG', 'Rule')
-                },
-                {
-                    name: 'active',
-                    fieldLabel: Uni.I18n.translate('validation.active', 'CFG', 'Active'),
-                    renderer: function (value) {
-                        if (value) {
-                            return Uni.I18n.translate('general.yes', 'CFG', 'Yes');
-                        } else {
-                            return Uni.I18n.translate('general.no', 'CFG', 'No');
-                        }
-                    }
-                },
-                {
-                    xtype: 'container',
-                    itemId: 'readingTypesArea',
-                    items: []
-                },
-                {
-                    xtype: 'container',
-                    margin: '5 0 0 0',
-                    itemId: 'propertiesArea',
-                    items: []
+            name: 'displayName',
+            fieldLabel: Uni.I18n.translate('validation.Rule', 'CFG', 'Rule')
+        },
+        {
+            name: 'active',
+            fieldLabel: Uni.I18n.translate('validation.active', 'CFG', 'Active'),
+            renderer: function (value) {
+                if (value) {
+                    return Uni.I18n.translate('general.yes', 'CFG', 'Yes');
+                } else {
+                    return Uni.I18n.translate('general.no', 'CFG', 'No');
                 }
-            ]
+            }
+        },
+        {
+            xtype: 'container',
+            itemId: 'readingTypesArea',
+            items: []
+        },
+        {
+            xtype: 'container',
+            margin: '5 0 0 0',
+            itemId: 'propertiesArea',
+            items: []
         }
     ],
 
     initComponent: function () {
         this.callParent(arguments);
+    },
+
+    updateValidationRule: function (validationRule) {
+        var me = this;
+
+        me.loadRecord(validationRule);
+        me.setTitle(validationRule.get('name'));
     }
 });

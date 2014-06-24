@@ -424,7 +424,7 @@ Ext.define('Cfg.controller.Validation', {
             },
             callback: function () {
                 var selectedRuleSet = ruleSetsStore.getByInternalId(id);
-                var ruleSetName = selectedRuleSet.get("name");
+                var ruleSetName = selectedRuleSet.get('name');
 
                 if (Ext.ComponentQuery.query('#rulesContainer').length == 0) {
                     var rulesContainerWidget = Ext.create('Cfg.view.validation.RulesContainer', {ruleSetId: id});
@@ -476,17 +476,18 @@ Ext.define('Cfg.controller.Validation', {
 
     previewValidationRule: function (grid, record) {
         var selectedRules = this.getRulesGrid().getSelectionModel().getSelection();
-        if (selectedRules.length == 1) {
+
+        if (selectedRules.length === 1) {
             var selectedRule = selectedRules[0];
+
             this.ruleId = selectedRule.internalId;
-            this.getRuleForm().loadRecord(selectedRule);
-            this.getRulePreview().getLayout().setActiveItem(1);
-            this.getRulePreview().setTitle(selectedRule.get("name"));
             this.addProperties(selectedRule);
             this.addReadingTypes(selectedRule);
+
+            this.getRulePreview().updateValidationRule(selectedRule)
             this.getRulePreview().show();
         } else {
-            this.getRulePreview().getLayout().setActiveItem(0);
+            this.getRulePreview().hide();
         }
     },
 
@@ -511,9 +512,7 @@ Ext.define('Cfg.controller.Validation', {
                     labelWidth: 250
                 }
             );
-
         }
-
     },
 
     addReadingTypes: function (selectedRule) {
