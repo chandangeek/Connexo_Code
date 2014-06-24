@@ -178,7 +178,7 @@ public class ValidationResource {
                             for (ValidationRulePropertyInfo propertyInfo : info.properties) {
                                 propertyMap.put(propertyInfo.name, Unit.WATT_HOUR.amount(propertyInfo.value));
                             }
-                            rule = set.updateRule(info.id, info.name, info.implementation, mRIDs, propertyMap);
+                            rule = set.updateRule(info.id, info.name, info.implementation, info.active, mRIDs, propertyMap);
                             if (rule == null) {
                                 throw new WebApplicationException(Response.Status.NOT_FOUND);
                             }
