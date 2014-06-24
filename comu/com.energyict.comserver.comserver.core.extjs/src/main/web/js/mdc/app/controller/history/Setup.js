@@ -421,6 +421,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             route: '{id}',
                             controller: 'Mdc.controller.setup.ComServerOverview',
                             action: 'showOverview',
+                            redirect: 'administration/comservers/detail/overview',
                             callback: function (route) {
                                 this.getApplication().on('comServerOverviewLoad', function (record) {
                                     route.setTitle(record.get('name'));
@@ -428,14 +429,14 @@ Ext.define('Mdc.controller.history.Setup', {
                                 }, {single: true});
                                 return this;
                             },
-                            items: [
-                                {
+                            items: {
+                                overview: {
                                     title: 'Overview',
                                     route: 'overview',
                                     controller: 'Mdc.controller.setup.ComServerOverview',
                                     action: 'showOverview'
                                 }
-                            ]
+                            }
                         }
                     }
                 },

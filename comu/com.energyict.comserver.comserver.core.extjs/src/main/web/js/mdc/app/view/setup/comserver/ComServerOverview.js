@@ -95,6 +95,10 @@ Ext.define('Mdc.view.setup.comserver.ComServerOverview', {
                                 val ? val = val.count + ' ' + val.timeUnit : null;
                                 return val;
                             }
+                        },
+                        {
+                            fieldLabel: Uni.I18n.translate('comserver.preview.communicationPortsLabel', 'MDC', 'Communication ports'),
+                            name: 'comportslink'
                         }
                     ]
                 }

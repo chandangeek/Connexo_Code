@@ -79,11 +79,13 @@ Ext.define('Mdc.controller.setup.ComServersView', {
 
         if (activeChange != 'notChanged') {
             record.set('active', activeChange);
-            delete record.data.comportslink;
             record.save({
                 callback: function (model) {
+                    var msg = activeChange ? Uni.I18n.translate('comServer.changeState.activated', 'MDC', 'activated') :
+                        Uni.I18n.translate('comServer.changeState.deactivated', 'MDC', 'deactivated');
                     gridView.refresh();
                     form.loadRecord(model);
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comServer.changeState.msg', 'MDC', 'Communication server has been ' + msg));
                 }
             });
         }

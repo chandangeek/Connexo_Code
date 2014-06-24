@@ -127,10 +127,10 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             success: function () {
                 me.handleSuccessRequest('Channel was removed successfully');
                 me.store.load();
-            },
-            failure: function (result, request) {
-                me.handleFailureRequest(result, "Error during removing of channel", 'removeloadprofileconfigurationdetailchannelconfirm');
             }
+//            failure: function (result, request) {
+//                me.handleFailureRequest(result, "Error during removing of channel", 'removeloadprofileconfigurationdetailchannelconfirm');
+//            }
         });
     },
 
@@ -340,6 +340,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                 widget.down('loadProfileConfigurationDetailChannelGrid').getStore().on('load', function () {
                                     if (me.store.getTotalCount() < 1) {
                                         me.getPage().down('#emptyPanel').show();
+                                        me.getPage().down('#loadProfileConfigurationDetailDockedItems').hide();
                                         me.getPage().down('#loadProfileConfigurationDetailChannelGridContainer').hide();
                                         me.getPage().down('#loadProfileConfigurationDetailChannelPreviewContainer').hide();
                                         me.getPage().down('#separator').hide();
