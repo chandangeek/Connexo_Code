@@ -323,6 +323,21 @@ Ext.define('Mdc.controller.history.Setup', {
                                                             action: 'showProtocolDialectsEditView'
                                                         }
                                                     }
+                                                },
+                                                // Validation rule sets
+                                                validationrulesets: {
+                                                    title: 'Validation rule sets',
+                                                    route: 'validationrulesets',
+                                                    controller: 'Mdc.controller.setup.ValidationRuleSets',
+                                                    action: 'showValidationRuleSetsOverview',
+                                                    items: {
+                                                        add: {
+                                                            title: 'Add validation rule sets',
+                                                            route: 'add',
+                                                            controller: 'Mdc.controller.setup.ValidationRuleSets',
+                                                            action: 'showAddValidationRuleSets'
+                                                        }
+                                                    }
                                                 }
                                             }
                                         }
@@ -608,70 +623,77 @@ Ext.define('Mdc.controller.history.Setup', {
                 }
             }
         },
-        device: {
-            title: 'Device',
-            route: 'devices/{mRID}',
-            controller: 'Mdc.controller.setup.Devices',
-            action: 'showDeviceDetailsView',
-            callback: function (route) {
-                this.getApplication().on('loadDevice', function (record) {
-                    route.setTitle(record.get('mRID'));
-                    return true;
-                }, {single: true});
-
-                return this;
-            },
+        devices: {
+            title: 'Devices',
+            route: 'devices',
+            disabled: true,
             items: {
-                //protocol dialects routes
-                protocols: {
-                    title: 'Protocol dialects',
-                    route: 'protocols',
-                    controller: 'Mdc.controller.setup.DeviceProtocolDialects',
-                    action: 'showProtocolDialectsView',
+                device: {
+                    title: 'Device',
+                    route: '{mRID}',
+                    controller: 'Mdc.controller.setup.Devices',
+                    action: 'showDeviceDetailsView',
+                    callback: function (route) {
+                        this.getApplication().on('loadDevice', function (record) {
+                            route.setTitle(record.get('mRID'));
+                            return true;
+                        }, {single: true});
+
+                        return this;
+                    },
                     items: {
-                        edit: {
-                            title: 'Edit protocol dialect',
-                            route: '{protocolDialectId}/edit',
+                        //protocol dialects routes
+                        protocols: {
+                            title: 'Protocol dialects',
+                            route: 'protocols',
                             controller: 'Mdc.controller.setup.DeviceProtocolDialects',
-                            action: 'showProtocolDialectsEditView'
-                        }
-                    }
-                },
-                connectionmethods: {
-                    title: 'Connection methods',
-                    route: 'connectionmethods',
-                    controller: 'Mdc.controller.setup.DeviceConnectionMethods',
-                    action: 'showDeviceConnectionMethods',
-                    items: {
-                        addoutbound: {
-                            title: 'Add outbound',
-                            route: 'addoutbound',
-                            controller: 'Mdc.controller.setup.DeviceConnectionMethods',
-                            action: 'showAddDeviceConnectionMethodView',
-                            params: {
-                                'type': 'Outbound'
+                            action: 'showProtocolDialectsView',
+                            items: {
+                                edit: {
+                                    title: 'Edit protocol dialect',
+                                    route: '{protocolDialectId}/edit',
+                                    controller: 'Mdc.controller.setup.DeviceProtocolDialects',
+                                    action: 'showProtocolDialectsEditView'
+                                }
                             }
                         },
-                        addinbound: {
-                            title: 'Add inbound',
-                            route: 'addinbound',
+                        connectionmethods: {
+                            title: 'Connection methods',
+                            route: 'connectionmethods',
                             controller: 'Mdc.controller.setup.DeviceConnectionMethods',
-                            action: 'showAddDeviceConnectionMethodView',
-                            params: {
-                                'type': 'Inbound'
-                            }
-                        },
-                        edit: {
-                            title: 'Edit connection method',
-                            route: '{connectionMethodId}/edit',
-                            controller: 'Mdc.controller.setup.DeviceConnectionMethods',
-                            action: 'showDeviceConnectionMethodEditView',
-                            callback: function (route) {
-                                this.getApplication().on('loadConnectionMethod', function (record) {
-                                    route.setTitle('Edit "' + record.get('name') + '"');
-                                    return true;
-                                }, {single: true});
-                                return this;
+                            action: 'showDeviceConnectionMethods',
+                            items: {
+                                addoutbound: {
+                                    title: 'Add outbound',
+                                    route: 'addoutbound',
+                                    controller: 'Mdc.controller.setup.DeviceConnectionMethods',
+                                    action: 'showAddDeviceConnectionMethodView',
+                                    params: {
+                                        'type': 'Outbound'
+                                    }
+                                },
+                                addinbound: {
+                                    title: 'Add inbound',
+                                    route: 'addinbound',
+                                    controller: 'Mdc.controller.setup.DeviceConnectionMethods',
+                                    action: 'showAddDeviceConnectionMethodView',
+                                    params: {
+                                        'type': 'Inbound'
+                                    }
+                                },
+                                edit: {
+                                    title: 'Edit connection method',
+                                    route: '{connectionMethodId}/edit',
+                                    controller: 'Mdc.controller.setup.DeviceConnectionMethods',
+                                    action: 'showDeviceConnectionMethodEditView',
+                                    callback: function (route) {
+                                        this.getApplication().on('loadConnectionMethod', function (record) {
+                                            route.setTitle('Edit "' + record.get('name') + '"');
+                                            return true;
+                                        }, {single: true});
+                                        return this;
+                                    }
+                                }
                             }
                         }
                     }
@@ -685,27 +707,27 @@ Ext.define('Mdc.controller.history.Setup', {
             action: 'showSearchItems'
         }
     },
-        tokenizePreviousTokens: function () {
-            return this.tokenizePath(this.getApplication().getController('Uni.controller.history.EventBus').previousPath);
-        },
+    tokenizePreviousTokens: function () {
+        return this.tokenizePath(this.getApplication().getController('Uni.controller.history.EventBus').previousPath);
+    },
 
-        tokenizeBrowse: function (item, id) {
-            if (id === undefined) {
-                return this.tokenize([this.rootToken, item]);
-            } else {
-                return this.tokenize([this.rootToken, item, id]);
-            }
-        },
-
-        tokenizeAddComserver: function () {
-            return this.tokenize([this.rootToken, 'comservers', 'create']);
-        },
-
-        tokenizeAddDeviceCommunicationProtocol: function () {
-            return this.tokenize([this.rootToken, 'devicecommunicationprotocols', 'create']);
-        },
-
-        tokenizeAddComPortPool: function () {
-            return this.tokenize([this.rootToken, 'comportpools', 'create']);
+    tokenizeBrowse: function (item, id) {
+        if (id === undefined) {
+            return this.tokenize([this.rootToken, item]);
+        } else {
+            return this.tokenize([this.rootToken, item, id]);
         }
-    });
+    },
+
+    tokenizeAddComserver: function () {
+        return this.tokenize([this.rootToken, 'comservers', 'create']);
+    },
+
+    tokenizeAddDeviceCommunicationProtocol: function () {
+        return this.tokenize([this.rootToken, 'devicecommunicationprotocols', 'create']);
+    },
+
+    tokenizeAddComPortPool: function () {
+        return this.tokenize([this.rootToken, 'comportpools', 'create']);
+    }
+});

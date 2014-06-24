@@ -6,7 +6,8 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
 
     requires: [
         'Mdc.store.ConnectionTypes',
-        'Mdc.widget.ScheduleField'
+        'Mdc.widget.ScheduleField',
+        'Mdc.widget.TimeInSecondsField'
     ],
 
     isEdit: function () {
@@ -113,6 +114,47 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                                 itemId: 'rescheduleRetryDelay',
                                 required: true,
                                 disabled: true
+                            },
+                            {
+                                xtype: 'fieldcontainer',
+                                itemId: 'comWindowField',
+                                fieldLabel: '&nbsp',
+                                layout: {
+                                    type: 'hbox',
+                                    align: 'stretch'
+                                },
+                                defaults: {
+                                    margin: '0 5 0 0'
+                                },
+                                items: [
+                                    {
+                                        xtype: 'checkbox',
+                                        itemId: 'activateComWindowCheckBox',
+                                        submitValue: false
+                                    },
+                                    {
+                                        xtype: 'displayfield',
+                                        value: Uni.I18n.translate('connectionmethod.openConnectionBetween', 'MDC', 'Open connection between')
+                                    },
+                                    {
+                                        xtype: 'timeInSecondsField',
+                                        name: 'comWindowStart',
+                                        itemId: 'comWindowStart',
+                                        disabled: true
+
+                                    },
+                                    {
+                                        xtype: 'displayfield',
+                                        value: ' - '
+                                    },
+                                    {
+                                        xtype: 'timeInSecondsField',
+                                        name: 'comWindowEnd',
+                                        itemId: 'comWindowEnd',
+                                        disabled: true
+
+                                    }
+                                ]
                             },
 //                                    {
 //                                        xtype: 'radiogroup',

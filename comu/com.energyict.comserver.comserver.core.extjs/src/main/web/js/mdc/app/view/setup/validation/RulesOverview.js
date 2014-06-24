@@ -1,15 +1,18 @@
-Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSetup', {
+Ext.define('Mdc.view.setup.validation.RulesOverview', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.securitySettingSetup',
-    itemId: 'securitySettingSetup',
-    deviceTypeId: null,
-    deviceConfigId: null,
+    xtype: 'validation-rules-overview',
 
     requires: [
-        'Mdc.view.setup.securitysettings.SecuritySettingGrid',
-        'Mdc.view.setup.securitysettings.SecuritySettingPreview',
-        'Uni.view.container.PreviewContainer'
+        'Uni.view.container.PreviewContainer',
+        'Mdc.view.setup.validation.RuleSetsGrid',
+        'Mdc.view.setup.validation.RulesGrid',
+        'Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu',
+        'Mdc.view.setup.validation.RuleSetView'
     ],
+
+    deviceTypeId: null,
+    deviceConfigId: null,
+    validationRuleSetId: null,
 
     initComponent: function () {
         var me = this;
@@ -21,10 +24,9 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSetup', {
                 items: [
                     {
                         xtype: 'device-configuration-menu',
-                        itemId: 'stepsMenu',
                         deviceTypeId: me.deviceTypeId,
                         deviceConfigurationId: me.deviceConfigId,
-                        toggle: 5
+                        toggle: 8
                     }
                 ]
             }
@@ -32,14 +34,15 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSetup', {
 
         me.content = [
             {
-                xtype: 'panel',
                 ui: 'large',
-                title: 'Security settings',
+                xtype: 'panel',
+                title: Uni.I18n.translate('validation.validationRuleSets', 'MDC', 'Validation rule sets'),
+
                 items: [
                     {
                         xtype: 'preview-container',
                         grid: {
-                            xtype: 'securitySettingGrid',
+                            xtype: 'validation-rulesets-grid',
                             deviceTypeId: me.deviceTypeId,
                             deviceConfigId: me.deviceConfigId
                         },
@@ -63,27 +66,23 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSetup', {
                                     items: [
                                         {
                                             xtype: 'component',
-                                            html: "<b>No security settings found</b><br>\
-                                            There are no security settings. This could be because:\
-                                            <lv>\
-                                            <li>No security settings have been defined yet.</li>\
-                                            <li>No security settings comply to the filter.</li>\
-                                            </lv><br>\
-                                            Possible steps:"
+                                            html: '<h4>' + Uni.I18n.translate('validation.ruleset.empty.title', 'MDC', 'No validation rule sets found') + '</h4><br>' +
+                                                Uni.I18n.translate('validation.ruleset.empty.detail', 'MDC', 'There are no validation rule sets. This could be because:') + '<lv><li>&nbsp&nbsp' +
+                                                Uni.I18n.translate('validation.ruleset.empty.list.item1', 'MDC', 'No validation rule sets have been added yet.') + '</li></lv><br>' +
+                                                Uni.I18n.translate('validation.ruleset.empty.steps', 'MDC', 'Possible steps:')
                                         },
                                         {
                                             xtype: 'button',
-                                            margin: '10 0 0 0',
-                                            text: 'Add security setting',
-                                            hrefTarget: '',
-                                            href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigId + '/securitysettings/create'
+                                            text: Uni.I18n.translate('validation.addValidationRuleSets', 'MDC', 'Add validation rule sets'),
+                                            ui: 'action',
+                                            href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigId + '/validationrulesets/add'
                                         }
                                     ]
                                 }
                             ]
                         },
                         previewComponent: {
-                            xtype: 'securitySettingPreview'
+                            xtype: 'validation-ruleset-view'
                         }
                     }
                 ]
@@ -91,7 +90,10 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSetup', {
         ];
 
         me.callParent(arguments);
+    },
+
+    updateValidationRuleSet: function (validationRuleSet) {
+        var preview = this.down('validation-ruleset-view');
+        preview.updateValidationRuleSet(validationRuleSet);
     }
 });
-
-

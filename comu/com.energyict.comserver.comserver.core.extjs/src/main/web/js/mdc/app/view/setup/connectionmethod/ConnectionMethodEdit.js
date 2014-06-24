@@ -6,7 +6,8 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
 
     requires: [
         'Mdc.store.ConnectionTypes',
-        'Mdc.widget.ScheduleField'
+        'Mdc.widget.ScheduleField',
+        'Mdc.widget.TimeInSecondsField'
     ],
 
     isEdit: function () {
@@ -138,6 +139,47 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                 fieldLabel: Uni.I18n.translate('connectionmethod.rescheduleRetryDelay', 'MDC', 'Retry delay'),
                                 itemId: 'rescheduleRetryDelay',
                                 required: true
+                            },
+                            {
+                                xtype: 'fieldcontainer',
+                                itemId: 'comWindowField',
+                                fieldLabel: '&nbsp',
+                                layout: {
+                                    type: 'hbox',
+                                    align: 'stretch'
+                                },
+                                defaults: {
+                                    margin: '0 5 0 0'
+                                },
+                                items: [
+                                    {
+                                        xtype: 'checkbox',
+                                        itemId: 'activateComWindowCheckBox',
+                                        submitValue: false
+                                    },
+                                    {
+                                        xtype: 'displayfield',
+                                        value: Uni.I18n.translate('connectionmethod.openConnectionBetween', 'MDC', 'Open connection between')
+                                    },
+                                    {
+                                        xtype: 'timeInSecondsField',
+                                        name: 'comWindowStart',
+                                        itemId: 'comWindowStart',
+                                        disabled: true
+
+                                    },
+                                    {
+                                        xtype: 'displayfield',
+                                        value: ' - '
+                                    },
+                                    {
+                                        xtype: 'timeInSecondsField',
+                                        name: 'comWindowEnd',
+                                        itemId: 'comWindowEnd',
+                                        disabled: true
+
+                                    }
+                                ]
                             },
 //                                    {
 //                                        xtype: 'radiogroup',
@@ -273,6 +315,8 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                 this.down('#connectionStrategyComboBox').setVisible(false);
                 this.down('#rescheduleRetryDelay').setVisible(false);
                 this.down('#allowSimultaneousConnections').setVisible(false);
+                this.down('#comWindowField').setVisible(false);
+
 //                this.down('#isDefault').setVisible(false);
             }
         } else {
@@ -284,6 +328,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                 this.down('#connectionStrategyComboBox').setVisible(false);
                 this.down('#rescheduleRetryDelay').setVisible(false);
                 this.down('#allowSimultaneousConnections').setVisible(false);
+                this.down('#comWindowField').setVisible(false);
 //                this.down('#isDefault').setVisible(false);
             }
         }

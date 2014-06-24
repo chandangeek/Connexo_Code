@@ -13,7 +13,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationSetu
         ui: 'medium',
         items: [
             {
-                xtype: 'deviceConfigurationMenu',
+                xtype: 'device-configuration-menu',
                 toggle: 2
             }
         ]

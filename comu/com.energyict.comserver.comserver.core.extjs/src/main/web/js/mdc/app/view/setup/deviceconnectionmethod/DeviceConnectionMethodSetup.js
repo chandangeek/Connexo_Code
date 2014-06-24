@@ -11,7 +11,6 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodSetup', 
     ],
 
     initComponent: function () {
-        debugger;
         this.side = [
 
             {
