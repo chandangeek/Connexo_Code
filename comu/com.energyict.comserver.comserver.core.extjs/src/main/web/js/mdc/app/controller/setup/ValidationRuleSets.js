@@ -21,7 +21,9 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
         {ref: 'validationRulesGrid', selector: 'validation-rules-overview validation-rules-grid'},
         {ref: 'addValidationRuleSets', selector: 'validation-add-rulesets'},
         {ref: 'addValidationRuleSetsGrid', selector: 'validation-add-rulesets validation-add-rulesets-grid'},
-        {ref: 'addValidationRulesGrid', selector: 'validation-add-rulesets validation-add-rules-grid'}
+        {ref: 'addValidationRulesGrid', selector: 'validation-add-rulesets validation-add-rules-grid'},
+        {ref: 'addValidationRulesPreview', selector: 'validation-add-rulesets validation-rule-preview'},
+        {ref: 'validationRulesPreview', selector: 'validation-rules-overview validation-rule-preview'}
     ],
 
     deviceTypeId: null,
@@ -48,6 +50,18 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
             },
             'validation-rules-overview uni-actioncolumn': {
                 menuclick: this.onValidationActionMenuClick
+            },
+            'validation-add-rulesets validation-rule-actionmenu': {
+                click: this.onAddValidationPreviewActionClick
+            },
+            'validation-rules-overview validation-rule-actionmenu': {
+                click: this.onValidationPreviewActionClick
+            },
+            'validation-add-rulesets validation-rules-grid': {
+                selectionchange: this.onAddValidationRuleSelectionChange
+            },
+            'validation-rules-overview validation-rules-grid': {
+                selectionchange: this.onValidationRuleSelectionChange
             }
         });
     },
@@ -245,6 +259,30 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
         }
     },
 
+    onAddValidationPreviewActionClick: function (menu, item) {
+        var me = this,
+            record = menu.record || me.getAddValidationRulesPreview().getRecord(),
+            action = item.action;
+
+        switch (action) {
+            case 'viewRule':
+                // TODO Link to the rule overview when [JP-3505] is done.
+                break;
+        }
+    },
+
+    onValidationPreviewActionClick: function (menu, item) {
+        var me = this,
+            record = menu.record || me.getValidationRulesPreview().getRecord(),
+            action = item.action;
+
+        switch (action) {
+            case 'viewRule':
+                // TODO Link to the rule overview when [JP-3505] is done.
+                break;
+        }
+    },
+
     removeValidationRuleSet: function (record) {
         var me = this;
 
@@ -302,6 +340,24 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
                     preloader.destroy();
                 }
             });
+        }
+    },
+
+    onAddValidationRuleSelectionChange: function (grid) {
+        var view = this.getAddValidationRulesPreview(),
+            selection = grid.view.getSelectionModel().getSelection();
+
+        if (selection.length > 0) {
+            view.updateValidationRule(selection[0]);
+        }
+    },
+
+    onValidationRuleSelectionChange: function (grid) {
+        var view = this.getValidationRulesPreview(),
+            selection = grid.view.getSelectionModel().getSelection();
+
+        if (selection.length > 0) {
+            view.updateValidationRule(selection[0]);
         }
     }
 });

@@ -5,7 +5,9 @@ Ext.define('Mdc.view.setup.validation.RuleSetView', {
     padding: 0,
 
     requires: [
-        'Mdc.view.setup.validation.RulesGrid'
+        'Mdc.view.setup.validation.RuleActionMenu',
+        'Mdc.view.setup.validation.RulesGrid',
+        'Cfg.view.validation.RulePreview'
     ],
 
     validationRuleSetId: null,
@@ -56,20 +58,17 @@ Ext.define('Mdc.view.setup.validation.RuleSetView', {
                     xtype: 'validation-rules-grid'
                 },
                 previewComponent: {
-                    // TODO Refactor the preview component so it can be reused here.
-//                    xtype: 'validation-rule-preview',
-//                    tools: [
-//                        {
-//                            xtype: 'button',
-//                            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-//                            iconCls: 'x-uni-action-iconD',
-//                            menu: {
-//                                xtype: 'validation-add-ruleset-actionmenu'
-//                            }
-//                        }
-//                    ]
-                    xtype: 'component',
-                    html: 'Here be dragons.'
+                    xtype: 'validation-rule-preview',
+                    tools: [
+                        {
+                            xtype: 'button',
+                            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                            iconCls: 'x-uni-action-iconD',
+                            menu: {
+                                xtype: 'validation-rule-actionmenu'
+                            }
+                        }
+                    ]
                 }
             }
         ];
