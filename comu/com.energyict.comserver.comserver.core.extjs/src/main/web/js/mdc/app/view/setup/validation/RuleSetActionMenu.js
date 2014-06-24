@@ -9,11 +9,13 @@ Ext.define('Mdc.view.setup.validation.RuleSetActionMenu', {
     items: [
         {
             text: Uni.I18n.translate('general.view', 'MDC', 'View'),
-            itemId: 'viewRuleSet'
+            itemId: 'viewRuleSet',
+            action: 'viewRuleSet'
         },
         {
             text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-            itemId: 'removeRuleSet'
+            itemId: 'removeRuleSet',
+            action: 'removeRuleSet'
         }
     ]
 });

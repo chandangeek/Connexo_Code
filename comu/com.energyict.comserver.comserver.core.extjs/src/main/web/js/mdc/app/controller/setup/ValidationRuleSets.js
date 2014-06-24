@@ -40,16 +40,23 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
             'validation-add-rulesets button[action=uncheckAll]': {
                 click: this.onUncheckAll
             },
+            'validation-add-rulesets uni-actioncolumn': {
+                menuclick: this.onAddValidationActionMenuClick
+            },
             'validation-rules-overview validation-rulesets-grid': {
                 selectionchange: this.onValidationRuleSetsSelectionChange
+            },
+            'validation-rules-overview uni-actioncolumn': {
+                menuclick: this.onValidationActionMenuClick
             }
         });
     },
 
     showValidationRuleSetsOverview: function (deviceTypeId, deviceConfigId) {
         var me = this;
-        this.deviceTypeId = deviceTypeId;
-        this.deviceConfigId = deviceConfigId;
+
+        me.deviceTypeId = deviceTypeId;
+        me.deviceConfigId = deviceConfigId;
 
         me.getDeviceConfigValidationRuleSetsStore().getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigId});
         var widget = Ext.widget('validation-rules-overview', {deviceTypeId: deviceTypeId, deviceConfigId: deviceConfigId});
@@ -80,8 +87,8 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
             deviceConfigRuleSetsStore = me.getDeviceConfigValidationRuleSetsStore(),
             ruleSetsStore;
 
-        this.deviceTypeId = deviceTypeId;
-        this.deviceConfigId = deviceConfigId;
+        me.deviceTypeId = deviceTypeId;
+        me.deviceConfigId = deviceConfigId;
 
         deviceConfigRuleSetsStore.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigId});
         var widget = Ext.widget('validation-add-rulesets', {deviceTypeId: deviceTypeId, deviceConfigId: deviceConfigId});
@@ -207,5 +214,94 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
     onUncheckAll: function () {
         var grid = this.getAddValidationRuleSetsGrid();
         grid.getView().getSelectionModel().deselectAll();
+    },
+
+    onAddValidationActionMenuClick: function (menu, item) {
+        var action = item.action,
+            record = menu.record;
+
+        switch (action) {
+            case 'viewRule':
+                // TODO Link to the rule overview when [JP-3505] is done.
+                break;
+            case 'viewRuleSet':
+                window.location.href = '#/administration/validation/overview/' + record.getId();
+                break;
+        }
+    },
+
+    onValidationActionMenuClick: function (menu, item) {
+        var me = this,
+            action = item.action,
+            record = menu.record;
+
+        switch (action) {
+            case 'viewRuleSet':
+                window.location.href = '#/administration/validation/overview/' + record.getId();
+                break;
+            case 'removeRuleSet':
+                me.removeValidationRuleSet(record);
+                break;
+        }
+    },
+
+    removeValidationRuleSet: function (record) {
+        var me = this;
+
+        Ext.create('Uni.view.window.Confirmation').show({
+            title: Uni.I18n.translate('validation.remove.confirmation.title', 'MDC', 'Remove {0}?', [record.data.name]),
+            msg: Uni.I18n.translate('validation.deviceconfig.remove.confirmation.msg', 'MDC',
+                'This validation rule set type will no longer be available on the device configuration.'),
+            config: {
+                me: me,
+                record: record
+            },
+            fn: me.doRemoveValidationRuleSet
+        });
+    },
+
+    doRemoveValidationRuleSet: function (state, text, cfg) {
+        var me = this;
+
+        if (state === 'confirm') {
+            var scope = cfg.config.me,
+                store = scope.getValidationRuleSetsGrid().getStore(),
+                preloader = Ext.create('Ext.LoadMask', {
+                    target: scope.getValidationRuleSetsOverview()
+                });
+
+            preloader.show();
+
+            Ext.Ajax.request({
+                url: '/api/dtc/devicetypes/' + scope.deviceTypeId
+                    + '/deviceconfigurations/' + scope.deviceConfigId
+                    + '/validationrulesets/' + cfg.config.record.getId(),
+                method: 'DELETE',
+                success: function () {
+                    scope.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.remove.success', 'MDC', 'Successfully removed.'));
+                    store.load();
+                },
+                failure: function (response) {
+                    if (response.status === 400) {
+                        var record = cfg.config.record,
+                            result = Ext.decode(response.responseText, true),
+                            title = Uni.I18n.translate('validation.remove.failed', 'MDC', 'Failed to remove {0}', [record.data.name]),
+                            message = Uni.I18n.translate('general.server.error', 'MDC', 'Server error');
+                        if (!Ext.isEmpty(response.statusText)) {
+                            message = response.statusText;
+                        }
+                        if (result && result.message) {
+                            message = result.message;
+                        } else if (result && result.error) {
+                            message = result.error;
+                        }
+                        self.getApplication().getController('Uni.controller.Error').showError(title, message);
+                    }
+                },
+                callback: function () {
+                    preloader.destroy();
+                }
+            });
+        }
     }
 });

@@ -22,13 +22,17 @@ Ext.define('Mdc.view.setup.validation.RuleSetsGrid', {
             {
                 header: Uni.I18n.translate('validation.ruleSetName', 'MDC', 'Validation rule set'),
                 dataIndex: 'name',
+                renderer: function (value, b, record) {
+                    return '<a href="#/administration/validation/overview/' + record.getId() + '">' + value + '</a>';
+                },
                 flex: 1
             },
-            {
-                header: Uni.I18n.translate('validation.status', 'MDC', 'Status'),
-                dataIndex: 'active',
-                flex: 1
-            },
+            // TODO Enable/remove this column when PM has decided about having a status on a validation rule set or not.
+//            {
+//                header: Uni.I18n.translate('validation.status', 'MDC', 'Status'),
+//                dataIndex: 'active',
+//                flex: 1
+//            },
             {
                 header: Uni.I18n.translate('validation.activeRules', 'MDC', 'Active rule(s)'),
                 dataIndex: 'numberOfRules',
