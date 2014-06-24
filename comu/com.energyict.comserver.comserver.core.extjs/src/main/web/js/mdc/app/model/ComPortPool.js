@@ -10,10 +10,9 @@ Ext.define('Mdc.model.ComPortPool', {
         'direction',
         'taskExecutionTimeout',
         'discoveryProtocolPluggableClassId',
-        'inboundComPorts',
-        'outboundComPorts',
         {
             name: 'comportslink',
+            persist: false,
             mapping: function (data) {
                 var inboundComPorts = data.inboundComPorts ? data.inboundComPorts.length : 0,
                     outboundComPorts = data.outboundComPorts ? data.outboundComPorts.length : 0,
