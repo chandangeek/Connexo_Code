@@ -6,6 +6,7 @@ import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialConnectionTaskBuilder;
+import com.energyict.mdc.device.configuration.rest.ConnectionStrategyAdapter;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
@@ -40,14 +41,14 @@ public abstract class ConnectionMethodInfo<T extends PartialConnectionTask> {
     public String connectionType;
     public String comPortPool;
     public boolean isDefault;
-    public int comWindowStart;
-    public int comWindowEnd;
+    public Integer comWindowStart;
+    public Integer comWindowEnd;
     @XmlJavaTypeAdapter(ConnectionStrategyAdapter.class)
     public ConnectionStrategy connectionStrategy;
     public List<PropertyInfo> properties;
     public boolean allowSimultaneousConnections;
     public TimeDurationInfo rescheduleRetryDelay;
-    public TemporalExpressionInfo temporalExpression;
+    public TemporalExpressionInfo nextExecutionSpecs;
 
     public ConnectionMethodInfo() {
     }

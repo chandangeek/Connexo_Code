@@ -30,7 +30,7 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialS
             this.comWindowStart=partialConnectionTask.getCommunicationWindow().getStart().getMillis()/1000;
             this.comWindowEnd=partialConnectionTask.getCommunicationWindow().getEnd().getMillis()/1000;
         }
-        this.temporalExpression=partialConnectionTask.getNextExecutionSpecs()!=null?
+        this.nextExecutionSpecs =partialConnectionTask.getNextExecutionSpecs()!=null?
                 TemporalExpressionInfo.from(partialConnectionTask.getNextExecutionSpecs().getTemporalExpression()):null;
     }
 
@@ -39,12 +39,16 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialS
         super.writeTo(partialConnectionTask, engineModelService);
         partialConnectionTask.setDefault(this.isDefault);
         partialConnectionTask.setAllowSimultaneousConnections(this.allowSimultaneousConnections);
-        partialConnectionTask.setComWindow(new ComWindow(this.comWindowStart, this.comWindowEnd));
+        if (this.comWindowEnd!=null && this.comWindowStart!=null) {
+            partialConnectionTask.setComWindow(new ComWindow(this.comWindowStart, this.comWindowEnd));
+        } else {
+            partialConnectionTask.setComWindow(null);
+        }
         partialConnectionTask.setConnectionStrategy(this.connectionStrategy);
         partialConnectionTask.setComportPool(Checks.is(this.comPortPool).emptyOrOnlyWhiteSpace() ? null : (OutboundComPortPool) engineModelService.findComPortPool(this.comPortPool));
         partialConnectionTask.setRescheduleRetryDelay(this.rescheduleRetryDelay!=null?this.rescheduleRetryDelay.asTimeDuration():null);
-        if (temporalExpression!=null) {
-            partialConnectionTask.setTemporalExpression(temporalExpression.asTemporalExpression());
+        if (nextExecutionSpecs !=null) {
+            partialConnectionTask.setTemporalExpression(nextExecutionSpecs.asTemporalExpression());
         } else {
             partialConnectionTask.setNextExecutionSpecs(null);
         }
@@ -60,16 +64,16 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialS
             .comWindow(new ComWindow(this.comWindowStart, this.comWindowEnd))
             .asDefault(this.isDefault)
             .allowSimultaneousConnections(this.allowSimultaneousConnections);
-        if (this.temporalExpression!=null) {
-            if (this.temporalExpression.offset==null) {
+        if (this.nextExecutionSpecs !=null) {
+            if (this.nextExecutionSpecs.offset==null) {
                 scheduledConnectionTaskBuilder
                         .nextExecutionSpec()
-                        .temporalExpression(this.temporalExpression.every.asTimeDuration())
+                        .temporalExpression(this.nextExecutionSpecs.every.asTimeDuration())
                         .set();
             } else {
                 scheduledConnectionTaskBuilder
                         .nextExecutionSpec()
-                        .temporalExpression(this.temporalExpression.every.asTimeDuration(), this.temporalExpression.offset.asTimeDuration())
+                        .temporalExpression(this.nextExecutionSpecs.every.asTimeDuration(), this.nextExecutionSpecs.offset.asTimeDuration())
                         .set();
             }
         }

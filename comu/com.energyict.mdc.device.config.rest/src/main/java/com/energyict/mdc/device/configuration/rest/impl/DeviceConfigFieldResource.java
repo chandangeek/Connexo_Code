@@ -1,17 +1,18 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.rest.FieldResource;
 import com.energyict.mdc.common.rest.UnitAdapter;
+import com.energyict.mdc.device.configuration.rest.ConnectionStrategyAdapter;
 import com.energyict.mdc.masterdata.MasterDataService;
-
+import java.util.ArrayList;
+import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Why the wrapped return value? JavaScript people didn't want to see a naked JSON list, had to be
@@ -24,8 +25,8 @@ public class DeviceConfigFieldResource extends FieldResource{
     private final MasterDataService masterDataService;
 
     @Inject
-    public DeviceConfigFieldResource(MasterDataService masterDataService) {
-        super();
+    public DeviceConfigFieldResource(MasterDataService masterDataService, Thesaurus thesaurus) {
+        super(thesaurus);
         this.masterDataService = masterDataService;
     }
 

@@ -13,9 +13,12 @@ import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.ExceptionLogger;
+import com.energyict.mdc.common.rest.Installer;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -50,6 +53,7 @@ public class DeviceConfigurationApplication extends Application implements Insta
     private volatile Thesaurus thesaurus;
     private volatile UserFileService userFileService;
     private volatile ValidationService validationService;
+    private volatile DeviceDataService deviceDataService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -146,9 +150,15 @@ public class DeviceConfigurationApplication extends Application implements Insta
         this.userFileService = userFileService;
     }
 
+    @Reference
+    public void setDeviceDataService(DeviceDataService deviceDataService) {
+        this.deviceDataService = deviceDataService;
+    }
+
     @Override
     public void install() {
-        new Installer(thesaurus).install();
+        Installer installer = new Installer();
+        installer.createTranslations(COMPONENT_NAME, thesaurus, Layer.REST, MessageSeeds.values());
     }
 
     class HK2Binder extends AbstractBinder {
@@ -172,6 +182,8 @@ public class DeviceConfigurationApplication extends Application implements Insta
             bind(engineModelService).to(EngineModelService.class);
             bind(userFileService).to(UserFileService.class);
             bind(validationService).to(ValidationService.class);
+            bind(deviceDataService).to(DeviceDataService.class);
+            bind(ExceptionFactory.class).to(ExceptionFactory.class);
         }
     }
 

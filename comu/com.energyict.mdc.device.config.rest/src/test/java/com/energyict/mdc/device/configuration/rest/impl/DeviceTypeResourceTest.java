@@ -25,6 +25,7 @@ import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -34,6 +35,9 @@ import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.StringFactory;
 import com.energyict.mdc.engine.model.EngineModelService;
@@ -41,6 +45,7 @@ import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.masterdata.rest.RegisterMappingInfo;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -97,6 +102,8 @@ public class DeviceTypeResourceTest extends JerseyTest {
     private static NlsService nlsService;
     private static Thesaurus thesaurus;
     private static EngineModelService engineModelService;
+    private static DeviceDataService deviceDataService;
+    private static MdcPropertyUtils mdcPropertyUtils;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
@@ -104,15 +111,17 @@ public class DeviceTypeResourceTest extends JerseyTest {
         deviceConfigurationService = mock(DeviceConfigurationService.class);
         protocolPluggableService = mock(ProtocolPluggableService.class);
         engineModelService = mock(EngineModelService.class);
+        deviceDataService = mock(DeviceDataService.class);
         nlsService = mock(NlsService.class);
         thesaurus = mock(Thesaurus.class);
+        mdcPropertyUtils = mock(MdcPropertyUtils.class);
     }
 
     @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        reset(masterDataService, protocolPluggableService, engineModelService);
+        reset(masterDataService, protocolPluggableService, engineModelService, deviceDataService);
         when(thesaurus.getString(anyString(), anyString())).thenReturn(DUMMY_THESAURUS_STRING);
     }
 
@@ -140,7 +149,11 @@ public class DeviceTypeResourceTest extends JerseyTest {
                 bind(nlsService).to(NlsService.class);
                 bind(ResourceHelper.class).to(ResourceHelper.class);
                 bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
+                bind(ConnectionMethodInfoFactory.class).to(ConnectionMethodInfoFactory.class);
                 bind(thesaurus).to(Thesaurus.class);
+                bind(deviceDataService).to(DeviceDataService.class);
+                bind(mdcPropertyUtils).to(MdcPropertyUtils.class);
+                bind(ExceptionFactory.class).to(ExceptionFactory.class);
             }
         });
         return resourceConfig;
@@ -1229,6 +1242,53 @@ public class DeviceTypeResourceTest extends JerseyTest {
         String answer = new String(bytes);
         assertThat(answer).contains("\"message\"").contains("\"errors\"");
     }
+
+    @Test
+    public void testGetAvailableConnectionMethodsForDevice() throws Exception {
+        DeviceType deviceType = mockDeviceType("updater", 31);
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration("random", 32);
+        Device device = mock(Device.class);
+
+        when(deviceConfigurationService.findDeviceType(31L)).thenReturn(deviceType);
+        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
+        when(deviceDataService.findByUniqueMrid("Z666")).thenReturn(device);
+        ConnectionTask<?, ?> connectionTask1 = mockConnectionTask(101L);
+        ConnectionTask<?, ?> connectionTask2 = mockConnectionTask(102L);
+        ConnectionTask<?, ?> connectionTask3 = mockConnectionTask(103L);
+        when(device.getConnectionTasks()).thenReturn(Arrays.<ConnectionTask<?,?>>asList(connectionTask3, connectionTask1, connectionTask2));
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        PartialConnectionTask partialConnectionTask1 = mockPartialConnectionTask(101L);
+        PartialConnectionTask partialConnectionTask2 = mockPartialConnectionTask(102L);
+        PartialConnectionTask partialConnectionTask3 = mockPartialConnectionTask(103L);
+        PartialConnectionTask partialConnectionTask4 = mockPartialConnectionTask(104L);
+        when(deviceConfiguration.getPartialConnectionTasks()).thenReturn(Arrays.asList(partialConnectionTask1, partialConnectionTask2, partialConnectionTask4, partialConnectionTask3));
+        Map<String,Object> response = target("/devicetypes/31/deviceconfigurations/32/connectionmethods/").queryParam("available", "true").queryParam("mrId", "Z666").request().get(Map.class);
+        assertThat(response.get("total")).isEqualTo(1);
+        List<Map<String, Object>> data = (List<Map<String, Object>>) response.get("data");
+        assertThat(data.get(0).get("id")).isEqualTo(104);
+        assertThat(response).isNotNull();
+
+    }
+
+    private ConnectionTask<?,?> mockConnectionTask(long partialConnectionTaskId) {
+        ConnectionTask<?,?> mock = mock(ConnectionTask.class);
+        PartialInboundConnectionTask partialInboundConnectionTask = mockPartialConnectionTask(partialConnectionTaskId);
+        when(mock.getPartialConnectionTask()).thenReturn(partialInboundConnectionTask);
+        return mock;
+    }
+
+    private PartialInboundConnectionTask mockPartialConnectionTask(long partialConnectionTaskId) {
+        PartialInboundConnectionTask partialInboundConnectionTask = mock(PartialInboundConnectionTask.class);
+        when(partialInboundConnectionTask.getId()).thenReturn(partialConnectionTaskId);
+        ConnectionTypePluggableClass pluggableClass = mock(ConnectionTypePluggableClass.class);
+        when(pluggableClass.getName()).thenReturn("someClass");
+        when(partialInboundConnectionTask.getPluggableClass()).thenReturn(pluggableClass);
+        ConnectionType connectionType = mock(ConnectionType.class);
+        when(partialInboundConnectionTask.getConnectionType()).thenReturn(connectionType);
+        when(connectionType.getPropertySpecs()).thenReturn(Collections.<PropertySpec>emptyList());
+        return partialInboundConnectionTask;
+    }
+
 
 
     private <T> Finder<T> mockFinder(List<T> list) {
