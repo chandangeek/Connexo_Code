@@ -158,10 +158,9 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     public void setNextExecutionSpecsFrom(TemporalExpression temporalExpression) {
         // Ignore the new value in case of ASAP
         if (ConnectionStrategy.MINIMIZE_CONNECTIONS.equals(this.getConnectionStrategy())) {
-            if (this.nextExecutionSpecs.isPresent() && this.getId()!=0) {
+            if (this.nextExecutionSpecs.isPresent() && this.getId() != 0) {
                 this.updateStrategy = this.updateStrategy.schedulingChanged(temporalExpression);
-            }
-            else {
+            } else {
                 this.updateStrategy = this.updateStrategy.createSchedule(temporalExpression);
             }
         }
@@ -187,9 +186,9 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     @Override
-    public void setConnectionStrategy(ConnectionStrategy connectionStrategy) {
-        this.updateStrategy = this.updateStrategy.connectionStrategyChanged(this.connectionStrategy);
-        this.connectionStrategy = connectionStrategy;
+    public void setConnectionStrategy(ConnectionStrategy newConnectionStrategy) {
+        this.updateStrategy = this.updateStrategy.connectionStrategyChanged(this.connectionStrategy, newConnectionStrategy);
+        this.connectionStrategy = newConnectionStrategy;
     }
 
     private void prepareStrategyChange(ConnectionStrategy oldStrategy) {
@@ -664,7 +663,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
         void complete();
 
-        UpdateStrategy connectionStrategyChanged(ConnectionStrategy connectionStrategy);
+        UpdateStrategy connectionStrategyChanged(ConnectionStrategy oldConnectionStrategy, ConnectionStrategy newConnectionStrategy);
 
         NextExecutionSpecs getNextExecutionSpecs();
 
@@ -697,8 +696,12 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         }
 
         @Override
-        public UpdateStrategy connectionStrategyChanged(ConnectionStrategy connectionStrategy) {
-            return new StrategyChanged(connectionStrategy);
+        public UpdateStrategy connectionStrategyChanged(ConnectionStrategy oldConnectionStrategy, ConnectionStrategy newConnectionStrategy) {
+            if(newConnectionStrategy.equals(oldConnectionStrategy)){
+                return this;
+            } else {
+                return new StrategyChanged(oldConnectionStrategy);
+            }
         }
 
         @Override
@@ -750,11 +753,11 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         }
 
         @Override
-        public UpdateStrategy connectionStrategyChanged(ConnectionStrategy connectionStrategy) {
-            if (ConnectionStrategy.MINIMIZE_CONNECTIONS.equals(connectionStrategy)) {
+        public UpdateStrategy connectionStrategyChanged(ConnectionStrategy oldConnectionStrategy, ConnectionStrategy newConnectionStrategy) {
+            if (ConnectionStrategy.MINIMIZE_CONNECTIONS.equals(oldConnectionStrategy)) {
                 /* Switching to ASAP that does not use NextExecutionSpecs
                  * so forget about the NextExecutionSpecs that are under construction. */
-                return new StrategyChanged(connectionStrategy);
+                return new StrategyChanged(oldConnectionStrategy);
              }
             else {
                 /* Switching from ASAP to MINIMIZE but still the NextExecutionSpecs were
@@ -799,12 +802,12 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         }
 
         @Override
-        public UpdateStrategy connectionStrategyChanged(ConnectionStrategy connectionStrategy) {
+        public UpdateStrategy connectionStrategyChanged(ConnectionStrategy oldConnectionStrategy, ConnectionStrategy newConnectionStrategy) {
             /* Scheduling changed previously so old strategy must be MINIMIZE
              * and therefore we must be switching to ASAP but that does not
              * have scheduling so it suffices to switch the strategy
              * and that will delete the scheduling too. */
-            return new StrategyChanged(connectionStrategy);
+            return new StrategyChanged(oldConnectionStrategy);
         }
     }
 
@@ -836,8 +839,8 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         }
 
         @Override
-        public UpdateStrategy connectionStrategyChanged(ConnectionStrategy connectionStrategy) {
-            return new StrategyChanged(connectionStrategy);
+        public UpdateStrategy connectionStrategyChanged(ConnectionStrategy oldConnectionStrategy, ConnectionStrategy newConnectionStrategy) {
+            return new StrategyChanged(oldConnectionStrategy);
         }
 
         @Override
