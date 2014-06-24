@@ -6,9 +6,8 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileConfigurationDetailInfo', 
 
     width: '50%',
     defaults: {
-        labelWidth: 150,
+        labelWidth: 200,
         labelAlign: 'right',
-        margin: '0 0 20 0',
         validateOnChange: false,
         validateOnBlur: false,
         anchor: '100%'

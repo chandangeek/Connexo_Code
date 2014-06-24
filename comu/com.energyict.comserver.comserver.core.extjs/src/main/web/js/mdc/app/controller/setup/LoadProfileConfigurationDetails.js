@@ -340,6 +340,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                 widget.down('loadProfileConfigurationDetailChannelGrid').getStore().on('load', function () {
                                     if (me.store.getTotalCount() < 1) {
                                         me.getPage().down('#emptyPanel').show();
+                                        me.getPage().down('#loadProfileConfigurationDetailDockedItems').hide();
                                         me.getPage().down('#loadProfileConfigurationDetailChannelGridContainer').hide();
                                         me.getPage().down('#loadProfileConfigurationDetailChannelPreviewContainer').hide();
                                         me.getPage().down('#separator').hide();
