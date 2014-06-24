@@ -1,10 +1,21 @@
 package com.elster.jupiter.ids.impl;
 
-import static com.elster.jupiter.ids.IntervalLengthUnit.MINUTE;
-import static com.elster.jupiter.ids.IntervalLengthUnit.MONTH;
-import static org.joda.time.DateTimeConstants.MILLIS_PER_MINUTE;
-import static org.joda.time.DateTimeConstants.MINUTES_PER_HOUR;
+import com.elster.jupiter.ids.IntervalLengthUnit;
+import com.elster.jupiter.ids.RecordSpec;
+import com.elster.jupiter.ids.TimeSeries;
+import com.elster.jupiter.ids.TimeSeriesEntry;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OptimisticLockException;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.time.UtcInstant;
+import com.google.common.base.Optional;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeConstants;
+import org.joda.time.DateTimeZone;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -12,22 +23,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.TimeZone;
 
-import javax.inject.Inject;
-
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeConstants;
-import org.joda.time.DateTimeZone;
-
-import com.elster.jupiter.ids.IntervalLengthUnit;
-import com.elster.jupiter.ids.RecordSpec;
-import com.elster.jupiter.ids.TimeSeries;
-import com.elster.jupiter.ids.TimeSeriesEntry;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.util.time.UtcInstant;
-import com.google.common.base.Optional;
+import static com.elster.jupiter.ids.IntervalLengthUnit.MINUTE;
+import static com.elster.jupiter.ids.IntervalLengthUnit.MONTH;
+import static org.joda.time.DateTimeConstants.MILLIS_PER_MINUTE;
+import static org.joda.time.DateTimeConstants.MINUTES_PER_HOUR;
 
 public final class TimeSeriesImpl implements TimeSeries {
 
@@ -251,8 +250,14 @@ public final class TimeSeriesImpl implements TimeSeries {
     }
     
     TimeSeriesImpl lock() {
-		return dataModel.mapper(TimeSeriesImpl.class).lock(getId());
-	}
+        //TODO review with Karel.
+        //Would like to have a lock(T) method
+        TimeSeriesImpl lock = dataModel.mapper(TimeSeriesImpl.class).lock(getId());
+        if (lock.version != this.version) {
+            throw new OptimisticLockException();
+        }
+        return this;
+    }
 	
 	@Override
 	public boolean equals(Object other) {
