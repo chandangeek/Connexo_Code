@@ -18,7 +18,7 @@ Ext.define('Mdc.view.setup.connectionmethod.DeviceConnectionMethodsGrid', {
         var me = this;
         this.columns = [
             {
-                header: Uni.I18n.translate('connectionmethod.default', 'MDC', 'Default'),
+                header: Uni.I18n.translate('deviceconnectionmethod.default', 'MDC', 'Default'),
                 dataIndex: 'isDefault',
                 renderer: function (value, metadata) {
                     if (value === true) {
@@ -32,7 +32,7 @@ Ext.define('Mdc.view.setup.connectionmethod.DeviceConnectionMethodsGrid', {
                 flex: 0.1
             },
             {
-                header: Uni.I18n.translate('connectionmethod.name', 'MDC', 'Name'),
+                header: Uni.I18n.translate('deviceconnectionmethod.name', 'MDC', 'Name'),
                 dataIndex: 'name',
 //                renderer: function(value,b,record){
 //                    return '<a href="#/administration/devicetypes/' + record.get('id') + '">' + value + '</a>';;
@@ -40,17 +40,17 @@ Ext.define('Mdc.view.setup.connectionmethod.DeviceConnectionMethodsGrid', {
                 flex: 0.3
             },
             {
-                header: Uni.I18n.translate('connectionmethod.direction', 'MDC', 'Direction'),
+                header: Uni.I18n.translate('deviceconnectionmethod.direction', 'MDC', 'Direction'),
                 dataIndex: 'direction',
                 flex: 0.2
             },
             {
-                header: Uni.I18n.translate('connectionmethod.connectionType', 'MDC', 'Connection type'),
+                header: Uni.I18n.translate('deviceconnectionmethod.connectionType', 'MDC', 'Connection type'),
                 dataIndex: 'connectionType',
                 flex: 0.3
             },
             {
-                header: Uni.I18n.translate('connectionmethod.status', 'MDC', 'Status'),
+                header: Uni.I18n.translate('deviceconnectionmethod.status', 'MDC', 'Status'),
                 dataIndex: 'paused',
                 renderer: function(value,b,record){
                     return value?Uni.I18n.translate('general.inactive', 'MDC', 'Inactive'):Uni.I18n.translate('general.active', 'MDC', 'Active');
@@ -68,9 +68,9 @@ Ext.define('Mdc.view.setup.connectionmethod.DeviceConnectionMethodsGrid', {
                 xtype: 'pagingtoolbartop',
                 store: this.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('connectionmethod.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} connection methods'),
-                displayMoreMsg: Uni.I18n.translate('connectionmethod.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} connection methods'),
-                emptyMsg: Uni.I18n.translate('connectionmethod.pagingtoolbartop.emptyMsg', 'MDC', 'There are no connection methods to display'),
+                displayMsg: Uni.I18n.translate('deviceconnectionmethod.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} connection methods'),
+                displayMoreMsg: Uni.I18n.translate('deviceconnectionmethod.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} connection methods'),
+                emptyMsg: Uni.I18n.translate('deviceconnectionmethod.pagingtoolbartop.emptyMsg', 'MDC', 'There are no connection methods to display'),
                 items: [
                     {
                         xtype: 'component',
@@ -78,18 +78,18 @@ Ext.define('Mdc.view.setup.connectionmethod.DeviceConnectionMethodsGrid', {
                     },
                     {
                         xtype: 'button',
-                        text: Uni.I18n.translate('connectionmethod.addConnectionMethod', 'MDC', 'Add connection method'),
+                        text: Uni.I18n.translate('deviceconnectionmethod.addConnectionMethod', 'MDC', 'Add connection method'),
                         iconCls: 'x-uni-action-iconD',
                         menu: {
                             plain: true,
                             items: [
                                 {
-                                    text: Uni.I18n.translate('connectionmethod.addOutboundConnectionMethod', 'MDC', 'Add outbound connection method'),
+                                    text: Uni.I18n.translate('deviceconnectionmethod.addOutboundConnectionMethod', 'MDC', 'Add outbound connection method'),
                                     itemId: 'createDeviceOutboundConnectionButton',
                                     action: 'createDeviceOutboundConnectionMethod'
                                 },
                                 {
-                                    text: Uni.I18n.translate('connectionmethod.addInboundConnectionMethod', 'MDC', 'Add inbound connection method'),
+                                    text: Uni.I18n.translate('deviceconnectionmethod.addInboundConnectionMethod', 'MDC', 'Add inbound connection method'),
                                     itemId: 'createDeviceInboundConnectionButton',
                                     action: 'createDeviceInboundConnectionMethod'
                                 }
@@ -105,7 +105,7 @@ Ext.define('Mdc.view.setup.connectionmethod.DeviceConnectionMethodsGrid', {
                 params: [
                     {mrid: this.mrid}
                 ],
-                itemsPerPageMsg: Uni.I18n.translate('connectionmethod.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Connection methods per page'),
+                itemsPerPageMsg: Uni.I18n.translate('deviceconnectionmethod.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Connection methods per page'),
                 dock: 'bottom'
             }
         ];

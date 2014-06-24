@@ -272,6 +272,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                 this.down('#addEditButton').action = 'editInboundConnectionMethod';
                 this.down('#connectionStrategyComboBox').setVisible(false);
                 this.down('#rescheduleRetryDelay').setVisible(false);
+                this.down('#allowSimultaneousConnections').setVisible(false);
 //                this.down('#isDefault').setVisible(false);
             }
         } else {
@@ -282,6 +283,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                 this.down('#addEditButton').action = 'addInboundConnectionMethod';
                 this.down('#connectionStrategyComboBox').setVisible(false);
                 this.down('#rescheduleRetryDelay').setVisible(false);
+                this.down('#allowSimultaneousConnections').setVisible(false);
 //                this.down('#isDefault').setVisible(false);
             }
         }

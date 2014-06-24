@@ -140,11 +140,11 @@ Ext.define('Mdc.controller.setup.ComServersView', {
         var me = this,
             page = me.getComServersView();
 
-        page.setLoading('Removing...');
+        page.setLoading(Uni.I18n.translate('general.removing', 'MDC', 'Removing...'));
         record.destroy({
             callback: function (model, operation) {
                 page.setLoading(false);
-                if (operation.response.status == 204) {
+                if (operation.wasSuccessful()) {
                     me.getComServerGrid().getStore().loadPage(1);
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comServer.deleteSuccess.msg', 'MDC', 'Communication server has been deleted'));
                 }

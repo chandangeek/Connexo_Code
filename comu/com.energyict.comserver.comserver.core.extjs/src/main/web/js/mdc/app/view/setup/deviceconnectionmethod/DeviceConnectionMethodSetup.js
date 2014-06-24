@@ -32,7 +32,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodSetup', 
                 ui: 'large',
                 xtype: 'panel',
                 itemId: 'deviceConnectionMethodSetupPanel',
-                title: Uni.I18n.translate('connectionMethod.connectionMethods', 'MDC', 'Connection methods'),
+                title: Uni.I18n.translate('deviceconnectionmethod.connectionMethods', 'MDC', 'Connection methods'),
 
                 items: [
                     {
@@ -62,20 +62,20 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodSetup', 
                                     items: [
                                         {
                                             xtype: 'component',
-                                            html: '<h4>' + Uni.I18n.translate('connectionMethod.empty.title', 'MDC', 'No connection methods found') + '</h4><br>' +
-                                                Uni.I18n.translate('connectionMethod.empty.detail', 'MDC', 'There are no connection methods. This could be because:') + '<lv><li>&nbsp&nbsp' +
-                                                Uni.I18n.translate('connectionMethod.empty.list.item1', 'MDC', 'No connection methods have been defined yet.') + '</li></lv><br>' +
-                                                Uni.I18n.translate('connectionMethod.empty.steps', 'MDC', 'Possible steps:')
+                                            html: '<h4>' + Uni.I18n.translate('deviceconnectionmethod.empty.title', 'MDC', 'No connection methods found') + '</h4><br>' +
+                                                Uni.I18n.translate('deviceconnectionmethod.empty.detail', 'MDC', 'There are no connection methods. This could be because:') + '<lv><li>&nbsp&nbsp' +
+                                                Uni.I18n.translate('deviceconnectionmethod.empty.list.item1', 'MDC', 'No connection methods have been defined yet.') + '</li></lv><br>' +
+                                                Uni.I18n.translate('deviceconnectionmethod.empty.steps', 'MDC', 'Possible steps:')
                                         },
                                         {
-                                            text: Uni.I18n.translate('connectionmethod.addOutboundConnectionMethod', 'MDC', 'Add outbound connection method'),
+                                            text: Uni.I18n.translate('deviceconnectionmethod.addOutboundConnectionMethod', 'MDC', 'Add outbound connection method'),
                                             itemId: 'createDeviceOutboundConnectionButton',
                                             xtype: 'button',
                                             action: 'createDeviceOutboundConnectionMethod',
                                             margin: '0 5 0 0'
                                         },
                                         {
-                                            text: Uni.I18n.translate('connectionmethod.addInboundConnectionMethod', 'MDC', 'Add inbound connection method'),
+                                            text: Uni.I18n.translate('deviceconnectionmethod.addInboundConnectionMethod', 'MDC', 'Add inbound connection method'),
                                             itemId: 'createDeviceInboundConnectionButton',
                                             xtype: 'button',
                                             action: 'createDeviceInboundConnectionMethod'
