@@ -30,16 +30,18 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.LoadProfileConfigurations',
         'Mdc.controller.setup.LoadProfileConfigurationDetails',
         'Mdc.controller.setup.CommunicationTasks',
+        'Mdc.controller.setup.ValidationRuleSets',
         'Mdc.controller.setup.Comtasks'
     ],
 
     controllers: [
+        'Mdc.controller.history.Setup',
         'Mdc.controller.setup.ComPortPools',
         'Mdc.controller.setup.DeviceTypes',
         'Mdc.controller.setup.SetupOverview',
         'Mdc.controller.setup.ComServersView',
         'Mdc.controller.setup.ComServerEdit',
-        'Mdc.controller.history.Setup',
+        'Mdc.controller.setup.ComServers',
         'Mdc.controller.setup.DeviceCommunicationProtocols',
         'Mdc.controller.setup.LicensedProtocol',
         'Mdc.controller.setup.RegisterTypes',
@@ -62,7 +64,8 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.LoadProfileConfigurationDetails',
         'Mdc.controller.setup.CommunicationTasks',
         'Mdc.controller.setup.Comtasks',
-        'Mdc.controller.setup.DeviceProtocolDialects'
+        'Mdc.controller.setup.DeviceProtocolDialects',
+        'Mdc.controller.setup.ValidationRuleSets'
     ],
 
     config: {

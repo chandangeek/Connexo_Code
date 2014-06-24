@@ -18,7 +18,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodSetup', {
                 ui: 'medium',
                 items: [
                     {
-                        xtype: 'deviceConfigurationMenu',
+                        xtype: 'device-configuration-menu',
                         itemId: 'stepsMenu',
                         deviceTypeId: this.deviceTypeId,
                         deviceConfigurationId: this.deviceConfigId,

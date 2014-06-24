@@ -1,11 +1,14 @@
 Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
     extend: 'Uni.view.navigation.SubMenu',
-    alias: 'widget.deviceConfigurationMenu',
+    xtype: 'device-configuration-menu',
+
     deviceTypeId: null,
     deviceConfigurationId: null,
     toggle: null,
+
     initComponent: function () {
-        this.callParent(this);
+        this.callParent(arguments);
+
         this.add(
             {
                 text: Uni.I18n.translate('deviceconfigurationmenu.overview', 'MDC', 'Overview'),
@@ -20,13 +23,15 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
                 itemId: 'registerConfigsLink',
                 href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/registerconfigurations',
                 hrefTarget: '_self'
-            }, {
+            },
+            {
                 text: Uni.I18n.translate('deviceconfigurationmenu.loadProfiles', 'MDC', 'Load profiles'),
                 pressed: false,
                 itemId: 'loadProfilesLink',
                 href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/loadprofiles',
                 hrefTarget: '_self'
-            }, {
+            },
+            {
                 text: 'Logbook configuration',
                 pressed: false,
                 itemId: 'logbooksLink',
@@ -58,18 +63,18 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
                 text: 'Communication tasks',
                 pressed: false,
                 itemId: 'communicationTasksLink',
-                href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId+ '/comtaskenablements',
+                href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/comtaskenablements',
                 hrefTarget: '_self'
             },
             {
-                text: 'Validation rules',
+                text: 'Validation rule sets',
                 pressed: false,
-                itemId: 'validationRulesLink',
-                href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId+ '/validationrules',
+                itemId: 'validationRuleSetsLink',
+                href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/validationrulesets',
                 hrefTarget: '_self'
             }
-
         );
+
         this.toggleMenuItem(this.toggle);
     }
 });
