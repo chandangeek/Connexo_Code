@@ -41,7 +41,6 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.SetupOverview',
         'Mdc.controller.setup.ComServersView',
         'Mdc.controller.setup.ComServerEdit',
-        'Mdc.controller.setup.ComServers',
         'Mdc.controller.setup.DeviceCommunicationProtocols',
         'Mdc.controller.setup.LicensedProtocol',
         'Mdc.controller.setup.RegisterTypes',

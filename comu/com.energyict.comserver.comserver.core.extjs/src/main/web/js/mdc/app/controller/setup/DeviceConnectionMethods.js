@@ -439,7 +439,6 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
     },
 
     toggleActiveDeviceconnectionMethod: function (connectionMethod) {
-        debugger;
         var me = this;
         if (connectionMethod.hasOwnProperty('action')) {
             connectionMethod = this.getDeviceConnectionMethodsGrid().getSelectionModel().getSelection()[0];
