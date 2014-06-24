@@ -2,78 +2,84 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolPreview', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.comPortPoolPreview',
     requires: [
-        'Mdc.store.ComPortPools'
+        'Mdc.store.ComPortPools',
+        'Mdc.store.DeviceDiscoveryProtocols'
     ],
     itemId: 'comportpoolpreview',
     layout: 'fit',
-    initComponent: function () {
-        this.items = [
+    title: Uni.I18n.translate('comserver.details', 'MDC', 'Details'),
+    frame: true,
+    tools: [
+        {
+            xtype: 'button',
+            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+            itemId: 'actionButton',
+            iconCls: 'x-uni-action-iconD',
+            menu: {
+                xtype: 'comportpool-actionmenu',
+                itemId: 'comportpoolViewMenu'
+            }
+        }
+    ],
+    items: {
+        xtype: 'form',
+        itemId: 'comServerDetailsForm',
+        layout: 'column',
+        defaults: {
+            xtype: 'container',
+            layout: 'form',
+            columnWidth: 0.5
+        },
+        items: [
             {
-                xtype: 'panel',
-                border: 1,
-                width: '100%',
-                layout: 'vbox',
-                collapsible: true,
-                title: 'Selected communication port pool preview',
-                itemId: 'previewpanel',
-                collapsed: true,
                 defaults: {
-                    labelWidth: 200,
-                    padding: 10,
-                    border: 0
+                    xtype: 'displayfield',
+                    labelWidth: 200
                 },
                 items: [
                     {
-                        xtype: 'panel',
-                        width: '100%',
-                        layout: 'hbox',
-                        items:[
-                            {
-                                xtype: 'component',
-                                itemId: 'comPortPoolName',
-                                flex: 3
-                            },
-                            {
-                                xtype: 'component',
-                                itemId: 'comPortPoolActive',
-                                tpl: '<h3><tpl if="active==true"{active}><span style="color:lightgreen">active</span>' +
-                                     '<tpl elseif="active==false"><span style="color:#ff0000">not active</span>' +
-                                     '<tpl else><span style="color:#ff0000"></span></tpl></h3></h3>',
-                                flex: 1
-                            },
-                            {
-                                xtype: 'button',
-                                text: 'Start/Stop',
-                                action: 'startStop',
-                                margins: '0 10 0 0'
-                            },
-                            {
-                                xtype: 'button',
-                                text: 'Edit',
-                                action: 'edit'
-                            }
-                        ]
+                        fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
+                        name: 'name'
                     },
                     {
-                        xtype: 'form',
-                        width: '100%',
-                        layout: 'hbox',
-                        defaults: {
-                            border: false,
-                            xtype: 'panel',
-                            flex: 1,
-                            layout: 'anchor'
-                        },
-                        fieldDefaults: {
-                            labelAlign: 'right',
-                            labelSeparator: ':'
-                        },
-                        items: [
-                        ]
+                        fieldLabel: Uni.I18n.translate('comportpool.preview.direction', 'MDC', 'Direction'),
+                        name: 'direction'
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('comportpool.preview.type', 'MDC', 'Type'),
+                        name: 'type'
+                    }
+                ]
+            },
+            {
+                defaults: {
+                    xtype: 'displayfield',
+                    labelWidth: 200
+                },
+                items: [
+                    {
+                        fieldLabel: Uni.I18n.translate('general.status', 'MDC', 'Status'),
+                        name: 'active',
+                        renderer: function (val) {
+                            val ? val = 'Active' : val = 'Inactive';
+                            return val;
+                        }
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('comportpool.preview.protocolDetection', 'MDC', 'Protocol detection'),
+                        name: 'discoveryProtocolPluggableClassId',
+                        renderer: function (val) {
+                            var protDetect = val ? Ext.getStore('Mdc.store.DeviceDiscoveryProtocols').getById(val) : null;
+                            return protDetect ? protDetect.get('name') : '';
+                        }
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('comportpool.preview.communicationPorts', 'MDC', 'Communication ports'),
+                        name: 'comportslink'
                     }
                 ]
             }
         ]
-        this.callParent();
     }
+
 });

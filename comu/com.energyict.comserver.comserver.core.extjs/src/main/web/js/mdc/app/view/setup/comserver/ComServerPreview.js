@@ -16,7 +16,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerPreview', {
             iconCls: 'x-uni-action-iconD',
             menu: {
                 xtype: 'comserver-actionmenu',
-                itemId: 'comserverViewMenu',
+                itemId: 'comserverViewMenu'
             }
         }
     ],
@@ -99,7 +99,6 @@ Ext.define('Mdc.view.setup.comserver.ComServerPreview', {
                     {
                         fieldLabel: Uni.I18n.translate('comserver.preview.communicationPortsLabel', 'MDC', 'Communication ports'),
                         name: 'comportslink'
-
                     }
                 ]
             }
