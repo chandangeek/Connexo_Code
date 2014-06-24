@@ -19,12 +19,15 @@ public class BasicAuthentication implements Authentication {
 
 	@Override
 	public boolean handleSecurity(HttpServletRequest request,HttpServletResponse response) throws IOException {
-        User currentSessionUser = getUserAuthenticated(request);
-        if (currentSessionUser != null){
-            return allow(request, currentSessionUser);
+        HttpSession session = request.getSession(false);
+        if(session != null){
+            User currentSessionUser = getUserAuthenticated(session);
+            if (currentSessionUser != null){
+                return allow(request, currentSessionUser);
+            }
         }
 		String authentication = request.getHeader("Authorization");
-        if (authentication == null) {
+        if (session == null || authentication == null) {
             return deny(response);
         }
         Optional<User> user = userService.authenticateBase64(authentication.split(" ")[1]);
@@ -45,8 +48,8 @@ public class BasicAuthentication implements Authentication {
         return false;
     }
 
-    private User getUserAuthenticated(HttpServletRequest request) {
-        return (User)request.getSession().getAttribute("user");
+    private User getUserAuthenticated(HttpSession session) {
+        return (User)session.getAttribute("user");
     }
 
 }

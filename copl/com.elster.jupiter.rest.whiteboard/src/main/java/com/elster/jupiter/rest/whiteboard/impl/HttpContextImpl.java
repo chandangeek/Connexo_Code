@@ -10,9 +10,14 @@ import java.net.URL;
 public class HttpContextImpl implements HttpContext {
 	
 	private final Authentication authorization;
+    private final WhiteBoard whiteboard;
+
+    // Inactivity interval in seconds - session will expire after this
+    static final int INACTIVE_INTERVAL = 600;
 	
-	public HttpContextImpl(Authentication authorization) {
+	public HttpContextImpl(WhiteBoard whiteboard, Authentication authorization) {
 		this.authorization = authorization;
+        this.whiteboard = whiteboard;
 	}
 
     @Override
@@ -27,7 +32,12 @@ public class HttpContextImpl implements HttpContext {
 
     @Override
     public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        return authorization.handleSecurity(request,response);
+        boolean authorize = authorization.handleSecurity(request,response);
+        if(!authorize && request.getHeader("referer") != null){
+            response.setHeader("WWW-Authenticate","Custom");
+        }
+
+        request.getSession(true).setMaxInactiveInterval(whiteboard.getSessionTimeout());
+        return authorize;
     }
-    
 }

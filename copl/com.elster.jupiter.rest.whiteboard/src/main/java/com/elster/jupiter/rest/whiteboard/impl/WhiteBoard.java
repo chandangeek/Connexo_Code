@@ -14,10 +14,8 @@ import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 import org.glassfish.jersey.servlet.ServletContainer;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.*;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
@@ -46,6 +44,10 @@ public class WhiteBoard {
 	private volatile Publisher publisher;
 	private AtomicReference<EventAdmin> eventAdminHolder = new AtomicReference<>();
 	private volatile WhiteBoardConfiguration configuration;
+
+    private final static String SESSION_TIMEOUT = "com.elster.jupiter.session.timeout";
+
+    private int sessionTimeout = 600; // default value 10 min
 
     private Authentication createAuthentication(String method) {
     	switch(Strings.nullToEmpty(method)) {
@@ -103,7 +105,7 @@ public class WhiteBoard {
     @Reference(name="YServiceLocator")
     public void setConfiguration(WhiteBoardConfigurationProvider provider) {
     	this.configuration = provider.getConfiguration();
-    	this.httpContext = new HttpContextImpl(createAuthentication(configuration.authenticationMethod()));     		
+    	this.httpContext = new HttpContextImpl(this, createAuthentication(configuration.authenticationMethod()));
     }
     
 	void fire(RestCallExecutedEvent event) {
@@ -159,5 +161,24 @@ public class WhiteBoard {
     	return alias == null ? Optional.<String>absent() : Optional.of("/api" + alias);
     }
 
- 
+    @Activate
+    public void activate(BundleContext context){
+        if(context != null){
+            int timeout = 0;
+            String sessionTimeoutParam = context.getProperty(SESSION_TIMEOUT);
+            if(sessionTimeoutParam != null){
+                try{
+                    timeout = Integer.parseInt(sessionTimeoutParam);
+                } catch(NumberFormatException e){}
+            }
+
+            if(timeout > 0){
+                sessionTimeout = timeout;
+            }
+        }
+    }
+
+    int getSessionTimeout(){
+        return sessionTimeout;
+    }
 }
