@@ -554,11 +554,11 @@ Ext.define('Mdc.controller.setup.Properties', {
                     if (property.data.isInheritedOrDefaultValue === true) {
                         property.setPropertyValue(null);
                     } else {
-                        propertyValue.data.value = value;
+                        propertyValue.set('value', value);
                         property.setPropertyValue(propertyValue);
                     }
-                    delete property.data.isInheritedOrDefaultValue;
-                    delete property.setPropertyType(null);
+                    //delete property.data.isInheritedOrDefaultValue;
+                    //delete property.setPropertyType(null);
                 }
             );
         }
@@ -575,8 +575,8 @@ Ext.define('Mdc.controller.setup.Properties', {
                         propertyValue.data.value = value;
                         property.setPropertyValue(propertyValue);
                     }
-                    delete property.data.isInheritedOrDefaultValue;
-                    delete property.setPropertyType(null);
+                  //  delete property.data.isInheritedOrDefaultValue;
+                  //  delete property.setPropertyType(null);
                 }
             );
         }
