@@ -16,13 +16,12 @@ Ext.define('Mdc.model.ComServer', {
         {name: 'storeTaskThreadPriority', type: 'int', useNull: true},
         'changesInterPollDelay',
         'schedulingInterPollDelay',
-        'outboundComPorts',
-        'inboundComPorts',
         {name: 'queryAPIUsername', type: 'string', useNull: true},
         {name: 'queryAPIPassword', type: 'string', useNull: true},
         {name: 'onlineComServerId', type: 'int', useNull: true},
         {
             name: 'comportslink',
+            persist: false,
             mapping: function (data) {
                 var inboundComPorts = data.inboundComPorts ? data.inboundComPorts.length : 0,
                     outboundComPorts = data.outboundComPorts ? data.outboundComPorts.length : 0,
