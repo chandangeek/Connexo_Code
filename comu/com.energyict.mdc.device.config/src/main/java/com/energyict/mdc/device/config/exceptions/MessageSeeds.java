@@ -132,6 +132,7 @@ public enum MessageSeeds implements MessageSeed {
     PROTOCOLDIALECT_CONF_PROPS_IN_USE(13029, "protocolDialectConfigurationProperties.inUse", "ProtocolDialectConfigurationProperties ''{0}'' of device configuration ''{1}'' cannot be deleted because they are still in use", SEVERE),
     UNSUPPORTED_SECUIRY_LEVEL(13030, Keys.UNSUPPORTED_SECURITY_LEVEL, "Security level {0} is not supported", SEVERE),
     SECURITY_PROPERTY_SET_IN_USE(13031, Keys.SECURITY_PROPERTY_SET_IN_USE, "Security property set ''{0}'' of device configuration ''{1}'' is still in use", SEVERE),
+    INCORRECT_CONNECTION_TYPE_FOR_CONNECTION_METHOD(13032, Keys.INCORRECT_CONNECTION_TYPE_FOR_CONNECTION_METHOD, "The connection type has an incorrect direction.", SEVERE),
     COM_TASK_ENABLEMENT_COM_TASK_REQUIRED(14000, Keys.COM_TASK_ENABLEMENT_COM_TASK_REQUIRED, "You need to specify the communication task that you want to enable on a device configuration", SEVERE),
     COM_TASK_CAN_ONLY_BE_ENABLED_ONCE(14001, Keys.COM_TASK_CAN_ONLY_BE_ENABLED_ONCE, "A communication task can only be enabled once per device configuration", SEVERE),
     COM_TASK_ENABLEMENT_CONFIGURATION_REQUIRED(14002, Keys.COM_TASK_ENABLEMENT_CONFIGURATION_REQUIRED, "You need to specify the device configuration on which you want to enable the communication task", SEVERE),
@@ -243,6 +244,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String COM_TASK_ENABLEMENT_SECURITY_PROPERTY_SET_MUST_BE_FROM_SAME_CONFIGURATION = "DTC.comTaskEnablement.securityPropertySet.fromSameConfiguration";
         public static final String COM_TASK_ENABLEMENT_DOES_NOT_EXIST = "DTC.comTaskEnablement.doesNotExist";
         public static final String DEVICE_CONFIG_ACTIVE_FIELD_IMMUTABLE = "DTC.deviceConfig.active.field.immutable";
+        public static final String INCORRECT_CONNECTION_TYPE_FOR_CONNECTION_METHOD = "DTC.incorrect.direction.connection.method";
     }
 
 }

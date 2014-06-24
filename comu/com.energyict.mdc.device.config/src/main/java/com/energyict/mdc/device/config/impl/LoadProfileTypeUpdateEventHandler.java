@@ -82,8 +82,8 @@ public class LoadProfileTypeUpdateEventHandler extends EventHandler<LocalEvent> 
 
     private boolean intervalChanged(LocalEvent event, LoadProfileType loadProfileType) {
         Event osgiEvent = event.toOsgiEvent();
-        return osgiEvent.containsProperty("oldIntervalSeconds")
-                && !is(osgiEvent.getProperty("oldIntervalSeconds")).equalTo(loadProfileType.getInterval().getSeconds());
+        Object oldIntervalSeconds = osgiEvent.getProperty("oldIntervalSeconds");
+        return oldIntervalSeconds != null && !((Long) oldIntervalSeconds == loadProfileType.getInterval().getSeconds());
     }
 
     private boolean isUsed(LoadProfileType registerMapping) {

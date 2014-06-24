@@ -78,7 +78,7 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
     }
 
     private void registerNoParamsConnectionType() {
-        this.noParamsConnectionTypePluggableClass = inMemoryPersistence.getProtocolPluggableService().newConnectionTypePluggableClass(NoParamsConnectionType.class.getSimpleName(), NoParamsConnectionType.class
+        this.noParamsConnectionTypePluggableClass = inMemoryPersistence.getProtocolPluggableService().newConnectionTypePluggableClass(OutboundNoParamsConnectionTypeImpl.class.getSimpleName(), OutboundNoParamsConnectionTypeImpl.class
                 .getName());
         this.noParamsConnectionTypePluggableClass.save();
     }
@@ -541,7 +541,7 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
         ConnectionTypePluggableClass anotherNoParamsConnectionTypePluggableClass =
                 inMemoryPersistence.getProtocolPluggableService().
                         newConnectionTypePluggableClass(
-                                "testSwitchFromOneConnectionTaskToAnother", NoParamsConnectionType.class.getName());
+                                "testSwitchFromOneConnectionTaskToAnother", OutboundNoParamsConnectionTypeImpl.class.getName());
         anotherNoParamsConnectionTypePluggableClass.save();
         PartialScheduledConnectionTask anotherPartialScheduledConnectionTask =
                 this.deviceConfiguration1.
