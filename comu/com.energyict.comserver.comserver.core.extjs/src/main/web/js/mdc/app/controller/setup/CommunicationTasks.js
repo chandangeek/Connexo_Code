@@ -396,19 +396,13 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
 
     updateCommunicationTask: function(operation) {
         var me = this,
-            form = me.getCommunicationTaskEditForm(),
-            formErrorsPlaceHolder = Ext.ComponentQuery.query('#communicationTaskEditFormErrors')[0];
+            form = me.getCommunicationTaskEditForm();
         if (form.isValid()) {
-            formErrorsPlaceHolder.hide();
+            me.hideErrorPanel();
             me[operation + 'CommunicationTaskRecord'](form.getValues(), {operation : operation});
         } else {
             me.clearPreLoader();
-            formErrorsPlaceHolder.hide();
-            formErrorsPlaceHolder.removeAll();
-            formErrorsPlaceHolder.add({
-                html: Uni.I18n.translate('communicationtasks.form.errors', 'MDC', 'There are errors on this page that require your attention')
-            });
-            formErrorsPlaceHolder.show();
+            me.showErrorPanel();
         }
     },
 
@@ -483,6 +477,12 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                         if(!Ext.isEmpty(operation.response.responseText)) {
                             var json = Ext.decode(operation.response.responseText, true);
                             if (json && json.errors) {
+                                Ext.each(json.errors, function(error, index, errors) {
+                                    if(!Ext.isEmpty(error.id) && Ext.String.startsWith(error.id, 'nextExecutionSpecs')) {
+                                        error.id = 'nextExecutionSpecs';
+                                    }
+                                });
+                                me.showErrorPanel();
                                 me.getCommunicationTaskEditForm().getForm().markInvalid(json.errors);
                                 return;
                             }
@@ -537,5 +537,25 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
             me.preloader.destroy();
             me.preloader = null;
         }
+    },
+
+    showErrorPanel: function() {
+        var me = this,
+            formErrorsPlaceHolder = me.getCommunicationTaskEditForm().down('#communicationTaskEditFormErrors');
+
+        formErrorsPlaceHolder.hide();
+        formErrorsPlaceHolder.removeAll();
+        formErrorsPlaceHolder.add({
+            html: Uni.I18n.translate('communicationtasks.form.errors', 'MDC', 'There are errors on this page that require your attention')
+        });
+        formErrorsPlaceHolder.show();
+    },
+
+    hideErrorPanel: function() {
+        var me = this,
+            formErrorsPlaceHolder = me.getCommunicationTaskEditForm().down('#communicationTaskEditFormErrors');
+
+        formErrorsPlaceHolder.hide();
+        formErrorsPlaceHolder.removeAll();
     }
 });

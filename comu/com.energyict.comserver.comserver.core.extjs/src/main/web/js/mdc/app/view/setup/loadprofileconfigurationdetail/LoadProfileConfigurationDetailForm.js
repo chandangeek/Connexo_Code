@@ -2,6 +2,10 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.loadProfileConfigurationDetailForm',
     loadProfileConfigurationChannelAction: null,
+    loadProfileConfigurationId: null,
+    deviceConfigurationId: null,
+    deviceTypeId: null,
+
     content: [
         {
             ui: 'large',
@@ -17,14 +21,18 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
             },
             items: [
                 {
+                    xtype: 'uni-form-error-message',
                     name: 'errors',
-                    layout: 'hbox',
-                    margin: '0 0 20 150',
                     hidden: true,
-                    defaults: {
-                        xtype: 'container',
-                        cls: 'isu-error-panel'
-                    }
+                    margin: '0 0 32 0'
+                },
+                {
+                    xtype: 'displayfield',
+                    required: true,
+                    fieldLabel: 'Measurement type',
+                    name: 'measurementtype',
+                    value: 'measurementType',
+                    hidden: true
                 },
                 {
                     xtype: 'combobox',
@@ -97,19 +105,24 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                     value: 1,
                     maxLength: 80,
                     afterSubTpl: '<div class="x-form-display-field"><i>' + 'Multiplies the collected value. The multiplied value will be stored in the channel' + '</i></div>'
-                }
-            ],
-            buttons: [
-                {
-                    xtype: 'container',
-                    itemId: 'LoadProfileChannelAction'
                 },
                 {
-                    text: 'Cancel',
-                    handler: function (button, event) {
-                        Ext.History.back();
+                    xtype: 'fieldcontainer',
+                    ui: 'actions',
+                    fieldLabel: '&nbsp',
+                    layout: {
+                        type: 'hbox'
                     },
-                    ui: 'link'
+                    items: [
+                        {
+                            xtype: 'container',
+                            itemId: 'LoadProfileChannelAction'
+                        },
+                        {
+                            xtype: 'container',
+                            itemId: 'LoadProfileChannelCancel'
+                        }
+                    ]
                 }
             ]
         }
@@ -124,6 +137,14 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                 text: this.loadProfileConfigurationChannelAction,
                 action: this.loadProfileConfigurationChannelAction,
                 ui: 'action'
+            }
+        );
+        this.down('#LoadProfileChannelCancel').add(
+            {
+                xtype: 'button',
+                text: 'Cancel',
+                href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/loadprofiles/' + this.loadProfileConfigurationId + '/channels',
+                ui: 'link'
             }
         );
         Ext.apply(Ext.form.VTypes, {

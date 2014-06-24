@@ -45,7 +45,27 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypesAddToDeviceTypeSetup'
                 {
                     xtype: 'container',
                     itemId: 'loadProfileTypesAddToDeviceTypeGridContainer'
+                },
+                {
+                    xtype: 'container',
+                    items: [
+                        {
+                            xtype: 'button',
+                            name: 'addloadprofiletypestodevicetype',
+                            text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
+                            ui: 'action'
+                        },
+                        {
+                            xtype: 'button',
+                            text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                            ui: 'link',
+                            handler: function (button, event) {
+                                Ext.History.back();
+                            }
+                        }
+                    ]
                 }
+
             ]
         }
     ],
@@ -55,22 +75,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypesAddToDeviceTypeSetup'
         this.down('#loadProfileTypesAddToDeviceTypeGridContainer').add(
             {
                 xtype: 'loadProfileTypesAddToDeviceTypeGrid',
-                intervalStore: this.intervalStore,
-                buttonAlign: 'left',
-                buttons: [
-                    {
-                        name: 'addloadprofiletypestodevicetype',
-                        text: 'Add',
-                        ui: 'action'
-                    },
-                    {
-                        text: 'Cancel',
-                        ui: 'link',
-                        handler:function(button,event){
-                            Ext.History.back();
-                        }
-                    }
-                ]
+                intervalStore: this.intervalStore
             }
         );
     }

@@ -135,7 +135,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
         var me = this,
             formPanel = me.getLoadConfigurationForm(),
             form = formPanel.getForm(),
-            formErrorsPanel = formPanel.down('fieldcontainer[name=errors]'),
+            formErrorsPanel = formPanel.down('uni-form-error-message[name=errors]'),
             formValue = form.getValues(),
             preloader,
             jsonValues;
@@ -156,9 +156,9 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
                         success: function () {
                             me.handleSuccessRequest('Successfully created');
                         },
-                        failure: function (response) {
-                            me.handleFailureRequest(response, 'Error during create', 'loadprofileconfigurationnotificationerrorretry');
-                        },
+//                        failure: function (response) {
+//                            me.handleFailureRequest(response, 'Error during create', 'loadprofileconfigurationnotificationerrorretry');
+//                        },
                         callback: function () {
                             preloader.destroy();
                         }
@@ -177,9 +177,9 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
                         success: function () {
                             me.handleSuccessRequest('Successfully updated');
                         },
-                        failure: function (response) {
-                            me.handleFailureRequest(response, 'Error during update', 'loadprofileconfigurationnotificationerrorretry');
-                        },
+//                        failure: function (response) {
+//                            me.handleFailureRequest(response, 'Error during update', 'loadprofileconfigurationnotificationerrorretry');
+//                        },
                         callback: function () {
                             preloader.destroy();
                         }
@@ -187,14 +187,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
                     break;
             }
         } else {
-            formErrorsPanel.hide();
-            formErrorsPanel.removeAll();
-            formErrorsPanel.add({
-                html: 'There are errors on this page that require your attention.',
-                style: {
-                    color: 'red'
-                }
-            });
             formErrorsPanel.show();
         }
     },
@@ -352,7 +344,9 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
                                 widget.down('combobox[name=id]').store = me.store;
                                 me.store.add(record);
                                 widget.down('combobox[name=id]').setValue(record.id);
-                                widget.down('combobox[name=id]').disable();
+                                widget.down('combobox[name=id]').hide();
+                                widget.down('displayfield[name=loadprofiletype]').setValue(record.name);
+                                widget.down('displayfield[name=loadprofiletype]').show();
                                 widget.down('displayfield[name=obisCode]').setValue(record.obisCode);
                                 widget.down('textfield[name=overruledObisCode]').setValue(overruledObisCode);
                             }

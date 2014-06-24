@@ -100,6 +100,26 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectPreview', {
                     ]
                 },
                 {
+                    xtype: 'form',
+                    border: false,
+                    itemId: 'protocolDialectsDetailsTitle',
+                    hidden: true,
+                    layout: {
+                        type: 'vbox',
+                        align: 'stretch'
+                    },
+                    defaults: {
+                        labelWidth: 250
+                    },
+                    items: [
+                        {
+                            xtype: 'displayfield',
+                            fieldLabel: '<h3>' + Uni.I18n.translate('protocolDialect.protocolDialectDetails', 'MDC', 'Protocol dialect details') + '</h3>',
+                            text: ''
+                        }
+                    ]
+                },
+                {
                     xtype: 'propertyView'
                 }
 

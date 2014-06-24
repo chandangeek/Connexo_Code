@@ -42,20 +42,25 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesVie
                 },
                 {
                     xtype: 'loadProfileTypeAddMeasurementTypesGrid'
-                }
-            ],
-            buttons: [
-                {
-                    name: 'addmeasurementtypestoloadprofiletype',
-                    text: 'Add',
-                    ui: 'action'
                 },
                 {
-                    text: 'Cancel',
-                    handler: function (button, event) {
-                        Ext.History.back();
-                    },
-                    ui: 'link'
+                    xtype: 'container',
+                    items: [
+                        {
+                            xtype: 'button',
+                            name: 'addmeasurementtypestoloadprofiletype',
+                            text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
+                            ui: 'action'
+                        },
+                        {
+                            xtype: 'button',
+                            text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                            ui: 'link',
+                            handler: function (button, event) {
+                                Ext.History.back();
+                            }
+                        }
+                    ]
                 }
             ]
         }

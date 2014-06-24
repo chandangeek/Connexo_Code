@@ -24,7 +24,9 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
         {ref: 'deviceCommunicationProtocolPreviewForm', selector: '#deviceCommunicationProtocolPreviewForm'},
         {ref: 'deviceCommunicationProtocolPreview', selector: '#deviceCommunicationProtocolPreview'},
         {ref: 'deviceCommunicationProtocolEditView', selector: '#deviceCommunicationProtocolEdit'},
-        {ref: 'deviceCommunicationProtocolEditForm', selector: '#deviceCommunicationProtocolEditForm'}
+        {ref: 'deviceCommunicationProtocolEditForm', selector: '#deviceCommunicationProtocolEditForm'},
+        {ref: 'editCommunicationProtocolDetailsTitle', selector: '#editCommunicationProtocolDetailsTitle'},
+        {ref: 'communicationProtocolDetailsTitle', selector: '#communicationProtocolDetailsTitle'}
     ],
 
     init: function () {
@@ -54,6 +56,11 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
                     me.getDeviceCommunicationProtocolPreviewForm().loadRecord(deviceCommunicationProtocol);
                     me.getDeviceCommunicationProtocolPreview().getLayout().setActiveItem(1);
                     me.getDeviceCommunicationProtocolPreview().setTitle(deviceCommunicationProtocol.get('name'));
+                    if (deviceCommunicationProtocol.propertiesStore.data.items.length > 0) {
+                        me.getCommunicationProtocolDetailsTitle().setVisible(true);
+                    } else {
+                        me.getCommunicationProtocolDetailsTitle().setVisible(false);
+                    }
                     me.getPropertiesViewController().showProperties(deviceCommunicationProtocol, me.getDeviceCommunicationProtocolPreview());
                 }
             });
@@ -97,6 +104,11 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
                 me.getApplication().fireEvent('loadDeviceCommunicationProtocol', protocol);
                 widget.down('form').loadRecord(protocol);
                 widget.down('#deviceCommunicationProtocolEditCreateTitle').update('<h1>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + protocol.get('name') + '</h1>');
+                if (protocol.propertiesStore.data.items.length > 0) {
+                    me.getEditCommunicationProtocolDetailsTitle().setVisible(true);
+                } else {
+                    me.getEditCommunicationProtocolDetailsTitle().setVisible(false);
+                }
                 me.getPropertiesController().showProperties(protocol, widget, true);
                 widget.setLoading(false);
             }

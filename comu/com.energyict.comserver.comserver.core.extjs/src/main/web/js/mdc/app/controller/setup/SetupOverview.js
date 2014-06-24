@@ -11,7 +11,8 @@ Ext.define('Mdc.controller.setup.SetupOverview', {
         'setup.devicetype.DeviceTypesSetup',
         'setup.register.RegisterMappingsSetup',
         'setup.registertype.RegisterTypeSetup',
-        'setup.registerconfig.RegisterConfigSetup'
+        'setup.registerconfig.RegisterConfigSetup',
+        'setup.deviceconnectionmethod.DeviceConnectionMethodSetup'
     ],
 
     init: function () {
@@ -57,6 +58,10 @@ Ext.define('Mdc.controller.setup.SetupOverview', {
     },
     showLogbookTypes: function () {
         var widget = Ext.widget('logbookTypeSetup');
+        this.getApplication().fireEvent('changecontentevent', widget);
+    },
+    showDeviceConnectionMethods: function () {
+        var widget = Ext.widget('deviceConnectionMethodSetup');
         this.getApplication().fireEvent('changecontentevent', widget);
     }
 

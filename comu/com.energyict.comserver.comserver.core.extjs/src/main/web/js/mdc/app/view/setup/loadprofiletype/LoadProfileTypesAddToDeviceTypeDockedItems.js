@@ -2,7 +2,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypesAddToDeviceTypeDocked
     extend: 'Ext.toolbar.Toolbar',
     border: 0,
     alias: 'widget.loadProfileTypesAddToDeviceTypeDockedItems',
-    aling: 'left',
+    align: 'left',
 
     initComponent: function () {
         this.callParent(this);
@@ -13,10 +13,21 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypesAddToDeviceTypeDocked
             },
             {
                 xtype: 'button',
-                text: 'Uncheck All',
+                text: Uni.I18n.translate('general.uncheckall', 'MDC', 'Uncheck All'),
                 action: 'uncheckallloadprofiletypes',
-                itemId: 'uncheckAllLoadProfileTypes',
-                margin: '0 5'
+                itemId: 'uncheckAllLoadProfileTypes'
+            },
+            {
+                xtype: 'container',
+                flex: 1
+            },
+            {
+                xtype: 'button',
+                ui: 'link',
+                text: Uni.I18n.translate('loadprofiletypes.manageloadprofiletypes', 'MDC', 'Manage load profile types'),
+                handler: function (button, event) {
+                    window.open('#/administration/loadprofiletypes');
+                }
             }
         )
     }

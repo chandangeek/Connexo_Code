@@ -6,9 +6,8 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileConfigurationDetailInfo', 
 
     width: '50%',
     defaults: {
-        labelWidth: 150,
+        labelWidth: 200,
         labelAlign: 'right',
-        margin: '0 0 20 0',
         validateOnChange: false,
         validateOnBlur: false,
         anchor: '100%'
@@ -16,27 +15,27 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileConfigurationDetailInfo', 
     items: [
         {
             xtype: 'displayfield',
-            fieldLabel: 'Device configuration: ',
+            fieldLabel: 'Device configuration',
             name: 'deviceConfigurationName'
         },
         {
             xtype: 'displayfield',
-            fieldLabel: 'Load profile configuration: ',
+            fieldLabel: 'Load profile configuration',
             itemId: 'loadProfileConfigLink'
         },
         {
             xtype: 'displayfield',
-            fieldLabel: 'Load profile type: ',
+            fieldLabel: 'Load profile type',
             name: 'name'
         },
         {
             xtype: 'displayfield',
-            fieldLabel: 'OBIS code: ',
+            fieldLabel: 'OBIS code',
             name: 'obisCode'
         },
         {
             xtype: 'displayfield',
-            fieldLabel: 'Interval: ',
+            fieldLabel: 'Interval',
             name: 'timeDuration',
             renderer: function (value) {
                 var intervalRecord = this.up('#loadProfileConfigurationDetailInfo').intervalStore.findRecord('id', value.id);

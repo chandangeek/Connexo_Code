@@ -25,7 +25,6 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
         {ref: 'registerMappingPreviewForm', selector: '#registerMappingPreviewForm'},
         {ref: 'registerMappingPreview', selector: '#registerMappingPreview'},
         {ref: 'registerMappingPreviewTitle', selector: '#registerMappingPreviewTitle'},
-        {ref: 'registerTypeAddTitle', selector: '#registerTypeAddTitle'},
         {ref: 'addRegisterMappingBtn', selector: '#addRegisterMappingBtn'},
         {ref: 'readingTypeDetailsForm', selector: '#readingTypeDetailsForm'},
         {ref: 'registerMappingAddGrid', selector: '#registermappingaddgrid'},
@@ -79,7 +78,6 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
             this.getRegisterMappingPreviewForm().loadRecord(registerMappings[0]);
             var registerMappingsName = this.getRegisterMappingPreviewForm().form.findField('name').getSubmitValue();
             this.getRegisterMappingPreview().getLayout().setActiveItem(1);
-            //this.getRegisterMappingPreviewTitle().update('<h4>' + registerMappingsName + '</h4>');
             this.getRegisterMappingPreview().setTitle(registerMappingsName);
             this.getPreviewMrId().setValue(registerMappings[0].getReadingType().get('mrid'));
             this.getRegisterMappingPreviewForm().loadRecord(registerMappings[0]);
@@ -96,8 +94,6 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(id, {
             success: function (deviceType) {
                 me.getApplication().fireEvent('loadDeviceType', deviceType);
-                var deviceTypeName = deviceType.get('name');
-                // widget.down('#registerTypeTitle').html = '<h1>' + deviceTypeName + ' > ' + Uni.I18n.translate('registerMapping.registerTypes', 'MDC', 'Register types') + '</h1>';
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.getRegisterMappingGrid().getSelectionModel().doSelect(0);
             }
@@ -115,10 +111,7 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
                     Ext.ModelManager.getModel('Mdc.model.DeviceType').load(id, {
                         success: function (deviceType) {
                             me.getApplication().fireEvent('loadDeviceType', deviceType);
-                            var deviceTypeName = deviceType.get('name');
-                            //widget.down('#registerTypeAddTitle').html = '<h1>' + deviceTypeName + ' > ' + Uni.I18n.translate('registerMappingAdd.addRegisterTypes', 'MDC', 'Add register types') + '</h1>';
                             me.getApplication().fireEvent('changecontentevent', widget);
-                            me.getRegisterMappingGrid().getSelectionModel().doSelect(0);
                         }
                     });
                 }

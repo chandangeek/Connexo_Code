@@ -107,18 +107,36 @@ Ext.define('Mdc.controller.setup.Properties', {
         });
     },
 
+    showPropertiesAsInherited: function(objectWithProperties, view, hidden){
+        var me = this;
+        var properties = objectWithProperties.propertiesStore.data.items;
+        this.propertiesStore = objectWithProperties.propertiesStore;
+        properties.forEach(function(property){
+            var propertyValue = property.getPropertyValue();
+            propertyValue.data.inheritedValue = propertyValue.data.value;
+            propertyValue.data.value = '';
+        });
+        debugger;
+        this.show(properties,view,hidden);
+    },
+
     showProperties: function (objectWithProperties, view, hidden) {
+        var properties = objectWithProperties.propertiesStore.data.items;
+        this.propertiesStore = objectWithProperties.propertiesStore;
+        this.show(properties,view,hidden);
+    },
+
+    show: function(properties,view, hidden){
         var me = this;
         var propertiesView = view.down('#propertyEdit');
         this.hidden = hidden;
         var propertiesForm = view.down('#propertiesform');
         var items = propertiesForm.items.items.slice(0);
         Ext.each(items, function (child, index) {
-                propertiesForm.remove(child);
+            propertiesForm.remove(child);
         });
 
-        var properties = objectWithProperties.propertiesStore.data.items;
-        me.propertiesStore = objectWithProperties.propertiesStore;
+
 
         properties.forEach(function (entry) {
                 var property = entry;
@@ -365,7 +383,7 @@ Ext.define('Mdc.controller.setup.Properties', {
             } else if (newValue === 'true') {
                 view.down('#' + key).setValue({rb: 1});
             } else {
-                view.down('#' + + key).setValue({rb: null});
+                view.down('#' + key).setValue({rb: null});
             }
         } else if (property.getPropertyType().data.simplePropertyType === 'CLOCK') {
             if (newValue !== null && newValue !== '' && newValue !== undefined) {
@@ -481,7 +499,7 @@ Ext.define('Mdc.controller.setup.Properties', {
                     if (view.down('#' + property.data.key) != null) {
                         var field = view.down('#' + property.data.key);
                         value = field.getValue();
-                        if (property.getPropertyType().data.simplePropertyType === 'CODETABLE'){
+                        if (property.getPropertyType().data.simplePropertyType === 'CODETABLE') {
                             if (value !== '') {
                                 var valueId = value.substr(0, value.indexOf('-'));
                                 value = new Object();
@@ -554,11 +572,11 @@ Ext.define('Mdc.controller.setup.Properties', {
                     if (property.data.isInheritedOrDefaultValue === true) {
                         property.setPropertyValue(null);
                     } else {
-                        propertyValue.data.value = value;
+                        propertyValue.set('value', value);
                         property.setPropertyValue(propertyValue);
                     }
-                    delete property.data.isInheritedOrDefaultValue;
-                    delete property.setPropertyType(null);
+                    //delete property.data.isInheritedOrDefaultValue;
+                    //delete property.setPropertyType(null);
                 }
             );
         }
@@ -569,8 +587,14 @@ Ext.define('Mdc.controller.setup.Properties', {
         var properties = model.propertiesStore.data.items;
         if (properties != null) {
             properties.forEach(function (property) {
-                    delete property.data.isInheritedOrDefaultValue;
-                    delete property.setPropertyType(null);
+                    if (property.data.isInheritedOrDefaultValue === true) {
+                        property.setPropertyValue(null);
+                    } else {
+                        propertyValue.data.value = value;
+                        property.setPropertyValue(propertyValue);
+                    }
+                  //  delete property.data.isInheritedOrDefaultValue;
+                  //  delete property.setPropertyType(null);
                 }
             );
         }
@@ -613,7 +637,7 @@ Ext.define('Mdc.controller.setup.Properties', {
         this.loadProfileTypeSelectionWindow.close();
     },
 
-    showErrors: function(errors) {
+    showErrors: function (errors) {
         this.getPropertiesForm().getForm().markInvalid(errors);
     }
 

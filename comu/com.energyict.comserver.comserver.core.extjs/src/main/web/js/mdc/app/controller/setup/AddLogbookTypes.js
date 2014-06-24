@@ -24,10 +24,17 @@ Ext.define('Mdc.controller.setup.AddLogbookTypes', {
     },
 
     countSelectedLogbooks: function (grid) {
-        var textLabel = Ext.ComponentQuery.query('add-logbook-types label')[0];
+        var textLabel = Ext.ComponentQuery.query('add-logbook-types label')[0],
+            addBtn = Ext.ComponentQuery.query('add-logbook-types button[action=add]')[0],
+            chosenLogBookCount = grid.view.getSelectionModel().getSelection().length;
         textLabel.setText(
-            grid.view.getSelectionModel().getSelection().length >= 1 ? (grid.view.getSelectionModel().getSelection().length +
-                (grid.view.getSelectionModel().getSelection().length > 1 ? ' logbooks' : ' logbook') + ' selected') : 'No logbooks selected');
+            chosenLogBookCount >= 1 ? (chosenLogBookCount +
+                (chosenLogBookCount > 1 ? ' logbooks' : ' logbook') + ' selected') : 'No logbooks selected');
+        if (chosenLogBookCount < 1) {
+            addBtn.disable();
+        } else {
+            addBtn.enable();
+        };
     },
 
     addLogbookType: function (btn) {
