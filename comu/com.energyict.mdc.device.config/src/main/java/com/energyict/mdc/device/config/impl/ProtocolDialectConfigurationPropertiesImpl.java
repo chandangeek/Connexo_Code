@@ -204,18 +204,28 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
 
     @Override
     public void setProperty(String name, Object value) {
-        if (getTypedProperties().hasValueFor(name)) {
-            updateExistingProperty(name, value);
-            return;
+        if (value != null) {
+            if (getTypedProperties().hasValueFor(name)) {
+                removeProperty(name);
+            }
+            setNewProperty(name, value);
+        } else {
+            removeProperty(name);
         }
-        setNewProperty(name, value);
     }
 
     @Override
     public void removeProperty(String name) {
         ProtocolDialectConfigurationProperty found = findProperty(name);
         propertyList.remove(found);
-        typedProperties = null;
+        getLocalAdjustableTypedProperties().removeProperty(name);
+    }
+
+    private TypedProperties getLocalAdjustableTypedProperties(){
+        if(this.typedProperties == null){
+            this.typedProperties = initializeTypedProperties();
+        }
+        return this.typedProperties;
     }
 
     private ProtocolDialectConfigurationProperty findProperty(String name) {
@@ -230,18 +240,7 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
     private void setNewProperty(String name, Object value) {
         ProtocolDialectConfigurationProperty property = ProtocolDialectConfigurationProperty.forKey(this, name).setValue(asStringValue(name, value));
         propertyList.add(property);
-        typedProperties.setProperty(name, value);
-    }
-
-    private void updateExistingProperty(String name, Object value) {
-        for (ProtocolDialectConfigurationProperty property : propertyList) {
-            if (property.getName().equals(name)) {
-                property.setValue(asStringValue(name, value));
-                typedProperties.setProperty(name, value);
-                return;
-            }
-        }
-        throw new IllegalStateException("This should not occur."); // if our typedProperties view has a value for name we should find its originating property
+        getLocalAdjustableTypedProperties().setProperty(name, value);
     }
 
     @Override
