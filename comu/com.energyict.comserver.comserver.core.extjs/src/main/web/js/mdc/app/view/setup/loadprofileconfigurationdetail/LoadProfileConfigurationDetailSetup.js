@@ -36,18 +36,38 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationDeta
                     itemId: 'loadProfileConfigurationDetailDockedItems'
                 },
                 {
-                    xtype: 'panel',
+                    xtype: 'container',
                     itemId: 'emptyPanel',
                     hidden: true,
-                    height: 200,
+                    layout: {
+                        type: 'hbox',
+                        align: 'left'
+                    },
+                    minHeight: 20,
                     items: [
                         {
-                            xtype: 'panel',
-                            html: "<h3>No channel configurations found</h3><br>\
-          There are no channel configurations. This could be because:<br>\
-          &nbsp;&nbsp; - No channel configurations have been defined yet.<br>\
-          &nbsp;&nbsp; - No channel configurations comply to the filter.<br><br>\
-          Possible steps:<br><br>"
+                            xtype: 'image',
+                            margin: '0 10 0 0',
+                            src: '../ext/packages/uni-theme-skyline/build/resources/images/shared/icon-info-small.png',
+                            height: 20,
+                            width: 20
+                        },
+                        {
+                            xtype: 'container',
+                            items: [
+                                {
+                                    xtype: 'component',
+                                    html: '<b>' + Uni.I18n.translate('channelConfigurations.empty.title', 'MDC', 'No channel configurations found') + '</b><br>' +
+                                        Uni.I18n.translate('channelConfigurations.empty.detail', 'MDC', 'There are no channel configurations. This could be because:') + '<lv><li>' +
+                                        Uni.I18n.translate('channelConfigurations.empty.list.item1', 'MDC', 'No channel configurations have been defined yet.') + '</li><li>' +
+                                        Uni.I18n.translate('channelConfigurations.empty.list.item2', 'MDC', 'No channel configurations comply to the filter.') + '</li></lv><br>' +
+                                        Uni.I18n.translate('channelConfigurations.empty.steps', 'MDC', 'Possible steps:')
+                                },
+                                {
+                                    xtype: 'container',
+                                    itemId: 'addchannelconfigurationcontainer'
+                                }
+                            ]
                         }
                     ]
                 },
@@ -88,9 +108,10 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationDeta
                 loadProfileConfigurationId: this.loadProfileConfigurationId
             }
         );
-        this.down('#emptyPanel').add(
+        this.down('#addchannelconfigurationcontainer').add(
             {
                 xtype: 'button',
+                margin: '10 0 0 0',
                 text: Uni.I18n.translate('loadprofileconfiguration.loadprofilechaneelconfiguationsadd', 'MDC', 'Add channel configuration'),
                 action: 'addchannelconfiguration',
                 hrefTarget: '',

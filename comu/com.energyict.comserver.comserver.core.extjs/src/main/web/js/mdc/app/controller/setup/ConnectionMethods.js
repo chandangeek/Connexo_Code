@@ -32,8 +32,10 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         {ref: 'connectionStrategyComboBox', selector: '#connectionStrategyComboBox'},
         {ref: 'scheduleField', selector: '#scheduleField'},
         {ref: 'connectionTypeComboBox', selector: '#connectionTypeComboBox'},
-
-        {ref: 'toggleDefaultMenuItem', selector: '#toggleDefaultMenuItem'}
+        {ref: 'toggleDefaultMenuItem', selector: '#toggleDefaultMenuItem'},
+        {ref: 'comWindowStart', selector: '#connectionMethodEdit #comWindowStart'},
+        {ref: 'comWindowEnd', selector: '#connectionMethodEdit #comWindowEnd'},
+        {ref: 'activateComWindowCheckBox', selector: '#connectionMethodEdit #activateComWindowCheckBox'}
     ],
 
     init: function () {
@@ -84,6 +86,9 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
             },
             '#connectionStrategyComboBox': {
                 select: this.showScheduleField
+            },
+            '#connectionMethodEdit #activateComWindowCheckBox':{
+                change: this.activateComWindow
             }
         });
     },
@@ -265,6 +270,10 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
             if (values.connectionStrategy === 'asSoonAsPossible') {
                 record.set('nextExecutionSpecs', null);
             }
+            if(!values.hasOwnProperty('comWindowStart')){
+                record.set('comWindowStart', 0);
+                record.set('comWindowEnd', 0);
+            }
             record.propertiesStore = this.getPropertiesController().updateProperties();
             record.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigurationId});
             record.save({
@@ -386,6 +395,11 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                                                         widget.down('form').down('#connectionTypeComboBox').setValue(connectionMethod.get('connectionType'));
                                                         widget.down('form').down('#communicationPortPoolComboBox').setValue(connectionMethod.get('comPortPool'));
                                                         widget.down('form').down('#connectionStrategyComboBox').setValue(connectionMethod.get('connectionStrategy'));
+                                                        if(connectionMethod.get('comWindowStart')===0 && connectionMethod.get('comWindowEnd')===0){
+                                                            widget.down('form').down('#activateComWindowCheckBox').setValue(false);
+                                                        } else {
+                                                            widget.down('form').down('#activateComWindowCheckBox').setValue(true);
+                                                        }
                                                         me.getPropertiesController().showProperties(connectionMethod, me.getConnectionMethodEditView(), false);
                                                         widget.setLoading(false);
                                                     }
@@ -423,5 +437,19 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                 me.previewConnectionMethod();
             }
         });
+    },
+
+    activateComWindow: function(checkbox,newValue){
+        if(newValue){
+            debugger;
+            this.getComWindowStart().setDisabled(false);
+            this.getComWindowEnd().setDisabled(false);
+        } else {
+            debugger;
+            this.getComWindowStart().setDisabled(true);
+            this.getComWindowEnd().setDisabled(true);
+            this.getComWindowStart().setValue(0);
+            this.getComWindowEnd().setValue(0);
+        }
     }
 });
