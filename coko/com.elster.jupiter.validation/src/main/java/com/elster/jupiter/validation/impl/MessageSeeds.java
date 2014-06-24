@@ -13,8 +13,8 @@ public enum MessageSeeds implements MessageSeed {
     CAN_NOT_BE_EMPTY(2, Constants.NAME_REQUIRED_KEY, "This field is required", Level.SEVERE),
     INVALID_CHARS(5, Constants.INVALID_CHARS, "This field contains invalid chars, should obey {regex}", Level.SEVERE),
 
-    DUPLICATE_VALIDATION_RULE_SET(101, Constants.DUPLICATE_VALIDATION_RULE_SET, "Validation rule set with name {value} already exists", Level.SEVERE),
-    DUPLICATE_VALIDATION_RULE(102, Constants.DUPLICATE_VALIDATION_RULE, "Validation rule with name {value} already exists", Level.SEVERE),
+    DUPLICATE_VALIDATION_RULE_SET(101, Constants.DUPLICATE_VALIDATION_RULE_SET, "Validation rule set with such name already exists", Level.SEVERE),
+    DUPLICATE_VALIDATION_RULE(102, Constants.DUPLICATE_VALIDATION_RULE, "Validation rule with such name already exists", Level.SEVERE),
 
     NO_SUCH_VALIDATOR(1001, Constants.NO_SUCH_VALIDATOR, "Validator {0} does not exist.", Level.SEVERE),
     NO_SUCH_READINGTYPE(1002, Constants.NO_SUCH_READINGTYPE, "Reading type {0} does not exist.", Level.SEVERE);
@@ -44,6 +44,10 @@ public enum MessageSeeds implements MessageSeed {
 
     @Override
     public String getKey() {
+        if (key.startsWith(getModule() + ".")){
+            // +1 to skip the dot symbol
+            return key.substring(getModule().length() + 1);
+        }
         return key;
     }
 

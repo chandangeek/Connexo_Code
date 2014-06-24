@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.validation.ReadingTypeInValidationRule;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
@@ -58,6 +59,8 @@ public class ValidationRuleSetTest extends EqualsContractTest {
     private ValidatorFactory validatorFactory;
     @Mock
     private javax.validation.Validator validator;
+    @Mock
+    private QueryExecutor queryExecutor;
 
     @Before
     public void setUp() {
@@ -68,9 +71,10 @@ public class ValidationRuleSetTest extends EqualsContractTest {
         when(dataModel.getInstance(ValidationRuleImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService);
+                return new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService, eventService);
             }
         });
+        when(dataModel.query(IValidationRule.class)).thenReturn(queryExecutor);
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(dataModel.getValidatorFactory().getValidator()).thenReturn(validator);
 
@@ -157,7 +161,10 @@ public class ValidationRuleSetTest extends EqualsContractTest {
 
         validationRuleSet.delete();
 
-        verify(setFactory).remove(validationRuleSet);
+        verify(setFactory).update(validationRuleSet);
+        verify(ruleFactory).update((IValidationRule)rule1);
+        assertThat(validationRuleSet.getObsoleteDate()).isNotNull();
+        assertThat(rule1.getObsoleteDate()).isNotNull();
     }
 
     @Test

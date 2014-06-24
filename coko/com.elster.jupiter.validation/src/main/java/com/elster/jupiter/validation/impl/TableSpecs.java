@@ -24,6 +24,7 @@ public enum TableSpecs {
             table.column("NAME").varChar(80).map("name").add();
             table.column("ALIASNAME").varChar(80).map("aliasName").add();
             table.column("DESCRIPTION").varChar(256).map("description").add();
+            table.column("OBSOLETE_TIME").map("obsoleteTime").number().conversion(NUMBER2UTCINSTANT).add();
             table.addAuditColumns();
             table.primaryKey("VAL_PK_VALIDATIONRULESET").on(idColumn).add();
             table.unique("VAL_U_VALIDATIONRULESET").on(mRIDColumn).add();
@@ -36,24 +37,27 @@ public enum TableSpecs {
             table.setJournalTableName("VAL_VALIDATIONRULEJRNL");
             Column idColumn = table.addAutoIdColumn();
             table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("active").add();
-            table.column("ACTION").number().notNull().conversion(NUMBER2ENUM).map("action").add();
-            table.column("IMPLEMENTATION").varChar(80).map("implementation").add();
-            Column ruleSetIdColumn = table.column("RULESETID").number().notNull().conversion(NUMBER2LONG).map("ruleSetId").add();
-            table.column("POSITION").number().notNull().conversion(NUMBER2INT).map("position").add();
-            table.column("NAME").varChar(80).notNull().map("name").add();
+            table.column("ACTION").type("number").notNull().conversion(NUMBER2ENUM).map("action").add();
+            table.column("IMPLEMENTATION").type("varchar2(80)").map("implementation").add();
+            Column ruleSetIdColumn = table.column("RULESETID").type("number").notNull().conversion(NUMBER2LONG).map("ruleSetId").add();
+            table.column("POSITION").type("number").notNull().conversion(NUMBER2INT).map("position").add();
+            table.column("NAME").type("varchar2(80)").notNull().map("name").add();
+            table.column("OBSOLETE_TIME").map("obsoleteTime").type("number").conversion(NUMBER2UTCINSTANT).add();
+            table.addAuditColumns();
             table.primaryKey("VAL_PK_VALIDATIONRULE").on(idColumn).add();
-            table.foreignKey("VAL_FK_RULE").references("VAL_VALIDATIONRULESET").onDelete(RESTRICT).map("ruleSet").reverseMap("rules").reverseMapOrder("position").on(ruleSetIdColumn).add();
+            table.foreignKey("VAL_FK_RULE").references("VAL_VALIDATIONRULESET").onDelete(RESTRICT).map("ruleSet").on(ruleSetIdColumn).add();
         }
     },
     VAL_VALIDATIONRULEPROPS(ValidationRuleProperties.class) {
         @Override
         void describeTable(Table table) {
             table.map(ValidationRulePropertiesImpl.class);
-            Column ruleIdColumn = table.column("RULEID").number().notNull().conversion(NUMBER2LONG).add();
-            Column nameColumn = table.column("NAME").varChar(80).notNull().map("name").add();
+            table.setJournalTableName("VAL_VALIDATIONRULEPROPSJRNL");
+            Column ruleIdColumn = table.column("RULEID").type("number").notNull().conversion(NUMBER2LONG).add();
+            Column nameColumn = table.column("NAME").type("varchar2(80)").notNull().map("name").add();
             table.addQuantityColumns("VALUE", true, "value");
             table.primaryKey("VAL_PK_VALRULEPROPS").on(ruleIdColumn, nameColumn).add();
-            table.foreignKey("VAL_FK_RULEPROPS").references("VAL_VALIDATIONRULE").onDelete(CASCADE).map("rule").reverseMap("properties").composition().on(ruleIdColumn).add();
+            table.foreignKey("VAL_FK_RULEPROPS").references("VAL_VALIDATIONRULE").onDelete(RESTRICT).map("rule").reverseMap("properties").composition().on(ruleIdColumn).add();
         }
     },
     VAL_MA_VALIDATION(MeterActivationValidation.class) {

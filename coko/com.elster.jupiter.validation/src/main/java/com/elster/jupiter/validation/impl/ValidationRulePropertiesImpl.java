@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -45,6 +46,11 @@ final class ValidationRulePropertiesImpl implements ValidationRuleProperties {
     @Override
     public Quantity getValue() {
         return value;
+    }
+
+    @Override
+    public void setValue(Quantity value) {
+        this.value = value;
     }
 
     @Override

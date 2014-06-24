@@ -10,10 +10,16 @@ import com.elster.jupiter.metering.ReadingQuality;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.*;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.collections.ArrayDiffList;
+import com.elster.jupiter.util.collections.DiffList;
 import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.time.UtcInstant;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.InvalidReadingTypeException;
 import com.elster.jupiter.validation.ReadingTypeInValidationRule;
@@ -51,7 +57,7 @@ import java.util.Set;
 @XmlRootElement
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.DUPLICATE_VALIDATION_RULE + "}")
 //@ValidValidationRule(groups = { Save.Create.class, Save.Update.class })
-final class ValidationRuleImpl implements ValidationRule, IValidationRule {
+public final class ValidationRuleImpl implements ValidationRule, IValidationRule {
     private long id;
 
     @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")
@@ -63,7 +69,12 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")
     @ExistingValidator(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NO_SUCH_VALIDATOR + "}")
     private String implementation; //validator classname
+    private UtcInstant obsoleteTime;
 
+    private long version;
+    private UtcInstant createTime;
+    private UtcInstant modTime;
+    private String userName;
     // associations
     private List<ReadingTypeInValidationRule> readingTypesInRule = new ArrayList<>();
 
@@ -78,13 +89,15 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
     private final ValidatorCreator validatorCreator;
     private final Thesaurus thesaurus;
     private final MeteringService meteringService;
+    private final EventService eventService;
 
     @Inject
-    ValidationRuleImpl(DataModel dataModel, ValidatorCreator validatorCreator, Thesaurus thesaurus, MeteringService meteringService) {
+    ValidationRuleImpl(DataModel dataModel, ValidatorCreator validatorCreator, Thesaurus thesaurus, MeteringService meteringService, EventService eventService) {
         this.dataModel = dataModel;
         this.validatorCreator = validatorCreator;
         this.thesaurus = thesaurus;
         this.meteringService = meteringService;
+        this.eventService = eventService;
     }
 
     ValidationRuleImpl init(ValidationRuleSet ruleSet, ValidationAction action, String implementation, int position, String name) {
@@ -115,6 +128,32 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
     }
 
     @Override
+    public void setProperties(Map<String, Quantity> propertyMap) {
+        DiffList<ValidationRuleProperties> entryDiff = ArrayDiffList.fromOriginal(getProperties());
+        entryDiff.clear();
+        List<ValidationRuleProperties> newProperties = new ArrayList<>();
+        for(Map.Entry<String, Quantity> property : propertyMap.entrySet()) {
+            ValidationRulePropertiesImpl newProperty = ValidationRulePropertiesImpl.from(dataModel, this, property.getKey(), property.getValue());
+            newProperties.add(newProperty);
+        }
+
+        if (newProperties != null) {
+            entryDiff.addAll(newProperties);
+        }
+        for (ValidationRuleProperties property : entryDiff.getRemovals()) {
+            properties.remove(property);
+        }
+
+        for (ValidationRuleProperties property : entryDiff.getRemaining()) {
+            property.setValue(propertyMap.get(property.getName()));
+            rulePropertiesFactory().update(property);
+        }
+        for (ValidationRuleProperties property : entryDiff.getAdditions()) {
+            properties.add(property);
+        }
+    }
+
+    @Override
     public ReadingTypeInValidationRule addReadingType(ReadingType readingType) {
         ReadingTypeInValidationRuleImpl readingTypeInValidationRule = ReadingTypeInValidationRuleImpl.from(dataModel, this, readingType);
         readingTypesInRule.add(readingTypeInValidationRule);
@@ -136,7 +175,9 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
     }
 
     public void delete() {
-        ruleFactory().remove(this);
+        this.setObsoleteTime(new UtcInstant(new Date())); // mark obsolete
+        ruleFactory().update(this);
+        eventService.postEvent(EventType.VALIDATIONRULE_DELETED.topic(), this);
     }
 
     @Override
@@ -193,7 +234,12 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
 
     @Override
     public List<ValidationRuleProperties> getProperties() {
-        return Collections.unmodifiableList(properties);
+        List<ValidationRuleProperties> propertyList = new ArrayList<>();
+        for (ValidationRuleProperties validationRuleProperties : properties) {
+            propertyList.add(validationRuleProperties);
+        }
+        return propertyList;
+        //return Collections.unmodifiableList(properties);
     }
 
     @Override
@@ -254,6 +300,11 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
     }
 
     @Override
+    public void rename(String name) {
+        this.name = name;
+    }
+
+    @Override
     public void setAction(ValidationAction action) {
         this.action = action;
     }
@@ -284,6 +335,36 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
             return null;
         }
         return validateReadings(channel, interval);
+    }
+
+    @Override
+    public Date getObsoleteDate() {
+        return getObsoleteTime() != null ? getObsoleteTime().toDate() : null;
+    }
+
+    private UtcInstant getObsoleteTime() {
+        return this.obsoleteTime;
+    }
+
+    private void setObsoleteTime(UtcInstant obsoleteTime) {
+        this.obsoleteTime = obsoleteTime;
+    }
+
+    @Override
+    public long getVersion() {
+        return version;
+    }
+
+    UtcInstant getCreateTime() {
+        return createTime;
+    }
+
+    UtcInstant getModTime() {
+        return modTime;
+    }
+
+    String getUserName() {
+        return userName;
     }
 
     void setRuleSetId(long ruleSetId) {
@@ -321,7 +402,7 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
     }
 
     private List<ReadingTypeInValidationRule> loadReadingTypesInValidationRule() {
-        return readingTypesInRuleFactory().find("ruleId", this.getId());
+        return readingTypesInRuleFactory().find("ruleId",this.getId());
     }
 
     private Validator newValidator(Channel channel, Interval interval, ReadingType channelReadingType) {
@@ -349,10 +430,6 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
     @Override
     public String getName() {
         return name;
-    }
-
-    private void setName(String name) {
-        this.name = name;
     }
 
     private Date validateReadings(Channel channel, Interval interval) {
