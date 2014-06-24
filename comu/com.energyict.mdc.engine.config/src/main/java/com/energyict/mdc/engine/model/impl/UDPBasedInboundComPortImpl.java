@@ -21,7 +21,7 @@ public class UDPBasedInboundComPortImpl extends IPBasedInboundComPortImpl implem
 
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
     @Min(value=1, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_VALUE_TOO_SMALL+"}")
-    private int bufferSize;
+    private Integer bufferSize;
 
     @Inject
     protected UDPBasedInboundComPortImpl(DataModel dataModel, Thesaurus thesaurus) {
@@ -41,12 +41,12 @@ public class UDPBasedInboundComPortImpl extends IPBasedInboundComPortImpl implem
 
     @Override
     @XmlElement
-    public int getBufferSize () {
+    public Integer getBufferSize () {
         return bufferSize;
     }
 
     @Override
-    public void setBufferSize(int bufferSize) {
+    public void setBufferSize(Integer bufferSize) {
         this.bufferSize = bufferSize;
     }
 
@@ -60,7 +60,7 @@ public class UDPBasedInboundComPortImpl extends IPBasedInboundComPortImpl implem
         }
 
         @Override
-        public UDPBasedInboundComPortBuilder bufferSize(int bufferSize) {
+        public UDPBasedInboundComPortBuilder bufferSize(Integer bufferSize) {
             comPort.setBufferSize(bufferSize);
             return this;
         }

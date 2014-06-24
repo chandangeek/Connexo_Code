@@ -84,7 +84,7 @@ public class UDPBasedInboundComPortImplTest extends PersistenceTest {
         assertTrue("Was expecting the new com port to be active", comPort.isActive());
         assertEquals("Incorrect number of simultaneous connections", NUMBER_OF_SIMULTANEOUS_CONNECTIONS, comPort.getNumberOfSimultaneousConnections());
         assertEquals("Incorrect listening PortNumber", PORT_NUMBER, comPort.getPortNumber());
-        assertEquals("Buffer size should be the same", DATAGRAM_BUFFER_SIZE, comPort.getBufferSize());
+        assertEquals("Buffer size should be the same", Integer.valueOf(DATAGRAM_BUFFER_SIZE), comPort.getBufferSize());
     }
 
     @Test
@@ -227,7 +227,7 @@ public class UDPBasedInboundComPortImplTest extends PersistenceTest {
         assertEquals("Was NOT expecting the new com port to be active", newActive, comPort.isActive());
         assertEquals("Incorrect number of simultaneous connections", newNumberOfSimultaneousConnections, comPort.getNumberOfSimultaneousConnections());
         assertEquals("Incorrect listening PortNumber", newPortNumber, comPort.getPortNumber());
-        assertEquals("Buffer size should be the same", newBufferSize, comPort.getBufferSize());
+        assertEquals("Buffer size should be the same", Integer.valueOf(newBufferSize), comPort.getBufferSize());
     }
 
     private int comPortPoolIndex=1;

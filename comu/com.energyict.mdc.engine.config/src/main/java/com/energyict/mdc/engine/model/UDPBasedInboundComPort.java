@@ -18,12 +18,12 @@ public interface UDPBasedInboundComPort extends IPBasedInboundComPort {
      *
      * @return The size of the buffer
      */
-    public int getBufferSize();
+    public Integer getBufferSize();
 
-    public void setBufferSize(int size);
+    public void setBufferSize(Integer size);
 
     interface UDPBasedInboundComPortBuilder extends IpBasedInboundComPortBuilder<UDPBasedInboundComPortBuilder, UDPBasedInboundComPort> {
-        public UDPBasedInboundComPortBuilder bufferSize(int bufferSize);
+        public UDPBasedInboundComPortBuilder bufferSize(Integer bufferSize);
     }
     
 }
