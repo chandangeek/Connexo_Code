@@ -23,7 +23,8 @@ public class HttpContextImpl implements HttpContext {
     static final String USERPRINCIPAL = "com.elster.jupiter.userprincipal";
     static final String LOGIN_URI = "/apps/usr/login.html";
 
-    static final String[] UNSECURED_RESOURCES = {
+    // Resources used by the login page so access is required before authenticating
+    static final String[] RESOURCES_NOT_SECURED = {
             "/apps/usr/login.html",
             "/apps/usr/login.js",
             "/apps/ext/ext-all-dev.js",
@@ -37,16 +38,24 @@ public class HttpContextImpl implements HttpContext {
             "/apps/uni/resources/css/etc/all.css",
             "/apps/usr/resources/images/connexo.png"};
 
+    // No caching for index.html files, so that authentication will be verified first;
+    // Note that resources used in these files are still cached
+    static final String[] RESOURCES_NOT_CACHED = {
+            "index.html",
+            "index-dev.html"};
+
+    private final WhiteBoard whiteboard;
     private final Resolver resolver;
     private final UserService userService;
     private final TransactionService transactionService;
     private final AtomicReference<EventAdmin> eventAdminHolder;
 
-    HttpContextImpl(Resolver resolver, UserService userService, TransactionService transactionService, AtomicReference<EventAdmin> eventAdminHolder) {
+    HttpContextImpl(WhiteBoard whiteboard, Resolver resolver, UserService userService, TransactionService transactionService, AtomicReference<EventAdmin> eventAdminHolder) {
         this.resolver = resolver;
         this.userService = userService;
         this.transactionService = transactionService;
         this.eventAdminHolder = eventAdminHolder;
+        this.whiteboard = whiteboard;
     }
 
     @Override
@@ -71,43 +80,49 @@ public class HttpContextImpl implements HttpContext {
             Event event = new Event("com/elster/jupiter/http/GET", ImmutableMap.of("resource", requestUrl.toString()));
             eventAdmin.postEvent(event);
         }
-        if (isClearSessionRequested(request)) {
+        if (logoutRequested(request)) {
+            clearSession(request);
             return true;
         }
+
         String authentication = request.getHeader("Authorization");
         if (authentication == null) {
+            // Not logged in or session expired, so authentication is required
             if (request.getSession(true).getAttribute("user") == null) {
-                String server = request.getRequestURL().substring(0, request.getRequestURL().indexOf(request.getRequestURI()));
-
-                if (unsecureAllowed(request.getRequestURI())) {
-                    // Allow access to resources used by the login page
-                    response.setStatus(HttpServletResponse.SC_ACCEPTED);
-                } else {
-                    response.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
-                    response.sendRedirect(server + LOGIN_URI + "?" + "page=" + request.getRequestURI());
-                }
+                login(request, response);
             }
-            if (request.getRequestURL().toString().endsWith("index.html") || request.getRequestURL().toString().endsWith("index-dev.html")) {
-                // No caching for index.html files, so that authentication will be verified first
-                response.setHeader("Cache-Control", "no-cache");
-            } else {
+            if (isCachedResource(request.getRequestURL().toString())) {
                 response.setHeader("Cache-Control", "max-age=86400");
+            } else {
+                response.setHeader("Cache-Control", "no-cache");
             }
             return true;
         }
+
         Optional<User> user = Optional.absent();
         try (TransactionContext context = transactionService.getContext()) {
-
             user = userService.authenticateBase64(authentication.split(" ")[1]);
             context.commit();
         }
         return user.isPresent() ? allow(request, response, user.get()) : deny(response);
     }
 
+    private void login(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String server = request.getRequestURL().substring(0, request.getRequestURL().indexOf(request.getRequestURI()));
+
+        if (unsecureAllowed(request.getRequestURI())) {
+            response.setStatus(HttpServletResponse.SC_ACCEPTED);
+        } else {
+            response.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
+            response.sendRedirect(server + LOGIN_URI + "?" + "page=" + request.getRequestURI());
+        }
+    }
+
     private boolean allow(HttpServletRequest request, HttpServletResponse response, User user) {
         request.setAttribute(HttpContext.AUTHENTICATION_TYPE, HttpServletRequest.BASIC_AUTH);
         request.setAttribute(USERPRINCIPAL, user);
         request.setAttribute(HttpContext.REMOTE_USER, user.getName());
+        request.getSession(true).setMaxInactiveInterval(whiteboard.getSessionTimeout());
         request.getSession(true).setAttribute("user", user);
         response.setHeader("Cache-Control", "max-age=86400");
         return true;
@@ -118,24 +133,35 @@ public class HttpContextImpl implements HttpContext {
         return false;
     }
 
-    private boolean isClearSessionRequested(HttpServletRequest request) {
-        boolean result = false;
+    private boolean logoutRequested(HttpServletRequest request) {
         if (request.getParameter("logout") != null && request.getParameter("logout").equals("true")) {
-            HttpSession session = request.getSession();
-            if (session != null) {
-                session.invalidate();
-                result = true;
-            }
+            return true;
         }
-        return result;
+        return false;
+    }
+
+    private void clearSession(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
     }
 
     private boolean unsecureAllowed(String uri) {
-        for (String resource : UNSECURED_RESOURCES) {
+        for (String resource : RESOURCES_NOT_SECURED) {
             if (uri.contains(resource)) {
                 return true;
             }
         }
         return false;
+    }
+
+    private boolean isCachedResource(String uri) {
+        for (String resource : RESOURCES_NOT_CACHED) {
+            if (uri.endsWith(resource)) {
+                return false;
+            }
+        }
+        return true;
     }
 }

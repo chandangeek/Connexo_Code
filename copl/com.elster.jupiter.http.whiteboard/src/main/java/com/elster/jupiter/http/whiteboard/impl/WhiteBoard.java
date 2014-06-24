@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableSet;
 
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -38,7 +39,10 @@ public class WhiteBoard extends Application implements BinderProvider {
     private volatile TransactionService transactionService;
     private AtomicReference<EventAdmin> eventAdminHolder = new AtomicReference<>();
     private boolean generateEvents;
-    
+
+    private final static String SESSION_TIMEOUT = "com.elster.jupiter.session.timeout";
+
+    private int sessionTimeout = 600; // default value 10 min
     private List<HttpResource> resources = new CopyOnWriteArrayList<>();
 
     private static final Logger LOGGER = Logger.getLogger(WhiteBoard.class.getName());
@@ -69,7 +73,7 @@ public class WhiteBoard extends Application implements BinderProvider {
     @Reference(name = "ZResource", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addResource(HttpResource resource) {
     	String alias = getAlias(resource.getAlias());
-        HttpContext httpContext = new HttpContextImpl(resource.getResolver(), userService, transactionService, eventAdminHolder);
+        HttpContext httpContext = new HttpContextImpl(this, resource.getResolver(), userService, transactionService, eventAdminHolder);
         try {
             httpService.registerResources(alias, resource.getLocalName(), httpContext);
             resources.add(resource);
@@ -80,11 +84,28 @@ public class WhiteBoard extends Application implements BinderProvider {
     }
 
     @Activate
-    public void activate(Map<String,Object> props) {
+    public void activate(BundleContext context, Map<String,Object> props) {
     	boolean generateEvents = props != null && Boolean.TRUE.equals(props.get("event"));
     	if (!generateEvents) {
     		eventAdminHolder.set(null);
     	}
+        if(context != null){
+            int timeout = 0;
+            String sessionTimeoutParam = context.getProperty(SESSION_TIMEOUT);
+            if(sessionTimeoutParam != null){
+                try{
+                    timeout = Integer.parseInt(sessionTimeoutParam);
+                } catch(NumberFormatException e){}
+            }
+
+            if(timeout > 0){
+                sessionTimeout = timeout;
+            }
+        }
+    }
+
+    int getSessionTimeout(){
+        return sessionTimeout;
     }
     
     public void removeResource(HttpResource resource) {
