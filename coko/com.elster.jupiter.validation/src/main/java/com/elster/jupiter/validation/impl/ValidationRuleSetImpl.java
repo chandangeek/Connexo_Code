@@ -261,16 +261,25 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     }
 
     @Override
-    public IValidationRule updateRule(long id, String name, String implementation, List<String> mRIDs, Map<String, Quantity> properties) {
+    public IValidationRule updateRule(long id, String name, String implementation, boolean activeStatus,
+                                      List<String> mRIDs, Map<String, Quantity> properties) {
         IValidationRule rule = doGetRule(id);
         if (rule == null) {
             throw new IllegalArgumentException("The rulset " + this.getId() + " doesn't contain provided ruleId: " + rule.getId());
         }
-        if (rule.isActive() && implementation != null) {
+        if (rule.isActive() && !implementation.equals(rule.getImplementation())) {
             throw new IllegalArgumentException("Validator can't be changed on an active rule");
         }
         rule.rename(name);
         rule.setImplementation(implementation);
+
+        if(activeStatus && !rule.isActive()) {
+            rule.activate();
+        }
+        if(!activeStatus && rule.isActive()) {
+            rule.deactivate();
+        }
+
         Set<ReadingType> readingTypeList = rule.getReadingTypes();
         for (ReadingType type : readingTypeList) {
             rule.deleteReadingType(type);
