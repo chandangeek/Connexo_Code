@@ -20,12 +20,12 @@ public class OutboundComPortPoolInfo extends ComPortPoolInfo<OutboundComPortPool
         outboundComPorts = new ArrayList<>();
     }
 
-    public OutboundComPortPoolInfo(OutboundComPortPool comPortPool) {
+    public OutboundComPortPoolInfo(OutboundComPortPool comPortPool, EngineModelService engineModelService) {
         super(comPortPool);
         if (comPortPool.getComPorts()!=null) {
             outboundComPorts = new ArrayList<>(comPortPool.getComPorts().size());
             for (OutboundComPort outboundComPort : comPortPool.getComPorts()) {
-                outboundComPorts.add(ComPortInfoFactory.asOutboundInfo(outboundComPort));
+                outboundComPorts.add(ComPortInfoFactory.asOutboundInfo(outboundComPort, engineModelService));
             }
         }
         if (comPortPool.getTaskExecutionTimeout()!=null) {

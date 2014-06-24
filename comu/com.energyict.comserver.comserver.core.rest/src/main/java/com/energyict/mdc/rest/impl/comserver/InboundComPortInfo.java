@@ -11,6 +11,8 @@ import javax.ws.rs.core.Response;
 
 public abstract class InboundComPortInfo<T extends InboundComPort, B extends InboundComPort.InboundComPortBuilder<B, T>> extends ComPortInfo<T, B> {
 
+    public Long comPortPool_id;
+
     protected InboundComPortInfo() {
         this.direction = "inbound";
     }

@@ -62,7 +62,7 @@ public class ComServerResource {
             throw new WebApplicationException("No ComServer with id "+id,
                 Response.status(Response.Status.NOT_FOUND).entity("No ComServer with id "+id).build());
         }
-        return ComServerInfoFactory.asInfo(comServer.get(), comServer.get().getComPorts());
+        return ComServerInfoFactory.asInfo(comServer.get(), comServer.get().getComPorts(), engineModelService);
     }
 
     @DELETE

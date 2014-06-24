@@ -18,8 +18,8 @@ public class OnlineComServerInfo extends ComServerInfo<OnlineComServer> {
     /**
      * Create Info based on comserver properties and comports
      */
-    public OnlineComServerInfo(final OnlineComServer onlineComServer, List<ComPort> comPorts) {
-        super(onlineComServer, comPorts);
+    public OnlineComServerInfo(final OnlineComServer onlineComServer, List<ComPort> comPorts, EngineModelService engineModelService) {
+        super(onlineComServer, comPorts, engineModelService);
         readFrom(onlineComServer);
     }
 

@@ -7,7 +7,9 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
+import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
+import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
@@ -18,7 +20,11 @@ import com.energyict.mdc.protocol.api.channels.serial.NrOfDataBits;
 import com.energyict.mdc.protocol.api.channels.serial.NrOfStopBits;
 import com.energyict.mdc.protocol.api.channels.serial.Parities;
 import com.energyict.mdc.rest.impl.comserver.ComPortResource;
+import com.energyict.mdc.rest.impl.comserver.ComServerResource;
+import com.energyict.mdc.rest.impl.comserver.OnlineComServerInfo;
+import com.energyict.mdc.rest.impl.comserver.OutboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.TcpInboundComPortInfo;
+import com.energyict.mdc.rest.impl.comserver.TcpOutboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.UdpInboundComPortInfo;
 import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
 import java.math.BigDecimal;
@@ -27,6 +33,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 import org.assertj.core.data.MapEntry;
@@ -41,9 +48,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ComPortResourceTest extends JerseyTest {
 
@@ -66,7 +71,7 @@ public class ComPortResourceTest extends JerseyTest {
     protected Application configure() {
         enable(TestProperties.LOG_TRAFFIC);
         enable(TestProperties.DUMP_ENTITY);
-        ResourceConfig resourceConfig = new ResourceConfig(ComPortResource.class);
+        ResourceConfig resourceConfig = new ResourceConfig(ComServerResource.class, ComPortResource.class);
         resourceConfig.register(JacksonFeature.class); // Server side JSON processing
         resourceConfig.register(new AbstractBinder() {
             @Override
@@ -378,6 +383,118 @@ public class ComPortResourceTest extends JerseyTest {
             assertThat(requiredIds.remove(comPort.get("id")));
         }
         assertThat(requiredIds).describedAs("A required comport was not return by filter").isEmpty();
+    }
+
+    @Test
+    public void createOutboundComPortInSinglePoolTest() {
+        long comServerId = 3;
+
+        OnlineComServer serverSideComServer = mock(OnlineComServer.class);
+        when(serverSideComServer.getId()).thenReturn(comServerId);
+        when(engineModelService.findComServer(comServerId)).thenReturn(serverSideComServer);
+
+        Long poolId = 1543621L;
+        OutboundComPortPool myTestOutboundPool = mock(OutboundComPortPool.class);
+        when(engineModelService.findOutboundComPortPool(poolId)).thenReturn(myTestOutboundPool);
+
+        when(serverSideComServer.newOutboundComPort(anyString(), anyInt())).thenReturn(new MockOutboundComPortBuilder());
+
+        OutboundComPortInfo outboundComPortInfo = new TcpOutboundComPortInfo();
+        outboundComPortInfo.name = "MyOutboundComPort";
+        outboundComPortInfo.outboundComPortPoolIds = Arrays.asList(poolId);
+
+        OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
+        onlineComServerInfo.name = "MyName";
+        onlineComServerInfo.inboundComPorts = new ArrayList<>();
+        onlineComServerInfo.outboundComPorts = Arrays.asList(outboundComPortInfo);
+
+        Entity<OnlineComServerInfo> json = Entity.json(onlineComServerInfo);
+        Response response = target("/comservers/3").request().put(json); // put comserver
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        verify(myTestOutboundPool).addOutboundComPort(any(OutboundComPort.class));
+    }
+
+    @Test
+    public void createOutboundComPortInMultiplePoolsTest() {
+        long comServerId = 3;
+
+        OnlineComServer serverSideComServer = mock(OnlineComServer.class);
+        when(serverSideComServer.getId()).thenReturn(comServerId);
+        when(engineModelService.findComServer(comServerId)).thenReturn(serverSideComServer);
+
+        Long poolId1 = 1543621L;
+        Long poolId2 = 14654111L;
+        OutboundComPortPool myTestOutboundPool1 = mock(OutboundComPortPool.class);
+        OutboundComPortPool myTestOutboundPool2 = mock(OutboundComPortPool.class);
+        when(engineModelService.findOutboundComPortPool(poolId1)).thenReturn(myTestOutboundPool1);
+        when(engineModelService.findOutboundComPortPool(poolId2)).thenReturn(myTestOutboundPool2);
+
+        when(serverSideComServer.newOutboundComPort(anyString(), anyInt())).thenReturn(new MockOutboundComPortBuilder());
+
+        OutboundComPortInfo outboundComPortInfo = new TcpOutboundComPortInfo();
+        outboundComPortInfo.name = "MyOutboundComPort";
+        outboundComPortInfo.outboundComPortPoolIds = Arrays.asList(poolId1, poolId2);
+
+        OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
+        onlineComServerInfo.name = "MyName";
+        onlineComServerInfo.inboundComPorts = new ArrayList<>();
+        onlineComServerInfo.outboundComPorts = Arrays.asList(outboundComPortInfo);
+
+        Entity<OnlineComServerInfo> json = Entity.json(onlineComServerInfo);
+        Response response = target("/comservers/3").request().put(json); // put comserver
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        verify(myTestOutboundPool1).addOutboundComPort(any(OutboundComPort.class));
+        verify(myTestOutboundPool2).addOutboundComPort(any(OutboundComPort.class));
+    }
+
+    @Test
+    public void updateExistingComPortWithMoreAndLessPoolsTest() {
+        long comServerId = 3;
+        long comPortId = 31;
+
+        OnlineComServer serverSideComServer = mock(OnlineComServer.class);
+        when(serverSideComServer.getId()).thenReturn(comServerId);
+        when(engineModelService.findComServer(comServerId)).thenReturn(serverSideComServer);
+        OutboundComPort outboundComPort = mock(OutboundComPort.class);
+        when(outboundComPort.getId()).thenReturn(comPortId);
+        when(serverSideComServer.getComPorts()).thenReturn(Arrays.<ComPort>asList(outboundComPort));
+
+        Long poolId1 = 1543621L;
+        Long poolId2 = 14654111L;
+        Long poolId3 = 65461413L;
+        OutboundComPortPool myTestOutboundPool1 = mock(OutboundComPortPool.class);
+        when(myTestOutboundPool1.getId()).thenReturn(poolId1);
+        OutboundComPortPool myTestOutboundPool2 = mock(OutboundComPortPool.class);
+        when(myTestOutboundPool2.getId()).thenReturn(poolId2);
+        OutboundComPortPool myTestOutboundPool3 = mock(OutboundComPortPool.class);
+        when(myTestOutboundPool3.getId()).thenReturn(poolId3);
+        when(engineModelService.findOutboundComPortPool(poolId1)).thenReturn(myTestOutboundPool1);
+        when(engineModelService.findOutboundComPortPool(poolId2)).thenReturn(myTestOutboundPool2);
+        when(engineModelService.findOutboundComPortPool(poolId3)).thenReturn(myTestOutboundPool3);
+        when(engineModelService.findContainingComPortPoolsForComPort(outboundComPort)).thenReturn(Arrays.asList(myTestOutboundPool1, myTestOutboundPool2));
+
+        when(serverSideComServer.newOutboundComPort(anyString(), anyInt())).thenReturn(new MockOutboundComPortBuilder());
+
+        OutboundComPortInfo outboundComPortInfo = new TcpOutboundComPortInfo();
+        outboundComPortInfo.id = comPortId;
+        outboundComPortInfo.name = "MyOutboundComPort";
+        outboundComPortInfo.outboundComPortPoolIds = Arrays.asList(poolId2, poolId3);
+
+        OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
+        onlineComServerInfo.name = "MyName";
+        onlineComServerInfo.inboundComPorts = new ArrayList<>();
+        onlineComServerInfo.outboundComPorts = Arrays.asList(outboundComPortInfo);
+
+        Entity<OnlineComServerInfo> json = Entity.json(onlineComServerInfo);
+        Response response = target("/comservers/3").request().put(json); // put comserver
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        verify(myTestOutboundPool1).removeOutboundComPort(any(OutboundComPort.class));
+        verify(myTestOutboundPool3).addOutboundComPort(any(OutboundComPort.class));
+        verify(myTestOutboundPool2, never()).addOutboundComPort(any(OutboundComPort.class));
+        verify(myTestOutboundPool2, never()).removeOutboundComPort(any(OutboundComPort.class));
     }
 
     private void setUpComPortFiltering() {

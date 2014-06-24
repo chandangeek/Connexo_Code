@@ -65,7 +65,6 @@ public abstract class ComPortInfo<T extends ComPort, B extends ComPort.Builder<B
     public FlowControl flowControl;
     @XmlJavaTypeAdapter(ParitiesAdapter.class)
     public Parities parity;
-    public Long comPortPool_id;
     public Integer portNumber;
     public Integer bufferSize;
     public Boolean useHttps;
