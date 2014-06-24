@@ -12,6 +12,11 @@
  * disabled: (optional) if true the route will not be registered with crossroads
  * items: (optional) the set of child routes
  * params: (optional) the set of optional parameters which will be passed to the action
+ * redirect: string|object specify string route for redirect or an object in following format:
+ * {
+ *      route: 'route/to/redirect/{paramId}',
+ *      params: {paramId: 42}
+ * }
  *
  * For creating URL in the application use the following example:
  *
@@ -22,59 +27,60 @@
  * Example of route configuration:
  *
  * router.addConfig({
-        administration : {
-            title: 'Administration',
-            route: 'administration',
-            disabled: true,
-            items: {
-                issue: {
-                    title: 'Issue',
-                    route: 'issue',
-                    items: {
-                        assignmentrules: {
-                            title: 'Assignment Rules',
-                            route: 'assignmentrules',
-                            controller: 'Isu.controller.IssueAssignmentRules'
-                        },
-                        creationrules: {
-                            title: 'Creation Rules',
-                            route: 'creationrules',
-                            controller: 'Isu.controller.IssueCreationRules',
-                            items: {
-                                create: {
-                                    title: 'Create',
-                                    route: '/create',
-                                    controller: 'Isu.controller.IssueCreationRulesEdit'
-                                },
-                                edit: {
-                                    title: 'Edit',
-                                    route: '{id}/edit',
-                                    controller: 'Isu.controller.IssueCreationRulesEdit'
-                                }
-                            }
-                        }
-                    }
-                },
-                communicationtasks: {
-                    title: 'Communication Tasks',
-                    route: 'communicationtasks',
-                    controller: 'Isu.controller.CommunicationTasksView',
-                    items: {
-                        create: {
-                            title: 'Create',
-                            route: '/create',
-                            controller: 'Isu.controller.CommunicationTasksEdit'
-                        },
-                        edit: {
-                            title: 'Edit',
-                            route: '{id}',
-                            controller: 'Isu.controller.CommunicationTasksEdit'
-                        }
-                    }
-                }
-            }
-        }
-    })
+ *      administration : {
+ *          title: 'Administration',
+ *          route: 'administration',
+ *          disabled: true,
+ *          items: {
+ *              issue: {
+ *                  title: 'Issue',
+ *                  route: 'issue',
+ *                  items: {
+ *                      assignmentrules: {
+ *                          title: 'Assignment Rules',
+ *                          route: 'assignmentrules',
+ *                          controller: 'Isu.controller.IssueAssignmentRules'
+ *                      },
+ *                      creationrules: {
+ *                          title: 'Creation Rules',
+ *                          route: 'creationrules',
+ *                          controller: 'Isu.controller.IssueCreationRules',
+ *                          items: {
+ *                              create: {
+ *                                  title: 'Create',
+ *                                  route: '/create',
+ *                                  controller: 'Isu.controller.IssueCreationRulesEdit'
+ *                              },
+ *                              edit: {
+ *                                  title: 'Edit',
+ *                                  route: '{id}/edit',
+ *                                  controller: 'Isu.controller.IssueCreationRulesEdit'
+ *                              }
+ *                          }
+ *                      }
+ *                  }
+ *              },
+ *              communicationtasks: {
+ *                  title: 'Communication Tasks',
+ *                  route: 'communicationtasks',
+ *                  controller: 'Isu.controller.CommunicationTasksView',
+ *                  items: {
+ *                      create: {
+ *                          title: 'Create',
+ *                          route: '/create',
+ *                          controller: 'Isu.controller.CommunicationTasksEdit'
+ *                      },
+ *                      edit: {
+ *                          title: 'Edit',
+ *                          route: '{id}',
+ *                          controller: 'Isu.controller.CommunicationTasksEdit'
+ *                      }
+ *                  }
+ *              }
+ *          }
+ *      }
+ *  })
+ *
  */
 Ext.define('Uni.controller.history.Router', {
     extend: 'Ext.app.Controller',
@@ -168,11 +174,23 @@ Ext.define('Uni.controller.history.Router', {
                     arguments
                 );
 
-                var controller = me.getController(config.controller);
                 var arguments = _.values(_.extend(me.routeparams, params));
 
-                // fire the controller action with this route params as arguments
-                controller[action].apply(controller, arguments);
+                if (Ext.isDefined(config.redirect)) {
+                    // perform redirect on route match
+                    if (Ext.isObject(config.redirect)) {
+                        var redirectParams = _.extend(me.routeparams, config.redirect.params);
+                        me.getRoute(config.redirect.route).forward(redirectParams);
+                    } else if (Ext.isString(config.redirect)) {
+                        me.getRoute(config.redirect).forward(me.routeparams);
+                    } else {
+                        throw 'config redirect must be a string or an object';
+                    }
+                } else {
+                    // fire the controller action with this route params as arguments
+                    var controller = me.getController(config.controller);
+                    controller[action].apply(controller, arguments);
+                }
 
                 me.fireEvent('routematch', me);
             });
