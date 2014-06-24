@@ -191,7 +191,6 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     DSMR40_MBUS_LANDISGYR(161, "com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.MBusDevice", FamilyRule.DSMR_NTA),
     DSMR40_MBUS_ELSTER(162, "com.energyict.smartmeterprotocolimpl.nta.dsmr40.elster.MBusDevice", FamilyRule.DSMR_NTA),
     DSMR40_MBUS_IBM(163, "com.energyict.smartmeterprotocolimpl.nta.dsmr40.ibm.MBusDevice", FamilyRule.DSMR_NTA),
-    WEB_RTU_Z3_SLAVE(164, "com.energyict.smartmeterprotocolimpl.eict.webrtuz3.SlaveMeter", FamilyRule.EICT_Z3),
     WEB_RTU_Z3_MBUS(165, "com.energyict.smartmeterprotocolimpl.eict.webrtuz3.MbusDevice", FamilyRule.EICT_Z3),
     WEB_RTU_Z3_EMETER(166, "com.energyict.smartmeterprotocolimpl.eict.webrtuz3.EMeter", FamilyRule.EICT_Z3),
     ACTARIS_SL7000(167, "com.energyict.smartmeterprotocolimpl.actaris.sl7000.ActarisSl7000"),
