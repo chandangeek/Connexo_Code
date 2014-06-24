@@ -1,6 +1,8 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.ProcesStatus;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.collections.KPermutation;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
@@ -12,7 +14,7 @@ import java.util.List;
 /**
  * Decorates an IntervalReading by selecting only certain values in a possibly different order.
  */
-public class FilteredBaseReadingRecord implements BaseReadingRecord   {
+public class FilteredBaseReadingRecord implements BaseReadingRecord {
 
     private final BaseReadingRecordImpl filtered;
     private final KPermutation view;
@@ -25,6 +27,11 @@ public class FilteredBaseReadingRecord implements BaseReadingRecord   {
     @Override
     public ProcesStatus getProcesStatus() {
         return filtered.getProcesStatus();
+    }
+
+    @Override
+    public void setProcessingFlags(ProcesStatus.Flag... flags) {
+        this.filtered.setProcessingFlags(flags);
     }
 
     @Override
@@ -72,19 +79,19 @@ public class FilteredBaseReadingRecord implements BaseReadingRecord   {
         return view.perform(filtered.getQuantities());
     }
 
-	@Override
-	public BigDecimal getSensorAccuracy() {
-		return null;
-	}
+    @Override
+    public BigDecimal getSensorAccuracy() {
+        return null;
+    }
 
-	@Override
-	public String getSource() {
-		return null;
-	}
+    @Override
+    public String getSource() {
+        return null;
+    }
 
-	@Override
-	public Interval getTimePeriod() {
-		return null;
-	}
-   
+    @Override
+    public Interval getTimePeriod() {
+        return null;
+    }
+
 }

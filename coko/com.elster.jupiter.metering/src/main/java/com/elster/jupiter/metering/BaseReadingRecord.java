@@ -7,10 +7,18 @@ import java.util.List;
 
 public interface BaseReadingRecord extends BaseReading {
     List<Quantity> getQuantities();
-	Quantity getQuantity(int offset);
-	Quantity getQuantity(ReadingType readingType);
-	ReadingType getReadingType();
-	ReadingType getReadingType(int offset);
+
+    Quantity getQuantity(int offset);
+
+    Quantity getQuantity(ReadingType readingType);
+
+    ReadingType getReadingType();
+
+    ReadingType getReadingType(int offset);
+
     List<? extends ReadingType> getReadingTypes();
-	ProcesStatus getProcesStatus();
+
+    ProcesStatus getProcesStatus();
+
+    void setProcessingFlags(ProcesStatus.Flag... flags);
 }
