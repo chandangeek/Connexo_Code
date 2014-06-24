@@ -37,7 +37,8 @@ Ext.define('Uni.Loader', {
         'Uni.override.RestOverride',
         'Uni.override.StoreOverride',
         'Uni.override.GridPanelOverride',
-        'Uni.override.FormOverride'
+        'Uni.override.FormOverride',
+        'Uni.override.ModelOverride'
     ],
 
     /**
