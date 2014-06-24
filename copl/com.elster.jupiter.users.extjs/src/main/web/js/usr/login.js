@@ -11,9 +11,7 @@ Ext.onReady(function () {
 
         launch: function () {
             this.callParent(arguments);
-            var login = Ext.create("widget.login");
-
-            login.show();
+            this.getApplication().getController('Usr.controller.Login').showOverview();
         }
     });
 });

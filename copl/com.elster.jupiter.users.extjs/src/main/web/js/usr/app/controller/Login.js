@@ -21,6 +21,8 @@ Ext.define('Usr.controller.Login', {
     ],
 
     init: function (application) {
+        this.getApplication().on('sessionexpired', this.sessionExpired);
+
         this.control({
             'login #login-form [action=login]': {
                 click: this.signinuser
@@ -37,8 +39,19 @@ Ext.define('Usr.controller.Login', {
         });
     },
 
-    showOverview: function () {
-        var widget = Ext.widget("login");
+    showOverview: function (error) {
+        Ext.widget("login");
+
+        var params = Ext.urlDecode(location.search.substring(1));
+        if (params.expired != undefined) {
+            this.getLoginForm().down('#errorLabel').setValue("Session expired.");
+            this.showLoginError();
+        }
+    },
+
+    sessionExpired: function () {
+        window.location = '/apps/usr/login.html?expired';
+        //window.location = '/apps/usr/login.html?expired' + window.location.pathname + window.location.hash;
     },
 
     onPasswordKey: function (field, event, options) {
@@ -97,6 +110,7 @@ Ext.define('Usr.controller.Login', {
     },
 
     loginNOK: function () {
+        this.getLoginForm().down('#errorLabel').setValue("Login failed. Please contact your administrator.");
         this.showLoginError();
     },
 
