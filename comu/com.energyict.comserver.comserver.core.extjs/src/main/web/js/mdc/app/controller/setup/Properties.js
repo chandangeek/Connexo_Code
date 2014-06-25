@@ -111,25 +111,25 @@ Ext.define('Mdc.controller.setup.Properties', {
         });
     },
 
-    showPropertiesAsInherited: function(objectWithProperties, view, hidden){
+    showPropertiesAsInherited: function (objectWithProperties, view, hidden) {
         var me = this;
         var properties = objectWithProperties.propertiesStore.data.items;
         this.propertiesStore = objectWithProperties.propertiesStore;
-        properties.forEach(function(property){
+        properties.forEach(function (property) {
             var propertyValue = property.getPropertyValue();
             propertyValue.data.inheritedValue = propertyValue.data.value;
             propertyValue.data.value = '';
         });
-        this.show(properties,view,hidden);
+        this.show(properties, view, hidden);
     },
 
     showProperties: function (objectWithProperties, view, hidden) {
         var properties = objectWithProperties.propertiesStore.data.items;
         this.propertiesStore = objectWithProperties.propertiesStore;
-        this.show(properties,view,hidden);
+        this.show(properties, view, hidden);
     },
 
-    show: function(properties,view, hidden){
+    show: function (properties, view, hidden) {
         var me = this;
         var propertiesView = view.down('#propertyEdit');
         this.hidden = hidden;
@@ -138,7 +138,6 @@ Ext.define('Mdc.controller.setup.Properties', {
         Ext.each(items, function (child, index) {
             propertiesForm.remove(child);
         });
-
 
 
         properties.forEach(function (entry) {
@@ -366,16 +365,18 @@ Ext.define('Mdc.controller.setup.Properties', {
         this.enableRestoreAllButton();
     },
 
-    enableRestoreAllButton: function() {
+    enableRestoreAllButton: function () {
         var me = this;
-        me.getRestoreAllButton().disable();
-        var restoreAllButtons = Ext.ComponentQuery.query('defaultButton');
-        if (restoreAllButtons != null) {
-            restoreAllButtons.forEach(function (restoreButton) {
-                if (restoreButton.isVisible()) {
-                    me.getRestoreAllButton().enable();
-                }
-            })
+        if (typeof(me.getRestoreAllButton()) !== 'undefined') {
+            me.getRestoreAllButton().disable();
+            var restoreAllButtons = Ext.ComponentQuery.query('defaultButton');
+            if (restoreAllButtons != null) {
+                restoreAllButtons.forEach(function (restoreButton) {
+                    if (restoreButton.isVisible()) {
+                        me.getRestoreAllButton().enable();
+                    }
+                })
+            }
         }
     },
 
@@ -667,5 +668,6 @@ Ext.define('Mdc.controller.setup.Properties', {
             })
         }
     }
-});
+})
+;
 
