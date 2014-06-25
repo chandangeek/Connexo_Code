@@ -27,6 +27,8 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.Translator;
@@ -101,6 +103,7 @@ public class InMemoryPersistence {
     private UserService userService;
     private DataModel dataModel;
     private Injector injector;
+    private ValidationService validationService;
 
     private ApplicationContext applicationContext;
     private boolean mockProtocolPluggableService;
@@ -139,6 +142,7 @@ public class InMemoryPersistence {
             this.engineModelService = injector.getInstance(EngineModelService.class);
             this.masterDataService = injector.getInstance(MasterDataService.class);
             this.taskService = injector.getInstance(TaskService.class);
+            this.validationService = injector.getInstance(ValidationService.class);
             this.injector.getInstance(PluggableService.class);
             if (!mockedProtocolPluggableService) {
                 this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
@@ -173,6 +177,7 @@ public class InMemoryPersistence {
                 new MdcReadingTypeUtilServiceModule(),
                 new MasterDataModule(),
                 new TasksModule(),
+                new ValidationModule(),
                 new DeviceConfigurationModule(),
                 new MdcCommonModule(),
                 new EngineModelModule(),
@@ -242,6 +247,10 @@ public class InMemoryPersistence {
 
     public MeteringService getMeteringService() {
         return meteringService;
+    }
+
+    public ValidationService getValidationService() {
+        return validationService;
     }
 
     public MasterDataService getMasterDataService() {
