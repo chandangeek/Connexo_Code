@@ -255,6 +255,9 @@ Ext.define('Isu.controller.Issues', {
                 groupingField = groupStore.getById(this.extraParamsModel.get('filter').get(grouping).getId());
             } else {
                 groupingField = groupStore.getById(this.extraParamsModel.get('groupValue'));
+                if (!groupingField && this.extraParamsModel.get('group') != 'none') {
+                    groupingField = groupStore.getAt(0);
+                }
             }
             if (groupingField) {
                 selectionModel.select(groupingField);
