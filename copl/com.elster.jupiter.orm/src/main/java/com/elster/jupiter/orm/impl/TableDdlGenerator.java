@@ -192,7 +192,10 @@ class TableDdlGenerator {
 
         for (ColumnImpl column : notMatched) {
             if (column.isNotNull()) {
-                result.add(getSetNullColumnDdl(column));
+                result.add(getSetNullColumnDdl(column, column.getTable().getName()));
+                if (column.getTable().hasJournal()) {
+                    result.add(getSetNullColumnDdl(column, column.getTable().getJournalTableName()));
+                }
             }
         }
         for (IndexImpl index : toTable.getIndexes()) {
@@ -297,9 +300,9 @@ class TableDdlGenerator {
         return builder.toString();
     }
 
-    private String getSetNullColumnDdl(ColumnImpl column) {
+    private String getSetNullColumnDdl(ColumnImpl column, String tableName) {
         StringBuilder builder = new StringBuilder("alter table ");
-        builder.append(column.getTable().getName());
+        builder.append(tableName);
         builder.append(" modify ");
         appendDdl(column, builder, false, false);
         builder.append(" NULL ");
@@ -317,9 +320,11 @@ class TableDdlGenerator {
                     results.add(getDropIndex(fromColumnIndex));
                 }
                 results.add("alter table " + table.getName() + " drop column " + fromColumn.getName());
-                results.add("alter table " + table.getJournalTableName() + " drop column " + fromColumn.getName());
                 results.add(getAddDdl(toColumn, table.getName()));
-                results.add(getAddDdl(toColumn, table.getJournalTableName()));
+                if (table.hasJournal()) {
+                    results.add("alter table " + table.getJournalTableName() + " drop column " + fromColumn.getName());
+                    results.add(getAddDdl(toColumn, table.getJournalTableName()));
+                }
                 return results;
             }
         } else if (fromColumn.isVirtual()) {
@@ -335,11 +340,13 @@ class TableDdlGenerator {
                 builder.append(" modify ");
                 appendDdl(toColumn, builder, true, fromColumn.isNotNull() != toColumn.isNotNull());
                 returnSqls.add(builder.toString());
-                builder = new StringBuilder("alter table ");
-                builder.append(table.getJournalTableName());
-                builder.append(" modify ");
-                appendDdl(toColumn, builder, true, fromColumn.isNotNull() != toColumn.isNotNull());
-                returnSqls.add(builder.toString());
+                if (table.hasJournal()) {
+                    builder = new StringBuilder("alter table ");
+                    builder.append(table.getJournalTableName());
+                    builder.append(" modify ");
+                    appendDdl(toColumn, builder, true, fromColumn.isNotNull() != toColumn.isNotNull());
+                    returnSqls.add(builder.toString());
+                }
                 return returnSqls;
             }
         }
