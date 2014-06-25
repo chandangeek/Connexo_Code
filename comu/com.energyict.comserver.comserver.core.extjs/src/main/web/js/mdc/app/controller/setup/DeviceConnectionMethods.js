@@ -167,6 +167,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         me.getApplication().fireEvent('changecontentevent', widget);
         deviceModel.load(mrid, {
             success: function (device) {
+                me.getApplication().fireEvent('loadDevice', device);
                 connectionMethodsStore.getProxy().extraParams = ({deviceType: device.get('deviceTypeId'), deviceConfig: device.get('deviceConfigurationId')});
                 connectionMethodsStore.getProxy().setExtraParam('available', true);
                 connectionMethodsStore.getProxy().setExtraParam('mrId', mrid);
@@ -205,6 +206,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
     },
 
     showPropertiesAsInherited: function (connectionMethod) {
+        debugger;
         if (connectionMethod.propertiesStore.data.items.length > 0) {
             this.getDeviceConnectionMethodEditView().down('#connectionDetailsTitle').setVisible(true);
         } else {
@@ -222,6 +224,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         this.getDeviceConnectionMethodEditView().down('#allowSimultaneousConnections').setDisabled(false);
         if (connectionMethod.get('connectionStrategy') === 'minimizeConnections') {
             this.getDeviceConnectionMethodEditView().down('form').down('#scheduleField').setVisible(true);
+            this.getDeviceConnectionMethodEditView().down('form').down('#allowSimultaneousConnections').setVisible(false);
         }
         if (connectionMethod.get('comWindowStart') != 0) {
             this.getComWindowStart().setDisabled(false);
@@ -241,8 +244,10 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
     showScheduleField: function (combobox, objList) {
         if (objList[0].get('connectionStrategy') === 'minimizeConnections') {
             this.getScheduleField().setVisible(true);
+            this.getDeviceConnectionMethodEditView().down('form').down('#allowSimultaneousConnections').setVisible(false);
         } else {
             this.getScheduleField().setVisible(false);
+            this.getDeviceConnectionMethodEditView().down('form').down('#allowSimultaneousConnections').setVisible(true);
             this.getScheduleField().clear();
         }
     },
@@ -360,6 +365,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                 connectionMethodModel.getProxy().setExtraParam('mrid', mrid);
                 connectionMethodModel.load(connectionMethodId, {
                     success: function (connectionMethod) {
+                        me.getApplication().fireEvent('loadDevice', device);
                         var widget = Ext.widget('deviceConnectionMethodEdit', {
                             edit: true,
                             returnLink: '#/devices/' + me.mrid + '/connectionmethods',

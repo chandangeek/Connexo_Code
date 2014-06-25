@@ -84,7 +84,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                                 required: true,
                                 displayField: 'localizedValue',
                                 valueField: 'connectionStrategy',
-                                emptyText: Uni.I18n.translate('deviceconnectionmethod.selectconnectionStrategy', 'MDC', 'Select a connection strategy'),
+                                emptyText: Uni.I18n.translate('deviceconnectionmethod.selectconnectionStrategy', 'MDC', 'Select a connection strategy...'),
                                 forceSelection: true,
                                 typeAhead: true,
                                 msgTarget: 'under',
@@ -95,6 +95,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                                 name: 'nextExecutionSpecs',
                                 itemId: 'scheduleField',
                                 hidden: true,
+                                required: true,
                                 fieldLabel: 'Schedule',
                                 hourCfg: {
                                     width: 60
@@ -108,17 +109,37 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                                 disabled: true
                             },
                             {
-                                xtype: 'timeInfoField',
-                                name: 'rescheduleRetryDelay',
-                                fieldLabel: Uni.I18n.translate('deviceconnectionmethod.rescheduleRetryDelay', 'MDC', 'Retry delay'),
-                                itemId: 'rescheduleRetryDelay',
-                                required: true,
-                                disabled: true
+                                xtype: 'fieldcontainer',
+                                itemId: 'rescheduleRetryDelayFieldContainer',
+                                fieldLabel: Uni.I18n.translate('connectionmethod.rescheduleRetryDelay', 'MDC', 'Retry delay'),
+                                layout: {
+                                    type: 'hbox',
+                                    align: 'stretch'
+                                },
+                                disabled: true,
+                                items: [
+                                    {
+                                        xtype: 'displayfield',
+                                        value: Uni.I18n.translate('deviceconnectionmethod.retryEvery', 'MDC', 'Retry every'),
+                                        margin: '0 5 0 0'
+                                    },
+                                    {
+                                        xtype: 'timeInfoField',
+                                        name: 'rescheduleRetryDelay',
+                                        itemId: 'rescheduleRetryDelay',
+                                        required: true,
+                                        value: {
+                                            count: 5,
+                                            timeUnit: 'minutes'
+                                        }
+                                    }
+                                ]
                             },
+
                             {
                                 xtype: 'fieldcontainer',
                                 itemId: 'comWindowField',
-                                fieldLabel: '&nbsp',
+                                fieldLabel: Uni.I18n.translate('connectionmethod.connectionWindow', 'MDC', 'Connection window'),
                                 layout: {
                                     type: 'hbox',
                                     align: 'stretch'
@@ -289,9 +310,9 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
             } else if (this.direction === 'Inbound') {
                 this.down('#addEditButton').action = 'editDeviceInboundConnectionMethod';
                 this.down('#connectionStrategyComboBox').setVisible(false);
-                this.down('#rescheduleRetryDelay').setVisible(false);
+                this.down('#rescheduleRetryDelayFieldContainer').setVisible(false);
                 this.down('#allowSimultaneousConnections').setVisible(false);
-//                this.down('#isDefault').setVisible(false);
+                this.down('#comWindowField').setVisible(false);
             }
         } else {
             this.down('#addEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
@@ -300,9 +321,9 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
             } else if (this.direction === 'Inbound') {
                 this.down('#addEditButton').action = 'addDeviceInboundConnectionMethod';
                 this.down('#connectionStrategyComboBox').setVisible(false);
-                this.down('#rescheduleRetryDelay').setVisible(false);
+                this.down('#rescheduleRetryDelayFieldContainer').setVisible(false);
                 this.down('#allowSimultaneousConnections').setVisible(false);
-//                this.down('#isDefault').setVisible(false);
+                this.down('#comWindowField').setVisible(false);
             }
         }
         this.down('#cancelLink').href = this.returnLink;

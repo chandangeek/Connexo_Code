@@ -221,8 +221,10 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
     showScheduleField: function (combobox, objList) {
         if (objList[0].get('connectionStrategy') === 'minimizeConnections') {
             this.getScheduleField().setVisible(true);
+            this.getConnectionMethodEditView().down('form').down('#allowSimultaneousConnections').setVisible(false);
         } else {
             this.getScheduleField().setVisible(false);
+            this.getConnectionMethodEditView().down('form').down('#allowSimultaneousConnections').setVisible(true);
             this.getScheduleField().clear();
         }
     },
