@@ -37,14 +37,12 @@ import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
-
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-
 import java.util.Date;
 import java.util.List;
 
@@ -91,7 +89,11 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
 
     @Override
     public void install() {
-    	dataModel.install(true, true);
+        try {
+            dataModel.install(true, true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         new InstallerImpl(this, idsService, partyService, userService, eventService,thesaurus).install();
     }
 

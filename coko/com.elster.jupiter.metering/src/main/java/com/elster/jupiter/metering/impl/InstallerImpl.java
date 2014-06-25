@@ -32,8 +32,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class InstallerImpl {
+
+    private static final Logger LOGGER = Logger.getLogger(InstallerImpl.class.getName());
 
     private static final int SLOT_COUNT = 8;
     private static final int MONTHS_PER_YEAR = 12;
@@ -57,7 +61,7 @@ public class InstallerImpl {
     }
 
     public void install() {
-    	createVaults();
+        createVaults();
         createRecordSpecs();
         List<ServiceCategoryImpl> serviceCategories = createServiceCategories();
         createReadingTypes();
@@ -74,7 +78,7 @@ public class InstallerImpl {
             try {
                 eventType.install(eventService);
             } catch (Exception e) {
-                System.out.println("Could not create event type : " + eventType.name());
+                LOGGER.log(Level.SEVERE, "Could not create event type : " + eventType.name(), e);
             }
         }
     }
@@ -95,7 +99,11 @@ public class InstallerImpl {
                                         .subDomain(subDomain)
                                         .eventOrAction(eventOrAction)
                                         .toCode();
-                                meteringService.createEndDeviceEventType(code);
+                                try {
+                                    meteringService.createEndDeviceEventType(code);
+                                } catch (Exception e) {
+                                    LOGGER.log(Level.SEVERE, "Error creating EndDeviceType \'" + code + "\' : " + e.getMessage(), e);
+                                }
                             }
                         }
                     }
@@ -128,17 +136,25 @@ public class InstallerImpl {
     }
 
     private void createAmrSystems() {
-    	meteringService.createAmrSystem(1, "MDC");
-    	meteringService.createAmrSystem(2, "EnergyAxis");
+        try {
+            meteringService.createAmrSystem(1, "MDC");
+            meteringService.createAmrSystem(2, "EnergyAxis");
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error creating AMR System : " + e.getMessage(), e);
+        }
     }
 
     private void createVaults() {
-        Vault intervalVault = idsService.newVault(MeteringService.COMPONENTNAME, 1, "Interval Data Store", SLOT_COUNT, true);
-        intervalVault.persist();
-        createPartitions(intervalVault);
-        Vault registerVault = idsService.newVault(MeteringService.COMPONENTNAME, 2, "Register Data Store", SLOT_COUNT, false);
-        registerVault.persist();
-        createPartitions(registerVault);
+        try {
+            Vault intervalVault = idsService.newVault(MeteringService.COMPONENTNAME, 1, "Interval Data Store", SLOT_COUNT, true);
+            intervalVault.persist();
+            createPartitions(intervalVault);
+            Vault registerVault = idsService.newVault(MeteringService.COMPONENTNAME, 2, "Register Data Store", SLOT_COUNT, false);
+            registerVault.persist();
+            createPartitions(registerVault);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error creating vaults : " + e.getMessage(), e);
+        }
     }
 
     private void createPartitions(Vault vault) {
@@ -154,31 +170,52 @@ public class InstallerImpl {
     }
 
     private void createRecordSpecs() {
-    	RecordSpecs.createAll(idsService);
+        try {
+            RecordSpecs.createAll(idsService);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error creating recordspecs : " + e.getMessage(), e);
+        }
     }
 
     private List<ServiceCategoryImpl> createServiceCategories() {
         List<ServiceCategoryImpl> list = new ArrayList<>();
-    	for (ServiceKind kind : ServiceKind.values()) {
-            ServiceCategoryImpl serviceCategory = meteringService.createServiceCategory(kind);
-            list.add(serviceCategory);
+        ServiceCategoryImpl serviceCategory = null;
+        for (ServiceKind kind : ServiceKind.values()) {
+            try {
+                serviceCategory = meteringService.createServiceCategory(kind);
+                list.add(serviceCategory);
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, "Error creating serviceCategory \'" + kind.name() + "\' : " + e.getMessage(), e);
+            }
         }
         return list;
     }
 
     private void createReadingTypes() {
-        ReadingTypeGenerator.generate(meteringService);
+        try {
+            ReadingTypeGenerator.generate(meteringService);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error creating readingtypes : " + e.getMessage(), e);
+        }
     }
 
     private void createPartyRoles() {
         for (MarketRoleKind role : MarketRoleKind.values()) {
-            partyService.createRole(MeteringService.COMPONENTNAME, role.name(), role.getDisplayName(), null, null);
+            try {
+                partyService.createRole(MeteringService.COMPONENTNAME, role.name(), role.getDisplayName(), null, null);
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, "Error creating PartyRole : \'" + role.name() + "\': " + e.getMessage(), e);
+            }
         }
     }
 
     private void createPrivileges() {
         for (String each : getPrivileges()) {
-            userService.createPrivilege(MeteringService.COMPONENTNAME, each, "");
+            try {
+                userService.createPrivilege(MeteringService.COMPONENTNAME, each, "");
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, "Error creating privilege \'" + each + "\': " + e.getMessage(), e);
+            }
         }
     }
 
