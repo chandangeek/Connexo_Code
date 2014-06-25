@@ -21,6 +21,8 @@ import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.Translator;
@@ -143,6 +145,7 @@ public class SecurityPropertySetImplCrudIT {
                 new MdcReadingTypeUtilServiceModule(),
                 new MasterDataModule(),
                 new TasksModule(),
+                new ValidationModule(),
                 new DeviceConfigurationModule(),
                 new MdcCommonModule(),
                 new EngineModelModule(),
@@ -161,6 +164,7 @@ public class SecurityPropertySetImplCrudIT {
             injector.getInstance(PluggableService.class);
             injector.getInstance(MasterDataService.class);
             injector.getInstance(TaskService.class);
+            injector.getInstance(ValidationService.class);
             deviceConfigurationService = (DeviceConfigurationServiceImpl) injector.getInstance(DeviceConfigurationService.class);
             ctx.commit();
         }

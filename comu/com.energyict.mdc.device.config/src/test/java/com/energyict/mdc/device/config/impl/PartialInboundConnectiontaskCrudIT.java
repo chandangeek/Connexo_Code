@@ -25,6 +25,8 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
@@ -175,6 +177,7 @@ public class PartialInboundConnectiontaskCrudIT {
                 new MdcCommonModule(),
                 new EngineModelModule(),
                 new ProtocolPluggableModule(),
+                new ValidationModule(),
                 new IssuesModule(),
                 new ProtocolsModule(),
                 new MdcDynamicModule(),
@@ -193,6 +196,7 @@ public class PartialInboundConnectiontaskCrudIT {
             injector.getInstance(PluggableService.class);
             injector.getInstance(MasterDataService.class);
             injector.getInstance(TaskService.class);
+            injector.getInstance(ValidationService.class);
             deviceConfigurationService = (DeviceConfigurationServiceImpl) injector.getInstance(DeviceConfigurationService.class);
             ctx.commit();
         }
