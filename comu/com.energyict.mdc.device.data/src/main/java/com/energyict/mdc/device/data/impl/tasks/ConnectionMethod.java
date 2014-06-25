@@ -19,23 +19,6 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 public interface ConnectionMethod extends PluggableClassUsage<ConnectionType, ConnectionTypePluggableClass, ConnectionTaskProperty>, ConnectionTaskPropertyProvider {
 
     /**
-     * Gets the {@link com.energyict.mdc.engine.model.ComPortPool} that provides {@link com.energyict.mdc.engine.model.ComPort}
-     * to connect to a device when this ConnectionType is used.
-     *
-     * @return The OutboundComPortPool
-     */
-    public ComPortPool getComPortPool();
-
-    /**
-     * Tests if this ConnectionMethod has a {@link ComPortPool}.
-     *
-     * @return A flag that indicates if this ConnectionMethod has a ComPortPool
-     */
-    public boolean hasComPortPool();
-
-    public void setComPortPool (ComPortPool comPortPool);
-
-    /**
      * Mark the ConnectionMethod as Obsolete.
      */
     public void makeObsolete();

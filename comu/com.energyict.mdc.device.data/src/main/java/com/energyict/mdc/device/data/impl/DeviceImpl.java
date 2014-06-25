@@ -24,19 +24,7 @@ import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
-import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.CommunicationTopologyEntry;
 import com.energyict.mdc.device.data.DefaultSystemTimeZoneFactory;
@@ -222,6 +210,15 @@ public class DeviceImpl implements Device {
             // No need to call the getConnectionTaskImpls getter because if they have not been loaded before, they cannot be dirty
             for (ConnectionTaskImpl<?, ?> connectionTask : connectionTasks) {
                 connectionTask.save();
+            }
+        } else {
+            List<PartialInboundConnectionTask> inboundPartialConnectionTasks = this.getDeviceConfiguration().getPartialInboundConnectionTasks();
+            for (PartialInboundConnectionTask inboundPartialConnectionTask : inboundPartialConnectionTasks) {
+                this.getInboundConnectionTaskBuilder(inboundPartialConnectionTask).add().save();
+            }
+            List<PartialScheduledConnectionTask> partialOutboundConnectionTasks = this.getDeviceConfiguration().getPartialOutboundConnectionTasks();
+            for (PartialScheduledConnectionTask partialOutboundConnectionTask : partialOutboundConnectionTasks) {
+                this.getScheduledConnectionTaskBuilder(partialOutboundConnectionTask).add().save();
             }
         }
     }

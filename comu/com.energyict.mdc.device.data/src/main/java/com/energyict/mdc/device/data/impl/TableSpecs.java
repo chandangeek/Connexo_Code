@@ -200,10 +200,8 @@ public enum TableSpecs {
             table.map(ConnectionMethodImpl.class);
             Column id = table.addAutoIdColumn();
             Column connectionTypePluggableClass = table.column("CONNECTIONTYPEPLUGGABLECLASS").number().conversion(NUMBER2LONG).map("pluggableClassId").notNull().add();
-            Column comPortPool = table.column("COMPORTPOOL").number().notNull().add();
             table.primaryKey("PK_DDC_CONNECTIONMETHOD").on(id).add();
             table.foreignKey("FK_DDC_CONNECTIONMETHOD_CLASS").on(connectionTypePluggableClass).references(PluggableService.COMPONENTNAME, "CPC_PLUGGABLECLASS").map("pluggableClass").add();
-            table.foreignKey("FK_DDC_CONNECTIONMETHOD_CPP").on(comPortPool).references(EngineModelService.COMPONENT_NAME, "MDC_COMPORTPOOL").map("comPortPool").add();
         }
     },
 

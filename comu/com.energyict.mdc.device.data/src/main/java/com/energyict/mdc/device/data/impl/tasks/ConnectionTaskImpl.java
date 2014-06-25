@@ -59,6 +59,7 @@ import static com.elster.jupiter.util.Checks.is;
  */
 @XmlRootElement
 @HasValidProperties(groups = {Save.Create.class, Save.Update.class})
+@ComPortPoolValid(groups = {Save.Create.class, Save.Update.class})
 public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPPT extends ComPortPool>
         extends PersistentIdObject<ConnectionTask>
         implements ConnectionTask<CPPT, PCTT> {
@@ -109,7 +110,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         this.validateSameConfiguration(partialConnectionTask, device);
         this.partialConnectionTask.set(partialConnectionTask);
         this.comPortPool.set(comPortPool);
-        this.connectionMethod.set(this.connectionMethodProvider.get().initialize(this, partialConnectionTask.getPluggableClass(), comPortPool));
+        this.connectionMethod.set(this.connectionMethodProvider.get().initialize(this, partialConnectionTask.getPluggableClass()));
     }
 
     private void validatePartialConnectionTaskType(PCTT partialConnectionTask) {
@@ -321,13 +322,12 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     @Override
     public CPPT getComPortPool() {
-        return this.comPortPool.get();
+        return this.comPortPool.orNull();
     }
 
     @Override
     public void setComPortPool(CPPT comPortPool) {
         this.comPortPool.set(comPortPool);
-        this.getConnectionMethod().setComPortPool(comPortPool);
     }
 
     @Override
