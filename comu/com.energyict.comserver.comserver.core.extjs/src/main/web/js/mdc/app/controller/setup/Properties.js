@@ -45,6 +45,10 @@ Ext.define('Mdc.controller.setup.Properties', {
         {
             ref: 'propertiesForm',
             selector: '#propertiesform'
+        },
+        {
+            ref: 'restoreAllButton',
+            selector: '#restoreAllButton'
         }
     ],
     timeDurationStore: Ext.create('Ext.data.Store', {
@@ -360,7 +364,22 @@ Ext.define('Mdc.controller.setup.Properties', {
         if (isInheritedOrDefaultValue === false) {
             Ext.ComponentQuery.query('#btn_delete_' + key)[0].setVisible(true);
         }
+        this.enableRestoreAllButton();
     },
+
+    enableRestoreAllButton: function() {
+        var me = this;
+        me.getRestoreAllButton().disable();
+        var restoreAllButtons = Ext.ComponentQuery.query('defaultButton');
+        if (restoreAllButtons != null) {
+            restoreAllButtons.forEach(function (restoreButton) {
+                if (restoreButton.isVisible()) {
+                    me.getRestoreAllButton().enable();
+                }
+            })
+        }
+    },
+
 
     restoreDefaultProperty: function (button) {
         var view = this.getPropertyEdit();
@@ -457,6 +476,7 @@ Ext.define('Mdc.controller.setup.Properties', {
 
     disableDeleteButton: function (key) {
         Ext.ComponentQuery.query('#btn_delete_' + key)[0].setVisible(false);
+        this.enableRestoreAllButton();
     },
 
     changeProperty: function (field, value, options) {
