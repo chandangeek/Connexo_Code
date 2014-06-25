@@ -441,11 +441,9 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
 
     activateComWindow: function(checkbox,newValue){
         if(newValue){
-            debugger;
             this.getComWindowStart().setDisabled(false);
             this.getComWindowEnd().setDisabled(false);
         } else {
-            debugger;
             this.getComWindowStart().setDisabled(true);
             this.getComWindowEnd().setDisabled(true);
             this.getComWindowStart().setValue(0);

@@ -31,7 +31,7 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectSetup', {
                 ui: 'medium',
                 items: [
                     {
-                        xtype: 'deviceConfigurationMenu',
+                        xtype: 'device-configuration-menu',
                         itemId: 'stepsMenu',
                         deviceTypeId: this.deviceTypeId,
                         deviceConfigurationId: this.deviceConfigId,

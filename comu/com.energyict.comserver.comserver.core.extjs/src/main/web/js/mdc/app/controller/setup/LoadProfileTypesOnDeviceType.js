@@ -46,7 +46,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
             },
             'loadProfileTypesAddToDeviceTypeSetup button[name=addloadprofiletypestodevicetype]': {
                 click: this.addLoadProfileTypesToDeviceType
-             },
+            },
             'button[action=loadprofiletypeondevicetypenotificationerrorretry]': {
                 click: this.retrySubmit
             }
@@ -275,7 +275,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
             widget;
 
 
-
         var showPage = function () {
             Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
                 success: function (deviceType) {
@@ -317,10 +316,29 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
 
     },
 
+    arrayComparator: function (array1, array2) {
+        if (!array1 || !array2)
+            return false;
+
+        if (array1.length != array2.length)
+            return false;
+
+        for (var i = 0, l = this.length; i < l; i++) {
+            if (array1[i] instanceof Array && array2[i] instanceof Array) {
+
+                if (!array1[i].equals(array2[i]))
+                    return false;
+            }
+            else if (array1[i] != array2[i]) {
+                return false;
+            }
+        }
+        return true;
+    },
+
     showDeviceTypeLoadProfileTypesAddView: function (deviceTypeId) {
         var me = this,
-            widget = Ext.widget('loadProfileTypesAddToDeviceTypeSetup', { intervalStore: this.intervalStore }),
-            loadProfileTypesAlreadyAdded = [];
+            widget = Ext.widget('loadProfileTypesAddToDeviceTypeSetup', { intervalStore: this.intervalStore });
         me.deviceTypeId = deviceTypeId;
         me.store.getProxy().extraParams = ({deviceType: deviceTypeId});
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
@@ -330,7 +348,29 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.store.load({ params: { available: true }, callback: function () {
                     var radiogroup = Ext.ComponentQuery.query('loadProfileTypesAddToDeviceTypeSetup radiogroup[name=allOrSelectedLoadProfileTypes]')[0],
-                        grid = me.getAddLoadProfileTypesGrid();
+                        grid = me.getAddLoadProfileTypesGrid(),
+                        // Not a good solution ( need to be replaced with opening web socked connection between server and web application )
+                        autoRefresherTask = {
+                            run: function () {
+                                Ext.Ajax.request({
+                                    url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/loadprofiletypes/',
+                                    method: 'GET',
+                                    params: { available: true },
+                                    success: function (response) {
+                                        if (!me.arrayComparator(Ext.Array.pluck(me.store.data.items, 'data'), Ext.decode(response.responseText, true).data)) {
+                                            if (grid) {
+                                                me.store.load({ params: { available: true }});
+                                            } else {
+                                                Ext.TaskManager.stop(autoRefresherTask);
+                                            }
+                                        };
+                                    }
+                                });
+                            },
+                            interval: 5000
+                        }
+                    Ext.TaskManager.start(autoRefresherTask);
+                    // end
                     radiogroup.fireEvent('change', radiogroup);
                     grid.fireEvent('selectionchange', grid);
                 }});

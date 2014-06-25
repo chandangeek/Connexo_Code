@@ -120,7 +120,6 @@ Ext.define('Mdc.controller.setup.Properties', {
             propertyValue.data.inheritedValue = propertyValue.data.value;
             propertyValue.data.value = '';
         });
-        debugger;
         this.show(properties,view,hidden);
     },
 
