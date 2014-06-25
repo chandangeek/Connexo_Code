@@ -12,6 +12,7 @@ import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.validation.ValidationService;
 import com.energyict.dlms.cosem.LoadProfile;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
@@ -74,6 +75,7 @@ public class BaseLoadProfileTest extends JerseyTest {
 
     private static ProtocolPluggableService protocolPluggableService;
     private static EngineModelService engineModelService;
+    private static ValidationService validationService;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
@@ -84,13 +86,14 @@ public class BaseLoadProfileTest extends JerseyTest {
 
         protocolPluggableService = mock(ProtocolPluggableService.class);
         engineModelService = mock(EngineModelService.class);
+        validationService = mock(ValidationService.class);
     }
 
     @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        reset(masterDataService, deviceConfigurationService, protocolPluggableService, engineModelService);
+        reset(masterDataService, deviceConfigurationService, protocolPluggableService, engineModelService, validationService);
     }
 
     @Override
@@ -110,6 +113,7 @@ public class BaseLoadProfileTest extends JerseyTest {
             @Override
             protected void configure() {
                 bind(masterDataService).to(MasterDataService.class);
+                bind(validationService).to(ValidationService.class);
                 bind(deviceConfigurationService).to(DeviceConfigurationService.class);
                 bind(nlsService).to(NlsService.class);
                 bind(ResourceHelper.class).to(ResourceHelper.class);

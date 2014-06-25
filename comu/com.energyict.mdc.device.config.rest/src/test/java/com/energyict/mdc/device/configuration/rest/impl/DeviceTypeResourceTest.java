@@ -23,6 +23,7 @@ import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.rest.ExceptionFactory;
@@ -98,6 +99,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
     private static final String DUMMY_THESAURUS_STRING = "";
     private static MasterDataService masterDataService;
     private static DeviceConfigurationService deviceConfigurationService;
+    private static ValidationService validationService;
     private static ProtocolPluggableService protocolPluggableService;
     private static NlsService nlsService;
     private static Thesaurus thesaurus;
@@ -109,6 +111,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
     public static void setUpClass() throws Exception {
         masterDataService = mock(MasterDataService.class);
         deviceConfigurationService = mock(DeviceConfigurationService.class);
+        validationService = mock(ValidationService.class);
         protocolPluggableService = mock(ProtocolPluggableService.class);
         engineModelService = mock(EngineModelService.class);
         deviceDataService = mock(DeviceDataService.class);
@@ -121,7 +124,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        reset(masterDataService, protocolPluggableService, engineModelService, deviceDataService);
+        reset(masterDataService, protocolPluggableService, engineModelService, deviceDataService, validationService);
         when(thesaurus.getString(anyString(), anyString())).thenReturn(DUMMY_THESAURUS_STRING);
     }
 
@@ -143,6 +146,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
             @Override
             protected void configure() {
                 bind(masterDataService).to(MasterDataService.class);
+                bind(validationService).to(ValidationService.class);
                 bind(deviceConfigurationService).to(DeviceConfigurationService.class);
                 bind(protocolPluggableService).to(ProtocolPluggableService.class);
                 bind(engineModelService).to(EngineModelService.class);
