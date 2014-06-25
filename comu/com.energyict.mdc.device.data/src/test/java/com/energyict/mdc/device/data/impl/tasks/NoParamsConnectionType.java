@@ -22,7 +22,7 @@ import java.util.Set;
 * @author Rudi Vankeirsbilck (rudi)
 * @since 2012-08-13 (14:13)
 */
-public class NoParamsConnectionType implements ServerConnectionType {
+public abstract class NoParamsConnectionType implements ServerConnectionType {
 
     private static final int HASH_CODE = 13469; // Random prime number
 

@@ -171,7 +171,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         when(partialScheduledConnectionTask.getId()).thenReturn(PARTIAL_SCHEDULED_CONNECTION_TASK3_ID);
         when(partialScheduledConnectionTask.getName()).thenReturn("testCreateOfDifferentConfig");
         when(partialScheduledConnectionTask.getConfiguration()).thenReturn(mockedDeviceConfiguration);
-        when(partialScheduledConnectionTask.getPluggableClass()).thenReturn(noParamsConnectionTypePluggableClass);
+        when(partialScheduledConnectionTask.getPluggableClass()).thenReturn(outboundNoParamsConnectionTypePluggableClass);
 
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testCreateOfDifferentConfig", partialScheduledConnectionTask);
 
@@ -261,7 +261,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testCreateWithAllIpProperties() {
-        partialScheduledConnectionTask.setConnectionTypePluggableClass(ipConnectionTypePluggableClass);
+        partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialConnectionInitiationTask.save();
         ScheduledConnectionTaskImpl connectionTask = (ScheduledConnectionTaskImpl) inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool);
         this.setIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE);
@@ -276,7 +276,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         ComPortPool comPortPool = connectionTask.getComPortPool();
         assertThat(comPortPool).isNotNull();
         assertThat(comPortPool.getId()).isEqualTo(outboundTcpipComPortPool.getId());
-        assertThat(connectionMethod.getPluggableClass().getConnectionType()).isEqualTo(ipConnectionTypePluggableClass.getConnectionType());
+        assertThat(connectionMethod.getPluggableClass().getConnectionType()).isEqualTo(outboundIpConnectionTypePluggableClass.getConnectionType());
         assertThat(connectionTask.getProperties()).hasSize(2);
         TypedProperties typedProperties = connectionTask.getTypedProperties();
         assertThat(typedProperties.size()).isEqualTo(2);
@@ -287,7 +287,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testCreateWithOnlyRequiredIpPropertiesAndNoDefaultsOnPluggableClass() {
-        partialScheduledConnectionTask.setConnectionTypePluggableClass(ipConnectionTypePluggableClass);
+        partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialScheduledConnectionTask.save();
         ScheduledConnectionTaskImpl connectionTask = (ScheduledConnectionTaskImpl) inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool);
         this.setIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, null);
@@ -300,7 +300,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         ConnectionMethod connectionMethod = connectionTask.getConnectionMethod();
         assertThat(connectionTask.getComPortPool()).isNotNull();
         assertThat(connectionTask.getComPortPool().getId()).isEqualTo(outboundTcpipComPortPool.getId());
-        assertThat(connectionMethod.getPluggableClass().getConnectionType()).isEqualTo(ipConnectionTypePluggableClass.getConnectionType());
+        assertThat(connectionMethod.getPluggableClass().getConnectionType()).isEqualTo(outboundIpConnectionTypePluggableClass.getConnectionType());
         assertThat(connectionTask.getProperties()).hasSize(1);   // Only 1 property is locally defined and higher levels do not specify any property values
         TypedProperties typedProperties = connectionTask.getTypedProperties();
         assertThat(typedProperties.size()).isEqualTo(1);
@@ -312,11 +312,11 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     public void testCreateWithOnlyRequiredIpPropertiesAndSomeDefaultsOnPluggableClass() {
         // First update the properties of the ipConnectionType pluggable class
-        ipConnectionTypePluggableClass.removeProperty(ipConnectionTypePluggableClass.getPropertySpec(IpConnectionType.IP_ADDRESS_PROPERTY_NAME));
-        ipConnectionTypePluggableClass.setProperty(ipConnectionTypePluggableClass.getPropertySpec(IpConnectionType.PORT_PROPERTY_NAME), PORT_PROPERTY_VALUE);
-        ipConnectionTypePluggableClass.save();
+        outboundIpConnectionTypePluggableClass.removeProperty(outboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionType.IP_ADDRESS_PROPERTY_NAME));
+        outboundIpConnectionTypePluggableClass.setProperty(outboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionType.PORT_PROPERTY_NAME), PORT_PROPERTY_VALUE);
+        outboundIpConnectionTypePluggableClass.save();
 
-        partialScheduledConnectionTask.setConnectionTypePluggableClass(ipConnectionTypePluggableClass);
+        partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialScheduledConnectionTask.save();
         List<PropertySpec> allIpPropertySpecs = this.getOutboundIpPropertySpecs();
         ScheduledConnectionTaskImpl connectionTask = (ScheduledConnectionTaskImpl) inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool);
@@ -330,7 +330,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         ConnectionMethod connectionMethod = connectionTask.getConnectionMethod();
         assertThat(connectionTask.getComPortPool()).isNotNull();
         assertThat(connectionTask.getComPortPool().getId()).isEqualTo(outboundTcpipComPortPool.getId());
-        assertThat(connectionMethod.getPluggableClass().getConnectionType()).isEqualTo(ipConnectionTypePluggableClass.getConnectionType());
+        assertThat(connectionMethod.getPluggableClass().getConnectionType()).isEqualTo(outboundIpConnectionTypePluggableClass.getConnectionType());
         assertThat(connectionTask.getProperties()).hasSize(2);   // 1 property is locally defined, 1 is inherited and the third is not specified at any level
         TypedProperties typedProperties = connectionTask.getTypedProperties();
         assertThat(typedProperties.size()).isEqualTo(2);
@@ -343,11 +343,11 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     public void testCreateWithAllPropertiesInheritedFromConnectionTypePluggableClass() {
         // First update the properties of the ipConnectionType pluggable class
-        ipConnectionTypePluggableClass.setProperty(ipConnectionTypePluggableClass.getPropertySpec(IpConnectionType.IP_ADDRESS_PROPERTY_NAME), IP_ADDRESS_PROPERTY_VALUE);
-        ipConnectionTypePluggableClass.setProperty(ipConnectionTypePluggableClass.getPropertySpec(IpConnectionType.PORT_PROPERTY_NAME), PORT_PROPERTY_VALUE);
-        ipConnectionTypePluggableClass.save();
+        outboundIpConnectionTypePluggableClass.setProperty(outboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionType.IP_ADDRESS_PROPERTY_NAME), IP_ADDRESS_PROPERTY_VALUE);
+        outboundIpConnectionTypePluggableClass.setProperty(outboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionType.PORT_PROPERTY_NAME), PORT_PROPERTY_VALUE);
+        outboundIpConnectionTypePluggableClass.save();
 
-        partialScheduledConnectionTask.setConnectionTypePluggableClass(ipConnectionTypePluggableClass);
+        partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialScheduledConnectionTask.save();
         List<PropertySpec> allIpPropertySpecs = this.getOutboundIpPropertySpecs();
         ScheduledConnectionTaskImpl connectionTask = (ScheduledConnectionTaskImpl) inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool);
@@ -361,7 +361,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         ConnectionMethod connectionMethod = connectionTask.getConnectionMethod();
         assertThat(connectionTask.getComPortPool()).isNotNull();
         assertThat(connectionTask.getComPortPool().getId()).isEqualTo(outboundTcpipComPortPool.getId());
-        assertThat(connectionMethod.getPluggableClass().getConnectionType()).isEqualTo(ipConnectionTypePluggableClass.getConnectionType());
+        assertThat(connectionMethod.getPluggableClass().getConnectionType()).isEqualTo(outboundIpConnectionTypePluggableClass.getConnectionType());
         assertThat(connectionTask.getProperties()).hasSize(2);   // no properties are locally defined, all 2 are inherited from the connection type pluggable class
         TypedProperties typedProperties = connectionTask.getTypedProperties();
         assertThat(typedProperties.size()).isEqualTo(2);
@@ -375,11 +375,11 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     public void testCreateWithAllPropertiesInheritedFromConnectionTypePluggableClassAndPartialConnectionTask() {
         // First update the properties of the ipConnectionType pluggable class
-        ipConnectionTypePluggableClass.setProperty(ipConnectionTypePluggableClass.getPropertySpec(IpConnectionType.IP_ADDRESS_PROPERTY_NAME), IP_ADDRESS_PROPERTY_VALUE);
-        ipConnectionTypePluggableClass.setProperty(ipConnectionTypePluggableClass.getPropertySpec(IpConnectionType.PORT_PROPERTY_NAME), PORT_PROPERTY_VALUE);
-        ipConnectionTypePluggableClass.save();
+        outboundIpConnectionTypePluggableClass.setProperty(outboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionType.IP_ADDRESS_PROPERTY_NAME), IP_ADDRESS_PROPERTY_VALUE);
+        outboundIpConnectionTypePluggableClass.setProperty(outboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionType.PORT_PROPERTY_NAME), PORT_PROPERTY_VALUE);
+        outboundIpConnectionTypePluggableClass.save();
 
-        partialScheduledConnectionTask.setConnectionTypePluggableClass(ipConnectionTypePluggableClass);
+        partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialScheduledConnectionTask.setProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME, UPDATED_IP_ADDRESS_PROPERTY_VALUE);
         partialScheduledConnectionTask.setProperty(IpConnectionType.PORT_PROPERTY_NAME, UPDATED_PORT_PROPERTY_VALUE);
         partialScheduledConnectionTask.save();
@@ -394,7 +394,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         ConnectionMethod connectionMethod = connectionTask.getConnectionMethod();
         assertThat(connectionTask.getComPortPool()).isNotNull();
         assertThat(connectionTask.getComPortPool().getId()).isEqualTo(outboundTcpipComPortPool.getId());
-        assertThat(connectionMethod.getPluggableClass().getConnectionType()).isEqualTo(ipConnectionTypePluggableClass.getConnectionType());
+        assertThat(connectionMethod.getPluggableClass().getConnectionType()).isEqualTo(outboundIpConnectionTypePluggableClass.getConnectionType());
         assertThat(connectionTask.getProperties()).hasSize(2);   // 2 properties are inherited from the partial connection task and 1 is inherited from the connection type pluggable class
         assertThat(connectionTask.getTypedProperties().getProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME)).isEqualTo(UPDATED_IP_ADDRESS_PROPERTY_VALUE);
         assertThat(connectionTask.getTypedProperties().hasInheritedValueFor(IpConnectionType.IP_ADDRESS_PROPERTY_NAME)).isTrue();
@@ -405,7 +405,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testCreateWithAllPropertiesInheritedFromPartialConnectionTask() {
-        partialScheduledConnectionTask.setConnectionTypePluggableClass(ipConnectionTypePluggableClass);
+        partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialScheduledConnectionTask.setProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME, IP_ADDRESS_PROPERTY_VALUE);
         partialScheduledConnectionTask.setProperty(IpConnectionType.PORT_PROPERTY_NAME, PORT_PROPERTY_VALUE);
         partialScheduledConnectionTask.save();
@@ -420,7 +420,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         ConnectionMethod connectionMethod = connectionTask.getConnectionMethod();
         assertThat(connectionTask.getComPortPool()).isNotNull();
         assertThat(connectionTask.getComPortPool().getId()).isEqualTo(outboundTcpipComPortPool.getId());
-        assertThat(connectionMethod.getPluggableClass().getConnectionType()).isEqualTo(ipConnectionTypePluggableClass.getConnectionType());
+        assertThat(connectionMethod.getPluggableClass().getConnectionType()).isEqualTo(outboundIpConnectionTypePluggableClass.getConnectionType());
         assertThat(connectionTask.getProperties()).hasSize(2);   // no properties are locally defined, all 2 are inherited from the partial connection task
         TypedProperties typedProperties = connectionTask.getTypedProperties();
         assertThat(typedProperties.size()).isEqualTo(2);
@@ -433,7 +433,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testUpdateIpConnectionTypeProperty() {
-        partialScheduledConnectionTask.setConnectionTypePluggableClass(ipConnectionTypePluggableClass);
+        partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialScheduledConnectionTask.save();
         ScheduledConnectionTaskImpl connectionTask = (ScheduledConnectionTaskImpl) inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool);
         this.setIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE);
@@ -455,7 +455,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testAddIpConnectionTypeProperty() {
-        partialScheduledConnectionTask.setConnectionTypePluggableClass(ipConnectionTypePluggableClass);
+        partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialScheduledConnectionTask.save();
         ScheduledConnectionTaskImpl connectionTask = (ScheduledConnectionTaskImpl) inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool);
         this.setIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, null);
@@ -477,7 +477,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testRemoveIpConnectionTypeProperty() {
-        partialScheduledConnectionTask.setConnectionTypePluggableClass(ipConnectionTypePluggableClass);
+        partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialScheduledConnectionTask.save();
         ScheduledConnectionTaskImpl connectionTask = (ScheduledConnectionTaskImpl) inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool);
         this.setIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE);
@@ -500,11 +500,11 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     public void testReturnToInheritedProperty() {
         // First update the properties of the ipConnectionType pluggable class
-        ipConnectionTypePluggableClass.removeProperty(ipConnectionTypePluggableClass.getPropertySpec(IpConnectionType.IP_ADDRESS_PROPERTY_NAME));
-        ipConnectionTypePluggableClass.setProperty(ipConnectionTypePluggableClass.getPropertySpec(IpConnectionType.PORT_PROPERTY_NAME), UPDATED_PORT_PROPERTY_VALUE);
-        ipConnectionTypePluggableClass.save();
+        outboundIpConnectionTypePluggableClass.removeProperty(outboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionType.IP_ADDRESS_PROPERTY_NAME));
+        outboundIpConnectionTypePluggableClass.setProperty(outboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionType.PORT_PROPERTY_NAME), UPDATED_PORT_PROPERTY_VALUE);
+        outboundIpConnectionTypePluggableClass.save();
 
-        partialScheduledConnectionTask.setConnectionTypePluggableClass(ipConnectionTypePluggableClass);
+        partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialScheduledConnectionTask.save();
         ScheduledConnectionTaskImpl connectionTask = ((ScheduledConnectionTaskImpl) inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool));
         this.setIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE);
@@ -528,7 +528,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.COMPORT_TYPE_NOT_SUPPORTED_KEY + "}")
     public void testCreateWithIpWithModemComPortPool() {
-        partialScheduledConnectionTask.setConnectionTypePluggableClass(ipConnectionTypePluggableClass);
+        partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialScheduledConnectionTask.save();
         ScheduledConnectionTaskImpl connectionTask =
                 ((ScheduledConnectionTaskImpl) inMemoryPersistence.getDeviceDataService().
@@ -550,7 +550,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     public void testGetPropertiesOnMultipleDates() {
         // Create task with properties on may first 2011
         Date mayFirst2011 = freezeClock(2011, Calendar.MAY, 1);
-        partialScheduledConnectionTask.setConnectionTypePluggableClass(ipConnectionTypePluggableClass);
+        partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialScheduledConnectionTask.save();
         ScheduledConnectionTaskImpl connectionTask = ((ScheduledConnectionTaskImpl) inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool));
         this.setIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, null);
@@ -577,7 +577,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         // Create task with properties on may first 2011
 
         Date mayFirst2011 = freezeClock(2011, Calendar.MAY, 1);
-        partialScheduledConnectionTask.setConnectionTypePluggableClass(ipConnectionTypePluggableClass);
+        partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialScheduledConnectionTask.save();
         ScheduledConnectionTaskImpl connectionTask = ((ScheduledConnectionTaskImpl) inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool));
         this.setIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, null);
@@ -603,9 +603,9 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.CONNECTION_TASK_REQUIRED_PROPERTY_MISSING_KEY + "}")
     public void testCreateWithMissingRequiredProperty() {
-        partialScheduledConnectionTask.setConnectionTypePluggableClass(ipConnectionTypePluggableClass);
+        partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialScheduledConnectionTask.save();
-        TypedProperties partialProperties = TypedProperties.inheritingFrom(ipConnectionTypePluggableClass.getProperties(this.getOutboundIpPropertySpecs()));
+        TypedProperties partialProperties = TypedProperties.inheritingFrom(outboundIpConnectionTypePluggableClass.getProperties(this.getOutboundIpPropertySpecs()));
         ScheduledConnectionTaskImpl connectionTask = ((ScheduledConnectionTaskImpl) inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool));
         this.setIpConnectionProperties(connectionTask, null, PORT_PROPERTY_VALUE);
 
@@ -800,12 +800,23 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.OUTBOUND_CONNECTION_TASK_NEXT_EXECUTION_SPECS_REQUIRED_KEY + "}")
     public void testCreateWithMinimizeConnectionsAndNoNextExecutionSpecs() {
+
         ScheduledConnectionTaskImpl connectionTask = this.createWithoutNextExecutionSpecs(ConnectionStrategy.MINIMIZE_CONNECTIONS, "testCreateWithMinimizeConnectionsAndNoNextExecutionSpecs");
 
         // Busines method
         connectionTask.save();
 
         // Asserts: see expected constraint violation rule
+    }
+
+    @Test
+    @Transactional
+    public void testCreateWithMinimizeConnectionsWithNextExecutionSpecs() {
+        ScheduledConnectionTaskImpl connectionTask = ((ScheduledConnectionTaskImpl) inMemoryPersistence.getDeviceDataService().newMinimizeConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool, new TemporalExpression(new TimeDuration("5 minutes"))));
+
+
+        // Business method
+        connectionTask.save();
     }
 
     @Test
@@ -1090,7 +1101,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
         // Asserts
         assertThat(inMemoryPersistence.getDeviceDataService().findScheduledConnectionTask(id).isPresent()).isFalse();
-        RelationAttributeType connectionMethodAttributeType = ipConnectionTypePluggableClass.getDefaultAttributeType();
+        RelationAttributeType connectionMethodAttributeType = outboundIpConnectionTypePluggableClass.getDefaultAttributeType();
         assertThat(ipConnectionMethod.getRelations(connectionMethodAttributeType, new Interval(null, null), false)).isEmpty();
         assertThat(ipConnectionMethod.getRelations(connectionMethodAttributeType, new Interval(null, null), true)).isNotEmpty();    // The relations should have been made obsolete
     }
@@ -1133,7 +1144,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(connectionTask.isObsolete()).isTrue();
         assertThat(connectionTask.getObsoleteDate()).isNotNull();
         assertThat(connectionTask.getConnectionMethod()).isNotNull();
-        RelationAttributeType connectionMethodAttributeType = ipConnectionTypePluggableClass.getDefaultAttributeType();
+        RelationAttributeType connectionMethodAttributeType = outboundIpConnectionTypePluggableClass.getDefaultAttributeType();
         assertThat(ipConnectionMethod.getRelations(connectionMethodAttributeType, new Interval(null, null), false)).isEmpty();
         assertThat(ipConnectionMethod.getRelations(connectionMethodAttributeType, new Interval(null, null), true)).hasSize(1);
     }

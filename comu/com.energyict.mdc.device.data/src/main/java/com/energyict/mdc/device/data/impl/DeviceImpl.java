@@ -74,6 +74,7 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
@@ -875,7 +876,14 @@ public class DeviceImpl implements Device {
             this.newDialectProperties.remove(dialectProperties);
         } else {
             // Persistent, remove if from the managed list of properties, which will delete it from the database
-            this.dialectPropertiesList.remove(dialectProperties);
+            Iterator<ProtocolDialectProperties> iterator = this.dialectPropertiesList.iterator();
+            while (iterator.hasNext()){
+                ProtocolDialectProperties protocolDialectProperties = iterator.next();
+                if(protocolDialectProperties.getDeviceProtocolDialectName().equals(dialectProperties.getDeviceProtocolDialectName())){
+                    iterator.remove();
+                }
+            }
+            ((ProtocolDialectPropertiesImpl) dialectProperties).delete();
         }
     }
 
@@ -1220,6 +1228,11 @@ public class DeviceImpl implements Device {
     @Override
     public List<SecurityProperty> getSecurityProperties(SecurityPropertySet securityPropertySet) {
         return this.getSecurityProperties(this.clock.now(), securityPropertySet);
+    }
+
+    @Override
+    public List<ProtocolDialectConfigurationProperties> getProtocolDialects() {
+        return this.getDeviceConfiguration().getProtocolDialectConfigurationPropertiesList();
     }
 
     private List<SecurityProperty> getSecurityProperties(Date when, SecurityPropertySet securityPropertySet) {

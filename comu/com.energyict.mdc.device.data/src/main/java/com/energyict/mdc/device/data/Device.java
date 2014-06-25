@@ -15,6 +15,7 @@ import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.impl.DeviceImpl;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
@@ -332,6 +333,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     public DeviceImpl.AdHocComTaskExecutionBuilderForDevice newAdHocComTaskExecution(ComTaskEnablement comTaskEnablement);
 
     List<SecurityProperty> getSecurityProperties(SecurityPropertySet securityPropertySet);
+
+    List<ProtocolDialectConfigurationProperties> getProtocolDialects();
 
     /**
      * Indicates if there are properties for the device and the passed securityPropertySet.

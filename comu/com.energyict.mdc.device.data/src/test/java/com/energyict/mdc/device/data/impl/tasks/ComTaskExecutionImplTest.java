@@ -141,7 +141,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
 
     private PartialScheduledConnectionTask createPartialScheduledConnectionTask() {
         ConnectionTypePluggableClass connectionTypePluggableClass = inMemoryPersistence.getProtocolPluggableService()
-                .newConnectionTypePluggableClass(NoParamsConnectionType.class.getSimpleName(), NoParamsConnectionType.class.getName());
+                .newConnectionTypePluggableClass(OutboundNoParamsConnectionTypeImpl.class.getSimpleName(), OutboundNoParamsConnectionTypeImpl.class.getName());
         connectionTypePluggableClass.save();
         return deviceConfiguration.getCommunicationConfiguration().newPartialScheduledConnectionTask("Outbound (1)", connectionTypePluggableClass, TimeDuration.minutes(5), ConnectionStrategy.AS_SOON_AS_POSSIBLE).
                 comWindow(new ComWindow(0, 7200)).

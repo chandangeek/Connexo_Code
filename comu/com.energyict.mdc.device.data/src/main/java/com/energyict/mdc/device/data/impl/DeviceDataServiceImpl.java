@@ -130,10 +130,6 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
 
     @Inject
     public DeviceDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, RelationService relationService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, SchedulingService schedulingService, MessageService messageService, SecurityPropertyService securityPropertyService) {
-        this(ormService, eventService, nlsService, clock, relationService, protocolPluggableService, engineModelService, deviceConfigurationService, meteringService, false, schedulingService, messageService, securityPropertyService);
-    }
-
-    public DeviceDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, RelationService relationService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, boolean createMasterData, SchedulingService schedulingService, MessageService messageService, SecurityPropertyService securityPropertyService) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
@@ -149,7 +145,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         this.setSecurityPropertyService(securityPropertyService);
         this.activate();
         if (!this.dataModel.isInstalled()) {
-            this.install(true, createMasterData);
+            this.install(true);
         }
     }
 
@@ -288,6 +284,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         NextExecutionSpecs nextExecutionSpecs = null;
         if (temporalExpression != null) {
             nextExecutionSpecs = this.schedulingService.newNextExecutionSpecs(temporalExpression);
+            nextExecutionSpecs.save();
         }
         ScheduledConnectionTaskImpl connectionTask = this.dataModel.getInstance(ScheduledConnectionTaskImpl.class);
         connectionTask.initializeWithMinimizeStrategy(device, partialConnectionTask, comPortPool, nextExecutionSpecs);
@@ -807,11 +804,11 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
 
     @Override
     public void install() {
-        this.install(true, true);
+        this.install(true);
     }
 
-    private void install(boolean exeuteDdl, boolean createMasterData) {
-        new Installer(this.dataModel, this.eventService, this.thesaurus, messagingService).install(exeuteDdl, createMasterData);
+    private void install(boolean exeuteDdl) {
+        new Installer(this.dataModel, this.eventService, this.thesaurus, messagingService).install(exeuteDdl);
     }
 
     @Override

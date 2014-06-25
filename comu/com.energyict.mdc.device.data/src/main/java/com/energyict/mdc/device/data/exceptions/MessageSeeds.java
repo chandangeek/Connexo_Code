@@ -25,16 +25,16 @@ public enum MessageSeeds implements MessageSeed {
     CONNECTION_TASK_DEVICE_REQUIRED(2000, Constants.CONNECTION_TASK_DEVICE_REQUIRED_KEY, "A connection type should be linked to a device", Level.SEVERE),
     CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED(2001, Constants.CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED_KEY, "A connection type should be linked to a partial connection task from the device configuration", Level.SEVERE),
     DUPLICATE_CONNECTION_TASK(2002, Constants.DUPLICATE_CONNECTION_TASK_KEY, "The partial connection task {0} is already used by connection task {1} on device {2} and therefore no other connection task with the same partial connection task can be created", Level.SEVERE),
-    CONNECTION_TASK_INCOMPATIBLE_PARTIAL(2002, Constants.CONNECTION_TASK_INCOMPATIBLE_PARTIAL_KEY, "The type of the partial connection task of a connection task must be compatible. Expected ''{0}'' but got ''{1}''", Level.SEVERE),
+    CONNECTION_TASK_INCOMPATIBLE_PARTIAL(2034, Constants.CONNECTION_TASK_INCOMPATIBLE_PARTIAL_KEY, "The type of the partial connection task of a connection task must be compatible. Expected ''{0}'' but got ''{1}''", Level.SEVERE),
     CONNECTION_TASK_PARTIAL_CONNECTION_TASK_NOT_IN_CONFIGURATION(2003, Constants.CONNECTION_TASK_PARTIAL_CONNECTION_TASK_NOT_IN_CONFIGURATION_KEY, "A connection task must be created against a partial connection task (id={0}, configuration id={1}) from the same device configuration (id={2})", Level.SEVERE),
     CONNECTION_TASK_IS_ALREADY_OBSOLETE(2004, Constants.CONNECTION_TASK_IS_ALREADY_OBSOLETE_KEY, "The connection task ''{0}'' on device {1} cannot be made obsolete because it is already obsolete since {2,date,yyyy-MM-dd HH:mm:ss}", Level.SEVERE),
     CONNECTION_TASK_IS_EXECUTING_AND_CANNOT_OBSOLETE(2005, Constants.CONNECTION_TASK_IS_EXECUTING_AND_CANNOT_OBSOLETE_KEY, "The connection task ''{0}'' on device {1} cannot be made obsolete because it is currently being executed by communication server ''{2}''", Level.SEVERE),
     CONNECTION_TASK_IS_OBSOLETE_AND_CANNOT_UPDATE(2006, Constants.CONNECTION_TASK_IS_OBSOLETE_AND_CANNOT_UPDATE_KEY, "The connection task ''{0}'' on device {1} cannot be updated because it is already obsolete since {2,date,yyyy-MM-dd HH:mm:ss}", Level.SEVERE),
-    DEFAULT_CONNECTION_TASK_IS_INUSE_AND_CANNOT_DELETE(2007, Constants.CONNECTION_TASK_IS_EXECUTING_AND_CANNOT_OBSOLETE_KEY, "The default connection task ''{0}'' on device {1} cannot be delete because it is still in use by communication tasks", Level.SEVERE),
+    DEFAULT_CONNECTION_TASK_IS_INUSE_AND_CANNOT_DELETE(2007, Constants.DEFAULT_CONNECTION_TASK_IS_IN_USE_AND_CANNOT_OBSOLETE_KEY, "The default connection task ''{0}'' on device {1} cannot be delete because it is still in use by communication tasks", Level.SEVERE),
     CONNECTION_TASK_INVALID_PROPERTY(2008, Constants.CONNECTION_TASK_INVALID_PROPERTY_KEY, "The connection task ''{0}'' on device {1} cannot be updated because it is already obsolete since {2,date,yyyy-MM-dd HH:mm:ss}", Level.SEVERE),
     CONNECTION_TASK_PROPERTY_NOT_IN_SPEC(2009, Constants.CONNECTION_TASK_PROPERTY_NOT_IN_SPEC_KEY, "ConnectionType '{0}' does not contain a specification for attribute '{1}'", Level.SEVERE),
     CONNECTION_TASK_PROPERTY_INVALID_VALUE(2010, Constants.CONNECTION_TASK_PROPERTY_INVALID_VALUE_KEY, "''{0}'' is not a valid value for attribute ''{1}'' of ConnectionType ''{2}''", Level.SEVERE),
-    CONNECTION_TASK_REQUIRED_PROPERTY_MISSING(2010, Constants.CONNECTION_TASK_REQUIRED_PROPERTY_MISSING_KEY, "A value is missing for required attribute ''{1}'' of ConnectionType ''{2}''", Level.SEVERE),
+    CONNECTION_TASK_REQUIRED_PROPERTY_MISSING(2035, Constants.CONNECTION_TASK_REQUIRED_PROPERTY_MISSING_KEY, "A value is missing for required attribute ''{1}'' of ConnectionType ''{2}''", Level.SEVERE),
     CONNECTION_TASK_UNIQUE_INBOUND_COMPORT_POOL_PER_DEVICE(2011, Constants.CONNECTION_TASK_UNIQUE_INBOUND_COMPORT_POOL_PER_DEVICE_KEY, "An inbound communication port pool can only be used once on the same device", Level.SEVERE),
     OUTBOUND_CONNECTION_TASK_STRATEGY_REQUIRED(2012, Constants.OUTBOUND_CONNECTION_TASK_STRATEGY_REQUIRED_KEY, "An outbound connection task requires a connection strategy", Level.SEVERE),
     OUTBOUND_CONNECTION_TASK_MINIMIZE_STRATEGY_NOT_COMPATIBLE_WITH_SIMULTANEOUS_CONNECTIONS(2013, Constants.OUTBOUND_CONNECTION_TASK_MINIMIZE_STRATEGY_NOT_COMPATIBLE_WITH_SIMULTANEOUS_CONNECTIONS_KEY, "", Level.SEVERE),
@@ -66,10 +66,20 @@ public enum MessageSeeds implements MessageSeed {
 
     MessageSeeds(int number, String key, String defaultFormat, Level level) {
         this.number = number;
-        this.key = key;
+        this.key = stripComponentNameIfPresent(key);
         this.defaultFormat = defaultFormat;
         this.level = level;
     }
+
+    private String stripComponentNameIfPresent(String key) {
+        if (key.startsWith(DeviceDataService.COMPONENTNAME+".")) {
+            return key.substring(DeviceDataService.COMPONENTNAME.length()+1);
+        } else {
+            return key;
+        }
+    }
+
+
 
     @Override
     public int getNumber() {
@@ -79,6 +89,10 @@ public enum MessageSeeds implements MessageSeed {
     @Override
     public String getKey() {
         return key;
+    }
+
+    public String getFullyQualifiedKey() {
+        return DeviceDataService.COMPONENTNAME+"."+key;
     }
 
     @Override
@@ -107,6 +121,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CONNECTION_TASK_PARTIAL_CONNECTION_TASK_NOT_IN_CONFIGURATION_KEY = "DDC.connectionType.partialConnectionTaskNotInConfiguration";
         public static final String CONNECTION_TASK_IS_ALREADY_OBSOLETE_KEY = "DDC.connectionTask.isAlreadyObsolete";
         public static final String CONNECTION_TASK_IS_EXECUTING_AND_CANNOT_OBSOLETE_KEY = "DDC.connectionTask.isExecutingAndCannotObsolete";
+        public static final String DEFAULT_CONNECTION_TASK_IS_IN_USE_AND_CANNOT_OBSOLETE_KEY = "DDC.defaultConnectionTask.isInUseAndCannotObsolete";
         public static final String CONNECTION_TASK_IS_OBSOLETE_AND_CANNOT_UPDATE_KEY = "DDC.connectionTask.isObsoleteAndCannotUpdate";
         public static final String CONNECTION_METHOD_PLUGGABLE_CLASS_REQUIRED_KEY = "DDC.connectionMethod.pluggableClass.required";
         public static final String CONNECTION_METHOD_COMPORT_POOL_REQUIRED_KEY = "DDC.connectionMethod.comPortPool.required";

@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -47,7 +46,7 @@ public class NextExecutionSpecsWithMinimizeConnectionsStrategyValidator implemen
         return this.valid;
     }
 
-    private void addViolation(MessageSeed messageSeed) {
+    private void addViolation(MessageSeeds messageSeed) {
         this.violationMode.addViolation(this.context, messageSeed);
         this.valid = false;
         this.violationMode = ViolationMode.MORE;
@@ -127,21 +126,21 @@ public class NextExecutionSpecsWithMinimizeConnectionsStrategyValidator implemen
     private enum ViolationMode {
         FIRST {
             @Override
-            protected void addViolation(ConstraintValidatorContext context, MessageSeed messageSeed) {
+            protected void addViolation(ConstraintValidatorContext context, MessageSeeds messageSeed) {
                 context.disableDefaultConstraintViolation();
                 context
-                        .buildConstraintViolationWithTemplate("{" + messageSeed.getKey() + "}")
+                        .buildConstraintViolationWithTemplate("{" + messageSeed.getFullyQualifiedKey() + "}")
                         .addPropertyNode("nextExecutionSpecs").addConstraintViolation();
             }
         },
         MORE {
             @Override
-            protected void addViolation(ConstraintValidatorContext context, MessageSeed messageSeed) {
-                context.buildConstraintViolationWithTemplate("{" + messageSeed.getKey() + "}");
+            protected void addViolation(ConstraintValidatorContext context, MessageSeeds messageSeed) {
+                context.buildConstraintViolationWithTemplate("{" + messageSeed.getFullyQualifiedKey() + "}");
             }
         };
 
-        protected abstract void addViolation(ConstraintValidatorContext context, MessageSeed messageSeed);
+        protected abstract void addViolation(ConstraintValidatorContext context, MessageSeeds messageSeed);
 
     }
 }
