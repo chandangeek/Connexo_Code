@@ -137,6 +137,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                             {
                                 xtype: 'fieldcontainer',
                                 fieldLabel:Uni.I18n.translate('connectionmethod.rescheduleRetryDelay', 'MDC', 'Retry delay'),
+                                itemId: 'rescheduleRetryDelayFieldContainer',
                                 layout: {
                                     type: 'hbox',
                                     align: 'stretch'
