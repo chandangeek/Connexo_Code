@@ -38,11 +38,13 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     private long id;
     private String mRID;
 
-    @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")
-    @Pattern(regexp = "[a-zA-Z0-9\\.\\-]+", groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.INVALID_CHARS + "}")
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")
+    @Size(min = 1, max = 80, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
+    @Pattern(regexp = "[a-zA-Z0-9\\.\\-]+", groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.INVALID_CHARS + "}")
     private String name;
+    @Size(min = 0, max = 80, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     private String aliasName;
+    @Size(min = 0, max = 256, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_256 + "}")
     private String description;
     private UtcInstant obsoleteTime;
 

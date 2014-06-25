@@ -57,13 +57,14 @@ import java.util.Set;
 public final class ValidationRuleImpl implements ValidationRule, IValidationRule {
     private long id;
 
-    @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")
+    @Size(min = 1, max = 80, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     @Pattern(regexp = "[a-zA-Z0-9\\.\\-]+", groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.INVALID_CHARS + "}")
     private String name;
     private boolean active;
     private ValidationAction action;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")
+    @Size(min = 1, max = 80, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     @ExistingValidator(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NO_SUCH_VALIDATOR + "}")
     private String implementation; //validator classname
     private UtcInstant obsoleteTime;
