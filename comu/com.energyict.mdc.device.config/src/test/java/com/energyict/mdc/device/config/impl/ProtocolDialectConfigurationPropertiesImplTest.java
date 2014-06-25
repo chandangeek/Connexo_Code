@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TypedProperties;
@@ -183,6 +185,7 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
                 new EngineModelModule(),
                 new ProtocolPluggableModule(),
                 new IssuesModule(),
+                new ValidationModule(),
                 new ProtocolsModule(),
                 new MdcDynamicModule(),
                 new PluggableModule());
@@ -200,6 +203,7 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
             injector.getInstance(PluggableService.class);
             injector.getInstance(MasterDataService.class);
             injector.getInstance(TaskService.class);
+            injector.getInstance(ValidationService.class);
             SchedulingService schedulingService = injector.getInstance(SchedulingService.class);
             deviceConfigurationService = (DeviceConfigurationServiceImpl) injector.getInstance(DeviceConfigurationService.class);
             ctx.commit();
