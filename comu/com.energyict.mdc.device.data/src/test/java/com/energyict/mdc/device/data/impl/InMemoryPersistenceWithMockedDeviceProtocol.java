@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.Translator;
@@ -121,6 +123,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
     private DeviceDataServiceImpl deviceService;
     private TaskService taskService;
     private SchedulingService schedulingService;
+    private ValidationService validationService;
 
 
     public InMemoryPersistenceWithMockedDeviceProtocol() {
@@ -156,6 +159,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
                 new MdcDynamicModule(),
                 new TasksModule(),
                 new PluggableModule(),
+                new ValidationModule(),
 //                new ProtocolPluggableModule(),
                 new EngineModelModule(),
                 new MasterDataModule(),
@@ -176,6 +180,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
             this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
             this.masterDataService = injector.getInstance(MasterDataService.class);
             this.taskService = injector.getInstance(TaskService.class);
+            this.validationService = injector.getInstance(ValidationService.class);
             this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
             this.schedulingService = injector.getInstance(SchedulingService.class);
             this.dataModel = this.createNewDeviceDataService(injector);
