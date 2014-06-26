@@ -27,17 +27,20 @@ Ext.define('Isu.view.workspace.issues.GroupGrid', {
             }
         ]
     },
-    tbar: {
-        itemId: 'pagingtoolbar',
-        xtype: 'pagingtoolbartop',
-        store: 'Isu.store.IssuesGroups',
-        displayMsg: '{0} - {1} of {2} reasons',
-        displayMoreMsg: '{0} - {1} of more than {2} reasons',
-        emptyMsg: '0 reasons'
-    },
-    bbar: {
-        itemId: 'pagingtoolbar',
-        xtype: 'pagingtoolbarbottom',
-        store: 'Isu.store.IssuesGroups'
-    }
+    dockedItems: [
+        {
+            xtype: 'pagingtoolbartop',
+            dock: 'top',
+            store: 'Isu.store.IssuesGroups',
+            displayMsg: '{0} - {1} of {2} reasons',
+            displayMoreMsg: '{0} - {1} of more than {2} reasons',
+            emptyMsg: '0 reasons'
+        },
+        {
+            xtype: 'pagingtoolbarbottom',
+            dock: 'bottom',
+            store: 'Isu.store.IssuesGroups',
+            itemsPerPageMsg: 'Items per page'
+        }
+    ]
 });
