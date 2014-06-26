@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.Environment;
@@ -14,6 +15,7 @@ import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.DeviceDataServiceImpl;
+import com.energyict.mdc.device.data.impl.DeviceImpl;
 import com.energyict.mdc.device.data.impl.PersistenceIntegrationTest;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
@@ -33,6 +35,7 @@ import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.scheduling.TemporalExpression;
+import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.google.common.base.Optional;
 import java.math.BigDecimal;
@@ -506,7 +509,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     protected ComTaskExecution createComTaskExecWithConnectionTaskNextDateAndComTaskEnablement(ConnectionTask<?,?> connectionTask, Date nextExecutionTimeStamp, ComTaskEnablement comTaskEnablement){
-        ComTaskExecutionBuilder<? extends ComTaskExecutionBuilder<?, ?>, ? extends ComTaskExecution> comTaskExecutionBuilder = device.getComTaskExecutionBuilder(comTaskEnablement);
+        ComTaskExecutionBuilder<? extends ComTaskExecutionBuilder<?, ?>, ? extends ComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement);
         comTaskExecutionBuilder.setConnectionTask(connectionTask);
         ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         device.save();
@@ -520,10 +523,18 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     protected ComTaskExecution createComTaskExecution(ComTaskEnablement comTaskEnablement) {
-        ComTaskExecutionBuilder<? extends ComTaskExecutionBuilder<?, ?>, ? extends ComTaskExecution> comTaskExecutionBuilder = device.getComTaskExecutionBuilder(comTaskEnablement);
+        DeviceImpl.ScheduledComTaskExecutionBuilderForDevice comTaskExecutionBuilder = device.newScheduledComTaskExecution(comTaskEnablement);
+        comTaskExecutionBuilder.comSchedule(createComSchedule(comTaskEnablement.getComTask()));
+
         ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         device.save();
         return comTaskExecution;
+    }
+
+    private ComSchedule createComSchedule(ComTask comTask) {
+        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule(comTask.getName(), new TemporalExpression(TimeDuration.days(1)), new UtcInstant(new Date())).build();
+        comSchedule.addComTask(comTask);
+        return comSchedule;
     }
 
     protected ComTaskExecution getReloadedComTaskExecution(Device device) {

@@ -311,8 +311,6 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      */
     public List<ComTaskExecution> getComTaskExecutions();
 
-    public ComTaskExecutionBuilder<? extends ComTaskExecutionBuilder<?,?>, ? extends ComTaskExecution> getComTaskExecutionBuilder(ComTaskEnablement comTaskEnablement);
-
     public ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?,?>, ? extends ComTaskExecution> getComTaskExecutionUpdater(ComTaskExecution comTaskExecution);
 
     void removeComTaskExecution(ComTaskExecution comTaskExecution);

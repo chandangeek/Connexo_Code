@@ -27,8 +27,6 @@ public interface ComTaskExecutionUpdater<U extends ComTaskExecutionUpdater<U, C>
 
     U setPriority(int executionPriority);
 
-    U createOrUpdateNextExecutionSpec(TemporalExpression temporalExpression);
-
     U removeNextExecutionSpec();
 
     U setMasterNextExecutionSpec(NextExecutionSpecs masterNextExecutionSpec);

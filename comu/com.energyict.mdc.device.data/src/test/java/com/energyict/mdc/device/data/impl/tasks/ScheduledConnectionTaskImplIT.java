@@ -1795,7 +1795,8 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
                 return futureTrigger.equals(comTaskExecution.getNextExecutionTimestamp());
             }
         });
-        comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution).createOrUpdateNextExecutionSpec(new TemporalExpression(TimeDuration.days(1))).update();
+        ScheduledComTaskExecutionImpl.ScheduledComTaskExecutionUpdater comTaskExecutionUpdater = (ScheduledComTaskExecutionImpl.ScheduledComTaskExecutionUpdater) comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution);
+        comTaskExecutionUpdater.createOrUpdateNextExecutionSpec(new TemporalExpression(TimeDuration.days(1))).update();
         ((ServerComTaskExecution) comTaskExecution).executionFailed();
         ((ServerComTaskExecution) comTaskExecution).executionFailed();
         ((ServerComTaskExecution) comTaskExecution).executionFailed();

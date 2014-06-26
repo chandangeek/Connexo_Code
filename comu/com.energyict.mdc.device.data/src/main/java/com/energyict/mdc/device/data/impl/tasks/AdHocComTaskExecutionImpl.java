@@ -17,6 +17,7 @@ import com.energyict.mdc.device.data.tasks.AdHocComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ClockTask;
@@ -148,7 +149,7 @@ public class AdHocComTaskExecutionImpl extends ComTaskExecutionImpl implements A
 
     }
 
-    public static class AdHocComTaskExecutionBuilderImpl extends AbstractComTaskExecutionBuilder<AdHocComTaskExecutionBuilder, AdHocComTaskExecutionImpl> {
+    public static class AdHocComTaskExecutionBuilderImpl extends AbstractComTaskExecutionBuilder<AdHocComTaskExecutionBuilder, AdHocComTaskExecutionImpl> implements AdHocComTaskExecutionBuilder{
 
         protected AdHocComTaskExecutionBuilderImpl(AdHocComTaskExecutionImpl adHocComTaskExecution, Device device, ComTaskEnablement comTaskEnablement) {
             super(adHocComTaskExecution, device, comTaskEnablement, AdHocComTaskExecutionBuilder.class);
@@ -156,7 +157,6 @@ public class AdHocComTaskExecutionImpl extends ComTaskExecutionImpl implements A
     }
 
     public interface AdHocComTaskExecutionUpdater extends ComTaskExecutionUpdater<AdHocComTaskExecutionUpdater, AdHocComTaskExecutionImpl> {
-
     }
 
     class AdHocComTaskExecutionUpdaterImpl

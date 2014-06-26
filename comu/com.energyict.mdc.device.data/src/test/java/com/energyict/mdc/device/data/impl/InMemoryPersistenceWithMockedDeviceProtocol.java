@@ -27,6 +27,9 @@ import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.json.impl.JsonServiceImpl;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.impl.DefaultClock;
+import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.impl.ValidationModule;
+import com.elster.jupiter.validation.impl.ValidationServiceImpl;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.Translator;
@@ -157,6 +160,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
 //                new ProtocolPluggableModule(),
                 new EngineModelModule(),
                 new MasterDataModule(),
+                new ValidationModule(),
                 new DeviceConfigurationModule(),
                 new MdcCommonModule(),
                 new SchedulingModule(),

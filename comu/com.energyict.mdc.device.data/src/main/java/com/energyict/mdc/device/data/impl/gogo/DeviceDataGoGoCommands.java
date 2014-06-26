@@ -157,7 +157,7 @@ public class DeviceDataGoGoCommands {
             DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
             List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
             for (ComTaskEnablement comTaskEnablement : deviceConfiguration.getComTaskEnablements()) {
-                comTaskExecutions.add(device.getComTaskExecutionBuilder(comTaskEnablement).add());
+                comTaskExecutions.add(device.newAdHocComTaskExecution(comTaskEnablement).add());
             }
             return comTaskExecutions;
         }

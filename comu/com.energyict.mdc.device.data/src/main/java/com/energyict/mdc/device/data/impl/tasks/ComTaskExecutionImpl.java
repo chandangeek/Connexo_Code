@@ -249,7 +249,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         }
     }
 
-    private void setDefaultConnectionTask(ConnectionTask<?, ?> defaultConnectionTask) {
+    void setDefaultConnectionTask(ConnectionTask<?, ?> defaultConnectionTask) {
         this.useDefaultConnectionTask = true;
         setConnectionTask(defaultConnectionTask);
     }
@@ -963,13 +963,6 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         }
 
         @Override
-        public U createOrUpdateNextExecutionSpec(TemporalExpression temporalExpression) {
-            this.comTaskExecution.createOrUpdateMyNextExecutionSpecs(temporalExpression);
-            this.comTaskExecution.recalculateNextAndPlannedExecutionTimestamp();
-            return self;
-        }
-
-        @Override
         public U removeNextExecutionSpec() {
             this.comTaskExecution.removeNextExecutionSpec();
             return self;
@@ -1002,8 +995,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
 
         @Override
         public U setUseDefaultConnectionTask(ConnectionTask<?, ?> defaultConnectionTask) {
-            this.comTaskExecution.setConnectionTask(defaultConnectionTask);
-            this.comTaskExecution.setUseDefaultConnectionTask(true);
+            this.comTaskExecution.setDefaultConnectionTask(defaultConnectionTask);
             return self;
         }
 

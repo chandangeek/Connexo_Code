@@ -14,6 +14,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
@@ -159,6 +160,8 @@ public class ScheduledComTaskExecutionImpl extends ComTaskExecutionImpl implemen
 
     interface ScheduledComTaskExecutionUpdater extends ComTaskExecutionUpdater<ScheduledComTaskExecutionUpdater, ScheduledComTaskExecutionImpl> {
         public ScheduledComTaskExecutionUpdater comSchedule(ComSchedule comSchedule);
+
+        ScheduledComTaskExecutionUpdater createOrUpdateNextExecutionSpec(TemporalExpression temporalExpression);
     }
 
     class ScheduledComTaskExecutionUpdaterImpl
@@ -172,6 +175,13 @@ public class ScheduledComTaskExecutionImpl extends ComTaskExecutionImpl implemen
         @Override
         public ScheduledComTaskExecutionUpdater comSchedule(ComSchedule comSchedule) {
             super.comTaskExecution.setComSchedule(comSchedule);
+            return self;
+        }
+
+        @Override
+        public ScheduledComTaskExecutionUpdater createOrUpdateNextExecutionSpec(TemporalExpression temporalExpression) {
+            this.comTaskExecution.createOrUpdateMyNextExecutionSpecs(temporalExpression);
+            this.comTaskExecution.recalculateNextAndPlannedExecutionTimestamp();
             return self;
         }
     }
