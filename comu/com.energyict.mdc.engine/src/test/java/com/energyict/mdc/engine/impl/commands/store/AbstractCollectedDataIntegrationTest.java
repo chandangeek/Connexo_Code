@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
@@ -121,6 +122,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
                 new ProtocolsModule(),
                 new PluggableModule(),
                 new TaskHistoryModule(),
+                new ValidationModule(),
                 new DeviceConfigurationModule(),
                 new DeviceDataModule(),
                 new MasterDataModule(),

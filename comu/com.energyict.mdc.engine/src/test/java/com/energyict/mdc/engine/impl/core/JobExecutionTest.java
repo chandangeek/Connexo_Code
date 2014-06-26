@@ -442,7 +442,8 @@ public class JobExecutionTest {
 
     private void createMockedComTaskWithGivenProtocolTasks(ProtocolTask... protocolTasks) {
         ComTask comTask = mock(ComTask.class);
-        when(comTaskExecution.getComTask()).thenReturn(comTask);
+        when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
+        when(comTaskExecution.getProtocolTasks()).thenReturn(Arrays.asList(protocolTasks));
         when(comTask.getProtocolTasks()).thenReturn(Arrays.asList(protocolTasks));
     }
 

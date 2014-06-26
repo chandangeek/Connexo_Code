@@ -2,7 +2,6 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -57,7 +56,7 @@ public class ComTaskExecutionRootDeviceCommandTest {
     public void initializeMocks () throws SQLException, BusinessException {
         when(this.comTask.getName()).thenReturn(FailureLoggerImplTest.class.getSimpleName());
         when(this.comTaskExecution.getId()).thenReturn(COM_TASK_EXECUTION_ID);
-        when(this.comTaskExecution.getComTask()).thenReturn(this.comTask);
+        when(this.comTaskExecution.getComTasks()).thenReturn(Arrays.asList(this.comTask));
     }
 
     @Test

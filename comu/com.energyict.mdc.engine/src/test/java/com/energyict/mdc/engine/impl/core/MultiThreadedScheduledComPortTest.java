@@ -867,7 +867,7 @@ public class MultiThreadedScheduledComPortTest {
         when(comTask.getId()).thenReturn(id);
         when(comTask.getConnectionTask()).thenReturn(connectionTask);
         when(comTask.getDevice()).thenReturn(this.device);
-        when(comTask.getComTask()).thenReturn(this.comTask);
+        when(comTask.getComTasks()).thenReturn(Arrays.asList(this.comTask));
         when(comTask.getProtocolDialectConfigurationProperties()).thenReturn(this.protocolDialectConfigurationProperties);
         return comTask;
     }

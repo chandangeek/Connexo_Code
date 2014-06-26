@@ -68,7 +68,7 @@ public class RescheduleBehaviorForInboundTest {
 
     private ComTaskExecution createMockedComTaskExecution() {
         final ComTaskExecution mock = mock(ComTaskExecution.class);
-        when(mock.getComTask()).thenReturn(comTask);
+        when(mock.getComTasks()).thenReturn(Arrays.asList(comTask));
         return mock;
     }
 

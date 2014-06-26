@@ -38,6 +38,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.logging.Logger;
 
@@ -99,7 +100,7 @@ public class DeviceProtocolCommandCreatorTest {
         ComPortRelatedComChannel comChannel = mock(ComPortRelatedComChannel.class);
         ComTask comTask = mock(ComTask.class);
         ComTaskExecution scheduledComTask = mock(ComTaskExecution.class);
-        when(scheduledComTask.getComTask()).thenReturn(comTask);
+        when(scheduledComTask.getComTasks()).thenReturn(Arrays.asList(comTask));
         ComTaskExecutionConnectionSteps comTaskExecutionConnectionStep = createSingleDeviceComTaskExecutionSteps();
 
         DeviceProtocolCommandCreator commandCreator =new DeviceProtocolCommandCreator();
@@ -128,7 +129,7 @@ public class DeviceProtocolCommandCreatorTest {
         ComPortRelatedComChannel comChannel = mock(ComPortRelatedComChannel.class);
         ComTask comTask = mock(ComTask.class);
         ComTaskExecution scheduledComTask = mock(ComTaskExecution.class);
-        when(scheduledComTask.getComTask()).thenReturn(comTask);
+        when(scheduledComTask.getComTasks()).thenReturn(Arrays.asList(comTask));
         ComTaskExecutionConnectionSteps comTaskExecutionConnectionStep = createMiddleDeviceComTaskExecutionSteps();
 
         DeviceProtocolCommandCreator commandCreator =new DeviceProtocolCommandCreator();
@@ -159,7 +160,7 @@ public class DeviceProtocolCommandCreatorTest {
         ComPortRelatedComChannel comChannel = mock(ComPortRelatedComChannel.class);
         ComTask comTask = mock(ComTask.class);
         ComTaskExecution scheduledComTask = mock(ComTaskExecution.class);
-        when(scheduledComTask.getComTask()).thenReturn(comTask);
+        when(scheduledComTask.getComTasks()).thenReturn(Arrays.asList(comTask));
         ComTaskExecutionConnectionSteps comTaskExecutionConnectionStep = createLastDeviceComTaskExecutionSteps();
 
         DeviceProtocolCommandCreator commandCreator =new DeviceProtocolCommandCreator();

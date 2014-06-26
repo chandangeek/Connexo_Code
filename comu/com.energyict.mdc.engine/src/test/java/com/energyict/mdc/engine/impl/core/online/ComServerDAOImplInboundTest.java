@@ -176,7 +176,7 @@ public class ComServerDAOImplInboundTest {
         when(connectionTask.getComPortPool()).thenReturn(comPortPool);
         ComTask comTask = mock(ComTask.class);
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
-        when(comTaskExecution.getComTask()).thenReturn(comTask);
+        when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
         ServerDeviceCommunicationConfiguration deviceCommunicationConfiguration = mock(ServerDeviceCommunicationConfiguration.class);
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);

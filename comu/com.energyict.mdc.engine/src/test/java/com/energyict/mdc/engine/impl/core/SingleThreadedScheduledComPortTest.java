@@ -65,6 +65,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -746,7 +747,7 @@ public class SingleThreadedScheduledComPortTest {
         when(comTask.getId()).thenReturn(id);
         when(comTask.getConnectionTask()).thenReturn(connectionTask);
         when(comTask.getDevice()).thenReturn(this.device);
-        when(comTask.getComTask()).thenReturn(this.comTask);
+        when(comTask.getComTasks()).thenReturn(Arrays.asList(this.comTask));
         when(comTask.getProtocolDialectConfigurationProperties()).thenReturn(this.protocolDialectConfigurationProperties);
         return comTask;
     }

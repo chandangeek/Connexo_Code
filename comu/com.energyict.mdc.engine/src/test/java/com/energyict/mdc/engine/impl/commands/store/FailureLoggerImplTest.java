@@ -17,6 +17,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Arrays;
 import java.util.Date;
 
 import static org.mockito.Matchers.any;
@@ -44,7 +45,7 @@ public class FailureLoggerImplTest {
     public void initializeMocks () {
         when(this.comTask.getName()).thenReturn(FailureLoggerImplTest.class.getSimpleName());
         when(this.comTaskExecution.getId()).thenReturn(COM_TASK_EXECUTION_ID);
-        when(this.comTaskExecution.getComTask()).thenReturn(this.comTask);
+        when(this.comTaskExecution.getComTasks()).thenReturn(Arrays.asList(this.comTask));
     }
 
     @Test(expected = CodingException.class)

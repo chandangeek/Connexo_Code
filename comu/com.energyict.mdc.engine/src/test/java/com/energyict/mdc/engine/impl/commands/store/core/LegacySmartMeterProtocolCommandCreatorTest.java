@@ -40,6 +40,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.logging.Logger;
 
@@ -90,7 +91,7 @@ public class LegacySmartMeterProtocolCommandCreatorTest {
         ComPortRelatedComChannel comChannel = mock(ComPortRelatedComChannel.class);
         ComTask comTask = mock(ComTask.class);
         ComTaskExecution scheduledComTask = mock(ComTaskExecution.class);
-        when(scheduledComTask.getComTask()).thenReturn(comTask);
+        when(scheduledComTask.getComTasks()).thenReturn(Arrays.asList(comTask));
         ComTaskExecutionConnectionSteps comTaskExecutionConnectionStep = createSingleDeviceComTaskExecutionSteps();
         LegacySmartMeterProtocolCommandCreator commandCreator = new LegacySmartMeterProtocolCommandCreator();
         commandCreator.createCommands(
@@ -123,7 +124,7 @@ public class LegacySmartMeterProtocolCommandCreatorTest {
         ComPortRelatedComChannel comChannel = mock(ComPortRelatedComChannel.class);
         ComTask comTask = mock(ComTask.class);
         ComTaskExecution scheduledComTask = mock(ComTaskExecution.class);
-        when(scheduledComTask.getComTask()).thenReturn(comTask);
+        when(scheduledComTask.getComTasks()).thenReturn(Arrays.asList(comTask));
         ComTaskExecutionConnectionSteps comTaskExecutionConnectionStep = createSingleDeviceComTaskExecutionSteps();
 
         LegacySmartMeterProtocolCommandCreator commandCreator = new LegacySmartMeterProtocolCommandCreator();

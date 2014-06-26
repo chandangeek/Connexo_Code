@@ -65,7 +65,7 @@ public class ComTaskExecutionComCommandImplTest {
         serviceProvider.setTaskHistoryService(taskHistoryService);
         when(this.comTask.getName()).thenReturn(ComTaskExecutionComCommandImplTest.class.getSimpleName());
         when(this.comTaskExecution.getId()).thenReturn(COM_TASK_EXECUTION_ID);
-        when(this.comTaskExecution.getComTask()).thenReturn(this.comTask);
+        when(this.comTaskExecution.getComTasks()).thenReturn(Arrays.asList(this.comTask));
         ComPort comPort = mock(ComPort.class);
         ComServer comServer = mock(OnlineComServer.class);
         when(comServer.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.INFO);

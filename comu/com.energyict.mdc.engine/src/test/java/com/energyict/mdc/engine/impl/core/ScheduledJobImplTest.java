@@ -356,7 +356,9 @@ public class ScheduledJobImplTest {
         ServerComTaskExecution scheduledComTask = mock(ServerComTaskExecution.class);
         when(scheduledComTask.getDevice()).thenReturn(device);
         when(scheduledComTask.getConnectionTask()).thenReturn(connectionTask);
-        when(scheduledComTask.getComTask()).thenReturn(comTask);
+        when(scheduledComTask.getComTasks()).thenReturn(Arrays.asList(comTask));
+        List<ProtocolTask> protocolTasks = comTask.getProtocolTasks();
+        when(scheduledComTask.getProtocolTasks()).thenReturn(protocolTasks);
         when(scheduledComTask.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
         return scheduledComTask;
     }

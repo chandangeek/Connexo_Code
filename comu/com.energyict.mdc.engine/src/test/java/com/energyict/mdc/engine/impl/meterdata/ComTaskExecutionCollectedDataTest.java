@@ -150,7 +150,7 @@ public class ComTaskExecutionCollectedDataTest {
     public void testIsConfiguredIn () {
         ComTask comTask = mock(ComTask.class, withSettings().extraInterfaces(DataCollectionConfiguration.class));
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
-        when(comTaskExecution.getComTask()).thenReturn(comTask);
+        when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
         ComTaskExecutionCollectedData collectedData = new ComTaskExecutionCollectedData(comTaskExecution, new ArrayList<ServerCollectedData>(0));
 
         // Business method
@@ -165,7 +165,7 @@ public class ComTaskExecutionCollectedDataTest {
         ComTask comTask = mock(ComTask.class, withSettings().extraInterfaces(DataCollectionConfiguration.class));
         ComTask otherComTask = mock(ComTask.class, withSettings().extraInterfaces(DataCollectionConfiguration.class));
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
-        when(comTaskExecution.getComTask()).thenReturn(comTask);
+        when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
         ComTaskExecutionCollectedData collectedData = new ComTaskExecutionCollectedData(comTaskExecution, new ArrayList<ServerCollectedData>(0));
 
         // Business method
