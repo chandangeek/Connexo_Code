@@ -9,6 +9,8 @@ import java.util.Date;
 import java.util.List;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import com.google.common.base.Optional;
 import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 
@@ -20,14 +22,14 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
 public abstract class ComPortPoolInfo<S extends ComPortPool> {
     public long id;
     public String name;
-    public boolean active;
+    public Boolean active;
     public String description;
-    public boolean obsoleteFlag;
+    public Boolean obsoleteFlag;
     public Date obsoleteDate;
     @XmlJavaTypeAdapter(ComPortTypeAdapter.class)
     public ComPortType type;
     public List<InboundComPortInfo> inboundComPorts;
-    public long discoveryProtocolPluggableClassId;
+    public Long discoveryProtocolPluggableClassId;
     public List<OutboundComPortInfo> outboundComPorts;
     public TimeDurationInfo taskExecutionTimeout;
 
@@ -45,10 +47,23 @@ public abstract class ComPortPoolInfo<S extends ComPortPool> {
     }
 
     protected S writeTo(S source, ProtocolPluggableService protocolPluggableService) {
-        source.setName(this.name);
-        source.setDescription(this.description);
-        source.setComPortType(this.type);
-        source.setActive(this.active);
+        Optional<String> name = Optional.fromNullable(this.name);
+        if(name.isPresent()) {
+            source.setName(name.get());
+        }
+        Optional<String> description = Optional.fromNullable(this.description);
+        if(description.isPresent()) {
+            source.setDescription(description.get());
+        }
+        Optional<ComPortType> type = Optional.fromNullable(this.type);
+        if(type.isPresent()) {
+            source.setComPortType(type.get());
+        }
+        Optional<Boolean> active = Optional.fromNullable(this.active);
+        if(active.isPresent()) {
+            source.setActive(active.get());
+        }
+
         return source;
     }
 
