@@ -42,6 +42,9 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
             },
             '#addEditButton[action=editProtocolDialect]': {
                 click: this.editProtocolDialect
+            },
+            '#restoreAllButton[action=restoreAll]': {
+                click: this.restoreAllDefaults
             }
         });
     },
@@ -174,6 +177,10 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
                 }
             });
         }
+    },
+
+    restoreAllDefaults: function () {
+        this.getPropertiesController().restoreAllDefaults();
     }
 
 });
