@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import com.google.common.base.Optional;
 import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 
@@ -22,7 +24,7 @@ public abstract class ComServerInfo<S extends ComServer> {
 
     public long id;
     public String name;
-    public boolean active;
+    public Boolean active;
     @XmlJavaTypeAdapter(LogLevelAdapter.class)
     public ComServer.LogLevel serverLogLevel;
     @XmlJavaTypeAdapter(LogLevelAdapter.class)
@@ -35,12 +37,12 @@ public abstract class ComServerInfo<S extends ComServer> {
     public String queryAPIUsername;
     public String queryAPIPassword;
     public String queryAPIPostUri;
-    public boolean usesDefaultQueryAPIPostUri;
+    public Boolean usesDefaultQueryAPIPostUri;
     public String eventRegistrationUri;
-    public boolean usesDefaultEventRegistrationUri;
-    public int storeTaskQueueSize;
-    public int numberOfStoreTaskThreads;
-    public int storeTaskThreadPriority;
+    public Boolean usesDefaultEventRegistrationUri;
+    public Integer storeTaskQueueSize;
+    public Integer numberOfStoreTaskThreads;
+    public Integer storeTaskThreadPriority;
 
     public ComServerInfo() {
     }
@@ -75,15 +77,29 @@ public abstract class ComServerInfo<S extends ComServer> {
     }
 
     public S writeTo(S source,EngineModelService engineModelService) {
-        source.setName(name);
-        source.setActive(active);
-        source.setServerLogLevel(serverLogLevel);
-        source.setCommunicationLogLevel(communicationLogLevel);
-        if (changesInterPollDelay!=null) {
-            source.setChangesInterPollDelay(changesInterPollDelay.asTimeDuration());
+        Optional<String> name = Optional.fromNullable(this.name);
+        if(name.isPresent()) {
+            source.setName(name.get());
         }
-        if (schedulingInterPollDelay!=null) {
-            source.setSchedulingInterPollDelay(schedulingInterPollDelay.asTimeDuration());
+        Optional<Boolean> active = Optional.fromNullable(this.active);
+        if(active.isPresent()) {
+            source.setActive(active.get());
+        }
+        Optional<ComServer.LogLevel> serverLogLevel = Optional.fromNullable(this.serverLogLevel);
+        if(serverLogLevel.isPresent()) {
+            source.setServerLogLevel(serverLogLevel.get());
+        }
+        Optional<ComServer.LogLevel> communicationLogLevel = Optional.fromNullable(this.communicationLogLevel);
+        if(communicationLogLevel.isPresent()) {
+            source.setCommunicationLogLevel(communicationLogLevel.get());
+        }
+        Optional<TimeDurationInfo> changesInterPollDelay = Optional.fromNullable(this.changesInterPollDelay);
+        if (changesInterPollDelay.isPresent()) {
+            source.setChangesInterPollDelay(changesInterPollDelay.get().asTimeDuration());
+        }
+        Optional<TimeDurationInfo> schedulingInterPollDelay = Optional.fromNullable(this.schedulingInterPollDelay);
+        if (schedulingInterPollDelay.isPresent()) {
+            source.setSchedulingInterPollDelay(schedulingInterPollDelay.get().asTimeDuration());
         }
 
         return source;

@@ -117,21 +117,17 @@ public class ComServerResource {
         }
 
         Optional<List<InboundComPortInfo>> inboundComPorts = Optional.fromNullable(comServerInfo.inboundComPorts);
-        if (!inboundComPorts.isPresent()) {
-            throw new WebApplicationException("ComServer is missing list of inbound ComPorts",
-                Response.status(Response.Status.BAD_REQUEST).entity("ComServer is missing list of inbound ComPorts").build());
+        Optional<List<OutboundComPortInfo>> outboundComPorts = Optional.fromNullable(comServerInfo.outboundComPorts);
+        List<ComPortInfo> allComPortInfos = new ArrayList<>();
+        if (inboundComPorts.isPresent()) {
+            allComPortInfos.addAll(inboundComPorts.get());
         }
 
-        Optional<List<OutboundComPortInfo>> outboundComPorts = Optional.fromNullable(comServerInfo.outboundComPorts);
-        if (!outboundComPorts.isPresent()) {
-            throw new WebApplicationException("ComServer is missing list of outbound ComPorts",
-                Response.status(Response.Status.BAD_REQUEST).entity("ComServer is missing list of outbound ComPorts").build());
+        if (outboundComPorts.isPresent()) {
+            allComPortInfos.addAll(outboundComPorts.get());
         }
 
         comServerInfo.writeTo(comServer.get(),engineModelService);
-        List<ComPortInfo> allComPortInfos = new ArrayList<>();
-        allComPortInfos.addAll(inboundComPorts.get());
-        allComPortInfos.addAll(outboundComPorts.get());
         updateComPorts(comServer.get(), allComPortInfos);
 
         comServer.get().save();

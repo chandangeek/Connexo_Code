@@ -44,6 +44,7 @@ import org.glassfish.jersey.test.TestProperties;
 import org.hibernate.validator.internal.engine.path.PathImpl;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
@@ -371,40 +372,6 @@ public class ComServerResourceTest extends JerseyTest {
         verify(serverSideComServer).save();
 
         assertThat(modemBasedComPortBuilder.comPortPool).isEqualTo(comPortPool);
-    }
-
-    @Test
-    public void testCanNotUpdateComServerWithoutInboundComPorts() throws Exception {
-        int comServer_id = 4;
-
-        ComServer serverSideComServer = mock(OnlineComServer.class);
-        when(engineModelService.findComServer(comServer_id)).thenReturn(serverSideComServer);
-
-        OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
-        onlineComServerInfo.name="new name";
-        onlineComServerInfo.inboundComPorts = null;
-        onlineComServerInfo.outboundComPorts = new ArrayList<>();
-        Entity<OnlineComServerInfo> json = Entity.json(onlineComServerInfo);
-        final Response response = target("/comservers/4").request().put(json);
-
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-    }
-
-    @Test
-    public void testCanNotUpdateComServerWithoutOutboundComPorts() throws Exception {
-        int comServer_id = 5;
-
-        ComServer serverSideComServer = mock(OnlineComServer.class);
-        when(engineModelService.findComServer(comServer_id)).thenReturn(serverSideComServer);
-
-        OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
-        onlineComServerInfo.name="new name";
-        onlineComServerInfo.inboundComPorts = new ArrayList<>();
-        onlineComServerInfo.outboundComPorts = null;
-        Entity<OnlineComServerInfo> json = Entity.json(onlineComServerInfo);
-        final Response response = target("/comservers/5").request().put(json);
-
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test

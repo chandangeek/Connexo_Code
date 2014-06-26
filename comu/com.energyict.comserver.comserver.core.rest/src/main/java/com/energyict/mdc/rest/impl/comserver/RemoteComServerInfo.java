@@ -1,9 +1,7 @@
 package com.energyict.mdc.rest.impl.comserver;
 
-import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.OnlineComServer;
-import com.energyict.mdc.engine.model.RemoteComServer;
+import com.energyict.mdc.engine.model.*;
+import com.google.common.base.Optional;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
@@ -40,11 +38,29 @@ public class RemoteComServerInfo extends ComServerInfo<RemoteComServer> {
 
     public RemoteComServer writeTo(RemoteComServer comServerSource,EngineModelService engineModelService) {
         super.writeTo(comServerSource,engineModelService);
-        comServerSource.setEventRegistrationUri(eventRegistrationUri);
-        comServerSource.setUsesDefaultEventRegistrationUri(usesDefaultEventRegistrationUri);
-        comServerSource.setOnlineComServer((OnlineComServer) engineModelService.findComServer(onlineComServerId));
-        comServerSource.setQueryAPIPassword(queryAPIPassword);
-        comServerSource.setQueryAPIUsername(queryAPIUsername);
+        Optional<String> eventRegistrationUri = Optional.fromNullable(this.eventRegistrationUri);
+        if(eventRegistrationUri.isPresent()) {
+            comServerSource.setEventRegistrationUri(eventRegistrationUri.get());
+        }
+        Optional<Boolean> usesDefaultEventRegistrationUri = Optional.fromNullable(this.usesDefaultEventRegistrationUri);
+        if(usesDefaultEventRegistrationUri.isPresent()) {
+            comServerSource.setUsesDefaultEventRegistrationUri(usesDefaultEventRegistrationUri.get());
+        }
+        Optional<Long> onlineComServerId = Optional.fromNullable(this.onlineComServerId);
+        if(onlineComServerId.isPresent()) {
+            Optional<? extends ComServer> onlineComServer = Optional.fromNullable(engineModelService.findComServer(onlineComServerId.get()));
+            if(onlineComServer.isPresent() && OnlineComServer.class.isAssignableFrom(onlineComServer.get().getClass())) {
+                comServerSource.setOnlineComServer((OnlineComServer)onlineComServer.get());
+            }
+        }
+        Optional<String> queryAPIPassword = Optional.fromNullable(this.queryAPIPassword);
+        if(queryAPIPassword.isPresent()) {
+            comServerSource.setQueryAPIPassword(queryAPIPassword.get());
+        }
+        Optional<String> queryAPIUsername = Optional.fromNullable(this.queryAPIUsername);
+        if(queryAPIUsername.isPresent()) {
+            comServerSource.setQueryAPIUsername(queryAPIUsername.get());
+        }
 
         return comServerSource;
     }
