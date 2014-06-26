@@ -71,8 +71,12 @@ public class MinMaxValidator implements Validator {
     @Override
     public ValidationResult validate(IntervalReadingRecord intervalReadingRecord) {
         Quantity toValidate = intervalReadingRecord.getQuantity(readingType);
-        boolean withinBounds = isWithinBounds(toValidate);
-        return withinBounds ? ValidationResult.PASS : ValidationResult.SUSPECT;
+        if (toValidate != null) {
+            boolean withinBounds = isWithinBounds(toValidate);
+            return withinBounds ? ValidationResult.PASS : ValidationResult.SUSPECT;
+        } else {
+            return ValidationResult.SKIPPED;
+        }
     }
 
     @Override
