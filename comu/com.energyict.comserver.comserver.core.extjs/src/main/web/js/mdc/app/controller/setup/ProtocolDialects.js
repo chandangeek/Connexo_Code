@@ -42,6 +42,9 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
             },
             '#addEditButton[action=editProtocolDialect]': {
                 click: this.editProtocolDialect
+            },
+            '#restoreAllButton[action=restoreAll]': {
+                click: this.restoreAllDefaults
             }
         });
     },
@@ -130,6 +133,7 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
         model.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigId});
         model.load(protocolDialectId, {
             success: function (protocolDialect) {
+                me.getApplication().fireEvent('loadProtocolDialect', protocolDialect);
                 Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
                     success: function (deviceType) {
                         me.getApplication().fireEvent('loadDeviceType', deviceType);
@@ -140,7 +144,7 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
                                 me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfiguration);
                                 widget.down('form').loadRecord(protocolDialect);
                                 me.getPropertiesController().showProperties(protocolDialect, widget);
-                                widget.down('#protocolDialectEditAddTitle').update('<h1>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + protocolDialect.get('name') + '</h1>');
+                                widget.down('#protocolDialectEditAddTitle').update('<h1>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' \'' + protocolDialect.get('name') + '\'</h1>');
                                 me.getApplication().fireEvent('changecontentevent', widget);
                                 widget.setLoading(false);
                             }
@@ -162,6 +166,7 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
             record.save({
                 success: function (record) {
                     location.href = '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/protocols';
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('protocolDialect.acknowlegment', 'MDC', 'Protocol dialect has been saved') );
                 },
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText);
@@ -172,6 +177,10 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
                 }
             });
         }
+    },
+
+    restoreAllDefaults: function () {
+        this.getPropertiesController().restoreAllDefaults();
     }
 
 });

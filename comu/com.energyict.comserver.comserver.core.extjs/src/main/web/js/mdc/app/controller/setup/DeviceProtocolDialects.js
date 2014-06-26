@@ -127,12 +127,13 @@ Ext.define('Mdc.controller.setup.DeviceProtocolDialects', {
         model.getProxy().extraParams = ({mRID: mRID});
         model.load(protocolDialectId, {
             success: function (protocolDialect) {
+                me.getApplication().fireEvent('loadDeviceProtocolDialect', protocolDialect);
                 Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
                     success: function (device) {
                         me.getApplication().fireEvent('loadDevice', device);
                         widget.down('form').loadRecord(protocolDialect);
                         me.getPropertiesController().showProperties(protocolDialect, widget);
-                        widget.down('#deviceProtocolDialectEditAddTitle').update('<h1>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + protocolDialect.get('name') + '</h1>');
+                        widget.down('#deviceProtocolDialectEditAddTitle').update('<h1>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' \'' + protocolDialect.get('name') + '\'</h1>');
                         me.getApplication().fireEvent('changecontentevent', widget);
                         widget.setLoading(false);
                     }
@@ -152,6 +153,7 @@ Ext.define('Mdc.controller.setup.DeviceProtocolDialects', {
             record.save({
                 success: function (record) {
                     location.href = '#/devices/' + me.mRID + '/protocols';
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceProtocolDialect.acknowlegment', 'MDC', 'Protocol dialect has been saved') );
                 },
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText);
