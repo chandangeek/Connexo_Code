@@ -1,7 +1,6 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
-import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
@@ -124,7 +123,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         when(dataModel.mapper(ValidationRuleProperties.class)).thenReturn(rulePropertiesFactory);
         when(validatorCreator.getValidator(eq(IMPLEMENTATION), any(Map.class))).thenReturn(validator);
         when(validator.getReadingQualityTypeCode()).thenReturn(Optional.<ReadingQualityType>absent());
-        when(channel.getIntervalReadings(readingType2, INTERVAL)).thenReturn(Arrays.asList(intervalReadingRecord));
+        when(channel.getIntervalReadings(readingType2, INTERVAL.withStart(new Date(INTERVAL.dbStart() - 1)))).thenReturn(Arrays.asList(intervalReadingRecord));
         when(channel.getRegisterReadings(readingType2, INTERVAL)).thenReturn(Arrays.asList(readingRecord));
     }
 

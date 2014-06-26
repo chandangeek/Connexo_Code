@@ -11,6 +11,7 @@ import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.elster.jupiter.validation.ValidationRuleSet;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Ordering;
 
 import javax.inject.Inject;
@@ -102,16 +103,9 @@ class MeterActivationValidationImpl implements MeterActivationValidation {
         if (!saved) {
             saved = true;
             meterActivationValidationFactory().persist(this);
-            //dataModel.mapper(ChannelValidation.class).persist(FluentIterable.from(getChannelValidations()).toList());
         } else {
             meterActivationValidationFactory().update(this);
-            /*List<ChannelValidation> channelValidations = loadChannelValidations();
-            DiffList<ChannelValidation> diffList = ArrayDiffList.fromOriginal(channelValidations);
-            diffList.clear();
-            diffList.addAll(getChannelValidations());
-            dataModel.mapper(ChannelValidation.class).persist(FluentIterable.from(diffList.getAdditions()).toList());
-            dataModel.mapper(ChannelValidation.class).update(FluentIterable.from(diffList.getRemaining()).toList());
-            dataModel.mapper(ChannelValidation.class).remove(FluentIterable.from(diffList.getRemovals()).toList());*/
+            dataModel.mapper(ChannelValidation.class).update(FluentIterable.from(getChannelValidations()).toList());
         }
     }
 
@@ -147,17 +141,15 @@ class MeterActivationValidationImpl implements MeterActivationValidation {
     private void validateChannel(Interval interval, Channel channel) {
         Date earliestLastChecked = null;
         ChannelValidation channelValidation = findOrAddValidationFor(channel);
-        Date lastChecked = channelValidation.getLastChecked();
-        Interval intervalToValidate = new Interval(getEarliestDate(lastChecked, interval.getStart()), interval.getEnd());
+        Date lastChecked = null;
+        Interval intervalToValidate = new Interval(getEarliestDate(channelValidation.getLastChecked(), interval.getStart()), interval.getEnd());
         for (IValidationRule validationRule : getRuleSet().getRules()) {
+            lastChecked = validationRule.validateChannel(channel, intervalToValidate);
             if (lastChecked != null) {
                 earliestLastChecked = getEarliestDate(earliestLastChecked, lastChecked);
             }
-            lastChecked = validationRule.validateChannel(channel, intervalToValidate);
         }
-        if (lastChecked != null) {
-            earliestLastChecked = getEarliestDate(earliestLastChecked, lastChecked);
-        }
+
         if (earliestLastChecked != null) {
             channelValidation.setLastChecked(earliestLastChecked);
         }
