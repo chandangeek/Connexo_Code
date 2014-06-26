@@ -458,6 +458,12 @@ Ext.define('Mdc.controller.history.Setup', {
                                     route: 'overview',
                                     controller: 'Mdc.controller.setup.ComServerOverview',
                                     action: 'showOverview'
+                                },
+                                comports: {
+                                    title: 'Communication ports',
+                                    route: 'comports',
+                                    controller: 'Mdc.controller.setup.ComServerComPortsView',
+                                    action: 'showView'
                                 }
                             }
                         }
