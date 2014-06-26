@@ -136,6 +136,9 @@ Ext.define('Uni.view.container.PreviewContainer', {
     getStoreListeners: function () {
         return {
             beforeload: this.onBeforeLoad,
+            bulkremove: this.onLoad,
+            remove: this.onLoad,
+            clear: this.onLoad,
             load: this.onLoad
         };
     },
