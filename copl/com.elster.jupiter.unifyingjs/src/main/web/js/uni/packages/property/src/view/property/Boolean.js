@@ -1,4 +1,4 @@
-Ext.define('Uni.property.view.property.Password', {
+Ext.define('Uni.property.view.property.Boolean', {
     extend: 'Uni.property.view.property.Base',
 
     getEditCmp: function () {
