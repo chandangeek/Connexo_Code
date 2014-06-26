@@ -347,13 +347,14 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
                         // Not a good solution ( need to be replaced with opening web socket connection between server and web application )
                         autoRefresherTask = {
                             run: function () {
+                                var addGrid = Ext.ComponentQuery.query('#loadProfileTypesAddToDeviceTypeGrid')[0];
                                 Ext.Ajax.request({
                                     url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/loadprofiletypes/',
                                     method: 'GET',
                                     params: { available: true },
                                     success: function (response) {
                                         if (!me.arrayComparator(Ext.Array.pluck(me.store.data.items, 'data'), Ext.decode(response.responseText, true).data)) {
-                                            if (grid) {
+                                            if (addGrid) {
                                                 var radioValue = radiogroup.getValue().loadProfileTypeRange;
                                                 me.store.load({ params: { available: true }, callback: function() {
                                                     switch (radioValue) {
