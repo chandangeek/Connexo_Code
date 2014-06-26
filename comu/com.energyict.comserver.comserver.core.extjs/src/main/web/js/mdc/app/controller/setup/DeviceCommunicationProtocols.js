@@ -103,7 +103,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
             success: function (protocol) {
                 me.getApplication().fireEvent('loadDeviceCommunicationProtocol', protocol);
                 widget.down('form').loadRecord(protocol);
-                widget.down('#deviceCommunicationProtocolEditCreateTitle').update('<h1>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + protocol.get('name') + '</h1>');
+                widget.down('#deviceCommunicationProtocolEditCreateTitle').update('<h1>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' \'' + protocol.get('name') + '\'</h1>');
                 if (protocol.propertiesStore.data.items.length > 0) {
                     me.getEditCommunicationProtocolDetailsTitle().setVisible(true);
                 } else {
@@ -126,6 +126,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
             record.save({
                 success: function (record) {
                     location.href = '#/administration/devicecommunicationprotocols/';
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('devicecommunicationprotocol.acknowlegment', 'MDC', 'Protocol has been saved') );
                 },
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText);
