@@ -18,7 +18,7 @@ Ext.define('Mdc.controller.history.Setup', {
                     action: 'showLogbookTypes',
                     items: {
                         create: {
-                            title: 'Create logbook type',
+                            title: 'Add logbook type',
                             route: 'create',
                             controller: 'Mdc.controller.setup.LogbookTypes'
                         },
@@ -96,7 +96,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     action: 'showDeviceConfigurations',
                                     items: {
                                         create: {
-                                            title: 'Create device configuration',
+                                            title: 'Add device configuration',
                                             route: 'create',
                                             controller: 'Mdc.controller.setup.DeviceConfigurations',
                                             action: 'showDeviceConfigurationCreateView'
@@ -140,7 +140,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                                             action: 'showDeviceConfigurationLoadProfilesEditView',
                                                             callback: function (route) {
                                                                 this.getApplication().on('loadLoadProfile', function (record) {
-                                                                    route.setTitle('Edit "' + record.name + '"');
+                                                                    route.setTitle('Edit \'' + record.name + '\'');
                                                                     return true;
                                                                 }, {single: true});
 
@@ -205,7 +205,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                                     action: 'showRegisterConfigs',
                                                     items: {
                                                         create: {
-                                                            title: 'Create register configuration',
+                                                            title: 'Add register configuration',
                                                             route: 'create',
                                                             controller: 'Mdc.controller.setup.RegisterConfigs',
                                                             action: 'showRegisterConfigurationCreateView'
@@ -226,7 +226,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                                     action: 'showSecuritySettings',
                                                     items: {
                                                         create: {
-                                                            title: 'Create security setting',
+                                                            title: 'Add security setting',
                                                             route: 'create',
                                                             controller: 'Mdc.controller.setup.SecuritySettings',
                                                             action: 'showSecuritySettingsCreateView'
@@ -247,7 +247,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                                     action: 'showCommunicationTasks',
                                                     items: {
                                                         create: {
-                                                            title: 'Create communication task',
+                                                            title: 'Add communication task',
                                                             route: 'create',
                                                             controller: 'Mdc.controller.setup.CommunicationTasks',
                                                             action: 'showAddCommunicationTaskView'
@@ -259,7 +259,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                                             action: 'showEditCommunicationTaskView',
                                                             callback: function (route) {
                                                                 this.getApplication().on('loadCommunicationTaskModel', function (record) {
-                                                                    route.setTitle('Edit "' + record.get('comTask').name + '"');
+                                                                    route.setTitle('Edit \'' + record.get('comTask').name + '\'');
                                                                     return true;
                                                                 }, {single: true});
 
@@ -300,7 +300,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                                             action: 'showConnectionMethodEditView',
                                                             callback: function (route) {
                                                                 this.getApplication().on('loadConnectionMethod', function (record) {
-                                                                    route.setTitle('Edit "' + record.get('name') + '"');
+                                                                    route.setTitle('Edit \'' + record.get('name') + '\'');
                                                                     return true;
                                                                 }, {single: true});
 
@@ -376,7 +376,7 @@ Ext.define('Mdc.controller.history.Setup', {
                     action: 'showLoadProfileTypes',
                     items: {
                         create: {
-                            title: 'Create profile type',
+                            title: 'Add profile type',
                             route: 'create',
                             controller: 'Mdc.controller.setup.LoadProfileTypes',
                             action: 'showLoadProfileTypesCreateView',
@@ -396,7 +396,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showLoadProfileTypesEditView',
                             callback: function (route) {
                                 this.getApplication().on('loadProfileType', function (record) {
-                                    route.setTitle('Edit "' + record.name + '"');
+                                    route.setTitle('Edit \'' + record.name + '\'');
                                     return true;
                                 }, {single: true});
 
@@ -432,7 +432,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showEditView',
                             callback: function (route) {
                                 this.getApplication().on('loadComServer', function (record) {
-                                    route.setTitle('Edit "' + record.get('name') + '"');
+                                    route.setTitle('Edit \'' + record.get('name') + '\'');
                                     return true;
                                 }, {single: true});
 
@@ -608,7 +608,7 @@ Ext.define('Mdc.controller.history.Setup', {
                     action: 'showCommunicationTasksView',
                     items: {
                         create: {
-                            title: 'Create communication task',
+                            title: 'Add communication task',
                             route: 'create',
                             controller: 'Mdc.controller.setup.Comtasks',
                             action: 'showCommunicationTasksCreateEdit'
@@ -620,7 +620,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showCommunicationTasksCreateEdit',
                             callback: function (route) {
                                 this.getApplication().on('loadCommunicationTask', function (record) {
-                                    route.setTitle('Edit "' + record.name + '"');
+                                    route.setTitle('Edit \'' + record.name + '\'');
                                     return true;
                                 }, {single: true});
 
@@ -636,7 +636,7 @@ Ext.define('Mdc.controller.history.Setup', {
                     action: 'showCommunicationSchedules',
                     items: {
                         create: {
-                            title: 'Create communication schedule',
+                            title: 'Add communication schedule',
                             route: 'create',
                             controller: 'Mdc.controller.setup.CommunicationSchedules',
                             action: 'showCommunicationSchedulesEditView'
@@ -648,7 +648,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showCommunicationSchedulesEditView',
                             callback: function (route) {
                                 this.getApplication().on('loadCommunicationSchedule', function (record) {
-                                    route.setTitle('Edit "' + record.get('name') + '"');
+                                    route.setTitle('Edit \'' + record.get('name') + '\'');
                                     return true;
                                 }, {single: true});
 
@@ -738,7 +738,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     action: 'showDeviceConnectionMethodEditView',
                                     callback: function (route) {
                                         this.getApplication().on('loadConnectionMethod', function (record) {
-                                            route.setTitle('Edit "' + record.get('name') + '"');
+                                            route.setTitle('Edit \'' + record.get('name') + '\'');
                                             return true;
                                         }, {single: true});
                                         return this;

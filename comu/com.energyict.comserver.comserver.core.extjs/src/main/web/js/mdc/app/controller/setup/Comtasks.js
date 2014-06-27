@@ -167,11 +167,11 @@ Ext.define('Mdc.controller.setup.Comtasks', {
     },
 
     showCommunicationTasksCreateEdit: function (id) {
-        this.operationType = Ext.isEmpty(id) ? Uni.I18n.translate('general.create', 'MDC', 'Create') : Uni.I18n.translate('general.edit', 'MDC', 'Edit');
+        this.operationType = Ext.isEmpty(id) ? Uni.I18n.translate('general.add', 'MDC', 'Add') : Uni.I18n.translate('general.edit', 'MDC', 'Edit');
         this.getApplication().fireEvent('changecontentevent', Ext.widget('comtaskCreateEdit'));
         this.getTaskEdit().getCenterContainer().down().setTitle(this.operationType + ' ' + Uni.I18n.translate('comtask.comtask', 'MDC', 'communication task'));
         this.getTaskEdit().down('toolbar').getComponent('createEditTask').setText(
-            Ext.isEmpty(id) ? Uni.I18n.translate('general.create', 'MDC', 'Create') : Uni.I18n.translate('general.save', 'MDC', 'Save')
+            Ext.isEmpty(id) ? Uni.I18n.translate('general.add', 'MDC', 'Add') : Uni.I18n.translate('general.save', 'MDC', 'Save')
         );
         if (id) {
             this.taskEditId = id;
@@ -234,7 +234,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
         sendingData.commands = self.commands;
         if (form.isValid()) {
             formErrorsPanel.hide();
-            if (btn.text === 'Create') {
+            if (btn.text === 'Add') {
                 preloader = Ext.create('Ext.LoadMask', {
                     msg: Uni.I18n.translate('comtask.creating', 'MDC', 'Creating communication task'),
                     target: editView
@@ -305,7 +305,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             jsonData: sendingData,
             success: function () {
                 window.location.href = '#/administration/communicationtasks';
-                self.getApplication().fireEvent('acknowledge', 'Successfully updated');
+                self.getApplication().fireEvent('acknowledge', 'Communication task saved');
                 self.commands = [];
             },
             failure: function (response) {

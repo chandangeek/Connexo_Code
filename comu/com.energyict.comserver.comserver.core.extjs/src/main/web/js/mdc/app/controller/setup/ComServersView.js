@@ -122,8 +122,8 @@ Ext.define('Mdc.controller.setup.ComServersView', {
         var me = this;
 
         Ext.create('Uni.view.window.Confirmation').show({
-            msg: Uni.I18n.translate('comServer.deleteConfirmation.msg', 'MDC', 'This communication server will disappear from the list.'),
-            title: Ext.String.format(Uni.I18n.translate('comServer.deleteConfirmation.title', 'MDC', 'Delete communication server "{0}"?'), record.get('name')),
+            msg: Uni.I18n.translate('comServer.deleteConfirmation.msg', 'MDC', 'This communication server will no longer be available.'),
+            title: Ext.String.format(Uni.I18n.translate('comServer.deleteConfirmation.title', 'MDC', "Remove '{0}'?"), record.get('name')),
             fn: function (state) {
                 switch (state) {
                     case 'confirm':

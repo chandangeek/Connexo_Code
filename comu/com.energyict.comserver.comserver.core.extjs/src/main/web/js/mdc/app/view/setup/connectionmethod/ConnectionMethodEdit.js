@@ -110,9 +110,9 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                 store: this.connectionStrategies,
                                 queryMode: 'local',
                                 required: true,
-                                displayField: 'connectionStrategy',
+                                displayField: 'localizedValue',
                                 valueField: 'connectionStrategy',
-                                emptyText: Uni.I18n.translate('connectionmethod.selectconnectionStrategy', 'MDC', 'Select a connection strategy'),
+                                emptyText: Uni.I18n.translate('connectionmethod.selectconnectionStrategy', 'MDC', 'Select a connection strategy...'),
                                 forceSelection: true,
                                 typeAhead: true,
                                 msgTarget: 'under'
@@ -122,6 +122,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                 name: 'nextExecutionSpecs',
                                 itemId: 'scheduleField',
                                 hidden: true,
+                                required: true,
                                 fieldLabel: 'Schedule',
                                 hourCfg: {
                                     width: 60
@@ -134,16 +135,36 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                 }
                             },
                             {
-                                xtype: 'timeInfoField',
-                                name: 'rescheduleRetryDelay',
-                                fieldLabel: Uni.I18n.translate('connectionmethod.rescheduleRetryDelay', 'MDC', 'Retry delay'),
-                                itemId: 'rescheduleRetryDelay',
-                                required: true
+                                xtype: 'fieldcontainer',
+                                fieldLabel:Uni.I18n.translate('connectionmethod.rescheduleRetryDelay', 'MDC', 'Retry delay'),
+                                itemId: 'rescheduleRetryDelayFieldContainer',
+                                layout: {
+                                    type: 'hbox',
+                                    align: 'stretch'
+                                },
+                                items: [
+                                    {
+                                        xtype: 'displayfield',
+                                        value: Uni.I18n.translate('connectionmethod.retryEvery', 'MDC', 'Retry every'),
+                                        margin: '0 5 0 0'
+                                    },
+                                    {
+                                        xtype: 'timeInfoField',
+                                        name: 'rescheduleRetryDelay',
+                                        itemId: 'rescheduleRetryDelay',
+                                        required: true,
+                                        value: {
+                                            count: 5,
+                                            timeUnit: 'minutes'
+                                        }
+                                    }
+                                ]
                             },
+
                             {
                                 xtype: 'fieldcontainer',
                                 itemId: 'comWindowField',
-                                fieldLabel: '&nbsp',
+                                fieldLabel: Uni.I18n.translate('connectionmethod.connectionWindow', 'MDC', 'Connection window'),
                                 layout: {
                                     type: 'hbox',
                                     align: 'stretch'
@@ -313,7 +334,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
             } else if (this.direction === 'Inbound') {
                 this.down('#addEditButton').action = 'editInboundConnectionMethod';
                 this.down('#connectionStrategyComboBox').setVisible(false);
-                this.down('#rescheduleRetryDelay').setVisible(false);
+                this.down('#rescheduleRetryDelayFieldContainer').setVisible(false);
                 this.down('#allowSimultaneousConnections').setVisible(false);
                 this.down('#comWindowField').setVisible(false);
 
@@ -326,7 +347,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
             } else if (this.direction === 'Inbound') {
                 this.down('#addEditButton').action = 'addInboundConnectionMethod';
                 this.down('#connectionStrategyComboBox').setVisible(false);
-                this.down('#rescheduleRetryDelay').setVisible(false);
+                this.down('#rescheduleRetryDelayFieldContainer').setVisible(false);
                 this.down('#allowSimultaneousConnections').setVisible(false);
                 this.down('#comWindowField').setVisible(false);
 //                this.down('#isDefault').setVisible(false);

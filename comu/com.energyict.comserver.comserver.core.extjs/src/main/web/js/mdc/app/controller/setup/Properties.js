@@ -115,10 +115,12 @@ Ext.define('Mdc.controller.setup.Properties', {
         var me = this;
         var properties = objectWithProperties.propertiesStore.data.items;
         this.propertiesStore = objectWithProperties.propertiesStore;
-        properties.forEach(function (property) {
-            var propertyValue = property.getPropertyValue();
-            propertyValue.data.inheritedValue = propertyValue.data.value;
-            propertyValue.data.value = '';
+        properties.forEach(function(property){
+            try {
+                var propertyValue = property.getPropertyValue();
+                propertyValue.data.inheritedValue = propertyValue.data.value;
+                propertyValue.data.value = '';
+            } catch(e) {}
         });
         this.show(properties, view, hidden);
     },

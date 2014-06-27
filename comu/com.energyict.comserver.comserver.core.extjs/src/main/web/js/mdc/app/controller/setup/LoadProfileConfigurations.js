@@ -175,7 +175,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
                         method: 'PUT',
                         jsonData: jsonValues,
                         success: function () {
-                            me.handleSuccessRequest('Successfully updated');
+                            me.handleSuccessRequest('Load profile configuration saved');
                         },
 //                        failure: function (response) {
 //                            me.handleFailureRequest(response, 'Error during update', 'loadprofileconfigurationnotificationerrorretry');

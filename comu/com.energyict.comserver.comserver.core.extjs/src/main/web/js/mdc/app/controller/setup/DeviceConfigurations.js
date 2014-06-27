@@ -221,6 +221,11 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             callback: function () {
                 me.getDeviceConfigurationDetailForm().loadRecord(deviceConfigurationToActivateDeactivate);
                 me.updateActivateDeactivateMenuItems(deviceConfigurationToActivateDeactivate);
+                if (deviceConfigurationToActivateDeactivate.get('active') === true) {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconfiguration.acknowledgment.activated', 'MDC', 'Device configuration activated'));
+                } else {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconfiguration.acknowledgment.deactivated', 'MDC', 'Device configuration deactivated'));
+                }
             }
         });
     },
@@ -240,7 +245,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                     deviceConfigurationToDelete.getProxy().setExtraParam('deviceType', me.deviceTypeId);
                     deviceConfigurationToDelete.destroy({
                         callback: function () {
-                            // TODO Show a notification.
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconfiguration.acknowledgment.removed', 'MDC', 'Device configuration removed'));
                             location.href = '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations';
                         }
                     });
@@ -338,6 +343,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             record.save({
                 success: function (record) {
                     location.href = '#/administration/devicetypes/' + me.deviceTypeId + /deviceconfigurations/ + record.get('id');
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconfiguration.acknowledgment.saved', 'MDC', 'Device configuration saved') );
                 },
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText);
@@ -358,8 +364,15 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             record.set(values);
             record.getProxy().setExtraParam('deviceType', this.deviceTypeId);
             record.save({
-                callback: function (record) {
-                    location.href = me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens()
+                success: function (record) {
+                    location.href = me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens();
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconfiguration.acknowledgment.saved', 'MDC', 'Device configuration saved') );
+                },
+                failure: function (record, operation) {
+                    var json = Ext.decode(operation.response.responseText);
+                    if (json && json.errors) {
+                        me.getDeviceConfigurationEditForm().getForm().markInvalid(json.errors);
+                    }
                 }
             });
         }
