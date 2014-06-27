@@ -588,12 +588,18 @@ Ext.define('Mdc.controller.history.Setup', {
                 }
             }
         },
+        /*add_device: {
+            title: Uni.I18n.translate('deviceAdd.title', 'MDC', 'Add device'),
+            route: 'devices/add',
+            controller: 'Mdc.controller.setup.Devices',
+            action: 'showAddDevice'
+        },
         device: {
             title: 'Device',
             route: 'devices/{id}',
             controller: 'Mdc.controller.setup.Devices',
             action: 'showDeviceDetailsView'
-        },
+        },*/
         search: {
             title: 'Search',
             route: 'searchitems',
