@@ -106,10 +106,10 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
             case 'create':
                 switch (direction) {
                     case 'inbound':
-                        messageText = Uni.I18n.translate('comPortPool.acknowledge.inboundCreateSuccess', 'MDC', 'Inbound communication port pool has been created');
+                        messageText = Uni.I18n.translate('comPortPool.acknowledge.inboundCreateSuccess', 'MDC', 'Inbound communication port pool saved');
                         break;
                     case 'outbound':
-                        messageText = Uni.I18n.translate('comPortPool.acknowledge.outboundCreateSuccess', 'MDC', 'Outbound communication port pool has been created');
+                        messageText = Uni.I18n.translate('comPortPool.acknowledge.outboundCreateSuccess', 'MDC', 'Outbound communication port pool saved');
                         break;
                 }
                 break;

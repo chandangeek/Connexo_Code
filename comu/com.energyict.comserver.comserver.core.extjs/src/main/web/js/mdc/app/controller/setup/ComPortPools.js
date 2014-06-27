@@ -119,7 +119,7 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
                 page.setLoading(false);
                 if (operation.response.status == 204) {
                     me.getComPortPoolGrid().getStore().loadPage(1);
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comportpool.deleteSuccess.msg', 'MDC', 'Communication port pool has been deleted'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comportpool.deleteSuccess.msg', 'MDC', 'Communication port pool removed'));
                 }
             }
         });

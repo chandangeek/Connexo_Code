@@ -65,7 +65,7 @@ Ext.define('Mdc.controller.setup.ComPortPoolOverview', {
                 if (operation.wasSuccessful()) {
                     var router = me.getController('Uni.controller.history.Router');
                     router.getRoute('administration/comportpools').forward();
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comportpool.deleteSuccess.msg', 'MDC', 'Communication port pool has been deleted'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comportpool.deleteSuccess.msg', 'MDC', 'Communication port pool removed'));
                 }
             }
         });

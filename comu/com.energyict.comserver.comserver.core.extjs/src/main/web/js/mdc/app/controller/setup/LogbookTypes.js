@@ -202,7 +202,7 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
             jsonData: jsonValues,
             success: function () {
                 window.location.href = '#/administration/logbooktypes';
-                self.getApplication().fireEvent('acknowledge', 'Successfully created');
+                self.getApplication().fireEvent('acknowledge', 'Logbook type saved');
             },
             failure: function (response) {
                 var result = Ext.decode(response.responseText, true);
@@ -218,7 +218,7 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
                     Ext.widget('messagebox').show({
                         ui: 'notification-error',
                         title: 'Error during creation.',
-                        msg: 'The logbook type could not be created. There was a problem accessing the database',
+                        msg: 'The logbook type could not be saved. There was a problem accessing the database',
                         icon: Ext.MessageBox.ERROR,
                         buttons: Ext.MessageBox.CANCEL
                     });

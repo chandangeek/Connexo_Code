@@ -85,7 +85,7 @@ Ext.define('Mdc.controller.setup.ComServersView', {
                         Uni.I18n.translate('comServer.changeState.deactivated', 'MDC', 'deactivated');
                     gridView.refresh();
                     form.loadRecord(model);
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comServer.changeState.msg', 'MDC', 'Communication server has been ' + msg));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comServer.changeState.msg', 'MDC', 'Communication server ' + msg));
                 }
             });
         }
@@ -148,7 +148,7 @@ Ext.define('Mdc.controller.setup.ComServersView', {
                 page.setLoading(false);
                 if (operation.wasSuccessful()) {
                     me.getComServerGrid().getStore().loadPage(1);
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comServer.deleteSuccess.msg', 'MDC', 'Communication server has been deleted'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comServer.deleteSuccess.msg', 'MDC', 'Communication server removed'));
                 }
             }
         });
