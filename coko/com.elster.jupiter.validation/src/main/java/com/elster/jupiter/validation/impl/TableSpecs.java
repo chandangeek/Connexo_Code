@@ -22,7 +22,7 @@ public enum TableSpecs {
             Column mRIDColumn = table.column("MRID").varChar(80).map("mRID").add();
             table.column("NAME").varChar(80).map("name").add();
             table.column("ALIASNAME").varChar(80).map("aliasName").add();
-            table.column("DESCRIPTION").varChar(256).map("description").add();
+            table.column("DESCRIPTION").varChar(4000).map("description").add();
             table.column("OBSOLETE_TIME").map("obsoleteTime").number().conversion(NUMBER2UTCINSTANT).add();
             table.addAuditColumns();
             table.primaryKey("VAL_PK_VALIDATIONRULESET").on(idColumn).add();

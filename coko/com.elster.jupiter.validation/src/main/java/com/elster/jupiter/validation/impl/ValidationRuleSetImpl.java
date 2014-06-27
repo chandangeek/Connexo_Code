@@ -44,7 +44,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     private String name;
     @Size(min = 0, max = 80, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     private String aliasName;
-    @Size(min = 0, max = 256, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_256 + "}")
+    @Size(min = 0, max = 4000, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
     private String description;
     private UtcInstant obsoleteTime;
 

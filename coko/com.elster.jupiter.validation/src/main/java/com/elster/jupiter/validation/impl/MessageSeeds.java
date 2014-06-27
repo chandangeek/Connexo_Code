@@ -14,7 +14,7 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_CHARS(5, Constants.INVALID_CHARS, "This field contains invalid chars, should obey {regex}", Level.SEVERE),
 
     FIELD_SIZE_BETWEEN_1_AND_80(6, Constants.FIELD_SIZE_BETWEEN_1_AND_80, "Field's text length should be between 1 and 80 symbols", Level.SEVERE),
-    FIELD_SIZE_BETWEEN_1_AND_256(7, Constants.FIELD_SIZE_BETWEEN_1_AND_256, "Field's text length should be between 1 and 256 symbols", Level.SEVERE),
+    FIELD_SIZE_BETWEEN_1_AND_256(7, Constants.FIELD_SIZE_BETWEEN_1_AND_4000, "Field's text length should be between 1 and 4000 symbols", Level.SEVERE),
 
     DUPLICATE_VALIDATION_RULE_SET(101, Constants.DUPLICATE_VALIDATION_RULE_SET, "Validation rule set with such name already exists", Level.SEVERE),
     DUPLICATE_VALIDATION_RULE(102, Constants.DUPLICATE_VALIDATION_RULE, "Validation rule with such name already exists", Level.SEVERE),
@@ -85,7 +85,7 @@ final class Constants {
     public static final String DUPLICATE_VALIDATION_RULE = "VAL.DuplicateValidationRule";
     public static final String NO_SUCH_READINGTYPE = "VAL.NoSuchReadingType";
     public static final String FIELD_SIZE_BETWEEN_1_AND_80 = "VAL.FieldSizeBetween1and80";
-    public static final String FIELD_SIZE_BETWEEN_1_AND_256 = "VAL.FieldSizeBetween1and256";
+    public static final String FIELD_SIZE_BETWEEN_1_AND_4000 = "VAL.FieldSizeBetween1and4000";
 
 
 }
