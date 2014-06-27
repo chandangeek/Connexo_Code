@@ -465,7 +465,9 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
         if (ValidationResult.PASS.equals(result) && existingQualityForType.isPresent()) {
             existingQualityForType.get().delete();
         }
-        lastChecked = lastChecked == null ? readingRecord.getTimeStamp() : Ordering.natural().max(lastChecked, readingRecord.getTimeStamp());
+        if (!ValidationResult.SKIPPED.equals(result)) {
+            lastChecked = lastChecked == null ? readingRecord.getTimeStamp() : Ordering.natural().max(lastChecked, readingRecord.getTimeStamp());
+        }
         return lastChecked;
     }
 
