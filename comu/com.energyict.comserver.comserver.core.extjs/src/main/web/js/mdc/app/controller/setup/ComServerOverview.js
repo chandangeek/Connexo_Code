@@ -65,6 +65,13 @@ Ext.define('Mdc.controller.setup.ComServerOverview', {
         }
     },
 
+    editComServer: function (record) {
+        var router = this.getController('Uni.controller.history.Router'),
+            id = record.getId();
+
+        router.getRoute('administration/comservers/detail/edit').forward({id: id});
+    },
+
     showOverview: function (id) {
         var me = this,
             widget = Ext.widget('comServerOverview'),
