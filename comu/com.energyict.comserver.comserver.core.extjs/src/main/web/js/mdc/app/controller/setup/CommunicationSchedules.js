@@ -233,7 +233,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
 
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('communicationschedule.deleteCommunicationSchedule', 'MDC', 'This schedule will no longer be available.'),
-            title: Uni.I18n.translate('communicationschedule.delete', 'MDC', 'Delete') + ' ' + communicationSchedule.get('name') + '?',
+            title: Uni.I18n.translate('communicationschedule.delete', 'MDC', 'Remove') + ' ' + communicationSchedule.get('name') + '?',
             config: {
                 communicationScheduleToDelete: communicationSchedule,
                 me: me

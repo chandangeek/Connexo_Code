@@ -341,7 +341,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                         method: 'PUT',
                         jsonData: jsonValues,
                         success: function (response) {
-                            me.handleSuccessRequest(response, 'Successfully updated');
+                            me.handleSuccessRequest(response, 'Security setting saved');
                         },
                         failure: function (response) {
                             me.handleFailureRequest(response, 'Error during update');

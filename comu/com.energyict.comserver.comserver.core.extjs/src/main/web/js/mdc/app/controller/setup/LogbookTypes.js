@@ -281,7 +281,7 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
                     }).show({
                             ui: 'notification-error',
                             title: 'Failed to delete ' + record.data.name,
-                            msg: 'Logbook type could not be deleted. There was a problem accessing the database',
+                            msg: 'Logbook type could not be removed. There was a problem accessing the database',
                             icon: Ext.MessageBox.ERROR
                         })
                 }

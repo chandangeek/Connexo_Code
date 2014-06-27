@@ -230,7 +230,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                 },
                                 items: [
                                     {
-                                        text: Uni.I18n.translate('general.create', 'MDC', 'Create'),
+                                        text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
                                         xtype: 'button',
                                         ui: 'action',
                                         action: 'createAction',

@@ -101,7 +101,7 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectEdit', {
                                         itemId: 'addEditButton'
                                     },
                                     {
-                                        text: Uni.I18n.translate('general.restoreAll', 'MDC', 'Restore all defaults'),
+                                        text: Uni.I18n.translate('general.restoreAll', 'MDC', 'Restore to defaults'),
                                         xtype: 'button',
                                         itemId: 'restoreAllButton',
                                         action: 'restoreAll',

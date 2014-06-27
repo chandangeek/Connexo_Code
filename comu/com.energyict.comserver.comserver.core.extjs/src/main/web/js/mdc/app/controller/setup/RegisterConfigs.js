@@ -166,7 +166,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                                     returnLink: '#/administration/devicetypes/' + deviceTypeId + '/deviceconfigurations/' + deviceConfigId + '/registerconfigurations'
                                 });
                                 me.getApplication().fireEvent('changecontentevent', widget);
-                                me.getRegisterConfigEditForm().setTitle(Uni.I18n.translate('registerConfigs.createRegisterConfig', 'MDC', 'Create register configuration'));
+                                me.getRegisterConfigEditForm().setTitle(Uni.I18n.translate('registerConfigs.createRegisterConfig', 'MDC', 'Add register configuration'));
                                 widget.down('#editNumberOfDigitsField').setValue(8);
                                 widget.down('#editNumberOfFractionDigitsField').setValue(0);
                                 widget.down('#editMultiplierField').setValue(1);
