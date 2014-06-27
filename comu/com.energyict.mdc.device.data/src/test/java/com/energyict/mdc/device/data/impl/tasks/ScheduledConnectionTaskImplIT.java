@@ -101,7 +101,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(connectionTask.getInitiatorTask()).isNull();
         assertThat(connectionTask.getProperties()).isEmpty();
         assertThat(connectionTask.isDefault()).isFalse();
-        assertThat(connectionTask.isPaused()).isFalse();
+        assertThat(connectionTask.isPaused()).isTrue();
         assertThat(connectionTask.getCurrentRetryCount()).isEqualTo(0);
         assertThat(connectionTask.getRescheduleDelay()).isEqualTo(TimeDuration.minutes(5));
         assertThat(connectionTask.lastExecutionFailed()).isEqualTo(false);
@@ -539,7 +539,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
         // Business method
         connectionTask.save();
-
+        connectionTask.resume();
         // Expected BusinessException because the ComPortType of the ComPortPool is not supported by the ConnectionType
         //assertThat(e.getMessageId()).isEqualTo("comPortTypeXOfComPortPoolYIsNotSupportedByConnectionTypePluggableClassZ");
     }
@@ -957,7 +957,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
         ScheduledConnectionTaskImpl connectionTask = this.createMinimizeWithNoPropertiesWithoutViolations("testUpdateNextExecutionTimestampForUTCDevice", new TemporalExpression(EVERY_HOUR));
         connectionTask.save();
-
+        connectionTask.resume();
         freezeClock(2012, Calendar.MAY, 31);
         // Business method
         connectionTask.updateNextExecutionTimestamp();
@@ -1442,7 +1442,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         String name = "pauseIfNotPausedTest";
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations(name);
         connectionTask.save();
-
+        connectionTask.resume();
         assertThat(connectionTask.isPaused()).isFalse();
 
         // Business method
