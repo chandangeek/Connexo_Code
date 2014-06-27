@@ -26,13 +26,16 @@ Ext.define('Mdc.controller.setup.ComPortPoolOverview', {
             'comPortPoolOverview comportpool-actionmenu': {
                 click: this.chooseAction
             }
-        })
+        });
     },
 
     showOverview: function (id) {
         var me = this,
             widget = Ext.widget('comPortPoolOverview'),
-            model = me.getModel('Mdc.model.ComPortPool');
+            model = me.getModel('Mdc.model.ComPortPool'),
+            deviceDiscoveryProtocolsStore = this.getStore('Mdc.store.DeviceDiscoveryProtocols');
+
+        !deviceDiscoveryProtocolsStore.getCount() && deviceDiscoveryProtocolsStore.load();
 
         me.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);
