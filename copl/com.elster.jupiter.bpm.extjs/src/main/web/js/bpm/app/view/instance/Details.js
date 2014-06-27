@@ -45,12 +45,12 @@ Ext.define('Bpm.view.instance.Details', {
                                 {
                                     xtype: 'displayfield',
                                     name: 'id',
-                                    fieldLabel: Uni.I18n.translate('bpm.instance.id', 'BPM', 'Instance id')
+                                    fieldLabel: Uni.I18n.translate('bpm.instance.id', 'BPM', 'Process id')
                                 },
                                 {
                                     xtype: 'displayfield',
                                     name: 'name',
-                                    fieldLabel: Uni.I18n.translate('bpm.instance.name', 'BPM', 'Process name')
+                                    fieldLabel: Uni.I18n.translate('bpm.instance.name', 'BPM', 'Definition name')
                                 },
                                 {
                                     xtype: 'displayfield',

@@ -21,14 +21,14 @@ Ext.define('Bpm.view.instance.List', {
             },
             items: [
                 {
-                    header: Uni.I18n.translate('bpm.instance.id', 'BPM', 'Instance id'),
+                    header: Uni.I18n.translate('bpm.instance.id', 'BPM', 'Process id'),
                     dataIndex: 'id',
                     renderer: function (value, b, record) {
-                        return '<a href="#bpmmanagement/instances/' +record.get('deploymentId')+ "/" + record.get('id') + '">' + value + '</a>';
+                        return '<a href="#workspace/processes/' +record.get('deploymentId')+ "/" + record.get('id') + '">' + value + '</a>';
                     }
                 },
                 {
-                    header: Uni.I18n.translate('bpm.instance.name', 'BPM', 'Process name'),
+                    header: Uni.I18n.translate('bpm.instance.name', 'BPM', 'Definition name'),
                     dataIndex: 'name',
                     flex: 4
                 },
@@ -67,14 +67,14 @@ Ext.define('Bpm.view.instance.List', {
                 xtype: 'pagingtoolbartop',
                 store: this.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('bpm.instance.list.top', 'BPM', '{0} - {1} of {2} process instances')
+                displayMsg: Uni.I18n.translate('bpm.instance.list.top', 'BPM', '{0} - {1} of {2} processes')
             },
             {
                 xtype: 'pagingtoolbarbottom',
                 store: this.store,
                 dock: 'bottom',
                 limit: 10,
-                itemsPerPageMsg: Uni.I18n.translate('bpm.instance.list.bottom', 'BPM', 'Process instances per page')
+                itemsPerPageMsg: Uni.I18n.translate('bpm.instance.list.bottom', 'BPM', 'Processes per page')
             }
         ];
 

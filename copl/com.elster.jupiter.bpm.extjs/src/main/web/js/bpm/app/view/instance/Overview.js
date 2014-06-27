@@ -42,7 +42,7 @@ Ext.define('Bpm.view.instance.Overview', {
                                 {
                                     xtype: 'displayfield',
                                     name: 'name',
-                                    fieldLabel: Uni.I18n.translate('bpm.instance.name', 'BPM', 'Process name')
+                                    fieldLabel: Uni.I18n.translate('bpm.instance.name', 'BPM', 'Definition name')
                                 },
                                 {
                                     xtype: 'displayfield',

@@ -36,28 +36,20 @@ Ext.define('Bpm.controller.Main', {
         Bpm.model.Startup.load(null, {
             success: function(record, operation) {
                 var bpmUrl = record.get("url");
-                var menuItem = Ext.create('Uni.model.MenuItem', {
-                    text: 'Bpm management',
-                    glyph: 'settings',
-                    portal: 'bpmmanagement',
-                    index: -10
-                });
-
-                Uni.store.MenuItems.add(menuItem);
 
                 var bpm = Ext.create('Uni.model.PortalItem', {
-                    title: 'Bpm management',
-                    portal: 'bpmmanagement',
-                    route: 'bpmmanagement',
+                    title: Uni.I18n.translate('bpm.instance.title', 'BPM', 'Processes'),
+                    portal: 'workspace',
+                    route: 'workspace',
                     items: [
                         {
-                            text: 'Bpm console',
+                            text: Uni.I18n.translate('bpm.console', 'BPM', 'Console'),
                             href: bpmUrl,
                             hrefTarget: '_blank'
                         },
                         {
-                            text: 'Process instances',
-                            href: '#bpmmanagement/instances'
+                            text: Uni.I18n.translate('bpm.instance.title', 'BPM', 'Processes'),
+                            href: '#workspace/processes'
                         }
                     ]
                 });

@@ -13,7 +13,7 @@ Ext.define('Bpm.view.instance.Browse', {
         {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate('bpm.processInstances.title', 'BPM', 'Process instances'),
+            title: Uni.I18n.translate('bpm.instance.title', 'BPM', 'Processes'),
             layout: {
                 type: 'vbox',
                 align: 'stretch'
@@ -26,7 +26,7 @@ Ext.define('Bpm.view.instance.Browse', {
                     },
                     emptyComponent: {
                         xtype: 'component',
-                        html: 'There are no process instances'
+                        html: 'There are no processes'
                     },
                     previewComponent: {
                         xtype: 'instanceDetails'

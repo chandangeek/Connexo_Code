@@ -1,32 +1,32 @@
 Ext.define('Bpm.controller.history.BpmManagement', {
     extend: 'Uni.controller.history.Converter',
 
-    rootToken: 'bpmmanagement',
+    rootToken: 'workspace',
     previousPath: '',
     currentPath: null,
 
 
 
     routeConfig: {
-        bpmmanagement: {
-            title: 'Bpm management',
-            route: 'bpmmanagement',
+        bpm: {
+            title: Uni.I18n.translate('bpm.instance.workspace', 'BPM', 'Workspace'),
+            route: 'workspace',
             disabled: true,
             items: {
-                instances: {
-                    title: Uni.I18n.translate('bpm.processInstances.title', 'BPM', 'Process instances'),
-                    route: 'instances',
+                processes: {
+                    title: Uni.I18n.translate('bpm.instance.title', 'BPM', 'Processes'),
+                    route: 'processes',
                     controller: 'Bpm.controller.ProcessInstances',
                     action: 'showProcessInstances',
                     items: {
                         view: {
-                            title: Uni.I18n.translate('bpm.instance', 'BPM', 'Process instance'),
+                            title: Uni.I18n.translate('bpm.instance', 'BPM', 'Process'),
                             route: '{deploymentId}/{instanceId}',
                             controller: 'Bpm.controller.ProcessInstances',
                             action: 'showProcessInstanceOverview',
                             callback: function(route) {
                                 this.getApplication().on('viewProcessInstance', function(record) {
-                                    var title = Uni.I18n.translate('bpm.instance.overview.title',  'BPM', 'Instance {0} of process \'{1}\'');
+                                    var title = Uni.I18n.translate('bpm.instance.overview.title',  'BPM', 'Process {0} of \'{1}\'');
                                     route.setTitle(Ext.String.format(title, record.get('id'), record.get('name')));
                                     return true;
                                 }, {single: true});
