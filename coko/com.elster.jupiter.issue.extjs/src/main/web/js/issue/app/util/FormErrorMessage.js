@@ -10,6 +10,7 @@ Ext.define('Isu.util.FormErrorMessage', {
     },
     errorIcon: null,
     defaultErrorIcon: 'x-uni-form-error-msg-icon',
+    margin: '7 0 32 0',
     beforeRender: function () {
         var me = this;
         if (!me.text) {
