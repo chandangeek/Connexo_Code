@@ -6,7 +6,8 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
 
     requires: [
         'Mdc.store.ConnectionTypes',
-        'Mdc.widget.ScheduleField'
+        'Mdc.widget.ScheduleField',
+        'Mdc.widget.TimeInSecondsField'
     ],
 
     isEdit: function () {
@@ -65,12 +66,6 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                             {
                                 xtype: 'textfield',
                                 name: 'name',
-                                validator: function (text) {
-                                    if (Ext.util.Format.trim(text).length == 0)
-                                        return Uni.I18n.translate('connectionmethod.emptyName', 'MDC', 'The name of a connection method can not be empty.')
-                                    else
-                                        return true;
-                                },
                                 msgTarget: 'under',
                                 required: true,
                                 fieldLabel: Uni.I18n.translate('connectionmethod.name', 'MDC', 'Name'),
@@ -124,7 +119,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                             },
                             {
                                 xtype: 'scheduleField',
-                                name: 'temporalExpression',
+                                name: 'nextExecutionSpecs',
                                 itemId: 'scheduleField',
                                 hidden: true,
                                 fieldLabel: 'Schedule',
@@ -144,6 +139,47 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                 fieldLabel: Uni.I18n.translate('connectionmethod.rescheduleRetryDelay', 'MDC', 'Retry delay'),
                                 itemId: 'rescheduleRetryDelay',
                                 required: true
+                            },
+                            {
+                                xtype: 'fieldcontainer',
+                                itemId: 'comWindowField',
+                                fieldLabel: '&nbsp',
+                                layout: {
+                                    type: 'hbox',
+                                    align: 'stretch'
+                                },
+                                defaults: {
+                                    margin: '0 5 0 0'
+                                },
+                                items: [
+                                    {
+                                        xtype: 'checkbox',
+                                        itemId: 'activateComWindowCheckBox',
+                                        submitValue: false
+                                    },
+                                    {
+                                        xtype: 'displayfield',
+                                        value: Uni.I18n.translate('connectionmethod.openConnectionBetween', 'MDC', 'Open connection between')
+                                    },
+                                    {
+                                        xtype: 'timeInSecondsField',
+                                        name: 'comWindowStart',
+                                        itemId: 'comWindowStart',
+                                        disabled: true
+
+                                    },
+                                    {
+                                        xtype: 'displayfield',
+                                        value: ' - '
+                                    },
+                                    {
+                                        xtype: 'timeInSecondsField',
+                                        name: 'comWindowEnd',
+                                        itemId: 'comWindowEnd',
+                                        disabled: true
+
+                                    }
+                                ]
                             },
 //                                    {
 //                                        xtype: 'radiogroup',
@@ -245,6 +281,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                     {
                                         text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
                                         xtype: 'button',
+                                        ui: 'action',
                                         action: 'addAction',
                                         itemId: 'addEditButton'
                                     },
@@ -277,6 +314,9 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                 this.down('#addEditButton').action = 'editInboundConnectionMethod';
                 this.down('#connectionStrategyComboBox').setVisible(false);
                 this.down('#rescheduleRetryDelay').setVisible(false);
+                this.down('#allowSimultaneousConnections').setVisible(false);
+                this.down('#comWindowField').setVisible(false);
+
 //                this.down('#isDefault').setVisible(false);
             }
         } else {
@@ -287,6 +327,8 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                 this.down('#addEditButton').action = 'addInboundConnectionMethod';
                 this.down('#connectionStrategyComboBox').setVisible(false);
                 this.down('#rescheduleRetryDelay').setVisible(false);
+                this.down('#allowSimultaneousConnections').setVisible(false);
+                this.down('#comWindowField').setVisible(false);
 //                this.down('#isDefault').setVisible(false);
             }
         }

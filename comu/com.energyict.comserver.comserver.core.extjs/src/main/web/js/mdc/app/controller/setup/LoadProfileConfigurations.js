@@ -135,7 +135,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
         var me = this,
             formPanel = me.getLoadConfigurationForm(),
             form = formPanel.getForm(),
-            formErrorsPanel = formPanel.down('panel[name=errors]'),
+            formErrorsPanel = formPanel.down('uni-form-error-message[name=errors]'),
             formValue = form.getValues(),
             preloader,
             jsonValues;
@@ -154,11 +154,11 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
                         method: 'POST',
                         jsonData: jsonValues,
                         success: function () {
-                            me.handleSuccessRequest('Successfully created');
+                            me.handleSuccessRequest('Load profile configuration saved');
                         },
-                        failure: function (response) {
-                            me.handleFailureRequest(response, 'Error during create', 'loadprofileconfigurationnotificationerrorretry');
-                        },
+//                        failure: function (response) {
+//                            me.handleFailureRequest(response, 'Error during create', 'loadprofileconfigurationnotificationerrorretry');
+//                        },
                         callback: function () {
                             preloader.destroy();
                         }
@@ -177,9 +177,9 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
                         success: function () {
                             me.handleSuccessRequest('Successfully updated');
                         },
-                        failure: function (response) {
-                            me.handleFailureRequest(response, 'Error during update', 'loadprofileconfigurationnotificationerrorretry');
-                        },
+//                        failure: function (response) {
+//                            me.handleFailureRequest(response, 'Error during update', 'loadprofileconfigurationnotificationerrorretry');
+//                        },
                         callback: function () {
                             preloader.destroy();
                         }
@@ -187,24 +187,13 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
                     break;
             }
         } else {
-            formErrorsPanel.hide();
-            formErrorsPanel.removeAll();
-            formErrorsPanel.add({
-                html: 'There are errors on this page that require your attention.',
-                style: {
-                    color: 'red'
-                }
-            });
             formErrorsPanel.show();
         }
     },
 
     handleSuccessRequest: function (headerText) {
         window.location.href = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/loadprofiles';
-        Ext.create('widget.uxNotification', {
-            html: headerText,
-            ui: 'notification-success'
-        }).show();
+        this.getApplication().fireEvent('acknowledge', headerText);
     },
 
     handleFailureRequest: function (response, headerText, retryAction) {
@@ -294,7 +283,10 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
     showDeviceConfigurationLoadProfilesAddView: function (deviceTypeId, deviceConfigurationId) {
         var me = this,
             widget = Ext.widget('loadProfileConfigurationForm', {deviceTypeId: deviceTypeId, deviceConfigurationId: deviceConfigurationId, loadProfileConfigurationAction: 'Add'});
-        widget.down('#LoadProfileConfigurationHeader').html = '<h1>' + Uni.I18n.translate('loadprofileconfigurations.addloadprofileconfigurations', 'MDC', 'Add load profile configuration') + '</h1>';
+
+        var title = Uni.I18n.translate('loadprofileconfigurations.addloadprofileconfigurations', 'MDC', 'Add load profile configuration');
+        widget.down('#LoadProfileConfigurationFormId').setTitle(title);
+
         me.deviceTypeId = deviceTypeId;
         me.deviceConfigurationId = deviceConfigurationId;
         me.store.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigurationId});
@@ -321,7 +313,10 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
     showDeviceConfigurationLoadProfilesEditView: function (deviceTypeId, deviceConfigurationId, loadProfileConfigurationId) {
         var me = this,
             widget = Ext.widget('loadProfileConfigurationForm', {deviceTypeId: deviceTypeId, deviceConfigurationId: deviceConfigurationId, loadProfileConfigurationAction: 'Save'});
-        widget.down('#LoadProfileConfigurationHeader').html = '<h1>' + Uni.I18n.translate('loadprofileconfigurations.addloadprofileconfigurations', 'MDC', 'Edit load profile configuration') + '</h1>';
+
+        var title = Uni.I18n.translate('loadprofileconfigurations.addloadprofileconfigurations', 'MDC', 'Edit load profile configuration');
+        widget.down('#LoadProfileConfigurationFormId').setTitle(title);
+
         me.deviceTypeId = deviceTypeId;
         me.deviceConfigurationId = deviceConfigurationId;
         me.loadProfileConfigurationId = loadProfileConfigurationId;
@@ -349,7 +344,9 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
                                 widget.down('combobox[name=id]').store = me.store;
                                 me.store.add(record);
                                 widget.down('combobox[name=id]').setValue(record.id);
-                                widget.down('combobox[name=id]').disable();
+                                widget.down('combobox[name=id]').hide();
+                                widget.down('displayfield[name=loadprofiletype]').setValue(record.name);
+                                widget.down('displayfield[name=loadprofiletype]').show();
                                 widget.down('displayfield[name=obisCode]').setValue(record.obisCode);
                                 widget.down('textfield[name=overruledObisCode]').setValue(overruledObisCode);
                             }

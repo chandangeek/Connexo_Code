@@ -4,7 +4,8 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
     overflowY: 'auto',
     itemId: 'registermappingaddgrid',
     selModel: {
-        mode: 'MULTI'
+        mode: 'MULTI',
+        checkOnly: true
     },
     selType: 'checkboxmodel',
     requires: [
@@ -20,11 +21,11 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
             this.down('#pagingt').onLoad();
         }
     },
+    plugins: {
+        ptype: 'bufferedrenderer'
+    },
+    height: 400,
     store: 'AvailableRegisterTypes',
-    //padding: '10 10 10 10',
-    selModel: {
-            checkOnly: true
-        },
     initComponent: function () {
         var me = this;
         var store = Ext.data.StoreManager.lookup('AvailableRegisterTypes');

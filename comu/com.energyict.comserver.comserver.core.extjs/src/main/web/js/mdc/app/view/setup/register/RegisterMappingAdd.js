@@ -11,7 +11,10 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAdd', {
 
     content: [
         {
-            xtype: 'container',
+            xtype: 'panel',
+            ui: 'large',
+            title: Uni.I18n.translate('registerMappingAdd.addRegisterTypes', 'MDC', 'Add register types'),
+
             layout: {
                 type: 'vbox',
                 align: 'stretch'
@@ -19,8 +22,6 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAdd', {
             items: [
                 {
                     xtype: 'component',
-                    html: '<h1>' + Uni.I18n.translate('registerMappingAdd.addRegisterTypes', 'MDC', 'Add register types') + '</h1>',
-                    //margins: '10 10 10 10',
                     itemId: 'registerTypeAddTitle'
                 },
                 {
@@ -38,7 +39,6 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAdd', {
                     items: [
                         {
                             text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
-                            //margins: '0 0 0 10',
                             xtype: 'button',
                             ui: 'action',
                             action: 'addRegisterMappingAction',

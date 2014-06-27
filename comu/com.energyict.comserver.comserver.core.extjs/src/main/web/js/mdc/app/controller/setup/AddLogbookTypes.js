@@ -24,10 +24,17 @@ Ext.define('Mdc.controller.setup.AddLogbookTypes', {
     },
 
     countSelectedLogbooks: function (grid) {
-        var textLabel = Ext.ComponentQuery.query('add-logbook-types label')[0];
+        var textLabel = Ext.ComponentQuery.query('add-logbook-types label')[0],
+            addBtn = Ext.ComponentQuery.query('add-logbook-types button[action=add]')[0],
+            chosenLogBookCount = grid.view.getSelectionModel().getSelection().length;
         textLabel.setText(
-            grid.view.getSelectionModel().getSelection().length >= 1 ? (grid.view.getSelectionModel().getSelection().length +
-                (grid.view.getSelectionModel().getSelection().length > 1 ? ' logbooks' : ' logbook') + ' selected') : 'No logbooks selected');
+            chosenLogBookCount >= 1 ? (chosenLogBookCount +
+                (chosenLogBookCount > 1 ? ' logbooks' : ' logbook') + ' selected') : 'No logbooks selected');
+        if (chosenLogBookCount < 1) {
+            addBtn.disable();
+        } else {
+            addBtn.enable();
+        };
     },
 
     addLogbookType: function (btn) {
@@ -46,16 +53,14 @@ Ext.define('Mdc.controller.setup.AddLogbookTypes', {
         });
         var jsonIds = Ext.encode(ids);
         preloader.show();
+        var router = this.getController('Uni.controller.history.Router');
         Ext.Ajax.request({
             url: url,
             method: 'POST',
             jsonData: jsonIds,
             success: function () {
-                window.location.href = '#/administration/devicetypes/' + addView.deviceTypeId + '/logbooktypes';
-                Ext.create('widget.uxNotification', {
-                    html: 'Successfully added',
-                    ui: 'notification-success'
-                }).show();
+                router.getRoute('administration/devicetypes/view/logbooktypes').forward(router.routeparams);
+                self.getApplication().fireEvent('acknowledge', 'Successfully added');
             },
             failure: function (response) {
                 if(response.status == 400) {

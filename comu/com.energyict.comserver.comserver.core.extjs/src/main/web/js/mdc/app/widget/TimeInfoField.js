@@ -45,7 +45,7 @@ Ext.define('Mdc.widget.TimeInfoField', {
                 itemId: 'valueField',
                 hideTrigger: false,
                 submitValue: false,
-                width: 200,
+                width: 100,
                 margin: '0 5 5 0'
             }, me.valueCfg),
             Ext.apply({

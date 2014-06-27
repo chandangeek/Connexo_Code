@@ -25,7 +25,8 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
         {ref: 'protocolDialectPreview', selector: '#protocolDialectPreview'},
         {ref: 'protocolDialectPreviewTitle', selector: '#protocolDialectPreviewTitle'},
         {ref: 'protocolDialectEditView', selector: '#protocolDialectEdit'},
-        {ref: 'protocolDialectEditForm', selector: '#protocolDialectEditForm'}
+        {ref: 'protocolDialectEditForm', selector: '#protocolDialectEditForm'},
+        {ref: 'protocolDialectsDetailsTitle', selector: '#protocolDialectsDetailsTitle'}
     ],
 
     init: function () {
@@ -41,6 +42,9 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
             },
             '#addEditButton[action=editProtocolDialect]': {
                 click: this.editProtocolDialect
+            },
+            '#restoreAllButton[action=restoreAll]': {
+                click: this.restoreAllDefaults
             }
         });
     },
@@ -78,7 +82,12 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
         if (protocolDialect.length === 1) {
             this.getProtocolDialectPreviewForm().loadRecord(protocolDialect[0]);
             var protocolDialectName = protocolDialect[0].get('name');
-            this.getProtocolDialectPreview().getLayout().setActiveItem(1);            
+            this.getProtocolDialectPreview().getLayout().setActiveItem(1);
+            if (protocolDialect[0].propertiesStore.data.items.length > 0) {
+                this.getProtocolDialectsDetailsTitle().setVisible(true);
+            } else {
+                this.getProtocolDialectsDetailsTitle().setVisible(false);
+            }
             this.getPropertiesViewController().showProperties(protocolDialect[0], this.getProtocolDialectPreview());
             this.getProtocolDialectPreview().setTitle(protocolDialectName);
         } else {
@@ -124,6 +133,7 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
         model.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigId});
         model.load(protocolDialectId, {
             success: function (protocolDialect) {
+                me.getApplication().fireEvent('loadProtocolDialect', protocolDialect);
                 Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
                     success: function (deviceType) {
                         me.getApplication().fireEvent('loadDeviceType', deviceType);
@@ -134,7 +144,7 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
                                 me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfiguration);
                                 widget.down('form').loadRecord(protocolDialect);
                                 me.getPropertiesController().showProperties(protocolDialect, widget);
-                                widget.down('#protocolDialectEditAddTitle').update('<h1>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + protocolDialect.get('name') + '</h1>');
+                                widget.down('#protocolDialectEditAddTitle').update('<h1>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' \'' + protocolDialect.get('name') + '\'</h1>');
                                 me.getApplication().fireEvent('changecontentevent', widget);
                                 widget.setLoading(false);
                             }
@@ -156,6 +166,7 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
             record.save({
                 success: function (record) {
                     location.href = '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/protocols';
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('protocolDialect.acknowlegment', 'MDC', 'Protocol dialect saved') );
                 },
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText);
@@ -166,6 +177,10 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
                 }
             });
         }
+    },
+
+    restoreAllDefaults: function () {
+        this.getPropertiesController().restoreAllDefaults();
     }
 
 });

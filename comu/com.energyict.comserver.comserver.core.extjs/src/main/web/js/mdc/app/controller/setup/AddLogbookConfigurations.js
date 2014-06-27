@@ -21,7 +21,7 @@ Ext.define('Mdc.controller.setup.AddLogbookConfigurations', {
     },
 
     countSelectedLogbooks: function (grid) {
-        var textLabel = Ext.ComponentQuery.query('add-logbook-configurations label')[0];
+        var textLabel = Ext.ComponentQuery.query('add-logbook-configurations #LogBookCount')[0];
         textLabel.setText(
             grid.view.getSelectionModel().getSelection().length >= 1 ? (grid.view.getSelectionModel().getSelection().length +
                 (grid.view.getSelectionModel().getSelection().length > 1 ? ' logbooks' : ' logbook') + ' selected') : 'No logbooks selected');
@@ -38,22 +38,21 @@ Ext.define('Mdc.controller.setup.AddLogbookConfigurations', {
             }),
             records = grid.getSelectionModel().getSelection(),
             ids = [];
+
         Ext.Array.each(records, function (item) {
             ids.push(item.internalId);
         });
         var jsonIds = Ext.encode(ids);
+        var router = this.getController('Uni.controller.history.Router');
+
         preloader.show();
         Ext.Ajax.request({
             url: url,
             method: 'POST',
             jsonData: jsonIds,
             success: function () {
-                window.location.href = '#/administration/devicetypes/' + addView.deviceTypeId + '/deviceconfigurations/' + addView.deviceConfigurationId + '/logbookconfigurations';
-
-                Ext.create('widget.uxNotification', {
-                    html: 'Successfully added',
-                    ui: 'notification-success'
-                }).show();
+                router.getRoute('administration/devicetypes/view/deviceconfigurations/view/logbookconfigurations').forward(router.routeparams);
+                self.getApplication().fireEvent('acknowledge', 'Successfully added');
             },
             failure: function (response) {
                 if(response.status == 400) {

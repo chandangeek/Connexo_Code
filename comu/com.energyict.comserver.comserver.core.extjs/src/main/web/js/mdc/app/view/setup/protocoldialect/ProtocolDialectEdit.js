@@ -52,13 +52,13 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectEdit', {
                             labelWidth: 250
                         },
                         items: [
-                            {
+                           /* {
                                 xtype: 'displayfield',
                                 name: 'name',
                                 fieldLabel: Uni.I18n.translate('protocolDialect.name', 'MDC', 'Name'),
                                 itemId: 'editProtocolDialectNameField',
                                 width: 650
-                            }
+                            }*/
                         ]
                     },
                     {
@@ -89,6 +89,16 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectEdit', {
                                         ui: 'action',
                                         action: 'createAction',
                                         itemId: 'addEditButton'
+                                    },
+                                    {
+                                        text: Uni.I18n.translate('general.restoreAll', 'MDC', 'Restore all defaults'),
+                                        xtype: 'button',
+                                        itemId: 'restoreAllButton',
+                                        action: 'restoreAll',
+                                        //iconCls: 'x-uni-action-iconD',
+                                        icon: '../mdc/resources/images/redo.png',
+                                        margin: '0 0 0 10',
+                                        disabled: true
                                     },
                                     {
                                         text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),

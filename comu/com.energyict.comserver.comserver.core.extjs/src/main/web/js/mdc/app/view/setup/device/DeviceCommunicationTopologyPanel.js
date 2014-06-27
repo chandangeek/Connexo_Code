@@ -3,7 +3,7 @@ Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
     alias: 'widget.deviceCommunicationTopologyPanel',
     overflowY: 'auto',
     itemId: 'devicecommicationtopologypanel',
-    deviceId: null,
+    mRID: null,
     ui: 'tile',
     title: Uni.I18n.translate('deviceCommunicationTopology.communicationTopologyTitle', 'MDC', 'Communication topology'),
 

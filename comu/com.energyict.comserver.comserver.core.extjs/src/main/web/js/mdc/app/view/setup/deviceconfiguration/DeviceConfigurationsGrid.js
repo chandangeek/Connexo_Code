@@ -46,9 +46,9 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsGrid', {
                 xtype: 'pagingtoolbartop',
                 store: this.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('deviceconfigurarion.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} device configurations'),
-                displayMoreMsg: Uni.I18n.translate('deviceconfigurarion.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} device configurations'),
-                emptyMsg: Uni.I18n.translate('deviceconfigurarion.pagingtoolbartop.emptyMsg', 'MDC', 'There are no device configurations to display'),
+                displayMsg: Uni.I18n.translate('deviceconfiguration.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} device configurations'),
+                displayMoreMsg: Uni.I18n.translate('deviceconfiguration.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} device configurations'),
+                emptyMsg: Uni.I18n.translate('deviceconfiguration.pagingtoolbartop.emptyMsg', 'MDC', 'There are no device configurations to display'),
                 items: [
                     {
                         xtype: 'component',

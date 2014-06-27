@@ -1,4 +1,13 @@
 Ext.define('Mdc.model.field.BaudRate', {
     extend: 'Ext.data.Model',
-    fields: ['baudRate']
+    fields: [
+        {
+            name: 'baudRate',
+            type: 'string'
+        },
+        {
+            name: 'localizedValue',
+            type: 'string'
+        }
+    ]
 });

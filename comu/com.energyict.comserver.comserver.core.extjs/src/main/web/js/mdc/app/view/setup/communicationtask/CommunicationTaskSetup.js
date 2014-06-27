@@ -19,7 +19,7 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskSetup', {
                 ui: 'medium',
                 items: [
                     {
-                        xtype: 'deviceConfigurationMenu',
+                        xtype: 'device-configuration-menu',
                         itemId: 'stepsMenu',
                         deviceTypeId: me.deviceTypeId,
                         deviceConfigurationId: me.deviceConfigurationId,

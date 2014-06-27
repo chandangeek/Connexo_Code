@@ -19,6 +19,10 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
     ],
 
     refs: [
+        {
+            ref: 'page',
+            selector: 'loadProfileConfigurationDetailSetup'
+        },
         {ref: 'breadCrumbs', selector: 'breadcrumbTrail'},
         {ref: 'loadConfigurationDetailForm', selector: '#loadProfileConfigurationDetailInfo'},
         {ref: 'loadProfileConfigurationChannelDetailsForm', selector: '#loadProfileConfigurationChannelDetailsForm'},
@@ -123,10 +127,10 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             success: function () {
                 me.handleSuccessRequest('Channel was removed successfully');
                 me.store.load();
-            },
-            failure: function (result, request) {
-                me.handleFailureRequest(result, "Error during removing of channel", 'removeloadprofileconfigurationdetailchannelconfirm');
             }
+//            failure: function (result, request) {
+//                me.handleFailureRequest(result, "Error during removing of channel", 'removeloadprofileconfigurationdetailchannelconfirm');
+//            }
         });
     },
 
@@ -158,10 +162,12 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         var me = this,
             formPanel = me.getChannelForm(),
             form = formPanel.getForm(),
-            formErrorsPanel = formPanel.down('panel[name=errors]'),
+            formErrorsPanel = formPanel.down('uni-form-error-message[name=errors]'),
             formValue = form.getValues(),
             preloader,
-            jsonValues;
+            jsonValues,
+            router = this.getController('Uni.controller.history.Router');
+
         formValue.measurementType = {id: formValue.measurementType };
         formValue.unitOfMeasure = {id: formValue.unitOfMeasure };
         if (form.isValid()) {
@@ -179,11 +185,12 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                         method: 'POST',
                         jsonData: jsonValues,
                         success: function () {
-                            me.handleSuccessRequest('Successfully created');
+                            me.handleSuccessRequest('Load profile configuration saved');
+                            router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').forward(router.routeparams);
                         },
-                        failure: function (response) {
-                            me.handleFailureRequest(response, 'Error during create', 'channelnotificationerrorretry');
-                        },
+//                        failure: function (response) {
+//                            (response.status == 400) && me.handleFailureRequest(response, 'Error during create', 'channelnotificationerrorretry');
+//                        },
                         callback: function () {
                             preloader.destroy();
                         }
@@ -201,10 +208,11 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                         jsonData: jsonValues,
                         success: function () {
                             me.handleSuccessRequest('Successfully updated');
+                            router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').forward(router.routeparams);
                         },
-                        failure: function (response) {
-                            me.handleFailureRequest(response, 'Error during update', 'channelnotificationerrorretry');
-                        },
+//                        failure: function (response) {
+//                            (response.status == 400) && me.handleFailureRequest(response, 'Error during update', 'channelnotificationerrorretry');
+//                        },
                         callback: function () {
                             preloader.destroy();
                         }
@@ -212,25 +220,12 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                     break;
             }
         } else {
-            formErrorsPanel.hide();
-            formErrorsPanel.removeAll();
-            formErrorsPanel.add({
-                html: 'There are errors on this page that require your attention.',
-                style: {
-                    color: 'red'
-                }
-            });
             formErrorsPanel.show();
         }
     },
 
-
     handleSuccessRequest: function (headerText) {
-//        window.location.href = '#/administration/loadprofiletypes';
-        Ext.create('widget.uxNotification', {
-            html: headerText,
-            ui: 'notification-success'
-        }).show();
+        this.getApplication().fireEvent('acknowledge', headerText);
     },
 
     handleFailureRequest: function (response, headerText, retryAction) {
@@ -337,21 +332,20 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                 var loadProfileConfiguration = Ext.JSON.decode(response.responseText).data[0],
                                     widget = Ext.widget('loadProfileConfigurationDetailSetup', {intervalStore: me.intervalStore, deviceTypeId: deviceTypeId, deviceConfigId: deviceConfigurationId, loadProfileConfigurationId: loadProfileConfigurationId });
                                 me.getApplication().fireEvent('loadLoadProfile', loadProfileConfiguration);
-                                widget.down('loadProfileConfigurationDetailChannelGrid').getStore().load({
-                                    callback: function() {
-                                        if (this.getTotalCount() < 1) {
-                                            widget.down('#emptyPanel').show();
-                                            widget.down('#loadProfileConfigurationDetailChannelGridContainer').hide();
-                                            widget.down('#loadProfileConfigurationDetailChannelPreviewContainer').hide();
-                                            widget.down('#separator').hide();
-                                        }
-                                    }
-                                });
                                 widget.down('#loadProfileConfigurationDetailTitle').html = '<h1>' + loadProfileConfiguration.name + '</h1>';
                                 widget.down('#loadProfileConfigurationDetailChannelConfigurationTitle').html = '<h3>' + Uni.I18n.translate('loadprofileconfiguration.loadprofilechannelconfiguation', 'MDC', 'Channel configurations') + '</h3>';
                                 me.deviceTypeName = deviceType.get('name');
                                 me.deviceConfigName = deviceConfig.get('name');
                                 me.getApplication().fireEvent('changecontentevent', widget);
+                                widget.down('loadProfileConfigurationDetailChannelGrid').getStore().on('load', function () {
+                                    if (me.store.getTotalCount() < 1) {
+                                        me.getPage().down('#emptyPanel').show();
+                                        me.getPage().down('#loadProfileConfigurationDetailDockedItems').hide();
+                                        me.getPage().down('#loadProfileConfigurationDetailChannelGridContainer').hide();
+                                        me.getPage().down('#loadProfileConfigurationDetailChannelPreviewContainer').hide();
+                                        me.getPage().down('#separator').hide();
+                                    }
+                                }, me);
                                 var detailedForm = me.getLoadConfigurationDetailForm();
                                 detailedForm.getForm().setValues(loadProfileConfiguration);
                                 detailedForm.down('[name=deviceConfigurationName]').setValue(Ext.String.format('<a href="#/administration/devicetypes/{0}/deviceconfigurations/{1}">{2}</a>', deviceTypeId, deviceConfigurationId, me.deviceConfigName));
@@ -385,7 +379,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                             success: function (response) {
                                 var loadProfileConfiguration = Ext.JSON.decode(response.responseText).data[0],
                                     widget = Ext.widget('loadProfileConfigurationDetailForm',
-                                        {loadProfileConfigurationChannelAction: 'Add'}),
+                                        {loadProfileConfigurationChannelAction: 'Add', deviceTypeId: deviceTypeId, deviceConfigurationId: deviceConfigurationId, loadProfileConfigurationId: loadProfileConfigurationId }),
                                     measurementTypeCombobox = widget.down('combobox[name=measurementType]'),
                                     unitOfMeasureCombobox = widget.down('combobox[name=unitOfMeasure]'),
                                     title =  Uni.I18n.translate('loadprofiles.loadporfileaddChannelConfiguration', 'MDC', 'Add channel configuration');
@@ -426,7 +420,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                             params: {},
                             method: 'GET',
                             success: function (response) {
-                                var loadProfileConfiguration = Ext.JSON.decode(response.responseText).data[0];
                                 Ext.Ajax.request({
                                     url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofileconfigurations/' + me.loadProfileConfigurationId + '/channels/' + me.channelId ,
                                     params: {},
@@ -434,32 +427,32 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                     success: function (response) {
                                         var channel = Ext.JSON.decode(response.responseText).data[0],
                                             widget = Ext.widget('loadProfileConfigurationDetailForm',
-                                                {loadProfileConfigurationChannelAction: 'Save'}),
-                                            title =  Uni.I18n.translate('loadprofiles.loadprofileEditChannelConfiguration', 'MDC', 'Edit channel configuration');
-
+                                                {loadProfileConfigurationChannelAction: 'Save', deviceTypeId: deviceTypeId, deviceConfigurationId: deviceConfigurationId, loadProfileConfigurationId: loadProfileConfigurationId }),
+                                            title =  Uni.I18n.translate('loadprofiles.loadprofileEditChannelConfiguration', 'MDC', 'Edit channel configuration'),
                                             measurementTypeCombobox = widget.down('combobox[name=measurementType]'),
-                                            cimdisplayfield = widget.down('displayfield[name=cimreadingtype]'),
-                                            obiscodedisplayfield = widget.down('displayfield[name=obiscode]'),
                                             unitOfMeasureCombobox = widget.down('combobox[name=unitOfMeasure]'),
                                             overruledObisField =  widget.down('textfield[name=overruledObisCode]'),
                                             overflowValueField =  widget.down('textfield[name=overflowValue]'),
-                                            multiplierField =  widget.down('textfield[name=multiplier]');
+                                            multiplierField =  widget.down('textfield[name=multiplier]'),
+                                            measurementTypeDisplayField = widget.down('displayfield[name=measurementtype]');
 
                                         widget.down('form').setTitle(title);
-                                        me.availableMeasurementTypesStore.load({callback: function () {
-                                            measurementTypeCombobox.store = me.availableMeasurementTypesStore;
-                                            me.availableMeasurementTypesStore.add(channel.measurementType);
-                                            measurementTypeCombobox.setValue(channel.measurementType.id);
-                                            cimdisplayfield.setValue(channel.measurementType.readingType.mrid);
-                                            obiscodedisplayfield.setValue(channel.measurementType.obisCode);
-                                        }});
+                                        if (channel.isLinkedByActiveDeviceConfiguration) {
+                                            measurementTypeCombobox.hide();
+                                            measurementTypeDisplayField.setValue(channel.measurementType.name);
+                                            measurementTypeDisplayField.show();
+                                        }
                                         me.phenomenasStore.load({callback: function () {
                                             unitOfMeasureCombobox.store = me.phenomenasStore;
-                                            unitOfMeasureCombobox.setValue(channel.unitOfMeasure.id);
                                         }});
-                                        if (channel.isLinkedByActiveDeviceConfiguration) {
-                                            measurementTypeCombobox.disable();
-                                        }
+
+                                        me.availableMeasurementTypesStore.load({callback: function () {
+                                            measurementTypeCombobox.store = me.availableMeasurementTypesStore;
+                                            channel.measurementType.phenomenon = channel.unitOfMeasure;
+                                            me.availableMeasurementTypesStore.add(channel.measurementType);
+                                            measurementTypeCombobox.setValue(channel.measurementType.id);
+                                        }});
+
                                         overruledObisField.setValue(channel.overruledObisCode);
                                         overflowValueField.setValue(channel.overflowValue);
                                         multiplierField.setValue(channel.multiplier);

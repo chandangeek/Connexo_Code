@@ -1,127 +1,87 @@
 Ext.define('Mdc.view.setup.comportpool.ComPortPoolsGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.comPortPoolsGrid',
-
     requires: [
         'Mdc.store.ComPortPools',
         'Uni.view.toolbar.PagingTop',
-        'Uni.view.toolbar.PagingBottom'
+        'Uni.view.toolbar.PagingBottom',
+        'Mdc.view.setup.comportpool.ActionMenu'
     ],
     overflowY: 'auto',
-    layout: 'fit',
-    itemId: 'comportpoolgrid',
-    selModel: {
-        mode: 'MULTI'
-    },
-    selType: 'checkboxmodel',
     store: 'ComPortPools',
-
-    initComponent: function () {
-        this.columns = [
-            {
-                header: Uni.I18n.translate('general.name', 'MDC', 'Name'),
-                dataIndex: 'name',
-                flex: 1
-            },
-            {
-                header: Uni.I18n.translate('general.direction', 'MDC', 'Direction'),
-                dataIndex: 'direction'
-            },
-            {
-                dataIndex: 'active',
-                width: 24,
-                renderer: function (value, metadata) {
-                    if (value === true) {
-                        metadata.style = "background-color:lightgreen;";
-                    } else {
-                        metadata.style = "background-color:pink;";
-                    }
+    columns: [
+        {
+            header: Uni.I18n.translate('general.name', 'MDC', 'Name'),
+            xtype: 'templatecolumn',
+            tpl: '<a href="#/administration/comportpools/{id}/overview">{name}</a>',
+            flex: 1
+        },
+        {
+            header: Uni.I18n.translate('comportpool.preview.direction', 'MDC', 'Direction'),
+            dataIndex: 'direction'
+        },
+        {
+            header: Uni.I18n.translate('general.type', 'MDC', 'Type'),
+            dataIndex: 'type'
+        },
+        {
+            header: Uni.I18n.translate('general.status', 'MDC', 'Status'),
+            dataIndex: 'active',
+            renderer: function (value, metadata) {
+                if (value === true) {
+                    return Uni.I18n.translate('general.active', 'MDC', 'Active');
+                } else {
+                    return Uni.I18n.translate('general.inactive', 'MDC', 'Inactive');
                 }
-            },
-            {
-                xtype: 'actioncolumn',
-                iconCls: 'uni-actioncolumn-gear',
-                columnWidth: 32,
-                fixed: true,
-                header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-                sortable: false,
-                hideable: false,
-                items: [
-                    {
-                        handler: function (grid, rowIndex, colIndex, item, e, record, row) {
-                            var menu = Ext.widget('menu', {
-                                items: [
-                                    {
-                                        xtype: 'menuitem',
-                                        text: 'Edit',
-                                        listeners: {
-                                            click: {
-                                                element: 'el',
-                                                fn: function () {
-                                                    this.fireEvent('edit', record);
-                                                },
-                                                scope: this
-                                            }
-                                        }
-                                    },
-                                    {
-                                        xtype: 'menuitem',
-                                        text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-                                        listeners: {
-                                            click: {
-                                                element: 'el',
-                                                fn: function () {
-                                                    this.fireEvent('deleteItem', record);
-                                                },
-                                                scope: this
-                                            }
-                                        }
-                                    }
-                                ]
-                            });
-                            menu.showAt(e.getXY());
-                        }
-                    }
-                ]
             }
-        ];
+        },
+        {
+            itemId: 'actionColumn',
+            xtype: 'uni-actioncolumn',
+            menu: {
+                xtype: 'comportpool-actionmenu',
+                itemId: 'comportpoolViewMenu'
+            }
+        }
+    ],
 
-        this.dockedItems = [
-            {
-                xtype: 'pagingtoolbarbottom',
-                store: this.store,
-                dock: 'bottom'
-            },
-            {
-                xtype: 'toolbar',
-                dock: 'top',
-                ui: 'footer',
-                defaults: {minWidth: this.minButtonWidth},
-                items: [
-                    {
-                        xtype: 'component',
-                        flex: 1
-                    },
-                    {
-                        text: 'Add',
-                        action: 'add',
-                        menu: [
+    dockedItems: [
+        {
+            xtype: 'pagingtoolbartop',
+            store: 'ComPortPools',
+            displayMsg: Uni.I18n.translate('comportpool.displayMsg', 'MDC', '{0} - {1} of {2} communication port pools'),
+            displayMoreMsg: Uni.I18n.translate('comportpool.displayMoreMsg', 'MDC', '{0} - {1} of more communication port pools'),
+            items: [
+                {
+                    xtype: 'component',
+                    flex: 1
+                },
+                {
+                    text: Uni.I18n.translate('comportpool.addComPortPool', 'MDC', 'Add communication port pool'),
+                    menu: {
+                        plain: true,
+                        border: false,
+                        shadow: false,
+                        itemId: 'addComPortPoolMenu',
+                        items: [
                             {
-                                text: 'Inbound'
+                                text: Uni.I18n.translate('comportpool.inbound', 'MDC', 'Inbound'),
+                                action: 'addInbound'
                             },
                             {
-                                text: 'Outbound'
+                                text: Uni.I18n.translate('comportpool.outbound', 'MDC', 'Outbound'),
+                                action: 'addOutbound'
                             }
                         ]
-                    },
-                    {
-                        text: 'Delete',
-                        action: 'delete'
                     }
-                ]
-            }
-        ];
-
-        this.callParent();
-    }
+                }
+            ]
+        },
+        {
+            xtype: 'pagingtoolbarbottom',
+            store: 'ComPortPools',
+            itemsPerPageMsg: Uni.I18n.translate('comportpool.itemsPerPageMsg', 'MDC', 'Communication port pools per page'),
+            dock: 'bottom'
+        }
+    ]
 });

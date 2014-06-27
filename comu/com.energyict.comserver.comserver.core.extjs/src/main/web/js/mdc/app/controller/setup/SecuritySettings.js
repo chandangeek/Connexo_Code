@@ -93,10 +93,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 method: 'DELETE',
                 waitMsg: 'Removing...',
                 success: function () {
-                    Ext.create('widget.uxNotification', {
-                        html: 'Security setting was removed successfully',
-                        ui: 'notification-success'
-                    }).show();
+                    me.getApplication().fireEvent('acknowledge', 'Security setting was removed successfully');
                     me.store.load();
                 },
                 failure: function (response, request) {
@@ -323,7 +320,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                         method: 'POST',
                         jsonData: jsonValues,
                         success: function (response) {
-                            me.handleSuccessRequest(response, 'Successfully created');
+                            me.handleSuccessRequest(response, 'Security setting saved');
                         },
                         failure: function (response) {
                             me.handleFailureRequest(response, 'Error during create');
@@ -377,11 +374,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
             this.secId = parseInt(data.id);
         }
         window.location.href = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/securitysettings';
-
-        Ext.create('widget.uxNotification', {
-            html: headerText,
-            ui: 'notification-success'
-        }).show();
+        this.getApplication().fireEvent('acknowledge', headerText);
     },
 
     handleFailureRequest: function (response, headerText) {

@@ -165,7 +165,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         var me = this,
             formPanel = me.getLoadTypeForm(),
             form = formPanel.getForm(),
-            formErrorsPanel = formPanel.down('panel[name=errors]'),
+            formErrorsPanel = formPanel.down('uni-form-error-message[name=errors]'),
             formValue = form.getValues(),
             timeDurationId = formValue.timeDuration,
             measurementTypesErrorPanel = formPanel.down('fieldcontainer').down('panel[name=measurementTypesErrors]'),
@@ -191,11 +191,11 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                         method: 'POST',
                         jsonData: jsonValues,
                         success: function () {
-                            me.handleSuccessRequest('Successfully created');
+                            me.handleSuccessRequest('Load profile type saved');
                         },
-                        failure: function (response) {
-                            me.handleFailureRequest(response, 'Error during create', 'loadprofiletypenotificationerrorretry');
-                        },
+//                        failure: function (response) {
+//                            me.handleFailureRequest(response, 'Error during update', 'loadprofiletypenotificationerrorretry');
+//                        },
                         callback: function () {
                             preloader.destroy();
                         }
@@ -214,9 +214,9 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                         success: function () {
                             me.handleSuccessRequest('Successfully updated');
                         },
-                        failure: function (response) {
-                            me.handleFailureRequest(response, 'Error during update', 'loadprofiletypenotificationerrorretry');
-                        },
+//                        failure: function (response) {
+//                            me.handleFailureRequest(response, 'Error during update', 'loadprofiletypenotificationerrorretry');
+//                        },
                         callback: function () {
                             preloader.destroy();
                         }
@@ -234,24 +234,13 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                 });
                 measurementTypesErrorPanel.show();
             }
-            formErrorsPanel.hide();
-            formErrorsPanel.removeAll();
-            formErrorsPanel.add({
-                html: 'There are errors on this page that require your attention.',
-                style: {
-                    color: 'red'
-                }
-            });
             formErrorsPanel.show();
         }
     },
 
     handleSuccessRequest: function (headerText) {
         window.location.href = '#/administration/loadprofiletypes';
-        Ext.create('widget.uxNotification', {
-            html: headerText,
-            ui: 'notification-success'
-        }).show();
+        this.getApplication().fireEvent('acknowledge', headerText);
     },
 
     handleFailureRequest: function (response, headerText, retryAction) {

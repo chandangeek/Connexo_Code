@@ -9,8 +9,14 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationSetu
         'Uni.view.container.PreviewContainer'
     ],
     side: {
-        xtype: 'deviceConfigurationMenu',
-        toggle: 2
+        xtype: 'panel',
+        ui: 'medium',
+        items: [
+            {
+                xtype: 'device-configuration-menu',
+                toggle: 2
+            }
+        ]
     },
     content: [
         {

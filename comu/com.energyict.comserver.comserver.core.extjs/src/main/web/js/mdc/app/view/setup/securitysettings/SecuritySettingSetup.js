@@ -20,7 +20,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSetup', {
                 ui: 'medium',
                 items: [
                     {
-                        xtype: 'deviceConfigurationMenu',
+                        xtype: 'device-configuration-menu',
                         itemId: 'stepsMenu',
                         deviceTypeId: me.deviceTypeId,
                         deviceConfigurationId: me.deviceConfigId,

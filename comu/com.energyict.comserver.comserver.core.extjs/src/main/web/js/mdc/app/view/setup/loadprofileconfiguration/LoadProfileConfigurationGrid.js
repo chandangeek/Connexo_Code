@@ -11,7 +11,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationGrid
     columns: {
         items: [
             {
-                header: 'Load profile configuration',
+                header: 'Name',
                 xtype: 'templatecolumn',
                 tpl: new Ext.XTemplate('{[this.getLink(values)]}', {
                     getLink: function (values) {

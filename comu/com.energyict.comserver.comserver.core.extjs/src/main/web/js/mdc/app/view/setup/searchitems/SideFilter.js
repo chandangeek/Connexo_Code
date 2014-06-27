@@ -12,6 +12,7 @@ Ext.define('Mdc.view.setup.searchitems.SideFilter', {
         'Mdc.store.DeviceTypes',
         'Mdc.store.DeviceConfigurations'
     ],
+
     items: [
         {
             xtype: 'filter-form',
@@ -41,7 +42,7 @@ Ext.define('Mdc.view.setup.searchitems.SideFilter', {
                     name: 'type',
                     itemId: 'type',
                     store: new Mdc.store.DeviceTypes({
-                        storeId:'DeviceTypesCbSearch'
+                        storeId: 'DeviceTypesCbSearch'
                     }),
                     fieldLabel: Uni.I18n.translate('searchItems.type', 'MDC', 'Type'),
                     displayField: 'name',
@@ -49,26 +50,26 @@ Ext.define('Mdc.view.setup.searchitems.SideFilter', {
 
                     forceSelection: false,
                     editable: false,
-                    allowBlank:true,
+                    allowBlank: true,
                     multiSelect: true,
                     triggerAction: 'all',
-                    listConfig : {
-                        getInnerTpl : function() {
+                    listConfig: {
+                        getInnerTpl: function () {
                             return '<div class="x-combo-list-item"><img src="' + Ext.BLANK_IMAGE_URL + '" class="x-form-checkbox" /> {name} </div>';
                         }
                     },
-                    listeners:{
-                        collapse: function(){
+                    listeners: {
+                        collapse: function () {
                             var me = this.up('#sideFilter'),
                                 comboConfig = me.down('#configuration');
-                            if (this.getValue().length == 1) {
+                            if (this.getValue().length === 1) {
                                 var store = comboConfig.getStore();
                                 comboConfig.setVisible(true);
                                 store.getProxy().setExtraParam('deviceType', this.getValue()[0]);
-                                store.load(function(){
+                                store.load(function () {
                                     store.sort('name', 'ASC');
                                     comboConfig.bindStore(store);
-                                    if (store.getCount() == 0) {
+                                    if (store.getCount() === 0) {
                                         me.clearComboConfiguration(comboConfig);
                                     }
                                 });
@@ -76,10 +77,10 @@ Ext.define('Mdc.view.setup.searchitems.SideFilter', {
                                 me.clearComboConfiguration(comboConfig);
                             }
                         },
-                        change: function(comp, newValue) {
+                        change: function (comp, newValue) {
                             var me = comp.up('#sideFilter'),
                                 comboConfig = me.down('#configuration');
-                            if (newValue == "") {
+                            if (newValue === '') {
                                 me.clearComboConfiguration(comboConfig);
                             }
                         }
@@ -99,29 +100,37 @@ Ext.define('Mdc.view.setup.searchitems.SideFilter', {
                     editable: false,
                     allowBlank: true,
                     multiSelect: true,
-                    listConfig : {
-                        getInnerTpl : function() {
+                    listConfig: {
+                        getInnerTpl: function () {
                             return '<div class="x-combo-list-item"><img src="' + Ext.BLANK_IMAGE_URL + '" class="x-form-checkbox" /> {name} </div>';
                         }
                     }
                 }
             ],
-            buttons: [
+            dockedItems: [
                 {
-                    text: Uni.I18n.translate('searchItems.clearAll', 'MDC', 'Search'),
-                    itemId: 'searchAllItems',
-                    action: 'applyfilter'
-                },
-                {
-                    text: Uni.I18n.translate('searchItems.clearAll', 'MDC', 'Clear all'),
-                    itemId: 'clearAllItems',
-                    action: 'clearfilter'
+                    xtype: 'toolbar',
+                    dock: 'bottom',
+                    items: [
+                        {
+                            text: Uni.I18n.translate('searchItems.searchAll', 'MDC', 'Search'),
+                            ui: 'action',
+                            itemId: 'searchAllItems',
+                            action: 'applyfilter'
+                        },
+                        {
+                            text: Uni.I18n.translate('searchItems.clearAll', 'MDC', 'Clear all'),
+                            itemId: 'clearAllItems',
+                            action: 'clearfilter'
+                        }
+                    ]
                 }
             ]
         }
     ],
-    clearComboConfiguration: function(cmbConfig){
-        cmbConfig.setValue("");
+
+    clearComboConfiguration: function (cmbConfig) {
+        cmbConfig.setValue(11);
         cmbConfig.setVisible(false);
     }
 });

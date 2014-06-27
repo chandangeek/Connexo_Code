@@ -94,12 +94,16 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         var me = this;
         this.deviceTypeId = id;
         this.getDeviceConfigurationsStore().getProxy().setExtraParam('deviceType', id);
-        var widget = Ext.widget('deviceConfigurationsSetup', {deviceTypeId: id});
-        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(id, {
-            success: function (deviceType) {
-                me.getApplication().fireEvent('loadDeviceType', deviceType);
-                me.getApplication().fireEvent('changecontentevent', widget);
-                me.getDeviceConfigurationsGrid().getSelectionModel().doSelect(0);
+        this.getDeviceConfigurationsStore().load({
+            callback: function(){
+                var widget = Ext.widget('deviceConfigurationsSetup', {deviceTypeId: id});
+                Ext.ModelManager.getModel('Mdc.model.DeviceType').load(id, {
+                    success: function (deviceType) {
+                        me.getApplication().fireEvent('loadDeviceType', deviceType);
+                        me.getApplication().fireEvent('changecontentevent', widget);
+                        me.getDeviceConfigurationsGrid().getSelectionModel().doSelect(0);
+                    }
+                });
             }
         });
 
@@ -273,19 +277,19 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
     },
 
     setCheckBoxes: function (deviceType,deviceConfiguration) {
-        if(deviceConfiguration !== undefined){
-            if(deviceConfiguration.get('active')){
+        if(deviceConfiguration !== undefined && deviceConfiguration.get('active')){
                 this.getGatewayCheckbox().setDisabled(true);
                 this.getAddressableCheckbox().setDisabled(true);
+        }
+        else {
+            if (!deviceType.get('canBeGateway')) {
+                this.getGatewayCheckbox().setDisabled(!deviceType.get('canBeGateway'));
+                this.getGatewayMessage().show();
             }
-        }
-        else if (!deviceType.get('canBeGateway')) {
-            this.getGatewayCheckbox().setDisabled(!deviceType.get('canBeGateway'));
-            this.getGatewayMessage().show();
-        }
-        else if (!deviceType.get('canBeDirectlyAddressed')) {
-            this.getAddressableCheckbox().setDisabled(!deviceType.get('canBeDirectlyAddressed'));
-            this.getAddressableMessage().show();
+            if (!deviceType.get('canBeDirectlyAddressed')) {
+                this.getAddressableCheckbox().setDisabled(!deviceType.get('canBeDirectlyAddressed'));
+                this.getAddressableMessage().show();
+            }
         }
     },
 
@@ -433,7 +437,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                             });
                         }
                     });
-                    var numberOfLogbooksLabel = Ext.ComponentQuery.query('add-logbook-configurations toolbar label[name=LogBookCount]')[0],
+                    var numberOfLogbooksLabel = Ext.ComponentQuery.query('add-logbook-configurations toolbar #LogBookCount')[0],
                         grid = Ext.ComponentQuery.query('add-logbook-configurations grid')[0];
                     numberOfLogbooksLabel.setText('No logbooks selected');
                     if (self.getCount() < 1) {

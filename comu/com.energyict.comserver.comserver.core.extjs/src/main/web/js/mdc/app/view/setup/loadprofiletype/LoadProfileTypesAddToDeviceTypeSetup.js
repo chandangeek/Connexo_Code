@@ -7,19 +7,14 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypesAddToDeviceTypeSetup'
 
     content: [
         {
-            xtype: 'container',
-            cls: 'content-container',
+            xtype: 'panel',
             layout: {
                 type: 'vbox',
                 align: 'stretch'
             },
-            padding: '0 10 0 10',
+            ui: 'large',
+            title: Uni.I18n.translate('loadprofiletype.addloadprofiletypes', 'MDC', 'Add load profile types'),
             items: [
-                {
-                    xtype: 'component',
-                    margins: '10 10 10 10',
-                    html: '<h1>' + Uni.I18n.translate('loadprofiletype.addloadprofiletypes', 'MDC', 'Add load profile types') + '</h1>'
-                },
                 {
                     xtype: 'radiogroup',
                     name: 'allOrSelectedLoadProfileTypes',
@@ -52,29 +47,26 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypesAddToDeviceTypeSetup'
                     itemId: 'loadProfileTypesAddToDeviceTypeGridContainer'
                 },
                 {
-                    xtype: 'toolbar',
-                    border: 0,
+                    xtype: 'container',
                     items: [
                         {
                             xtype: 'button',
                             name: 'addloadprofiletypestodevicetype',
-                            text: 'Add',
+                            text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
                             ui: 'action'
                         },
                         {
                             xtype: 'button',
-                            text: 'Cancel',
+                            text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
                             ui: 'link',
-                            handler:function(button,event){
+                            handler: function (button, event) {
                                 Ext.History.back();
                             }
                         }
                     ]
                 }
 
-
             ]
-
         }
     ],
 

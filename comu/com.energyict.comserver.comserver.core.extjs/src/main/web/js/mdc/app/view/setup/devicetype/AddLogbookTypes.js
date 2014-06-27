@@ -68,6 +68,7 @@ Ext.define('Mdc.view.setup.devicetype.AddLogbookTypes', {
                         {
                             text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
                             action: 'add',
+                            disabled: true,
                             ui: 'action',
                             margin: '0 0 0 -5'
                         },

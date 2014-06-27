@@ -68,10 +68,6 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                 }
             }
         });
-
-        me.addEvents('shownotification');
-
-        me.on('shownotification', me.showNotification);
     },
 
     setupMenuItems: function(record) {
@@ -89,14 +85,6 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                 });
             }
         }
-    },
-
-    showNotification: function(title, text, notificationType) {
-        Ext.create('widget.uxNotification', {
-            title: title,
-            html: text,
-            ui: notificationType
-        }).show();
     },
 
     enableScheduleFieldItemChanged: function(item, newValue, oldValue, eOpts) {
@@ -378,7 +366,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                 success: function () {
                     var messageKey = ((suspended == true) ? 'communicationtasks.activated' : 'communicationtasks.deactivated');
                     var messageText = ((suspended == true) ? 'Communication task successfully activated' : 'Communication task successfully deactivated');
-                    me.fireEvent('shownotification', null, Uni.I18n.translate(messageKey, 'MDC', messageText), 'notification-success');
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate(messageKey, 'MDC', messageText));
                     me.loadCommunicationTasksStore();
                 },
                 failure: function (response, request) {
@@ -408,19 +396,13 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
 
     updateCommunicationTask: function(operation) {
         var me = this,
-            form = me.getCommunicationTaskEditForm(),
-            formErrorsPlaceHolder = Ext.ComponentQuery.query('#communicationTaskEditFormErrors')[0];
+            form = me.getCommunicationTaskEditForm();
         if (form.isValid()) {
-            formErrorsPlaceHolder.hide();
+            me.hideErrorPanel();
             me[operation + 'CommunicationTaskRecord'](form.getValues(), {operation : operation});
         } else {
             me.clearPreLoader();
-            formErrorsPlaceHolder.hide();
-            formErrorsPlaceHolder.removeAll();
-            formErrorsPlaceHolder.add({
-                html: Uni.I18n.translate('communicationtasks.form.errors', 'MDC', 'There are errors on this page that require your attention')
-            });
-            formErrorsPlaceHolder.show();
+            me.showErrorPanel();
         }
     },
 
@@ -436,7 +418,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         var me = this,
             record = Ext.create(Mdc.model.CommunicationTaskConfig);
         me.updateRecord(record, values, Ext.apply({
-            successMessage: Uni.I18n.translate('communicationtasks.created', 'MDC', 'Communication task successfully created')
+            successMessage: Uni.I18n.translate('communicationtasks.created', 'MDC', 'Communication task saved')
         }, cfg));
     },
 
@@ -452,7 +434,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                         me.clearPreLoader();
                         if(operation.wasSuccessful()) {
                             location.href = '#/administration/devicetypes/'+me.deviceTypeId+'/deviceconfigurations/'+me.deviceConfigurationId+'/comtaskenablements';
-                            me.fireEvent('shownotification', null, Uni.I18n.translate('communicationtasks.removed', 'MDC', 'Communication task successfully removed'), 'notification-success');
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('communicationtasks.removed', 'MDC', 'Communication task successfully removed'));
                             me.loadCommunicationTasksStore();
                         } else {
                             if(operation.response.status == 400) {
@@ -484,7 +466,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
             record.save({
                 success: function (record) {
                     location.href = '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/comtaskenablements';
-                    me.fireEvent('shownotification', null, cfg.successMessage, 'notification-success');
+                    me.getApplication().fireEvent('acknowledge', cfg.successMessage);
                 },
                 failure: function (record, operation) {
                     if(operation.response.status == 400) {
@@ -495,6 +477,12 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                         if(!Ext.isEmpty(operation.response.responseText)) {
                             var json = Ext.decode(operation.response.responseText, true);
                             if (json && json.errors) {
+                                Ext.each(json.errors, function(error, index, errors) {
+                                    if(!Ext.isEmpty(error.id) && Ext.String.startsWith(error.id, 'nextExecutionSpecs')) {
+                                        error.id = 'nextExecutionSpecs';
+                                    }
+                                });
+                                me.showErrorPanel();
                                 me.getCommunicationTaskEditForm().getForm().markInvalid(json.errors);
                                 return;
                             }
@@ -549,5 +537,25 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
             me.preloader.destroy();
             me.preloader = null;
         }
+    },
+
+    showErrorPanel: function() {
+        var me = this,
+            formErrorsPlaceHolder = me.getCommunicationTaskEditForm().down('#communicationTaskEditFormErrors');
+
+        formErrorsPlaceHolder.hide();
+        formErrorsPlaceHolder.removeAll();
+        formErrorsPlaceHolder.add({
+            html: Uni.I18n.translate('communicationtasks.form.errors', 'MDC', 'There are errors on this page that require your attention')
+        });
+        formErrorsPlaceHolder.show();
+    },
+
+    hideErrorPanel: function() {
+        var me = this,
+            formErrorsPlaceHolder = me.getCommunicationTaskEditForm().down('#communicationTaskEditFormErrors');
+
+        formErrorsPlaceHolder.hide();
+        formErrorsPlaceHolder.removeAll();
     }
 });

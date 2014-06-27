@@ -7,8 +7,8 @@ Ext.define('Mdc.controller.setup.DeviceTypeLogbooks', {
 
     views: [
         'setup.devicetype.DeviceTypeLogbooks',
-        'setup.devicetype.ActionMenu',
-        'Isu.view.ext.button.GridAction'
+        'setup.devicetype.ActionMenu'
+//        'Isu.view.ext.button.GridAction'
     ],
 
     refs: [
@@ -66,16 +66,13 @@ Ext.define('Mdc.controller.setup.DeviceTypeLogbooks', {
                         url: url,
                         method: 'DELETE',
                         success: function () {
-                            Ext.create('widget.uxNotification', {
-                                html: 'Successfully removed',
-                                ui: 'notification-success'
-                            }).show();
-                            self.store.load({
+                            self.getApplication().fireEvent('acknowledge', 'Successfully removed');
+                            grid.getStore().load({
                                     callback: function () {
                                         var gridView = grid.getView(),
                                             selectionModel = gridView.getSelectionModel();
                                         logbooksView.down('pagingtoolbartop').totalCount = 0;
-                                        if (self.store.getCount() > 0) {
+                                        if (grid.getStore().getCount() > 0) {
                                             grid.getStore().load({
                                                 callback: function () {
                                                     selectionModel.select(0);
