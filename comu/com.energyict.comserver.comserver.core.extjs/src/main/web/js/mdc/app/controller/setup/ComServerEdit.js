@@ -148,7 +148,7 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
             case 'create':
                 switch (comServerType) {
                     case 'Online':
-                        messageText = Uni.I18n.translate('comServer.acknowledge.createSuccess', 'MDC', 'Online communication server saved');
+                        messageText = Uni.I18n.translate('comServer.acknowledge.createSuccess', 'MDC', 'Online communication server added');
                         break;
                 }
                 break;
