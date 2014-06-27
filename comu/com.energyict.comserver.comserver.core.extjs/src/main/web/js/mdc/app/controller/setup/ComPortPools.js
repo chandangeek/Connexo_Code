@@ -53,8 +53,7 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
 
     chooseAction : function (menu, item) {
         var me = this,
-            record = menu.record,
-            form = this.getComPortPoolPreview().down('form');
+            record = menu.record;
 
         switch (item.action) {
             case 'edit':
