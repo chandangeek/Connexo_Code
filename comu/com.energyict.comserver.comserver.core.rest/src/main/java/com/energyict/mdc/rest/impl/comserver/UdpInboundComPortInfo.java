@@ -5,6 +5,8 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
+import com.google.common.base.Optional;
+
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
@@ -16,9 +18,6 @@ public class UdpInboundComPortInfo extends InboundComPortInfo<UDPBasedInboundCom
 
     public UdpInboundComPortInfo(UDPBasedInboundComPort comPort) {
         super(comPort);
-        if (comPort.getComPortPool()!=null) {
-            this.comPortPool_id = comPort.getComPortPool().getId();
-        }
         this.portNumber = comPort.getPortNumber();
         this.bufferSize = comPort.getBufferSize();
     }
@@ -26,14 +25,14 @@ public class UdpInboundComPortInfo extends InboundComPortInfo<UDPBasedInboundCom
     @Override
     protected void writeTo(UDPBasedInboundComPort source,EngineModelService engineModelService) {
         super.writeTo(source,engineModelService);
-        InboundComPortPool inboundComPortPool = engineModelService.findInboundComPortPool(this.comPortPool_id);
-        if(inboundComPortPool!=null){
-            source.setComPortPool(inboundComPortPool);
-        } else {
-            throw new WebApplicationException("Failed to update ComPort", Response.Status.INTERNAL_SERVER_ERROR);
+        Optional<Integer> portNumber = Optional.fromNullable(this.portNumber);
+        if(portNumber.isPresent()) {
+            source.setPortNumber(portNumber.get());
         }
-        source.setPortNumber(this.portNumber);
-        source.setBufferSize(this.bufferSize);
+        Optional<Integer> bufferSize = Optional.fromNullable(this.bufferSize);
+        if(bufferSize.isPresent()) {
+            source.setBufferSize(bufferSize.get());
+        }
     }
 
     @Override

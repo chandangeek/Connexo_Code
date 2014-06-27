@@ -10,6 +10,7 @@ import com.energyict.mdc.protocol.api.channels.serial.FlowControl;
 import com.energyict.mdc.protocol.api.channels.serial.NrOfDataBits;
 import com.energyict.mdc.protocol.api.channels.serial.NrOfStopBits;
 import com.energyict.mdc.protocol.api.channels.serial.Parities;
+import com.google.common.base.Optional;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
@@ -38,12 +39,12 @@ public abstract class ComPortInfo<T extends ComPort, B extends ComPort.Builder<B
     public String direction;
     public String name;
     public String description;
-    public boolean active;
-    public boolean bound;
+    public Boolean active = Boolean.FALSE;
+    public Boolean bound;
     @XmlJavaTypeAdapter(ComPortTypeAdapter.class)
     public ComPortType comPortType;
-    public long comServer_id;
-    public int numberOfSimultaneousConnections;
+    public Long comServer_id;
+    public Integer numberOfSimultaneousConnections = Integer.valueOf(0);
     public Date modificationDate;
     public Integer ringCount;
     public Integer maximumNumberOfDialErrors;
@@ -83,21 +84,37 @@ public abstract class ComPortInfo<T extends ComPort, B extends ComPort.Builder<B
         this.description = comPort.getDescription();
         this.active = comPort.isActive();
         this.bound = comPort.isInbound();
-        this.comServer_id = comPort.getComServer()!=null?comPort.getComServer().getId():0;
+        this.comServer_id = comPort.getComServer()!=null?comPort.getComServer().getId():0L;
         this.comPortType = comPort.getComPortType();
         this.numberOfSimultaneousConnections = comPort.getNumberOfSimultaneousConnections();
         this.modificationDate = comPort.getModificationDate();
     }
 
     protected void writeTo(T source,EngineModelService engineModelService) {
-        source.setName(name);
-        source.setDescription(description);
-        source.setActive(active);
-        source.setComPortType(this.comPortType);
+        Optional<String> name = Optional.fromNullable(this.name);
+        if(name.isPresent()) {
+            source.setName(name.get());
+        }
+        Optional<String> description = Optional.fromNullable(this.description);
+        if(description.isPresent()) {
+            source.setDescription(description.get());
+        }
+        Optional<Boolean> active = Optional.fromNullable(this.active);
+        if(active.isPresent()) {
+            source.setActive(active.get());
+        }
+        Optional<ComPortType> comPortType = Optional.fromNullable(this.comPortType);
+        if(comPortType.isPresent()) {
+            source.setComPortType(comPortType.get());
+        }
+        Optional<Integer> numberOfSimultaneousConnections = Optional.fromNullable(this.numberOfSimultaneousConnections);
+        if(numberOfSimultaneousConnections.isPresent()) {
+            source.setNumberOfSimultaneousConnections(numberOfSimultaneousConnections.get());
+        }
     }
 
     protected B build(B builder, EngineModelService engineModelService) {
-        return builder.description(description).active(active);
+        return builder.description(this.description).active(this.active);
     }
 
     protected abstract ComPort createNew(ComServer comServer, EngineModelService engineModelService);

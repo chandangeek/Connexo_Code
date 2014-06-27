@@ -4,6 +4,7 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
+import com.google.common.base.Optional;
 
 public class ServletInboundComPortInfo extends InboundComPortInfo<ServletBasedInboundComPort, ServletBasedInboundComPort.ServletBasedInboundComPortBuilder> {
 
@@ -24,14 +25,34 @@ public class ServletInboundComPortInfo extends InboundComPortInfo<ServletBasedIn
 
     protected void writeTo(ServletBasedInboundComPort source,EngineModelService engineModelService) {
         super.writeTo(source,engineModelService);
-        source.setHttps(this.useHttps);
-
-        source.setKeyStoreSpecsFilePath(this.keyStoreFilePath);
-        source.setKeyStoreSpecsPassword(this.keyStorePassword);
-        source.setTrustStoreSpecsFilePath(this.trustStoreFilePath);
-        source.setTrustStoreSpecsPassword(this.trustStorePassword);
-        source.setPortNumber(this.portNumber);
-        source.setContextPath(this.contextPath);
+        Optional<Boolean> useHttps = Optional.fromNullable(this.useHttps);
+        if(useHttps.isPresent()) {
+            source.setHttps(useHttps.get());
+        }
+        Optional<String> keyStoreFilePath = Optional.fromNullable(this.keyStoreFilePath);
+        if(keyStoreFilePath.isPresent()) {
+            source.setKeyStoreSpecsFilePath(keyStoreFilePath.get());
+        }
+        Optional<String> keyStorePassword = Optional.fromNullable(this.keyStorePassword);
+        if(keyStorePassword.isPresent()) {
+            source.setKeyStoreSpecsPassword(keyStorePassword.get());
+        }
+        Optional<String> trustStoreFilePath = Optional.fromNullable(this.trustStoreFilePath);
+        if(trustStoreFilePath.isPresent()) {
+            source.setTrustStoreSpecsFilePath(trustStoreFilePath.get());
+        }
+        Optional<String> trustStorePassword = Optional.fromNullable(this.trustStorePassword);
+        if(trustStorePassword.isPresent()) {
+            source.setTrustStoreSpecsPassword(trustStorePassword.get());
+        }
+        Optional<Integer> portNumber = Optional.fromNullable(this.portNumber);
+        if(portNumber.isPresent()) {
+            source.setPortNumber(portNumber.get());
+        }
+        Optional<String> contextPath = Optional.fromNullable(this.contextPath);
+        if(contextPath.isPresent()) {
+            source.setContextPath(contextPath.get());
+        }
     }
 
     @Override

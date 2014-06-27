@@ -5,6 +5,7 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
+import com.google.common.base.Optional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,8 +38,6 @@ public abstract class OutboundComPortInfo extends ComPortInfo<OutboundComPort, O
     @Override
     protected void writeTo(OutboundComPort source,EngineModelService engineModelService) {
         super.writeTo(source, engineModelService);
-        source.setNumberOfSimultaneousConnections(this.numberOfSimultaneousConnections);
-
         updateComPortPools(source, engineModelService);
     }
 
@@ -66,9 +65,9 @@ public abstract class OutboundComPortInfo extends ComPortInfo<OutboundComPort, O
     protected OutboundComPort createNew(ComServer comServer, EngineModelService engineModelService) {
         OutboundComPort outboundComPort = build(comServer.newOutboundComPort(this.name, this.numberOfSimultaneousConnections), engineModelService).add();
         for (Long outboundComPortPoolId : outboundComPortPoolIds) {
-            OutboundComPortPool outboundComPortPool = engineModelService.findOutboundComPortPool(outboundComPortPoolId);
-            if (outboundComPortPool != null) {
-                outboundComPortPool.addOutboundComPort(outboundComPort);
+            Optional<OutboundComPortPool> outboundComPortPool = Optional.fromNullable(engineModelService.findOutboundComPortPool(outboundComPortPoolId));
+            if (outboundComPortPool.isPresent()) {
+                outboundComPortPool.get().addOutboundComPort(outboundComPort);
             }
         }
         return outboundComPort;

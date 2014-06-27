@@ -5,7 +5,11 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.protocol.api.channels.serial.*;
 import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
+import com.google.common.base.Optional;
+
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,33 +47,85 @@ public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboun
     @Override
     protected void writeTo(ModemBasedInboundComPort source,EngineModelService engineModelService) {
         super.writeTo(source,engineModelService);
-        source.setRingCount(this.ringCount);
-        source.setMaximumDialErrors(this.maximumNumberOfDialErrors);
-        source.setConnectTimeout(this.connectTimeout!=null?this.connectTimeout.asTimeDuration():null);
-        source.setDelayAfterConnect(this.delayAfterConnect!=null?this.delayAfterConnect.asTimeDuration():null);
-        source.setDelayBeforeSend(this.delayBeforeSend!=null?this.delayBeforeSend.asTimeDuration():null);
-        source.setAtCommandTimeout(this.atCommandTimeout!=null?this.atCommandTimeout.asTimeDuration():null);
-        source.setAtCommandTry(this.atCommandTry);
-        source.setModemInitStrings(fromMaps(MAP_KEY,this.modemInitStrings));
-        source.setAddressSelector(this.addressSelector);
-        source.setPostDialCommands(this.postDialCommands);
-        source.setSerialPortConfiguration(new SerialPortConfiguration(
-                this.name,
-                this.baudrate,
-                this.nrOfDataBits,
-                this.nrOfStopBits,
-                this.parity,
-                this.flowControl));
+        Optional<Integer> ringCount = Optional.fromNullable(this.ringCount);
+        if(ringCount.isPresent()) {
+            source.setRingCount(ringCount.get());
+        }
+        Optional<Integer> maximumNumberOfDialErrors = Optional.fromNullable(this.maximumNumberOfDialErrors);
+        if(maximumNumberOfDialErrors.isPresent()) {
+            source.setMaximumDialErrors(maximumNumberOfDialErrors.get());
+        }
+        Optional<TimeDurationInfo> connectTimeout = Optional.fromNullable(this.connectTimeout);
+        if(connectTimeout.isPresent()) {
+            source.setConnectTimeout(connectTimeout.get().asTimeDuration());
+        }
+        Optional<TimeDurationInfo> delayAfterConnect = Optional.fromNullable(this.delayAfterConnect);
+        if(delayAfterConnect.isPresent()) {
+            source.setDelayAfterConnect(delayAfterConnect.get().asTimeDuration());
+        }
+        Optional<TimeDurationInfo> delayBeforeSend = Optional.fromNullable(this.delayBeforeSend);
+        if(delayBeforeSend.isPresent()) {
+            source.setDelayBeforeSend(delayBeforeSend.get().asTimeDuration());
+        }
+        Optional<TimeDurationInfo> atCommandTimeout = Optional.fromNullable(this.atCommandTimeout);
+        if(atCommandTimeout.isPresent()) {
+            source.setAtCommandTimeout(atCommandTimeout.get().asTimeDuration());
+        }
+        Optional<BigDecimal> atCommandTry = Optional.fromNullable(this.atCommandTry);
+        if(atCommandTry.isPresent()) {
+            source.setAtCommandTry(atCommandTry.get());
+        }
+        Optional<List<Map<String, String>>> modemInitStrings = Optional.fromNullable(this.modemInitStrings);
+        if(modemInitStrings.isPresent()) {
+            source.setModemInitStrings(fromMaps(MAP_KEY,modemInitStrings.get()));
+        }
+        Optional<String> addressSelector = Optional.fromNullable(this.addressSelector);
+        if(addressSelector.isPresent()) {
+            source.setAddressSelector(addressSelector.get());
+        }
+        Optional<String> postDialCommands = Optional.fromNullable(this.postDialCommands);
+        if(postDialCommands.isPresent()) {
+            source.setPostDialCommands(postDialCommands.get());
+        }
+        Optional<SerialPortConfiguration> serialPortConfiguration = Optional.fromNullable(source.getSerialPortConfiguration());
+        SerialPortConfiguration updatedSerialPortConfiguration = serialPortConfiguration.or(new SerialPortConfiguration());
+        Optional<String> name = Optional.fromNullable(this.name);
+        if(name.isPresent()) {
+            updatedSerialPortConfiguration.setComPortName(name.get());
+        }
+        Optional<BaudrateValue> baudrate = Optional.fromNullable(this.baudrate);
+        if(baudrate.isPresent()) {
+            updatedSerialPortConfiguration.setBaudrate(baudrate.get());
+        }
+        Optional<NrOfDataBits> nrOfDataBits = Optional.fromNullable(this.nrOfDataBits);
+        if(nrOfDataBits.isPresent()) {
+            updatedSerialPortConfiguration.setNrOfDataBits(nrOfDataBits.get());
+        }
+        Optional<NrOfStopBits> nrOfStopBits = Optional.fromNullable(this.nrOfStopBits);
+        if(nrOfStopBits.isPresent()) {
+            updatedSerialPortConfiguration.setNrOfStopBits(nrOfStopBits.get());
+        }
+        Optional<Parities> parity = Optional.fromNullable(this.parity);
+        if(parity.isPresent()) {
+            updatedSerialPortConfiguration.setParity(parity.get());
+        }
+        Optional<FlowControl> flowControl = Optional.fromNullable(this.flowControl);
+        if(flowControl.isPresent()) {
+            updatedSerialPortConfiguration.setFlowControl(flowControl.get());
+        }
+        source.setSerialPortConfiguration(updatedSerialPortConfiguration);
     }
 
     @Override
     protected ModemBasedInboundComPort.ModemBasedInboundComPortBuilder build(ModemBasedInboundComPort.ModemBasedInboundComPortBuilder builder, EngineModelService engineModelService) {
         super.build(builder, engineModelService);
-        if (this.delayAfterConnect!=null) {
-            builder.delayAfterConnect(this.delayAfterConnect.asTimeDuration());
+        Optional<TimeDurationInfo> delayAfterConnect = Optional.fromNullable(this.delayAfterConnect);
+        if (delayAfterConnect.isPresent()) {
+            builder.delayAfterConnect(delayAfterConnect.get().asTimeDuration());
         }
-        if (this.delayBeforeSend!=null) {
-            builder.delayBeforeSend(this.delayBeforeSend.asTimeDuration());
+        Optional<TimeDurationInfo> delayBeforeSend = Optional.fromNullable(this.delayBeforeSend);
+        if (delayBeforeSend.isPresent()) {
+            builder.delayBeforeSend(delayBeforeSend.get().asTimeDuration());
         }
         builder.atCommandTry(this.atCommandTry);
         builder.atModemInitStrings(fromMaps(MAP_KEY, this.modemInitStrings));
