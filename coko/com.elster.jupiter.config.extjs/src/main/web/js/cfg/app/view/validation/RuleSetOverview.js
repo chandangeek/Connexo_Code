@@ -1,93 +1,86 @@
 Ext.define('Cfg.view.validation.RuleSetOverview', {
-    extend: 'Ext.panel.Panel',
-    //border: false,
-    //region: 'center',
+    extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.ruleSetOverview',
     itemId: 'ruleSetOverview',
     requires: [
-        'Cfg.model.ValidationRuleSet'
+        'Cfg.model.ValidationRuleSet',
+        'Cfg.view.validation.RuleSetSubMenu'
     ],
-    /*layout: {
-        type: 'vbox',
-        align: 'stretch'
-    },  */
 
+    ruleSetId: null,
 
-    items: [
+    content: [
         {
-            tbar: [
-                {
-                    xtype: 'component',
-                    border: false,
-                    html: '<h4>' +  Uni.I18n.translate('validation.validationRuleSets', 'CFG', 'Validation rule sets') + '</h4>',
-                    itemId: 'rulesetOverviewTitle'
-                },
-                '->',
-                {
-                    icon: '../cfg/resources/images/actionsDetail.png',
-                    text:  Uni.I18n.translate('validation.actions', 'CFG', 'Actions'),
-                    menu:{
-                        items:[
-                            {
-                                text:  Uni.I18n.translate('general.edit', 'CFG', 'Edit'),
-                                itemId: 'editRuleset',
-                                action: 'editRuleset'
-
-                            },
-                            {
-                                text: Uni.I18n.translate('general.delete', 'CFG', 'Delete'),
-                                itemId: 'deleteRuleset',
-                                action: 'deleteRuleset'
-
-                            }
-                        ]
-                    }
-                }]
-        },
-        {
-            xtype: 'form',
-            border: false,
-            itemId: 'rulesetOverviewForm',
-            name: 'rulesetOverviewForm',
-            layout: {
-                type: 'vbox',
-                align: 'stretch'
-            },
-
+            title: Uni.I18n.translate('general.overview', 'CFG', 'Overview'),
+            ui: 'large',
             items: [
                 {
-                    xtype: 'displayfield',
-                    name: 'name',
-                    fieldLabel: Uni.I18n.translate('validation.name', 'CFG', 'Name'),
-                    labelAlign: 'right',
-                    labelWidth:	250
-                },
-                {
-                    xtype: 'displayfield',
-                    name: 'description',
-                    fieldLabel: Uni.I18n.translate('validation.description', 'CFG', 'Description'),
-                    labelAlign: 'right',
-                    labelWidth:	250
-                },
-                {
-                    xtype: 'displayfield',
-                    name: 'numberOfRules',
-                    fieldLabel:  Uni.I18n.translate('validation.numberOfRules', 'CFG', 'Number of rules'),
-                    labelAlign: 'right',
-                    labelWidth:	250
-                },
-                {
-                    xtype: 'displayfield',
-                    name: 'numberOfInactiveRules',
-                    fieldLabel:  Uni.I18n.translate('validation.numberOfInActiveRules', 'CFG', 'Number of inactive rules'),
-                    labelAlign: 'right',
-                    labelWidth:	250
+                    xtype: 'form',
+                    border: false,
+                    itemId: 'rulesetOverviewForm',
+                    name: 'rulesetOverviewForm',
+                    layout: {
+                        type: 'vbox',
+                        align: 'stretch'
+                    },
+
+                    items: [
+                        {
+                            xtype: 'displayfield',
+                            name: 'name',
+                            fieldLabel: Uni.I18n.translate('validation.validationRuleSet', 'CFG', 'Validation rule set'),
+                            labelAlign: 'right',
+                            labelWidth:	250
+                        },
+                        {
+                            xtype: 'displayfield',
+                            name: 'description',
+                            fieldLabel: Uni.I18n.translate('validation.description', 'CFG', 'Description'),
+                            labelAlign: 'right',
+                            labelWidth:	250
+                        },
+                        {
+                            xtype: 'fieldcontainer',
+                            itemId: 'activeRules',
+                            fieldLabel:  Uni.I18n.translate('validation.activeRules', 'CFG', 'Active rules'),
+                            labelAlign: 'right',
+                            labelWidth:	250,
+                            layout: 'vbox'
+                        },
+                        {
+                            xtype: 'fieldcontainer',
+                            itemId: 'inactiveRules',
+                            fieldLabel:  Uni.I18n.translate('validation.inactiveRules', 'CFG', 'Inactive rules'),
+                            labelAlign: 'right',
+                            labelWidth:	250,
+                            layout: 'vbox'
+                        }
+                    ]
                 }
             ]
         }
     ],
 
     initComponent: function () {
+        this.side = [
+            {
+                xtype: 'panel',
+                title: Uni.I18n.translate('validation.validationRuleSet', 'CFG', 'Validation rule set'),
+                ui: 'medium',
+                layout: {
+                    type: 'vbox',
+                    align: 'stretch'
+                },
+                items: [
+                    {
+                        xtype: 'ruleSetSubMenu',
+                        itemId: 'stepsMenu',
+                        ruleSetId: this.ruleSetId,
+                        toggle: 0
+                    }
+                ]
+            }
+        ];
         this.callParent(arguments);
     }
 });

@@ -22,8 +22,7 @@ Ext.define('Cfg.model.ValidationRuleSet', {
         url: '/api/val/validation',
         headers: {'Accept': 'application/json'},
         reader: {
-            type: 'json',
-            root: 'ruleSets'
+            type: 'json'
         }
     }
 });

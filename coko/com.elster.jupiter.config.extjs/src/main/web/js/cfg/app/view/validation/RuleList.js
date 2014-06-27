@@ -12,7 +12,8 @@ Ext.define('Cfg.view.validation.RuleList', {
 
     requires: [
         'Uni.view.toolbar.PagingTop',
-        'Uni.view.toolbar.PagingBottom'
+        'Uni.view.toolbar.PagingBottom',
+        'Cfg.view.validation.RuleActionMenu'
     ],
 
     listeners: {
@@ -41,22 +42,27 @@ Ext.define('Cfg.view.validation.RuleList', {
 
     initComponent: function () {
         var me = this;
-
         me.columns = [
-            { header: Uni.I18n.translate('validation.name', 'CFG', 'Name'), dataIndex: 'name', flex: 0.3, sortable: false, fixed: true},
-            { header: Uni.I18n.translate('validation.rule', 'CFG', 'Rule'), dataIndex: 'displayName', flex: 0.3, sortable: false, fixed: true},
-            { header: Uni.I18n.translate('validation.active', 'CFG', 'Active'), dataIndex: 'active', flex: 0.3, sortable: false, fixed: true,
+            { header: Uni.I18n.translate('validation.validationRule', 'CFG', 'Validation rule'), dataIndex: 'name', flex: 0.3, sortable: false, fixed: true,
+                renderer: function (value, b, record) {
+                    return '<a href="#/administration/validation/rulesets/validationrules/' + record.get('ruleSetId') + '/ruleoverview/' + record.getId() + '">' + value + '</a>'
+                }
+            },
+            { header: Uni.I18n.translate('validation.status', 'CFG', 'Status'), dataIndex: 'active', flex: 0.3, sortable: false, fixed: true,
                 renderer: function (value) {
                     if (value) {
-                        return Uni.I18n.translate('general.yes', 'CFG', 'Yes')
+                        return Uni.I18n.translate('validation.active', 'CFG', 'Active')
                     } else {
-                        return Uni.I18n.translate('general.no', 'CFG', 'No')
+                        return Uni.I18n.translate('validation.inactive', 'CFG', 'Inactive')
                     }
                 }
             },
             {
                 xtype: 'uni-actioncolumn',
-                items: 'Cfg.view.validation.RuleActionMenu'
+                menu: {
+                    itemId: 'ruleGridMenu',
+                    xtype: 'rule-action-menu'
+                }
             }
         ];
 
@@ -64,8 +70,9 @@ Ext.define('Cfg.view.validation.RuleList', {
             {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
+                itemId: 'rulesTopPagingToolbar',
                 dock: 'top',
-                displayMsg: '{0} - {1} of {2} rules',
+                displayMsg: '{0} - {1} of {2} Validation rules',
                 items: [
                     {
                         xtype: 'component',
@@ -73,9 +80,10 @@ Ext.define('Cfg.view.validation.RuleList', {
                     },
                     {
                         xtype: 'button',
-                        text: Uni.I18n.translate('validation.addRule', 'CFG', 'Add rule'),
+                        text: Uni.I18n.translate('validation.addValidationRule', 'CFG', 'Add validation rule'),
                         itemId: 'addRuleLink',
-                        href: '#/administration/validation/addRule/' + me.ruleSetId,
+                        ui: 'action',
+                        href: '#/administration/validation/rulesets/validationrules/' + me.ruleSetId + '/addRule/' + me.ruleSetId,
                         hrefTarget: '_self'
                     },
                     {
@@ -90,7 +98,7 @@ Ext.define('Cfg.view.validation.RuleList', {
                 margins: '10 10 10 10',
                 store: me.store,
                 dock: 'bottom',
-                itemsPerPageMsg: 'Rules per page',
+                itemsPerPageMsg: 'Validation rules per page',
                 itemId: 'rulesListBottomPagingToolbar',
                 params: {id: me.ruleSetId}
             }

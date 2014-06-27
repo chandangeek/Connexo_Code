@@ -17,7 +17,7 @@ Ext.define('Cfg.view.validation.AddRule', {
             this.down('#createRuleAction').action = 'editRuleAction';
         } else {
             this.edit = edit;
-            this.down('#createRuleAction').setText(Uni.I18n.translate('general.add', 'CFG', 'Create'));
+            this.down('#createRuleAction').setText(Uni.I18n.translate('general.add', 'CFG', 'Add'));
             this.down('#createRuleAction').action = 'createRuleAction';
         }
         this.down('#cancelAddRuleLink').href = returnLink;
@@ -41,6 +41,10 @@ Ext.define('Cfg.view.validation.AddRule', {
                         type: 'vbox'//,
                         //align: 'stretch'
                     },
+                    defaults: {
+                        validateOnChange: false,
+                        validateOnBlur: false
+                    },
                     items: [
                         {
                             itemId: 'form-errors',
@@ -56,7 +60,6 @@ Ext.define('Cfg.view.validation.AddRule', {
                             labelAlign: 'right',
                             msgTarget: 'under',
                             maxLength: 80,
-                            maskRe: /^($|\S.*$)/,
                             enforceMaxLength: true,
                             allowBlank: false,
                             labelWidth: 250,
@@ -73,7 +76,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                             valueField: 'implementation',
                             displayField: 'displayName',
                             queryMode: 'local',
-                            fieldLabel: Uni.I18n.translate('validation.rule', 'CFG', 'Rule'),
+                            fieldLabel: Uni.I18n.translate('validation.validationRule', 'CFG', 'Validation rule'),
                             required: true,
                             allowBlank: false,
                             labelAlign: 'right',
@@ -100,7 +103,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                                     items: [
                                         {
                                             xtype: 'textfield',
-                                            fieldLabel: Uni.I18n.translate('validation.readingValues', 'CFG', 'Reading value(s)'),
+                                            fieldLabel: Uni.I18n.translate('validation.readingTypes', 'CFG', 'Reading type(s)'),
                                             labelAlign: 'right',
                                             itemId: 'readingType1',
                                             name: 'readingType1',
@@ -117,6 +120,8 @@ Ext.define('Cfg.view.validation.AddRule', {
                                             maskRe: /^($|\S.*$)/,
                                             required: true,
                                             allowBlank: false,
+                                            validateOnChange: false,
+                                            validateOnBlur: false,
                                             maxLength: 80,
                                             enforceMaxLength: true,
                                             width: 600,
@@ -167,7 +172,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                             layout: 'hbox',
                             items: [
                                 {
-                                    text: Uni.I18n.translate('general.create', 'CFG', 'Create'),
+                                    text: Uni.I18n.translate('general.add', 'CFG', 'Add'),
                                     xtype: 'button',
                                     ui: 'action',
                                     action: 'createRuleAction',

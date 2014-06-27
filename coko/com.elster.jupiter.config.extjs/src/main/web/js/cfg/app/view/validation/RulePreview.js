@@ -1,6 +1,6 @@
 Ext.define('Cfg.view.validation.RulePreview', {
     extend: 'Ext.form.Panel',
-    xtype: 'validation-rule-preview',
+    alias: 'widget.validation-rule-preview',
     itemId: 'rulePreview',
     frame: true,
 
@@ -33,34 +33,39 @@ Ext.define('Cfg.view.validation.RulePreview', {
 
     items: [
         {
-            name: 'name',
-            fieldLabel: Uni.I18n.translate('validation.name', 'CFG', 'Name')
-        },
-        {
             name: 'displayName',
-            fieldLabel: Uni.I18n.translate('validation.Rule', 'CFG', 'Rule')
+            fieldLabel: Uni.I18n.translate('validation.validationRule', 'CFG', 'Validation rule')
         },
         {
             name: 'active',
-            fieldLabel: Uni.I18n.translate('validation.active', 'CFG', 'Active'),
+            fieldLabel: Uni.I18n.translate('validation.status', 'CFG', 'Status'),
             renderer: function (value) {
                 if (value) {
-                    return Uni.I18n.translate('general.yes', 'CFG', 'Yes');
+                    return Uni.I18n.translate('validation.active', 'CFG', 'Active')
                 } else {
-                    return Uni.I18n.translate('general.no', 'CFG', 'No');
+                    return Uni.I18n.translate('validation.inactive', 'CFG', 'Inactive')
                 }
             }
         },
         {
-            xtype: 'container',
-            itemId: 'readingTypesArea',
-            items: []
+            name: 'reading_type_definition',
+            itemId: 'readTypeField',
+            fieldLabel: Uni.I18n.translate('validation.readingTypes', 'CFG', 'Reading type(s)')
         },
         {
-            xtype: 'container',
-            margin: '5 0 0 0',
-            itemId: 'propertiesArea',
-            items: []
+            name: 'properties_minimum',
+            itemId: 'minField',
+            fieldLabel: Uni.I18n.translate('general.minimum', 'CFG', 'Minimum')
+        },
+        {
+            name: 'properties_maximum',
+            itemId: 'maxField',
+            fieldLabel: Uni.I18n.translate('general.maximum', 'CFG', 'Maximum')
+        },
+        {
+            name: 'properties_consequtive',
+            itemId: 'consField',
+            fieldLabel: Uni.I18n.translate('validation.consequtiveZeros', 'CFG', 'Consequtive zeros')
         }
     ],
 
@@ -70,7 +75,6 @@ Ext.define('Cfg.view.validation.RulePreview', {
 
     updateValidationRule: function (validationRule) {
         var me = this;
-
         me.loadRecord(validationRule);
         me.setTitle(validationRule.get('name'));
     }

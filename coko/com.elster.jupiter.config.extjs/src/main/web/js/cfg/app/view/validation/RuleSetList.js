@@ -37,14 +37,19 @@ Ext.define('Cfg.view.validation.RuleSetList', {
 
     columns: {
         items: [
-            { header: Uni.I18n.translate('general.name', 'CFG', 'Name'), dataIndex: 'name', flex: 0.3, sortable: false, fixed: true,
+            { header: Uni.I18n.translate('validation.validationRuleSet', 'CFG', 'Validation rule set'), dataIndex: 'name', flex: 0.3, sortable: false, fixed: true,
 
                 renderer: function (value, b, record) {
-                    return '<a href="#/administration/validation/overview/' + record.getId() + '">' + value + '</a>'
+                    return '<a href="#/administration/validation/rulesets/overview/' + record.getId() + '">' + value + '</a>'
                 }
             },
-            { header: Uni.I18n.translate('validation.numberOfRules', 'CFG', 'Number of rules'), dataIndex: 'numberOfRules', flex: 0.3, align: 'right', sortable: false, fixed: true  },
-            { header: Uni.I18n.translate('validation.numberOfInActiveRules', 'CFG', 'Number of inactive rules'), dataIndex: 'numberOfInactiveRules', flex: 0.3, align: 'right', sortable: false, fixed: true },
+            { header: Uni.I18n.translate('validation.activeRules', 'CFG', 'Active rules'), dataIndex: 'numberOfRules', flex: 0.3, align: 'left', sortable: false, fixed: true,
+                renderer: function (value, b, record) {
+                    var numberOfActiveRules = record.get('numberOfRules') - record.get('numberOfInactiveRules');
+                    return numberOfActiveRules
+                }
+            },
+            { header: Uni.I18n.translate('validation.inactiveRules', 'CFG', 'Inactive rules'), dataIndex: 'numberOfInactiveRules', flex: 0.3, align: 'left', sortable: false, fixed: true },
             {
                 xtype: 'uni-actioncolumn',
                 items: 'Cfg.view.validation.RuleSetActionMenu'
@@ -59,7 +64,7 @@ Ext.define('Cfg.view.validation.RuleSetList', {
             {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
-                displayMsg: '{0} - {1} of {2} rule sets',
+                displayMsg: '{0} - {1} of {2} Validation rule sets',
                 dock: 'top',
                 items: [
                     {
@@ -67,8 +72,9 @@ Ext.define('Cfg.view.validation.RuleSetList', {
                         flex: 1
                     },
                     {
-                        text: Uni.I18n.translate('validation.createRuleSet', 'CFG', 'Add rule set'),
+                        text: Uni.I18n.translate('validation.addRuleSet', 'CFG', 'Add validation rule set'),
                         itemId: 'newRuleset',
+                        ui: 'action',
                         xtype: 'button',
                         href: '#/administration/validation/createset',
                         hrefTarget: '_self'
@@ -83,7 +89,7 @@ Ext.define('Cfg.view.validation.RuleSetList', {
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
-                itemsPerPageMsg: 'Rule sets per page',
+                itemsPerPageMsg: 'Validation rule sets per page',
                 dock: 'bottom'
             }
         ];

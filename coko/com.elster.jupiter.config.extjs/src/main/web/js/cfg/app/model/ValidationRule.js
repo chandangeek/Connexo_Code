@@ -9,7 +9,73 @@ Ext.define('Cfg.model.ValidationRule', {
         'properties',
         'name',
         'ruleSetId',
-        'ruleSetName'
+        {
+            name: 'ruleSetName',
+            persist: false
+        },
+        {
+            name: 'rule_name',
+            persist: false,
+            mapping: function (data) {
+                return '<a href="#/administration/validation/rulesets/validationrules/' + data.ruleSetId + '/ruleoverview/' + data.id + '">' + data.name + '</a>';
+            }
+        },
+        {
+            name: 'reading_type_definition',
+            persist: false,
+            mapping: function (data) {
+                var str = '';
+                Ext.Array.each(data.readingTypes, function (item) {
+                    str += item.mRID + '&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:grey"><i>' + item.aliasName + '</i></span><br><br>';
+                });
+                return str;
+            }
+        },
+        {
+            name: 'properties_minimum',
+            persist: false,
+            mapping: function (data) {
+                var str = '';
+                if (!Ext.isEmpty(data.properties)) {
+                Ext.Array.each(data.properties, function (item) {
+                    if (item.name === 'minimum') {
+                    str = item.value;
+                    }
+                });
+                }
+                return str;
+            }
+        },
+        {
+            name: 'properties_maximum',
+            persist: false,
+            mapping: function (data) {
+                var str = '';
+                if (!Ext.isEmpty(data.properties)) {
+                    Ext.Array.each(data.properties, function (item) {
+                        if (item.name === 'maximum') {
+                            str = item.value;
+                        }
+                    });
+                }
+                return str;
+            }
+        },
+        {
+            name: 'properties_consequtive',
+            persist: false,
+            mapping: function (data) {
+                var str = '';
+                if (!Ext.isEmpty(data.properties)) {
+                    Ext.Array.each(data.properties, function (item) {
+                        if (item.name === 'NumberOfConsecutiveZerosAllowed') {
+                            str = item.value;
+                        }
+                    });
+                }
+                return str;
+            }
+        }
     ],
     associations: [
         {
@@ -24,7 +90,7 @@ Ext.define('Cfg.model.ValidationRule', {
             associationKey: 'readingTypes',
             name: 'readingTypes'
         }
-    ] ,
+    ],
     proxy: {
         type: 'rest',
         url: '/api/val/validation',
@@ -32,7 +98,7 @@ Ext.define('Cfg.model.ValidationRule', {
         reader: {
             type: 'json',
             root: 'rules'
-        }  ,
+        },
         buildUrl: function (request) {
             var me = this,
                 format = me.format,

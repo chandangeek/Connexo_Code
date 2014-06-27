@@ -1,8 +1,7 @@
 Ext.define('Cfg.view.validation.RuleSetPreview', {
     extend: 'Ext.form.Panel',
-    xtype: 'validation-ruleset-preview',
+    alias: 'widget.validation-ruleset-preview',
     frame: true,
-
     requires: [
         'Cfg.model.ValidationRuleSet'
     ],
@@ -45,5 +44,6 @@ Ext.define('Cfg.view.validation.RuleSetPreview', {
     updateValidationRuleSet: function (ruleSet) {
         this.setTitle(ruleSet.get('name'));
         this.loadRecord(ruleSet);
+        this.destroy();
     }
 });

@@ -15,11 +15,10 @@ Ext.define('Cfg.controller.history.Validation', {
                     controller: 'Cfg.controller.Validation',
                     action: 'showRuleSets',
                     items: {
-                        rules: {
+                        rulesets: {
                             title: 'Rules',
-                            route: 'rules/{ruleSetId}',
+                            route: 'rulesets',
                             controller: 'Cfg.controller.Validation',
-                            action: 'showRules',
                             callback: function (route) {
                                 this.getApplication().on('loadRuleSet', function (record) {
                                     route.setTitle(record.get('name'));
@@ -29,31 +28,51 @@ Ext.define('Cfg.controller.history.Validation', {
                                 return this;
                             },
                             items: {
-                                edit: {
-                                    title: 'Edit validation rule',
-                                    route: 'edit/{ruleId}',
+                                overview: {
+                                    title: 'Overview',
+                                    route: 'overview/{ruleSetId}',
                                     controller: 'Cfg.controller.Validation',
-                                    action: 'showEditRuleOverview'
+                                    action: 'showRuleSetOverview'
+                                },
+                                validationrules: {
+                                    title: 'Validation rules',
+                                    route: 'validationrules/{ruleSetId}',
+                                    controller: 'Cfg.controller.Validation',
+                                    action: 'showRules',
+                                    items: {
+                                        overview: {
+                                            title: 'Overview',
+                                            route: 'overview/{ruleSetId}',
+                                            controller: 'Cfg.controller.Validation',
+                                            action: 'showRuleSetOverview'
+                                        },
+                                        edit: {
+                                            title: 'Edit validation rule',
+                                            route: 'edit/{ruleId}',
+                                            controller: 'Cfg.controller.Validation',
+                                            action: 'showEditRuleOverview'
+                                        },
+                                        addRule: {
+                                            title: 'Add validation rule',
+                                            route: 'addRule/{ruleSetId}',
+                                            controller: 'Cfg.controller.Validation',
+                                            action: 'addRule'
+                                        },
+                                        ruleoverview: {
+                                            title: 'Overview',
+                                            route: 'ruleoverview/{ruleId}',
+                                            controller: 'Cfg.controller.Validation',
+                                            action: 'showRuleOverview'
+                                        }
+                                    }
                                 }
                             }
-                        },
-                        overview: {
-                            title: 'Overview',
-                            route: 'overview/{id}',
-                            controller: 'Cfg.controller.Validation',
-                            action: 'showRuleSetOverview'
                         },
                         createset: {
                             title: 'Add validation rule set',
                             route: 'createset',
                             controller: 'Cfg.controller.Validation',
                             action: 'createEditRuleSet'
-                        },
-                        addRule: {
-                            title: 'Add rule set',
-                            route: 'addRule/{id}',
-                            controller: 'Cfg.controller.Validation',
-                            action: 'addRule'
                         },
                         editset: {
                             title: 'Edit validation rule set',

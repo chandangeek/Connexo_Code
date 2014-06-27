@@ -1,6 +1,6 @@
 Ext.define('Cfg.view.validation.RuleSetActionMenu', {
     extend: 'Ext.menu.Menu',
-    xtype: 'ruleset-action-menu',
+    alias: 'widget.ruleset-action-menu',
     itemId: 'ruleset-action-menu',
 
     plain: true,
@@ -8,6 +8,11 @@ Ext.define('Cfg.view.validation.RuleSetActionMenu', {
     shadow: false,
 
     items: [
+        {
+            itemId: 'viewRuleSet',
+            text: Uni.I18n.translate('general.view', 'CFG', 'View'),
+            action: 'viewRuleSet'
+        },
         {
             itemId: 'editRuleSet',
             text: Uni.I18n.translate('general.edit', 'CFG', 'Edit'),

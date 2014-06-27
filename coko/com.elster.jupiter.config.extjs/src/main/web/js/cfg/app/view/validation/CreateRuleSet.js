@@ -33,7 +33,9 @@ Ext.define('Cfg.view.validation.CreateRuleSet', {
                     itemId: 'newRuleSetForm',
                     width: '100%',
                     defaults: {
-                        labelWidth: 250
+                        labelWidth: 250,
+                        validateOnChange: false,
+                        validateOnBlur: false
                     },
                     items: [
                         {
@@ -49,8 +51,8 @@ Ext.define('Cfg.view.validation.CreateRuleSet', {
                             name: 'name',
                             required: true,
                             allowBlank: false,
+                            maxLength: 80,
                             width: 600,
-                            maskRe: /^($|\S.*$)/,
                             msgTarget: 'under',
                             fieldLabel: Uni.I18n.translate('validation.name', 'CFG', 'Name'),
                             enforceMaxLength: true
@@ -59,6 +61,7 @@ Ext.define('Cfg.view.validation.CreateRuleSet', {
                             xtype: 'textarea',
                             name: 'description',
                             width: 600,
+                            maxLength: 256,
                             height: 150,
                             fieldLabel: Uni.I18n.translate('validation.description', 'CFG', 'Description'),
                             enforceMaxLength: true

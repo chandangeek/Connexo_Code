@@ -7,6 +7,11 @@ Ext.define('Cfg.view.validation.RuleActionMenu', {
     shadow: false,
     items: [
         {
+            itemId: 'deactivate',
+            text: Uni.I18n.translate('general.activate', 'CFG', 'Activate'),
+            action: 'deactivateRule'
+        },
+        {
             itemId: 'editRule',
             text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
             action: 'editRule'

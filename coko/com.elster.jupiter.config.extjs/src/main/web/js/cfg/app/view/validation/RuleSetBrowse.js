@@ -49,7 +49,7 @@ Ext.define('Cfg.view.validation.RuleSetBrowse', {
                                     },
                                     {
                                         xtype: 'button',
-                                        text: Uni.I18n.translate('validation.addValidationRuleSets', 'CFG', 'Add validation rule sets'),
+                                        text: Uni.I18n.translate('validation.addRuleSet', 'CFG', 'Add validation rule set'),
                                         ui: 'action',
                                         href: '#/administration/validation/createset'
                                     }
@@ -68,7 +68,8 @@ Ext.define('Cfg.view.validation.RuleSetBrowse', {
                                     xtype: 'ruleset-action-menu'
                                 }
                             }
-                        ]
+                        ],
+                        hidden: true
                     }
                 }
             ]
