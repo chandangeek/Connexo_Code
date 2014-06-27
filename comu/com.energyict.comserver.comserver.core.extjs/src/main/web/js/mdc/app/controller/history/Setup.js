@@ -664,6 +664,12 @@ Ext.define('Mdc.controller.history.Setup', {
             route: 'devices',
             disabled: true,
             items: {
+                add: {
+                    title: Uni.I18n.translate('deviceAdd.title', 'MDC', 'Add device'),
+                    route: 'add',
+                    controller: 'Mdc.controller.setup.Devices',
+                    action: 'showAddDevice'
+                },
                 device: {
                     title: 'Device',
                     route: '{mRID}',
