@@ -95,7 +95,7 @@ Ext.define('Mdc.controller.setup.ComServerOverview', {
                 if (operation.response.status == 204) {
                     var router = me.getController('Uni.controller.history.Router');
                     router.getRoute('administration/comservers').forward();
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comServer.deleteSuccess.msg', 'MDC', 'Communication server removed'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comServer.deleteSuccess.msg', 'MDC', 'Communication server has been removed'));
                 }
             }
         });
