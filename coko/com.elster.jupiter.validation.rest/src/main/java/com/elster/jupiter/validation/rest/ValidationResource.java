@@ -84,22 +84,19 @@ public class ValidationResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public ValidationRuleSetInfos createValidationRuleSet(final ValidationRuleSetInfo info) {
-        ValidationRuleSetInfos result = new ValidationRuleSetInfos();
-        result.add(
-                Bus.getTransactionService().execute(new Transaction<ValidationRuleSet>() {
-                    @Override
-                    public ValidationRuleSet perform() {
-                        return Bus.getValidationService().createValidationRuleSet(info.name, info.description);
-                    }
-                }));
-        return result;
+    public ValidationRuleSetInfo createValidationRuleSet(final ValidationRuleSetInfo info) {
+        return new ValidationRuleSetInfo(Bus.getTransactionService().execute(new Transaction<ValidationRuleSet>() {
+            @Override
+            public ValidationRuleSet perform() {
+                return Bus.getValidationService().createValidationRuleSet(info.name, info.description);
+            }
+        }));
     }
 
     @PUT
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public ValidationRuleSetInfos updateValidationRuleSet(@PathParam("id") long id, final ValidationRuleSetInfo info, @Context SecurityContext securityContext) {
+    public ValidationRuleSetInfo updateValidationRuleSet(@PathParam("id") long id, final ValidationRuleSetInfo info, @Context SecurityContext securityContext) {
         info.id = id;
         Bus.getTransactionService().execute(new VoidTransaction() {
             @Override
@@ -222,10 +219,9 @@ public class ValidationResource {
     @GET
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON)
-    public ValidationRuleSetInfos getValidationRuleSet(@PathParam("id") long id, @Context SecurityContext securityContext) {
+    public ValidationRuleSetInfo getValidationRuleSet(@PathParam("id") long id, @Context SecurityContext securityContext) {
         ValidationRuleSet validationRuleSet = fetchValidationRuleSet(id, securityContext);
-        ValidationRuleSetInfos result = new ValidationRuleSetInfos(validationRuleSet);
-        return result;
+        return new ValidationRuleSetInfo(validationRuleSet);
     }
 
     private ValidationRuleSet fetchValidationRuleSet(long id, SecurityContext securityContext) {
