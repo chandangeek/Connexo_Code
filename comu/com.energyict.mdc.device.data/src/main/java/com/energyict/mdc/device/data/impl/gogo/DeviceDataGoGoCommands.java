@@ -124,7 +124,7 @@ public class DeviceDataGoGoCommands {
             this.transactionService.execute(new Transaction<Object>() {
                 @Override
                 public Object perform() {
-                    ScheduledConnectionTask defaultConnectionTask = addScheduledConnectionTasks(device);
+                    ScheduledConnectionTask defaultConnectionTask = device.getScheduledConnectionTasks().get(0);
                     List<ComTaskExecution> comTaskExecutions = addComTaskExecutions(device);
                     device.save();
                     if (defaultConnectionTask != null) {
@@ -141,18 +141,6 @@ public class DeviceDataGoGoCommands {
             });
         }
 
-        private ScheduledConnectionTask addScheduledConnectionTasks(Device device) {
-            DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
-            ScheduledConnectionTask defaultConnectionTask = null;
-            List<PartialScheduledConnectionTask> partialOutboundConnectionTasks = deviceConfiguration.getPartialOutboundConnectionTasks();
-            for (PartialScheduledConnectionTask partialOutboundConnectionTask : partialOutboundConnectionTasks) {
-                ScheduledConnectionTask scheduledConnectionTask = device.getScheduledConnectionTaskBuilder(partialOutboundConnectionTask).add();
-                if (partialOutboundConnectionTask.isDefault()) {
-                    defaultConnectionTask = scheduledConnectionTask;
-                }
-            }
-            return defaultConnectionTask;
-        }
 
         private List<ComTaskExecution> addComTaskExecutions(Device device) {
             DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();

@@ -820,23 +820,6 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.CONNECTION_METHOD_COMPORT_POOL_REQUIRED_KEY + "}")
-    public void testCreateWithoutComPortPool() {
-        ScheduledConnectionTaskImpl connectionTask =
-                ((ScheduledConnectionTaskImpl) inMemoryPersistence.getDeviceDataService().
-                        newAsapConnectionTask(
-                                this.device,
-                                this.partialScheduledConnectionTask,
-                                null));
-
-        // Business method
-        connectionTask.save();
-
-        // Asserts: see ExpectedConstraintViolation rule
-    }
-
-    @Test
-    @Transactional
     public void testAllowSimultaneousConnections() {
         // First one - allow simultaneous connections
         ScheduledConnectionTaskImpl outboundTrue = ((ScheduledConnectionTaskImpl) inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool));

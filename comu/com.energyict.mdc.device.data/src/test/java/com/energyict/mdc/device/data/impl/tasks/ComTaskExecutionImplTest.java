@@ -19,6 +19,7 @@ import com.energyict.mdc.device.data.impl.InMemoryIntegrationPersistence;
 import com.energyict.mdc.device.data.impl.PersistenceIntegrationTest;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
@@ -123,15 +124,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
     }
 
 
-    private static OutboundComPortPool createOutboundIpComPortPool(String name) {
-        OutboundComPortPool ipComPortPool = inMemoryPersistence.getEngineModelService().newOutboundComPortPool();
-        ipComPortPool.setActive(true);
-        ipComPortPool.setComPortType(ComPortType.TCP);
-        ipComPortPool.setName(name);
-        ipComPortPool.setTaskExecutionTimeout(new TimeDuration(1, TimeDuration.MINUTES));
-        ipComPortPool.save();
-        return ipComPortPool;
-    }
+
 
     private ScheduledConnectionTaskImpl createAsapWithNoPropertiesWithoutViolations(String name, Device device, PartialScheduledConnectionTask partialConnectionTask, OutboundComPortPool outboundTcpipComPortPool) {
         DeviceDataServiceImpl deviceDataService = inMemoryPersistence.getDeviceDataService();
@@ -140,34 +133,10 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
         return ((ScheduledConnectionTaskImpl) deviceDataService.newAsapConnectionTask(device, partialConnectionTask, outboundTcpipComPortPool));
     }
 
-    private PartialScheduledConnectionTask createPartialScheduledConnectionTask() {
-        ConnectionTypePluggableClass connectionTypePluggableClass = inMemoryPersistence.getProtocolPluggableService()
-                .newConnectionTypePluggableClass(OutboundNoParamsConnectionTypeImpl.class.getSimpleName(), OutboundNoParamsConnectionTypeImpl.class.getName());
-        connectionTypePluggableClass.save();
-        return deviceConfiguration.getCommunicationConfiguration().newPartialScheduledConnectionTask("Outbound (1)", connectionTypePluggableClass, TimeDuration.minutes(5), ConnectionStrategy.AS_SOON_AS_POSSIBLE).
-                comWindow(new ComWindow(0, 7200)).
-                build();
-    }
-
-    private ScheduledConnectionTaskImpl createASAPConnectionStandardTask(Device device) {
-        PartialScheduledConnectionTask partialScheduledConnectionTask = createPartialScheduledConnectionTask();
-        OutboundComPortPool outboundPool = createOutboundIpComPortPool("MyOutboundPool");
-        ScheduledConnectionTaskImpl myConnectionTask = createAsapWithNoPropertiesWithoutViolations("MyConnectionTask", device, partialScheduledConnectionTask, outboundPool);
-        myConnectionTask.save();
-        return myConnectionTask;
-    }
-
-    private ScheduledConnectionTaskImpl createMinimizeOneDayConnectionStandardTask(Device device) {
-        PartialScheduledConnectionTask partialOutboundConnectionTask = createPartialScheduledConnectionTask();
-        OutboundComPortPool outboundPool = createOutboundIpComPortPool("MyOutboundPool");
-        DeviceDataServiceImpl deviceDataService = inMemoryPersistence.getDeviceDataService();
-        partialOutboundConnectionTask.setName("Minimize");
-        partialOutboundConnectionTask.save();
-        ScheduledConnectionTaskImpl scheduledConnectionTask =
-                (ScheduledConnectionTaskImpl) deviceDataService.
-                        newMinimizeConnectionTask(device, partialOutboundConnectionTask, outboundPool, new TemporalExpression(TimeDuration.days(1)));
-        scheduledConnectionTask.save();
-        return scheduledConnectionTask;
+    @Override
+    public void initializeMocks() {
+        super.initializeMocks();
+        this.createPartialScheduledConnectionTask();
     }
 
     @Test
@@ -361,6 +330,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
     public void removeComTaskWhichIsNotFromDeviceXTest() {
         ComTaskEnablement comTaskEnablement = createMockedComTaskEnablement(true);
         Device deviceWithoutComTaskExecutions = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "DeviceWithoutComTaskExecutions", "DeviceWithoutComTaskExecutions");
+        deviceWithoutComTaskExecutions.save();
         Device deviceWithComTaskExecutions = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "DeviceWithComTaskExecutions", "DeviceWithComTaskExecutions");
         ComTaskExecution.ComTaskExecutionBuilder comTaskExecutionBuilder = deviceWithComTaskExecutions.getComTaskExecutionBuilder(comTaskEnablement);
         ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
@@ -393,7 +363,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
         ComTaskEnablement comTaskEnablement = createMockedComTaskEnablement(originalDefaultValue);
         Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations");
         ComTaskExecution.ComTaskExecutionBuilder comTaskExecutionBuilder = device.getComTaskExecutionBuilder(comTaskEnablement);
-        comTaskExecutionBuilder.setConnectionTask(createASAPConnectionStandardTask(device));
+        comTaskExecutionBuilder.setConnectionTask(device.getConnectionTasks().get(0));
         ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         device.save();
 
@@ -410,7 +380,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void setConnectionTaskOnBuilderTest() {
         Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "BuilderTest", "BuilderTest");
-        ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device);
+        ScheduledConnectionTaskImpl connectionTask = (ScheduledConnectionTaskImpl) device.getConnectionTasks().get(0);
         ComTaskEnablement comTaskEnablement = createMockedComTaskEnablement(true);
         ComTaskExecution.ComTaskExecutionBuilder comTaskExecutionBuilder = device.getComTaskExecutionBuilder(comTaskEnablement);
         comTaskExecutionBuilder.setConnectionTask(connectionTask);
@@ -425,7 +395,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void setConnectionTaskOnBuilderSetsUseDefaultToFalseTest() {
         Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "BuilderTest", "BuilderTest");
-        ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device);
+        ScheduledConnectionTaskImpl connectionTask =(ScheduledConnectionTaskImpl) device.getConnectionTasks().get(0);
         ComTaskEnablement comTaskEnablement = createMockedComTaskEnablement(true);
         ComTaskExecution.ComTaskExecutionBuilder comTaskExecutionBuilder = device.getComTaskExecutionBuilder(comTaskEnablement);
         comTaskExecutionBuilder.setConnectionTask(connectionTask);
@@ -441,7 +411,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
     public void setUseDefaultConnectionTaskClearsConnectionTaskTest() {
         boolean useDefaultTrue = true;
         Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "BuilderTest", "BuilderTest");
-        ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device);
+        ScheduledConnectionTaskImpl connectionTask =(ScheduledConnectionTaskImpl) device.getConnectionTasks().get(0);
         ComTaskEnablement comTaskEnablement = createMockedComTaskEnablement(true);
         ComTaskExecution.ComTaskExecutionBuilder comTaskExecutionBuilder = device.getComTaskExecutionBuilder(comTaskEnablement);
         comTaskExecutionBuilder.setConnectionTask(connectionTask);
@@ -458,7 +428,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void setConnectionTaskOnUpdaterTest() {
         Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "BuilderTest", "BuilderTest");
-        ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device);
+        ScheduledConnectionTaskImpl connectionTask =(ScheduledConnectionTaskImpl) device.getConnectionTasks().get(0);
         ComTaskEnablement comTaskEnablement = createMockedComTaskEnablement(true);
         ComTaskExecution.ComTaskExecutionBuilder comTaskExecutionBuilder = device.getComTaskExecutionBuilder(comTaskEnablement);
         ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
@@ -477,7 +447,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void setConnectionTaskOnUpdaterSetsUseDefaultToFalseTest() {
         Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "BuilderTest", "BuilderTest");
-        ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device);
+        ScheduledConnectionTaskImpl connectionTask =(ScheduledConnectionTaskImpl) device.getConnectionTasks().get(0);
         ComTaskEnablement comTaskEnablement = createMockedComTaskEnablement(true);
         ComTaskExecution.ComTaskExecutionBuilder comTaskExecutionBuilder = device.getComTaskExecutionBuilder(comTaskEnablement);
         ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
@@ -497,7 +467,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
     public void setUseDefaultOnUpdaterClearsConnectionTaskTest() {
         boolean useDefaultTrue = true;
         Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "BuilderTest", "BuilderTest");
-        ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device);
+        ScheduledConnectionTaskImpl connectionTask =(ScheduledConnectionTaskImpl) device.getConnectionTasks().get(0);
         ComTaskEnablement comTaskEnablement = createMockedComTaskEnablement(true);
         ComTaskExecution.ComTaskExecutionBuilder comTaskExecutionBuilder = device.getComTaskExecutionBuilder(comTaskEnablement);
         comTaskExecutionBuilder.setUseDefaultConnectionTask(false);
@@ -784,7 +754,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
         OutboundComPort outboundComPort = createOutboundComPort();
         ComServer comServer = outboundComPort.getComServer();
         Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "ObsoleteTest", "ObsoleteTest");
-        ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device);
+        ScheduledConnectionTaskImpl connectionTask =(ScheduledConnectionTaskImpl) device.getConnectionTasks().get(0);
         ComTaskEnablement comTaskEnablement = createMockedComTaskEnablement(true);
         ComTaskExecution.ComTaskExecutionBuilder comTaskExecutionBuilder = device.getComTaskExecutionBuilder(comTaskEnablement);
         comTaskExecutionBuilder.setConnectionTask(connectionTask);
@@ -807,7 +777,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
         comTaskExecutionBuilder.setUseDefaultConnectionTask(true);
         ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         device.save();
-        ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device);
+        ScheduledConnectionTaskImpl connectionTask =(ScheduledConnectionTaskImpl) device.getConnectionTasks().get(0);
         inMemoryPersistence.getDeviceDataService().setDefaultConnectionTask(connectionTask);
 
         InMemoryIntegrationPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set comserver = " + comServer.getId() + "where id = " + connectionTask.getId());
@@ -903,7 +873,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
         ComTaskEnablement comTaskEnablement = createMockedComTaskEnablement(true);
         Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations");
         ComTaskExecution.ComTaskExecutionBuilder comTaskExecutionBuilder = device.getComTaskExecutionBuilder(comTaskEnablement);
-        ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device);
+        ScheduledConnectionTaskImpl connectionTask =(ScheduledConnectionTaskImpl) device.getConnectionTasks().get(0);
         comTaskExecutionBuilder.setConnectionTask(connectionTask);
         ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         device.save();
@@ -922,7 +892,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
         ComTaskEnablement comTaskEnablement = createMockedComTaskEnablement(true);
         Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations");
         ComTaskExecution.ComTaskExecutionBuilder comTaskExecutionBuilder = device.getComTaskExecutionBuilder(comTaskEnablement);
-        ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device);
+        ScheduledConnectionTaskImpl connectionTask =(ScheduledConnectionTaskImpl) device.getConnectionTasks().get(0);
         comTaskExecutionBuilder.setConnectionTask(connectionTask);
         ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         device.save();
@@ -940,7 +910,7 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
         ComTaskEnablement comTaskEnablement = createMockedComTaskEnablement(true);
         Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations");
         ComTaskExecution.ComTaskExecutionBuilder comTaskExecutionBuilder = device.getComTaskExecutionBuilder(comTaskEnablement);
-        ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device);
+        ScheduledConnectionTaskImpl connectionTask =(ScheduledConnectionTaskImpl) device.getConnectionTasks().get(0);
         comTaskExecutionBuilder.setConnectionTask(connectionTask);
         ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         device.save();
@@ -1084,9 +1054,12 @@ public class ComTaskExecutionImplTest extends PersistenceIntegrationTest {
         TemporalExpression myTemporalExpression = new TemporalExpression(TimeDuration.hours(1));
         ComTaskEnablement comTaskEnablement = createMockedComTaskEnablement(true);
         Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "TimeChecks", "TimeChecks");
-        ScheduledConnectionTaskImpl connectionTask = createMinimizeOneDayConnectionStandardTask(device);
+        ScheduledConnectionTask scheduledConnectionTask = device.getScheduledConnectionTasks().get(0);
+        scheduledConnectionTask.setConnectionStrategy(ConnectionStrategy.MINIMIZE_CONNECTIONS);
+        scheduledConnectionTask.setNextExecutionSpecsFrom(new TemporalExpression(TimeDuration.days(1)));
+        scheduledConnectionTask.save();
         ComTaskExecution.ComTaskExecutionBuilder comTaskExecutionBuilder = device.getComTaskExecutionBuilder(comTaskEnablement);
-        comTaskExecutionBuilder.setConnectionTask(connectionTask);
+        comTaskExecutionBuilder.setConnectionTask(scheduledConnectionTask);
         comTaskExecutionBuilder.createNextExecutionSpec(myTemporalExpression);
         ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         device.save();
