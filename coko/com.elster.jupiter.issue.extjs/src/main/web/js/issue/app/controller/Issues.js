@@ -259,15 +259,16 @@ Ext.define('Isu.controller.Issues', {
                     groupingField = groupStore.getAt(0);
                 }
             }
+            groupingGrid.on('itemclick', this.changeGroup, this);
             if (groupingField) {
                 selectionModel.select(groupingField);
                 groupingInfo.update('<h3>Issues for reason: ' + groupingField.get('reason') + '</h3>');
                 groupingInfo.show();
+                groupingGrid.fireEvent('itemclick', groupingGrid, groupingField );
             } else {
                 this.getIssuesList().hide();
                 this.getItemPanel().hide();
             }
-            groupingGrid.on('itemclick', this.changeGroup, this, {single: true});
             groupPanel.show();
         }
     },
