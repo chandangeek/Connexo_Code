@@ -173,6 +173,10 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
         if (response.status == 400) {
             responseText = Ext.decode(response.responseText, true);
             if (responseText && responseText.errors) {
+                Ext.Array.each(responseText.errors, function (item) {
+                    (item.id == 'schedulingInterPollDelay') && (item.id = 'schedulingInterPollDelay[count]');
+                    (item.id == 'changesInterPollDelay') && (item.id = 'changesInterPollDelay[count]');
+                });
                 basicForm.markInvalid(responseText.errors);
                 formErrorsPanel.show();
             }
