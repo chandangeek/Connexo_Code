@@ -175,9 +175,8 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
 
         DiffList<IValidationRule> entryDiff = ArrayDiffList.fromOriginal(loadRules());
         entryDiff.clear();
-        if (rules != null) {
-            entryDiff.addAll(rules);
-        }
+        entryDiff.addAll(doGetRules());
+
         for (IValidationRule rule : entryDiff.getRemovals()) {
             rule.delete();
         }
@@ -258,7 +257,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     @Override
     public IValidationRule addRule(ValidationAction action, String implementation, String name) {
         ValidationRuleImpl newRule = ValidationRuleImpl.from(dataModel, this, action, implementation, doGetRules().size() + 1, name);
-        rules.add(newRule);
+        doGetRules().add(newRule);
         return newRule;
     }
 
