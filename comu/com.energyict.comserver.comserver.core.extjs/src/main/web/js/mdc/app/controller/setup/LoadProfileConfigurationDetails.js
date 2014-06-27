@@ -185,7 +185,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                         method: 'POST',
                         jsonData: jsonValues,
                         success: function () {
-                            me.handleSuccessRequest('Successfully created');
+                            me.handleSuccessRequest('Load profile configuration saved');
                             router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').forward(router.routeparams);
                         },
 //                        failure: function (response) {

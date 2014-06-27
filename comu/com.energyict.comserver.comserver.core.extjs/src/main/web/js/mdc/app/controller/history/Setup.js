@@ -520,6 +520,28 @@ Ext.define('Mdc.controller.history.Setup', {
                             route: '{id}',
                             controller: 'Mdc.controller.setup.ComPortPools',
                             action: 'showEditView'
+                        },
+                        detail: {
+                            title: 'Detail',
+                            route: '{id}',
+                            controller: 'Mdc.controller.setup.ComPortPoolOverview',
+                            action: 'showOverview',
+                            redirect: 'administration/comportpools/detail/overview',
+                            callback: function (route) {
+                                this.getApplication().on('comPortPoolOverviewLoad', function (record) {
+                                    route.setTitle(record.get('name'));
+                                    return true;
+                                }, {single: true});
+                                return this;
+                            },
+                            items: {
+                                overview: {
+                                    title: 'Overview',
+                                    route: 'overview',
+                                    controller: 'Mdc.controller.setup.ComPortPoolOverview',
+                                    action: 'showOverview'
+                                }
+                            }
                         }
                     }
                 },

@@ -53,8 +53,7 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
 
     chooseAction : function (menu, item) {
         var me = this,
-            record = menu.record,
-            form = this.getComPortPoolPreview().down('form');
+            record = menu.record;
 
         switch (item.action) {
             case 'edit':
@@ -120,7 +119,7 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
                 page.setLoading(false);
                 if (operation.response.status == 204) {
                     me.getComPortPoolGrid().getStore().loadPage(1);
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comportpool.deleteSuccess.msg', 'MDC', 'Communication port pool has been deleted'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comportpool.deleteSuccess.msg', 'MDC', 'Communication port pool removed'));
                 }
             }
         });

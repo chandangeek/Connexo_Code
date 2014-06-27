@@ -262,7 +262,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             jsonData: sendingData,
             success: function () {
                 window.location.href = '#/administration/communicationtasks';
-                self.getApplication().fireEvent('acknowledge', 'Successfully created');
+                self.getApplication().fireEvent('acknowledge', 'Communication task saved');
                 self.commands = [];
             },
             failure: function (response) {

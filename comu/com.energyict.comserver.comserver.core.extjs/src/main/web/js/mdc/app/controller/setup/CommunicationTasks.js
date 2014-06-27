@@ -418,7 +418,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         var me = this,
             record = Ext.create(Mdc.model.CommunicationTaskConfig);
         me.updateRecord(record, values, Ext.apply({
-            successMessage: Uni.I18n.translate('communicationtasks.created', 'MDC', 'Communication task successfully created')
+            successMessage: Uni.I18n.translate('communicationtasks.created', 'MDC', 'Communication task saved')
         }, cfg));
     },
 
