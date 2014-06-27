@@ -374,7 +374,7 @@ Ext.define('Mdc.controller.setup.Properties', {
             var restoreAllButtons = Ext.ComponentQuery.query('defaultButton');
             if (restoreAllButtons != null) {
                 restoreAllButtons.forEach(function (restoreButton) {
-                    if (restoreButton.isVisible()) {
+                    if (!restoreButton.isHidden()) {
                         me.getRestoreAllButton().enable();
                     }
                 })
@@ -664,7 +664,7 @@ Ext.define('Mdc.controller.setup.Properties', {
         var restoreAllButtons = Ext.ComponentQuery.query('defaultButton');
         if (restoreAllButtons != null) {
             restoreAllButtons.forEach(function (restoreButton) {
-                if (restoreButton.isVisible()) {
+                if (!restoreButton.isHidden()) {
                     me.restoreDefaultProperty(restoreButton);
                 }
             })

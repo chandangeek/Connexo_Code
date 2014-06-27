@@ -320,7 +320,15 @@ Ext.define('Mdc.controller.history.Setup', {
                                                             title: 'Edit protocol dialect',
                                                             route: '{protocolDialectId}/edit',
                                                             controller: 'Mdc.controller.setup.ProtocolDialects',
-                                                            action: 'showProtocolDialectsEditView'
+                                                            action: 'showProtocolDialectsEditView',
+                                                            callback: function (route) {
+                                                                this.getApplication().on('loadProtocolDialect', function (record) {
+                                                                    route.setTitle('Edit \'' + record.get('name') + '\'');
+                                                                    return true;
+                                                                }, {single: true});
+
+                                                                return this;
+                                                            }
                                                         }
                                                     }
                                                 },
@@ -450,6 +458,12 @@ Ext.define('Mdc.controller.history.Setup', {
                                     route: 'overview',
                                     controller: 'Mdc.controller.setup.ComServerOverview',
                                     action: 'showOverview'
+                                },
+                                comports: {
+                                    title: 'Communication ports',
+                                    route: 'comports',
+                                    controller: 'Mdc.controller.setup.ComServerComPortsView',
+                                    action: 'showView'
                                 }
                             }
                         }
@@ -468,7 +482,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showDeviceCommunicationProtocolEditView',
                             callback: function (route) {
                                 this.getApplication().on('loadDeviceCommunicationProtocol', function (record) {
-                                    route.setTitle('Edit "' + record.get('name') + '"');
+                                    route.setTitle('Edit \'' + record.get('name') + '\'');
                                     return true;
                                 }, {single: true});
 
@@ -653,7 +667,15 @@ Ext.define('Mdc.controller.history.Setup', {
                                     title: 'Edit protocol dialect',
                                     route: '{protocolDialectId}/edit',
                                     controller: 'Mdc.controller.setup.DeviceProtocolDialects',
-                                    action: 'showProtocolDialectsEditView'
+                                    action: 'showProtocolDialectsEditView',
+                                    callback: function (route) {
+                                        this.getApplication().on('loadDeviceProtocolDialect', function (record) {
+                                            route.setTitle('Edit \'' + record.get('name') + '\'');
+                                            return true;
+                                        }, {single: true});
+
+                                        return this;
+                                    }
                                 }
                             }
                         },
