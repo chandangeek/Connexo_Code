@@ -8,9 +8,7 @@ import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
-import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.LocalEvent;
-import com.elster.jupiter.events.impl.EventServiceImpl;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.events.impl.LocalEventImpl;
 import com.elster.jupiter.ids.impl.IdsModule;
@@ -145,12 +143,12 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
             protected void doPerform() {
                 when(subscriber.getClasses()).thenReturn(new Class[]{LocalEventImpl.class});
                 ((PublisherImpl) injector.getInstance(Publisher.class)).addHandler(subscriber);
-            	MeteringServiceImpl meteringService = (MeteringServiceImpl) getMeteringService();
+                MeteringServiceImpl meteringService = (MeteringServiceImpl) getMeteringService();
                 DataModel dataModel = meteringService.getDataModel();
                 Date date = new DateMidnight(2001, 1, 1).toDate();
                 String code = EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode();
                 EndDeviceEventTypeImpl eventType = meteringService.createEndDeviceEventType(code);
-               
+
                 AmrSystem amrSystem = getMeteringService().findAmrSystem(1).get();
                 EndDevice endDevice = amrSystem.newEndDevice("amrID", "mRID");
                 endDevice.save();
@@ -164,7 +162,6 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
                 LocalEvent localEvent = localEventCapture.getAllValues().get(1);
                 Assertions.assertThat(localEvent.getType().getTopic()).isEqualTo(EventType.END_DEVICE_EVENT_CREATED.topic());
                 Event event = localEvent.toOsgiEvent();
-                Assertions.assertThat(event.containsProperty("MRID")).isTrue();
                 Assertions.assertThat(event.containsProperty("endDeviceId")).isTrue();
                 Assertions.assertThat(event.containsProperty("endDeviceEventType")).isTrue();
                 Assertions.assertThat(event.containsProperty("eventTimestamp")).isTrue();
@@ -179,7 +176,7 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
         getTransactionService().execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
-            	MeteringServiceImpl meteringService = (MeteringServiceImpl) getMeteringService();
+                MeteringServiceImpl meteringService = (MeteringServiceImpl) getMeteringService();
                 DataModel dataModel = meteringService.getDataModel();
                 Date date = new DateMidnight(2001, 1, 1).toDate();
                 String code = EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode();
@@ -236,9 +233,9 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
     }
 
     EndDeviceEventRecordImpl createEndDeviceEvent() {
-    	return new EndDeviceEventRecordImpl(dataModel, null);
+        return new EndDeviceEventRecordImpl(dataModel, null);
     }
-    
+
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
         return ImmutableList.of(
