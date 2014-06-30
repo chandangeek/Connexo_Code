@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.energyict.mdc.device.data.exceptions.MessageSeeds;
+
 import javax.validation.Constraint;
 import javax.validation.Payload;
 import java.lang.annotation.ElementType;
@@ -17,10 +19,10 @@ import java.lang.annotation.Target;
  */
 @Target({ ElementType.TYPE, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = { ComPortPoolValidator.class })
-public @interface ComPortPoolValid {
+@Constraint(validatedBy = { ComPortPoolIsCompatibleWithConnectionTypeValidator.class })
+public @interface ComPortPoolIsCompatibleWithConnectionType {
 
-    String message() default "";
+    String message() default "{" + MessageSeeds.Constants.COMPORT_TYPE_NOT_SUPPORTED_KEY + "}";
 
     Class<?>[] groups() default { };
 

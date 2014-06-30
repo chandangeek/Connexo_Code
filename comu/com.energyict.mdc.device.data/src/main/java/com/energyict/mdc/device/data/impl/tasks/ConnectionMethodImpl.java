@@ -24,6 +24,7 @@ import com.energyict.mdc.dynamic.relation.Relation;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.dynamic.relation.RelationType;
+import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -43,6 +44,7 @@ import static com.energyict.mdc.protocol.pluggable.ConnectionTypePropertyRelatio
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-05-31 (08:54)
  */
+@ComPortPoolIsCompatibleWithConnectionType(groups = {Save.Create.class, Save.Update.class})
 public class ConnectionMethodImpl extends IdPluggableClassUsageImpl<ConnectionMethod, ConnectionType, ConnectionTaskProperty>
         implements
             ConnectionMethod,
@@ -51,6 +53,8 @@ public class ConnectionMethodImpl extends IdPluggableClassUsageImpl<ConnectionMe
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.CONNECTION_METHOD_PLUGGABLE_CLASS_REQUIRED_KEY + "}")
     private ConnectionTypePluggableClass pluggableClass;
     private Reference<ConnectionTask<?,?>> connectionTask = ValueReference.absent();
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.CONNECTION_METHOD_COMPORT_POOL_REQUIRED_KEY + "}")
+    private Reference<ComPortPool> comPortPool = ValueReference.absent();
 
     private ProtocolPluggableService protocolPluggableService;
 
@@ -60,10 +64,11 @@ public class ConnectionMethodImpl extends IdPluggableClassUsageImpl<ConnectionMe
         this.protocolPluggableService = protocolPluggableService;
     }
 
-    public ConnectionMethodImpl initialize (ConnectionTask connectionTask, ConnectionTypePluggableClass pluggableClass) {
+    public ConnectionMethodImpl initialize (ConnectionTask connectionTask, ConnectionTypePluggableClass pluggableClass, ComPortPool comPortPool) {
         this.connectionTask.set(connectionTask);
         this.pluggableClass = pluggableClass;
         this.setPluggableClassId(pluggableClass.getId());
+        this.comPortPool.set(comPortPool);
         return this;
     }
 
@@ -178,4 +183,20 @@ public class ConnectionMethodImpl extends IdPluggableClassUsageImpl<ConnectionMe
     public boolean allowsSimultaneousConnections() {
         return this.getPluggableClass().getConnectionType().allowsSimultaneousConnections();
     }
+
+    @Override
+    public ComPortPool getComPortPool() {
+        return this.comPortPool.get();
+    }
+
+    @Override
+    public boolean hasComPortPool() {
+        return this.comPortPool.isPresent();
+    }
+
+    @Override
+    public void setComPortPool(ComPortPool comPortPool) {
+        this.comPortPool.set(comPortPool);
+    }
+
 }

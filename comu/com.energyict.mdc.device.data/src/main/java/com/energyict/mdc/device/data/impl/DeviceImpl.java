@@ -24,7 +24,19 @@ import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.LogBookSpec;
+import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
+import com.energyict.mdc.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.CommunicationTopologyEntry;
 import com.energyict.mdc.device.data.DefaultSystemTimeZoneFactory;
@@ -58,6 +70,7 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
@@ -210,21 +223,6 @@ public class DeviceImpl implements Device {
             for (ConnectionTaskImpl<?, ?> connectionTask : connectionTasks) {
                 connectionTask.save();
             }
-        } else {
-            createAllConnectionTasksBasedOnPartials();
-        }
-    }
-
-    private void createAllConnectionTasksBasedOnPartials() {
-        if(this.getConnectionTasks()== null || this.getConnectionTasks().size()==0){
-            List<PartialInboundConnectionTask> inboundPartialConnectionTasks = this.getDeviceConfiguration().getPartialInboundConnectionTasks();
-            for (PartialInboundConnectionTask inboundPartialConnectionTask : inboundPartialConnectionTasks) {
-                this.getInboundConnectionTaskBuilder(inboundPartialConnectionTask).add().save();
-            }
-            List<PartialScheduledConnectionTask> partialOutboundConnectionTasks = this.getDeviceConfiguration().getPartialOutboundConnectionTasks();
-            for (PartialScheduledConnectionTask partialOutboundConnectionTask : partialOutboundConnectionTasks) {
-                this.getScheduledConnectionTaskBuilder(partialOutboundConnectionTask).add().save();
-            }
         }
     }
 
@@ -338,7 +336,6 @@ public class DeviceImpl implements Device {
         this.mRID = mRID;
         createLoadProfiles();
         createLogBooks();
-        createAllConnectionTasksBasedOnPartials();
         return this;
     }
 
@@ -1014,11 +1011,13 @@ public class DeviceImpl implements Device {
         this.mRID = externalName;
     }
 
-    private ScheduledConnectionTaskBuilder getScheduledConnectionTaskBuilder(PartialOutboundConnectionTask partialOutboundConnectionTask) {
+    @Override
+    public ScheduledConnectionTaskBuilder getScheduledConnectionTaskBuilder(PartialOutboundConnectionTask partialOutboundConnectionTask) {
         return new ScheduledConnectionTaskBuilderForDevice(this, partialOutboundConnectionTask);
     }
 
-    private InboundConnectionTaskBuilder getInboundConnectionTaskBuilder(PartialInboundConnectionTask partialInboundConnectionTask) {
+    @Override
+    public InboundConnectionTaskBuilder getInboundConnectionTaskBuilder(PartialInboundConnectionTask partialInboundConnectionTask) {
         return new InboundConnectionTaskBuilderForDevice(this, partialInboundConnectionTask);
     }
 
@@ -1290,9 +1289,6 @@ public class DeviceImpl implements Device {
         private ScheduledConnectionTaskBuilderForDevice(Device device, PartialOutboundConnectionTask partialOutboundConnectionTask) {
             this.scheduledConnectionTask = scheduledConnectionTaskProvider.get();
             this.scheduledConnectionTask.initialize(device, (PartialScheduledConnectionTask) partialOutboundConnectionTask, partialOutboundConnectionTask.getComPortPool());
-            if(((PartialScheduledConnectionTask) partialOutboundConnectionTask).getCommunicationWindow()!=null){
-                this.setCommunicationWindow(((PartialScheduledConnectionTask) partialOutboundConnectionTask).getCommunicationWindow());
-            }
             if (partialOutboundConnectionTask.getNextExecutionSpecs() != null) {
                 this.scheduledConnectionTask.setNextExecutionSpecsFrom(partialOutboundConnectionTask.getNextExecutionSpecs().getTemporalExpression());
             }
@@ -1410,50 +1406,6 @@ public class DeviceImpl implements Device {
                 return date1.compareTo(date2);
             }
         }
-    }
-
-    /**
-     * Builder that support basic value setters for a ScheduledConnectionTask
-     */
-    interface ScheduledConnectionTaskBuilder {
-
-        ScheduledConnectionTaskBuilder setCommunicationWindow(ComWindow communicationWindow);
-
-        ScheduledConnectionTaskBuilder setComPortPool(OutboundComPortPool comPortPool);
-
-        ScheduledConnectionTaskBuilder setConnectionStrategy(ConnectionStrategy connectionStrategy);
-
-        ScheduledConnectionTaskBuilder setInitiatorTask(ConnectionInitiationTask connectionInitiationTask);
-
-        ScheduledConnectionTaskBuilder setNextExecutionSpecsFrom(TemporalExpression temporalExpression);
-
-        ScheduledConnectionTaskBuilder setProperty(String propertyName, Object value);
-
-        ScheduledConnectionTaskBuilder setSimultaneousConnectionsAllowed(boolean allowSimultaneousConnections);
-
-        /**
-         * Creates the actual ScheduledConnectionTask with the objects set in this builder
-         *
-         * @return the newly created ScheduledConnectionTask
-         */
-        ScheduledConnectionTask add();
-    }
-
-    /**
-     * Builder that supports basic value setters for an InboundConnectionTask
-     */
-    interface InboundConnectionTaskBuilder {
-
-        InboundConnectionTaskBuilder setComPortPool(InboundComPortPool comPortPool);
-
-        InboundConnectionTaskBuilder setProperty(String propertyName, Object value);
-
-        /**
-         * Creates the actual InboundConnectionTask with the objects set in this builder
-         *
-         * @return the newly created InboundConnectionTask
-         */
-        InboundConnectionTask add();
     }
 
 }

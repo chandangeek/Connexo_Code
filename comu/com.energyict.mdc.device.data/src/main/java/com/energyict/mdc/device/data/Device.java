@@ -261,6 +261,22 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     BaseChannel getChannel(String name);
 
     /**
+     * Provides a builder that allows the creation of a ScheduledConnectionTask for the Device
+     *
+     * @param partialOutboundConnectionTask the partialConnectionTask that will model the actual ScheduledConnectionTask
+     * @return the builder
+     */
+    ScheduledConnectionTaskBuilder getScheduledConnectionTaskBuilder(PartialOutboundConnectionTask partialOutboundConnectionTask);
+
+    /**
+     * Provides a builder that allows the creation of an InboundConnectionTask for the Device
+     *
+     * @param partialInboundConnectionTask the partialConnectionTask that will model the actual InboundConnectionTask
+     * @return the builder
+     */
+    InboundConnectionTaskBuilder getInboundConnectionTaskBuilder(PartialInboundConnectionTask partialInboundConnectionTask);
+
+    /**
      * Provides a builder that allows the creation of a ConnectionInitiationTask for the Device
      *
      * @param partialConnectionInitiationTask the partialConnectionTask that will model the actual ConnectionInitiationTask
@@ -315,7 +331,49 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      */
     boolean hasSecurityProperties(SecurityPropertySet securityPropertySet);
 
+    /**
+     * Builder that support basic value setters for a ScheduledConnectionTask
+     */
+    interface ScheduledConnectionTaskBuilder {
 
+        ScheduledConnectionTaskBuilder setCommunicationWindow(ComWindow communicationWindow);
+
+        ScheduledConnectionTaskBuilder setComPortPool(OutboundComPortPool comPortPool);
+
+        ScheduledConnectionTaskBuilder setConnectionStrategy(ConnectionStrategy connectionStrategy);
+
+        ScheduledConnectionTaskBuilder setInitiatorTask(ConnectionInitiationTask connectionInitiationTask);
+
+        ScheduledConnectionTaskBuilder setNextExecutionSpecsFrom(TemporalExpression temporalExpression);
+
+        ScheduledConnectionTaskBuilder setProperty(String propertyName, Object value);
+
+        ScheduledConnectionTaskBuilder setSimultaneousConnectionsAllowed(boolean allowSimultaneousConnections);
+
+        /**
+         * Creates the actual ScheduledConnectionTask with the objects set in this builder
+         *
+         * @return the newly created ScheduledConnectionTask
+         */
+        ScheduledConnectionTask add();
+    }
+
+    /**
+     * Builder that supports basic value setters for an InboundConnectionTask
+     */
+    interface InboundConnectionTaskBuilder {
+
+        InboundConnectionTaskBuilder setComPortPool(InboundComPortPool comPortPool);
+
+        InboundConnectionTaskBuilder setProperty(String propertyName, Object value);
+
+        /**
+         * Creates the actual InboundConnectionTask with the objects set in this builder
+         *
+         * @return the newly created InboundConnectionTask
+         */
+        InboundConnectionTask add();
+    }
 
     interface ConnectionInitiationTaskBuilder {
 

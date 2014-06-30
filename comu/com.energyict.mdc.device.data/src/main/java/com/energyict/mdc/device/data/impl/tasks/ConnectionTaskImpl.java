@@ -59,7 +59,6 @@ import static com.elster.jupiter.util.Checks.is;
  */
 @XmlRootElement
 @HasValidProperties(groups = {Save.Create.class, Save.Update.class})
-@ComPortPoolValid(groups = {Save.Create.class, Save.Update.class})
 public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPPT extends ComPortPool>
         extends PersistentIdObject<ConnectionTask>
         implements ConnectionTask<CPPT, PCTT> {
@@ -79,13 +78,13 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED_KEY + "}")
     private Reference<PCTT> partialConnectionTask = ValueReference.absent();
     private boolean isDefault = false;
-    private boolean paused = true;
+    private boolean paused = false;
     private Date obsoleteDate;
     private Date lastCommunicationStart;
     private Date lastSuccessfulCommunicationEnd;
     private Reference<ConnectionMethod> connectionMethod = ValueReference.absent();
     // Redundant copy of the ConnectionMethod's com port pool for query purposes to avoid extra join
-  //  @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED_KEY + "}")
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED_KEY + "}")
     private Reference<CPPT> comPortPool = ValueReference.absent();
     private Reference<ComServer> comServer = ValueReference.absent();
     private Date modificationDate;
@@ -110,7 +109,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         this.validateSameConfiguration(partialConnectionTask, device);
         this.partialConnectionTask.set(partialConnectionTask);
         this.comPortPool.set(comPortPool);
-        this.connectionMethod.set(this.connectionMethodProvider.get().initialize(this, partialConnectionTask.getPluggableClass()));
+        this.connectionMethod.set(this.connectionMethodProvider.get().initialize(this, partialConnectionTask.getPluggableClass(), comPortPool));
     }
 
     private void validatePartialConnectionTaskType(PCTT partialConnectionTask) {
@@ -322,12 +321,13 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     @Override
     public CPPT getComPortPool() {
-        return this.comPortPool.orNull();
+        return this.comPortPool.get();
     }
 
     @Override
     public void setComPortPool(CPPT comPortPool) {
         this.comPortPool.set(comPortPool);
+        this.getConnectionMethod().setComPortPool(comPortPool);
     }
 
     @Override

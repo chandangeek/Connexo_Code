@@ -134,7 +134,7 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
 
         // Business method
         connectionInitiationTask.save();
-        connectionInitiationTask.resume();
+
         // Expected BusinessException because the ComPortType of the ComPortPool is not supported by the ConnectionType
     }
 

@@ -288,6 +288,16 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         }
     }
 
+    private static OutboundComPortPool createOutboundIpComPortPool(String name) {
+        OutboundComPortPool ipComPortPool = inMemoryPersistence.getEngineModelService().newOutboundComPortPool();
+        ipComPortPool.setActive(true);
+        ipComPortPool.setComPortType(ComPortType.TCP);
+        ipComPortPool.setName(name);
+        ipComPortPool.setTaskExecutionTimeout(new TimeDuration(1, TimeDuration.MINUTES));
+        ipComPortPool.save();
+        return ipComPortPool;
+    }
+
     private static OutboundComPortPool createOutboundModemComPortPool(String name) {
         OutboundComPortPool modemComPortPool = inMemoryPersistence.getEngineModelService().newOutboundComPortPool();
         modemComPortPool.setActive(true);
