@@ -16,4 +16,5 @@ public final class RequestHelper {
     public static final String STATUS = "status";
     public static final String METER = "meter";
     public static final String FIELD = "field";
+    public static final String ME = "me";
 }
