@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.Status;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
@@ -75,6 +76,7 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
     private final List<EndDeviceEventDetailRecord> detailRecords = new ArrayList<>();
 
     private final DataModel dataModel;
+    private final EventService eventService;
 
     @Override
     public boolean equals(Object o) {
@@ -194,6 +196,7 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
     @Override
     public void save() {
         dataModel.mapper(EndDeviceEventRecord.class).persist(this);
+        eventService.postEvent(EventType.END_DEVICE_EVENT_CREATED.topic(), this);
     }
 
     @Override
@@ -264,8 +267,9 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
     }
 
     @Inject
-    EndDeviceEventRecordImpl(DataModel dataModel) {
+    EndDeviceEventRecordImpl(DataModel dataModel, EventService eventService) {
         this.dataModel = dataModel;
+        this.eventService = eventService;
     }
 
     @Override

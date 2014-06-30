@@ -89,6 +89,38 @@ public enum EventType {
                     .withProperty("readingQualityTypeCode", ValueType.STRING, "typeCode")
                     .create().save();
         }
+    },
+    END_DEVICE_EVENT_CREATED("enddeviceevent/CREATED") {
+        @Override
+        public void install(EventService eventService) {
+            eventService.buildEventTypeWithTopic(topic())
+                    .name(name())
+                    .component(MeteringService.COMPONENTNAME)
+                    .category("Crud")
+                    .scope("System")
+                    .shouldPublish()
+                    .withProperty("endDeviceId", ValueType.LONG, "endDevice.id")
+                    .withProperty("endDeviceEventType", ValueType.STRING, "eventTypeCode")
+                    .withProperty("eventTimestamp", ValueType.LONG, "createdDateTime.time")
+                    .create().save();
+
+        }
+    },
+    END_DEVICE_EVENT_UPDATED("enddeviceevent/UPDATED") {
+        @Override
+        public void install(EventService eventService) {
+            eventService.buildEventTypeWithTopic(topic())
+                    .name(name())
+                    .component(MeteringService.COMPONENTNAME)
+                    .category("Crud")
+                    .scope("System")
+                    .shouldPublish()
+                    .withProperty("endDeviceId", ValueType.LONG, "endDevice.id")
+                    .withProperty("endDeviceEventType", ValueType.STRING, "eventTypeCode")
+                    .withProperty("eventTimestamp", ValueType.LONG, "createdDateTime.time")
+                    .create().save();
+
+        }
     };
 
     private static final String NAMESPACE = "com/elster/jupiter/metering/";

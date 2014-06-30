@@ -8,7 +8,11 @@ import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.events.impl.EventServiceImpl;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.events.impl.LocalEventImpl;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.AmrSystem;
@@ -20,7 +24,10 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.pubsub.Publisher;
+import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.pubsub.impl.PublisherImpl;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
@@ -33,15 +40,18 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.assertj.core.api.Assertions;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 
 import java.security.Principal;
@@ -51,8 +61,7 @@ import java.util.Date;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.guava.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EndDeviceEventRecordImplTest extends EqualsContractTest {
@@ -79,6 +88,8 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
     private EndDeviceEventType endDeviceEventType, endDeviceEventType2;
     @Mock
     private DataModel dataModel;
+    @Mock
+    private Subscriber subscriber;
 
 
     private class MockModule extends AbstractModule {
@@ -132,6 +143,8 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
         getTransactionService().execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
+                when(subscriber.getClasses()).thenReturn(new Class[]{LocalEventImpl.class});
+                ((PublisherImpl) injector.getInstance(Publisher.class)).addHandler(subscriber);
             	MeteringServiceImpl meteringService = (MeteringServiceImpl) getMeteringService();
                 DataModel dataModel = meteringService.getDataModel();
                 Date date = new DateMidnight(2001, 1, 1).toDate();
@@ -145,6 +158,16 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
                 endDeviceEventRecord.save();
 
                 assertThat(dataModel.mapper(EndDeviceEventRecord.class).getOptional(endDevice.getId(), eventType.getMRID(), date)).contains(endDeviceEventRecord);
+                ArgumentCaptor<LocalEvent> localEventCapture = ArgumentCaptor.forClass(LocalEvent.class);
+                verify(subscriber, times(2)).handle(localEventCapture.capture());
+
+                LocalEvent localEvent = localEventCapture.getAllValues().get(1);
+                Assertions.assertThat(localEvent.getType().getTopic()).isEqualTo(EventType.END_DEVICE_EVENT_CREATED.topic());
+                Event event = localEvent.toOsgiEvent();
+                Assertions.assertThat(event.containsProperty("MRID")).isTrue();
+                Assertions.assertThat(event.containsProperty("endDeviceId")).isTrue();
+                Assertions.assertThat(event.containsProperty("endDeviceEventType")).isTrue();
+                Assertions.assertThat(event.containsProperty("eventTimestamp")).isTrue();
             }
         });
 
@@ -200,7 +223,7 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
             when(endDevice2.getId()).thenReturn(END_DEVICE_ID + 1);
             when(endDeviceEventType.getMRID()).thenReturn("A");
             when(endDeviceEventType2.getMRID()).thenReturn("B");
-            instanceA = new EndDeviceEventRecordImpl(dataModel).init(endDevice, endDeviceEventType, new DateTime(2013, 12, 17, 14, 41, 0).toDate());
+            instanceA = new EndDeviceEventRecordImpl(dataModel, null).init(endDevice, endDeviceEventType, new DateTime(2013, 12, 17, 14, 41, 0).toDate());
         }
         return instanceA;
     }
@@ -208,12 +231,12 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
     @Override
     protected Object getInstanceEqualToA() {
         DataModel dataModel = mock(DataModel.class);
-        when(dataModel.getInstance(EndDeviceEventRecordImpl.class)).thenReturn(new EndDeviceEventRecordImpl(dataModel));
-        return new EndDeviceEventRecordImpl(dataModel).init(endDevice, endDeviceEventType, new DateTime(2013, 12, 17, 14, 41, 0).toDate());
+        when(dataModel.getInstance(EndDeviceEventRecordImpl.class)).thenReturn(new EndDeviceEventRecordImpl(dataModel, null));
+        return new EndDeviceEventRecordImpl(dataModel, null).init(endDevice, endDeviceEventType, new DateTime(2013, 12, 17, 14, 41, 0).toDate());
     }
 
     EndDeviceEventRecordImpl createEndDeviceEvent() {
-    	return new EndDeviceEventRecordImpl(dataModel);
+    	return new EndDeviceEventRecordImpl(dataModel, null);
     }
     
     @Override

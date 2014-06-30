@@ -285,6 +285,11 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
         return dataModel.mapper(EndDeviceEventType.class).find();
     }
 
+    @Override
+    public Optional<EndDeviceEventType> getEndDeviceEventType(String mRID) {
+        return dataModel.mapper(EndDeviceEventType.class).getOptional(mRID);
+    }
+
     public Clock getClock() {
         return clock;
     }

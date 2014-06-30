@@ -61,4 +61,6 @@ public interface MeteringService {
     Optional<EndDevice> findEndDevice(long id);
 
     List<EndDeviceEventType> getAvailableEndDeviceEventTypes();
+
+    Optional<EndDeviceEventType> getEndDeviceEventType(String mRID);
 }

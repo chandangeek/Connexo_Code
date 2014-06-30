@@ -124,7 +124,13 @@ public class MeterReadingStorer {
             }
         }
         getEventMapper().persist(toCreate);
+        for (EndDeviceEventRecord endDeviceEventRecord : toCreate) {
+            eventService.postEvent(EventType.END_DEVICE_EVENT_CREATED.topic(), endDeviceEventRecord);
+        }
         getEventMapper().update(toUpdate);
+        for (EndDeviceEventRecord endDeviceEventRecord : toUpdate) {
+            eventService.postEvent(EventType.END_DEVICE_EVENT_UPDATED.topic(), endDeviceEventRecord);
+        }
     }
 
     private DataMapper<EndDeviceEventRecord> getEventMapper() {

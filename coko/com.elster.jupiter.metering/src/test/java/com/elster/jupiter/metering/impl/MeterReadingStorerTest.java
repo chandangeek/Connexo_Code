@@ -30,6 +30,8 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -70,7 +72,7 @@ public class MeterReadingStorerTest {
         when(deviceEventFactory.get()).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new EndDeviceEventRecordImpl(dataModel);
+                return new EndDeviceEventRecordImpl(dataModel, null);
             }
         });
         when(endDeviceEventTypeFactory.getOptional(EVENTTYPECODE)).thenReturn(Optional.of(eventType));
@@ -84,7 +86,7 @@ public class MeterReadingStorerTest {
     }
 
     @Test
-    public void testMeterReadingStorer() {
+    public void testMeterReadingStorerOfNewEndDeviceEvent() {
         MeterReadingImpl meterReading = new MeterReadingImpl();
         EndDeviceEventImpl endDeviceEvent = new EndDeviceEventImpl(EVENTTYPECODE, DATE);
         HashMap<String, String> eventData = new HashMap<>();
@@ -105,10 +107,15 @@ public class MeterReadingStorerTest {
         assertThat(actual.getEventType()).isEqualTo(eventType);
         assertThat(actual.getCreatedDateTime()).isEqualTo(DATE);
         assertThat(actual.getProperties()).contains(entry("A", "B"));
+
+        ArgumentCaptor<EndDeviceEventRecordImpl> argumentCaptor = ArgumentCaptor.forClass(EndDeviceEventRecordImpl.class);
+        verify(eventService).postEvent(eq(EventType.END_DEVICE_EVENT_CREATED.topic()), argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue()).isEqualTo(actual);
+        verify(eventService).postEvent(eq(EventType.METERREADING_CREATED.topic()), anyObject());
     }
 
     @Test
-    public void testMeterReadingStorerStoresSameDataAgain() {
+    public void testMeterReadingStorerOfExistingEndDeviceEvent() {
         when(eventRecordFactory.getOptional(METER_ID, EVENTTYPECODE, DATE)).thenReturn(Optional.of(existing));
 
         MeterReadingImpl meterReading = new MeterReadingImpl();
@@ -129,6 +136,12 @@ public class MeterReadingStorerTest {
         assertThat(actual.getEventType()).isEqualTo(eventType);
         assertThat(actual.getCreatedDateTime()).isEqualTo(DATE);
         assertThat(actual.getProperties()).contains(entry("A", "B"));
+
+
+        ArgumentCaptor<EndDeviceEventRecordImpl> argumentCaptor = ArgumentCaptor.forClass(EndDeviceEventRecordImpl.class);
+        verify(eventService).postEvent(eq(EventType.END_DEVICE_EVENT_UPDATED.topic()), argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue()).isEqualTo(actual);
+        verify(eventService).postEvent(eq(EventType.METERREADING_CREATED.topic()), anyObject());
 
     }
 
