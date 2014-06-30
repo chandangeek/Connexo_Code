@@ -71,8 +71,13 @@ Ext.define('Isu.controller.Issues', {
         }
     ],
 
+    assignToMe: false,
+
     init: function () {
         this.control({
+            'issues-overview': {
+                afterrender: this.checkAssignee
+            },
             'issues-overview issues-list': {
                 select: this.loadGridItemDetail
             },
@@ -121,13 +126,20 @@ Ext.define('Isu.controller.Issues', {
             'issues-side-filter filter-form combobox[name=meter]': {
                 render: this.setComboTooltip,
                 expand: this.limitNotification
-            },
-            'issues-side-filter button[action=assignedToMe]': {
-                click: this.assignedToMe
             }
         });
 
+        this.on('showIssuesAssignedOnMe', function () {
+            this.assignToMe = true;
+        }, this);
+
         this.gridItemModel = this.getModel('Isu.model.Issues');
+    },
+
+    checkAssignee: function () {
+        if (this.assignToMe) {
+            this.assignedToMe();
+        }
     },
 
     showOverview: function () {
@@ -285,7 +297,7 @@ Ext.define('Isu.controller.Issues', {
         if (newValue !== 'reason') {
             this.extraParamsModel.set('groupValue', null);
         }
-        if (previousGroup != store.getById(newValue) ){
+        if (previousGroup != store.getById(newValue)) {
             this.extraParamsModel.set('group', store.getById(newValue));
             this.refresh();
         }
@@ -437,18 +449,13 @@ Ext.define('Isu.controller.Issues', {
         var self = this,
             assignCombo = self.getIssueFilter().down('combobox[name=assignee]'),
             assignStore = assignCombo.getStore(),
-            currentUser,
-            currentUserIndex;
+            currentUser;
 
-        assignStore.load(function () {
-            currentUserIndex = assignStore.find('name', 'Me');
-
-            if (currentUserIndex != -1) {
-                currentUser = assignStore.getAt(currentUserIndex);
-
-                assignCombo.setValue(currentUser.get('idx'));
-                self.applyFilter();
-            }
-        });
+        assignStore.load({ params: {me: true}, callback: function () {
+            currentUser = assignStore.getAt(0);
+            assignCombo.setValue(currentUser.get('idx'));
+            self.applyFilter();
+            self.assignToMe = false;
+        }});
     }
 });

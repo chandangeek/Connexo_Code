@@ -30,12 +30,6 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
                     vertical: true
                 },
                 {
-                    xtype: 'button',
-                    ui: 'link',
-                    text: Uni.I18n.translate('general.title.assignedToMe', 'ISE', 'Assigned to me'),
-                    action: 'assignedToMe'
-                },
-                {
                     itemId: 'AssigneeFilter',
                     xtype: 'issues-assignee-combo',
                     name: 'assignee',

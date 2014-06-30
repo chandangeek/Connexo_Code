@@ -54,6 +54,8 @@ Ext.define('Isu.controller.Main', {
     },
 
     initMenu: function () {
+        var me = this;
+
         var workspaceItem = Ext.create('Uni.model.MenuItem', {
             text: 'Workspace',
             glyph: 'workspace',
@@ -72,7 +74,7 @@ Ext.define('Isu.controller.Main', {
 
         Uni.store.MenuItems.add(administrationItem);
 
-        var router = this.getController('Uni.controller.history.Router');
+        var router = me.getController('Uni.controller.history.Router');
         var datacollection = Ext.create('Uni.model.PortalItem', {
             title: 'Data collection',
             portal: 'workspace',
@@ -85,6 +87,13 @@ Ext.define('Isu.controller.Main', {
                 {
                     text: 'Issues',
                     href: router.getRoute('workspace/datacollection/issues').buildUrl()
+                },
+                {
+                    text: 'My open issues',
+                    handler: function () {
+                        router.getRoute('workspace/datacollection/issues').forward();
+                        me.getController('Isu.controller.Issues').fireEvent('showIssuesAssignedOnMe');
+                    }
                 }
             ]
         });
