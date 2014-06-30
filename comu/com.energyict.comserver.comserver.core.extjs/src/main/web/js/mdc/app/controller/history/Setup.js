@@ -459,6 +459,12 @@ Ext.define('Mdc.controller.history.Setup', {
                                     controller: 'Mdc.controller.setup.ComServerOverview',
                                     action: 'showOverview'
                                 },
+                                edit: {
+                                    title: 'Edit',
+                                    route: 'edit_',
+                                    controller: 'Mdc.controller.setup.ComServerEdit',
+                                    action: 'showEditView'
+                                },
                                 comports: {
                                     title: 'Communication ports',
                                     route: 'comports',
