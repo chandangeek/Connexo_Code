@@ -537,7 +537,6 @@ Ext.define('Cfg.controller.Validation', {
                     }
                     if (rulesCount > 0) {
                         rulesPanel.down('#addRuleLink').hide();
-                        rulesPanel.down('#ruleBulkAction').hide();
                         me.getRuleSetBrowsePanel().down('panel').add(rulesPanel);
                     } else {
                         me.createEmptyComponent();

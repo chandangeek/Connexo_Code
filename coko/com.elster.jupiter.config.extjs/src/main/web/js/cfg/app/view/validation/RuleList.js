@@ -85,11 +85,6 @@ Ext.define('Cfg.view.validation.RuleList', {
                         ui: 'action',
                         href: '#/administration/validation/rulesets/validationrules/' + me.ruleSetId + '/addRule/' + me.ruleSetId,
                         hrefTarget: '_self'
-                    },
-                    {
-                        text: Uni.I18n.translate('general.bulkAction', 'CFG', 'Bulk action'),
-                        itemId: 'ruleBulkAction',
-                        action: 'ruleBulkAction'
                     }
                 ]
             },

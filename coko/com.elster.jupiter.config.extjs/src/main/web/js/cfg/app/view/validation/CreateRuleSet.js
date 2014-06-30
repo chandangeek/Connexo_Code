@@ -49,6 +49,7 @@ Ext.define('Cfg.view.validation.CreateRuleSet', {
                         {
                             xtype: 'textfield',
                             name: 'name',
+                            itemId: 'addRuleSetName',
                             required: true,
                             allowBlank: false,
                             maxLength: 80,
@@ -60,6 +61,7 @@ Ext.define('Cfg.view.validation.CreateRuleSet', {
                         {
                             xtype: 'textarea',
                             name: 'description',
+                            itemId: 'addRuleSetDescription',
                             width: 600,
                             maxLength: 256,
                             height: 150,

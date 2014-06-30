@@ -23,7 +23,7 @@ Ext.define('Cfg.view.validation.RulePreviewContainer', {
                 items: [
                     {
                         xtype: 'preview-container',
-                        itenId: 'previewRuleContainer',
+                        itemId: 'previewRuleContainer',
                         grid: {
                             xtype: 'validationruleList',
                             ruleSetId: me.ruleSetId
