@@ -12,11 +12,7 @@ import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.rest.impl.comserver.ComPortPoolResource;
-import com.energyict.mdc.rest.impl.comserver.ComPortResource;
-import com.energyict.mdc.rest.impl.comserver.ComServerComPortResource;
-import com.energyict.mdc.rest.impl.comserver.ComServerResource;
-import com.energyict.mdc.rest.impl.comserver.Installer;
+import com.energyict.mdc.rest.impl.comserver.*;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
 import java.util.HashSet;
@@ -46,6 +42,7 @@ public class MdcApplication extends Application implements InstallService {
                 ComServerComPortResource.class,
                 ComPortResource.class,
                 ComPortPoolResource.class,
+                ComPortPoolComPortResource.class,
                 ComServerFieldResource.class);
     }
 

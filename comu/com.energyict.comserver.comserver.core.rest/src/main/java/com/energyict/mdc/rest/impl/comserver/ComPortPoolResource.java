@@ -10,6 +10,7 @@ import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -19,11 +20,13 @@ public class ComPortPoolResource {
 
     private final EngineModelService engineModelService;
     private final ProtocolPluggableService protocolPluggableService;
+    private final Provider<ComPortPoolComPortResource> comPortPoolComPortResourceProvider;
 
     @Inject
-    public ComPortPoolResource(EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService) {
+    public ComPortPoolResource(EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService, Provider<ComPortPoolComPortResource> comPortPoolComPortResourceProvider) {
         this.engineModelService = engineModelService;
         this.protocolPluggableService = protocolPluggableService;
+        this.comPortPoolComPortResourceProvider = comPortPoolComPortResourceProvider;
     }
 
     @GET
@@ -84,6 +87,11 @@ public class ComPortPoolResource {
         comPortPoolInfo.handlePools(comPortPool.get(), engineModelService);
         comPortPool.get().save();
         return ComPortPoolInfoFactory.asInfo(comPortPool.get(), engineModelService);
+    }
+
+    @Path("/{comPortPoolId}/comports")
+    public ComPortPoolComPortResource getComPortResource() {
+        return comPortPoolComPortResourceProvider.get();
     }
 
 }
