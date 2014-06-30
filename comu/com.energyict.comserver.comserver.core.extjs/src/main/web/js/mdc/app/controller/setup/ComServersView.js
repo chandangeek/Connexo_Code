@@ -25,6 +25,10 @@ Ext.define('Mdc.controller.setup.ComServersView', {
         {
             ref: 'comServerPreview',
             selector: 'comServersSetup comServerPreview'
+        },
+        {
+            ref: 'previewActionMenu',
+            selector: 'comServerPreview #comserverViewMenu'
         }
     ],
 
@@ -57,9 +61,10 @@ Ext.define('Mdc.controller.setup.ComServersView', {
 
     chooseAction: function (menu, item) {
         var me = this,
-            record = menu.record,
-            activeChange = 'notChanged',
             gridView = me.getComServerGrid().getView(),
+            record = gridView.getSelectionModel().getLastSelected(),
+            activeChange = 'notChanged',
+
             form = this.getComServerPreview().down('form');
 
         switch (item.action) {
@@ -85,6 +90,7 @@ Ext.define('Mdc.controller.setup.ComServersView', {
                         Uni.I18n.translate('comServer.changeState.deactivated', 'MDC', 'deactivated');
                     gridView.refresh();
                     form.loadRecord(model);
+                    me.getPreviewActionMenu().record = model;
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comServer.changeState.msg', 'MDC', 'Communication server ' + msg));
                 }
             });
