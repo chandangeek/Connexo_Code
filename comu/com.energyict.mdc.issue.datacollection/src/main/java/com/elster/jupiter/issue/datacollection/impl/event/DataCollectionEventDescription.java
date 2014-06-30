@@ -53,11 +53,9 @@ public enum DataCollectionEventDescription {
     }
 
     public static DataCollectionEventDescription getDescriptionByTopic(String topicName) {
-        if (topicName != null) {
-            for (DataCollectionEventDescription column : DataCollectionEventDescription.values()) {
-                if (column.topic.equalsIgnoreCase(topicName)) {
-                    return column;
-                }
+        for (DataCollectionEventDescription column : DataCollectionEventDescription.values()) {
+            if (column.topic.equalsIgnoreCase(topicName)) {
+                return column;
             }
         }
         return null;

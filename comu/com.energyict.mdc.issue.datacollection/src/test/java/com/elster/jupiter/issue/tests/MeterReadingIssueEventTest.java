@@ -69,7 +69,7 @@ public class MeterReadingIssueEventTest {
     
     private Meter meter;
     private String readingTypeCode;
-    
+
     private Injector injector;
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private ReadingType readingType;
@@ -122,7 +122,7 @@ public class MeterReadingIssueEventTest {
             injector.getInstance(InstallServiceImpl.class);
             ctx.commit();
         }
-        
+
         readingTypeCode = ReadingTypeCodeBuilder
                 .of(ELECTRICITY_SECONDARY_METERED)
                 .flow(FORWARD)
