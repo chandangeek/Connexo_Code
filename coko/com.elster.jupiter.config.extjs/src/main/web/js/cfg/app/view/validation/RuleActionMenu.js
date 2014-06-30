@@ -1,6 +1,6 @@
 Ext.define('Cfg.view.validation.RuleActionMenu', {
     extend: 'Ext.menu.Menu',
-    alias: 'widget.rule-action-menu',
+    alias: 'widget.validation-rule-action-menu',
     plain: true,
     border: false,
     itemId: 'rule-action-menu',

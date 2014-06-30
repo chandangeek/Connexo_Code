@@ -100,7 +100,7 @@ Ext.define('Cfg.controller.Validation', {
             'addRule combobox[itemId=validatorCombo]': {
                 change: this.updateProperties
             },
-            'rule-action-menu': {
+            'validation-rule-action-menu': {
                 click: this.chooseRuleAction
             },
             '#ruleGridMenu': {
@@ -617,22 +617,22 @@ Ext.define('Cfg.controller.Validation', {
         }
         itemForm.setTitle(record.get('name'));
         if (me.getRuleSetBrowsePanel()) {
-            me.getRulePreview().down('rule-action-menu').down('#deactivate').setText(Uni.I18n.translate('general.view', 'CFG', 'View'));
-            me.getRulePreview().down('rule-action-menu').down('#deactivate').action = 'view';
-            me.getRulePreview().down('rule-action-menu').record = record;
+            me.getRulePreview().down('validation-rule-action-menu').down('#deactivate').setText(Uni.I18n.translate('general.view', 'CFG', 'View'));
+            me.getRulePreview().down('validation-rule-action-menu').down('#deactivate').action = 'view';
+            me.getRulePreview().down('validation-rule-action-menu').record = record;
         } else if (me.getRulePreviewContainer()) {
-            itemForm.down('rule-action-menu').record = record;
+            itemForm.down('validation-rule-action-menu').record = record;
             if (!record.get('active')) {
-                if (me.getRulePreview() && me.getRulePreview().down('rule-action-menu')) {
-                    me.getRulePreview().down('rule-action-menu').down('#deactivate').setText(Uni.I18n.translate('general.activate', 'CFG', 'Activate'));
+                if (me.getRulePreview() && me.getRulePreview().down('validation-rule-action-menu')) {
+                    me.getRulePreview().down('validation-rule-action-menu').down('#deactivate').setText(Uni.I18n.translate('general.activate', 'CFG', 'Activate'));
                 } else {
-                    itemForm.down('rule-action-menu').down('#deactivate').setText(Uni.I18n.translate('general.activate', 'CFG', 'Activate'));
+                    itemForm.down('validation-rule-action-menu').down('#deactivate').setText(Uni.I18n.translate('general.activate', 'CFG', 'Activate'));
                 }
             } else {
-                if (me.getRulePreview() && me.getRulePreview().down('rule-action-menu')) {
-                    me.getRulePreview().down('rule-action-menu').down('#deactivate').setText(Uni.I18n.translate('general.deactivate', 'CFG', 'Deactivate'));
+                if (me.getRulePreview() && me.getRulePreview().down('validation-rule-action-menu')) {
+                    me.getRulePreview().down('validation-rule-action-menu').down('#deactivate').setText(Uni.I18n.translate('general.deactivate', 'CFG', 'Deactivate'));
                 } else {
-                    itemForm.down('rule-action-menu').down('#deactivate').setText(Uni.I18n.translate('general.deactivate', 'CFG', 'Deactivate'));
+                    itemForm.down('validation-rule-action-menu').down('#deactivate').setText(Uni.I18n.translate('general.deactivate', 'CFG', 'Deactivate'));
                 }
             }
         }
@@ -770,17 +770,17 @@ Ext.define('Cfg.controller.Validation', {
                     view.down('validation-rule-preview').loadRecord(record);
                     if (active) {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validation.deactivateRuleSuccess.msg', 'CFG', 'Validation rule deactivated'));
-                        if (me.getRulePreview() && me.getRulePreview().down('rule-action-menu')) {
-                            me.getRulePreview().down('rule-action-menu').down('#deactivate').setText(Uni.I18n.translate('general.activate', 'CFG', 'Activate'));
+                        if (me.getRulePreview() && me.getRulePreview().down('validation-rule-action-menu')) {
+                            me.getRulePreview().down('validation-rule-action-menu').down('#deactivate').setText(Uni.I18n.translate('general.activate', 'CFG', 'Activate'));
                         } else {
-                            view.down('validation-rule-preview').down('rule-action-menu').down('#deactivate').setText(Uni.I18n.translate('general.activate', 'CFG', 'Activate'));
+                            view.down('validation-rule-preview').down('validation-rule-action-menu').down('#deactivate').setText(Uni.I18n.translate('general.activate', 'CFG', 'Activate'));
                         }
                     } else {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validation.activateRuleSuccess.msg', 'CFG', 'Validation rule activated'));
-                        if (me.getRulePreview() && me.getRulePreview().down('rule-action-menu')) {
-                            me.getRulePreview().down('rule-action-menu').down('#deactivate').setText(Uni.I18n.translate('general.deactivate', 'CFG', 'Deactivate'));
+                        if (me.getRulePreview() && me.getRulePreview().down('validation-rule-action-menu')) {
+                            me.getRulePreview().down('validation-rule-action-menu').down('#deactivate').setText(Uni.I18n.translate('general.deactivate', 'CFG', 'Deactivate'));
                         } else {
-                            view.down('validation-rule-preview').down('rule-action-menu').down('#deactivate').setText(Uni.I18n.translate('general.deactivate', 'CFG', 'Deactivate'));
+                            view.down('validation-rule-preview').down('validation-rule-action-menu').down('#deactivate').setText(Uni.I18n.translate('general.deactivate', 'CFG', 'Deactivate'));
                         }
                     }
                 } else {
@@ -788,10 +788,10 @@ Ext.define('Cfg.controller.Validation', {
                     itemForm.loadRecord(record);
                     if (active) {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validation.deactivateRuleSuccess.msg', 'CFG', 'Validation rule deactivated'));
-                        view.down('rule-action-menu').down('#deactivate').setText(Uni.I18n.translate('general.activate', 'CFG', 'Activate'));
+                        view.down('validation-rule-action-menu').down('#deactivate').setText(Uni.I18n.translate('general.activate', 'CFG', 'Activate'));
                     } else {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validation.activateRuleSuccess.msg', 'CFG', 'Validation rule activated'));
-                        view.down('rule-action-menu').down('#deactivate').setText(Uni.I18n.translate('general.deactivate', 'CFG', 'Deactivate'));
+                        view.down('validation-rule-action-menu').down('#deactivate').setText(Uni.I18n.translate('general.deactivate', 'CFG', 'Deactivate'));
                     }
                 }
             },
@@ -981,7 +981,7 @@ Ext.define('Cfg.controller.Validation', {
                     }
                 });
                 itemForm.loadRecord(rule);
-                rulesContainerWidget.down('rule-action-menu').record = rule;
+                rulesContainerWidget.down('validation-rule-action-menu').record = rule;
                 rulesContainerWidget.down('#stepsRuleMenu').setTitle(rule.get('name'));
                 if (!Ext.isEmpty(rule.get('properties'))) {
                     if (rule.data.properties[0].name === 'maximum') {

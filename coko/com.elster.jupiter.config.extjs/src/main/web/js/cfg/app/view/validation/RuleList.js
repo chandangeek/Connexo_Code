@@ -61,7 +61,7 @@ Ext.define('Cfg.view.validation.RuleList', {
                 xtype: 'uni-actioncolumn',
                 menu: {
                     itemId: 'ruleGridMenu',
-                    xtype: 'rule-action-menu'
+                    xtype: 'validation-rule-action-menu'
                 }
             }
         ];

@@ -83,7 +83,7 @@ Ext.define('Cfg.view.validation.RuleOverview', {
                     iconCls: 'x-uni-action-iconD',
                     margin: '20 0 0 0',
                     menu: {
-                        xtype: 'rule-action-menu'
+                        xtype: 'validation-rule-action-menu'
                     }
                 }
             ]
