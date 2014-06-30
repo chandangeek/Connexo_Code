@@ -104,24 +104,24 @@ public class MeterReadingIssueEventTest extends BaseTest {
     
     @Test
     public void testComputeMaxSlopeForLimitedPeriod() {
-        DateTime dateTime = getCurrentDateTime();
+        DateTime now = getCurrentDateTime();
 
         MeterReadingImpl meterReading1 = new MeterReadingImpl();
-        dateTime.minusDays(2);// readings two days ago
+        DateTime twoDayAgo = now.minusDays(2);// readings 2 days ago
         IntervalBlockImpl block1 = new IntervalBlockImpl(readingTypeCode);
-        block1.addIntervalReading(new IntervalReadingImpl(dateTime.plusMinutes(0).toDate(), BigDecimal.valueOf(-100500)));
-        block1.addIntervalReading(new IntervalReadingImpl(dateTime.plusMinutes(15).toDate(), BigDecimal.valueOf(100500)));
+        block1.addIntervalReading(new IntervalReadingImpl(twoDayAgo.plusMinutes(0).toDate(), BigDecimal.valueOf(-100500)));
+        block1.addIntervalReading(new IntervalReadingImpl(twoDayAgo.plusMinutes(15).toDate(), BigDecimal.valueOf(100500)));
         meterReading1.addIntervalBlock(block1);
         meter.store(meterReading1);
 
         MeterReadingImpl meterReading2 = new MeterReadingImpl();
-        dateTime.minusHours(2);// readings 2 hour before
+        DateTime twoHoursBefore = now.minusHours(1);// readings 1 hour before
         IntervalBlockImpl block2 = new IntervalBlockImpl(readingTypeCode);
-        block2.addIntervalReading(new IntervalReadingImpl(dateTime.plusMinutes(0).toDate(), BigDecimal.valueOf(0)));
-        block2.addIntervalReading(new IntervalReadingImpl(dateTime.plusMinutes(15).toDate(), BigDecimal.valueOf(25)));
-        block2.addIntervalReading(new IntervalReadingImpl(dateTime.plusMinutes(30).toDate(), BigDecimal.valueOf(50)));
-        block2.addIntervalReading(new IntervalReadingImpl(dateTime.plusMinutes(45).toDate(), BigDecimal.valueOf(75)));
-        block2.addIntervalReading(new IntervalReadingImpl(dateTime.plusMinutes(60).toDate(), BigDecimal.valueOf(100)));
+        block2.addIntervalReading(new IntervalReadingImpl(twoHoursBefore.plusMinutes(0).toDate(), BigDecimal.valueOf(0)));
+        block2.addIntervalReading(new IntervalReadingImpl(twoHoursBefore.plusMinutes(15).toDate(), BigDecimal.valueOf(25)));
+        block2.addIntervalReading(new IntervalReadingImpl(twoHoursBefore.plusMinutes(30).toDate(), BigDecimal.valueOf(50)));
+        block2.addIntervalReading(new IntervalReadingImpl(twoHoursBefore.plusMinutes(45).toDate(), BigDecimal.valueOf(75)));
+        block2.addIntervalReading(new IntervalReadingImpl(twoHoursBefore.plusMinutes(60).toDate(), BigDecimal.valueOf(100)));
         meterReading2.addIntervalBlock(block2);
 
         meter.store(meterReading2);
