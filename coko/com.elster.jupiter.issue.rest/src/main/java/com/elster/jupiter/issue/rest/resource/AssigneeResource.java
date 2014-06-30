@@ -18,6 +18,8 @@ import javax.ws.rs.core.SecurityContext;
 import java.util.Collections;
 import java.util.List;
 
+import static com.elster.jupiter.issue.rest.i18n.MessageSeeds.ISSUE_ASSIGNEE_UNASSIGNED;
+import static com.elster.jupiter.issue.rest.i18n.MessageSeeds.getString;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.*;
 import static com.elster.jupiter.issue.rest.response.ResponseHelper.ok;
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -66,6 +68,11 @@ public class AssigneeResource extends BaseResource {
     public Response getAssignee(@PathParam(ID) long id, @QueryParam(ASSIGNEE_TYPE) String assigneeType){
         IssueAssignee assignee = getIssueService().findIssueAssignee(assigneeType, id);
         if (assignee == null) {
+            //Takes care of Unassigned issues which would have userId of "-1"
+            if (id < 0){
+                return ok(new IssueAssigneeInfo("UnexistingType", -1L, "Unassigned")).build();
+            }
+            //Not unassigned, so this user really doesn't exist
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
         return ok(new IssueAssigneeInfo(assignee)).build();
