@@ -29,9 +29,13 @@ public class BasicAuthentication implements Authentication {
             }
         }
         else {
-            if (authentication == null || request.getHeader("referer") != null){
+            if (request.getHeader("referer") != null){
                 return deny(response);
             }
+        }
+
+        if (authentication == null){
+            return deny(response);
         }
 
         Optional<User> user = userService.authenticateBase64(authentication.split(" ")[1]);
@@ -42,6 +46,7 @@ public class BasicAuthentication implements Authentication {
         request.setAttribute(HttpContext.AUTHENTICATION_TYPE, HttpServletRequest.BASIC_AUTH);
         request.setAttribute(WhiteBoardConfiguration.USERPRINCIPAL, user);
         request.setAttribute(HttpContext.REMOTE_USER, user.getName());
+        request.getSession(true).setAttribute("user", user);
         return true;
     }
 
