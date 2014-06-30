@@ -18,8 +18,6 @@ import javax.ws.rs.core.SecurityContext;
 import java.util.Collections;
 import java.util.List;
 
-import static com.elster.jupiter.issue.rest.i18n.MessageSeeds.ISSUE_ASSIGNEE_UNASSIGNED;
-import static com.elster.jupiter.issue.rest.i18n.MessageSeeds.getString;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.*;
 import static com.elster.jupiter.issue.rest.response.ResponseHelper.ok;
 import static com.elster.jupiter.util.conditions.Where.where;
