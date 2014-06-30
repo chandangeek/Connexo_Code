@@ -27,7 +27,7 @@ public class DataCollectionEvent extends AbstractEvent {
         Date start = getLastSuccessfulCommunicationEnd(concentrator);
         int numberOfEvents = 0;
         try {
-            numberOfEvents = taskHistoryService.countNumberOfCommunicationErrorsInGatewayTopology(getDescription().getErrorType(), concentrator, new Interval(start, null));
+            numberOfEvents = taskHistoryService.countNumberOfCommunicationErrorsInGatewayTopology(getDescription().getErrorType(), concentrator, Interval.startAt(start));
         } catch (RuntimeException ex){
             LOG.log(Level.WARNING, "Incorrect communication type for concentrator[id={0}]", concentrator.getId());
         }
