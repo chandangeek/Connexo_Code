@@ -10,7 +10,8 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigSetup', {
         'Mdc.view.setup.registerconfig.RegisterConfigFilter',
         'Mdc.view.setup.registerconfig.RegisterConfigPreview',
         'Uni.view.navigation.SubMenu',
-        'Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu'
+        'Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu',
+        'Mdc.view.setup.registerconfig.RegisterConfigAndRulesPreviewContainer'
     ],
 
     content: [
@@ -102,7 +103,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigSetup', {
                             ]
                         },
                         previewComponent: {
-                            xtype: 'registerConfigPreview',
+                            xtype: 'registerConfigAndRulesPreviewContainer',
                             deviceTypeId: this.deviceTypeId,
                             deviceConfigId: this.deviceConfigId
                         }
