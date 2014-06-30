@@ -17,9 +17,9 @@ import com.energyict.mdc.engine.model.InboundComPortPool;
  * @since 2012-04-02 (17:00)
  */
 @ComPortPoolTypeMatchesComPortType(groups = { Save.Create.class, Save.Update.class })
+@ActiveComPortHasInboundComPortPool(groups = { Save.Create.class, Save.Update.class })
 public abstract class InboundComPortImpl extends ComPortImpl implements ComPort, InboundComPort {
 
-    @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
     private final Reference<InboundComPortPool> comPortPool = ValueReference.absent();
 
     protected InboundComPortImpl(DataModel dataModel, Thesaurus thesaurus) {

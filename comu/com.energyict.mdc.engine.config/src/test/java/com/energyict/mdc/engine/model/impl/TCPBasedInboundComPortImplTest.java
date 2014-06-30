@@ -18,6 +18,7 @@ import org.mockito.Mock;
 
 import java.sql.SQLException;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
 
 /**
@@ -78,7 +79,7 @@ public class TCPBasedInboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "comPortPool")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_ACTIVE_INBOUND_COMPORT_MUST_HAVE_POOL+"}", property = "comPortPool")
     public void testCreateWithoutComPortPool() throws BusinessException, SQLException {
         createOnlineComServer().newTCPBasedInboundComPort(COMPORT_NAME, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, PORT_NUMBER)
                 .description(DESCRIPTION)
@@ -86,6 +87,48 @@ public class TCPBasedInboundComPortImplTest extends PersistenceTest {
                 .add();
 
         // Expecting an InvalidValueException to be thrown because the ComPortPool is not set
+    }
+
+    @Test
+    @Transactional
+    public void testCreateInActivePortWithoutComPortPool() throws BusinessException, SQLException {
+        TCPBasedInboundComPort tcpBasedInboundComPort = createOnlineComServer().newTCPBasedInboundComPort(COMPORT_NAME, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, PORT_NUMBER)
+                .description(DESCRIPTION)
+                .active(false)
+                .add();
+
+        assertThat(tcpBasedInboundComPort.isActive()).isFalse();
+        assertThat(tcpBasedInboundComPort.getComPortPool()).isNull();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_ACTIVE_INBOUND_COMPORT_MUST_HAVE_POOL+"}")
+    public void setPortActiveWithoutComPortPoolTest() {
+        TCPBasedInboundComPort tcpBasedInboundComPort = createOnlineComServer().newTCPBasedInboundComPort(COMPORT_NAME, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, PORT_NUMBER)
+                .description(DESCRIPTION)
+                .active(false)
+                .add();
+
+        tcpBasedInboundComPort.setActive(true);
+        tcpBasedInboundComPort.save();
+    }
+
+    @Test
+    @Transactional
+    public void setPortActiveWithComPortPoolTest() {
+        TCPBasedInboundComPort tcpBasedInboundComPort = createOnlineComServer().newTCPBasedInboundComPort(COMPORT_NAME, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, PORT_NUMBER)
+                .description(DESCRIPTION)
+                .active(false)
+                .add();
+
+        InboundComPortPool comPortPool = createComPortPool();
+        tcpBasedInboundComPort.setComPortPool(comPortPool);
+        tcpBasedInboundComPort.setActive(true);
+        tcpBasedInboundComPort.save();
+
+        assertThat(tcpBasedInboundComPort.isActive()).isTrue();
+        assertThat(tcpBasedInboundComPort.getComPortPool()).isEqualTo(comPortPool);
     }
 
     @Test

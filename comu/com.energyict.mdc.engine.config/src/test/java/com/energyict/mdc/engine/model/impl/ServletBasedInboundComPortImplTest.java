@@ -113,7 +113,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "comPortPool")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_ACTIVE_INBOUND_COMPORT_MUST_HAVE_POOL+"}", property = "comPortPool")
     @Transactional
     public void testCreateWithoutComPortPool() throws BusinessException, SQLException {
         createOnlineComServer().newServletBasedInboundComPort(COMPORT_NAME, CONTEXT_PATH, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, PORT_NUMBER)
@@ -128,6 +128,50 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
         // Expecting an TranslatableApplicationException to be thrown because the ComPortPool is not set
     }
 
+    @Test
+    @Transactional
+    public void testCreateInActivePortWithoutComPortPool() throws BusinessException, SQLException {
+        ServletBasedInboundComPort servletBasedInboundComPort = createOnlineComServer().newServletBasedInboundComPort(COMPORT_NAME, CONTEXT_PATH, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, PORT_NUMBER)
+                .https(true)
+                .description(DESCRIPTION)
+                .active(false)
+                .keyStoreSpecsFilePath(KEY_STORE_FILE_PATH)
+                .keyStoreSpecsPassword(KEY_STORE_PASSWORD)
+                .trustStoreSpecsFilePath(TRUST_STORE_FILE_PATH)
+                .trustStoreSpecsPassword(TRUST_STORE_PASSWORD).add();
+        assertThat(servletBasedInboundComPort.isActive()).isFalse();
+        assertThat(servletBasedInboundComPort.getComPortPool()).isNull();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_ACTIVE_INBOUND_COMPORT_MUST_HAVE_POOL+"}")
+    public void setPortActiveWithoutComPortPoolTest() {
+        ServletBasedInboundComPort servletBasedInboundComPort = createOnlineComServer().newServletBasedInboundComPort(COMPORT_NAME, CONTEXT_PATH, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, PORT_NUMBER)
+                .description(DESCRIPTION)
+                .active(false)
+                .add();
+
+        servletBasedInboundComPort.setActive(true);
+        servletBasedInboundComPort.save();
+    }
+
+    @Test
+    @Transactional
+    public void setPortActiveWithComPortPoolTest() {
+        ServletBasedInboundComPort servletBasedInboundComPort = createOnlineComServer().newServletBasedInboundComPort(COMPORT_NAME, CONTEXT_PATH, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, PORT_NUMBER)
+                .description(DESCRIPTION)
+                .active(false)
+                .add();
+
+        InboundComPortPool comPortPool = createComPortPool();
+        servletBasedInboundComPort.setComPortPool(comPortPool);
+        servletBasedInboundComPort.setActive(true);
+        servletBasedInboundComPort.save();
+
+        assertThat(servletBasedInboundComPort.isActive()).isTrue();
+        assertThat(servletBasedInboundComPort.getComPortPool()).isEqualTo(comPortPool);
+    }
     @Test
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_DUPLICATE_COM_PORT+"}", property = "name")
     @Transactional

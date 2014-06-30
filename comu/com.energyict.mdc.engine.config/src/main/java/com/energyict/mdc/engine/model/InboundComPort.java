@@ -1,7 +1,5 @@
 package com.energyict.mdc.engine.model;
 
-import com.google.common.base.Optional;
-
 /**
  * Models a {@link ComPort} that is dedicated to inbound communication.
  * Inbound ComPorts will wait for connection attempts against the port from a device.

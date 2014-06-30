@@ -14,6 +14,7 @@ public enum MessageSeeds implements MessageSeed {
     IS_ALREADY_OBSOLETE(7, Keys.MDC_IS_ALREADY_OBSOLETE, "Already obsolete", Level.SEVERE),
     NOT_UNIQUE(8, Keys.MDC_NOT_UNIQUE , "the element is not unique", Level.SEVERE),
     MUST_HAVE_DISCOVERY_PROTOCOL(9, Keys.DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_IS_MANDATORY_FOR_COMPORTPOOL, "Discovery protocol pluggable class is mandatory for comportpool", Level.SEVERE),
+    ACTIVE_INBOUND_PORT_MUST_HAVE_POOL(10, Keys.MDC_ACTIVE_INBOUND_COMPORT_MUST_HAVE_POOL, "An active inbound comport must have an inbound comportpool", Level.SEVERE),
 
     DUPLICATE_COMSERVER(101, Keys.MDC_DUPLICATE_COM_SERVER, "ComServer with name {value} already exists", Level.SEVERE),
     OBSOLETE_COMSERVER_CANT_BE_UPDATED(103, Keys.MDC_COMSERVER_NO_UPDATE_ALLOWED, "Obsolete ComServers can no longer be updated", Level.SEVERE),
@@ -82,6 +83,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String MDC_INVALID_URL = EngineModelService.COMPONENT_NAME+".InvalidURL";
         public static final String MDC_INVALID_CHARS = EngineModelService.COMPONENT_NAME+".InvalidChars";
         public static final String MDC_CAN_NOT_BE_EMPTY_IF_HTTPS = EngineModelService.COMPONENT_NAME+".CanNotBeEmptyIfHttps";
+        public static final String MDC_ACTIVE_INBOUND_COMPORT_MUST_HAVE_POOL = EngineModelService.COMPONENT_NAME+".activeInboundPortMustHavePool";
 
         public static final String MDC_DUPLICATE_COM_SERVER = EngineModelService.COMPONENT_NAME+".DuplicateComServer";
         public static final String MDC_COMSERVER_NO_UPDATE_ALLOWED = EngineModelService.COMPONENT_NAME+".comserver.noUpdateAllowed";

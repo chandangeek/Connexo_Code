@@ -161,7 +161,7 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "comPortPool")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_ACTIVE_INBOUND_COMPORT_MUST_HAVE_POOL+"}", property = "comPortPool")
     public void testCreateWithoutComPortPool() throws BusinessException, SQLException {
         ModemBasedInboundComPort comPort = createOnlineComServer().newModemBasedInboundComport(COMPORT_NAME, RING_COUNT, MAXIMUM_NUMBER_OF_DIAL_ERRORS,
                 CONNECT_TIMEOUT, AT_COMMAND_TIMEOUT, getSerialPortConfiguration(COMPORT_NAME))
@@ -171,6 +171,54 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
         .add();
 
         // Expecting an InvalidValueException to be thrown because the ComPortPool is not set
+    }
+
+    @Test
+    @Transactional
+    public void testCreateInActivePortWithoutComPortPool() throws BusinessException, SQLException {
+        ModemBasedInboundComPort modemBasedInboundComPort = createOnlineComServer().newModemBasedInboundComport(COMPORT_NAME, RING_COUNT, MAXIMUM_NUMBER_OF_DIAL_ERRORS,
+                CONNECT_TIMEOUT, AT_COMMAND_TIMEOUT, getSerialPortConfiguration(COMPORT_NAME))
+                .description(DESCRIPTION)
+                .active(false)
+                .atCommandTry(AT_COMMAND_TRY)
+                .add();
+
+        assertThat(modemBasedInboundComPort.isActive()).isFalse();
+        assertThat(modemBasedInboundComPort.getComPortPool()).isNull();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_ACTIVE_INBOUND_COMPORT_MUST_HAVE_POOL+"}")
+    public void setPortActiveWithoutComPortPoolTest() {
+        ModemBasedInboundComPort modemBasedInboundComPort = createOnlineComServer().newModemBasedInboundComport(COMPORT_NAME, RING_COUNT, MAXIMUM_NUMBER_OF_DIAL_ERRORS,
+                CONNECT_TIMEOUT, AT_COMMAND_TIMEOUT, getSerialPortConfiguration(COMPORT_NAME))
+                .description(DESCRIPTION)
+                .active(false)
+                .atCommandTry(AT_COMMAND_TRY)
+                .add();
+
+        modemBasedInboundComPort.setActive(true);
+        modemBasedInboundComPort.save();
+    }
+
+    @Test
+    @Transactional
+    public void setPortActiveWithComPortPoolTest() {
+        ModemBasedInboundComPort modemBasedInboundComPort = createOnlineComServer().newModemBasedInboundComport(COMPORT_NAME, RING_COUNT, MAXIMUM_NUMBER_OF_DIAL_ERRORS,
+                CONNECT_TIMEOUT, AT_COMMAND_TIMEOUT, getSerialPortConfiguration(COMPORT_NAME))
+                .description(DESCRIPTION)
+                .active(false)
+                .atCommandTry(AT_COMMAND_TRY)
+                .add();
+
+        InboundComPortPool comPortPool = createComPortPool();
+        modemBasedInboundComPort.setComPortPool(comPortPool);
+        modemBasedInboundComPort.setActive(true);
+        modemBasedInboundComPort.save();
+
+        assertThat(modemBasedInboundComPort.isActive()).isTrue();
+        assertThat(modemBasedInboundComPort.getComPortPool()).isEqualTo(comPortPool);
     }
 
     @Test

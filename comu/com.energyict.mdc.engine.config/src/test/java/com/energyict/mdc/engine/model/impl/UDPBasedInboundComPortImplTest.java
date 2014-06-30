@@ -11,14 +11,14 @@ import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.PersistenceTest;
 import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
-import java.sql.SQLException;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import java.sql.SQLException;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.*;
+
 
 /**
  * Test for the {@link UDPBasedInboundComPortImpl} object.
@@ -89,7 +89,7 @@ public class UDPBasedInboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "comPortPool")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_ACTIVE_INBOUND_COMPORT_MUST_HAVE_POOL+"}")
     public void testCreateWithoutComPortPool() throws BusinessException, SQLException {
         createOnlineComServer().newUDPBasedInboundComPort(COMPORT_NAME, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, PORT_NUMBER)
         .description(DESCRIPTION)
@@ -102,15 +102,47 @@ public class UDPBasedInboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "comPortPool")
-    public void testCreateWithOutboundComPortPool() throws BusinessException, SQLException {
-        createOnlineComServer().newUDPBasedInboundComPort(COMPORT_NAME, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, PORT_NUMBER)
-        .description(DESCRIPTION)
-        .active(ACTIVE)
-        .bufferSize(DATAGRAM_BUFFER_SIZE)
-        .add();
+    public void testCreateInActivePortWithoutComPortPool() throws BusinessException, SQLException {
+        UDPBasedInboundComPort udpBasedInboundComPort = createOnlineComServer().newUDPBasedInboundComPort(COMPORT_NAME, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, PORT_NUMBER)
+                .description(DESCRIPTION)
+                .active(false)
+                .bufferSize(DATAGRAM_BUFFER_SIZE)
+                .add();
 
-        // Expecting an TranslatableApplicationException to be thrown because the ComPortPool is not an InboundComPortPool
+        assertThat(udpBasedInboundComPort.isActive()).isFalse();
+        assertThat(udpBasedInboundComPort.getComPortPool()).isNull();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_ACTIVE_INBOUND_COMPORT_MUST_HAVE_POOL+"}")
+    public void setPortActiveWithoutComPortPoolTest() {
+        UDPBasedInboundComPort udpBasedInboundComPort = createOnlineComServer().newUDPBasedInboundComPort(COMPORT_NAME, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, PORT_NUMBER)
+                .description(DESCRIPTION)
+                .active(false)
+                .bufferSize(DATAGRAM_BUFFER_SIZE)
+                .add();
+
+        udpBasedInboundComPort.setActive(true);
+        udpBasedInboundComPort.save();
+    }
+
+    @Test
+    @Transactional
+    public void setPortActiveWithComPortPoolTest() {
+        UDPBasedInboundComPort udpBasedInboundComPort = createOnlineComServer().newUDPBasedInboundComPort(COMPORT_NAME, NUMBER_OF_SIMULTANEOUS_CONNECTIONS, PORT_NUMBER)
+                .description(DESCRIPTION)
+                .active(false)
+                .bufferSize(DATAGRAM_BUFFER_SIZE)
+                .add();
+
+        InboundComPortPool comPortPool = createComPortPool();
+        udpBasedInboundComPort.setComPortPool(comPortPool);
+        udpBasedInboundComPort.setActive(true);
+        udpBasedInboundComPort.save();
+
+        assertThat(udpBasedInboundComPort.isActive()).isTrue();
+        assertThat(udpBasedInboundComPort.getComPortPool()).isEqualTo(comPortPool);
     }
 
     @Test
