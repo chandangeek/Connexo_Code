@@ -40,13 +40,13 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                     fieldLabel: Uni.I18n.translate('general.formFieldLabel.name', 'MDC', 'Name'),
                     allowBlank: false,
                     required: true,
-                    anchor: '100%'
+                    width: 600
                 },
                 {
                     xtype: 'displayfield',
                     name: 'comServerTypeVisual',
                     fieldLabel: Uni.I18n.translate('comServer.formFieldLabel.serverType', 'MDC', 'Server type'),
-                    anchor: '100%',
+                    width: 600,
                     hidden: true
                 },
                 {
@@ -60,7 +60,8 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                     valueField: 'logLevel',
                     allowBlank: false,
                     required: true,
-                    anchor: '100%'
+                    width: 600
+
                 },
                 {
                     xtype: 'combobox',
@@ -73,13 +74,14 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                     valueField: 'logLevel',
                     allowBlank: false,
                     required: true,
-                    anchor: '100%'
+                    width: 600
                 },
                 {
                     xtype: 'fieldcontainer',
                     columnWidth: 0.5,
                     fieldLabel: Uni.I18n.translate('comServer.formFieldLabel.changesInterPollDelay', 'MDC', 'Changes inter poll delay'),
                     required: true,
+                    width: 600,
                     items: [
                         {
                             xtype: 'container',
@@ -122,6 +124,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                     columnWidth: 0.5,
                     fieldLabel: Uni.I18n.translate('comServer.formFieldLabel.schedulingInterPollDelay', 'MDC', 'Scheduling inter poll delay'),
                     required: true,
+                    width: 600,
                     items: [
                         {
                             xtype: 'container',
