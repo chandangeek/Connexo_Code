@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -29,14 +30,16 @@ public class DeviceConfigValidationRuleSetResolver implements ValidationRuleSetR
 
     @Override
     public List<ValidationRuleSet> resolve(MeterActivation meterActivation, Interval interval) {
-        if (meterActivation.getMeter().isPresent()) {
-            if (meterActivation.getMeter().get().getAmrSystem().getId() == 1) {
-                Device device = deviceDataService.findDeviceById(Long.valueOf(meterActivation.getMeter().get().getAmrId()));
-                if (device != null) {
-                    return device.getDeviceConfiguration().getValidationRuleSets();
-                }
+        if (hasMdcMeter(meterActivation)) {
+            Device device = deviceDataService.findDeviceById(Long.valueOf(meterActivation.getMeter().get().getAmrId()));
+            if (device != null) {
+                return device.getDeviceConfiguration().getValidationRuleSets();
             }
         }
         return Collections.emptyList();
+    }
+
+    private boolean hasMdcMeter(MeterActivation meterActivation) {
+        return meterActivation.getMeter().isPresent() && meterActivation.getMeter().get().getAmrSystem().is(KnownAmrSystem.MDC);
     }
 }
