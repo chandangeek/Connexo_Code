@@ -48,7 +48,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskSetup', {
                                         xtype: 'button',
                                         itemId: 'comtaskCreateActionButton',
                                         margin: '10 0 0 0',
-                                        text: Uni.I18n.translate('comtask.create', 'MDC', 'Create communication task'),
+                                        text: Uni.I18n.translate('comtask.create', 'MDC', 'Add communication task'),
                                         hrefTarget: '',
                                         href: '#/administration/communicationtasks/create'
                                     }

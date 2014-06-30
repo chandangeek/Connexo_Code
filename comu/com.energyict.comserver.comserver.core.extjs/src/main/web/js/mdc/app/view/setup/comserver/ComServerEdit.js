@@ -1,5 +1,8 @@
 Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
     extend: 'Uni.view.container.ContentContainer',
+    requires: [
+        'Mdc.view.setup.comserver.FieldContainerHelpMessage'
+    ],
     alias: 'widget.comServerEdit',
     itemId: 'comServerEdit',
 
@@ -37,13 +40,13 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                     fieldLabel: Uni.I18n.translate('general.formFieldLabel.name', 'MDC', 'Name'),
                     allowBlank: false,
                     required: true,
-                    anchor: '100%'
+                    width: 600
                 },
                 {
                     xtype: 'displayfield',
                     name: 'comServerTypeVisual',
                     fieldLabel: Uni.I18n.translate('comServer.formFieldLabel.serverType', 'MDC', 'Server type'),
-                    anchor: '100%',
+                    width: 600,
                     hidden: true
                 },
                 {
@@ -57,7 +60,8 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                     valueField: 'logLevel',
                     allowBlank: false,
                     required: true,
-                    anchor: '100%'
+                    width: 600
+
                 },
                 {
                     xtype: 'combobox',
@@ -70,39 +74,48 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                     valueField: 'logLevel',
                     allowBlank: false,
                     required: true,
-                    anchor: '100%'
+                    width: 600
                 },
                 {
                     xtype: 'fieldcontainer',
                     columnWidth: 0.5,
                     fieldLabel: Uni.I18n.translate('comServer.formFieldLabel.changesInterPollDelay', 'MDC', 'Changes inter poll delay'),
-                    afterSubTpl: Uni.I18n.translate('comServer.formFieldNote.minimalAcceptableDelayIs60Seconds', 'MDC', 'The minimal acceptable delay is 60 seconds'),
                     required: true,
-                    layout: {
-                        type: 'hbox',
-                        align: 'stretch'
-                    },
-                    defaults: {
-                        validateOnChange: false,
-                        validateOnBlur: false,
-                        allowBlank: false
-                    },
+                    width: 600,
                     items: [
                         {
-                            xtype: 'textfield',
-                            name: 'changesInterPollDelay[count]',
-                            width: 150,
-                            margin: '0 10 0 0'
+                            xtype: 'container',
+                            layout: {
+                                type: 'hbox',
+                                align: 'stretch'
+                            },
+                            defaults: {
+                                validateOnChange: false,
+                                validateOnBlur: false,
+                                allowBlank: false
+                            },
+                            items: [
+                                {
+                                    xtype: 'textfield',
+                                    name: 'changesInterPollDelay[count]',
+                                    width: 150,
+                                    margin: '0 10 0 0'
+                                },
+                                {
+                                    xtype: 'combobox',
+                                    name: 'changesInterPollDelay[timeUnit]',
+                                    store: 'Mdc.store.TimeUnitsWithoutMilliseconds',
+                                    queryMode: 'local',
+                                    editable: false,
+                                    displayField: 'timeUnit',
+                                    valueField: 'timeUnit',
+                                    flex: 1
+                                }
+                            ]
                         },
                         {
-                            xtype: 'combobox',
-                            name: 'changesInterPollDelay[timeUnit]',
-                            store: 'Mdc.store.TimeUnitsWithoutMilliseconds',
-                            queryMode: 'local',
-                            editable: false,
-                            displayField: 'timeUnit',
-                            valueField: 'timeUnit',
-                            flex: 1
+                            xtype: 'fieldContainerHelpMessage',
+                            text: Uni.I18n.translate('comServer.formFieldNote.minimalAcceptableDelayIs60Seconds', 'MDC', 'The minimal acceptable delay is 60 seconds')
                         }
                     ]
                 },
@@ -110,33 +123,42 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                     xtype: 'fieldcontainer',
                     columnWidth: 0.5,
                     fieldLabel: Uni.I18n.translate('comServer.formFieldLabel.schedulingInterPollDelay', 'MDC', 'Scheduling inter poll delay'),
-                    afterSubTpl: Uni.I18n.translate('comServer.formFieldNote.minimalAcceptableDelayIs60Seconds', 'MDC', 'The minimal acceptable delay is 60 seconds'),
                     required: true,
-                    layout: {
-                        type: 'hbox',
-                        align: 'stretch'
-                    },
-                    defaults: {
-                        validateOnChange: false,
-                        validateOnBlur: false,
-                        allowBlank: false
-                    },
+                    width: 600,
                     items: [
                         {
-                            xtype: 'textfield',
-                            name: 'schedulingInterPollDelay[count]',
-                            width: 150,
-                            margin: '0 10 0 0'
+                            xtype: 'container',
+                            layout: {
+                                type: 'hbox',
+                                align: 'stretch'
+                            },
+                            defaults: {
+                                validateOnChange: false,
+                                validateOnBlur: false,
+                                allowBlank: false
+                            },
+                            items: [
+                                {
+                                    xtype: 'textfield',
+                                    name: 'schedulingInterPollDelay[count]',
+                                    width: 150,
+                                    margin: '0 10 0 0'
+                                },
+                                {
+                                    xtype: 'combobox',
+                                    name: 'schedulingInterPollDelay[timeUnit]',
+                                    store: 'Mdc.store.TimeUnitsWithoutMilliseconds',
+                                    queryMode: 'local',
+                                    editable: false,
+                                    displayField: 'timeUnit',
+                                    valueField: 'timeUnit',
+                                    flex: 1
+                                }
+                            ]
                         },
                         {
-                            xtype: 'combobox',
-                            name: 'schedulingInterPollDelay[timeUnit]',
-                            store: 'Mdc.store.TimeUnitsWithoutMilliseconds',
-                            queryMode: 'local',
-                            editable: false,
-                            displayField: 'timeUnit',
-                            valueField: 'timeUnit',
-                            flex: 1
+                            xtype: 'fieldContainerHelpMessage',
+                            text: Uni.I18n.translate('comServer.formFieldNote.minimalAcceptableDelayIs60Seconds', 'MDC', 'The minimal acceptable delay is 60 seconds')
                         }
                     ]
                 },

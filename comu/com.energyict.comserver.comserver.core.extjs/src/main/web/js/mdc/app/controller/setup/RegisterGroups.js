@@ -264,7 +264,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
 
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('registerGroup.deleteRegisterGroup', 'MDC', 'The register group will no longer be available.'),
-            title: Uni.I18n.translate('general.delete', 'MDC', 'Delete') + ' ' + itemToRemove.get('name') + '?',
+            title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' ' + itemToRemove.get('name') + '?',
             config: {
                 registerGroupToDelete: itemToRemove
             },

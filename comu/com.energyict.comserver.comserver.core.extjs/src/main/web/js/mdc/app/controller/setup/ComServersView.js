@@ -85,7 +85,7 @@ Ext.define('Mdc.controller.setup.ComServersView', {
                         Uni.I18n.translate('comServer.changeState.deactivated', 'MDC', 'deactivated');
                     gridView.refresh();
                     form.loadRecord(model);
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comServer.changeState.msg', 'MDC', 'Communication server has been ' + msg));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comServer.changeState.msg', 'MDC', 'Communication server ' + msg));
                 }
             });
         }
@@ -122,8 +122,8 @@ Ext.define('Mdc.controller.setup.ComServersView', {
         var me = this;
 
         Ext.create('Uni.view.window.Confirmation').show({
-            msg: Uni.I18n.translate('comServer.deleteConfirmation.msg', 'MDC', 'This communication server will disappear from the list.'),
-            title: Ext.String.format(Uni.I18n.translate('comServer.deleteConfirmation.title', 'MDC', 'Delete communication server "{0}"?'), record.get('name')),
+            msg: Uni.I18n.translate('comServer.deleteConfirmation.msg', 'MDC', 'This communication server will no longer be available.'),
+            title: Ext.String.format(Uni.I18n.translate('comServer.deleteConfirmation.title', 'MDC', "Remove '{0}'?"), record.get('name')),
             fn: function (state) {
                 switch (state) {
                     case 'confirm':
@@ -140,15 +140,17 @@ Ext.define('Mdc.controller.setup.ComServersView', {
 
     deleteComserver: function (record) {
         var me = this,
-            page = me.getComServersView();
+            page = me.getComServersView(),
+            gridToolbarTop = me.getComServerGrid().down('pagingtoolbartop');
 
         page.setLoading(Uni.I18n.translate('general.removing', 'MDC', 'Removing...'));
         record.destroy({
             callback: function (model, operation) {
                 page.setLoading(false);
                 if (operation.wasSuccessful()) {
+                    gridToolbarTop.totalCount = 0;
                     me.getComServerGrid().getStore().loadPage(1);
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comServer.deleteSuccess.msg', 'MDC', 'Communication server has been deleted'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comServer.deleteSuccess.msg', 'MDC', 'Communication server removed'));
                 }
             }
         });

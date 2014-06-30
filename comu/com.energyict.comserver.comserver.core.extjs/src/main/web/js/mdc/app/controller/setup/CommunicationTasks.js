@@ -410,7 +410,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         var me = this,
             record = me.getCommunicationTaskEditForm().getRecord();
         me.updateRecord(record, values, Ext.apply({
-            successMessage: Uni.I18n.translate('communicationtasks.updated', 'MDC', 'Communication task successfully updated')
+            successMessage: Uni.I18n.translate('communicationtasks.updated', 'MDC', 'Communication task saved')
         }, cfg));
     },
 
@@ -418,7 +418,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         var me = this,
             record = Ext.create(Mdc.model.CommunicationTaskConfig);
         me.updateRecord(record, values, Ext.apply({
-            successMessage: Uni.I18n.translate('communicationtasks.created', 'MDC', 'Communication task successfully created')
+            successMessage: Uni.I18n.translate('communicationtasks.created', 'MDC', 'Communication task saved')
         }, cfg));
     },
 

@@ -173,7 +173,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
 
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('registerType.deleteRegisterType', 'MDC', 'The register type will no longer be available.'),
-            title: Uni.I18n.translate('general.delete', 'MDC', 'Delete') + ' ' + registerTypeToDelete.get('name') + '?',
+            title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' ' + registerTypeToDelete.get('name') + '?',
             config: {
                 registerTypeToDelete: registerTypeToDelete
             },

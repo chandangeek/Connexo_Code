@@ -323,13 +323,8 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
         if (array1.length != array2.length)
             return false;
 
-        for (var i = 0, l = this.length; i < l; i++) {
-            if (array1[i] instanceof Array && array2[i] instanceof Array) {
-
-                if (!array1[i].equals(array2[i]))
-                    return false;
-            }
-            else if (array1[i] != array2[i]) {
+        for (var i = 0, l = array1.length; i < l; i++) {
+            if (array1[i].id != array2[i].id) {
                 return false;
             }
         }
@@ -349,17 +344,25 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
                 me.store.load({ params: { available: true }, callback: function () {
                     var radiogroup = Ext.ComponentQuery.query('loadProfileTypesAddToDeviceTypeSetup radiogroup[name=allOrSelectedLoadProfileTypes]')[0],
                         grid = me.getAddLoadProfileTypesGrid(),
-                        // Not a good solution ( need to be replaced with opening web socked connection between server and web application )
+                        // Not a good solution ( need to be replaced with opening web socket connection between server and web application )
                         autoRefresherTask = {
                             run: function () {
+                                var addGrid = Ext.ComponentQuery.query('#loadProfileTypesAddToDeviceTypeGrid')[0];
                                 Ext.Ajax.request({
                                     url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/loadprofiletypes/',
                                     method: 'GET',
                                     params: { available: true },
                                     success: function (response) {
                                         if (!me.arrayComparator(Ext.Array.pluck(me.store.data.items, 'data'), Ext.decode(response.responseText, true).data)) {
-                                            if (grid) {
-                                                me.store.load({ params: { available: true }});
+                                            if (addGrid) {
+                                                var radioValue = radiogroup.getValue().loadProfileTypeRange;
+                                                me.store.load({ params: { available: true }, callback: function() {
+                                                    switch (radioValue) {
+                                                        case 'ALL':
+                                                            grid.getView().getSelectionModel().selectAll();
+                                                            break;
+                                                    }
+                                                }});
                                             } else {
                                                 Ext.TaskManager.stop(autoRefresherTask);
                                             }

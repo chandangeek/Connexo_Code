@@ -82,9 +82,6 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
                 var model = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
                 model.getProxy().setExtraParam('deviceType', deviceTypeId);
 
-                // Load the store in asynchronously.
-                me.getDeviceConfigValidationRuleSetsStore().load();
-
                 model.load(deviceConfigId, {
                     success: function (deviceConfig) {
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);

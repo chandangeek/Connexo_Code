@@ -53,8 +53,7 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
 
     chooseAction : function (menu, item) {
         var me = this,
-            record = menu.record,
-            form = this.getComPortPoolPreview().down('form');
+            record = menu.record;
 
         switch (item.action) {
             case 'edit':
@@ -96,7 +95,7 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
         var me = this;
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('comportpool.deleteConfirmation.msg', 'MDC', 'This communication port pool will disappear from the list.'),
-            title: Ext.String.format(Uni.I18n.translate('comportpool.deleteConfirmation.title', 'MDC', 'Delete communication port pool "{0}"?'), record.get('name')),
+            title: Ext.String.format(Uni.I18n.translate('comportpool.deleteConfirmation.title', 'MDC', 'Remove communication port pool "{0}"?'), record.get('name')),
             fn: function (state) {
                 switch (state) {
                     case 'confirm':
@@ -120,7 +119,7 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
                 page.setLoading(false);
                 if (operation.response.status == 204) {
                     me.getComPortPoolGrid().getStore().loadPage(1);
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comportpool.deleteSuccess.msg', 'MDC', 'Communication port pool has been deleted'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comportpool.deleteSuccess.msg', 'MDC', 'Communication port pool removed'));
                 }
             }
         });

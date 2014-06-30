@@ -101,13 +101,14 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectEdit', {
                                         itemId: 'addEditButton'
                                     },
                                     {
-                                        text: Uni.I18n.translate('general.restoreAll', 'MDC', 'Restore all defaults'),
+                                        text: Uni.I18n.translate('general.restoreAll', 'MDC', 'Restore to defaults'),
                                         xtype: 'button',
                                         itemId: 'restoreAllButton',
                                         action: 'restoreAll',
                                         //iconCls: 'x-uni-action-iconD',
                                         icon: '../mdc/resources/images/redo.png',
-                                        margin: '0 0 0 10'
+                                        margin: '0 0 0 10',
+                                        disabled: true
                                     },
                                     {
                                         text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),

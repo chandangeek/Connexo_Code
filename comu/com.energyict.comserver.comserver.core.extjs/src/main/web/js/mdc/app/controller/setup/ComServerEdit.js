@@ -148,14 +148,14 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
             case 'create':
                 switch (comServerType) {
                     case 'Online':
-                        messageText = Uni.I18n.translate('comServer.acknowledge.createSuccess', 'MDC', 'Online communication server has been created');
+                        messageText = Uni.I18n.translate('comServer.acknowledge.createSuccess', 'MDC', 'Online communication server added');
                         break;
                 }
                 break;
             case 'update':
                 switch (comServerType) {
                     case 'Online':
-                        messageText = Uni.I18n.translate('comServer.acknowledge.updateSuccess', 'MDC', 'Online communication server has been updated');
+                        messageText = Uni.I18n.translate('comServer.acknowledge.updateSuccess', 'MDC', 'Online communication server saved');
                         break;
                 }
                 break;
@@ -173,6 +173,10 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
         if (response.status == 400) {
             responseText = Ext.decode(response.responseText, true);
             if (responseText && responseText.errors) {
+                Ext.Array.each(responseText.errors, function (item) {
+                    (item.id == 'schedulingInterPollDelay') && (item.id = 'schedulingInterPollDelay[count]');
+                    (item.id == 'changesInterPollDelay') && (item.id = 'changesInterPollDelay[count]');
+                });
                 basicForm.markInvalid(responseText.errors);
                 formErrorsPanel.show();
             }

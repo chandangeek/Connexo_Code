@@ -191,7 +191,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                         method: 'POST',
                         jsonData: jsonValues,
                         success: function () {
-                            me.handleSuccessRequest('Successfully created');
+                            me.handleSuccessRequest('Load profile type saved');
                         },
 //                        failure: function (response) {
 //                            me.handleFailureRequest(response, 'Error during update', 'loadprofiletypenotificationerrorretry');
@@ -212,7 +212,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                         method: 'PUT',
                         jsonData: jsonValues,
                         success: function () {
-                            me.handleSuccessRequest('Successfully updated');
+                            me.handleSuccessRequest('Load profile type saved');
                         },
 //                        failure: function (response) {
 //                            me.handleFailureRequest(response, 'Error during update', 'loadprofiletypenotificationerrorretry');
