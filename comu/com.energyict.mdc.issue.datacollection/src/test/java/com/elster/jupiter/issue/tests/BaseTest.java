@@ -19,6 +19,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -37,6 +38,7 @@ import com.energyict.mdc.tasks.history.TaskHistoryService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -144,6 +146,9 @@ public class BaseTest {
     }
     protected TaskHistoryService getTaskHistoryService(){
         return injector.getInstance(TaskHistoryService.class);
+    }
+    protected OrmService getOrmService(){
+        return injector.getInstance(OrmService.class);
     }
     protected Thesaurus getThesaurus(){
         return injector.getInstance(Thesaurus.class);
