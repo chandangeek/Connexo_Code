@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataModel;
@@ -94,4 +95,8 @@ public class AmrSystemImpl implements AmrSystem {
 		}
 	}
 
+    @Override
+    public boolean is(KnownAmrSystem knownAmrSystem) {
+        return knownAmrSystem != null && knownAmrSystem.getId() == getId();
+    }
 }
