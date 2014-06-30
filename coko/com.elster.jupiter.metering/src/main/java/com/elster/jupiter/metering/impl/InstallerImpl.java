@@ -9,6 +9,7 @@ import com.elster.jupiter.cbo.MarketRoleKind;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.Vault;
+import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceKind;
@@ -137,8 +138,9 @@ public class InstallerImpl {
 
     private void createAmrSystems() {
         try {
-            meteringService.createAmrSystem(1, "MDC");
-            meteringService.createAmrSystem(2, "EnergyAxis");
+            for (KnownAmrSystem amrSystem : KnownAmrSystem.values()) {
+                meteringService.createAmrSystem(amrSystem.getId(), amrSystem.getName());
+            }
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error creating AMR System : " + e.getMessage(), e);
         }
