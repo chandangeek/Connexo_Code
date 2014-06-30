@@ -40,15 +40,16 @@ public class AssigneeFilterListInfo {
     }
 
 
-    public static AssigneeFilterListInfo defaults(User currentUser, Thesaurus thesaurus) {
+    public static AssigneeFilterListInfo defaults(User currentUser, Thesaurus thesaurus, Boolean findMe) {
         AssigneeFilterListInfo info = new AssigneeFilterListInfo();
-        // Adding 'Unassigned'
-        String unassignedText = getString(ISSUE_ASSIGNEE_UNASSIGNED, thesaurus);
-        info.data.add(new IssueAssigneeInfo("UnexistingType", -1L, unassignedText));
-        if (currentUser != null) {
+        if (currentUser != null && findMe) {
             // Adding 'Me'
             String meText = getString(ISSUE_ASSIGNEE_ME, thesaurus);
-            info.data.add(new IssueAssigneeInfo(IssueAssignee.Types.USER, currentUser.getId(), meText));
+            info.data.add(new IssueAssigneeInfo(IssueAssignee.Types.USER, currentUser.getId(), currentUser.getName()));
+        }  else {
+            // Adding 'Unassigned'
+            String unassignedText = getString(ISSUE_ASSIGNEE_UNASSIGNED, thesaurus);
+            info.data.add(new IssueAssigneeInfo("UnexistingType", -1L, unassignedText));
         }
         return info;
     }

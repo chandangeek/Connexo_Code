@@ -34,6 +34,8 @@ public class AssigneeResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON)
     public AssigneeFilterListInfo getAllAssignees(@BeanParam StandardParametersBean params, @Context SecurityContext securityContext) {
         String searchText = params.getFirst(LIKE);
+        Boolean findMe = Boolean.parseBoolean(params.getFirst(ME));
+
         if (searchText != null && !searchText.isEmpty()) {
             String dbSearchText = "%" + searchText + "%";
 
@@ -51,7 +53,7 @@ public class AssigneeResource extends BaseResource {
 
             return new AssigneeFilterListInfo(listTeam, listRole, listUsers);
         }
-        return AssigneeFilterListInfo.defaults((User)securityContext.getUserPrincipal(), getThesaurus());
+        return AssigneeFilterListInfo.defaults((User)securityContext.getUserPrincipal(), getThesaurus(), findMe);
     }
 
     /**
