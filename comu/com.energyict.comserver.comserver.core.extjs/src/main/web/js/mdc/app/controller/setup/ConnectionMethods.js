@@ -3,9 +3,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
     deviceTypeId: null,
     deviceConfigurationId: null,
     requires: [
-        'Mdc.store.ConnectionMethodsOfDeviceConfiguration',
-        'Mdc.controller.setup.Properties',
-        'Mdc.controller.setup.PropertiesView'
+        'Mdc.store.ConnectionMethodsOfDeviceConfiguration'
     ],
 
     views: [
@@ -133,16 +131,11 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
             this.getConnectionMethodPreview().setTitle(connectionMethodName);
             this.getConnectionMethodPreviewForm().loadRecord(connectionMethod[0]);
             this.getConnectionMethodPreview().down('#toggleDefaultMenuItem').setText(connectionMethod[0].get('isDefault') === true ? Uni.I18n.translate('connectionmethod.unsetAsDefault', 'MDC', 'Remove as default') : Uni.I18n.translate('connectionmethod.setAsDefault', 'MDC', 'Set as default'));
-            this.getPropertiesViewController().showProperties(connectionMethod[0], this.getConnectionMethodPreview());
+            this.getConnectionMethodPreview().down('property-form').loadRecord(connectionMethod[0]);
         } else {
             this.getConnectionMethodPreview().getLayout().setActiveItem(0);
         }
     },
-
-    getPropertiesViewController: function () {
-        return this.getController('Mdc.controller.setup.PropertiesView');
-    },
-
 
     addOutboundConnectionMethodHistory: function () {
         location.href = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/connectionmethods/addoutbound';
