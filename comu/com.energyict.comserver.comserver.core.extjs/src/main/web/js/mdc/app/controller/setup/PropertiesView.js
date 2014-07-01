@@ -1,3 +1,6 @@
+/**
+ * @deprecated
+ */
 Ext.define('Mdc.controller.setup.PropertiesView', {
     extend: 'Ext.app.Controller',
 

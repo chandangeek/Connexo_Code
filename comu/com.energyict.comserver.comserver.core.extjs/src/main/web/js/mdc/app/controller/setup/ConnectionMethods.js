@@ -231,7 +231,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
 
     addOutboundConnectionMethod: function () {
         var values = this.getConnectionMethodEditForm().getValues();
-        values.direction = 'Outbound'
+        values.direction = 'Outbound';
         this.addConnectionMethod(values);
 
     },
@@ -267,6 +267,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
 
     updateRecord: function (record, values) {
         var me = this;
+        var propertyForm = me.getConnectionMethodEditView().down('property-form');
         if (record) {
             record.set(values);
             if (values.connectionStrategy === 'asSoonAsPossible') {
@@ -276,7 +277,8 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                 record.set('comWindowStart', 0);
                 record.set('comWindowEnd', 0);
             }
-            record.propertiesStore = this.getPropertiesController().updateProperties();
+            propertyForm.updateRecord();
+            record.propertiesStore = propertyForm.getRecord().properties();
             record.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigurationId});
             record.save({
                 success: function (record) {
@@ -286,7 +288,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                     var json = Ext.decode(operation.response.responseText);
                     if (json && json.errors) {
                         me.getConnectionMethodEditForm().getForm().markInvalid(json.errors);
-                        me.getPropertiesController().showErrors(json.errors);
+                        me.getConnectionMethodEditView().down('property-form').getForm().markInvalid(json.errors);
                     }
                 }
             });
@@ -326,16 +328,15 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
 
     showConnectionTypeProperties: function (combobox, objList) {
         var objectWithProperties = this.getConnectionTypeComboBox().findRecordByValue(this.getConnectionTypeComboBox().getValue());
-        if (objectWithProperties.propertiesStore.data.items.length > 0) {
-            this.getConnectionMethodEditView().down('#connectionDetailsTitle').setVisible(true);
-        } else {
-            this.getConnectionMethodEditView().down('#connectionDetailsTitle').setVisible(false);
-        }
-        this.getPropertiesController().showProperties(objectWithProperties, this.getConnectionMethodEditView(), false);
-    },
+        var properties = objectWithProperties.properties();
+        var form = this.getConnectionMethodEditView().down('property-form');
 
-    getPropertiesController: function () {
-        return this.getController('Mdc.controller.setup.Properties');
+        if (properties.count()) {
+            form.loadRecord(objectWithProperties);
+            form.show();
+        } else {
+            form.hide();
+        }
     },
 
     showConnectionMethodEditView: function (deviceTypeId, deviceConfigId, connectionMethodId) {
@@ -402,7 +403,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                                                         } else {
                                                             widget.down('form').down('#activateComWindowCheckBox').setValue(true);
                                                         }
-                                                        me.getPropertiesController().showProperties(connectionMethod, me.getConnectionMethodEditView(), false);
+                                                        widget.down('property-form').loadRecord(connectionMethod);
                                                         widget.setLoading(false);
                                                     }
                                                 });
@@ -431,7 +432,8 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         if (connectionMethod.get('connectionStrategy') === 'asSoonAsPossible' || connectionMethod.get('direction') === 'Inbound') {
             connectionMethod.set('nextExecutionSpecs', null);
         }
-        this.getPropertiesController().updatePropertiesWithoutView(connectionMethod);
+
+//        this.getPropertiesController().updatePropertiesWithoutView(connectionMethod);
         connectionMethod.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigurationId});
         connectionMethod.save({
             callback: function () {

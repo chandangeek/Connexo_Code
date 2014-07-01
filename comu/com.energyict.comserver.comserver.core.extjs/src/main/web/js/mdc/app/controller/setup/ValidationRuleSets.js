@@ -3,7 +3,7 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
 
     requires: [
         'Mdc.store.DeviceConfigValidationRuleSets',
-        'Cfg.store.ValidationRuleSets'
+//        'Cfg.store.ValidationRuleSets'
     ],
 
     views: [
