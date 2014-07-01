@@ -60,11 +60,11 @@ public class MeterReadingEventHandler implements MessageHandler {
             return;
         }
 
-        Long meterId = (Long) map.get(METER_READING_EVENT_METER_ID);
+        Long meterId = getLong(map, METER_READING_EVENT_METER_ID);
         Optional<Meter> meterRef = meteringService.findMeter(meterId);
         if(meterRef.isPresent()) {
-            Long readingStart = (Long) map.get(METER_READING_EVENT_READING_START);
-            Long readingEnd = (Long) map.get(METER_READING_EVENT_READING_END);
+            Long readingStart = getLong(map, METER_READING_EVENT_READING_START);
+            Long readingEnd = getLong(map, METER_READING_EVENT_READING_END);
             IssueStatus status = getEventStatus(issueService);
             Set<ReadingType> readingTypes = meterRef.get().getReadingTypes(new Interval(new Date(readingStart), new Date(readingEnd)));
             for (ReadingType readingType : readingTypes) {
@@ -82,5 +82,10 @@ public class MeterReadingEventHandler implements MessageHandler {
             return null;
         }
         return statusList.get(0);
+    }
+
+    private Long getLong(Map<?, ?> map, String key) {
+        Object contents = map.get(key);
+        return contents instanceof Long ? (Long) contents : ((Integer) contents).longValue();
     }
 }
