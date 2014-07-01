@@ -9,14 +9,13 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.time.Interval;
+import org.joda.time.DateTimeConstants;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
-
-import org.joda.time.DateTimeConstants;
 
 public class MeterReadingIssueEvent implements IssueEvent {
     private static final Logger LOG = Logger.getLogger(MeterReadingIssueEvent.class.getName());

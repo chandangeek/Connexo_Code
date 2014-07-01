@@ -65,7 +65,7 @@ public abstract class AbstractEvent implements IssueEvent {
         }
     }
 
-    private void getEventDevice(Map<?, ?> rawEvent) {
+    protected void getEventDevice(Map<?, ?> rawEvent) {
         String amrId = String.class.cast(rawEvent.get(ModuleConstants.DEVICE_IDENTIFIER));
         device = findDeviceByAmrId(amrId);
         if (device != null) {
@@ -142,6 +142,14 @@ public abstract class AbstractEvent implements IssueEvent {
         return endDevice;
     }
 
+    protected void setEndDevice(EndDevice endDevice) {
+        this.endDevice = endDevice;
+    }
+
+    protected void setDevice(Device device) {
+        this.device = device;
+    }
+
     public double computeCurrentThreshold() {
         Device concentrator = device.getPhysicalGateway();
         if (concentrator == null) {
@@ -155,5 +163,11 @@ public abstract class AbstractEvent implements IssueEvent {
             return -1;
         }
         return (double) numberOfEvents / (double) numberOfConnectedDevices * 100.0;
+    }
+
+
+    protected Long getLong(Map<?, ?> map, String key) {
+        Object contents = map.get(key);
+        return contents instanceof Long ? (Long) contents : ((Integer) contents).longValue();
     }
 }

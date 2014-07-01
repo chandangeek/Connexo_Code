@@ -59,8 +59,8 @@ public class EventTypeParameter extends TranslatedParameter {
 
 
         private boolean validateValueInEndDeviceEventTypes(MeteringService meteringService, String value) {
-            // TODO search in DB
-            return false;
+            // TODO search in DB and set return value to FALSE by default
+            return true;
         }
     }
 
@@ -103,6 +103,15 @@ public class EventTypeParameter extends TranslatedParameter {
     private void searchEventTypesInEndDeviceEventTypes(String userValue){
         String dbSearchString = "%" + userValue + "%";
         // TODO search in DB
+        ComboBoxControl.Values info = new ComboBoxControl.Values();
+        info.id = "36.116.85";
+        info.title = "Time sync failed";
+        eventTypes.add(info);
+
+        info = new ComboBoxControl.Values();
+        info.id = "26.0.85";
+        info.title = "Power Outage";
+        eventTypes.add(info);
     }
 
 

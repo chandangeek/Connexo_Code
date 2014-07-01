@@ -12,7 +12,7 @@ public final class ModuleConstants {
 
     public static final String DEVICE_IDENTIFIER = "deviceIdentifier";
     public static final String EVENT_IDENTIFIER = "eventIdentifier";
-    public static final String EVENT_TIMESTAMP = "timestamp";
+    public static final String EVENT_TIMESTAMP = "eventTimestamp";
     public static final long MDC_AMR_SYSTEM_ID = 1L;
 
 }

@@ -1,21 +1,5 @@
 package com.elster.jupiter.issue.tests;
 
-import static com.elster.jupiter.cbo.Accumulation.DELTADELTA;
-import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_SECONDARY_METERED;
-import static com.elster.jupiter.cbo.FlowDirection.FORWARD;
-import static com.elster.jupiter.cbo.MeasurementKind.ENERGY;
-import static com.elster.jupiter.cbo.MetricMultiplier.KILO;
-import static com.elster.jupiter.cbo.ReadingTypeUnit.WATTHOUR;
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.math.BigDecimal;
-import java.util.Calendar;
-
-import org.joda.time.DateTime;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.issue.datacollection.MeterReadingIssueEvent;
@@ -28,6 +12,21 @@ import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.transaction.TransactionContext;
+import org.joda.time.DateTime;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.math.BigDecimal;
+import java.util.Calendar;
+
+import static com.elster.jupiter.cbo.Accumulation.DELTADELTA;
+import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_SECONDARY_METERED;
+import static com.elster.jupiter.cbo.FlowDirection.FORWARD;
+import static com.elster.jupiter.cbo.MeasurementKind.ENERGY;
+import static com.elster.jupiter.cbo.MetricMultiplier.KILO;
+import static com.elster.jupiter.cbo.ReadingTypeUnit.WATTHOUR;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class MeterReadingIssueEventTest extends BaseTest {
     

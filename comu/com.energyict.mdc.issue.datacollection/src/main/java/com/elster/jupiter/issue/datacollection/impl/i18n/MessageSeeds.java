@@ -42,6 +42,7 @@ public enum MessageSeeds implements MessageSeed {
     EVENT_TITLE_DEVICE_CONNECTION_FAILURE(29, "EventTitleDeviceConnectionFailure", "Device Connection Failure", Level.INFO),
     EVENT_TITLE_DEVICE_EVENT(30, "EventTitleDeviceCreated", "Device Created", Level.INFO),
     EVENT_BAD_DATA_NO_EVENT_IDENTIFIER(31, "EventBadDataNoVentIdentifier", "Unable to process issue creation event because target event identifier wasn't found", Level.SEVERE),
+    EVENT_BAD_DATA_WRONG_EVENT_TYPE(32, "EventBadDataWrongEventType", "Unable to process issue creation event because endDeviceEventType doesn't match to eventRecord type mrId", Level.SEVERE),
     ;
 
     private final int number;

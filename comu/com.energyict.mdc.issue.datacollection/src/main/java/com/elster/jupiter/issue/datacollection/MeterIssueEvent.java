@@ -5,12 +5,14 @@ import com.elster.jupiter.issue.datacollection.impl.ModuleConstants;
 import com.elster.jupiter.issue.datacollection.impl.UnableToCreateEventException;
 import com.elster.jupiter.issue.datacollection.impl.i18n.MessageSeeds;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
+import com.google.common.base.Optional;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -18,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 public class MeterIssueEvent extends AbstractEvent {
-    private String eventIdentifier;
+    private String endDeviceEventType;
     private EndDeviceEventRecord eventRecord;
 
     public MeterIssueEvent(IssueService issueService, MeteringService meteringService, DeviceDataService deviceDataService, Thesaurus thesaurus, Map<?, ?> rawEvent) {
@@ -28,26 +30,41 @@ public class MeterIssueEvent extends AbstractEvent {
     @Override
     protected void init(Map<?, ?> rawEvent) {
         super.init(rawEvent);
-        /* ID of event
-        eventIdentifier = (String) rawEvent.get(ModuleConstants.EVENT_IDENTIFIER);
-        */
-        long timestamp = (Long) rawEvent.get(ModuleConstants.EVENT_TIMESTAMP);
+
+        long timestamp = getLong(rawEvent, ModuleConstants.EVENT_TIMESTAMP);
         List<EndDeviceEventRecord> deviceEvents = getDevice().getDeviceEvents(new Interval(new Date(timestamp), new Date(timestamp)));
         if (deviceEvents.size() != 1){
             throw new UnableToCreateEventException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_EVENT_IDENTIFIER);
         }
         eventRecord = deviceEvents.get(0);
+        endDeviceEventType = (String) rawEvent.get("endDeviceEventType");
+    }
+
+    protected void getEventDevice(Map<?, ?> rawEvent){
+        long endDeviceId = getLong(rawEvent,"endDeviceId");
+        Optional<Meter> meterRef = getMeteringService().findMeter(endDeviceId);
+        if (!meterRef.isPresent()){
+            throw new UnableToCreateEventException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_END_DEVICE, endDeviceId);
+        }
+        Meter meter = meterRef.get();
+        setEndDevice(meter);
+
+        Device device = getDeviceDataService().findDeviceById(Long.valueOf(meter.getAmrId()));
+        if (device == null) {
+            throw new UnableToCreateEventException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_DEVICE, meter.getAmrId());
+        }
+        setDevice(device);
     }
 
     @SuppressWarnings("unused")
     // Used in Drool's rule (@see BasicMeterRuleTemplate)
     public String getEndDeviceEventType(){
-        return eventRecord.getEventType().getMRID();
+        return endDeviceEventType;
     }
 
     @Override
     public String getEventType() {
-        return eventRecord.getEventType().getMRID();
+        return endDeviceEventType;
     }
 
     @Override

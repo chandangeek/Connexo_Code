@@ -38,7 +38,6 @@ import com.energyict.mdc.tasks.history.TaskHistoryService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
