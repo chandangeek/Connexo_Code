@@ -55,16 +55,6 @@ public class StringFactory extends AbstractValueFactory<String> {
     }
 
     @Override
-    public void bind(SqlBuilder builder, String value) {
-        if (value != null) {
-            builder.addObject(value);
-        }
-        else {
-            builder.addNull(this.getJdbcType());
-        }
-    }
-
-    @Override
     public void bind(PreparedStatement statement, int offset, String value) throws SQLException {
         if (value != null) {
             statement.setString(offset, value);

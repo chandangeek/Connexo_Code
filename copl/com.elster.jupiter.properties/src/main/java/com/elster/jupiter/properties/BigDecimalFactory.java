@@ -61,16 +61,6 @@ public class BigDecimalFactory extends AbstractValueFactory<BigDecimal> {
     }
 
     @Override
-    public void bind(SqlBuilder builder, BigDecimal value) {
-        if (value != null) {
-            builder.addObject(value);
-        }
-        else {
-            builder.addNull(this.getJdbcType());
-        }
-    }
-
-    @Override
     public void bind(PreparedStatement statement, int offset, BigDecimal value) throws SQLException {
         if (value != null) {
             statement.setBigDecimal(offset, value);
