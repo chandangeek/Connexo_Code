@@ -1,6 +1,7 @@
 Ext.define('Mdc.view.setup.comportpool.ComPortPoolsGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.comPortPoolsGrid',
+    itemId: 'comportpoolsgrid',
     requires: [
         'Mdc.store.ComPortPools',
         'Uni.view.toolbar.PagingTop',
