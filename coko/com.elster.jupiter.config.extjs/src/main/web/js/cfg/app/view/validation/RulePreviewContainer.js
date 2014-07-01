@@ -57,11 +57,12 @@ Ext.define('Cfg.view.validation.RulePreviewContainer', {
                                             xtype: 'button',
                                             text: Uni.I18n.translate('validation.addValidationRule', 'CFG', 'Add validation rule'),
                                             itemId: 'addRuleLink',
+                                            margin: '10 0 0 0',
                                             ui: 'action',
                                             listeners: {
                                                 click: {
                                                     fn: function () {
-                                                        window.location.href = '#/administration/validation/rulesets/validationrules/' + me.ruleSetId + '/addRule/' + me.ruleSetId;
+                                                        window.location.href = '#/administration/validation/rulesets/' + me.ruleSetId + '/rules/add';
                                                     }
                                                 }
                                             }

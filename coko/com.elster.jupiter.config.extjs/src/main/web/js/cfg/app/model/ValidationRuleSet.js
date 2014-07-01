@@ -5,7 +5,14 @@ Ext.define('Cfg.model.ValidationRuleSet', {
         'name',
         'description',
         'numberOfInactiveRules',
-        'numberOfRules'
+        'numberOfRules',
+        {
+            name: 'active_rules',
+            persist: false,
+            mapping: function (data) {
+               return data.numberOfRules - data.numberOfInactiveRules;
+            }
+        },
     ],
 
     /*associations: [

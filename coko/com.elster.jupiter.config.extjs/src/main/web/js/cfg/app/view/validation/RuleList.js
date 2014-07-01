@@ -45,7 +45,7 @@ Ext.define('Cfg.view.validation.RuleList', {
         me.columns = [
             { header: Uni.I18n.translate('validation.validationRule', 'CFG', 'Validation rule'), dataIndex: 'name', flex: 0.3, sortable: false, fixed: true,
                 renderer: function (value, b, record) {
-                    return '<a href="#/administration/validation/rulesets/validationrules/' + record.get('ruleSetId') + '/ruleoverview/' + record.getId() + '">' + value + '</a>'
+                    return '<a href="#/administration/validation/rulesets/' + record.get('ruleSetId') + '/rules/' + record.getId() + '">' + value + '</a>'
                 }
             },
             { header: Uni.I18n.translate('validation.status', 'CFG', 'Status'), dataIndex: 'active', flex: 0.3, sortable: false, fixed: true,
@@ -83,7 +83,7 @@ Ext.define('Cfg.view.validation.RuleList', {
                         text: Uni.I18n.translate('validation.addValidationRule', 'CFG', 'Add validation rule'),
                         itemId: 'addRuleLink',
                         ui: 'action',
-                        href: '#/administration/validation/rulesets/validationrules/' + me.ruleSetId + '/addRule/' + me.ruleSetId,
+                        href: '#/administration/validation/rulesets/' + me.ruleSetId + '/rules/add',
                         hrefTarget: '_self'
                     }
                 ]

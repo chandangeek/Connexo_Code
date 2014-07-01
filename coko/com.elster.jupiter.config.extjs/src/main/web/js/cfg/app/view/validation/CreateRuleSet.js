@@ -63,7 +63,6 @@ Ext.define('Cfg.view.validation.CreateRuleSet', {
                             name: 'description',
                             itemId: 'addRuleSetDescription',
                             width: 600,
-                            maxLength: 256,
                             height: 150,
                             fieldLabel: Uni.I18n.translate('validation.description', 'CFG', 'Description'),
                             enforceMaxLength: true
@@ -74,6 +73,7 @@ Ext.define('Cfg.view.validation.CreateRuleSet', {
                             text: Uni.I18n.translate('general.add', 'CFG', 'Add'),
                             xtype: 'button',
                             ui: 'action',
+                            margin: '0 0 0 -6',
                             action: 'createEditNewRuleSet',
                             itemId: 'createEditNewRuleSet'
                         },

@@ -39,14 +39,15 @@ Ext.define('Cfg.view.validation.RuleSetList', {
         items: [
             { header: Uni.I18n.translate('validation.validationRuleSet', 'CFG', 'Validation rule set'), dataIndex: 'name', flex: 0.3, sortable: false, fixed: true,
 
-                renderer: function (value, b, record) {
-                    return '<a href="#/administration/validation/rulesets/overview/' + record.getId() + '">' + value + '</a>'
+                renderer: function (value, metaData, record) {
+                    metaData.tdAttr = 'data-qtip="' + record.get('description') + '"';
+                    return '<a href="#/administration/validation/rulesets/' + record.getId() + '">' + value + '</a>'
                 }
             },
             { header: Uni.I18n.translate('validation.activeRules', 'CFG', 'Active rules'), dataIndex: 'numberOfRules', flex: 0.3, align: 'left', sortable: false, fixed: true,
                 renderer: function (value, b, record) {
                     var numberOfActiveRules = record.get('numberOfRules') - record.get('numberOfInactiveRules');
-                    return numberOfActiveRules
+                    return numberOfActiveRules;
                 }
             },
             { header: Uni.I18n.translate('validation.inactiveRules', 'CFG', 'Inactive rules'), dataIndex: 'numberOfInactiveRules', flex: 0.3, align: 'left', sortable: false, fixed: true },
@@ -64,7 +65,9 @@ Ext.define('Cfg.view.validation.RuleSetList', {
             {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
-                displayMsg: '{0} - {1} of {2} Validation rule sets',
+                displayMsg: Uni.I18n.translate('validation.ruleset.display.msg', 'CFG', '{0} - {1} of {2} Validation rule sets'),
+                displayMoreMsg: Uni.I18n.translate('validation.ruleset.display.more.msg', 'CFG', '{0} - {1} of more than {2} Validation rule sets'),
+                emptyMsg: Uni.I18n.translate('validation.ruleset.pagingtoolbartop.emptyMsg', 'CFG', 'There are no validation rule sets to display'),
                 dock: 'top',
                 items: [
                     {
@@ -76,7 +79,7 @@ Ext.define('Cfg.view.validation.RuleSetList', {
                         itemId: 'newRuleset',
                         ui: 'action',
                         xtype: 'button',
-                        href: '#/administration/validation/createset',
+                        href: '#/administration/validation/rulesets/add',
                         hrefTarget: '_self'
                     }
                 ]
@@ -91,4 +94,5 @@ Ext.define('Cfg.view.validation.RuleSetList', {
 
         me.callParent(arguments);
     }
+
 });

@@ -38,7 +38,7 @@ Ext.define('Cfg.controller.Main', {
             items: [
                 {
                     text: Uni.I18n.translate('general.validationRuleSets', 'CFG', 'Validation rule sets'),
-                    href: '#/administration/validation'
+                    href: '#/administration/validation/rulesets'
                 }
             ]
         });

@@ -12,14 +12,14 @@ Ext.define('Cfg.view.validation.RuleSubMenu', {
                 text: Uni.I18n.translate('general.overview', 'CFG', 'Overview'),
                 pressed: false,
                 itemId: 'ruleSetOverviewLink',
-                href: '#/administration/validation/rulesets/validationrules/' + this.ruleSetId + '/ruleoverview/' + this.ruleId,
+                href: '#/administration/validation/rulesets/' + this.ruleSetId + '/rules/' + this.ruleId,
                 hrefTarget: '_self'
             },
             {
                 text: Uni.I18n.translate('validation.validationRules', 'CFG', 'Validation rules'),
                 pressed: false,
                 itemId: 'rulesLink',
-                href: '#/administration/validation/rulesets/validationrules/' + this.ruleSetId,
+                href: '#/administration/validation/rulesets/' + this.ruleSetId + '/rules',
                 hrefTarget: '_self'
             },
             {

@@ -4,58 +4,89 @@ Ext.define('Cfg.view.validation.RuleSetOverview', {
     itemId: 'ruleSetOverview',
     requires: [
         'Cfg.model.ValidationRuleSet',
-        'Cfg.view.validation.RuleSetSubMenu'
+        'Cfg.view.validation.RuleSetSubMenu',
+        'Cfg.view.validation.RuleSetActionMenu'
     ],
 
     ruleSetId: null,
 
     content: [
         {
-            title: Uni.I18n.translate('general.overview', 'CFG', 'Overview'),
-            ui: 'large',
+            xtype: 'container',
+            layout: 'hbox',
             items: [
                 {
-                    xtype: 'form',
-                    border: false,
-                    itemId: 'rulesetOverviewForm',
-                    name: 'rulesetOverviewForm',
-                    layout: {
-                        type: 'vbox',
-                        align: 'stretch'
-                    },
-
+                    title: Uni.I18n.translate('general.overview', 'CFG', 'Overview'),
+                    ui: 'large',
+                    flex: 1,
                     items: [
                         {
-                            xtype: 'displayfield',
-                            name: 'name',
-                            fieldLabel: Uni.I18n.translate('validation.validationRuleSet', 'CFG', 'Validation rule set'),
-                            labelAlign: 'right',
-                            labelWidth:	250
-                        },
-                        {
-                            xtype: 'displayfield',
-                            name: 'description',
-                            fieldLabel: Uni.I18n.translate('validation.description', 'CFG', 'Description'),
-                            labelAlign: 'right',
-                            labelWidth:	250
-                        },
-                        {
-                            xtype: 'fieldcontainer',
-                            itemId: 'activeRules',
-                            fieldLabel:  Uni.I18n.translate('validation.activeRules', 'CFG', 'Active rules'),
-                            labelAlign: 'right',
-                            labelWidth:	250,
-                            layout: 'vbox'
-                        },
-                        {
-                            xtype: 'fieldcontainer',
-                            itemId: 'inactiveRules',
-                            fieldLabel:  Uni.I18n.translate('validation.inactiveRules', 'CFG', 'Inactive rules'),
-                            labelAlign: 'right',
-                            labelWidth:	250,
-                            layout: 'vbox'
+                            xtype: 'form',
+                            border: false,
+                            itemId: 'rulesetOverviewForm',
+                            name: 'rulesetOverviewForm',
+                            layout: {
+                                type: 'vbox',
+                                align: 'stretch'
+                            },
+                            items: [
+                                {
+                                    xtype: 'displayfield',
+                                    name: 'name',
+                                    fieldLabel: Uni.I18n.translate('validation.validationRuleSet', 'CFG', 'Validation rule set'),
+                                    labelAlign: 'right',
+                                    labelWidth: 250
+                                },
+                                {
+                                    xtype: 'displayfield',
+                                    name: 'description',
+                                    fieldLabel: Uni.I18n.translate('validation.description', 'CFG', 'Description'),
+                                    labelAlign: 'right',
+                                    labelWidth: 250
+                                },
+                                {
+                                    xtype: 'displayfield',
+                                    itemId: 'activeRules',
+                                    name: 'active_rules',
+                                    fieldLabel: Uni.I18n.translate('validation.activeRules', 'CFG', 'Active rules'),
+                                    labelAlign: 'right',
+                                    labelWidth: 250
+                                },
+                                {
+                                    xtype: 'displayfield',
+                                    name: 'numberOfInactiveRules',
+                                    fieldLabel: Uni.I18n.translate('validation.inactiveRules', 'CFG', 'Inactive rules'),
+                                    labelAlign: 'right',
+                                    labelWidth: 250
+                                }
+                                /* {
+                                 xtype: 'fieldcontainer',
+                                 itemId: 'activeRules',
+                                 fieldLabel:  Uni.I18n.translate('validation.activeRules', 'CFG', 'Active rules'),
+                                 labelAlign: 'right',
+                                 labelWidth:	250,
+                                 layout: 'vbox'
+                                 },
+                                 {
+                                 xtype: 'fieldcontainer',
+                                 itemId: 'inactiveRules',
+                                 fieldLabel:  Uni.I18n.translate('validation.inactiveRules', 'CFG', 'Inactive rules'),
+                                 labelAlign: 'right',
+                                 labelWidth:	250,
+                                 layout: 'vbox'
+                                 }*/
+                            ]
                         }
                     ]
+                },
+                {
+                    xtype: 'button',
+                    text: Uni.I18n.translate('general.actions', 'CFG', Uni.I18n.translate('general.actions', 'CFG', 'Actions')),
+                    iconCls: 'x-uni-action-iconD',
+                    margin: '20 0 0 0',
+                    menu: {
+                        xtype: 'ruleset-action-menu'
+                    }
                 }
             ]
         }

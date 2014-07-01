@@ -109,6 +109,9 @@ Ext.define('Cfg.controller.Validation', {
             'addRule button[action=editRuleAction]': {
                 click: this.createEditRule
             },
+            'ruleSetOverview ruleset-action-menu': {
+                click: this.chooseRuleSetAction
+            },
             '#validationrulesetList uni-actioncolumn': {
                 menuclick: this.chooseRuleSetAction
             }
@@ -175,14 +178,16 @@ Ext.define('Cfg.controller.Validation', {
                     id: ruleSetId
                 },
                 success: function (record, operation) {
-                    var messageText = Uni.I18n.translate('general.success', 'CFG', 'Operation completed succesfully'),
-                        router = me.getController('Uni.controller.history.Router'),
-                        params = router.routeparams;
-                    params.ruleSetId = ruleSetId;
-                    if (me.fromRulePreview) {
-                        router.getRoute('administration/validation/rulesets/validationrules/ruleoverview').forward(params);
+                    var messageText;
+                    if (button.action === 'editRuleAction') {
+                        messageText = Uni.I18n.translate('validation.editRuleSuccess.msg', 'CFG', 'Validation rule saved');
                     } else {
-                        router.getRoute('administration/validation/rulesets/validationrules').forward(params);
+                        messageText = Uni.I18n.translate('validation.addRuleSuccess.msg', 'CFG', 'Validation rule added');
+                    }
+                    if (me.fromRulePreview) {
+                        location.href = '#/administration/validation/rulesets/' + me.ruleSetId + '/rules/' + me.ruleId;
+                    } else {
+                        location.href = '#/administration/validation/rulesets/' + me.ruleSetId + '/rules';
                     }
                     me.getApplication().fireEvent('acknowledge', messageText);
                 },
@@ -314,7 +319,7 @@ Ext.define('Cfg.controller.Validation', {
         var me = this,
             widget = Ext.widget('addRule', {
                 edit: false,
-                returnLink: '#/administration/validation/rulesets/validationrules/' + id
+                returnLink: '#/administration/validation/rulesets/' + id + '/rules'
             }),
             editRulePanel = me.getAddRule();
         me.getApplication().fireEvent('changecontentevent', widget);
@@ -346,20 +351,24 @@ Ext.define('Cfg.controller.Validation', {
             createEditRuleSetPanel.setLoading('Loading...');
             record.save({
                 success: function (record, operation) {
-                    var messageText = Uni.I18n.translate('general.success', 'CFG', 'Operation completed succesfully');
+                    var messageText;
+
                     if (button.text === 'Save') {
-                        me.getValidationRuleSetsStore().reload(
-                            {
-                                callback: function () {
-                                    location.href = '#/administration/validation/';
+                        messageText = Uni.I18n.translate('validation.editRuleSetSuccess.msg', 'CFG', 'Validation rule set saved');
+                        if (me.fromRuleSetOverview) {
+                            location.href = '#/administration/validation/rulesets/' + record.get('id');
+                        } else {
+                            me.getValidationRuleSetsStore().reload(
+                                {
+                                    callback: function () {
+                                        location.href = '#/administration/validation/rulesets';
+                                    }
                                 }
-                            }
-                        );
+                            );
+                        }
                     } else {
-                        var router = me.getController('Uni.controller.history.Router'),
-                            params = router.routeparams;
-                        params.ruleSetId = record.get('id');
-                        router.getRoute('administration/validation/rulesets/validationrules').forward(params);
+                        messageText = Uni.I18n.translate('validation.addRuleSetSuccess.msg', 'CFG', 'Validation rule set added');
+                        location.href = '#/administration/validation/rulesets/' + record.get('id') + '/rules';
                     }
                     me.getApplication().fireEvent('acknowledge', messageText);
                 },
@@ -379,19 +388,20 @@ Ext.define('Cfg.controller.Validation', {
 
     createEditRuleSet: function (ruleSetId) {
         var me = this,
+            cancelLink,
             widget;
         if (ruleSetId) {
+            me.fromRuleSetOverview ? cancelLink = '#/administration/validation/rulesets/' + ruleSetId : cancelLink = '#/administration/validation/rulesets/';
             widget = Ext.widget('createRuleSet', {
                 edit: true,
-                returnLink: '#/administration/validation'
+                returnLink: cancelLink
             });
             me.getApplication().fireEvent('changecontentevent', widget);
-            widget.down('#editRuleSetTitle').setTitle(Uni.I18n.translate('validation.editRuleSet', 'CFG', 'Edit validation rule set'));
             me.fillForm(widget, ruleSetId);
         } else {
             widget = Ext.widget('createRuleSet', {
                 edit: false,
-                returnLink: '#/administration/validation/'
+                returnLink: '#/administration/validation/rulesets/'
             });
             me.getApplication().fireEvent('changecontentevent', widget);
             me.ruleSetModel = null;
@@ -410,6 +420,8 @@ Ext.define('Cfg.controller.Validation', {
             callback: function () {
                 view.setLoading(false);
                 ruleSet = this.getById(parseInt(ruleSetId));
+                view.down('#editRuleSetTitle').setTitle("Edit '" + ruleSet.get('name') + "'");
+                me.getApplication().fireEvent('loadRuleSet', ruleSet);
                 me.ruleSetModel = ruleSet;
                 form.loadRecord(ruleSet);
             }
@@ -427,6 +439,7 @@ Ext.define('Cfg.controller.Validation', {
         this.getValidationRulesStore().clearFilter();
         this.getValidationRulesStore().filter('ruleSetId', id);
         me.ruleSetId = id;
+        me.fromRulePreview = false;
         ruleSetsStore.load({
             params: {
                 id: id
@@ -443,8 +456,7 @@ Ext.define('Cfg.controller.Validation', {
 
     showRuleSetOverview: function (id) {
         var me = this,
-            ruleSetsStore = Ext.getStore('ValidationRuleSets') || Ext.create('Cfg.store.ValidationRuleSets'),
-            rulesStore = me.getStore('Cfg.store.ValidationRules');
+            ruleSetsStore = Ext.getStore('ValidationRuleSets') || Ext.create('Cfg.store.ValidationRuleSets');
         ruleSetsStore.load({
             params: {
                 id: id
@@ -453,35 +465,37 @@ Ext.define('Cfg.controller.Validation', {
                 var selectedRuleSet = ruleSetsStore.getByInternalId(id),
                     rulesContainerWidget = Ext.widget('ruleSetOverview', {ruleSetId: id});
                 me.getApplication().fireEvent('changecontentevent', rulesContainerWidget);
-                rulesContainerWidget.setLoading();
                 me.getRulesetOverviewForm().loadRecord(selectedRuleSet);
                 rulesContainerWidget.down('#stepsMenu').setTitle(selectedRuleSet.get('name'));
                 me.getApplication().fireEvent('loadRuleSet', selectedRuleSet);
-                me.getRulesetOverviewForm().down('#inactiveRules').removeAll();
-                me.getRulesetOverviewForm().down('#activeRules').removeAll();
-                rulesStore.load({
-                    params: {
-                        id: id
-                    },
-                    callback: function (records) {
-                        Ext.Array.each(records, function (item) {
-                            if (!item.get('active')) {
-                                me.getRulesetOverviewForm().down('#inactiveRules').add({
-                                    xtype: 'displayfield',
-                                    fieldLabel: '',
-                                    value: item.get('rule_name')
-                                })
-                            } else {
-                                me.getRulesetOverviewForm().down('#activeRules').add({
-                                    xtype: 'displayfield',
-                                    fieldLabel: '',
-                                    value: item.get('rule_name')
-                                })
-                            }
-                        });
-                        rulesContainerWidget.setLoading(false);
-                    }
-                });
+                rulesContainerWidget.down('ruleset-action-menu').down('#viewRuleSet').hide();
+                rulesContainerWidget.down('ruleset-action-menu').record = selectedRuleSet;
+//                rulesContainerWidget.setLoading();
+//                me.getRulesetOverviewForm().down('#inactiveRules').removeAll();
+//                me.getRulesetOverviewForm().down('#activeRules').removeAll();
+//                rulesStore.load({
+//                    params: {
+//                        id: id
+//                    },
+//                    callback: function (records) {
+//                        Ext.Array.each(records, function (item) {
+//                            if (!item.get('active')) {
+//                                me.getRulesetOverviewForm().down('#inactiveRules').add({
+//                                    xtype: 'displayfield',
+//                                    fieldLabel: '',
+//                                    value: item.get('rule_name')
+//                                })
+//                            } else {
+//                                me.getRulesetOverviewForm().down('#activeRules').add({
+//                                    xtype: 'displayfield',
+//                                    fieldLabel: '',
+//                                    value: item.get('rule_name')
+//                                })
+//                            }
+//                        });
+//                        rulesContainerWidget.setLoading(false);
+//                    }
+//                });
             }
         });
     },
@@ -554,6 +568,7 @@ Ext.define('Cfg.controller.Validation', {
                 {
                     xtype: 'component',
                     html: '<h1>' + Uni.I18n.translate('validation.rules', 'CFG', 'Rules') + '</h1>',
+                    margin: '0 0 10 0',
                     itemId: 'ruleBrowseTitle'
                 },
                 {
@@ -645,11 +660,11 @@ Ext.define('Cfg.controller.Validation', {
             cancelLink,
             editRulePanel;
         if (me.fromRuleSet) {
-            cancelLink = '#/administration/validation';
+            cancelLink = '#/administration/validation/rulesets';
         } else if (me.fromRulePreview) {
-            cancelLink = '#/administration/validation/rulesets/validationrules/' + id + '/ruleoverview/' + me.ruleId;
+            cancelLink = '#/administration/validation/rulesets/' + id + '/rules/' + me.ruleId;
         } else {
-            cancelLink = '#/administration/validation/rulesets/validationrules/' + id;
+            cancelLink = '#/administration/validation/rulesets/' + id + '/rules';
         }
         me.ruleSetId = id;
         widget = Ext.widget('addRule', {
@@ -658,7 +673,6 @@ Ext.define('Cfg.controller.Validation', {
         });
         editRulePanel = me.getAddRule();
         me.getApplication().fireEvent('changecontentevent', widget);
-        editRulePanel.down('#addRuleTitle').setTitle(Uni.I18n.translate('validation.editRule', 'CFG', 'Edit validation rule'));
         ruleSetsStore.load({
             callback: function () {
                 ruleSet = this.getById(parseInt(id));
@@ -690,6 +704,8 @@ Ext.define('Cfg.controller.Validation', {
                 self.ruleModel = rule;
                 countReadingTypes = rule.get('readingTypes').length;
                 form.loadRecord(rule);
+                self.getApplication().fireEvent('loadRule', rule);
+                editRulePanel.down('#addRuleTitle').setTitle("Edit '" + rule.get('name') + "'");
                 if (rule.data.active) {
                     validatorField.disable();
                 }
@@ -713,13 +729,9 @@ Ext.define('Cfg.controller.Validation', {
 
     chooseRuleAction: function (menu, item) {
         var me = this,
-            router = me.getController('Uni.controller.history.Router'),
-            params = router.routeparams,
             active = false,
             record;
         record = menu.record || me.getRulesGrid().getSelectionModel().getLastSelected();
-        params.ruleId = me.ruleId;
-        params.ruleSetId = me.ruleSetId;
         this.getRuleSetBrowsePanel() ? me.fromRuleSet = true : me.fromRuleSet = false;
         this.getRuleOverview() ? me.fromRulePreview = true : me.fromRulePreview = false;
         if (menu.down('#deactivate').text === 'Deactivate') {
@@ -727,13 +739,13 @@ Ext.define('Cfg.controller.Validation', {
         }
         switch (item.action) {
             case 'view':
-                router.getRoute('administration/validation/rulesets/validationrules/ruleoverview').forward(params);
+                location.href = '#/administration/validation/rulesets/' + me.ruleSetId + '/rules/' + me.ruleId;
                 break;
             case 'deactivateRule':
                 me.deactivateRule(record, active);
                 break;
             case 'editRule':
-                router.getRoute('administration/validation/rulesets/validationrules/edit').forward(params);
+                location.href = '#/administration/validation/rulesets/' + me.ruleSetId + '/rules/' + me.ruleId + '/edit';
                 break;
             case 'deleteRule':
                 me.showDeleteConfirmation(record);
@@ -849,9 +861,7 @@ Ext.define('Cfg.controller.Validation', {
                         }
                     });
                 } else if (self.getRuleOverview()) {
-                    var router = self.getController('Uni.controller.history.Router'),
-                        params = router.routeparams;
-                    router.getRoute('administration/validation/rulesets/validationrules').forward(params);
+                    location.href = '#/administration/validation/rulesets/' + self.ruleSetId + '/rules';
                 } else {
                     self.loadRulesStore(grid);
                 }
@@ -890,17 +900,15 @@ Ext.define('Cfg.controller.Validation', {
 
     chooseRuleSetAction: function (menu, item) {
         var me = this,
-            router = me.getController('Uni.controller.history.Router'),
-            params = router.routeparams,
             record;
         record = menu.record || me.getRuleSetsGrid().getSelectionModel().getLastSelected();
-        params.ruleSetId = me.ruleSetId;
+        me.getRuleSetOverview() ? me.fromRuleSetOverview = true : me.fromRuleSetOverview = false;
         switch (item.action) {
             case 'viewRuleSet':
-                router.getRoute('administration/validation/rulesets/overview').forward(params);
+                location.href = '#/administration/validation/rulesets/' + me.ruleSetId;
                 break;
             case 'editRuleSet':
-                router.getRoute('administration/validation/editset').forward(params);
+                location.href = '#/administration/validation/rulesets/' + me.ruleSetId + '/edit';
                 break;
             case 'deleteRuleSet':
                 me.showDeleteRuleSetConfirmation(record);
@@ -932,23 +940,26 @@ Ext.define('Cfg.controller.Validation', {
 
     deleteRuleSet: function (ruleSet) {
         var me = this,
-            view = me.getRuleSetBrowsePanel(),
+            view = me.getRuleSetBrowsePanel() || me.getRuleSetOverview(),
             grid = view.down('grid');
-
         view.setLoading('Removing...');
         ruleSet.destroy({
             callback: function () {
                 view.setLoading(false);
-                view.down('pagingtoolbartop').totalCount = 0;
-                grid.getStore().load({
-                        callback: function () {
-                            var gridView = grid.getView(),
-                                selectionModel = gridView.getSelectionModel();
-                            selectionModel.select(0);
-                            grid.fireEvent('select', gridView, selectionModel.getLastSelected());
+                if (me.getRuleSetOverview()) {
+                    location.href = '#/administration/validation/rulesets';
+                } else {
+                    view.down('pagingtoolbartop').totalCount = 0;
+                    grid.getStore().load({
+                            callback: function () {
+                                var gridView = grid.getView(),
+                                    selectionModel = gridView.getSelectionModel();
+                                selectionModel.select(0);
+                                grid.fireEvent('select', gridView, selectionModel.getLastSelected());
+                            }
                         }
-                    }
-                );
+                    );
+                }
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validation.removeRuleSetSuccess.msg', 'CFG', 'Validation rule set removed'));
             }
         });
@@ -980,7 +991,11 @@ Ext.define('Cfg.controller.Validation', {
                     }
                 });
                 itemForm.loadRecord(rule);
+                me.getApplication().fireEvent('loadRule', rule);
                 rulesContainerWidget.down('validation-rule-action-menu').record = rule;
+                if (rule.get('active')) {
+                    rulesContainerWidget.down('validation-rule-action-menu').down('#deactivate').setText(Uni.I18n.translate('general.deactivate', 'CFG', 'Deactivate'));
+                }
                 rulesContainerWidget.down('#stepsRuleMenu').setTitle(rule.get('name'));
                 if (!Ext.isEmpty(rule.get('properties'))) {
                     if (rule.data.properties[0].name === 'maximum') {
