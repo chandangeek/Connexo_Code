@@ -6,8 +6,8 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
     itemId: 'deviceCommunicationProtocolPreview',
 
     requires: [
+        'Uni.property.form.Property',
         'Mdc.model.DeviceCommunicationProtocol',
-        'Mdc.view.setup.property.PropertyView',
         'Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtocolActionMenu'
     ],
 
@@ -102,27 +102,21 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
                         ]
                     },
                     {
-                        xtype: 'form',
-                        border: false,
-                        itemId: 'communicationProtocolDetailsTitle',
-                        hidden: true,
-                        layout: {
-                            type: 'vbox',
-                            align: 'stretch'
-                        },
+                        xtype: 'property-form',
+                        title: '<span class="x-form-item-label-right x-form-item-label" style="width: 250px;"><h3>' +
+                            Uni.I18n.translate('deviceCommunicationProtocol.communicationProtocolDetails', 'MDC', 'Communication protocol details') +
+                            '</h3></span>',
+
+                        isEdit: false,
+                        layout: 'column',
+                        frame: false,
                         defaults: {
-                            labelWidth: 250
-                        },
-                        items: [
-                            {
-                                xtype: 'displayfield',
-                                fieldLabel: '<h3>' + Uni.I18n.translate('deviceCommunicationProtocol.communicationProtocolDetails', 'MDC', 'Communication protocol details') + '</h3>',
-                                text: ''
-                            }
-                        ]
-                    },
-                    {
-                        xtype: 'propertyView'
+                            xtype: 'container',
+                            layout: 'form',
+                            resetButtonHidden: true,
+                            labelWidth: 250,
+                            columnWidth: 0.5
+                        }
                     }
                 ]
             }

@@ -281,7 +281,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                     var json = Ext.decode(operation.response.responseText);
                     if (json && json.errors) {
                         me.getConnectionMethodEditForm().getForm().markInvalid(json.errors);
-                        me.getConnectionMethodEditView().down('property-form').getForm().markInvalid(json.errors);
+                        propertyForm.getForm().markInvalid(json.errors);
                     }
                 }
             });
