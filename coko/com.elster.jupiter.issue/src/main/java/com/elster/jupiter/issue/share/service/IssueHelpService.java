@@ -6,5 +6,5 @@ package com.elster.jupiter.issue.share.service;
  */
 @Deprecated
 public interface IssueHelpService {
-    void postEvent(String topic, String eventIdentifier);
+    void postEvent(long timestamp, String topic, String comPortName, String comServerName, String deviceIdentifier, long connectionTypePluggableClassId, String comTaskId, long discoveryProtocolId, String masterDeviceId);
 }
