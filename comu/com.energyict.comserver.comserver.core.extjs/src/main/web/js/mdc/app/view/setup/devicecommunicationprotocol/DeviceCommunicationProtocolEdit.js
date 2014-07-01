@@ -6,7 +6,7 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
     edit: false,
 
     requires: [
-        'Mdc.view.setup.property.Edit'
+        'Uni.property.form.Property'
     ],
 
     isEdit: function () {
@@ -72,27 +72,11 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
                                 ]
                             },
                             {
-                                xtype: 'form',
-                                border: false,
-                                itemId: 'editCommunicationProtocolDetailsTitle',
+                                title: '<span class="x-form-item-label-right x-form-item-label" style="width: 250px;"><h3>' +
+                                    Uni.I18n.translate('deviceCommunicationProtocol.protocolDialectDetails', 'MDC', 'Communication protocol details') +
+                                    '</h3></span>',
+                                xtype: 'property-form',
                                 hidden: true,
-                                layout: {
-                                    type: 'vbox',
-                                    align: 'stretch'
-                                },
-                                defaults: {
-                                    labelWidth: 250
-                                },
-                                items: [
-                                    {
-                                        xtype: 'displayfield',
-                                        fieldLabel: '<h3>' + Uni.I18n.translate('deviceCommunicationProtocol.protocolDialectDetails', 'MDC', 'Communication protocol details') + '</h3>',
-                                        text: ''
-                                    }
-                                ]
-                            },
-                            {
-                                xtype: 'propertyEdit',
                                 width: '100%'
                             },
                             {

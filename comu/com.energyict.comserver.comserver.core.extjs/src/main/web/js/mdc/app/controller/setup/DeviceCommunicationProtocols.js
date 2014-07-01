@@ -2,9 +2,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Ext.ux.window.Notification',
-        'Mdc.controller.setup.PropertiesView',
-        'Mdc.controller.setup.Properties'
+        'Ext.ux.window.Notification'
     ],
 
     views: [
@@ -24,9 +22,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
         {ref: 'deviceCommunicationProtocolPreviewForm', selector: '#deviceCommunicationProtocolPreviewForm'},
         {ref: 'deviceCommunicationProtocolPreview', selector: '#deviceCommunicationProtocolPreview'},
         {ref: 'deviceCommunicationProtocolEditView', selector: '#deviceCommunicationProtocolEdit'},
-        {ref: 'deviceCommunicationProtocolEditForm', selector: '#deviceCommunicationProtocolEditForm'},
-        {ref: 'editCommunicationProtocolDetailsTitle', selector: '#editCommunicationProtocolDetailsTitle'},
-        {ref: 'communicationProtocolDetailsTitle', selector: '#communicationProtocolDetailsTitle'}
+        {ref: 'deviceCommunicationProtocolEditForm', selector: '#deviceCommunicationProtocolEditForm'}
     ],
 
     init: function () {
@@ -56,12 +52,13 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
                     me.getDeviceCommunicationProtocolPreviewForm().loadRecord(deviceCommunicationProtocol);
                     me.getDeviceCommunicationProtocolPreview().getLayout().setActiveItem(1);
                     me.getDeviceCommunicationProtocolPreview().setTitle(deviceCommunicationProtocol.get('name'));
-                    if (deviceCommunicationProtocol.propertiesStore.data.items.length > 0) {
-                        me.getCommunicationProtocolDetailsTitle().setVisible(true);
+                    var form = me.getDeviceCommunicationProtocolPreview().down('property-form');
+                    if (deviceCommunicationProtocol.properties().count()) {
+                        form.loadRecord(deviceCommunicationProtocol);
+                        form.show();
                     } else {
-                        me.getCommunicationProtocolDetailsTitle().setVisible(false);
+                        form.hide();
                     }
-                    me.getPropertiesViewController().showProperties(deviceCommunicationProtocol, me.getDeviceCommunicationProtocolPreview());
                 }
             });
         } else {
@@ -74,15 +71,6 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
             this.getDeviceCommunicationProtocolGrid().getSelectionModel().select(0);
         }
     },
-
-    getPropertiesViewController: function () {
-        return this.getController('Mdc.controller.setup.PropertiesView');
-    },
-
-    getPropertiesController: function () {
-        return this.getController('Mdc.controller.setup.Properties');
-    },
-
 
     editDeviceCommunicatonProtocolHistory: function (item) {
         location.href = '#/administration/devicecommunicationprotocols/' + item.get('id') + '/edit';
@@ -104,12 +92,14 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
                 me.getApplication().fireEvent('loadDeviceCommunicationProtocol', protocol);
                 widget.down('form').loadRecord(protocol);
                 widget.down('#deviceCommunicationProtocolEditCreateTitle').update('<h1>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' \'' + protocol.get('name') + '\'</h1>');
-                if (protocol.propertiesStore.data.items.length > 0) {
-                    me.getEditCommunicationProtocolDetailsTitle().setVisible(true);
+                var form = widget.down('property-form');
+                if (protocol.properties().count()) {
+                    form.show();
+                    form.loadRecord(protocol);
                 } else {
-                    me.getEditCommunicationProtocolDetailsTitle().setVisible(false);
+                    form.hide();
                 }
-                me.getPropertiesController().showProperties(protocol, widget, true);
+
                 widget.setLoading(false);
             }
         });
@@ -118,11 +108,14 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
     editDeviceCommunicationProtocol: function () {
         var record = this.getDeviceCommunicationProtocolEditForm().getRecord(),
             values = this.getDeviceCommunicationProtocolEditForm().getValues(),
+            propertyForm = this.getDeviceCommunicationProtocolEditView().down('property-form'),
             me = this;
 
         if (record) {
             record.set(values);
-            record.propertiesStore = me.getPropertiesController().updateProperties();
+            propertyForm.updateRecord();
+            record.propertiesStore = propertyForm.getRecord().properties();
+
             record.save({
                 success: function (record) {
                     location.href = '#/administration/devicecommunicationprotocols/';
@@ -132,7 +125,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
                     var json = Ext.decode(operation.response.responseText);
                     if (json && json.errors) {
                         me.getDeviceCommunicationProtocolEditForm().getForm().markInvalid(json.errors);
-                        me.getPropertiesController().showErrors(json.errors);
+                        propertyForm.getForm().markInvalid(json.errors);
                     }
                 }
             });
