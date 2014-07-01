@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.util.time.Interval;
@@ -49,7 +50,7 @@ public class DeviceConfigValidationRuleSetResolverTest {
     public void setUp() throws Exception {
         when(meterActivation.getMeter()).thenReturn(Optional.of(meter));
         when(meter.getAmrSystem()).thenReturn(amrSystem);
-        when(amrSystem.getId()).thenReturn(1);
+        when(amrSystem.is(KnownAmrSystem.MDC)).thenReturn(true);
 
         when(meter.getAmrId()).thenReturn(Long.toString(DEVICE_ID));
         when(deviceDataService.findDeviceById(eq(DEVICE_ID))).thenReturn(device);
@@ -79,7 +80,7 @@ public class DeviceConfigValidationRuleSetResolverTest {
 
     @Test
     public void testNotMdc() {
-        when(amrSystem.getId()).thenReturn(2);
+        when(amrSystem.is(KnownAmrSystem.MDC)).thenReturn(false);
         DeviceConfigValidationRuleSetResolver resolver = new DeviceConfigValidationRuleSetResolver();
         resolver.setDeviceDataService(deviceDataService);
 
