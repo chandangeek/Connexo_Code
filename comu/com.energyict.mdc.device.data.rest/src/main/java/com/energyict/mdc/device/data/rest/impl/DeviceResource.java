@@ -102,10 +102,9 @@ public class DeviceResource {
     }
 
     private void pauseOrResumeTask(ConnectionMethodInfo<?> connectionMethodInfo, ConnectionTask<?, ?> task) {
-        if (connectionMethodInfo.paused) {
-            task.pause();
-        } else {
-            task.resume();
+        switch (connectionMethodInfo.state){
+            case ACTIVE:task.activate();break;
+            case INACTIVE:task.deactivate();break;
         }
     }
 
