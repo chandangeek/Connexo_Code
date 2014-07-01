@@ -44,8 +44,6 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
                             name: 'serialNumber',
                             itemId: 'deviceAddSerial',
                             fieldLabel: Uni.I18n.translate('deviceAdd.serialNumber', 'MDC', 'Serial number'),
-                            //required: true,
-                            //msgTarget: 'under',
                             maxLength: 80,
                             enforceMaxLength: true
                         },
