@@ -288,6 +288,7 @@ public class ValidationResource {
     public ValidatorInfos getAvailableValidators(@Context UriInfo uriInfo) {
         ValidatorInfos infos = new ValidatorInfos();
         List<Validator> toAdd = Bus.getValidationService().getAvailableValidators();
+        Collections.sort(toAdd, Compare.BY_DISPLAY_NAME);
         for (Validator validator : toAdd) {
             infos.add(validator.getClass().getName(), validator.getDisplayName());
         }
@@ -295,5 +296,12 @@ public class ValidationResource {
         return infos;
     }
 
+    private enum Compare implements Comparator<Validator> {
+        BY_DISPLAY_NAME;
 
+        @Override
+        public int compare(Validator o1, Validator o2) {
+            return o1.getDisplayName().compareTo(o2.getDisplayName());
+        }
+    }
 }
