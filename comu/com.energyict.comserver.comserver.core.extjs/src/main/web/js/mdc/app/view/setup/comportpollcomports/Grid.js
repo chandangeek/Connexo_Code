@@ -1,4 +1,4 @@
-Ext.define('Mdc.view.setup.comservercomports.Grid', {
+Ext.define('Mdc.view.setup.comportpollcomports.Grid', {
     extend: 'Ext.grid.Panel',
     requires: [
         'Uni.grid.column.Action',
@@ -6,8 +6,8 @@ Ext.define('Mdc.view.setup.comservercomports.Grid', {
         'Uni.view.toolbar.PagingBottom',
         'Mdc.view.setup.comservercomports.ActionMenu'
     ],
-    alias: 'widget.comServerComPortsGrid',
-    itemId: 'comServerComPortsGrid',
+    alias: 'widget.comPortPoolComPortsGrid',
+    itemId: 'comPortPoolsComPortsGrid',
     store: 'Mdc.store.ComServerComPorts',
     columns: {
         items: [
@@ -18,17 +18,12 @@ Ext.define('Mdc.view.setup.comservercomports.Grid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('comServerComPorts.direction', 'MDC', 'Direction'),
-                dataIndex: 'direction',
+                header: Uni.I18n.translate('comPortPoolComPorts.communicationServer', 'MDC', 'Communication server'),
+                dataIndex: 'server',
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('general.type', 'MDC', 'Type'),
-                dataIndex: 'comPortType',
-                flex: 1
-            },
-            {
-                header: Uni.I18n.translate('general.status', 'MDC', 'Status'),
+                header: Uni.I18n.translate('comPortPoolComPorts.portStatus', 'MDC', 'Port status'),
                 dataIndex: 'active',
                 renderer: function (value) {
                     if (value === true) {
@@ -60,10 +55,7 @@ Ext.define('Mdc.view.setup.comservercomports.Grid', {
                 {
                     xtype: 'button',
                     action: 'addComPort',
-                    text: Uni.I18n.translate('comServerComPorts.add', 'MDC', 'Add communication port'),
-                    menu: {
-                        xtype: 'comServerComPortsAddMenu'
-                    }
+                    text: Uni.I18n.translate('comServerComPorts.add', 'MDC', 'Add communication port')
                 }
             ]
         },

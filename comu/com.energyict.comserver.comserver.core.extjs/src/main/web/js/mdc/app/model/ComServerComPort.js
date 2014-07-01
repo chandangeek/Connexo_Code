@@ -333,6 +333,23 @@ Ext.define('Mdc.model.ComServerComPort', {
                 }
                 return result;
             }
+        },
+        {
+            name: 'server',
+            type: 'string',
+            defaultValue: '-',
+            mapping: function (data) {
+                var id = data.comServer_id,
+                    result = '',
+                    comServerStore,
+                    comServer;
+                if (id) {
+                    comServerStore = Ext.getStore('Mdc.store.ComServers');
+                    comServer = comServerStore.getById(id);
+                    result = comServer ? comServer.get('name') : '';
+                }
+                return result;
+            }
         }
     ],
     proxy: {
