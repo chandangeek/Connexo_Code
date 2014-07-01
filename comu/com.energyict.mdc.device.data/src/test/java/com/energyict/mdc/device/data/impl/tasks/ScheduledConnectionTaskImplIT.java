@@ -68,7 +68,6 @@ import static org.mockito.Mockito.when;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-16 (14:12)
  */
-@Ignore
 public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     private static final TimeDuration EVERY_DAY = new TimeDuration(1, TimeDuration.DAYS);
@@ -820,7 +819,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         // Business method
         connectionTask.save();
 
-        // Asserts: see ExpectedConstraintViolation rule
+        assertThat(connectionTask.getStatus()).isEqualTo(ConnectionTask.ConnectionTaskLifecycleState.INCOMPLETE);
     }
 
 
@@ -979,7 +978,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         freezeClock(2011, Calendar.MAY, 31);    // Anything, as long as it is not 2012, May 31st - the data that is set below just after the save
 
         ScheduledConnectionTaskImpl connectionTask = this.createMinimizeWithNoPropertiesWithoutViolations("testUpdateNextExecutionTimestampForUTCDevice", new TemporalExpression(EVERY_HOUR));
-        connectionTask.save();
+        connectionTask.activateAndSave();
 
         freezeClock(2012, Calendar.MAY, 31);
         // Business method
@@ -1464,15 +1463,15 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     public void pauseIfNotPausedTest() throws SQLException, BusinessException {
         String name = "pauseIfNotPausedTest";
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations(name);
-        connectionTask.save();
+        connectionTask.activateAndSave();
 
-        assertThat(connectionTask.getTaskStatus()).isEqualTo(ConnectionTask.ConnectionTaskLifecycleState.ACTIVE);
+        assertThat(connectionTask.getStatus()).isEqualTo(ConnectionTask.ConnectionTaskLifecycleState.ACTIVE);
 
         // Business method
         connectionTask.deactivate();
         ConnectionTask reloadedConnectionTask = inMemoryPersistence.getDeviceDataService().findScheduledConnectionTask(connectionTask.getId()).get();
 
-        assertThat(connectionTask.getTaskStatus()).isEqualTo(ConnectionTask.ConnectionTaskLifecycleState.INACTIVE);
+        assertThat(connectionTask.getStatus()).isEqualTo(ConnectionTask.ConnectionTaskLifecycleState.INACTIVE);
     }
 
     @Test
@@ -1488,7 +1487,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         connectionTask.deactivate();
         ConnectionTask reloadedConnectionTask = inMemoryPersistence.getDeviceDataService().findScheduledConnectionTask(connectionTask.getId()).get();
 
-        assertThat(connectionTask.getTaskStatus()).isEqualTo(ConnectionTask.ConnectionTaskLifecycleState.INACTIVE);
+        assertThat(connectionTask.getStatus()).isEqualTo(ConnectionTask.ConnectionTaskLifecycleState.INACTIVE);
     }
 
     @Test
@@ -1496,7 +1495,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     public void resumeWhenPausedTest() throws SQLException, BusinessException {
         String name = "resumeWhenPausedTest";
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations(name);
-        connectionTask.save();
+        connectionTask.activateAndSave();
         connectionTask.deactivate();
 
         // business method
@@ -1504,7 +1503,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         reloadedConnectionTask.activate();
         reloadedConnectionTask = inMemoryPersistence.getDeviceDataService().findScheduledConnectionTask(connectionTask.getId()).get();
 
-        assertThat(connectionTask.getTaskStatus()).isEqualTo(ConnectionTask.ConnectionTaskLifecycleState.ACTIVE);
+        assertThat(reloadedConnectionTask.getStatus()).isEqualTo(ConnectionTask.ConnectionTaskLifecycleState.ACTIVE);
     }
 
     @Test
@@ -1512,13 +1511,13 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     public void resumeWhenAlreadyResumedTest() throws SQLException, BusinessException {
         String name = "resumeWhenAlreadyResumedTest";
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations(name);
-        connectionTask.save();
+        connectionTask.activateAndSave();
 
         // business method
         connectionTask.activate();
         ConnectionTask reloadedConnectionTask = inMemoryPersistence.getDeviceDataService().findScheduledConnectionTask(connectionTask.getId()).get();
 
-        assertThat(connectionTask.getTaskStatus()).isEqualTo(ConnectionTask.ConnectionTaskLifecycleState.ACTIVE);
+        assertThat(connectionTask.getStatus()).isEqualTo(ConnectionTask.ConnectionTaskLifecycleState.ACTIVE);
     }
 
 /* Todo: Enable once communication session objects have been ported to this bundle
@@ -1867,6 +1866,12 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
         // Asserts
         assertThat(connectionTask.isDefault()).isTrue();
+    }
+
+    @Test
+    @Transactional
+    public void createConnectionTaskWithoutRequiredPropertyInInCompleteStateTest() {
+
     }
 
     private void assertConnectionTask(List<ConnectionTask> outboundConnectionTasks, ScheduledConnectionTaskImpl... tasks) {

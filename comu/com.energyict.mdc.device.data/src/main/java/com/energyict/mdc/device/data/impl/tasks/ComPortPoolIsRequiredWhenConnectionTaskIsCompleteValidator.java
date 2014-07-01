@@ -21,14 +21,36 @@ public class ComPortPoolIsRequiredWhenConnectionTaskIsCompleteValidator implemen
     @Override
     public boolean isValid(ConnectionMethodImpl connectionMethod, ConstraintValidatorContext context) {
         //TODO fix this, it is not completely correct!
-        if (connectionMethod.getConnectionTask() != null && !connectionMethod.getConnectionTask().getStatus().equals(ConnectionTask.ConnectionTaskLifecycleState.INCOMPLETE) && !connectionMethod.hasComPortPool()) {
+        ConnectionTask connectionTask = connectionMethod.getConnectionTask();
+        if (connectionTask != null && !connectionTask.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleState.INCOMPLETE) && !connectionMethod.hasComPortPool()) {
             context.disableDefaultConstraintViolation();
-            context
-                    .buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.CONNECTION_METHOD_COMPORT_POOL_REQUIRED_KEY + "}")
-                    .addPropertyNode("comPortPool").addConstraintViolation();
+
+            if ((connectionTask.getId() != 0)) {
+                context
+                        .buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.CONNECTION_METHOD_COMPORT_POOL_REQUIRED_KEY + "}")
+                        .addPropertyNode("comPortPool").addConstraintViolation();
+            } else {
+                boolean validConnectionTask = isValidConnectionTaskInIncompleteState((ConnectionTaskImpl) connectionTask);
+                if (validConnectionTask) {
+                    context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.CONNECTION_METHOD_COMPORT_POOL_REQUIRED_KEY + "}")
+                            .addPropertyNode("status").addConstraintViolation();
+                } else {
+                    context
+                            .buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.CONNECTION_METHOD_COMPORT_POOL_REQUIRED_KEY + "}")
+                            .addPropertyNode("comPortPool").addConstraintViolation();
+                }
+            }
             return false;
         }
         return true;
+    }
+
+    private boolean isValidConnectionTaskInIncompleteState(ConnectionTaskImpl connectionTaskImpl) {
+        ConnectionTask.ConnectionTaskLifecycleState tempStatus = connectionTaskImpl.getStatus();
+        connectionTaskImpl.setStatus(ConnectionTask.ConnectionTaskLifecycleState.INCOMPLETE);
+        boolean validConnectionTask = connectionTaskImpl.isValidConnectionTask();
+        connectionTaskImpl.setStatus(tempStatus);
+        return validConnectionTask;
     }
 
 }

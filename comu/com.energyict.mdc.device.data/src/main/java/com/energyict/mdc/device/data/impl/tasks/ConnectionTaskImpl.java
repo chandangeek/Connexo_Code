@@ -194,11 +194,6 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     @Override
-    public void setStatus(ConnectionTaskLifecycleState status) {
-        this.status = status;
-    }
-
-    @Override
     public void save() {
         if (device == null) {
             loadDevice();
@@ -551,5 +546,23 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     protected TimeZone getClocksTimeZone() {
         return this.clock.getTimeZone();
+    }
+
+
+    /**
+     * This will use the validation framework to detect if there are any Validation errors
+     * @return true if everything is valid, false otherwise
+     */
+    boolean isValidConnectionTask(){
+        try {
+            Save.CREATE.validate(dataModel, this, Save.Update.class);
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+
+    void setStatus(ConnectionTaskLifecycleState status) {
+        this.status = status;
     }
 }
