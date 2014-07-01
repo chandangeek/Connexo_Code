@@ -5,7 +5,6 @@ Ext.define('Mdc.controller.Main', {
         'Uni.controller.Navigation',
         'Uni.store.MenuItems',
         'Mdc.controller.setup.SetupOverview',
-        'Mdc.controller.setup.ComServers',
         'Mdc.controller.setup.ComPortPools',
         'Mdc.controller.history.Setup',
         'Mdc.controller.setup.LicensedProtocol',
