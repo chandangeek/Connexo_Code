@@ -283,7 +283,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     private Date updateNextExecutionTimestamp(PostingMode postingMode) {
-        if (!this.isPaused() && this.getNextExecutionSpecs() != null) {
+        if (isActive() && this.getNextExecutionSpecs() != null) {
             return this.doUpdateNextExecutionTimestamp(postingMode);
         }
         else {
@@ -518,7 +518,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     @Override
-    public TaskStatus getStatus() {
+    public TaskStatus getTaskStatus() {
         return ServerConnectionTaskStatus.getApplicableStatusFor(this, this.now());
     }
 

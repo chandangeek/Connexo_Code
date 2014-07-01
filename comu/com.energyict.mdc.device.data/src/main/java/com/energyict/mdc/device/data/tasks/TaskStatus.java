@@ -82,9 +82,9 @@ public enum TaskStatus {
      * For {@link ComTaskExecution} this is done by rescheduling the task
      * which resets a next execution timestamp for the task.
      *
-     * @see ConnectionTask#isPaused()
-     * @see ConnectionTask#pause()
-     * @see ConnectionTask#resume()
+     * @see ConnectionTask#getStatus()
+     * @see ConnectionTask#deactivate()
+     * @see ConnectionTask#activate()
      * @see ComTaskExecution#isOnHold()
      * @see ComTaskExecution#scheduleNow()
      * @see ComTaskExecution#schedule(java.util.Date)

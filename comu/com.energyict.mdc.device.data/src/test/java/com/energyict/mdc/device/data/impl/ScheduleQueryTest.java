@@ -81,7 +81,7 @@ public class ScheduleQueryTest extends ConnectionTaskImplIT {
     public void simpleSchedulingQueryTest() {
         Date pastDate = freezeClock(2013, Calendar.MARCH, 13, 10, 12, 10, 0);
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("simpleSchedulingQueryTest");
-        connectionTask.save();
+        connectionTask.activateAndSave();
         ComTaskExecution comTaskExecution = createComTaskExecutionWithConnectionTaskAndSetNextExecTimeStamp(connectionTask, pastDate);
         final Date futureDate = freezeClock(2013, Calendar.AUGUST, 5); // make the task pending
         OutboundComPort outboundComPort = createOutboundComPort();
@@ -102,7 +102,7 @@ public class ScheduleQueryTest extends ConnectionTaskImplIT {
         ComTaskExecution comTaskExecution = createComTaskExecutionWithConnectionTaskAndSetNextExecTimeStamp(connectionTask, pastDate);
         final Date futureDate = freezeClock(2013, Calendar.AUGUST, 5); // make the task pending
         OutboundComPort outboundComPort = createOutboundComPort();
-        connectionTask.pause();
+        connectionTask.deactivate();
         Fetcher<ComTaskExecution> plannedComTaskExecutions = inMemoryPersistence.getDeviceDataService().getPlannedComTaskExecutionsFor(outboundComPort);
 
         assertThat(plannedComTaskExecutions.iterator().hasNext()).isFalse();
@@ -189,7 +189,7 @@ public class ScheduleQueryTest extends ConnectionTaskImplIT {
         Date nextOne = freezeClock(2013, Calendar.MARCH, 13, 10, 12, 10, 0);
         Date nextTwo = freezeClock(2013, Calendar.JANUARY, 30, 9, 1, 10, 0);
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("orderByNextExecutionTimeStampTest");
-        connectionTask.save();
+        connectionTask.activateAndSave();
         ComTaskExecution comTaskExecution1 = createComTaskExecWithConnectionTaskNextDateAndComTaskEnablement(connectionTask, nextOne, comTaskEnablement1);
         ComTaskExecution comTaskExecution2 = createComTaskExecWithConnectionTaskNextDateAndComTaskEnablement(connectionTask, nextTwo, comTaskEnablement2);
         final Date futureDate = freezeClock(2013, Calendar.AUGUST, 5); // make the task pending
@@ -210,7 +210,7 @@ public class ScheduleQueryTest extends ConnectionTaskImplIT {
         Date nextOne = freezeClock(2013, Calendar.MARCH, 13, 10, 12, 10, 0);
         Date nextTwo = freezeClock(2025, Calendar.AUGUST, 23, 9, 1, 10, 0);
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("orderByNextExecutionTimeStampTest");
-        connectionTask.save();
+        connectionTask.activateAndSave();
         ComTaskExecution comTaskExecution2 = createComTaskExecWithConnectionTaskNextDateAndComTaskEnablement(connectionTask, nextTwo, comTaskEnablement2);
         ComTaskExecution comTaskExecution1 = createComTaskExecWithConnectionTaskNextDateAndComTaskEnablement(connectionTask, nextOne, comTaskEnablement1);
         final Date futureDate = freezeClock(2013, Calendar.AUGUST, 5); // make the task pending
@@ -229,8 +229,8 @@ public class ScheduleQueryTest extends ConnectionTaskImplIT {
         Date nextOne = freezeClock(2013, Calendar.MARCH, 13, 10, 12, 10, 0);
         ScheduledConnectionTaskImpl connectionTask1 = this.createAsapWithNoPropertiesWithoutViolations("orderByConnectionTaskTest1");
         ScheduledConnectionTaskImpl connectionTask2 = this.createOtherAsapWithNoPropertiesWithoutViolations("orderByConnectionTaskTest2");
-        connectionTask1.save();
-        connectionTask2.save();
+        connectionTask1.activateAndSave();
+        connectionTask2.activateAndSave();
         ComTaskExecution comTaskExecution1 = createComTaskExecWithConnectionTaskNextDateAndComTaskEnablement(connectionTask1, nextOne, comTaskEnablement1);
         ComTaskExecution comTaskExecution2 = createComTaskExecWithConnectionTaskNextDateAndComTaskEnablement(connectionTask2, nextOne, comTaskEnablement2);
         ComTaskExecution comTaskExecution3 = createComTaskExecWithConnectionTaskNextDateAndComTaskEnablement(connectionTask1, nextOne, comTaskEnablement3);

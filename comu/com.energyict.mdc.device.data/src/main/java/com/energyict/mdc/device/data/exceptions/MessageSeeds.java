@@ -4,6 +4,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.data.DeviceDataService;
 import java.util.logging.Level;
 
+import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.SEVERE;
 
 /**
@@ -58,6 +59,9 @@ public enum MessageSeeds implements MessageSeed {
     COM_TASK_EXECUTION_CANNOT_DELETE_IF_NOT_FROM_DEVICE(2031, Constants.COM_TASK_EXECUTION_CANNOT_DELETE_IF_NOT_FROM_DEVICE, "You can not delete comtaskexecution {0} because it is not owned by device {1}", Level.SEVERE),
     VETO_COM_TASK_ENABLEMENT_DELETION(2032, Constants.VETO_COM_TASK_ENABLEMENT_DELETION, "The device protocol pluggable class {0} is still used by the following device types: {1}", SEVERE),
     VETO_DEVICE_CONFIGURATION_DEACTIVATION(2033, Constants.VETO_DEVICE_CONFIGURATION_IN_USE_BY_DEVICES, "The device configuration {0} is still used by at least one device", SEVERE),
+    CONNECTION_TASK_STATUS_INCOMPLETE(2036, Constants.CONNECTION_TASK_STATUS_INCOMPLETE, "Incomplete", INFO),
+    CONNECTION_TASK_STATUS_ACTIVE(2037, Constants.CONNECTION_TASK_STATUS_ACTIVE, "Active", INFO),
+    CONNECTION_TASK_STATUS_INACTIVE(2038, Constants.CONNECTION_TASK_STATUS_INACTIVE, "Inactive", INFO),
     ;
     private final int number;
     private final String key;
@@ -162,6 +166,9 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CONNECTION_TASK_REQUIRED_WHEN_NOT_USING_DEFAULT = "DDC.connectionTaskRequiredWhenNotUsingDefault";
         public static final String PRIORITY_NOT_IN_RANGE = "DDC.priorityNotInRange";
         public static final String UNIQUE_COMTASKS_PER_DEVICE = "DDC.uniqueComTasksPerDevice";
+        public static final String CONNECTION_TASK_STATUS_INCOMPLETE = "DDC.connectionTaskStatusIncomplete";
+        public static final String CONNECTION_TASK_STATUS_ACTIVE = "DDC.connectionTaskStatusActive";
+        public static final String CONNECTION_TASK_STATUS_INACTIVE = "DDC.connectionTaskStatusInActive";
     }
 
 }

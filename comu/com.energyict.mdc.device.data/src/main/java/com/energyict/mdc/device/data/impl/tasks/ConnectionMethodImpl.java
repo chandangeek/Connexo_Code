@@ -45,6 +45,7 @@ import static com.energyict.mdc.protocol.pluggable.ConnectionTypePropertyRelatio
  * @since 2012-05-31 (08:54)
  */
 @ComPortPoolIsCompatibleWithConnectionType(groups = {Save.Create.class, Save.Update.class})
+@ComPortPoolIsRequiredWhenConnectionTaskIsComplete(groups = {Save.Create.class, Save.Update.class})
 public class ConnectionMethodImpl extends IdPluggableClassUsageImpl<ConnectionMethod, ConnectionType, ConnectionTaskProperty>
         implements
             ConnectionMethod,
@@ -52,8 +53,8 @@ public class ConnectionMethodImpl extends IdPluggableClassUsageImpl<ConnectionMe
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.CONNECTION_METHOD_PLUGGABLE_CLASS_REQUIRED_KEY + "}")
     private ConnectionTypePluggableClass pluggableClass;
-    private Reference<ConnectionTask<?,?>> connectionTask = ValueReference.absent();
-    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.CONNECTION_METHOD_COMPORT_POOL_REQUIRED_KEY + "}")
+    private Reference<ConnectionTask> connectionTask = ValueReference.absent();
+//    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.CONNECTION_METHOD_COMPORT_POOL_REQUIRED_KEY + "}")
     private Reference<ComPortPool> comPortPool = ValueReference.absent();
 
     private ProtocolPluggableService protocolPluggableService;

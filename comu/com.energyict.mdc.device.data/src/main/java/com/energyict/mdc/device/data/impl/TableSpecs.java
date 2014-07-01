@@ -220,7 +220,7 @@ public enum TableSpecs {
             table.column("MOD_DATE").type("DATE").conversion(DATE2DATE).map("modificationDate").add();
             table.column("OBSOLETE_DATE").type("DATE").conversion(DATE2DATE).map("obsoleteDate").add();
             table.column("ISDEFAULT").number().conversion(NUMBER2BOOLEAN).map("isDefault").add();
-            table.column("PAUSED").number().conversion(NUMBER2BOOLEAN).map("paused").add();
+            table.column("STATUS").number().conversion(NUMBER2ENUM).map("status").add();
             table.column("LASTCOMMUNICATIONSTART").number().conversion(NUMBERINUTCSECONDS2DATE).map("lastCommunicationStart").add();
             table.column("LASTSUCCESSFULCOMMUNICATIONEND").conversion(NUMBERINUTCSECONDS2DATE).number().map("lastSuccessfulCommunicationEnd").add();
             Column comServer = table.column("COMSERVER").number().add();
