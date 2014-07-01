@@ -56,7 +56,7 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
     }
 
     @Override
-    public ConnectionTask<?,?> createTask(DeviceDataService deviceDataService, EngineModelService engineModelService, Device device, MdcPropertyUtils mdcPropertyUtils, PartialConnectionTask partialConnectionTask) {
+    public ConnectionTask<?,?> createTask(DeviceDataService deviceDataService, EngineModelService engineModelService, Device device, MdcPropertyUtils mdcPropertyUtils, PartialConnectionTask partialConnectionTask, boolean incomplete) {
 
         if (!PartialScheduledConnectionTask.class.isAssignableFrom(partialConnectionTask.getClass())) {
             throw new WebApplicationException("Expected partial connection task to be 'Outbound'", Response.Status.BAD_REQUEST);
@@ -77,7 +77,11 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
                 break;
         }
         writeCommonFields(scheduledConnectionTask, engineModelService);
-        scheduledConnectionTask.save();
+        if(incomplete){
+            scheduledConnectionTask.save();
+        } else {
+            scheduledConnectionTask.activateAndSave();
+        }
 
         return scheduledConnectionTask;
     }

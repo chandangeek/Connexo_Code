@@ -7,6 +7,7 @@ import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.configuration.rest.ConnectionStrategyAdapter;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.rest.ConnectionTaskLifecycleStateAdapter;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.engine.model.ComPortPool;
@@ -32,7 +33,8 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
 
     public long id;
     public String name;
-    public boolean paused;
+    @XmlJavaTypeAdapter(ConnectionTaskLifecycleStateAdapter.class)
+    public ConnectionTask.ConnectionTaskLifecycleState status;
     public String connectionType;
     public String comPortPool;
     public boolean isDefault;
@@ -51,7 +53,7 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
     protected ConnectionMethodInfo(ConnectionTask<?,?> connectionTask, UriInfo uriInfo, MdcPropertyUtils mdcPropertyUtils) {
         this.id=connectionTask.getId();
         this.name= connectionTask.getName();
-        this.paused = connectionTask.isPaused();
+        this.status = connectionTask.getStatus();
         this.connectionType= connectionTask.getPartialConnectionTask().getPluggableClass().getName();
         this.comPortPool= connectionTask.getComPortPool()!=null?connectionTask.getComPortPool().getName():null;
         this.isDefault= connectionTask.isDefault();
@@ -76,5 +78,5 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
     }
 
 
-    public abstract ConnectionTask<?,?> createTask(DeviceDataService deviceDataService, EngineModelService engineModelService, Device device, MdcPropertyUtils mdcPropertyUtils, PartialConnectionTask partialConnectionTask);
+    public abstract ConnectionTask<?,?> createTask(DeviceDataService deviceDataService, EngineModelService engineModelService, Device device, MdcPropertyUtils mdcPropertyUtils, PartialConnectionTask partialConnectionTask, boolean incomplete);
 }
