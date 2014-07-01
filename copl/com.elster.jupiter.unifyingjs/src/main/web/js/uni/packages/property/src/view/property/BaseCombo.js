@@ -42,7 +42,7 @@ Ext.define('Uni.property.view.property.BaseCombo', {
         return {
             xtype: 'combobox',
             itemId: me.key + 'combobox',
-            name: 'properties.' + me.key,
+            name: this.getName(),
             store: me.getProperty().getPossibleValues(),
             queryMode: 'local',
             displayField: 'value',

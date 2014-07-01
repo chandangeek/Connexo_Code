@@ -6,7 +6,7 @@ Ext.define('Uni.property.view.property.Boolean', {
 
         return {
             xtype: 'checkbox',
-            name: 'properties.' + me.key,
+            name: this.getName(),
             itemId: me.key + 'checkbox',
             width: me.width,
             cls: 'check',

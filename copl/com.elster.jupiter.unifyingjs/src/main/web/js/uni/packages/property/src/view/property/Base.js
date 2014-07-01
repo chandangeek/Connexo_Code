@@ -37,6 +37,15 @@ Ext.define('Uni.property.view.property.Base', {
     key: null,
 
     /**
+     * @param {string|null} key
+     * @returns {string}
+     */
+    getName: function(key) {
+        key = key ? key : this.key;
+        return 'properties.' + key;
+    },
+
+    /**
      * @private
      * @param {string} key
      */
@@ -125,7 +134,7 @@ Ext.define('Uni.property.view.property.Base', {
      *   var me = this;
      *   return {
      *       xtype: 'textfield',
-     *       name: 'properties.' + me.key,
+     *       name: this.getName(),
      *       itemId: me.key + 'textfield',
      *       width: me.width,
      *       msgTarget: 'under'
@@ -145,7 +154,7 @@ Ext.define('Uni.property.view.property.Base', {
     getDisplayCmp: function () {
         return {
             xtype: 'displayfield',
-            name: 'properties.' + this.key,
+            name: this.getName(),
             itemId: this.key + 'displayfield'
         }
     },
@@ -161,6 +170,10 @@ Ext.define('Uni.property.view.property.Base', {
         this.isEdit
             ? this.getField().setValue(value)
             : this.getDisplayField().setValue(value);
+    },
+
+    getValue: function (value) {
+        return value;
     },
 
     /**

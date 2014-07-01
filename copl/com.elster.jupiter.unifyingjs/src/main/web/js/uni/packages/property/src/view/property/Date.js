@@ -12,7 +12,7 @@ Ext.define('Uni.property.view.property.Date', {
 
         return {
             xtype: 'datefield',
-            name: 'properties.' + me.key,
+            name: this.getName(),
             itemId: me.key + 'datefield',
             format: me.format,
             altFormats: me.formats.join('|'),

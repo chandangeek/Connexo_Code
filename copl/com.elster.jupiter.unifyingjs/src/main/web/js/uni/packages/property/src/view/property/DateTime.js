@@ -9,7 +9,7 @@ Ext.define('Uni.property.view.property.DateTime', {
 
         result.splice(0, 0, {
             xtype: 'timefield',
-            name: 'properties.' + me.key,
+            name: this.getName() + '.time',
             itemId: me.key + 'timefield',
             format: me.timeFormat,
             width: me.width,
@@ -39,5 +39,9 @@ Ext.define('Uni.property.view.property.DateTime', {
             this.callParent([dateValue]);
             this.getTimeField().setValue(timeValue);
         }
+    },
+
+    getValue: function () {
+
     }
 });

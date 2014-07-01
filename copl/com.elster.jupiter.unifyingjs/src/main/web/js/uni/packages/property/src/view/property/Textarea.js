@@ -5,7 +5,7 @@ Ext.define('Uni.property.view.property.Textarea', {
         var me = this;
         return {
             xtype: 'textareafield',
-            name: 'properties.' + me.key,
+            name: this.getName(),
             itemId: me.key + 'textareafield',
             width: me.width,
             grow: true,

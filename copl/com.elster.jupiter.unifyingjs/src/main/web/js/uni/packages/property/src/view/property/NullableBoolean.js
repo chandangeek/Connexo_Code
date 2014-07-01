@@ -7,7 +7,7 @@ Ext.define('Uni.property.view.property.NullableBoolean', {
         return {
             xtype: 'radiogroup',
             itemId: me.key + 'radiogroup',
-            name: 'properties.' + me.key,
+            name: this.getName(),
             allowBlank: false,
             vertical: true,
             columns: 1,

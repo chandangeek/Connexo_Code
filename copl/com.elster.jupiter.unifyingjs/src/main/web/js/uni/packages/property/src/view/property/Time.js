@@ -8,7 +8,7 @@ Ext.define('Uni.property.view.property.Time', {
 
         return {
             xtype: 'timefield',
-            name: 'properties.' + me.key,
+            name: this.getName(),
             itemId: me.key + 'timefield',
             format: me.timeFormat,
             width: me.width,

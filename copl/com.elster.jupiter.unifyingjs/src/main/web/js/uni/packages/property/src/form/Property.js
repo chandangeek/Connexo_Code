@@ -22,6 +22,7 @@
 Ext.define('Uni.property.form.Property', {
     extend: 'Ext.form.Panel',
     alias: 'widget.property-form',
+    hydrator: 'Uni.property.form.PropertyHydrator',
     border: 0,
     requires: [
         'Uni.property.controller.Registry'
@@ -43,12 +44,7 @@ Ext.define('Uni.property.form.Property', {
      * @param record
      */
     loadRecord: function (record) {
-        if (!this.initialised) {
-            this.initProperties(record.properties());
-        } else {
-            this.setProperties(record.properties())
-        }
-
+        this.initProperties(record.properties());
         this.callParent(arguments);
     },
 
@@ -86,6 +82,36 @@ Ext.define('Uni.property.form.Property', {
         this.initialised = true;
     },
 
+    getFieldValues: function(dirtyOnly) {
+        var data = this.getValues(false, dirtyOnly, false, true);
+        return this.unFlattenObj(data);
+    },
+
+    updateRecord: function() {
+        var me = this;
+        var raw = me.getFieldValues();
+        var values = [];
+        _.each(raw.properties || [], function(rawValue, key){
+            var field = me.getPropertyField(key);
+            values[key] = field.getValue(rawValue);
+        });
+
+        this.getForm().hydrator.hydrate(values, me.getRecord());
+    },
+
+    unFlattenObj: function(object) {
+        return _(object).inject(function(result, value, keys) {
+            var current = result,
+                partitions = keys.split('.'),
+                limit = partitions.length - 1;
+
+            _(partitions).each(function(key, index) {
+                current = current[key] = (index == limit ? value : (current[key] || {}));
+            });
+
+            return result;
+        }, {});
+    },
 
     /**
      * Updates the form with the new properties data
@@ -100,7 +126,7 @@ Ext.define('Uni.property.form.Property', {
                 throw '!(entry instanceof Uni.property.model.Property)';
             }
 
-            var field = me.getPropertyField(property);
+            var field = me.getPropertyField(property.get('key'));
             if (field) {
                 field.setProperty(property);
             }
@@ -109,10 +135,10 @@ Ext.define('Uni.property.form.Property', {
 
     /**
      * Returns property field by property model
-     * @param {Uni.property.model.Property} property
+     * @param {string} key
      * @returns {Uni.property.view.property.Base}
      */
-    getPropertyField: function(property) {
-        return this.getComponent(property.get('key'));
+    getPropertyField: function(key) {
+        return this.getComponent(key);
     }
 });

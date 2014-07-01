@@ -16,7 +16,7 @@ Ext.define('Uni.property.view.property.Number', {
 
         return {
             xtype: 'numberfield',
-            name: 'properties.' + me.key,
+            name: this.getName(),
             itemId: me.key + 'numberfield',
             width: me.width,
             hideTrigger: true,

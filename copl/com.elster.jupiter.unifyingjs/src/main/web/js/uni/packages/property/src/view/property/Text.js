@@ -5,7 +5,7 @@ Ext.define('Uni.property.view.property.Text', {
         var me = this;
         return {
             xtype: 'textfield',
-            name: 'properties.' + me.key,
+            name: this.getName(),
             itemId: me.key + 'textfield',
             width: me.width,
             msgTarget: 'under'

@@ -7,7 +7,7 @@ Ext.define('Uni.property.view.property.Combobox', {
         return {
             xtype: 'combobox',
             itemId: me.key + 'combobox',
-            name: 'properties.' + me.key,
+            name: this.getName(),
             store: me.getProperty().getPossibleValues(),
             queryMode: 'local',
             displayField: 'value',

@@ -11,14 +11,14 @@ Ext.define('Uni.property.view.property.Period', {
             {
                 xtype: 'numberfield',
                 itemId: me.key + 'numberfield',
-                name: 'properties.' + me.key,
+                name: this.getName() + '.numberfield',
                 width: me.width,
                 required: me.required
             },
             {
                 xtype: 'combobox',
                 itemId: me.key + 'combobox',
-                name: 'properties.' + me.key,
+                name: this.getName() + '.combobox',
                 store: 'Uni.property.store.TimeUnits',
                 queryMode: 'local',
                 displayField: 'timeUnit',
@@ -75,6 +75,18 @@ Ext.define('Uni.property.view.property.Period', {
             }
         } else {
             this.callParent([timeDuration]);
+        }
+    },
+
+    getValue: function (value) {
+        if (!this.isCombo()) {
+            var result = {};
+            result.count = value.numberfield;
+            result.timeUnit = value.combobox;
+
+            return result;
+        } else {
+            return value
         }
     }
 });
