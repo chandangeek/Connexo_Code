@@ -5,7 +5,8 @@ Ext.define('Mdc.view.setup.validation.RulesGrid', {
     requires: [
         'Mdc.view.setup.validation.RuleActionMenu',
         'Uni.view.toolbar.PagingBottom',
-        'Uni.view.toolbar.PagingTop'
+        'Uni.view.toolbar.PagingTop',
+        'Cfg.store.ValidationRules'
     ],
 
     store: Ext.create('Cfg.store.ValidationRules'),
