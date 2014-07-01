@@ -11,6 +11,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingForm', {
     deviceTypeId: null,
     deviceConfigurationId: null,
     actionButtonName: null,
+    securityAction: null,
 
     content: [
         {
@@ -105,6 +106,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingForm', {
                 xtype: 'button',
                 ui: 'action',
                 name: 'securityaction',
+                action: this.securityAction,
                 text: this.actionButtonName
             }
         );

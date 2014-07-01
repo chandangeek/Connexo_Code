@@ -173,6 +173,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
         this.getTaskEdit().down('toolbar').getComponent('createEditTask').setText(
             Ext.isEmpty(id) ? Uni.I18n.translate('general.add', 'MDC', 'Add') : Uni.I18n.translate('general.save', 'MDC', 'Save')
         );
+        this.getTaskEdit().down('toolbar').getComponent('createEditTask').action = Ext.isEmpty(id) ? 'add' : 'save';
         if (id) {
             this.taskEditId = id;
             this.getTaskEdit().down('toolbar').getComponent('createEditTask').enable();
@@ -234,14 +235,14 @@ Ext.define('Mdc.controller.setup.Comtasks', {
         sendingData.commands = self.commands;
         if (form.isValid()) {
             formErrorsPanel.hide();
-            if (btn.text === 'Add') {
+            if (btn.action === 'add') {
                 preloader = Ext.create('Ext.LoadMask', {
                     msg: Uni.I18n.translate('comtask.creating', 'MDC', 'Creating communication task'),
                     target: editView
                 });
                 preloader.show();
                 self.createTask(preloader, sendingData, btn);
-            } else if (btn.text === 'Save') {
+            } else if (btn.action === 'save') {
                 preloader = Ext.create('Ext.LoadMask', {
                     msg: Uni.I18n.translate('comtask.updating', 'MDC', 'Updating communication task'),
                     target: editView

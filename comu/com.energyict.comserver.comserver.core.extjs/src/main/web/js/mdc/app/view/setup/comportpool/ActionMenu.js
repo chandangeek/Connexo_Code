@@ -8,12 +8,22 @@ Ext.define('Mdc.view.setup.comportpool.ActionMenu', {
     items: [
         {
             itemId: 'edit',
-            text: 'Edit',
+            text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
             action: 'edit'
         },
         {
+            itemId: 'activate',
+            text: Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
+            action: 'activate'
+        },
+        {
+            itemId: 'deactivate',
+            text: Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate'),
+            action: 'deactivate'
+        },
+        {
             itemId: 'remove',
-            text: 'Remove',
+            text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
             action: 'remove'
         }
     ]

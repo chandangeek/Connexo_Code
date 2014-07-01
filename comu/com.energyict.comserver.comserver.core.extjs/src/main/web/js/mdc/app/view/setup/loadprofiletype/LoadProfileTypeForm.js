@@ -4,6 +4,8 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeForm', {
     loadProfileTypeHeader: null,
     loadProfileTypeAction: null,
     loadProfileTypeActionHref: null,
+    loadButtonAction: null,
+
     content: [
         {
             items: [
@@ -140,6 +142,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeForm', {
                 xtype: 'button',
                 name: 'loadprofiletypeaction',
                 text: this.loadProfileTypeAction,
+                action: this.loadButtonAction,
                 ui: 'action'
             },
             {
