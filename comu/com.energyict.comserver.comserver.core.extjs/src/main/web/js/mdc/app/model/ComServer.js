@@ -8,8 +8,8 @@ Ext.define('Mdc.model.ComServer', {
         {name: 'serverLogLevel', type: 'string', useNull: true},
         {name: 'communicationLogLevel', type: 'string', useNull: true},
         {name: 'queryAPIPostUri', type: 'string', useNull: true},
-        {name: 'usesDefaultQueryAPIPostUri', type: 'string', useNull: true},
-        {name: 'eventRegistrationUri', type: 'string', useNull: true},
+        {name: 'usesDefaultQueryAPIPostUri', type: 'boolean', useNull: true},
+        {name: 'eventRegistrationUri', type: 'string', useNull: true, persist: false},
         {name: 'usesDefaultEventRegistrationUri', type: 'boolean', useNull: true},
         {name: 'storeTaskQueueSize', type: 'int', useNull: true},
         {name: 'numberOfStoreTaskThreads', type: 'int', useNull: true},
@@ -38,7 +38,7 @@ Ext.define('Mdc.model.ComServer', {
                 return 'Mdc.model.OutboundComPort';
             }
         },
-        {name: 'inboundComPorts', type: 'hasMany', model: 'Mdc.model.ComPort', foreignKey: 'comserver_id', associationKey: 'inboundComPorts',
+        {name: 'inboundComPorts', type: 'hasMany', model: 'Mdc.model.InboundComPort', foreignKey: 'comserver_id', associationKey: 'inboundComPorts',
             getTypeDiscriminator: function (node) {
                 return 'Mdc.model.InboundComPort';
             }

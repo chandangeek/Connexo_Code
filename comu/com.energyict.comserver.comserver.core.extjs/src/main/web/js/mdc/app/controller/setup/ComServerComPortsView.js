@@ -44,16 +44,8 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
         });
     },
 
-    checkLoadingOfNecessaryStores: function (callback) {
+    checkLoadingOfNecessaryStores: function (callback, storesArr) {
         var me = this,
-            storesArr = [
-                'Mdc.store.ComPortPools',
-                'Mdc.store.BaudRates',
-                'Mdc.store.NrOfDataBits',
-                'Mdc.store.NrOfStopBits',
-                'Mdc.store.Parities',
-                'Mdc.store.FlowControls'
-            ],
             counter = storesArr.length,
             check = function () {
                 counter--;
@@ -77,6 +69,14 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
             comPortModel = me.getModel('Mdc.model.ComServerComPort'),
             comPortsStore = me.getStore('Mdc.store.ComServerComPorts'),
             url = comServerModel.getProxy().url + '/' + id + '/comports',
+            storesArr = [
+                'Mdc.store.ComPortPools',
+                'Mdc.store.BaudRates',
+                'Mdc.store.NrOfDataBits',
+                'Mdc.store.NrOfStopBits',
+                'Mdc.store.Parities',
+                'Mdc.store.FlowControls'
+            ],
             widget,
             addMenus;
 
@@ -95,7 +95,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
                 menu.comServerId = id;
             });
             me.getApplication().fireEvent('changecontentevent', widget);
-        });
+        }, storesArr);
     },
 
     showPreview: function (selectionModel, record) {

@@ -2,7 +2,10 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
     extend: 'Ext.app.Controller',
 
     models: [
-        'Mdc.model.ComServer'
+        'Mdc.model.ComServer',
+        'Mdc.model.OutboundComPort',
+        'Mdc.model.InboundComPort',
+        'Mdc.model.ModemInitString'
     ],
 
     views: [
@@ -46,6 +49,8 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
                     form = widget.down('form'),
                     title;
 
+                me.comServerModel = record;
+
                 me.getApplication().fireEvent('loadComServer', record);
 
                 switch (comServerType) {
@@ -71,6 +76,8 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
             form;
 
         model.set('comServerType', 'Online');
+
+        this.comServerModel = model;
 
         this.getApplication().fireEvent('changecontentevent', widget);
         form = widget.down('form');
@@ -131,7 +138,7 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
         var form = this.getComServerEditPage().down('form'),
             queryString = Ext.Object.toQueryString(form.getValues()),
             values = Ext.Object.fromQueryString(queryString, true),
-            model = Ext.create(Mdc.model.ComServer);
+            model = this.comServerModel;
 
         model.beginEdit();
         model.set(values);
