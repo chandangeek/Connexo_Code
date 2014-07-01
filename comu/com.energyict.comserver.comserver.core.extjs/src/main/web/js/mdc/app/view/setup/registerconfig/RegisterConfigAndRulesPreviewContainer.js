@@ -2,6 +2,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigAndRulesPreviewContainer
     extend: 'Ext.panel.Panel',
     alias: 'widget.registerConfigAndRulesPreviewContainer',
     itemId: 'registerConfigAndRulesPreviewContainer',
+    xtype: 'register-config-and-rules-preview-container',
     deviceTypeId: null,
     deviceConfigId: null,
     registerId: null,
@@ -39,7 +40,8 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigAndRulesPreviewContainer
                     registerId: this.registerId
                 },
                 {
-                    xtype: 'ruleForRegisterConfigPreview'
+                    //xtype: 'ruleForRegisterConfigPreview',
+                    xtype: 'validation-rule-preview'
                 }
             ]
 
