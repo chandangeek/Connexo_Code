@@ -1,3 +1,6 @@
+/**
+ * @deprecated
+ */
 Ext.define('Mdc.controller.setup.Properties', {
     extend: 'Ext.app.Controller',
 

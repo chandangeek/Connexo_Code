@@ -209,7 +209,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
         me.deviceTypeId = deviceTypeId;
         me.deviceConfigurationId = deviceConfigurationId;
         me.loadAuthAndEncrStores(deviceTypeId, deviceConfigurationId);
-        var widget = Ext.widget('securitySettingForm', {deviceTypeId: deviceTypeId, deviceConfigurationId: deviceConfigurationId, securityHeader: 'Add security setting', actionButtonName: 'Add'});
+        var widget = Ext.widget('securitySettingForm', {deviceTypeId: deviceTypeId, deviceConfigurationId: deviceConfigurationId, securityHeader: 'Add security setting', actionButtonName: 'Add', securityAction: 'add'});
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
                 me.getApplication().fireEvent('loadDeviceType', deviceType);
@@ -249,7 +249,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                             method: 'GET',
                             success: function (response) {
                                 var security = Ext.JSON.decode(response.responseText),
-                                    widget = Ext.widget('securitySettingForm', {deviceTypeId: deviceTypeId, deviceConfigurationId: deviceConfigurationId, securityHeader: 'Edit ' + security.name, actionButtonName: 'Save'});
+                                    widget = Ext.widget('securitySettingForm', {deviceTypeId: deviceTypeId, deviceConfigurationId: deviceConfigurationId, securityHeader: 'Edit ' + security.name, actionButtonName: 'Save', securityAction: 'save'});
                                 me.deviceTypeName = deviceType.get('name');
                                 me.deviceConfigName = deviceConfig.get('name');
                                 me.getApplication().fireEvent('changecontentevent', widget);
@@ -308,8 +308,8 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
             preloader;
         if (form.isValid()) {
             formErrorsPanel.hide();
-            switch (btn.text) {
-                case 'Add':
+            switch (btn.action) {
+                case 'add':
                     preloader = Ext.create('Ext.LoadMask', {
                         msg: "Creating security setting",
                         target: formPanel
@@ -330,7 +330,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                         }
                     });
                     break;
-                case 'Save':
+                case 'save':
                     preloader = Ext.create('Ext.LoadMask', {
                         msg: "Updating security setting",
                         target: formPanel

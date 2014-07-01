@@ -19,8 +19,9 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
 
     refs: [
         {ref: 'comPortPoolsSetup', selector:'comPortPoolsSetup'},
-        {ref: 'comPortPoolGrid', selector: '#comportpoolgrid'},
-        {ref: 'comPortPoolPreview', selector: '#comportpoolpreview'}
+        {ref: 'comPortPoolGrid', selector: '#comportpoolsgrid'},
+        {ref: 'comPortPoolPreview', selector: '#comportpoolpreview'},
+        {ref: 'previewActionMenu', selector: 'comPortPoolPreview #comportpoolViewMenu'}
     ],
 
 
@@ -31,12 +32,27 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
                 select: this.showComPortPoolPreview
             },
             '#comportpoolViewMenu': {
-                click: this.chooseAction
+                click: this.chooseAction,
+                show: this.configureMenu
             },
             '#addComPortPoolMenu' : {
                 click: this.addAction
             }
         });
+    },
+
+    configureMenu: function (menu) {
+        var activate = menu.down('#activate'),
+            deactivate = menu.down('#deactivate'),
+            active = menu.record.data.active;
+
+        if (active) {
+            deactivate.show();
+            activate.hide();
+        } else {
+            activate.show();
+            deactivate.hide();
+        }
     },
 
     addAction: function(menu, item){
@@ -53,7 +69,10 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
 
     chooseAction : function (menu, item) {
         var me = this,
-            record = menu.record;
+            gridView = me.getComPortPoolGrid().getView(),
+            record = gridView.getSelectionModel().getLastSelected(),
+            form = me.getComPortPoolPreview().down('form'),
+            activeChange = 'notChange';
 
         switch (item.action) {
             case 'edit':
@@ -62,7 +81,28 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
             case 'remove':
                 me.showDeleteConfirmation(record);
                 break;
+            case 'activate':
+                activeChange = true;
+                break;
+            case 'deactivate':
+                activeChange = false;
+                break;
         }
+
+        if (activeChange != 'notChange') {
+            record.set('active', activeChange);
+            record.save({
+                callback: function (model) {
+                    var msg = activeChange ? Uni.I18n.translate('comPortPool.changeState.activated', 'MDC', 'activated') :
+                        Uni.I18n.translate('comPortPool.changeState.deactivated', 'MDC', 'deactivated');
+                    gridView.refresh();
+                    form.loadRecord(model);
+                    me.getPreviewActionMenu().record = model;
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comPortPool.changeState.msg', 'MDC', 'Communication port pool ' + msg));
+                }
+            });
+        }
+
     },
 
     showComPortPoolPreview: function (selectionModel, record) {

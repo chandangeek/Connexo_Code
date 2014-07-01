@@ -55,6 +55,12 @@ Ext.define('Mdc.controller.setup.ComPortPoolOverview', {
         });
     },
 
+    editComPortPool: function (record) {
+        var router = this.getController('Uni.controller.history.Router'),
+            id = record.getId();
+        router.getRoute('administration/comportpools/detail/edit').forward({id: id});
+    },
+
     deleteComPortPool: function (record) {
         var me = this,
             page = me.getComPortPoolOverview();

@@ -36,7 +36,9 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         {ref: 'numberOfDigits', selector: '#numberOfDigits'},
         {ref: 'rulesForRegisterConfigGrid', selector: 'validation-rules-for-registerconfig-grid'},
         {ref: 'ruleForRegisterConfigPreview', selector: 'validation-rule-for-register-config-preview'},
-        {ref: 'rulesForRegisterConfigPreview', selector: 'registerConfigAndRulesPreviewContainer > #rulesForRegisterConfigPreview'}
+        {ref: 'rulesForRegisterConfigPreview', selector: 'registerConfigAndRulesPreviewContainer > #rulesForRegisterConfigPreview'},
+
+        {ref: 'validationRulesPreview', selector: 'register-config-and-rules-preview-container validation-rule-preview'}
 
 
     ],
@@ -93,10 +95,10 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
 
         if (selectedRules.length === 1) {
             var selectedRule = selectedRules[0];
-            this.getRuleForRegisterConfigPreview().updateValidationRule(selectedRule)
-            this.getRuleForRegisterConfigPreview().show();
+            this.getValidationRulesPreview().updateValidationRule(selectedRule)
+            this.getValidationRulesPreview().show();
         } else {
-            this.getRuleForRegisterConfigPreview().hide();
+            this.getValidationRulesPreview().hide();
         }
     },
 
