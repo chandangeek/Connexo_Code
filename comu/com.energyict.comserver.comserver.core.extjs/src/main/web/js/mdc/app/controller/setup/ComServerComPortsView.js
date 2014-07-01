@@ -75,7 +75,8 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
                 'Mdc.store.NrOfDataBits',
                 'Mdc.store.NrOfStopBits',
                 'Mdc.store.Parities',
-                'Mdc.store.FlowControls'
+                'Mdc.store.FlowControls',
+                'Mdc.store.ComServers'
             ],
             widget,
             addMenus;
