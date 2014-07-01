@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataModel;
@@ -13,6 +14,7 @@ import javax.inject.Inject;
 
 public class ReadingTypeInValidationRuleImpl implements ReadingTypeInValidationRule {
 
+    @ValidReadingType(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NO_SUCH_READINGTYPE + "}")
     private String readingTypeMRID;
 
     private ReadingType readingType;
@@ -33,8 +35,18 @@ public class ReadingTypeInValidationRuleImpl implements ReadingTypeInValidationR
         return this;
     }
 
+    ReadingTypeInValidationRuleImpl init(ValidationRule rule, String readingTypeMRID) {
+        this.rule.set(rule);
+        this.readingTypeMRID = readingTypeMRID;
+        return this;
+    }
+
     static ReadingTypeInValidationRuleImpl from(DataModel dataModel, ValidationRule rule, ReadingType readingType) {
         return dataModel.getInstance(ReadingTypeInValidationRuleImpl.class).init(rule, readingType);
+    }
+
+    static ReadingTypeInValidationRuleImpl from(DataModel dataModel, ValidationRule rule, String readingTypeMRID) {
+        return dataModel.getInstance(ReadingTypeInValidationRuleImpl.class).init(rule, readingTypeMRID);
     }
 
     @Override

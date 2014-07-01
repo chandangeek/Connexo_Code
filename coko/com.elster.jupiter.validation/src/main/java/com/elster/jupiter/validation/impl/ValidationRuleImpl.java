@@ -19,7 +19,6 @@ import com.elster.jupiter.util.collections.DiffList;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.elster.jupiter.util.units.Quantity;
-import com.elster.jupiter.validation.InvalidReadingTypeException;
 import com.elster.jupiter.validation.ReadingTypeInValidationRule;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationResult;
@@ -39,6 +38,7 @@ import com.google.common.collect.Multimaps;
 import com.google.common.collect.Ordering;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
@@ -74,6 +74,7 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
     private UtcInstant modTime;
     private String userName;
     // associations
+    @Valid
     private List<ReadingTypeInValidationRule> readingTypesInRule = new ArrayList<>();
 
     private long ruleSetId;
@@ -162,7 +163,10 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
     public ReadingTypeInValidationRule addReadingType(String mRID) {
         Optional optional = meteringService.getReadingType(mRID);
         if (!optional.isPresent()) {
-            throw new InvalidReadingTypeException(this.thesaurus, mRID);
+            // throw new InvalidReadingTypeException(this.thesaurus, mRID);
+            ReadingTypeInValidationRuleImpl empty = ReadingTypeInValidationRuleImpl.from(dataModel, this, mRID);
+            readingTypesInRule.add(empty);
+            return empty;
         }
         return addReadingType((ReadingType) optional.get());
     }
