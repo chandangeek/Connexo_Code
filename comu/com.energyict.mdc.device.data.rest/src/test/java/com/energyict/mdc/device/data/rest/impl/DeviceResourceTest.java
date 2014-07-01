@@ -39,6 +39,7 @@ import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,6 +55,7 @@ import static org.mockito.Mockito.when;
 /**
  * Created by bvn on 6/19/14.
  */
+@Ignore
 public class DeviceResourceTest extends JerseyTest {
     private static final String DUMMY_THESAURUS_STRING = "";
     private static DeviceDataService deviceDataService;

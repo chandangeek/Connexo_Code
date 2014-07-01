@@ -26,6 +26,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -89,10 +90,10 @@ public class DeviceResource {
     @POST
     @Path("/{mRID}/connectionmethods")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response createConnectionMethod(@PathParam("mRID") String mrid, @Context UriInfo uriInfo, ConnectionMethodInfo<?> connectionMethodInfo) {
+    public Response createConnectionMethod(@PathParam("mRID") String mrid, @Context UriInfo uriInfo, ConnectionMethodInfo<?> connectionMethodInfo, @QueryParam("incomplete") boolean incomplete) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         PartialConnectionTask partialConnectionTask = findPartialConnectionTaskOrThrowException(device, connectionMethodInfo.name);
-        ConnectionTask<?, ?> task = connectionMethodInfo.createTask(deviceDataService, engineModelService, device, mdcPropertyUtils, partialConnectionTask);
+        ConnectionTask<?, ?> task = connectionMethodInfo.createTask(deviceDataService, engineModelService, device, mdcPropertyUtils, partialConnectionTask, incomplete);
         //pauseOrResumeTask(connectionMethodInfo, task);
         if (connectionMethodInfo.isDefault) {
             deviceDataService.setDefaultConnectionTask(task);
