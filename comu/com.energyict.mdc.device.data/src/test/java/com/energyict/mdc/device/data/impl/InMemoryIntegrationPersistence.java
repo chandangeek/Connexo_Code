@@ -29,6 +29,8 @@ import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.json.impl.JsonServiceImpl;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.impl.DefaultClock;
+import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.BusinessEventManager;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
@@ -123,6 +125,7 @@ public class InMemoryIntegrationPersistence {
     private PropertySpecService propertySpecService;
     private LicenseService licenseService;
     private LicensedProtocolService licensedProtocolService;
+    private ValidationService validationService;
 
     public InMemoryIntegrationPersistence() {
         this(new DefaultClock());
@@ -166,6 +169,7 @@ public class InMemoryIntegrationPersistence {
                 new ProtocolPluggableModule(),
                 new EngineModelModule(),
                 new MasterDataModule(),
+                new ValidationModule(),
                 new DeviceConfigurationModule(),
                 new MdcCommonModule(),
                 new TasksModule(),
@@ -187,6 +191,7 @@ public class InMemoryIntegrationPersistence {
             this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
             this.masterDataService = injector.getInstance(MasterDataService.class);
             this.taskService = injector.getInstance(TaskService.class);
+            this.validationService = injector.getInstance(ValidationService.class);
             this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
             this.engineModelService = injector.getInstance(EngineModelService.class);
             this.relationService = injector.getInstance(RelationService.class);

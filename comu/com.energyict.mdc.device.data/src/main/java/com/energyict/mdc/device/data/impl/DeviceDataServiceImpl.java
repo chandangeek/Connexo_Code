@@ -1039,7 +1039,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
             sqlBuilder.append(", ");
             sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
             sqlBuilder.append(" ct");
-            sqlBuilder.append(" where ct.paused = 0");
+            sqlBuilder.append(" where ct.status = 0");
             sqlBuilder.append("   and ct.comserver is null");
             sqlBuilder.append("   and ct.obsolete_date is null");
             sqlBuilder.append("   and cte.obsolete_date is null");
