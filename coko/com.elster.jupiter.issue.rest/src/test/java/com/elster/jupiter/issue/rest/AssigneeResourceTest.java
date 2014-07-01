@@ -29,28 +29,39 @@ public class AssigneeResourceTest extends Mocks {
     
     @Test
     public void testGetAllAssigneesWithoutLike() {
-        User user = mockUser(13L, "user");
-        when(securityContext.getUserPrincipal()).thenReturn(user);
-        
-        when(thesaurus.getString(MessageSeeds.ISSUE_ASSIGNEE_ME.getKey(), MessageSeeds.ISSUE_ASSIGNEE_ME.getDefaultFormat())).thenReturn("Me");
         when(thesaurus.getString(MessageSeeds.ISSUE_ASSIGNEE_UNASSIGNED.getKey(), MessageSeeds.ISSUE_ASSIGNEE_UNASSIGNED.getDefaultFormat())).thenReturn("Unassigned");
 
         Map<String, Object> map = target("/assignees").request().get(Map.class);
 
-        assertThat(map.get("total")).isEqualTo(2);
+        assertThat(map.get("total")).isEqualTo(1);
         List<?> assigneesList = (List<?>) map.get("data");
-        assertThat(assigneesList).hasSize(2);
+        assertThat(assigneesList).hasSize(1);
         
         Map<?,?> unassigned = (Map<?, ?>) assigneesList.get(0);
-        Map<?,?> me = (Map<?, ?>) assigneesList.get(1);
-        
+
         assertThat(unassigned.get("id")).isEqualTo(-1);
         assertThat(unassigned.get("type")).isEqualTo("UnexistingType");
         assertThat(unassigned.get("name")).isEqualTo("Unassigned");
-        
+    }
+
+    @Test
+    public void testGetAllAssigneesWithMeParameter() {
+        User user = mockUser(13L, "user");
+        when(securityContext.getUserPrincipal()).thenReturn(user);
+
+        when(thesaurus.getString(MessageSeeds.ISSUE_ASSIGNEE_ME.getKey(), MessageSeeds.ISSUE_ASSIGNEE_ME.getDefaultFormat())).thenReturn("Me");
+
+        Map<String, Object> map = target("/assignees").queryParam(RequestHelper.ME, "true").request().get(Map.class);
+
+        assertThat(map.get("total")).isEqualTo(1);
+        List<?> assigneesList = (List<?>) map.get("data");
+        assertThat(assigneesList).hasSize(1);
+
+        Map<?,?> me = (Map<?, ?>) assigneesList.get(0);
+
         assertThat(me.get("id")).isEqualTo(13);
         assertThat(me.get("type")).isEqualTo(IssueAssignee.Types.USER);
-        assertThat(me.get("name")).isEqualTo("Me");
+        assertThat(me.get("name")).isEqualTo("user");
     }
     
     @Test

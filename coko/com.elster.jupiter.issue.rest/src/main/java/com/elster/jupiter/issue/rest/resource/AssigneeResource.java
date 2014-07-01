@@ -34,6 +34,8 @@ public class AssigneeResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON)
     public AssigneeFilterListInfo getAllAssignees(@BeanParam StandardParametersBean params, @Context SecurityContext securityContext) {
         String searchText = params.getFirst(LIKE);
+        Boolean findMe = Boolean.parseBoolean(params.getFirst(ME));
+
         if (searchText != null && !searchText.isEmpty()) {
             String dbSearchText = "%" + searchText + "%";
 
@@ -51,7 +53,7 @@ public class AssigneeResource extends BaseResource {
 
             return new AssigneeFilterListInfo(listTeam, listRole, listUsers);
         }
-        return AssigneeFilterListInfo.defaults((User)securityContext.getUserPrincipal(), getThesaurus());
+        return AssigneeFilterListInfo.defaults((User)securityContext.getUserPrincipal(), getThesaurus(), findMe);
     }
 
     /**
@@ -66,6 +68,11 @@ public class AssigneeResource extends BaseResource {
     public Response getAssignee(@PathParam(ID) long id, @QueryParam(ASSIGNEE_TYPE) String assigneeType){
         IssueAssignee assignee = getIssueService().findIssueAssignee(assigneeType, id);
         if (assignee == null) {
+            //Takes care of Unassigned issues which would have userId of "-1"
+            if (id < 0){
+                return ok(new IssueAssigneeInfo("UnexistingType", -1L, "Unassigned")).build();
+            }
+            //Not unassigned, so this user really doesn't exist
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
         return ok(new IssueAssigneeInfo(assignee)).build();
