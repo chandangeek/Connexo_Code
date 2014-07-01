@@ -76,6 +76,7 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
                         this.nextExecutionSpecs != null ? nextExecutionSpecs.asTemporalExpression() : null);
                 break;
         }
+        scheduledConnectionTask.setStatus(status);
         writeCommonFields(scheduledConnectionTask, engineModelService);
         scheduledConnectionTask.save();
 

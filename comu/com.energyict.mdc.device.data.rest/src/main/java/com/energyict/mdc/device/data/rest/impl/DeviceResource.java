@@ -93,7 +93,7 @@ public class DeviceResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         PartialConnectionTask partialConnectionTask = findPartialConnectionTaskOrThrowException(device, connectionMethodInfo.name);
         ConnectionTask<?, ?> task = connectionMethodInfo.createTask(deviceDataService, engineModelService, device, mdcPropertyUtils, partialConnectionTask);
-        pauseOrResumeTask(connectionMethodInfo, task);
+        //pauseOrResumeTask(connectionMethodInfo, task);
         if (connectionMethodInfo.isDefault) {
             deviceDataService.setDefaultConnectionTask(task);
         }
@@ -102,7 +102,7 @@ public class DeviceResource {
     }
 
     private void pauseOrResumeTask(ConnectionMethodInfo<?> connectionMethodInfo, ConnectionTask<?, ?> task) {
-        switch (connectionMethodInfo.state){
+        switch (connectionMethodInfo.status){
             case ACTIVE:task.activate();break;
             case INACTIVE:task.deactivate();break;
         }
@@ -128,7 +128,7 @@ public class DeviceResource {
 
         connectionMethodInfo.writeTo(task, partialConnectionTask, deviceDataService, engineModelService, mdcPropertyUtils);
         task.save();
-        pauseOrResumeTask(connectionMethodInfo, task);
+        //pauseOrResumeTask(connectionMethodInfo, task);
         if (connectionMethodInfo.isDefault) {
             deviceDataService.setDefaultConnectionTask(task);
         } else if (wasConnectionTaskDefault) {

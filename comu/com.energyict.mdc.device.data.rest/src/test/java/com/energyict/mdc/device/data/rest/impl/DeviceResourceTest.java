@@ -146,7 +146,7 @@ public class DeviceResourceTest extends JerseyTest {
                 .containsKey("direction")
                 .containsKey("name")
                 .containsKey("id")
-                .containsKey("state")
+                .containsKey("status")
                 .containsKey("connectionType")
                 .containsKey("comWindowStart")
                 .containsKey("comWindowEnd")
@@ -163,7 +163,7 @@ public class DeviceResourceTest extends JerseyTest {
     public void testCreatePausedInboundConnectionMethod() throws Exception {
         InboundConnectionMethodInfo info = new InboundConnectionMethodInfo();
         info.name="inbConnMethod";
-        info.state = ConnectionTask.ConnectionTaskLifecycleState.INACTIVE;
+        info.status = ConnectionTask.ConnectionTaskLifecycleState.INACTIVE;
         info.isDefault=false;
         info.comPortPool="cpp";
 
@@ -197,7 +197,7 @@ public class DeviceResourceTest extends JerseyTest {
     public void testCreateActiveInboundConnectionMethod() throws Exception {
         InboundConnectionMethodInfo info = new InboundConnectionMethodInfo();
         info.name="inbConnMethod";
-        info.state = ConnectionTask.ConnectionTaskLifecycleState.ACTIVE;
+        info.status = ConnectionTask.ConnectionTaskLifecycleState.ACTIVE;
         info.isDefault=false;
         info.comPortPool="cpp";
 
@@ -232,7 +232,7 @@ public class DeviceResourceTest extends JerseyTest {
     public void testCreateDefaultInboundConnectionMethod() throws Exception {
         InboundConnectionMethodInfo info = new InboundConnectionMethodInfo();
         info.name="inbConnMethod";
-        info.state = ConnectionTask.ConnectionTaskLifecycleState.ACTIVE;
+        info.status = ConnectionTask.ConnectionTaskLifecycleState.ACTIVE;
         info.isDefault=true;
         info.comPortPool="cpp";
 
@@ -265,7 +265,7 @@ public class DeviceResourceTest extends JerseyTest {
     public void testUpdateAndUndefaultInboundConnectionMethod() throws Exception {
         InboundConnectionMethodInfo info = new InboundConnectionMethodInfo();
         info.name="inbConnMethod";
-        info.state = ConnectionTask.ConnectionTaskLifecycleState.ACTIVE;
+        info.status = ConnectionTask.ConnectionTaskLifecycleState.ACTIVE;
         info.isDefault=false;
         info.comPortPool="cpp";
 
@@ -301,7 +301,7 @@ public class DeviceResourceTest extends JerseyTest {
     public void testUpdateOnlyClearsDefaultIfConnectionMethodWasDefaultBeforeUpdate() throws Exception {
         InboundConnectionMethodInfo info = new InboundConnectionMethodInfo();
         info.name="inbConnMethod";
-        info.state = ConnectionTask.ConnectionTaskLifecycleState.ACTIVE;
+        info.status = ConnectionTask.ConnectionTaskLifecycleState.ACTIVE;
         info.isDefault=false;
         info.comPortPool="cpp";
 

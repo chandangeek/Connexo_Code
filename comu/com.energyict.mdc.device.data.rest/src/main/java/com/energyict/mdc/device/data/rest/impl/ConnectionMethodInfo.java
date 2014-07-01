@@ -34,7 +34,7 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
     public long id;
     public String name;
     @XmlJavaTypeAdapter(ConnectionTaskLifecycleStateAdapter.class)
-    public ConnectionTask.ConnectionTaskLifecycleState state;
+    public ConnectionTask.ConnectionTaskLifecycleState status;
     public String connectionType;
     public String comPortPool;
     public boolean isDefault;
@@ -53,7 +53,7 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
     protected ConnectionMethodInfo(ConnectionTask<?,?> connectionTask, UriInfo uriInfo, MdcPropertyUtils mdcPropertyUtils) {
         this.id=connectionTask.getId();
         this.name= connectionTask.getName();
-        this.state = connectionTask.getStatus();
+        this.status = connectionTask.getStatus();
         this.connectionType= connectionTask.getPartialConnectionTask().getPluggableClass().getName();
         this.comPortPool= connectionTask.getComPortPool()!=null?connectionTask.getComPortPool().getName():null;
         this.isDefault= connectionTask.isDefault();
