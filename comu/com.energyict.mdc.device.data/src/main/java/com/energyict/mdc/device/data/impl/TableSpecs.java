@@ -55,7 +55,7 @@ public enum TableSpecs {
             Column externid = table.column("MRID").varChar(255).map(DeviceFields.MRID.fieldName()).add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
             table.column("CERTIF_DATE").type("DATE").conversion(ColumnConversion.DATE2DATE).map("yearOfCertification").add();
-            Column configuration = table.column("DEVICECONFIGID").number().add();
+            Column configuration = table.column("DEVICECONFIGID").number().notNull().add();
             table.
                 foreignKey("FK_DDC_DEVICE_DEVICECONFIG").
                 on(configuration).
