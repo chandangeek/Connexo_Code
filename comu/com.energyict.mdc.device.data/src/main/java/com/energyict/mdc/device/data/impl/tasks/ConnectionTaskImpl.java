@@ -194,6 +194,11 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     @Override
+    public void setStatus(ConnectionTaskLifecycleState status) {
+        this.status = status;
+    }
+
+    @Override
     public void save() {
         if (device == null) {
             loadDevice();
@@ -326,7 +331,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     @Override
     public CPPT getComPortPool() {
-        return this.comPortPool.get();
+        return this.comPortPool.orNull();
     }
 
     @Override
