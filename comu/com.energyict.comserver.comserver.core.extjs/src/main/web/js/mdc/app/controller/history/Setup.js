@@ -550,7 +550,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                 comports: {
                                     title: 'Communication ports',
                                     route: 'comports',
-                                    controller: 'Mdc.controller.setup.ComPortPollComPortsView',
+                                    controller: 'Mdc.controller.setup.ComPortPoolComPortsView',
                                     action: 'showView'
                                 }
                             }

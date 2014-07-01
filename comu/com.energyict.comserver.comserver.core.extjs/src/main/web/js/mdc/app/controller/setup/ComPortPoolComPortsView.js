@@ -1,4 +1,4 @@
-Ext.define('Mdc.controller.setup.ComPortPollComPortsView', {
+Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
     extend: 'Mdc.controller.setup.ComServerComPortsView',
 
     models: [
