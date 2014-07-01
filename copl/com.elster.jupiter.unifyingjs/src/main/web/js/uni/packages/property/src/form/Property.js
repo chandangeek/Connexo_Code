@@ -28,7 +28,8 @@ Ext.define('Uni.property.form.Property', {
         'Uni.property.controller.Registry'
     ],
     defaults: {
-        labelWidth: 250
+        labelWidth: 250,
+        resetButtonHidden: false
     },
     layout: {
         type: 'vbox',
