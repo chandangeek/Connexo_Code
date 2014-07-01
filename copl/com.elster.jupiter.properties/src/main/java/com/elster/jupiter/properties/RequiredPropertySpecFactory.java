@@ -71,7 +71,6 @@ public class RequiredPropertySpecFactory extends PropertySpecFactoryImpl {
     }
 
     // Hide utility class constructor
-    private RequiredPropertySpecFactory () {
+    protected RequiredPropertySpecFactory () {
     }
-
 }

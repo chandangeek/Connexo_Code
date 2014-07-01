@@ -1,11 +1,53 @@
 package com.elster.jupiter.properties;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Types;
+
+import com.elster.jupiter.util.sql.SqlBuilder;
+
 import static com.elster.jupiter.util.Checks.is;
 
-public class ThreeStateFactory implements ValueFactory<Boolean> {
+/**
+ * Insert your comments here.
+ *
+ * @author Rudi Vankeirsbilck (rudi)
+ * @since 2013-11-29 (17:23)
+ */
+public class ThreeStateFactory extends AbstractValueFactory<Boolean> {
 
     public Class<Boolean> getValueType() {
         return Boolean.class;
+    }
+
+    @Override
+    public String getDatabaseTypeName() {
+        return "number(1)";
+    }
+
+    public int getJdbcType() {
+        return Types.INTEGER;
+    }
+
+    @Override
+    public Boolean valueFromDatabase(Object object) throws SQLException {
+        if (object == null) {
+            return null;
+        }
+        return ((Number) object).intValue() != 0;
+    }
+
+    @Override
+    public Object valueToDatabase(Boolean object) {
+        if (object == null) {
+            return null;
+        }
+        else if (object) {
+            return 1;
+        }
+        else {
+            return 0;
+        }
     }
 
     @Override
@@ -28,9 +70,27 @@ public class ThreeStateFactory implements ValueFactory<Boolean> {
             return "0";
         }
     }
-    
+
     @Override
-    public boolean isReference() {
-        return false;
+    public void bind(SqlBuilder builder, Boolean value) {
+        if (value != null) {
+            builder.addInt(value ? 1 : 0);
+        }
+        else {
+            builder.addNull(this.getJdbcType());
+        }
+    }
+
+    @Override
+    public void bind(PreparedStatement statement, int offset, Boolean value) throws SQLException {
+        if (value == null) {
+            statement.setNull(offset, this.getJdbcType());
+        }
+        else if (value) {
+            statement.setInt(offset, 1);
+        }
+        else {
+            statement.setInt(offset, 0);
+        }
     }
 }

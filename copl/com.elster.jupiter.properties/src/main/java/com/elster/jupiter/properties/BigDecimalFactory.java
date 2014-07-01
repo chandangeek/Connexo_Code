@@ -1,6 +1,10 @@
 package com.elster.jupiter.properties;
 
 import java.math.BigDecimal;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
+import com.elster.jupiter.util.sql.SqlBuilder;
 
 /**
  * Provides an implementation for the {@link ValueFactory} interface
@@ -9,11 +13,31 @@ import java.math.BigDecimal;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-11-29 (16:47)
  */
-public class BigDecimalFactory implements ValueFactory<BigDecimal> {
+public class BigDecimalFactory extends AbstractValueFactory<BigDecimal> {
 
     @Override
     public Class<BigDecimal> getValueType () {
         return BigDecimal.class;
+    }
+
+    @Override
+    public String getDatabaseTypeName () {
+        return "number";
+    }
+
+    @Override
+    public int getJdbcType () {
+        return java.sql.Types.NUMERIC;
+    }
+
+    @Override
+    public BigDecimal valueFromDatabase (Object object) throws SQLException {
+        return (BigDecimal) object;
+    }
+
+    @Override
+    public Object valueToDatabase (BigDecimal object) {
+        return object;
     }
 
     @Override
@@ -35,9 +59,25 @@ public class BigDecimalFactory implements ValueFactory<BigDecimal> {
             return object.toString();
         }
     }
-    
+
     @Override
-    public boolean isReference() {
-        return false;
+    public void bind(SqlBuilder builder, BigDecimal value) {
+        if (value != null) {
+            builder.addObject(value);
+        }
+        else {
+            builder.addNull(this.getJdbcType());
+        }
     }
+
+    @Override
+    public void bind(PreparedStatement statement, int offset, BigDecimal value) throws SQLException {
+        if (value != null) {
+            statement.setBigDecimal(offset, value);
+        }
+        else {
+            statement.setNull(offset, this.getJdbcType());
+        }
+    }
+
 }

@@ -1,4 +1,4 @@
-package com.energyict.mdc.dynamic.impl;
+package com.elster.jupiter.properties;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 

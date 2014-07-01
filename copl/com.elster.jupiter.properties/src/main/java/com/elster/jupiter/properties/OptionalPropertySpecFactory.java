@@ -65,6 +65,6 @@ public class OptionalPropertySpecFactory extends PropertySpecFactoryImpl {
     }
 
     // Hide utility class constructor
-    private OptionalPropertySpecFactory () {
+    protected OptionalPropertySpecFactory () {
     }
 }
