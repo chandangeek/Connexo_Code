@@ -15,8 +15,9 @@ import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.M
 import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.MeterRelayStatus;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.MeterSensorStatus;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.MeterTariffStatus;
-import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -70,11 +71,15 @@ public class ReadingResponseStructure extends Data<ReadingResponseStructure> {
 
     @Override
     public byte[] getBytes() {
-        ByteOutputStream consumptionByteStream = new ByteOutputStream(NR_OF_METERS * MeterConsumption.LENGTH);
+        ByteArrayOutputStream consumptionByteStream = new ByteArrayOutputStream(NR_OF_METERS * MeterConsumption.LENGTH);
         Iterator<MeterConsumption> it = consumptionList.iterator();
-        while (it.hasNext()) {
-            MeterConsumption consumption = it.next();
-            consumptionByteStream.write(consumption.getBytes());
+        try {
+            while (it.hasNext()) {
+                MeterConsumption consumption = it.next();
+                consumptionByteStream.write(consumption.getBytes());
+            }
+        } catch (IOException e) {
+            consumptionByteStream = new ByteArrayOutputStream();
         }
         byte[] readingSelectorBytes = new byte[]{(byte) (readingSelector.getBytes()[0] | meterTariffCollection.getBytes()[0])};
 
@@ -88,7 +93,7 @@ public class ReadingResponseStructure extends Data<ReadingResponseStructure> {
                 meterReadingStatusCollection.getBytes(),
                 meterModelCollection.getBytes(),
                 meterInstallationStatusCollection.getBytes(),
-                consumptionByteStream.getBytes()
+                consumptionByteStream.toByteArray()
         );
     }
 
