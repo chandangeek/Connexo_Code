@@ -27,11 +27,12 @@ import com.energyict.mdc.device.data.exceptions.PartialConnectionTaskNotPartOfDe
 import com.energyict.mdc.device.data.impl.DeviceDataServiceImpl;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.device.data.tasks.EarliestNextExecutionTimeStampAndPriority;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.dynamic.PropertySpec;
@@ -130,9 +131,9 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     public void testCreateDefaultWithASAPCopiesTheEarliestNextExecutionTimestamp() {
         Date earliestNextExecutionTimestamp = new DateMidnight(2013, 2, 14).toDate();
-        ComTaskExecution comTaskExecution = createComTaskExecution();
-        ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?, ?>, ? extends ComTaskExecution> comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
-        comTaskExecutionUpdater.setNextExecutionTimeStampAndPriority(earliestNextExecutionTimestamp, comTaskEnablementPriority);
+        ScheduledComTaskExecution comTaskExecution = createComTaskExecution();
+        ScheduledComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
+        comTaskExecutionUpdater.forceNextExecutionTimeStampAndPriority(earliestNextExecutionTimestamp, comTaskEnablementPriority);
         comTaskExecutionUpdater.update();
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testCreateDefaultWithASAPCopiesTheEarliestNextExecutionTimestamp");
         connectionTask.save();
@@ -1684,11 +1685,12 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         final Date futureDate = freezeClock(2013, Calendar.JULY, 4);
         Date triggerDate = freezeClock(2013, Calendar.JUNE, 3);
         EarliestNextExecutionTimeStampAndPriority earliestNextExecutionTimestampAndPriority = new EarliestNextExecutionTimeStampAndPriority(triggerDate, TaskPriorityConstants.DEFAULT_PRIORITY);
-        ComTaskExecution comTaskExecution1 = createComTaskExecutionAndSetNextExecutionTimeStamp(futureDate, comTaskEnablement1);
+        ScheduledComTaskExecution comTaskExecution1 = createComTaskExecutionAndSetNextExecutionTimeStamp(futureDate, comTaskEnablement1);
         ((ServerComTaskExecution) comTaskExecution1).executionCompleted();
-        comTaskExecution1.getDevice().getComTaskExecutionUpdater(comTaskExecution1).setNextExecutionTimeStampAndPriority(futureDate, 100).update();
+        comTaskExecution1.getDevice().getComTaskExecutionUpdater(comTaskExecution1).forceNextExecutionTimeStampAndPriority(futureDate, 100).update();
 
-        ComTaskExecution comTaskExecution2 = createComTaskExecution(comTaskEnablement2);
+        ScheduledComTaskExecution comTaskExecution2 = createComTaskExecution(comTaskEnablement2);
+        comTaskExecution2.putOnHold();
 
         // Business method
         Date nextExecutionTimstamp = connectionTask.trigger(triggerDate);
@@ -1719,7 +1721,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         inMemoryPersistence.getDeviceDataService().setDefaultConnectionTask(connectionTask);
         final Date futureDate = freezeClock(2013, Calendar.JULY, 4);
         final Date triggerDate = freezeClock(2013, Calendar.JUNE, 3);
-        ComTaskExecution comTaskExecution = createComTaskExecutionAndSetNextExecutionTimeStamp(futureDate, comTaskEnablement1);
+        ScheduledComTaskExecution comTaskExecution = createComTaskExecutionAndSetNextExecutionTimeStamp(futureDate, comTaskEnablement1);
         assertThat(comTaskExecution.getStatus()).isEqualTo(TaskStatus.NeverCompleted);
         connectionTask.trigger(triggerDate); // never completed
         Device reloadedDevice = getReloadedDevice(device);
@@ -1731,7 +1733,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
             }
         });
         ((ServerComTaskExecution) comTaskExecution).executionCompleted();
-        comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution).setNextExecutionTimeStampAndPriority(futureDate, 100).update(); // waiting task
+        comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution).forceNextExecutionTimeStampAndPriority(futureDate, 100).update(); // waiting task
         assertThat(getReloadedComTaskExecution(device).getStatus()).isEqualTo(TaskStatus.Waiting);
         connectionTask.trigger(triggerDate);
         reloadedDevice = getReloadedDevice(device);
@@ -1766,7 +1768,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
                 return comTaskExecution.getNextExecutionTimestamp() == null;
             }
         });
-        comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution).setNextExecutionTimeStampAndPriority(futureDate, 100).update();
+        comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution).forceNextExecutionTimeStampAndPriority(futureDate, 100).update();
         final Date futureTrigger = freezeClock(2013, Calendar.AUGUST, 5); // pending task
         assertThat(getReloadedComTaskExecution(device).getStatus()).isEqualTo(TaskStatus.Pending);
         connectionTask.trigger(futureTrigger);
@@ -1795,8 +1797,8 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
                 return futureTrigger.equals(comTaskExecution.getNextExecutionTimestamp());
             }
         });
-        ScheduledComTaskExecutionImpl.ScheduledComTaskExecutionUpdater comTaskExecutionUpdater = (ScheduledComTaskExecutionImpl.ScheduledComTaskExecutionUpdater) comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution);
-        comTaskExecutionUpdater.createOrUpdateNextExecutionSpec(new TemporalExpression(TimeDuration.days(1))).update();
+        comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution).forceNextExecutionTimeStampAndPriority(futureDate, 100).update();
+        ((ServerComTaskExecution) comTaskExecution).executionCompleted();   // Resets any failures/retries
         ((ServerComTaskExecution) comTaskExecution).executionFailed();
         ((ServerComTaskExecution) comTaskExecution).executionFailed();
         ((ServerComTaskExecution) comTaskExecution).executionFailed();

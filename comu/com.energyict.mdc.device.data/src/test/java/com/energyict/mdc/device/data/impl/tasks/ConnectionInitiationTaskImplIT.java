@@ -1,29 +1,30 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.exceptions.CannotUpdateObsoleteConnectionTaskException;
 import com.energyict.mdc.device.data.exceptions.ConnectionTaskIsAlreadyObsoleteException;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.exceptions.PartialConnectionTaskNotPartOfDeviceConfigurationException;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationParticipant;
+
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.util.time.Interval;
+
 import java.util.List;
+
 import org.assertj.core.api.Condition;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -34,6 +35,13 @@ import static org.mockito.Mockito.when;
  * @since 2012-07-11 (16:37)
  */
 public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
+
+    private ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties;
+
+    @Before
+    public void getFirstProtocolDialectConfigurationPropertiesFromDeviceConfiguration () {
+        this.protocolDialectConfigurationProperties = this.deviceConfiguration.getCommunicationConfiguration().getProtocolDialectConfigurationPropertiesList().get(0);
+    }
 
     @Test
     @Transactional
@@ -280,9 +288,9 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         connectionInitiationTask.save();
         long id = connectionInitiationTask.getId();
 
-        ComTaskExecution comTaskExecution = createComTaskExecution();
-        ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?, ?>, ? extends ComTaskExecution> comTaskExecutionUpdater = comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution);
-        comTaskExecutionUpdater.setConnectionTask(connectionInitiationTask);
+        ScheduledComTaskExecution comTaskExecution = createComTaskExecution();
+        ScheduledComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution);
+        comTaskExecutionUpdater.connectionTask(connectionInitiationTask);
         comTaskExecutionUpdater.update();
 
         // Business method
@@ -305,9 +313,9 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         long id = connectionTask.getId();
         RelationParticipant connectionMethod = (RelationParticipant) connectionTask.getConnectionMethod();
 
-        ComTaskExecution comTaskExecution = createComTaskExecution();
-        ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?, ?>, ? extends ComTaskExecution> comTaskExecutionUpdater = comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution);
-        comTaskExecutionUpdater.setConnectionTask(connectionTask);
+        ScheduledComTaskExecution comTaskExecution = createComTaskExecution();
+        ScheduledComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution);
+        comTaskExecutionUpdater.connectionTask(connectionTask);
         ComTaskExecution update = comTaskExecutionUpdater.update();
         device.removeComTaskExecution(update);
         device.save();
@@ -360,10 +368,10 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         ConnectionInitiationTaskImpl connectionTask = (ConnectionInitiationTaskImpl) inMemoryPersistence.getDeviceDataService().newConnectionInitiationTask(this.device, this.partialConnectionInitiationTask, outboundTcpipComPortPool);
         connectionTask.save();
 
-        ComTaskExecution comTaskExecution = createComTaskExecution();
-        ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?, ?>, ? extends ComTaskExecution> comTaskExecutionUpdater = comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution);
-        comTaskExecutionUpdater.setConnectionTask(connectionTask);
-        ComTaskExecution update = comTaskExecutionUpdater.update();
+        ScheduledComTaskExecution comTaskExecution = createComTaskExecution();
+        ScheduledComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution);
+        comTaskExecutionUpdater.connectionTask(connectionTask);
+        comTaskExecutionUpdater.update();
 
         // Business method
         connectionTask.makeObsolete();

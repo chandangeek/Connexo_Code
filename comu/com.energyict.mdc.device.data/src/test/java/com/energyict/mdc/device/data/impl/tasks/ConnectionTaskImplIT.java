@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.Environment;
@@ -15,12 +14,15 @@ import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.DeviceDataServiceImpl;
-import com.energyict.mdc.device.data.impl.DeviceImpl;
 import com.energyict.mdc.device.data.impl.PersistenceIntegrationTest;
+import com.energyict.mdc.device.data.tasks.AdHocComTaskExecution;
+import com.energyict.mdc.device.data.tasks.AdHocComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionBuilder;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.engine.model.ComPortPool;
@@ -37,17 +39,19 @@ import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
+
+import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
+
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.runner.RunWith;
+
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Mockito.mock;
@@ -74,7 +78,6 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     protected static long PARTIAL_INBOUND_CONNECTION_TASK3_ID;
     protected static long PARTIAL_CONNECTION_INITIATION_TASK1_ID;
     protected static long PARTIAL_CONNECTION_INITIATION_TASK2_ID;
-    protected static long PARTIAL_CONNECTION_INITIATION_TASK3_ID;
 
     protected static final long IP_COMPORT_POOL_ID = 1;
     protected static final long MODEM_COMPORT_POOL_ID = IP_COMPORT_POOL_ID + 1;
@@ -116,6 +119,12 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     protected ComTaskEnablement comTaskEnablement1;
     protected ComTaskEnablement comTaskEnablement2;
     protected ComTaskEnablement comTaskEnablement3;
+    private ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties;
+
+    @Before
+    public void getFirstProtocolDialectConfigurationPropertiesFromDeviceConfiguration () {
+        this.protocolDialectConfigurationProperties = this.deviceConfiguration.getCommunicationConfiguration().getProtocolDialectConfigurationPropertiesList().get(0);
+    }
 
     public OnlineComServer getOnlineComServer() {
         return onlineComServer;
@@ -429,7 +438,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
             connectionTask = inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool);
         }
         this.setIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE);
-        ((ScheduledConnectionTaskImpl) connectionTask).save();
+        connectionTask.save();
         return connectionTask;
     }
 
@@ -496,10 +505,10 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
 
-    protected ComTaskExecution createComTaskExecutionAndSetNextExecutionTimeStamp(Date nextExecutionTimeStamp, ComTaskEnablement comTaskEnablement) {
-        ComTaskExecution comTaskExecution = createComTaskExecution(comTaskEnablement);
-        ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?, ?>, ? extends ComTaskExecution> comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
-        comTaskExecutionUpdater.setNextExecutionTimeStampAndPriority(nextExecutionTimeStamp, 100);
+    protected ScheduledComTaskExecution createComTaskExecutionAndSetNextExecutionTimeStamp(Date nextExecutionTimeStamp, ComTaskEnablement comTaskEnablement) {
+        ScheduledComTaskExecution comTaskExecution = createComTaskExecution(comTaskEnablement);
+        ScheduledComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
+        comTaskExecutionUpdater.forceNextExecutionTimeStampAndPriority(nextExecutionTimeStamp, 100);
         comTaskExecutionUpdater.update();
         return comTaskExecution;
     }
@@ -509,24 +518,23 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     protected ComTaskExecution createComTaskExecWithConnectionTaskNextDateAndComTaskEnablement(ConnectionTask<?,?> connectionTask, Date nextExecutionTimeStamp, ComTaskEnablement comTaskEnablement){
-        ComTaskExecutionBuilder<? extends ComTaskExecutionBuilder<?, ?>, ? extends ComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement);
-        comTaskExecutionBuilder.setConnectionTask(connectionTask);
-        ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
+        AdHocComTaskExecutionBuilder comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement, this.protocolDialectConfigurationProperties);
+        comTaskExecutionBuilder.connectionTask(connectionTask);
+        AdHocComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         device.save();
         ComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
-        comTaskExecutionUpdater.setNextExecutionTimeStampAndPriority(nextExecutionTimeStamp, 100);
+        comTaskExecutionUpdater.forceNextExecutionTimeStampAndPriority(nextExecutionTimeStamp, 100);
         return comTaskExecutionUpdater.update();
     }
 
-    protected ComTaskExecution createComTaskExecution() {
+    protected ScheduledComTaskExecution createComTaskExecution() {
         return createComTaskExecution(comTaskEnablement1);
     }
 
-    protected ComTaskExecution createComTaskExecution(ComTaskEnablement comTaskEnablement) {
-        DeviceImpl.ScheduledComTaskExecutionBuilderForDevice comTaskExecutionBuilder = device.newScheduledComTaskExecution(comTaskEnablement);
-        comTaskExecutionBuilder.comSchedule(createComSchedule(comTaskEnablement.getComTask()));
-
-        ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
+    protected ScheduledComTaskExecution createComTaskExecution(ComTaskEnablement comTaskEnablement) {
+        ComSchedule comSchedule = this.createComSchedule(comTaskEnablement.getComTask());
+        ScheduledComTaskExecutionBuilder comTaskExecutionBuilder = device.newScheduledComTaskExecution(comSchedule);
+        ScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         device.save();
         return comTaskExecution;
     }

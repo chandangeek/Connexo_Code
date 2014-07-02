@@ -91,7 +91,6 @@ public abstract class PersistentIdObject<D> {
         Save.UPDATE.save(this.dataModel, this, Save.Update.class);
     }
 
-
     /**
      * Deletes this object using the mapper.
      */

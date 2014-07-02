@@ -14,23 +14,22 @@ public enum ComTaskExecutionFields implements ImplField {
     COMTASK("comTask"),
     CONNECTIONTASK("connectionTask"),
     USEDEFAULTCONNECTIONTASK("useDefaultConnectionTask"),
-    NEXTEXECUTIONSPEC("nextExecutionSpecId"),
-    MYNEXTEXECUTIONSPEC("myNextExecutionSpec"),
+    NEXTEXECUTIONSPEC("nextExecutionSpecs"),
     LASTEXECUTIONTIMESTAMP("lastExecutionTimestamp"),
+    PLANNEDNEXTEXECUTIONTIMESTAMP("plannedNextExecutionTimestamp"),
     NEXTEXECUTIONTIMESTAMP("nextExecutionTimestamp"),
     MODIFICATIONDATE("modificationDate"),
     OBSOLETEDATE("obsoleteDate"),
-    PRIORITY("priority"),
+    PLANNED_PRIORITY("plannedPriority"),
+    EXECUTION_PRIORITY("executionPriority"),
     CURRENTRETRYCOUNT("currentRetryCount"),
-    PLANNEDNEXTEXECUTIONTIMESTAMP("plannedNextExecutionTimestamp"),
-    EXECUTIONPRIORITY("executionPriority"),
     EXECUTIONSTART("executionStart"),
     LASTSUCCESSFULCOMPLETIONTIMESTAMP("lastSuccessfulCompletionTimestamp"),
     LASTEXECUTIONFAILED("lastExecutionFailed"),
     IGNORENEXTEXECUTIONSPECSFORINBOUND("ignoreNextExecutionSpecsForInbound"),
     COMPORT("comPort"),
     PROTOCOLDIALECTCONFIGURATIONPROPERTIES("protocolDialectConfigurationProperties"),
-    COM_SCHEDULE_REFERENCE("comScheduleReference");
+    COM_SCHEDULE("comSchedule");
     ;
 
     private final String javaFieldName;

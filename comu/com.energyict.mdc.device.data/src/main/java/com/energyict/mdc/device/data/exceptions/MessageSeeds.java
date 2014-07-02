@@ -151,6 +151,8 @@ public enum MessageSeeds implements MessageSeed {
         public static final String DEVICE_PROTOCOL_DIALECT_REQUIRED_PROPERTY_MISSING_KEY = "DDC.deviceProtocolDialectProperty.required";
         public static final String DEVICE_IS_REQUIRED = "DDC.deviceIsRequired";
         public static final String COMTASK_IS_REQUIRED = "DDC.comTaskIsRequired";
+        public static final String COMSCHEDULE_IS_REQUIRED = "DDC.comScheduleIsRequired";
+        public static final String NEXTEXECUTIONSPEC_IS_REQUIRED = "DDC.nextExecutionSpecIsRequired";
         public static final String CONNECTIONTASK_IS_REQUIRED = "DDC.connectionTaskIsRequired";
         public static final String PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_ARE_REQUIRED = "DDC.protocolDialectConfigurationPropertiesAreRequired";
         public static final String COM_TASK_IS_EXECUTING_AND_CANNOT_OBSOLETE = "DDC.comTaskExecutionIsObsoleteAndCanNotBeUpdated";
@@ -162,6 +164,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CONNECTION_TASK_REQUIRED_WHEN_NOT_USING_DEFAULT = "DDC.connectionTaskRequiredWhenNotUsingDefault";
         public static final String PRIORITY_NOT_IN_RANGE = "DDC.priorityNotInRange";
         public static final String UNIQUE_COMTASKS_PER_DEVICE = "DDC.uniqueComTasksPerDevice";
+        public static final String NO_MANUAL_SCHEDULING_FOR_COMTASKS_IN_COMSCHEDULE = "DDC.noManualSchedulingForComtasksInComSchedule";
     }
 
 }

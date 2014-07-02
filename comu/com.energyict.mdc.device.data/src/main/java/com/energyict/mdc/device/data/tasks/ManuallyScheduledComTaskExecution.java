@@ -4,13 +4,14 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.tasks.ComTask;
 
 /**
- * Models a {@link ComTaskExecution} that is only executed on user demand
- * and not according to a timed schedule.
+ * Models a {@link ComTaskExecution} that executes a single
+ * {@link com.energyict.mdc.tasks.ComTask} according
+ * to a timed schedule.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-06-30 (10:59)
  */
-public interface AdHocComTaskExecution extends ComTaskExecution {
+public interface ManuallyScheduledComTaskExecution extends ComTaskExecution {
 
     /**
      * Gets the {@link ComTask} that specifies
@@ -18,7 +19,7 @@ public interface AdHocComTaskExecution extends ComTaskExecution {
      *
      * @return The ComTask
      */
-    public ComTask getComTask ();
+    public ComTask getComTask();
 
     /**
      * Gets the {@link ProtocolDialectConfigurationProperties}.
@@ -26,6 +27,6 @@ public interface AdHocComTaskExecution extends ComTaskExecution {
     public ProtocolDialectConfigurationProperties getProtocolDialectConfigurationProperties();
 
     @Override
-    public AdHocComTaskExecutionUpdater getUpdater();
+    public ManuallyScheduledComTaskExecutionUpdater getUpdater();
 
 }

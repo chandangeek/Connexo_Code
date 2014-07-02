@@ -16,8 +16,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({ java.lang.annotation.ElementType.TYPE })
 @Retention(RUNTIME)
 @Documented
-@Constraint(validatedBy = { UniqueComTaskExecutionPerDeviceValidator.class })
-public @interface UniqueComTaskExecutionPerDevice {
+@Constraint(validatedBy = { UniqueComSchedulePerDeviceValidator.class })
+public @interface UniqueComSchedulePerDevice {
 
     String message() default "";
 

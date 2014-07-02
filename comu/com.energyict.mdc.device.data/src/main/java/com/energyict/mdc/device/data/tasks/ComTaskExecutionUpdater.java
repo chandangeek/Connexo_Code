@@ -1,16 +1,15 @@
 package com.energyict.mdc.device.data.tasks;
 
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.scheduling.NextExecutionSpecs;
-import com.energyict.mdc.scheduling.TemporalExpression;
 import java.util.Date;
 
 /**
- * Updater that supports basic value setters for a ComTaskExecution
+ * Updater that supports basic value setters for a {@link ComTaskExecution}.
  */
 public interface ComTaskExecutionUpdater<U extends ComTaskExecutionUpdater<U, C>, C extends ComTaskExecution> {
 
-    U setUseDefaultConnectionTaskFlag(boolean useDefaultConnectionTask);
+    U useDefaultConnectionTask(boolean useDefaultConnectionTask);
+
+    U useDefaultConnectionTask(ConnectionTask<?, ?> defaultConnectionTask);
 
     /**
      * Explicitly setting a ConnectionTask will result in NOT using the default connectionTask.
@@ -18,38 +17,31 @@ public interface ComTaskExecutionUpdater<U extends ComTaskExecutionUpdater<U, C>
      * will still be marked to use the ConnectionTask from this setter.<br/>
      * Setting an Empty value will result in using the default ConnectionTask
      * <p/>
-     * <i>If you want to use the default ConnectionTask, just set {@link #setUseDefaultConnectionTaskFlag(boolean)} to true</i>
+     * <i>If you want to use the default ConnectionTask, just set {@link #useDefaultConnectionTask(boolean)} to true</i>
      *
      * @param connectionTask the ConnectionTask to set
      * @return the current updater
      */
-    U setConnectionTask(ConnectionTask<?, ?> connectionTask);
+    U connectionTask(ConnectionTask<?, ?> connectionTask);
 
-    U setPriority(int executionPriority);
+    U priority(int plannedPriority);
 
-    U removeNextExecutionSpec();
-
-    U setMasterNextExecutionSpec(NextExecutionSpecs masterNextExecutionSpec);
-
-    U setIgnoreNextExecutionSpecForInbound(boolean ignoreNextExecutionSpecsForInbound);
-
-    U setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties);
+    U ignoreNextExecutionSpecForInbound(boolean ignoreNextExecutionSpecsForInbound);
 
     /**
-     * Sets the given nextExecutionTimeStamp and priority
+     * Sets the given nextExecutionTimeStamp and execution priority.
      *
      * @param nextExecutionTimestamp the timeStamp to set
-     * @param priority the priority to set
+     * @param executionPriority the changed execution priority
      * @return the current updater
      */
-    U setNextExecutionTimeStampAndPriority(Date nextExecutionTimestamp, int priority);
-
-    U setUseDefaultConnectionTask(ConnectionTask<?, ?> defaultConnectionTask);
+    U forceNextExecutionTimeStampAndPriority(Date nextExecutionTimestamp, int executionPriority);
 
     /**
      * Updates the actual ComTaskExecution with the objects set in this builder
      *
      * @return the updated created ComTaskExecution
      */
-    ComTaskExecution update();
+    C update();
+
 }

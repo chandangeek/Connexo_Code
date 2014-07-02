@@ -411,8 +411,8 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     public void setOrUpdateDefaultConnectionTaskOnComTaskInDeviceTopology(Device device, ConnectionTask defaultConnectionTask) {
         List<ComTaskExecution> comTaskExecutions = this.findComTaskExecutionsWithDefaultConnectionTaskForCompleteTopologyButNotLinkedYet(device, defaultConnectionTask);
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
-            ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?,?>, ? extends ComTaskExecution> comTaskExecutionUpdater = comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution);
-            comTaskExecutionUpdater.setUseDefaultConnectionTask(defaultConnectionTask);
+            ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?,?>, ? extends ComTaskExecution> comTaskExecutionUpdater = comTaskExecution.getUpdater();
+            comTaskExecutionUpdater.useDefaultConnectionTask(defaultConnectionTask);
             comTaskExecutionUpdater.update();
         }
     }
@@ -993,14 +993,14 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     @Override
     public List<ComTaskExecution> findComTaskExecutionsByComSchedule(ComSchedule comSchedule) {
         return this.dataModel.query(ComTaskExecution.class)
-                .select(where(ComTaskExecutionFields.COM_SCHEDULE_REFERENCE.fieldName()).isEqualTo(comSchedule)
+                .select(where(ComTaskExecutionFields.COM_SCHEDULE.fieldName()).isEqualTo(comSchedule)
                         .and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull()));
     }
 
     @Override
     public List<ComTaskExecution> findComTaskExecutionsByComScheduleWithinRange(ComSchedule comSchedule, long minId, long maxId) {
         return this.dataModel.query(ComTaskExecution.class)
-                .select(where(ComTaskExecutionFields.COM_SCHEDULE_REFERENCE.fieldName()).isEqualTo(comSchedule)
+                .select(where(ComTaskExecutionFields.COM_SCHEDULE.fieldName()).isEqualTo(comSchedule)
                     .and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull())
                     .and(where(ComTaskExecutionFields.ID.fieldName()).between(minId).and(maxId)));
     }
@@ -1023,7 +1023,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     @Override
     public Date getPlannedDate(ComSchedule comSchedule) {
         List<ComTaskExecution> comTaskExecutions = dataModel.query(ComTaskExecution.class)
-                .select(where(ComTaskExecutionFields.COM_SCHEDULE_REFERENCE.fieldName()).isEqualTo(comSchedule), new Order[0], false, new String[0], 0, 1);
+                .select(where(ComTaskExecutionFields.COM_SCHEDULE.fieldName()).isEqualTo(comSchedule), new Order[0], false, new String[0], 0, 1);
         if (comTaskExecutions.isEmpty()) {
             return null;
         }
@@ -1083,7 +1083,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
                     .and(where("connectionTask.comPortPool").isEqualTo(inboundComPortPool));
             return this.dataModel.query(ComTaskExecution.class, ConnectionTask.class).select(condition,
                     Order.ascending(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()),
-                    Order.ascending(ComTaskExecutionFields.PRIORITY.fieldName()),
+                    Order.ascending(ComTaskExecutionFields.PLANNED_PRIORITY.fieldName()),
                     Order.ascending(ComTaskExecutionFields.CONNECTIONTASK.fieldName()));
         } else {
             return Collections.emptyList();

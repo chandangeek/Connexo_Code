@@ -5,11 +5,13 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -123,15 +125,9 @@ public class DeviceDataGoGoCommands {
             this.transactionService.execute(new Transaction<Object>() {
                 @Override
                 public Object perform() {
-                    ScheduledConnectionTask defaultConnectionTask = addScheduledConnectionTasks(device);
+                    addScheduledConnectionTasks(device);
                     List<ComTaskExecution> comTaskExecutions = addComTaskExecutions(device);
                     device.save();
-                    if (defaultConnectionTask != null) {
-                        setDefaultConnectionTask(defaultConnectionTask, comTaskExecutions);
-                    }
-                    else {
-                        System.out.println("No default connection task created for device " + device.getmRID() + "because no default was configured in the device configuration: " + device.getDeviceConfiguration().getName());
-                    }
                     if (comTaskExecutions.isEmpty()) {
                         System.out.printf("No communication tasks were scheduled for device " + device.getmRID() + " because not tasks were enabled on the device configuration: " + device.getDeviceConfiguration().getName());
                     }
@@ -155,20 +151,17 @@ public class DeviceDataGoGoCommands {
 
         private List<ComTaskExecution> addComTaskExecutions(Device device) {
             DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
-            List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
-            for (ComTaskEnablement comTaskEnablement : deviceConfiguration.getComTaskEnablements()) {
-                comTaskExecutions.add(device.newAdHocComTaskExecution(comTaskEnablement).add());
+            if (deviceConfiguration.getProtocolDialectConfigurationPropertiesList().isEmpty()) {
+                System.out.println("No communication task scheduled for device " + device.getmRID() + "because no protocol dialect was configured in the device configuration: " + device.getDeviceConfiguration().getName());
+                return Collections.emptyList();
             }
-            return comTaskExecutions;
-        }
-
-        private void setDefaultConnectionTask(ScheduledConnectionTask defaultConnectionTask, List<ComTaskExecution> comTaskExecutions) {
-            Device device = defaultConnectionTask.getDevice();
-            deviceDataService.setDefaultConnectionTask(defaultConnectionTask);
-            for (ComTaskExecution comTaskExecution : comTaskExecutions) {
-                device.getComTaskExecutionUpdater(comTaskExecution).setUseDefaultConnectionTask(defaultConnectionTask).update();
-                comTaskExecution.updateNextExecutionTimestamp();
-                comTaskExecution.scheduleNow();
+            else {
+                ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0);
+                List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
+                for (ComTaskEnablement comTaskEnablement : deviceConfiguration.getComTaskEnablements()) {
+                    comTaskExecutions.add(device.newAdHocComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties).add());
+                }
+                return comTaskExecutions;
             }
         }
 

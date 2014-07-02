@@ -1,44 +1,73 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.time.Clock;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
+import com.energyict.mdc.device.data.exceptions.MessageSeeds;
+import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueComSchedulePerDevice;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionBuilder;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
+import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
+
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.time.Clock;
+import com.google.common.base.Optional;
+
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
-import javax.inject.Inject;
 
+@UniqueComSchedulePerDevice
 public class ScheduledComTaskExecutionImpl extends ComTaskExecutionImpl implements ScheduledComTaskExecution {
 
-    private Reference<ComSchedule> comScheduleReference = ValueReference.absent();
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.COMSCHEDULE_IS_REQUIRED + "}")
+    private Reference<ComSchedule> comSchedule = ValueReference.absent();
 
     @Inject
-    public ScheduledComTaskExecutionImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, DeviceDataService deviceDataService, DeviceConfigurationService deviceConfigurationService, SchedulingService schedulingService) {
+    public ScheduledComTaskExecutionImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, DeviceDataService deviceDataService, SchedulingService schedulingService) {
         super(dataModel, eventService, thesaurus, clock, deviceDataService, schedulingService);
+    }
+
+    public ScheduledComTaskExecutionImpl initialize (Device device, ComSchedule comSchedule) {
+        this.initializeDevice(device);
+        this.setIgnoreNextExecutionSpecsForInbound(true);
+        this.setExecutingPriority(ComTaskExecution.DEFAULT_PRIORITY);
+        this.setPlannedPriority(ComTaskExecution.DEFAULT_PRIORITY);
+        this.setUseDefaultConnectionTask(true);
+        this.comSchedule.set(comSchedule);
+        return this;
+    }
+
+    @Override
+    protected void postNew() {
+        this.recalculateNextAndPlannedExecutionTimestamp();
+        super.postNew();
     }
 
     @Override
     public ComSchedule getComSchedule() {
-        return comScheduleReference.get();
+        return comSchedule.get();
     }
 
     @Override
     public boolean isScheduled() {
         return true;
+    }
+
+    @Override
+    public boolean isScheduledManually() {
+        return false;
     }
 
     @Override
@@ -48,9 +77,14 @@ public class ScheduledComTaskExecutionImpl extends ComTaskExecutionImpl implemen
 
     private void setComSchedule(ComSchedule comSchedule) {
         if (comSchedule==null) {
-            this.comScheduleReference.setNull();
+            this.comSchedule.setNull();
         }
-        this.comScheduleReference.set(comSchedule);
+        this.comSchedule.set(comSchedule);
+    }
+
+    @Override
+    public Optional<NextExecutionSpecs> getNextExecutionSpecs() {
+        return Optional.of(this.comSchedule.get().getNextExecutionSpecs());
     }
 
     @Override
@@ -101,7 +135,6 @@ public class ScheduledComTaskExecutionImpl extends ComTaskExecutionImpl implemen
                 minimalNrOfRetries=comTask.getMaxNumberOfTries();
             }
         }
-
         return minimalNrOfRetries;
     }
 
@@ -111,32 +144,28 @@ public class ScheduledComTaskExecutionImpl extends ComTaskExecutionImpl implemen
     }
 
     @Override
-    boolean usesComSchedule(ComSchedule comSchedule) {
-        return comSchedule != null && this.comScheduleReference.get().getId() == comSchedule.getId();
+    public boolean usesComSchedule(ComSchedule comSchedule) {
+        return comSchedule != null && this.comSchedule.get().getId() == comSchedule.getId();
     }
 
     @Override
-    boolean usesComTask(ComTask comTask) {
-        return false;
+    public boolean usesComTask(ComTask comTask) {
+        return comTask != null && this.getComSchedule().containsComTask(comTask);
     }
-
-    interface ScheduledComTaskExecutionBuilder extends ComTaskExecutionBuilder<ScheduledComTaskExecutionBuilder, ScheduledComTaskExecutionImpl> {
-        public ScheduledComTaskExecutionBuilder comSchedule(ComSchedule comSchedule);
-    }
-
 
     public static class ScheduledComTaskExecutionBuilderImpl
-            extends AbstractComTaskExecutionBuilder<ScheduledComTaskExecutionBuilder, ScheduledComTaskExecutionImpl>
+            extends AbstractComTaskExecutionBuilder<ScheduledComTaskExecutionBuilder, ScheduledComTaskExecution, ScheduledComTaskExecutionImpl>
             implements ScheduledComTaskExecutionBuilder {
 
-        protected ScheduledComTaskExecutionBuilderImpl(ScheduledComTaskExecutionImpl comTaskExecution, Device device, ComTaskEnablement comTaskEnablement) {
-            super(comTaskExecution, device, comTaskEnablement, ScheduledComTaskExecutionBuilder.class);
+        protected ScheduledComTaskExecutionBuilderImpl(ScheduledComTaskExecutionImpl comTaskExecution) {
+            super(comTaskExecution, ScheduledComTaskExecutionBuilder.class);
         }
 
         public ScheduledComTaskExecutionBuilder comSchedule(ComSchedule comSchedule) {
             this.comTaskExecution.setComSchedule(comSchedule);
             return self;
         }
+
     }
 
     @Override
@@ -158,33 +187,14 @@ public class ScheduledComTaskExecutionImpl extends ComTaskExecutionImpl implemen
         return comTaskExecution != null && comTaskExecution.usesComSchedule(this.getComSchedule());
     }
 
-    interface ScheduledComTaskExecutionUpdater extends ComTaskExecutionUpdater<ScheduledComTaskExecutionUpdater, ScheduledComTaskExecutionImpl> {
-        public ScheduledComTaskExecutionUpdater comSchedule(ComSchedule comSchedule);
-
-        ScheduledComTaskExecutionUpdater createOrUpdateNextExecutionSpec(TemporalExpression temporalExpression);
-    }
-
     class ScheduledComTaskExecutionUpdaterImpl
-        extends AbstractComTaskExecutionUpdater<ScheduledComTaskExecutionUpdater, ScheduledComTaskExecutionImpl>
+        extends AbstractComTaskExecutionUpdater<ScheduledComTaskExecutionUpdater, ScheduledComTaskExecution, ScheduledComTaskExecutionImpl>
         implements ScheduledComTaskExecutionUpdater {
 
         protected ScheduledComTaskExecutionUpdaterImpl(ScheduledComTaskExecutionImpl comTaskExecution) {
             super(comTaskExecution, ScheduledComTaskExecutionUpdater.class);
         }
 
-        @Override
-        public ScheduledComTaskExecutionUpdater comSchedule(ComSchedule comSchedule) {
-            super.comTaskExecution.setComSchedule(comSchedule);
-            return self;
-        }
-
-        @Override
-        public ScheduledComTaskExecutionUpdater createOrUpdateNextExecutionSpec(TemporalExpression temporalExpression) {
-            this.comTaskExecution.createOrUpdateMyNextExecutionSpecs(temporalExpression);
-            this.comTaskExecution.recalculateNextAndPlannedExecutionTimestamp();
-            return self;
-        }
     }
-
 
 }

@@ -1,25 +1,5 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingRecord;
-import com.elster.jupiter.metering.events.EndDeviceEventRecord;
-import com.elster.jupiter.metering.events.EndDeviceEventType;
-import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.TemporalReference;
-import com.elster.jupiter.orm.associations.Temporals;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
@@ -62,13 +42,22 @@ import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.ManuallyScheduledComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
+import com.energyict.mdc.device.data.tasks.AdHocComTaskExecution;
+import com.energyict.mdc.device.data.tasks.AdHocComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
+import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecutionBuilder;
+import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecutionUpdater;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionBuilder;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.engine.model.InboundComPortPool;
@@ -82,8 +71,35 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.scheduling.TemporalExpression;
+import com.energyict.mdc.scheduling.model.ComSchedule;
+
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.events.EndDeviceEventRecord;
+import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.TemporalReference;
+import com.elster.jupiter.orm.associations.Temporals;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
 import com.google.inject.Inject;
+
+import javax.inject.Provider;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -97,10 +113,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
-import javax.inject.Provider;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -167,6 +179,7 @@ public class DeviceImpl implements Device {
     private final Provider<ConnectionInitiationTaskImpl> connectionInitiationTaskProvider;
     private final Provider<AdHocComTaskExecutionImpl> adHocComTaskExecutionProvider;
     private final Provider<ScheduledComTaskExecutionImpl> scheduledComTaskExecutionProvider;
+    private final Provider<ManuallyScheduledComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider;
 
     @Inject
     public DeviceImpl(DataModel dataModel,
@@ -180,7 +193,8 @@ public class DeviceImpl implements Device {
                       Provider<InboundConnectionTaskImpl> inboundConnectionTaskProvider,
                       Provider<ConnectionInitiationTaskImpl> connectionInitiationTaskProvider,
                       Provider<AdHocComTaskExecutionImpl> adHocComTaskExecutionProvider,
-                      Provider<ScheduledComTaskExecutionImpl> scheduledComTaskExecutionProvider) {
+                      Provider<ScheduledComTaskExecutionImpl> scheduledComTaskExecutionProvider,
+                      Provider<ManuallyScheduledComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.thesaurus = thesaurus;
@@ -193,6 +207,7 @@ public class DeviceImpl implements Device {
         this.connectionInitiationTaskProvider = connectionInitiationTaskProvider;
         this.adHocComTaskExecutionProvider = adHocComTaskExecutionProvider;
         this.scheduledComTaskExecutionProvider = scheduledComTaskExecutionProvider;
+        this.manuallyScheduledComTaskExecutionProvider = manuallyScheduledComTaskExecutionProvider;
     }
 
     @Override
@@ -211,13 +226,30 @@ public class DeviceImpl implements Device {
         this.saveAllComTaskExecutions();
     }
 
-    private void saveAllComTaskExecutions() {
-        if (this.comTaskExecutions != null) {
-            // No need to call the getComTaskExecutionImpls getter because if they have not been loaded before, they cannot be dirty
-            for (ComTaskExecutionImpl comTaskExecution : comTaskExecutions) {
-                comTaskExecution.save();
-            }
+    private void saveNewAndDirtyDialectProperties() {
+        this.saveNewDialectProperties();
+        this.saveDirtyDialectProperties();
+    }
+
+    private void saveNewDialectProperties() {
+        this.saveDialectProperties(this.newDialectProperties);
+        this.dialectPropertiesList.addAll(this.newDialectProperties);
+        this.newDialectProperties = new ArrayList<>();
+    }
+
+    private void saveDirtyDialectProperties() {
+        this.saveDialectProperties(this.dirtyDialectProperties);
+        this.dirtyDialectProperties = new ArrayList<>();
+    }
+
+    private void saveDialectProperties(List<ProtocolDialectProperties> dialectProperties) {
+        for (ProtocolDialectProperties newDialectProperty : dialectProperties) {
+            this.save((ProtocolDialectPropertiesImpl) newDialectProperty);
         }
+    }
+
+    private void save(ProtocolDialectPropertiesImpl dialectProperties) {
+        dialectProperties.save();
     }
 
     private void saveAllConnectionTasks() {
@@ -229,30 +261,13 @@ public class DeviceImpl implements Device {
         }
     }
 
-    private void saveNewAndDirtyDialectProperties() {
-        this.saveNewDialectProperties();
-        this.saveDirtyDialectProperties();
-    }
-
-    private void saveDirtyDialectProperties() {
-        this.saveDialectProperties(this.dirtyDialectProperties);
-        this.dirtyDialectProperties = new ArrayList<>();
-    }
-
-    private void saveNewDialectProperties() {
-        this.saveDialectProperties(this.newDialectProperties);
-        this.dialectPropertiesList.addAll(this.newDialectProperties);
-        this.newDialectProperties = new ArrayList<>();
-    }
-
-    private void saveDialectProperties(List<ProtocolDialectProperties> dialectProperties) {
-        for (ProtocolDialectProperties newDialectProperty : dialectProperties) {
-            this.save((ProtocolDialectPropertiesImpl) newDialectProperty);
+    private void saveAllComTaskExecutions() {
+        if (this.comTaskExecutions != null) {
+            // No need to call the getComTaskExecutionImpls getter because if they have not been loaded before, they cannot be dirty
+            for (ComTaskExecutionImpl comTaskExecution : comTaskExecutions) {
+                comTaskExecution.save();
+            }
         }
-    }
-
-    private void save(ProtocolDialectPropertiesImpl dialectProperties) {
-        dialectProperties.save();
     }
 
     private void notifyUpdated() {
@@ -500,9 +515,9 @@ public class DeviceImpl implements Device {
 
     private void updateComTasksToUseNonExistingDefaultConnectionTask(List<ComTaskExecution> comTasksForDefaultConnectionTask) {
         for (ComTaskExecution comTaskExecution : comTasksForDefaultConnectionTask) {
-            ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?,?>, ? extends ComTaskExecution> comTaskExecutionUpdater = getComTaskExecutionUpdater(comTaskExecution);
-            comTaskExecutionUpdater.setConnectionTask(null);
-            comTaskExecutionUpdater.setUseDefaultConnectionTaskFlag(true);
+            ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?,?>, ? extends ComTaskExecution> comTaskExecutionUpdater = comTaskExecution.getUpdater();
+            comTaskExecutionUpdater.connectionTask(null);
+            comTaskExecutionUpdater.useDefaultConnectionTask(true);
             comTaskExecutionUpdater.update();
         }
     }
@@ -510,8 +525,8 @@ public class DeviceImpl implements Device {
     private void updateComTasksToUseNewDefaultConnectionTask(List<ComTaskExecution> comTasksForDefaultConnectionTask) {
         ConnectionTask<?, ?> defaultConnectionTaskForGateway = getDefaultConnectionTask();
         for (ComTaskExecution comTaskExecution : comTasksForDefaultConnectionTask) {
-            ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?,?>, ? extends ComTaskExecution> comTaskExecutionUpdater = getComTaskExecutionUpdater(comTaskExecution);
-            comTaskExecutionUpdater.setUseDefaultConnectionTask(defaultConnectionTaskForGateway);
+            ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?,?>, ? extends ComTaskExecution> comTaskExecutionUpdater = comTaskExecution.getUpdater();
+            comTaskExecutionUpdater.useDefaultConnectionTask(defaultConnectionTaskForGateway);
             comTaskExecutionUpdater.update();
         }
     }
@@ -886,8 +901,8 @@ public class DeviceImpl implements Device {
     public void setProperty(String name, Object value) {
         if (propertyExistsOnDeviceProtocol(name)) {
             String propertyValue = getPropertyValue(name, value);
-            boolean updated = updatePropertyIfExists(name, propertyValue);
-            if (!updated) {
+            boolean notUpdated = !updatePropertyIfExists(name, propertyValue);
+            if (notUpdated) {
                 addDeviceProperty(name, propertyValue);
             }
         } else {
@@ -1124,17 +1139,37 @@ public class DeviceImpl implements Device {
     }
 
     @Override
-    public ScheduledComTaskExecutionBuilderForDevice newScheduledComTaskExecution(ComTaskEnablement comTaskEnablement) {
-        return new ScheduledComTaskExecutionBuilderForDevice(scheduledComTaskExecutionProvider, this, comTaskEnablement);
+    public ScheduledComTaskExecutionBuilder newScheduledComTaskExecution(ComSchedule comSchedule) {
+        return new ScheduledComTaskExecutionBuilderForDevice(scheduledComTaskExecutionProvider, this, comSchedule);
     }
 
     @Override
-    public AdHocComTaskExecutionBuilderForDevice newAdHocComTaskExecution(ComTaskEnablement comTaskEnablement) {
-        return new AdHocComTaskExecutionBuilderForDevice(adHocComTaskExecutionProvider, this, comTaskEnablement);
+    public AdHocComTaskExecutionBuilderForDevice newAdHocComTaskExecution(ComTaskEnablement comTaskEnablement, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
+        return new AdHocComTaskExecutionBuilderForDevice(adHocComTaskExecutionProvider, this, comTaskEnablement, protocolDialectConfigurationProperties);
     }
 
     @Override
-    public ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?,?>, ? extends ComTaskExecution> getComTaskExecutionUpdater(ComTaskExecution comTaskExecution) {
+    public ManuallyScheduledComTaskExecutionBuilder newManuallyScheduledComTaskExecution(ComTaskEnablement comTaskEnablement, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties, TemporalExpression temporalExpression) {
+        return new ManuallyScheduledComTaskExecutionBuilderForDevice(
+                this.manuallyScheduledComTaskExecutionProvider,
+                this,
+                comTaskEnablement,
+                protocolDialectConfigurationProperties,
+                temporalExpression);
+    }
+
+    @Override
+    public ManuallyScheduledComTaskExecutionUpdater getComTaskExecutionUpdater(ManuallyScheduledComTaskExecution comTaskExecution) {
+        return comTaskExecution.getUpdater();
+    }
+
+    @Override
+    public ScheduledComTaskExecutionUpdater getComTaskExecutionUpdater(ScheduledComTaskExecution comTaskExecution) {
+        return comTaskExecution.getUpdater();
+    }
+
+    @Override
+    public AdHocComTaskExecutionUpdater getComTaskExecutionUpdater(AdHocComTaskExecution comTaskExecution) {
         return comTaskExecution.getUpdater();
     }
 
@@ -1156,31 +1191,49 @@ public class DeviceImpl implements Device {
     }
 
     public class ScheduledComTaskExecutionBuilderForDevice
-            extends ScheduledComTaskExecutionImpl.ScheduledComTaskExecutionBuilderImpl {
+         extends ScheduledComTaskExecutionImpl.ScheduledComTaskExecutionBuilderImpl {
 
-        private ScheduledComTaskExecutionBuilderForDevice(Provider<ScheduledComTaskExecutionImpl> comTaskExecutionProvider, Device device, ComTaskEnablement comTaskEnablement) {
-            super(comTaskExecutionProvider.get(), device, comTaskEnablement);
+        private ScheduledComTaskExecutionBuilderForDevice(Provider<ScheduledComTaskExecutionImpl> comTaskExecutionProvider, Device device, ComSchedule comSchedule) {
+            super(comTaskExecutionProvider.get());
+            this.getComTaskExecution().initialize(device, comSchedule);
         }
 
         @Override
-        public ScheduledComTaskExecutionImpl add() {
-            ScheduledComTaskExecutionImpl comTaskExecution = super.add();
-            DeviceImpl.this.getComTaskExecutionImpls().add(comTaskExecution);
+        public ScheduledComTaskExecution add() {
+            ScheduledComTaskExecution comTaskExecution = super.add();
+            DeviceImpl.this.getComTaskExecutionImpls().add((ComTaskExecutionImpl) comTaskExecution);
             return comTaskExecution;
         }
     }
 
     public class AdHocComTaskExecutionBuilderForDevice
-            extends AdHocComTaskExecutionImpl.AdHocComTaskExecutionBuilderImpl {
+         extends AdHocComTaskExecutionImpl.AdHocComTaskExecutionBuilderImpl {
 
-        private AdHocComTaskExecutionBuilderForDevice(Provider<AdHocComTaskExecutionImpl> comTaskExecutionProvider, Device device, ComTaskEnablement comTaskEnablement) {
-            super(comTaskExecutionProvider.get(), device, comTaskEnablement);
+        private AdHocComTaskExecutionBuilderForDevice(Provider<AdHocComTaskExecutionImpl> comTaskExecutionProvider, Device device, ComTaskEnablement comTaskEnablement, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
+            super(comTaskExecutionProvider.get());
+            this.getComTaskExecution().initialize(device, comTaskEnablement, protocolDialectConfigurationProperties);
         }
 
         @Override
-        public AdHocComTaskExecutionImpl add() {
-            AdHocComTaskExecutionImpl comTaskExecution = super.add();
-            DeviceImpl.this.getComTaskExecutionImpls().add(comTaskExecution);
+        public AdHocComTaskExecution add() {
+            AdHocComTaskExecution comTaskExecution = super.add();
+            DeviceImpl.this.getComTaskExecutionImpls().add((ComTaskExecutionImpl) comTaskExecution);
+            return comTaskExecution;
+        }
+    }
+
+    public class ManuallyScheduledComTaskExecutionBuilderForDevice
+         extends ManuallyScheduledComTaskExecutionImpl.ManuallyScheduledComTaskExecutionBuilderImpl {
+
+        private ManuallyScheduledComTaskExecutionBuilderForDevice(Provider<ManuallyScheduledComTaskExecutionImpl> comTaskExecutionProvider, Device device, ComTaskEnablement comTaskEnablement, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties, TemporalExpression temporalExpression) {
+            super(comTaskExecutionProvider.get());
+            this.getComTaskExecution().initialize(device, comTaskEnablement, protocolDialectConfigurationProperties, temporalExpression);
+        }
+
+        @Override
+        public ManuallyScheduledComTaskExecution add() {
+            ManuallyScheduledComTaskExecution comTaskExecution = super.add();
+            DeviceImpl.this.getComTaskExecutionImpls().add((ComTaskExecutionImpl) comTaskExecution);
             return comTaskExecution;
         }
     }

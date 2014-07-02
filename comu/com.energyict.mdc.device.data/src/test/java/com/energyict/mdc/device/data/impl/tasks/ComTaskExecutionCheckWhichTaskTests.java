@@ -23,7 +23,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the check for which task this ComTaskExecution is configured
+ * Tests the check for which task this ComTaskExecution is configured.
  *
  * Copyrights EnergyICT
  * Date: 22/04/14
@@ -35,11 +35,11 @@ public class ComTaskExecutionCheckWhichTaskTests {
         Device device = mock(Device.class);
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
         when(comTaskEnablement.getComTask()).thenReturn(comTask);
-        comTaskExecution.initialize(device, comTaskEnablement);
+        comTaskExecution.initializeFrom(device, comTaskEnablement);
     }
 
     private ComTaskExecutionImpl createComTaskExecution() {
-        return new ScheduledComTaskExecutionImpl(null, null, null, null, null, null, null);
+        return new ScheduledComTaskExecutionImpl(null, null, null, null, null, null);
     }
 
     @Test

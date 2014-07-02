@@ -2,13 +2,18 @@ package com.energyict.mdc.device.data.tasks;
 
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.TaskPriorityConstants;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
+import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
+
+import com.google.common.base.Optional;
+
 import java.util.Date;
 import java.util.List;
 
@@ -64,6 +69,10 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      */
     public static final int DEFAULT_COMTASK_FAILURE_RESCHEDULE_DELAY_SECONDS = 300;
 
+    public static final int HIGHEST_PRIORITY = TaskPriorityConstants.HIGHEST_PRIORITY;
+    public static final int LOWEST_PRIORITY = TaskPriorityConstants.LOWEST_PRIORITY;
+    public static final int DEFAULT_PRIORITY = TaskPriorityConstants.DEFAULT_PRIORITY;
+
     /**
      * Tests if this ComTaskExecution is scheduled,
      * i.e. if it has a scheduling frequency causing it
@@ -72,6 +81,17 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      * @return A flag that indicates if this ComTaskExecution is scheduled
      */
     public boolean isScheduled ();
+
+    /**
+     * Tests if this ComTaskExecution is scheduled manually,
+     * i.e. it has a scheduling frequency causing it to be
+     * executed frequently but not at a frequency defined by a
+     * {@link com.energyict.mdc.scheduling.model.ComSchedule}
+     * but by a one shot setting provided by the user.
+     *
+     * @return A flag that indicates if this ComTaskExecution is scheduled manually
+     */
+    public boolean isScheduledManually ();
 
     /**
      * Tests if this ComTaskExecution is ad hoc,
@@ -88,11 +108,6 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      * @return The Device for which tasks are executed
      */
     public Device getDevice ();
-
-    /**
-     * Gets the {@link ProtocolDialectConfigurationProperties}.
-     */
-    public ProtocolDialectConfigurationProperties getProtocolDialectConfigurationProperties();
 
     /**
      * Gets the {@link ComPort} that is currently
@@ -113,13 +128,18 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
 
     /**
      * Gets this OutboundComTaskExecution's execution priority.
+     * Note that the execution priority might be different from
+     * the planned priority if the related Connection is using
+     * the minimize strategy. In which case, a number of tasks
+     * are combined and an execution priority is calculated
+     * from that set of combined tasks.
      * Remember that this is a positive number
      * and smaller numbers indicate higher priority.
      * Zero is therefore the absolute highest priority.
      *
      * @return The execution priority
      */
-    public int getPriority ();
+    public int getExecutionPriority();
 
     /**
      * Gets this ComTaskExecution's status.
@@ -233,10 +253,11 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
     /**
      * Gets the specifications for the calculation of the next
      * execution timestamp of this ComTaskExecution.
+     * Note that ad-hoc ComTaskExecution do not have such a specification.
      *
      * @return The NextExecutionSpecs
      */
-    public NextExecutionSpecs getNextExecutionSpecs();
+    public Optional<NextExecutionSpecs> getNextExecutionSpecs();
 
     /**
      * Gets the flag that indicates if this ComTaskExecution
@@ -297,7 +318,7 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      */
     public void schedule(Date when);
 
-    ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?,?>, ? extends ComTaskExecution> getUpdater();
+    public ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?,?>, ? extends ComTaskExecution> getUpdater();
 
     public List<ProtocolTask> getProtocolTasks();
 
