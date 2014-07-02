@@ -9,7 +9,7 @@ Ext.define('Mdc.controller.setup.PropertiesView', {
     ],
 
     requires: [
-        'Mdc.model.Property',
+        'Uni.property.model.Property',
         'Mdc.view.setup.property.PropertyView'
     ],
 

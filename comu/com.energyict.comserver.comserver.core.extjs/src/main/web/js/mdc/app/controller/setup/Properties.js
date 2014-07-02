@@ -13,13 +13,13 @@ Ext.define('Mdc.controller.setup.Properties', {
         'Mdc.store.UserFileReferences',
         'Mdc.store.LoadProfileTypes',
         'Mdc.store.TimeUnits',
-        'Mdc.model.Property',
-        'Mdc.model.PossibleValue',
+        'Uni.property.model.Property',
+        'Uni.property.model.PossibleValue',
         'Mdc.view.setup.property.Edit'
     ],
 
     models: [
-        'Property'
+        'Uni.property.model.Property'
     ],
 
     views: [
@@ -519,7 +519,7 @@ Ext.define('Mdc.controller.setup.Properties', {
         var properties = this.propertiesStore;
         if (properties != null) {
             properties.each(function (property, id) {
-                    var propertyValue = Ext.create('Mdc.model.PropertyValue');
+                    var propertyValue = Ext.create('Uni.property.model.PropertyValue');
                     var value;
                     if (view.down('#' + property.data.key) != null) {
                         var field = view.down('#' + property.data.key);
