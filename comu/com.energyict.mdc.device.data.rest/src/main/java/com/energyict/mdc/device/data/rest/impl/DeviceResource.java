@@ -89,6 +89,14 @@ public class DeviceResource {
         return DeviceInfo.from(newDevice, deviceImportService, issueService);
     }
 
+    @DELETE
+    @Path("/{mRID}")
+    public Response deleteDevice(@PathParam("mRID") String id) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
+        device.delete();
+        return Response.ok().build();
+    }
+
     @GET
     @Path("/{mRID}")
     @Produces(MediaType.APPLICATION_JSON)
