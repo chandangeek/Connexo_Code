@@ -8,9 +8,11 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.impl.CreateEventType;
 import com.energyict.mdc.device.data.impl.DeleteEventType;
@@ -33,6 +35,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 
+import static com.elster.jupiter.util.conditions.Where.where;
 import static com.energyict.mdc.protocol.pluggable.ConnectionTypePropertyRelationAttributeTypeNames.CONNECTION_METHOD_ATTRIBUTE_NAME;
 
 /**
@@ -57,11 +60,13 @@ public class ConnectionMethodImpl extends IdPluggableClassUsageImpl<ConnectionMe
     private Reference<ComPortPool> comPortPool = ValueReference.absent();
 
     private ProtocolPluggableService protocolPluggableService;
+    private final DeviceDataService deviceDataService;
 
     @Inject
-    public ConnectionMethodImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, RelationService relationService, Clock clock, ProtocolPluggableService protocolPluggableService) {
+    public ConnectionMethodImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, RelationService relationService, Clock clock, ProtocolPluggableService protocolPluggableService, DeviceDataService deviceDataService) {
         super(ConnectionMethod.class, dataModel, eventService, thesaurus, relationService, clock);
         this.protocolPluggableService = protocolPluggableService;
+        this.deviceDataService = deviceDataService;
     }
 
     public ConnectionMethodImpl initialize (ConnectionTask connectionTask, ConnectionTypePluggableClass pluggableClass, ComPortPool comPortPool) {
@@ -150,7 +155,14 @@ public class ConnectionMethodImpl extends IdPluggableClassUsageImpl<ConnectionMe
     }
 
     public ConnectionTask getConnectionTask() {
-        return this.connectionTask.orNull();
+        if(!this.connectionTask.isPresent()){
+            Condition condition = where("CONNECTIONMETHOD").isEqualTo(this.getId()).and(where("obsoleteDate").isNull());
+            List<ConnectionTask> connectionTasks = this.dataModel.mapper(ConnectionTask.class).select(condition);
+            if(connectionTasks.size() == 1){
+                this.connectionTask.set(connectionTasks.get(0));
+            }
+        }
+        return connectionTask.orNull();
     }
 
     @Override

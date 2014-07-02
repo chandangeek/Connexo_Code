@@ -12,6 +12,7 @@ import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 
+import javax.inject.Inject;
 import javax.inject.Provider;
 import java.sql.SQLException;
 
@@ -37,6 +38,7 @@ public abstract class OutboundConnectionTaskImpl<PCTT extends PartialOutboundCon
     private int currentRetryCount;
     private boolean lastExecutionFailed;
 
+    @Inject
     protected OutboundConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, DeviceDataService deviceDataService, Provider<ConnectionMethodImpl> connectionMethodProvider) {
         super(dataModel, eventService, thesaurus, clock, deviceDataService, connectionMethodProvider);
     }

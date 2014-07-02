@@ -37,6 +37,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 
+import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -93,6 +94,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     private Provider<ConnectionMethodImpl> connectionMethodProvider;
 
+    @Inject
     protected ConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, DeviceDataService deviceDataService, Provider<ConnectionMethodImpl> connectionMethodProvider) {
         super(ConnectionTask.class, dataModel, eventService, thesaurus);
         this.clock = clock;
@@ -186,12 +188,6 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         for (ComTaskExecution comTaskExecution : this.findDependentComTaskExecutions()) {
             ((ComTaskExecutionImpl) comTaskExecution).connectionTaskRemoved();
         }
-    }
-
-    @Override
-    public void activateAndSave() {
-        this.status = ConnectionTaskLifecycleStatus.ACTIVE;
-        save();
     }
 
     @Override
