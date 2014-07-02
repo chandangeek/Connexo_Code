@@ -20,11 +20,11 @@ Ext.define('Mdc.view.setup.comservercomports.ActionMenu', {
             itemId: 'deactivate',
             text: 'Deactivate',
             action: 'deactivate'
-        },
+        },*/
         {
             itemId: 'remove',
             text: 'Remove',
             action: 'remove'
-        }*/
+        }
     ]
 });

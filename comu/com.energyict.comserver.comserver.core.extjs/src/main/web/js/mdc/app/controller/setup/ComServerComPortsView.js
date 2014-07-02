@@ -25,8 +25,16 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
 
     refs: [
         {
+            ref: 'comServerComportsView',
+            selector: 'comServerComPortsView'
+        },
+        {
             ref: 'preview',
             selector: 'comServerComPortsView comServerComPortPreview'
+        },
+        {
+            ref: 'comPortsGrid',
+            selector: 'comServerComPortsView comServerComPortsGrid'
         }
     ],
 
@@ -40,6 +48,9 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
             },
             'comServerComPortsView comServerComPortPreview [action=passwordVisibleTrigger]': {
                 change: this.passwordVisibleTrigger
+            },
+            'comServerComPortsActionMenu': {
+                click: this.chooseAction
             }
         });
     },
@@ -143,5 +154,56 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
         var password = component.up('fieldcontainer').down('displayfield');
 
         password.setVisible(newValue);
+    },
+
+    chooseAction: function (menu, item) {
+        var me = this,
+            gridView = me.getComPortsGrid().getView(),
+            record = gridView.getSelectionModel().getLastSelected();
+
+        switch (item.action) {
+            case 'remove':
+                me.showDeleteConfirmation(record);
+                break;
+        }
+    },
+
+    showDeleteConfirmation: function (record) {
+        var me = this;
+
+        Ext.create('Uni.view.window.Confirmation').show({
+            msg: Uni.I18n.translate('comServerComPorts.deleteConfirmation.msg', 'MDC', 'This communication port will no longer be available.'),
+            title: Ext.String.format(Uni.I18n.translate('comServerComPorts.deleteConfirmation.title', 'MDC', "Remove '{0}'?"), record.get('name')),
+            fn: function (state) {
+                switch (state) {
+                    case 'confirm':
+                        this.close();
+                        me.deleteComPort(record);
+                        break;
+                    case 'cancel':
+                        this.close();
+                        break;
+                }
+            }
+        });
+    },
+
+    deleteComPort: function (record) {
+        var me = this,
+            page = me.getComServerComportsView(),
+            grid = me.getComPortsGrid(),
+            gridToolbarTop = grid.down('pagingtoolbartop');
+
+        page.setLoading(Uni.I18n.translate('general.removing', 'MDC', 'Removing...'));
+        record.destroy({
+            callback: function (model, operation) {
+                page.setLoading(false);
+                if (operation.wasSuccessful()) {
+                    gridToolbarTop.totalCount = 0;
+                    grid.getStore().loadPage(1);
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comServerComPorts.deleteSuccess.msg', 'MDC', 'Communication port removed'));
+                }
+            }
+        });
     }
 });
