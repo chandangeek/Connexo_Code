@@ -7,6 +7,8 @@ import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.common.services.ListPager;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
@@ -15,18 +17,12 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+
+import java.util.Calendar;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Provider;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -38,6 +34,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 public class DeviceResource {
     private final DeviceImportService deviceImportService;
     private final DeviceDataService deviceDataService;
+    private final DeviceConfigurationService deviceConfigurationService;
     private final ResourceHelper resourceHelper;
     private final IssueService issueService;
     private final ConnectionMethodInfoFactory connectionMethodInfoFactory;
@@ -47,10 +44,11 @@ public class DeviceResource {
     private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public DeviceResource(ResourceHelper resourceHelper, DeviceImportService deviceImportService, DeviceDataService deviceDataService, IssueService issueService, ConnectionMethodInfoFactory connectionMethodInfoFactory, EngineModelService engineModelService, MdcPropertyUtils mdcPropertyUtils, Provider<ProtocolDialectResource> protocolDialectResourceProvider, ExceptionFactory exceptionFactory) {
+    public DeviceResource(ResourceHelper resourceHelper, DeviceImportService deviceImportService, DeviceDataService deviceDataService, DeviceConfigurationService deviceConfigurationService, IssueService issueService, ConnectionMethodInfoFactory connectionMethodInfoFactory, EngineModelService engineModelService, MdcPropertyUtils mdcPropertyUtils, Provider<ProtocolDialectResource> protocolDialectResourceProvider, ExceptionFactory exceptionFactory) {
         this.resourceHelper = resourceHelper;
         this.deviceImportService = deviceImportService;
         this.deviceDataService = deviceDataService;
+        this.deviceConfigurationService = deviceConfigurationService;
         this.issueService = issueService;
         this.connectionMethodInfoFactory = connectionMethodInfoFactory;
         this.engineModelService = engineModelService;
@@ -67,6 +65,28 @@ public class DeviceResource {
         List<Device> allDevices = allDevicesFinder.from(queryParameters).find();
         List<DeviceInfo> deviceInfos = DeviceInfo.from(allDevices);
         return PagedInfoList.asJson("devices", deviceInfos, queryParameters);
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public DeviceInfo addDevice(DeviceInfo info) {
+        DeviceConfiguration deviceConfiguration = null;
+        if(info.deviceConfigurationId != null){
+            deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(info.deviceConfigurationId);
+        }
+
+        Calendar calendar = Calendar.getInstance();
+        Device newDevice = deviceDataService.newDevice(deviceConfiguration, info.mRID, info.mRID);
+        newDevice.setSerialNumber(info.serialNumber);
+        calendar.set(Integer.parseInt(info.yearOfCertification), 1, 1);
+        newDevice.setYearOfCertification(calendar.getTime());
+        newDevice.save();
+
+        //TODO: Device Date should go on the device wharehouse (future development) - or to go on Batch - creation date
+
+        this.deviceImportService.addDeviceToBatch(newDevice, info.batch);
+        return DeviceInfo.from(newDevice, deviceImportService, issueService);
     }
 
     @GET

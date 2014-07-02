@@ -16,6 +16,7 @@ import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.Installer;
 import com.energyict.mdc.common.rest.TransactionWrapper;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.engine.model.EngineModelService;
@@ -40,6 +41,7 @@ public class DeviceApplication extends Application implements InstallService{
     private volatile MasterDataService masterDataService;
 
     private volatile DeviceDataService deviceDataService;
+    private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile DeviceImportService deviceImportService;
     private volatile IssueService issueService;
@@ -85,6 +87,11 @@ public class DeviceApplication extends Application implements InstallService{
     @Reference
     public void setDeviceDataService(DeviceDataService deviceDataService) {
         this.deviceDataService = deviceDataService;
+    }
+
+    @Reference
+    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
+        this.deviceConfigurationService = deviceConfigurationService;
     }
 
     @Reference
@@ -135,6 +142,7 @@ public class DeviceApplication extends Application implements InstallService{
         protected void configure() {
             bind(masterDataService).to(MasterDataService.class);
             bind(deviceDataService).to(DeviceDataService.class);
+            bind(deviceConfigurationService).to(DeviceConfigurationService.class);
             bind(protocolPluggableService).to(ProtocolPluggableService.class);
             bind(transactionService).to(TransactionService.class);
             bind(issueService).to(IssueService.class);
