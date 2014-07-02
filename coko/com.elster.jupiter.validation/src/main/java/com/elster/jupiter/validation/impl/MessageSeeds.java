@@ -47,10 +47,6 @@ public enum MessageSeeds implements MessageSeed {
 
     @Override
     public String getKey() {
-        if (key.startsWith(getModule() + ".")){
-            // +1 to skip the dot symbol
-            return key.substring(getModule().length() + 1);
-        }
         return key;
     }
 
@@ -78,14 +74,14 @@ public enum MessageSeeds implements MessageSeed {
 
 final class Constants {
 
-    public static final String DUPLICATE_VALIDATION_RULE_SET = "VAL.DuplicateValidationRuleSet";
-    public static final String NAME_REQUIRED_KEY = "VAL.CanNotBeEmpty";
-    public static final String INVALID_CHARS = "VAL.InvalidChars";
-    public static final String NO_SUCH_VALIDATOR = "VAL.NoSuchValidator";
-    public static final String DUPLICATE_VALIDATION_RULE = "VAL.DuplicateValidationRule";
-    public static final String NO_SUCH_READINGTYPE = "VAL.NoSuchReadingType";
-    public static final String FIELD_SIZE_BETWEEN_1_AND_80 = "VAL.FieldSizeBetween1and80";
-    public static final String FIELD_SIZE_BETWEEN_1_AND_4000 = "VAL.FieldSizeBetween1and4000";
+    public static final String DUPLICATE_VALIDATION_RULE_SET = "DuplicateValidationRuleSet";
+    public static final String NAME_REQUIRED_KEY = "CanNotBeEmpty";
+    public static final String INVALID_CHARS = "InvalidChars";
+    public static final String NO_SUCH_VALIDATOR = "NoSuchValidator";
+    public static final String DUPLICATE_VALIDATION_RULE = "DuplicateValidationRule";
+    public static final String NO_SUCH_READINGTYPE = "NoSuchReadingType";
+    public static final String FIELD_SIZE_BETWEEN_1_AND_80 = "FieldSizeBetween1and80";
+    public static final String FIELD_SIZE_BETWEEN_1_AND_4000 = "FieldSizeBetween1and4000";
 
 
 }

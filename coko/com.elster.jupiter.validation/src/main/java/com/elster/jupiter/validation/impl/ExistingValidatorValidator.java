@@ -1,8 +1,6 @@
 package com.elster.jupiter.validation.impl;
 
-import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.ValidatorFactory;
 import com.elster.jupiter.validation.ValidatorNotFoundException;
 
 import javax.inject.Inject;
@@ -33,7 +31,7 @@ public class ExistingValidatorValidator implements ConstraintValidator<ExistingV
             context.disableDefaultConstraintViolation();
 
             context.buildConstraintViolationWithTemplate(
-                    "{"+MessageSeeds.NO_SUCH_VALIDATOR.getKey()+"}").addConstraintViolation();
+                    "{"+ MessageSeeds.NO_SUCH_VALIDATOR.getKey()+"}").addConstraintViolation();
             return false;
         }
     }
