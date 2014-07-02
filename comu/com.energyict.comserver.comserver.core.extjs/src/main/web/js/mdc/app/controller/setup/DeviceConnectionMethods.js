@@ -97,11 +97,18 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
     showDeviceConnectionMethods: function (mrid) {
         var me = this;
         this.mrid = mrid;
-        var widget = Ext.widget('deviceConnectionMethodSetup', {mrid: mrid});
         Ext.ModelManager.getModel('Mdc.model.Device').load(mrid, {
             success: function (device) {
-                me.getApplication().fireEvent('changecontentevent', widget);
-                me.getApplication().fireEvent('loadDevice', device);
+                var model = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
+                model.getProxy().setExtraParam('deviceType', device.get('deviceTypeId'));
+                model.load(device.get('deviceConfigurationId'), {
+                    success: function (deviceConfig) {
+                        var widget = Ext.widget('deviceConnectionMethodSetup', {mrid: mrid,isDirectlyAddressable: deviceConfig.get('isDirectlyAddressable')});
+                        me.getApplication().fireEvent('changecontentevent', widget);
+                        me.getApplication().fireEvent('loadDevice', device);
+                    }
+                });
+
                 me.getDeviceConnectionMethodsGrid().getSelectionModel().doSelect(0);
             }
         });
@@ -110,13 +117,24 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
     previewDeviceConnectionMethod: function () {
         var connectionMethod = this.getDeviceConnectionMethodsGrid().getSelectionModel().getSelection();
         if (connectionMethod.length == 1) {
+            this.getToggleDefaultMenuItem().setText(connectionMethod[0].get('isDefault') === true ? Uni.I18n.translate('deviceconnectionmethod.unsetAsDefault', 'MDC', 'Remove as default') : Uni.I18n.translate('deviceconnectionmethod.setAsDefault', 'MDC', 'Set as default'));
+            this.getToggleActiveMenuItem().setText(connectionMethod[0].get('status') === 'connectionTaskStatusInActive' ? Uni.I18n.translate('deviceconnectionmethod.activate', 'MDC', 'Activate') : Uni.I18n.translate('deviceconnectionmethod.deActivate', 'MDC', 'Deactivate'));
+            if(connectionMethod[0].get('status')==='connectionTaskStatusIncomplete'){
+                this.getToggleActiveMenuItem().hidden = true;
+            } else {
+                this.getToggleActiveMenuItem().hidden = false;
+            }
             this.getDeviceConnectionMethodPreviewForm().loadRecord(connectionMethod[0]);
             var connectionMethodName = connectionMethod[0].get('name');
             this.getDeviceConnectionMethodPreview().getLayout().setActiveItem(1);
             this.getDeviceConnectionMethodPreview().setTitle(connectionMethodName);
-            this.getDeviceConnectionMethodPreviewForm().loadRecord(connectionMethod[0]);
             this.getDeviceConnectionMethodPreview().down('#toggleDefaultMenuItem').setText(connectionMethod[0].get('isDefault') === true ? Uni.I18n.translate('deviceconnectionmethod.unsetAsDefault', 'MDC', 'Remove as default') : Uni.I18n.translate('deviceconnectionmethod.setAsDefault', 'MDC', 'Set as default'));
-            this.getDeviceConnectionMethodPreview().down('#toggleActiveMenuItem').setText(connectionMethod[0].get('paused') === true ? Uni.I18n.translate('deviceconnectionmethod.activate', 'MDC', 'Activate') : Uni.I18n.translate('deviceconnectionmethod.deActivate', 'MDC', 'Deactivate'));
+            this.getDeviceConnectionMethodPreview().down('#toggleActiveMenuItem').setText(connectionMethod[0].get('status') === 'connectionTaskStatusInActive' || connectionMethod[0].get('status')==='connectionTaskStatusIncomplete'? Uni.I18n.translate('deviceconnectionmethod.activate', 'MDC', 'Activate') : Uni.I18n.translate('deviceconnectionmethod.deActivate', 'MDC', 'Deactivate'));
+            if(connectionMethod[0].get('status')==='connectionTaskStatusIncomplete'){
+                this.getDeviceConnectionMethodPreview().down('#toggleActiveMenuItem').hidden = true;
+            } else {
+                this.getDeviceConnectionMethodPreview().down('#toggleActiveMenuItem').hidden = false;
+            }
             if (connectionMethod[0].propertiesStore.data.items.length > 0) {
                 this.getDeviceConnectionMethodPreview().down('#connectionDetailsTitle').setVisible(true);
             } else {
@@ -206,7 +224,6 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
     },
 
     showPropertiesAsInherited: function (connectionMethod) {
-        debugger;
         if (connectionMethod.propertiesStore.data.items.length > 0) {
             this.getDeviceConnectionMethodEditView().down('#connectionDetailsTitle').setVisible(true);
         } else {
@@ -291,7 +308,6 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         var me = this;
         if (record) {
             record.set(values);
-
             if (values.connectionStrategy === 'asSoonAsPossible') {
                 record.set('nextExecutionSpecs', null);
             }
@@ -300,20 +316,53 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                 record.set('comWindowEnd', 0);
             }
             record.propertiesStore = this.getPropertiesController().updateProperties();
-            record.getProxy().extraParams = ({mrid: me.mrid});
-            record.save({
-                success: function (record) {
-                    location.href = '#/devices/' + me.mrid + '/connectionmethods/';
-                },
-                failure: function (record, operation) {
-                    var json = Ext.decode(operation.response.responseText);
-                    if (json && json.errors) {
-                        me.getConnectionMethodEditForm().getForm().markInvalid(json.errors);
+            this.saveRecord(record);
+
+        }
+    },
+
+    saveRecord: function(record){
+        var me=this;
+        record.getProxy().extraParams = ({mrid: me.mrid});
+        record.save({
+            success: function (record) {
+                location.href = '#/devices/' + me.mrid + '/connectionmethods/';
+            },
+            failure: function (record, operation) {
+                var json = Ext.decode(operation.response.responseText);
+                if (json && json.errors) {
+                    if(json.errors.some(function(error){
+                        return error.id === 'status'
+                    })){
+                        Ext.create('Uni.view.window.Confirmation',{
+                            confirmText: Uni.I18n.translate('general.yes', 'UNI', 'Yes'),
+                            cancelText: Uni.I18n.translate('general.no', 'UNI', 'No')
+                        }).show({
+                            msg: Uni.I18n.translate('deviceconnectionmethod.createIncomplete.msg', 'MDC', 'Are you sure you want to add this incomplete connection method?'),
+                            title: Uni.I18n.translate('deviceconnectionmethod.createIncomplete.title', 'MDC', 'One or more required attributes are missing'),
+                            config: {
+                                me: me,
+                                record: record
+                            },
+
+                            fn: me.saveAsIncomplete
+                        });
+                    } else {
+                        me.getDeviceConnectionMethodEditForm().getForm().markInvalid(json.errors);
                         me.getPropertiesController().showErrors(json.errors);
                     }
-                }
-            });
 
+
+                }
+            }
+        });
+    },
+
+    saveAsIncomplete: function(btn, text, opt){
+        if(btn === 'confirm'){
+            var record = opt.config.record;
+            record.set('status','connectionTaskStatusIncomplete');
+            opt.config.me.saveRecord(record);
         }
     },
 
@@ -449,10 +498,10 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         if (connectionMethod.hasOwnProperty('action')) {
             connectionMethod = this.getDeviceConnectionMethodsGrid().getSelectionModel().getSelection()[0];
         }
-        if (connectionMethod.get('paused') === true) {
-            connectionMethod.set('paused', false);
+        if (connectionMethod.get('status') === 'connectionTaskStatusIncomplete' ||connectionMethod.get('status') === 'connectionTaskStatusInActive') {
+            connectionMethod.set('status', 'connectionTaskStatusActive');
         } else {
-            connectionMethod.set('paused', true);
+            connectionMethod.set('status', 'connectionTaskStatusInActive');
         }
         if (connectionMethod.get('connectionStrategy') === 'asSoonAsPossible' || connectionMethod.get('direction') === 'Inbound') {
             connectionMethod.set('nextExecutionSpecs', null);

@@ -22,8 +22,9 @@ Ext.define('Mdc.view.setup.connectionmethod.DeviceConnectionMethodsGrid', {
                 dataIndex: 'isDefault',
                 renderer: function (value, metadata) {
                     if (value === true) {
+                      //  metadata.style = "padding: 6px 16px 6px 16px;";
                         metadata.style = "padding: 6px 16px 6px 16px;";
-                        return '<img src="../mdc/resources/images/1rightarrow.png">';
+                        return '<img src="../mdc/resources/images/defaultItem.png">';
                     } else {
                         return '';
                     }
@@ -51,9 +52,18 @@ Ext.define('Mdc.view.setup.connectionmethod.DeviceConnectionMethodsGrid', {
             },
             {
                 header: Uni.I18n.translate('deviceconnectionmethod.status', 'MDC', 'Status'),
-                dataIndex: 'paused',
+                dataIndex: 'status',
                 renderer: function(value,b,record){
-                    return value?Uni.I18n.translate('general.inactive', 'MDC', 'Inactive'):Uni.I18n.translate('general.active', 'MDC', 'Active');
+                    switch (value) {
+                        case 'connectionTaskStatusIncomplete':
+                            return Uni.I18n.translate('deviceconnectionmethod.status.incomplete', 'MDC', 'Incomplete');
+                        case 'connectionTaskStatusActive':
+                            return Uni.I18n.translate('deviceconnectionmethod.status.active', 'MDC', 'Active');
+                        case 'connectionTaskStatusInActive':
+                            return Uni.I18n.translate('deviceconnectionmethod.status.inactive', 'MDC', 'Inactive');
+                        default :
+                            return '';
+                    }
                 },
                 flex: 0.2
             },

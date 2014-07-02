@@ -60,28 +60,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodSetup', {
                                 },
                                 {
                                     xtype: 'container',
-                                    items: [
-                                        {
-                                            xtype: 'component',
-                                            html: '<h4>' + Uni.I18n.translate('connectionMethod.empty.title', 'MDC', 'No connection methods found') + '</h4><br>' +
-                                                Uni.I18n.translate('connectionMethod.empty.detail', 'MDC', 'There are no connection methods. This could be because:') + '<lv><li>&nbsp&nbsp' +
-                                                Uni.I18n.translate('connectionMethod.empty.list.item1', 'MDC', 'No connection methods have been defined yet.') + '</li></lv><br>' +
-                                                Uni.I18n.translate('connectionMethod.empty.steps', 'MDC', 'Possible steps:')
-                                        },
-                                        {
-                                            text: Uni.I18n.translate('connectionmethod.addOutboundConnectionMethod', 'MDC', 'Add outbound connection method'),
-                                            itemId: 'createOutboundConnectionButton',
-                                            xtype: 'button',                                            
-                                            action: 'createOutboundConnectionMethod',
-                                            margin: '0 5 0 0'
-                                        },
-                                        {
-                                            text: Uni.I18n.translate('connectionmethod.addInboundConnectionMethod', 'MDC', 'Add inbound connection method'),
-                                            itemId: 'createInboundConnectionButton',
-                                            xtype: 'button',
-                                            action: 'createInboundConnectionMethod'
-                                        }
-                                    ]
+                                    items: this.getEmptyContent()
                                 }
                             ]
                         },
@@ -94,6 +73,45 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodSetup', {
         ];
 
         this.callParent(arguments);
+    },
+
+    getEmptyContent: function(){
+        if(this.isDirectlyAddressable){
+            return [
+                {
+                    xtype: 'component',
+                    html: '<h4>' + Uni.I18n.translate('connectionMethod.empty.title', 'MDC', 'No connection methods found') + '</h4><br>' +
+                        Uni.I18n.translate('connectionMethod.empty.detail', 'MDC', 'There are no connection methods. This could be because:') + '<lv><li>&nbsp&nbsp' +
+                        Uni.I18n.translate('connectionMethod.empty.list.item1', 'MDC', 'No connection methods have been defined yet.') + '</li></lv><br>' +
+                        Uni.I18n.translate('connectionMethod.empty.steps', 'MDC', 'Possible steps:')
+
+                },
+                {
+                    text: Uni.I18n.translate('connectionmethod.addOutboundConnectionMethod', 'MDC', 'Add outbound connection method'),
+                    itemId: 'createOutboundConnectionButton',
+                    xtype: 'button',
+                    action: 'createOutboundConnectionMethod',
+                    margin: '0 5 0 0'
+                },
+                {
+                    text: Uni.I18n.translate('connectionmethod.addInboundConnectionMethod', 'MDC', 'Add inbound connection method'),
+                    itemId: 'createInboundConnectionButton',
+                    xtype: 'button',
+                    action: 'createInboundConnectionMethod'
+                }
+            ]
+        } else {
+            return [
+                {
+                    xtype: 'component',
+
+                    html: '<h4>' + Uni.I18n.translate('connectionMethod.empty.detailNotAdressable', 'MDC', 'No connection methods can be added') + '</h4><br>' +
+                        Uni.I18n.translate('connectionMethod.empty.detailNotAdressable', 'MDC', 'No connection methods can be added. This could be because:') + '<lv><li>&nbsp&nbsp' +
+                        Uni.I18n.translate('connectionMethod.empty.list.detailNotAdressableItem1', 'MDC', 'This device configuration is not directly addressable') + '</li></lv><br>'
+                }
+            ]
+        }
+
     }
 });
 
