@@ -336,8 +336,8 @@ public class DeviceImpl implements Device, PersistenceAware {
             this.deviceType.set(deviceConfiguration.getDeviceType());
         }
 
-        setName(name.trim());
-        this.mRID = mRID.trim();
+        setName(name);
+        setMRID(mRID);
         createLoadProfiles();
         createLogBooks();
         return this;
@@ -371,7 +371,17 @@ public class DeviceImpl implements Device, PersistenceAware {
 
     @Override
     public void setName(String name) {
-        this.name = name;
+        this.name = null;
+        if(name != null){
+            this.name = name.trim();
+        }
+    }
+
+    private void setMRID(String mRID) {
+        this.mRID = null;
+        if(mRID != null){
+            this.mRID = mRID.trim();
+        }
     }
 
     public long getId() {
