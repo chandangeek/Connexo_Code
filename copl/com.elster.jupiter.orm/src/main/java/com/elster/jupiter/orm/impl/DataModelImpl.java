@@ -15,6 +15,7 @@ import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import com.google.inject.ConfigurationException;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
@@ -36,9 +37,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public class DataModelImpl implements DataModel {
+
+    private static final Logger LOGGER = Logger.getLogger(DataModelImpl.class.getName());
 
     // persistent fields
     private String name;
@@ -404,21 +409,30 @@ public class DataModelImpl implements DataModel {
 
     @Override
     public ValidatorFactory getValidatorFactory() {
+        MessageInterpolator messageInterpolator = null;
+        try {
+            messageInterpolator = injector.getInstance(MessageInterpolator.class);
+        } catch (ConfigurationException e) {
+            LOGGER.log(Level.WARNING, "DataModal " + name + " has no registered a MessageInterpolator. Validation messages will not be translated.", e);
+        }
+        if (messageInterpolator == null) {
+            messageInterpolator = new MessageInterpolator() {
+                @Override
+                public String interpolate(String messageTemplate, Context context) {
+                    return messageTemplate;
+                }
+
+                @Override
+                public String interpolate(String messageTemplate, Context context, Locale locale) {
+                    return messageTemplate;
+                }
+            };
+        }
         return Validation.byDefaultProvider()
                 .providerResolver(ormService.getValidationProviderResolver())
                 .configure()
                 .constraintValidatorFactory(getConstraintValidatorFactory())
-                .messageInterpolator(new MessageInterpolator() {
-                    @Override
-                    public String interpolate(String message, Context context) {
-                        return message;
-                    }
-
-                    @Override
-                    public String interpolate(String message, Context context, Locale locale) {
-                        return message;
-                    }
-                })
+                .messageInterpolator(messageInterpolator)
                 .buildValidatorFactory();
     }
 
