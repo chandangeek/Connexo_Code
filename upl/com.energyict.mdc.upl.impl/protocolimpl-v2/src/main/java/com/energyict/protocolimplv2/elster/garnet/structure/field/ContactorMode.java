@@ -16,10 +16,12 @@ public class ContactorMode extends AbstractField<ContactorMode> {
 
     public ContactorMode() {
         this.mode = Mode.UNKNOWN;
+        this.contactorModeCode = 0;
     }
 
     public ContactorMode(Mode mode) {
         this.mode = mode;
+        this.contactorModeCode = mode.getContactorMode();
     }
 
     @Override

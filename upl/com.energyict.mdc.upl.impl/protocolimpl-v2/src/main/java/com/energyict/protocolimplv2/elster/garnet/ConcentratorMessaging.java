@@ -26,8 +26,6 @@ import java.util.List;
  */
 public class ConcentratorMessaging implements DeviceMessageSupport {
 
-    private static final int NR_OF_METERS_IN_AFFECTED_METER_MASK = 12;
-    private static final int LENGTH_OF_AFFECTED_METER_MASK = 2;
     private final GarnetConcentrator deviceProtocol;
 
     public ConcentratorMessaging(GarnetConcentrator deviceProtocol) {
