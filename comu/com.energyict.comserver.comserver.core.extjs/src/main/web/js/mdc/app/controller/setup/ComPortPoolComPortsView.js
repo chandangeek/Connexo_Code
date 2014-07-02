@@ -12,8 +12,16 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
 
     refs: [
         {
+            ref: 'comPortPoolsComPortsView',
+            selector: 'comPortPoolsComPortsView'
+        },
+        {
             ref: 'preview',
-            selector: 'comPortPoolsComPortsView comServerComPortPreview'
+            selector: 'comPortPoolsComPortsView comPortPoolComPortPreview'
+        },
+        {
+            ref: 'comPortsGrid',
+            selector: 'comPortPoolsComPortsView comPortPoolComPortsGrid'
         }
     ],
 
@@ -22,11 +30,14 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
             'comPortPoolsComPortsView comPortPoolComPortsGrid': {
                 select: this.showPreview
             },
-            'comPortPoolsComPortsView comServerComPortPreview [action=passwordVisibleTrigger]': {
+            'comPortPoolsComPortsView comPortPoolComPortPreview [action=passwordVisibleTrigger]': {
                 change: this.passwordVisibleTrigger
             },
             'comPortPoolsComPortsView button[action=addComPort]': {
                 click: this.addComPort
+            },
+            'comPortPoolComPortsActionMenu': {
+                click: this.chooseAction
             }
         });
     },
@@ -64,5 +75,24 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
 
     addComPort: function () {
 //        todo: needs to implement JP-3694 "Add communication port on communication port pool"
+    },
+
+    deleteComPort: function (record) {
+        var me = this,
+            page = me.getComPortPoolsComPortsView(),
+            grid = me.getComPortsGrid(),
+            gridToolbarTop = grid.down('pagingtoolbartop');
+
+        page.setLoading(Uni.I18n.translate('general.removing', 'MDC', 'Removing...'));
+        record.destroy({
+            callback: function (model, operation) {
+                page.setLoading(false);
+                if (operation.wasSuccessful()) {
+                    gridToolbarTop.totalCount = 0;
+                    grid.getStore().loadPage(1);
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comServerComPorts.deleteSuccess.msg', 'MDC', 'Communication port removed'));
+                }
+            }
+        });
     }
 });

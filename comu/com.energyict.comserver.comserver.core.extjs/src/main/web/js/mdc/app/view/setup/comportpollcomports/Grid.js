@@ -4,7 +4,7 @@ Ext.define('Mdc.view.setup.comportpollcomports.Grid', {
         'Uni.grid.column.Action',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Mdc.view.setup.comservercomports.ActionMenu'
+        'Mdc.view.setup.comportpollcomports.ActionMenu'
     ],
     alias: 'widget.comPortPoolComPortsGrid',
     itemId: 'comPortPoolsComPortsGrid',
@@ -37,7 +37,7 @@ Ext.define('Mdc.view.setup.comportpollcomports.Grid', {
             {
                 xtype: 'uni-actioncolumn',
                 menu: {
-                    xtype: 'comServerComPortsActionMenu'
+                    xtype: 'comPortPoolComPortsActionMenu'
                 }
             }
         ]

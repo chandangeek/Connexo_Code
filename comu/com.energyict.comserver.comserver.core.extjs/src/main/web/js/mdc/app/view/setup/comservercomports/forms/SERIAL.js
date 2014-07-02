@@ -30,10 +30,7 @@ Ext.define('Mdc.view.setup.comservercomports.forms.SERIAL', {
                 },
                 {
                     fieldLabel: Uni.I18n.translate('comports.preview.addressSelector', 'MDC', 'Address selector'),
-                    name: 'addressSelector',
-                    renderer: function (val) {
-                        return val ? val : '-';
-                    }
+                    name: 'addressSelector'
                 },
                 {
                     fieldLabel: Uni.I18n.translate('comports.preview.serialPortConfiguration', 'MDC', 'Serial port configuration'),
