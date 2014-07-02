@@ -237,6 +237,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         this.getDeviceConnectionMethodEditView().down('#communicationPortPoolComboBox').setDisabled(false);
         this.getDeviceConnectionMethodEditView().down('#connectionStrategyComboBox').setDisabled(false);
         this.getDeviceConnectionMethodEditView().down('#scheduleField').setDisabled(false);
+        this.getDeviceConnectionMethodEditView().down('#activeRadioGroup').setDisabled(false);
         // this.getDeviceConnectionMethodEditView().down('#rescheduleRetryDelay').setDisabled(false);
         this.getDeviceConnectionMethodEditView().down('#allowSimultaneousConnections').setDisabled(false);
         if (connectionMethod.get('connectionStrategy') === 'minimizeConnections') {
@@ -442,6 +443,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                                                 me.getDeviceConnectionMethodEditView().down('#allowSimultaneousConnections').setDisabled(false);
                                                 me.getDeviceConnectionMethodEditView().down('#connectionStrategyComboBox').setDisabled(false);
                                                 me.getDeviceConnectionMethodEditView().down('#scheduleField').setDisabled(false);
+                                                me.getDeviceConnectionMethodEditView().down('#activeRadioGroup').setDisabled(false);
                                                 me.getDeviceConnectionMethodComboBox().setDisabled(true);
                                                 me.getDeviceConnectionMethodEditView().down('form').loadRecord(connectionMethod);
                                                 if (connectionMethod.get('connectionStrategy') === 'minimizeConnections') {
