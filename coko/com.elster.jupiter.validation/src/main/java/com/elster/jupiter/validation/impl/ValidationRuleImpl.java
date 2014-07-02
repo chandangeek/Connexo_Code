@@ -165,6 +165,9 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
         if (!optional.isPresent()) {
             // throw new InvalidReadingTypeException(this.thesaurus, mRID);
             ReadingTypeInValidationRuleImpl empty = ReadingTypeInValidationRuleImpl.from(dataModel, this, mRID);
+            if (getId() != 0) {
+                Save.UPDATE.validate(dataModel, empty);
+            }
             readingTypesInRule.add(empty);
             return empty;
         }
