@@ -161,8 +161,10 @@ Ext.define('Cfg.controller.Validation', {
                 record.properties().removeAll();
             }
             for (var i = 0; i < readingTypes.items.length; i++) {
-                var readingType = readingTypes.items[i].items.items[0].value;
-                var readingTypeRecord = Ext.create(Cfg.model.ReadingType);
+                var readingTypeMRID = readingTypes.items[i].items.items[0],
+                    readingType = readingTypeMRID.value,
+                    readingTypeRecord = Ext.create(Cfg.model.ReadingType);
+                readingTypeMRID.name = 'readingTypesInRule[' + i + '].readingTypeMRID';
                 readingTypeRecord.set('mRID', readingType);
                 record.readingTypes().add(readingTypeRecord);
             }
