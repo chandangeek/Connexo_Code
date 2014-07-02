@@ -5,7 +5,7 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
-    SHOULD_BE_AT_LEAST(1, Keys.MDC_VALUE_TOO_SMALL, "Minimal acceptable value is {min}, was {value}", Level.SEVERE),
+    SHOULD_BE_AT_LEAST(1, Keys.MDC_VALUE_TOO_SMALL, "Minimal acceptable value is {value} seconds.", Level.SEVERE),
     CAN_NOT_BE_EMPTY(2, Keys.MDC_CAN_NOT_BE_EMPTY, "This field can not be empty", Level.SEVERE),
     VALUE_NOT_IN_RANGE(3, Keys.MDC_VALUE_NOT_IN_RANGE, "{value} not in range {min} to {max}", Level.SEVERE),
     INVALID_URL(4, Keys.MDC_INVALID_URL, "{value} is not a valid URL", Level.SEVERE),
@@ -16,7 +16,7 @@ public enum MessageSeeds implements MessageSeed {
     MUST_HAVE_DISCOVERY_PROTOCOL(9, Keys.DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_IS_MANDATORY_FOR_COMPORTPOOL, "Discovery protocol pluggable class is mandatory for comportpool", Level.SEVERE),
     ACTIVE_INBOUND_PORT_MUST_HAVE_POOL(10, Keys.MDC_ACTIVE_INBOUND_COMPORT_MUST_HAVE_POOL, "An active inbound comport must have an inbound comportpool", Level.SEVERE),
 
-    DUPLICATE_COMSERVER(101, Keys.MDC_DUPLICATE_COM_SERVER, "ComServer with name {value} already exists", Level.SEVERE),
+    DUPLICATE_COMSERVER(101, Keys.MDC_DUPLICATE_COM_SERVER, "Comserver with such name is already exists", Level.SEVERE),
     OBSOLETE_COMSERVER_CANT_BE_UPDATED(103, Keys.MDC_COMSERVER_NO_UPDATE_ALLOWED, "Obsolete ComServers can no longer be updated", Level.SEVERE),
     ONLINE_COMSERVER_STILL_REFERENCED(104, Keys.MDC_ONLINE_COM_SERVER_STILL_REFERENCED, "Online Comserver is still referenced by remote comserver(s)", Level.SEVERE),
     DUPLICATE_COMPORT(105, Keys.MDC_DUPLICATE_COM_PORT, "ComPort by this name already exists", Level.SEVERE),
