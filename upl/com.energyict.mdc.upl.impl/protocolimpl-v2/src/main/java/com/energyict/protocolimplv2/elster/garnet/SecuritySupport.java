@@ -17,8 +17,8 @@ import java.util.List;
  */
 public class SecuritySupport implements DeviceProtocolSecurityCapabilities {
 
-    public final String authenticationTranslationKeyConstant = "GarnetSecuritySupport.authenticationlevel";
-    public final String encryptionTranslationKeyConstant = "GarnetSecuritySupport.encryptionlevel";
+    public final String authenticationTranslationKeyConstant = "GarnetSecuritySupport.authenticationlevel.0";
+    public final String encryptionTranslationKeyConstant = "GarnetSecuritySupport.encryptionlevel.1";
 
     /**
      * Summarizes the used ID for the AuthenticationLevels.
