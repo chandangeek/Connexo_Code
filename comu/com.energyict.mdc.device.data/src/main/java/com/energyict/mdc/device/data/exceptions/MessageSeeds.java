@@ -26,6 +26,7 @@ public enum MessageSeeds implements MessageSeed {
     MRID_IS_REQUIRED(1008, Constants.MRID_REQUIRED_KEY, "The MRID is required", Level.SEVERE),
     DEVICE_TYPE_IS_REQUIRED(1009, Constants.DEVICE_TYPE_REQUIRED_KEY, "The device type is required", Level.SEVERE),
     DEVICE_CONFIGURATION_IS_REQUIRED(1010, Constants.DEVICE_CONFIGURATION_REQUIRED_KEY, "The device configuration is required", Level.SEVERE),
+    DUPLICATE_DEVICE_MRID(1011, Constants.DUPLICATE_DEVICE_MRID, "The MRID is already used by another device", Level.SEVERE),
     CONNECTION_TASK_DEVICE_REQUIRED(2000, Constants.CONNECTION_TASK_DEVICE_REQUIRED_KEY, "A connection type should be linked to a device", Level.SEVERE),
     CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED(2001, Constants.CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED_KEY, "A connection type should be linked to a partial connection task from the device configuration", Level.SEVERE),
     DUPLICATE_CONNECTION_TASK(2002, Constants.DUPLICATE_CONNECTION_TASK_KEY, "The partial connection task {0} is already used by connection task {1} on device {2} and therefore no other connection task with the same partial connection task can be created", Level.SEVERE),

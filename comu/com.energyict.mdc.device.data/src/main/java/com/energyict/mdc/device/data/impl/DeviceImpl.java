@@ -336,8 +336,8 @@ public class DeviceImpl implements Device, PersistenceAware {
             this.deviceType.set(deviceConfiguration.getDeviceType());
         }
 
-        setName(name);
-        this.mRID = mRID;
+        setName(name.trim());
+        this.mRID = mRID.trim();
         createLoadProfiles();
         createLogBooks();
         return this;
