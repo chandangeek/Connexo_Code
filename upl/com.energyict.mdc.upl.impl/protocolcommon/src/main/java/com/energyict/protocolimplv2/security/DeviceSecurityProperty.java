@@ -1,7 +1,12 @@
 package com.energyict.protocolimplv2.security;
 
-import com.energyict.cpo.*;
-import com.energyict.dynamicattributes.*;
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecBuilder;
+import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.dynamicattributes.BigDecimalFactory;
+import com.energyict.dynamicattributes.BooleanFactory;
+import com.energyict.dynamicattributes.EncryptedStringFactory;
+import com.energyict.dynamicattributes.StringFactory;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -82,6 +87,20 @@ public enum DeviceSecurityProperty {
     ANSI_CALLED_AP_TITLE(PropertySpecBuilder
             .forClass(String.class, new StringFactory())
             .name(SecurityPropertySpecName.ANSI_CALLED_AP_TITLE.toString())
+            .finish()),
+    /**
+     * The manufacturer key used for encryption of bytes
+     */
+    MANUFACTURER_ENCRYPTION_KEY(PropertySpecBuilder
+            .forClass(String.class, new EncryptedStringFactory())
+            .name(SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER.toString())
+            .finish()),
+    /**
+     * The customer key used for encryption of bytes
+     */
+    CUSTOMER_ENCRYPTION_KEY(PropertySpecBuilder
+            .forClass(String.class, new EncryptedStringFactory())
+            .name(SecurityPropertySpecName.ENCRYPTION_KEY_CUSTOMER.toString())
             .finish());
 
     /**

@@ -22,6 +22,8 @@ public enum DeviceProtocolDialectNameEnum {
     SDK_SAMPLE_TIME_DEVICE_PROTOCOL_DIALECT_NAME("SDKTimeDialect"),
     SDK_SAMPLE_TOPOLOGY_DIALECT_NAME("SDKTopologyDialect"),
     ACE4000_DEVICE_PROTOCOL_DIALECT_NAME("ACE4000GprsDialect"),
+    GARNET_TCP_DIALECT_NAME("GarnetTcpDialect"),
+    GARNET_SERIAL_DIALECT_NAME("GarnetSerialDialect"),
     NO_PARAMETERS_PROTOCOL_DIALECT_NAME("NoParamsDialect");
 
     DeviceProtocolDialectNameEnum(String uniqueName) {

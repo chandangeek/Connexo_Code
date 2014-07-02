@@ -1433,4 +1433,16 @@ public final class ProtocolTools {
         BigDecimal bigDecimal = new BigDecimal(value.toString(), mathContext);
         return bigDecimal.toPlainString();
     }
+
+    /**
+     * Remove all leading zeros from a given string.
+     * If the text contains only zeros, "0" will be returned;
+     */
+    public static String removeLeadingZerosFromString(String text) {
+        text = text.replaceFirst("^0*", "");
+        if (text.isEmpty()) {
+            text = "0";
+        }
+        return text;
+    }
 }
