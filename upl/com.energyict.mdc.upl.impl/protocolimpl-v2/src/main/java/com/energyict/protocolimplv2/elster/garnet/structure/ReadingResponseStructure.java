@@ -79,7 +79,7 @@ public class ReadingResponseStructure extends Data<ReadingResponseStructure> {
                 consumptionByteStream.write(consumption.getBytes());
             }
         } catch (IOException e) {
-            consumptionByteStream = new ByteArrayOutputStream();
+            consumptionByteStream = new ByteArrayOutputStream(); // Clear the stream
         }
         byte[] readingSelectorBytes = new byte[]{(byte) (readingSelector.getBytes()[0] | meterTariffCollection.getBytes()[0])};
 

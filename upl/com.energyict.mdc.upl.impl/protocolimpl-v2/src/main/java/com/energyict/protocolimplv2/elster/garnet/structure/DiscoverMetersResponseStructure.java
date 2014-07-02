@@ -14,8 +14,9 @@ import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.M
 import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.MeterRelayStatus;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.MeterSensorStatus;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.MeterTariffStatus;
-import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
@@ -63,9 +64,13 @@ public class DiscoverMetersResponseStructure extends Data<DiscoverMetersResponse
 
     @Override
     public byte[] getBytes() {
-        ByteOutputStream meterSerialsByteSteam = new ByteOutputStream(NR_OF_METERS * MeterSerialNumber.LENGTH);
-        for (int i = 0; i < NR_OF_METERS; i++) {
-            meterSerialsByteSteam.write(meterSerialNumberCollection.get(i).getBytes());
+        ByteArrayOutputStream meterSerialsByteSteam = new ByteArrayOutputStream(NR_OF_METERS * MeterSerialNumber.LENGTH);
+        try {
+            for (int i = 0; i < NR_OF_METERS; i++) {
+                meterSerialsByteSteam.write(meterSerialNumberCollection.get(i).getBytes());
+            }
+        } catch (IOException e) {
+            meterSerialsByteSteam = new ByteArrayOutputStream(); // clear the stream;
         }
 
         return ProtocolTools.concatByteArrays(
@@ -77,7 +82,7 @@ public class DiscoverMetersResponseStructure extends Data<DiscoverMetersResponse
                 meterSensorStatusCollection.getBytes(),
                 meterInstallationStatusCollection.getBytes(),
                 meterTariffStatusCollection.getBytes(),
-                meterSerialsByteSteam.getBytes()
+                meterSerialsByteSteam.toByteArray()
         );
     }
 
