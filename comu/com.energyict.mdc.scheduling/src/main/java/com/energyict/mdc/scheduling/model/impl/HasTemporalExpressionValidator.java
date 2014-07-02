@@ -24,7 +24,7 @@ public class HasTemporalExpressionValidator implements ConstraintValidator<HasVa
         if (temporalExpression == null) {
             context.disableDefaultConstraintViolation();
             context
-                .buildConstraintViolationWithTemplate("{" + Constants.NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED_KEY + "}")
+                .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED_KEY + "}")
                 .addPropertyNode("temporalExpression").addConstraintViolation();
             return false;
         }
@@ -40,7 +40,7 @@ public class HasTemporalExpressionValidator implements ConstraintValidator<HasVa
                 if (timeDuractionCount <= 0) {
                     context.disableDefaultConstraintViolation();
                     context
-                        .buildConstraintViolationWithTemplate("{" + Constants.TEMPORAL_EXPRESSION_FREQUENCY_MUST_BE_STRICTLY_POSITIVE_KEY + "}")
+                        .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.TEMPORAL_EXPRESSION_FREQUENCY_MUST_BE_STRICTLY_POSITIVE_KEY + "}")
                         .addPropertyNode("temporalExpression.every").addConstraintViolation();
                     return false;
                 }
@@ -56,7 +56,7 @@ public class HasTemporalExpressionValidator implements ConstraintValidator<HasVa
                 if (timeDuractionCount < 0) {
                     context.disableDefaultConstraintViolation();
                     context
-                        .buildConstraintViolationWithTemplate("{" + Constants.TEMPORAL_EXPRESSION_OFFSET_MUST_BE_POSITIVE_KEY + "}")
+                        .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.TEMPORAL_EXPRESSION_OFFSET_MUST_BE_POSITIVE_KEY + "}")
                         .addPropertyNode("temporalExpression.offset").addConstraintViolation();
                     return false;
                 }
@@ -78,7 +78,7 @@ public class HasTemporalExpressionValidator implements ConstraintValidator<HasVa
         if (temporalExpression.getEvery() == null) {
             context.disableDefaultConstraintViolation();
             context
-                .buildConstraintViolationWithTemplate("{" + Constants.TEMPORAL_EXPRESSION_FREQUENCY_REQUIRED_KEY + "}")
+                .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.TEMPORAL_EXPRESSION_FREQUENCY_REQUIRED_KEY + "}")
                 .addPropertyNode("temporalExpression.every").addConstraintViolation();
             return false;
         }
@@ -112,7 +112,7 @@ public class HasTemporalExpressionValidator implements ConstraintValidator<HasVa
             default: {
                 context.disableDefaultConstraintViolation();
                 context
-                        .buildConstraintViolationWithTemplate("{" + Constants.TEMPORAL_EXPRESSION_UNKNOWN_UNIT_KEY + "}")
+                        .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.TEMPORAL_EXPRESSION_UNKNOWN_UNIT_KEY + "}")
                         .addPropertyNode("temporalExpression." + aspect).addConstraintViolation();
                 return false;
             }

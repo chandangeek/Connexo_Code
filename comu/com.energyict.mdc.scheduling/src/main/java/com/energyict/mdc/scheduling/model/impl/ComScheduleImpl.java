@@ -35,8 +35,8 @@ import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-@UniqueName(groups = { Save.Update.class, Save.Create.class }, message = "{"+Constants.NOT_UNIQUE+"}")
-@UniqueMRID(groups = { Save.Update.class, Save.Create.class }, message = "{"+Constants.NOT_UNIQUE+"}")
+@UniqueName(groups = { Save.Update.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.NOT_UNIQUE+"}")
+@UniqueMRID(groups = { Save.Update.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.NOT_UNIQUE+"}")
 public class ComScheduleImpl implements ComSchedule, HasId {
 
     private final SchedulingService schedulingService;
@@ -71,15 +71,15 @@ public class ComScheduleImpl implements ComSchedule, HasId {
     }
 
     private long id;
-    @NotNull(groups = { Save.Update.class, Save.Create.class }, message = "{"+Constants.CAN_NOT_BE_EMPTY+"}")
-    @Size(max= Global.DEFAULT_DB_STRING_LENGTH, groups = { Save.Update.class, Save.Create.class }, message = "{"+Constants.TOO_LONG+"}")
+    @NotNull(groups = { Save.Update.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
+    @Size(max= Global.DEFAULT_DB_STRING_LENGTH, groups = { Save.Update.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.TOO_LONG+"}")
     private String name;
-    @Size(max= Global.DEFAULT_DB_STRING_LENGTH, groups = { Save.Update.class, Save.Create.class }, message = "{"+Constants.TOO_LONG+"}")
+    @Size(max= Global.DEFAULT_DB_STRING_LENGTH, groups = { Save.Update.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.TOO_LONG+"}")
     private String mRID;
     private List<ComTaskInComSchedule> comTaskUsages = new ArrayList<>();
     private Reference<NextExecutionSpecs> nextExecutionSpecs = ValueReference.absent();
     private SchedulingStatus schedulingStatus;
-    @NotNull(groups = { Save.Update.class, Save.Create.class }, message = "{"+Constants.CAN_NOT_BE_EMPTY+"}")
+    @NotNull(groups = { Save.Update.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
     private UtcInstant startDate;
 
     @Override
@@ -97,7 +97,7 @@ public class ComScheduleImpl implements ComSchedule, HasId {
         this.name = name!=null?name.trim():null;
     }
 
-    // Intentionally not on interface
+    @Override
     public NextExecutionSpecs getNextExecutionSpecs() {
         return nextExecutionSpecs.get();
     }
@@ -174,6 +174,16 @@ public class ComScheduleImpl implements ComSchedule, HasId {
             comTasks.add(comTaskUsage.getComTask());
         }
         return comTasks;
+    }
+
+    @Override
+    public boolean containsComTask(ComTask comTask) {
+        for (ComTask other : this.getComTasks()) {
+            if (other.getId() == comTask.getId()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

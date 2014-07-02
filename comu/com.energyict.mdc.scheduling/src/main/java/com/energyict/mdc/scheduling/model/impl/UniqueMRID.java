@@ -14,7 +14,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Constraint(validatedBy = { UniqueComSchedulingMRIDValidator.class })
 public @interface UniqueMRID {
 
-	String message() default "{"+ Constants.NOT_UNIQUE +"}";
+	String message() default "{"+ MessageSeeds.Keys.NOT_UNIQUE +"}";
 
 	Class<?>[] groups() default { };
 

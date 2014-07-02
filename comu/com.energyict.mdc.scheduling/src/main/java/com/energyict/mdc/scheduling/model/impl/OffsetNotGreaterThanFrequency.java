@@ -17,7 +17,7 @@ import javax.validation.Payload;
 @Constraint(validatedBy = { OffsetVsFrequencyValidator.class })
 public @interface OffsetNotGreaterThanFrequency {
 
-    String message() default "{" + Constants.NEXT_EXECUTION_SPEC_OFFSET_IS_GREATER_THAN_FREQUENCY_KEY + "}";
+    String message() default "{" + MessageSeeds.Keys.NEXT_EXECUTION_SPEC_OFFSET_IS_GREATER_THAN_FREQUENCY_KEY + "}";
 
     Class<?>[] groups() default { };
 

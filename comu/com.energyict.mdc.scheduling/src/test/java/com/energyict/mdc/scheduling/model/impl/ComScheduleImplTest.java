@@ -69,7 +69,7 @@ public class ComScheduleImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.NOT_UNIQUE+"}", property = "name")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.NOT_UNIQUE+"}", property = "name")
     public void testCanNotDuplicateName() throws Exception {
         inMemoryPersistence.getSchedulingService().newComSchedule("nameX", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), new UtcInstant(new Date())).build();
         inMemoryPersistence.getSchedulingService().newComSchedule("nameX", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), new UtcInstant(new Date())).build();
@@ -77,7 +77,7 @@ public class ComScheduleImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.TOO_LONG+"}", property = "name")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.TOO_LONG+"}", property = "name")
     public void testNameMaxLength() throws Exception {
         String illegalName = StringUtils.repeat("x", Global.DEFAULT_DB_STRING_LENGTH + 1);
         inMemoryPersistence.getSchedulingService().newComSchedule(illegalName, temporalExpression(TEN_MINUTES, TWENTY_SECONDS), new UtcInstant(new Date())).build();
@@ -85,7 +85,7 @@ public class ComScheduleImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.TOO_LONG+"}", property = "mRID")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.TOO_LONG+"}", property = "mRID")
     public void testMridMaxLength() throws Exception {
         String illegalMrid = StringUtils.repeat("x", Global.DEFAULT_DB_STRING_LENGTH + 1);
         inMemoryPersistence.getSchedulingService().newComSchedule("name", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), new UtcInstant(new Date())).mrid(illegalMrid).build();
@@ -93,7 +93,7 @@ public class ComScheduleImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.NOT_UNIQUE+"}", property = "name")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.NOT_UNIQUE+"}", property = "name")
     public void testCanNotDuplicateNameThroughUpdate() throws Exception {
         inMemoryPersistence.getSchedulingService().newComSchedule("nameX", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), new UtcInstant(new Date())).build();
         ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule("nameOK", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), new UtcInstant(new Date())).build();
@@ -103,7 +103,7 @@ public class ComScheduleImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.NOT_UNIQUE+"}", property = "mRID")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.NOT_UNIQUE+"}", property = "mRID")
     public void testCanNotDuplicateMRID() throws Exception {
         inMemoryPersistence.getSchedulingService().newComSchedule("nameX", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), new UtcInstant(new Date())).mrid("MRID").build();
         inMemoryPersistence.getSchedulingService().newComSchedule("nameY", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), new UtcInstant(new Date())).mrid("MRID").build();
@@ -111,7 +111,7 @@ public class ComScheduleImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.NOT_UNIQUE+"}", property = "mRID")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.NOT_UNIQUE+"}", property = "mRID")
     public void testCanNotDuplicateMRIDThroughUpdate() throws Exception {
         inMemoryPersistence.getSchedulingService().newComSchedule("nameX", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), new UtcInstant(new Date())).mrid("MRID").build();
         ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule("nameY", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), new UtcInstant(new Date())).mrid("MRID-OK").build();
@@ -121,14 +121,14 @@ public class ComScheduleImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.CAN_NOT_BE_EMPTY+"}", property = "startDate")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}", property = "startDate")
     public void testCanNotCreateWithoutStartDate() throws Exception {
         inMemoryPersistence.getSchedulingService().newComSchedule("nameX", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), null).build();
     }
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.CAN_NOT_BE_EMPTY+"}", property = "startDate")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}", property = "startDate")
     public void testCanNotUpdateWithoutStartDate() throws Exception {
         ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule("nameX", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), new UtcInstant(new Date())).build();
         comSchedule.setStartDate(null);
@@ -137,14 +137,14 @@ public class ComScheduleImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.CAN_NOT_BE_EMPTY+"}", property = "name")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}", property = "name")
     public void testCanNotCreateWithoutName() throws Exception {
         inMemoryPersistence.getSchedulingService().newComSchedule(null, temporalExpression(TEN_MINUTES, TWENTY_SECONDS), new UtcInstant(new Date())).build();
     }
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.CAN_NOT_BE_EMPTY+"}", property = "name")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}", property = "name")
     public void testCanNotUpdateWithoutName() throws Exception {
         ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule("name", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), new UtcInstant(new Date())).build();
         comSchedule.setName(null);
@@ -153,7 +153,7 @@ public class ComScheduleImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+Constants.NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED_KEY+"}", property = "temporalExpression")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED_KEY+"}", property = "temporalExpression")
     public void testCanCreateWithoutTemporalExpression() throws Exception {
         inMemoryPersistence.getSchedulingService().newComSchedule("nameX", null, null).build();
     }

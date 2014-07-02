@@ -111,7 +111,7 @@ public class NextExecutionSpecsImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + Constants.NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED_KEY + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED_KEY + "}")
     public void testCreateWithoutTemporalExpression () throws BusinessException, SQLException {
         NextExecutionSpecs specs = PersistenceTest.inMemoryPersistence.getSchedulingService().newNextExecutionSpecs(null);
 
@@ -123,7 +123,7 @@ public class NextExecutionSpecsImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + Constants.NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED_KEY + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED_KEY + "}")
     public void testRemoveTemporalExpression () throws BusinessException, SQLException {
         NextExecutionSpecs specs = this.createWithOnlyFrequencyWithoutViolations();
         specs.save();
@@ -137,7 +137,7 @@ public class NextExecutionSpecsImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + Constants.TEMPORAL_EXPRESSION_FREQUENCY_MUST_BE_STRICTLY_POSITIVE_KEY + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.TEMPORAL_EXPRESSION_FREQUENCY_MUST_BE_STRICTLY_POSITIVE_KEY + "}")
     public void testCreateWithZeroFrequency () throws BusinessException, SQLException {
         SchedulingService service = PersistenceTest.inMemoryPersistence.getSchedulingService();
         NextExecutionSpecs specs = service.newNextExecutionSpecs(new TemporalExpression(new TimeDuration(0, TimeDuration.MINUTES)));
@@ -150,7 +150,7 @@ public class NextExecutionSpecsImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + Constants.TEMPORAL_EXPRESSION_FREQUENCY_MUST_BE_STRICTLY_POSITIVE_KEY + "}", strict = false)
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.TEMPORAL_EXPRESSION_FREQUENCY_MUST_BE_STRICTLY_POSITIVE_KEY + "}", strict = false)
     public void testCreateWithNegativeFrequency () throws BusinessException, SQLException {
         SchedulingService service = PersistenceTest.inMemoryPersistence.getSchedulingService();
         NextExecutionSpecs specs = service.newNextExecutionSpecs(new TemporalExpression(new TimeDuration(-1, TimeDuration.MINUTES)));
@@ -163,7 +163,7 @@ public class NextExecutionSpecsImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + Constants.TEMPORAL_EXPRESSION_OFFSET_MUST_BE_POSITIVE_KEY + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.TEMPORAL_EXPRESSION_OFFSET_MUST_BE_POSITIVE_KEY + "}")
     public void testCreateWithNegativeOffset () throws BusinessException, SQLException {
         SchedulingService service = PersistenceTest.inMemoryPersistence.getSchedulingService();
         NextExecutionSpecs specs = service.newNextExecutionSpecs(new TemporalExpression(this.frequency, new TimeDuration(-1, TimeDuration.HOURS)));

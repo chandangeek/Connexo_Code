@@ -91,11 +91,11 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService 
         return new AbstractModule() {
             @Override
             public void configure() {
-            bind(DataModel.class).toInstance(dataModel);
-            bind(EventService.class).toInstance(eventService);
-            bind(Thesaurus.class).toInstance(thesaurus);
-            bind(TaskService.class).toInstance(tasksService);
-            bind(SchedulingService.class).toInstance(SchedulingServiceImpl.this);
+                bind(DataModel.class).toInstance(dataModel);
+                bind(EventService.class).toInstance(eventService);
+                bind(Thesaurus.class).toInstance(thesaurus);
+                bind(TaskService.class).toInstance(tasksService);
+                bind(SchedulingService.class).toInstance(SchedulingServiceImpl.this);
             }
         };
     }
