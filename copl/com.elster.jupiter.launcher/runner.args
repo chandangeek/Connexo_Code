@@ -131,6 +131,8 @@ mvn:com.elster.jupiter/masterjs/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/users.extjs/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/bpm/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/bpm.handler/1.0.0-SNAPSHOT
+mvn:com.elster.jupiter/bpm.rest/1.0.0-SNAPSHOT
+mvn:com.elster.jupiter/bpm.extjs/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/systemadmin/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/systemadmin.rest/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/systemadmin.extjs/1.0.0-SNAPSHOT	
