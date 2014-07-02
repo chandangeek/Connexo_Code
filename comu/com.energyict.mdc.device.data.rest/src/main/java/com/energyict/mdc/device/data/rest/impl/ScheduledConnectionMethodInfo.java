@@ -57,30 +57,26 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
 
     @Override
     public ConnectionTask<?,?> createTask(DeviceDataService deviceDataService, EngineModelService engineModelService, Device device, MdcPropertyUtils mdcPropertyUtils, PartialConnectionTask partialConnectionTask) {
-
         if (!PartialScheduledConnectionTask.class.isAssignableFrom(partialConnectionTask.getClass())) {
             throw new WebApplicationException("Expected partial connection task to be 'Outbound'", Response.Status.BAD_REQUEST);
-        }        OutboundComPortPool outboundComPortPool=null;
+        }
+
+        OutboundComPortPool outboundComPortPool = null;
         if (!Checks.is(this.comPortPool).emptyOrOnlyWhiteSpace()) {
             outboundComPortPool=(OutboundComPortPool) engineModelService.findComPortPool(this.comPortPool);
         }
 
-
         PartialScheduledConnectionTask partialScheduledConnectionTask = (PartialScheduledConnectionTask) partialConnectionTask;
-        ScheduledConnectionTask scheduledConnectionTask=null;
-        switch (this.connectionStrategy) {
-            case AS_SOON_AS_POSSIBLE:
-                scheduledConnectionTask = deviceDataService.newAsapConnectionTask(device, partialScheduledConnectionTask, outboundComPortPool, status);
-                break;
-            case MINIMIZE_CONNECTIONS:
-                scheduledConnectionTask = deviceDataService.newMinimizeConnectionTask(device, partialScheduledConnectionTask, outboundComPortPool,
-                        this.nextExecutionSpecs != null ? nextExecutionSpecs.asTemporalExpression() : null, status);
-                break;
+        Device.ScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder = device.getScheduledConnectionTaskBuilder(partialScheduledConnectionTask);
+        scheduledConnectionTaskBuilder.setComPortPool(outboundComPortPool);
+        scheduledConnectionTaskBuilder.setConnectionStrategy(this.connectionStrategy);
+        scheduledConnectionTaskBuilder.setNextExecutionSpecsFrom(this.nextExecutionSpecs != null ? nextExecutionSpecs.asTemporalExpression() : null);
+        scheduledConnectionTaskBuilder.setConnectionTaskLifecycleStatus(this.status);
+        scheduledConnectionTaskBuilder.setSimultaneousConnectionsAllowed(this.allowSimultaneousConnections);
+        if (this.comWindowEnd != null && this.comWindowStart != null) {
+            scheduledConnectionTaskBuilder.setCommunicationWindow(new ComWindow(this.comWindowStart, this.comWindowEnd));
         }
-        writeCommonFields(scheduledConnectionTask, engineModelService);
-        scheduledConnectionTask.save();
-
-        return scheduledConnectionTask;
+        return scheduledConnectionTaskBuilder.add();
     }
 
 }

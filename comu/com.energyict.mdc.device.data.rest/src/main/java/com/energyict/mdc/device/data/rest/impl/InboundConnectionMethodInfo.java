@@ -35,15 +35,15 @@ public class InboundConnectionMethodInfo extends ConnectionMethodInfo<InboundCon
             throw new WebApplicationException("Expected partial connection task to be 'Inbound'", Response.Status.BAD_REQUEST);
         }
         PartialInboundConnectionTask partialInboundConnectionTask = (PartialInboundConnectionTask) partialConnectionTask;
+
         InboundComPortPool inboundComPortPool=null;
         if (!Checks.is(comPortPool).emptyOrOnlyWhiteSpace()) {
             inboundComPortPool = (InboundComPortPool) engineModelService.findComPortPool(this.comPortPool);
         }
-
-        InboundConnectionTask inboundConnectionTask = deviceDataService.newInboundConnectionTask(device, partialInboundConnectionTask, inboundComPortPool, status);
-        writeTo(inboundConnectionTask, partialInboundConnectionTask, deviceDataService, engineModelService, mdcPropertyUtils);
-        inboundConnectionTask.save();
-        return inboundConnectionTask;
+        Device.InboundConnectionTaskBuilder inboundConnectionTaskBuilder = device.getInboundConnectionTaskBuilder(partialInboundConnectionTask);
+        inboundConnectionTaskBuilder.setComPortPool(inboundComPortPool);
+        inboundConnectionTaskBuilder.setConnectionTaskLifecycleStatus(this.status);
+        return inboundConnectionTaskBuilder.add();
     }
 
 }
