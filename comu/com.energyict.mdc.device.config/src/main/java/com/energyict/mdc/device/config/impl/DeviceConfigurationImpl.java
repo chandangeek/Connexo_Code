@@ -806,7 +806,9 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     public List<ValidationRuleSet> getValidationRuleSets() {
         List<ValidationRuleSet> result = new ArrayList<ValidationRuleSet>();
         for (DeviceConfValidationRuleSetUsage usage : this.deviceConfValidationRuleSetUsages)  {
-            result.add(usage.getValidationRuleSet());
+            if (usage.getValidationRuleSet() != null) {
+                result.add(usage.getValidationRuleSet());
+            }
         }
         return result;
     }
