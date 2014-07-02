@@ -485,13 +485,13 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     @Override
     public void deactivate() {
         this.status = ConnectionTaskLifecycleStatus.INACTIVE;
-        post();
+        save();
     }
 
     @Override
     public void activate() {
         this.status = ConnectionTaskLifecycleStatus.ACTIVE;
-        post();
+        save();
     }
 
     boolean isActive(){
