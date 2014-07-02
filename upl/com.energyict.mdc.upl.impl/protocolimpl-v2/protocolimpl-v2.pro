@@ -57,6 +57,8 @@
 -keepnames class com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP
 -keepnames class com.energyict.protocolimplv2.edp.CX20009
 -keepnames class com.energyict.protocolimplv2.edp.JanzB280
+-keepnames class com.energyict.protocolimplv2.elster.garnet.GarnetConcentrator
+-keepnames class com.energyict.protocolimplv2.elster.garnet.A100C
 
 -keepnames class com.energyict.mdc.protocol.inbound.DlmsSerialNumberDiscover
 -keepnames class com.energyict.protocolimpl.edmi.mk10.MK10InboundDeviceProtocol
