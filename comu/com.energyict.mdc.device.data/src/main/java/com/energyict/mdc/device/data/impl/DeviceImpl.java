@@ -332,6 +332,10 @@ public class DeviceImpl implements Device, PersistenceAware {
 
     DeviceImpl initialize(DeviceConfiguration deviceConfiguration, String name, String mRID) {
         this.deviceConfiguration.set(deviceConfiguration);
+        if(deviceConfiguration != null){
+            this.deviceType.set(deviceConfiguration.getDeviceType());
+        }
+
         setName(name);
         this.mRID = mRID;
         createLoadProfiles();
