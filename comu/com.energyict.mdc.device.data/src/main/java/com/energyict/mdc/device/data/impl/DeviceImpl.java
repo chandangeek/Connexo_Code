@@ -905,7 +905,7 @@ public class DeviceImpl implements Device, PersistenceAware {
             Iterator<ProtocolDialectProperties> iterator = this.dialectPropertiesList.iterator();
             while (iterator.hasNext()){
                 ProtocolDialectProperties protocolDialectProperties = iterator.next();
-                if (protocolDialectProperties.getDeviceProtocolDialectName().equals(dialectProperties.getDeviceProtocolDialectName())) {
+                if(protocolDialectProperties.getDeviceProtocolDialectName().equals(dialectProperties.getDeviceProtocolDialectName())){
                     iterator.remove();
                 }
             }
@@ -1332,7 +1332,7 @@ public class DeviceImpl implements Device, PersistenceAware {
     private class InboundConnectionTaskBuilderForDevice extends InboundConnectionTaskImpl.AbstractInboundConnectionTaskBuilder {
 
         private InboundConnectionTaskBuilderForDevice(Device device, PartialInboundConnectionTask partialInboundConnectionTask) {
-            super(inboundConnectionTaskProvider.get());
+             super(inboundConnectionTaskProvider.get());
             this.inboundConnectionTask.initialize(device, partialInboundConnectionTask, partialInboundConnectionTask.getComPortPool(), ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE);
         }
 
@@ -1410,6 +1410,7 @@ public class DeviceImpl implements Device, PersistenceAware {
 
         @Override
         public ScheduledConnectionTask add() {
+            this.scheduledConnectionTask.save();
             DeviceImpl.this.getConnectionTaskImpls().add(this.scheduledConnectionTask);
             return scheduledConnectionTask;
         }
