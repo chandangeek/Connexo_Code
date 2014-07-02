@@ -2,10 +2,7 @@ package com.energyict.mdc.rest.impl.comserver;
 
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
-import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.ComPortPool;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.model.*;
 import com.google.common.base.Optional;
 
 import javax.inject.Inject;
@@ -45,6 +42,25 @@ public class ComPortPoolComPortResource {
         ComPortPool comPortPool = findComPortPoolOrThrowException(comPortPoolId);
         ComPort comPort = findComPortOrThrowException(comPortPool, id);
         return ComPortInfoFactory.asInfo(comPort, engineModelService);
+    }
+
+    @DELETE
+    @Path("/{id}")
+    public Response removeComPort(@PathParam("comPortPoolId") long comPortPoolId, @PathParam("id") long id) {
+        ComPortPool comPortPool = findComPortPoolOrThrowException(comPortPoolId);
+        removeComPortFromComPortPool(comPortPool, id);
+        return Response.noContent().build();
+    }
+
+    private void removeComPortFromComPortPool(ComPortPool comPortPool, long comPortId) {
+        if(OutboundComPortPool.class.isAssignableFrom(comPortPool.getClass())) {
+            OutboundComPortPool outboundComPortPool = (OutboundComPortPool) comPortPool;
+            for (OutboundComPort comPort : outboundComPortPool.getComPorts()) {
+                if(comPort.getId() == comPortId) {
+                    outboundComPortPool.removeOutboundComPort(comPort);
+                }
+            }
+        }
     }
 
     private ComPortPool findComPortPoolOrThrowException(long id) {
