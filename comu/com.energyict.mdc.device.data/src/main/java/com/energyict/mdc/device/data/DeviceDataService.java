@@ -54,6 +54,8 @@ public interface DeviceDataService {
      * Note that the new InboundConnectionTask is not persisted yet as you may want
      * to complete the non required properties before saving it for the first time.
      *
+     * @deprecated use {@link com.energyict.mdc.device.data.Device#getInboundConnectionTaskBuilder(com.energyict.mdc.device.config.PartialInboundConnectionTask)} instead
+     *
      * @param device The Device
      * @param partialInboundConnectionTask The PartialInboundConnectionTask
      * @param inboundComPortPool The InboundComPortPool
@@ -67,6 +69,8 @@ public interface DeviceDataService {
      * with the minimal required properties against the specified Device.
      * Note that the new ScheduledConnectionTask is not persisted yet as you may want
      * to complete the non required properties before saving it for the first time.
+     *
+     * @deprecated use {@link com.energyict.mdc.device.data.Device#getScheduledConnectionTaskBuilder(com.energyict.mdc.device.config.PartialOutboundConnectionTask)} instead
      *
      * @param device The Device
      * @param partialConnectionTask The PartialScheduledConnectionTask
@@ -82,6 +86,8 @@ public interface DeviceDataService {
      * Note that the new ScheduledConnectionTask is not persisted yet as you may want
      * to complete the non required properties before saving it for the first time.
      *
+     * @deprecated use {@link com.energyict.mdc.device.data.Device#getScheduledConnectionTaskBuilder(com.energyict.mdc.device.config.PartialOutboundConnectionTask)} instead
+     *
      * @param device The Device
      * @param partialConnectionTask The PartialScheduledConnectionTask
      * @param comPortPool The OutboundComPortPool
@@ -91,6 +97,9 @@ public interface DeviceDataService {
      */
     public ScheduledConnectionTask newMinimizeConnectionTask(Device device, PartialScheduledConnectionTask partialConnectionTask, OutboundComPortPool comPortPool, TemporalExpression nextExecutionSpecs, ConnectionTask.ConnectionTaskLifecycleStatus status);
 
+    /**
+     * @deprecated use {@link com.energyict.mdc.device.data.Device#getConnectionInitiationTaskBuilder(com.energyict.mdc.device.config.PartialConnectionInitiationTask)} instead
+     */
     public ConnectionInitiationTask newConnectionInitiationTask(Device device, PartialConnectionInitiationTask partialConnectionTask, OutboundComPortPool comPortPool, ConnectionTask.ConnectionTaskLifecycleStatus status);
 
     public Optional<ConnectionTask> findConnectionTask (long id);
