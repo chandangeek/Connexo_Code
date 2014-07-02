@@ -1,23 +1,5 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingRecord;
-import com.elster.jupiter.metering.events.EndDeviceEventRecord;
-import com.elster.jupiter.metering.events.EndDeviceEventType;
-import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.*;
-import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
@@ -104,10 +86,12 @@ import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.TemporalReference;
 import com.elster.jupiter.orm.associations.Temporals;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
@@ -229,6 +213,38 @@ public class DeviceImpl implements Device, PersistenceAware {
         this.adHocComTaskExecutionProvider = adHocComTaskExecutionProvider;
         this.scheduledComTaskExecutionProvider = scheduledComTaskExecutionProvider;
         this.manuallyScheduledComTaskExecutionProvider = manuallyScheduledComTaskExecutionProvider;
+    }
+
+    DeviceImpl initialize(DeviceConfiguration deviceConfiguration, String name, String mRID) {
+        this.deviceConfiguration.set(deviceConfiguration);
+        this.setDeviceTypeFromDeviceConfiguration();
+        setName(name);
+        this.mRID = mRID;
+        createLoadProfiles();
+        createLogBooks();
+        return this;
+    }
+
+    private void setDeviceTypeFromDeviceConfiguration() {
+        if (this.deviceConfiguration.isPresent()) {
+            this.deviceType.set(this.deviceConfiguration.get().getDeviceType());
+        }
+    }
+
+    private void createLoadProfiles() {
+        if (this.getDeviceConfiguration() != null) {
+            for (LoadProfileSpec loadProfileSpec : this.getDeviceConfiguration().getLoadProfileSpecs()) {
+                this.loadProfiles.add(this.dataModel.getInstance(LoadProfileImpl.class).initialize(loadProfileSpec, this));
+            }
+        }
+    }
+
+    private void createLogBooks() {
+        if (this.getDeviceConfiguration() != null) {
+            for (LogBookSpec logBookSpec : this.getDeviceConfiguration().getLogBookSpecs()) {
+                this.logBooks.add(this.dataModel.getInstance(LogBookImpl.class).initialize(logBookSpec, this));
+            }
+        }
     }
 
     @Override
@@ -366,31 +382,6 @@ public class DeviceImpl implements Device, PersistenceAware {
         if (!communicationReferencingDevices.isEmpty()) {
             throw StillGatewayException.forCommunicationGateway(thesaurus, this, communicationReferencingDevices.toArray(new Device[communicationReferencingDevices.size()]));
 
-        }
-    }
-
-    DeviceImpl initialize(DeviceConfiguration deviceConfiguration, String name, String mRID) {
-        this.deviceConfiguration.set(deviceConfiguration);
-        setName(name);
-        this.mRID = mRID;
-        createLoadProfiles();
-        createLogBooks();
-        return this;
-    }
-
-    private void createLoadProfiles() {
-        if (this.getDeviceConfiguration() != null) {
-            for (LoadProfileSpec loadProfileSpec : this.getDeviceConfiguration().getLoadProfileSpecs()) {
-                this.loadProfiles.add(this.dataModel.getInstance(LoadProfileImpl.class).initialize(loadProfileSpec, this));
-            }
-        }
-    }
-
-    private void createLogBooks() {
-        if (this.getDeviceConfiguration() != null) {
-            for (LogBookSpec logBookSpec : this.getDeviceConfiguration().getLogBookSpecs()) {
-                this.logBooks.add(this.dataModel.getInstance(LogBookImpl.class).initialize(logBookSpec, this));
-            }
         }
     }
 
@@ -1496,8 +1487,7 @@ public class DeviceImpl implements Device, PersistenceAware {
 
     @Override
     public void postLoad() {
-        if(deviceConfiguration.isPresent()){
-            deviceType.set(deviceConfiguration.get().getDeviceType());
-        }
+        this.setDeviceTypeFromDeviceConfiguration();
     }
+
 }
