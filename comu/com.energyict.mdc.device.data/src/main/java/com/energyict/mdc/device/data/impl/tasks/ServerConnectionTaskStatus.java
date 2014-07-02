@@ -5,6 +5,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import java.util.Date;
@@ -34,7 +35,7 @@ public enum ServerConnectionTaskStatus {
 
         @Override
         public boolean appliesTo(ScheduledConnectionTask task, Date now) {
-            return task.isPaused() || task.getNextExecutionTimestamp() == null;
+            return !task.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE) || task.getNextExecutionTimestamp() == null;
         }
 
         @Override

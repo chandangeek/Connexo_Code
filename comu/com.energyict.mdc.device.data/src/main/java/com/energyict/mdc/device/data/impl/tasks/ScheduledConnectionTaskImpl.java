@@ -13,6 +13,7 @@ import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.EarliestNextExecutionTimeStampAndPriority;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
@@ -81,13 +82,13 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         this.deviceDataService = deviceDataService1;
     }
 
-    public void initializeWithAsapStrategy(Device device, PartialScheduledConnectionTask partialConnectionTask, OutboundComPortPool comPortPool) {
-        super.initialize(device, partialConnectionTask, comPortPool);
+    public void initializeWithAsapStrategy(Device device, PartialScheduledConnectionTask partialConnectionTask, OutboundComPortPool comPortPool, ConnectionTaskLifecycleStatus status) {
+        super.initialize(device, partialConnectionTask, comPortPool, status);
         this.setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
     }
 
-    public void initializeWithMinimizeStrategy(Device device, PartialScheduledConnectionTask partialConnectionTask, OutboundComPortPool comPortPool, NextExecutionSpecs nextExecutionSpecs) {
-        super.initialize(device, partialConnectionTask, comPortPool);
+    public void initializeWithMinimizeStrategy(Device device, PartialScheduledConnectionTask partialConnectionTask, OutboundComPortPool comPortPool, NextExecutionSpecs nextExecutionSpecs, ConnectionTaskLifecycleStatus status) {
+        super.initialize(device, partialConnectionTask, comPortPool, status);
         this.setConnectionStrategy(ConnectionStrategy.MINIMIZE_CONNECTIONS);
         this.setNextExecutionSpecs(nextExecutionSpecs);
     }
@@ -286,7 +287,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     private Date updateNextExecutionTimestamp(PostingMode postingMode) {
-        if (!this.isPaused() && this.getNextExecutionSpecs() != null) {
+        if (isActive() && this.getNextExecutionSpecs() != null) {
             return this.doUpdateNextExecutionTimestamp(postingMode);
         }
         else {
@@ -521,7 +522,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     @Override
-    public TaskStatus getStatus() {
+    public TaskStatus getTaskStatus() {
         return ServerConnectionTaskStatus.getApplicableStatusFor(this, this.now());
     }
 

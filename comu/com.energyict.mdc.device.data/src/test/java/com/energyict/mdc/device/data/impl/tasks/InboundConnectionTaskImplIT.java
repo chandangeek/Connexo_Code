@@ -12,6 +12,7 @@ import com.energyict.mdc.device.data.exceptions.DuplicateConnectionTaskException
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.exceptions.PartialConnectionTaskNotPartOfDeviceConfigurationException;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
@@ -41,6 +42,8 @@ import static org.mockito.Mockito.when;
  * Time: 10:49
  */
 public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
+
+    private ConnectionTask.ConnectionTaskLifecycleStatus status = ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE;
 
     @Test
     @Transactional
@@ -699,7 +702,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     }
 
     private InboundConnectionTaskImpl createSimpleInboundConnectionTask(final PartialInboundConnectionTask partialConnectionTask, final InboundComPortPool inboundComPortPool) {
-        InboundConnectionTaskImpl inboundConnectionTask = ((InboundConnectionTaskImpl) getDeviceDataService().newInboundConnectionTask(this.device, partialConnectionTask, inboundComPortPool));
+        InboundConnectionTaskImpl inboundConnectionTask = ((InboundConnectionTaskImpl) getDeviceDataService().newInboundConnectionTask(this.device, partialConnectionTask, inboundComPortPool, status));
         inboundConnectionTask.save();
         return inboundConnectionTask;
     }

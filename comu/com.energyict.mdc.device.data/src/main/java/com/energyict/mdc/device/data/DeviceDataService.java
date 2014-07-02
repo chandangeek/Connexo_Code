@@ -61,9 +61,10 @@ public interface DeviceDataService {
      * @param device The Device
      * @param partialInboundConnectionTask The PartialInboundConnectionTask
      * @param inboundComPortPool The InboundComPortPool
+     * @param status
      * @return The new InboundConnectionTask
      */
-    public InboundConnectionTask newInboundConnectionTask (Device device, PartialInboundConnectionTask partialInboundConnectionTask, InboundComPortPool inboundComPortPool);
+    public InboundConnectionTask newInboundConnectionTask(Device device, PartialInboundConnectionTask partialInboundConnectionTask, InboundComPortPool inboundComPortPool, ConnectionTask.ConnectionTaskLifecycleStatus status);
 
     /**
      * Creates a new {@link ScheduledConnectionTask}, that uses the {@link ConnectionStrategy#AS_SOON_AS_POSSIBLE} strategy,
@@ -74,9 +75,10 @@ public interface DeviceDataService {
      * @param device The Device
      * @param partialConnectionTask The PartialScheduledConnectionTask
      * @param comPortPool The OutboundComPortPool
+     * @param status
      * @return The new ScheduledConnectionTask
      */
-    public ScheduledConnectionTask newAsapConnectionTask(Device device, PartialScheduledConnectionTask partialConnectionTask, OutboundComPortPool comPortPool);
+    public ScheduledConnectionTask newAsapConnectionTask(Device device, PartialScheduledConnectionTask partialConnectionTask, OutboundComPortPool comPortPool, ConnectionTask.ConnectionTaskLifecycleStatus status);
 
     /**
      * Creates a new {@link ScheduledConnectionTask}, that uses the {@link ConnectionStrategy#MINIMIZE_CONNECTIONS} strategy,
@@ -88,11 +90,12 @@ public interface DeviceDataService {
      * @param partialConnectionTask The PartialScheduledConnectionTask
      * @param comPortPool The OutboundComPortPool
      * @param nextExecutionSpecs The specification for the next execution of the new ScheduledConnectionTask
+     * @param status
      * @return The new ScheduledConnectionTask
      */
-    public ScheduledConnectionTask newMinimizeConnectionTask(Device device, PartialScheduledConnectionTask partialConnectionTask, OutboundComPortPool comPortPool, TemporalExpression nextExecutionSpecs);
+    public ScheduledConnectionTask newMinimizeConnectionTask(Device device, PartialScheduledConnectionTask partialConnectionTask, OutboundComPortPool comPortPool, TemporalExpression nextExecutionSpecs, ConnectionTask.ConnectionTaskLifecycleStatus status);
 
-    public ConnectionInitiationTask newConnectionInitiationTask(Device device, PartialConnectionInitiationTask partialConnectionTask, OutboundComPortPool comPortPool);
+    public ConnectionInitiationTask newConnectionInitiationTask(Device device, PartialConnectionInitiationTask partialConnectionTask, OutboundComPortPool comPortPool, ConnectionTask.ConnectionTaskLifecycleStatus status);
 
     public Optional<ConnectionTask> findConnectionTask (long id);
 

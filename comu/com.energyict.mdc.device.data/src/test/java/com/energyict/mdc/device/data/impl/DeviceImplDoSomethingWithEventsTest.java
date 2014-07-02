@@ -35,6 +35,7 @@ import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.json.impl.JsonServiceImpl;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.impl.DefaultClock;
+import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.BusinessEventManager;
@@ -220,6 +221,7 @@ public class DeviceImplDoSomethingWithEventsTest {
         private OrmService ormService;
         private EventService eventService;
         private NlsService nlsService;
+        private ValidationService validationService;
         private DeviceConfigurationService deviceConfigurationService;
         private MeteringService meteringService;
         private DataModel dataModel;
@@ -281,6 +283,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                 this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
                 injector.getInstance(MasterDataService.class);
                 this.taskService = injector.getInstance(TaskService.class);
+                this.validationService = injector.getInstance(ValidationService.class);
                 this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
                 this.engineModelService = injector.getInstance(EngineModelService.class);
                 this.relationService = injector.getInstance(RelationService.class);

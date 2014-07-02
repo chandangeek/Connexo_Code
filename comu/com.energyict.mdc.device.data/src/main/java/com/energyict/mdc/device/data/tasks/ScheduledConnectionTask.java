@@ -152,7 +152,7 @@ public interface ScheduledConnectionTask extends OutboundConnectionTask<PartialS
      *
      * @return The TaskStatus
      */
-    public TaskStatus getStatus ();
+    public TaskStatus getTaskStatus();
 
     /**
      * @return a List containing all {@link ComTaskExecution}s that use this ScheduledConnectionTask.

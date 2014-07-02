@@ -55,7 +55,7 @@ public enum TableSpecs {
             Column externid = table.column("MRID").varChar(255).map(DeviceFields.MRID.fieldName()).add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
             table.column("CERTIF_DATE").type("DATE").conversion(ColumnConversion.DATE2DATE).map("yearOfCertification").add();
-            Column configuration = table.column("DEVICECONFIGID").number().add();
+            Column configuration = table.column("DEVICECONFIGID").number().notNull().add();
             table.
                 foreignKey("FK_DDC_DEVICE_DEVICECONFIG").
                 on(configuration).
@@ -200,7 +200,7 @@ public enum TableSpecs {
             table.map(ConnectionMethodImpl.class);
             Column id = table.addAutoIdColumn();
             Column connectionTypePluggableClass = table.column("CONNECTIONTYPEPLUGGABLECLASS").number().conversion(NUMBER2LONG).map("pluggableClassId").notNull().add();
-            Column comPortPool = table.column("COMPORTPOOL").number().notNull().add();
+            Column comPortPool = table.column("COMPORTPOOL").number().add();
             table.primaryKey("PK_DDC_CONNECTIONMETHOD").on(id).add();
             table.foreignKey("FK_DDC_CONNECTIONMETHOD_CLASS").on(connectionTypePluggableClass).references(PluggableService.COMPONENTNAME, "CPC_PLUGGABLECLASS").map("pluggableClass").add();
             table.foreignKey("FK_DDC_CONNECTIONMETHOD_CPP").on(comPortPool).references(EngineModelService.COMPONENT_NAME, "MDC_COMPORTPOOL").map("comPortPool").add();
@@ -220,7 +220,7 @@ public enum TableSpecs {
             table.column("MOD_DATE").type("DATE").conversion(DATE2DATE).map("modificationDate").add();
             table.column("OBSOLETE_DATE").type("DATE").conversion(DATE2DATE).map("obsoleteDate").add();
             table.column("ISDEFAULT").number().conversion(NUMBER2BOOLEAN).map("isDefault").add();
-            table.column("PAUSED").number().conversion(NUMBER2BOOLEAN).map("paused").add();
+            table.column("STATUS").number().conversion(NUMBER2ENUM).map("status").add();
             table.column("LASTCOMMUNICATIONSTART").number().conversion(NUMBERINUTCSECONDS2DATE).map("lastCommunicationStart").add();
             table.column("LASTSUCCESSFULCOMMUNICATIONEND").conversion(NUMBERINUTCSECONDS2DATE).number().map("lastSuccessfulCommunicationEnd").add();
             Column comServer = table.column("COMSERVER").number().add();

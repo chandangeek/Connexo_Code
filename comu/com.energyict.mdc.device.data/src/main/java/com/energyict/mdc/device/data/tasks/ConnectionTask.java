@@ -56,8 +56,28 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
         /**
          * For initiation of a connection
          */
-        CONNECTION_INITIATION}
+        CONNECTION_INITIATION
+    }
 
+    /**
+     * Represents the lifecycle state of a ConnectionTask
+     */
+    enum ConnectionTaskLifecycleStatus {
+
+        /**
+         * Active means the ConnectionTask is completely validated and ready to be used by the ComServer
+         */
+        ACTIVE,
+        /**
+         * InActive means the ConnectionTask is completely validated but not ready to be used by the ComServer (onhold/paused)
+         */
+        INACTIVE,
+        /**
+        * The ConnectionTask is created but not valid and can not be used by the ComServer to execute tasks yet.
+        * This means that some properties may not be present yet.
+        */
+        INCOMPLETE
+    }
 
     /**
      * Returns the object's unique identifier.
@@ -143,7 +163,7 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
      *
      * @return A flag that indicates if this ConnectionTask is paused
      */
-    public boolean isPaused ();
+    public ConnectionTaskLifecycleStatus getStatus();
 
     /**
      * Makes this ConnectionTask obsolete, i.e. it will no longer execute
@@ -235,16 +255,21 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
 
     /**
      * Pauses this connectionTask, i.e. temporarily disables its execution.
-     * The reverse operation is {@link #resume()}
+     * The reverse operation is {@link #activate()}
      */
-    public void pause ();
+    public void deactivate();
 
     /**
      * Resumes the ability to execute this ConnectionTask.
-     * This is the reverse operation of {@link #pause()}
+     * This is the reverse operation of {@link #deactivate()}
      */
-    public void resume();
+    public void activate();
 
     public void save();
+
+    /**
+     * Will set the lifecyclestatus to ACTIVE and save the object
+     */
+    public void activateAndSave();
 
 }

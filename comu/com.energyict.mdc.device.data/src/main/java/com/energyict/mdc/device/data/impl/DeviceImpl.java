@@ -142,9 +142,16 @@ public class DeviceImpl implements Device {
 
     private final List<LoadProfile> loadProfiles = new ArrayList<>();
     private final List<LogBook> logBooks = new ArrayList<>();
-    private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
     private final List<DeviceInComSchedule> comScheduleUsages = new ArrayList<>();
     private long id;
+
+    private final Reference<DeviceType> deviceType = ValueReference.absent();
+    private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
+
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DEVICE_TYPE_REQUIRED_KEY + "}")
+    private Object deviceTypeId = null;
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DEVICE_CONFIGURATION_REQUIRED_KEY + "}")
+    private Object deviceConfigurationId = null;
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
@@ -152,7 +159,6 @@ public class DeviceImpl implements Device {
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.MRID_REQUIRED_KEY + "}")
     @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.MRID_REQUIRED_KEY + "}")
     private String mRID;
-
     private String serialNumber;
     private String timeZoneId;
     private TimeZone timeZone;
@@ -349,6 +355,14 @@ public class DeviceImpl implements Device {
     }
 
     DeviceImpl initialize(DeviceConfiguration deviceConfiguration, String name, String mRID) {
+        if(deviceConfiguration != null){
+            this.deviceConfigurationId = deviceConfiguration.getId();
+            this.deviceType.set(deviceConfiguration.getDeviceType());
+            if(deviceConfiguration.getDeviceType() != null){
+                this.deviceTypeId = deviceConfiguration.getDeviceType().getId();
+            }
+        }
+
         this.deviceConfiguration.set(deviceConfiguration);
         setName(name);
         this.mRID = mRID;
@@ -358,20 +372,24 @@ public class DeviceImpl implements Device {
     }
 
     private void createLoadProfiles() {
-        for (LoadProfileSpec loadProfileSpec : this.getDeviceConfiguration().getLoadProfileSpecs()) {
-            this.loadProfiles.add(this.dataModel.getInstance(LoadProfileImpl.class).initialize(loadProfileSpec, this));
+        if(this.getDeviceConfiguration() != null){
+            for (LoadProfileSpec loadProfileSpec : this.getDeviceConfiguration().getLoadProfileSpecs()) {
+                this.loadProfiles.add(this.dataModel.getInstance(LoadProfileImpl.class).initialize(loadProfileSpec, this));
+            }
         }
     }
 
     private void createLogBooks() {
-        for (LogBookSpec logBookSpec : this.getDeviceConfiguration().getLogBookSpecs()) {
-            this.logBooks.add(this.dataModel.getInstance(LogBookImpl.class).initialize(logBookSpec, this));
+        if(this.getDeviceConfiguration() != null){
+            for (LogBookSpec logBookSpec : this.getDeviceConfiguration().getLogBookSpecs()) {
+                this.logBooks.add(this.dataModel.getInstance(LogBookImpl.class).initialize(logBookSpec, this));
+            }
         }
     }
 
     @Override
     public DeviceConfiguration getDeviceConfiguration() {
-        return this.deviceConfiguration.get();
+        return this.deviceConfiguration.orNull();
     }
 
     @Override
@@ -1290,7 +1308,8 @@ public class DeviceImpl implements Device {
 
         private ConnectionInitiationTaskBuilderForDevice(Device device, PartialConnectionInitiationTask partialConnectionInitiationTask) {
             this.connectionInitiationTask = connectionInitiationTaskProvider.get();
-            this.connectionInitiationTask.initialize(device, partialConnectionInitiationTask, partialConnectionInitiationTask.getComPortPool());
+            //TODO fix the status
+            this.connectionInitiationTask.initialize(device, partialConnectionInitiationTask, partialConnectionInitiationTask.getComPortPool(), ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE);
         }
 
         @Override
@@ -1318,7 +1337,8 @@ public class DeviceImpl implements Device {
 
         private InboundConnectionTaskBuilderForDevice(Device device, PartialInboundConnectionTask partialInboundConnectionTask) {
             this.inboundConnectionTask = inboundConnectionTaskProvider.get();
-            this.inboundConnectionTask.initialize(device, partialInboundConnectionTask, partialInboundConnectionTask.getComPortPool());
+            //TODO fix the status
+            this.inboundConnectionTask.initialize(device, partialInboundConnectionTask, partialInboundConnectionTask.getComPortPool(), ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE);
         }
 
         @Override
@@ -1346,7 +1366,8 @@ public class DeviceImpl implements Device {
 
         private ScheduledConnectionTaskBuilderForDevice(Device device, PartialOutboundConnectionTask partialOutboundConnectionTask) {
             this.scheduledConnectionTask = scheduledConnectionTaskProvider.get();
-            this.scheduledConnectionTask.initialize(device, (PartialScheduledConnectionTask) partialOutboundConnectionTask, partialOutboundConnectionTask.getComPortPool());
+            //TODO fix the status
+            this.scheduledConnectionTask.initialize(device, (PartialScheduledConnectionTask) partialOutboundConnectionTask, partialOutboundConnectionTask.getComPortPool(), ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE);
             if (partialOutboundConnectionTask.getNextExecutionSpecs() != null) {
                 this.scheduledConnectionTask.setNextExecutionSpecsFrom(partialOutboundConnectionTask.getNextExecutionSpecs().getTemporalExpression());
             }

@@ -76,13 +76,12 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED_KEY + "}")
     private Reference<PCTT> partialConnectionTask = ValueReference.absent();
     private boolean isDefault = false;
-    private boolean paused = false;
+    private ConnectionTaskLifecycleStatus status = ConnectionTaskLifecycleStatus.INCOMPLETE;
     private Date obsoleteDate;
     private Date lastCommunicationStart;
     private Date lastSuccessfulCommunicationEnd;
     private Reference<ConnectionMethod> connectionMethod = ValueReference.absent();
     // Redundant copy of the ConnectionMethod's com port pool for query purposes to avoid extra join
-    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED_KEY + "}")
     private Reference<CPPT> comPortPool = ValueReference.absent();
     private Reference<ComServer> comServer = ValueReference.absent();
     private Date modificationDate;
@@ -99,8 +98,9 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         this.connectionMethodProvider = connectionMethodProvider;
     }
 
-    public void initialize(Device device, PCTT partialConnectionTask, CPPT comPortPool) {
+    public void initialize(Device device, PCTT partialConnectionTask, CPPT comPortPool, ConnectionTaskLifecycleStatus status) {
         this.device = device;
+        this.status = status;
         this.deviceId = device.getId();
         this.validatePartialConnectionTaskType(partialConnectionTask);
         this.validateConstraint(partialConnectionTask, device);
@@ -184,6 +184,12 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         for (ComTaskExecution comTaskExecution : this.findDependentComTaskExecutions()) {
             ((ComTaskExecutionImpl) comTaskExecution).connectionTaskRemoved();
         }
+    }
+
+    @Override
+    public void activateAndSave() {
+        this.status = ConnectionTaskLifecycleStatus.ACTIVE;
+        save();
     }
 
     @Override
@@ -319,7 +325,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     @Override
     public CPPT getComPortPool() {
-        return this.comPortPool.get();
+        return this.comPortPool.orNull();
     }
 
     @Override
@@ -351,8 +357,8 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     @Override
     @XmlAttribute
-    public boolean isPaused() {
-        return this.paused;
+    public ConnectionTaskLifecycleStatus getStatus() {
+        return this.status;
     }
 
     @Override
@@ -475,17 +481,20 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     @Override
-    public void pause() {
-        this.paused = true;
+    public void deactivate() {
+        this.status = ConnectionTaskLifecycleStatus.INACTIVE;
         post();
     }
 
     @Override
-    public void resume() {
-        this.paused = false;
+    public void activate() {
+        this.status = ConnectionTaskLifecycleStatus.ACTIVE;
         post();
     }
 
+    boolean isActive(){
+        return this.status.equals(ConnectionTaskLifecycleStatus.ACTIVE);
+    }
 
     @Override
     protected void post() {
@@ -536,5 +545,23 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     protected TimeZone getClocksTimeZone() {
         return this.clock.getTimeZone();
+    }
+
+
+    /**
+     * This will use the validation framework to detect if there are any Validation errors
+     * @return true if everything is valid, false otherwise
+     */
+    boolean isValidConnectionTask(){
+        try {
+            Save.CREATE.validate(dataModel, this, Save.Update.class);
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+
+    void setStatus(ConnectionTaskLifecycleStatus status) {
+        this.status = status;
     }
 }

@@ -1,35 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.bootstrap.h2.impl.ResultSetPrinter;
-import com.elster.jupiter.domain.util.impl.DomainUtilModule;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.events.impl.EventsModule;
-import com.elster.jupiter.ids.impl.IdsModule;
-import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.impl.MeteringModule;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.impl.OrmModule;
-import com.elster.jupiter.parties.impl.PartyModule;
-import com.elster.jupiter.pubsub.impl.PubSubModule;
-import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.users.impl.UserModule;
-import com.elster.jupiter.util.beans.BeanService;
-import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
-import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.util.json.impl.JsonServiceImpl;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
-import com.elster.jupiter.validation.impl.ValidationServiceImpl;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.Translator;
@@ -122,6 +94,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
     private DeviceDataServiceImpl deviceService;
     private TaskService taskService;
     private SchedulingService schedulingService;
+    private ValidationService validationService;
 
 
     public InMemoryPersistenceWithMockedDeviceProtocol() {
@@ -157,6 +130,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
                 new MdcDynamicModule(),
                 new TasksModule(),
                 new PluggableModule(),
+                new ValidationModule(),
 //                new ProtocolPluggableModule(),
                 new EngineModelModule(),
                 new MasterDataModule(),
@@ -178,6 +152,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
             this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
             this.masterDataService = injector.getInstance(MasterDataService.class);
             this.taskService = injector.getInstance(TaskService.class);
+            this.validationService = injector.getInstance(ValidationService.class);
             this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
             this.schedulingService = injector.getInstance(SchedulingService.class);
             this.dataModel = this.createNewDeviceDataService(injector);

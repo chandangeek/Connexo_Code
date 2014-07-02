@@ -4,6 +4,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.data.DeviceDataService;
 import java.util.logging.Level;
 
+import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.SEVERE;
 
 /**
@@ -22,6 +23,9 @@ public enum MessageSeeds implements MessageSeed {
     CONNECTION_METHOD_ALREADY_EXISTS(1005, "DDC.connectionMethod.duplicateNameX", "A connection method with name '{0}' already exists", Level.SEVERE),
     CONNECTION_METHOD_PLUGGABLE_CLASS_REQUIRED(1006, Constants.CONNECTION_METHOD_PLUGGABLE_CLASS_REQUIRED_KEY, "A connection method requires a connection type pluggable class", Level.SEVERE),
     CONNECTION_METHOD_COMPORT_POOL_REQUIRED(1007, Constants.CONNECTION_METHOD_COMPORT_POOL_REQUIRED_KEY, "A connection method requires a communication port pool", Level.SEVERE),
+    MRID_IS_REQUIRED(1008, Constants.MRID_REQUIRED_KEY, "The MRID is required", Level.SEVERE),
+    DEVICE_TYPE_IS_REQUIRED(1009, Constants.DEVICE_TYPE_REQUIRED_KEY, "The device type is required", Level.SEVERE),
+    DEVICE_CONFIGURATION_IS_REQUIRED(1010, Constants.DEVICE_CONFIGURATION_REQUIRED_KEY, "The device configuration is required", Level.SEVERE),
     CONNECTION_TASK_DEVICE_REQUIRED(2000, Constants.CONNECTION_TASK_DEVICE_REQUIRED_KEY, "A connection type should be linked to a device", Level.SEVERE),
     CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED(2001, Constants.CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED_KEY, "A connection type should be linked to a partial connection task from the device configuration", Level.SEVERE),
     DUPLICATE_CONNECTION_TASK(2002, Constants.DUPLICATE_CONNECTION_TASK_KEY, "The partial connection task {0} is already used by connection task {1} on device {2} and therefore no other connection task with the same partial connection task can be created", Level.SEVERE),
@@ -58,6 +62,9 @@ public enum MessageSeeds implements MessageSeed {
     COM_TASK_EXECUTION_CANNOT_DELETE_IF_NOT_FROM_DEVICE(2031, Constants.COM_TASK_EXECUTION_CANNOT_DELETE_IF_NOT_FROM_DEVICE, "You can not delete comtaskexecution {0} because it is not owned by device {1}", Level.SEVERE),
     VETO_COM_TASK_ENABLEMENT_DELETION(2032, Constants.VETO_COM_TASK_ENABLEMENT_DELETION, "The device protocol pluggable class {0} is still used by the following device types: {1}", SEVERE),
     VETO_DEVICE_CONFIGURATION_DEACTIVATION(2033, Constants.VETO_DEVICE_CONFIGURATION_IN_USE_BY_DEVICES, "The device configuration {0} is still used by at least one device", SEVERE),
+    CONNECTION_TASK_STATUS_INCOMPLETE(2036, Constants.CONNECTION_TASK_STATUS_INCOMPLETE, "Incomplete", INFO),
+    CONNECTION_TASK_STATUS_ACTIVE(2037, Constants.CONNECTION_TASK_STATUS_ACTIVE, "Active", INFO),
+    CONNECTION_TASK_STATUS_INACTIVE(2038, Constants.CONNECTION_TASK_STATUS_INACTIVE, "Inactive", INFO),
     ;
     private final int number;
     private final String key;
@@ -113,6 +120,8 @@ public enum MessageSeeds implements MessageSeed {
     public static class Constants {
         public static final String NAME_REQUIRED_KEY = "DDC.X.name.required";
         public static final String MRID_REQUIRED_KEY = "DDC.mRIDRequired";
+        public static final String DEVICE_TYPE_REQUIRED_KEY = "DDC.deviceTypeRequired";
+        public static final String DEVICE_CONFIGURATION_REQUIRED_KEY = "DDC.deviceConfigurationRequired";
         public static final String COMPORT_TYPE_NOT_SUPPORTED_KEY = "DDC.comPortTypeOfComPortPoolMustBeSupportedByConnectionType";
         public static final String CONNECTION_TASK_DEVICE_REQUIRED_KEY = "DDC.connectionType.device.required";
         public static final String CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED_KEY = "DDC.connectionType.partialConnectionTask.required";
@@ -165,6 +174,9 @@ public enum MessageSeeds implements MessageSeed {
         public static final String PRIORITY_NOT_IN_RANGE = "DDC.priorityNotInRange";
         public static final String UNIQUE_COMTASKS_PER_DEVICE = "DDC.uniqueComTasksPerDevice";
         public static final String NO_MANUAL_SCHEDULING_FOR_COMTASKS_IN_COMSCHEDULE = "DDC.noManualSchedulingForComtasksInComSchedule";
+        public static final String CONNECTION_TASK_STATUS_INCOMPLETE = "DDC.connectionTaskStatusIncomplete";
+        public static final String CONNECTION_TASK_STATUS_ACTIVE = "DDC.connectionTaskStatusActive";
+        public static final String CONNECTION_TASK_STATUS_INACTIVE = "DDC.connectionTaskStatusInActive";
     }
 
 }
