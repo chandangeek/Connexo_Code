@@ -1,21 +1,21 @@
-Ext.define('Mdc.view.setup.registerconfig.RulesForRegisterConfigGrid', {
+Ext.define('Mdc.view.setup.loadprofileconfiguration.RulesForLoadProfileConfigGrid', {
     extend: 'Ext.grid.Panel',
-    xtype: 'validation-rules-for-registerconfig-grid',
-    itemId: 'rulesForRegisterConfigGrid',
+    xtype: 'validation-rules-for-loadprofileconfig-grid',
+    itemId: 'rulesForLoadProfileConfigGrid',
     overflowY: 'auto',
 
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Mdc.store.RegisterConfigValidationRules',
-        'Mdc.view.setup.registerconfig.RulesForRegisterConfigActionMenu'
+        'Mdc.store.LoadProfileValidationRules',
+        'Mdc.view.setup.loadprofileconfiguration.RulesForLoadProfileConfigActionMenu'
     ],
 
-    store: 'RegisterConfigValidationRules',
+    store: 'LoadProfileValidationRules',
 
     deviceTypeId: null,
     deviceConfigId: null,
-    registerConfigId: null,
+    loadProfileConfigId: null,
 
     initComponent: function () {
         var me = this;
@@ -24,9 +24,9 @@ Ext.define('Mdc.view.setup.registerconfig.RulesForRegisterConfigGrid', {
             {
                 header: Uni.I18n.translate('validation.name', 'CFG', 'Name'),
                 dataIndex: 'name',
-                renderer: function (value, b, record) {
-                    return '<a href="#/administration/validation/rulesets/validationrules/' + record.data.ruleSetId + '/ruleoverview/' + record.getId()  + '">' + value + '</a>';
-                },
+                /*renderer: function (value, b, record) {
+                 return '<a href="#/administration/validation/overview/' + record.getId() + '">' + value + '</a>';
+                 },   */
                 flex: 1
             },
             { header: Uni.I18n.translate('validation.status', 'CFG', 'Status'), dataIndex: 'active', flex: 0.3, sortable: false, fixed: true,
@@ -41,14 +41,11 @@ Ext.define('Mdc.view.setup.registerconfig.RulesForRegisterConfigGrid', {
             {
                 header: Uni.I18n.translate('validation.validationRuleSet', 'CFG', 'Validation rule set'),
                 dataIndex: 'ruleSetName',
-                renderer: function (value, b, record) {
-                    return '<a href="#/administration/validation/rulesets/overview/' + record.data.ruleSetId + '">' + value + '</a>';
-                },
                 flex: 1
             },
             {
                 xtype: 'uni-actioncolumn',
-                items: 'Mdc.view.setup.registerconfig.RulesForRegisterConfigActionMenu'
+                items: 'Mdc.view.setup.loadprofileconfiguration.RulesForLoadProfileConfigActionMenu'
             }
         ];
 
@@ -61,13 +58,13 @@ Ext.define('Mdc.view.setup.registerconfig.RulesForRegisterConfigGrid', {
                 displayMoreMsg: Uni.I18n.translate('validation.pagingtoolbartop.displayMoreMsgRule', 'CFG', '{0} - {1} of more than {2} validation rules'),
                 emptyMsg: Uni.I18n.translate('validation.pagingtoolbartop.emptyMsgRule', 'CFG', 'There are no validation rules to display')
             }/*,
-            {
-                xtype: 'pagingtoolbarbottom',
-                params: {deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigId, registerConfig: me.registerConfigId},
-                store: me.store,
-                itemsPerPageMsg: Uni.I18n.translate('validation.pagingtoolbarbottom.itemsPerPageRule', 'CFG', 'Validation rules per page'),
-                dock: 'bottom'
-            }  */
+             {
+             xtype: 'pagingtoolbarbottom',
+             params: {deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigId, loadProfileConfig: me.loadProfileConfigId},
+             store: me.store,
+             itemsPerPageMsg: Uni.I18n.translate('validation.pagingtoolbarbottom.itemsPerPageRule', 'CFG', 'Validation rules per page'),
+             dock: 'bottom'
+             }  */
         ];
 
         me.callParent();

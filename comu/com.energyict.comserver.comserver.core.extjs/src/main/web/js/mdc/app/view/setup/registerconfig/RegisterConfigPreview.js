@@ -113,8 +113,8 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
                                             }
 
                                         ]
-                                    }//,
-                                    /*{
+                                    },
+                                    {
                                         xtype: 'displayfield',
                                         name: 'obisCode',
                                         fieldLabel: Uni.I18n.translate('registerConfig.obisCode', 'MDC', 'OBIS code'),
@@ -141,7 +141,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
                                         fieldLabel: Uni.I18n.translate('registerConfig.timeOfUse', 'MDC', 'Time of use'),
                                         labelAlign: 'right',
                                         labelWidth: 250
-                                    }  */
+                                    }
                                 ]
                             },
                             {
@@ -152,7 +152,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
                                     align: 'stretch'
                                 },
                                 items: [
-                                    /*{
+                                    {
                                         xtype: 'displayfield',
                                         name: 'overflow',
                                         fieldLabel: Uni.I18n.translate('registerConfig.overflowValue', 'MDC', 'Overflow value'),
@@ -179,7 +179,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
                                         fieldLabel: Uni.I18n.translate('registerConfig.multiplier', 'MDC', 'Multiplier'),
                                         labelAlign: 'right',
                                         labelWidth: 250
-                                    }   */
+                                    }
                                 ]
                             }
                         ]

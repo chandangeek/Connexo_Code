@@ -69,6 +69,9 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationSetu
                     },
                     previewComponent: {
                         xtype: 'loadProfileConfigurationPreview'
+                        /*xtype: 'loadProfileConfigAndRulesPreviewContainer',
+                        deviceTypeId: this.deviceTypeId,
+                        deviceConfigId: this.deviceConfigId   */
                     }
 //                    previewComponent: null
                 }
