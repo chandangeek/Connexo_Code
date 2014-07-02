@@ -95,6 +95,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
     @Override
     public void postLoad() {
+        super.postLoad();
         this.setCommunicationWindowToNullWhenEmpty();
     }
 

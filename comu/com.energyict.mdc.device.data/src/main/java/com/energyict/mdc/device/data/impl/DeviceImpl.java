@@ -1416,6 +1416,7 @@ public class DeviceImpl implements Device, PersistenceAware {
 
         @Override
         public ScheduledConnectionTask add() {
+            this.scheduledConnectionTask.save();
             DeviceImpl.this.getConnectionTaskImpls().add(this.scheduledConnectionTask);
             return scheduledConnectionTask;
         }

@@ -22,23 +22,15 @@ public class ComPortPoolIsRequiredWhenConnectionTaskIsCompleteValidator implemen
     public boolean isValid(ConnectionMethodImpl connectionMethod, ConstraintValidatorContext context) {
         //TODO fix this, it is not completely correct!
         ConnectionTask connectionTask = connectionMethod.getConnectionTask();
-        if (connectionTask != null && !connectionTask.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE) && !connectionMethod.hasComPortPool()) {
+        if (!connectionTask.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE) && !connectionMethod.hasComPortPool()) {
             context.disableDefaultConstraintViolation();
-
-            if ((connectionTask.getId() != 0)) {
-                context
-                        .buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.CONNECTION_METHOD_COMPORT_POOL_REQUIRED_KEY + "}")
-                        .addPropertyNode("comPortPool").addConstraintViolation();
-            } else {
-                boolean validConnectionTask = isValidConnectionTaskInIncompleteState((ConnectionTaskImpl) connectionTask);
-                if (validConnectionTask) {
+            if (((ConnectionTaskImpl) connectionTask).isAllowIncomplete() && isValidConnectionTaskInIncompleteState((ConnectionTaskImpl) connectionTask)) {
                     context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.CONNECTION_METHOD_COMPORT_POOL_REQUIRED_KEY + "}")
                             .addPropertyNode("status").addConstraintViolation();
                 } else {
                     context
                             .buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.CONNECTION_METHOD_COMPORT_POOL_REQUIRED_KEY + "}")
                             .addPropertyNode("comPortPool").addConstraintViolation();
-                }
             }
             return false;
         }

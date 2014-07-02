@@ -59,7 +59,7 @@ import static com.elster.jupiter.util.Checks.is;
 @HasValidProperties(groups = {Save.Create.class, Save.Update.class})
 public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPPT extends ComPortPool>
         extends PersistentIdObject<ConnectionTask>
-        implements ConnectionTask<CPPT, PCTT> {
+        implements ConnectionTask<CPPT, PCTT>, PersistenceAware {
 
     public static final String INITIATOR_DISCRIMINATOR = "0";
     public static final String INBOUND_DISCRIMINATOR = "1";
@@ -90,6 +90,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     private final DeviceDataService deviceDataService;
 
     private Provider<ConnectionMethodImpl> connectionMethodProvider;
+    private boolean allowIncomplete = true;
 
     protected ConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, DeviceDataService deviceDataService, Provider<ConnectionMethodImpl> connectionMethodProvider) {
         super(ConnectionTask.class, dataModel, eventService, thesaurus);
@@ -108,6 +109,18 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         this.partialConnectionTask.set(partialConnectionTask);
         this.comPortPool.set(comPortPool);
         this.connectionMethod.set(this.connectionMethodProvider.get().initialize(this, partialConnectionTask.getPluggableClass(), comPortPool));
+    }
+
+    @Override
+    public void postLoad() {
+        if(this.connectionMethod.isPresent()){
+            ((ConnectionMethodImpl) getConnectionMethod()).loadConnectionTask(this);
+        }
+        this.allowIncomplete = this.status.equals(ConnectionTaskLifecycleStatus.INCOMPLETE);
+    }
+
+    boolean isAllowIncomplete(){
+        return this.allowIncomplete;
     }
 
     private void validatePartialConnectionTaskType(PCTT partialConnectionTask) {

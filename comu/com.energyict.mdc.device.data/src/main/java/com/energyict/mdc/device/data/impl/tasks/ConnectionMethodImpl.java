@@ -149,7 +149,7 @@ public class ConnectionMethodImpl extends IdPluggableClassUsageImpl<ConnectionMe
     }
 
     public ConnectionTask getConnectionTask() {
-        return this.connectionTask.orNull();
+        return connectionTask.orNull();
     }
 
     @Override
@@ -198,4 +198,7 @@ public class ConnectionMethodImpl extends IdPluggableClassUsageImpl<ConnectionMe
         this.comPortPool.set(comPortPool);
     }
 
+    void loadConnectionTask(ConnectionTaskImpl<?,?> connectionTask) {
+        this.connectionTask.set(connectionTask);
+    }
 }
