@@ -1,3 +1,7 @@
+/**
+ * // todo: please remove this controller or deprecated mark, it appears that this controller is not used anywhere
+ * @deprecated
+ */
 Ext.define('Mdc.controller.setup.DeviceCommunicationProtocol', {
     extend: 'Ext.app.Controller',
 

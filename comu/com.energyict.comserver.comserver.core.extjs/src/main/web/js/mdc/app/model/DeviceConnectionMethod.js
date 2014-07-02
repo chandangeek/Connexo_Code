@@ -1,5 +1,8 @@
 Ext.define('Mdc.model.DeviceConnectionMethod', {
     extend: 'Ext.data.Model',
+    requires: [
+        'Uni.property.model.Property'
+    ],
     fields: [
         {name: 'id', type: 'int', useNull: true},
         {name: 'name', type: 'string', useNull: true},
@@ -17,9 +20,9 @@ Ext.define('Mdc.model.DeviceConnectionMethod', {
     ],
     associations: [
         {name: 'rescheduleRetryDelay',type: 'hasOne',model:'Mdc.model.field.TimeInfo',associationKey: 'rescheduleRetryDelay'},
-        {name: 'properties', type: 'hasMany', model: 'Mdc.model.Property', associationKey: 'properties', foreignKey: 'properties',
+        {name: 'properties', type: 'hasMany', model: 'Uni.property.model.Property', associationKey: 'properties', foreignKey: 'properties',
             getTypeDiscriminator: function (node) {
-                return 'Mdc.model.Property';
+                return 'Uni.property.model.Property';
             }
         }
     ],
