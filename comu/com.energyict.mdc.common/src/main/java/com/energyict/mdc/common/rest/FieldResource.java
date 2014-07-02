@@ -4,6 +4,9 @@ import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.util.exception.MessageSeed;
+
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -11,8 +14,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
 
 /**
  * Generic resource that lists all possible values for a certain field. Used in frontend to fill combo-boxes
@@ -139,6 +140,16 @@ public class FieldResource {
         @Override
         public Map<String, String> getTranslations() {
             return null;
+        }
+
+        @Override
+        public String interpolate(String messageTemplate, Context context) {
+            return getString(messageTemplate, messageTemplate);
+        }
+
+        @Override
+        public String interpolate(String messageTemplate, Context context, Locale locale) {
+            return getString(locale, messageTemplate, messageTemplate);
         }
     }
 }
