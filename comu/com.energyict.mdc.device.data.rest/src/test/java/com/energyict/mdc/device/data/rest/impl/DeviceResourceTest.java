@@ -66,6 +66,7 @@ public class DeviceResourceTest extends JerseyTest {
     private static EngineModelService engineModelService;
     private static IssueService issueService;
     private static MdcPropertyUtils mdcPropertyUtils;
+    private ConnectionTask.ConnectionTaskLifecycleStatus status = ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
@@ -165,7 +166,7 @@ public class DeviceResourceTest extends JerseyTest {
     public void testCreatePausedInboundConnectionMethod() throws Exception {
         InboundConnectionMethodInfo info = new InboundConnectionMethodInfo();
         info.name="inbConnMethod";
-        info.status = ConnectionTask.ConnectionTaskLifecycleState.INACTIVE;
+        info.status = ConnectionTask.ConnectionTaskLifecycleStatus.INACTIVE;
         info.isDefault=false;
         info.comPortPool="cpp";
 
@@ -175,7 +176,7 @@ public class DeviceResourceTest extends JerseyTest {
         PartialInboundConnectionTask partialConnectionTask = mock (PartialInboundConnectionTask.class);
         when(deviceDataService.findByUniqueMrid("1")).thenReturn(device);
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
-        when(deviceDataService.newInboundConnectionTask(any(Device.class), any(PartialInboundConnectionTask.class),any(InboundComPortPool.class))).thenReturn(connectionTask);
+        when(deviceDataService.newInboundConnectionTask(any(Device.class), any(PartialInboundConnectionTask.class),any(InboundComPortPool.class), status)).thenReturn(connectionTask);
         when(engineModelService.findComPortPool("cpp")).thenReturn(comPortPool);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfig);
         when(deviceConfig.getPartialConnectionTasks()).thenReturn(Arrays.<PartialConnectionTask>asList(partialConnectionTask));
@@ -199,7 +200,7 @@ public class DeviceResourceTest extends JerseyTest {
     public void testCreateActiveInboundConnectionMethod() throws Exception {
         InboundConnectionMethodInfo info = new InboundConnectionMethodInfo();
         info.name="inbConnMethod";
-        info.status = ConnectionTask.ConnectionTaskLifecycleState.ACTIVE;
+        info.status = ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE;
         info.isDefault=false;
         info.comPortPool="cpp";
 
@@ -209,7 +210,7 @@ public class DeviceResourceTest extends JerseyTest {
         PartialInboundConnectionTask partialConnectionTask = mock (PartialInboundConnectionTask.class);
         when(deviceDataService.findByUniqueMrid("1")).thenReturn(device);
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
-        when(deviceDataService.newInboundConnectionTask(any(Device.class), any(PartialInboundConnectionTask.class),any(InboundComPortPool.class))).thenReturn(connectionTask);
+        when(deviceDataService.newInboundConnectionTask(any(Device.class), any(PartialInboundConnectionTask.class),any(InboundComPortPool.class), status)).thenReturn(connectionTask);
         when(engineModelService.findComPortPool("cpp")).thenReturn(comPortPool);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfig);
         when(deviceConfig.getPartialConnectionTasks()).thenReturn(Arrays.<PartialConnectionTask>asList(partialConnectionTask));
@@ -234,7 +235,7 @@ public class DeviceResourceTest extends JerseyTest {
     public void testCreateDefaultInboundConnectionMethod() throws Exception {
         InboundConnectionMethodInfo info = new InboundConnectionMethodInfo();
         info.name="inbConnMethod";
-        info.status = ConnectionTask.ConnectionTaskLifecycleState.ACTIVE;
+        info.status = ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE;
         info.isDefault=true;
         info.comPortPool="cpp";
 
@@ -244,7 +245,7 @@ public class DeviceResourceTest extends JerseyTest {
         PartialInboundConnectionTask partialConnectionTask = mock (PartialInboundConnectionTask.class);
         when(deviceDataService.findByUniqueMrid("1")).thenReturn(device);
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
-        when(deviceDataService.newInboundConnectionTask(any(Device.class), any(PartialInboundConnectionTask.class),any(InboundComPortPool.class))).thenReturn(connectionTask);
+        when(deviceDataService.newInboundConnectionTask(any(Device.class), any(PartialInboundConnectionTask.class),any(InboundComPortPool.class), status)).thenReturn(connectionTask);
         when(engineModelService.findComPortPool("cpp")).thenReturn(comPortPool);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfig);
         when(deviceConfig.getPartialConnectionTasks()).thenReturn(Arrays.<PartialConnectionTask>asList(partialConnectionTask));
@@ -267,7 +268,7 @@ public class DeviceResourceTest extends JerseyTest {
     public void testUpdateAndUndefaultInboundConnectionMethod() throws Exception {
         InboundConnectionMethodInfo info = new InboundConnectionMethodInfo();
         info.name="inbConnMethod";
-        info.status = ConnectionTask.ConnectionTaskLifecycleState.ACTIVE;
+        info.status = ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE;
         info.isDefault=false;
         info.comPortPool="cpp";
 
@@ -277,7 +278,7 @@ public class DeviceResourceTest extends JerseyTest {
         PartialInboundConnectionTask partialConnectionTask = mock (PartialInboundConnectionTask.class);
         when(deviceDataService.findByUniqueMrid("1")).thenReturn(device);
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
-        when(deviceDataService.newInboundConnectionTask(any(Device.class), any(PartialInboundConnectionTask.class),any(InboundComPortPool.class))).thenReturn(connectionTask);
+        when(deviceDataService.newInboundConnectionTask(any(Device.class), any(PartialInboundConnectionTask.class),any(InboundComPortPool.class), status)).thenReturn(connectionTask);
         when(engineModelService.findComPortPool("cpp")).thenReturn(comPortPool);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfig);
         when(device.getConnectionTasks()).thenReturn(Arrays.<ConnectionTask<?,?>>asList(connectionTask));
@@ -303,7 +304,7 @@ public class DeviceResourceTest extends JerseyTest {
     public void testUpdateOnlyClearsDefaultIfConnectionMethodWasDefaultBeforeUpdate() throws Exception {
         InboundConnectionMethodInfo info = new InboundConnectionMethodInfo();
         info.name="inbConnMethod";
-        info.status = ConnectionTask.ConnectionTaskLifecycleState.ACTIVE;
+        info.status = ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE;
         info.isDefault=false;
         info.comPortPool="cpp";
 
@@ -313,7 +314,7 @@ public class DeviceResourceTest extends JerseyTest {
         PartialInboundConnectionTask partialConnectionTask = mock (PartialInboundConnectionTask.class);
         when(deviceDataService.findByUniqueMrid("1")).thenReturn(device);
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
-        when(deviceDataService.newInboundConnectionTask(any(Device.class), any(PartialInboundConnectionTask.class),any(InboundComPortPool.class))).thenReturn(connectionTask);
+        when(deviceDataService.newInboundConnectionTask(any(Device.class), any(PartialInboundConnectionTask.class),any(InboundComPortPool.class), status)).thenReturn(connectionTask);
         when(engineModelService.findComPortPool("cpp")).thenReturn(comPortPool);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfig);
         when(device.getConnectionTasks()).thenReturn(Arrays.<ConnectionTask<?,?>>asList(connectionTask));

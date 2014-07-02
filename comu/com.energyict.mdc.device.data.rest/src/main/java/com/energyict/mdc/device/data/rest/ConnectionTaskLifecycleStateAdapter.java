@@ -9,12 +9,12 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
  * Date: 7/1/14
  * Time: 9:40 AM
  */
-public class ConnectionTaskLifecycleStateAdapter extends MapBasedXmlAdapter<ConnectionTask.ConnectionTaskLifecycleState> {
+public class ConnectionTaskLifecycleStateAdapter extends MapBasedXmlAdapter<ConnectionTask.ConnectionTaskLifecycleStatus> {
 
     public ConnectionTaskLifecycleStateAdapter() {
         register("", null);
-        register(MessageSeeds.CONNECTION_TASK_STATUS_INCOMPLETE.getKey(), ConnectionTask.ConnectionTaskLifecycleState.INCOMPLETE);
-        register(MessageSeeds.CONNECTION_TASK_STATUS_ACTIVE.getKey(), ConnectionTask.ConnectionTaskLifecycleState.ACTIVE);
-        register(MessageSeeds.CONNECTION_TASK_STATUS_INACTIVE.getKey(), ConnectionTask.ConnectionTaskLifecycleState.INACTIVE);
+        register(MessageSeeds.CONNECTION_TASK_STATUS_INCOMPLETE.getKey(), ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE);
+        register(MessageSeeds.CONNECTION_TASK_STATUS_ACTIVE.getKey(), ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE);
+        register(MessageSeeds.CONNECTION_TASK_STATUS_INACTIVE.getKey(), ConnectionTask.ConnectionTaskLifecycleStatus.INACTIVE);
     }
 }

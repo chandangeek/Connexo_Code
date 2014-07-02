@@ -34,7 +34,7 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
     public long id;
     public String name;
     @XmlJavaTypeAdapter(ConnectionTaskLifecycleStateAdapter.class)
-    public ConnectionTask.ConnectionTaskLifecycleState status;
+    public ConnectionTask.ConnectionTaskLifecycleStatus status;
     public String connectionType;
     public String comPortPool;
     public boolean isDefault;

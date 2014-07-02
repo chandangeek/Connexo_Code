@@ -94,7 +94,6 @@ public class DeviceResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         PartialConnectionTask partialConnectionTask = findPartialConnectionTaskOrThrowException(device, connectionMethodInfo.name);
         ConnectionTask<?, ?> task = connectionMethodInfo.createTask(deviceDataService, engineModelService, device, mdcPropertyUtils, partialConnectionTask, incomplete);
-        //pauseOrResumeTask(connectionMethodInfo, task);
         if (connectionMethodInfo.isDefault) {
             deviceDataService.setDefaultConnectionTask(task);
         }
@@ -129,7 +128,7 @@ public class DeviceResource {
 
         connectionMethodInfo.writeTo(task, partialConnectionTask, deviceDataService, engineModelService, mdcPropertyUtils);
         task.save();
-        //pauseOrResumeTask(connectionMethodInfo, task);
+        pauseOrResumeTask(connectionMethodInfo, task);
         if (connectionMethodInfo.isDefault) {
             deviceDataService.setDefaultConnectionTask(task);
         } else if (wasConnectionTaskDefault) {

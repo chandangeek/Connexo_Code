@@ -40,7 +40,7 @@ public class InboundConnectionMethodInfo extends ConnectionMethodInfo<InboundCon
             inboundComPortPool = (InboundComPortPool) engineModelService.findComPortPool(this.comPortPool);
         }
 
-        InboundConnectionTask inboundConnectionTask = deviceDataService.newInboundConnectionTask(device, partialInboundConnectionTask, inboundComPortPool);
+        InboundConnectionTask inboundConnectionTask = deviceDataService.newInboundConnectionTask(device, partialInboundConnectionTask, inboundComPortPool, status);
         writeTo(inboundConnectionTask, partialInboundConnectionTask, deviceDataService, engineModelService, mdcPropertyUtils);
         inboundConnectionTask.save();
         return inboundConnectionTask;

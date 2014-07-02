@@ -65,15 +65,16 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
             outboundComPortPool=(OutboundComPortPool) engineModelService.findComPortPool(this.comPortPool);
         }
 
+
         PartialScheduledConnectionTask partialScheduledConnectionTask = (PartialScheduledConnectionTask) partialConnectionTask;
         ScheduledConnectionTask scheduledConnectionTask=null;
         switch (this.connectionStrategy) {
             case AS_SOON_AS_POSSIBLE:
-                scheduledConnectionTask = deviceDataService.newAsapConnectionTask(device, partialScheduledConnectionTask, outboundComPortPool);
+                scheduledConnectionTask = deviceDataService.newAsapConnectionTask(device, partialScheduledConnectionTask, outboundComPortPool, status);
                 break;
             case MINIMIZE_CONNECTIONS:
                 scheduledConnectionTask = deviceDataService.newMinimizeConnectionTask(device, partialScheduledConnectionTask, outboundComPortPool,
-                        this.nextExecutionSpecs != null ? nextExecutionSpecs.asTemporalExpression() : null);
+                        this.nextExecutionSpecs != null ? nextExecutionSpecs.asTemporalExpression() : null, status);
                 break;
         }
         writeCommonFields(scheduledConnectionTask, engineModelService);
