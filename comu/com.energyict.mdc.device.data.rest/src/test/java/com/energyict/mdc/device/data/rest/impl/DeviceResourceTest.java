@@ -41,6 +41,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -55,7 +56,6 @@ import static org.mockito.Mockito.when;
 /**
  * Created by bvn on 6/19/14.
  */
-@Ignore
 public class DeviceResourceTest extends JerseyTest {
     private static final String DUMMY_THESAURUS_STRING = "";
     private static DeviceDataService deviceDataService;
@@ -171,12 +171,14 @@ public class DeviceResourceTest extends JerseyTest {
         info.comPortPool="cpp";
 
         Device device = mock(Device.class);
-        ComPortPool comPortPool = mock(InboundComPortPool.class);
+        Device.InboundConnectionTaskBuilder inboundConnectionTaskBuilder = mock(Device.InboundConnectionTaskBuilder.class);
+        when(device.getInboundConnectionTaskBuilder(Matchers.<PartialInboundConnectionTask>any())).thenReturn(inboundConnectionTaskBuilder);
+        InboundComPortPool comPortPool = mock(InboundComPortPool.class);
         DeviceConfiguration deviceConfig = mock(DeviceConfiguration.class);
         PartialInboundConnectionTask partialConnectionTask = mock (PartialInboundConnectionTask.class);
         when(deviceDataService.findByUniqueMrid("1")).thenReturn(device);
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
-        when(deviceDataService.newInboundConnectionTask(any(Device.class), any(PartialInboundConnectionTask.class),any(InboundComPortPool.class), status)).thenReturn(connectionTask);
+        when(inboundConnectionTaskBuilder.add()).thenReturn(connectionTask);
         when(engineModelService.findComPortPool("cpp")).thenReturn(comPortPool);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfig);
         when(deviceConfig.getPartialConnectionTasks()).thenReturn(Arrays.<PartialConnectionTask>asList(partialConnectionTask));
@@ -192,8 +194,10 @@ public class DeviceResourceTest extends JerseyTest {
 
         Response response = target("/devices/1/connectionmethods").request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
-        verify(connectionTask, times(1)).deactivate();
         verify(connectionTask, never()).activate();
+        verify(connectionTask, never()).deactivate();
+        verify(inboundConnectionTaskBuilder, times(1)).setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INACTIVE);
+        verify(inboundConnectionTaskBuilder, times(1)).setComPortPool(comPortPool);
     }
 
     @Test
@@ -205,12 +209,14 @@ public class DeviceResourceTest extends JerseyTest {
         info.comPortPool="cpp";
 
         Device device = mock(Device.class);
-        ComPortPool comPortPool = mock(InboundComPortPool.class);
+        Device.InboundConnectionTaskBuilder inboundConnectionTaskBuilder = mock(Device.InboundConnectionTaskBuilder.class);
+        when(device.getInboundConnectionTaskBuilder(Matchers.<PartialInboundConnectionTask>any())).thenReturn(inboundConnectionTaskBuilder);
+        InboundComPortPool comPortPool = mock(InboundComPortPool.class);
         DeviceConfiguration deviceConfig = mock(DeviceConfiguration.class);
         PartialInboundConnectionTask partialConnectionTask = mock (PartialInboundConnectionTask.class);
         when(deviceDataService.findByUniqueMrid("1")).thenReturn(device);
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
-        when(deviceDataService.newInboundConnectionTask(any(Device.class), any(PartialInboundConnectionTask.class),any(InboundComPortPool.class), status)).thenReturn(connectionTask);
+        when(inboundConnectionTaskBuilder.add()).thenReturn(connectionTask);
         when(engineModelService.findComPortPool("cpp")).thenReturn(comPortPool);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfig);
         when(deviceConfig.getPartialConnectionTasks()).thenReturn(Arrays.<PartialConnectionTask>asList(partialConnectionTask));
@@ -226,8 +232,10 @@ public class DeviceResourceTest extends JerseyTest {
 
         Response response = target("/devices/1/connectionmethods").request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
-        verify(connectionTask, times(1)).activate();
+        verify(connectionTask, never()).activate();
         verify(connectionTask, never()).deactivate();
+        verify(inboundConnectionTaskBuilder, times(1)).setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE);
+        verify(inboundConnectionTaskBuilder, times(1)).setComPortPool(comPortPool);
         verify(deviceDataService, never()).setDefaultConnectionTask(connectionTask);
     }
 
@@ -240,12 +248,14 @@ public class DeviceResourceTest extends JerseyTest {
         info.comPortPool="cpp";
 
         Device device = mock(Device.class);
-        ComPortPool comPortPool = mock(InboundComPortPool.class);
+        Device.InboundConnectionTaskBuilder inboundConnectionTaskBuilder = mock(Device.InboundConnectionTaskBuilder.class);
+        when(device.getInboundConnectionTaskBuilder(Matchers.<PartialInboundConnectionTask>any())).thenReturn(inboundConnectionTaskBuilder);
+        InboundComPortPool comPortPool = mock(InboundComPortPool.class);
         DeviceConfiguration deviceConfig = mock(DeviceConfiguration.class);
         PartialInboundConnectionTask partialConnectionTask = mock (PartialInboundConnectionTask.class);
         when(deviceDataService.findByUniqueMrid("1")).thenReturn(device);
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
-        when(deviceDataService.newInboundConnectionTask(any(Device.class), any(PartialInboundConnectionTask.class),any(InboundComPortPool.class), status)).thenReturn(connectionTask);
+        when(inboundConnectionTaskBuilder.add()).thenReturn(connectionTask);
         when(engineModelService.findComPortPool("cpp")).thenReturn(comPortPool);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfig);
         when(deviceConfig.getPartialConnectionTasks()).thenReturn(Arrays.<PartialConnectionTask>asList(partialConnectionTask));
@@ -273,12 +283,14 @@ public class DeviceResourceTest extends JerseyTest {
         info.comPortPool="cpp";
 
         Device device = mock(Device.class);
-        ComPortPool comPortPool = mock(InboundComPortPool.class);
+        Device.InboundConnectionTaskBuilder inboundConnectionTaskBuilder = mock(Device.InboundConnectionTaskBuilder.class);
+        when(device.getInboundConnectionTaskBuilder(Matchers.<PartialInboundConnectionTask>any())).thenReturn(inboundConnectionTaskBuilder);
+        InboundComPortPool comPortPool = mock(InboundComPortPool.class);
         DeviceConfiguration deviceConfig = mock(DeviceConfiguration.class);
         PartialInboundConnectionTask partialConnectionTask = mock (PartialInboundConnectionTask.class);
         when(deviceDataService.findByUniqueMrid("1")).thenReturn(device);
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
-        when(deviceDataService.newInboundConnectionTask(any(Device.class), any(PartialInboundConnectionTask.class),any(InboundComPortPool.class), status)).thenReturn(connectionTask);
+        when(inboundConnectionTaskBuilder.add()).thenReturn(connectionTask);
         when(engineModelService.findComPortPool("cpp")).thenReturn(comPortPool);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfig);
         when(device.getConnectionTasks()).thenReturn(Arrays.<ConnectionTask<?,?>>asList(connectionTask));
@@ -309,12 +321,14 @@ public class DeviceResourceTest extends JerseyTest {
         info.comPortPool="cpp";
 
         Device device = mock(Device.class);
-        ComPortPool comPortPool = mock(InboundComPortPool.class);
+        Device.InboundConnectionTaskBuilder inboundConnectionTaskBuilder = mock(Device.InboundConnectionTaskBuilder.class);
+        when(device.getInboundConnectionTaskBuilder(Matchers.<PartialInboundConnectionTask>any())).thenReturn(inboundConnectionTaskBuilder);
+        InboundComPortPool comPortPool = mock(InboundComPortPool.class);
         DeviceConfiguration deviceConfig = mock(DeviceConfiguration.class);
         PartialInboundConnectionTask partialConnectionTask = mock (PartialInboundConnectionTask.class);
         when(deviceDataService.findByUniqueMrid("1")).thenReturn(device);
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
-        when(deviceDataService.newInboundConnectionTask(any(Device.class), any(PartialInboundConnectionTask.class),any(InboundComPortPool.class), status)).thenReturn(connectionTask);
+        when(inboundConnectionTaskBuilder.add()).thenReturn(connectionTask);
         when(engineModelService.findComPortPool("cpp")).thenReturn(comPortPool);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfig);
         when(device.getConnectionTasks()).thenReturn(Arrays.<ConnectionTask<?,?>>asList(connectionTask));
