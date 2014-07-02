@@ -35,7 +35,7 @@ public enum ServerConnectionTaskStatus {
 
         @Override
         public boolean appliesTo(ScheduledConnectionTask task, Date now) {
-            return !task.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleState.ACTIVE) || task.getNextExecutionTimestamp() == null;
+            return !task.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE) || task.getNextExecutionTimestamp() == null;
         }
 
         @Override

@@ -265,35 +265,35 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     }
 
     @Override
-    public InboundConnectionTask newInboundConnectionTask(Device device, PartialInboundConnectionTask partialConnectionTask, InboundComPortPool comPortPool) {
+    public InboundConnectionTask newInboundConnectionTask(Device device, PartialInboundConnectionTask partialConnectionTask, InboundComPortPool comPortPool, ConnectionTask.ConnectionTaskLifecycleStatus status) {
         InboundConnectionTaskImpl connectionTask = this.dataModel.getInstance(InboundConnectionTaskImpl.class);
-        connectionTask.initialize(device, partialConnectionTask, comPortPool);
+        connectionTask.initialize(device, partialConnectionTask, comPortPool, status);
         return connectionTask;
     }
 
     @Override
-    public ScheduledConnectionTask newAsapConnectionTask(Device device, PartialScheduledConnectionTask partialConnectionTask, OutboundComPortPool comPortPool) {
+    public ScheduledConnectionTask newAsapConnectionTask(Device device, PartialScheduledConnectionTask partialConnectionTask, OutboundComPortPool comPortPool, ConnectionTask.ConnectionTaskLifecycleStatus status) {
         ScheduledConnectionTaskImpl connectionTask = this.dataModel.getInstance(ScheduledConnectionTaskImpl.class);
-        connectionTask.initializeWithAsapStrategy(device, partialConnectionTask, comPortPool);
+        connectionTask.initializeWithAsapStrategy(device, partialConnectionTask, comPortPool, status);
         return connectionTask;
     }
 
     @Override
-    public ScheduledConnectionTask newMinimizeConnectionTask(Device device, PartialScheduledConnectionTask partialConnectionTask, OutboundComPortPool comPortPool, TemporalExpression temporalExpression) {
+    public ScheduledConnectionTask newMinimizeConnectionTask(Device device, PartialScheduledConnectionTask partialConnectionTask, OutboundComPortPool comPortPool, TemporalExpression temporalExpression, ConnectionTask.ConnectionTaskLifecycleStatus status) {
         NextExecutionSpecs nextExecutionSpecs = null;
         if (temporalExpression != null) {
             nextExecutionSpecs = this.schedulingService.newNextExecutionSpecs(temporalExpression);
             nextExecutionSpecs.save();
         }
         ScheduledConnectionTaskImpl connectionTask = this.dataModel.getInstance(ScheduledConnectionTaskImpl.class);
-        connectionTask.initializeWithMinimizeStrategy(device, partialConnectionTask, comPortPool, nextExecutionSpecs);
+        connectionTask.initializeWithMinimizeStrategy(device, partialConnectionTask, comPortPool, nextExecutionSpecs, status);
         return connectionTask;
     }
 
     @Override
-    public ConnectionInitiationTask newConnectionInitiationTask(Device device, PartialConnectionInitiationTask partialConnectionTask, OutboundComPortPool comPortPool) {
+    public ConnectionInitiationTask newConnectionInitiationTask(Device device, PartialConnectionInitiationTask partialConnectionTask, OutboundComPortPool comPortPool, ConnectionTask.ConnectionTaskLifecycleStatus status) {
         ConnectionInitiationTaskImpl connectionTask = this.dataModel.getInstance(ConnectionInitiationTaskImpl.class);
-        connectionTask.initialize(device, partialConnectionTask, comPortPool);
+        connectionTask.initialize(device, partialConnectionTask, comPortPool, status);
         return connectionTask;
     }
 

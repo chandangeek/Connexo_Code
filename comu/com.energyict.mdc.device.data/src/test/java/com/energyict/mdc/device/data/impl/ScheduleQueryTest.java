@@ -5,6 +5,7 @@ import com.energyict.mdc.device.data.ServerComTaskExecution;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImplIT;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
@@ -23,18 +24,20 @@ import static org.fest.assertions.api.Assertions.assertThat;
 
 public class ScheduleQueryTest extends ConnectionTaskImplIT {
 
+    private ConnectionTask.ConnectionTaskLifecycleStatus status = ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE;
+
     private ScheduledConnectionTaskImpl createAsapWithNoPropertiesWithoutViolations(String name) {
         DeviceDataServiceImpl deviceDataService = inMemoryPersistence.getDeviceDataService();
         this.partialScheduledConnectionTask.setName(name);
         this.partialScheduledConnectionTask.save();
-        return ((ScheduledConnectionTaskImpl) deviceDataService.newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool));
+        return ((ScheduledConnectionTaskImpl) deviceDataService.newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool, status));
     }
 
     private ScheduledConnectionTaskImpl createOtherAsapWithNoPropertiesWithoutViolations(String name) {
         DeviceDataServiceImpl deviceDataService = inMemoryPersistence.getDeviceDataService();
         this.partialScheduledConnectionTask2.setName(name);
         this.partialScheduledConnectionTask2.save();
-        return ((ScheduledConnectionTaskImpl) deviceDataService.newAsapConnectionTask(this.device, this.partialScheduledConnectionTask2, outboundTcpipComPortPool));
+        return ((ScheduledConnectionTaskImpl) deviceDataService.newAsapConnectionTask(this.device, this.partialScheduledConnectionTask2, outboundTcpipComPortPool, status));
     }
 
 
