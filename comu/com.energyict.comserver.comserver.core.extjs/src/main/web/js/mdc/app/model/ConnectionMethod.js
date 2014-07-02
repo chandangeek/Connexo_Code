@@ -31,7 +31,6 @@ Ext.define('Mdc.model.ConnectionMethod', {
 //        writer:{
 //            type:'json',
 //            getRecordData: function(record, operation) {
-//                debugger;
 //                var ampm = record.data.comWindowStart.substring(7,5);
 //                var time = record.data.comWindowStart.substring(0,5).split(':');
 //                record.data.comWindowStart = time[0]*3600+time[1]*60;

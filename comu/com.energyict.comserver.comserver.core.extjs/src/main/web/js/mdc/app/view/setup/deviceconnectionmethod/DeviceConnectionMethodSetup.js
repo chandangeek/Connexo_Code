@@ -62,7 +62,6 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodSetup', 
     },
 
     getEmptyContent: function(){
-        debugger;
         if(this.isDirectlyAddressable) {
             return [
                 {
