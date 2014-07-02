@@ -355,12 +355,10 @@ public class DeviceImpl implements Device {
     }
 
     DeviceImpl initialize(DeviceConfiguration deviceConfiguration, String name, String mRID) {
-        if(deviceConfiguration != null){
+        if (deviceConfiguration != null) {
             this.deviceConfigurationId = deviceConfiguration.getId();
             this.deviceType.set(deviceConfiguration.getDeviceType());
-            if(deviceConfiguration.getDeviceType() != null){
-                this.deviceTypeId = deviceConfiguration.getDeviceType().getId();
-            }
+            this.deviceTypeId = deviceConfiguration.getDeviceType().getId();
         }
 
         this.deviceConfiguration.set(deviceConfiguration);
@@ -372,7 +370,7 @@ public class DeviceImpl implements Device {
     }
 
     private void createLoadProfiles() {
-        if(this.getDeviceConfiguration() != null){
+        if (this.getDeviceConfiguration() != null) {
             for (LoadProfileSpec loadProfileSpec : this.getDeviceConfiguration().getLoadProfileSpecs()) {
                 this.loadProfiles.add(this.dataModel.getInstance(LoadProfileImpl.class).initialize(loadProfileSpec, this));
             }
@@ -380,7 +378,7 @@ public class DeviceImpl implements Device {
     }
 
     private void createLogBooks() {
-        if(this.getDeviceConfiguration() != null){
+        if (this.getDeviceConfiguration() != null) {
             for (LogBookSpec logBookSpec : this.getDeviceConfiguration().getLogBookSpecs()) {
                 this.logBooks.add(this.dataModel.getInstance(LogBookImpl.class).initialize(logBookSpec, this));
             }
@@ -907,7 +905,7 @@ public class DeviceImpl implements Device {
             Iterator<ProtocolDialectProperties> iterator = this.dialectPropertiesList.iterator();
             while (iterator.hasNext()){
                 ProtocolDialectProperties protocolDialectProperties = iterator.next();
-                if(protocolDialectProperties.getDeviceProtocolDialectName().equals(dialectProperties.getDeviceProtocolDialectName())){
+                if (protocolDialectProperties.getDeviceProtocolDialectName().equals(dialectProperties.getDeviceProtocolDialectName())) {
                     iterator.remove();
                 }
             }

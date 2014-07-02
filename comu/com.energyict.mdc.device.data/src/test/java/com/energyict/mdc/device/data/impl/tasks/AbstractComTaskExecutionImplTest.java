@@ -11,6 +11,7 @@ import com.energyict.mdc.device.data.impl.DeviceDataServiceImpl;
 import com.energyict.mdc.device.data.impl.PersistenceIntegrationTest;
 import com.energyict.mdc.device.data.tasks.AdHocComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.dynamic.PropertySpec;
@@ -55,6 +56,7 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
     protected int maxNrOfTries = 27;
     protected int comTaskEnablementPriority = 213;
     protected ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties;
+    private ConnectionTask.ConnectionTaskLifecycleStatus status = ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE;
 
     @Before
     public void getFirstProtocolDialectConfigurationPropertiesFromDeviceConfiguration () {
@@ -140,7 +142,7 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
         DeviceDataServiceImpl deviceDataService = inMemoryPersistence.getDeviceDataService();
         partialConnectionTask.setName(name);
         partialConnectionTask.save();
-        return ((ScheduledConnectionTaskImpl) deviceDataService.newAsapConnectionTask(device, partialConnectionTask, outboundTcpipComPortPool));
+        return ((ScheduledConnectionTaskImpl) deviceDataService.newAsapConnectionTask(device, partialConnectionTask, outboundTcpipComPortPool, this.status));
     }
 
     protected PartialScheduledConnectionTask createPartialScheduledConnectionTask() {
@@ -184,7 +186,7 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
         partialOutboundConnectionTask.save();
         ScheduledConnectionTaskImpl scheduledConnectionTask =
                 (ScheduledConnectionTaskImpl) deviceDataService.
-                        newMinimizeConnectionTask(device, partialOutboundConnectionTask, outboundPool, new TemporalExpression(TimeDuration.days(1)));
+                        newMinimizeConnectionTask(device, partialOutboundConnectionTask, outboundPool, new TemporalExpression(TimeDuration.days(1)), this.status);
         scheduledConnectionTask.save();
         return scheduledConnectionTask;
     }
