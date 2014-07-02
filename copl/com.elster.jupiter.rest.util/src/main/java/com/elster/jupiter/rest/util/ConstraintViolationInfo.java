@@ -5,15 +5,16 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.impl.MessageSeeds;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
-import javax.inject.Inject;
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.JsonMappingException;
+
+import javax.inject.Inject;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Whenever a REST call results in a ConstraintViolationException(or other), this mapper will convert the exception in a Result understood by our
@@ -56,7 +57,7 @@ public class ConstraintViolationInfo {
 
         for (ConstraintViolation<?> constraintViolation : exception.getConstraintViolations()) {
             if (constraintViolation.getPropertyPath()!=null) {
-                errors.add(new FieldError(constraintViolation.getPropertyPath().toString(), nlsService.interpolate(constraintViolation)));
+                errors.add(new FieldError(constraintViolation.getPropertyPath().toString(), constraintViolation.getMessage()));
             }
         }
         return this;
