@@ -2,10 +2,11 @@ package com.elster.jupiter.nls;
 
 import com.elster.jupiter.util.exception.MessageSeed;
 
+import javax.validation.MessageInterpolator;
 import java.util.Locale;
 import java.util.Map;
 
-public interface Thesaurus {
+public interface Thesaurus extends MessageInterpolator {
 	
 	//
 	// Locale is obtained from security.thread 

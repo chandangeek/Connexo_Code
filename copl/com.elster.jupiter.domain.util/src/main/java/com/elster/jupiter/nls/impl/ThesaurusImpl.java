@@ -14,6 +14,7 @@ import com.google.common.base.Optional;
 import com.google.inject.Provider;
 
 import javax.inject.Inject;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -21,8 +22,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 class ThesaurusImpl implements Thesaurus {
+
+    private static final Pattern VALIDATION_KEY = Pattern.compile("^\\{(.*)\\}$");
 
     private final ThreadPrincipalService threadPrincipalService;
     private final Map<String, NlsKeyImpl> translations = new HashMap<>();
@@ -133,6 +138,26 @@ class ThesaurusImpl implements Thesaurus {
             map.put(entry.getKey(), translate(entry.getValue()));
         }
         return map;
+    }
+
+    @Override
+    public String interpolate(String messageTemplate, Context context) {
+        String key = messageTemplate;
+        Matcher matcher = VALIDATION_KEY.matcher(messageTemplate);
+        if (matcher.matches()) {
+            key = matcher.group(1);
+        }
+        return MessageFormat.format(getString(key, key), context.getValidatedValue());
+    }
+
+    @Override
+    public String interpolate(String messageTemplate, Context context, Locale locale) {
+        String key = messageTemplate;
+        Matcher matcher = VALIDATION_KEY.matcher(messageTemplate);
+        if (matcher.matches()) {
+            key = matcher.group(1);
+        }
+        return MessageFormat.format(getString(locale, key, key), context.getValidatedValue());
     }
 
     private String translate(NlsKeyImpl nlsKey) {

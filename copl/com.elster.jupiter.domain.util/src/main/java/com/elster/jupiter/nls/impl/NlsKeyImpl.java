@@ -99,7 +99,11 @@ final class NlsKeyImpl implements NlsKey {
                 maxScore = score;
             }
         }
-        return maxScore == 0 ? Optional.<String>absent() : Optional.of(max.getTranslation());
+        return maxScore == 0 ? fallBack(requested) : Optional.of(max.getTranslation());
+    }
+
+    private Optional<String> fallBack(Locale requested) {
+        return Locale.ENGLISH.equals(requested) ? Optional.<String>absent() : translate(Locale.ENGLISH);
     }
 
     private static class Scorer {
