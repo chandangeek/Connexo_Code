@@ -46,7 +46,7 @@ public class DeviceInfo {
         }
         Optional<Batch> optionalBatch = deviceImportService.findBatch(device.getId());
         if (optionalBatch.isPresent()) {
-            deviceInfo.batch = device.getName();
+            deviceInfo.batch = optionalBatch.get().getName();
         }
         if (device.getPhysicalGateway() != null) {
             deviceInfo.masterDeviceId = device.getPhysicalGateway().getId();
