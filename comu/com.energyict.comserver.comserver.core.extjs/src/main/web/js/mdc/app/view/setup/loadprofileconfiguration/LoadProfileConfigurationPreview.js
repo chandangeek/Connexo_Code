@@ -3,7 +3,8 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationPrev
     alias: 'widget.loadProfileConfigurationPreview',
     itemId: 'loadProfileConfigurationPreview',
     requires: [
-        'Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationActionMenu'
+        'Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationActionMenu',
+        'Mdc.model.LoadProfileConfiguration'
     ],
     title: '',
     frame: true,
@@ -19,6 +20,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationPrev
     ],
     items: {
         xtype: 'form',
+        itemId: 'loadProfileConfigPreviewForm',
         layout: 'column',
         defaults: {
             xtype: 'container',

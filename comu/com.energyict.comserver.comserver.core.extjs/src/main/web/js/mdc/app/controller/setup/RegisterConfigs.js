@@ -24,7 +24,11 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
 
     refs: [
         {ref: 'registerConfigGrid', selector: '#registerconfiggrid'},
+        {ref: 'rulesForRegisterConfigGrid', selector: '#rulesForRegisterConfigGrid'},
         {ref: 'registerConfigPreviewForm', selector: '#registerConfigPreviewForm'},
+
+        {ref: 'ruleForRegisterConfigPreview', selector: '#ruleForRegisterConfigPreview'},
+
         {ref: 'registerConfigPreview', selector: '#registerConfigPreview'},
         {ref: 'registerConfigPreviewTitle', selector: '#registerConfigPreviewTitle'},
         {ref: 'readingTypeDetailsForm', selector: '#readingTypeDetailsForm'},
@@ -35,7 +39,6 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         {ref: 'overflowValueInfo', selector: '#overflowValueInfo'},
         {ref: 'numberOfDigits', selector: '#numberOfDigits'},
         {ref: 'rulesForRegisterConfigGrid', selector: 'validation-rules-for-registerconfig-grid'},
-        {ref: 'ruleForRegisterConfigPreview', selector: 'validation-rule-for-register-config-preview'},
         {ref: 'rulesForRegisterConfigPreview', selector: 'registerConfigAndRulesPreviewContainer > #rulesForRegisterConfigPreview'},
 
         {ref: 'validationRulesPreview', selector: 'register-config-and-rules-preview-container validation-rule-preview'}
@@ -86,8 +89,19 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             },
             '#rulesForRegisterConfigGrid': {
                 selectionchange: this.previewValidationRule
+            },
+            '#rulesForRegisterConfigGrid actioncolumn': {
+                viewRuleForRegisterConfig: this.viewRule
+            },
+            '#ruleForRegisterConfigPreview  button[action = viewRuleForRegisterConfig]': {
+                viewRuleForRegisterConfig: this.viewRule
             }
         });
+    },
+
+
+    viewRule: function (record) {
+        location.href = '#/administration/validation/rulesets/validationrules/' + record.data.ruleSetId + '/ruleoverview/' + record.data.id;
     },
 
     previewValidationRule: function (grid, record) {
@@ -101,6 +115,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             this.getValidationRulesPreview().hide();
         }
     },
+
 
     editRegisterConfigurationHistory: function (record) {
         location.href = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigId + '/registerconfigurations/' + record.get('id') + '/edit';
@@ -122,7 +137,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             this.getRegisterConfigPreview().getLayout().setActiveItem(1);
             this.getRegisterConfigPreview().setTitle(registerConfigsName);
             this.getPreviewMrId().setValue(registerConfigs[0].getReadingType().get('mrid'));
-            this.getRegisterConfigPreviewForm().loadRecord(registerConfigs[0]);
+            //this.getRegisterConfigPreviewForm().loadRecord(registerConfigs[0]);
 
             this.getRulesForRegisterConfigPreview().setTitle(registerConfigsName + ' validation rules');
 

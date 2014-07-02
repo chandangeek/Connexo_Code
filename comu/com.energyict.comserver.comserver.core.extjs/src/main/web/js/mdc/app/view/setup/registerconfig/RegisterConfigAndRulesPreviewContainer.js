@@ -8,8 +8,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigAndRulesPreviewContainer
     registerId: null,
     requires: [
         'Mdc.view.setup.registerconfig.RegisterConfigPreview',
-        'Mdc.view.setup.registerconfig.RulesForRegisterConfigGrid',
-        'Mdc.view.setup.registerconfig.RuleForRegisterConfigPreview'
+        'Mdc.view.setup.registerconfig.RulesForRegisterConfigGrid'
     ],
     layout: {
         type: 'vbox',
@@ -40,8 +39,17 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigAndRulesPreviewContainer
                     registerId: this.registerId
                 },
                 {
-                    //xtype: 'ruleForRegisterConfigPreview',
-                    xtype: 'validation-rule-preview'
+                    xtype: 'validation-rule-preview',
+                    tools: [
+                        {
+                            xtype: 'button',
+                            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                            iconCls: 'x-uni-action-iconD',
+                            menu: {
+                                xtype: 'rules-for-registerconfig-actionmenu'
+                            }
+                        }
+                    ]
                 }
             ]
 

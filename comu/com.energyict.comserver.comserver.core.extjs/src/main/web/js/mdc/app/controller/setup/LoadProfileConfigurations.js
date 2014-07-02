@@ -14,7 +14,8 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
         'Mdc.store.Intervals',
         'Mdc.store.LoadProfileTypes',
         'Mdc.store.LoadProfileConfigurationsOnDeviceConfiguration',
-        'Mdc.store.LoadProfileConfigurationsOnDeviceConfigurationAvailable'
+        'Mdc.store.LoadProfileConfigurationsOnDeviceConfigurationAvailable',
+        'Mdc.store.LoadProfileValidationRules'
     ],
 
     refs: [
@@ -54,13 +55,29 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
             },
             'menu menuitem[action=deleteloadprofileconfigurationondeviceonfiguration]': {
                 click: this.showConfirmationPanel
-            }
+            }/*,
+            '#rulesForLoadProfileConfigGrid': {
+                selectionchange: this.previewValidationRule
+            } */
         });
 
         this.intervalStore = this.getStore('Intervals');
         this.store = this.getStore('LoadProfileConfigurationsOnDeviceConfiguration');
         this.availableLoadProfileTypesStore = this.getStore('LoadProfileConfigurationsOnDeviceConfigurationAvailable');
     },
+
+    /*previewValidationRule: function (grid, record) {
+            var selectedRules = this.getRulesForLoadProfileConfigGrid().getSelectionModel().getSelection();
+
+            if (selectedRules.length === 1) {
+                var selectedRule = selectedRules[0];
+                this.getValidationRulesPreview().updateValidationRule(selectedRule)
+                this.getValidationRulesPreview().show();
+            } else {
+                this.getValidationRulesPreview().hide();
+            }
+    },  */
+
 
     editRecord: function () {
         var grid = this.getLoadConfigurationGrid(),
@@ -247,6 +264,26 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
         this.displayedItemId = recordData.id;
         previewPanel.setTitle(recordData.name);
         form.loadRecord(record);
+
+        /*var loadProfileConfigs = this.getLoadConfigurationGrid().getSelectionModel().getSelection();
+        if (loadProfileConfigs.length == 1) {
+            this.getLoadProfileConfigPreviewForm().loadRecord(loadProfileConfigs[0]);
+            var loadProfileConfigsName = this.getLoadProfileConfigPreviewForm().form.findField('name').getSubmitValue();
+            this.getLoadProfileConfigurationPreview().setTitle(loadProfileConfigsName);
+
+            this.getRulesForLoadProfileConfigPreview().setTitle(recordData.name + ' validation rules');
+
+            this.getLoadProfileConfigValidationRulesStore().getProxy().extraParams =
+                ({deviceType: this.deviceTypeId, deviceConfig: this.deviceConfigId, loadProfileConfig: recordData.id});
+
+            var me = this;
+            this.LoadProfileValidationRules().load({
+                callback: function () {
+                    if (me.LoadProfileValidationRules().count() > 0) {
+                        me.getRulesForLoadProfileConfigGrid().getSelectionModel().doSelect(0);
+                    }
+                }
+            });*/
     },
 
     showDeviceConfigurationLoadProfilesView: function (deviceTypeId, deviceConfigurationId) {

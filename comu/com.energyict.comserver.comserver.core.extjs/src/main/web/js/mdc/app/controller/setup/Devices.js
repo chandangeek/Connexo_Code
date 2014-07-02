@@ -9,7 +9,8 @@ Ext.define('Mdc.controller.setup.Devices', {
         'setup.device.DeviceMenu',
         'setup.device.DeviceGeneralInformationPanel',
         'setup.device.DeviceCommunicationTopologyPanel',
-        'setup.device.DeviceOpenIssuesPanel'
+        'setup.device.DeviceOpenIssuesPanel',
+        'setup.device.DeviceAdd'
     ],
 
     stores: [
@@ -27,6 +28,20 @@ Ext.define('Mdc.controller.setup.Devices', {
         {ref: 'dataCollectionIssuesLink', selector: '#dataCollectionIssuesLink'}
     ],
 
+    init: function () {
+        this.control({
+            'deviceAdd button[action=save]': {
+                click: this.saveDevice
+            },
+            'deviceAdd button[action=cancel]': {
+                click: this.back
+            }
+        });
+    },
+
+    back: function () {
+        location.href = "#devices";
+    },
 
     showDeviceDetailsView: function (mRID) {
         var me = this;
@@ -51,6 +66,32 @@ Ext.define('Mdc.controller.setup.Devices', {
                 me.getDeviceGeneralInformationForm().loadRecord(device);
                 me.getDeviceCommunicationTopologyForm().loadRecord(device);
                 me.getDeviceOpenIssuesForm().loadRecord(device);
+            }
+        });
+    },
+
+    showAddDevice: function () {
+        var widget = Ext.widget('deviceAdd');
+        widget.down('form').loadRecord(Ext.create('Mdc.model.Device'));
+        this.getApplication().fireEvent('changecontentevent', widget);
+    },
+
+    saveDevice: function (button) {
+        var me = this;
+        var form = button.up('form');
+
+        form.updateRecord();
+        form.getRecord().save({
+            success: function (record) {
+                me.getApplication().fireEvent('acknowledge',
+                    Uni.I18n.translatePlural('deviceAdd.added', record.get('mRID'), 'USM', 'Device \'{0}\' added.'));
+                location.href = "#devices/" + record.get('mRID');
+            },
+            failure: function (record, operation) {
+                var json = Ext.decode(operation.response.responseText);
+                if (json && json.errors) {
+                    form.markInvalid(json.errors);
+                }
             }
         });
     }
