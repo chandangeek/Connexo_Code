@@ -894,4 +894,19 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         }
     }
 
+    public abstract static class AbstractScheduledConnectionTaskBuilder implements Device.ScheduledConnectionTaskBuilder{
+
+        public final ScheduledConnectionTaskImpl scheduledConnectionTask;
+
+        public AbstractScheduledConnectionTaskBuilder(ScheduledConnectionTaskImpl scheduledConnectionTask) {
+            this.scheduledConnectionTask = scheduledConnectionTask;
+        }
+
+        @Override
+        public Device.ScheduledConnectionTaskBuilder setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus status) {
+            this.scheduledConnectionTask.setStatus(status);
+            return this;
+        }
+    }
+
 }

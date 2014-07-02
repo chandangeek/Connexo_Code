@@ -1329,13 +1329,10 @@ public class DeviceImpl implements Device, PersistenceAware {
         }
     }
 
-    private class InboundConnectionTaskBuilderForDevice implements InboundConnectionTaskBuilder {
-
-        private final InboundConnectionTaskImpl inboundConnectionTask;
+    private class InboundConnectionTaskBuilderForDevice extends InboundConnectionTaskImpl.AbstractInboundConnectionTaskBuilder {
 
         private InboundConnectionTaskBuilderForDevice(Device device, PartialInboundConnectionTask partialInboundConnectionTask) {
-            this.inboundConnectionTask = inboundConnectionTaskProvider.get();
-            //TODO fix the status
+            super(inboundConnectionTaskProvider.get());
             this.inboundConnectionTask.initialize(device, partialInboundConnectionTask, partialInboundConnectionTask.getComPortPool(), ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE);
         }
 
@@ -1358,13 +1355,10 @@ public class DeviceImpl implements Device, PersistenceAware {
         }
     }
 
-    private class ScheduledConnectionTaskBuilderForDevice implements ScheduledConnectionTaskBuilder {
-
-        private final ScheduledConnectionTaskImpl scheduledConnectionTask;
+    private class ScheduledConnectionTaskBuilderForDevice extends ScheduledConnectionTaskImpl.AbstractScheduledConnectionTaskBuilder {
 
         private ScheduledConnectionTaskBuilderForDevice(Device device, PartialOutboundConnectionTask partialOutboundConnectionTask) {
-            this.scheduledConnectionTask = scheduledConnectionTaskProvider.get();
-            //TODO fix the status
+            super(scheduledConnectionTaskProvider.get());
             this.scheduledConnectionTask.initialize(device, (PartialScheduledConnectionTask) partialOutboundConnectionTask, partialOutboundConnectionTask.getComPortPool(), ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE);
             if (partialOutboundConnectionTask.getNextExecutionSpecs() != null) {
                 this.scheduledConnectionTask.setNextExecutionSpecsFrom(partialOutboundConnectionTask.getNextExecutionSpecs().getTemporalExpression());
@@ -1416,7 +1410,6 @@ public class DeviceImpl implements Device, PersistenceAware {
 
         @Override
         public ScheduledConnectionTask add() {
-            this.scheduledConnectionTask.save();
             DeviceImpl.this.getConnectionTaskImpls().add(this.scheduledConnectionTask);
             return scheduledConnectionTask;
         }
