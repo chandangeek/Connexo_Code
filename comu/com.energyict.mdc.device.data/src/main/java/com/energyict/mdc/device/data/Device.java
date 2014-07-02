@@ -350,6 +350,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
         ScheduledConnectionTaskBuilder setSimultaneousConnectionsAllowed(boolean allowSimultaneousConnections);
 
+        ScheduledConnectionTaskBuilder setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus status);
+
         /**
          * Creates the actual ScheduledConnectionTask with the objects set in this builder
          *
@@ -366,6 +368,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
         InboundConnectionTaskBuilder setComPortPool(InboundComPortPool comPortPool);
 
         InboundConnectionTaskBuilder setProperty(String propertyName, Object value);
+
+        InboundConnectionTaskBuilder setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus status);
 
         /**
          * Creates the actual InboundConnectionTask with the objects set in this builder

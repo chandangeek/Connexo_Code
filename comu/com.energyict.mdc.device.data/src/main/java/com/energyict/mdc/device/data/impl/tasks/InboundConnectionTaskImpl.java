@@ -6,8 +6,10 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 
@@ -48,6 +50,21 @@ public class InboundConnectionTaskImpl extends ConnectionTaskImpl<PartialInbound
     @Override
     public void scheduledComTaskChangedPriority(ComTaskExecution comTask) {
         // No implementation required
+    }
+
+    public static abstract class AbstractInboundConnectionTaskBuilder implements Device.InboundConnectionTaskBuilder {
+
+        public final InboundConnectionTaskImpl inboundConnectionTask;
+
+        public AbstractInboundConnectionTaskBuilder(InboundConnectionTaskImpl inboundConnectionTask) {
+            this.inboundConnectionTask = inboundConnectionTask;
+        }
+
+        @Override
+        public Device.InboundConnectionTaskBuilder setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus status) {
+            this.inboundConnectionTask.setStatus(status);
+            return this;
+        }
     }
 
 }

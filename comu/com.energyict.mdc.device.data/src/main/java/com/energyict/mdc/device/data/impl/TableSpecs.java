@@ -201,9 +201,9 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             Column connectionTypePluggableClass = table.column("CONNECTIONTYPEPLUGGABLECLASS").number().conversion(NUMBER2LONG).map("pluggableClassId").notNull().add();
             Column comPortPool = table.column("COMPORTPOOL").number().add();
-            table.primaryKey("PK_DDC_CONNECTIONMETHOD").on(id).add();
             table.foreignKey("FK_DDC_CONNECTIONMETHOD_CLASS").on(connectionTypePluggableClass).references(PluggableService.COMPONENTNAME, "CPC_PLUGGABLECLASS").map("pluggableClass").add();
             table.foreignKey("FK_DDC_CONNECTIONMETHOD_CPP").on(comPortPool).references(EngineModelService.COMPONENT_NAME, "MDC_COMPORTPOOL").map("comPortPool").add();
+            table.primaryKey("PK_DDC_CONNECTIONMETHOD").on(id).add();
         }
     },
 
@@ -216,7 +216,7 @@ public enum TableSpecs {
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             // Common columns
             table.column("DEVICE").number().conversion(NUMBER2LONG).map("deviceId").add();
-            Column connectionMethod = table.column("CONNECTIONMETHOD").number().add();
+            Column connectionMethod = table.column("CONNECTIONMETHOD").number().notNull().add();
             table.column("MOD_DATE").type("DATE").conversion(DATE2DATE).map("modificationDate").add();
             table.column("OBSOLETE_DATE").type("DATE").conversion(DATE2DATE).map("obsoleteDate").add();
             table.column("ISDEFAULT").number().conversion(NUMBER2BOOLEAN).map("isDefault").add();
