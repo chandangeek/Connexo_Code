@@ -13,10 +13,8 @@ import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.TemporalReference;
-import com.elster.jupiter.orm.associations.Temporals;
-import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.orm.associations.*;
+import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
@@ -105,7 +103,7 @@ import java.util.TimeZone;
 import static com.elster.jupiter.util.Checks.is;
 
 @UniqueMrid(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_DEVICE_MRID + "}")
-public class DeviceImpl implements Device {
+public class DeviceImpl implements Device, PersistenceAware {
 
     enum Fields {
         COM_SCHEDULE_USAGES("comScheduleUsages");
@@ -133,13 +131,10 @@ public class DeviceImpl implements Device {
     private final List<DeviceInComSchedule> comScheduleUsages = new ArrayList<>();
     private long id;
 
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DEVICE_TYPE_REQUIRED_KEY + "}")
     private final Reference<DeviceType> deviceType = ValueReference.absent();
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DEVICE_CONFIGURATION_REQUIRED_KEY + "}")
     private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
-
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DEVICE_TYPE_REQUIRED_KEY + "}")
-    private Object deviceTypeId = null;
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DEVICE_CONFIGURATION_REQUIRED_KEY + "}")
-    private Object deviceConfigurationId = null;
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
@@ -337,14 +332,6 @@ public class DeviceImpl implements Device {
     }
 
     DeviceImpl initialize(DeviceConfiguration deviceConfiguration, String name, String mRID) {
-        if(deviceConfiguration != null){
-            this.deviceConfigurationId = deviceConfiguration.getId();
-            this.deviceType.set(deviceConfiguration.getDeviceType());
-            if(deviceConfiguration.getDeviceType() != null){
-                this.deviceTypeId = deviceConfiguration.getDeviceType().getId();
-            }
-        }
-
         this.deviceConfiguration.set(deviceConfiguration);
         setName(name);
         this.mRID = mRID;
@@ -1426,4 +1413,10 @@ public class DeviceImpl implements Device {
         }
     }
 
+    @Override
+    public void postLoad() {
+        if(deviceConfiguration.isPresent()){
+            deviceType.set(deviceConfiguration.get().getDeviceType());
+        }
+    }
 }
