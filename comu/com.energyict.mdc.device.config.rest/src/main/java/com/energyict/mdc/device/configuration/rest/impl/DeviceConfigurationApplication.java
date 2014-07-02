@@ -77,7 +77,8 @@ public class DeviceConfigurationApplication extends Application implements Insta
                 SecurityPropertySetResource.class,
                 ComTaskEnablementResource.class,
                 LoadProfileTypeResource.class,
-                LoadProfileConfigurationResource.class
+                LoadProfileConfigurationResource.class,
+                DeviceConfigsValidationRuleSetResource.class
         );
     }
 
