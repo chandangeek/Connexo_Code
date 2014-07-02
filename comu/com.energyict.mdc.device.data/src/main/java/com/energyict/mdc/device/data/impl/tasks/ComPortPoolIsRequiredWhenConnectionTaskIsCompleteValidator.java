@@ -22,7 +22,7 @@ public class ComPortPoolIsRequiredWhenConnectionTaskIsCompleteValidator implemen
     public boolean isValid(ConnectionMethodImpl connectionMethod, ConstraintValidatorContext context) {
         //TODO fix this, it is not completely correct!
         ConnectionTask connectionTask = connectionMethod.getConnectionTask();
-        if (connectionTask != null && !connectionTask.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleState.INCOMPLETE) && !connectionMethod.hasComPortPool()) {
+        if (connectionTask != null && !connectionTask.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE) && !connectionMethod.hasComPortPool()) {
             context.disableDefaultConstraintViolation();
 
             if ((connectionTask.getId() != 0)) {
@@ -46,8 +46,8 @@ public class ComPortPoolIsRequiredWhenConnectionTaskIsCompleteValidator implemen
     }
 
     private boolean isValidConnectionTaskInIncompleteState(ConnectionTaskImpl connectionTaskImpl) {
-        ConnectionTask.ConnectionTaskLifecycleState tempStatus = connectionTaskImpl.getStatus();
-        connectionTaskImpl.setStatus(ConnectionTask.ConnectionTaskLifecycleState.INCOMPLETE);
+        ConnectionTask.ConnectionTaskLifecycleStatus tempStatus = connectionTaskImpl.getStatus();
+        connectionTaskImpl.setStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE);
         boolean validConnectionTask = connectionTaskImpl.isValidConnectionTask();
         connectionTaskImpl.setStatus(tempStatus);
         return validConnectionTask;

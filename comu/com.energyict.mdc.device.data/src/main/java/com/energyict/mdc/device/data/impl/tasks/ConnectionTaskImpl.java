@@ -78,7 +78,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED_KEY + "}")
     private Reference<PCTT> partialConnectionTask = ValueReference.absent();
     private boolean isDefault = false;
-    private ConnectionTaskLifecycleState status = ConnectionTaskLifecycleState.INCOMPLETE;
+    private ConnectionTaskLifecycleStatus status = ConnectionTaskLifecycleStatus.INCOMPLETE;
     private Date obsoleteDate;
     private Date lastCommunicationStart;
     private Date lastSuccessfulCommunicationEnd;
@@ -100,8 +100,9 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         this.connectionMethodProvider = connectionMethodProvider;
     }
 
-    public void initialize(Device device, PCTT partialConnectionTask, CPPT comPortPool) {
+    public void initialize(Device device, PCTT partialConnectionTask, CPPT comPortPool, ConnectionTaskLifecycleStatus status) {
         this.device = device;
+        this.status = status;
         this.deviceId = device.getId();
         this.validatePartialConnectionTaskType(partialConnectionTask);
         this.validateConstraint(partialConnectionTask, device);
@@ -189,7 +190,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     @Override
     public void activateAndSave() {
-        this.status = ConnectionTaskLifecycleState.ACTIVE;
+        this.status = ConnectionTaskLifecycleStatus.ACTIVE;
         save();
     }
 
@@ -358,7 +359,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     @Override
     @XmlAttribute
-    public ConnectionTaskLifecycleState getStatus() {
+    public ConnectionTaskLifecycleStatus getStatus() {
         return this.status;
     }
 
@@ -483,18 +484,18 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     @Override
     public void deactivate() {
-        this.status = ConnectionTaskLifecycleState.INACTIVE;
+        this.status = ConnectionTaskLifecycleStatus.INACTIVE;
         post();
     }
 
     @Override
     public void activate() {
-        this.status = ConnectionTaskLifecycleState.ACTIVE;
+        this.status = ConnectionTaskLifecycleStatus.ACTIVE;
         post();
     }
 
     boolean isActive(){
-        return this.status.equals(ConnectionTaskLifecycleState.ACTIVE);
+        return this.status.equals(ConnectionTaskLifecycleStatus.ACTIVE);
     }
 
     @Override
@@ -562,7 +563,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         return true;
     }
 
-    void setStatus(ConnectionTaskLifecycleState status) {
+    void setStatus(ConnectionTaskLifecycleStatus status) {
         this.status = status;
     }
 }

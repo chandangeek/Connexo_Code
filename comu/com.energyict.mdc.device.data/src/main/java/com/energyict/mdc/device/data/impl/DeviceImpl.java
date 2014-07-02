@@ -70,7 +70,6 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
@@ -1232,7 +1231,8 @@ public class DeviceImpl implements Device {
 
         private ConnectionInitiationTaskBuilderForDevice(Device device, PartialConnectionInitiationTask partialConnectionInitiationTask) {
             this.connectionInitiationTask = connectionInitiationTaskProvider.get();
-            this.connectionInitiationTask.initialize(device, partialConnectionInitiationTask, partialConnectionInitiationTask.getComPortPool());
+            //TODO fix the status
+            this.connectionInitiationTask.initialize(device, partialConnectionInitiationTask, partialConnectionInitiationTask.getComPortPool(), ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE);
         }
 
         @Override
@@ -1260,7 +1260,8 @@ public class DeviceImpl implements Device {
 
         private InboundConnectionTaskBuilderForDevice(Device device, PartialInboundConnectionTask partialInboundConnectionTask) {
             this.inboundConnectionTask = inboundConnectionTaskProvider.get();
-            this.inboundConnectionTask.initialize(device, partialInboundConnectionTask, partialInboundConnectionTask.getComPortPool());
+            //TODO fix the status
+            this.inboundConnectionTask.initialize(device, partialInboundConnectionTask, partialInboundConnectionTask.getComPortPool(), ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE);
         }
 
         @Override
@@ -1288,7 +1289,8 @@ public class DeviceImpl implements Device {
 
         private ScheduledConnectionTaskBuilderForDevice(Device device, PartialOutboundConnectionTask partialOutboundConnectionTask) {
             this.scheduledConnectionTask = scheduledConnectionTaskProvider.get();
-            this.scheduledConnectionTask.initialize(device, (PartialScheduledConnectionTask) partialOutboundConnectionTask, partialOutboundConnectionTask.getComPortPool());
+            //TODO fix the status
+            this.scheduledConnectionTask.initialize(device, (PartialScheduledConnectionTask) partialOutboundConnectionTask, partialOutboundConnectionTask.getComPortPool(), ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE);
             if (partialOutboundConnectionTask.getNextExecutionSpecs() != null) {
                 this.scheduledConnectionTask.setNextExecutionSpecsFrom(partialOutboundConnectionTask.getNextExecutionSpecs().getTemporalExpression());
             }

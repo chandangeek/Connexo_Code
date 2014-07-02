@@ -62,7 +62,7 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
     /**
      * Represents the lifecycle state of a ConnectionTask
      */
-    enum ConnectionTaskLifecycleState {
+    enum ConnectionTaskLifecycleStatus {
 
         /**
          * Active means the ConnectionTask is completely validated and ready to be used by the ComServer
@@ -163,7 +163,7 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
      *
      * @return A flag that indicates if this ConnectionTask is paused
      */
-    public ConnectionTaskLifecycleState getStatus();
+    public ConnectionTaskLifecycleStatus getStatus();
 
     /**
      * Makes this ConnectionTask obsolete, i.e. it will no longer execute

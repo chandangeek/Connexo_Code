@@ -112,6 +112,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     protected ComTaskEnablement comTaskEnablement1;
     protected ComTaskEnablement comTaskEnablement2;
     protected ComTaskEnablement comTaskEnablement3;
+    private ConnectionTask.ConnectionTaskLifecycleStatus status = ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE;
 
     public OnlineComServer getOnlineComServer() {
         return onlineComServer;
@@ -419,10 +420,10 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
                     this.device,
                     this.partialScheduledConnectionTask,
                     outboundTcpipComPortPool,
-                    nextExecutionSpecs);
+                    nextExecutionSpecs, status);
         }
         else {
-            connectionTask = inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool);
+            connectionTask = inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool, status);
         }
         this.setIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE);
         ((ScheduledConnectionTaskImpl) connectionTask).save();
