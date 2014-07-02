@@ -4,8 +4,8 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
     alias: 'widget.connectionMethodPreview',
     itemId: 'connectionMethodPreview',
     requires: [
+        'Uni.property.form.Property',
         'Mdc.model.ConnectionMethod',
-        'Mdc.view.setup.property.PropertyView',
         'Mdc.view.setup.connectionmethod.ConnectionMethodActionMenu'
     ],
     layout: {
@@ -126,12 +126,20 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
                                 }
                             ]
                         }
-
-
                     ]
                 },
                 {
-                    xtype: 'propertyView'
+                    xtype: 'property-form',
+                    isEdit: false,
+                    layout: 'column',
+
+                    defaults: {
+                        xtype: 'container',
+                        layout: 'form',
+                        resetButtonHidden: true,
+                        labelWidth: 250,
+                        columnWidth: 0.5
+                    }
                 }
             ]
         }

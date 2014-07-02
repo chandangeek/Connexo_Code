@@ -104,11 +104,21 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodPreview'
                                 },
                                 {
                                     xtype: 'displayfield',
-                                    name: 'paused',
+                                    name: 'status',
                                     fieldLabel: Uni.I18n.translate('deviceconnectionmethod.status', 'MDC', 'Status'),
-                                    renderer: function(value){
-                                        return value? Uni.I18n.translate('general.active', 'MDC', 'Active'):Uni.I18n.translate('general.inactive', 'MDC', 'Inactive');
-                                    }
+                                    dataIndex: 'status',
+                                    renderer: function(value,b,record){
+                                        switch (value) {
+                                            case 'connectionTaskStatusIncomplete':
+                                                return Uni.I18n.translate('deviceconnectionmethod.status.incomplete', 'MDC', 'Incomplete');
+                                            case 'connectionTaskStatusActive':
+                                                return Uni.I18n.translate('deviceconnectionmethod.status.active', 'MDC', 'Active');
+                                            case 'connectionTaskStatusInActive':
+                                                return Uni.I18n.translate('deviceconnectionmethod.status.inactive', 'MDC', 'Inactive');
+                                            default :
+                                                return '';
+                                        }
+                                    },
                                 }
                             ]
                         },

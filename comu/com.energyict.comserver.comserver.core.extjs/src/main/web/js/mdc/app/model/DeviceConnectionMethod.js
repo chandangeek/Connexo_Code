@@ -3,7 +3,7 @@ Ext.define('Mdc.model.DeviceConnectionMethod', {
     fields: [
         {name: 'id', type: 'int', useNull: true},
         {name: 'name', type: 'string', useNull: true},
-        {name: 'paused', type: 'boolean'},
+        {name: 'status', type: 'string'},
         {name: 'direction', type: 'string', useNull: true},
         {name: 'allowSimultaneousConnections', type: 'boolean', useNull: true},
         {name: 'isDefault', type: 'boolean', useNull: true},

@@ -179,8 +179,8 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             formValue.timeDuration = { id: timeDurationId };
             jsonValues = Ext.JSON.encode(formValue);
             formErrorsPanel.hide();
-            switch (btn.text) {
-                case 'Add':
+            switch (btn.action) {
+                case 'add':
                     preloader = Ext.create('Ext.LoadMask', {
                         msg: "Creating load profile type",
                         target: formPanel
@@ -201,7 +201,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                         }
                     });
                     break;
-                case 'Save':
+                case 'save':
                     preloader = Ext.create('Ext.LoadMask', {
                         msg: "Updating load profile form",
                         target: formPanel
@@ -454,7 +454,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
 
     showLoadProfileTypesCreateView: function () {
         var me = this,
-            widget = Ext.widget('loadProfileTypeForm', { loadProfileTypeHeader: 'Add load profile type', loadProfileTypeAction: 'Add', loadProfileTypeActionHref: 'create'}),
+            widget = Ext.widget('loadProfileTypeForm', { loadProfileTypeHeader: 'Add load profile type', loadProfileTypeAction: 'Add', loadButtonAction: 'add', loadProfileTypeActionHref: 'create'}),
             intervalCombobox = widget.down('combobox[name=timeDuration]');
         me.measurementTypesStore.removeAll();
         me.getApplication().fireEvent('changecontentevent', widget);
@@ -479,7 +479,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             method: 'GET',
             success: function (response) {
                 var loadProfileType = Ext.JSON.decode(response.responseText),
-                    widget = Ext.widget('loadProfileTypeForm', { loadProfileTypeHeader: Uni.I18n.translate('loadprofiletype.editloadprofiletypes', 'MDC', 'Edit load profile type'), loadProfileTypeAction: 'Save', loadProfileTypeActionHref: me.loadProfileTypeId + '/edit' }),
+                    widget = Ext.widget('loadProfileTypeForm', { loadProfileTypeHeader: Uni.I18n.translate('loadprofiletype.editloadprofiletypes', 'MDC', 'Edit load profile type'), loadProfileTypeAction: 'Save', loadButtonAction: 'save', loadProfileTypeActionHref: me.loadProfileTypeId + '/edit' }),
                     nameField = widget.down('textfield[name=name]'),
                     intervalCombobox = widget.down('combobox[name=timeDuration]'),
                     obisCodeField = widget.down('textfield[name=obisCode]'),

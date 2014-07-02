@@ -19,6 +19,13 @@ Ext.define('Mdc.model.ComPortPool', {
                     comports = inboundComPorts + outboundComPorts;
                 return '<a href="#/administration/comportpools/' + data.id + '/comports">' + comports + ' ' + Uni.I18n.translate('comportpool.preview.communicationPorts', 'MDC', 'communication ports') + '</a>';
             }
+        },
+        {
+            name: 'direction_visual',
+            persist: false,
+            mapping: function (data) {
+                return data.direction;
+            }
         }
     ],
     associations: [

@@ -40,6 +40,13 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolEdit', {
                     width: 600
                 },
                 {
+                    xtype: 'displayfield',
+                    name: 'direction_visual',
+                    fieldLabel: Uni.I18n.translate('comports.preview.direction', 'MDC', 'Direction'),
+                    hidden: true,
+                    width: 600
+                },
+                {
                     xtype: 'combobox',
                     name: 'type',
                     fieldLabel: Uni.I18n.translate('general.formFieldLabel.type', 'MDC', 'Type'),

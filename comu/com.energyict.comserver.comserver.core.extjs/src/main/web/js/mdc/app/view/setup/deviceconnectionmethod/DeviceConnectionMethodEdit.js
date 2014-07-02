@@ -224,6 +224,31 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                                         margin: '0 10 5 0'
                                     }
                                 ]
+                            },
+                            {
+                                xtype: 'radiogroup',
+                                fieldLabel: Uni.I18n.translate('deviceconnectionmethod.active', 'MDC', 'Active'),
+                                itemId: 'activeRadioGroup',
+                                allowBlank: false,
+                                vertical: true,
+                                required: true,
+                                columns: 1,
+                              //  disabled: true,
+                                items: [
+                                    {
+                                        boxLabel: 'yes',
+                                        name: 'status',
+                                        checked: true,
+                                        inputValue: 'connectionTaskStatusActive',
+                                        margin: '0 10 5 0'
+                                    },
+                                    {
+                                        boxLabel: 'no',
+                                        name: 'status',
+                                        inputValue: 'connectionTaskStatusInActive',
+                                        margin: '0 10 5 0'
+                                    }
+                                ]
                             }
 
                         ]

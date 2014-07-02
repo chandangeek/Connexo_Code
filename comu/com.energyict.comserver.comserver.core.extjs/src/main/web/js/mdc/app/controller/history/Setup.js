@@ -523,9 +523,17 @@ Ext.define('Mdc.controller.history.Setup', {
                         },
                         edit: {
                             title: 'Edit communication port pool',
-                            route: '{id}',
-                            controller: 'Mdc.controller.setup.ComPortPools',
-                            action: 'showEditView'
+                            route: '{id}/edit',
+                            controller: 'Mdc.controller.setup.ComPortPoolEdit',
+                            action: 'showEditView',
+                            callback: function (route) {
+                                this.getApplication().on('loadComPortPool', function (record) {
+                                    route.setTitle('Edit \'' + record.get('name') + '\'');
+                                    return true;
+                                }, {single: true});
+
+                                return this;
+                            }
                         },
                         detail: {
                             title: 'Detail',
@@ -546,6 +554,12 @@ Ext.define('Mdc.controller.history.Setup', {
                                     route: 'overview',
                                     controller: 'Mdc.controller.setup.ComPortPoolOverview',
                                     action: 'showOverview'
+                                },
+                                edit: {
+                                    title: 'Edit',
+                                    route: 'edit_',
+                                    controller: 'Mdc.controller.setup.ComPortPoolEdit',
+                                    action: 'showEditView'
                                 },
                                 comports: {
                                     title: 'Communication ports',
@@ -676,6 +690,12 @@ Ext.define('Mdc.controller.history.Setup', {
             route: 'devices',
             disabled: true,
             items: {
+                add: {
+                    title: Uni.I18n.translate('deviceAdd.title', 'MDC', 'Add device'),
+                    route: 'add',
+                    controller: 'Mdc.controller.setup.Devices',
+                    action: 'showAddDevice'
+                },
                 device: {
                     title: 'Device',
                     route: '{mRID}',

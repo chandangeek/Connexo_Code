@@ -5,6 +5,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
     edit: false,
 
     requires: [
+        'Uni.property.form.Property',
         'Mdc.store.ConnectionTypes',
         'Mdc.widget.ScheduleField',
         'Mdc.widget.TimeInSecondsField'
@@ -253,27 +254,11 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                         ]
                     },
                     {
-                        xtype: 'form',
-                        border: false,
-                        itemId: 'connectionDetailsTitle',
+                        title: '<span class="x-form-item-label-right x-form-item-label" style="width: 250px;"><h3>' +
+                            Uni.I18n.translate('connectionmethod.connectionDetails', 'MDC', 'Connection details') +
+                            '</h3></span>',
+                        xtype: 'property-form',
                         hidden: true,
-                        layout: {
-                            type: 'vbox',
-                            align: 'stretch'
-                        },
-                        defaults: {
-                            labelWidth: 250
-                        },
-                        items: [
-                            {
-                                xtype: 'displayfield',
-                                fieldLabel: '<h3>' + Uni.I18n.translate('connectionmethod.connectionDetails', 'MDC', 'Connection details') + '</h3>',
-                                text: ''
-                            }
-                        ]
-                    },
-                    {
-                        xtype: 'propertyEdit',
                         width: '100%'
                     },
 

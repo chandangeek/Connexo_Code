@@ -1,14 +1,17 @@
 Ext.define('Mdc.model.ConnectionType', {
     extend: 'Ext.data.Model',
+    requires: [
+        'Uni.property.model.Property'
+    ],
     fields: [
         {name: 'id', type: 'number', useNull: true},
-        {name: 'name', type: 'string', useNull: true},
+        {name: 'name', type: 'string', useNull: true}
 
     ],
     associations: [
-        {name: 'properties', type: 'hasMany', model: 'Mdc.model.Property', associationKey: 'properties', foreignKey: 'properties',
+        {name: 'properties', type: 'hasMany', model: 'Uni.property.model.Property', associationKey: 'properties', foreignKey: 'properties',
             getTypeDiscriminator: function (node) {
-                return 'Mdc.model.Property';
+                return 'Uni.property.model.Property';
             }
         }
     ],

@@ -6,7 +6,7 @@ Ext.define('Mdc.view.setup.validation.AddRuleSets', {
         'Uni.view.container.PreviewContainer',
         'Mdc.view.setup.validation.AddRuleSetsGrid',
         'Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu',
-        'Mdc.view.validation.RuleSetView'
+        'Mdc.view.setup.validation.RuleSetView'
     ],
 
     deviceTypeId: null,
