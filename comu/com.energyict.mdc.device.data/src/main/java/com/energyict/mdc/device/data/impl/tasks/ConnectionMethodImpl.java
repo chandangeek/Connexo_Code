@@ -155,13 +155,6 @@ public class ConnectionMethodImpl extends IdPluggableClassUsageImpl<ConnectionMe
     }
 
     public ConnectionTask getConnectionTask() {
-        if(!this.connectionTask.isPresent()){
-            Condition condition = where("CONNECTIONMETHOD").isEqualTo(this.getId()).and(where("obsoleteDate").isNull());
-            List<ConnectionTask> connectionTasks = this.dataModel.mapper(ConnectionTask.class).select(condition);
-            if(connectionTasks.size() == 1){
-                this.connectionTask.set(connectionTasks.get(0));
-            }
-        }
         return connectionTask.orNull();
     }
 
@@ -211,4 +204,7 @@ public class ConnectionMethodImpl extends IdPluggableClassUsageImpl<ConnectionMe
         this.comPortPool.set(comPortPool);
     }
 
+    void loadConnectionTask(ConnectionTaskImpl<?,?> connectionTask) {
+        this.connectionTask.set(connectionTask);
+    }
 }
