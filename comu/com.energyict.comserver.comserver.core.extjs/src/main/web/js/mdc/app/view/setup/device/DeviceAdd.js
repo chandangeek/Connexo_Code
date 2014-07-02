@@ -52,7 +52,7 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
                             required: true,
                             msgTarget: 'under',
                             itemId: 'deviceAddType',
-                            name: 'deviceTypeId',
+                            name: 'deviceType',
                             autoSelect: true,
                             labelAlign: 'right',
                             fieldLabel: Uni.I18n.translate('deviceAdd.type.label', 'MDC', 'Device type'),
@@ -77,6 +77,8 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
                                         configCombo.reset();
                                         configCombo.getStore().reload();
                                     }
+
+                                    field.up('form').getRecord().set('deviceTypeId', value[0].data.id);
                                 }
                             }
                         },
@@ -85,7 +87,7 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
                             required: true,
                             msgTarget: 'under',
                             itemId: 'deviceAddConfig',
-                            name: 'deviceConfigurationId',
+                            name: 'deviceConfiguration',
                             autoSelect: true,
                             enabled: false,
                             labelAlign: 'right',
@@ -99,7 +101,12 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
                                 {
                                     loadMask: false,
                                     maxHeight: 300
+                                },
+                            listeners: {
+                                select: function (field, value) {
+                                    field.up('form').getRecord().set('deviceConfigurationId', value[0].data.id);
                                 }
+                            }
                         },
                         {
                             xtype: 'datefield',
