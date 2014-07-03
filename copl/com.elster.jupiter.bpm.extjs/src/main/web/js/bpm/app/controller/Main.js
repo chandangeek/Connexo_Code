@@ -33,32 +33,33 @@ Ext.define('Bpm.controller.Main', {
     init: function () {
         var me = this;
         this.initNavigation();
-        Bpm.model.Startup.load(null, {
-            success: function(record, operation) {
-                var bpmUrl = record.get("url");
 
-                var bpm = Ext.create('Uni.model.PortalItem', {
-                    title: Uni.I18n.translate('bpm.instance.title', 'BPM', 'Processes'),
-                    portal: 'workspace',
-                    route: 'workspace',
-                    items: [
-                        {
-                            text: Uni.I18n.translate('bpm.console', 'BPM', 'Console'),
-                            href: bpmUrl,
-                            hrefTarget: '_blank'
-                        },
-                        {
-                            text: Uni.I18n.translate('bpm.instance.title', 'BPM', 'Processes'),
-                            href: '#workspace/processes'
-                        }
-                    ]
-                });
-
-                Uni.store.PortalItems.add(
-                    bpm
-                );
-            }
+        var response = Ext.Ajax.request({
+            async: false,
+            url: '../../api/bpm/runtime/startup'
         });
+        var items = Ext.decode(response.responseText);
+
+        var bpm = Ext.create('Uni.model.PortalItem', {
+            title: Uni.I18n.translate('bpm.instance.title', 'BPM', 'Processes'),
+            portal: 'workspace',
+            route: 'workspace',
+            items: [
+                {
+                    text: Uni.I18n.translate('bpm.console', 'BPM', 'Console'),
+                    href: items.url,
+                    hrefTarget: '_blank'
+                },
+                {
+                    text: Uni.I18n.translate('bpm.instance.title', 'BPM', 'Processes'),
+                    href: '#workspace/processes'
+                }
+            ]
+        });
+
+        Uni.store.PortalItems.add(
+            bpm
+        );
     },
 
     initNavigation: function () {
