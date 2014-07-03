@@ -19,7 +19,10 @@ Ext.define('Mdc.model.ComServerComPort', {
         },
         {
             name: 'direction',
-            type: 'string'
+            type: 'string',
+            mapping: function (data) {
+                return data.direction.charAt(0).toUpperCase() + data.direction.slice(1);
+            }
         },
         {
             name: 'comPortType',
@@ -234,7 +237,7 @@ Ext.define('Mdc.model.ComServerComPort', {
                             associatedField: 'nrOfStopBits',
                             localizedField: 'localizedValue',
                             unit: {
-                                translateKey: 'comports.preview.stopBit',
+                                translateKey: 'comports.preview.stopBits',
                                 default: 'stop bits'
                             }
                         },
