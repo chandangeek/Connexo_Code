@@ -134,6 +134,12 @@ Ext.define('Uni.property.form.Property', {
         });
     },
 
+    restoreAll: function() {
+        this.items.each(function(item){
+            item.restoreDefault();
+        })
+    },
+
     /**
      * Returns property field by property model
      * @param {string} key
