@@ -101,6 +101,9 @@ Ext.define('Usr.controller.Login', {
     loginOK: function () {
         var params = Ext.urlDecode(location.search.substring(1));
         if (params.page) {
+            if(location.hash == ""){
+                location.hash = "#/workspace"
+            }
             window.location.replace(params.page + location.hash);
         }
         else {
