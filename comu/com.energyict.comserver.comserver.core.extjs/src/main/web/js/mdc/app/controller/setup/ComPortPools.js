@@ -152,12 +152,14 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
 
     deleteComPortPool: function (record) {
         var me = this,
-            page = me.getComPortPoolsSetup();
+            page = me.getComPortPoolsSetup(),
+            gridToolbarTop = me.getComPortPoolGrid().down('pagingtoolbartop');
         page.setLoading('Removing...');
         record.destroy({
             callback: function (model, operation) {
                 page.setLoading(false);
                 if (operation.response.status == 204) {
+                    gridToolbarTop.totalCount = 0;
                     me.getComPortPoolGrid().getStore().loadPage(1);
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comPortPool.deleteSuccess.msg', 'MDC', 'Communication port pool removed'));
                 } else if (operation.response.status == 400) {
