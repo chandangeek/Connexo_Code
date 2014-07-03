@@ -89,9 +89,6 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
                 }
             }
         }
-
-//        writeTo(scheduledConnectionTask, partialConnectionTask, deviceDataService, engineModelService, mdcPropertyUtils);
-
         return scheduledConnectionTaskBuilder.add();
     }
 
