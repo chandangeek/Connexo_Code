@@ -4,7 +4,7 @@ Ext.define('Mdc.view.setup.comportpollcomports.View', {
     itemId: 'comPortPoolsComPortsView',
     requires: [
         'Mdc.view.setup.comportpollcomports.Grid',
-        'Mdc.view.setup.comservercomports.Preview',
+        'Mdc.view.setup.comportpollcomports.Preview',
         'Uni.view.container.PreviewContainer'
     ],
     content: [
@@ -55,7 +55,7 @@ Ext.define('Mdc.view.setup.comportpollcomports.View', {
                         ]
                     },
                     previewComponent: {
-                        xtype: 'comServerComPortPreview'
+                        xtype: 'comPortPoolComPortPreview'
                     }
                 }
             ]

@@ -17,7 +17,7 @@ Ext.define('Mdc.model.ComPortPool', {
                 var inboundComPorts = data.inboundComPorts ? data.inboundComPorts.length : 0,
                     outboundComPorts = data.outboundComPorts ? data.outboundComPorts.length : 0,
                     comports = inboundComPorts + outboundComPorts;
-                return '<a href="#/administration/comportpools/' + data.id + '/comports">' + comports + ' ' + Uni.I18n.translate('comportpool.preview.communicationPorts', 'MDC', 'communication ports') + '</a>';
+                return '<a href="#/administration/comportpools/' + data.id + '/comports">' + comports + ' ' + Uni.I18n.translatePlural('comportpool.preview.communicationPorts.count', parseInt(comports), 'MDC', 'communication ports') + '</a>';
             }
         },
         {

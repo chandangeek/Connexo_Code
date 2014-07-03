@@ -15,99 +15,80 @@ Ext.define('Mdc.model.ComServerComPort', {
     fields: [
         {
             name: 'name',
-            type: 'string',
-            defaultValue: '-'
+            type: 'string'
         },
         {
             name: 'direction',
-            type: 'string',
-            defaultValue: '-'
+            type: 'string'
         },
         {
             name: 'comPortType',
-            type: 'string',
-            defaultValue: '-'
+            type: 'string'
         },
         {
             name: 'active',
-            type: 'boolean',
-            defaultValue: '-'
+            type: 'boolean'
         },
         {
             name: 'comServerType',
-            type: 'string',
-            defaultValue: '-'
+            type: 'string'
         },
         {
             name: 'serverLogLevel',
-            type: 'string',
-            defaultValue: '-'
+            type: 'string'
         },
         {
             name: 'communicationLogLevel',
-            type: 'string',
-            defaultValue: '-'
+            type: 'string'
         },
         {
             name: 'changesInterPollDelay',
-            type: 'auto',
-            defaultValue: '-'
+            type: 'auto'
         },
         {
             name: 'schedulingInterPollDelay',
-            type: 'auto',
-            defaultValue: '-'
+            type: 'auto'
         },
         {
             name: 'inboundComPorts',
-            type: 'auto',
-            defaultValue: '-'
+            type: 'auto'
         },
         {
             name: 'type',
-            type: 'string',
-            defaultValue: '-'
+            type: 'string'
         },
         {
             name: 'bound',
-            type: 'boolean',
-            defaultValue: '-'
+            type: 'boolean'
         },
         {
             name: 'comServer_id',
-            type: 'int',
-            defaultValue: '-'
+            type: 'int'
         },
         {
             name: 'description',
-            type: 'string',
-            defaultValue: '-'
+            type: 'string'
         },
         {
             name: 'modificationDate',
             type: 'date',
-            dateFormat: 'time',
-            defaultValue: '-'
+            dateFormat: 'time'
         },
         {
             name: 'numberOfSimultaneousConnections',
-            type: 'int',
-            defaultValue: '-'
+            type: 'int'
         },
         {
             name: 'comPortPool_id',
-            type: 'int',
-            defaultValue: '-'
+            type: 'int'
         },
         {
             name: 'portNumber',
-            type: 'int',
-            defaultValue: '-'
+            type: 'int'
         },
         {
             name: 'atCommandTimeout',
             type: 'string',
-            defaultValue: '-',
             mapping: function (data) {
                 var val = data.atCommandTimeout;
                 return val ? val.count ? val.count + (val.timeUnit ? ' ' + val.timeUnit : '') : undefined : undefined;
@@ -115,18 +96,15 @@ Ext.define('Mdc.model.ComServerComPort', {
         },
         {
             name: 'atCommandTry',
-            type: 'int',
-            defaultValue: '-'
+            type: 'int'
         },
         {
             name: 'baudrate',
-            type: 'string',
-            defaultValue: '-'
+            type: 'string'
         },
         {
             name: 'connectTimeout',
             type: 'string',
-            defaultValue: '-',
             mapping: function (data) {
                 var val = data.connectTimeout;
                 return val ? val.count ? val.count + (val.timeUnit ? ' ' + val.timeUnit : '') : undefined : undefined;
@@ -135,7 +113,6 @@ Ext.define('Mdc.model.ComServerComPort', {
         {
             name: 'delayAfterConnect',
             type: 'string',
-            defaultValue: '-',
             mapping: function (data) {
                 var val = data.delayAfterConnect;
                 return val ? val.count ? val.count + (val.timeUnit ? ' ' + val.timeUnit : '') : undefined : undefined;
@@ -144,7 +121,6 @@ Ext.define('Mdc.model.ComServerComPort', {
         {
             name: 'delayBeforeSend',
             type: 'string',
-            defaultValue: '-',
             mapping: function (data) {
                 var val = data.delayBeforeSend;
                 return val ? val.count ? val.count + (val.timeUnit ? ' ' + val.timeUnit : '') : undefined : undefined;
@@ -152,73 +128,59 @@ Ext.define('Mdc.model.ComServerComPort', {
         },
         {
             name: 'flowControl',
-            type: 'string',
-            defaultValue: '-'
+            type: 'string'
         },
         {
             name: 'maximumNumberOfDialErrors',
-            type: 'int',
-            defaultValue: '-'
+            type: 'int'
         },
         {
             name: 'nrOfDataBits',
-            type: 'string',
-            defaultValue: '-'
+            type: 'string'
         },
         {
             name: 'nrOfStopBits',
-            type: 'string',
-            defaultValue: '-'
+            type: 'string'
         },
         {
             name: 'parity',
-            type: 'string',
-            defaultValue: '-'
+            type: 'string'
         },
         {
             name: 'ringCount',
-            type: 'int',
-            defaultValue: '-'
+            type: 'int'
         },
         {
             name: 'contextPath',
-            type: 'string',
-            defaultValue: '-'
+            type: 'string'
         },
         {
             name: 'keyStoreFilePath',
-            type: 'string',
-            defaultValue: '-'
+            type: 'string'
         },
         {
             name: 'keyStorePassword',
-            type: 'string',
-            defaultValue: '-'
+            type: 'string'
         },
         {
             name: 'trustStoreFilePath',
-            type: 'string',
-            defaultValue: '-'
+            type: 'string'
         },
         {
             name: 'trustStorePassword',
-            type: 'string',
-            defaultValue: '-'
+            type: 'string'
         },
         {
             name: 'useHttps',
-            type: 'string',
-            defaultValue: '-'
+            type: 'string'
         },
         {
             name: 'addressSelector',
-            type: 'auto',
-            defaultValue: '-'
+            type: 'auto'
         },
         {
             name: 'status',
             type: 'string',
-            defaultValue: '-',
             mapping: function (data) {
                 return data.active ? Uni.I18n.translate('general.active', 'MDC', 'Active') : Uni.I18n.translate('general.inactive', 'MDC', 'Inactive');
             }
@@ -226,7 +188,6 @@ Ext.define('Mdc.model.ComServerComPort', {
         {
             name: 'outboundComPortPoolIds',
             type: 'string',
-            defaultValue: '-',
             mapping: function (data) {
                 var comPortPools = data.outboundComPortPoolIds,
                     portPoolsStore = Ext.getStore('Mdc.store.ComPortPools'),
@@ -244,7 +205,6 @@ Ext.define('Mdc.model.ComServerComPort', {
         {
             name: 'serialPortConf',
             type: 'string',
-            defaultValue: '-',
             mapping: function (data) {
                 var result = '',
                     conf = [
@@ -252,19 +212,31 @@ Ext.define('Mdc.model.ComServerComPort', {
                             field: 'baudrate',
                             store: 'Mdc.store.BaudRates',
                             associatedField: 'baudRate',
-                            localizedField: 'localizedValue'
+                            localizedField: 'localizedValue',
+                            unit: {
+                                translateKey: 'comports.preview.bitsPerSecond',
+                                default: 'bits per second'
+                            }
                         },
                         {
                             field: 'nrOfDataBits',
                             store: 'Mdc.store.NrOfDataBits',
                             associatedField: 'nrOfDataBits',
-                            localizedField: 'localizedValue'
+                            localizedField: 'localizedValue',
+                            unit: {
+                                translateKey: 'comports.preview.bits',
+                                default: 'bits'
+                            }
                         },
                         {
                             field: 'nrOfStopBits',
                             store: 'Mdc.store.NrOfStopBits',
                             associatedField: 'nrOfStopBits',
-                            localizedField: 'localizedValue'
+                            localizedField: 'localizedValue',
+                            unit: {
+                                translateKey: 'comports.preview.stopBit',
+                                default: 'stop bits'
+                            }
                         },
                         {
                             field: 'parity',
@@ -282,16 +254,22 @@ Ext.define('Mdc.model.ComServerComPort', {
 
                 Ext.Array.each(conf, function (item) {
                     var value = data[item.field],
+                        unit = '',
                         store,
                         index;
 
+                    item.unit && (unit = Uni.I18n.translatePlural(item.unit.translateKey, parseInt(value), 'MDC', item.unit.default));
+
                     if (value) {
                         store = Ext.getStore(item.store);
+                        if (!store) {
+                            return false;
+                        }
                         index = store.find(item.associatedField, value);
                         if (index !== -1) {
-                            result += store.getAt(index).get(item.localizedField) + '<br>';
+                            result += store.getAt(index).get(item.localizedField) + (unit ? ' ' + unit : '') + '<br>';
                         } else {
-                            result += value + '<br>';
+                            result += value + (unit ? ' ' + unit : '') + '<br>';
                         }
                     }
                 });
@@ -302,7 +280,6 @@ Ext.define('Mdc.model.ComServerComPort', {
         {
             name: 'inboundComPortPools',
             type: 'string',
-            defaultValue: '-',
             mapping: function (data) {
                 var id = data.comPortPool_id,
                     result = '',
@@ -319,7 +296,6 @@ Ext.define('Mdc.model.ComServerComPort', {
         {
             name: 'modemInitStrings',
             type: 'string',
-            defaultValue: '-',
             mapping: function (data) {
                 var val = data.modemInitStrings,
                     result = undefined;
@@ -337,7 +313,6 @@ Ext.define('Mdc.model.ComServerComPort', {
         {
             name: 'server',
             type: 'string',
-            defaultValue: '-',
             mapping: function (data) {
                 var id = data.comServer_id,
                     result = '',

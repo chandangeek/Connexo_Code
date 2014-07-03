@@ -47,7 +47,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                             {
                                 xtype: 'combobox',
                                 name: 'name',
-                                fieldLabel: Uni.I18n.translate('deviceconnectionmethod.connectionmethod', 'MDC', 'Connection method'),
+                                fieldLabel: Uni.I18n.translate('deviceconnectionmethod.configurationConnectionMethod', 'MDC', 'Configuration connection method'),
                                 itemId: 'deviceConnectionMethodComboBox',
                                 store: this.connectionMethods,
                                 queryMode: 'local',
@@ -72,7 +72,8 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                                 forceSelection: true,
                                 typeAhead: true,
                                 msgTarget: 'under',
-                                disabled: true
+                                disabled: true,
+                                required: true
                             },
                             {
                                 xtype: 'combobox',
@@ -140,6 +141,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                                 xtype: 'fieldcontainer',
                                 itemId: 'comWindowField',
                                 fieldLabel: Uni.I18n.translate('connectionmethod.connectionWindow', 'MDC', 'Connection window'),
+                                disabled: true,
                                 layout: {
                                     type: 'hbox',
                                     align: 'stretch'
@@ -233,7 +235,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                                 vertical: true,
                                 required: true,
                                 columns: 1,
-                              //  disabled: true,
+                                disabled: true,
                                 items: [
                                     {
                                         boxLabel: 'yes',

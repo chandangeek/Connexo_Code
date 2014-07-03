@@ -155,22 +155,31 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
                             fieldLabel: Uni.I18n.translate('deviceAdd.batch', 'MDC', 'Batch'),
                             maxLength: 80,
                             enforceMaxLength: true
-                        }
-                    ],
-                    buttons: [
-                        {
-                            ui: 'action',
-                            action: 'save',
-                            itemId: 'deviceAddSaveButton',
-                            //margin: '0 0 0 10',
-                            text: Uni.I18n.translate('general.add', 'MDC', 'Add')
                         },
                         {
-                            ui: 'link',
-                            action: 'cancel',
-                            itemId: 'deviceAddCancelButton',
-                            itemId: 'cancelLink',
-                            text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel')
+                            xtype: 'fieldcontainer',
+                            ui: 'actions',
+                            fieldLabel: '&nbsp',
+                            layout: {
+                                type: 'hbox',
+                                align: 'stretch'
+                            },
+                            items: [
+                                {
+                                    text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
+                                    xtype: 'button',
+                                    ui: 'action',
+                                    action: 'save',
+                                    itemId: 'deviceAddSaveButton'
+                                },
+                                {
+                                    text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                                    xtype: 'button',
+                                    ui: 'link',
+                                    itemId: 'cancelLink',
+                                    href: '#/devices/'
+                                }
+                            ]
                         }
                     ]
                 }

@@ -1,13 +1,13 @@
-Ext.define('Mdc.view.setup.comservercomports.Preview', {
+Ext.define('Mdc.view.setup.comportpollcomports.Preview', {
     extend: 'Ext.panel.Panel',
-    alias: 'widget.comServerComPortPreview',
-    itemId: 'comServerComPortPreview',
+    alias: 'widget.comPortPoolComPortPreview',
+    itemId: 'comPortPoolComPortPreview',
     requires: [
         'Mdc.view.setup.comservercomports.forms.TCP',
         'Mdc.view.setup.comservercomports.forms.UDP',
         'Mdc.view.setup.comservercomports.forms.SERIAL',
         'Mdc.view.setup.comservercomports.forms.SERVLET',
-        'Mdc.view.setup.comservercomports.ActionMenu'
+        'Mdc.view.setup.comportpollcomports.ActionMenu'
     ],
     title: '',
     frame: true,
@@ -18,7 +18,7 @@ Ext.define('Mdc.view.setup.comservercomports.Preview', {
             itemId: 'actionButton',
             iconCls: 'x-uni-action-iconD',
             menu: {
-                xtype: 'comServerComPortsActionMenu'
+                xtype: 'comPortPoolComPortsActionMenu'
             }
         }
     ],

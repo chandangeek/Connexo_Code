@@ -37,7 +37,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerPreview', {
                 },
                 items: [
                     {
-                        fieldLabel: Uni.I18n.translate('comserver.preview.type', 'MDC', 'Name'),
+                        fieldLabel: Uni.I18n.translate('comserver.preview.name', 'MDC', 'Name'),
                         name: 'name'
                     },
                     {
