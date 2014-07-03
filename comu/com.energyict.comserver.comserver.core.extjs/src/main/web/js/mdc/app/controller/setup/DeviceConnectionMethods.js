@@ -115,14 +115,15 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
     },
 
     previewDeviceConnectionMethod: function () {
+        debugger;
         var connectionMethod = this.getDeviceConnectionMethodsGrid().getSelectionModel().getSelection();
         if (connectionMethod.length == 1) {
             this.getToggleDefaultMenuItem().setText(connectionMethod[0].get('isDefault') === true ? Uni.I18n.translate('deviceconnectionmethod.unsetAsDefault', 'MDC', 'Remove as default') : Uni.I18n.translate('deviceconnectionmethod.setAsDefault', 'MDC', 'Set as default'));
             this.getToggleActiveMenuItem().setText(connectionMethod[0].get('status') === 'connectionTaskStatusInActive' ? Uni.I18n.translate('deviceconnectionmethod.activate', 'MDC', 'Activate') : Uni.I18n.translate('deviceconnectionmethod.deActivate', 'MDC', 'Deactivate'));
             if(connectionMethod[0].get('status')==='connectionTaskStatusIncomplete'){
-                this.getToggleActiveMenuItem().hidden = true;
+                this.getToggleActiveMenuItem().setVisible(false);
             } else {
-                this.getToggleActiveMenuItem().hidden = false;
+                this.getToggleActiveMenuItem().setVisible(true);
             }
             this.getDeviceConnectionMethodPreviewForm().loadRecord(connectionMethod[0]);
             var connectionMethodName = connectionMethod[0].get('name');
@@ -333,7 +334,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
             failure: function (record, operation) {
                 var json = Ext.decode(operation.response.responseText);
                 if (json && json.errors) {
-                    if(json.errors.some(function(error){
+                    if(json.errors.every(function(error){
                         return error.id === 'status'
                     })){
                         Ext.create('Uni.view.window.Confirmation',{
