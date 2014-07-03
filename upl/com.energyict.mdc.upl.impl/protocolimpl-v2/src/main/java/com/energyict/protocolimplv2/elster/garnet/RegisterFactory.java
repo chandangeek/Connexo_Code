@@ -51,11 +51,9 @@ public class RegisterFactory implements DeviceRegisterSupport {
     private static final ObisCode RADIO_NET_OBIS = ObisCode.fromString("0.0.96.5.0.255");
 
     // E-meter registers
-    private static final ObisCode ACTIVE_ENERGY_OBIS = ObisCode.fromString("1.0.1.8.0.255");
     private static final ObisCode ACTIVE_ENERGY_PHASE_1_OBIS = ObisCode.fromString("1.1.1.8.0.255");
     private static final ObisCode ACTIVE_ENERGY_PHASE_2_OBIS = ObisCode.fromString("1.2.1.8.0.255");
     private static final ObisCode ACTIVE_ENERGY_PHASE_3_OBIS = ObisCode.fromString("1.3.1.8.0.255");
-    private static final ObisCode REACTIVE_ENERGY_OBIS = ObisCode.fromString("1.0.3.8.0.255");
     private static final ObisCode REACTIVE_ENERGY_PHASE_1_OBIS = ObisCode.fromString("1.1.3.8.0.255");
     private static final ObisCode REACTIVE_ENERGY_PHASE_2_OBIS = ObisCode.fromString("1.2.3.8.0.255");
     private static final ObisCode REACTIVE_ENERGY_PHASE_3_OBIS = ObisCode.fromString("1.3.3.8.0.255");
@@ -66,8 +64,8 @@ public class RegisterFactory implements DeviceRegisterSupport {
     private static final ObisCode SLAVE_COMMUNICATION_STATUS_OBIS = ObisCode.fromString("0.0.96.10.4.255");
     private static final ObisCode SLAVE_TARIFF_MODE_OBIS = ObisCode.fromString("0.0.96.14.0.255");
 
-    private static final Unit ACTIVE_ENERGY_UNIT = Unit.get(BaseUnit.WATTHOUR, 3);
-    private static final Unit REACTIVE_ENERGY_UNIT = Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, 3);
+    private static final Unit ACTIVE_ENERGY_UNIT = Unit.get(BaseUnit.WATTHOUR);
+    private static final Unit REACTIVE_ENERGY_UNIT = Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR);
 
     private final GarnetConcentrator meterProtocol;
 
@@ -215,17 +213,23 @@ public class RegisterFactory implements DeviceRegisterSupport {
         List<Integer> installationConfig = new InstallationConfig(installationStatuses).getConfigForMeter(meterIndex);
 
         int meterIndexToRead;
-        if (register.getObisCode().getB() == 0) {
-            if (installationConfig.size() == 1) {
-                meterIndexToRead = meterIndex;
-            } else {
+        if (register.getObisCode().getB() == 1) {
+            if (installationConfig.size() < 1) {
                 throw new UnableToExecuteException("Failed to read out the register. This register can only be used for mono-phase configured meters.");
-            }
-        } else if ((register.getObisCode().getB() == 1 || register.getObisCode().getB() == 2)) {
-            if (installationConfig.size() == 2 || installationConfig.size() == 3) { // Expecting poly phase config, but is mono phase
-                meterIndexToRead = installationConfig.get(register.getObisCode().getB() - 1);
             } else {
+                meterIndexToRead = meterIndex;
+            }
+        } else if (register.getObisCode().getB() == 2) {
+            if (installationConfig.size() < 2) { // Expecting poly-phase config, but is mono phase
                 throw new UnableToExecuteException("Failed to read out the register. This register can only be used for poly-phase configured meters.");
+            } else {
+                meterIndexToRead = installationConfig.get(register.getObisCode().getB() - 1);
+            }
+        } else if (register.getObisCode().getB() == 3) {
+            if (installationConfig.size() < 3) { // Expecting three-phase config, but is mono-phase or bi-phase
+                throw new UnableToExecuteException("Failed to read out the register. This register can only be used for three-phase configured meters.");
+            } else {
+                meterIndexToRead = installationConfig.get(register.getObisCode().getB() - 1);
             }
         } else {
             return createNotSupportedCollectedRegister(register);
@@ -237,8 +241,7 @@ public class RegisterFactory implements DeviceRegisterSupport {
                 register.getObisCode().getF() == 0 ? ReadingRequestStructure.ReadingMode.CHECKPOINT_READING : ReadingRequestStructure.ReadingMode.ONLINE_READING
         );
         collectedRegister = createDeviceRegister(register);
-        boolean activeEnergyRegister = register.getObisCode().equalsIgnoreBillingField(ACTIVE_ENERGY_OBIS)
-                || register.getObisCode().equalsIgnoreBillingField(ACTIVE_ENERGY_PHASE_1_OBIS)
+        boolean activeEnergyRegister = register.getObisCode().equalsIgnoreBillingField(ACTIVE_ENERGY_PHASE_1_OBIS)
                 || register.getObisCode().equalsIgnoreBillingField(ACTIVE_ENERGY_PHASE_2_OBIS)
                 || register.getObisCode().equalsIgnoreBillingField(ACTIVE_ENERGY_PHASE_3_OBIS);
         collectedRegister.setCollectedData(
@@ -255,11 +258,9 @@ public class RegisterFactory implements DeviceRegisterSupport {
     }
 
     private boolean isMeterReadingRegister(OfflineRegister register) {
-        return register.getObisCode().equalsIgnoreBillingField(ACTIVE_ENERGY_OBIS) ||
-                register.getObisCode().equalsIgnoreBillingField(ACTIVE_ENERGY_PHASE_1_OBIS) ||
+        return register.getObisCode().equalsIgnoreBillingField(ACTIVE_ENERGY_PHASE_1_OBIS) ||
                 register.getObisCode().equalsIgnoreBillingField(ACTIVE_ENERGY_PHASE_2_OBIS) ||
                 register.getObisCode().equalsIgnoreBillingField(ACTIVE_ENERGY_PHASE_3_OBIS) ||
-                register.getObisCode().equalsIgnoreBillingField(REACTIVE_ENERGY_OBIS) ||
                 register.getObisCode().equalsIgnoreBillingField(REACTIVE_ENERGY_PHASE_1_OBIS) ||
                 register.getObisCode().equalsIgnoreBillingField(REACTIVE_ENERGY_PHASE_2_OBIS) ||
                 register.getObisCode().equalsIgnoreBillingField(REACTIVE_ENERGY_PHASE_3_OBIS);
