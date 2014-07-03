@@ -98,7 +98,7 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
                     gridView.refresh();
                     form.loadRecord(model);
                     me.getPreviewActionMenu().record = model;
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comPortPool.changeState.msg', 'MDC', 'Communication port pool' + ' ' + msg));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comPortPool.changeState.msg', 'MDC', 'Communication port pool') + ' ' + msg);
                 }
             });
         }
