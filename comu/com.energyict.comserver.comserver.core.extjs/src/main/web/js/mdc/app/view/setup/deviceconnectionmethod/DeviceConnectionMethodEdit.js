@@ -8,7 +8,8 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
         'Mdc.store.ConnectionTypes',
         'Mdc.widget.ScheduleField',
         'Mdc.widget.TimeInSecondsField',
-        'Mdc.widget.TimeInfoField'
+        'Mdc.widget.TimeInfoField',
+        'Mdc.view.setup.property.Edit'
     ],
 
     isEdit: function () {
