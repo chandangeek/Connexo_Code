@@ -41,6 +41,7 @@ import static org.mockito.Mockito.when;
  * Date: 25/09/12
  * Time: 10:49
  */
+@Ignore
 public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     private ConnectionTask.ConnectionTaskLifecycleStatus status = ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE;

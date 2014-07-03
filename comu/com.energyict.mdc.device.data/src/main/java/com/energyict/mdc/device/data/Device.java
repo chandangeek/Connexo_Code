@@ -12,6 +12,8 @@ import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.data.impl.DeviceImpl;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.data.tasks.AdHocComTaskExecution;
 import com.energyict.mdc.device.data.tasks.AdHocComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.AdHocComTaskExecutionUpdater;

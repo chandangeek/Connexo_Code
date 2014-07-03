@@ -83,6 +83,8 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     private Date lastSuccessfulCommunicationEnd;
     private Reference<ConnectionMethod> connectionMethod = ValueReference.absent();
     // Redundant copy of the ConnectionMethod's com port pool for query purposes to avoid extra join
+    // Need the validator to combine the validations for the frontend
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.CONNECTION_METHOD_COMPORT_POOL_REQUIRED_KEY + "}")
     private Reference<CPPT> comPortPool = ValueReference.absent();
     private Reference<ComServer> comServer = ValueReference.absent();
     private Date modificationDate;
@@ -214,6 +216,16 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         this.deviceId = device.getId();
         this.validateNotObsolete();
         this.modificationDate = this.now();
+
+        /**
+         * Need to validate the ConnectionTask FIRST, then save the ConnectionMethod, then save the ConnectionTask ...
+         */
+        if(getId() == 0){
+            Save.CREATE.validate(dataModel, this);
+        } else {
+            Save.UPDATE.validate(dataModel, this);
+        }
+
         this.getConnectionMethod().save();
         super.save();
         this.getConnectionMethod().saveAllProperties();

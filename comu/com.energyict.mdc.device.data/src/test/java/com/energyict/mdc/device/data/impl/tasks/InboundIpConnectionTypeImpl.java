@@ -1,6 +1,10 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.energyict.mdc.protocol.api.ConnectionType;
+
+import com.energyict.mdc.dynamic.PropertySpec;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -12,5 +16,10 @@ public class InboundIpConnectionTypeImpl extends IpConnectionType {
     @Override
     public ConnectionTypeDirection getDirection() {
         return ConnectionTypeDirection.INBOUND;
+    }
+
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return Collections.emptyList();
     }
 }
