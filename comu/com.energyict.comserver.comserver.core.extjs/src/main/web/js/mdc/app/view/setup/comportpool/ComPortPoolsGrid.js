@@ -12,18 +12,20 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolsGrid', {
     store: 'ComPortPools',
     columns: [
         {
-            header: Uni.I18n.translate('general.name', 'MDC', 'Name'),
+            header: Uni.I18n.translate('comPortPool.title.communicationPortPool', 'MDC', 'Communication port pool'),
             xtype: 'templatecolumn',
             tpl: '<a href="#/administration/comportpools/{id}/overview">{name}</a>',
             flex: 1
         },
         {
             header: Uni.I18n.translate('comPortPool.preview.direction', 'MDC', 'Direction'),
-            dataIndex: 'direction'
+            dataIndex: 'direction',
+            flex: 1
         },
         {
             header: Uni.I18n.translate('general.type', 'MDC', 'Type'),
-            dataIndex: 'type'
+            dataIndex: 'type',
+            flex: 1
         },
         {
             header: Uni.I18n.translate('general.status', 'MDC', 'Status'),

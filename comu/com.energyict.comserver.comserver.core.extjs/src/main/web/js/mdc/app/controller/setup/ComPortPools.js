@@ -114,7 +114,7 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
         model.load(id, {
             success: function (record) {
                 if (!form.isDestroyed) {
-                    record.data.direction == 'outbound' ? form.down('displayfield[name=discoveryProtocolPluggableClassId]').hide() :
+                    record.get('direction').toLowerCase() == 'outbound' ? form.down('displayfield[name=discoveryProtocolPluggableClassId]').hide() :
                         form.down('displayfield[name=discoveryProtocolPluggableClassId]').show() ;
                     form.loadRecord(record);
                     form.up('panel').down('menu').record = record;
