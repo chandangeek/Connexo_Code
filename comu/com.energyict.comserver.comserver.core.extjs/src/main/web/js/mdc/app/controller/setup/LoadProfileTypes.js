@@ -510,8 +510,8 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                 });
 
                 me.loadProfileAction = 'Edit load profile type';
-                if (!Ext.isEmpty(this.temporallyFormValues)) {
-                    this.loadTemporallyValues();
+                if (!Ext.isEmpty(me.temporallyFormValues)) {
+                    me.loadTemporallyValues();
                 }
             }
         });
