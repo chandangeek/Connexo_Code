@@ -5,7 +5,6 @@ Ext.define('Mdc.view.setup.comserver.ComServerOverview', {
         'Mdc.view.setup.comserver.ActionMenu',
         'Mdc.view.setup.comserver.SubMenu'
     ],
-
     side: {
         xtype: 'panel',
         ui: 'medium',

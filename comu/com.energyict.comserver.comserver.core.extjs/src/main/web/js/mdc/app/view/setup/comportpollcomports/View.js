@@ -5,8 +5,19 @@ Ext.define('Mdc.view.setup.comportpollcomports.View', {
     requires: [
         'Mdc.view.setup.comportpollcomports.Grid',
         'Mdc.view.setup.comportpollcomports.Preview',
-        'Uni.view.container.PreviewContainer'
+        'Uni.view.container.PreviewContainer',
+        'Mdc.view.setup.comportpool.SubMenu'
     ],
+    side: {
+        xtype: 'panel',
+        ui: 'medium',
+        title: Uni.I18n.translate('', 'MDC', 'Communication port pools'),
+        width: 350,
+        items: [{
+            xtype: 'comportpoolsubmenu',
+            itemId: 'comportpoolsubmenu'
+        }]
+    },
     content: [
         {
             xtype: 'panel',

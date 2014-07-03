@@ -102,11 +102,13 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
                         ]
                     },
                     {
-                        xtype: 'property-form',
-                        title: '<span class="x-form-item-label-right x-form-item-label" style="width: 250px;"><h3>' +
+                        xtype: 'component',
+                        html: '<h3 style="width: 238px; text-align: right;">' +
                             Uni.I18n.translate('deviceCommunicationProtocol.communicationProtocolDetails', 'MDC', 'Communication protocol details') +
-                            '</h3></span>',
-
+                            '</h3>'
+                    },
+                    {
+                        xtype: 'property-form',
                         isEdit: false,
                         layout: 'column',
                         frame: false,

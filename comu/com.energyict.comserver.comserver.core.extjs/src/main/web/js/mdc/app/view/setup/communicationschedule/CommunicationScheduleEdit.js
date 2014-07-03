@@ -174,7 +174,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                     },
                                     {
                                         xtype: 'scheduleField',
-                                        name: 'nextExecutionSpecs',
+                                        name: 'temporalExpression',
                                         itemId: 'scheduleField',
                                         hourCfg: {
                                             width: 60

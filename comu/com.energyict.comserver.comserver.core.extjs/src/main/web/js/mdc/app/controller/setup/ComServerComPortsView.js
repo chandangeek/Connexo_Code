@@ -37,10 +37,6 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
             selector: 'comServerComPortsView comServerComPortsGrid'
         },
         {
-            ref: 'subMenu',
-            selector: 'comServerComPortsView comserversubmenu'
-        },
-        {
             ref: 'previewActionMenu',
             selector: 'comServerComPortPreview #comServerComPortsActionMenu'
         }

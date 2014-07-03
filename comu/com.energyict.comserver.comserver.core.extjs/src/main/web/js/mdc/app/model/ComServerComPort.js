@@ -21,7 +21,9 @@ Ext.define('Mdc.model.ComServerComPort', {
             name: 'direction',
             type: 'string',
             mapping: function (data) {
-                return data.direction.charAt(0).toUpperCase() + data.direction.slice(1);
+                if (data.direction){
+                    return data.direction.charAt(0).toUpperCase() + data.direction.slice(1);
+                }
             }
         },
         {
