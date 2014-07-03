@@ -12,7 +12,7 @@ Ext.define('Cfg.model.ValidationRuleSet', {
             mapping: function (data) {
                return data.numberOfRules - data.numberOfInactiveRules;
             }
-        },
+        }
     ],
 
     /*associations: [

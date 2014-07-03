@@ -2,6 +2,7 @@ Ext.define('Cfg.store.ValidationRuleSets', {
     extend: 'Ext.data.Store',
     autoLoad: false,
     model: 'Cfg.model.ValidationRuleSet',
+    pageSize: 10,
 
     storeId: 'ValidationRuleSets',
 
