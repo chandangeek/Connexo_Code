@@ -13,13 +13,11 @@ public class RepeaterDiagnostic extends AbstractField<RepeaterDiagnostic> {
 
     private int diagnosticId;
     private Diagnostic diagnostic;
+    private boolean hadConsultation;
+    private boolean answeredCheckPoint;
 
     public RepeaterDiagnostic() {
         this.diagnostic = Diagnostic.UNKNOWN;
-    }
-
-    public RepeaterDiagnostic(Diagnostic diagnostic) {
-        this.diagnostic = diagnostic;
     }
 
     @Override
@@ -30,7 +28,9 @@ public class RepeaterDiagnostic extends AbstractField<RepeaterDiagnostic> {
     @Override
     public RepeaterDiagnostic parse(byte[] rawData, int offset) throws ParsingException {
         diagnosticId = getIntFromBytesLE(rawData, offset, LENGTH);
-        diagnostic = Diagnostic.fromCode(diagnosticId);
+        diagnostic = Diagnostic.fromCode(diagnosticId & 0x3F); // Bits 0 to 5
+        hadConsultation = (diagnosticId & 0x40) == 0x40;    // Bit 6
+        answeredCheckPoint = (diagnosticId & 0x80) == 0x80;  // Bit 7
         return this;
     }
 
@@ -44,11 +44,18 @@ public class RepeaterDiagnostic extends AbstractField<RepeaterDiagnostic> {
     }
 
     public String getDiagnosticInfo() {
+        StringBuilder builder = new StringBuilder();
         if (!this.diagnostic.equals(Diagnostic.UNKNOWN)) {
-            return diagnostic.getDiagnosticDescription();
+            builder.append(diagnostic.getDiagnosticDescription());
         } else {
-            return (diagnostic.getDiagnosticDescription() + " " + diagnosticId);
+            builder.append(diagnostic.getDiagnosticDescription() + " " + diagnosticId);
         }
+
+        builder.append(" - ");
+        builder.append(hadConsultation ? "Already has checkpoint consultation" : "No checkpoint consultation");
+        builder.append(" - ");
+        builder.append(answeredCheckPoint ? "Answered checkpoint" : "Did not answer checkpoint");
+        return builder.toString();
     }
 
     private enum Diagnostic {
