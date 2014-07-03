@@ -1,6 +1,7 @@
 Ext.define('Mdc.store.ComServerComPorts',{
     extend: 'Ext.data.Store',
     model: 'Mdc.model.ComServerComPort',
+    pageSize: 10,
     sorters: [{
         property: 'name',
         direction: 'ASC'

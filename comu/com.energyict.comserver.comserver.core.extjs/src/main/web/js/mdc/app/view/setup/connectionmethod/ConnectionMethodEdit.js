@@ -261,7 +261,6 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                         hidden: true,
                         width: '100%'
                     },
-
                     {
                         xtype: 'form',
                         border: false,
