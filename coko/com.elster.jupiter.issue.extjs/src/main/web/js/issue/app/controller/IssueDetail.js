@@ -75,7 +75,6 @@ Ext.define('Isu.controller.IssueDetail', {
 
                 var store = record.comments();
 
-                self.getCommentsPanel().store = store;
                 // todo: this is dirty solution, rewrite in to the more solid one
                 store.getProxy().url = store.getProxy().url.replace('{issue_id}', record.getId());
                 store.clearFilter();
