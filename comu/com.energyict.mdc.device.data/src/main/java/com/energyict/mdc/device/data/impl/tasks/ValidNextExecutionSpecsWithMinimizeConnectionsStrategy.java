@@ -8,7 +8,7 @@ import javax.validation.Constraint;
 import javax.validation.Payload;
 
 /**
- * Models the contraint that a {@link ScheduledConnectionTaskImpl}
+ * Models the constraint that a {@link ScheduledConnectionTaskImpl}
  * must have {@link com.energyict.mdc.scheduling.NextExecutionSpecs}
  * when the {@link com.energyict.mdc.device.config.ConnectionStrategy}
  * is {@link com.energyict.mdc.device.config.ConnectionStrategy#MINIMIZE_CONNECTIONS minimize connections}.
