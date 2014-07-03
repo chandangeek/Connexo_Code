@@ -72,7 +72,8 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                                 forceSelection: true,
                                 typeAhead: true,
                                 msgTarget: 'under',
-                                disabled: true
+                                disabled: true,
+                                required: true
                             },
                             {
                                 xtype: 'combobox',
@@ -140,6 +141,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                                 xtype: 'fieldcontainer',
                                 itemId: 'comWindowField',
                                 fieldLabel: Uni.I18n.translate('connectionmethod.connectionWindow', 'MDC', 'Connection window'),
+                                disabled: true,
                                 layout: {
                                     type: 'hbox',
                                     align: 'stretch'
