@@ -7,13 +7,10 @@ import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueAdHocComTaskExecutionPerDevice;
 import com.energyict.mdc.device.data.tasks.AdHocComTaskExecution;
 import com.energyict.mdc.device.data.tasks.AdHocComTaskExecutionBuilder;
-import com.energyict.mdc.device.data.tasks.AdHocComTaskExecutionUpdater;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
+import com.energyict.mdc.device.data.tasks.AdHocComTaskExecutionUpdaterRename;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.ProtocolTask;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -22,9 +19,7 @@ import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
 
 import javax.inject.Inject;
-import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 
 @UniqueAdHocComTaskExecutionPerDevice
 public class AdHocComTaskExecutionImpl extends SingleComTaskExecutionImpl implements AdHocComTaskExecution {
@@ -83,7 +78,7 @@ public class AdHocComTaskExecutionImpl extends SingleComTaskExecutionImpl implem
     }
 
     @Override
-    public AdHocComTaskExecutionUpdater getUpdater() {
+    public AdHocComTaskExecutionUpdaterRename getUpdater() {
         return new AdHocComTaskExecutionUpdaterImpl(this);
     }
 
@@ -102,15 +97,15 @@ public class AdHocComTaskExecutionImpl extends SingleComTaskExecutionImpl implem
     }
 
     class AdHocComTaskExecutionUpdaterImpl
-        extends AbstractComTaskExecutionUpdater<AdHocComTaskExecutionUpdater, AdHocComTaskExecution, AdHocComTaskExecutionImpl>
-        implements AdHocComTaskExecutionUpdater {
+        extends AbstractComTaskExecutionUpdater<AdHocComTaskExecutionUpdaterRename, AdHocComTaskExecution, AdHocComTaskExecutionImpl>
+        implements AdHocComTaskExecutionUpdaterRename {
 
         protected AdHocComTaskExecutionUpdaterImpl(AdHocComTaskExecutionImpl comTaskExecution) {
-            super(comTaskExecution, AdHocComTaskExecutionUpdater.class);
+            super(comTaskExecution, AdHocComTaskExecutionUpdaterRename.class);
         }
 
         @Override
-        public AdHocComTaskExecutionUpdater protocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
+        public AdHocComTaskExecutionUpdaterRename protocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
             this.getComTaskExecution().setProtocolDialectConfigurationProperties(protocolDialectConfigurationProperties);
             return this;
         }

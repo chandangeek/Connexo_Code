@@ -36,8 +36,8 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
         ConnectionType connectionType = partialConnectionTask.getPluggableClass().getConnectionType();
         TypedProperties properties = connectionTask.getTypedProperties();
         this.validatePropertiesAreLinkedToPropertySpecs(partialConnectionTask.getPluggableClass(), properties, context);
-        this.validatePropertyValues(connectionType, properties, context);
         this.validateAllRequiredPropertiesHaveValues(connectionType, properties, partialConnectionTask.getTypedProperties(), context);
+        this.validatePropertyValues(connectionType, properties, context);
         return this.valid;
     }
 
@@ -85,13 +85,13 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
 
     private void validateAllRequiredPropertiesHaveValues(ConnectionType connectionType, TypedProperties properties, TypedProperties partialConnectionTaskProperties, ConstraintValidatorContext context) {
         if (!properties.localPropertyNames().isEmpty()) {
-            Set<String> propertyNames = new HashSet<>(properties.localPropertyNames());
             for (PropertySpec propertySpec : this.getRequiredPropertySpecs(connectionType)) {
-                if (!propertyNames.contains(propertySpec.getName()) && !partialConnectionTaskProperties.hasValueFor(propertySpec.getName())) {
+                String propertySpecName = propertySpec.getName();
+                if (((properties.getProperty(propertySpecName) == null) && !properties.hasInheritedValueFor(propertySpecName)) && !partialConnectionTaskProperties.hasValueFor(propertySpecName)) {
                     context.disableDefaultConstraintViolation();
                     context
                         .buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.CONNECTION_TASK_REQUIRED_PROPERTY_MISSING_KEY + "}")
-                        .addPropertyNode("properties").addPropertyNode(propertySpec.getName()).addConstraintViolation();
+                        .addPropertyNode("status").addPropertyNode(propertySpecName).addConstraintViolation();
                     this.valid = false;
                 }
             }

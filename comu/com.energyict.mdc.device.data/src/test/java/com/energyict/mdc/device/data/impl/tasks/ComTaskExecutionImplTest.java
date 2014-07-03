@@ -15,7 +15,7 @@ import com.energyict.mdc.device.data.impl.InMemoryIntegrationPersistence;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.tasks.AdHocComTaskExecution;
 import com.energyict.mdc.device.data.tasks.AdHocComTaskExecutionBuilder;
-import com.energyict.mdc.device.data.tasks.AdHocComTaskExecutionUpdater;
+import com.energyict.mdc.device.data.tasks.AdHocComTaskExecutionUpdaterRename;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
@@ -27,7 +27,6 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.energyict.mdc.tasks.ComTask;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
@@ -198,7 +197,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         AdHocComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         device.save();
 
-        AdHocComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
+        AdHocComTaskExecutionUpdaterRename comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
         comTaskExecutionUpdater.useDefaultConnectionTask(testUseDefault);
 
         // Business method
@@ -274,7 +273,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         AdHocComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         device.save();
 
-        AdHocComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
+        AdHocComTaskExecutionUpdaterRename comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
         comTaskExecutionUpdater.connectionTask(connectionTask);
         comTaskExecutionUpdater.update();
         device.save();
@@ -508,7 +507,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         AdHocComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         device.save();
 
-        AdHocComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
+        AdHocComTaskExecutionUpdaterRename comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
         comTaskExecutionUpdater.protocolDialectConfigurationProperties(otherDialect);
 
         // Business method

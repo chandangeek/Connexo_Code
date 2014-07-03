@@ -26,6 +26,6 @@ public interface AdHocComTaskExecution extends ComTaskExecution {
     public ProtocolDialectConfigurationProperties getProtocolDialectConfigurationProperties();
 
     @Override
-    public AdHocComTaskExecutionUpdater getUpdater();
+    public AdHocComTaskExecutionUpdaterRename getUpdater();
 
 }
