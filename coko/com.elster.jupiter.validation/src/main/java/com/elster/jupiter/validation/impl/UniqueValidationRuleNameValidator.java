@@ -25,10 +25,7 @@ public class UniqueValidationRuleNameValidator implements ConstraintValidator<Un
 
     @Override
     public boolean isValid(ValidationRule rule, ConstraintValidatorContext context) {
-        if (rule == null) {
-            return true;
-        }
-        return !(hasEquallyNamedRule(rule.getRuleSet(), rule, context));
+        return rule == null || !(hasEquallyNamedRule(rule.getRuleSet(), rule, context));
     }
 
     private boolean hasEquallyNamedRule(ValidationRuleSet ruleSet, ValidationRule rule, ConstraintValidatorContext context) {

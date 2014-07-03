@@ -123,13 +123,13 @@ public class ValidationServiceImplTest {
         when(dataModel.getInstance(MeterActivationValidationImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new MeterActivationValidationImpl(dataModel, meteringService, clock);
+                return new MeterActivationValidationImpl(dataModel, clock);
             }
         });
         when(dataModel.getInstance(ChannelValidationImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new ChannelValidationImpl(dataModel, meteringService);
+                return new ChannelValidationImpl();
             }
         });
         when(dataModel.query(MeterActivationValidation.class)).thenReturn(queryExecutor);

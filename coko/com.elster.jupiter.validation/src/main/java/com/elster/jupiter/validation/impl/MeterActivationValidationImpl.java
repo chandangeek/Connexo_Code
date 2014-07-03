@@ -2,7 +2,6 @@ package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
@@ -33,14 +32,12 @@ class MeterActivationValidationImpl implements MeterActivationValidation {
     private transient boolean saved = true;
     private UtcInstant obsoleteTime;
 
-    private final MeteringService meteringService;
     private final DataModel dataModel;
     private final Clock clock;
 
     @Inject
-    MeterActivationValidationImpl(DataModel dataModel, MeteringService meteringService, Clock clock) {
+    MeterActivationValidationImpl(DataModel dataModel, Clock clock) {
         this.dataModel = dataModel;
-        this.meteringService = meteringService;
         this.clock = clock;
     }
 

@@ -161,7 +161,7 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
 
     @Override
     public ReadingTypeInValidationRule addReadingType(String mRID) {
-        Optional optional = meteringService.getReadingType(mRID);
+        Optional<ReadingType> optional = meteringService.getReadingType(mRID);
         if (!optional.isPresent()) {
             // throw new InvalidReadingTypeException(this.thesaurus, mRID);
             ReadingTypeInValidationRuleImpl empty = ReadingTypeInValidationRuleImpl.from(dataModel, this, mRID);
@@ -171,7 +171,7 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
             readingTypesInRule.add(empty);
             return empty;
         }
-        return addReadingType((ReadingType) optional.get());
+        return addReadingType(optional.get());
     }
 
     @Override
@@ -343,6 +343,20 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
     }
 
     @Override
+    public void toggleActivation() {
+        if (active) {
+            deactivate();
+        } else {
+            activate();
+        }
+    }
+
+    @Override
+    public void clearReadingTypes() {
+        readingTypesInRule.clear();
+    }
+
+    @Override
     public Date getObsoleteDate() {
         return getObsoleteTime() != null ? getObsoleteTime().toDate() : null;
     }
@@ -394,20 +408,6 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
 
     private void doUpdate() {
         ruleFactory().update(this);
-    }
-
-    private List<ValidationRuleProperties> loadProperties() {
-        ArrayList<ValidationRuleProperties> validationRulesProperties = new ArrayList<>();
-        for (ValidationRuleProperties property : rulePropertiesFactory().find()) {
-            if (this.equals(property.getRule())) {
-                validationRulesProperties.add(property);
-            }
-        }
-        return validationRulesProperties;
-    }
-
-    private List<ReadingTypeInValidationRule> loadReadingTypesInValidationRule() {
-        return readingTypesInRuleFactory().find("ruleId", this.getId());
     }
 
     private Validator newValidator(Channel channel, Interval interval, ReadingType channelReadingType) {
@@ -464,6 +464,7 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
 
     private Date handleValidationResult(ValidationResult result, Channel channel, Date lastChecked, ListMultimap<Date, ReadingQuality> existingReadingQualities,
                                         ReadingQualityType readingQualityType, BaseReadingRecord readingRecord) {
+        Date newLastChecked = lastChecked;
         Optional<ReadingQuality> existingQualityForType = getExistingReadingQualitiesForType(existingReadingQualities, readingQualityType, readingRecord.getTimeStamp());
         if (ValidationResult.SUSPECT.equals(result) && !existingQualityForType.isPresent()) {
             saveNewReadingQuality(channel, readingRecord, readingQualityType);
@@ -473,9 +474,9 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
             existingQualityForType.get().delete();
         }
         if (!ValidationResult.SKIPPED.equals(result)) {
-            lastChecked = lastChecked == null ? readingRecord.getTimeStamp() : Ordering.natural().max(lastChecked, readingRecord.getTimeStamp());
+            newLastChecked = lastChecked == null ? readingRecord.getTimeStamp() : Ordering.natural().max(lastChecked, readingRecord.getTimeStamp());
         }
-        return lastChecked;
+        return newLastChecked;
     }
 
     private Optional<ReadingQuality> getExistingReadingQualitiesForType(ListMultimap<Date, ReadingQuality> existingReadingQualities, final ReadingQualityType readingQualityType, Date timeStamp) {

@@ -1,6 +1,5 @@
 package com.elster.jupiter.validation.impl;
 
-import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRuleSet;
 
 import java.util.List;

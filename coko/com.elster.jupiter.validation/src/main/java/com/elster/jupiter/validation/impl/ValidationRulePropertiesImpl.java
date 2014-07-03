@@ -8,6 +8,7 @@ import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleProperties;
 
 import javax.inject.Inject;
+import java.util.Objects;
 
 final class ValidationRulePropertiesImpl implements ValidationRuleProperties {
 
@@ -61,7 +62,9 @@ final class ValidationRulePropertiesImpl implements ValidationRuleProperties {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
+        if (this == o) {
+            return true;
+        }
         if (o == null || getClass() != o.getClass()) return false;
 
         ValidationRulePropertiesImpl that = (ValidationRulePropertiesImpl) o;
@@ -72,9 +75,6 @@ final class ValidationRulePropertiesImpl implements ValidationRuleProperties {
 
     @Override
     public int hashCode() {
-        long ruleId = getRule().getId();
-        int result = name.hashCode();
-        result = 31 * result + (int) (ruleId ^ (ruleId >>> 32));
-        return result;
+        return Objects.hash(name);
     }
 }

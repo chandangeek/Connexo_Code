@@ -1,7 +1,6 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -18,14 +17,9 @@ final class ChannelValidationImpl implements ChannelValidation {
     private Reference<MeterActivationValidation> meterActivationValidation = ValueReference.absent();
     private UtcInstant lastChecked;
 
-    private final DataModel dataModel;
-    private final MeteringService meteringService;
-
     @SuppressWarnings("unused")
     @Inject
-    ChannelValidationImpl(DataModel dataModel, MeteringService meteringService) {
-        this.dataModel = dataModel;
-        this.meteringService = meteringService;
+    ChannelValidationImpl() {
     }
 
     ChannelValidationImpl init(MeterActivationValidation meterActivationValidation, Channel channel) {
@@ -74,11 +68,7 @@ final class ChannelValidationImpl implements ChannelValidation {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        if (id > 0) {
-            return id == ((ChannelValidationImpl) o).id;
-        } else {
-            return channel.equals(((ChannelValidationImpl) o).channel) && meterActivationValidation.equals(((ChannelValidationImpl) o).meterActivationValidation);
-        }
+        return channel.equals(((ChannelValidationImpl) o).channel) && meterActivationValidation.equals(((ChannelValidationImpl) o).meterActivationValidation);
 
     }
 

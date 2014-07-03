@@ -11,6 +11,7 @@ import com.elster.jupiter.validation.ValidationRule;
 import com.google.common.base.Optional;
 
 import javax.inject.Inject;
+import java.util.Objects;
 
 public class ReadingTypeInValidationRuleImpl implements ReadingTypeInValidationRule {
 
@@ -89,9 +90,6 @@ public class ReadingTypeInValidationRuleImpl implements ReadingTypeInValidationR
 
     @Override
     public int hashCode() {
-        long ruleId = rule.get().getId();
-        int result = (int) (ruleId ^ (ruleId >>> 32));
-        result = 31 * result + readingTypeMRID.hashCode();
-        return result;
+        return Objects.hash(rule.get().getId(), readingTypeMRID);
     }
 }

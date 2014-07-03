@@ -72,8 +72,8 @@ public enum MessageSeeds implements MessageSeed {
 
 }
 
-final class Constants {
-
+enum Constants {
+    ;
     public static final String DUPLICATE_VALIDATION_RULE_SET = "DuplicateValidationRuleSet";
     public static final String NAME_REQUIRED_KEY = "CanNotBeEmpty";
     public static final String INVALID_CHARS = "InvalidChars";
