@@ -167,7 +167,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
                     });
                     preloader.show();
                     Ext.Ajax.request({
-                        url: '/api/dtc/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/loadprofileconfigurations',
+                        url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofileconfigurations',
                         method: 'POST',
                         jsonData: jsonValues,
                         success: function () {
@@ -188,7 +188,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
                     });
                     preloader.show();
                     Ext.Ajax.request({
-                        url: '/api/dtc/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/loadprofileconfigurations/' + this.loadProfileConfigurationId,
+                        url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofileconfigurations/' + me.loadProfileConfigurationId,
                         method: 'PUT',
                         jsonData: jsonValues,
                         success: function () {

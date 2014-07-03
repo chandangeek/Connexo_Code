@@ -4,6 +4,10 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectEdit', {
     itemId: 'protocolDialectEdit',
     edit: false,
 
+    required: [
+        'Uni.property.form.Property'
+    ],
+
     isEdit: function () {
         return this.edit;
     },
@@ -62,7 +66,7 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectEdit', {
                         ]
                     },
                     {
-                        xtype: 'propertyEdit',
+                        xtype: 'property-form',
                         width: '100%'
                     },
                     {
