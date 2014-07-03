@@ -1,8 +1,5 @@
 package com.energyict.mdc.device.data;
 
-import com.elster.jupiter.metering.events.EndDeviceEventType;
-import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TypedProperties;
@@ -13,15 +10,12 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.data.impl.DeviceImpl;
-import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.data.tasks.AdHocComTaskExecution;
 import com.energyict.mdc.device.data.tasks.AdHocComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.AdHocComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
@@ -43,6 +37,10 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+
+import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.util.time.Interval;
 
 import java.util.Date;
 import java.util.List;
@@ -341,6 +339,18 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      */
     public int countNumberOfEndDeviceEvents(List<EndDeviceEventType> eventTypes, Interval interval);
 
+    /**
+     * Returns a {@link ScheduledComTaskExecutionBuilder} that will build a
+     * {@link ScheduledComTaskExecution} for the {@link ComSchedule} on this Device.
+     * This will enable all the current and future {@link com.energyict.mdc.tasks.ComTask}s
+     * that are contained in the ComSchedule, for execution on this Device.
+     * Note that a ComSchedule can only be added once to a Device.
+     * Note also that a ComTask that is contained in a ComSchedule
+     * cannot be manually scheduled on that Device.
+     *
+     * @param comSchedule The ComSchedule
+     * @see ManuallyScheduledComTaskExecution
+     */
     public ScheduledComTaskExecutionBuilder newScheduledComTaskExecution(ComSchedule comSchedule);
 
     public AdHocComTaskExecutionBuilder newAdHocComTaskExecution(ComTaskEnablement comTaskEnablement, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties);
@@ -350,6 +360,15 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     List<SecurityProperty> getSecurityProperties(SecurityPropertySet securityPropertySet);
 
     List<ProtocolDialectConfigurationProperties> getProtocolDialects();
+
+    /**
+     * Removes the {@link ComSchedule} from this Device,
+     * removing the scheduled execution of the {@link com.energyict.mdc.tasks.ComTask}s
+     * that are contained in the ComSchedule, against this Device.
+     *
+     * @param comSchedule The ComSchedule
+     */
+    public void removeComSchedule (ComSchedule comSchedule);
 
     /**
      * Indicates if there are properties for the device and the passed securityPropertySet.

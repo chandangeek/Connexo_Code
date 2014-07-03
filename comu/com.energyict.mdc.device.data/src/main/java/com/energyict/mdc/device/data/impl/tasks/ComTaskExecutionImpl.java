@@ -616,16 +616,6 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     }
 
     /**
-     * Returns true if and only of this ComTaskExecution is directly linked to the mentioned ComSchedule
-     */
-    public abstract boolean usesComSchedule(ComSchedule comSchedule);
-
-    /**
-     * Returns true if and only of this ComTaskExecution is directly linked to the mentioned ComTask
-     */
-    public abstract boolean usesComTask(ComTask comTask);
-
-    /**
      * Return true if this comTaskExecution and the parameter denote the same job, that is:
      * - ScheduledComTaskExecs with the same schedule
      * - AdHocComTasks with the same comTask

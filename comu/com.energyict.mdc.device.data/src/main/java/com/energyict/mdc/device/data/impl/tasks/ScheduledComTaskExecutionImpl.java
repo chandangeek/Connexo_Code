@@ -144,12 +144,12 @@ public class ScheduledComTaskExecutionImpl extends ComTaskExecutionImpl implemen
     }
 
     @Override
-    public boolean usesComSchedule(ComSchedule comSchedule) {
+    public boolean executesComSchedule(ComSchedule comSchedule) {
         return comSchedule != null && this.comSchedule.get().getId() == comSchedule.getId();
     }
 
     @Override
-    public boolean usesComTask(ComTask comTask) {
+    public boolean executesComTask(ComTask comTask) {
         return comTask != null && this.getComSchedule().containsComTask(comTask);
     }
 
@@ -184,7 +184,7 @@ public class ScheduledComTaskExecutionImpl extends ComTaskExecutionImpl implemen
 
     @Override
     public boolean performsIdenticalTask(ComTaskExecutionImpl comTaskExecution) {
-        return comTaskExecution != null && comTaskExecution.usesComSchedule(this.getComSchedule());
+        return comTaskExecution != null && comTaskExecution.executesComSchedule(this.getComSchedule());
     }
 
     class ScheduledComTaskExecutionUpdaterImpl

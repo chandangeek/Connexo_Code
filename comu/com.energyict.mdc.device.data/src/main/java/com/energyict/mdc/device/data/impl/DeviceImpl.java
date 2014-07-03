@@ -1,23 +1,5 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingRecord;
-import com.elster.jupiter.metering.events.EndDeviceEventRecord;
-import com.elster.jupiter.metering.events.EndDeviceEventType;
-import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.*;
-import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
@@ -47,6 +29,7 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteComTaskExecutionWhichIsNotFromThisDevice;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteConnectionTaskWhichIsNotFromThisDevice;
 import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
@@ -1220,66 +1203,29 @@ public class DeviceImpl implements Device, PersistenceAware {
     @Override
     public void removeComTaskExecution(ComTaskExecution comTaskExecution) {
         Iterator<ComTaskExecutionImpl> comTaskExecutionIterator = this.getComTaskExecutionImpls().iterator();
-        boolean removedNone = true;
-        while (comTaskExecutionIterator.hasNext() && removedNone) {
+        while (comTaskExecutionIterator.hasNext()) {
             ComTaskExecution comTaskExecutionToRemove = comTaskExecutionIterator.next();
             if (comTaskExecutionToRemove.getId() == comTaskExecution.getId()) {
                 comTaskExecution.makeObsolete();
                 comTaskExecutionIterator.remove();
-                removedNone = false;
+                return;
             }
         }
-        if (removedNone) {
-            throw new CannotDeleteComTaskExecutionWhichIsNotFromThisDevice(thesaurus, comTaskExecution, this);
-        }
+        throw new CannotDeleteComTaskExecutionWhichIsNotFromThisDevice(thesaurus, comTaskExecution, this);
     }
 
-    public class ScheduledComTaskExecutionBuilderForDevice
-         extends ScheduledComTaskExecutionImpl.ScheduledComTaskExecutionBuilderImpl {
-
-        private ScheduledComTaskExecutionBuilderForDevice(Provider<ScheduledComTaskExecutionImpl> comTaskExecutionProvider, Device device, ComSchedule comSchedule) {
-            super(comTaskExecutionProvider.get());
-            this.getComTaskExecution().initialize(device, comSchedule);
+    @Override
+    public void removeComSchedule(ComSchedule comSchedule) {
+        Iterator<ComTaskExecutionImpl> comTaskExecutionIterator = this.getComTaskExecutionImpls().iterator();
+        while (comTaskExecutionIterator.hasNext()) {
+            ComTaskExecutionImpl comTaskExecution = comTaskExecutionIterator.next();
+            if (comTaskExecution.executesComSchedule(comSchedule)) {
+                comTaskExecution.makeObsolete();
+                comTaskExecutionIterator.remove();
+                return;
+            }
         }
-
-        @Override
-        public ScheduledComTaskExecution add() {
-            ScheduledComTaskExecution comTaskExecution = super.add();
-            DeviceImpl.this.getComTaskExecutionImpls().add((ComTaskExecutionImpl) comTaskExecution);
-            return comTaskExecution;
-        }
-    }
-
-    public class AdHocComTaskExecutionBuilderForDevice
-         extends AdHocComTaskExecutionImpl.AdHocComTaskExecutionBuilderImpl {
-
-        private AdHocComTaskExecutionBuilderForDevice(Provider<AdHocComTaskExecutionImpl> comTaskExecutionProvider, Device device, ComTaskEnablement comTaskEnablement, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
-            super(comTaskExecutionProvider.get());
-            this.getComTaskExecution().initialize(device, comTaskEnablement, protocolDialectConfigurationProperties);
-        }
-
-        @Override
-        public AdHocComTaskExecution add() {
-            AdHocComTaskExecution comTaskExecution = super.add();
-            DeviceImpl.this.getComTaskExecutionImpls().add((ComTaskExecutionImpl) comTaskExecution);
-            return comTaskExecution;
-        }
-    }
-
-    public class ManuallyScheduledComTaskExecutionBuilderForDevice
-         extends ManuallyScheduledComTaskExecutionImpl.ManuallyScheduledComTaskExecutionBuilderImpl {
-
-        private ManuallyScheduledComTaskExecutionBuilderForDevice(Provider<ManuallyScheduledComTaskExecutionImpl> comTaskExecutionProvider, Device device, ComTaskEnablement comTaskEnablement, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties, TemporalExpression temporalExpression) {
-            super(comTaskExecutionProvider.get());
-            this.getComTaskExecution().initialize(device, comTaskEnablement, protocolDialectConfigurationProperties, temporalExpression);
-        }
-
-        @Override
-        public ManuallyScheduledComTaskExecution add() {
-            ManuallyScheduledComTaskExecution comTaskExecution = super.add();
-            DeviceImpl.this.getComTaskExecutionImpls().add((ComTaskExecutionImpl) comTaskExecution);
-            return comTaskExecution;
-        }
+        throw new CannotDeleteComScheduleFromDevice(this.thesaurus, comSchedule, this);
     }
 
     @Override
@@ -1441,6 +1387,54 @@ public class DeviceImpl implements Device, PersistenceAware {
             this.scheduledConnectionTask.save();
             DeviceImpl.this.getConnectionTaskImpls().add(this.scheduledConnectionTask);
             return scheduledConnectionTask;
+        }
+    }
+
+    public class ScheduledComTaskExecutionBuilderForDevice
+            extends ScheduledComTaskExecutionImpl.ScheduledComTaskExecutionBuilderImpl {
+
+        private ScheduledComTaskExecutionBuilderForDevice(Provider<ScheduledComTaskExecutionImpl> comTaskExecutionProvider, Device device, ComSchedule comSchedule) {
+            super(comTaskExecutionProvider.get());
+            this.getComTaskExecution().initialize(device, comSchedule);
+        }
+
+        @Override
+        public ScheduledComTaskExecution add() {
+            ScheduledComTaskExecution comTaskExecution = super.add();
+            DeviceImpl.this.getComTaskExecutionImpls().add((ComTaskExecutionImpl) comTaskExecution);
+            return comTaskExecution;
+        }
+    }
+
+    public class AdHocComTaskExecutionBuilderForDevice
+            extends AdHocComTaskExecutionImpl.AdHocComTaskExecutionBuilderImpl {
+
+        private AdHocComTaskExecutionBuilderForDevice(Provider<AdHocComTaskExecutionImpl> comTaskExecutionProvider, Device device, ComTaskEnablement comTaskEnablement, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
+            super(comTaskExecutionProvider.get());
+            this.getComTaskExecution().initialize(device, comTaskEnablement, protocolDialectConfigurationProperties);
+        }
+
+        @Override
+        public AdHocComTaskExecution add() {
+            AdHocComTaskExecution comTaskExecution = super.add();
+            DeviceImpl.this.getComTaskExecutionImpls().add((ComTaskExecutionImpl) comTaskExecution);
+            return comTaskExecution;
+        }
+    }
+
+    public class ManuallyScheduledComTaskExecutionBuilderForDevice
+            extends ManuallyScheduledComTaskExecutionImpl.ManuallyScheduledComTaskExecutionBuilderImpl {
+
+        private ManuallyScheduledComTaskExecutionBuilderForDevice(Provider<ManuallyScheduledComTaskExecutionImpl> comTaskExecutionProvider, Device device, ComTaskEnablement comTaskEnablement, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties, TemporalExpression temporalExpression) {
+            super(comTaskExecutionProvider.get());
+            this.getComTaskExecution().initialize(device, comTaskEnablement, protocolDialectConfigurationProperties, temporalExpression);
+        }
+
+        @Override
+        public ManuallyScheduledComTaskExecution add() {
+            ManuallyScheduledComTaskExecution comTaskExecution = super.add();
+            DeviceImpl.this.getComTaskExecutionImpls().add((ComTaskExecutionImpl) comTaskExecution);
+            return comTaskExecution;
         }
     }
 

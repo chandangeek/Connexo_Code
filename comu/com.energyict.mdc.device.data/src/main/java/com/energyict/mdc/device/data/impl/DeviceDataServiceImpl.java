@@ -327,7 +327,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
 
     @Override
     public Optional<ConnectionTask> findConnectionTaskForPartialOnDevice(PartialConnectionTask partialConnectionTask, Device device) {
-        Condition condition = where("deviceId").isEqualTo(device.getId()).and(where("obsoleteDate").isNull()).and(where("partialConnectionTask").isEqualTo(partialConnectionTask));
+        Condition condition = where("deviceId").isEqualTo(device.getId()).and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull()).and(where("partialConnectionTask").isEqualTo(partialConnectionTask));
         List<ConnectionTask> connectionTasks = this.getDataModel().mapper(ConnectionTask.class).select(condition);
         if (connectionTasks.isEmpty()) {
             return Optional.absent();
@@ -339,7 +339,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
 
     @Override
     public List<ConnectionTask> findConnectionTasksByDevice(Device device) {
-        Condition condition = where("deviceId").isEqualTo(device.getId()).and(where("obsoleteDate").isNull());
+        Condition condition = where("deviceId").isEqualTo(device.getId()).and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull());
         return this.getDataModel().mapper(ConnectionTask.class).select(condition);
     }
 
@@ -350,19 +350,19 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
 
     @Override
     public List<InboundConnectionTask> findInboundConnectionTasksByDevice(Device device) {
-        Condition condition = where("deviceId").isEqualTo(device.getId()).and(where("obsoleteDate").isNull());
+        Condition condition = where("deviceId").isEqualTo(device.getId()).and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull());
         return this.getDataModel().mapper(InboundConnectionTask.class).select(condition);
     }
 
     @Override
     public List<ScheduledConnectionTask> findScheduledConnectionTasksByDevice(Device device) {
-        Condition condition = where("deviceId").isEqualTo(device.getId()).and(where("obsoleteDate").isNull());
+        Condition condition = where("deviceId").isEqualTo(device.getId()).and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull());
         return this.getDataModel().mapper(ScheduledConnectionTask.class).select(condition);
     }
 
     @Override
     public ConnectionTask findDefaultConnectionTaskForDevice(Device device) {
-        Condition condition = where("deviceId").isEqualTo(device.getId()).and(where("isDefault").isEqualTo(true)).and(where("obsoleteDate").isNull());
+        Condition condition = where("deviceId").isEqualTo(device.getId()).and(where("isDefault").isEqualTo(true)).and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull());
         List<ConnectionTask> connectionTasks = this.getDataModel().mapper(ConnectionTask.class).select(condition);
         if (connectionTasks != null && connectionTasks.size() == 1) {
             return connectionTasks.get(0);
@@ -643,6 +643,13 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
             throw new UnderlyingSQLFailedException(e);
         }
         return false;
+    }
+
+    @Override
+    public boolean hasComTaskExecutions(ComSchedule comSchedule) {
+        Condition condition = where(ComTaskExecutionFields.COM_SCHEDULE.fieldName()).isEqualTo(comSchedule).and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull());
+        List<ComTaskExecution> comTaskExecutions = this.getDataModel().query(ComTaskExecution.class).select(condition, new Order[0], false, new String[0], 1, 1);
+        return !comTaskExecutions.isEmpty();
     }
 
     @Override
@@ -952,7 +959,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
 
     @Override
     public List<ComTaskExecution> findComTaskExecutionsByDevice(Device device) {
-        Condition condition = where("device").isEqualTo(device).and(where("obsoleteDate").isNull());
+        Condition condition = where("device").isEqualTo(device).and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull());
         return this.getDataModel().mapper(ComTaskExecution.class).select(condition);
     }
 

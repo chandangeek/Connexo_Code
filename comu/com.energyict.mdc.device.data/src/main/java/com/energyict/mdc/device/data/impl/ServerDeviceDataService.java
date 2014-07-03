@@ -5,6 +5,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 
 /**
@@ -24,6 +25,15 @@ public interface ServerDeviceDataService extends DeviceDataService {
      * @return A flag that indicates if the ComTaskEnablement is used or not
      */
     public boolean hasComTaskExecutions(ComTaskEnablement comTaskEnablement);
+
+    /**
+     * Tests if the specified {@link ComSchedule} is used
+     * by at least one {@link ComTaskExecution}.
+     *
+     * @param comSchedule The ComSchedule
+     * @return A flag that indicates if the ComSchedule is used or not
+     */
+    public boolean hasComTaskExecutions(ComSchedule comSchedule);
 
     /**
      * Disconnects all the executions of the specified {@link ComTask}

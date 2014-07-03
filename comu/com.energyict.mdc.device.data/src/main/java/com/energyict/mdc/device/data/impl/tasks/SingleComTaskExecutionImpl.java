@@ -126,18 +126,18 @@ public abstract class SingleComTaskExecutionImpl extends ComTaskExecutionImpl {
     }
 
     @Override
-    public boolean usesComSchedule(ComSchedule comSchedule) {
+    public boolean executesComSchedule(ComSchedule comSchedule) {
         return false;
     }
 
     @Override
-    public boolean usesComTask(ComTask comTask) {
+    public boolean executesComTask(ComTask comTask) {
         return comTask != null && comTask.getId() == this.getComTask().getId();
     }
 
     @Override
     public boolean performsIdenticalTask(ComTaskExecutionImpl comTaskExecution) {
-        return comTaskExecution != null && comTaskExecution.usesComTask(this.getComTask());
+        return comTaskExecution != null && comTaskExecution.executesComTask(this.getComTask());
     }
 
     @Override
