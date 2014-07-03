@@ -36,6 +36,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -268,6 +269,7 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
                 bind(DataModel.class).toInstance(dataModel);
                 bind(EventService.class).toInstance(eventService);
                 bind(Thesaurus.class).toInstance(thesaurus);
+                bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(MdcReadingTypeUtilService.class).toInstance(mdcReadingTypeUtilService);
                 bind(MasterDataService.class).toInstance(MasterDataServiceImpl.this);
