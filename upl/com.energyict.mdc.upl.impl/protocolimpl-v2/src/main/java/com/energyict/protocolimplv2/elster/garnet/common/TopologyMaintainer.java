@@ -44,9 +44,9 @@ public class TopologyMaintainer implements DeviceTopologySupport {
             }
         } catch (NotExecutedException e) {
             if (e.getErrorStructure().getNotExecutedError().getErrorCode().equals(NotExecutedError.ErrorCode.COMMAND_NOT_IMPLEMENTED)) {
-                collectedTopology.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addProblem(getMasterDevice(), "commandNotSupported"));
+                collectedTopology.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(getMasterDevice(), "commandNotSupported"));
             } else if (e.getErrorStructure().getNotExecutedError().getErrorCode().equals(NotExecutedError.ErrorCode.SLAVE_DOES_NOT_EXIST)) {
-                collectedTopology.setFailureInformation(ResultType.ConfigurationMisMatch, MdcManager.getIssueCollector().addProblem(getMasterDevice(), "topologyMismatch"));
+                collectedTopology.setFailureInformation(ResultType.ConfigurationMisMatch, MdcManager.getIssueCollector().addWarning(getMasterDevice(), "topologyMismatch"));
             } else {
                 collectedTopology.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(getMasterDevice(), "CouldNotParseTopologyData"));
             }

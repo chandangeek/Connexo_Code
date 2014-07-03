@@ -70,9 +70,9 @@ public class LogBookFactory implements DeviceLogBookSupport {
             }
         } catch (NotExecutedException e) {
             if (e.getErrorStructure().getNotExecutedError().getErrorCode().equals(NotExecutedError.ErrorCode.COMMAND_NOT_IMPLEMENTED)) {
-                collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addProblem(logBookReader.getLogBookObisCode(), "logBookXnotsupported", logBookReader.getLogBookObisCode()));
+                collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(logBookReader.getLogBookObisCode(), "logBookXnotsupported", logBookReader.getLogBookObisCode()));
             } else if (e.getErrorStructure().getNotExecutedError().getErrorCode().equals(NotExecutedError.ErrorCode.SLAVE_DOES_NOT_EXIST)) {
-                collectedLogBook.setFailureInformation(ResultType.ConfigurationMisMatch, MdcManager.getIssueCollector().addProblem(logBookReader.getMeterSerialNumber(), "topologyMismatch", logBookReader.getMeterSerialNumber()));
+                collectedLogBook.setFailureInformation(ResultType.ConfigurationMisMatch, MdcManager.getIssueCollector().addWarning(logBookReader.getMeterSerialNumber(), "topologyMismatch", logBookReader.getMeterSerialNumber()));
             } else {
                 collectedLogBook.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(logBookReader.getLogBookObisCode(), "CouldNotParseLogBookData"));
             }
@@ -136,7 +136,7 @@ public class LogBookFactory implements DeviceLogBookSupport {
 
     private CollectedLogBook createNotSupportedCollectedLogBook(LogBookReader logBookReader) {
         CollectedLogBook failedLogBook = createDeviceLogBook(logBookReader);
-        failedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addProblem(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode()));
+        failedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode()));
         return failedLogBook;
     }
 

@@ -308,13 +308,13 @@ public class RegisterFactory implements DeviceRegisterSupport {
 
     private CollectedRegister createNotSupportedCollectedRegister(OfflineRegister register) {
         CollectedRegister failedRegister = createDeviceRegister(register);
-        failedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addProblem(register, "registerXnotsupported", register.getObisCode()));
+        failedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(register, "registerXnotsupported", register.getObisCode()));
         return failedRegister;
     }
 
     private CollectedRegister createTopologyMisMatchCollectedRegister(OfflineRegister register) {
         CollectedRegister failedRegister = createDeviceRegister(register);
-        failedRegister.setFailureInformation(ResultType.ConfigurationMisMatch, MdcManager.getIssueCollector().addProblem(register, "topologyMismatch"));
+        failedRegister.setFailureInformation(ResultType.ConfigurationMisMatch, MdcManager.getIssueCollector().addWarning(register, "topologyMismatch"));
         return failedRegister;
     }
 
