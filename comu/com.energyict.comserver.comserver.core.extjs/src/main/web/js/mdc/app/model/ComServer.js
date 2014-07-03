@@ -46,7 +46,7 @@ Ext.define('Mdc.model.ComServer', {
     ],
     proxy: {
         type: 'rest',
-        url: '../../api/mdc/comservers',
+        url: '/api/mdc/comservers',
         reader: {
             type: 'json'
         }
