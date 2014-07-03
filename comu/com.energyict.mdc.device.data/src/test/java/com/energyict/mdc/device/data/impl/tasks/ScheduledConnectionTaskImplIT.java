@@ -807,6 +807,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     }
 
     @Test
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.CONNECTION_METHOD_COMPORT_POOL_REQUIRED_KEY + "}")
     @Transactional
     public void testCreateWithoutComPortPoolButIncompleteStatus() {
         ScheduledConnectionTaskImpl connectionTask =
@@ -819,7 +820,6 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         // Business method
         connectionTask.save();
 
-        assertThat(connectionTask.getStatus()).isEqualTo(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE);
     }
 
 
@@ -839,8 +839,6 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
         // Asserts: see ExpectedConstraintViolation rule
     }
-
-    //todo test invalid pool and other invalid stuff so the property is different
 
     @Test
     @Transactional
@@ -1881,12 +1879,6 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         // Asserts
         assertThat(connectionTask.isDefault()).isTrue();
     }
-
-//    @Test
-//    @Transactional
-//    public void createConnectionTaskWithoutRequiredPropertyInInCompleteStateTest() {
-//
-//    }
 
     private void assertConnectionTask(List<ConnectionTask> outboundConnectionTasks, ScheduledConnectionTaskImpl... tasks) {
         assertThat(outboundConnectionTasks).isNotNull();
