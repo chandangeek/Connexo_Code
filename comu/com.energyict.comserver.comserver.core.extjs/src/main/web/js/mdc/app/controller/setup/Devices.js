@@ -90,10 +90,29 @@ Ext.define('Mdc.controller.setup.Devices', {
             failure: function (record, operation) {
                 var json = Ext.decode(operation.response.responseText);
                 if (json && json.errors) {
+                    me.showErrorPanel(form);
                     form.getForm().markInvalid(json.errors);
                 }
             }
         });
+    },
+
+    showErrorPanel: function(form) {
+        var formErrorsPlaceHolder = form.down('#addDeviceFormErrors');
+
+        formErrorsPlaceHolder.hide();
+        formErrorsPlaceHolder.removeAll();
+        formErrorsPlaceHolder.add(
+            {
+                xtype: 'box',
+                height: 22,
+                width: 26,
+                cls: 'x-uni-form-error-msg-icon'
+            },
+            {
+                html: Uni.I18n.translate('addDevice.form.errors', 'MDC', 'There are errors on this page that require your attention.')
+            });
+        formErrorsPlaceHolder.show();
     }
 });
 
