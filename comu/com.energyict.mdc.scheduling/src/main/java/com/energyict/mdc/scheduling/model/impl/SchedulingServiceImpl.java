@@ -25,6 +25,8 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -94,6 +96,7 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService 
                 bind(DataModel.class).toInstance(dataModel);
                 bind(EventService.class).toInstance(eventService);
                 bind(Thesaurus.class).toInstance(thesaurus);
+                bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(TaskService.class).toInstance(tasksService);
                 bind(SchedulingService.class).toInstance(SchedulingServiceImpl.this);
             }
