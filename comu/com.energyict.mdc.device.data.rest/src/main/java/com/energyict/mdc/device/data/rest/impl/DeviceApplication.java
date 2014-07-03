@@ -62,7 +62,8 @@ public class DeviceApplication extends Application implements InstallService{
                 LocalizedFieldValidationExceptionMapper.class,
                 JsonMappingExceptionMapper.class,
                 LocalizedExceptionMapper.class,
-                ProtocolDialectResource.class
+                ProtocolDialectResource.class,
+                RegisterConfigurationResource.class
         );
     }
 
