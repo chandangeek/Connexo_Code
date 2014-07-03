@@ -70,18 +70,16 @@ public enum MessageSeeds implements MessageSeed {
         logger.log(getLevel(), format.format(args), t);
     }
 
+    public enum Constants {
+        ;
+        public static final String DUPLICATE_VALIDATION_RULE_SET = "DuplicateValidationRuleSet";
+        public static final String NAME_REQUIRED_KEY = "CanNotBeEmpty";
+        public static final String INVALID_CHARS = "InvalidChars";
+        public static final String NO_SUCH_VALIDATOR = "NoSuchValidator";
+        public static final String DUPLICATE_VALIDATION_RULE = "DuplicateValidationRule";
+        public static final String NO_SUCH_READINGTYPE = "NoSuchReadingType";
+        public static final String FIELD_SIZE_BETWEEN_1_AND_80 = "FieldSizeBetween1and80";
+        public static final String FIELD_SIZE_BETWEEN_1_AND_4000 = "FieldSizeBetween1and4000";
+    }
 }
 
-enum Constants {
-    ;
-    public static final String DUPLICATE_VALIDATION_RULE_SET = "DuplicateValidationRuleSet";
-    public static final String NAME_REQUIRED_KEY = "CanNotBeEmpty";
-    public static final String INVALID_CHARS = "InvalidChars";
-    public static final String NO_SUCH_VALIDATOR = "NoSuchValidator";
-    public static final String DUPLICATE_VALIDATION_RULE = "DuplicateValidationRule";
-    public static final String NO_SUCH_READINGTYPE = "NoSuchReadingType";
-    public static final String FIELD_SIZE_BETWEEN_1_AND_80 = "FieldSizeBetween1and80";
-    public static final String FIELD_SIZE_BETWEEN_1_AND_4000 = "FieldSizeBetween1and4000";
-
-
-}

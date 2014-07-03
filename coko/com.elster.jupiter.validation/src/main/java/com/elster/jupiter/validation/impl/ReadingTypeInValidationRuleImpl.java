@@ -15,7 +15,7 @@ import java.util.Objects;
 
 public class ReadingTypeInValidationRuleImpl implements ReadingTypeInValidationRule {
 
-    @ValidReadingType(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NO_SUCH_READINGTYPE + "}")
+    @ValidReadingType(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NO_SUCH_READINGTYPE + "}")
     private String readingTypeMRID;
 
     private ReadingType readingType;

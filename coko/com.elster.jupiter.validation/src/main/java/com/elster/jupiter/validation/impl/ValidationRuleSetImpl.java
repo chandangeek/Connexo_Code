@@ -30,6 +30,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import static com.elster.jupiter.util.conditions.Where.where;
+import static com.elster.jupiter.validation.impl.MessageSeeds.Constants;
 
 @XmlRootElement
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.DUPLICATE_VALIDATION_RULE_SET + "}")

@@ -51,9 +51,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import static com.elster.jupiter.validation.impl.MessageSeeds.Constants;
+
 @XmlRootElement
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.DUPLICATE_VALIDATION_RULE + "}")
-//@ValidValidationRule(groups = { Save.Create.class, Save.Update.class })
 public final class ValidationRuleImpl implements ValidationRule, IValidationRule {
     private long id;
 
