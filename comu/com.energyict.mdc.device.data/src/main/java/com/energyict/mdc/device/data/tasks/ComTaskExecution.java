@@ -323,4 +323,27 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
     public List<ProtocolTask> getProtocolTasks();
 
     public List<ComTask> getComTasks();
+
+    /**
+     * Tests if this ComTaskExecution is configured to execute the ComSchedule.
+     * Note that only {@link ScheduledComTaskExecution} can be configured to do this.
+     *
+     * @see #isScheduled()
+     */
+    public boolean executesComSchedule(ComSchedule comSchedule);
+
+    /**
+     * Tests if this ComTaskExecution is configured to execute the {@link ComTask}.
+     * Note that this can be the case when:
+     * <ul>
+     * <li>The ComTaskExecution is configured to execute a {@link ComSchedule} that contains the ComTask</li>
+     * <li>The ComTaskExecution is an adhoc execution for the ComTask</li>
+     * <li>The ComTaskExecution is a manually scheduled execution for the ComTask</li>
+     * </ul>
+     *
+     * @see #isAdHoc()
+     * @see #isScheduledManually()
+     */
+    public boolean executesComTask(ComTask comTask);
+
 }

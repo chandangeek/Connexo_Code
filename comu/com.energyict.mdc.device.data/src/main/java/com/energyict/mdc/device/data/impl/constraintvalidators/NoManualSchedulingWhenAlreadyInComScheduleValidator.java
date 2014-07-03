@@ -29,7 +29,7 @@ public class NoManualSchedulingWhenAlreadyInComScheduleValidator implements Cons
         for (ComTaskExecution other : manuallyScheduledComTaskExecution.getDevice().getComTaskExecutions()) {
             if (other.getId() != manuallyScheduledComTaskExecution.getId()) {
                 ComTaskExecutionImpl serverComTaskExecution = (ComTaskExecutionImpl) other;
-                if (serverComTaskExecution.isScheduled() && serverComTaskExecution.usesComTask(comTask)) {
+                if (serverComTaskExecution.isScheduled() && serverComTaskExecution.executesComTask(comTask)) {
                     context.disableDefaultConstraintViolation();
                     context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.NO_MANUAL_SCHEDULING_FOR_COMTASKS_IN_COMSCHEDULE + "}")
                             .addPropertyNode(ComTaskExecutionFields.COMTASK.fieldName())

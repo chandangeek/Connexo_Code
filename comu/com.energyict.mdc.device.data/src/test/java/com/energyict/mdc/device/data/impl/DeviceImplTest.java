@@ -29,12 +29,18 @@ import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.DefaultSystemTimeZoneFactory;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDependant;
+import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.exceptions.StillGatewayException;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.scheduling.TemporalExpression;
+import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
+
+import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -962,6 +968,24 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         simpleDevice.delete();
 
         verify(deviceDependant).notifyDeviceDelete(simpleDevice);
+    }
+
+    @Test(expected = CannotDeleteComScheduleFromDevice.class)
+    @Transactional
+    public void removeComScheduleThatWasNotAddedToDevice() {
+        ComSchedule comSchedule = this.createComSchedule("removeComScheduleThatWasNotAddedToDevice");
+        Device simpleDevice = this.createSimpleDevice();
+
+        // Business method
+        simpleDevice.removeComSchedule(comSchedule);
+
+        // Asserts: see expected exception rule
+    }
+
+    private ComSchedule createComSchedule(String mRIDAndName) {
+        ComScheduleBuilder builder = inMemoryPersistence.getSchedulingService().newComSchedule(mRIDAndName, new TemporalExpression(TimeDuration.days(1)), new UtcInstant(clock.now()));
+        builder.mrid(mRIDAndName);
+        return builder.build();
     }
 
     private DeviceConfiguration createDeviceConfigurationWithTwoRegisterSpecs() {
