@@ -2,8 +2,19 @@ Ext.define('Mdc.view.setup.comserver.ComServerOverview', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.comServerOverview',
     requires: [
-        'Mdc.view.setup.comserver.ActionMenu'
+        'Mdc.view.setup.comserver.ActionMenu',
+        'Mdc.view.setup.comserver.SubMenu'
     ],
+    side: {
+        xtype: 'panel',
+        ui: 'medium',
+        title: Uni.I18n.translate('comserver.title.communicationServers', 'MDC', 'Communication servers'),
+        width: 300,
+        items: [{
+            xtype: 'comserversubmenu',
+            itemId: 'comserversubmenu'
+        }]
+    },
     content: [
         {
             xtype: 'container',

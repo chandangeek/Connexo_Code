@@ -112,12 +112,6 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
             widget,
             addMenus;
 
-        comServerModel.load(id, {
-            success: function (record) {
-                me.getApplication().fireEvent('comServerOverviewLoad', record);
-            }
-        });
-
         comPortModel.getProxy().url = url;
         comPortsStore.getProxy().url = url;
         me.checkLoadingOfNecessaryStores(function () {
@@ -127,6 +121,12 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
                 menu.comServerId = id;
             });
             me.getApplication().fireEvent('changecontentevent', widget);
+            comServerModel.load(id, {
+                success: function (record) {
+                    widget.down('comserversubmenu').setServer(record);
+                    me.getApplication().fireEvent('comServerOverviewLoad', record);
+                }
+            });
         }, storesArr);
     },
 

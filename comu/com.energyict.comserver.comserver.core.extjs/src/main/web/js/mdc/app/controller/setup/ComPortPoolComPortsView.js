@@ -59,17 +59,17 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
             ],
             widget;
 
-        comPortPoolModel.load(id, {
-            success: function (record) {
-                me.getApplication().fireEvent('comPortPoolOverviewLoad', record);
-            }
-        });
-
         comPortModel.getProxy().url = url;
         comPortsStore.getProxy().url = url;
         me.checkLoadingOfNecessaryStores(function () {
             widget = Ext.widget('comPortPoolsComPortsView');
             me.getApplication().fireEvent('changecontentevent', widget);
+            comPortPoolModel.load(id, {
+                success: function (record) {
+                    widget.down('comportpoolsubmenu').setServer(record);
+                    me.getApplication().fireEvent('comPortPoolOverviewLoad', record);
+                }
+            });
         }, storesArr);
     },
 

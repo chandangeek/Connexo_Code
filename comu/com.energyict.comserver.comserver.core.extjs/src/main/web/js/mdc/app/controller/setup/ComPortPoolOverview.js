@@ -48,6 +48,7 @@ Ext.define('Mdc.controller.setup.ComPortPoolOverview', {
                 }
                 form.loadRecord(record);
                 widget.down('comportpool-actionmenu').record = record;
+                widget.down('comportpoolsubmenu').setServer(record);
                 me.getApplication().fireEvent('comPortPoolOverviewLoad', record);
             },
             callback: function () {

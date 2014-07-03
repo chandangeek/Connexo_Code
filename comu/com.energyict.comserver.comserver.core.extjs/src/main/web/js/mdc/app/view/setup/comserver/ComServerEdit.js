@@ -39,6 +39,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                     name: 'name',
                     fieldLabel: Uni.I18n.translate('general.formFieldLabel.name', 'MDC', 'Name'),
                     allowBlank: false,
+                    maxLength: 75,
                     required: true,
                     width: 600
                 },

@@ -49,7 +49,7 @@ Ext.define('Mdc.view.setup.comservercomports.forms.SERVLET', {
                     name: 'comPortType'
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('comports.preview.inComPortPools', 'MDC', 'Inbound communication port pools'),
+                    fieldLabel: Uni.I18n.translate('comports.preview.inComPortPools', 'MDC', 'Communication port pools'),
                     name: 'inboundComPortPools'
                 },
                 {
