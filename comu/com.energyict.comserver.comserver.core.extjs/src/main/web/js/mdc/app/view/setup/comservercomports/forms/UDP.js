@@ -45,7 +45,7 @@ Ext.define('Mdc.view.setup.comservercomports.forms.UDP', {
                     name: 'comPortType'
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('comports.preview.outComPortPools', 'MDC', 'Outbound communication port pools'),
+                    fieldLabel: Uni.I18n.translate('comports.preview.communicationPortPools', 'MDC', 'Communication port pools'),
                     name: 'outboundComPortPoolIds'
                 }
             ]

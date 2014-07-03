@@ -27,11 +27,23 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
                         align: 'stretch'
                     },
                     defaults: {
-                        xtype: 'textfield',
                         labelWidth: 250
                     },
                     items: [
                         {
+                            name: 'errors',
+                            ui: 'form-error-framed',
+                            itemId: 'addDeviceFormErrors',
+                            layout: 'hbox',
+                            margin: '0 0 10 0',
+                            hidden: true,
+                            defaults: {
+                                xtype: 'container',
+                                margin: '0 0 0 10'
+                            }
+                        },
+                        {
+                            xtype: 'textfield',
                             name: 'mRID',
                             itemId: 'deviceAddMRID',
                             fieldLabel: Uni.I18n.translate('deviceAdd.mrid', 'MDC', 'MRID'),
@@ -41,6 +53,7 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
                             enforceMaxLength: true
                         },
                         {
+                            xtype: 'textfield',
                             name: 'serialNumber',
                             itemId: 'deviceAddSerial',
                             fieldLabel: Uni.I18n.translate('deviceAdd.serialNumber', 'MDC', 'Serial number'),
@@ -56,7 +69,7 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
                             autoSelect: true,
                             labelAlign: 'right',
                             fieldLabel: Uni.I18n.translate('deviceAdd.type.label', 'MDC', 'Device type'),
-                            emptyText: Uni.I18n.translate('deviceAdd.type.value', 'MDC', 'Select a device type'),
+                            emptyText: Uni.I18n.translate('deviceAdd.type.value', 'MDC', 'Select a device type...'),
                             displayField: 'name',
                             valueField: 'id',
                             store: 'DeviceTypes',
@@ -92,7 +105,7 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
                             enabled: false,
                             labelAlign: 'right',
                             fieldLabel: Uni.I18n.translate('deviceAdd.config.label', 'MDC', 'Device configuration'),
-                            emptyText: Uni.I18n.translate('deviceAdd.config.value', 'MDC', 'Select a device configuration'),
+                            emptyText: Uni.I18n.translate('deviceAdd.config.value', 'MDC', 'Select a device configuration...'),
                             displayField: 'name',
                             valueField: 'id',
                             disabled: true,
@@ -150,6 +163,7 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
                             }
                         },
                         {
+                            xtype: 'textfield',
                             name: 'batch',
                             itemId: 'deviceAddBatch',
                             fieldLabel: Uni.I18n.translate('deviceAdd.batch', 'MDC', 'Batch'),

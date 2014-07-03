@@ -96,7 +96,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                             },
                             items: [
                                 {
-                                    xtype: 'textfield',
+                                    xtype: 'numberfield',
                                     name: 'changesInterPollDelay[count]',
                                     width: 150,
                                     margin: '0 10 0 0'
@@ -139,7 +139,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                             },
                             items: [
                                 {
-                                    xtype: 'textfield',
+                                    xtype: 'numberfield',
                                     name: 'schedulingInterPollDelay[count]',
                                     width: 150,
                                     margin: '0 10 0 0'

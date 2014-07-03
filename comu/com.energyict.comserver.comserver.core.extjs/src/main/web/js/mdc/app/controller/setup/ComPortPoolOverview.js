@@ -98,11 +98,16 @@ Ext.define('Mdc.controller.setup.ComPortPoolOverview', {
                     var msg = activeChange ? Uni.I18n.translate('comPortPool.changeState.activated', 'MDC', 'activated') :
                         Uni.I18n.translate('comPortPool.changeState.deactivated', 'MDC', 'deactivated');
                     form.loadRecord(model);
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comPortPool.changeState.msg', 'MDC', 'Communication port pool' + ' ' + msg));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comPortPool.changeState.msg', 'MDC', 'Communication port pool') + ' ' + msg);
                 }
             });
         }
 
+    },
+
+    editComPortPool: function () {
+        var router = this.getController('Uni.controller.history.Router');
+        router.getRoute('administration/comportpools/detail/edit').forward();
     },
 
     deleteComPortPool: function (record) {
