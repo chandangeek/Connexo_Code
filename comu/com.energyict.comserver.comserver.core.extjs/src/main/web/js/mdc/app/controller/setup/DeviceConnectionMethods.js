@@ -115,14 +115,15 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
     },
 
     previewDeviceConnectionMethod: function () {
+        debugger;
         var connectionMethod = this.getDeviceConnectionMethodsGrid().getSelectionModel().getSelection();
         if (connectionMethod.length == 1) {
             this.getToggleDefaultMenuItem().setText(connectionMethod[0].get('isDefault') === true ? Uni.I18n.translate('deviceconnectionmethod.unsetAsDefault', 'MDC', 'Remove as default') : Uni.I18n.translate('deviceconnectionmethod.setAsDefault', 'MDC', 'Set as default'));
             this.getToggleActiveMenuItem().setText(connectionMethod[0].get('status') === 'connectionTaskStatusInActive' ? Uni.I18n.translate('deviceconnectionmethod.activate', 'MDC', 'Activate') : Uni.I18n.translate('deviceconnectionmethod.deActivate', 'MDC', 'Deactivate'));
             if(connectionMethod[0].get('status')==='connectionTaskStatusIncomplete'){
-                this.getToggleActiveMenuItem().hidden = true;
+                this.getToggleActiveMenuItem().setVisible(false);
             } else {
-                this.getToggleActiveMenuItem().hidden = false;
+                this.getToggleActiveMenuItem().setVisible(true);
             }
             this.getDeviceConnectionMethodPreviewForm().loadRecord(connectionMethod[0]);
             var connectionMethodName = connectionMethod[0].get('name');
@@ -238,6 +239,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         this.getDeviceConnectionMethodEditView().down('#connectionStrategyComboBox').setDisabled(false);
         this.getDeviceConnectionMethodEditView().down('#scheduleField').setDisabled(false);
         this.getDeviceConnectionMethodEditView().down('#activeRadioGroup').setDisabled(false);
+        this.getDeviceConnectionMethodEditView().down('#comWindowField').setDisabled(false);
         // this.getDeviceConnectionMethodEditView().down('#rescheduleRetryDelay').setDisabled(false);
         this.getDeviceConnectionMethodEditView().down('#allowSimultaneousConnections').setDisabled(false);
         if (connectionMethod.get('connectionStrategy') === 'minimizeConnections') {
@@ -332,7 +334,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
             failure: function (record, operation) {
                 var json = Ext.decode(operation.response.responseText);
                 if (json && json.errors) {
-                    if(json.errors.some(function(error){
+                    if(json.errors.every(function(error){
                         return error.id === 'status'
                     })){
                         Ext.create('Uni.view.window.Confirmation',{
@@ -416,6 +418,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                 connectionMethodModel.load(connectionMethodId, {
                     success: function (connectionMethod) {
                         me.getApplication().fireEvent('loadDevice', device);
+                        me.getApplication().fireEvent('loadConnectionMethod', connectionMethod);
                         var widget = Ext.widget('deviceConnectionMethodEdit', {
                             edit: true,
                             returnLink: '#/devices/' + me.mrid + '/connectionmethods',
@@ -437,13 +440,15 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                                     callback: function () {
                                         connectionStrategiesStore.load({
                                             callback: function () {
-                                                var title = connectionMethod.get('direction') === 'Outbound' ? Uni.I18n.translate('deviceconnectionmethod.editOutboundConnectionMethod', 'MDC', 'Edit outbound connection method') : Uni.I18n.translate('deviceconnectionmethod.editInboundConnectionMethod', 'MDC', 'Edit inbound connection method');
+                                                var title = Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + connectionMethod.get('name');
                                                 widget.down('#deviceConnectionMethodEditAddTitle').update('<h1>' + title + '</h1>');
                                                 me.getDeviceConnectionMethodEditView().down('#communicationPortPoolComboBox').setDisabled(false);
                                                 me.getDeviceConnectionMethodEditView().down('#allowSimultaneousConnections').setDisabled(false);
                                                 me.getDeviceConnectionMethodEditView().down('#connectionStrategyComboBox').setDisabled(false);
                                                 me.getDeviceConnectionMethodEditView().down('#scheduleField').setDisabled(false);
                                                 me.getDeviceConnectionMethodEditView().down('#activeRadioGroup').setDisabled(false);
+                                                me.getDeviceConnectionMethodEditView().down('#comWindowField').setDisabled(false);
+
                                                 me.getDeviceConnectionMethodComboBox().setDisabled(true);
                                                 me.getDeviceConnectionMethodEditView().down('form').loadRecord(connectionMethod);
                                                 if (connectionMethod.get('connectionStrategy') === 'minimizeConnections') {

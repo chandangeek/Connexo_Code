@@ -13,7 +13,7 @@ Ext.define('Mdc.store.ComServers',{
     remoteSort: true,
     proxy: {
         type: 'rest',
-        url: '../../api/mdc/comservers',
+        url: '/api/mdc/comservers',
         reader: {
             type: 'json',
             root: 'data'

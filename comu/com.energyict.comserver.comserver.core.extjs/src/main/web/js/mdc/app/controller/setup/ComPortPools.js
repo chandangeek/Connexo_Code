@@ -98,7 +98,7 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
                     gridView.refresh();
                     form.loadRecord(model);
                     me.getPreviewActionMenu().record = model;
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comPortPool.changeState.msg', 'MDC', 'Communication port pool' + ' ' + msg));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comPortPool.changeState.msg', 'MDC', 'Communication port pool') + ' ' + msg);
                 }
             });
         }
@@ -114,7 +114,7 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
         model.load(id, {
             success: function (record) {
                 if (!form.isDestroyed) {
-                    record.data.direction == 'outbound' ? form.down('displayfield[name=discoveryProtocolPluggableClassId]').hide() :
+                    record.get('direction').toLowerCase() == 'outbound' ? form.down('displayfield[name=discoveryProtocolPluggableClassId]').hide() :
                         form.down('displayfield[name=discoveryProtocolPluggableClassId]').show() ;
                     form.loadRecord(record);
                     form.up('panel').down('menu').record = record;
@@ -135,7 +135,7 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
         var me = this;
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('comPortPool.deleteConfirmation.msg', 'MDC', 'This communication port pool will no longer be available.'),
-            title: Ext.String.format(Uni.I18n.translate('comPortPool.deleteConfirmation.title', 'MDC', 'Remove communication port pool \'{0}\'?'), record.get('name')),
+            title: Ext.String.format(Uni.I18n.translate('comPortPool.deleteConfirmation.title', 'MDC', 'Remove \'{0}\'?'), record.get('name')),
             fn: function (state) {
                 switch (state) {
                     case 'confirm':
@@ -152,12 +152,14 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
 
     deleteComPortPool: function (record) {
         var me = this,
-            page = me.getComPortPoolsSetup();
+            page = me.getComPortPoolsSetup(),
+            gridToolbarTop = me.getComPortPoolGrid().down('pagingtoolbartop');
         page.setLoading('Removing...');
         record.destroy({
             callback: function (model, operation) {
                 page.setLoading(false);
                 if (operation.response.status == 204) {
+                    gridToolbarTop.totalCount = 0;
                     me.getComPortPoolGrid().getStore().loadPage(1);
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comPortPool.deleteSuccess.msg', 'MDC', 'Communication port pool removed'));
                 } else if (operation.response.status == 400) {

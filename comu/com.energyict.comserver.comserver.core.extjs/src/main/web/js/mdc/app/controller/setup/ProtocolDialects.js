@@ -3,9 +3,7 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
     deviceTypeId: null,
     deviceConfigurationId: null,
     requires: [
-        'Mdc.store.ProtocolDialectsOfDeviceConfiguration',
-        'Mdc.controller.setup.Properties',
-        'Mdc.controller.setup.PropertiesView'
+        'Mdc.store.ProtocolDialectsOfDeviceConfiguration'
     ],
 
     views: [
@@ -26,7 +24,8 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
         {ref: 'protocolDialectPreviewTitle', selector: '#protocolDialectPreviewTitle'},
         {ref: 'protocolDialectEditView', selector: '#protocolDialectEdit'},
         {ref: 'protocolDialectEditForm', selector: '#protocolDialectEditForm'},
-        {ref: 'protocolDialectsDetailsTitle', selector: '#protocolDialectsDetailsTitle'}
+        {ref: 'protocolDialectsDetailsTitle', selector: '#protocolDialectsDetailsTitle'},
+        {ref: 'restoreAllButton', selector: '#protocolDialectEdit #restoreAllButton'}
     ],
 
     init: function () {
@@ -40,11 +39,14 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
             '#protocolDialectPreview menuitem[action=editProtocolDialect]': {
                 click: this.editProtocolDialectHistoryFromPreview
             },
-            '#addEditButton[action=editProtocolDialect]': {
+            '#protocolDialectEdit #addEditButton[action=editProtocolDialect]': {
                 click: this.editProtocolDialect
             },
-            '#restoreAllButton[action=restoreAll]': {
+            '#protocolDialectEdit #restoreAllButton[action=restoreAll]': {
                 click: this.restoreAllDefaults
+            },
+            '#protocolDialectEdit property-form': {
+                dirtychange: this.enableRestoreAllButton
             }
         });
     },
@@ -88,19 +90,12 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
             } else {
                 this.getProtocolDialectsDetailsTitle().setVisible(false);
             }
-            this.getPropertiesViewController().showProperties(protocolDialect[0], this.getProtocolDialectPreview());
+
+            this.getProtocolDialectPreview().down('property-form').loadRecord(protocolDialect[0]);
             this.getProtocolDialectPreview().setTitle(protocolDialectName);
         } else {
             this.getProtocolDialectPreview().getLayout().setActiveItem(0);
         }
-    },
-
-    getPropertiesViewController: function () {
-        return this.getController('Mdc.controller.setup.PropertiesView');
-    },
-
-    getPropertiesController: function () {
-        return this.getController('Mdc.controller.setup.Properties');
     },
 
     addProtocolDialectHistory: function () {
@@ -143,7 +138,7 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
                             success: function (deviceConfiguration) {
                                 me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfiguration);
                                 widget.down('form').loadRecord(protocolDialect);
-                                me.getPropertiesController().showProperties(protocolDialect, widget);
+                                widget.down('property-form').loadRecord(protocolDialect);
                                 widget.down('#protocolDialectEditAddTitle').update('<h1>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' \'' + protocolDialect.get('name') + '\'</h1>');
                                 me.getApplication().fireEvent('changecontentevent', widget);
                                 widget.setLoading(false);
@@ -160,9 +155,11 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
             values = this.getProtocolDialectEditForm().getValues(),
             me = this;
 
+        var propertyForm = me.getProtocolDialectEditView().down('property-form');
         if (record) {
             record.set(values);
-            record.propertiesStore = me.getPropertiesController().updateProperties();
+            propertyForm.updateRecord();
+            record.propertiesStore = propertyForm.getRecord().properties();
             record.save({
                 success: function (record) {
                     location.href = '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/protocols';
@@ -172,16 +169,26 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
                     var json = Ext.decode(operation.response.responseText);
                     if (json && json.errors) {
                         me.getProtocolDialectEditForm().getForm().markInvalid(json.errors);
-                        me.getPropertiesController().showErrors(json.errors);
+                        propertyForm.getForm().markInvalid(json.errors);
                     }
                 }
             });
         }
     },
 
-    restoreAllDefaults: function () {
-        this.getPropertiesController().restoreAllDefaults();
-    }
+    enableRestoreAllButton: function (form, dirty) {
+        var me = this;
 
+        if (typeof(me.getRestoreAllButton()) !== 'undefined') {
+            me.getRestoreAllButton().disable();
+            if (dirty) {
+                me.getRestoreAllButton().enable();
+            }
+        }
+    },
+
+    restoreAllDefaults: function () {
+        this.getProtocolDialectEditView().down('property-form').restoreAll();
+    }
 });
 

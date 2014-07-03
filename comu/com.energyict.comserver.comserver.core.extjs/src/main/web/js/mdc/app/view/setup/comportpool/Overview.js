@@ -2,8 +2,19 @@ Ext.define('Mdc.view.setup.comportpool.Overview', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.comPortPoolOverview',
     requires: [
-        'Mdc.view.setup.comportpool.ActionMenu'
+        'Mdc.view.setup.comportpool.ActionMenu',
+        'Mdc.view.setup.comportpool.SubMenu'
     ],
+    side: {
+        xtype: 'panel',
+        ui: 'medium',
+        title: Uni.I18n.translate('', 'MDC', 'Communication port pools'),
+        width: 350,
+        items: [{
+            xtype: 'comportpoolsubmenu',
+            itemId: 'comportpoolsubmenu'
+        }]
+    },
     content: [
         {
             xtype: 'container',

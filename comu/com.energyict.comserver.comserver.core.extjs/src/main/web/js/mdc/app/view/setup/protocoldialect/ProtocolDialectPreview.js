@@ -4,7 +4,7 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectPreview', {
     itemId: 'protocolDialectPreview',
     requires: [
         'Mdc.model.ProtocolDialect',
-        'Mdc.view.setup.property.PropertyView',
+        'Uni.property.form.Property',
         'Mdc.view.setup.protocoldialect.ProtocolDialectActionMenu'
     ],
     frame: true,
@@ -120,9 +120,18 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectPreview', {
                     ]
                 },
                 {
-                    xtype: 'propertyView'
-                }
+                    xtype: 'property-form',
+                    isEdit: false,
+                    layout: 'column',
 
+                    defaults: {
+                        xtype: 'container',
+                        layout: 'form',
+                        resetButtonHidden: true,
+                        labelWidth: 250,
+                        columnWidth: 0.5
+                    }
+                }
             ]
         }
     ],

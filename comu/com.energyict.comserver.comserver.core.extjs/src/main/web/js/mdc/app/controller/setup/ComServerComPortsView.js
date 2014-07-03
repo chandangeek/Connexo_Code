@@ -35,6 +35,10 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
         {
             ref: 'comPortsGrid',
             selector: 'comServerComPortsView comServerComPortsGrid'
+        },
+        {
+            ref: 'previewActionMenu',
+            selector: 'comServerComPortPreview #comServerComPortsActionMenu'
         }
     ],
 
@@ -49,10 +53,26 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
             'comServerComPortsView comServerComPortPreview [action=passwordVisibleTrigger]': {
                 change: this.passwordVisibleTrigger
             },
-            'comServerComPortsActionMenu': {
-                click: this.chooseAction
+            '#comServerComPortsActionMenu': {
+                click: this.chooseAction,
+                show: this.configureMenu
             }
         });
+    },
+
+
+    configureMenu: function (menu) {
+        var activate = menu.down('#activate'),
+            deactivate = menu.down('#deactivate'),
+            active = menu.record.data.active;
+
+        if (active) {
+            deactivate.show();
+            activate.hide();
+        } else {
+            activate.show();
+            deactivate.hide();
+        }
     },
 
     checkLoadingOfNecessaryStores: function (callback, storesArr) {
@@ -92,12 +112,6 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
             widget,
             addMenus;
 
-        comServerModel.load(id, {
-            success: function (record) {
-                me.getApplication().fireEvent('comServerOverviewLoad', record);
-            }
-        });
-
         comPortModel.getProxy().url = url;
         comPortsStore.getProxy().url = url;
         me.checkLoadingOfNecessaryStores(function () {
@@ -107,6 +121,12 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
                 menu.comServerId = id;
             });
             me.getApplication().fireEvent('changecontentevent', widget);
+            comServerModel.load(id, {
+                success: function (record) {
+                    widget.down('comserversubmenu').setServer(record);
+                    me.getApplication().fireEvent('comServerOverviewLoad', record);
+                }
+            });
         }, storesArr);
     },
 
@@ -159,13 +179,48 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
     chooseAction: function (menu, item) {
         var me = this,
             gridView = me.getComPortsGrid().getView(),
-            record = gridView.getSelectionModel().getLastSelected();
+            record = gridView.getSelectionModel().getLastSelected(),
+            previewPanel = this.getPreview(),
+            activeChange = 'notChange',
+            storeUrl = me.getComPortsGrid().getStore().getProxy().url,
+            jsonObject;
 
         switch (item.action) {
             case 'remove':
                 me.showDeleteConfirmation(record);
                 break;
+            case 'activate':
+                activeChange = true;
+                break;
+            case 'deactivate':
+                activeChange = false;
+                break;
         }
+
+        if (activeChange != 'notChange') {
+            Ext.Ajax.request({
+                url: storeUrl + '/' + record.getData().id,
+                method: 'GET',
+                success: function (response) {
+                    jsonObject = Ext.JSON.decode(response.responseText);
+                    jsonObject['active'] = activeChange;
+                    Ext.Ajax.request({
+                        url: storeUrl + '/' + record.getData().id,
+                        method: 'PUT',
+                        jsonData: jsonObject,
+                        success: function () {
+                            var msg = activeChange ? Uni.I18n.translate('comPortOnComServer.changeState.activated', 'MDC', 'activated') :
+                                Uni.I18n.translate('comPortOnComServer.changeState.deactivated', 'MDC', 'deactivated');
+                            record.set('active', activeChange);
+                            gridView.refresh();
+                            me.getComPortsGrid().fireEvent('select', gridView, record);
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comPortOnComServer.changeState.msg', 'MDC', 'Communication port ' + ' ' + msg));
+                        }
+                    });
+                }
+            });
+        }
+
     },
 
     showDeleteConfirmation: function (record) {

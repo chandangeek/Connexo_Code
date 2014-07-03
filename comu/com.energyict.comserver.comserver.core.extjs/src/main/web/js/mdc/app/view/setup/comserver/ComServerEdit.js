@@ -39,6 +39,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                     name: 'name',
                     fieldLabel: Uni.I18n.translate('general.formFieldLabel.name', 'MDC', 'Name'),
                     allowBlank: false,
+                    maxLength: 75,
                     required: true,
                     width: 600
                 },
@@ -96,7 +97,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                             },
                             items: [
                                 {
-                                    xtype: 'textfield',
+                                    xtype: 'numberfield',
                                     name: 'changesInterPollDelay[count]',
                                     width: 150,
                                     margin: '0 10 0 0'
@@ -139,7 +140,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                             },
                             items: [
                                 {
-                                    xtype: 'textfield',
+                                    xtype: 'numberfield',
                                     name: 'schedulingInterPollDelay[count]',
                                     width: 150,
                                     margin: '0 10 0 0'
@@ -188,22 +189,27 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                     minValue: 0,
                     required: true,
                     width: 415
-                }
-            ],
-            buttons: [
-                {
-                    text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
-                    xtype: 'button',
-                    ui: 'action',
-                    action: 'saveModel',
-                    itemId: 'createEditButton'
                 },
                 {
-                    text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
-                    xtype: 'button',
-                    ui: 'link',
-                    itemId: 'cancelLink',
-                    href: '#/administration/comservers/'
+                    xtype: 'fieldcontainer',
+                    ui: 'actions',
+                    fieldLabel: '&nbsp',
+                    items: [
+                        {
+                            text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
+                            xtype: 'button',
+                            ui: 'action',
+                            action: 'saveModel',
+                            itemId: 'createEditButton'
+                        },
+                        {
+                            text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                            xtype: 'button',
+                            ui: 'link',
+                            itemId: 'cancelLink',
+                            href: '#/administration/comservers/'
+                        }
+                    ]
                 }
             ]
         }

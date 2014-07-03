@@ -35,7 +35,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                 hrefTarget: '_self'
             },
             {
-                text: Uni.I18n.translate('devicemenu.protocols', 'MDC', 'Protocols'),
+                text: Uni.I18n.translate('devicemenu.protocols', 'MDC', 'Protocol dialects'),
                 itemId: 'protocolLink',
                 href: '#/devices/' + this.mRID + '/protocols',
                 hrefTarget: '_self'

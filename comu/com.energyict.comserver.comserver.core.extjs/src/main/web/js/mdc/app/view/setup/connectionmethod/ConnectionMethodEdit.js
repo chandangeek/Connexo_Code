@@ -8,7 +8,9 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
         'Uni.property.form.Property',
         'Mdc.store.ConnectionTypes',
         'Mdc.widget.ScheduleField',
-        'Mdc.widget.TimeInSecondsField'
+        'Mdc.widget.TimeInSecondsField',
+        'Mdc.widget.TimeInfoField',
+        'Mdc.view.setup.property.Edit'
     ],
 
     isEdit: function () {
@@ -261,7 +263,6 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                         hidden: true,
                         width: '100%'
                     },
-
                     {
                         xtype: 'form',
                         border: false,
