@@ -2,9 +2,7 @@ Ext.define('Mdc.controller.setup.DeviceProtocolDialects', {
     extend: 'Ext.app.Controller',
     mRID: null,
     requires: [
-        'Mdc.store.ProtocolDialectsOfDevice',
-        'Mdc.controller.setup.Properties',
-        'Mdc.controller.setup.PropertiesView'
+        'Mdc.store.ProtocolDialectsOfDevice'
     ],
 
     views: [
@@ -42,9 +40,6 @@ Ext.define('Mdc.controller.setup.DeviceProtocolDialects', {
             },
             '#addEditButton[action=editDeviceProtocolDialect]': {
                 click: this.editProtocolDialect
-            },
-            '#restoreAllButton[action=restoreAll]': {
-                click: this.restoreAllDefaults
             }
         });
     },
@@ -84,7 +79,7 @@ Ext.define('Mdc.controller.setup.DeviceProtocolDialects', {
                         } else {
                             me.getProtocolDialectsDetailsTitle().setVisible(false);
                         }
-                        me.getPropertiesViewController().showProperties(deviceProtocolDialect, me.getDeviceProtocolDialectPreview());
+                        me.getDeviceProtocolDialectPreview().down('property-form').loadRecord(deviceProtocolDialect);
                         me.getDeviceProtocolDialectPreview().setTitle(protocolDialectName);
                     }
                 }
@@ -92,14 +87,6 @@ Ext.define('Mdc.controller.setup.DeviceProtocolDialects', {
         } else {
             me.getDeviceProtocolDialectPreview().getLayout().setActiveItem(0);
         }
-    },
-
-    getPropertiesViewController: function () {
-        return this.getController('Mdc.controller.setup.PropertiesView');
-    },
-
-    getPropertiesController: function () {
-        return this.getController('Mdc.controller.setup.Properties');
     },
 
     editProtocolDialectHistoryFromPreview: function () {
@@ -132,7 +119,7 @@ Ext.define('Mdc.controller.setup.DeviceProtocolDialects', {
                     success: function (device) {
                         me.getApplication().fireEvent('loadDevice', device);
                         widget.down('form').loadRecord(protocolDialect);
-                        me.getPropertiesController().showProperties(protocolDialect, widget);
+                        widget.down('property-form').loadRecord(protocolDialect);
                         widget.down('#deviceProtocolDialectEditAddTitle').update('<h1>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' \'' + protocolDialect.get('name') + '\'</h1>');
                         me.getApplication().fireEvent('changecontentevent', widget);
                         widget.setLoading(false);
@@ -147,9 +134,11 @@ Ext.define('Mdc.controller.setup.DeviceProtocolDialects', {
             values = this.getDeviceProtocolDialectEditForm().getValues(),
             me = this;
 
+        var propertyForm = me.getDeviceProtocolDialectEditView().down('property-form');
         if (record) {
             record.set(values);
-            record.propertiesStore = me.getPropertiesController().updateProperties();
+            propertyForm.updateRecord();
+            record.propertiesStore = propertyForm.getRecord().properties();
             record.save({
                 success: function (record) {
                     location.href = '#/devices/' + me.mRID + '/protocols';
@@ -159,16 +148,11 @@ Ext.define('Mdc.controller.setup.DeviceProtocolDialects', {
                     var json = Ext.decode(operation.response.responseText);
                     if (json && json.errors) {
                         me.getDeviceProtocolDialectEditForm().getForm().markInvalid(json.errors);
-                        me.getPropertiesController().showErrors(json.errors);
+                        propertyForm.getForm().markInvalid(json.errors);
                     }
                 }
             });
         }
     },
-
-    restoreAllDefaults: function () {
-        this.getPropertiesController().restoreAllDefaults();
-    }
-
 });
 
