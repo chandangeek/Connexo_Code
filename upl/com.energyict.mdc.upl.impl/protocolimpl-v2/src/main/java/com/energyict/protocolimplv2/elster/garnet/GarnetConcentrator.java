@@ -67,7 +67,7 @@ public class GarnetConcentrator implements DeviceProtocol {
 
     @Override
     public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
-        return Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_MASTER);
+        return Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_MASTER, DeviceProtocolCapabilities.PROTOCOL_SESSION);
     }
 
     @Override
