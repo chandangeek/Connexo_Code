@@ -3,6 +3,8 @@ package com.elster.jupiter.properties;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import com.elster.jupiter.properties.impl.BasicPropertySpec;
+
 /**
  * Provides building services for {@link PropertySpec}s.
  * All methods for building will return the same PropertySpecBuilder

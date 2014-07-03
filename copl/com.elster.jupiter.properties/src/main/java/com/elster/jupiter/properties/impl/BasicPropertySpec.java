@@ -1,6 +1,12 @@
-package com.elster.jupiter.properties;
+package com.elster.jupiter.properties.impl;
 
 import java.io.Serializable;
+
+import com.elster.jupiter.properties.InvalidValueException;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecPossibleValues;
+import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.properties.ValueRequiredException;
 
 public class BasicPropertySpec<T> implements PropertySpec<T>, Serializable {
 
