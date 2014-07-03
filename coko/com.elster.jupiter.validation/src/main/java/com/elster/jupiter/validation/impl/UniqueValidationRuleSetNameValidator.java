@@ -25,19 +25,25 @@ public class UniqueValidationRuleSetNameValidator implements ConstraintValidator
 
     @Override
     public boolean isValid(ValidationRuleSet ruleSet, ConstraintValidatorContext context) {
-        if (ruleSet == null) {
+        return ruleSet == null || checkValidity(ruleSet, context);
+    }
+
+    private boolean checkValidity(ValidationRuleSet ruleSet, ConstraintValidatorContext context) {
+        Optional<ValidationRuleSet> alreadyExisting = validationService.getValidationRuleSet(ruleSet.getName());
+        return !alreadyExisting.isPresent() || !checkExisting(ruleSet, alreadyExisting.get(), context);
+    }
+
+    private boolean checkExisting(ValidationRuleSet ruleSet, ValidationRuleSet alreadyExisting, ConstraintValidatorContext context) {
+        if (areNotTheSame(ruleSet, alreadyExisting)) {
+            context.disableDefaultConstraintViolation();
+            context.buildConstraintViolationWithTemplate(message).addPropertyNode("name").addConstraintViolation();
             return true;
         }
-        Optional optional = validationService.getValidationRuleSet(ruleSet.getName());
-        if (optional.isPresent()) {
-            ValidationRuleSet ruleSetWithTheSameName = (ValidationRuleSet) optional.get();
-            if (ruleSetWithTheSameName != null && ruleSet.getId() != ruleSetWithTheSameName.getId()) {
-                context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate(message).addPropertyNode("name").addConstraintViolation();
-                return false;
-            }
-        }
-        return true;
+        return false;
+    }
+
+    private boolean areNotTheSame(ValidationRuleSet ruleSet, ValidationRuleSet alreadyExisting) {
+        return ruleSet.getId() != alreadyExisting.getId();
     }
 
 

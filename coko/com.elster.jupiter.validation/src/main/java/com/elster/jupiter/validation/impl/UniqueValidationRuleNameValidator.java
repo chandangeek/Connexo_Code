@@ -3,12 +3,10 @@ package com.elster.jupiter.validation.impl;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
-import com.google.common.base.Optional;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import java.util.List;
 
 public class UniqueValidationRuleNameValidator implements ConstraintValidator<UniqueName, ValidationRule> {
 
@@ -30,22 +28,22 @@ public class UniqueValidationRuleNameValidator implements ConstraintValidator<Un
         if (rule == null) {
             return true;
         }
-        Optional optional = validationService.getValidationRuleSet(rule.getRuleSet().getId());
-        if (!optional.isPresent()) {
-            return true;
-        } else {
-            ValidationRuleSet ruleSet = (ValidationRuleSet) optional.get();
-            List<ValidationRule> rules = (List<ValidationRule>) ruleSet.getRules();
-            for (ValidationRule existingRule : rules) {
-                if (existingRule.getName().equals(rule.getName()) && (existingRule.getId() != rule.getId())) {
-                    context.disableDefaultConstraintViolation();
-                    context.buildConstraintViolationWithTemplate(message).addPropertyNode("name").addConstraintViolation();
-                    return false;
-                }
-            }
+        return !(hasEquallyNamedRule(rule.getRuleSet(), rule, context));
+    }
 
+    private boolean hasEquallyNamedRule(ValidationRuleSet ruleSet, ValidationRule rule, ConstraintValidatorContext context) {
+        for (ValidationRule existingRule : ruleSet.getRules()) {
+            if (areDifferent(rule, existingRule)) {
+                context.disableDefaultConstraintViolation();
+                context.buildConstraintViolationWithTemplate(message).addPropertyNode("name").addConstraintViolation();
+                return true;
+            }
         }
-        return true;
+        return false;
+    }
+
+    private boolean areDifferent(ValidationRule rule, ValidationRule existingRule) {
+        return existingRule.getName().equals(rule.getName()) && (existingRule.getId() != rule.getId());
     }
 
 
