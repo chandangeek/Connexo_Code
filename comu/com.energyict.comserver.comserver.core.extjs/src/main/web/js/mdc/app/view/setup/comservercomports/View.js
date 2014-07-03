@@ -6,8 +6,19 @@ Ext.define('Mdc.view.setup.comservercomports.View', {
         'Mdc.view.setup.comservercomports.Grid',
         'Mdc.view.setup.comservercomports.Preview',
         'Uni.view.container.PreviewContainer',
-        'Mdc.view.setup.comservercomports.AddMenu'
+        'Mdc.view.setup.comservercomports.AddMenu',
+        'Mdc.view.setup.comserver.SubMenu'
     ],
+    side: {
+        xtype: 'panel',
+        ui: 'medium',
+        title: Uni.I18n.translate('comserver.title.communicationServers', 'MDC', 'Communication servers'),
+        width: 300,
+        items: [{
+            xtype: 'comserversubmenu',
+            itemId: 'comserversubmenu'
+        }]
+    },
     content: [
         {
             xtype: 'panel',

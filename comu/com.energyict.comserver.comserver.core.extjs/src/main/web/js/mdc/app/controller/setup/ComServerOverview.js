@@ -21,6 +21,10 @@ Ext.define('Mdc.controller.setup.ComServerOverview', {
         {
             selector: '#comServerOverviewForm',
             ref: 'comServerOverviewForm'
+        },
+        {
+            ref: 'subMenu',
+            selector: 'comServerOverview comserversubmenu'
         }
     ],
 
@@ -86,6 +90,7 @@ Ext.define('Mdc.controller.setup.ComServerOverview', {
                 var form = widget.down('form');
                 form.loadRecord(record);
                 form.up('container').down('container').down('button').menu.record = record;
+                me.getSubMenu().setServer(record);
                 me.getApplication().fireEvent('comServerOverviewLoad', record);
             },
             callback: function () {
