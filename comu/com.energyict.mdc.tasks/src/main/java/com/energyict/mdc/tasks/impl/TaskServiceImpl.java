@@ -26,6 +26,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -106,6 +107,7 @@ public class TaskServiceImpl implements TaskService, InstallService {
                 bind(DataModel.class).toInstance(dataModel);
                 bind(NlsService.class).toInstance(nlsService);
                 bind(Thesaurus.class).toInstance(thesaurus);
+                bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(EventService.class).toInstance(eventService);
                 bind(TaskService.class).toInstance(TaskServiceImpl.this);
                 bind(ComTask.class).to(ComTaskImpl.class);
