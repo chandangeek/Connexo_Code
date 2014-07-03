@@ -93,6 +93,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
 import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
+
 import org.joda.time.DateTimeConstants;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -792,6 +794,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(SchedulingService.class).toInstance(schedulingService);
                 bind(MessageService.class).toInstance(messagingService);
+                bind(MessageInterpolator.class).toInstance(thesaurus);
             }
         };
     }
