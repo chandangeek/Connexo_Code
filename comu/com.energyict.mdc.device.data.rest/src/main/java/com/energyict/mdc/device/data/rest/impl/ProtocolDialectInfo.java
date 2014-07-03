@@ -24,7 +24,7 @@ public class ProtocolDialectInfo {
     public static ProtocolDialectInfo from(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties, ProtocolDialectProperties protocolDialectProperties, UriInfo uriInfo, MdcPropertyUtils mdcPropertyUtils) {
         ProtocolDialectInfo protocolDialectInfo = new ProtocolDialectInfo();
         protocolDialectInfo.id = protocolDialectConfigurationProperties.getId();
-        protocolDialectInfo.name = protocolDialectConfigurationProperties.getDeviceProtocolDialectName();
+        protocolDialectInfo.name = protocolDialectConfigurationProperties.getDeviceProtocolDialect().getDisplayName();
         protocolDialectInfo.availableForUse = true;
 
         List<PropertySpec> propertySpecs = protocolDialectConfigurationProperties.getPropertySpecs();

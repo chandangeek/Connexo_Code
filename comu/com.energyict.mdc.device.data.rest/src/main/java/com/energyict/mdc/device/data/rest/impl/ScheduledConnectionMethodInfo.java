@@ -9,6 +9,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
@@ -76,6 +77,21 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
         if (this.comWindowEnd != null && this.comWindowStart != null) {
             scheduledConnectionTaskBuilder.setCommunicationWindow(new ComWindow(this.comWindowStart, this.comWindowEnd));
         }
+
+        //--- adding properties
+        if (this.properties !=null) {
+            for (PropertySpec<?> propertySpec : partialConnectionTask.getPluggableClass().getPropertySpecs()) {
+                Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, this.properties);
+                if (propertyValue!=null) {
+                    scheduledConnectionTaskBuilder.setProperty(propertySpec.getName(), propertyValue);
+                } else {
+                    scheduledConnectionTaskBuilder.setProperty(propertySpec.getName(), null);
+                }
+            }
+        }
+
+//        writeTo(scheduledConnectionTask, partialConnectionTask, deviceDataService, engineModelService, mdcPropertyUtils);
+
         return scheduledConnectionTaskBuilder.add();
     }
 
