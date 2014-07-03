@@ -135,7 +135,7 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
         var me = this;
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('comPortPool.deleteConfirmation.msg', 'MDC', 'This communication port pool will no longer be available.'),
-            title: Ext.String.format(Uni.I18n.translate('comPortPool.deleteConfirmation.title', 'MDC', 'Remove communication port pool \'{0}\'?'), record.get('name')),
+            title: Ext.String.format(Uni.I18n.translate('comPortPool.deleteConfirmation.title', 'MDC', 'Remove \'{0}\'?'), record.get('name')),
             fn: function (state) {
                 switch (state) {
                     case 'confirm':
