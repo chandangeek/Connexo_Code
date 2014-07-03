@@ -18,7 +18,7 @@ Ext.define('Mdc.view.setup.comserver.ComServersGrid', {
             tpl: '<a href="#/administration/comservers/{id}/overview">{name}</a>'
         },
         {
-            header: Uni.I18n.translate('general.comserverType', 'MDC', 'Comserver type'),
+            header: Uni.I18n.translate('general.type', 'MDC', 'Type'),
             dataIndex: 'comServerType',
             flex: 1
         },
