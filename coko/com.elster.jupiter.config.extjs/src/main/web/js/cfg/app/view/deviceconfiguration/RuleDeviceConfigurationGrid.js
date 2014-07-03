@@ -4,30 +4,27 @@ Ext.define('Cfg.view.deviceconfiguration.RuleDeviceConfigurationGrid', {
     store: 'Cfg.store.RuleDeviceConfigurations',
     overflowY: 'auto',
     ruleSetId: null,
-
+    requires: [
+        'Cfg.view.deviceconfiguration.RuleDeviceConfigurationActionMenu'
+    ],
     initComponent: function () {
         var me = this;
-        me.columns = {
-            defaults: {
-                menuDisabled: true
-            },
-            items: [
-                {
+        me.columns = [
+                         {
                     header: Uni.I18n.translate('validation.deviceConfiguration', 'CFG', 'Device configuration'),
-                    dataIndex: 'deviceconfiguration',
+                    dataIndex: 'config_name_link',
                     flex: 0.4
                 },
-                {
+               {
                     header: Uni.I18n.translate('validation.deviceType', 'CFG', 'Device type'),
-                    dataIndex: 'devicetype',
+                    dataIndex: 'deviceType_name',
                     flex: 0.4
                 },
                 {
                     xtype: 'uni-actioncolumn',
                     items: 'Cfg.view.deviceconfiguration.RuleDeviceConfigurationActionMenu'
                 }
-            ]
-        };
+            ];
         me.dockedItems = [
             {
                 xtype: 'toolbar',
@@ -52,8 +49,15 @@ Ext.define('Cfg.view.deviceconfiguration.RuleDeviceConfigurationGrid', {
                         xtype: 'button',
                         text: Uni.I18n.translate('validation.deviceconfiguration.addMultiple', 'CFG', 'Add device configurations'),
                         action: 'addDeviceConfiguration',
-                        hrefTarget: '',
-                        href: '#/administration/validation/rulesets/' + me.ruleSetId + '/adddeviceconfig'
+                        ui: 'action',
+                        listeners: {
+                            click: {
+                                fn: function () {
+                                    me.up('ruleDeviceConfigurationBrowse').setLoading();
+                                    window.location.href = '#/administration/validation/rulesets/' + me.ruleSetId + '/deviceconfig/add';
+                                }
+                            }
+                        }
                     }
                 ]
             },
@@ -65,5 +69,6 @@ Ext.define('Cfg.view.deviceconfiguration.RuleDeviceConfigurationGrid', {
                 params: {id: me.ruleSetId}
             }
         ];
+        me.callParent(arguments);
     }
 });

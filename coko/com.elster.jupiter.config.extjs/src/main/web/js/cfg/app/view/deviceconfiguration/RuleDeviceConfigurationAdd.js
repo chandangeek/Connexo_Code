@@ -1,8 +1,11 @@
 Ext.define('Cfg.view.deviceconfiguration.RuleDeviceConfigurationAdd', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.rule-device-configuration-add',
-    deviceTypeId: null,
-
+    ruleSetId: null,
+    requires: [
+        'Cfg.view.validation.RuleSetSubMenu',
+        'Cfg.view.deviceconfiguration.RuleAddDeviceConfigurationActionMenu'
+    ],
     content: [
         {
             xtype: 'panel',
@@ -11,12 +14,13 @@ Ext.define('Cfg.view.deviceconfiguration.RuleDeviceConfigurationAdd', {
             items: [
                 {
                     xtype: 'toolbar',
+                    itemId: 'addDeviceConfigToolbar',
                     border: 0,
                     aling: 'left',
                     items: [
                         {
                             xtype: 'label',
-                            name: 'DeviceConfigCount'
+                            itemId: 'countLabel'
                         },
                         {
                             xtype: 'button',
@@ -28,8 +32,9 @@ Ext.define('Cfg.view.deviceconfiguration.RuleDeviceConfigurationAdd', {
                 },
                 {
                     xtype: 'grid',
-                    store: 'Cfg.store.RuleDeviceConfigurations',
+                    store: 'Cfg.store.RuleDeviceConfigurationsNotLinked',
                     height: 395,
+                    itemId: 'addDeviceConfigGrid',
                     selType: 'checkboxmodel',
                     selModel: {
                         checkOnly: true,
@@ -44,13 +49,22 @@ Ext.define('Cfg.view.deviceconfiguration.RuleDeviceConfigurationAdd', {
                         items: [
                             {
                                 header: Uni.I18n.translate('validation.deviceConfiguration', 'CFG', 'Device configuration'),
-                                dataIndex: 'deviceconfiguration',
+                                dataIndex: 'config_name_link',
                                 flex: 0.3
                             },
                             {
                                 header: Uni.I18n.translate('validation.deviceType', 'CFG', 'Device type'),
-                                dataIndex: 'devicetype',
+                                dataIndex: 'deviceType_name',
                                 flex: 0.3
+                            },
+                            {
+                                header: Uni.I18n.translate('validation.status', 'CFG', 'Status'),
+                                dataIndex: 'config_active',
+                                flex: 0.3
+                            },
+                            {
+                                xtype: 'uni-actioncolumn',
+                                items: 'Cfg.view.deviceconfiguration.RuleAddDeviceConfigurationActionMenu'
                             }
                         ]
                     },
@@ -59,7 +73,6 @@ Ext.define('Cfg.view.deviceconfiguration.RuleDeviceConfigurationAdd', {
                         {
                             text: Uni.I18n.translate('general.add', 'CFG', 'Add'),
                             action: 'add',
-                            disabled: true,
                             ui: 'action',
                             margin: '0 0 0 -5'
                         },
@@ -70,7 +83,7 @@ Ext.define('Cfg.view.deviceconfiguration.RuleDeviceConfigurationAdd', {
                             listeners: {
                                 click: {
                                     fn: function () {
-                                        window.location.href = '#/administration/devicetypes/' + this.up('add-logbook-types').deviceTypeId + '/logbooktypes';
+                                        window.location.href = '#/administration/validation/rulesets/' + this.up('rule-device-configuration-add').ruleSetId + '/deviceconfig';
                                     }
                                 }
                             }
@@ -87,13 +100,36 @@ Ext.define('Cfg.view.deviceconfiguration.RuleDeviceConfigurationAdd', {
                             xtype: 'panel',
                             html: '<h4>' + Uni.I18n.translate('validation.empty.deviceconfiguration.title', 'CFG', 'No device configurations found') + '</h4><br>' +
                                 Uni.I18n.translate('validation.empty.deviceconfiguration.detail', 'CFG', 'There are no device configurations. This could be because:') + '<lv><li>&nbsp&nbsp' +
-                                Uni.I18n.translate('validation.empty.deviceconfiguration.list.item1', 'CFG', 'No device configurations have been added yet.') + '</li></lv><br>' +
-                                Uni.I18n.translate('validation.empty.steps', 'CFG', 'Possible steps:')
+                                Uni.I18n.translate('validation.empty.deviceconfiguration.list.item1', 'CFG', 'No device configurations have been added yet.')
                         }
                     ]
                 }
             ]
         }
-    ]
+    ],
+
+    initComponent: function () {
+        var me = this;
+        me.side = [
+            {
+                xtype: 'panel',
+                title: Uni.I18n.translate('validation.validationRuleSet', 'CFG', 'Validation rule set'),
+                layout: {
+                    type: 'vbox',
+                    align: 'stretch'
+                },
+                ui: 'medium',
+                items: [
+                    {
+                        xtype: 'ruleSetSubMenu',
+                        itemId: 'stepsMenu',
+                        ruleSetId: me.ruleSetId,
+                        toggle: 2
+                    }
+                ]
+            }
+        ];
+        me.callParent(arguments);
+    }
 });
 

@@ -1,7 +1,6 @@
 Ext.define('Cfg.view.deviceconfiguration.RuleDeviceConfigurationPreview', {
-    extend: 'Ext.panel.Panel',
+    extend: 'Ext.form.Panel',
     alias: 'widget.rule-device-configuration-preview',
-    hidden: false,
     frame: true,
     requires: [
         'Cfg.view.deviceconfiguration.RuleDeviceConfigurationActionMenu'
@@ -16,29 +15,39 @@ Ext.define('Cfg.view.deviceconfiguration.RuleDeviceConfigurationPreview', {
             }
         }
     ],
-    items: {
-        xtype: 'panel',
-        itemId: 'comtaskPreviewFieldsPanel',
-        layout: 'column',
-        ui: 'medium',
-        defaults: {
-            xtype: 'container',
-            layout: 'form',
-            columnWidth: 1
+    layout: {
+        type: 'vbox'
+    },
+    defaults: {
+        xtype: 'displayfield',
+        labelWidth: 250
+    },
+    items: [
+        {
+            fieldLabel: Uni.I18n.translate('validation.deviceConfiguration', 'CFG', 'Device configuration'),
+            name: 'config_name_link'
         },
-        items: [
-            {
-                xtype: 'displayfield',
-                itemId: 'comtaskName',
-                fieldLabel: Uni.I18n.translate('comtask.name', 'MDC', 'Name'),
-                name: 'name'
-            },
-            {
-                xtype: 'displayfield',
-                itemId: 'comtaskCommands',
-                fieldLabel: Uni.I18n.translate('comtask.commands', 'MDC', 'Commands'),
-                name: 'commandsString'
-            }
-        ]
-    }
+        {
+            fieldLabel: Uni.I18n.translate('validation.deviceType', 'CFG', 'Device type'),
+            name: 'deviceType_name'
+        },
+        {
+            name: 'config_active',
+            fieldLabel: Uni.I18n.translate('validation.deviceconfiguration.configurationStatus', 'CFG', 'Configuration status')
+        },
+        {
+            name: 'config_registerCount',
+            fieldLabel: Uni.I18n.translate('validation.deviceconfiguration.dataSources', 'CFG', 'Data sources')
+        },
+        {
+            name: 'config_loadProfileCount',
+            fieldLabel: '',
+            hideEmptyLabel: false
+        },
+        {
+            name: 'config_logBookCount',
+            fieldLabel: '',
+            hideEmptyLabel: false
+        }
+    ]
 });
