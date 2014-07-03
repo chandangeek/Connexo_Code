@@ -7,7 +7,7 @@ Ext.define('Mdc.view.setup.comserver.ComServersSetup', {
     ],
     content: {
         ui: 'large',
-        title: 'Communication servers',
+        title: Uni.I18n.translate('comserver.title.communicationServers', 'MDC', 'Communication servers'),
         items: [
             {
                 xtype: 'preview-container',
