@@ -48,11 +48,11 @@ Ext.define('Mdc.view.setup.comportpool.Overview', {
                             name: 'name'
                         },
                         {
-                            fieldLabel: Uni.I18n.translate('comportpool.preview.direction', 'MDC', 'Direction'),
+                            fieldLabel: Uni.I18n.translate('comPortPool.preview.direction', 'MDC', 'Direction'),
                             name: 'direction'
                         },
                         {
-                            fieldLabel: Uni.I18n.translate('comportpool.preview.type', 'MDC', 'Type'),
+                            fieldLabel: Uni.I18n.translate('comPortPool.preview.type', 'MDC', 'Type'),
                             name: 'type'
                         },
                         {
@@ -64,7 +64,7 @@ Ext.define('Mdc.view.setup.comportpool.Overview', {
                             }
                         },
                         {
-                            fieldLabel: Uni.I18n.translate('comportpool.preview.protocolDetection', 'MDC', 'Protocol detection'),
+                            fieldLabel: Uni.I18n.translate('comPortPool.preview.protocolDetection', 'MDC', 'Protocol detection'),
                             name: 'discoveryProtocolPluggableClassId',
                             renderer: function (val) {
                                 var protDetect = val ? Ext.getStore('Mdc.store.DeviceDiscoveryProtocols').getById(val) : null;
@@ -72,7 +72,7 @@ Ext.define('Mdc.view.setup.comportpool.Overview', {
                             }
                         },
                         {
-                            fieldLabel: Uni.I18n.translate('comportpool.preview.communicationPorts', 'MDC', 'Communication ports'),
+                            fieldLabel: Uni.I18n.translate('comPortPool.preview.communicationPorts', 'MDC', 'Communication ports'),
                             name: 'comportslink'
                         }
                     ]
