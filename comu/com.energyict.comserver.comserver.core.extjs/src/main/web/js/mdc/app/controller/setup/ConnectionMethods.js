@@ -394,7 +394,6 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                                                         } else {
                                                             widget.down('form').down('#activateComWindowCheckBox').setValue(true);
                                                         }
-                                                        debugger;
                                                         var form = widget.down('property-form');
                                                         form.loadRecord(connectionMethod);
                                                         form.show();
