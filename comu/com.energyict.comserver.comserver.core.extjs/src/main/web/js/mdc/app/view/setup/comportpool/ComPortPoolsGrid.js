@@ -18,7 +18,7 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolsGrid', {
             flex: 1
         },
         {
-            header: Uni.I18n.translate('comportpool.preview.direction', 'MDC', 'Direction'),
+            header: Uni.I18n.translate('comPortPool.preview.direction', 'MDC', 'Direction'),
             dataIndex: 'direction'
         },
         {
@@ -50,15 +50,15 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolsGrid', {
         {
             xtype: 'pagingtoolbartop',
             store: 'ComPortPools',
-            displayMsg: Uni.I18n.translate('comportpool.displayMsg', 'MDC', '{0} - {1} of {2} communication port pools'),
-            displayMoreMsg: Uni.I18n.translate('comportpool.displayMoreMsg', 'MDC', '{0} - {1} of more communication port pools'),
+            displayMsg: Uni.I18n.translate('comPortPool.displayMsg', 'MDC', '{0} - {1} of {2} communication port pools'),
+            displayMoreMsg: Uni.I18n.translate('comPortPool.displayMoreMsg', 'MDC', '{0} - {1} of more communication port pools'),
             items: [
                 {
                     xtype: 'component',
                     flex: 1
                 },
                 {
-                    text: Uni.I18n.translate('comportpool.addComPortPool', 'MDC', 'Add communication port pool'),
+                    text: Uni.I18n.translate('comPortPool.addComPortPool', 'MDC', 'Add communication port pool'),
                     menu: {
                         plain: true,
                         border: false,
@@ -66,11 +66,11 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolsGrid', {
                         itemId: 'addComPortPoolMenu',
                         items: [
                             {
-                                text: Uni.I18n.translate('comportpool.inbound', 'MDC', 'Inbound'),
+                                text: Uni.I18n.translate('comPortPool.inbound', 'MDC', 'Inbound'),
                                 action: 'addInbound'
                             },
                             {
-                                text: Uni.I18n.translate('comportpool.outbound', 'MDC', 'Outbound'),
+                                text: Uni.I18n.translate('comPortPool.outbound', 'MDC', 'Outbound'),
                                 action: 'addOutbound'
                             }
                         ]
@@ -81,7 +81,7 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolsGrid', {
         {
             xtype: 'pagingtoolbarbottom',
             store: 'ComPortPools',
-            itemsPerPageMsg: Uni.I18n.translate('comportpool.itemsPerPageMsg', 'MDC', 'Communication port pools per page'),
+            itemsPerPageMsg: Uni.I18n.translate('comPortPool.itemsPerPageMsg', 'MDC', 'Communication port pools per page'),
             dock: 'bottom'
         }
     ]

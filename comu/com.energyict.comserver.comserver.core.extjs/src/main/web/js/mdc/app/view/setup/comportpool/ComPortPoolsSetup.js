@@ -43,7 +43,7 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolsSetup', {
                                     },
                                     {
                                         xtype: 'button',
-                                        text: Uni.I18n.translate('comportpool.addComPortPool', 'MDC', 'Add communication port pool'),
+                                        text: Uni.I18n.translate('comPortPool.addComPortPool', 'MDC', 'Add communication port pool'),
                                         menu: {
                                             plain: true,
                                             border: false,
@@ -51,11 +51,11 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolsSetup', {
                                             itemId: 'addComPortPoolMenu',
                                             items: [
                                                 {
-                                                    text: Uni.I18n.translate('comportpool.inbound', 'MDC', 'Inbound'),
+                                                    text: Uni.I18n.translate('comPortPool.inbound', 'MDC', 'Inbound'),
                                                     action: 'addInbound'
                                                 },
                                                 {
-                                                    text: Uni.I18n.translate('comportpool.outbound', 'MDC', 'Outbound'),
+                                                    text: Uni.I18n.translate('comPortPool.outbound', 'MDC', 'Outbound'),
                                                     action: 'addOutbound'
                                                 }
                                             ]

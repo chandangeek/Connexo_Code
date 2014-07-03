@@ -98,7 +98,7 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
                     gridView.refresh();
                     form.loadRecord(model);
                     me.getPreviewActionMenu().record = model;
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comPortPool.changeState.msg', 'MDC', 'Communication port pool ' + msg));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comPortPool.changeState.msg', 'MDC', 'Communication port pool' + ' ' + msg));
                 }
             });
         }
@@ -134,8 +134,8 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
     showDeleteConfirmation: function (record) {
         var me = this;
         Ext.create('Uni.view.window.Confirmation').show({
-            msg: Uni.I18n.translate('comportpool.deleteConfirmation.msg', 'MDC', 'This communication port pool will disappear from the list.'),
-            title: Ext.String.format(Uni.I18n.translate('comportpool.deleteConfirmation.title', 'MDC', 'Remove communication port pool "{0}"?'), record.get('name')),
+            msg: Uni.I18n.translate('comPortPool.deleteConfirmation.msg', 'MDC', 'This communication port pool will no longer be available.'),
+            title: Ext.String.format(Uni.I18n.translate('comPortPool.deleteConfirmation.title', 'MDC', 'Remove communication port pool \'{0}\'?'), record.get('name')),
             fn: function (state) {
                 switch (state) {
                     case 'confirm':
@@ -159,7 +159,7 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
                 page.setLoading(false);
                 if (operation.response.status == 204) {
                     me.getComPortPoolGrid().getStore().loadPage(1);
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comportpool.deleteSuccess.msg', 'MDC', 'Communication port pool removed'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comPortPool.deleteSuccess.msg', 'MDC', 'Communication port pool removed'));
                 } else if (operation.response.status == 400) {
                     me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('general.during.removing', 'MDC', 'Error during removing'), response.responseText);
                 }
