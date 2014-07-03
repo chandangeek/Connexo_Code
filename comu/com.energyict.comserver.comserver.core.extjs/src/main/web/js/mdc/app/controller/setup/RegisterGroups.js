@@ -143,7 +143,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
     },
 
     showRegisterGroupEditView: function (registerGroupId) {
-        var widget = Ext.widget('registerGroupEdit');
+        var widget = Ext.widget('registerGroupEdit', {edit: true});
         this.backUrl = this.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens();
 
         var me = this;
@@ -182,7 +182,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
     },
 
     showRegisterGroupCreateView: function () {
-        var widget = Ext.widget('registerGroupEdit');
+        var widget = Ext.widget('registerGroupEdit', {edit: false});
         this.backUrl = this.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens();
 
         var me = this;
