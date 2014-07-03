@@ -95,7 +95,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     public void testCreateWithNoPropertiesWithoutViolations() {
         String name = "testCreateWithNoPropertiesWithoutViolations";
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations(name);
-        connectionTask.activateAndSave();
+        connectionTask.save();
 
         // Asserts
         assertThat(connectionTask).isNotNull();
@@ -809,6 +809,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     }
 
     @Test
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.CONNECTION_METHOD_COMPORT_POOL_REQUIRED_KEY + "}")
     @Transactional
     public void testCreateWithoutComPortPoolButIncompleteStatus() {
         ScheduledConnectionTaskImpl connectionTask =
@@ -821,7 +822,6 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         // Business method
         connectionTask.save();
 
-        assertThat(connectionTask.getStatus()).isEqualTo(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE);
     }
 
 
@@ -837,9 +837,21 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
                                 null, status));
 
         // Business method
-        connectionTask.activateAndSave();
+        connectionTask.save();
 
         // Asserts: see ExpectedConstraintViolation rule
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.CONNECTION_METHOD_COMPORT_POOL_REQUIRED_KEY + "}")
+    public void testUpdateWithoutPoolTest() {
+        ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("ShouldFailWithUpdate");
+        connectionTask.save();
+
+        ConnectionTask reloadedConnectionTask = inMemoryPersistence.getDeviceDataService().findConnectionTask(connectionTask.getId()).get();
+        reloadedConnectionTask.setComPortPool(null);
+        reloadedConnectionTask.save();
     }
 
     @Test
@@ -980,7 +992,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         freezeClock(2011, Calendar.MAY, 31);    // Anything, as long as it is not 2012, May 31st - the data that is set below just after the save
 
         ScheduledConnectionTaskImpl connectionTask = this.createMinimizeWithNoPropertiesWithoutViolations("testUpdateNextExecutionTimestampForUTCDevice", new TemporalExpression(EVERY_HOUR));
-        connectionTask.activateAndSave();
+        connectionTask.save();
 
         freezeClock(2012, Calendar.MAY, 31);
         // Business method
@@ -1465,7 +1477,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     public void pauseIfNotPausedTest() throws SQLException, BusinessException {
         String name = "pauseIfNotPausedTest";
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations(name);
-        connectionTask.activateAndSave();
+        connectionTask.save();
 
         assertThat(connectionTask.getStatus()).isEqualTo(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE);
 
@@ -1497,7 +1509,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     public void resumeWhenPausedTest() throws SQLException, BusinessException {
         String name = "resumeWhenPausedTest";
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations(name);
-        connectionTask.activateAndSave();
+        connectionTask.save();
         connectionTask.deactivate();
 
         // business method
@@ -1513,7 +1525,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     public void resumeWhenAlreadyResumedTest() throws SQLException, BusinessException {
         String name = "resumeWhenAlreadyResumedTest";
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations(name);
-        connectionTask.activateAndSave();
+        connectionTask.save();
 
         // business method
         connectionTask.activate();
@@ -1870,12 +1882,6 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
         // Asserts
         assertThat(connectionTask.isDefault()).isTrue();
-    }
-
-    @Test
-    @Transactional
-    public void createConnectionTaskWithoutRequiredPropertyInInCompleteStateTest() {
-
     }
 
     private void assertConnectionTask(List<ConnectionTask> outboundConnectionTasks, ScheduledConnectionTaskImpl... tasks) {

@@ -1,5 +1,23 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.events.EndDeviceEventRecord;
+import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.*;
+import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
@@ -397,7 +415,17 @@ public class DeviceImpl implements Device, PersistenceAware {
 
     @Override
     public void setName(String name) {
-        this.name = name;
+        this.name = null;
+        if (name != null) {
+            this.name = name.trim();
+        }
+    }
+
+    private void setMRID(String mRID) {
+        this.mRID = null;
+        if (mRID != null) {
+            this.mRID = mRID.trim();
+        }
     }
 
     public long getId() {
