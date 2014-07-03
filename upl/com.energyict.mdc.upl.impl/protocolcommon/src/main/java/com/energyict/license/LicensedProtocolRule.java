@@ -246,6 +246,8 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     CUBE350(213, "com.energyict.protocolimpl.modbus.northerndesign.cube350.Cube350", FamilyRule.EICT_RTU_EMS),
     RTU_PLUS_EIWEBPLUS(214, "com.energyict.protocolimplv2.eict.rtuplusserver.eiwebplus.RtuServer", FamilyRule.EICT_RTU_EMS),
     SDK_SMART_SAMPLE_PROTOCOL(215, "test.com.energyict.smartmeterprotocolimpl.sdksample.SDKSmartMeterProtocol", FamilyRule.TEST),
+    ELSTER_GARNET_CONCENTRATOR(216, "com.energyict.protocolimplv2.elster.garnet.GarnetConcentrator", FamilyRule.ELSTER_GARNET),
+    ELSTER_GARNET_AC100C(217, "com.energyict.protocolimplv2.elster.garnet.A100C", FamilyRule.ELSTER_GARNET),
 
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),
