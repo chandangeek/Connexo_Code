@@ -796,6 +796,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(SchedulingService.class).toInstance(schedulingService);
                 bind(MessageService.class).toInstance(messagingService);
+                bind(MessageInterpolator.class).toInstance(thesaurus);
             }
         };
     }
