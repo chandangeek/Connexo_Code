@@ -46,6 +46,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -129,6 +130,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
                 bind(OutboundComPort.class).to(OutboundComPortImpl.class);
                 bind(ComPortPoolMember.class).to(ComPortPoolMemberImpl.class);
                 bind(Thesaurus.class).toInstance(thesaurus);
+                bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
             }
         };
