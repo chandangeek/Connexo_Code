@@ -72,7 +72,7 @@ Ext.define('Cfg.view.validation.RuleList', {
                 store: me.store,
                 itemId: 'rulesTopPagingToolbar',
                 dock: 'top',
-                displayMsg: '{0} - {1} of {2} Validation rules',
+                displayMsg: '{0} - {1} of {2} validation rules',
                 items: [
                     {
                         xtype: 'component',

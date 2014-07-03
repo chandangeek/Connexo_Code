@@ -65,8 +65,8 @@ Ext.define('Cfg.view.validation.RuleSetList', {
             {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
-                displayMsg: Uni.I18n.translate('validation.ruleset.display.msg', 'CFG', '{0} - {1} of {2} Validation rule sets'),
-                displayMoreMsg: Uni.I18n.translate('validation.ruleset.display.more.msg', 'CFG', '{0} - {1} of more than {2} Validation rule sets'),
+                displayMsg: Uni.I18n.translate('validation.ruleset.display.msg', 'CFG', '{0} - {1} of {2} validation rule sets'),
+                displayMoreMsg: Uni.I18n.translate('validation.ruleset.display.more.msg', 'CFG', '{0} - {1} of more than {2} validation rule sets'),
                 emptyMsg: Uni.I18n.translate('validation.ruleset.pagingtoolbartop.emptyMsg', 'CFG', 'There are no validation rule sets to display'),
                 dock: 'top',
                 items: [
