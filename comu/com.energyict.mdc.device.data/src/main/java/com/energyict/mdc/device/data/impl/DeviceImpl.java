@@ -63,7 +63,7 @@ import com.energyict.mdc.device.data.impl.tasks.ManuallyScheduledComTaskExecutio
 import com.energyict.mdc.device.data.impl.tasks.ScheduledComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.data.tasks.AdHocComTaskExecution;
-import com.energyict.mdc.device.data.tasks.AdHocComTaskExecutionUpdaterRename;
+import com.energyict.mdc.device.data.tasks.AdHocComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
@@ -1195,7 +1195,7 @@ public class DeviceImpl implements Device, PersistenceAware {
     }
 
     @Override
-    public AdHocComTaskExecutionUpdaterRename getComTaskExecutionUpdater(AdHocComTaskExecution comTaskExecution) {
+    public AdHocComTaskExecutionUpdater getComTaskExecutionUpdater(AdHocComTaskExecution comTaskExecution) {
         return comTaskExecution.getUpdater();
     }
 

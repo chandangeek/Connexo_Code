@@ -17,7 +17,7 @@ import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.data.tasks.AdHocComTaskExecution;
 import com.energyict.mdc.device.data.tasks.AdHocComTaskExecutionBuilder;
-import com.energyict.mdc.device.data.tasks.AdHocComTaskExecutionUpdaterRename;
+import com.energyict.mdc.device.data.tasks.AdHocComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -323,7 +323,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     public ScheduledComTaskExecutionUpdater getComTaskExecutionUpdater(ScheduledComTaskExecution comTaskExecution);
 
-    public AdHocComTaskExecutionUpdaterRename getComTaskExecutionUpdater(AdHocComTaskExecution comTaskExecution);
+    public AdHocComTaskExecutionUpdater getComTaskExecutionUpdater(AdHocComTaskExecution comTaskExecution);
 
     void removeComTaskExecution(ComTaskExecution comTaskExecution);
 

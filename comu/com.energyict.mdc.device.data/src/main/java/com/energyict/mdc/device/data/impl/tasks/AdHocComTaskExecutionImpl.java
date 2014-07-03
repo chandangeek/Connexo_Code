@@ -7,7 +7,7 @@ import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueAdHocComTaskExecutionPerDevice;
 import com.energyict.mdc.device.data.tasks.AdHocComTaskExecution;
 import com.energyict.mdc.device.data.tasks.AdHocComTaskExecutionBuilder;
-import com.energyict.mdc.device.data.tasks.AdHocComTaskExecutionUpdaterRename;
+import com.energyict.mdc.device.data.tasks.AdHocComTaskExecutionUpdater;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.ComTask;
@@ -78,7 +78,7 @@ public class AdHocComTaskExecutionImpl extends SingleComTaskExecutionImpl implem
     }
 
     @Override
-    public AdHocComTaskExecutionUpdaterRename getUpdater() {
+    public AdHocComTaskExecutionUpdater getUpdater() {
         return new AdHocComTaskExecutionUpdaterImpl(this);
     }
 
@@ -97,15 +97,15 @@ public class AdHocComTaskExecutionImpl extends SingleComTaskExecutionImpl implem
     }
 
     class AdHocComTaskExecutionUpdaterImpl
-        extends AbstractComTaskExecutionUpdater<AdHocComTaskExecutionUpdaterRename, AdHocComTaskExecution, AdHocComTaskExecutionImpl>
-        implements AdHocComTaskExecutionUpdaterRename {
+        extends AbstractComTaskExecutionUpdater<AdHocComTaskExecutionUpdater, AdHocComTaskExecution, AdHocComTaskExecutionImpl>
+        implements AdHocComTaskExecutionUpdater {
 
         protected AdHocComTaskExecutionUpdaterImpl(AdHocComTaskExecutionImpl comTaskExecution) {
-            super(comTaskExecution, AdHocComTaskExecutionUpdaterRename.class);
+            super(comTaskExecution, AdHocComTaskExecutionUpdater.class);
         }
 
         @Override
-        public AdHocComTaskExecutionUpdaterRename protocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
+        public AdHocComTaskExecutionUpdater protocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
             this.getComTaskExecution().setProtocolDialectConfigurationProperties(protocolDialectConfigurationProperties);
             return this;
         }

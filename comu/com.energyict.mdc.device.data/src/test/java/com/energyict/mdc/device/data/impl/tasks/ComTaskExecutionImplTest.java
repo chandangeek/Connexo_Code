@@ -15,7 +15,7 @@ import com.energyict.mdc.device.data.impl.InMemoryIntegrationPersistence;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.tasks.AdHocComTaskExecution;
 import com.energyict.mdc.device.data.tasks.AdHocComTaskExecutionBuilder;
-import com.energyict.mdc.device.data.tasks.AdHocComTaskExecutionUpdaterRename;
+import com.energyict.mdc.device.data.tasks.AdHocComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
@@ -197,7 +197,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         AdHocComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         device.save();
 
-        AdHocComTaskExecutionUpdaterRename comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
+        AdHocComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
         comTaskExecutionUpdater.useDefaultConnectionTask(testUseDefault);
 
         // Business method
@@ -273,7 +273,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         AdHocComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         device.save();
 
-        AdHocComTaskExecutionUpdaterRename comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
+        AdHocComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
         comTaskExecutionUpdater.connectionTask(connectionTask);
         comTaskExecutionUpdater.update();
         device.save();
@@ -507,7 +507,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         AdHocComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         device.save();
 
-        AdHocComTaskExecutionUpdaterRename comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
+        AdHocComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
         comTaskExecutionUpdater.protocolDialectConfigurationProperties(otherDialect);
 
         // Business method
