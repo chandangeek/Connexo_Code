@@ -1,4 +1,4 @@
-package com.energyict.mdc.device.configuration.rest.impl;
+package com.energyict.mdc.device.configuration.rest;
 
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Aggregate;

@@ -12,6 +12,7 @@ import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.rest.ReadingTypeComparator;
 import com.energyict.mdc.common.rest.UnitAdapter;
 import com.energyict.mdc.common.services.ListPager;
+import com.energyict.mdc.device.configuration.rest.ReadingTypeInfo;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.google.common.base.Optional;
 import java.util.ArrayList;
@@ -21,9 +22,7 @@ import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 @Path("/readingtypes")
 public class ReadingTypeResource {

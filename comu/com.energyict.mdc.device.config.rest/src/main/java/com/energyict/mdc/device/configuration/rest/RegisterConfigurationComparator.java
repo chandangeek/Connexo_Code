@@ -1,4 +1,4 @@
-package com.energyict.mdc.device.configuration.rest.impl;
+package com.energyict.mdc.device.configuration.rest;
 
 import com.energyict.mdc.device.config.RegisterSpec;
 import java.util.Comparator;

@@ -7,6 +7,8 @@ import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.configuration.rest.RegisterConfigInfo;
+import com.energyict.mdc.device.configuration.rest.RegisterConfigurationComparator;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
