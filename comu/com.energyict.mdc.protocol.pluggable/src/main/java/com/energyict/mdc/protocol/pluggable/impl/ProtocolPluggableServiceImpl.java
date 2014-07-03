@@ -57,6 +57,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -644,6 +645,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
                 bind(DataModel.class).toInstance(dataModel);
                 bind(EventService.class).toInstance(eventService);
                 bind(Thesaurus.class).toInstance(thesaurus);
+                bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(PluggableService.class).toInstance(pluggableService);
                 bind(RelationService.class).toInstance(relationService);
