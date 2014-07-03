@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import javax.validation.MessageInterpolator;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
@@ -140,5 +141,16 @@ public class FieldResource {
         public Map<String, String> getTranslations() {
             return null;
         }
+
+        @Override
+        public String interpolate(String messageTemplate, Context context) {
+            return messageTemplate;
+        }
+
+        @Override
+        public String interpolate(String messageTemplate, Context context, Locale locale) {
+            return messageTemplate;
+        }
     }
+
 }
