@@ -14,6 +14,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
+import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.FakeTransactionService;
@@ -522,13 +523,13 @@ public class InboundCommunicationHandlerTest {
         ConnectionTask connectionTask = mock(InboundConnectionTask.class);
         when(connectionTask.getComPortPool()).thenReturn(inboundComPortPool);
         when(connectionTask.getDevice()).thenReturn(device);
-        ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
+        ManuallyScheduledComTaskExecution comTaskExecution = mock(ManuallyScheduledComTaskExecution.class);
         when(comTaskExecution.getConnectionTask()).thenReturn(connectionTask);
         when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
         when(comTaskExecution.getDevice()).thenReturn(device);
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
         when(comTaskExecution.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
-        when(this.comServerDAO.findExecutableInboundComTasks(offlineDevice, this.comPort)).thenReturn(Arrays.asList(comTaskExecution));
+        when(this.comServerDAO.findExecutableInboundComTasks(offlineDevice, this.comPort)).thenReturn(Arrays.<ComTaskExecution>asList(comTaskExecution));
         DeviceCommandExecutionToken token = mock(DeviceCommandExecutionToken.class);
         when(this.deviceCommandExecutor.tryAcquireTokens(1)).thenReturn(Arrays.asList(token));
 

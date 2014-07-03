@@ -16,6 +16,7 @@ import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.ServerComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.EngineService;
@@ -97,6 +98,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 /**
  * Tests the {@link com.energyict.mdc.engine.impl.core.SingleThreadedScheduledComPort} component.
@@ -743,13 +745,13 @@ public class SingleThreadedScheduledComPortTest {
     }
 
     private ServerComTaskExecution mockComTask (long id, OutboundConnectionTask connectionTask) {
-        ServerComTaskExecution comTask = mock(ServerComTaskExecution.class);
+        ManuallyScheduledComTaskExecution comTask = mock(ManuallyScheduledComTaskExecution.class, withSettings().extraInterfaces(ServerComTaskExecution.class));
         when(comTask.getId()).thenReturn(id);
         when(comTask.getConnectionTask()).thenReturn(connectionTask);
         when(comTask.getDevice()).thenReturn(this.device);
         when(comTask.getComTasks()).thenReturn(Arrays.asList(this.comTask));
         when(comTask.getProtocolDialectConfigurationProperties()).thenReturn(this.protocolDialectConfigurationProperties);
-        return comTask;
+        return (ServerComTaskExecution) comTask;
     }
 
     private ComJob toComJob (ServerComTaskExecution comTask) {

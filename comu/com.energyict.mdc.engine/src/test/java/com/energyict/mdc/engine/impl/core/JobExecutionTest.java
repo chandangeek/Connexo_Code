@@ -14,6 +14,7 @@ import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.ServerComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.FakeServiceProvider;
@@ -103,7 +104,7 @@ public class JobExecutionTest {
     @Mock
     private DeviceCommandExecutionToken token;
     @Mock
-    private ServerComTaskExecution comTaskExecution;
+    private ManuallyScheduledComTaskExecution comTaskExecution;
     @Mock
     private ComTaskEnablement comTaskEnablement;
     @Mock

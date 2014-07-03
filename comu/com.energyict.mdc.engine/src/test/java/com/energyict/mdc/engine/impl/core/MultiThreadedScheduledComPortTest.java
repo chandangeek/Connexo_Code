@@ -1,8 +1,5 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
@@ -19,6 +16,7 @@ import com.energyict.mdc.device.data.ServerComTaskExecution;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionMethod;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.EngineService;
@@ -48,10 +46,13 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.tasks.ComTask;
-
 import com.energyict.mdc.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.tasks.history.TaskHistoryService;
+
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
 import org.apache.log4j.PropertyConfigurator;
 
@@ -83,7 +84,10 @@ import org.mockito.stubbing.Answer;
 
 import static com.elster.jupiter.util.Checks.is;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyCollection;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.atMost;
 import static org.mockito.Mockito.doThrow;
@@ -92,6 +96,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 /**
  * Tests the {@link com.energyict.mdc.engine.impl.core.MultiThreadedScheduledComPort} component.
@@ -863,13 +868,13 @@ public class MultiThreadedScheduledComPortTest {
     }
 
     private ServerComTaskExecution mockComTask(long id, OutboundConnectionTask connectionTask) {
-        ServerComTaskExecution comTask = mock(ServerComTaskExecution.class);
-        when(comTask.getId()).thenReturn(id);
-        when(comTask.getConnectionTask()).thenReturn(connectionTask);
-        when(comTask.getDevice()).thenReturn(this.device);
-        when(comTask.getComTasks()).thenReturn(Arrays.asList(this.comTask));
-        when(comTask.getProtocolDialectConfigurationProperties()).thenReturn(this.protocolDialectConfigurationProperties);
-        return comTask;
+        ManuallyScheduledComTaskExecution comTaskExecution = mock(ManuallyScheduledComTaskExecution.class, withSettings().extraInterfaces(ServerComTaskExecution.class));
+        when(comTaskExecution.getId()).thenReturn(id);
+        when(comTaskExecution.getConnectionTask()).thenReturn(connectionTask);
+        when(comTaskExecution.getDevice()).thenReturn(this.device);
+        when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(this.comTask));
+        when(comTaskExecution.getProtocolDialectConfigurationProperties()).thenReturn(this.protocolDialectConfigurationProperties);
+        return (ServerComTaskExecution) comTaskExecution;
     }
 
     private ComJob toComJob(ServerComTaskExecution comTask) {

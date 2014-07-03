@@ -1,12 +1,10 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.elster.jupiter.util.time.ProgrammableClock;
-import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootServiceProviderAdapter;
@@ -20,14 +18,17 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.issues.impl.IssueServiceImpl;
 import com.energyict.mdc.tasks.history.TaskHistoryService;
+
+import com.elster.jupiter.util.time.ProgrammableClock;
+import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.google.common.base.Optional;
 
+import java.util.logging.Logger;
+
 import org.junit.*;
-import org.junit.runner.RunWith;
+import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.logging.Logger;
 
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
@@ -99,7 +100,7 @@ public abstract class AbstractComCommandExecuteTest {
     protected static ExecutionContext newTestExecutionContext (Logger logger) {
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(DEVICE_ID);
-        ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
+        ManuallyScheduledComTaskExecution comTaskExecution = mock(ManuallyScheduledComTaskExecution.class);
         when(comTaskExecution.getId()).thenReturn(COM_TASK_EXECUTION_ID);
         when(comTaskExecution.getDevice()).thenReturn(device);
         when(comTaskExecution.getProtocolDialectConfigurationProperties()).thenReturn(mock(ProtocolDialectConfigurationProperties.class));

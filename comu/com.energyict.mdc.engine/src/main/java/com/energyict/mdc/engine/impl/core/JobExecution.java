@@ -1,17 +1,18 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
+import com.energyict.mdc.device.data.tasks.AdHocComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
+import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.GenericDeviceProtocol;
 import com.energyict.mdc.engine.exceptions.CodingException;
@@ -38,11 +39,17 @@ import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.tasks.BasicCheckTask;
+import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.history.ComSession;
 import com.energyict.mdc.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.tasks.history.TaskHistoryService;
+
+import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -326,7 +333,7 @@ public abstract class JobExecution implements ScheduledJob {
         comTaskPreparationContext.getCommandCreator().
                 createCommands(
                         comTaskPreparationContext.getRoot(),
-                        this.getProtocolDialectTypedProperties(comTaskExecution),
+                        getProtocolDialectTypedProperties(comTaskExecution),
                         this.preparationContext.getComChannelPlaceHolder(),
                         comTaskPreparationContext.getOfflineDevice(),
                         protocolTasks,
@@ -336,14 +343,67 @@ public abstract class JobExecution implements ScheduledJob {
     }
 
     static TypedProperties getProtocolDialectTypedProperties(ComTaskExecution comTaskExecution) {
-        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = comTaskExecution.getProtocolDialectConfigurationProperties();
-        Device device = comTaskExecution.getDevice();
+        if (comTaskExecution instanceof ScheduledComTaskExecution) {
+            ScheduledComTaskExecution scheduledComTaskExecution = (ScheduledComTaskExecution) comTaskExecution;
+            return getProtocolDialectTypedProperties(scheduledComTaskExecution);
+        }
+        else if (comTaskExecution instanceof ManuallyScheduledComTaskExecution) {
+            ManuallyScheduledComTaskExecution manuallyScheduledComTaskExecution = (ManuallyScheduledComTaskExecution) comTaskExecution;
+            return getProtocolDialectTypedProperties(comTaskExecution.getDevice(), manuallyScheduledComTaskExecution.getProtocolDialectConfigurationProperties());
+        }
+        else if (comTaskExecution instanceof AdHocComTaskExecution) {
+            AdHocComTaskExecution adHocComTaskExecution = (AdHocComTaskExecution) comTaskExecution;
+            return getProtocolDialectTypedProperties(comTaskExecution.getDevice(), adHocComTaskExecution.getProtocolDialectConfigurationProperties());
+        }
+        else {
+            return TypedProperties.empty();
+        }
+    }
+
+    static TypedProperties getProtocolDialectTypedProperties(ScheduledComTaskExecution comTaskExecution) {
+        Optional<ProtocolDialectConfigurationProperties> protocolDialectConfigurationProperties = getProtocolDialectConfigurationProperties(comTaskExecution);
+        if (protocolDialectConfigurationProperties.isPresent()) {
+            Device device = comTaskExecution.getDevice();
+            return getProtocolDialectTypedProperties(device, protocolDialectConfigurationProperties.get());
+        }
+        else {
+            return TypedProperties.empty();
+        }
+    }
+
+    private static TypedProperties getProtocolDialectTypedProperties(Device device, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
         ProtocolDialectProperties protocolDialectPropertiesWithName = device.getProtocolDialectProperties(protocolDialectConfigurationProperties.getDeviceProtocolDialectName());
         if (protocolDialectPropertiesWithName == null) {
             return TypedProperties.inheritingFrom(protocolDialectConfigurationProperties.getTypedProperties());
-        } else {
+        }
+        else {
             return protocolDialectPropertiesWithName.getTypedProperties();
         }
+    }
+
+    private static Optional<ProtocolDialectConfigurationProperties> getProtocolDialectConfigurationProperties (ComTaskExecution comTaskExecution) {
+        if (comTaskExecution.getComTasks().isEmpty()) {
+            return Optional.absent();
+        }
+        else {
+            for (ComTask comTask : comTaskExecution.getComTasks()) {
+                Optional<ProtocolDialectConfigurationProperties> properties = getProtocolDialectConfigurationProperties(comTaskExecution.getDevice(), comTask);
+                if (properties.isPresent()) {
+                    return properties;  // Got out now that we have got one, else continue with the next ComTask
+                }
+            }
+            // Bugger: none of the ComTask were enabled with ProtocolDialectConfigurationProperties
+            return Optional.absent();
+        }
+    }
+
+    private static Optional<ProtocolDialectConfigurationProperties> getProtocolDialectConfigurationProperties (Device device, ComTask comTask) {
+        for (ComTaskEnablement comTaskEnablement : device.getDeviceConfiguration().getComTaskEnablements()) {
+            if (comTaskEnablement.getComTask().getId() == comTask.getId()) {
+                return comTaskEnablement.getProtocolDialectConfigurationProperties();
+            }
+        }
+        return Optional.absent();
     }
 
     private RescheduleBehavior getRescheduleBehavior() {

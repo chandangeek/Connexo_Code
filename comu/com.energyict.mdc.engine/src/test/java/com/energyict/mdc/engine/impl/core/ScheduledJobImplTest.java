@@ -17,6 +17,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.ServerComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.EngineService;
@@ -80,6 +81,7 @@ import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 /**
  * Tests for the {@link com.energyict.mdc.engine.impl.core.ScheduledJobImpl} component
@@ -353,14 +355,14 @@ public class ScheduledJobImplTest {
     }
 
     private ServerComTaskExecution createMockServerScheduledComTask(Device device, ConnectionTask connectionTask, ComTask comTask, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
-        ServerComTaskExecution scheduledComTask = mock(ServerComTaskExecution.class);
+        ManuallyScheduledComTaskExecution scheduledComTask = mock(ManuallyScheduledComTaskExecution.class, withSettings().extraInterfaces(ServerComTaskExecution.class));
         when(scheduledComTask.getDevice()).thenReturn(device);
         when(scheduledComTask.getConnectionTask()).thenReturn(connectionTask);
         when(scheduledComTask.getComTasks()).thenReturn(Arrays.asList(comTask));
         List<ProtocolTask> protocolTasks = comTask.getProtocolTasks();
         when(scheduledComTask.getProtocolTasks()).thenReturn(protocolTasks);
         when(scheduledComTask.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
-        return scheduledComTask;
+        return (ServerComTaskExecution) scheduledComTask;
     }
 
     private ProtocolDialectConfigurationProperties createMockProtocolDialectConfigurationProperties() {
