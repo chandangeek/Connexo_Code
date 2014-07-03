@@ -75,13 +75,15 @@ Ext.define('Isu.controller.IssueDetail', {
 
                 var store = record.comments();
 
+                self.getCommentsPanel().store = store;
                 // todo: this is dirty solution, rewrite in to the more solid one
                 store.getProxy().url = store.getProxy().url.replace('{issue_id}', record.getId());
                 store.clearFilter();
-                self.getCommentsPanel().bindStore(store);
+
                 store.proxy.url = '/api/isu/issue/' + id + '/comments';
                 store.load();
                 self.getApplication().fireEvent('changecontentevent', widget);
+                self.getCommentsPanel().bindStore(store);
                 self.setNavigationButtons(record);
             },
             failure: function () {
