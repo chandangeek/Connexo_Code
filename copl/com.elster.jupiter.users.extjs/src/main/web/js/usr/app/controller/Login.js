@@ -104,7 +104,7 @@ Ext.define('Usr.controller.Login', {
             window.location.replace(params.page + location.hash);
         }
         else {
-            window.location.replace("/apps/master/index.html");
+            window.location.replace("/apps/master/index.html#/workspace");
         }
         this.getLoginViewport().destroy();
     },
