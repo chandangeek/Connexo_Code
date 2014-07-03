@@ -73,22 +73,27 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolEdit', {
                     allowBlank: false,
                     required: true,
                     width: 600
-                }
-            ],
-            buttons: [
-                {
-                    text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
-                    xtype: 'button',
-                    ui: 'action',
-                    action: 'saveModel',
-                    itemId: 'createEditButton'
                 },
                 {
-                    text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
-                    xtype: 'button',
-                    ui: 'link',
-                    itemId: 'cancelLink',
-                    href: '#/administration/comportpools/'
+                    xtype: 'fieldcontainer',
+                    ui: 'actions',
+                    fieldLabel: '&nbsp',
+                    items: [
+                        {
+                            text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
+                            xtype: 'button',
+                            ui: 'action',
+                            action: 'saveModel',
+                            itemId: 'createEditButton'
+                        },
+                        {
+                            text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                            xtype: 'button',
+                            ui: 'link',
+                            itemId: 'cancelLink',
+                            href: '#/administration/comportpools/'
+                        }
+                    ]
                 }
             ]
         }
