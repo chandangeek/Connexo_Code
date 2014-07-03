@@ -333,7 +333,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
             failure: function (record, operation) {
                 var json = Ext.decode(operation.response.responseText);
                 if (json && json.errors) {
-                    if(json.errors.some(function(error){
+                    if(json.errors.every(function(error){
                         return error.id === 'status'
                     })){
                         Ext.create('Uni.view.window.Confirmation',{
