@@ -103,7 +103,8 @@ Ext.define('Cfg.controller.Validation', {
                 change: this.updateProperties
             },
             'validation-rule-action-menu': {
-                click: this.chooseRuleAction
+                click: this.chooseRuleAction,
+                show: this.onMenuShow
             },
             'addRule button[action=editRuleAction]': {
                 click: this.createEditRule
@@ -115,6 +116,16 @@ Ext.define('Cfg.controller.Validation', {
                 menuclick: this.chooseRuleSetAction
             }
         });
+    },
+
+    onMenuShow: function (menu) {
+            if (menu.record.get('active')) {
+                menu.down('#activate').hide();
+                menu.down('#deactivate').show();
+            } else {
+                menu.down('#deactivate').hide();
+                menu.down('#activate').show();
+            }
     },
 
     getRuleSetIdFromHref: function () {
@@ -736,6 +747,9 @@ Ext.define('Cfg.controller.Validation', {
         switch (item.action) {
             case 'view':
                 location.href = '#/administration/validation/rulesets/' + me.ruleSetId + '/rules/' + me.ruleId;
+                break;
+            case 'activateRule':
+                me.deactivateRule(record);
                 break;
             case 'deactivateRule':
                 me.deactivateRule(record);
