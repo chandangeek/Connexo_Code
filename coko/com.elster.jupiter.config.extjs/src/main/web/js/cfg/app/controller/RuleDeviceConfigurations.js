@@ -33,10 +33,17 @@ Ext.define('Cfg.controller.RuleDeviceConfigurations', {
                 select: this.loadDetails
             },
             'rule-device-configuration-add grid': {
+                afterrender: this.selectFirstItem,
                 selectionchange: this.countSelectedDeviceConfigurations
             },
             'rule-device-configuration-add button[action=add]': {
                 click: this.addDeviceConfigurations
+            },
+            'rule-device-configuration-add button[action=uncheck]': {
+                click: this.onUncheckAll
+            },
+            'rule-device-configuration-add radiogroup': {
+                change: this.onChangeRadio
             }
         });
     },
@@ -102,8 +109,37 @@ Ext.define('Cfg.controller.RuleDeviceConfigurations', {
     countSelectedDeviceConfigurations: function (grid) {
         var me = this,
             textLabel = me.getRuleDeviceConfigurationAddPanel().down('#countLabel'),
-            chosenLogBookCount = grid.view.getSelectionModel().getSelection().length;
-        textLabel.setText(chosenLogBookCount >= 1 ? (chosenLogBookCount + (chosenLogBookCount > 1 ? ' configurations' : ' configuration') + ' selected') : 'No configurations selected');
+            chosenDeviceConfigCount = grid.view.getSelectionModel().getSelection().length;
+        console.log(chosenDeviceConfigCount);
+        textLabel.setText(chosenDeviceConfigCount >= 1 ? (chosenDeviceConfigCount + (chosenDeviceConfigCount > 1 ? ' configurations' : ' configuration') + ' selected') : Uni.I18n.translate('validation.deviceconfiguration.noSelected', 'CFG', 'No configurations selected'));
+    },
+
+    onUncheckAll: function () {
+        var grid = this.getRuleDeviceConfigurationAddPanel().down('#addDeviceConfigGrid'),
+            radioAll = this.getRuleDeviceConfigurationAddPanel().down('#radioAll'),
+            radioSelected = this.getRuleDeviceConfigurationAddPanel().down('#radioSelected');
+        grid.getView().getSelectionModel().deselectAll();
+        if (radioAll.getValue()) {
+            radioAll.setValue(false);
+            radioSelected.setValue(true);
+        }
+    },
+
+    onChangeRadio: function (radiogroup, newValue, oldValue) {
+        var grid = this.getRuleDeviceConfigurationAddPanel().down('#addDeviceConfigGrid');
+        switch (newValue.configsRadio) {
+            case 'ALL':
+                grid.getSelectionModel().selectAll(true);
+                grid.fireEvent('selectionchange', grid);
+        }
+    },
+
+    selectFirstItem: function (grid) {
+        var gridView = grid.getView(),
+            selectionModel = gridView.getSelectionModel();
+        selectionModel.select(0);
+        grid.fireEvent('selectionchange', grid);
+        this.getRuleDeviceConfigurationAddPanel().down('#countLabel').setText(Uni.I18n.translate('validation.deviceconfiguration.oneSelected', 'CFG', '1 configuration selected'))
     },
 
     addDeviceConfigurations: function () {

@@ -23,15 +23,17 @@ Ext.define('Cfg.view.deviceconfiguration.RuleDeviceConfigurationAdd', {
                         padding: '0 0 30 0'
                     },
                     items: [
-                        {   itemId: 'issueRange1',
+                        {
+                            itemId: 'radioAll',
                             boxLabel: '<b>' + Uni.I18n.translate('validation.allDeviceConfigurations', 'CFG', 'All device configurations') + '</b><br/>' +
                                 '<span style="color: grey;">' + Uni.I18n.translate('validation.selectAllDeviceConfigurations', 'CFG', 'Select all device configurations related to filters') + '</span>',
-                            name: 'issuesRange',
+                            name: 'configsRadio',
                             inputValue: 'ALL'
                         },
-                        {   itemId: 'issueRange2',
+                        {
+                            itemId: 'radioSelected',
                             boxLabel: '<b>' + Uni.I18n.translate('validation.selectedDeviceConfigurations', 'CFG', 'Selected device configurations') + '</b><br/><span style="color: grey;">' + Uni.I18n.translate('validation.selectDeviceConfigurations', 'CFG', 'Select device configurations in table') + '</span>',
-                            name: 'issuesRange',
+                            name: 'configsRadio',
                             inputValue: 'SELECTED'
                         }
                     ]
