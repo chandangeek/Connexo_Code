@@ -13,9 +13,8 @@ Ext.define('Cfg.view.deviceconfiguration.RuleDeviceConfigurationAdd', {
             title: Uni.I18n.translate('validation.deviceconfiguration.addMultiple', 'CFG', 'Add device configurations'),
             items: [
                 {
-                    itemId: 'radiogroupStep1',
                     xtype: 'radiogroup',
-                    name: 'AllOrSelectedIssues',
+                    itemId: 'radiogroupAddDeviceConfig',
                     columns: 1,
                     vertical: true,
                     submitValue: false,
@@ -34,6 +33,7 @@ Ext.define('Cfg.view.deviceconfiguration.RuleDeviceConfigurationAdd', {
                             itemId: 'radioSelected',
                             boxLabel: '<b>' + Uni.I18n.translate('validation.selectedDeviceConfigurations', 'CFG', 'Selected device configurations') + '</b><br/><span style="color: grey;">' + Uni.I18n.translate('validation.selectDeviceConfigurations', 'CFG', 'Select device configurations in table') + '</span>',
                             name: 'configsRadio',
+                            checked: true,
                             inputValue: 'SELECTED'
                         }
                     ]
@@ -132,30 +132,6 @@ Ext.define('Cfg.view.deviceconfiguration.RuleDeviceConfigurationAdd', {
                 }
             ]
         }
-    ],
-
-    initComponent: function () {
-        var me = this;
-        me.side = [
-            {
-                xtype: 'panel',
-                title: Uni.I18n.translate('validation.validationRuleSet', 'CFG', 'Validation rule set'),
-                layout: {
-                    type: 'vbox',
-                    align: 'stretch'
-                },
-                ui: 'medium',
-                items: [
-                    {
-                        xtype: 'ruleSetSubMenu',
-                        itemId: 'stepsMenu',
-                        ruleSetId: me.ruleSetId,
-                        toggle: 2
-                    }
-                ]
-            }
-        ];
-        me.callParent(arguments);
-    }
+    ]
 });
 
