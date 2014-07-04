@@ -1,15 +1,5 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.IsPresent;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.Device;
@@ -34,19 +24,31 @@ import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
+
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
+
+import javax.inject.Provider;
+import javax.validation.constraints.NotNull;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
-import javax.inject.Provider;
-import javax.validation.constraints.NotNull;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -116,8 +118,8 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     @Override
     public void postLoad() {
-        if(this.connectionMethod.isPresent()){
-            ((ConnectionMethodImpl) getConnectionMethod()).loadConnectionTask(this);
+        if (this.connectionMethod.isPresent()) {
+            ((ConnectionMethodImpl) getConnectionMethod()).postLoaded(this);
         }
         this.allowIncomplete = this.status.equals(ConnectionTaskLifecycleStatus.INCOMPLETE);
     }

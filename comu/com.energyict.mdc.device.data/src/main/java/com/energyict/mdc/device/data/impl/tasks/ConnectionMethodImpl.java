@@ -198,7 +198,7 @@ public class ConnectionMethodImpl extends IdPluggableClassUsageImpl<ConnectionMe
         this.comPortPool.set(comPortPool);
     }
 
-    void loadConnectionTask(ConnectionTaskImpl<?,?> connectionTask) {
+    void postLoaded(ConnectionTaskImpl<?, ?> connectionTask) {
         this.connectionTask.set(connectionTask);
     }
 }

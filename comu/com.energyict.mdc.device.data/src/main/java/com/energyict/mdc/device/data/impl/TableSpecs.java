@@ -67,25 +67,6 @@ public enum TableSpecs {
         }
     },
 
-    DDC_DEVICEINCOMSCHEDULE {
-        @Override
-        void addTo(DataModel component) {
-            Table<DeviceInComSchedule> table = component.addTable(name(), DeviceInComSchedule.class);
-            table.map(DeviceInComScheduleImpl.class);
-            Column deviceId = table.column("DEVICEID").number().notNull().conversion(NUMBER2LONG).add();
-            Column comScheduleId = table.column("COMSCHEDULEID").number().notNull().conversion(NUMBER2LONG).add();
-
-            table.foreignKey("FK_DDC_DEVINCOMSCHEDULE_DEVICE").on(deviceId).references(DDC_DEVICE.name()).map(DeviceInComScheduleImpl.Fields.DEVICE_REFERENCE.fieldName())
-                    .reverseMap(DeviceImpl.Fields.COM_SCHEDULE_USAGES.fieldName())
-                    .composition()
-                    .add();
-            table.foreignKey("FK_DEVINCOMSCHEDULE_CSCHEDULE").on(comScheduleId).references(SchedulingService.COMPONENT_NAME, "SCH_COMSCHEDULE")
-                    .map(DeviceInComScheduleImpl.Fields.COM_SCHEDULE_REFERENCE.fieldName())
-                    .add();
-            table.primaryKey("PK_DDC_DEVICEINCOMSCHEDULE").on(deviceId, comScheduleId).add();
-        }
-    },
-
     DDC_INFOTYPE {
         @Override
         public void addTo(DataModel dataModel) {

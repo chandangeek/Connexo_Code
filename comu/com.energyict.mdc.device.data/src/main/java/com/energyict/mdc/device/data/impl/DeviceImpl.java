@@ -122,19 +122,6 @@ import static com.elster.jupiter.util.Checks.is;
 @UniqueMrid(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_DEVICE_MRID + "}")
 public class DeviceImpl implements Device, PersistenceAware {
 
-    enum Fields {
-        COM_SCHEDULE_USAGES("comScheduleUsages");
-        private final String javaFieldName;
-
-        Fields(String javaFieldName) {
-            this.javaFieldName = javaFieldName;
-        }
-
-        String fieldName() {
-            return javaFieldName;
-        }
-    }
-
     private final DataModel dataModel;
     private final EventService eventService;
     private final Thesaurus thesaurus;
@@ -145,7 +132,6 @@ public class DeviceImpl implements Device, PersistenceAware {
 
     private final List<LoadProfile> loadProfiles = new ArrayList<>();
     private final List<LogBook> logBooks = new ArrayList<>();
-    private final List<DeviceInComSchedule> comScheduleUsages = new ArrayList<>();
     private long id;
 
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DEVICE_TYPE_REQUIRED_KEY + "}")
