@@ -41,7 +41,6 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")
     @Size(min = 1, max = 80, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
-    @Pattern(regexp = "^[a-zA-Z0-9\\.\\-]+[a-zA-Z0-9 \\.\\-]*", groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.INVALID_CHARS + "}")
     private String name;
     @Size(min = 0, max = 80, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     private String aliasName;
