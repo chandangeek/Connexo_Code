@@ -30,7 +30,6 @@ import com.elster.jupiter.validation.ValidatorNotFoundException;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
@@ -137,9 +136,7 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
             newProperties.add(newProperty);
         }
 
-        if (newProperties != null) {
-            entryDiff.addAll(newProperties);
-        }
+        entryDiff.addAll(newProperties);
         for (ValidationRuleProperties property : entryDiff.getRemovals()) {
             properties.remove(property);
         }
@@ -164,7 +161,6 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
     public ReadingTypeInValidationRule addReadingType(String mRID) {
         Optional<ReadingType> optional = meteringService.getReadingType(mRID);
         if (!optional.isPresent()) {
-            // throw new InvalidReadingTypeException(this.thesaurus, mRID);
             ReadingTypeInValidationRuleImpl empty = ReadingTypeInValidationRuleImpl.from(dataModel, this, mRID);
             if (getId() != 0) {
                 Save.UPDATE.validate(dataModel, empty);
@@ -257,7 +253,7 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
         return builder.build();
     }
 
-    public ReadingTypeInValidationRule getReadingTypeInRule(ReadingType readingType) {
+    private ReadingTypeInValidationRule getReadingTypeInRule(ReadingType readingType) {
         for (ReadingTypeInValidationRule readingTypeInValidationRule : readingTypesInRule) {
             if (readingTypeInValidationRule.getReadingType().equals(readingType)) {
                 return readingTypeInValidationRule;
@@ -269,14 +265,10 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
     @Override
     public Set<ReadingType> getReadingTypes() {
         Set<ReadingType> result = new HashSet<>();
-        for (ReadingTypeInValidationRule readingTypeInRule : getReadingTypesInRule()) {
+        for (ReadingTypeInValidationRule readingTypeInRule : readingTypesInRule) {
             result.add(readingTypeInRule.getReadingType());
         }
         return result;
-    }
-
-    public List<ReadingTypeInValidationRule> getReadingTypesInRule() {
-        return ImmutableList.copyOf(readingTypesInRule);
     }
 
     @Override
@@ -300,9 +292,9 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
     public void save() {
         if (getId() == 0) {
             doPersist();
-        } else {
-            doUpdate();
+            return;
         }
+        doUpdate();
     }
 
     @Override
