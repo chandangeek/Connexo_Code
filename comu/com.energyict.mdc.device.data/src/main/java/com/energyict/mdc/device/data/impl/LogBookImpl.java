@@ -79,7 +79,7 @@ public class LogBookImpl implements LogBook {
 
     abstract static class LogBookUpdater implements LogBook.LogBookUpdater {
 
-        final LogBookImpl logBook;
+        private final LogBookImpl logBook;
 
         protected LogBookUpdater(LogBookImpl logBook) {
             this.logBook = logBook;
@@ -99,4 +99,5 @@ public class LogBookImpl implements LogBook {
             this.logBook.update();
         }
     }
+
 }

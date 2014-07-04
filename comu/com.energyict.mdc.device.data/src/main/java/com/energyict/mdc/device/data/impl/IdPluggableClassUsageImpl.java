@@ -302,11 +302,11 @@ public abstract class IdPluggableClassUsageImpl<D, T extends HasDynamicPropertie
                 relation.makeObsolete();
             }
             catch (BusinessException e) {
-                throw new NestedRelationTransactionException(this.thesaurus, e, this.findRelationType().getName());
+                throw new NestedRelationTransactionException(this.getThesaurus(), e, this.findRelationType().getName());
             }
             // Cannot collapse catch blocks because of the constructor
             catch (SQLException e) {
-                throw new NestedRelationTransactionException(this.thesaurus, e, this.findRelationType().getName());
+                throw new NestedRelationTransactionException(this.getThesaurus(), e, this.findRelationType().getName());
             }
         }
     }

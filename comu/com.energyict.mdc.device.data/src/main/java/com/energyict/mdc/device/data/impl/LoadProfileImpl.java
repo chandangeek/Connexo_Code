@@ -130,7 +130,7 @@ public class LoadProfileImpl implements LoadProfile {
 
     abstract static class LoadProfileUpdater implements LoadProfile.LoadProfileUpdater {
 
-        final LoadProfileImpl loadProfile;
+        private final LoadProfileImpl loadProfile;
 
         protected LoadProfileUpdater(LoadProfileImpl loadProfile) {
             this.loadProfile = loadProfile;

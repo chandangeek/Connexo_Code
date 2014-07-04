@@ -221,9 +221,9 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
          * Need to validate the ConnectionTask FIRST, then save the ConnectionMethod, then save the ConnectionTask ...
          */
         if(getId() == 0){
-            Save.CREATE.validate(dataModel, this);
+            Save.CREATE.validate(this.getDataModel(), this);
         } else {
-            Save.UPDATE.validate(dataModel, this);
+            Save.UPDATE.validate(this.getDataModel(), this);
         }
 
         this.getConnectionMethod().save();
@@ -580,7 +580,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
      */
     boolean isValidConnectionTask(){
         try {
-            Save.CREATE.validate(dataModel, this, Save.Update.class);
+            Save.CREATE.validate(this.getDataModel(), this, Save.Update.class);
         } catch (Exception e) {
             return false;
         }

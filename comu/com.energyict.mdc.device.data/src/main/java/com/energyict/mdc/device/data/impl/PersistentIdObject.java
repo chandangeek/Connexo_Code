@@ -18,16 +18,20 @@ public abstract class PersistentIdObject<D> {
 
     private long id;
 
-    protected Class<D> domainClass;
-    protected DataModel dataModel;
-    protected EventService eventService;
-    protected Thesaurus thesaurus;
+    private Class<D> domainClass;
+    private DataModel dataModel;
+    private EventService eventService;
+    private Thesaurus thesaurus;
 
     protected PersistentIdObject(Class<D> domainClass, DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
         this.domainClass = domainClass;
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.thesaurus = thesaurus;
+    }
+
+    protected DataModel getDataModel() {
+        return dataModel;
     }
 
     protected DataMapper<D> getDataMapper() {

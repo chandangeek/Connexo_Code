@@ -162,8 +162,8 @@ public class ScheduledComTaskExecutionImpl extends ComTaskExecutionImpl implemen
         }
 
         public ScheduledComTaskExecutionBuilder comSchedule(ComSchedule comSchedule) {
-            this.comTaskExecution.setComSchedule(comSchedule);
-            return self;
+            this.getComTaskExecution().setComSchedule(comSchedule);
+            return self();
         }
 
     }

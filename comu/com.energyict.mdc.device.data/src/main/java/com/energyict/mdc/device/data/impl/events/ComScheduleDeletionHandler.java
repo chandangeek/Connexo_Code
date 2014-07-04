@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.impl.events;
 
-import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.impl.ServerDeviceDataService;
 import com.energyict.mdc.scheduling.model.ComSchedule;

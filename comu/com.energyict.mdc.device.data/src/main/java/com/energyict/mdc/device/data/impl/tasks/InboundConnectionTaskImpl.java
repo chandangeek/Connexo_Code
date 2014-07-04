@@ -53,10 +53,14 @@ public class InboundConnectionTaskImpl extends ConnectionTaskImpl<PartialInbound
 
     public abstract static class AbstractInboundConnectionTaskBuilder implements Device.InboundConnectionTaskBuilder {
 
-        public final InboundConnectionTaskImpl inboundConnectionTask;
+        private final InboundConnectionTaskImpl inboundConnectionTask;
 
         public AbstractInboundConnectionTaskBuilder(InboundConnectionTaskImpl inboundConnectionTask) {
             this.inboundConnectionTask = inboundConnectionTask;
+        }
+
+        protected InboundConnectionTaskImpl getInboundConnectionTask() {
+            return inboundConnectionTask;
         }
 
         @Override
