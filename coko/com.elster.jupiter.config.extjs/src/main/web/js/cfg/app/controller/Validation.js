@@ -577,86 +577,13 @@ Ext.define('Cfg.controller.Validation', {
             selectedRule = record;
         }
         me.ruleId = selectedRule.internalId;
-        itemForm.loadRecord(selectedRule);
-        itemForm.setTitle(selectedRule.get('name'));
-        this.addProperties(selectedRule);
-        this.addReadingTypes(selectedRule);
+
+        itemForm.updateValidationRule(selectedRule);
+
         if (me.getRuleSetBrowsePanel()) {
             me.getRulePreview().down('validation-rule-action-menu').record = record;
         } else if (me.getRulePreviewContainer()) {
             itemForm.down('validation-rule-action-menu').record = record;
-        }
-    },
-
-    addProperties: function (selectedRule) {
-        var properties = selectedRule.data.properties,
-            area;
-        if (this.getPropertiesArea()) {
-            area = this.getPropertiesArea();
-        } else {
-            area = this.getPropertiesOverviewArea();
-        }
-        area.removeAll();
-        for (var i = 0; i < properties.length; i++) {
-            var property = properties[i];
-            var propertyName = property.name;
-            var propertyValue = property.value;
-            var required = property.required;
-            var label = propertyName;
-            if (!required) {
-                label = label + ' (optional)';
-            }
-            area.add(
-                {
-                    xtype: 'displayfield',
-                    fieldLabel: label,
-                    value: propertyValue,
-                    labelWidth: 260
-                }
-            );
-        }
-    },
-
-    addReadingTypes: function (selectedRule) {
-        var readingTypes = selectedRule.data.readingTypes,
-            area;
-        if (this.getReadingTypesArea()) {
-            area = this.getReadingTypesArea();
-        } else {
-            area = this.getReadingTypesOverviewArea();
-        }
-        area.removeAll();
-        for (var i = 0; i < readingTypes.length; i++) {
-            var readingType = readingTypes[i];
-            var aliasName = readingType.aliasName;
-            var mRID = readingType.mRID;
-            var fieldlabel = Uni.I18n.translate('validation.readingTypes', 'CFG', 'Reading type(s)');
-            if (i > 0) {
-                fieldlabel = '&nbsp';
-            }
-            area.add(
-                {
-                    xtype: 'container',
-                    layout: {
-                        type: 'hbox'
-                    },
-                    items: [
-                        {
-                            xtype: 'displayfield',
-                            fieldLabel: fieldlabel,
-                            labelWidth: 260,
-                            width: 500,
-                            value: mRID
-                        },
-                        {
-                            xtype: 'component',
-                            width: 500,
-                            html: '<span style="color:grey"><i>' + aliasName + '</i></span>',
-                            margin: '5 0 0 10'
-                        }
-                    ]
-                }
-            );
         }
     },
 
