@@ -72,6 +72,20 @@ Ext.define('Cfg.controller.history.Validation', {
                                             }
                                         }
                                     }
+                                },
+                                deviceconfig: {
+                                    title: 'Device configurations',
+                                    route: 'deviceconfig',
+                                    controller: 'Cfg.controller.RuleDeviceConfigurations',
+                                    action: 'showDeviceConfigView',
+                                    items: {
+                                        add: {
+                                            title: 'Add',
+                                            route: 'add',
+                                            controller: 'Cfg.controller.RuleDeviceConfigurations',
+                                            action: 'showAddDeviceConfigView'
+                                        }
+                                    }
                                 }
                             }
                         }

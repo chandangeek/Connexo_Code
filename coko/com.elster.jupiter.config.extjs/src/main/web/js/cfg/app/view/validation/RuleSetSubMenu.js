@@ -23,10 +23,9 @@ Ext.define('Cfg.view.validation.RuleSetSubMenu', {
             },
             {
                 text: Uni.I18n.translate('validation.deviceConfigurations', 'CFG', 'Device configurations'),
-                pressed: false
-               /* itemId: 'rulesLink',
-                href: '#/administration/validation/rulesets/validationrules/' + this.ruleSetId,
-                hrefTarget: '_self'*/
+                pressed: false,
+                href: '#/administration/validation/rulesets/' + this.ruleSetId + '/deviceconfig',
+                hrefTarget: '_self'
             }
         );
         this.toggleMenuItem(this.toggle);
