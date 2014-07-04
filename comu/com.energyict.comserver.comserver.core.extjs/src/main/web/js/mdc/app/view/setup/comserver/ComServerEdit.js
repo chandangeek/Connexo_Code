@@ -86,10 +86,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                     items: [
                         {
                             xtype: 'container',
-                            layout: {
-                                type: 'hbox',
-                                align: 'stretch'
-                            },
+                            layout: 'hbox',
                             defaults: {
                                 validateOnChange: false,
                                 validateOnBlur: false,
@@ -129,10 +126,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                     items: [
                         {
                             xtype: 'container',
-                            layout: {
-                                type: 'hbox',
-                                align: 'stretch'
-                            },
+                            layout: 'hbox',
                             defaults: {
                                 validateOnChange: false,
                                 validateOnBlur: false,
