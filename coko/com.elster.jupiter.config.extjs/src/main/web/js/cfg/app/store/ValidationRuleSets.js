@@ -9,7 +9,6 @@ Ext.define('Cfg.store.ValidationRuleSets', {
     listeners: {
         'beforeLoad': function () {
             var extraParams = this.proxy.extraParams;
-
             // replace filter extra params with new ones
             if (this.proxyFilter) {
                 extraParams = _.omit(extraParams, this.proxyFilter.getFields());

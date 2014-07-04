@@ -62,5 +62,11 @@ Ext.define('Cfg.view.validation.RulePreview', {
 
     initComponent: function () {
         this.callParent(arguments);
+    },
+
+    updateValidationRule: function (validationRule) {
+        var me = this;
+        me.loadRecord(validationRule);
+        me.setTitle(validationRule.get('name'));
     }
 });
