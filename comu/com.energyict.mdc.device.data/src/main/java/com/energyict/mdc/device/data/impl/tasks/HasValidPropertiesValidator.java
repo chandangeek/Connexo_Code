@@ -44,6 +44,14 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
         return this.valid;
     }
 
+    private boolean isValidConnectionTaskInIncompleteState(ConnectionTaskImpl connectionTaskImpl) {
+        ConnectionTask.ConnectionTaskLifecycleStatus tempStatus = connectionTaskImpl.getStatus();
+        connectionTaskImpl.setStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE);
+        boolean validConnectionTask = connectionTaskImpl.isValidConnectionTask();
+        connectionTaskImpl.setStatus(tempStatus);
+        return validConnectionTask;
+    }
+
     private void validatePropertiesAreLinkedToPropertySpecs(ConnectionTypePluggableClass connectionTypePluggableClass, TypedProperties properties, ConstraintValidatorContext context) {
         ConnectionType connectionType = connectionTypePluggableClass.getConnectionType();
         if (!properties.localPropertyNames().isEmpty()) {
@@ -97,9 +105,10 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
     }
 
     private void validateAllRequiredPropertiesHaveValues(ConnectionType connectionType, TypedProperties properties, TypedProperties partialConnectionTaskProperties, ConstraintValidatorContext context, ConnectionTaskImpl connectionTask) {
+        boolean validConnectionTaskInIncompleteState = isValidConnectionTaskInIncompleteState(connectionTask);
         for (PropertySpec propertySpec : this.getRequiredPropertySpecs(connectionType)) {
             String propertySpecName = propertySpec.getName();
-            if (((properties.getProperty(propertySpecName) == null) && !properties.hasInheritedValueFor(propertySpecName))) {
+            if (validConnectionTaskInIncompleteState && ((properties.getProperty(propertySpecName) == null) && !properties.hasInheritedValueFor(propertySpecName))) {
                 context.disableDefaultConstraintViolation();
                 if(connectionTask.isAllowIncomplete()){
                     context
