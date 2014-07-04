@@ -257,7 +257,6 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
     },
 
     updateRecord: function (record, values) {
-        debugger;
         var me = this;
         var propertyForm = me.getConnectionMethodEditView().down('property-form');
         if (record) {

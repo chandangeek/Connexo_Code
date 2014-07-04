@@ -115,7 +115,6 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
     },
 
     previewDeviceConnectionMethod: function () {
-        debugger;
         var connectionMethod = this.getDeviceConnectionMethodsGrid().getSelectionModel().getSelection();
         if (connectionMethod.length == 1) {
             this.getToggleDefaultMenuItem().setText(connectionMethod[0].get('isDefault') === true ? Uni.I18n.translate('deviceconnectionmethod.unsetAsDefault', 'MDC', 'Remove as default') : Uni.I18n.translate('deviceconnectionmethod.setAsDefault', 'MDC', 'Set as default'));
