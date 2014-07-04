@@ -257,6 +257,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
     },
 
     updateRecord: function (record, values) {
+        debugger;
         var me = this;
         var propertyForm = me.getConnectionMethodEditView().down('property-form');
         if (record) {
@@ -268,7 +269,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                 record.set('comWindowStart', 0);
                 record.set('comWindowEnd', 0);
             }
-            propertyForm.updateRecord();
+            propertyForm.updateRecord(record);
             record.propertiesStore = propertyForm.getRecord().properties();
             record.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigurationId});
             record.save({
