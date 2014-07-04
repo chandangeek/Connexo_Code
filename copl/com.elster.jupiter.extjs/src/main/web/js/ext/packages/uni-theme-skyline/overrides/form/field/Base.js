@@ -4,6 +4,9 @@ Ext.define('Skyline.form.field.Base', {
     labelPad: 15,
     msgTarget: 'under',
     blankText: 'This is a required field',
+    validateOnChange: false,
+    validateOnBlur: false,
+
     getLabelCls: function () {
         var labelCls = this.labelCls;
         if (this.required) {
@@ -12,6 +15,7 @@ Ext.define('Skyline.form.field.Base', {
 
         return labelCls;
     },
+
     initComponent: function() {
         this.callParent(arguments);
     }
