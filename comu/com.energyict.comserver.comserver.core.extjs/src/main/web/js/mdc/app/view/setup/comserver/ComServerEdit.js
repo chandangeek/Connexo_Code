@@ -86,10 +86,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                     items: [
                         {
                             xtype: 'container',
-                            layout: {
-                                type: 'hbox',
-                                align: 'stretch'
-                            },
+                            layout: 'hbox',
                             defaults: {
                                 validateOnChange: false,
                                 validateOnBlur: false,
@@ -100,7 +97,8 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                                     xtype: 'numberfield',
                                     name: 'changesInterPollDelay[count]',
                                     width: 150,
-                                    margin: '0 10 0 0'
+                                    margin: '0 10 0 0',
+                                    minValue: 0
                                 },
                                 {
                                     xtype: 'combobox',
@@ -129,10 +127,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                     items: [
                         {
                             xtype: 'container',
-                            layout: {
-                                type: 'hbox',
-                                align: 'stretch'
-                            },
+                            layout: 'hbox',
                             defaults: {
                                 validateOnChange: false,
                                 validateOnBlur: false,
@@ -143,7 +138,8 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                                     xtype: 'numberfield',
                                     name: 'schedulingInterPollDelay[count]',
                                     width: 150,
-                                    margin: '0 10 0 0'
+                                    margin: '0 10 0 0',
+                                    minValue: 0
                                 },
                                 {
                                     xtype: 'combobox',

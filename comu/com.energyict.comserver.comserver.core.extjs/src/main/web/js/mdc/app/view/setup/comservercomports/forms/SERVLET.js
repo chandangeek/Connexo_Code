@@ -13,7 +13,7 @@ Ext.define('Mdc.view.setup.comservercomports.forms.SERVLET', {
         {
             defaults: {
                 xtype: 'displayfield',
-                labelWidth: 300
+                labelWidth: 250
             },
             items: [
                 {
@@ -37,7 +37,7 @@ Ext.define('Mdc.view.setup.comservercomports.forms.SERVLET', {
         {
             defaults: {
                 xtype: 'displayfield',
-                labelWidth: 300
+                labelWidth: 250
             },
             items: [
                 {
@@ -49,7 +49,7 @@ Ext.define('Mdc.view.setup.comservercomports.forms.SERVLET', {
                     name: 'comPortType'
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('comports.preview.inComPortPools', 'MDC', 'Communication port pools'),
+                    fieldLabel: Uni.I18n.translate('comports.preview.communicationPortPools', 'MDC', 'Communication port pools'),
                     name: 'inboundComPortPools'
                 },
                 {
