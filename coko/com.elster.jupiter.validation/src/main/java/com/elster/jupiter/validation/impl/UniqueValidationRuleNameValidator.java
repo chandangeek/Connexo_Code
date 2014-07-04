@@ -30,7 +30,7 @@ public class UniqueValidationRuleNameValidator implements ConstraintValidator<Un
 
     private boolean hasEquallyNamedRule(ValidationRuleSet ruleSet, ValidationRule rule, ConstraintValidatorContext context) {
         for (ValidationRule existingRule : ruleSet.getRules()) {
-            if (areDifferent(rule, existingRule)) {
+            if (areDifferentWithSameName(rule, existingRule)) {
                 context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate(message).addPropertyNode("name").addConstraintViolation();
                 return true;
@@ -39,7 +39,7 @@ public class UniqueValidationRuleNameValidator implements ConstraintValidator<Un
         return false;
     }
 
-    private boolean areDifferent(ValidationRule rule, ValidationRule existingRule) {
+    private boolean areDifferentWithSameName(ValidationRule rule, ValidationRule existingRule) {
         return existingRule.getName().equals(rule.getName()) && (existingRule.getId() != rule.getId());
     }
 
