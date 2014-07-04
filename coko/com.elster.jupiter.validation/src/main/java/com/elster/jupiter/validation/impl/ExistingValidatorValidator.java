@@ -9,7 +9,6 @@ import javax.validation.ConstraintValidatorContext;
 
 public class ExistingValidatorValidator implements ConstraintValidator<ExistingValidator, String> {
 
-    private String message;
     private ValidationService validationService;
 
     @Inject
@@ -19,7 +18,7 @@ public class ExistingValidatorValidator implements ConstraintValidator<ExistingV
 
     @Override
     public void initialize(ExistingValidator constraintAnnotation) {
-        message = constraintAnnotation.message();
+        // nothing atm
     }
 
     @Override

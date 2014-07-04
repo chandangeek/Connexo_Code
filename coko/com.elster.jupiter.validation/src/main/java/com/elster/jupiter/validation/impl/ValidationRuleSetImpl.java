@@ -30,6 +30,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import static com.elster.jupiter.util.conditions.Where.where;
+import static com.elster.jupiter.validation.impl.MessageSeeds.Constants;
 
 @XmlRootElement
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.DUPLICATE_VALIDATION_RULE_SET + "}")
@@ -194,15 +195,10 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
         Save.CREATE.save(dataModel, this);
         for (IValidationRule rule : doGetRules()) {
             ((ValidationRuleImpl) rule).setRuleSetId(getId());
-            Save.CREATE.save(dataModel, (ValidationRuleImpl) rule);
+            Save.CREATE.save(dataModel, rule);
         }
         eventService.postEvent(EventType.VALIDATIONRULESET_CREATED.topic(), this);
     }
-
-    private DataMapper<IValidationRule> ruleFactory() {
-        return dataModel.mapper(IValidationRule.class);
-    }
-
 
     @Override
     public void delete() {
@@ -233,14 +229,13 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     }
 
     private IValidationRule doGetRule(long id) {
-        IValidationRule rule = null;
         doGetRules();
         for (IValidationRule singleRule : rules) {
             if (singleRule.getId() == id) {
                 return singleRule;
             }
         }
-        return rule;
+        return null;
     }
 
     private List<IValidationRule> loadRules() {
@@ -261,34 +256,39 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     }
 
     @Override
-    public IValidationRule updateRule(long id, String name, String implementation, boolean activeStatus,
-                                      List<String> mRIDs, Map<String, Quantity> properties) {
+    public IValidationRule updateRule(long id, String name, String implementation, boolean activeStatus, List<String> mRIDs, Map<String, Quantity> properties) {
+        IValidationRule rule = getExistingRule(id, implementation);
+        return doUpdateRule(rule, name, implementation, activeStatus, mRIDs, properties);
+    }
+
+    private IValidationRule doUpdateRule(IValidationRule rule, String name, String implementation, boolean activeStatus, List<String> mRIDs, Map<String, Quantity> properties) {
+        rule.rename(name);
+        rule.setImplementation(implementation);
+
+        if(activeStatus != rule.isActive()) {
+            rule.toggleActivation();
+        }
+        updateReadingTypes(rule, mRIDs);
+        rule.setProperties(properties);
+
+        return rule;
+    }
+
+    private void updateReadingTypes(IValidationRule rule, List<String> mRIDs) {
+        rule.clearReadingTypes();
+        for (String readingTypeMRID : mRIDs) {
+            rule.addReadingType(readingTypeMRID);
+        }
+    }
+
+    private IValidationRule getExistingRule(long id, String implementation) {
         IValidationRule rule = doGetRule(id);
         if (rule == null) {
-            throw new IllegalArgumentException("The rulset " + this.getId() + " doesn't contain provided ruleId: " + rule.getId());
+            throw new IllegalArgumentException("The ruleset " + this.getId() + " doesn't contain provided ruleId: " + id);
         }
         if (rule.isActive() && !implementation.equals(rule.getImplementation())) {
             throw new IllegalArgumentException("Validator can't be changed on an active rule");
         }
-        rule.rename(name);
-        rule.setImplementation(implementation);
-
-        if(activeStatus && !rule.isActive()) {
-            rule.activate();
-        }
-        if(!activeStatus && rule.isActive()) {
-            rule.deactivate();
-        }
-
-        Set<ReadingType> readingTypeList = rule.getReadingTypes();
-        for (ReadingType type : readingTypeList) {
-            rule.deleteReadingType(type);
-        }
-        for (String mRID : mRIDs) {
-            rule.addReadingType(mRID);
-        }
-        rule.setProperties(properties);
-
         return rule;
     }
 

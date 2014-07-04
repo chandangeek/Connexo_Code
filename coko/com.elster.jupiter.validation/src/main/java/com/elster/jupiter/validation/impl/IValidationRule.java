@@ -13,4 +13,8 @@ public interface IValidationRule extends ValidationRule {
     void delete();
 
     void save();
+
+    void toggleActivation();
+
+    void clearReadingTypes();
 }

@@ -44,10 +44,9 @@ import java.util.Map;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.jupiter.validation", service = {InstallService.class, ValidationService.class}, property = "name=" + ValidationService.COMPONENTNAME, immediate = true)
-public class ValidationServiceImpl implements ValidationService, InstallService {
+public final class ValidationServiceImpl implements ValidationService, InstallService {
 
     private static final Upcast<IValidationRuleSet, ValidationRuleSet> UPCAST = new Upcast<>();
-    private static final Upcast<IValidationRule, ValidationRule> RULE_UPCAST = new Upcast<>();
     private volatile EventService eventService;
     private volatile MeteringService meteringService;
     private volatile Clock clock;
@@ -73,7 +72,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
     }
 
     @Activate
-    public void activate() {
+    public final void activate() {
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {

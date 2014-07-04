@@ -64,7 +64,7 @@ public class MeterActivationValidationImplTest {
         when((Object) dataModel.getInstance(ChannelValidationImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new ChannelValidationImpl(dataModel, meteringService);
+                return new ChannelValidationImpl();
             }
         });
         when(clock.now()).thenReturn(DATE3);
@@ -77,7 +77,7 @@ public class MeterActivationValidationImplTest {
         when(channel2.getMeterActivation()).thenReturn(meterActivation);
         when(validationRuleSet.getRules()).thenReturn(Arrays.asList(rule1, rule2));
 
-        meterActivationValidation = new MeterActivationValidationImpl(dataModel, meteringService, clock).init(meterActivation);
+        meterActivationValidation = new MeterActivationValidationImpl(dataModel, clock).init(meterActivation);
         meterActivationValidation.setRuleSet(validationRuleSet);
         meterActivationValidation.save();
     }
