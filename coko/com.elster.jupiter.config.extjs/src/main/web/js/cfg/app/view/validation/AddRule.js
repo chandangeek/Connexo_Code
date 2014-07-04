@@ -96,10 +96,8 @@ Ext.define('Cfg.view.validation.AddRule', {
                             items: [
                                 {
                                     xtype: 'container',
-                                    //itemId: 'readingValuesTextFieldsContainer',
                                     layout: {
-                                        type: 'hbox'//,
-                                        //align: 'stretch'
+                                        type: 'hbox'
                                     },
                                     items: [
                                         {
@@ -108,14 +106,6 @@ Ext.define('Cfg.view.validation.AddRule', {
                                             labelAlign: 'right',
                                             itemId: 'readingType1',
                                             name: 'readingType1',
-                                            /*vtype: 'readingtype',
-                                             validator:function(text){
-                                             if(Ext.util.Format.trim(text).length==0)
-                                             return Uni.I18n.translate('validation.requiredField', 'CFG', 'This field is required');
-                                             else
-                                             return true;
-                                             },
-                                             required: true,  */
                                             msgTarget: 'under',
                                             labelWidth: 250,
                                             maskRe: /^($|\S.*$)/,

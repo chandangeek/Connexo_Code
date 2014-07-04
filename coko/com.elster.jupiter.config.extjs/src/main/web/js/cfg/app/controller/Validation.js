@@ -268,7 +268,8 @@ Ext.define('Cfg.controller.Validation', {
     addReadingType: function () {
         var me = this;
         var indexToRemove = me.readingTypeIndex;
-        this.getReadingValuesTextFieldsContainer().add(
+
+        var widget = this.getReadingValuesTextFieldsContainer().add(
             {
                 xtype: 'container',
                 itemId: 'readingType' + me.readingTypeIndex,
@@ -282,13 +283,6 @@ Ext.define('Cfg.controller.Validation', {
                         fieldLabel: '&nbsp',
                         labelAlign: 'right',
                         name: 'readingType',
-                        /*validator:function(text){
-                         if(Ext.util.Format.trim(text).length==0)
-                         return Uni.I18n.translate('validation.requiredField', 'CFG', 'This field is required');
-                         else
-                         return true;
-                         },
-                         required: true,    */
                         msgTarget: 'under',
                         labelWidth: 250,
                         maskRe: /^($|\S.*$)/,
@@ -314,7 +308,10 @@ Ext.define('Cfg.controller.Validation', {
                 ]
             }
         );
+
         me.readingTypeIndex = me.readingTypeIndex + 1;
+
+        return widget;
     },
 
     addRule: function (id) {
@@ -685,42 +682,42 @@ Ext.define('Cfg.controller.Validation', {
     },
 
     modelToForm: function (editRulePanel, id) {
-        var self = this,
-            rulesStore = self.getStore('Cfg.store.ValidationRules'),
+        var me = this,
+            rulesStore = me.getStore('Cfg.store.ValidationRules'),
             form = editRulePanel.down('#addRuleForm').getForm(),
             readingTypeField = editRulePanel.down('#readingType1'),
             validatorField = editRulePanel.down('#validatorCombo'),
             propField,
-            readingTypeFields,
-            rule,
-            fieldItemId,
-            countReadingTypes;
-        editRulePanel.setLoading('Loading...');
+            rule;
+
+        editRulePanel.setLoading();
+
         rulesStore.load({
             params: {
                 id: id
             },
             callback: function () {
                 editRulePanel.setLoading(false);
-                rule = this.getById(self.ruleId);
-                self.ruleModel = rule;
-                countReadingTypes = rule.get('readingTypes').length;
+                rule = this.getById(me.ruleId);
+                me.ruleModel = rule;
                 form.loadRecord(rule);
-                self.getApplication().fireEvent('loadRule', rule);
+                me.getApplication().fireEvent('loadRule', rule);
                 editRulePanel.down('#addRuleTitle').setTitle("Edit '" + rule.get('name') + "'");
+
                 if (rule.data.active) {
                     validatorField.disable();
                 }
-                for (var i = 0; i < countReadingTypes - 1; i++) {
-                    self.addReadingType();
-                }
+
                 readingTypeField.setValue(rule.get('readingTypes')[0].mRID);
-                readingTypeFields = Ext.ComponentQuery.query('addRule textfield[name=readingType]');
-                Ext.Array.each(rule.get('readingTypes'), function (readType) {
-                    Ext.Array.each(readingTypeFields, function (field) {
-                        field.setValue(readType.mRID);
-                    });
-                });
+
+                var ruleReadingTypes = rule.get('readingTypes');
+                for (var i = 1; i < ruleReadingTypes.length; i++) {
+                    var readingType = ruleReadingTypes[i],
+                        field = me.addReadingType();
+
+                    field.down('textfield').setValue(readingType.mRID);
+                }
+
                 Ext.Array.each(rule.get('properties'), function (item) {
                     fieldItemId = '#' + item.name;
                     propField = editRulePanel.down(fieldItemId).setValue(item.value);
