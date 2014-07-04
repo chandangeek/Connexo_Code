@@ -130,7 +130,9 @@ Ext.define('Uni.view.container.PreviewContainer', {
         var me = this,
             selection = me.grid.view.getSelectionModel().getSelection();
 
-        me.previewComponent.setVisible(selection.length === 1);
+        if (me.previewComponent) {
+            me.previewComponent.setVisible(selection.length === 1);
+        }
     },
 
     getStoreListeners: function () {
