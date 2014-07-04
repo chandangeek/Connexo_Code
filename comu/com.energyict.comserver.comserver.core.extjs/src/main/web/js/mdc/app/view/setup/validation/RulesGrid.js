@@ -26,11 +26,17 @@ Ext.define('Mdc.view.setup.validation.RulesGrid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('validation.status', 'MDC', 'Status'),
+                header: Uni.I18n.translate('validation.status', 'CFG', 'Status'),
                 dataIndex: 'active',
-                flex: 1
+                flex: 1,
+                renderer: function (value) {
+                    if (value) {
+                        return Uni.I18n.translate('validation.active', 'CFG', 'Active')
+                    } else {
+                        return Uni.I18n.translate('validation.inactive', 'CFG', 'Inactive')
+                    }
+                }
             }
-            // TODO Action column.
         ];
 
         me.dockedItems = [
