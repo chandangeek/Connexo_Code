@@ -25,9 +25,9 @@ public enum DataCollectionEventDescription {
             CommunicationErrorType.CONNECTION_FAILURE,
             MessageSeeds.EVENT_TITLE_DEVICE_CONNECTION_FAILURE),
     DEVICE_EVENT(
-            "com/energyict/mdc/deviceevent/CREATED",
+            "com/elster/jupiter/metering/enddeviceevent/CREATED",
             null,
-            MessageSeeds.EVENT_TITLE_DEVICE_EVENT),
+            MessageSeeds.EVENT_TITLE_DEVICE_EVENT)
     ;
 
     private String topic;
