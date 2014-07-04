@@ -9,6 +9,8 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import java.util.List;
 import java.util.Map;
+
+import com.google.common.base.Optional;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.EventConstants;
@@ -58,8 +60,8 @@ public class ComTaskExecutionRecalculateMessageHandler implements MessageHandler
             long comScheduleId = this.getLong("comScheduleId", messageProperties);
             long minId = this.getLong("minId", messageProperties);
             long maxId = this.getLong("maxId", messageProperties);
-            ComSchedule comSchedule = this.schedulingService.findSchedule(comScheduleId);
-            List<ComTaskExecution> comTaskExecutions = this.deviceDataService.findComTaskExecutionsByComScheduleWithinRange(comSchedule, minId, maxId);
+            Optional<ComSchedule> comSchedule = this.schedulingService.findSchedule(comScheduleId);
+            List<ComTaskExecution> comTaskExecutions = this.deviceDataService.findComTaskExecutionsByComScheduleWithinRange(comSchedule.get(), minId, maxId);
             for (ComTaskExecution comTaskExecution : comTaskExecutions) {
                 comTaskExecution.updateNextExecutionTimestamp();
                 comTaskExecution.getDevice().save();
