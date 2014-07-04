@@ -16,6 +16,7 @@ import com.energyict.mdc.tasks.TaskService;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.UtcInstant;
+import com.google.common.base.Optional;
 
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -78,11 +79,11 @@ public class SchedulingResource {
     }
 
     private ComSchedule findComScheduleOrThrowException(long id) {
-        ComSchedule comSchedule = schedulingService.findSchedule(id);
-        if (comSchedule==null) {
+        Optional<ComSchedule> comSchedule = schedulingService.findSchedule(id);
+        if (!comSchedule.isPresent()) {
             throw new WebApplicationException("No such schedule", Response.Status.NOT_FOUND);
         }
-        return comSchedule;
+        return comSchedule.get();
     }
 
     @POST

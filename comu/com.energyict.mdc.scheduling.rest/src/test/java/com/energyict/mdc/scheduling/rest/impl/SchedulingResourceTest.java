@@ -29,6 +29,8 @@ import java.util.Map;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
+
+import com.google.common.base.Optional;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jackson.JacksonFeature;
@@ -169,7 +171,7 @@ public class SchedulingResourceTest extends JerseyTest {
         ComTask comTask1 = mockComTask(COM_TASK_1, "Com task 1");
         ComTask comTask2 = mockComTask(COM_TASK_2, "Com task 2");
         when(mockedSchedule.getComTasks()).thenReturn(Arrays.asList(comTask1, comTask2));
-        when(schedulingService.findSchedule(1L)).thenReturn(mockedSchedule);
+        when(schedulingService.findSchedule(1L)).thenReturn(Optional.of(mockedSchedule));
         when(clock.getTimeZone()).thenReturn(Calendar.getInstance().getTimeZone());
 
         ComScheduleInfo comScheduleInfo = new ComScheduleInfo();
@@ -195,7 +197,7 @@ public class SchedulingResourceTest extends JerseyTest {
         when(mockedSchedule.getSchedulingStatus()).thenReturn(SchedulingStatus.ACTIVE);
         when(mockedSchedule.getNextTimestamp(any(Calendar.class))).thenReturn(new Date());
         when(mockedSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration("10 minutes")));
-        when(schedulingService.findSchedule(1L)).thenReturn(mockedSchedule);
+        when(schedulingService.findSchedule(1L)).thenReturn(Optional.of(mockedSchedule));
         ComScheduleInfo comScheduleInfo = new ComScheduleInfo();
         Entity<ComScheduleInfo> json = Entity.json(comScheduleInfo);
         Response response = target("/schedules/1").request().put(json);
@@ -218,7 +220,7 @@ public class SchedulingResourceTest extends JerseyTest {
         ComTask comTask2 = mockComTask(COM_TASK_2, "Com task 2");
         ComTask comTask3 = mockComTask(COM_TASK_3,"Com task 3");
         when(mockedSchedule.getComTasks()).thenReturn(Arrays.asList(comTask1, comTask2));
-        when(schedulingService.findSchedule(1L)).thenReturn(mockedSchedule);
+        when(schedulingService.findSchedule(1L)).thenReturn(Optional.of(mockedSchedule));
         when(clock.getTimeZone()).thenReturn(Calendar.getInstance().getTimeZone());
 
         ComScheduleInfo comScheduleInfo = new ComScheduleInfo();
@@ -257,7 +259,7 @@ public class SchedulingResourceTest extends JerseyTest {
         ComTask comTask3 = mockComTask(COM_TASK_3,"Com task 3");
         ComTask comTask4 = mockComTask(COM_TASK_4,"Com task 4");
         when(mockedSchedule.getComTasks()).thenReturn(Arrays.asList(comTask1, comTask2, comTask3));
-        when(schedulingService.findSchedule(1L)).thenReturn(mockedSchedule);
+        when(schedulingService.findSchedule(1L)).thenReturn(Optional.of(mockedSchedule));
         when(clock.getTimeZone()).thenReturn(Calendar.getInstance().getTimeZone());
 
         ComScheduleInfo comScheduleInfo = new ComScheduleInfo();
@@ -289,7 +291,7 @@ public class SchedulingResourceTest extends JerseyTest {
         ComTask comTask1 = mockComTask(11L, "Com task 1");
         ComTask comTask2 = mockComTask(12L, "Com task 2");
         when(mockedSchedule.getComTasks()).thenReturn(Arrays.asList(comTask1, comTask2));
-        when(schedulingService.findSchedule(1L)).thenReturn(mockedSchedule);
+        when(schedulingService.findSchedule(1L)).thenReturn(Optional.of(mockedSchedule));
 
         List list = target("/schedules/1/comTasks").request().get(List.class);
         assertThat(list).hasSize(2);
@@ -308,7 +310,7 @@ public class SchedulingResourceTest extends JerseyTest {
         ComTask comTask2 = mockComTask(12L, "Com task 2");
         ComTask comTask3 = mockComTask(COMTASK_3, "Com task 3");
         when(mockedSchedule.getComTasks()).thenReturn(Arrays.asList(comTask1, comTask2));
-        when(schedulingService.findSchedule(1L)).thenReturn(mockedSchedule);
+        when(schedulingService.findSchedule(1L)).thenReturn(Optional.of(mockedSchedule));
         when(deviceConfigurationService.findAvailableComTasks(mockedSchedule)).thenReturn(Arrays.asList(comTask3));
 
         List<Map<String, Object>> list = target("/schedules/1/comTasks").queryParam("filter", ExtjsFilter.filter().property("available", "false").create()).request().get(List.class);
@@ -328,7 +330,7 @@ public class SchedulingResourceTest extends JerseyTest {
         ComTask comTask2 = mockComTask(12L, "Com task 2");
         ComTask comTask3 = mockComTask(COMTASK_3, "Com task 3");
         when(mockedSchedule.getComTasks()).thenReturn(Arrays.asList(comTask1, comTask2));
-        when(schedulingService.findSchedule(1L)).thenReturn(mockedSchedule);
+        when(schedulingService.findSchedule(1L)).thenReturn(Optional.of(mockedSchedule));
         when(deviceConfigurationService.findAvailableComTasks(mockedSchedule)).thenReturn(Arrays.asList(comTask3));
 
         List<Map<String, Object>> list = target("/schedules/1/comTasks").queryParam("filter", ExtjsFilter.filter().property("available", "tRue").create()).request().get(List.class);
@@ -349,7 +351,7 @@ public class SchedulingResourceTest extends JerseyTest {
         ComTask comTask2 = mockComTask(12L, "Com task 2");
         ComTask comTask3 = mockComTask(COMTASK_3, "Com task 3");
         when(mockedSchedule.getComTasks()).thenReturn(Arrays.asList(comTask1, comTask2));
-        when(schedulingService.findSchedule(1L)).thenReturn(mockedSchedule);
+        when(schedulingService.findSchedule(1L)).thenReturn(Optional.of(mockedSchedule));
         when(deviceConfigurationService.findAvailableComTasks(mockedSchedule)).thenReturn(Arrays.asList(comTask3, comTask2));
 
         List<Map<String, Object>> list = target("/schedules/1/comTasks").queryParam("filter", ExtjsFilter.filter().property("available", "true").create()).request().get(List.class);
@@ -400,7 +402,7 @@ public class SchedulingResourceTest extends JerseyTest {
     public void testGetAvailableComTasksOfScheduleWithFaultyFilter() throws Exception {
         when(thesaurus.getString(anyString(), anyString())).thenReturn("");
         ComSchedule mockedSchedule = mock(ComSchedule.class);
-        when(schedulingService.findSchedule(1L)).thenReturn(mockedSchedule);
+        when(schedulingService.findSchedule(1L)).thenReturn(Optional.of(mockedSchedule));
 
         Response response = target("/schedules/1/comTasks").queryParam("filter", ExtjsFilter.filter().property("available", "BOGUS").create()).request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
