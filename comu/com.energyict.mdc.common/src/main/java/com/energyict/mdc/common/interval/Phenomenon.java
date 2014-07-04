@@ -54,13 +54,6 @@ public interface Phenomenon {
     public boolean isUnitless();
 
     /**
-     * Returns a description of the receiver.
-     *
-     * @return the description.
-     */
-    public String getDescription();
-
-    /**
      * Returns the code used to identify the receiver in a measurement context.
      *
      * @return the measurement code.
@@ -68,16 +61,6 @@ public interface Phenomenon {
     public String getMeasurementCode();
 
     public void setMeasurementCode(String measurementCode);
-
-    /**
-     * Returns a code to represent the receiver in an
-     * Electronic Data Interchange context.
-     *
-     * @return the EDI code.
-     */
-    public String getEdiCode();
-
-    public void setEdiCode(String ediCode);
 
     public void save();
 
