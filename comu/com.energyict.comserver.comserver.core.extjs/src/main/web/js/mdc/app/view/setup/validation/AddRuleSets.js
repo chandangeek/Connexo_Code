@@ -74,7 +74,7 @@ Ext.define('Mdc.view.setup.validation.AddRuleSets', {
                                             xtype: 'button',
                                             text: Uni.I18n.translate('validation.addValidationRuleSets', 'MDC', 'Add validation rule sets'),
                                             ui: 'action',
-                                            href: '#/administration/validation/createset'
+                                            href: '#/administration/validation/rulesets/add'
                                         }
                                     ]
                                 }

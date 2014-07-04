@@ -6,7 +6,7 @@ Ext.define('Mdc.view.setup.validation.AddRuleSetsGrid', {
         'Mdc.view.setup.validation.AddRuleSetActionMenu'
     ],
 
-//    store: Ext.getStore('ValidationRuleSets') || Ext.create('Cfg.store.ValidationRuleSets'),
+    store: Ext.getStore('ValidationRuleSets') || Ext.create('Cfg.store.ValidationRuleSets'),
     selType: 'checkboxmodel',
     selModel: {
         mode: 'MULTI'
