@@ -7,22 +7,22 @@ Ext.define('Isu.util.CreatingControl', {
 
         switch (obj.control.xtype.toLowerCase()) {
             case 'textfield':
-                control = this.createTextField(obj);
+                control = Ext.isEmpty(obj.suffix) ? this.createTextField(obj) : this.suffixAppender(this.createTextField, obj.suffix);
                 break;
             case 'numberfield':
-                control = this.createNumberField(obj);
+                control = Ext.isEmpty(obj.suffix) ? this.createNumberField(obj) : this.suffixAppender(this.createNumberField(obj), obj.suffix);
                 break;
             case 'combobox':
-                control = this.createCombobox(obj);
+                control = Ext.isEmpty(obj.suffix) ? this.createCombobox(obj) : this.suffixAppender(this.createCombobox(obj), obj.suffix);
                 break;
             case 'textarea':
-                control = this.createTextArea(obj);
+                control = Ext.isEmpty(obj.suffix) ? this.createTextArea(obj) : this.suffixAppender(this.createTextArea(obj), obj.suffix);
                 break;
             case 'emaillist':
-                control = this.createEmailList(obj);
+                control = Ext.isEmpty(obj.suffix) ? this.createEmailList(obj) : this.suffixAppender(this.createEmailList(obj), obj.suffix);
                 break;
             case 'usercombobox':
-                control = this.createUserCombobox(obj);
+                control = Ext.isEmpty(obj.suffix) ? this.createUserCombobox(obj) : this.suffixAppender(this.createUserCombobox(obj), obj.suffix);
                 break;
         }
 
@@ -63,6 +63,7 @@ Ext.define('Isu.util.CreatingControl', {
         obj.defaultValue && (numberField.value = obj.defaultValue);
 
         return numberField;
+//        return this.suffixAppender(numberField, obj.suffix);
     },
 
     createCombobox: function (obj) {
@@ -143,5 +144,21 @@ Ext.define('Isu.util.CreatingControl', {
             required: obj.constraint.required
         };
         return userCombobox;
+    },
+
+    suffixAppender: function (field, suffix) {
+        field.columnWidth = 1;
+        var fieldContainer = {
+            xtype: 'fieldcontainer',
+            layout: 'column',
+            defaults: {
+                labelWidth: 150,
+                anchor: '100%',
+                validateOnChange: false,
+                validateOnBlur: false
+            },
+            items: [ field, { xtype: 'displayfield', margin: '0 0 0 5', value: suffix } ]
+        };
+        return fieldContainer;
     }
 });
