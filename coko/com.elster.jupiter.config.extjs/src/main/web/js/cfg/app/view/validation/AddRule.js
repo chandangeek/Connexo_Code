@@ -63,7 +63,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                             maxLength: 80,
                             enforceMaxLength: true,
                             allowBlank: false,
-                            labelWidth: 250,
+                            labelWidth: 260,
                             name: 'name',
                             width: 600
                         },
@@ -83,7 +83,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                             labelAlign: 'right',
                             forceSelection: false,
                             emptyText: Uni.I18n.translate('validation.selectARule', 'CFG', 'Select a rule') + '...',
-                            labelWidth: 250,
+                            labelWidth: 260,
                             width: 600
                         },
                         {
@@ -107,7 +107,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                                             itemId: 'readingType1',
                                             name: 'readingType1',
                                             msgTarget: 'under',
-                                            labelWidth: 250,
+                                            labelWidth: 260,
                                             maskRe: /^($|\S.*$)/,
                                             required: true,
                                             allowBlank: false,
@@ -129,7 +129,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                             margin: '5 0 0 0',
                             fieldLabel: '&nbsp',
                             labelAlign: 'right',
-                            labelWidth: 250,
+                            labelWidth: 260,
                             layout: 'hbox',
                             items: [
                                 {
@@ -159,7 +159,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                             margin: '20 0 0 0',
                             fieldLabel: '&nbsp',
                             labelAlign: 'right',
-                            labelWidth: 250,
+                            labelWidth: 260,
                             layout: 'hbox',
                             items: [
                                 {

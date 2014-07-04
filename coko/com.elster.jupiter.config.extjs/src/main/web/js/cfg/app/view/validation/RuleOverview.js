@@ -32,7 +32,7 @@ Ext.define('Cfg.view.validation.RuleOverview', {
                             },
                             defaults: {
                                 xtype: 'displayfield',
-                                labelWidth: 250,
+                                labelWidth: 260,
                                 labelAlign: 'right'
                             },
                             items: [
@@ -54,24 +54,15 @@ Ext.define('Cfg.view.validation.RuleOverview', {
                                     }
                                 },
                                 {
-                                    name: 'reading_type_definition',
-                                    itemId: 'readTypeField',
-                                    fieldLabel: Uni.I18n.translate('validation.readingTypes', 'CFG', 'Reading type(s)')
+                                    xtype: 'container',
+                                    itemId: 'readingTypesArea',
+                                    items: []
                                 },
                                 {
-                                    name: 'properties_minimum',
-                                    itemId: 'minField',
-                                    fieldLabel: Uni.I18n.translate('general.minimum', 'CFG', 'Minimum')
-                                },
-                                {
-                                    name: 'properties_maximum',
-                                    itemId: 'maxField',
-                                    fieldLabel: Uni.I18n.translate('general.maximum', 'CFG', 'Maximum')
-                                },
-                                {
-                                    name: 'properties_consequtive',
-                                    itemId: 'consField',
-                                    fieldLabel: Uni.I18n.translate('validation.consequtiveZeros', 'CFG', 'Consequtive zeros')
+                                    xtype: 'container',
+                                    margin: '5 0 0 0',
+                                    itemId: 'propertiesArea',
+                                    items: []
                                 }
                             ]
                         }
