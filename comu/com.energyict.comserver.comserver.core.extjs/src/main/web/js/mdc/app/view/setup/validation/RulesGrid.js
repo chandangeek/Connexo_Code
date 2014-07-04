@@ -6,10 +6,10 @@ Ext.define('Mdc.view.setup.validation.RulesGrid', {
         'Mdc.view.setup.validation.RuleActionMenu',
         'Uni.view.toolbar.PagingBottom',
         'Uni.view.toolbar.PagingTop',
-//        'Cfg.store.ValidationRules'
+        'Cfg.store.ValidationRules'
     ],
 
-//    store: Ext.create('Cfg.store.ValidationRules'), // caused fatal error
+    store: Ext.create('Cfg.store.ValidationRules'),
     selModel: {
         mode: 'SINGLE'
     },
