@@ -63,7 +63,6 @@ Ext.define('Isu.util.CreatingControl', {
         obj.defaultValue && (numberField.value = obj.defaultValue);
 
         return numberField;
-//        return this.suffixAppender(numberField, obj.suffix);
     },
 
     createCombobox: function (obj) {
