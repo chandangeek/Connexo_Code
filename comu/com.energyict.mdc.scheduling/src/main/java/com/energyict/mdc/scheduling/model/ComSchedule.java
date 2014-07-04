@@ -44,8 +44,16 @@ public interface ComSchedule extends HasId, DataCollectionConfiguration {
 
     public Date getPlannedDate();
 
-    String getmRID();
+    /**
+     * Gets the master resource identifier of this ComSchedule
+     * This identifier is typically used by external
+     * systems to refer to the ComSchedule and is therefore
+     * assigned at creation time and then never changed.
+     *
+     * @return This ComSchedule's master resource identifier
+     */
+    public String getmRID();
 
-    void setmRID(String mRID);
+    public void setmRID(String mRID);
 
 }

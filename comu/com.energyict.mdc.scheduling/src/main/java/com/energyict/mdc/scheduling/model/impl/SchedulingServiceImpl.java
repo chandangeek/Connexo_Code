@@ -18,6 +18,8 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
 import com.energyict.mdc.scheduling.model.SchedulingStatus;
 import com.energyict.mdc.tasks.TaskService;
+
+import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import java.util.Calendar;
@@ -148,8 +150,13 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService 
     }
 
     @Override
-    public ComSchedule findSchedule(long id) {
-        return dataModel.mapper(ComSchedule.class).getUnique("id", id).orNull();
+    public Optional<ComSchedule> findSchedule(long id) {
+        return dataModel.mapper(ComSchedule.class).getUnique("id", id);
+    }
+
+    @Override
+    public Optional<ComSchedule> findScheduleBymRID(String mRID) {
+        return this.dataModel.mapper(ComSchedule.class).getUnique(ComScheduleImpl.Fields.MRID.fieldName(), mRID);
     }
 
     @Override

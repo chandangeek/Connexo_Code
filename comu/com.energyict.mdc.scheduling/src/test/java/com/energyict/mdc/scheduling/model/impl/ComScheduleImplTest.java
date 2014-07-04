@@ -12,6 +12,8 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
 import com.energyict.mdc.tasks.ComTask;
 import java.util.Date;
+
+import com.google.common.base.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -36,35 +38,39 @@ public class ComScheduleImplTest extends PersistenceTest {
         comScheduleBuilder.mrid("xyz");
         ComSchedule comSchedule = comScheduleBuilder.build();
         comSchedule.save();
-        ComSchedule retrievedSchedule = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
-        assertThat(retrievedSchedule.getName()).isEqualTo("name");
-        assertThat(retrievedSchedule.getmRID()).isEqualTo("xyz");
-        assertThat(retrievedSchedule.getTemporalExpression().getEvery()).isEqualTo(TEN_MINUTES);
-        assertThat(retrievedSchedule.getTemporalExpression().getOffset()).isEqualTo(TWENTY_SECONDS);
+        Optional<ComSchedule> retrievedSchedule = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
+        assertThat(retrievedSchedule.isPresent()).isTrue();
+        assertThat(retrievedSchedule.get().getName()).isEqualTo("name");
+        assertThat(retrievedSchedule.get().getmRID()).isEqualTo("xyz");
+        assertThat(retrievedSchedule.get().getTemporalExpression().getEvery()).isEqualTo(TEN_MINUTES);
+        assertThat(retrievedSchedule.get().getTemporalExpression().getOffset()).isEqualTo(TWENTY_SECONDS);
     }
 
     @Test
     @Transactional
     public void testNameIsTrimmed() throws Exception {
         ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule("name ", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), new UtcInstant(new Date())).build();
-        ComSchedule retrievedSchedule = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
-        assertThat(retrievedSchedule.getName()).isEqualTo("name");
+        Optional<ComSchedule> retrievedSchedule = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
+        assertThat(retrievedSchedule.isPresent()).isTrue();
+        assertThat(retrievedSchedule.get().getName()).isEqualTo("name");
     }
 
     @Test
     @Transactional
     public void testMRIDIsTrimmed() throws Exception {
         ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule("name ", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), new UtcInstant(new Date())).mrid(" mrid ").build();
-        ComSchedule retrievedSchedule = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
-        assertThat(retrievedSchedule.getmRID()).isEqualTo("mrid");
+        Optional<ComSchedule> retrievedSchedule = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
+        assertThat(retrievedSchedule.isPresent()).isTrue();
+        assertThat(retrievedSchedule.get().getmRID()).isEqualTo("mrid");
     }
 
     @Test
     @Transactional
     public void testMRIDCanBuNull() throws Exception {
         ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule("name ", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), new UtcInstant(new Date())).mrid(null).build();
-        ComSchedule retrievedSchedule = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
-        assertThat(retrievedSchedule.getmRID()).isNull();
+        Optional<ComSchedule> retrievedSchedule = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
+        assertThat(retrievedSchedule.isPresent()).isTrue();
+        assertThat(retrievedSchedule.get().getmRID()).isNull();
     }
 
     @Test
@@ -162,18 +168,18 @@ public class ComScheduleImplTest extends PersistenceTest {
     @Transactional
     public void testDeleteComSchedule() throws Exception {
         ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule("name", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), new UtcInstant(new Date())).build();
-        ComSchedule retrievedSchedule = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
-        retrievedSchedule.delete();
-        assertThat(inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId())).isNull();
+        Optional<ComSchedule> retrievedSchedule = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
+        retrievedSchedule.get().delete();
+        assertThat(inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId()).isPresent()).isFalse();
     }
 
     @Test
     @Transactional
     public void testUpdateComScheduleTemporalExpression() throws Exception {
         ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule("name", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), new UtcInstant(new Date())).build();
-        ComSchedule retrievedSchedule = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
-        retrievedSchedule.setTemporalExpression(temporalExpression(TEN_MINUTES, THIRTY_SECONDS));
-        retrievedSchedule.save();
+        Optional<ComSchedule> retrievedSchedule = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
+        retrievedSchedule.get().setTemporalExpression(temporalExpression(TEN_MINUTES, THIRTY_SECONDS));
+        retrievedSchedule.get().save();
 
         assertThat(inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId())).isNotNull();
     }
@@ -188,11 +194,12 @@ public class ComScheduleImplTest extends PersistenceTest {
 
         comSchedule.addComTask(comTask1);
 
-        ComSchedule retrieved = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
+        Optional<ComSchedule> retrieved = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
         assertThat(retrieved).isNotNull();
-        assertThat(retrieved.getComTasks()).isNotEmpty();
-        assertThat(retrieved.getComTasks().get(0).getId()).isEqualTo(comTask1.getId());
-        assertThat(retrieved.getComTasks().get(0).getName()).isEqualTo(comTask1.getName());
+        assertThat(retrieved.isPresent()).isTrue();
+        assertThat(retrieved.get().getComTasks()).isNotEmpty();
+        assertThat(retrieved.get().getComTasks().get(0).getId()).isEqualTo(comTask1.getId());
+        assertThat(retrieved.get().getComTasks().get(0).getName()).isEqualTo(comTask1.getName());
 
     }
 
@@ -206,17 +213,18 @@ public class ComScheduleImplTest extends PersistenceTest {
 
         comSchedule.addComTask(comTask1);
 
-        ComSchedule updating = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
+        Optional<ComSchedule> updating = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
         ComTask comTask2 = inMemoryPersistence.getTaskService().newComTask("task 2");
         comTask2.createStatusInformationTask();
         comTask2.save();
-        updating.addComTask(comTask2);
+        updating.get().addComTask(comTask2);
 
-        ComSchedule retrieved = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
+        Optional<ComSchedule> retrieved = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
         assertThat(retrieved).isNotNull();
-        assertThat(retrieved.getComTasks()).isNotEmpty().hasSize(2);
-        assertThat(retrieved.getComTasks().get(1).getId()).isEqualTo(comTask2.getId());
-        assertThat(retrieved.getComTasks().get(1).getName()).isEqualTo(comTask2.getName());
+        assertThat(retrieved.isPresent()).isTrue();
+        assertThat(retrieved.get().getComTasks()).isNotEmpty().hasSize(2);
+        assertThat(retrieved.get().getComTasks().get(1).getId()).isEqualTo(comTask2.getId());
+        assertThat(retrieved.get().getComTasks().get(1).getName()).isEqualTo(comTask2.getName());
 
     }
 
@@ -235,15 +243,16 @@ public class ComScheduleImplTest extends PersistenceTest {
         comTask2.save();
         comSchedule.addComTask(comTask2);
 
-        ComSchedule updating = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
+        Optional<ComSchedule> updating = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
         ComTask task = inMemoryPersistence.getTaskService().findComTask(comTask2.getId());
-        updating.removeComTask(task);
+        updating.get().removeComTask(task);
 
-        ComSchedule retrieved = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
+        Optional<ComSchedule> retrieved = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
         assertThat(retrieved).isNotNull();
-        assertThat(retrieved.getComTasks()).isNotEmpty().hasSize(1);
-        assertThat(retrieved.getComTasks().get(0).getId()).isEqualTo(comTask1.getId());
-        assertThat(retrieved.getComTasks().get(0).getName()).isEqualTo(comTask1.getName());
+        assertThat(retrieved.isPresent()).isTrue();
+        assertThat(retrieved.get().getComTasks()).isNotEmpty().hasSize(1);
+        assertThat(retrieved.get().getComTasks().get(0).getId()).isEqualTo(comTask1.getId());
+        assertThat(retrieved.get().getComTasks().get(0).getName()).isEqualTo(comTask1.getName());
     }
 
     private TemporalExpression temporalExpression(TimeDuration ... td) {
@@ -253,4 +262,5 @@ public class ComScheduleImplTest extends PersistenceTest {
             return new TemporalExpression(td[0], td[1]);
         }
     }
+
 }

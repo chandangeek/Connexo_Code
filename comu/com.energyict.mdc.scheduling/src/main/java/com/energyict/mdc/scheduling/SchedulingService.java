@@ -1,6 +1,8 @@
 package com.energyict.mdc.scheduling;
 
 import com.elster.jupiter.util.time.UtcInstant;
+import com.google.common.base.Optional;
+
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
@@ -17,7 +19,17 @@ public interface SchedulingService {
 
     public ListPager<ComSchedule> findAllSchedules(Calendar calendar);
     public List<ComSchedule> findAllSchedules();
-    public ComSchedule findSchedule(long id);
+    public Optional<ComSchedule> findSchedule(long id);
+
+    /**
+     * Finds the {@link ComSchedule} that is uniquely identified
+     * by the specified master resource identifier.
+     *
+     * @param mRID the unique identifier of the ComSchedule
+     * @return the requested Device or null if none was found
+     */
+    public Optional<ComSchedule> findScheduleBymRID(String mRID);
+
 
     public ComScheduleBuilder newComSchedule(String name, TemporalExpression temporalExpression, UtcInstant startDate);
 }
