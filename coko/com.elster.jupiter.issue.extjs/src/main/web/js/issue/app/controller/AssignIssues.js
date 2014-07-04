@@ -142,20 +142,8 @@ Ext.define('Isu.controller.AssignIssues', {
 
                         if (successArr.length > 0) {
                             Ext.Array.each(successArr, function () {
-                                var header = {};
-                                header.style = 'msgHeaderStyle';
-                                header.text = 'Issue assigned to ' + activeCombo.rawValue;
-                                msges.push(header);
+                                self.getApplication().fireEvent('acknowledge', 'Issue assigned to ' + activeCombo.rawValue);
                             });
-
-                            if (msges.length > 0) {
-                                self.getApplication().fireEvent('isushowmsg', {
-                                    type: 'notify',
-                                    msgBody: msges,
-                                    y: 10,
-                                    showTime: 5000
-                                });
-                            }
                             window.location.href = '#/workspace/datacollection/issues';
                         }
                     },

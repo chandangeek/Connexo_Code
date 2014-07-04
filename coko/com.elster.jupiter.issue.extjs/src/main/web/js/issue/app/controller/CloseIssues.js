@@ -117,13 +117,7 @@ Ext.define('Isu.controller.CloseIssues', {
                     };
                     if (Ext.isEmpty(result.failure)) {
                         window.location.href = '#/workspace/datacollection/issues';
-                        header.text = 'Issue closed';
-                        self.getApplication().fireEvent('isushowmsg', {
-                            type: 'notify',
-                            msgBody: [header],
-                            y: 10,
-                            showTime: 5000
-                        });
+                        self.getApplication().fireEvent('acknowledge', 'Issue closed');
                     } else {
                         var msges = [],
                             bodyItem = {},
