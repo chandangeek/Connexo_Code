@@ -23,7 +23,7 @@ public class LogBookTypeImpl extends PersistentNamedObject<LogBookType> implemen
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
-    @Size(max = 80, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(max = StringColumnLengthConstraints.LOG_BOOK_TYPE_NAME, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String name;
 
     public String getName() {
@@ -55,6 +55,7 @@ public class LogBookTypeImpl extends PersistentNamedObject<LogBookType> implemen
     private String obisCode;
     private ObisCode obisCodeCached;
     private String oldObisCode;
+    @Size(max = StringColumnLengthConstraints.LOG_BOOK_TYPE_DESCRIPTION, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String description;
 
     @Inject

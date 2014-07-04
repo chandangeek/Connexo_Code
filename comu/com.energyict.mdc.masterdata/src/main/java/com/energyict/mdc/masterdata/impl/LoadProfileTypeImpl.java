@@ -36,7 +36,7 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
-    @Size(max=80, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(max= StringColumnLengthConstraints.LOAD_PROFILE_TYPE_NAME, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String name;
 
     public String getName() {
@@ -70,6 +70,7 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
     private ObisCode obisCodeCached;
     private TimeDuration interval;
     private long oldIntervalSeconds;
+    @Size(max= StringColumnLengthConstraints.LOAD_PROFILE_TYPE_DESCRIPTION, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String description;
     private Date modificationDate;
     private List<LoadProfileTypeRegisterMappingUsageImpl> registerMappingUsages = new ArrayList<>();
