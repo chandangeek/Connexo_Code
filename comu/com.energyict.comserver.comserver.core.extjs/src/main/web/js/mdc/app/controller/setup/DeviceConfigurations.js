@@ -244,9 +244,12 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                 if (btn === 'confirm') {
                     deviceConfigurationToDelete.getProxy().setExtraParam('deviceType', me.deviceTypeId);
                     deviceConfigurationToDelete.destroy({
-                        callback: function () {
+                        success: function () {
                             me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconfiguration.acknowledgment.removed', 'MDC', 'Device configuration removed'));
                             location.href = '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations';
+                        },
+                        failure: function(){
+
                         }
                     });
                 }
