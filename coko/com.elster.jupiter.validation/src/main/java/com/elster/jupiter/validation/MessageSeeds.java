@@ -1,9 +1,8 @@
-package com.elster.jupiter.validation.impl;
+package com.elster.jupiter.validation;
 
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.validation.ValidationService;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;

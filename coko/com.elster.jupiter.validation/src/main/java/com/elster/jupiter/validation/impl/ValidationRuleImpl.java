@@ -39,7 +39,6 @@ import com.google.common.collect.Ordering;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
@@ -50,7 +49,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import static com.elster.jupiter.validation.impl.MessageSeeds.Constants;
+import static com.elster.jupiter.validation.MessageSeeds.Constants;
 
 @XmlRootElement
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.DUPLICATE_VALIDATION_RULE + "}")

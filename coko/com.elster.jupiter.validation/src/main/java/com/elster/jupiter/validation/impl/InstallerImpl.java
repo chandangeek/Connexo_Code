@@ -7,6 +7,7 @@ import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.validation.MessageSeeds;
 import com.elster.jupiter.validation.ValidationService;
 
 import java.util.ArrayList;
