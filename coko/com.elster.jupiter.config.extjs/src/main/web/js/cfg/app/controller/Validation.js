@@ -41,6 +41,8 @@ Ext.define('Cfg.controller.Validation', {
         {ref: 'rulePreviewTitle', selector: 'validation-rule-preview #rulePreviewTitle'},
         {ref: 'readingTypesArea', selector: 'validation-rule-preview #readingTypesArea'},
         {ref: 'propertiesArea', selector: 'validation-rule-preview #propertiesArea'},
+        {ref: 'readingTypesOverviewArea', selector: 'ruleOverview #readingTypesArea'},
+        {ref: 'propertiesOverviewArea', selector: 'ruleOverview #propertiesArea'},
         {ref: 'rulesetOverviewTitle', selector: 'ruleSetOverview #rulesetOverviewTitle'},
         {ref: 'ruleBrowseTitle', selector: '#ruleBrowseTitle'},
         {ref: 'ruleSetDetailsLink', selector: 'validation-ruleset-preview #ruleSetDetailsLink'},
@@ -103,9 +105,6 @@ Ext.define('Cfg.controller.Validation', {
             'validation-rule-action-menu': {
                 click: this.chooseRuleAction
             },
-            '#ruleGridMenu': {
-                show: this.onMenuShow
-            },
             'addRule button[action=editRuleAction]': {
                 click: this.createEditRule
             },
@@ -116,19 +115,6 @@ Ext.define('Cfg.controller.Validation', {
                 menuclick: this.chooseRuleSetAction
             }
         });
-    },
-
-    onMenuShow: function (menu) {
-        if (this.getRuleSetBrowsePanel()) {
-            menu.down('#deactivate').setText(Uni.I18n.translate('general.view', 'CFG', 'View'));
-            menu.down('#deactivate').action = 'view';
-        } else {
-            if (menu.record.get('active')) {
-                menu.down('#deactivate').setText(Uni.I18n.translate('general.deactivate', 'CFG', 'Deactivate'));
-            } else {
-                menu.down('#deactivate').setText(Uni.I18n.translate('general.activate', 'CFG', 'Activate'));
-            }
-        }
     },
 
     getRuleSetIdFromHref: function () {
@@ -215,13 +201,6 @@ Ext.define('Cfg.controller.Validation', {
         for (var i = 0; i < allPropertiesStore.data.items.length; i++) {
             var property = allPropertiesStore.data.items[i];
             var label = property.data.name;
-            if (property.data.name === 'NumberOfConsecutiveZerosAllowed') {
-                label = 'Consecutive zeros';
-            } else if (property.data.name === 'minimum') {
-                label = 'Minimum';
-            } else if (property.data.name === 'maximum') {
-                label = 'Maximum';
-            }
             var itemIdValue = property.data.name;
             var optional = property.data.optional;
             if (optional) {
@@ -236,7 +215,7 @@ Ext.define('Cfg.controller.Validation', {
                         validateOnChange: false,
                         validateOnBlur: false,
                         itemId: itemIdValue,
-                        labelWidth: 250
+                        labelWidth: 260
                     }
                 );
             } else {
@@ -258,7 +237,7 @@ Ext.define('Cfg.controller.Validation', {
                         validateOnChange: false,
                         validateOnBlur: false,
                         itemId: itemIdValue,
-                        labelWidth: 250
+                        labelWidth: 260
                     }
                 );
             }
@@ -290,7 +269,7 @@ Ext.define('Cfg.controller.Validation', {
                          },
                          required: true,    */
                         msgTarget: 'under',
-                        labelWidth: 250,
+                        labelWidth: 260,
                         maskRe: /^($|\S.*$)/,
                         maxLength: 80,
                         validateOnChange: false,
@@ -354,7 +333,6 @@ Ext.define('Cfg.controller.Validation', {
             record.save({
                 success: function (record, operation) {
                     var messageText;
-
                     if (button.text === 'Save') {
                         messageText = Uni.I18n.translate('validation.editRuleSetSuccess.msg', 'CFG', 'Validation rule set saved');
                         if (me.fromRuleSetOverview) {
@@ -472,32 +450,6 @@ Ext.define('Cfg.controller.Validation', {
                 me.getApplication().fireEvent('loadRuleSet', selectedRuleSet);
                 rulesContainerWidget.down('ruleset-action-menu').down('#viewRuleSet').hide();
                 rulesContainerWidget.down('ruleset-action-menu').record = selectedRuleSet;
-//                rulesContainerWidget.setLoading();
-//                me.getRulesetOverviewForm().down('#inactiveRules').removeAll();
-//                me.getRulesetOverviewForm().down('#activeRules').removeAll();
-//                rulesStore.load({
-//                    params: {
-//                        id: id
-//                    },
-//                    callback: function (records) {
-//                        Ext.Array.each(records, function (item) {
-//                            if (!item.get('active')) {
-//                                me.getRulesetOverviewForm().down('#inactiveRules').add({
-//                                    xtype: 'displayfield',
-//                                    fieldLabel: '',
-//                                    value: item.get('rule_name')
-//                                })
-//                            } else {
-//                                me.getRulesetOverviewForm().down('#activeRules').add({
-//                                    xtype: 'displayfield',
-//                                    fieldLabel: '',
-//                                    value: item.get('rule_name')
-//                                })
-//                            }
-//                        });
-//                        rulesContainerWidget.setLoading(false);
-//                    }
-//                });
             }
         });
     },
@@ -609,48 +561,94 @@ Ext.define('Cfg.controller.Validation', {
     previewValidationRule: function (grid, record) {
         var me = this,
             itemPanel = me.getRulePreviewContainer() || me.getRuleSetBrowsePanel(),
-            itemForm = itemPanel.down('validation-rule-preview');
-        me.ruleId = record.internalId;
-        if (me.displayedItemId != record.id) {
-            grid.view.clearHighlight();
-        }
-        me.displayedItemId = record.id;
-        itemForm.loadRecord(record);
-        if (!Ext.isEmpty(record.get('properties'))) {
-            if (record.data.properties[0].name === 'maximum') {
-                itemForm.down('#consField').hide();
-                itemForm.down('#minField').show();
-                itemForm.down('#maxField').show();
-            } else {
-                itemForm.down('#minField').hide();
-                itemForm.down('#maxField').hide();
-                itemForm.down('#consField').show();
-            }
+            itemForm = itemPanel.down('validation-rule-preview'),
+            selectedRule;
+        if (grid.view) {
+            selectedRule = grid.view.getSelectionModel().getLastSelected();
         } else {
-            itemForm.down('#minField').hide();
-            itemForm.down('#maxField').hide();
-            itemForm.down('#consField').hide();
+            selectedRule = record;
         }
-        itemForm.setTitle(record.get('name'));
+        me.ruleId = selectedRule.internalId;
+        itemForm.loadRecord(selectedRule);
+        itemForm.setTitle(selectedRule.get('name'));
+        this.addProperties(selectedRule);
+        this.addReadingTypes(selectedRule);
         if (me.getRuleSetBrowsePanel()) {
-            me.getRulePreview().down('validation-rule-action-menu').down('#deactivate').setText(Uni.I18n.translate('general.view', 'CFG', 'View'));
-            me.getRulePreview().down('validation-rule-action-menu').down('#deactivate').action = 'view';
             me.getRulePreview().down('validation-rule-action-menu').record = record;
         } else if (me.getRulePreviewContainer()) {
             itemForm.down('validation-rule-action-menu').record = record;
-            if (!record.get('active')) {
-                if (me.getRulePreview() && me.getRulePreview().down('validation-rule-action-menu')) {
-                    me.getRulePreview().down('validation-rule-action-menu').down('#deactivate').setText(Uni.I18n.translate('general.activate', 'CFG', 'Activate'));
-                } else {
-                    itemForm.down('validation-rule-action-menu').down('#deactivate').setText(Uni.I18n.translate('general.activate', 'CFG', 'Activate'));
-                }
-            } else {
-                if (me.getRulePreview() && me.getRulePreview().down('validation-rule-action-menu')) {
-                    me.getRulePreview().down('validation-rule-action-menu').down('#deactivate').setText(Uni.I18n.translate('general.deactivate', 'CFG', 'Deactivate'));
-                } else {
-                    itemForm.down('validation-rule-action-menu').down('#deactivate').setText(Uni.I18n.translate('general.deactivate', 'CFG', 'Deactivate'));
-                }
+        }
+    },
+
+    addProperties: function (selectedRule) {
+        var properties = selectedRule.data.properties,
+            area;
+        if (this.getPropertiesArea()) {
+            area = this.getPropertiesArea();
+        } else {
+            area = this.getPropertiesOverviewArea();
+        }
+        area.removeAll();
+        for (var i = 0; i < properties.length; i++) {
+            var property = properties[i];
+            var propertyName = property.name;
+            var propertyValue = property.value;
+            var required = property.required;
+            var label = propertyName;
+            if (!required) {
+                label = label + ' (optional)';
             }
+            area.add(
+                {
+                    xtype: 'displayfield',
+                    fieldLabel: label,
+                    value: propertyValue,
+                    labelWidth: 260
+                }
+            );
+        }
+    },
+
+    addReadingTypes: function (selectedRule) {
+        var readingTypes = selectedRule.data.readingTypes,
+            area;
+        if (this.getReadingTypesArea()) {
+            area = this.getReadingTypesArea();
+        } else {
+            area = this.getReadingTypesOverviewArea();
+        }
+        area.removeAll();
+        for (var i = 0; i < readingTypes.length; i++) {
+            var readingType = readingTypes[i];
+            var aliasName = readingType.aliasName;
+            var mRID = readingType.mRID;
+            var fieldlabel = Uni.I18n.translate('validation.readingTypes', 'CFG', 'Reading type(s)');
+            if (i > 0) {
+                fieldlabel = '&nbsp';
+            }
+            area.add(
+                {
+                    xtype: 'container',
+                    layout: {
+                        type: 'hbox'
+                    },
+                    items: [
+                        {
+                            xtype: 'displayfield',
+                            fieldLabel: fieldlabel,
+                            labelWidth: 260,
+                            width: 500,
+                            value: mRID
+                        },
+                        {
+                            xtype: 'component',
+                            width: 500,
+                            html: '<span style="color:grey"><i>' + aliasName + '</i></span>',
+                            margin: '5 0 0 10'
+                        }
+                    ]
+                }
+            );
         }
     },
 
@@ -731,20 +729,16 @@ Ext.define('Cfg.controller.Validation', {
 
     chooseRuleAction: function (menu, item) {
         var me = this,
-            active = false,
             record;
         record = menu.record || me.getRulesGrid().getSelectionModel().getLastSelected();
         this.getRuleSetBrowsePanel() ? me.fromRuleSet = true : me.fromRuleSet = false;
         this.getRuleOverview() ? me.fromRulePreview = true : me.fromRulePreview = false;
-        if (menu.down('#deactivate').text === 'Deactivate') {
-            active = true;
-        }
         switch (item.action) {
             case 'view':
                 location.href = '#/administration/validation/rulesets/' + me.ruleSetId + '/rules/' + me.ruleId;
                 break;
             case 'deactivateRule':
-                me.deactivateRule(record, active);
+                me.deactivateRule(record);
                 break;
             case 'editRule':
                 location.href = '#/administration/validation/rulesets/' + me.ruleSetId + '/rules/' + me.ruleId + '/edit';
@@ -757,8 +751,9 @@ Ext.define('Cfg.controller.Validation', {
 
     deactivateRule: function (record, active) {
         var me = this,
-            view = me.getRulePreviewContainer() || me.getRuleOverview(),
-            grid = view.down('grid');
+            view = me.getRulePreviewContainer() || me.getRuleOverview() || me.getRuleSetBrowsePanel().down('#validationruleBrowse'),
+            grid = view.down('grid'),
+            isActive = record.get('active');
         if (record) {
             record.readingTypes().removeAll();
             Ext.Array.each(record.get('readingTypes'), function (item) {
@@ -767,7 +762,7 @@ Ext.define('Cfg.controller.Validation', {
                 record.readingTypes().add(readingTypeRecord);
             });
         }
-        if (active) {
+        if (isActive) {
             record.set('active', false);
         } else {
             record.set('active', true);
@@ -781,30 +776,18 @@ Ext.define('Cfg.controller.Validation', {
                 if (grid) {
                     grid.getView().refresh();
                     view.down('validation-rule-preview').loadRecord(record);
-                    if (active) {
+                    if (isActive) {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validation.deactivateRuleSuccess.msg', 'CFG', 'Validation rule deactivated'));
-                        if (me.getRulePreview() && me.getRulePreview().down('validation-rule-action-menu')) {
-                            me.getRulePreview().down('validation-rule-action-menu').down('#deactivate').setText(Uni.I18n.translate('general.activate', 'CFG', 'Activate'));
-                        } else {
-                            view.down('validation-rule-preview').down('validation-rule-action-menu').down('#deactivate').setText(Uni.I18n.translate('general.activate', 'CFG', 'Activate'));
-                        }
                     } else {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validation.activateRuleSuccess.msg', 'CFG', 'Validation rule activated'));
-                        if (me.getRulePreview() && me.getRulePreview().down('validation-rule-action-menu')) {
-                            me.getRulePreview().down('validation-rule-action-menu').down('#deactivate').setText(Uni.I18n.translate('general.deactivate', 'CFG', 'Deactivate'));
-                        } else {
-                            view.down('validation-rule-preview').down('validation-rule-action-menu').down('#deactivate').setText(Uni.I18n.translate('general.deactivate', 'CFG', 'Deactivate'));
-                        }
                     }
                 } else {
                     var itemForm = view.down('#ruleOverviewForm');
                     itemForm.loadRecord(record);
-                    if (active) {
+                    if (isActive) {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validation.deactivateRuleSuccess.msg', 'CFG', 'Validation rule deactivated'));
-                        view.down('validation-rule-action-menu').down('#deactivate').setText(Uni.I18n.translate('general.activate', 'CFG', 'Activate'));
                     } else {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validation.activateRuleSuccess.msg', 'CFG', 'Validation rule activated'));
-                        view.down('validation-rule-action-menu').down('#deactivate').setText(Uni.I18n.translate('general.deactivate', 'CFG', 'Deactivate'));
                     }
                 }
             },
@@ -993,27 +976,12 @@ Ext.define('Cfg.controller.Validation', {
                     }
                 });
                 itemForm.loadRecord(rule);
+                me.addProperties(rule);
+                me.addReadingTypes(rule);
                 me.getApplication().fireEvent('loadRule', rule);
                 rulesContainerWidget.down('validation-rule-action-menu').record = rule;
-                if (rule.get('active')) {
-                    rulesContainerWidget.down('validation-rule-action-menu').down('#deactivate').setText(Uni.I18n.translate('general.deactivate', 'CFG', 'Deactivate'));
-                }
+                rulesContainerWidget.down('validation-rule-action-menu').down('#view').hide();
                 rulesContainerWidget.down('#stepsRuleMenu').setTitle(rule.get('name'));
-                if (!Ext.isEmpty(rule.get('properties'))) {
-                    if (rule.data.properties[0].name === 'maximum') {
-                        itemForm.down('#consField').hide();
-                        itemForm.down('#minField').show();
-                        itemForm.down('#maxField').show();
-                    } else {
-                        itemForm.down('#minField').hide();
-                        itemForm.down('#maxField').hide();
-                        itemForm.down('#consField').show();
-                    }
-                } else {
-                    itemForm.down('#minField').hide();
-                    itemForm.down('#maxField').hide();
-                    itemForm.down('#consField').hide();
-                }
                 me.getValidationRuleSetsStore().load({
                     callback: function () {
                         var ruleSet = this.getById(parseInt(id));
