@@ -11,12 +11,17 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.EventConstants;
 
 public class ComScheduleUpdatedMessageHandler implements MessageHandler {
 
+    private static final Logger LOGGER = Logger.getLogger(ComScheduleUpdatedMessageHandler.class.getName());
     private static final String TOPIC = com.energyict.mdc.scheduling.events.EventType.COMSCHEDULES_UPDATED.topic();
+    private static final int RECALCULATION_BATCH_SIZE = 1000;
 
     private volatile DataModel dataModel;
     private volatile JsonService jsonService;
@@ -54,15 +59,15 @@ public class ComScheduleUpdatedMessageHandler implements MessageHandler {
                 propagateRecalculation(comScheduleId, minId, maxId);
                 resultSet.close();
             } catch (SQLException e) {
-                e.printStackTrace();
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
         }
     }
 
     private void propagateRecalculation(long comScheduleId, long minId, long maxId) {
-        while(minId+1000<maxId) {
-            eventService.postEvent(UpdateEventType.COMSCHEDULE.topic(), new IdRange(comScheduleId, minId, minId+999));
-            minId+=1000;
+        while (minId + RECALCULATION_BATCH_SIZE < maxId) {
+            eventService.postEvent(UpdateEventType.COMSCHEDULE.topic(), new IdRange(comScheduleId, minId, minId + (RECALCULATION_BATCH_SIZE - 1)));
+            minId+=RECALCULATION_BATCH_SIZE;
         }
         eventService.postEvent(UpdateEventType.COMSCHEDULE.topic(), new IdRange(comScheduleId, minId, maxId));
     }

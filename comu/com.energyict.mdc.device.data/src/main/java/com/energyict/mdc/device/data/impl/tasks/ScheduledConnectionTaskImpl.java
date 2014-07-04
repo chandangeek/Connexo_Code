@@ -243,7 +243,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         Condition condition = Where.where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isEqualTo(this)
                 .and(Where.where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull());
 
-        List<ComTaskExecution> comTaskExecutions = this.dataModel.mapper(ComTaskExecution.class).select(condition,
+        List<ComTaskExecution> comTaskExecutions = this.getDataModel().mapper(ComTaskExecution.class).select(condition,
                 Order.ascending(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()),
                 Order.descending(ComTaskExecutionFields.PLANNED_PRIORITY.fieldName()));
 
@@ -326,7 +326,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     private void updateNextExecutionTimeStampAndPriority(Date nextExecutionTimestamp, int priority) {
         Condition condition = Where.where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isEqualTo(this)
                 .and(Where.where(ComTaskExecutionFields.PLANNEDNEXTEXECUTIONTIMESTAMP.fieldName()).isLessThan(nextExecutionTimestamp));
-        List<ComTaskExecution> comTaskExecutions = this.dataModel.mapper(ComTaskExecution.class).select(condition);
+        List<ComTaskExecution> comTaskExecutions = this.getDataModel().mapper(ComTaskExecution.class).select(condition);
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
             ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?,?>, ? extends ComTaskExecution> comTaskExecutionUpdater = comTaskExecution.getUpdater();
             comTaskExecutionUpdater.forceNextExecutionTimeStampAndPriority(nextExecutionTimestamp, priority);
@@ -391,7 +391,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
             Condition condition = Where.where(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isNotNull()
                     .and(appendComTaskNotExecutingCondition())
                     .and(Where.where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isEqualTo(this));
-            return !this.dataModel.mapper(ComTaskExecution.class).select(condition).isEmpty();
+            return !this.getDataMapper().select(condition).isEmpty();
         }
         else {
             return super.doWeNeedToRetryTheConnectionTask();
@@ -896,10 +896,14 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
     public abstract static class AbstractScheduledConnectionTaskBuilder implements Device.ScheduledConnectionTaskBuilder{
 
-        public final ScheduledConnectionTaskImpl scheduledConnectionTask;
+        private final ScheduledConnectionTaskImpl scheduledConnectionTask;
 
         public AbstractScheduledConnectionTaskBuilder(ScheduledConnectionTaskImpl scheduledConnectionTask) {
             this.scheduledConnectionTask = scheduledConnectionTask;
+        }
+
+        protected ScheduledConnectionTaskImpl getScheduledConnectionTask() {
+            return scheduledConnectionTask;
         }
 
         @Override

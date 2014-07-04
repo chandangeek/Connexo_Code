@@ -607,7 +607,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
 
     @Override
     protected void doDelete() {
-        this.dataModel.remove(this);
+        this.getDataModel().remove(this);
     }
 
     @Override
@@ -642,8 +642,8 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
 
     public abstract static class AbstractComTaskExecutionBuilder<B extends ComTaskExecutionBuilder<B, C>, C extends ComTaskExecution, CI extends ComTaskExecutionImpl> implements ComTaskExecutionBuilder<B, C> {
 
-        protected final CI comTaskExecution;
-        protected final B self;
+        private final CI comTaskExecution;
+        private final B self;
 
         protected AbstractComTaskExecutionBuilder(CI instance, Class<B> clazz) {
             this.comTaskExecution = instance;

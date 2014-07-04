@@ -122,19 +122,6 @@ import static com.elster.jupiter.util.Checks.is;
 @UniqueMrid(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_DEVICE_MRID + "}")
 public class DeviceImpl implements Device, PersistenceAware {
 
-    enum Fields {
-        COM_SCHEDULE_USAGES("comScheduleUsages");
-        private final String javaFieldName;
-
-        Fields(String javaFieldName) {
-            this.javaFieldName = javaFieldName;
-        }
-
-        String fieldName() {
-            return javaFieldName;
-        }
-    }
-
     private final DataModel dataModel;
     private final EventService eventService;
     private final Thesaurus thesaurus;
@@ -145,7 +132,6 @@ public class DeviceImpl implements Device, PersistenceAware {
 
     private final List<LoadProfile> loadProfiles = new ArrayList<>();
     private final List<LogBook> logBooks = new ArrayList<>();
-    private final List<DeviceInComSchedule> comScheduleUsages = new ArrayList<>();
     private long id;
 
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DEVICE_TYPE_REQUIRED_KEY + "}")
@@ -1306,26 +1292,26 @@ public class DeviceImpl implements Device, PersistenceAware {
     private class InboundConnectionTaskBuilderForDevice extends InboundConnectionTaskImpl.AbstractInboundConnectionTaskBuilder {
 
         private InboundConnectionTaskBuilderForDevice(Device device, PartialInboundConnectionTask partialInboundConnectionTask) {
-             super(inboundConnectionTaskProvider.get());
-            this.inboundConnectionTask.initialize(device, partialInboundConnectionTask, partialInboundConnectionTask.getComPortPool(), ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE);
+            super(inboundConnectionTaskProvider.get());
+            this.getInboundConnectionTask().initialize(device, partialInboundConnectionTask, partialInboundConnectionTask.getComPortPool(), ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE);
         }
 
         @Override
         public InboundConnectionTaskBuilder setComPortPool(InboundComPortPool comPortPool) {
-            this.inboundConnectionTask.setComPortPool(comPortPool);
+            this.getInboundConnectionTask().setComPortPool(comPortPool);
             return this;
         }
 
         @Override
         public InboundConnectionTaskBuilder setProperty(String propertyName, Object value) {
-            this.inboundConnectionTask.setProperty(propertyName, value);
+            this.getInboundConnectionTask().setProperty(propertyName, value);
             return this;
         }
 
         @Override
         public InboundConnectionTask add() {
-            DeviceImpl.this.getConnectionTaskImpls().add(this.inboundConnectionTask);
-            return this.inboundConnectionTask;
+            DeviceImpl.this.getConnectionTaskImpls().add(this.getInboundConnectionTask());
+            return this.getInboundConnectionTask();
         }
     }
 
@@ -1333,60 +1319,60 @@ public class DeviceImpl implements Device, PersistenceAware {
 
         private ScheduledConnectionTaskBuilderForDevice(Device device, PartialOutboundConnectionTask partialOutboundConnectionTask) {
             super(scheduledConnectionTaskProvider.get());
-            this.scheduledConnectionTask.initialize(device, (PartialScheduledConnectionTask) partialOutboundConnectionTask, partialOutboundConnectionTask.getComPortPool(), ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE);
+            this.getScheduledConnectionTask().initialize(device, (PartialScheduledConnectionTask) partialOutboundConnectionTask, partialOutboundConnectionTask.getComPortPool(), ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE);
             if (partialOutboundConnectionTask.getNextExecutionSpecs() != null) {
-                this.scheduledConnectionTask.setNextExecutionSpecsFrom(partialOutboundConnectionTask.getNextExecutionSpecs().getTemporalExpression());
+                this.getScheduledConnectionTask().setNextExecutionSpecsFrom(partialOutboundConnectionTask.getNextExecutionSpecs().getTemporalExpression());
             }
-            this.scheduledConnectionTask.setConnectionStrategy(((PartialScheduledConnectionTask) partialOutboundConnectionTask).getConnectionStrategy());
+            this.getScheduledConnectionTask().setConnectionStrategy(((PartialScheduledConnectionTask) partialOutboundConnectionTask).getConnectionStrategy());
         }
 
         @Override
         public ScheduledConnectionTaskBuilder setCommunicationWindow(ComWindow communicationWindow) {
-            this.scheduledConnectionTask.setCommunicationWindow(communicationWindow);
+            this.getScheduledConnectionTask().setCommunicationWindow(communicationWindow);
             return this;
         }
 
         @Override
         public ScheduledConnectionTaskBuilder setComPortPool(OutboundComPortPool comPortPool) {
-            this.scheduledConnectionTask.setComPortPool(comPortPool);
+            this.getScheduledConnectionTask().setComPortPool(comPortPool);
             return this;
         }
 
         @Override
         public ScheduledConnectionTaskBuilder setConnectionStrategy(ConnectionStrategy connectionStrategy) {
-            this.scheduledConnectionTask.setConnectionStrategy(connectionStrategy);
+            this.getScheduledConnectionTask().setConnectionStrategy(connectionStrategy);
             return this;
         }
 
         @Override
         public ScheduledConnectionTaskBuilder setInitiatorTask(ConnectionInitiationTask connectionInitiationTask) {
-            this.scheduledConnectionTask.setInitiatorTask(connectionInitiationTask);
+            this.getScheduledConnectionTask().setInitiatorTask(connectionInitiationTask);
             return this;
         }
 
         @Override
         public ScheduledConnectionTaskBuilder setNextExecutionSpecsFrom(TemporalExpression temporalExpression) {
-            this.scheduledConnectionTask.setNextExecutionSpecsFrom(temporalExpression);
+            this.getScheduledConnectionTask().setNextExecutionSpecsFrom(temporalExpression);
             return this;
         }
 
         @Override
         public ScheduledConnectionTaskBuilder setProperty(String propertyName, Object value) {
-            this.scheduledConnectionTask.setProperty(propertyName, value);
+            this.getScheduledConnectionTask().setProperty(propertyName, value);
             return this;
         }
 
         @Override
         public ScheduledConnectionTaskBuilder setSimultaneousConnectionsAllowed(boolean allowSimultaneousConnections) {
-            this.scheduledConnectionTask.setSimultaneousConnectionsAllowed(allowSimultaneousConnections);
+            this.getScheduledConnectionTask().setSimultaneousConnectionsAllowed(allowSimultaneousConnections);
             return this;
         }
 
         @Override
         public ScheduledConnectionTask add() {
-            this.scheduledConnectionTask.save();
-            DeviceImpl.this.getConnectionTaskImpls().add(this.scheduledConnectionTask);
-            return scheduledConnectionTask;
+            this.getScheduledConnectionTask().save();
+            DeviceImpl.this.getConnectionTaskImpls().add(this.getScheduledConnectionTask());
+            return this.getScheduledConnectionTask();
         }
     }
 
