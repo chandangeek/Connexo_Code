@@ -14,8 +14,8 @@ import java.util.List;
 public class InboundIpConnectionTypeImpl extends IpConnectionType {
 
     @Override
-    public ConnectionTypeDirection getDirection() {
-        return ConnectionTypeDirection.INBOUND;
+    public Direction getDirection() {
+        return Direction.INBOUND;
     }
 
     @Override

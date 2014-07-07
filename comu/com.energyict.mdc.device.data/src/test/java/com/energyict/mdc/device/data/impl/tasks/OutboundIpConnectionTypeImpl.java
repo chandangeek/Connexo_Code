@@ -9,7 +9,7 @@ package com.energyict.mdc.device.data.impl.tasks;
 public class OutboundIpConnectionTypeImpl extends IpConnectionType {
 
     @Override
-    public ConnectionTypeDirection getDirection() {
-        return ConnectionTypeDirection.OUTBOUND;
+    public Direction getDirection() {
+        return Direction.OUTBOUND;
     }
 }

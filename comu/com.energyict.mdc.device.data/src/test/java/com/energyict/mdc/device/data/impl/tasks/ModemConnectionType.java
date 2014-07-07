@@ -91,8 +91,8 @@ public class ModemConnectionType implements ServerConnectionType {
     }
 
     @Override
-    public ConnectionTypeDirection getDirection() {
-        return ConnectionTypeDirection.OUTBOUND;
+    public Direction getDirection() {
+        return Direction.OUTBOUND;
     }
 
     @Override

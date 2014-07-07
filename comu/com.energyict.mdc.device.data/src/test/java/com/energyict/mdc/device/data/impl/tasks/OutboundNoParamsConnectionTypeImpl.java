@@ -8,8 +8,8 @@ package com.energyict.mdc.device.data.impl.tasks;
 public class OutboundNoParamsConnectionTypeImpl extends NoParamsConnectionType {
 
     @Override
-    public ConnectionTypeDirection getDirection() {
-        return ConnectionTypeDirection.OUTBOUND;
+    public Direction getDirection() {
+        return Direction.OUTBOUND;
     }
 
 }
