@@ -91,7 +91,8 @@ public interface ConnectionType extends Pluggable {
     /**
      * Provides meta information for the Collection system to inform whether this ConnectionType
      * can be used for Inbound communication or for Outbound communication
-     * @return
+     *
+     * @return the direction of the ConnectionType
      */
     public ConnectionTypeDirection getDirection();
 }
