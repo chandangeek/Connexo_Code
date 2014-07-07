@@ -9,6 +9,8 @@ import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceCapabilityAdapterMappingImpl;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceCapabilityMapping;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterMapping;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterMappingImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMapping;
@@ -33,6 +35,7 @@ public class Installer {
     private static final Logger LOGGER = Logger.getLogger(Installer.class.getName());
     private static final String securityPropertyAdapterMappingLocation = "/securitymappings.properties";
     private static final String messageAdapterMappingLocation = "/messagemappings.properties";
+    private static final String capabilityMappingsLocation = "/capabilitymappings.properties";
 
     private final DataModel dataModel;
     private final EventService eventService;
@@ -57,8 +60,25 @@ public class Installer {
         }
         createSecurityAdapterMappings();
         createMessageAdapterMappings();
+        createCapabilityMappings();
         createEventTypes();
         createTranslations();
+    }
+
+    private void createCapabilityMappings() {
+        Properties properties = loadProperties(capabilityMappingsLocation);
+        List<DeviceCapabilityMapping> existingMappings = dataModel.mapper(DeviceCapabilityMapping.class).find();
+        for (DeviceCapabilityMapping existingMapping : existingMappings) {
+            Object existingCapability = properties.get(existingMapping.getDeviceProtocolJavaClassName());
+            if(existingCapability != null){
+                properties.remove(existingMapping.getDeviceProtocolJavaClassName());
+            }
+        }
+        List<DeviceCapabilityMapping> capabilityAdapterMappings = new ArrayList<>(properties.size());
+        for (String key : properties.stringPropertyNames()) {
+            capabilityAdapterMappings.add(new DeviceCapabilityAdapterMappingImpl(key, Integer.valueOf(properties.getProperty(key))));
+        }
+        dataModel.mapper(DeviceCapabilityMapping.class).persist(capabilityAdapterMappings);
     }
 
     private void createMessageAdapterMappings() {

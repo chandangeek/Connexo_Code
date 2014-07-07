@@ -21,7 +21,7 @@
   <dependencies>
     <dependency>
       <groupId>com.energyict</groupId>
-      <artifactId>mdc-common</artifactId>
+      <artifactId>mdc.common</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -31,7 +31,7 @@
     </dependency>
     <dependency>
       <groupId>com.energyict</groupId>
-      <artifactId>mdc-protocols</artifactId>
+      <artifactId>mdc.protocols</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
