@@ -15,6 +15,7 @@ import com.elster.jupiter.orm.Table;
 import static com.elster.jupiter.orm.ColumnConversion.*;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
+import static com.elster.jupiter.orm.Table.*;
 
 public enum TableSpecs {
 	IDS_VAULT {
@@ -25,7 +26,7 @@ public enum TableSpecs {
 			table.cache();
 			Column componentName = table.column("COMPONENT").type("varchar2(3)").notNull().map("componentName").add();
 			Column idColumn = table.column("ID").type("number").notNull().conversion(NUMBER2LONG).map("id").add();
-			table.column("DESCRIPTION").type("varchar2(80)").notNull().map("description").add();
+			table.column("DESCRIPTION").varChar(NAME_LENGTH).notNull().map("description").add();
 			table.column("MINTIME").type("number").notNull().conversion(NUMBER2UTCINSTANT).map("minTime").add();
 			table.column("MAXTIME").type("number").conversion(NUMBER2UTCINSTANT).map("maxTime").add();
 			table.column("SLOTCOUNT").type("number").conversion(NUMBER2INT).map("slotCount").add();
@@ -45,7 +46,7 @@ public enum TableSpecs {
 			table.cache();
 			Column componentName = table.column("COMPONENT").type("varchar2(3)").notNull().map("componentName").add();
 			Column idColumn = table.column("ID").type("number").notNull().conversion(NUMBER2LONG).map("id").add();
-			Column nameColumn = table.column("NAME").type("varchar2(80)").notNull().map("name").add();
+			Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
 			table.addAuditColumns();
 			table.primaryKey("IDS_PKRECORDSPECS").on(componentName, idColumn).add();
 			table.unique("IDS_U_RECORDSPECS").on(componentName, nameColumn).add();
@@ -59,7 +60,7 @@ public enum TableSpecs {
 			Column componentName = table.column("COMPONENT").type("varchar2(3)").notNull().add();
 			Column recordSpecIdColumn = table.column("RECORDSPECID").type("number").notNull().conversion(NUMBER2LONG).add();
 			Column positionColumn = table.column("POSITION").type("number").notNull().conversion(NUMBER2INT).map("position").add();
-			Column nameColumn = table.column("NAME").type("varchar2(80)").notNull().map("name").add();
+			Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
 			table.column("FIELDTYPE").type("number").notNull().conversion(NUMBER2ENUM).map("fieldType").add();
 			table.column("DERIVATIONRULE").type("number").notNull().conversion(NUMBER2ENUM).map("derivationRule").add();
 			table.addCreateTimeColumn("CREATETIME", "createTime");
@@ -83,7 +84,7 @@ public enum TableSpecs {
 			table.column("FIRSTTIME").type("number").conversion(NUMBER2UTCINSTANT).map("firstTime").add();
 			table.column("LASTTIME").type("number").conversion(NUMBER2UTCINSTANT).map("lastTime").add();
 			table.column("LOCKTIME").type("number").conversion(NUMBER2UTCINSTANT).map("lockTime").add();
-			table.column("TIMEZONENAME").type("varchar2(80)").notNull().map("timeZoneName").add();
+			table.column("TIMEZONENAME").varChar(NAME_LENGTH).notNull().map("timeZoneName").add();
 			table.column("REGULAR").type("CHAR(1)").notNull().conversion(CHAR2BOOLEAN).map("regular").add();
 			table.column("INTERVALLENGTH").type("number").conversion(NUMBER2INTNULLZERO).map("intervalLength").add();
 			table.column("INTERVALLENGTHUNIT").type("number").conversion(NUMBER2ENUMPLUSONE).map("intervalLengthUnit").add();
