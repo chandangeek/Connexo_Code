@@ -488,4 +488,5 @@ public interface DeviceDataService {
 
     boolean areComTasksStillPending(Collection<Long> comTaskExecutionIds);
 
+    Finder<Device>  findDevicesByDeviceConfiguration(DeviceConfiguration deviceConfiguration);
 }
