@@ -15,7 +15,7 @@ import com.energyict.mdc.device.data.exceptions.MessageSeeds;
  */
 public class VetoDeactivateDeviceConfigurationException extends LocalizedException {
 
-    protected VetoDeactivateDeviceConfigurationException(Thesaurus thesaurus, DeviceConfiguration deviceConfiguration) {
+    public VetoDeactivateDeviceConfigurationException(Thesaurus thesaurus, DeviceConfiguration deviceConfiguration) {
         super(thesaurus, MessageSeeds.VETO_DEVICE_CONFIGURATION_DEACTIVATION, deviceConfiguration.getName());
         this.set("deviceConfigurationName", deviceConfiguration.getName());
     }
