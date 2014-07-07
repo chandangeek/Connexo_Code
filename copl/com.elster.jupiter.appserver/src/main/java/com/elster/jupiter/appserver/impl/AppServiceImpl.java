@@ -37,6 +37,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.validation.MessageInterpolator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -90,6 +91,7 @@ public class AppServiceImpl implements InstallService, AppService, Subscriber {
                 bind(JsonService.class).toInstance(jsonService);
                 bind(FileImportService.class).toInstance(fileImportService);
                 bind(Thesaurus.class).toInstance(thesaurus);
+                bind(MessageInterpolator.class).toInstance(thesaurus);
             }
         });
 
