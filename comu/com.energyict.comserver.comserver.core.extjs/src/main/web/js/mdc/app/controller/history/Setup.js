@@ -469,7 +469,29 @@ Ext.define('Mdc.controller.history.Setup', {
                                     title: 'Communication ports',
                                     route: 'comports',
                                     controller: 'Mdc.controller.setup.ComServerComPortsView',
-                                    action: 'showView'
+                                    action: 'showView',
+                                    items: {
+                                        addInbound: {
+                                            title: 'Add inbound communication port',
+                                            route: 'add/inbound',
+                                            controller: 'Mdc.controller.setup.ComServerComPortsEdit',
+                                            action: 'showAddInbound'
+                                        },
+                                        addOutbound: {
+                                            title: 'Add outbound communication port',
+                                            route: 'add/outbound',
+                                            controller: 'Mdc.controller.setup.ComServerComPortsEdit',
+                                            action: 'showAddOutbound',
+                                            items: {
+                                                addComPortPool: {
+                                                    title: 'Add communication port pool',
+                                                    route: 'addPool',
+                                                    controller: 'Mdc.controller.setup.ComServerComPortsEdit',
+                                                    action: 'showAddComPortPool'
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -771,6 +793,12 @@ Ext.define('Mdc.controller.history.Setup', {
                                     }
                                 }
                             }
+                        },
+                        registers: {
+                            title: 'Registers',
+                            route: 'registers',
+                            controller: 'Mdc.controller.setup.DeviceRegisterConfiguration',
+                            action: 'showDeviceRegisterConfigurationsView'
                         }
                     }
                 }

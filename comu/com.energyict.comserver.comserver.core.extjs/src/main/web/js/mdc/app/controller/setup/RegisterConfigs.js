@@ -5,7 +5,8 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         'setup.registerconfig.RegisterConfigSetup',
         'setup.registerconfig.RegisterConfigGrid',
         'setup.registerconfig.RegisterConfigPreview',
-        'setup.registerconfig.RegisterConfigEdit'
+        'setup.registerconfig.RegisterConfigEdit',
+        'Cfg.view.validation.RulePreview'
     ],
 
     requires: [
@@ -41,7 +42,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         {ref: 'rulesForRegisterConfigGrid', selector: 'validation-rules-for-registerconfig-grid'},
         {ref: 'rulesForRegisterConfigPreview', selector: 'registerConfigAndRulesPreviewContainer > #rulesForRegisterConfigPreview'},
 
-        {ref: 'validationRulesPreview', selector: 'register-config-and-rules-preview-container validation-rule-preview'}
+        {ref: 'validationRulesForRegisterConfigPreview', selector: 'register-config-and-rules-preview-container validation-rule-preview'}
 
 
     ],
@@ -109,10 +110,10 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
 
         if (selectedRules.length === 1) {
             var selectedRule = selectedRules[0];
-            this.getValidationRulesPreview().updateValidationRule(selectedRule)
-            this.getValidationRulesPreview().show();
+            this.getValidationRulesForRegisterConfigPreview().updateValidationRule(selectedRule)
+            this.getValidationRulesForRegisterConfigPreview().show();
         } else {
-            this.getValidationRulesPreview().hide();
+            this.getValidationRulesForRegisterConfigPreview().hide();
         }
     },
 
