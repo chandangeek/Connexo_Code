@@ -198,8 +198,11 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         }
         deviceConfigurationToActivateDeactivate.getProxy().setExtraParam('deviceType', this.deviceTypeId);
         deviceConfigurationToActivateDeactivate.save({
-            callback: function () {
+            success: function () {
                 me.previewDeviceConfiguration();
+            },
+            failure: function() {
+                Ext.data.StoreManager.lookup('DeviceConfigurations').load();
             }
         });
         var deviceConfigurations = this.getDeviceConfigurationsGrid().getSelectionModel().getSelection();
