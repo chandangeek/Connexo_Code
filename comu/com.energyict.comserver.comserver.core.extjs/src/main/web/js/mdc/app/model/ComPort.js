@@ -9,7 +9,7 @@ Ext.define('Mdc.model.ComPort', {
         'description',
         'active',
         'bound',
-        {name:'numberOfSimultaneousConnections',type:'int'},
+        {name:'numberOfSimultaneousConnections',type:'int', defaultValue: 1},
         {name:'modificationDate',type: 'date',dateFormat:'time'},
         {name: 'type', type: 'string'}
     ]
