@@ -1,10 +1,12 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.QueryExecutor;
 
 /**
  * Provides code reuse opportunities for entities in this bundle
@@ -36,6 +38,10 @@ public abstract class PersistentIdObject<D> {
 
     protected DataMapper<D> getDataMapper() {
         return this.dataModel.mapper(this.domainClass);
+    }
+
+    protected QueryExecutor<D> queryJoinedWith(Class<?>... joinClasses) {
+        return this.dataModel.query(this.domainClass, joinClasses);
     }
 
     protected Thesaurus getThesaurus() {

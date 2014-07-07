@@ -153,6 +153,7 @@ public class DeviceImplDoSomethingWithEventsTest {
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
         deviceConfiguration = deviceConfigurationBuilder.add();
         deviceType.save();
+        deviceConfiguration.activate();
     }
 
     @After

@@ -37,7 +37,6 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.Clock;
 
 import javax.inject.Inject;
@@ -48,6 +47,8 @@ import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
+
+import static com.elster.jupiter.util.conditions.Where.*;
 
 /**
  * Provides an implementation for the {@link ScheduledConnectionTask} interface.
@@ -240,8 +241,8 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     private EarliestNextExecutionTimeStampAndPriority getEarliestNextExecutionTimeStampAndPriority () {
-        Condition condition = Where.where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isEqualTo(this)
-                .and(Where.where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull());
+        Condition condition = where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isEqualTo(this)
+                .and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull());
 
         List<ComTaskExecution> comTaskExecutions = this.getDataModel().mapper(ComTaskExecution.class).select(condition,
                 Order.ascending(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()),
@@ -324,8 +325,8 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     private void updateNextExecutionTimeStampAndPriority(Date nextExecutionTimestamp, int priority) {
-        Condition condition = Where.where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isEqualTo(this)
-                .and(Where.where(ComTaskExecutionFields.PLANNEDNEXTEXECUTIONTIMESTAMP.fieldName()).isLessThan(nextExecutionTimestamp));
+        Condition condition = where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isEqualTo(this)
+                .and(where(ComTaskExecutionFields.PLANNEDNEXTEXECUTIONTIMESTAMP.fieldName()).isLessThan(nextExecutionTimestamp));
         List<ComTaskExecution> comTaskExecutions = this.getDataModel().mapper(ComTaskExecution.class).select(condition);
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
             ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?,?>, ? extends ComTaskExecution> comTaskExecutionUpdater = comTaskExecution.getUpdater();
@@ -388,18 +389,28 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     @Override
     protected boolean doWeNeedToRetryTheConnectionTask() {
         if (getConnectionStrategy().equals(ConnectionStrategy.AS_SOON_AS_POSSIBLE)) {
-            Condition condition = Where.where(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isNotNull()
-                    .and(appendComTaskNotExecutingCondition())
-                    .and(Where.where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isEqualTo(this));
-            return !this.getDataMapper().select(condition).isEmpty();
+            Condition condition =
+                where(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isNotNull().
+                  and(comTaskNotExecutingCondition()).
+                  and(comTaskIsRetrying()).
+                  and(connectionTaskIsThisOne());
+            return !this.getDataModel().mapper(ComTaskExecution.class).select(condition).isEmpty();
         }
         else {
             return super.doWeNeedToRetryTheConnectionTask();
         }
     }
 
-    private Condition appendComTaskNotExecutingCondition() {
-        return Where.where(ComTaskExecutionFields.COMPORT.fieldName()).isNull();
+    private Condition comTaskNotExecutingCondition() {
+        return where(ComTaskExecutionFields.COMPORT.fieldName()).isNull();
+    }
+
+    private Condition comTaskIsRetrying() {
+        return where(ComTaskExecutionFields.CURRENTRETRYCOUNT.fieldName()).isGreaterThan(0);
+    }
+
+    private Condition connectionTaskIsThisOne() {
+        return where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isEqualTo(this);
     }
 
     @Override

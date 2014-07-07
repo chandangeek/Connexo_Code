@@ -43,6 +43,7 @@ public class LogBookImplTest extends PersistenceIntegrationTest{
         configWithLogBookSpec.newLogBookSpec(logBookType);
         DeviceConfiguration deviceConfiguration = configWithLogBookSpec.add();
         deviceType.save();
+        deviceConfiguration.activate();
         return deviceConfiguration;
     }
 

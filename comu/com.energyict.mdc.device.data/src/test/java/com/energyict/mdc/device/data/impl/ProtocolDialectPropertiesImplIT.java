@@ -124,6 +124,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
                     DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(ProtocolDialectPropertiesImplIT.class.getName());
                     deviceConfiguration = deviceConfigurationBuilder.add();
                     deviceType.save();
+                    deviceConfiguration.activate();
 
                     DeviceCommunicationConfiguration deviceCommunicationConfiguration = inMemoryPersistence.getDeviceConfigurationService().newDeviceCommunicationConfiguration(deviceConfiguration);
                     deviceCommunicationConfiguration.save();

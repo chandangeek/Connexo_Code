@@ -122,6 +122,7 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
         configurationWithLoadProfileAndChannel.newChannelSpec(registerMapping2, phenomenon2, loadProfileSpecBuilder);
         DeviceConfiguration deviceConfiguration = configurationWithLoadProfileAndChannel.add();
         deviceType.save();
+        deviceConfiguration.activate();
         return deviceConfiguration;
     }
 
@@ -282,6 +283,7 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
         configurationWithLoadProfileAndChannel.newChannelSpec(registerMapping2, phenomenon2, loadProfileSpecBuilder);
         DeviceConfiguration deviceConfiguration = configurationWithLoadProfileAndChannel.add();
         slaveDeviceType.save();
+        deviceConfiguration.activate();
 
         Device slaveWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "slave", MRID);
         slaveWithLoadProfile.setPhysicalGateway(masterWithLoadProfile);
@@ -307,6 +309,7 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
         configurationWithLoadProfileAndChannel.newChannelSpec(registerMapping1, phenomenon1, loadProfileSpecBuilder);
         DeviceConfiguration deviceConfiguration = configurationWithLoadProfileAndChannel.add();
         slaveDeviceType.save();
+        deviceConfiguration.activate();
 
         Device slaveWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "slave", "S");
         slaveWithLoadProfile.setPhysicalGateway(masterWithLoadProfile);
