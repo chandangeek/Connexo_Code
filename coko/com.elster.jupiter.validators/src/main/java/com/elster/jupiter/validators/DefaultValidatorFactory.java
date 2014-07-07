@@ -25,48 +25,15 @@ public class DefaultValidatorFactory implements ValidatorFactory {
     }
 
     private enum ValidatorDefinition {
-        RATED_POWER("com.elster.jupiter.validators.RatedPowerValidator") {
+        MIN_MAX("com.elster.jupiter.validators.ThresholdValidator") {
             @Override
             Validator create(Thesaurus thesaurus, Map<String, Quantity> props) {
-                return new RatedPowerValidator(props);
+                return new ThresholdValidator(thesaurus, props);
             }
 
             @Override
             Validator createTemplate() {
-                return new RatedPowerValidator();
-            }
-        },
-        MINIMAL_USAGE("com.elster.jupiter.validators.MinimalUsageExpectedValidator") {
-            @Override
-            Validator create(Thesaurus thesaurus, Map<String, Quantity> props) {
-                return new MinimalUsageExpectedValidator(props);
-            }
-
-            @Override
-            Validator createTemplate() {
-                return new MinimalUsageExpectedValidator();
-            }
-        },
-        MIN_MAX("com.elster.jupiter.validators.MinMaxValidator") {
-            @Override
-            Validator create(Thesaurus thesaurus, Map<String, Quantity> props) {
-                return new MinMaxValidator(thesaurus, props);
-            }
-
-            @Override
-            Validator createTemplate() {
-                return new MinMaxValidator();
-            }
-        },
-        CONSECUTIVE_ZEROES("com.elster.jupiter.validators.ConsecutiveZerosValidator") {
-            @Override
-            Validator create(Thesaurus thesaurus, Map<String, Quantity> props) {
-                return new ConsecutiveZerosValidator(props);
-            }
-
-            @Override
-            Validator createTemplate() {
-                return new ConsecutiveZerosValidator();
+                return new ThresholdValidator();
             }
         };
 
