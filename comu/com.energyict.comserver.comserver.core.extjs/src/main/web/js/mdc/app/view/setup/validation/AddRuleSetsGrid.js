@@ -68,6 +68,7 @@ Ext.define('Mdc.view.setup.validation.AddRuleSetsGrid', {
             {
                 xtype: 'toolbar',
                 dock: 'bottom',
+                margin: '0 0 0 -10',
                 items: [
                     {
                         xtype: 'button',
