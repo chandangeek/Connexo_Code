@@ -15,6 +15,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -35,6 +36,7 @@ import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -75,6 +77,7 @@ public class PersistenceTest {
                 new InMemoryMessagingModule(),
 //                new ProtocolsModule(),
                 new IssuesModule(),
+                new BasicPropertiesModule(),
                 new MdcDynamicModule(),
 //                new ProtocolPluggableModule(),
                 new MdcReadingTypeUtilServiceModule(),
