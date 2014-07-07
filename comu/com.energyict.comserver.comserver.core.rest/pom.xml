@@ -11,7 +11,7 @@
         <relativePath>../com.energyict.comserver.parent/pom.xml</relativePath>
     </parent>
 
-    <artifactId>comserver-core-rest</artifactId>
+    <artifactId>comserver.core.rest</artifactId>
     <packaging>bundle</packaging>
     <version>${comserver.version}</version>
     <name>[MDC] ComServer core rest</name>
@@ -27,7 +27,7 @@
         <!--</dependency>-->
         <dependency>
             <groupId>com.energyict</groupId>
-            <artifactId>mdc-engine-config</artifactId>
+            <artifactId>mdc.engine.config</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -37,7 +37,7 @@
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
-            <artifactId>mdc-common</artifactId>
+            <artifactId>mdc.common</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
