@@ -9,6 +9,7 @@ import com.elster.jupiter.tasks.TaskOccurrence;
 
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2UTCINSTANT;
+import static com.elster.jupiter.orm.Table.*;
 
 enum TableSpecs {
 
@@ -17,10 +18,10 @@ enum TableSpecs {
         void describeTable(Table table) {
             table.map(RecurrentTaskImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            table.column("NAME").type("varchar2(80)").notNull().map("name").add();
-            table.column("CRONSTRING").type("varchar2(80)").notNull().map("cronString").add();
+            table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
+            table.column("CRONSTRING").varChar(NAME_LENGTH).notNull().map("cronString").add();
             table.column("NEXTEXECUTION").type("number").conversion(NUMBER2UTCINSTANT).map("nextExecution").add();
-            table.column("PAYLOAD").type("varchar2(80)").notNull().map("payload").add();
+            table.column("PAYLOAD").varChar(NAME_LENGTH).notNull().map("payload").add();
             table.column("DESTINATION").type("varchar2(30)").notNull().map("destination").add();
             table.primaryKey("TSK_PK_RECURRENTTASK").on(idColumn).add();
         }
