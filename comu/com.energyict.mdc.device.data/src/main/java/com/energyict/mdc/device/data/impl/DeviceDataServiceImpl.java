@@ -1126,4 +1126,8 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
 
     }
 
+    @Override
+    public Finder<Device> findDevicesByDeviceConfiguration(DeviceConfiguration deviceConfiguration) {
+        return DefaultFinder.of(Device.class, where("deviceConfiguration").isEqualTo(deviceConfiguration), this.getDataModel()).defaultSortColumn("lower(name)");
+    }
 }

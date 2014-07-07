@@ -22,16 +22,12 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
+
 import java.util.List;
 
-import static com.elster.jupiter.orm.ColumnConversion.DATE2DATE;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2BOOLEAN;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONGNULLZERO;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBERINUTCSECONDS2DATE;
+import static com.elster.jupiter.orm.ColumnConversion.*;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
+import static com.elster.jupiter.orm.Table.*;
 
 /**
  * Models the database tables that hold the data of the
@@ -48,10 +44,10 @@ public enum TableSpecs {
             Table<Device> table = dataModel.addTable(name(), Device.class);
             table.map(DeviceImpl.class);
             Column id = table.addAutoIdColumn();
-            table.column("NAME").varChar(80).notNull().map(DeviceFields.NAME.fieldName()).add();
-            table.column("SERIALNUMBER").varChar(80).map(DeviceFields.SERIALNUMBER.fieldName()).add();
+            table.column("NAME").varChar(NAME_LENGTH).notNull().map(DeviceFields.NAME.fieldName()).add();
+            table.column("SERIALNUMBER").varChar(NAME_LENGTH).map(DeviceFields.SERIALNUMBER.fieldName()).add();
             table.column("TIMEZONE").varChar(32).map(DeviceFields.TIMEZONE.fieldName()).add();
-            Column externid = table.column("MRID").varChar(255).map(DeviceFields.MRID.fieldName()).add();
+            Column externid = table.column("MRID").varChar(SHORT_DESCRIPTION_LENGTH).map(DeviceFields.MRID.fieldName()).add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
             table.column("CERTIF_DATE").type("DATE").conversion(ColumnConversion.DATE2DATE).map("yearOfCertification").add();
             Column configuration = table.column("DEVICECONFIGID").number().notNull().add();
@@ -72,7 +68,7 @@ public enum TableSpecs {
             Table<InfoType> table = dataModel.addTable(name(), InfoType.class);
             table.map(InfoTypeImpl.class);
             Column id = table.addAutoIdColumn();
-            Column name = table.column("NAME").varChar(80).notNull().map("name").add();
+            Column name = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             table.primaryKey("PK_DDC_INFOTYPE").on(id).add();
             table.unique("UK_DDC_INFOTYPE").on(name).add();
         }
@@ -85,7 +81,7 @@ public enum TableSpecs {
             table.map(DeviceProtocolPropertyImpl.class);
             Column deviceId = table.column("DEVICEID").number().notNull().conversion(NUMBER2LONG).add();
             Column infoTypeId = table.column("INFOTYPEID").map("infoTypeId").number().conversion(NUMBER2LONG).notNull().add();
-            table.column("INFOVALUE").varChar(255).map("propertyValue").add();
+            table.column("INFOVALUE").varChar(SHORT_DESCRIPTION_LENGTH).map("propertyValue").add();
             table.primaryKey("PK_DDC_DEVICEPROTOCOLPROPERTY").on(deviceId,infoTypeId).add();
             table.foreignKey("FK_DDC_DEVICEPROTPROP_INFOTYPE").on(infoTypeId).references(DDC_INFOTYPE.name()).map("infoTypeId").add();
             table.foreignKey("FK_DDC_DEVICEPROTPROP_DEVICE").on(deviceId).references(DDC_DEVICE.name()).map("device").reverseMap("deviceProperties").composition().add();
@@ -237,7 +233,7 @@ public enum TableSpecs {
             Table<ProtocolDialectProperties> table = dataModel.addTable(name(), ProtocolDialectProperties.class);
             table.map(ProtocolDialectPropertiesImpl.class);
             Column id = table.addAutoIdColumn();
-            table.column("NAME").varChar(255).map("name").add();
+            table.column("NAME").varChar(SHORT_DESCRIPTION_LENGTH).map("name").add();
             Column deviceProtocolId = table.column("DEVICEPROTOCOLID").number().conversion(NUMBER2LONG).notNull().map("pluggableClassId").add();
             Column device = table.column("DEVICEID").number().conversion(NUMBER2LONG).notNull().add();
             table.column("MOD_DATE").type("DATE").conversion(DATE2DATE).map("modificationDate").add();

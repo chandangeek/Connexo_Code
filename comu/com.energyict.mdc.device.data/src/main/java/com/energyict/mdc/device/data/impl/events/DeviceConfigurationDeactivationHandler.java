@@ -2,12 +2,12 @@ package com.energyict.mdc.device.data.impl.events;
 
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.pubsub.EventHandler;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.impl.ServerDeviceDataService;
-import javax.inject.Inject;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -19,36 +19,28 @@ import org.osgi.service.component.annotations.Reference;
  * @since 2014-06-13 (16:09)
  */
 @Component(name="com.energyict.mdc.device.data.deactivate.deviceconfiguration.eventhandler", service = TopicHandler.class, immediate = true)
-public class DeviceConfigurationDeactivationHandler extends EventHandler<LocalEvent> {
+public class DeviceConfigurationDeactivationHandler implements TopicHandler {
 
     static final String TOPIC = "com/energyict/mdc/device/config/deviceconfiguration/VALIDATEDEACTIVATE";
 
     private volatile ServerDeviceDataService deviceDataService;
-    private volatile Thesaurus thesaurus;
-
-    public DeviceConfigurationDeactivationHandler() {
-        super(LocalEvent.class);
-    }
-
-    @Inject
-    DeviceConfigurationDeactivationHandler(ServerDeviceDataService deviceDataService, Thesaurus thesaurus) {
-        this();
-        this.deviceDataService = deviceDataService;
-        this.thesaurus = thesaurus;
-    }
 
     @Reference
     public void setDeviceDataService(DeviceDataService deviceDataService) {
         this.deviceDataService = (ServerDeviceDataService) deviceDataService;
     }
 
-    @Override
-    protected void onEvent(LocalEvent event, Object... eventDetails) {
-        if (event.getType().getTopic().equals(TOPIC)) {
-            DeviceConfiguration deviceConfiguration = (DeviceConfiguration) event.getSource();
-            this.validateNotUsedByDevice(deviceConfiguration);
-        }
+    private volatile Thesaurus thesaurus;
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.setThesaurus(nlsService.getThesaurus(DeviceDataService.COMPONENTNAME, Layer.DOMAIN));
     }
+
+    private void setThesaurus(Thesaurus thesaurus) {
+        this.thesaurus = thesaurus;
+    }
+
 
     /**
      * Vetos the delection of the {@link DeviceConfiguration}
@@ -63,4 +55,14 @@ public class DeviceConfigurationDeactivationHandler extends EventHandler<LocalEv
         }
     }
 
+    @Override
+    public void handle(LocalEvent localEvent) {
+        DeviceConfiguration deviceConfiguration = (DeviceConfiguration) localEvent.getSource();
+        this.validateNotUsedByDevice(deviceConfiguration);
+    }
+
+    @Override
+    public String getTopicMatcher() {
+        return TOPIC;
+    }
 }
