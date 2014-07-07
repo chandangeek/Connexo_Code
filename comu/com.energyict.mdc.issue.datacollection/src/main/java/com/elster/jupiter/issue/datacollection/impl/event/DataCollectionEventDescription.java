@@ -27,7 +27,7 @@ public enum DataCollectionEventDescription {
     DEVICE_EVENT(
             "com/elster/jupiter/metering/enddeviceevent/CREATED",
             null,
-            MessageSeeds.EVENT_TITLE_DEVICE_EVENT),
+            MessageSeeds.EVENT_TITLE_DEVICE_EVENT)
     ;
 
     private String topic;
