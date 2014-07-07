@@ -11,6 +11,7 @@ import com.elster.jupiter.validation.ValidationRuleSet;
 
 import static com.elster.jupiter.orm.ColumnConversion.*;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
+import static com.elster.jupiter.orm.Table.*;
 
 public enum TableSpecs {
 
@@ -19,10 +20,10 @@ public enum TableSpecs {
             table.map(ValidationRuleSetImpl.class);
             table.setJournalTableName("VAL_VALIDATIONRULESETJRNL");
             Column idColumn = table.addAutoIdColumn();
-            Column mRIDColumn = table.column("MRID").varChar(80).map("mRID").add();
-            table.column("NAME").varChar(80).map("name").add();
-            table.column("ALIASNAME").varChar(80).map("aliasName").add();
-            table.column("DESCRIPTION").varChar(4000).map("description").add();
+            Column mRIDColumn = table.column("MRID").varChar(NAME_LENGTH).map("mRID").add();
+            table.column("NAME").varChar(NAME_LENGTH).map("name").add();
+            table.column("ALIASNAME").varChar(NAME_LENGTH).map("aliasName").add();
+            table.column("DESCRIPTION").varChar(DESCRIPTION_LENGTH).map("description").add();
             table.column("OBSOLETE_TIME").map("obsoleteTime").number().conversion(NUMBER2UTCINSTANT).add();
             table.addAuditColumns();
             table.primaryKey("VAL_PK_VALIDATIONRULESET").on(idColumn).add();
@@ -37,10 +38,10 @@ public enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("active").add();
             table.column("ACTION").number().notNull().conversion(NUMBER2ENUM).map("action").add();
-            table.column("IMPLEMENTATION").varChar(80).map("implementation").add();
+            table.column("IMPLEMENTATION").varChar(NAME_LENGTH).map("implementation").add();
             Column ruleSetIdColumn = table.column("RULESETID").number().notNull().conversion(NUMBER2LONG).map("ruleSetId").add();
             table.column("POSITION").number().notNull().conversion(NUMBER2INT).map("position").add();
-            table.column("NAME").varChar(80).notNull().map("name").add();
+            table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             table.column("OBSOLETE_TIME").map("obsoleteTime").number().conversion(NUMBER2UTCINSTANT).add();
             table.addAuditColumns();
             table.primaryKey("VAL_PK_VALIDATIONRULE").on(idColumn).add();
@@ -53,7 +54,7 @@ public enum TableSpecs {
             table.map(ValidationRulePropertiesImpl.class);
             table.setJournalTableName("VAL_VALIDATIONRULEPROPSJRNL");
             Column ruleIdColumn = table.column("RULEID").number().notNull().conversion(NUMBER2LONG).add();
-            Column nameColumn = table.column("NAME").varChar(80).notNull().map("name").add();
+            Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             table.addQuantityColumns("VALUE", true, "value");
             table.primaryKey("VAL_PK_VALRULEPROPS").on(ruleIdColumn, nameColumn).add();
             table.foreignKey("VAL_FK_RULEPROPS").references("VAL_VALIDATIONRULE").onDelete(RESTRICT).map("rule").reverseMap("properties").composition().on(ruleIdColumn).add();
@@ -92,7 +93,7 @@ public enum TableSpecs {
         void describeTable(Table table) {
             table.map(ReadingTypeInValidationRuleImpl.class);
             Column ruleIdColumn = table.column("RULEID").number().notNull().conversion(NUMBER2LONG).add();
-            Column readingTypeMRIDColumn = table.column("READINGTYPEMRID").varChar(80).notNull().map("readingTypeMRID").add();
+            Column readingTypeMRIDColumn = table.column("READINGTYPEMRID").varChar(NAME_LENGTH).notNull().map("readingTypeMRID").add();
             table.primaryKey("VAL_PK_RTYPEINVALRULE").on(ruleIdColumn, readingTypeMRIDColumn).add();
             table.foreignKey("VAL_FK_RTYPEINVALRULE_RULE").references(VAL_VALIDATIONRULE.name()).onDelete(DeleteRule.CASCADE).map("rule").reverseMap("readingTypesInRule").composition().on(ruleIdColumn).add();
             table.foreignKey("VAL_FK_RTYPEINVALRULE_RTYPE").references("MTR", "MTR_READINGTYPE").onDelete(RESTRICT).map("readingType").on(readingTypeMRIDColumn).add();
