@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.offline;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
@@ -13,7 +14,6 @@ import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.DeviceMessageFactory;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.masterdata.LoadProfileType;
@@ -30,7 +30,6 @@ import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-
 import com.google.common.base.Optional;
 
 import java.util.Arrays;

@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store.legacy;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.engine.exceptions.ComCommandException;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
@@ -23,7 +23,6 @@ import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.SmartMeterProtocolAdapter;
-
 import com.energyict.protocols.mdc.channels.serial.SerialComChannel;
 import com.energyict.protocols.mdc.channels.serial.ServerSerialPort;
 
