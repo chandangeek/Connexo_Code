@@ -78,6 +78,7 @@ public abstract class PersistenceTestWithMockedDeviceProtocol {
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
         deviceConfiguration = deviceConfigurationBuilder.add();
         deviceType.save();
+        deviceConfiguration.activate();
     }
 
     protected Device getReloadedDevice(Device device) {
